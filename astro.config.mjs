@@ -2,7 +2,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import react from '@astrojs/react';
-
 import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
@@ -10,6 +9,10 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'My Docs',
+      customCss: [
+        '@fontsource-variable/plus-jakarta-sans',
+        './src/styles/custom.css',
+      ],
       sidebar: [
         {
           label: 'Guides',
