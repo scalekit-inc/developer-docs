@@ -1,0 +1,1994 @@
+{
+	"info": {
+		"_postman_id": "d3fa4f3c-5b67-470a-aa03-906ec34d6e25",
+		"name": "Scalekit API Endpoints",
+		"description": "Explore APIs from Scalekit on this workspace. It lets you build enterprise grade authentication for you and your customers.\n\n[Sign up](https://www.scalekit.com) for an account and grab the credentials to start playing with the APIs. See developer documentation to dive deeper.\n\n**In this API Collections:**\n\n- **Getting Started** lets you use the credentials and get the `access_token` required to play with rest of the APIs.\n    \n- **Single Sign On** API collections contains APIs that redirects your users (from browser) to authenticate with their chosen Identity Provider (IdPs) and get your app the user profile details.\n    \n- With **Organization APIs,** manage your create and manage customer accounts and details.\n    \n- Let your users configure their own Authentication from your app using **Admin Portal APIs**.\n    \n- Control the SSO connections in a organization to enable and disable it real-time using **Connection APIs**",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36340097",
+		"_collection_link": "https://scalekit.postman.co/workspace/Scalekit~8b9d9569-f604-4717-9944-fa26706e96f3/collection/36340097-d3fa4f3c-5b67-470a-aa03-906ec34d6e25?action=share&source=collection_link&creator=36340097"
+	},
+	"item": [
+		{
+			"name": "Getting Started",
+			"item": [
+				{
+					"name": "Auth to get Access Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Sets `access_token`, so that you can play with rest of the APIs",
+									"const responseJson = pm.response.json();",
+									"",
+									"if (responseJson.access_token) {",
+									"    pm.environment.set(\"access_token\", responseJson.access_token);",
+									"} else {",
+									"    console.log(\"No access_token found in the response.\");",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}",
+									"description": "Client ID is public identifer for Scalekit to identify your app",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{client_secret}}",
+									"description": "Client Secret is private key for Scalekit to verify your app",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{env_url}}/oauth/token",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/x-www-form-urlencoded",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "client_id",
+											"value": "{{client_id}}",
+											"description": "Client ID is public identifer for Scalekit to identify your app",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{client_secret}}",
+											"description": "Client secret is private key for Scalekit to verify your app",
+											"type": "text"
+										},
+										{
+											"key": "grant_type",
+											"value": "client_credentials",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{env_url}}/oauth/token",
+									"host": [
+										"{{env_url}}"
+									],
+									"path": [
+										"oauth",
+										"token"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								},
+								{
+									"key": "vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Content-Length",
+									"value": "710"
+								},
+								{
+									"key": "date",
+									"value": "Wed, 19 Jun 2024 07:02:38 GMT"
+								},
+								{
+									"key": "via",
+									"value": "1.1 google"
+								},
+								{
+									"key": "cache-control",
+									"value": "no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "strict-transport-security",
+									"value": "max-age=86400; includeSubDomains"
+								},
+								{
+									"key": "Alt-Svc",
+									"value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"access_token\": \"eyJhbGciO******3w6oudtyQoHZu9gZXU8ceCBOOwiwengi7fRqt3mlj0kqDKc2nNQK4-Y****mL00TGNe2QfplfDhuAwzdB5xOtK9UjoHeQrGCaU1X6INLx8AToPk6g7Q\",\n    \"token_type\": \"Bearer\",\n    \"expires_in\": 18446744064486179580 // time in seconds\n}"
+						}
+					]
+				}
+			],
+			"description": "Scalekit API uses [OAuth2 client credentials](https://www.oauth.com/oauth2-servers/access-tokens/client-credentials) based authentication to consume the APIs. This folder contains requests that perform authentication and get the access tokens necessary for you to play and explore subsequent API endpoints.\n\n- The _Sandbox_ Environment contains the variables that Scalekit API collections will use in all of it's API endpoints.\n    \n- The details such as client ID, client secret and environment URL can be found in Scalekit Dashboard > API Config."
+		},
+		{
+			"name": "Single Sign On",
+			"item": [
+				{
+					"name": "Authorization URL",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{env_url}}/oauth/authorize?client_id={{client_id}}&redirect_uri={{redirect_uri}}&response_type=code&scope=openid email profile&organization_id={{organization_id}}",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"oauth",
+								"authorize"
+							],
+							"query": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}",
+									"description": "The unique identifier for your Scalekit application."
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{redirect_uri}}",
+									"description": "The URI to redirect the user after successful authentication."
+								},
+								{
+									"key": "response_type",
+									"value": "code",
+									"description": "\"code\" for Authorization Code flow"
+								},
+								{
+									"key": "scope",
+									"value": "openid email profile"
+								},
+								{
+									"key": "organization_id",
+									"value": "{{organization_id}}",
+									"description": "The unique identifier for the customer's organization. Based on the supplied `org_id`, the user will be redirected to the Identity Provider configured for the SSO connection associated with that organization."
+								},
+								{
+									"key": "connection_id",
+									"value": "{{connection_id}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example: Okta SSO with Organization ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{env_url}}/oauth/authorize?client_id={{client_id}}&redirect_uri=https://demo.scalekit.com/auth/callback&response_type=code&scope=openid email profile&organization_id={{organization_id}}",
+									"host": [
+										"{{env_url}}"
+									],
+									"path": [
+										"oauth",
+										"authorize"
+									],
+									"query": [
+										{
+											"key": "client_id",
+											"value": "{{client_id}}",
+											"description": "The unique identifier for your Scalekit application."
+										},
+										{
+											"key": "redirect_uri",
+											"value": "https://demo.scalekit.com/auth/callback",
+											"description": "The URI to redirect the user after successful authentication."
+										},
+										{
+											"key": "response_type",
+											"value": "code",
+											"description": "\"code\" for Authorization Code flow"
+										},
+										{
+											"key": "scope",
+											"value": "openid email profile"
+										},
+										{
+											"key": "organization_id",
+											"value": "{{organization_id}}",
+											"description": "The unique identifier for the customer's organization. Based on the supplied `org_id`, the user will be redirected to the Identity Provider configured for the SSO connection associated with that organization."
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "html",
+							"header": [
+								{
+									"key": "content-security-policy",
+									"value": "default-src; script-src 'sha256-AjPdJSbZmeWHnEc5ykvJFay8FTWeTeRbs9dutfZ0HqE='; reflected-xss block; referrer no-referrer;"
+								},
+								{
+									"key": "content-type",
+									"value": "text/html"
+								},
+								{
+									"key": "set-cookie",
+									"value": "saml_req_24699977871656196=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2hleS5zY2FsZWtpdC5kZXYvc3NvL3YxL3NhbWwvY29ubl8yMDM2NzAxODk4OTQ1NDg1Mi9jYWxsYmFjayIsInN1YiI6InJlcV8yNDY5OTk3Nzg3MTY1NjE5NiIsImF1ZCI6WyJodHRwczovL2hleS5zY2FsZWtpdC5kZXYvc3NvL3YxL3NhbWwvY29ubl8yMDM2NzAxODk4OTQ1NDg1Mi9jYWxsYmFjayJdLCJleHAiOjE3MTg3ODk2MjQsIm5iZiI6MTcxODc4OTUzNCwiaWF0IjoxNzE4Nzg5NTM0LCJpZCI6ImlkLTZlZjgwNGZmNzUzYjkyZGU1NzkwYzI5YmU3ZWU5ODFhNzc4MmU1NmUiLCJ1cmkiOiIvYXV0aC9sb2dpbj9hdXRoUmVxdWVzdElEPXJlcV8yNDY5OTk3Nzg3MTY1NjE5NiIsInNhbWwtYXV0aG4tcmVxdWVzdCI6dHJ1ZX0.APt-8fCeOtIaqn7eOhX0ZcKUmp4K-9U7GDPuR4G5mqJtmdwYDnpSe790jzLVdLUJzKDViVYewOaoUfEqkBvU2mPjrmWWqECgpSPS1MfhLsT_X1ljdPM1ML96vqRgLGMlVO5H87A16R2rF2ptM7U0DU6MFs7VOhsqw-rNxshnwZZB4d6JopDsqLz-hBCO_nja04s3zdSL1QnMzuATJKGjUCUKNwunDdXk_h_GDzbUr-SZm_ey1859WCLvs5J9hvUJf4lTnswtmI0KF39KDSTr0njmI7q0AmaHZN3Vx-TPddz8IYqoXx79BgtVpVcb878psx3uC3lQ_-zYEDkgZJdVnA; Path=/sso/v1/saml/conn_20367018989454852/callback; Max-Age=90; HttpOnly; Secure"
+								},
+								{
+									"key": "x-trace-id",
+									"value": "328c59fa7a7aa5922492d4070db9a13a"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1542"
+								},
+								{
+									"key": "date",
+									"value": "Wed, 19 Jun 2024 09:32:14 GMT"
+								},
+								{
+									"key": "via",
+									"value": "1.1 google"
+								},
+								{
+									"key": "cache-control",
+									"value": "no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "strict-transport-security",
+									"value": "max-age=86400; includeSubDomains"
+								},
+								{
+									"key": "Alt-Svc",
+									"value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+								}
+							],
+							"cookie": [],
+							"body": "<!DOCTYPE html>\n<html>\n    <body>\n        <form method=\"post\" action=\"https://trial-1156954.okta.com/app/trial-1156954_chocolateshop_1/exkesvii9scP1aBQA697/sso/saml\" id=\"SAMLRequestForm\">\n            <input type=\"hidden\" name=\"SAMLRequest\" value=\"PHNhbWxwOkF1jpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpuYW1laWQtZm9ybWF0OnRyYW5zaWVudCIgQWxsb3dDcmVhdGU9InRydWUiLz48L3NhbWxwOkF1dGhuUmVxdWVzdD4=\" />\n            <input type=\"hidden\" name=\"RelayState\" value=\"req_24699977871656196\" />\n            <input id=\"SAMLSubmitButton\" type=\"submit\" value=\"Submit\" />\n        </form>\n        <script>document.getElementById('SAMLSubmitButton').style.visibility=\"hidden\";document.getElementById('SAMLRequestForm').submit();</script>\n    </body>\n</html>"
+						},
+						{
+							"name": "Example: Okta SSO with Connection ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{env_url}}/oauth/authorize?client_id={{client_id}}&redirect_uri=https://demo.scalekit.com/auth/callback&response_type=code&scope=openid email profile&connection_id={{connection_id}}",
+									"host": [
+										"{{env_url}}"
+									],
+									"path": [
+										"oauth",
+										"authorize"
+									],
+									"query": [
+										{
+											"key": "client_id",
+											"value": "{{client_id}}",
+											"description": "The unique identifier for your Scalekit application."
+										},
+										{
+											"key": "redirect_uri",
+											"value": "https://demo.scalekit.com/auth/callback",
+											"description": "The URI to redirect the user after successful authentication."
+										},
+										{
+											"key": "response_type",
+											"value": "code",
+											"description": "\"code\" for Authorization Code flow"
+										},
+										{
+											"key": "scope",
+											"value": "openid email profile"
+										},
+										{
+											"key": "organization_id",
+											"value": "{{organization_id}}",
+											"description": "The unique identifier for the customer's organization. Based on the supplied `org_id`, the user will be redirected to the Identity Provider configured for the SSO connection associated with that organization.",
+											"disabled": true
+										},
+										{
+											"key": "connection_id",
+											"value": "{{connection_id}}",
+											"description": "Connection ID for which the SSO flow must be initiated for. If the Connection's status is active, the user will be redirected to the SSO Connection's identity provider configured\n\n"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "html",
+							"header": [
+								{
+									"key": "content-security-policy",
+									"value": "default-src; script-src 'sha256-AjPdJSbZmeWHnEc5ykvJFay8FTWeTeRbs9dutfZ0HqE='; reflected-xss block; referrer no-referrer;"
+								},
+								{
+									"key": "content-type",
+									"value": "text/html"
+								},
+								{
+									"key": "set-cookie",
+									"value": "saml_req_24700452046111758=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2hleS5zY2FsZWtpdC5kZXYvc3NvL3YxL3NhbWwvY29ubl8yMDM2NzAxODk4OTQ1NDg1Mi9jYWxsYmFjayIsInN1YiI6InJlcV8yNDcwMDQ1MjA0NjExMTc1OCIsImF1ZCI6WyJodHRwczovL2hleS5zY2FsZWtpdC5kZXYvc3NvL3YxL3NhbWwvY29ubl8yMDM2NzAxODk4OTQ1NDg1Mi9jYWxsYmFjayJdLCJleHAiOjE3MTg3ODk5MDcsIm5iZiI6MTcxODc4OTgxNywiaWF0IjoxNzE4Nzg5ODE3LCJpZCI6ImlkLTNlYzJhZWViMjg2ZmJmNzJiMTZmNTlkMzhlNmM3OGY1ZDEyMjExNjEiLCJ1cmkiOiIvYXV0aC9sb2dpbj9hdXRoUmVxdWVzdElEPXJlcV8yNDcwMDQ1MjA0NjExMTc1OCIsInNhbWwtYXV0aG4tcmVxdWVzdCI6dHJ1ZX0.JhsmEt55rgMcAS5sgTk8zooGtZ1YlPzgdqpZcEbU67S2SzyTERyRzSpgjzAcCGydjW9k3vy8S6vwhcJrw38GCWmAHD3wCUt7MM0FNRjD400yXu2raDF0EH0sFVIT3pujfsCZXH-Ef7Ofd1_8vhPqWMZtDf6R4fCdF1MFezYQRNdhYGFzrI-LENs8c72cTtL5hb5BRxVrkPv3bAVL---1S6W0q2XiKnN62H3u3Ir-CFs-46rDochuX92EReJfb85NFFYDRc2DEu-rYfHlbcD7eDbXR4xVf7nSCueXXThNm3aJJUn7XwYiV8kwz_RZQ5WcStzw17k4KDRZXQvezvZ4dg; Path=/sso/v1/saml/conn_20367018989454852/callback; Max-Age=90; HttpOnly; Secure"
+								},
+								{
+									"key": "x-trace-id",
+									"value": "6ce64c0e0c49211b37e62a39a69f8daa"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1542"
+								},
+								{
+									"key": "date",
+									"value": "Wed, 19 Jun 2024 09:36:57 GMT"
+								},
+								{
+									"key": "via",
+									"value": "1.1 google"
+								},
+								{
+									"key": "cache-control",
+									"value": "no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "strict-transport-security",
+									"value": "max-age=86400; includeSubDomains"
+								},
+								{
+									"key": "Alt-Svc",
+									"value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+								}
+							],
+							"cookie": [],
+							"body": "<!DOCTYPE html>\n<html>\n    <body>\n        <form method=\"post\" action=\"https://trial-1156954.okta.com/app/trial-1156954_chocolateshop_1/exkesvii9scP1aBQA697/sso/saml\" id=\"SAMLRequestForm\">\n            <input type=\"hidden\" name=\"SAMLRequest\" value=\"PHNhbWxwOkF1dGGljeSBGb3JtYXQ9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpuYW1laWQtZm9ybWF0OnRyYW5zaWVudCIgQWxsb3dDcmVhdGU9InRydWUiLz48L3NhbWxwOkF1dGhuUmVxdWVzdD4=\" />\n            <input type=\"hidden\" name=\"RelayState\" value=\"req_24700452046111758\" />\n            <input id=\"SAMLSubmitButton\" type=\"submit\" value=\"Submit\" />\n        </form>\n        <script>document.getElementById('SAMLSubmitButton').style.visibility=\"hidden\";document.getElementById('SAMLRequestForm').submit();</script>\n    </body>\n</html>"
+						}
+					]
+				},
+				{
+					"name": "Token URL",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "redirect_uri",
+									"value": "{{redirect_uri}}",
+									"type": "string"
+								},
+								{
+									"key": "headerPrefix",
+									"value": "Bearer {{access_token}}",
+									"type": "string"
+								},
+								{
+									"key": "accessTokenUrl",
+									"value": "{{env_url}}/oauth/token",
+									"type": "string"
+								},
+								{
+									"key": "authUrl",
+									"value": "{{env_url}}/oauth/authorize",
+									"type": "string"
+								},
+								{
+									"key": "tokenName",
+									"value": "example token",
+									"type": "string"
+								},
+								{
+									"key": "clientSecret",
+									"value": "{{client_secret}}",
+									"type": "string"
+								},
+								{
+									"key": "clientId",
+									"value": "{{client_id}}",
+									"type": "string"
+								},
+								{
+									"key": "useBrowser",
+									"value": true,
+									"type": "boolean"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{env_url}}?code&redirect_uri={{redirect_uri}}&client_id={{client_id}}&client_secret={{client_secret}}&grant_type=authorization_code",
+							"host": [
+								"{{env_url}}"
+							],
+							"query": [
+								{
+									"key": "code",
+									"value": null,
+									"description": "The code received by the Redirect URI as part of the Authentication Response."
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{redirect_uri}}"
+								},
+								{
+									"key": "client_id",
+									"value": "{{client_id}}"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{client_secret}}"
+								},
+								{
+									"key": "grant_type",
+									"value": "authorization_code"
+								},
+								{
+									"key": "code_verfier",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "To initiate an Enterprise Single Sign-On (SSO) login for one of your customers, you need to redirect them to the Scalekit Authorization URL. This URL must be accompanied by the necessary details about the organization or the SSO connection.\n\nThis folder captures two APIs that facilitate the SSO mechanism for your app to implement for your customers.\n\n<img src=\"https://content.pstmn.io/17b5ef4f-7a6e-44fc-a62f-90735421e71d/aW1hZ2UucG5n\" width=\"4936\" height=\"3744\">\n\n**Authorization URL**\n\nThe users try to intiate an SSO from their browser (Step 2) and lets Scalekit faciliate the authenticate with user-desired Identity provider.\n\n**Token URL**\n\nScalekit sends an `code` that your app needs to exchange for user profile details."
+		},
+		{
+			"name": "Organization",
+			"item": [
+				{
+					"name": "List Organizations",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations?page_size=5",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations"
+							],
+							"query": [
+								{
+									"key": "page_size",
+									"value": "5",
+									"description": "Number of results to be returned. Max supported page_size is 30"
+								},
+								{
+									"key": "page_token",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example: List two Organizations",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{env_url}}/api/v1/organizations?page_size=2",
+									"host": [
+										"{{env_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"organizations"
+									],
+									"query": [
+										{
+											"key": "page_size",
+											"value": "2",
+											"description": "Number of results to be returned. Max supported page_size is 30"
+										},
+										{
+											"key": "page_token",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								},
+								{
+									"key": "grpc-metadata-content-type",
+									"value": "application/grpc"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Message"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status-Details-Bin"
+								},
+								{
+									"key": "grpc-metadata-x-trace-id",
+									"value": "b80024eeca8be05a4ca57e1de0e38281"
+								},
+								{
+									"key": "vary",
+									"value": "Origin"
+								},
+								{
+									"key": "x-trace-id",
+									"value": "b80024eeca8be05a4ca57e1de0e38281"
+								},
+								{
+									"key": "Content-Length",
+									"value": "433"
+								},
+								{
+									"key": "date",
+									"value": "Wed, 19 Jun 2024 10:15:43 GMT"
+								},
+								{
+									"key": "via",
+									"value": "1.1 google"
+								},
+								{
+									"key": "cache-control",
+									"value": "no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "strict-transport-security",
+									"value": "max-age=86400; includeSubDomains"
+								},
+								{
+									"key": "Alt-Svc",
+									"value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"next_page_token\": \"1\",\n    \"total_size\": 2,\n    \"organizations\": [\n        {\n            \"id\": \"org_20366989394445828\",\n            \"create_time\": \"2024-05-20T12:07:51.680Z\",\n            \"update_time\": \"2024-05-20T12:07:51.687483Z\",\n            \"display_name\": \"ChocolateShop\",\n            \"region_code\": \"US\",\n            \"metadata\": {}\n        },\n        {\n            \"id\": \"org_22533691091715588\",\n            \"create_time\": \"2024-06-04T10:52:06.530Z\",\n            \"update_time\": \"2024-06-04T10:52:06.532312Z\",\n            \"display_name\": \"BiryaniRestaurant\",\n            \"region_code\": \"US\",\n            \"metadata\": {}\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Search Organizations",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations:search?query=org",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations:search"
+							],
+							"query": [
+								{
+									"key": "page_size",
+									"value": "5",
+									"description": "Number of results to be returned. Max supported page_size is 30",
+									"disabled": true
+								},
+								{
+									"key": "page_token",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "query",
+									"value": "org"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example: List two Organizations",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{env_url}}/api/v1/organizations?page_size=2",
+									"host": [
+										"{{env_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"organizations"
+									],
+									"query": [
+										{
+											"key": "page_size",
+											"value": "2",
+											"description": "Number of results to be returned. Max supported page_size is 30"
+										},
+										{
+											"key": "page_token",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								},
+								{
+									"key": "grpc-metadata-content-type",
+									"value": "application/grpc"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Message"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status-Details-Bin"
+								},
+								{
+									"key": "grpc-metadata-x-trace-id",
+									"value": "b80024eeca8be05a4ca57e1de0e38281"
+								},
+								{
+									"key": "vary",
+									"value": "Origin"
+								},
+								{
+									"key": "x-trace-id",
+									"value": "b80024eeca8be05a4ca57e1de0e38281"
+								},
+								{
+									"key": "Content-Length",
+									"value": "433"
+								},
+								{
+									"key": "date",
+									"value": "Wed, 19 Jun 2024 10:15:43 GMT"
+								},
+								{
+									"key": "via",
+									"value": "1.1 google"
+								},
+								{
+									"key": "cache-control",
+									"value": "no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "strict-transport-security",
+									"value": "max-age=86400; includeSubDomains"
+								},
+								{
+									"key": "Alt-Svc",
+									"value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"next_page_token\": \"1\",\n    \"total_size\": 2,\n    \"organizations\": [\n        {\n            \"id\": \"org_20366989394445828\",\n            \"create_time\": \"2024-05-20T12:07:51.680Z\",\n            \"update_time\": \"2024-05-20T12:07:51.687483Z\",\n            \"display_name\": \"ChocolateShop\",\n            \"region_code\": \"US\",\n            \"metadata\": {}\n        },\n        {\n            \"id\": \"org_22533691091715588\",\n            \"create_time\": \"2024-06-04T10:52:06.530Z\",\n            \"update_time\": \"2024-06-04T10:52:06.532312Z\",\n            \"display_name\": \"BiryaniRestaurant\",\n            \"region_code\": \"US\",\n            \"metadata\": {}\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Organization",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Updates the \"example_org\" variable, so that you can explore Update or Get APIs",
+									"const responseJson = pm.response.json();",
+									"",
+									"let example_org_id = responseJson.organization.id",
+									"",
+									"if (responseJson.organization.id) {",
+									"    pm.environment.set(\"example_org\", example_org_id);",
+									"} else {",
+									"    console.log(\"No organization.id found in the response.\");",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"display_name\": \"Looney Corp\",\n    \"external_id\": \"my_unique_id\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Example: Looney Toons (Customer)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"display_name\": \"Looney Corp\",\n    \"external_id\": \"my_unique_id\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{env_url}}/api/v1/organizations",
+									"host": [
+										"{{env_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"organizations"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								},
+								{
+									"key": "grpc-metadata-content-type",
+									"value": "application/grpc"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Message"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status-Details-Bin"
+								},
+								{
+									"key": "grpc-metadata-x-trace-id",
+									"value": "32976860631382ca6a2617a480f182a3"
+								},
+								{
+									"key": "vary",
+									"value": "Origin"
+								},
+								{
+									"key": "x-trace-id",
+									"value": "32976860631382ca6a2617a480f182a3"
+								},
+								{
+									"key": "Content-Length",
+									"value": "232"
+								},
+								{
+									"key": "date",
+									"value": "Wed, 19 Jun 2024 11:11:58 GMT"
+								},
+								{
+									"key": "via",
+									"value": "1.1 google"
+								},
+								{
+									"key": "cache-control",
+									"value": "no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "strict-transport-security",
+									"value": "max-age=86400; includeSubDomains"
+								},
+								{
+									"key": "Alt-Svc",
+									"value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"organization\": {\n        \"id\": \"org_24710018616000543\",\n        \"create_time\": \"2024-06-19T11:11:58.820Z\",\n        \"update_time\": \"2024-06-19T11:11:58.823707848Z\",\n        \"display_name\": \"Looney Corp\",\n        \"region_code\": \"US\",\n        \"external_id\": \"my_unique_id\",\n        \"metadata\": {}\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Organization by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/{{example_org}}",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"{{example_org}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Organization",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"display_name\": \"Looney Toones Corp\",\n    \"external_id\": \"link44\",\n    \"metadata\": {\n        \"property1\": \"string\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/{{example_org}}",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"{{example_org}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Organization Settings",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"features\": [\n        {\n            \"enabled\": false,\n            \"name\": \"dir_sync\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/{{example_org}}/settings",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"{{example_org}}",
+								"settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Organization by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/{{example_org}}",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"{{example_org}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Organization represents a customer or a tenant of your application. Use this to create enterprise Single Sign-on connections or Admin Portal links for your customers.\n\n## **Attributes**\n\n**`id`** string  \nUnique ID of the organization\n\n---\n\n**`display_name`** string  \nDisplay Name of the Organization\n\n---\n\n**`external_id`** string  \nUnique ID of this organization according to your system. You can store your unique ID for this organization in Scalekit's system and later use this to fetch Organization and Connection details. This is helpful if you don't want to persist Scalekit's Unique Identifiers in your database\n\n---\n\n**`metadata`** map  \nSet of key-value pairs that you can attach to the Organization object. This can be useful for storing additional information about the Organization in a structured format.\n\n---\n\n**`region_code`** enum\n\nRegion in which this organization data is stored in. By default, the environment's `region_code` is used to store this organization's data\n\n_Possible values:_ `US` , `EU`\n\n---\n\n**`create_time`** string  \nTimestamp at which this organization record was created in ISO 8601 format\n\n---\n\n**`update_time`** string  \nTimestamp at which this organization record was last updated in ISO 8601 format\n\n---\n\n``` json\n{\n    \"id\": \"org_2123312131125533\",\n    \"display_name\": \"Acme Corp\",\n    \"create_time\": \"2024-01-05T14:48:00.000Z\",\n    \"external_id\": \"my_unique_id\",\n    \"metadata\": {\n      \"someKey\": \"somevalue\"\n    },\n    \"region_code\": \"US\",\n    \"update_time\": \"…\"\n}\n\n ```",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{access_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Admin Portal (Self Service)",
+			"item": [
+				{
+					"name": "Generate Portal Link",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/{{example_org}}/portal_links",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"{{example_org}}",
+								"portal_links"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "< whimsical diagram in progress >",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{access_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Connection",
+			"item": [
+				{
+					"name": "List Connections",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{env_url}}/api/v1/connections?organization_id={{organization_id}}",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"connections"
+							],
+							"query": [
+								{
+									"key": "organization_id",
+									"value": "{{organization_id}}",
+									"description": "See the connections associated with orgnization"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "List Connections",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{env_url}}/api/v1/connections?organization_id={{organization_id}}",
+									"host": [
+										"{{env_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"connections"
+									],
+									"query": [
+										{
+											"key": "organization_id",
+											"value": "{{organization_id}}",
+											"description": "See the connections associated with orgnization"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								},
+								{
+									"key": "grpc-metadata-content-type",
+									"value": "application/grpc"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Message"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status-Details-Bin"
+								},
+								{
+									"key": "grpc-metadata-x-trace-id",
+									"value": "026c68880b7d56a82e811464fb0c3e8b"
+								},
+								{
+									"key": "vary",
+									"value": "Origin"
+								},
+								{
+									"key": "x-trace-id",
+									"value": "026c68880b7d56a82e811464fb0c3e8b"
+								},
+								{
+									"key": "Content-Length",
+									"value": "186"
+								},
+								{
+									"key": "date",
+									"value": "Wed, 19 Jun 2024 14:59:26 GMT"
+								},
+								{
+									"key": "via",
+									"value": "1.1 google"
+								},
+								{
+									"key": "cache-control",
+									"value": "no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "strict-transport-security",
+									"value": "max-age=86400; includeSubDomains"
+								},
+								{
+									"key": "Alt-Svc",
+									"value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"connections\": [\n        {\n            \"id\": \"conn_203670189xxxxxx52\",\n            \"provider\": \"OKTA\",\n            \"type\": \"SAML\",\n            \"status\": \"COMPLETED\",\n            \"enabled\": true,\n            \"organization_id\": \"org_20366989394445828\",\n            \"ui_button_title\": \"\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Connection",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/org_20366989394445828/connections/conn_20367018989454852",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"org_20366989394445828",
+								"connections",
+								"conn_20367018989454852"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Disable a Connection",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/{{organization_id}}/connections/{{connection_id}}:disable",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"{{organization_id}}",
+								"connections",
+								"{{connection_id}}:disable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Enable a Connection",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/{{organization_id}}/connections/{{connection_id}}:disable",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"{{organization_id}}",
+								"connections",
+								"{{connection_id}}:disable"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "A connection represents configuration with a Identity Provider within an Organization.\n\nSee [API Reference](https://docs.scalekit.com) for comprehensive details.\n\n## **Attributes**\n\n**`id`** string  \nUnique ID of the connection\n\n---\n\n**`organization_id`** string  \nDisplay Name of the Connection\n\n---\n\n**`provider`** enum  \n_Possible Values:_ `OKTA`, `GOOGLE`, `MICROSOFT_AD`, `AUTH0`, `ONELOGIN`, `PING_IDENTITY`, `JUMPCLOUD`, `CUSTOM`\n\n---\n\n**`status`** enum  \n_Possible Values:_ `DRAFT`, `IN_PROGRESS`, `COMPLETED`\n\n---\n\n**`enabled`** boolean\n\n---\n\n**`saml_config`** object\n\n( Truncated nested object )\n\n---\n\n**`oidc_config`** object\n\n( Truncated nested object )\n\n---\n\n**`create_time`** string  \nTimestamp at which this colleection record was last updated in ISO 8601 format\n\n---\n\n**`update_time`** string  \nTimestamp at which this collection record was last updated in ISO 8601 format\n\n---\n\n``` json\n{\n    \"id\": \"conn_2123312131125533\",\n    \"organization_id\": \"org_1232434\",\n    \"provider\": \"OKTA\",\n    \"type\": \"SAML\",\n    \"status\": \"COMPLETED\",\n    \"enabled\": true,\n    \"debug_enabled\": false,\n    \"configuration_type\": \"MANUAL\",\n    \"saml_config\":{\n        \"sp_entity_id\": \"https://yourapp.com/service/saml\",\n        \"sp_assertion_url\": \"https://youridp.com/service/saml/assertion\",\n        \"sp_metadata_url\": \"https://youridp.com/service/saml/metadata\",\n        \"idp_metadata_url\": \"https://youridp.com/service/idp/metadata\",\n        \"idp_sso_url\": \"https://youridp.com/sso/saml\",\n    }\n    \"attribute_mapping\":{\n        \"email\": \"email\", \n        \"family_name\": \"lastName\", \n        \"given_name\": \"firstName\", \n        \"sub\": \"nameid\",\n    }\n    \"create_time\": \"2024-01-05T14:48:00.000Z\",\n}\n\n ```",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{access_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Directory",
+			"item": [
+				{
+					"name": "List All Directories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"var directoryId = jsonData.directories[0].id;",
+									"pm.environment.set(\"directory_id\", directoryId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/{{organization_id}}/directories",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"{{organization_id}}",
+								"directories"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "List All Directories",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{env_url}}/api/v1/organizations/{{organization_id}}/directories",
+									"host": [
+										"{{env_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"organizations",
+										"{{organization_id}}",
+										"directories"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								},
+								{
+									"key": "grpc-metadata-content-type",
+									"value": "application/grpc"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Message"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status-Details-Bin"
+								},
+								{
+									"key": "grpc-metadata-x-trace-id",
+									"value": "1c7d98696b5498e69745a0a33be14367"
+								},
+								{
+									"key": "vary",
+									"value": "Origin"
+								},
+								{
+									"key": "x-trace-id",
+									"value": "1c7d98696b5498e69745a0a33be14367"
+								},
+								{
+									"key": "Content-Length",
+									"value": "788"
+								},
+								{
+									"key": "date",
+									"value": "Mon, 21 Oct 2024 13:13:29 GMT"
+								},
+								{
+									"key": "via",
+									"value": "1.1 google"
+								},
+								{
+									"key": "cache-control",
+									"value": "no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "permissions-policy",
+									"value": "()"
+								},
+								{
+									"key": "referrer-policy",
+									"value": "strict-origin-when-cross-origin"
+								},
+								{
+									"key": "strict-transport-security",
+									"value": "max-age=31536000; includeSubDomains; preload"
+								},
+								{
+									"key": "x-content-type-options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Alt-Svc",
+									"value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"directories\": [\n        {\n            \"id\": \"dir_38073376857653839\",\n            \"name\": \"\",\n            \"directory_type\": \"SCIM\",\n            \"organization_id\": \"org_38073370096435791\",\n            \"source\": \"\",\n            \"enabled\": true,\n            \"directory_provider\": \"OKTA\",\n            \"status\": \"IN_PROGRESS\",\n            \"mappings\": [],\n            \"last_synced_at\": \"2024-09-19T16:26:17.814923Z\",\n            \"directory_endpoint\": \"https://leering-black-rhinoceros.scalekit.cloud/directory/dir_38073376857653839/scim/v2\",\n            \"total_users\": 4,\n            \"total_groups\": 3,\n            \"secrets\": [\n                {\n                    \"id\": \"sec_40648348968943986\",\n                    \"create_time\": \"2024-10-07T10:05:04.010Z\",\n                    \"secret_suffix\": \"cw1v\",\n                    \"status\": \"ACTIVE\",\n                    \"expire_time\": \"0001-01-01T00:00:00Z\",\n                    \"last_used_time\": \"0001-01-01T00:00:00Z\",\n                    \"directory_id\": \"dir_38073376857653839\"\n                }\n            ],\n            \"stats\": {\n                \"total_users\": 4,\n                \"total_groups\": 3,\n                \"group_updated_at\": \"2024-09-19T16:26:18.573597Z\",\n                \"user_updated_at\": \"2024-09-19T15:56:16.954861Z\"\n            }\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Directory",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/{{organization_id}}/directories/{{directory_id}}",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"{{organization_id}}",
+								"directories",
+								"{{directory_id}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Directory Example",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{env_url}}/api/v1/organizations/{{organization_id}}/directories/{{directory_id}}",
+									"host": [
+										"{{env_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"organizations",
+										"{{organization_id}}",
+										"directories",
+										"{{directory_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								},
+								{
+									"key": "grpc-metadata-content-type",
+									"value": "application/grpc"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Message"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status-Details-Bin"
+								},
+								{
+									"key": "grpc-metadata-x-trace-id",
+									"value": "620164d8e0bac329795f7e59fd9621ff"
+								},
+								{
+									"key": "vary",
+									"value": "Origin"
+								},
+								{
+									"key": "x-trace-id",
+									"value": "620164d8e0bac329795f7e59fd9621ff"
+								},
+								{
+									"key": "Content-Length",
+									"value": "784"
+								},
+								{
+									"key": "date",
+									"value": "Mon, 21 Oct 2024 13:14:32 GMT"
+								},
+								{
+									"key": "via",
+									"value": "1.1 google"
+								},
+								{
+									"key": "cache-control",
+									"value": "no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "permissions-policy",
+									"value": "()"
+								},
+								{
+									"key": "referrer-policy",
+									"value": "strict-origin-when-cross-origin"
+								},
+								{
+									"key": "strict-transport-security",
+									"value": "max-age=31536000; includeSubDomains; preload"
+								},
+								{
+									"key": "x-content-type-options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Alt-Svc",
+									"value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"directory\": {\n        \"id\": \"dir_38073376857653839\",\n        \"name\": \"\",\n        \"directory_type\": \"SCIM\",\n        \"organization_id\": \"org_38073370096435791\",\n        \"source\": \"\",\n        \"enabled\": true,\n        \"directory_provider\": \"OKTA\",\n        \"status\": \"IN_PROGRESS\",\n        \"mappings\": [],\n        \"last_synced_at\": \"2024-09-19T16:26:17.814923Z\",\n        \"directory_endpoint\": \"https://leering-black-rhinoceros.scalekit.cloud/directory/dir_38073376857653839/scim/v2\",\n        \"total_users\": 4,\n        \"total_groups\": 3,\n        \"secrets\": [\n            {\n                \"id\": \"sec_40648348968943986\",\n                \"create_time\": \"2024-10-07T10:05:04.010Z\",\n                \"secret_suffix\": \"cw1v\",\n                \"status\": \"ACTIVE\",\n                \"expire_time\": \"0001-01-01T00:00:00Z\",\n                \"last_used_time\": \"0001-01-01T00:00:00Z\",\n                \"directory_id\": \"dir_38073376857653839\"\n            }\n        ],\n        \"stats\": {\n            \"total_users\": 4,\n            \"total_groups\": 3,\n            \"group_updated_at\": \"2024-09-19T16:26:18.573597Z\",\n            \"user_updated_at\": \"2024-09-19T15:56:16.954861Z\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "List Users in Directory",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/{{organization_id}}/directories/{{directory_id}}/users",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"{{organization_id}}",
+								"directories",
+								"{{directory_id}}",
+								"users"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Directory Example",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{env_url}}/api/v1/organizations/{{organization_id}}/directories/{{directory_id}}",
+									"host": [
+										"{{env_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"organizations",
+										"{{organization_id}}",
+										"directories",
+										"{{directory_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								},
+								{
+									"key": "grpc-metadata-content-type",
+									"value": "application/grpc"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Message"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status-Details-Bin"
+								},
+								{
+									"key": "grpc-metadata-x-trace-id",
+									"value": "620164d8e0bac329795f7e59fd9621ff"
+								},
+								{
+									"key": "vary",
+									"value": "Origin"
+								},
+								{
+									"key": "x-trace-id",
+									"value": "620164d8e0bac329795f7e59fd9621ff"
+								},
+								{
+									"key": "Content-Length",
+									"value": "784"
+								},
+								{
+									"key": "date",
+									"value": "Mon, 21 Oct 2024 13:14:32 GMT"
+								},
+								{
+									"key": "via",
+									"value": "1.1 google"
+								},
+								{
+									"key": "cache-control",
+									"value": "no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "permissions-policy",
+									"value": "()"
+								},
+								{
+									"key": "referrer-policy",
+									"value": "strict-origin-when-cross-origin"
+								},
+								{
+									"key": "strict-transport-security",
+									"value": "max-age=31536000; includeSubDomains; preload"
+								},
+								{
+									"key": "x-content-type-options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Alt-Svc",
+									"value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"directory\": {\n        \"id\": \"dir_38073376857653839\",\n        \"name\": \"\",\n        \"directory_type\": \"SCIM\",\n        \"organization_id\": \"org_38073370096435791\",\n        \"source\": \"\",\n        \"enabled\": true,\n        \"directory_provider\": \"OKTA\",\n        \"status\": \"IN_PROGRESS\",\n        \"mappings\": [],\n        \"last_synced_at\": \"2024-09-19T16:26:17.814923Z\",\n        \"directory_endpoint\": \"https://leering-black-rhinoceros.scalekit.cloud/directory/dir_38073376857653839/scim/v2\",\n        \"total_users\": 4,\n        \"total_groups\": 3,\n        \"secrets\": [\n            {\n                \"id\": \"sec_40648348968943986\",\n                \"create_time\": \"2024-10-07T10:05:04.010Z\",\n                \"secret_suffix\": \"cw1v\",\n                \"status\": \"ACTIVE\",\n                \"expire_time\": \"0001-01-01T00:00:00Z\",\n                \"last_used_time\": \"0001-01-01T00:00:00Z\",\n                \"directory_id\": \"dir_38073376857653839\"\n            }\n        ],\n        \"stats\": {\n            \"total_users\": 4,\n            \"total_groups\": 3,\n            \"group_updated_at\": \"2024-09-19T16:26:18.573597Z\",\n            \"user_updated_at\": \"2024-09-19T15:56:16.954861Z\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "List Groups in Directory",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/{{organization_id}}/directories/{{directory_id}}/groups",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"{{organization_id}}",
+								"directories",
+								"{{directory_id}}",
+								"groups"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "List Groups in Directory Example",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{env_url}}/api/v1/organizations/{{organization_id}}/directories/{{directory_id}}/groups",
+									"host": [
+										"{{env_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"organizations",
+										"{{organization_id}}",
+										"directories",
+										"{{directory_id}}",
+										"groups"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "content-type",
+									"value": "application/json"
+								},
+								{
+									"key": "grpc-metadata-content-type",
+									"value": "application/grpc"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Message"
+								},
+								{
+									"key": "grpc-metadata-trailer",
+									"value": "Grpc-Status-Details-Bin"
+								},
+								{
+									"key": "grpc-metadata-x-trace-id",
+									"value": "b1577081f9a799b77242f65eb63cca53"
+								},
+								{
+									"key": "vary",
+									"value": "Origin"
+								},
+								{
+									"key": "x-trace-id",
+									"value": "b1577081f9a799b77242f65eb63cca53"
+								},
+								{
+									"key": "Content-Length",
+									"value": "451"
+								},
+								{
+									"key": "date",
+									"value": "Mon, 21 Oct 2024 13:35:13 GMT"
+								},
+								{
+									"key": "via",
+									"value": "1.1 google"
+								},
+								{
+									"key": "cache-control",
+									"value": "no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "permissions-policy",
+									"value": "()"
+								},
+								{
+									"key": "referrer-policy",
+									"value": "strict-origin-when-cross-origin"
+								},
+								{
+									"key": "strict-transport-security",
+									"value": "max-age=31536000; includeSubDomains; preload"
+								},
+								{
+									"key": "x-content-type-options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Alt-Svc",
+									"value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"groups\": [\n        {\n            \"id\": \"dirgroup_38074475882742351\",\n            \"display_name\": \"Skyflow Users\",\n            \"total_users\": 2,\n            \"updated_at\": \"2024-09-19T16:26:18.573597Z\"\n        },\n        {\n            \"id\": \"dirgroup_38074465715814991\",\n            \"display_name\": \"Skyflow Managers\",\n            \"total_users\": 1,\n            \"updated_at\": \"2024-09-19T16:26:14.842673Z\"\n        },\n        {\n            \"id\": \"dirgroup_38074458115670607\",\n            \"display_name\": \"Skyflow Admins\",\n            \"total_users\": 1,\n            \"updated_at\": \"2024-09-19T16:26:11.532534Z\"\n        }\n    ],\n    \"total_size\": 3,\n    \"next_page_token\": \"\",\n    \"prev_page_token\": \"\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Enable a Directory",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/{{organization_id}}/directories/{{directory_id}}:enable",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"{{organization_id}}",
+								"directories",
+								"{{directory_id}}:enable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Disable a Directory",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{env_url}}/api/v1/organizations/{{organization_id}}/directories/{{directory_id}}:disable",
+							"host": [
+								"{{env_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organizations",
+								"{{organization_id}}",
+								"directories",
+								"{{directory_id}}:disable"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "The Directory object represents a connection to a directory provider. You can programmatically enable or disable directories for an organization using the Directory API. Scalekit synchronizes and stores the users and groups from connected directories. The Directory API allows you to fetch users and groups from the directory on demand."
+		}
+	]
+}
