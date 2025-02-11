@@ -7,14 +7,29 @@ import path from 'path';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://scalekit.com', // creates a sitemap for robots.txt
   integrations: [
     starlight({
       title: 'My Docs',
+      logo: {
+        src: '@/assets/logo-test.png',
+        replacesTitle: true,
+      },
+      social: {
+        github: 'https://github.com/scalekit-inc',
+        linkedin: 'https://www.linkedin.com/company/scalekit-inc/',
+      },
+      // allows for open contributions to the docs
+      editLink: {
+        baseUrl:
+          'https://github.com/scalekit-inc/scalekit-docs/edit/main/src/content/docs/',
+      },
       expressiveCode: {
         themes: ['github-light', 'material-theme'],
       },
       customCss: [
         '@fontsource-variable/plus-jakarta-sans',
+        '@fontsource-variable/space-grotesk',
         './src/styles/custom.css',
       ],
       sidebar: [
@@ -22,11 +37,11 @@ export default defineConfig({
           label: 'Guides',
           items: [
             {
-              label: 'Example Guide',
-              slug: 'guides/example',
+              label: 'Components',
+              slug: 'guides/components',
               collapsed: false,
             },
-            { label: 'Example Guide 2', slug: 'guides/example-2' },
+            { label: 'Example Guide 2', slug: 'guides/example' },
           ],
         },
         {
