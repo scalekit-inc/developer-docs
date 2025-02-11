@@ -15,6 +15,7 @@ export default defineConfig({
         src: '@/assets/logo-test.png',
         replacesTitle: true,
       },
+      defaultLocale: 'en',
       social: {
         github: 'https://github.com/scalekit-inc',
         linkedin: 'https://www.linkedin.com/company/scalekit-inc/',
@@ -47,6 +48,11 @@ export default defineConfig({
         {
           label: 'Reference',
           autogenerate: { directory: 'reference' },
+        },
+        {
+          label: 'Scalekit',
+          link: 'https://www.scalekit.com',
+          attrs: { target: '_blank', style: 'font-style: italic' },
         },
       ],
     }),
