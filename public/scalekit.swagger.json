@@ -1,0 +1,202 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Scalekit APIs",
+    "description": "# Introduction\nScalekit API is modeled around the [REST](https://en.wikipedia.org/wiki/REST) architecture style. That means, our API has predictable resource-oriented URLs, accepts form-encoded request bodies and produces JSON formatted responses, uses standard HTTP verbs and error codes.\n\n## Getting Started\nIf you are just getting started, you can also refer to our [Quick Start Guide](/single-sign-on/quickstart-sso).\n\nApart from REST APIs, we have published SDKs in some of the popular languages as shown below. You can use these SDKs and integrate with Scalekit much faster.\n\n- [NodeJS](https://github.com/scalekit-inc/scalekit-sdk-node)\n- [Go Lang](https://github.com/scalekit-inc/scalekit-sdk-go)\n\nSome additional instructions around using our APIs\n\n- API Endpoint Host must use the `Environment URL` of the environment you are targeting.\n- API requests without appropriate authentication headers will fail with 401 status code.\n\nRead below to understand more about how to authenticate the API calls and how to handle errors appropriately.",
+    "version": "1.0",
+    "contact": {
+      "name": "Scalekit",
+      "url": "https://scalekit.com",
+      "email": "support@scalekit.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "host": "$ENV_URL",
+  "schemes": ["https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "securityDefinitions": {
+    "OAuth2": {
+      "type": "oauth2",
+      "flow": "application",
+      "tokenUrl": "https://$ENV_URL/oauth/token"
+    }
+  },
+  "security": [
+    {
+      "OAuth2": []
+    }
+  ],
+  "paths": {
+    "/oauth/authorize": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Authorization URL",
+        "description": "Authorization URL initiates the Login flow with Scalekit.\n\nScalekit expects atleast one of the following parameters to be present. The parameters are used to determine the SSO connection used to Login in the user. \n\n`domain` - Email domain of the user. Domain should be mapped to an Organization. The SSO connection from the org would be used to login to the app.\n\n`connection_id` - ID of the SSO connection. If the Connection's status is `active`, the user will be redirected to the SSO Connection's identity provider configured.\n\n`organization_id` -  ID of Organization. The user will be redirected to the SSO connection's identity provider configured for that organization.\n\n`provider` -  ID of SSO Provider, Incase of Social Logins . e.g `google`",
+        "operationId": "OAuth_AuthorizeEndpoint",
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "The client ID string that you obtain from the API Credentials page",
+            "example": "code"
+          },
+          {
+            "name": "redirect_uri",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "format": "uri",
+            "description": "Determines where the response is sent. The value of this parameter must exactly match one of the authorized redirect values that you set in the API Credentials page (including the HTTP or HTTPS scheme, case, and trailing '/', if any).",
+            "example": "https://mysaasapp.com/redirect_uri"
+          },
+          {
+            "name": "response_type",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "enum": ["code"],
+            "description": "Value must be `code`",
+            "example": "code"
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Value must be `openid email profile`",
+            "example": "openid email profile"
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "type": "string",
+            "format": "hostname",
+            "description": "Domain part of the email address that is mapped to an organization. Example. yourcustomer.com",
+            "example": "acmecorp.com"
+          },
+          {
+            "name": "connection_id",
+            "in": "query",
+            "type": "string",
+            "description": "Connection ID for which the SSO flow must be initiated for. If the Connection's status is `active`, the user will be redirected to the SSO Connection's identity provider configured",
+            "example": "conn_16796494564719556"
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "type": "string",
+            "description": "Organization ID for which the SSO flow must be initiated for. Based on the organization ID supplied, the user will be redirected to the SSO connection's identity provider configured for that organization.",
+            "example": "org_16796494564719556"
+          },
+          {
+            "name": "provider",
+            "in": "query",
+            "type": "string",
+            "description": "Key for the Social SSO Provider. This is common to all Organizations. e.g. `google`, `github`, `linkedin`, `gitlab`, `microsoft`, `salesforce`",
+            "example": "github"
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/oauth/token": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Token URL",
+        "description": "The code provided to the Redirect URI. Code can be exchanged for a ID Token containing the user details using the Token URL.",
+        "operationId": "OAuth_TokenEndpoint",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "body",
+            "required": true,
+            "type": "string",
+            "description": "The code received by the Redirect URI as part of the Authentication Response."
+          },
+          {
+            "name": "redirect_uri",
+            "in": "body",
+            "required": true,
+            "type": "string",
+            "description": "The redirect URI where this code was received. This will used to validate the code to make the code was infact generated for this redirect_uri."
+          },
+          {
+            "name": "client_id",
+            "in": "body",
+            "required": true,
+            "type": "string",
+            "description": "Unique client ID that represents your application."
+          },
+          {
+            "name": "client_secret",
+            "in": "body",
+            "required": true,
+            "type": "string",
+            "description": "The client secret to authorize the client."
+          },
+          {
+            "name": "grant_type",
+            "in": "body",
+            "type": "string",
+            "description": "Grant Type must be `authorization_code`."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Code validated Successfully",
+            "schema": {
+              "$ref": "#/definitions/oauthTokenResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "oauthTokenResponse": {
+      "type": "object",
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "description": "Access token (JWT)",
+          "example": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua18xMjUxMTQwNjE4MDAzOTQ4OCIsInR5cCI6IkpXVCJ9..."
+        },
+        "id_token": {
+          "type": "string",
+          "description": "ID Token (JWT)",
+          "example": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua18xMjUxMTQwNjE4MDAzOTQ4OCIsInR5cCI6IkpXVCJ9..."
+        },
+        "token_type": {
+          "type": "string",
+          "description": "Token type. Value will be `bearer`",
+          "example": "Bearer"
+        },
+        "expires_in": {
+          "type": "number",
+          "description": "Expiry in seconds",
+          "example": 899
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Authentication endpoints for OAuth2 flow"
+    }
+  ],
+  "externalDocs": {
+    "description": "Scalekit Developer Documentation",
+    "url": "https://docs.scalekit.com/"
+  }
+}
