@@ -12,7 +12,7 @@ export default defineConfig({
     starlight({
       title: 'My Docs',
       expressiveCode: {
-        themes: ['material-theme', 'github-light'],
+        themes: ['github-light', 'material-theme'],
       },
       customCss: [
         '@fontsource-variable/plus-jakarta-sans',
