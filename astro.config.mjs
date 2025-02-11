@@ -9,7 +9,6 @@ import vue from '@astrojs/vue';
 // https://astro.build/config
 export default defineConfig({
   integrations: [starlight(starlightConfig), react(), vue()],
-
   vite: {
     plugins: [tailwindcss()],
   },
