@@ -1,0 +1,1211 @@
+consumes:
+    - application/json
+produces:
+    - application/json
+schemes:
+    - http
+    - https
+swagger: "2.0"
+info:
+    license:
+        url: http://www.apache.org/licenses/LICENSE-2.0
+        name: Apache 2.0
+    version: "1.0"
+    description: Enterprise Ready authenticaiton for SaaS
+    title: Scalekit APIs
+    contact:
+        url: https://scalekit.com
+        email: support@scalekit.com
+        name: Scalekit
+host: $ENV_DOMAIN
+paths:
+    /api/v1/organizations/-/connections/{id}:disable:
+        patch:
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  type: string
+                - name: organization_id
+                  in: query
+                  type: string
+                - type: string
+                  name: external_id
+                  in: query
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/connectionsToggleConnectionResponse'
+                default:
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: An unexpected error response.
+            tags:
+                - ConnectionService
+            operationId: ConnectionService_DisableConnection2
+    /api/v1/organizations/{id}:
+        delete:
+            operationId: OrganizationService_DeleteOrganization
+            parameters:
+                - description: Id of the Org to update
+                  name: id
+                  in: path
+                  required: true
+                  type: string
+                - in: query
+                  type: string
+                  description: External Id of the Org to update
+                  name: external_id
+            responses:
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "200":
+                    description: A successful response.
+                    schema:
+                        type: object
+                "403":
+                    description: Access Denied. API key does not have permissions to perform the request
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "404":
+                    description: Requested resource does not exist
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "500":
+                    description: Server Error. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "503":
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                "400":
+                    description: Bad Request. The expected parameters are missing
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "401":
+                    description: Invalid API Key Provided
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "429":
+                    description: Too many requests. API Rate limits exceeded
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "504":
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            tags:
+                - Organization
+            summary: Delete Organization
+        patch:
+            tags:
+                - Organization
+            summary: Update Organization
+            operationId: OrganizationService_UpdateOrganization
+            parameters:
+                - type: string
+                  description: Id of the Org to update
+                  name: id
+                  in: path
+                  required: true
+                - in: body
+                  required: true
+                  schema:
+                    description: Organization Parameters to be updated
+                    $ref: '#/definitions/v1organizationsUpdateOrganization'
+                  name: organization
+                - type: string
+                  description: External Id of the Org to update
+                  name: external_id
+                  in: query
+            responses:
+                "403":
+                    description: Access Denied. API key does not have permissions to perform the request
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "404":
+                    description: Requested resource does not exist
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "429":
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: Too many requests. API Rate limits exceeded
+                "500":
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: Server Error. Something went wrong on Scalekit's end
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/organizationsUpdateOrganizationResponse'
+                "401":
+                    description: Invalid API Key Provided
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "504":
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                default:
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: An unexpected error response.
+                "400":
+                    description: Bad Request. The expected parameters are missing
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "503":
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+        get:
+            tags:
+                - Organization
+            summary: Get Organization
+            operationId: OrganizationService_GetOrganization
+            parameters:
+                - description: Id of the Org to update
+                  name: id
+                  in: path
+                  required: true
+                  type: string
+                - type: string
+                  description: External Id of the Org to update
+                  name: external_id
+                  in: query
+            responses:
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/organizationsGetOrganizationResponse'
+                "403":
+                    description: Access Denied. API key does not have permissions to perform the request
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "404":
+                    description: Requested resource does not exist
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "429":
+                    description: Too many requests. API Rate limits exceeded
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "503":
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "504":
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "400":
+                    description: Bad Request. The expected parameters are missing
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "401":
+                    description: Invalid API Key Provided
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "500":
+                    description: Server Error. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+    /api/v1/organizations/{id}/portal_links:
+        get:
+            operationId: OrganizationService_GetCustomerPortalLink
+            parameters:
+                - required: true
+                  type: string
+                  name: id
+                  in: path
+            responses:
+                "403":
+                    description: Access Denied. API key does not have permissions to perform the request
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "404":
+                    description: Requested resource does not exist
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "400":
+                    description: Bad Request. The expected parameters are missing
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "401":
+                    description: Invalid API Key Provided
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "429":
+                    description: Too many requests. API Rate limits exceeded
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "500":
+                    description: Server Error. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "503":
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "504":
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/organizationsCustomerPortalLinksResponse'
+            description: Returns the Customer portal link if it exists. Use Generate Customer portal link to create and fetch a link
+            tags:
+                - Customer Portal
+            summary: Get Exiting Link
+        put:
+            description: Generates a Customer portal link. The customer portal will be used by the IT Admins to create and manage the SSO connection in their Org. The customer portal link generate via API will be valid for 1 week.
+            tags:
+                - Customer Portal
+            summary: Generate Portal Link
+            operationId: OrganizationService_GenerateCustomerPortalLink
+            parameters:
+                - type: string
+                  name: id
+                  in: path
+                  required: true
+            responses:
+                default:
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: An unexpected error response.
+                "500":
+                    description: Server Error. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "400":
+                    description: Bad Request. The expected parameters are missing
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "401":
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: Invalid API Key Provided
+                "403":
+                    description: Access Denied. API key does not have permissions to perform the request
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "404":
+                    description: Requested resource does not exist
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "429":
+                    description: Too many requests. API Rate limits exceeded
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "503":
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                "504":
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/organizationsCustomerPortalLinksResponse'
+        delete:
+            summary: Delete Portal Link
+            operationId: OrganizationService_DeleteCustomerPortalLink
+            parameters:
+                - type: string
+                  name: id
+                  in: path
+                  required: true
+            responses:
+                "401":
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: Invalid API Key Provided
+                "500":
+                    description: Server Error. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "503":
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "504":
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "200":
+                    description: A successful response.
+                    schema:
+                        type: object
+                "400":
+                    description: Bad Request. The expected parameters are missing
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "403":
+                    description: Access Denied. API key does not have permissions to perform the request
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "404":
+                    description: Requested resource does not exist
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "429":
+                    description: Too many requests. API Rate limits exceeded
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                default:
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: An unexpected error response.
+            description: Revokes and deletes a Customer portal link.
+            tags:
+                - Customer Portal
+    /api/v1/organizations/-/connections/{id}:
+        get:
+            responses:
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/connectionsGetConnectionResponse'
+            tags:
+                - ConnectionService
+            operationId: ConnectionService_GetConnection2
+            parameters:
+                - type: string
+                  name: id
+                  in: path
+                  required: true
+                - type: string
+                  name: organization_id
+                  in: query
+                - type: string
+                  name: external_id
+                  in: query
+    /api/v1/organizations/-/connections:
+        get:
+            tags:
+                - ConnectionService
+            operationId: ConnectionService_ListConnections2
+            parameters:
+                - in: query
+                  type: string
+                  name: organization_id
+                - name: external_id
+                  in: query
+                  type: string
+                - type: string
+                  name: include
+                  in: query
+            responses:
+                "200":
+                    schema:
+                        $ref: '#/definitions/connectionsListConnectionsResponse'
+                    description: A successful response.
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+    /api/v1/organizations/-/connections/{id}:enable:
+        patch:
+            parameters:
+                - in: path
+                  required: true
+                  type: string
+                  name: id
+                - type: string
+                  name: organization_id
+                  in: query
+                - type: string
+                  name: external_id
+                  in: query
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/connectionsToggleConnectionResponse'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            tags:
+                - ConnectionService
+            operationId: ConnectionService_EnableConnection2
+    /api/v1/organizations/-/connections:search:
+        get:
+            tags:
+                - ConnectionService
+            operationId: ConnectionService_GetConnectionByDomain
+            parameters:
+                - name: domain
+                  in: query
+                  type: string
+            responses:
+                "200":
+                    schema:
+                        $ref: '#/definitions/connectionsGetConnectionByDomainResponse'
+                    description: A successful response.
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+    /api/v1/organizations/{organization_id}/connections:
+        get:
+            parameters:
+                - type: string
+                  name: organization_id
+                  in: path
+                  required: true
+                - type: string
+                  name: external_id
+                  in: query
+                - type: string
+                  name: include
+                  in: query
+            responses:
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "200":
+                    schema:
+                        $ref: '#/definitions/connectionsListConnectionsResponse'
+                    description: A successful response.
+            tags:
+                - ConnectionService
+            operationId: ConnectionService_ListConnections
+    /api/v1/organizations/{organization_id}/connections/{id}:
+        get:
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/connectionsGetConnectionResponse'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            tags:
+                - ConnectionService
+            operationId: ConnectionService_GetConnection
+            parameters:
+                - type: string
+                  name: organization_id
+                  in: path
+                  required: true
+                - type: string
+                  name: id
+                  in: path
+                  required: true
+                - type: string
+                  name: external_id
+                  in: query
+    /api/v1/organizations/{organization_id}/connections/{id}:disable:
+        patch:
+            tags:
+                - ConnectionService
+            operationId: ConnectionService_DisableConnection
+            parameters:
+                - name: organization_id
+                  in: path
+                  required: true
+                  type: string
+                - type: string
+                  name: id
+                  in: path
+                  required: true
+                - type: string
+                  name: external_id
+                  in: query
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/connectionsToggleConnectionResponse'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+    /api/v1/organizations/{organization_id}/connections/{id}:enable:
+        patch:
+            tags:
+                - ConnectionService
+            operationId: ConnectionService_EnableConnection
+            parameters:
+                - type: string
+                  name: organization_id
+                  in: path
+                  required: true
+                - type: string
+                  name: id
+                  in: path
+                  required: true
+                - name: external_id
+                  in: query
+                  type: string
+            responses:
+                "200":
+                    schema:
+                        $ref: '#/definitions/connectionsToggleConnectionResponse'
+                    description: A successful response.
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+    /api/v1/organizations:
+        get:
+            tags:
+                - Organization
+            summary: List Organizations
+            operationId: OrganizationService_ListOrganization
+            parameters:
+                - type: integer
+                  format: int64
+                  description: Number of results to be returned. Max supported page_size is 30
+                  name: page_size
+                  in: query
+                  required: true
+                - type: string
+                  name: page_token
+                  in: query
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/organizationsListOrganizationsResponse'
+                "429":
+                    description: Too many requests. API Rate limits exceeded
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "500":
+                    description: Server Error. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "503":
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                default:
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: An unexpected error response.
+                "400":
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: Bad Request. The expected parameters are missing
+                "401":
+                    description: Invalid API Key Provided
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "403":
+                    description: Access Denied. API key does not have permissions to perform the request
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "404":
+                    description: Requested resource does not exist
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "504":
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            description: List all Organizations in the Environment. The results are paginated. The response contains page_token that can be used to access the next page of results.
+        post:
+            tags:
+                - Organization
+            summary: Create Organization
+            operationId: OrganizationService_CreateOrganization
+            parameters:
+                - name: organization
+                  in: body
+                  required: true
+                  schema:
+                    description: Organization details
+                    $ref: '#/definitions/v1organizationsCreateOrganization'
+                  description: Organization details
+            responses:
+                "201":
+                    description: Created Successfully
+                    schema: {}
+                "404":
+                    description: Requested resource does not exist
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "429":
+                    description: Too many requests. API Rate limits exceeded
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "500":
+                    description: Server Error. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "503":
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                "504":
+                    description: Service Unavailable. Something went wrong on Scalekit's end
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/organizationsCreateOrganizationResponse'
+                "400":
+                    description: Bad Request. The expected parameters are missing
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                "401":
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                    description: Invalid API Key Provided
+                "403":
+                    description: Access Denied. API key does not have permissions to perform the request
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            description: Creates an Organization. An Organization represents a tenant in the your application
+definitions:
+    connectionsConnection:
+        type: object
+        properties:
+            status:
+                $ref: '#/definitions/connectionsConnectionStatus'
+            type:
+                $ref: '#/definitions/connectionsConnectionType'
+            ui_button_title:
+                type: string
+            id:
+                type: string
+            logout_uri:
+                type: string
+            test_connection_uri:
+                type: string
+            attribute_mapping:
+                type: object
+                additionalProperties:
+                    type: string
+            debug_enabled:
+                type: boolean
+            oidc_config:
+                $ref: '#/definitions/connectionsOIDCConnectionConfig'
+            organization_id:
+                type: string
+            provider:
+                $ref: '#/definitions/connectionsConnectionProvider'
+            enabled:
+                type: boolean
+            login_initiation_uri:
+                type: string
+            configuration_type:
+                $ref: '#/definitions/connectionsConfigurationType'
+            saml_config:
+                $ref: '#/definitions/connectionsSAMLConnectionConfigResponse'
+    connectionsRequestBinding:
+        type: string
+        default: REQUEST_BINDING_UNSPECIFIED
+        enum:
+            - REQUEST_BINDING_UNSPECIFIED
+            - HTTP_POST
+            - HTTP_REDIRECT
+    connectionsConfigurationType:
+        type: string
+        default: CONFIGURATION_TYPE_UNSPECIFIED
+        enum:
+            - CONFIGURATION_TYPE_UNSPECIFIED
+            - DISCOVERY
+            - MANUAL
+    connectionsConnectionType:
+        type: string
+        default: INVALID
+        enum:
+            - INVALID
+            - OIDC
+            - SAML
+            - PASSWORD
+    organizationsUpdateOrganizationResponse:
+        type: object
+        properties:
+            organization:
+                $ref: '#/definitions/organizationsOrganization'
+    v1organizationsUpdateOrganization:
+        description: For update messages ensure the indexes are same as the base model itself.
+        type: object
+        properties:
+            display_name:
+                type: string
+            external_id:
+                type: string
+            metadata:
+                type: object
+                additionalProperties:
+                    type: string
+    connectionsConnectionProvider:
+        type: string
+        default: CONNECTION_PROVIDER_UNSPECIFIED
+        enum:
+            - CONNECTION_PROVIDER_UNSPECIFIED
+            - OKTA
+            - GOOGLE
+            - MICROSOFT_AD
+            - AUTH0
+            - ONELOGIN
+            - PING_IDENTITY
+            - JUMPCLOUD
+            - CUSTOM
+    connectionsToggleConnectionResponse:
+        type: object
+        properties:
+            enabled:
+                type: boolean
+            error_message:
+                type: string
+    connectionsTokenAuthType:
+        type: string
+        default: TOKEN_AUTH_TYPE_UNSPECIFIED
+        enum:
+            - TOKEN_AUTH_TYPE_UNSPECIFIED
+            - URL_PARAMS
+            - BASIC_AUTH
+    organizationsCreateOrganizationResponse:
+        type: object
+        properties:
+            organization:
+                $ref: '#/definitions/organizationsOrganization'
+    organizationsCustomerPortalLinksResponse:
+        type: object
+        properties:
+            links:
+                type: array
+                items:
+                    type: object
+                    $ref: '#/definitions/organizationsLink'
+    organizationsGetOrganizationResponse:
+        type: object
+        properties:
+            organization:
+                $ref: '#/definitions/organizationsOrganization'
+    connectionsGetConnectionResponse:
+        type: object
+        properties:
+            connection:
+                $ref: '#/definitions/connectionsConnection'
+    connectionsOIDCConnectionConfig:
+        type: object
+        properties:
+            client_secret:
+                type: string
+            discovery_endpoint:
+                type: string
+            redirect_uri:
+                type: string
+            token_auth_type:
+                $ref: '#/definitions/connectionsTokenAuthType'
+            token_uri:
+                type: string
+            authorize_uri:
+                type: string
+            client_id:
+                type: string
+            issuer:
+                type: string
+            jwks_uri:
+                type: string
+            pkce_enabled:
+                type: boolean
+            scopes:
+                items:
+                    $ref: '#/definitions/connectionsOIDCScope'
+                type: array
+            user_info_uri:
+                type: string
+    connectionsSAMLConnectionConfigResponse:
+        type: object
+        properties:
+            idp_sso_request_binding:
+                $ref: '#/definitions/connectionsRequestBinding'
+            sp_entity_id:
+                type: string
+            idp_name_id_format:
+                $ref: '#/definitions/connectionsNameIdFormat'
+            idp_slo_url:
+                type: string
+            idp_certificates:
+                type: array
+                items:
+                    type: object
+                    $ref: '#/definitions/connectionsIDPCertificate'
+            saml_signing_option:
+                $ref: '#/definitions/connectionsSAMLSigningOptions'
+            allow_idp_initiated_login:
+                type: boolean
+            assertion_encrypted:
+                type: boolean
+            default_redirect_uri:
+                type: string
+            idp_sso_url:
+                type: string
+            idp_metadata_url:
+                type: string
+            idp_slo_request_binding:
+                $ref: '#/definitions/connectionsRequestBinding'
+            sp_assertion_url:
+                type: string
+            sp_metadata_url:
+                type: string
+            ui_button_title:
+                type: string
+            want_request_signed:
+                type: boolean
+            force_authn:
+                type: boolean
+            idp_entity_id:
+                type: string
+    connectionsListConnectionsResponse:
+        type: object
+        properties:
+            connections:
+                items:
+                    type: object
+                    $ref: '#/definitions/connectionsListConnection'
+                type: array
+    connectionsSAMLSigningOptions:
+        enum:
+            - SAML_SIGNING_OPTIONS_UNSPECIFIED
+            - NO_SIGNING
+            - SAML_ONLY_RESPONSE_SIGNING
+            - SAML_ONLY_ASSERTION_SIGNING
+            - SAML_RESPONSE_ASSERTION_SIGNING
+        type: string
+        title: enums all
+        default: SAML_SIGNING_OPTIONS_UNSPECIFIED
+    connectionsGetConnectionByDomainResponse:
+        type: object
+        properties:
+            connection_id:
+                type: string
+            status:
+                $ref: '#/definitions/connectionsConnectionStatus'
+            type:
+                $ref: '#/definitions/connectionsConnectionType'
+            ui_button_title:
+                type: string
+    connectionsNameIdFormat:
+        default: NAME_ID_FORMAT_NIL
+        enum:
+            - NAME_ID_FORMAT_NIL
+            - UNSPECIFIED
+            - EMAIL
+            - TRANSIENT
+            - PERSISTENT
+        type: string
+    organizationsOrganization:
+        type: object
+        required:
+            - create_time
+        properties:
+            id:
+                description: Organization ID
+                type: string
+                title: Id
+                example: org_2123312131125533
+            metadata:
+                type: object
+                additionalProperties:
+                    type: string
+                description: Key value pairs extension attributes.
+            region_code:
+                description: 'Region code . Only US is supported '
+                title: Optional regioncode
+                $ref: '#/definitions/commonsRegionCode'
+                example: US
+            update_time:
+                description: Updated Time
+                type: string
+                format: date-time
+                title: Updated time
+            create_time:
+                description: Created Time
+                type: string
+                format: date-time
+                title: Created Time
+                example: 2023-03-03 12:30
+            display_name:
+                type: string
+                title: Name of the org to be used in display
+                example: Acme Corp
+                description: Display Name of the Organization
+            external_id:
+                description: External Id . This can be used to store a unique identifier that can help correalate scalekit Org with your SaaS app's tenant
+                type: string
+                title: External Id is useful to store a unique identifier for a given Org that. The unique Identifier can be the id of your tenant / org in your SaaSApp
+                example: my_unique_id
+    protobufAny:
+        description: |-
+            `Any` contains an arbitrary serialized protocol buffer message along with a
+            URL that describes the type of the serialized message.
+
+            Protobuf library provides support to pack/unpack Any values in the form
+            of utility functions or additional generated methods of the Any type.
+
+            Example 1: Pack and unpack a message in C++.
+
+                Foo foo = ...;
+                Any any;
+                any.PackFrom(foo);
+                ...
+                if (any.UnpackTo(&foo)) {
+                  ...
+                }
+
+            Example 2: Pack and unpack a message in Java.
+
+                Foo foo = ...;
+                Any any = Any.pack(foo);
+                ...
+                if (any.is(Foo.class)) {
+                  foo = any.unpack(Foo.class);
+                }
+                // or ...
+                if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+                  foo = any.unpack(Foo.getDefaultInstance());
+                }
+
+             Example 3: Pack and unpack a message in Python.
+
+                foo = Foo(...)
+                any = Any()
+                any.Pack(foo)
+                ...
+                if any.Is(Foo.DESCRIPTOR):
+                  any.Unpack(foo)
+                  ...
+
+             Example 4: Pack and unpack a message in Go
+
+                 foo := &pb.Foo{...}
+                 any, err := anypb.New(foo)
+                 if err != nil {
+                   ...
+                 }
+                 ...
+                 foo := &pb.Foo{}
+                 if err := any.UnmarshalTo(foo); err != nil {
+                   ...
+                 }
+
+            The pack methods provided by protobuf library will by default use
+            'type.googleapis.com/full.type.name' as the type URL and the unpack
+            methods only use the fully qualified type name after the last '/'
+            in the type URL, for example "foo.bar.com/x/y.z" will yield type
+            name "y.z".
+
+            JSON
+            ====
+            The JSON representation of an `Any` value uses the regular
+            representation of the deserialized, embedded message, with an
+            additional field `@type` which contains the type URL. Example:
+
+                package google.profile;
+                message Person {
+                  string first_name = 1;
+                  string last_name = 2;
+                }
+
+                {
+                  "@type": "type.googleapis.com/google.profile.Person",
+                  "firstName": <string>,
+                  "lastName": <string>
+                }
+
+            If the embedded message type is well-known and has a custom JSON
+            representation, that representation will be embedded adding a field
+            `value` which holds the custom JSON in addition to the `@type`
+            field. Example (for message [google.protobuf.Duration][]):
+
+                {
+                  "@type": "type.googleapis.com/google.protobuf.Duration",
+                  "value": "1.212s"
+                }
+        type: object
+        properties:
+            '@type':
+                type: string
+                description: |-
+                    A URL/resource name that uniquely identifies the type of the serialized
+                    protocol buffer message. This string must contain at least
+                    one "/" character. The last segment of the URL's path must represent
+                    the fully qualified name of the type (as in
+                    `path/google.protobuf.Duration`). The name should be in a canonical form
+                    (e.g., leading "." is not accepted).
+
+                    In practice, teams usually precompile into the binary all types that they
+                    expect it to use in the context of Any. However, for URLs which use the
+                    scheme `http`, `https`, or no scheme, one can optionally set up a type
+                    server that maps type URLs to message definitions as follows:
+
+                    * If no scheme is provided, `https` is assumed.
+                    * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+                      value in binary format, or produce an error.
+                    * Applications are allowed to cache lookup results based on the
+                      URL, or have them precompiled into a binary to avoid any
+                      lookup. Therefore, binary compatibility needs to be preserved
+                      on changes to types. (Use versioned type names to manage
+                      breaking changes.)
+
+                    Note: this functionality is not currently available in the official
+                    protobuf release, and it is not used for type URLs beginning with
+                    type.googleapis.com. As of May 2023, there are no widely used type server
+                    implementations and no plans to implement one.
+
+                    Schemes other than `http`, `https` (or the empty scheme) might be
+                    used with implementation specific semantics.
+        additionalProperties: false
+    v1organizationsCreateOrganization:
+        type: object
+        properties:
+            external_id:
+                description: External Id . This can be used to store a unique identifier that can help correalate scalekit Org with your SaaS app's tenant
+                type: string
+                title: External Id is useful to store a unique identifier for a given Org that. The unique Identifier can be the id of your tenant / org in your SaaSApp
+                example: my_unique_id
+            metadata:
+                description: Key value pairs extension attributes.
+                type: object
+                additionalProperties:
+                    type: string
+            display_name:
+                description: Display Name of the Organization
+                type: string
+                title: Name of the org to be used in display
+                example: Acme Corp
+    connectionsIDPCertificate:
+        type: object
+        properties:
+            certificate:
+                type: string
+            create_time:
+                type: string
+                format: date-time
+            expiry_time:
+                type: string
+                format: date-time
+            id:
+                type: string
+            issuer:
+                type: string
+    connectionsListConnection:
+        type: object
+        properties:
+            ui_button_title:
+                type: string
+            enabled:
+                type: boolean
+            id:
+                type: string
+            organization_id:
+                type: string
+            provider:
+                $ref: '#/definitions/connectionsConnectionProvider'
+            status:
+                $ref: '#/definitions/connectionsConnectionStatus'
+            type:
+                $ref: '#/definitions/connectionsConnectionType'
+    connectionsOIDCScope:
+        type: string
+        default: OIDC_SCOPE_UNSPECIFIED
+        enum:
+            - OIDC_SCOPE_UNSPECIFIED
+            - openid
+            - profile
+            - email
+            - address
+            - phone
+    organizationsLink:
+        type: object
+        properties:
+            expire_time:
+                type: string
+                format: date-time
+            id:
+                type: string
+            location:
+                type: string
+    rpcStatus:
+        type: object
+        properties:
+            code:
+                type: integer
+                format: int32
+            details:
+                type: array
+                items:
+                    type: object
+                    $ref: '#/definitions/protobufAny'
+            message:
+                type: string
+    commonsRegionCode:
+        default: REGION_CODE_UNSPECIFIED
+        enum:
+            - REGION_CODE_UNSPECIFIED
+            - US
+            - EU
+        description: ' - REGION_CODE_UNSPECIFIED: If the region code is unspecified the selected region will automatically be decided based on the origin of the call.'
+        type: string
+    connectionsConnectionStatus:
+        type: string
+        default: CONNECTION_STATUS_UNSPECIFIED
+        enum:
+            - CONNECTION_STATUS_UNSPECIFIED
+            - DRAFT
+            - IN_PROGRESS
+            - COMPLETED
+    organizationsListOrganizationsResponse:
+        type: object
+        properties:
+            next_page_token:
+                type: string
+            organizations:
+                type: array
+                items:
+                    type: object
+                    $ref: '#/definitions/organizationsOrganization'
+            total_size:
+                format: int64
+                type: integer
+securityDefinitions:
+    OAuth2:
+        type: oauth2
+        flow: application
+        tokenUrl: https://$ENV_DOMAIN/oauth/token
+security:
+    - OAuth2: []
+tags:
+    - description: Organization
+      name: Organization
+    - name: ConnectionService
+externalDocs:
+    description: Scalekit Developer documentation
+    url: https://docs.scalekit.com/
