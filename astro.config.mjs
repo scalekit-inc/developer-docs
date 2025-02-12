@@ -26,7 +26,8 @@ export default defineConfig({
           'https://github.com/scalekit-inc/scalekit-docs/edit/main/src/content/docs/',
       },
       expressiveCode: {
-        themes: ['github-light', 'material-theme'],
+        themes: ['material-theme', 'github-light'],
+        useStarlightDarkModeSwitch: true,
       },
       customCss: [
         '@fontsource-variable/plus-jakarta-sans',
@@ -43,6 +44,7 @@ export default defineConfig({
               collapsed: false,
             },
             { label: 'Example Guide 2', slug: 'guides/example' },
+            { label: 'Plugins', slug: 'guides/plugins' },
           ],
         },
         {
