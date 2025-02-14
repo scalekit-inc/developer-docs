@@ -53,6 +53,23 @@ export default {
           active: 'hsl(0 84% 50%)',
         },
       },
+      borderRadius: {
+        base: '5px',
+      },
+      boxShadow: {
+        light: '-2px 4px 0px 0px #000',
+        dark: '-2px 4px 0px 0px #000',
+      },
+      translate: {
+        boxShadowX: '-2px',
+        boxShadowY: '4px',
+        reverseBoxShadowX: '2px',
+        reverseBoxShadowY: '-4px',
+      },
+      fontWeight: {
+        base: '500',
+        heading: '700',
+      },
     },
   },
   plugins: [starlightPlugin()],
