@@ -14,7 +14,7 @@ export default defineConfig({
     starlight({
       title: 'My Docs',
       components: {
-        SocialIcons: './src/components/overrides/MySocialLinks.astro',
+        SocialIcons: './src/components/overrides/Primary.astro',
       },
       logo: {
         light: '/src/assets/images/scalekit-logo-black.svg',
