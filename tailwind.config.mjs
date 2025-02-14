@@ -24,6 +24,23 @@ export default {
   theme: {
     extend: {
       colors: { accent, gray },
+      borderRadius: {
+        base: '5px',
+      },
+      boxShadow: {
+        light: '-2px 4px 0px 0px #000',
+        dark: '-2px 4px 0px 0px #000',
+      },
+      translate: {
+        boxShadowX: '-2px',
+        boxShadowY: '4px',
+        reverseBoxShadowX: '2px',
+        reverseBoxShadowY: '-4px',
+      },
+      fontWeight: {
+        base: '500',
+        heading: '700',
+      },
     },
   },
   plugins: [starlightPlugin()],
