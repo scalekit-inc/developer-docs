@@ -1,0 +1,77 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Theme Test">
+  <main class="p-8">
+    <h1 class="text-3xl font-bold mb-8">Theme Test Page</h1>
+
+    <div class="space-y-8">
+      <!-- Background Colors -->
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">Background Colors</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div class="p-4 bg-main text-mtext rounded">bg-main</div>
+          <div class="p-4 bg-bg text-text rounded">bg-bg</div>
+          <div class="p-4 bg-bw text-text rounded">bg-bw</div>
+        </div>
+      </section>
+
+      <!-- Text Colors -->
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">Text Colors</h2>
+        <div class="space-y-2">
+          <p class="text-text">text-text: Regular text color</p>
+          <p class="text-mtext">text-mtext: Main text color</p>
+          <p class="text-blank">text-blank: Blank color</p>
+        </div>
+      </section>
+
+      <!-- Borders and Shadows -->
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">Borders and Shadows</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div class="p-4 border border-border rounded">Border</div>
+          <div class="p-4 bg-bw [box-shadow:var(--shadow)] rounded">Shadow</div>
+          <div class="p-4 ring-2 ring-ring ring-offset-2 ring-offset-ringOffset rounded">Ring</div>
+        </div>
+      </section>
+
+      <!-- Theme Toggle -->
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">Theme Toggle</h2>
+        <button
+          id="themeToggle"
+          class="px-4 py-2 bg-main text-mtext rounded [box-shadow:var(--shadow)] hover:translate-y-0.5 hover:[box-shadow:var(--reverse-box-shadow-x)_var(--reverse-box-shadow-y)_0px_0px_var(--border)] transition-all"
+        >
+          Toggle Dark Mode
+        </button>
+      </section>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  const themeToggle = document.getElementById('themeToggle');
+
+  // Check initial theme
+  if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+
+  // Update button text based on current theme
+  const updateButtonText = () => {
+    if (themeToggle) {
+      themeToggle.textContent = document.documentElement.classList.contains('dark') ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+    }
+  };
+  updateButtonText();
+
+  themeToggle?.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    updateButtonText();
+  });
+</script>
