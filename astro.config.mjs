@@ -34,7 +34,7 @@ export default defineConfig({
         '@fontsource-variable/plus-jakarta-sans',
         '@fontsource-variable/space-grotesk',
         './src/styles/tailwind.css',
-        // './src/styles/custom.css',
+        './src/styles/custom.css',
       ],
       sidebar: [
         {
