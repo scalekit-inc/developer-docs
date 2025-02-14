@@ -8,12 +8,13 @@ import tailwind from '@astrojs/tailwind';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://scalekit.com', // creates a sitemap for robots.txt
+  site: 'https://scalekit.com',
   integrations: [
     starlight({
       title: 'My Docs',
       logo: {
-        src: '@/assets/logo-test.png',
+        light: '/src/assets/images/scalekit-logo-black.svg',
+        dark: '/src/assets/images/scalekit-logo-white.svg',
         replacesTitle: true,
       },
       defaultLocale: 'en',
