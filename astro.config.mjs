@@ -5,6 +5,7 @@ import react from '@astrojs/react';
 import path from 'path';
 import vue from '@astrojs/vue';
 import tailwind from '@astrojs/tailwind';
+import starlightLinksValidator from 'starlight-links-validator';
 
 // https://astro.build/config
 export default defineConfig({
@@ -60,6 +61,7 @@ export default defineConfig({
           attrs: { target: '_blank', style: 'font-style: italic' },
         },
       ],
+      plugins: [starlightLinksValidator()],
     }),
     tailwind({
       applyBaseStyles: false,
