@@ -13,16 +13,15 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'My Docs',
+      components: {
+        SocialIcons: './src/components/overrides/MySocialLinks.astro',
+      },
       logo: {
         light: '/src/assets/images/scalekit-logo-black.svg',
         dark: '/src/assets/images/scalekit-logo-white.svg',
         replacesTitle: true,
       },
       defaultLocale: 'en',
-      social: {
-        github: 'https://github.com/scalekit-inc',
-        linkedin: 'https://www.linkedin.com/company/scalekit-inc/',
-      },
       // allows for open contributions to the docs
       editLink: {
         baseUrl:
