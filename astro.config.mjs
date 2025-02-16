@@ -107,8 +107,13 @@ export default defineConfig({
             ],
           },
           {
-            label: 'REST APIs',
+            label: 'REST APIs (embedded)',
             link: '/apis-scalar',
+            icon: 'starlight',
+          },
+          {
+            label: 'REST APIs (scalar hosted)',
+            link: 'https://muscular-ratio.apidocumentation.com/',
             icon: 'starlight',
           },
         ]),
