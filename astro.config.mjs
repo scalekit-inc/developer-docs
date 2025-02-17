@@ -44,7 +44,7 @@ export default defineConfig({
       plugins: [
         starlightSidebarTopicsDropdown([
           {
-            label: 'Documentation',
+            label: 'Getting Started',
             link: '/docs/getting-started/',
             icon: 'open-book',
             items: [
@@ -54,28 +54,53 @@ export default defineConfig({
               },
               {
                 label: 'Quickstarts',
-                collapsed: true,
+                collapsed: false,
                 items: [
                   'docs/sso-quickstart',
                   'docs/scim-quickstart',
                   'docs/social-logins-quickstart',
                 ],
               },
-              { label: 'Guides', autogenerate: { directory: 'docs/guides' } },
               {
-                label: 'Resources',
+                label: 'Enterprise Auth',
                 items: [
                   {
-                    label: 'Showcase',
+                    label: 'Social Logins',
                     link: '/resources/sites/',
                   },
                   {
-                    label: 'Plugins',
-                    link: '/resources/plugins/',
+                    label: 'Single Sign-On',
+                    link: 'https://scalekit.statuspage.io/',
+                  },
+                ],
+              },
+              {
+                label: 'Provisioning',
+                items: [
+                  {
+                    label: 'SCIM',
+                    link: '/resources/sites/',
                   },
                   {
-                    label: 'Content from HiDeoo',
-                    link: '/resources/hideoo/',
+                    label: 'Webhooks',
+                    link: 'https://scalekit.statuspage.io/',
+                  },
+                ],
+              },
+              {
+                label: 'Config and Admin',
+                autogenerate: { directory: 'docs/config-and-admin' },
+              },
+              {
+                label: 'Support',
+                items: [
+                  {
+                    label: 'Chat with us!',
+                    link: '/resources/sites/',
+                  },
+                  {
+                    label: 'Status Page',
+                    link: 'https://scalekit.statuspage.io/',
                   },
                 ],
               },
@@ -83,10 +108,7 @@ export default defineConfig({
           },
           {
             id: 'demo',
-            label: {
-              en: 'Demo',
-              fr: 'Démo',
-            },
+            label: 'Guides',
             link: '/demo/',
             icon: 'puzzle',
             items: [
@@ -103,7 +125,7 @@ export default defineConfig({
             ],
             badge: {
               text: {
-                en: 'Stub',
+                en: 'New',
                 fr: 'Ébauche',
               },
               variant: 'caution',
