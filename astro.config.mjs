@@ -54,6 +54,7 @@ export default defineConfig({
               },
               {
                 label: 'Quickstarts',
+                collapsed: true,
                 items: [
                   'docs/sso-quickstart',
                   'docs/scim-quickstart',
