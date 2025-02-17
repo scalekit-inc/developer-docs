@@ -11,6 +11,9 @@ import starlightSidebarTopicsDropdown from 'starlight-sidebar-topics-dropdown';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://scalekit.com',
+  redirects: {
+    '/': '/docs/overview/',
+  },
   integrations: [
     starlight({
       title: 'My Docs',
@@ -46,8 +49,16 @@ export default defineConfig({
             icon: 'open-book',
             items: [
               {
-                label: 'Start Here',
-                items: ['docs/getting-started', 'docs/configuration'],
+                label: 'Overview',
+                link: '/docs/overview/',
+              },
+              {
+                label: 'Quickstarts',
+                items: [
+                  'docs/sso-quickstart',
+                  'docs/scim-quickstart',
+                  'docs/social-logins-quickstart',
+                ],
               },
               { label: 'Guides', autogenerate: { directory: 'docs/guides' } },
               {
