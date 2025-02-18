@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ApiReference } from '@scalar/api-reference';
 import '@scalar/api-reference/style.css';
+import '@fontsource-variable/plus-jakarta-sans';
 </script>
 
 <template>
@@ -11,6 +12,14 @@ import '@scalar/api-reference/style.css';
           url: '/api/scalekit.swagger.json',
         },
         theme: 'bluePlanet',
+        customCss: `
+          .property-name, .scalar-code-block {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !important;
+          }
+          * {
+            font-family: 'Plus Jakarta Sans Variable', sans-serif;
+          }
+        `,
         hideTestRequestButton: true,
         hideModels: true,
         hiddenClients: [
@@ -60,5 +69,11 @@ import '@scalar/api-reference/style.css';
   height: 100vh;
   margin: 0;
   padding: 0;
+  overflow-y: auto;
+}
+
+:deep(.scalar-api-reference) {
+  height: 100%;
+  overflow-y: auto;
 }
 </style>
