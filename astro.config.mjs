@@ -10,9 +10,9 @@ import starlightSidebarTopicsDropdown from 'starlight-sidebar-topics-dropdown';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://scalekit.com',
+  // site: 'https://scalekit.com',
   redirects: {
-    '/': '/docs/overview/',
+    '/': '/docs/overview',
   },
   integrations: [
     starlight({
