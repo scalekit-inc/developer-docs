@@ -23,7 +23,6 @@ export default defineConfig({
         replacesTitle: true,
       },
       defaultLocale: 'en',
-      // allows for open contributions to the docs
       editLink: {
         baseUrl:
           'https://github.com/scalekit-inc/scalekit-docs/edit/main/src/content/docs/',
