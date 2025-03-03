@@ -1,5 +1,5 @@
 ---
-title: Lorem ispum
+title: Lorem ispumses
 ---
 
 :::note

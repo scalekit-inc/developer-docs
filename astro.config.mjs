@@ -45,10 +45,6 @@ export default defineConfig({
             icon: 'open-book',
             items: [
               {
-                label: 'Overview',
-                link: '/docs/overview/',
-              },
-              {
                 label: 'Quickstarts',
                 collapsed: false,
                 items: [
@@ -108,6 +104,7 @@ export default defineConfig({
             link: '/demo/',
             icon: 'puzzle',
             items: [
+              { slug: 'unnested-sidebar/lorem-ipsum' },
               { label: 'API', autogenerate: { directory: 'demo/api' } },
               {
                 label: 'Components',
@@ -137,13 +134,8 @@ export default defineConfig({
             ],
           },
           {
-            label: 'REST APIs (embedded)',
+            label: 'Reference',
             link: '/apis-scalar',
-            icon: 'starlight',
-          },
-          {
-            label: 'REST APIs (scalar hosted)',
-            link: 'https://muscular-ratio.apidocumentation.com/',
             icon: 'starlight',
           },
         ]),
