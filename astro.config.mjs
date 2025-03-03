@@ -153,7 +153,14 @@ export default defineConfig({
       applyBaseStyles: false,
     }),
     react(),
-    vue(),
+    vue({
+      jsx: true,
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag.includes('-'),
+        },
+      },
+    }),
   ],
   vite: {
     resolve: {
@@ -161,5 +168,10 @@ export default defineConfig({
         '@': path.resolve('./src'),
       },
     },
+    optimizeDeps: {
+      include: ['vue'],
+      exclude: [],
+    },
+    plugins: [],
   },
 });
