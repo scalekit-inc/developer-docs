@@ -20,19 +20,19 @@ import starlightPlugin from '@astrojs/starlight-tailwind';
 
 // Generated color palettes
 const accent = {
-  50: '#F5F7FF', // Nearly white with hint of blue
-  100: '#EDF0FF', // Very light blue for dark mode backgrounds
-  200: '#DCE3FF', // Light blue with enough contrast for dark mode
-  300: '#C2CDFF', // Mid-light blue
-  400: '#A3B2FF', // Mid blue
-  500: '#8096FF', // Medium blue with good contrast
-  600: '#5A73F9', // Primary action color (good for buttons in both modes)
-  700: '#3F54DD', // Darker blue (still visible in dark mode)
-  800: '#2E3DB2', // Deep blue
-  900: '#1F2B88', // Very deep blue (readable on white)
-  950: '#141C5E', // Near-dark blue (excellent contrast on white)
-  975: '#0E1445', // Very dark blue
-  1000: '#080C2E', // Nearly black with hint of blue
+  50: '#F5F7FF',
+  100: '#EDF0FF',
+  200: '#DCE3FF',
+  300: '#C2CDFF',
+  400: '#A3B2FF',
+  500: '#8096FF',
+  600: '#5A73F9',
+  700: '#3F54DD',
+  800: '#2E3DB2',
+  900: '#1F2B88',
+  950: '#141C5E',
+  975: '#0E1445',
+  1000: '#080C2E',
 };
 
 const gray = {

@@ -40,10 +40,22 @@ export default defineConfig({
       plugins: [
         starlightSidebarTopicsDropdown([
           {
-            label: 'Getting Started',
+            label: 'Manual',
             link: '/docs/getting-started/',
             icon: 'open-book',
             items: [
+              {
+                label: 'Getting Started',
+                collapsed: false,
+                items: [
+                  { label: 'Installation', link: 'docs/getting-started' },
+                  { label: 'First Project', link: 'docs/getting-started' },
+                  {
+                    label: 'Setup your environment',
+                    link: 'docs/getting-started',
+                  },
+                ],
+              },
               {
                 label: 'Quickstarts',
                 collapsed: false,
