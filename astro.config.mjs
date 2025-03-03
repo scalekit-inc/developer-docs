@@ -111,6 +111,16 @@ export default defineConfig({
             ],
           },
           {
+            label: 'Reference',
+            id: 'reference',
+            link: '/reference/',
+            icon: 'starlight',
+            items: [
+              { label: 'REST APIs', link: '/apis-scalar' },
+              { label: 'SDKs', autogenerate: { directory: 'reference/sdks' } },
+            ],
+          },
+          {
             id: 'demo',
             label: 'Guides',
             link: '/demo/',
@@ -144,11 +154,6 @@ export default defineConfig({
             items: [
               { label: '', autogenerate: { directory: 'unnested-sidebar' } },
             ],
-          },
-          {
-            label: 'Reference',
-            link: '/apis-scalar',
-            icon: 'starlight',
           },
         ]),
       ],
