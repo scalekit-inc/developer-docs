@@ -41,6 +41,7 @@ export default defineConfig({
         starlightSidebarTopicsDropdown([
           {
             label: 'Manual',
+            id: 'manual',
             link: '/manual/getting-started/',
             icon: 'open-book',
             items: [
@@ -149,41 +150,6 @@ export default defineConfig({
                 label: 'SCIM Integrations',
                 autogenerate: { directory: 'guides/scim-integrations' },
               },
-            ],
-          },
-          {
-            id: 'demo',
-            label: 'Demo',
-            link: '/demo/',
-            icon: 'puzzle',
-            items: [
-              { slug: 'unnested-sidebar/lorem-ipsum' },
-              { label: 'API', autogenerate: { directory: 'demo/api' } },
-              {
-                label: 'Components',
-                autogenerate: { directory: 'demo/components' },
-              },
-              {
-                label: 'Commands',
-                autogenerate: { directory: 'demo/commands' },
-                collapsed: true,
-              },
-            ],
-            badge: {
-              text: {
-                en: 'New',
-                fr: 'Ébauche',
-              },
-              variant: 'caution',
-            },
-          },
-          {
-            id: 'unnested-sidebar',
-            label: 'Unnested Sidebar',
-            link: '/unnested-sidebar/',
-            icon: 'right-caret',
-            items: [
-              { label: '', autogenerate: { directory: 'unnested-sidebar' } },
             ],
           },
         ]),
