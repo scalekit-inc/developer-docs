@@ -41,18 +41,18 @@ export default defineConfig({
         starlightSidebarTopicsDropdown([
           {
             label: 'Manual',
-            link: '/docs/getting-started/',
+            link: '/manual/getting-started/',
             icon: 'open-book',
             items: [
               {
                 label: 'Getting Started',
                 collapsed: false,
                 items: [
-                  { label: 'Installation', link: 'docs/getting-started' },
-                  { label: 'First Project', link: 'docs/getting-started' },
+                  { label: 'Installation', link: 'manual/getting-started' },
+                  { label: 'First Project', link: 'manual/getting-started' },
                   {
                     label: 'Setup your environment',
-                    link: 'docs/getting-started',
+                    link: 'manual/getting-started',
                   },
                 ],
               },
@@ -60,44 +60,56 @@ export default defineConfig({
                 label: 'Quickstarts',
                 collapsed: false,
                 items: [
-                  'docs/sso-quickstart',
-                  'docs/scim-quickstart',
-                  'docs/social-logins-quickstart',
+                  'manual/sso-quickstart',
+                  'manual/scim-quickstart',
+                  'manual/social-logins-quickstart',
                 ],
               },
               {
-                label: 'Enterprise Auth',
+                label: 'Fundamentals',
                 items: [
                   {
-                    label: 'Social Logins',
+                    label: 'Admin Portal',
                     link: '/resources/sites/',
                   },
                   {
-                    label: 'Single Sign-On',
+                    label: 'Test Organization',
                     link: 'https://scalekit.statuspage.io/',
+                  },
+                  {
+                    label: 'IdP Simulator',
+                    link: '/manual/fundamentals/idp-simulator',
                   },
                 ],
               },
               {
-                label: 'Provisioning',
+                label: 'Integrations',
                 items: [
                   {
-                    label: 'SCIM',
-                    link: '/resources/sites/',
+                    label: 'Auth0',
+                    link: '/manual/integrations/auth0',
                   },
                   {
-                    label: 'Webhooks',
-                    link: 'https://scalekit.statuspage.io/',
+                    label: 'Cognito',
+                    link: '/manual/integrations/cognito',
+                  },
+                  {
+                    label: 'Firebase',
+                    link: '/manual/integrations/firebase',
+                  },
+                  {
+                    label: 'Continue to more integrations',
+                    link: '/guides/',
                   },
                 ],
-              },
-              {
-                label: 'Config and Admin',
-                autogenerate: { directory: 'docs/config-and-admin' },
               },
               {
                 label: 'Support',
                 items: [
+                  {
+                    label: 'Glossary',
+                    link: '/resources/sites/',
+                  },
                   {
                     label: 'Chat with us!',
                     link: '/resources/sites/',
@@ -118,11 +130,30 @@ export default defineConfig({
             items: [
               { label: 'REST APIs', link: '/apis-scalar' },
               { label: 'SDKs', autogenerate: { directory: 'reference/sdks' } },
+              {
+                label: 'Webhooks',
+                autogenerate: { directory: 'reference/webhooks' },
+              },
+            ],
+          },
+          {
+            label: 'Guides',
+            link: '/guides/',
+            icon: 'puzzle',
+            items: [
+              {
+                label: 'SSO Integrations',
+                autogenerate: { directory: 'guides/sso-integrations' },
+              },
+              {
+                label: 'SCIM Integrations',
+                autogenerate: { directory: 'guides/scim-integrations' },
+              },
             ],
           },
           {
             id: 'demo',
-            label: 'Guides',
+            label: 'Demo',
             link: '/demo/',
             icon: 'puzzle',
             items: [
