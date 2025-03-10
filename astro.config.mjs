@@ -32,6 +32,7 @@ export default defineConfig({
         useStarlightDarkModeSwitch: true,
       },
       customCss: [
+        '@fontsource-variable/inter',
         '@fontsource-variable/plus-jakarta-sans',
         '@fontsource-variable/space-grotesk',
         './src/styles/tailwind.css',
