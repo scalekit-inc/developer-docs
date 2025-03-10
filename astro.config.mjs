@@ -6,6 +6,7 @@ import path from 'path';
 import vue from '@astrojs/vue';
 import tailwind from '@astrojs/tailwind';
 import starlightLinksValidator from 'starlight-links-validator';
+import starlightSidebarTopics from 'starlight-sidebar-topics';
 import starlightSidebarTopicsDropdown from 'starlight-sidebar-topics-dropdown';
 
 // https://astro.build/config
@@ -32,13 +33,14 @@ export default defineConfig({
         useStarlightDarkModeSwitch: true,
       },
       customCss: [
+        '@fontsource-variable/inter',
         '@fontsource-variable/plus-jakarta-sans',
         '@fontsource-variable/space-grotesk',
         './src/styles/tailwind.css',
         './src/styles/custom.css',
       ],
       plugins: [
-        starlightSidebarTopicsDropdown([
+        starlightSidebarTopics([
           {
             label: 'Manual',
             id: 'manual',
