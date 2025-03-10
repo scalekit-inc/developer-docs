@@ -6,6 +6,7 @@ import path from 'path';
 import vue from '@astrojs/vue';
 import tailwind from '@astrojs/tailwind';
 import starlightLinksValidator from 'starlight-links-validator';
+import starlightSidebarTopics from 'starlight-sidebar-topics';
 import starlightSidebarTopicsDropdown from 'starlight-sidebar-topics-dropdown';
 
 // https://astro.build/config
@@ -39,7 +40,7 @@ export default defineConfig({
         './src/styles/custom.css',
       ],
       plugins: [
-        starlightSidebarTopicsDropdown([
+        starlightSidebarTopics([
           {
             label: 'Manual',
             id: 'manual',
