@@ -51,7 +51,10 @@ export default defineConfig({
                 label: 'Getting Started',
                 collapsed: false,
                 items: [
-                  { label: 'Installation', link: 'manual/getting-started' },
+                  {
+                    label: 'Installation',
+                    link: 'manual/getting-started/installation',
+                  },
                   { label: 'First Project', link: 'manual/getting-started' },
                   {
                     label: 'Setup your environment',
@@ -174,6 +177,7 @@ export default defineConfig({
     resolve: {
       alias: {
         '@': path.resolve('./src'),
+        '@components': path.resolve('./src/components'),
       },
     },
     optimizeDeps: {
