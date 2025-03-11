@@ -15,6 +15,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'My Docs',
+      favicon: 'src/assets/favicons/logo.png',
       components: {
         SocialIcons: './src/components/overrides/Primary.astro',
       },
@@ -154,6 +155,10 @@ export default defineConfig({
               {
                 label: 'SCIM Integrations',
                 autogenerate: { directory: 'guides/scim-integrations' },
+              },
+              {
+                label: 'Product',
+                autogenerate: { directory: 'guides/product' },
               },
             ],
           },
