@@ -94,15 +94,15 @@ export default defineConfig({
                 items: [
                   {
                     label: 'Auth0',
-                    link: '/manual/integrations/auth0',
+                    link: '/guides/auth-systems/auth0',
                   },
                   {
                     label: 'Cognito',
-                    link: '/manual/integrations/cognito',
+                    link: '/guides/auth-systems/aws-cognito',
                   },
                   {
                     label: 'Firebase',
-                    link: '/manual/integrations/firebase',
+                    link: '/guides/auth-systems/firebase',
                   },
                   {
                     label: 'Continue to more integrations',
@@ -155,6 +155,10 @@ export default defineConfig({
               {
                 label: 'SCIM Integrations',
                 autogenerate: { directory: 'guides/scim-integrations' },
+              },
+              {
+                label: 'Auth Systems',
+                autogenerate: { directory: 'guides/auth-systems' },
               },
               {
                 label: 'Product',
