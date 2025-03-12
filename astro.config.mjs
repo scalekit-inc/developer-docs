@@ -8,6 +8,8 @@ import tailwind from '@astrojs/tailwind';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightSidebarTopics from 'starlight-sidebar-topics';
 import starlightSidebarTopicsDropdown from 'starlight-sidebar-topics-dropdown';
+import starlightViewModes from 'starlight-view-modes';
+import starlightImageZoom from 'starlight-image-zoom';
 
 // https://astro.build/config
 export default defineConfig({
@@ -41,6 +43,10 @@ export default defineConfig({
         './src/styles/custom.css',
       ],
       plugins: [
+        starlightLinksValidator(),
+        starlightViewModes({
+          presentationModeEnabled: false,
+        }),
         starlightSidebarTopics([
           {
             label: 'Manual',
