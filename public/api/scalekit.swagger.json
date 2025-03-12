@@ -1,7 +1,13 @@
 {
-  "consumes": ["application/json"],
-  "produces": ["application/json"],
-  "schemes": ["https"],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "# Introduction\nScalekit API is modeled around the [REST](https://en.wikipedia.org/wiki/REST) architecture style. That means, our API has predictable resource-oriented URLs, accepts form-encoded request bodies and produces JSON formatted responses, uses standard HTTP verbs and error codes.\n\n## Getting Started\nIf you are just getting started, you can also refer to our [Quick Start Guide](/single-sign-on/quickstart-sso).\n\nApart from REST APIs, we have published SDKs in some of the popular languages as shown below. You can use these SDKs and integrate with Scalekit much faster.\n\n- [NodeJS](https://github.com/scalekit-inc/scalekit-sdk-node)\n- [Go Lang](https://github.com/scalekit-inc/scalekit-sdk-go)\n\nSome additional instructions around using our APIs\n\n- API Endpoint Host must use the `Environment URL` of the environment you are targeting.\n- API requests without appropriate authentication headers will fail with 401 status code.\n\nRead below to understand more about how to authenticate the API calls and how to handle errors appropriately.\n\n\n# API Authentication\nScalekit API uses [OAuth2 Client Credentials](https://www.oauth.com/oauth2-servers/access-tokens/client-credentials) based authentication. You can view and manage the necessary information from your `API Config` section in the Scalekit Dashboard.\n\nYou will need the following information to authenticate with Scalekit APIs\n- Client ID\n- Client Secret\n- Environment URL\n\nYou can obtain a secure token by making `POST` call to the `https://{ENV_URL}/oauth/token` endpoint and sending client_id and client_secret as part of the request body.\n\n```shell\n$ curl https://{ENV_URL}/oauth/token \\\n  -X POST \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  -d 'client_id={client_id}' \\\n  -d 'client_secret={client_secret}' \\\n  -d 'grant_type=client_credentials'\\\n```\n\nUpon successful processing, you will receive the access token as part of the JSON response as shown in example below:\n```json\n{\n  \"access_token\": \"DCRD10-e7c5c8139165228a82e442445fe01c16\",\n  \"token_type\": \"bearer\",\n  \"expires_in\": 1799\n}\n```\nThe `access_token` is the OAuth access token you need to use for all subsequent API calls to Scalekit.\n\nTo make a request to one of our APIs, you need to include the access token in the Authorization header of the request as Bearer 'access_token' like the following example shows:\n```shell\n$ curl --request GET \"https://{ENV_URL}/api/v1/organizations\" \\\n-H \"Content-Type: application/json\" \\\n-H \"Authorization: Bearer {access_token}\"\n```\n\nPlease make sure that you keep your Client Secrets safely. Do not share your client secret in publicly accessible areas such as GitHub, client-side code, etc. Refer to [this guide](/security/client-secrets) to understand some of the best practices around keeping client secrets secure.\n\nOur SDKs will automatically handle the API authentication and error handling to make the job of using our APIs much easier for you.\n\n# Error Handling\nAs mentioned earlier, Scalekit APIs return appropriate HTTP Status Codes along with the detailed error messages in case of invalid usage of APIs.\n\nIn general:\n- `200 or 201`: API request is successful\n- `400`: The request was unacceptable, often due to missing a required parameter.\n- `401`: Invalid Authentication Headers found in the request.\n- `404`: Resource not found\n- `429`: Too many requests hit the API too quickly. Retry the request after a cool-off period.\n- `500 or 501 or 504`: Something went wrong at our end. However rare they are, we automatically log these requests for proactive support and fixing the underlying issue.\n\nAlong with HTTP Status Codes, we also respond with detailed error messages. An example error message for a 401 error is shown below.\n\n```json\n{\n    \"code\": 16,\n    \"message\": \"Token empty\",\n    \"details\":\n    [\n        {\n            \"@type\": \"type.googleapis.com/scalekit.v1.errdetails.ErrorInfo\",\n            \"error_code\": \"UNAUTHENTICATED\"\n        }\n    ]\n}\n```\n\nWe strongly recommend you to handle errors gracefully while writing code using our SDKs.\n",
@@ -22,7 +28,9 @@
     "/.well-known/openid-configurations": {
       "get": {
         "description": "Returns the OpenID Connect configuration values from the provider's Well-Known Configuration Endpoint, per the specification (https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest). \n\nSample Response below.\n```\n{\n  \"issuer\": \"https://rexinc.scalekit.com\",\n  \"authorization_endpoint\": \"https://rexinc.scalekit.com/oauth/authorize\",\n  \"token_endpoint\": \"https://rexinc.scalekit.com/oauth/token\",\n  \"introspection_endpoint\": \"https://rexinc.scalekit.com/oauth/introspect\",\n  \"userinfo_endpoint\": \"https://rexinc.scalekit.com/userinfo\",\n  \"revocation_endpoint\": \"https://rexinc.scalekit.com/revoke\",\n  \"end_session_endpoint\": \"https://rexinc.scalekit.com/end_session\",\n  \"jwks_uri\": \"https://rexinc.scalekit.com/keys\",\n  \"scopes_supported\": [\n    \"openid\",\n    \"profile\",\n    \"offline_access\"\n  ],\n  \"response_types_supported\": [\n    \"code\"\n  ],\n  \"response_modes_supported\": [\n    \"query\"\n  ],\n  \"grant_types_supported\": [\n    \"authorization_code\",\n    \"client_credentials\",\n    \"refresh_token\"\n  ],\n  \"subject_types_supported\": [\n    \"public\"\n  ],\n  \"id_token_signing_alg_values_supported\": [\n    \"RS256\"\n  ],\n  \"request_object_signing_alg_values_supported\": [\n    \"RS256\"\n  ],\n  \"token_endpoint_auth_methods_supported\": [\n    \"none\",\n    \"client_secret_basic\",\n    \"client_secret_post\",\n    \"private_key_jwt\"\n  ],\n  \"token_endpoint_auth_signing_alg_values_supported\": [\n    \"RS256\"\n  ],\n  \"revocation_endpoint_auth_methods_supported\": [\n    \"none\",\n    \"client_secret_basic\",\n    \"client_secret_post\",\n    \"private_key_jwt\"\n  ],\n  \"revocation_endpoint_auth_signing_alg_values_supported\": [\n    \"RS256\"\n  ],\n  \"introspection_endpoint_auth_methods_supported\": [\n    \"client_secret_basic\",\n    \"private_key_jwt\"\n  ],\n  \"introspection_endpoint_auth_signing_alg_values_supported\": [\n    \"RS256\"\n  ],\n  \"claims_supported\": [\n    \"sub\",\n    \"aud\",\n    \"exp\",\n    \"iat\",\n    \"iss\",\n    \"auth_time\",\n    \"nonce\",\n    \"acr\",\n    \"amr\",\n    \"c_hash\",\n    \"at_hash\",\n    \"act\",\n    \"scopes\",\n    \"client_id\",\n    \"azp\",\n    \"preferred_username\",\n    \"name\",\n    \"family_name\",\n    \"given_name\",\n    \"locale\",\n    \"email\",\n    \"email_verified\",\n    \"phone_number\",\n    \"phone_number_verified\"\n  ],\n  \"code_challenge_methods_supported\": [\n    \"S256\"\n  ],\n  \"ui_locales_supported\": [\n    \"en\"\n  ],\n  \"request_parameter_supported\": true,\n  \"request_uri_parameter_supported\": false\n}\n\n```",
-        "tags": ["OpenID Metadata"],
+        "tags": [
+          "OpenID Metadata"
+        ],
         "summary": "OpenID Provider metadata URL",
         "operationId": "OpenID_WellKnownEndpoint",
         "responses": {
@@ -36,7 +44,9 @@
     "/api/v1/connections": {
       "get": {
         "description": "Get filtered connections: Retrieves a list of available connections in the environment based on specified criteria",
-        "tags": ["Connection"],
+        "tags": [
+          "Connection"
+        ],
         "summary": "List All Connections",
         "operationId": "ConnectionService_ListConnections",
         "parameters": [
@@ -71,8 +81,9 @@
     },
     "/api/v1/environments/{environment_id}/organizations/{id}/session-settings": {
       "get": {
-        "tags": ["OrganizationService"],
-        "x-hidden": true,
+        "tags": [
+          "OrganizationService"
+        ],
         "operationId": "OrganizationService_GetOrganizationSessionSettings",
         "parameters": [
           {
@@ -91,8 +102,9 @@
         "responses": {}
       },
       "post": {
-        "tags": ["OrganizationService"],
-        "x-hidden": true,
+        "tags": [
+          "OrganizationService"
+        ],
         "operationId": "OrganizationService_CreateOrganizationSessionSettings",
         "parameters": [
           {
@@ -111,8 +123,9 @@
         "responses": {}
       },
       "delete": {
-        "tags": ["OrganizationService"],
-        "x-hidden": true,
+        "tags": [
+          "OrganizationService"
+        ],
         "operationId": "OrganizationService_DeleteOrganizationSessionSettings",
         "parameters": [
           {
@@ -131,7 +144,9 @@
         "responses": {}
       },
       "patch": {
-        "tags": ["OrganizationService"],
+        "tags": [
+          "OrganizationService"
+        ],
         "operationId": "OrganizationService_UpdateOrganizationSessionSettings",
         "parameters": [
           {
@@ -160,31 +175,10 @@
     },
     "/api/v1/organizations": {
       "get": {
-        "x-code-samples": [
-          {
-            "lang": "curl",
-            "source": "curl -X GET 'https://api.example.com/v1/oauth/authorize?client_id=your_client_id&response_type=code&redirect_uri=https://your-app.com/callback&scope=read_user&state=random_state'"
-          },
-          {
-            "lang": "Node",
-            "source": "const querystring = require('querystring');\n\nconst params = querystring.stringify({\n  client_id: 'your_client_id',\n  response_type: 'code',\n  redirect_uri: 'https://your-app.com/callback',\n  scope: 'read_user',\n  state: 'random_state'\n});\n\nconst url = `https://api.example.com/v1/oauth/authorize?${params}`;\n// Redirect user to this URL for authorization"
-          },
-          {
-            "lang": "Python",
-            "source": "from urllib.parse import urlencode\n\nparams = {\n    'client_id': 'your_client_id',\n    'response_type': 'code',\n    'redirect_uri': 'https://your-app.com/callback',\n    'scope': 'read_user',\n    'state': 'random_state'\n}\n\nurl = f'https://api.example.com/v1/oauth/authorize?{urlencode(params)}'\n# Redirect user to this URL for authorization"
-          },
-          {
-            "lang": "Java",
-            "source": "import java.net.URLEncoder;\nimport java.nio.charset.StandardCharsets;\n\nString clientId = \"your_client_id\";\nString redirectUri = \"https://your-app.com/callback\";\nString scope = \"read_user\";\nString state = \"random_state\";\n\nString url = String.format(\"https://api.example.com/v1/oauth/authorize?client_id=%s&response_type=code&redirect_uri=%s&scope=%s&state=%s\",\n    URLEncoder.encode(clientId, StandardCharsets.UTF_8),\n    URLEncoder.encode(redirectUri, StandardCharsets.UTF_8),\n    URLEncoder.encode(scope, StandardCharsets.UTF_8),\n    URLEncoder.encode(state, StandardCharsets.UTF_8));\n// Redirect user to this URL for authorization"
-          },
-          {
-            "lang": "Go",
-            "source": "import (\n    \"net/url\"\n)\n\nparams := url.Values{}\nparams.Add(\"client_id\", \"your_client_id\")\nparams.Add(\"response_type\", \"code\")\nparams.Add(\"redirect_uri\", \"https://your-app.com/callback\")\nparams.Add(\"scope\", \"read_user\")\nparams.Add(\"state\", \"random_state\")\n\nurl := \"https://api.example.com/v1/oauth/authorize?\" + params.Encode()\n// Redirect user to this URL for authorization"
-          }
-        ],
-        "x-hidden": true,
         "description": "Retrieve a paginated list of all organizations within the environment. Use the page_token from the response to access subsequent pages of results",
-        "tags": ["Organization"],
+        "tags": [
+          "Organization"
+        ],
         "summary": "List All Organizations",
         "operationId": "OrganizationService_ListOrganization",
         "parameters": [
@@ -214,7 +208,9 @@
       },
       "post": {
         "description": "Create a new organization to represent a tenant within your application",
-        "tags": ["Organization"],
+        "tags": [
+          "Organization"
+        ],
         "summary": "Create a New Organization",
         "operationId": "OrganizationService_CreateOrganization",
         "parameters": [
@@ -239,10 +235,283 @@
         }
       }
     },
+    "/api/v1/organizations/-/users": {
+      "get": {
+        "description": "Retrieve a paginated list of all users within the organization. Use the page_token from the response to access subsequent pages of results",
+        "tags": [
+          "User"
+        ],
+        "summary": "List users in an organization",
+        "operationId": "UserService_ListUsers2",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of users in the organization",
+            "schema": {
+              "$ref": "#/definitions/usersListUserResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new user in an organization",
+        "tags": [
+          "User"
+        ],
+        "summary": "Create a New User",
+        "operationId": "UserService_CreateUser2",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/usersUser"
+            }
+          },
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "schema": {
+              "$ref": "#/definitions/usersCreateUserResponse"
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Update the user with id details in an organization",
+        "tags": [
+          "User"
+        ],
+        "summary": "Update User in an organization",
+        "operationId": "UserService_UpdateUser2",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1usersUpdateUser"
+            }
+          },
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "schema": {
+              "$ref": "#/definitions/usersUpdateUserResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/-/users/-": {
+      "get": {
+        "description": "Fetch detailed information about a user with user id.",
+        "tags": [
+          "User"
+        ],
+        "summary": "Retrieve User details",
+        "operationId": "UserService_GetUser3",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "validate the presence",
+            "name": "organization_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved user details",
+            "schema": {
+              "$ref": "#/definitions/usersGetUserResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Remove an existing user from the organization using its unique identifier",
+        "tags": [
+          "User"
+        ],
+        "summary": "Delete a User in the organization",
+        "operationId": "UserService_DeleteUser2",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted Successfully",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/-/users/{id}": {
+      "get": {
+        "description": "Fetch detailed information about a user with user id.",
+        "tags": [
+          "User"
+        ],
+        "summary": "Retrieve User details",
+        "operationId": "UserService_GetUser2",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "validate the presence",
+            "name": "organization_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved user details",
+            "schema": {
+              "$ref": "#/definitions/usersGetUserResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds an existing user to an organization",
+        "tags": [
+          "User"
+        ],
+        "summary": "Add existing user to an organization",
+        "operationId": "UserService_AddUserToOrganization2",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User added to organization successfully",
+            "schema": {
+              "$ref": "#/definitions/usersAddUserResponse"
+            }
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{id}": {
       "get": {
         "description": "Fetch detailed information about a specific organization using its unique identifier.",
-        "tags": ["Organization"],
+        "tags": [
+          "Organization"
+        ],
         "summary": "Retrieve Organization Information",
         "operationId": "OrganizationService_GetOrganization",
         "parameters": [
@@ -271,7 +540,9 @@
       },
       "delete": {
         "description": "Remove an existing organization from the environment using its unique identifier",
-        "tags": ["Organization"],
+        "tags": [
+          "Organization"
+        ],
         "summary": "Delete an Organization",
         "operationId": "OrganizationService_DeleteOrganization",
         "parameters": [
@@ -298,7 +569,9 @@
       },
       "patch": {
         "description": "Update the details of an existing organization using its unique identifier",
-        "tags": ["Organization"],
+        "tags": [
+          "Organization"
+        ],
         "summary": "Update Organization Information",
         "operationId": "OrganizationService_UpdateOrganization",
         "parameters": [
@@ -338,7 +611,9 @@
     "/api/v1/organizations/{id}/portal_links": {
       "put": {
         "description": "Generates an Admin Portal link. The Admin Portal will be used by IT Admins to create and manage the SSO connection in their organization. The link generated via API will be valid for 1 week",
-        "tags": ["Admin Portal"],
+        "tags": [
+          "Admin Portal"
+        ],
         "summary": "Generate Portal link",
         "operationId": "OrganizationService_GeneratePortalLink",
         "parameters": [
@@ -364,7 +639,10 @@
           {
             "type": "array",
             "items": {
-              "enum": ["dir_sync", "sso"],
+              "enum": [
+                "dir_sync",
+                "sso"
+              ],
               "type": "string"
             },
             "collectionFormat": "multi",
@@ -385,7 +663,9 @@
     "/api/v1/organizations/{id}/settings": {
       "patch": {
         "description": "Update the settings of the Organization. The settings include the SSO settings, Directory sync settings etc.",
-        "tags": ["Organization"],
+        "tags": [
+          "Organization"
+        ],
         "summary": "Update Organization Settings",
         "operationId": "OrganizationService_UpdateOrganizationSettings",
         "parameters": [
@@ -418,7 +698,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}": {
       "get": {
         "description": "Obtain detailed information about a specific connection within an organization",
-        "tags": ["Connection"],
+        "tags": [
+          "Connection"
+        ],
         "summary": "Retrieve Connection Details",
         "operationId": "ConnectionService_GetConnection",
         "parameters": [
@@ -450,7 +732,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:disable": {
       "patch": {
         "description": "Deactivate an existing SSO connection for the specified organization.",
-        "tags": ["Connection"],
+        "tags": [
+          "Connection"
+        ],
         "summary": "Disable a Connection for an Organization",
         "operationId": "ConnectionService_DisableConnection",
         "parameters": [
@@ -482,7 +766,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:enable": {
       "patch": {
         "description": "Activate an existing SSO connection for the specified organization",
-        "tags": ["Connection"],
+        "tags": [
+          "Connection"
+        ],
         "summary": "Enable a Connection for an Organization",
         "operationId": "ConnectionService_EnableConnection",
         "parameters": [
@@ -513,7 +799,9 @@
     },
     "/api/v1/organizations/{organization_id}/directories": {
       "get": {
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List Directories for an Organization",
         "operationId": "DirectoryService_ListDirectories",
         "parameters": [
@@ -538,7 +826,9 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/groups": {
       "get": {
         "description": "Retrieves a list of all groups within a specified directory for an organization. This endpoint allows you to view the group structures within your connected Directory Providers.",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List Groups in Directory",
         "operationId": "DirectoryService_ListDirectoryGroups",
         "parameters": [
@@ -596,7 +886,9 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/users": {
       "get": {
         "description": "Retrieves a list of all users within a specified directory for an organization. This endpoint allows you to view user accounts associated with your connected Directory Providers.",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List Users in Directory",
         "operationId": "DirectoryService_ListDirectoryUsers",
         "parameters": [
@@ -660,7 +952,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}": {
       "get": {
         "description": "Retrieves detailed information about a specific directory within an organization. This endpoint allows you to view the properties and configuration of a connected Directory Provider",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Get Directory",
         "operationId": "DirectoryService_GetDirectory",
         "parameters": [
@@ -692,7 +986,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:disable": {
       "patch": {
         "description": "Disables a directory, preventing it from being used for user management and authentication",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Disable a Directory",
         "operationId": "DirectoryService_DisableDirectory",
         "parameters": [
@@ -724,7 +1020,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:enable": {
       "patch": {
         "description": "Enables a directory, allowing it to be used for user management and authentication",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Enable a Directory",
         "operationId": "DirectoryService_EnableDirectory",
         "parameters": [
@@ -753,10 +1051,250 @@
         }
       }
     },
+    "/api/v1/organizations/{organization_id}/users": {
+      "get": {
+        "description": "Retrieve a paginated list of all users within the organization. Use the page_token from the response to access subsequent pages of results",
+        "tags": [
+          "User"
+        ],
+        "summary": "List users in an organization",
+        "operationId": "UserService_ListUsers",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of users in the organization",
+            "schema": {
+              "$ref": "#/definitions/usersListUserResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new user in an organization",
+        "tags": [
+          "User"
+        ],
+        "summary": "Create a New User",
+        "operationId": "UserService_CreateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/usersUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "schema": {
+              "$ref": "#/definitions/usersCreateUserResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/users/{id}": {
+      "get": {
+        "description": "Fetch detailed information about a user with user id.",
+        "tags": [
+          "User"
+        ],
+        "summary": "Retrieve User details",
+        "operationId": "UserService_GetUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "validate the presence",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved user details",
+            "schema": {
+              "$ref": "#/definitions/usersGetUserResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds an existing user to an organization",
+        "tags": [
+          "User"
+        ],
+        "summary": "Add existing user to an organization",
+        "operationId": "UserService_AddUserToOrganization",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User added to organization successfully",
+            "schema": {
+              "$ref": "#/definitions/usersAddUserResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Remove an existing user from the organization using its unique identifier",
+        "tags": [
+          "User"
+        ],
+        "summary": "Delete a User in the organization",
+        "operationId": "UserService_DeleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted Successfully",
+            "schema": {}
+          }
+        }
+      },
+      "patch": {
+        "description": "Update the user with id details in an organization",
+        "tags": [
+          "User"
+        ],
+        "summary": "Update User in an organization",
+        "operationId": "UserService_UpdateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1usersUpdateUser"
+            }
+          },
+          {
+            "type": "string",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "schema": {
+              "$ref": "#/definitions/usersUpdateUserResponse"
+            }
+          }
+        }
+      }
+    },
     "/api/v1/organizations:external/{external_id}": {
       "get": {
         "description": "Fetch detailed information about a specific organization using its unique identifier.",
-        "tags": ["Organization"],
+        "tags": [
+          "Organization"
+        ],
         "summary": "Retrieve Organization Information",
         "operationId": "OrganizationService_GetOrganization2",
         "parameters": [
@@ -785,7 +1323,9 @@
       },
       "delete": {
         "description": "Remove an existing organization from the environment using its unique identifier",
-        "tags": ["Organization"],
+        "tags": [
+          "Organization"
+        ],
         "summary": "Delete an Organization",
         "operationId": "OrganizationService_DeleteOrganization2",
         "parameters": [
@@ -812,7 +1352,9 @@
       },
       "patch": {
         "description": "Update the details of an existing organization using its unique identifier",
-        "tags": ["Organization"],
+        "tags": [
+          "Organization"
+        ],
         "summary": "Update Organization Information",
         "operationId": "OrganizationService_UpdateOrganization2",
         "parameters": [
@@ -852,7 +1394,9 @@
     "/api/v1/organizations:search": {
       "get": {
         "description": "List all Organizations in the Environment with given query. The query can be any one of name, organizationID or externalID, if more than one organization matches the query string multiple results are returned. The response contains page_token that can be used to access the next page of results.",
-        "tags": ["Organization"],
+        "tags": [
+          "Organization"
+        ],
         "summary": "Search Organizations",
         "operationId": "OrganizationService_SearchOrganization",
         "parameters": [
@@ -888,7 +1432,9 @@
     "/api/v1/providers": {
       "get": {
         "description": "Fetch a comprehensive list of available connection providers for integration",
-        "tags": ["Connection"],
+        "tags": [
+          "Connection"
+        ],
         "summary": "Retrieve Connection Providers",
         "operationId": "ConnectionService_GetProviders",
         "responses": {
@@ -904,7 +1450,9 @@
     "/oauth/authorize": {
       "get": {
         "description": "Authorization URL initiates the Login flow with Scalekit.\n\nScalekit expects atleast one of the following parameters to be present. The parameters are used to determine the SSO connection used to Login in the user. \n\n`domain` - Email domain of the user. Domain should be mapped to an Organization. The SSO connection from the org would be used to login to the app.\n\n`connection_id` - ID of the SSO connection. If the Connection's status is `active`, the user will be redirected to the SSO Connection's identity provider configured.\n\n`organization_id` -  ID of Organization. The user will be redirected to the SSO connection's identity provider configured for that organization.\n\n`provider` -  ID of SSO Provider, Incase of Social Logins . e.g `google`",
-        "tags": ["Authentication"],
+        "tags": [
+          "Authentication"
+        ],
         "summary": "Authorization URL",
         "operationId": "OAuth_AuthorizeEndpoint",
         "parameters": [
@@ -955,7 +1503,9 @@
             "in": "query"
           },
           {
-            "enum": ["code"],
+            "enum": [
+              "code"
+            ],
             "type": "string",
             "example": "code",
             "description": "Value must be `code`",
@@ -1001,7 +1551,10 @@
             "in": "query"
           },
           {
-            "enum": ["plain", "S256"],
+            "enum": [
+              "plain",
+              "S256"
+            ],
             "type": "string",
             "example": "S256",
             "description": "The algorithm used to process the code challenge. The value should be `S256`",
@@ -1020,7 +1573,9 @@
     "/oauth/token": {
       "post": {
         "description": "The code provided to the Redirect URI. Code can be exchanged for a ID Token containing the user details using the Token URL.",
-        "tags": ["Authentication"],
+        "tags": [
+          "Authentication"
+        ],
         "summary": "Token URL",
         "operationId": "OAuth_TokenEndpoint",
         "parameters": [
@@ -1077,13 +1632,110 @@
     }
   },
   "definitions": {
+    "commonsIdentityProviderType": {
+      "type": "string",
+      "enum": [
+        "OKTA",
+        "GOOGLE",
+        "MICROSOFT_AD",
+        "AUTH0",
+        "ONELOGIN",
+        "PING_IDENTITY",
+        "JUMPCLOUD",
+        "CUSTOM",
+        "GITHUB",
+        "GITLAB",
+        "LINKEDIN",
+        "SALESFORCE",
+        "MICROSOFT",
+        "IDP_SIMULATOR",
+        "SCALEKIT"
+      ]
+    },
+    "commonsMembershipRole": {
+      "type": "string",
+      "enum": [
+        "ADMIN",
+        "USER"
+      ]
+    },
+    "commonsOrganizationMembership": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "membership_status": {
+          "$ref": "#/definitions/commonsUserStatus"
+        },
+        "name": {
+          "type": "string"
+        },
+        "primary_identity_provider": {
+          "$ref": "#/definitions/commonsIdentityProviderType"
+        },
+        "role": {
+          "$ref": "#/definitions/commonsMembershipRole"
+        }
+      }
+    },
     "commonsRegionCode": {
       "type": "string",
-      "enum": ["US", "EU"]
+      "enum": [
+        "US",
+        "EU"
+      ]
+    },
+    "commonsUserProfile": {
+      "type": "object",
+      "properties": {
+        "custom_attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "email_verified": {
+          "type": "boolean",
+          "readOnly": true
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "locale": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "commonsUserStatus": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "INACTIVE"
+      ]
     },
     "connectionsConfigurationType": {
       "type": "string",
-      "enum": ["DISCOVERY", "MANUAL"]
+      "enum": [
+        "DISCOVERY",
+        "MANUAL"
+      ]
     },
     "connectionsConnection": {
       "type": "object",
@@ -1132,7 +1784,7 @@
           "type": "string",
           "example": "org_2123312131125533"
         },
-        "password_less_config": {
+        "passwordless_config": {
           "description": "Magic Link Configuration if ConnectionType == MAGIC_LINK",
           "$ref": "#/definitions/connectionsPasswordLessConfig"
         },
@@ -1185,11 +1837,21 @@
     },
     "connectionsConnectionStatus": {
       "type": "string",
-      "enum": ["DRAFT", "IN_PROGRESS", "COMPLETED"]
+      "enum": [
+        "DRAFT",
+        "IN_PROGRESS",
+        "COMPLETED"
+      ]
     },
     "connectionsConnectionType": {
       "type": "string",
-      "enum": ["OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORD_LESS"]
+      "enum": [
+        "OIDC",
+        "SAML",
+        "PASSWORD",
+        "OAUTH",
+        "PASSWORDLESS"
+      ]
     },
     "connectionsGetConnectionResponse": {
       "type": "object",
@@ -1294,7 +1956,12 @@
     },
     "connectionsNameIdFormat": {
       "type": "string",
-      "enum": ["UNSPECIFIED", "EMAIL", "TRANSIENT", "PERSISTENT"]
+      "enum": [
+        "UNSPECIFIED",
+        "EMAIL",
+        "TRANSIENT",
+        "PERSISTENT"
+      ]
     },
     "connectionsOAuthConnectionConfig": {
       "type": "object",
@@ -1335,12 +2002,20 @@
           "items": {
             "type": "string"
           },
-          "example": ["openid", "profile"]
+          "example": [
+            "openid",
+            "profile"
+          ]
         },
         "token_uri": {
           "description": "Token URI",
           "type": "string",
           "example": "https://youridp.com/service/oauth/token"
+        },
+        "use_platform_creds": {
+          "description": "Use Scalekit credentials",
+          "type": "boolean",
+          "example": true
         },
         "user_info_uri": {
           "description": "User Info URI",
@@ -1415,7 +2090,10 @@
           "items": {
             "$ref": "#/definitions/connectionsOIDCScope"
           },
-          "example": ["openid", "profile"]
+          "example": [
+            "openid",
+            "profile"
+          ]
         },
         "token_auth_type": {
           "description": "Token Auth Type",
@@ -1436,7 +2114,13 @@
     },
     "connectionsOIDCScope": {
       "type": "string",
-      "enum": ["openid", "profile", "email", "address", "phone"]
+      "enum": [
+        "openid",
+        "profile",
+        "email",
+        "address",
+        "phone"
+      ]
     },
     "connectionsPasswordLessConfig": {
       "type": "object",
@@ -1447,15 +2131,10 @@
           "format": "int32",
           "example": 1
         },
-        "magicLinkEnabled": {
-          "description": "Password Less Enabled",
-          "type": "boolean",
-          "example": true
-        },
-        "magicOTPEnabled": {
-          "description": "Password Less Enabled",
-          "type": "boolean",
-          "example": true
+        "type": {
+          "description": "Passwordless Type",
+          "$ref": "#/definitions/connectionsPasswordlessType",
+          "example": "LINK"
         },
         "validity": {
           "description": "Link Validity",
@@ -1463,6 +2142,14 @@
           "example": "24h"
         }
       }
+    },
+    "connectionsPasswordlessType": {
+      "type": "string",
+      "enum": [
+        "LINK",
+        "OTP",
+        "LINK_OTP"
+      ]
     },
     "connectionsProvider": {
       "type": "object",
@@ -1486,7 +2173,10 @@
     },
     "connectionsRequestBinding": {
       "type": "string",
-      "enum": ["HTTP_POST", "HTTP_REDIRECT"]
+      "enum": [
+        "HTTP_POST",
+        "HTTP_REDIRECT"
+      ]
     },
     "connectionsSAMLConnectionConfigResponse": {
       "type": "object",
@@ -1630,7 +2320,10 @@
     },
     "connectionsTokenAuthType": {
       "type": "string",
-      "enum": ["URL_PARAMS", "BASIC_AUTH"]
+      "enum": [
+        "URL_PARAMS",
+        "BASIC_AUTH"
+      ]
     },
     "directoriesAttributeMapping": {
       "type": "object",
@@ -1778,7 +2471,10 @@
     },
     "directoriesDirectoryType": {
       "type": "string",
-      "enum": ["SCIM", "LDAP"]
+      "enum": [
+        "SCIM",
+        "LDAP"
+      ]
     },
     "directoriesDirectoryUser": {
       "type": "object",
@@ -1979,7 +2675,9 @@
     },
     "directoriesSecretStatus": {
       "type": "string",
-      "enum": ["INACTIVE"]
+      "enum": [
+        "INACTIVE"
+      ]
     },
     "directoriesStats": {
       "type": "object",
@@ -2074,7 +2772,10 @@
     },
     "organizationsFeature": {
       "type": "string",
-      "enum": ["dir_sync", "sso"]
+      "enum": [
+        "dir_sync",
+        "sso"
+      ]
     },
     "organizationsGeneratePortalLinkResponse": {
       "type": "object",
@@ -2160,7 +2861,9 @@
     },
     "organizationsOrganization": {
       "type": "object",
-      "required": ["create_time"],
+      "required": [
+        "create_time"
+      ],
       "properties": {
         "create_time": {
           "description": "Created Time",
@@ -2304,6 +3007,119 @@
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.",
       "type": "string"
     },
+    "usersAddUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersCreateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersGetUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersListUserResponse": {
+      "type": "object",
+      "properties": {
+        "next_page_token": {
+          "description": "Token to access the next page of results",
+          "type": "string",
+          "example": 30
+        },
+        "prev_page_token": {
+          "description": "Token to access the previous page of results",
+          "type": "string",
+          "example": 30
+        },
+        "total_size": {
+          "description": "Total number of results",
+          "type": "integer",
+          "format": "int64",
+          "example": 30
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/usersUser"
+          }
+        }
+      }
+    },
+    "usersUpdateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersUser": {
+      "type": "object",
+      "properties": {
+        "create_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "type": "string"
+        },
+        "environment_id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "external_id": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "identity": {
+          "type": "string"
+        },
+        "last_login": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "organizations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/commonsOrganizationMembership"
+          },
+          "readOnly": true
+        },
+        "phone_number": {
+          "type": "string"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "user_profile": {
+          "$ref": "#/definitions/commonsUserProfile"
+        }
+      }
+    },
     "v1organizationsCreateOrganization": {
       "type": "object",
       "properties": {
@@ -2345,6 +3161,23 @@
           }
         }
       }
+    },
+    "v1usersUpdateUser": {
+      "type": "object",
+      "properties": {
+        "external_id": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "user_profile": {
+          "$ref": "#/definitions/commonsUserProfile"
+        }
+      }
     }
   },
   "securityDefinitions": {
@@ -2376,6 +3209,9 @@
     },
     {
       "name": "Directory"
+    },
+    {
+      "name": "UserService"
     },
     {
       "name": "Authentication"
