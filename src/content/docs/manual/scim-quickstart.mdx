@@ -1,87 +1,60 @@
 ---
-title: SCIM Quickstart
+title: Automate User Provisioning and Deprovisioning
+description: Implement SCIM with Scalekit to automate user provisioning and deprovisioning, ensuring secure and efficient user lifecycle management.
 sidebar:
   label: SCIM Provisioning
 ---
 
-### Plug-n-play auth for B2B SaaS
+import InstallSDK from '@components/templates/_installsdk.mdx'
 
-Scalekit helps you quickly add enterprise authentication to your B2B SaaS app without engineering overhead. It provides plug-and-play auth solutions like SSO, SCIM, and Social Logins.
+Enterprises need to automatically provision and de-provision employee access to applications to
+ensure security. Scalekit simplifies this process by providing a single interface to your app,
+abstracting the complexities of various directory providers.
 
-Built for B2B use cases, Scalekit natively supports multi-tenancy and organization management. You can test auth flows in sandbox environments, simulate SSO without real IdP accounts, and deploy instantly with prebuilt integrations for Okta, Entra ID, JumpCloud, Google SSO, and Azure AD—no custom code required.
+With [SCIM Provisioning](/scim/basics) from Scalekit, you can:
 
-:::tip[See it in action]
-At the top of the sidebar, you can find links to different topics used in this documentation, such as "Documentation" and "Demo" that each have their own sidebar configuration, while the "Starlight Docs" topic is a direct link to the Starlight documentation.
-:::
+- Use **Webhooks** to listen for events from your customers' directory providers (e.g., user
+  updates, group changes)
+- Use **REST APIs** to list users, groups, and directories on demand
 
-:::caution
-This plugin originates from [HiDeoo](https://github.com/HiDeoo) but is not affiliated with him. Nonetheless, huge thanks to him for his work on this plugin. We just changed the topic switcher component, the rest is the same. Make sure to check out [the original plugin](https://github.com/HiDeoo/starlight-sidebar-topics).
-:::
+![](@/assets/docs/manual/scim-quickstart/1-quickstart-scim.png)
 
-## Prerequisites
+Scalekit enables you to sync user accounts with the latest data in the directory provider. This
+allows you to:
 
-You will need to have a Starlight website set up.
-If you don't have one yet, you can follow the ["Getting Started"](https://starlight.astro.build/getting-started) guide in the Starlight docs to create one.
+- Create accounts for new hires during onboarding
+- Deactivate accounts when employees depart
+- Adjust access levels as employees change roles
 
-## Installation
+## User Provisioning with Scalekit's Directory API
 
-import { Steps } from "@astrojs/starlight/components";
-import { PackageManagers } from "@hideoo/starlight-plugins-docs-components";
+Scalekit's Directory API allows you to fetch information about users, groups, and directories
+associated with an organization on-demand. This is useful for scenarios like running cron jobs to
+sync user and group data. In this guide, we'll demonstrate how to use the List Users in a Directory
+API to retrieve a list of users in a specific directory.
 
-<Steps>
+Before you begin, ensure that your organization has a directory set up in Scalekit.
 
-1. Starlight Sidebar Topics Dropdown is a Starlight [plugin](https://starlight.astro.build/reference/plugins/). Install it using your favorite package manager:
+Before diving in, ensure you have:
 
-    <PackageManagers pkg="starlight-sidebar-topics-dropdown" />
+1. A Scalekit account
+2. An organization with a configured directory
+3. Access to the Scalekit Dashboard
 
-2. Configure the plugin in your Starlight [configuration](https://starlight.astro.build/reference/configuration/#plugins) in the `astro.config.mjs` file by specifying an array of topics each with its own sidebar configuration.
+#### Setting Up the SDK
 
-    The following example shows how to configure two new topics named "Guides" and "Reference" linking to the `/guides/` and `/reference/` pages respectively with their own sidebar configuration:
+Scalekit offers language-specific SDKs for fast SSO integration. Use the installation instructions
+below for your technology stack:
 
-    ```diff lang="js"
-    // astro.config.mjs
-    // @ts-check
-    import starlight from '@astrojs/starlight'
-    import { defineConfig } from 'astro/config'
-    +import starlightSidebarTopicsDropdown from 'starlight-sidebar-topics-dropdown'
+<InstallSDK />
 
-    export default defineConfig({
-      integrations: [
-        starlight({
-    +      plugins: [
-    +        starlightSidebarTopicsDropdown([
-    +          {
-    +            label: 'Guides',
-    +            link: '/guides/',
-    +            icon: 'open-book',
-    +            items: ['guides/getting-started', 'guides/manual-setup'],
-    +          },
-    +          {
-    +            label: 'Reference',
-    +            link: '/reference/',
-    +            icon: 'information',
-    +            items: ['reference/api', 'reference/components'],
-    +          },
-    +        ]),
-    +      ],
-    -      sidebar: [
-    -        {
-    -          label: 'Guides',
-    -          items: ['guides/getting-started', 'guides/manual-setup'],
-    -        },
-    -        {
-    -          label: 'Reference',
-    -          items: ['reference/api', 'reference/components'],
-    -        },
-    -      ],
-          title: 'My Docs',
-        }),
-      ],
-    })
-    ```
+Navigate to the API Config tab in the Scalekit Dashboard to obtain your credentials. Store your
+credentials securely in a `.env` file:
 
-3. [Start the development server](https://starlight.astro.build/getting-started/#start-the-development-server) to preview the changes.
+```sh showLineNumbers=false
+SCALEKIT_ENVIRONMENT_URL='https://b2b-app-dev.scalekit.com'
+SCALEKIT_CLIENT_ID='<CLIENT_ID_FROM_SCALEKIT_DASHBOARD>'
+SCALEKIT_CLIENT_SECRET='<SECRET_FROM_SCALEKIT_DASHBOARD>'
+```
 
-</Steps>
-
-The Starlight Sidebar Topics Dropdown plugin behavior can be tweaked using various [topic configuration options](/docs/configuration/#topic-configuration).
+Initialize the SDK with your API credentials and make your first API call to list organizations.

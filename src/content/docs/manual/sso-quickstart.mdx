@@ -6,6 +6,7 @@ tableOfContents: false
 ---
 
 import { Steps, TabItem, Tabs, Aside } from "@astrojs/starlight/components";
+import InstallSDK from '@components/templates/_installsdk.mdx'
 
 Single Sign-On (SSO) enhances B2B SaaS application's security and offers a smooth user experience. Scalekit is an authentication platform that enables developers to implement enterprise features like SSO with just a few lines of code. Scalekit abstracts the complexities associated with SAML, OIDC and offers prebuilt integrations with all major identity providers like Okta, Microsoft Entra ID, Jumpcloud, Onelogin.
 
@@ -22,40 +23,25 @@ This quickstart guide will show you how to implement SSO using Scalekit.
 <li>
 
 Use the installation instructions below for your technology stack.
-<Tabs>
-  <TabItem label="Nodejs">
-    <p>
-      ```bash
-      npm install @scalekit-sdk/node
-      ```
-    </p>
-  </TabItem>
-  <TabItem label="Golang">
-    <p>
-      ```bash
-      go get github.com/scalekit-sdk/go
-      ```
-    </p>
-  </TabItem>
-</Tabs>
+<InstallSDK />
 
 </li>
 <li>
   Never hardcode secrets in your app. Use environment variables instead. Here's how to set them in a `.env` file:
 <p>
-```zsh
+```zsh showLineNumbers=false
 SCALEKIT_ENVIRONMENT_URL='https://b2b-app-dev.scalekit.com'
 SCALEKIT_CLIENT_ID='<CLIENT_ID_FROM_SCALEKIT_DASHBOARD>'
 SCALEKIT_CLIENT_SECRET='<SECRET_FROM_SCALEKIT_DASHBOARD>'
 ```
 </p>
 
-<Aside type="caution">
+{/* <Aside type="caution">
 
 - Never commit your `.env` file to version control.
 - Rotate your `secret` regularly. See the [best practices for managing secrets](/sso/guides/key-concepts/manage-client-secrets).
 
-</Aside>
+</Aside> */}
 
 </li>
 
@@ -67,7 +53,7 @@ Construct the Authorization URL using the following query parameters:
 
 <p>
 
-```http
+```http showLineNumbers=false
 https://auth.scalekit.com/authorize?
   client_id=skc_122056050118122349527&
   redirect_uri=https://yourapp.com/auth/callback&
@@ -89,9 +75,9 @@ they try to log in.
 <Tabs groupId="tech-stack" queryString>
 <TabItem value="nodejs" label="Node.js">
 
-```diff lang="js"
+```js
 import { ScalekitClient } from '@scalekit-sdk/node';
-// Initialize the SDK client
+
 const scalekit = new ScalekitClient(
   '<SCALEKIT_ENVIRONMENT_URL>',
   '<SCALEKIT_CLIENT_ID>',
@@ -101,13 +87,13 @@ const scalekit = new ScalekitClient(
 const options = {};
 
 // Option 1: Authorization URL with the organization ID
-- options['organizationId'] = 'org_15421144869927830';
+ options['organizationId'] = 'org_15421144869927830';
 
 // Option 2: Authorization URL with login hint
-- options['connectionId'] = 'conn_15696105471768821';
+ options['connectionId'] = 'conn_15696105471768821';
 
 // Option 3: Authorization URL with login hint
-+ options['loginHint'] = 'user@example.com';
+ options['loginHint'] = 'user@example.com';
 
 const authorizationURL = scalekit.getAuthorizationUrl(redirectUrl, options);
 ```
@@ -115,7 +101,7 @@ const authorizationURL = scalekit.getAuthorizationUrl(redirectUrl, options);
 </TabItem>
 <TabItem value="py" label="Python">
 
-```python {5}
+```python
 from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
 
 # Initialize the SDK client
@@ -349,7 +335,7 @@ try {
 The `result` object
 
 
-```json wrap
+```json warp
 {
   user: {
     email: "john.doe@example.com",
