@@ -1,10 +1,11 @@
 ---
-title: Setup scalekit in your project
+title: Install the Scalekit SDK
 tableOfContents: false
 ---
 
 import InstallSDK from '@components/templates/_installsdk.mdx'
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import Env from '@components/templates/_env.mdx'
 
 Scalekit helps you quickly add enterprise authentication to your B2B SaaS app without engineering overhead. It provides plug-and-play auth solutions like SSO, SCIM, and Social Logins.
 
@@ -14,17 +15,18 @@ Scalekit helps you quickly add enterprise authentication to your B2B SaaS app wi
 1. [Sign up](https://app.scalekit.com/ws/signup) for a Scalekit account and retrieve your API keys.
 
 2. Add your API credentials to your project’s environment. For example, create or update your `.env` file as follows:
-   ```sh showLineNumbers=false
-   # .env
-   SCALEKIT_ENVIRONMENT_URL='https://your-app.scalekit.dev'
-   SCALEKIT_CLIENT_ID='<CLIENT_ID_FROM_SCALEKIT_DASHBOARD>'
-   SCALEKIT_CLIENT_SECRET='<SECRET_FROM_SCALEKIT_DASHBOARD>'
-   ```
+   <Env />
 
 3. Install the Scalekit SDK for your preferred tech stack using the instructions below:
    <InstallSDK />
 
-4. Instantiate the SDK in your project.
+</Steps>
+
+### Testing your installation
+
+<Steps>
+
+1. Instantiate the SDK in your project.
    <Tabs>
      <TabItem value="javascript" label="Node.js">
        ```js showLineNumbers=false
@@ -74,6 +76,56 @@ Scalekit helps you quickly add enterprise authentication to your B2B SaaS app wi
        ```
      </TabItem>
    </Tabs>
+2. Test your installation listing organizations
+   <Tabs>
+     <TabItem value="javascript" label="Node.js">
+       ```js showLineNumbers=false
+       import { Scalekit } from '@scalekit-sdk/node';
 
-5. Build your app with the Scalekit SDK.
+    const scalekit = new Scalekit(
+      process.env.SCALEKIT_ENVIRONMENT_URL || '',
+      process.env.SCALEKIT_CLIENT_ID || '',
+      process.env.SCALEKIT_CLIENT_SECRET || ''
+    );
+
+    const organizations = await scalekit.organization.listOrganization({});
+
+    console.log(organizations);
+   ```
+     </TabItem>
+   </Tabs>
+3. If you see the organizations in the console, your installation is successful.
+    ```js showLineNumbers=false title="Result from SDK" collapse={1-12, 21-30}
+    {
+      nextPageToken: '',
+      totalSize: 3,
+        organizations: [
+          Organization {
+            id: 'org_59615694236418891',
+            displayName: 'BugJam',
+            regionCode: 1,
+            metadata: {},
+            createTime: [Timestamp],
+            updateTime: [Timestamp]
+          },
+          Organization {
+            id: 'org_59615193906282635',
+            displayName: 'Megasoft',
+            regionCode: 1,
+            metadata: {},
+            createTime: [Timestamp],
+            updateTime: [Timestamp]
+          },
+          Organization {
+            id: 'org_58327482079641606',
+            displayName: 'Test Organization',
+            regionCode: 1,
+            metadata: [Object],
+            createTime: [Timestamp],
+            updateTime: [Timestamp]
+          }
+        ],
+        prevPageToken: ''
+      }
+    ```
 </Steps>

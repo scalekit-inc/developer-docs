@@ -10,6 +10,7 @@ import starlightSidebarTopics from 'starlight-sidebar-topics';
 import starlightSidebarTopicsDropdown from 'starlight-sidebar-topics-dropdown';
 import starlightViewModes from 'starlight-view-modes';
 import starlightImageZoom from 'starlight-image-zoom';
+import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
 
 // https://astro.build/config
 export default defineConfig({

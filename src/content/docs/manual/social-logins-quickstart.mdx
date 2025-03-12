@@ -1,87 +1,284 @@
 ---
-title: Social Logins Quickstart
+title: Getting Started with Social Logins
+description: Implement social logins with Scalekit to allow users to authenticate via Google, Microsoft, GitHub, and more, enhancing security and user experience.
 sidebar:
   label: Social Logins
 ---
 
-### Plug-n-play auth for B2B SaaS
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx'
+import Env from '@components/templates/_env.mdx'
+import AuthURL from '@components/templates/_authurl.mdx'
 
-Scalekit helps you quickly add enterprise authentication to your B2B SaaS app without engineering overhead. It provides plug-and-play auth solutions like SSO, SCIM, and Social Logins.
+Single Sign-On (SSO) enhances B2B SaaS application security and user experience by enabling secure authentication
+through an organization's Identity Provider (IdP). Some organizations use social identity providers like Google,
+Microsoft, GitHub, Salesforce etc.
 
-Built for B2B use cases, Scalekit natively supports multi-tenancy and organization management. You can test auth flows in sandbox environments, simulate SSO without real IdP accounts, and deploy instantly with prebuilt integrations for Okta, Entra ID, JumpCloud, Google SSO, and Azure AD—no custom code required.
+Scalekit enables your users login to your application with any of the social identity providers through OAuth 2.0. This
+quickstart guide will show you how to add Social Login (e.g., Login with Google) functionality to your application with
+just a few lines of code.
 
-:::tip[See it in action]
-At the top of the sidebar, you can find links to different topics used in this documentation, such as "Documentation" and "Demo" that each have their own sidebar configuration, while the "Starlight Docs" topic is a direct link to the Starlight documentation.
-:::
+![Login with Social Providers via Scalekit](@/assets/docs/manual/social-quickstart/scalekit_social.png)
 
-:::caution
-This plugin originates from [HiDeoo](https://github.com/HiDeoo) but is not affiliated with him. Nonetheless, huge thanks to him for his work on this plugin. We just changed the topic switcher component, the rest is the same. Make sure to check out [the original plugin](https://github.com/HiDeoo/starlight-sidebar-topics).
-:::
 
-## Prerequisites
+Before diving in, make sure you have:
 
-You will need to have a Starlight website set up.
-If you don't have one yet, you can follow the ["Getting Started"](https://starlight.astro.build/getting-started) guide in the Starlight docs to create one.
+- Access to your Scalekit account and API credentials
+- Your app's codebase for implementing and testing changes
 
-## Installation
+# Install the Scalekit SDK
 
-import { Steps } from "@astrojs/starlight/components";
-import { PackageManagers } from "@hideoo/starlight-plugins-docs-components";
+Scalekit offers language-specific SDKs for quick and easy integration with social login providers. Use the installation
+instructions below for your technology stack.
 
-<Steps>
+<InstallSDK />
 
-1. Starlight Sidebar Topics Dropdown is a Starlight [plugin](https://starlight.astro.build/reference/plugins/). Install it using your favorite package manager:
+#### Set up API credentials
 
-    <PackageManagers pkg="starlight-sidebar-topics-dropdown" />
+Secure your Scalekit API communication by setting up environment variables. You'll need three key pieces of information
+from your Scalekit Dashboard (-> API Config ):
 
-2. Configure the plugin in your Starlight [configuration](https://starlight.astro.build/reference/configuration/#plugins) in the `astro.config.mjs` file by specifying an array of topics each with its own sidebar configuration.
+1. **Environment URL**: The base URL for API calls. Each environment (dev, staging, prod) has a unique URL.
+2. **Client ID**: Your app's unique identifier for Scalekit communications.
+3. **Client Secret**: A private key to authenticate your API requests. Always keep this secret!
 
-    The following example shows how to configure two new topics named "Guides" and "Reference" linking to the `/guides/` and `/reference/` pages respectively with their own sidebar configuration:
+Never hardcode secrets in your app. Use environment variables instead. Here's how to set them in a `.env` file:
 
-    ```diff lang="js"
-    // astro.config.mjs
-    // @ts-check
-    import starlight from '@astrojs/starlight'
-    import { defineConfig } from 'astro/config'
-    +import starlightSidebarTopicsDropdown from 'starlight-sidebar-topics-dropdown'
+<Env />
 
-    export default defineConfig({
-      integrations: [
-        starlight({
-    +      plugins: [
-    +        starlightSidebarTopicsDropdown([
-    +          {
-    +            label: 'Guides',
-    +            link: '/guides/',
-    +            icon: 'open-book',
-    +            items: ['guides/getting-started', 'guides/manual-setup'],
-    +          },
-    +          {
-    +            label: 'Reference',
-    +            link: '/reference/',
-    +            icon: 'information',
-    +            items: ['reference/api', 'reference/components'],
-    +          },
-    +        ]),
-    +      ],
-    -      sidebar: [
-    -        {
-    -          label: 'Guides',
-    -          items: ['guides/getting-started', 'guides/manual-setup'],
-    -        },
-    -        {
-    -          label: 'Reference',
-    -          items: ['reference/api', 'reference/components'],
-    -        },
-    -      ],
-          title: 'My Docs',
-        }),
-      ],
-    })
-    ```
+Now you're ready to start integrating social connections into your app! Next, we'll cover how to use the SDK to
+authenticate users.
 
-3. [Start the development server](https://starlight.astro.build/getting-started/#start-the-development-server) to preview the changes.
+## Authorize the Users
 
-</Steps>
+To start login with social connections, your app must redirect users to the Scalekit Authorization URL with appropriate
+social connection provider details.
 
-The Starlight Sidebar Topics Dropdown plugin behavior can be tweaked using various [topic configuration options](/docs/configuration/#topic-configuration).
+Construct the Authorization URL using the following query parameters:
+
+| Parameter                                                        | Details                                                                                                                                                                                                                                                                                                                                                                    |
+| :--------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `redirect_uri`                                                   | Where Scalekit sends users after IdP authentication. <br />Example: `https://your-saas-app.com/auth/callback` After the user is logged into the social provider, Scalekit redirects the user to this URI with one time authorization `code`. |
+| `client_id`                                                      | Your app's unique Scalekit identifier which is mandatory for all requests. This uniquely identifies both your app and the environment (staging, prod).                                                                                                                                                                                                                     |
+| `provider`                                                       | Informs Scalekit which Social Provider to use. You can use `provider` as the request parameter with value being the unique code of the provider. <br />Currently, we support the following providers: `google`, `microsoft`, `github`, `gitlab`, `linkedin`, `salesforce`                                                    |
+
+<AuthURL />
+
+Next, construct your Authorization URL with these parameters and redirect users to this URL when they try to log in.
+
+<Tabs syncKey="language-preference">
+<TabItem value="nodejs" label="Node.js">
+
+```javascript
+import { Scalekit } from '@scalekit-sdk/node';
+
+// Initialize the SDK client
+const scalekit = new Scalekit('<SCALEKIT_ENVIRONMENT_URL>', '<SCALEKIT_CLIENT_ID>', '<SCALEKIT_CLIENT_SECRET>');
+
+const authorizationURL = scalekit.getAuthorizationUrl(redirectUri, {
+  provider: 'microsoft',
+  state: state, // optional
+});
+
+// Redirect the user to this authorizationURL
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```python showLineNumbers
+from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
+
+# Initialize the SDK client
+scalekit_client = ScalekitClient(
+  '<SCALEKIT_ENVIRONMENT_URL>',
+  '<SCALEKIT_CLIENT_ID>',
+  '<SCALEKIT_CLIENT_SECRET>'
+)
+
+options = AuthorizationUrlOptions()
+
+options.provider = 'microsoft'
+
+authorization_url = scalekit_client.get_authorization_url(
+  redirect_uri=<redirect_uri>,
+  options=options
+)
+
+# Redirect the user to this authorization URL
+```
+
+</TabItem>
+<TabItem value="golang" label="Go">
+
+```go showLineNumbers
+import (
+  "github.com/scalekit/scalekit-sdk-go"
+)
+
+func main() {
+  scalekitClient := scalekit.NewScalekitClient(
+    "<SCALEKIT_ENVIRONMENT_URL>",
+    "<SCALEKIT_CLIENT_ID>",
+    "<SCALEKIT_CLIENT_SECRET>"
+  )
+
+  options := scalekitClient.AuthorizationUrlOptions{}
+  // Pass the Social Login Provider details while constructing the authorization URL.
+  options.Provider = "microsoft"
+
+  authorizationURL := scalekitClient.GetAuthorizationUrl(
+    redirectUrl,
+    options,
+  )
+  // Next step is to redirect the user to this authorization URL
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+package com.scalekit;
+
+import com.scalekit.internal.http.AuthorizationUrlOptions;
+
+public class Main {
+
+  public static void main(String[] args) {
+    ScalekitClient scalekitClient = new ScalekitClient(
+      "<SCALEKIT_ENVIRONMENT_URL>",
+      "<SCALEKIT_CLIENT_ID>",
+      "<SCALEKIT_CLIENT_SECRET>"
+    );
+    AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+    options.setProvider("microsoft");
+    try {
+      // Pass the Social Login Provider details while constructing the authorization URL.
+      String url = scalekitClient.authentication().getAuthorizationUrl(redirectUrl, options).toString();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+  }
+}
+
+```
+
+</TabItem>
+</Tabs>
+
+Finally, handle the callback at your `redirect_uri` to complete the Authentication.
+
+## Fetch User Details
+
+After a successful SSO, Scalekit redirects the user to your `redirect_uri` with a unique `code` in the browser. Exchange the `code` for user profile details (on the serverside).
+
+Here's how to turn that `code` into user data:
+
+
+<Tabs syncKey="language-preference">
+<TabItem value="nodejs" label="Node.js">
+
+```javascript showLineNumbers
+const { code, state } = req.query;
+
+if (error) {
+  // Handle errors
+}
+
+const res = await scalekit.authenticateWithCode(code, redirectUri);
+
+// res.user has the authenticated user's details
+const userEmail = res.user.email;
+
+// Next step: create a session for this user and allow access
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```python showLineNumbers
+code = request.args.get('code')
+error = request.args.get('error')
+error_description = request.args.get('error_description')
+
+if error:
+    raise Exception(error_description)
+
+result = scalekit_client.authenticate_with_code(
+  code,
+  <redirect_uri>
+)
+
+# result.user has the authenticated user's details
+user_email = result.user.email
+
+# Next step: create a session for this user and allow access
+```
+
+</TabItem>
+<TabItem value="golang" label="Go">
+
+```go showLineNumbers
+code := r.URL.Query().Get("code")
+error := r.URL.Query().Get("error")
+errorDescription := r.URL.Query().Get("error_description")
+
+if error != "" {
+  // Handle errors and exit
+}
+
+res, err := sc.AuthenticateWithCode(code, redirectUrl)
+if err != nil {
+  // Handle errors and exit
+}
+
+// res.User has the authenticated user's details
+userEmail := res.User.Email
+
+// Next step: create a session for this user and allow access
+```
+
+</TabItem>
+
+<TabItem value="java" label="Java">
+
+```java
+String code = request.getParameter("code");
+String error = request.getParameter("error");
+String errorDescription = request.getParameter("error_description");
+if (error != null && !error.isEmpty()) {
+  // Handle errors
+  return;
+}
+try {
+  AuthenticationResponse res = scalekitClient.authentication().authenticateWithCode(code, redirectUrl);
+  // res.getIdTokenClaims() has the authenticated user's details
+  String userEmail = res.getIdTokenClaims().getEmail();
+
+} catch (Exception e) {
+  // Handle errors
+}
+
+// Next step: create a session for this user and allow access
+```
+
+</TabItem>
+</Tabs>
+
+Example of a successful authentication response:
+
+```json wrap showLineNumbers=false title="Result from SDK"
+{
+  "user": {
+    "email": "john@example.com",
+    "familyName": "Doe",
+    "givenName": "John",
+    "username": "john@example.com",
+    "id": "conn_32688947352043861;dc025689-4871-4772-8ed0-a31b1bdc010b"
+  },
+  "idToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6...[truncated]",
+  "accessToken": "eyJhbGciOiJSUzI1NiIsImtpZ...[truncated]",
+  "expiresIn": 899
+}
+```
