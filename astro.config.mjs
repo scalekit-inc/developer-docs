@@ -20,7 +20,7 @@ export default defineConfig({
       title: 'My Docs',
       favicon: 'src/assets/favicons/logo.png',
       components: {
-        SocialIcons: './src/components/overrides/Primary.astro',
+        SocialIcons: './src/components/overrides/SocialIcons.astro',
       },
       logo: {
         light: '/src/assets/images/scalekit-logo-black.svg',
@@ -47,9 +47,6 @@ export default defineConfig({
         starlightLinksValidator(),
         starlightImageZoom({
           showCaptions: true,
-        }),
-        starlightViewModes({
-          presentationModeEnabled: false,
         }),
         starlightSidebarTopics([
           {
@@ -125,7 +122,7 @@ export default defineConfig({
                 items: [
                   {
                     label: 'Glossary',
-                    link: '/resources/sites/',
+                    link: '/manual/support/glossary',
                   },
                   {
                     label: 'Chat with us!',
