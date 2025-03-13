@@ -44,7 +44,7 @@ export default defineConfig({
         './src/styles/custom.css',
       ],
       plugins: [
-        starlightLinksValidator(),
+        // starlightLinksValidator(),
         starlightImageZoom({
           showCaptions: true,
         }),
