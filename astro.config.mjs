@@ -84,7 +84,7 @@ export default defineConfig({
                 items: [
                   {
                     label: 'Admin Portal',
-                    link: '/resources/sites/',
+                    link: '/manual/fundamentals/admin-portal',
                   },
                   {
                     label: 'Test Organization',
@@ -147,6 +147,14 @@ export default defineConfig({
               {
                 label: 'Webhooks',
                 autogenerate: { directory: 'reference/webhooks' },
+              },
+              {
+                label: 'Errors',
+                link: '/reference/errors',
+              },
+              {
+                label: 'UI Events',
+                link: '/reference/ui-events',
               },
             ],
           },
