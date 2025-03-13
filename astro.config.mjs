@@ -45,6 +45,9 @@ export default defineConfig({
       ],
       plugins: [
         starlightLinksValidator(),
+        starlightImageZoom({
+          showCaptions: true,
+        }),
         starlightViewModes({
           presentationModeEnabled: false,
         }),
