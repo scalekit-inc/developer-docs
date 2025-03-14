@@ -56,24 +56,13 @@ export default defineConfig({
             icon: 'open-book',
             items: [
               {
-                label: 'Getting Started',
+                label: 'Quickstarts',
                 collapsed: false,
                 items: [
                   {
                     label: 'Installation',
                     link: 'manual/getting-started/installation',
                   },
-                  { label: 'First Project', link: 'manual/getting-started' },
-                  {
-                    label: 'Setup your environment',
-                    link: 'manual/getting-started',
-                  },
-                ],
-              },
-              {
-                label: 'Quickstarts',
-                collapsed: false,
-                items: [
                   'manual/sso-quickstart',
                   'manual/scim-quickstart',
                   'manual/social-logins-quickstart',
