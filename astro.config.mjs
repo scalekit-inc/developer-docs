@@ -18,6 +18,10 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'My Docs',
+      tableOfContents: {
+        minHeadingLevel: 2,
+        maxHeadingLevel: 4,
+      },
       favicon: 'src/assets/favicons/logo.png',
       components: {
         SocialIcons: './src/components/overrides/SocialIcons.astro',
