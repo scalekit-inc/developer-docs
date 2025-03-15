@@ -102,12 +102,12 @@ export default defineConfig({
                     link: '/guides/auth-systems/firebase',
                   },
                   {
-                    label: 'Integrate with IdPs',
-                    link: '/guides/',
+                    label: 'IdP Connectors',
+                    link: '/guides/sso-integrations',
                   },
                   {
-                    label: 'Integrate with Directories',
-                    link: '/guides/',
+                    label: 'Directory Connectors',
+                    link: '/guides/scim-integrations',
                   },
                 ],
               },
