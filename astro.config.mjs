@@ -168,6 +168,10 @@ export default defineConfig({
                 label: 'Product',
                 autogenerate: { directory: 'guides/product' },
               },
+              {
+                label: 'Extended guides',
+                autogenerate: { directory: 'guides/extended' },
+              },
             ],
           },
         ]),
