@@ -115,7 +115,7 @@ export default defineConfig({
                   },
                   {
                     label: 'Chat with us!',
-                    link: '/resources/sites/',
+                    link: '/manual/support/contact-us',
                   },
                   {
                     label: 'Status Page',
