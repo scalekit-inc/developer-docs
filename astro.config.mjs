@@ -102,7 +102,11 @@ export default defineConfig({
                     link: '/guides/auth-systems/firebase',
                   },
                   {
-                    label: 'Continue to more integrations',
+                    label: 'Integrate with Identity Providers (IdPs)',
+                    link: '/guides/',
+                  },
+                  {
+                    label: 'Integrate with Directory Providers',
                     link: '/guides/',
                   },
                 ],
