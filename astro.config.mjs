@@ -79,13 +79,10 @@ export default defineConfig({
                     label: 'Admin Portal',
                     link: '/manual/fundamentals/admin-portal',
                   },
+
                   {
-                    label: 'Test Organization',
-                    link: 'https://scalekit.statuspage.io/',
-                  },
-                  {
-                    label: 'IdP Simulator',
-                    link: '/manual/fundamentals/idp-simulator',
+                    label: 'Test SSO Integration',
+                    link: '/manual/fundamentals/test-sso-integration',
                   },
                 ],
               },
