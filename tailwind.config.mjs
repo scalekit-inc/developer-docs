@@ -72,4 +72,10 @@ export default {
     },
   },
   plugins: [starlightPlugin()],
+  // Add important flag to ensure Starlight theme styles take precedence over Tailwind
+  important: false,
+  // Configure corePlugins to not override fonts and colors provided by StarlightThemeRapide
+  corePlugins: {
+    preflight: false,
+  },
 };

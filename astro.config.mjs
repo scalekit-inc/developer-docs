@@ -45,7 +45,8 @@ export default defineConfig({
         '@fontsource-variable/inter',
         '@fontsource-variable/plus-jakarta-sans',
         '@fontsource-variable/space-grotesk',
-        './src/styles/tailwind.css',
+        './src/styles/theme-priority.css',
+        // './src/styles/tailwind.css',
         './src/styles/custom.css',
       ],
       plugins: [
