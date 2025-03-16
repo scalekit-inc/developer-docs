@@ -11,6 +11,7 @@ import starlightSidebarTopicsDropdown from 'starlight-sidebar-topics-dropdown';
 import starlightViewModes from 'starlight-view-modes';
 import starlightImageZoom from 'starlight-image-zoom';
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
+import starlightThemeRapide from 'starlight-theme-rapide';
 
 // https://astro.build/config
 export default defineConfig({
@@ -49,6 +50,7 @@ export default defineConfig({
       ],
       plugins: [
         // starlightLinksValidator(),
+        starlightThemeRapide(),
         starlightImageZoom({
           showCaptions: true,
         }),
