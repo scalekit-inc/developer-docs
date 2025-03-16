@@ -86,6 +86,10 @@ export default defineConfig({
                     label: 'Test SSO Integration',
                     link: '/manual/fundamentals/test-sso-integration',
                   },
+                  {
+                    label: 'Errors',
+                    link: '/reference/errors',
+                  },
                 ],
               },
               {
