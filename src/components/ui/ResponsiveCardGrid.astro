@@ -1,0 +1,41 @@
+---
+interface Props {
+  className?: string;
+}
+
+const { className = '' } = Astro.props;
+---
+
+<div class={`responsive-card-grid ${className}`}>
+  <slot />
+</div>
+
+<style>
+  .responsive-card-grid {
+    display: grid;
+    gap: 1.5rem;
+    /* One column on mobile */
+    grid-template-columns: 1fr;
+  }
+
+  /* Two columns on small tablets and up */
+  @media (min-width: 640px) {
+    .responsive-card-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Three columns on tablets and up */
+  @media (min-width: 768px) {
+    .responsive-card-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* Four columns on large screens */
+  @media (min-width: 1280px) {
+    .responsive-card-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>
