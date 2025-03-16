@@ -87,7 +87,7 @@ export default defineConfig({
                     link: '/manual/fundamentals/test-sso-integration',
                   },
                   {
-                    label: 'Errors',
+                    label: 'Continue with product guides',
                     link: '/reference/errors',
                   },
                 ],
@@ -163,6 +163,10 @@ export default defineConfig({
             link: '/guides/',
             icon: 'puzzle',
             items: [
+              {
+                label: 'Social Connections',
+                autogenerate: { directory: 'guides/social-connections' },
+              },
               {
                 label: 'SSO Integrations',
                 autogenerate: { directory: 'guides/sso-integrations' },
