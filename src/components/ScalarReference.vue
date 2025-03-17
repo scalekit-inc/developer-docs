@@ -2,26 +2,33 @@
 import { ApiReference } from '@scalar/api-reference';
 import '@scalar/api-reference/style.css';
 import '@fontsource-variable/plus-jakarta-sans';
+import '@fontsource-variable/space-grotesk';
+import '@fontsource-variable/inter';
 </script>
 
 <template>
   <div class="api-reference-container">
     <ApiReference
       :configuration="{
-        spec: {
-          url: '/api/scalekit.swagger.json',
-        },
-        theme: 'bluePlanet',
+        url: '/api/scalekit.swagger.json',
+        theme: 'saturn',
         customCss: `
           .property-name, .scalar-code-block {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !important;
           }
           * {
-            font-family: 'Plus Jakarta Sans Variable', sans-serif;
+            font-family: 'Inter Variable', sans-serif;
+          }
+          p, .sidebar-heading-link-title {
+            font-family: 'Inter Variable', sans-serif;
+          }
+          h1, h2, h3, h4, h5, h6,  {
+            font-family: 'Space Grotesk Variable', sans-serif;
           }
         `,
         hideTestRequestButton: true,
         hideModels: true,
+        hideDarkModeToggle: false,
         hiddenClients: [
           'libcurl',
           'clj_http',
