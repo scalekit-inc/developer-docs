@@ -6,4 +6,554 @@ sidebar:
   order: 4
 ---
 
-# Java SDK
+
+This reference documents all the available API methods in the ScaleKit Java SDK.
+
+## Initialization
+
+```java
+import com.scalekit.ScalekitClient;
+
+// Initialize the client
+ScalekitClient client = new ScalekitClient(siteName, clientId, clientSecret);
+```
+
+### Parameters
+
+- `siteName` (String): Your ScaleKit site name
+- `clientId` (String): Your client ID from the ScaleKit web app
+- `clientSecret` (String): Your client secret from the ScaleKit web app
+
+## Configuration
+
+### Environment
+
+```java
+import com.scalekit.Environment;
+
+// Configure environment manually
+Environment.configure(siteName, clientId, clientSecret);
+Environment env = Environment.defaultConfig();
+```
+
+- `timeout` (int): Request timeout in milliseconds (default: 10000)
+
+## API Clients
+
+The ScalekitClient provides access to several specialized clients:
+
+- **OrganizationClient**: `client.organizations()`
+- **DomainClient**: `client.domains()`
+- **ConnectionClient**: `client.connections()`
+- **AuthClient**: `client.authentication()`
+- **Webhook**: `client.webhook()`
+- **DirectoryClient**: `client.directories()`
+
+## Organization Methods
+
+### Create Organization
+
+```java
+Organization create(CreateOrganization organization);
+```
+
+Creates a new organization.
+
+**Parameters:**
+- `organization` (CreateOrganization): Organization details
+
+**Returns:**
+- `Organization`: The created organization
+
+### Get Organization by ID
+
+```java
+Organization getById(String id);
+```
+
+Retrieves an organization by its ID.
+
+**Parameters:**
+- `id` (String): Organization ID
+
+**Returns:**
+- `Organization`: The requested organization
+
+### Get Organization by External ID
+
+```java
+Organization getByExternalId(String externalId);
+```
+
+Retrieves an organization by its external ID.
+
+**Parameters:**
+- `externalId` (String): External organization ID
+
+**Returns:**
+- `Organization`: The requested organization
+
+### Update Organization by ID
+
+```java
+Organization updateById(String id, UpdateOrganization organization);
+```
+
+Updates an organization by its ID.
+
+**Parameters:**
+- `id` (String): Organization ID
+- `organization` (UpdateOrganization): Updated organization details
+
+**Returns:**
+- `Organization`: The updated organization
+
+### Update Organization by External ID
+
+```java
+Organization updateByExternalId(String externalId, UpdateOrganization organization);
+```
+
+Updates an organization by its external ID.
+
+**Parameters:**
+- `externalId` (String): External organization ID
+- `organization` (UpdateOrganization): Updated organization details
+
+**Returns:**
+- `Organization`: The updated organization
+
+### Delete Organization by ID
+
+```java
+void deleteById(String id);
+```
+
+Deletes an organization by its ID.
+
+**Parameters:**
+- `id` (String): Organization ID
+
+### Delete Organization by External ID
+
+```java
+void deleteByExternalId(String externalId);
+```
+
+Deletes an organization by its external ID.
+
+**Parameters:**
+- `externalId` (String): External organization ID
+
+### List Organizations
+
+```java
+ListOrganizationsResponse listOrganizations(int pageSize, String pageToken);
+```
+
+Lists organizations with pagination.
+
+**Parameters:**
+- `pageSize` (int): Number of organizations per page
+- `pageToken` (String): Token for pagination
+
+**Returns:**
+- `ListOrganizationsResponse`: Response containing list of organizations and pagination info
+
+### Generate Portal Link
+
+```java
+Link generatePortalLink(String organizationId);
+```
+
+Generates a portal link for an organization.
+
+**Parameters:**
+- `organizationId` (String): Organization ID
+
+**Returns:**
+- `Link`: The generated portal link
+
+### Generate Portal Link with Features
+
+```java
+Link generatePortalLink(String organizationId, List<Feature> features);
+```
+
+Generates a portal link for an organization with specific features.
+
+**Parameters:**
+- `organizationId` (String): Organization ID
+- `features` (List\<Feature\>): List of features to enable in the portal
+
+**Returns:**
+- `Link`: The generated portal link
+
+### Update Organization Settings
+
+```java
+Organization updateOrganizationSettings(String organizationId, List<OrganizationSettingsFeature> settings);
+```
+
+Updates settings for an organization.
+
+**Parameters:**
+- `organizationId` (String): Organization ID
+- `settings` (List\<OrganizationSettingsFeature\>): List of settings features to update
+
+**Returns:**
+- `Organization`: The updated organization
+
+## Domain Methods
+
+### Create Domain
+
+```java
+Domain createDomain(String organizationId, String domainName);
+```
+
+Creates a new domain for an organization.
+
+**Parameters:**
+- `organizationId` (String): Organization ID
+- `domainName` (String): Domain name to create
+
+**Returns:**
+- `Domain`: The created domain
+
+### Get Domain by ID
+
+```java
+Domain getDomainById(String organizationId, String domainId);
+```
+
+Retrieves a domain by its ID.
+
+**Parameters:**
+- `organizationId` (String): Organization ID
+- `domainId` (String): Domain ID
+
+**Returns:**
+- `Domain`: The requested domain
+
+### List Domains by Organization ID
+
+```java
+List<Domain> listDomainsByOrganizationId(String organizationId);
+```
+
+Lists all domains for an organization.
+
+**Parameters:**
+- `organizationId` (String): Organization ID
+
+**Returns:**
+- `List<Domain>`: List of domains
+
+## Connection Methods
+
+### Get Connection by ID
+
+```java
+Connection getConnectionById(String connectionId, String organizationId);
+```
+
+Retrieves a connection by its ID.
+
+**Parameters:**
+- `connectionId` (String): Connection ID
+- `organizationId` (String): Organization ID
+
+**Returns:**
+- `Connection`: The requested connection
+
+### List Connections by Domain
+
+```java
+ListConnectionsResponse listConnectionsByDomain(String domain);
+```
+
+Lists all connections for a domain.
+
+**Parameters:**
+- `domain` (String): Domain name
+
+**Returns:**
+- `ListConnectionsResponse`: Response containing list of connections
+
+### List Connections by Organization
+
+```java
+ListConnectionsResponse listConnectionsByOrganization(String organizationId);
+```
+
+Lists all connections for an organization.
+
+**Parameters:**
+- `organizationId` (String): Organization ID
+
+**Returns:**
+- `ListConnectionsResponse`: Response containing list of connections
+
+### Enable Connection
+
+```java
+ToggleConnectionResponse enableConnection(String connectionId, String organizationId);
+```
+
+Enables a connection.
+
+**Parameters:**
+- `connectionId` (String): Connection ID
+- `organizationId` (String): Organization ID
+
+**Returns:**
+- `ToggleConnectionResponse`: Response indicating the result of enabling the connection
+
+### Disable Connection
+
+```java
+ToggleConnectionResponse disableConnection(String connectionId, String organizationId);
+```
+
+Disables a connection.
+
+**Parameters:**
+- `connectionId` (String): Connection ID
+- `organizationId` (String): Organization ID
+
+**Returns:**
+- `ToggleConnectionResponse`: Response indicating the result of disabling the connection
+
+### Create Connection
+
+```java
+Connection createConnection(String organizationId, CreateConnection connection);
+```
+
+Creates a new connection for an organization.
+
+**Parameters:**
+- `organizationId` (String): Organization ID
+- `connection` (CreateConnection): Connection details
+
+**Returns:**
+- `Connection`: The created connection
+
+## Authentication Methods
+
+### Get Authorization URL
+
+```java
+URL getAuthorizationUrl(String redirectUri, AuthorizationUrlOptions options);
+```
+
+Gets an authorization URL for OAuth flow.
+
+**Parameters:**
+- `redirectUri` (String): Redirect URI after authorization
+- `options` (AuthorizationUrlOptions): Additional options for authorization
+
+**Returns:**
+- `URL`: The authorization URL
+
+### Validate Access Token
+
+```java
+boolean validateAccessToken(String jwt);
+```
+
+Validates an access token.
+
+**Parameters:**
+- `jwt` (String): JWT access token to validate
+
+**Returns:**
+- `boolean`: Whether the token is valid
+
+### Get Client Access Token
+
+```java
+String getClientAccessToken();
+```
+
+Gets an access token for the client.
+
+**Returns:**
+- `String`: The client access token
+
+### Authenticate with Code
+
+```java
+AuthenticationResponse authenticateWithCode(String code, String redirectUri, AuthenticationOptions options);
+```
+
+Authenticates using an authorization code.
+
+**Parameters:**
+- `code` (String): Authorization code
+- `redirectUri` (String): Redirect URI
+- `options` (AuthenticationOptions): Additional authentication options
+
+**Returns:**
+- `AuthenticationResponse`: Response containing authentication details
+
+### Get IdP-Initiated Login Claims
+
+```java
+IdpInitiatedLoginClaims getIdpInitiatedLoginClaims(String idpInitiatedLoginToken) throws APIException;
+```
+
+Gets claims from an IdP-initiated login token.
+
+**Parameters:**
+- `idpInitiatedLoginToken` (String): Token from IdP-initiated login
+
+**Returns:**
+- `IdpInitiatedLoginClaims`: Claims from the token
+
+**Throws:**
+- `APIException`: If token is invalid or processing fails
+
+## Directory Methods
+
+### Get Directory
+
+```java
+Directory getDirectory(String directoryId, String organizationId);
+```
+
+Retrieves a directory by its ID.
+
+**Parameters:**
+- `directoryId` (String): Directory ID
+- `organizationId` (String): Organization ID
+
+**Returns:**
+- `Directory`: The requested directory
+
+### List Directories
+
+```java
+ListDirectoriesResponse listDirectories(String organizationId);
+```
+
+Lists all directories for an organization.
+
+**Parameters:**
+- `organizationId` (String): Organization ID
+
+**Returns:**
+- `ListDirectoriesResponse`: Response containing list of directories
+
+### List Directory Users
+
+```java
+ListDirectoryUserResponse listDirectoryUsers(String directoryId, String organizationId, ListDirectoryResourceOptions options);
+```
+
+Lists users in a directory.
+
+**Parameters:**
+- `directoryId` (String): Directory ID
+- `organizationId` (String): Organization ID
+- `options` (ListDirectoryResourceOptions): Options for listing users
+
+**Returns:**
+- `ListDirectoryUserResponse`: Response containing list of users
+
+### List Directory Groups
+
+```java
+ListDirectoryGroupResponse listDirectoryGroups(String directoryId, String organizationId, ListDirectoryResourceOptions options);
+```
+
+Lists groups in a directory.
+
+**Parameters:**
+- `directoryId` (String): Directory ID
+- `organizationId` (String): Organization ID
+- `options` (ListDirectoryResourceOptions): Options for listing groups
+
+**Returns:**
+- `ListDirectoryGroupResponse`: Response containing list of groups
+
+### Enable Directory
+
+```java
+ToggleDirectoryResponse enableDirectory(String directoryId, String organizationId);
+```
+
+Enables a directory.
+
+**Parameters:**
+- `directoryId` (String): Directory ID
+- `organizationId` (String): Organization ID
+
+**Returns:**
+- `ToggleDirectoryResponse`: Response indicating the result of enabling the directory
+
+### Disable Directory
+
+```java
+ToggleDirectoryResponse disableDirectory(String directoryId, String organizationId);
+```
+
+Disables a directory.
+
+**Parameters:**
+- `directoryId` (String): Directory ID
+- `organizationId` (String): Organization ID
+
+**Returns:**
+- `ToggleDirectoryResponse`: Response indicating the result of disabling the directory
+
+### Get Primary Directory
+
+```java
+Directory getPrimaryDirectoryByOrganizationId(String organizationId);
+```
+
+Gets the primary directory for an organization.
+
+**Parameters:**
+- `organizationId` (String): Organization ID
+
+**Returns:**
+- `Directory`: The primary directory
+
+### Create Directory
+
+```java
+Directory createDirectory(String organizationId, CreateDirectory directory);
+```
+
+Creates a new directory for an organization.
+
+**Parameters:**
+- `organizationId` (String): Organization ID
+- `directory` (CreateDirectory): Directory details
+
+**Returns:**
+- `Directory`: The created directory
+
+## Webhook Methods
+
+### Verify Webhook Payload
+
+```java
+boolean verifyWebhookPayload(String secret, Map<String, String> headers, byte[] payload) throws WebHookException;
+```
+
+Verifies the authenticity of a webhook payload.
+
+**Parameters:**
+- `secret` (String): Webhook secret
+- `headers` (Map\<String, String\>): HTTP headers from the webhook request
+- `payload` (byte[]): Raw payload from the webhook request
+
+**Returns:**
+- `boolean`: Whether the payload is authentic
+
+**Throws:**
+- `WebHookException`: If verification fails
