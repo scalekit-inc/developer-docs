@@ -206,6 +206,12 @@ export default defineConfig({
       },
     }),
   ],
+  redirects: {
+    '/': {
+      destination: '/manual/getting-started',
+      status: 301,
+    },
+  },
   vite: {
     resolve: {
       alias: {
