@@ -144,18 +144,18 @@ export default defineConfig({
             icon: 'starlight',
             items: [
               { label: 'REST APIs', link: '/apis-scalar' },
-              { label: 'SDKs', autogenerate: { directory: 'reference/sdks' } },
               {
-                label: 'Webhooks',
-                autogenerate: { directory: 'reference/webhooks' },
+                label: 'UI Events',
+                link: '/reference/ui-events',
               },
               {
                 label: 'Errors',
                 link: '/reference/errors',
               },
+              { label: 'SDKs', autogenerate: { directory: 'reference/sdks' } },
               {
-                label: 'UI Events',
-                link: '/reference/ui-events',
+                label: 'Webhooks',
+                autogenerate: { directory: 'reference/webhooks' },
               },
             ],
           },
