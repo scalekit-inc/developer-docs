@@ -88,8 +88,8 @@ export default defineConfig({
                     link: '/manual/fundamentals/test-sso-integration',
                   },
                   {
-                    label: 'Continue with product guides',
-                    link: '/reference/errors',
+                    label: 'More product guides',
+                    link: '/guides/',
                   },
                 ],
               },
