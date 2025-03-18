@@ -1,0 +1,57 @@
+---
+title: Consuming the Scalekit API
+description: Learn how to consume the Scalekit API to get data about your users and their devices.
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+## Introduction
+
+The Scalekit API is a RESTful API that allows you to manage your Scalekit account and resources. This guide will walk you through the process of consuming the API to get data about your users and their devices.
+
+Choose what you want to do:
+
+- Authenticate users of your application and successfully create a session for them, log them in, and log them out. **This is user authentication**.
+
+- Authenticate yourself so that your can access your own account data and control your own account resources programmatically. **This is account authentication**.
+
+## User Authentication
+
+User authentication is about using Scalekit to authenticate users and get the user's data.
+
+<Steps>
+
+1. Your application should make a request to the `{baseEnvUrl}/auth/authorize` endpoint.
+2. The request should have following **query parameters**:
+   - `client_id`: The client ID of your application.
+   - `redirect_uri`: The redirect URI of your application. Scalekit will redirect the user to this URI after authentication with a `code`.
+   - `response_type`: The response type. This is `code`.
+   - `scope`: The scope of the request. This is `openid profile email`.
+   - `state`: The state of the request. This is a random string.
+   - `nonce`: The nonce of the request. This is a random string.
+   - `login_hint`: The login hint of the request. This is the email of the user.
+3. The user will be redirected to a identity provider (SSO provider or Social provider) to authenticate. Once successfully authenticated, the user will be redirected back to your application with a `code`.
+4. Your application should make a request to the `{baseEnvUrl}/auth/token` endpoint with the `code` to get the user's data.
+
+</Steps>
+
+## Account Authentication for programmatic access
+
+Account authentication is about using Scalekit to authenticate yourself and get programmatic access to your own account data and resources using REST API.
+
+<Steps>
+
+1. Your application should make a request to the `{baseEnvUrl}/auth/token` endpoint.
+2. The request should be a `POST` request with the following parameters in the body as `application/x-www-form-urlencoded`:
+   - `client_id`: Your application's client ID from the Scalekit dashboard.
+   - `client_secret`: Your application's client secret from the Scalekit dashboard.
+   - `grant_type`: Set to `client_credentials` for initial authentication.
+3. On success, you'll receive a response with an `access_token` and `refresh_token`.
+4. Use the `access_token` in the Authorization header for subsequent API requests as: `Authorization: Bearer {access_token}`.
+5. When the access token expires, use the refresh token to obtain a new one by making a request to the same endpoint with:
+   - `refresh_token`: The refresh token you received.
+   - `client_id`: Your application's client ID.
+   - `client_secret`: Your application's client secret.
+   - `grant_type`: Set to `refresh_token` for token renewal.
+
+</Steps>
