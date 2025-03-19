@@ -1,0 +1,101 @@
+---
+title: Authenticate Scalekit API
+---
+
+import { Aside, Steps, LinkButton } from '@astrojs/starlight/components';
+
+
+This documentation is intended for developers who need to integrate with Scalekit's services. Basic familiarity with REST APIs, HTTP requests, and authentication concepts is helpful.
+
+## Getting Started
+
+Scalekit provides a RESTful API that allows you to interact with our platform programmatically. You can use any HTTP client to make requests to our endpoints and integrate our services into your applications.
+
+To start using the Scalekit API, follow these steps:
+
+1. Create an account on the [Scalekit Dashboard](https://app.scalekit.com)
+2. Complete the signup process and accept our terms of service
+3. Obtain your **environment**, **client_id**, and **client_secret** credentials from the Dashboard
+
+## API Requirements
+
+- **Content Type**: All requests must include a `Content-Type: application/json` header
+- **Request Format**: Request bodies must contain valid JSON
+- **Security**: The API is served over HTTPS with TLS v1.2+ to ensure data security
+- **Error Handling**: For troubleshooting issues, refer to the [Error reference](/reference/errors)
+
+## Where to Send API Requests
+
+Scalekit provides two separate environments for development and production use:
+
+```
+https://{environment}.scalekit.dev  (Development)
+https://{environment}.scalekit.com  (Production)
+```
+
+¸ Items created in one environment cannot be transferred to another environment. The Sandbox environment is ideal for testing your integration before moving to Production.
+
+## How to Authenticate with the API
+
+Scalekit uses OAuth 2.0 Client Credentials flow for secure API authentication. This section explains how to obtain and use access tokens.
+
+### Step 1: Request an Access Token
+
+Make a POST request to our token endpoint with your credentials:
+
+```sh
+# Replace {ENV_URL} with your environment URL
+# Replace {client_id} and {client_secret} with your actual credentials
+curl https://{ENV_URL}/oauth/token \
+  -X POST \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -d 'client_id={client_id}' \
+  -d 'client_secret={client_secret}' \
+  -d 'grant_type=client_credentials'
+```
+
+### Step 2: Receive Your Access Token
+
+If your credentials are valid, you'll receive a JSON response containing:
+
+```json
+{
+  "access_token": "DCRD10-e7c5c8139165228a82e442445fe01c16",  // Your token to use in all API requests
+  "token_type": "bearer",                                      // The type of token issued
+  "expires_in": 1799                                           // Token validity in seconds (30 minutes)
+}
+```
+
+### Step 3: Use the Access Token in API Requests
+
+Include your access token in the Authorization header for all API requests:
+
+```sh
+# Replace {ENV_URL} with your environment URL
+# Replace {access_token} with the token received in step 2
+curl --request GET "https://{ENV_URL}/api/v1/organizations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {access_token}"
+```
+
+## Common Error Scenarios
+
+When using the API, you might encounter these common errors:
+
+- **401 Unauthorized**: Your access token is invalid or expired. Request a new token.
+- **400 Bad Request**: Your request format is incorrect. Check your JSON payload.
+- **403 Forbidden**: Your account doesn't have permission for the requested action.
+- **429 Too Many Requests**: You've exceeded the rate limit. Slow down your requests.
+
+For a complete list of errors and their solutions, see the [Error reference](/reference/errors).
+
+
+ Our SDKs handle API authentication, token refresh, and error management automatically. This makes integration simpler and reduces development time. For more information, see the [SDKs](/docs/sdks) section.
+
+## Next Steps
+
+After setting up authentication, you can:
+
+- Explore the [API Reference](/reference) for detailed endpoint documentation
+- Follow our [Quickstart Guide](/docs/quickstart) for common integration scenarios
+- Join our [Developer Community](/manual/support) for support
