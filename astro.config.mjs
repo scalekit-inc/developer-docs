@@ -12,10 +12,11 @@ import starlightViewModes from 'starlight-view-modes';
 import starlightImageZoom from 'starlight-image-zoom';
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
 import starlightThemeRapide from 'starlight-theme-rapide';
+import starlightLlmsTxt from 'starlight-llms-txt';
 
 // https://astro.build/config
 export default defineConfig({
-  // site: 'https://docs.scalekit.com',
+  site: 'https://docs.scalekit.com',
   integrations: [
     starlight({
       title: 'My Docs',
@@ -51,6 +52,7 @@ export default defineConfig({
       ],
       plugins: [
         // starlightLinksValidator(),
+        starlightLlmsTxt(),
         starlightThemeRapide(),
         starlightImageZoom({
           showCaptions: true,
