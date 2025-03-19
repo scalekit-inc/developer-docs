@@ -16,7 +16,7 @@ import starlightLlmsTxt from 'starlight-llms-txt';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://docs.scalekit.com',
+  // site: 'https://docs.scalekit.com',
   integrations: [
     starlight({
       title: 'My Docs',
@@ -51,8 +51,8 @@ export default defineConfig({
         './src/styles/custom.css',
       ],
       plugins: [
-        // starlightLinksValidator(),
-        starlightLlmsTxt(),
+        // starlightLinksValidator(), // TODO: Uncomment this when you go live
+        // starlightLlmsTxt(), // TODO: Uncomment this when you go live
         starlightThemeRapide(),
         starlightImageZoom({
           showCaptions: true,
