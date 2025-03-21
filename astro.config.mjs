@@ -39,7 +39,7 @@ export default defineConfig({
           'https://github.com/scalekit-inc/scalekit-docs/edit/main/src/content/docs/',
       },
       expressiveCode: {
-        themes: ['material-theme', 'github-light'],
+        // themes: ['material-theme', 'github-light'],
         useStarlightDarkModeSwitch: true,
       },
       customCss: [
