@@ -53,7 +53,7 @@ export default defineConfig({
       plugins: [
         // starlightLinksValidator(), // TODO: Uncomment this when you go live
         // starlightLlmsTxt(), // TODO: Uncomment this when you go live
-        starlightThemeRapide(),
+        // starlightThemeRapide(), // TODO:this is for own design
         starlightImageZoom({
           showCaptions: true,
         }),
