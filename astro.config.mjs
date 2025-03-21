@@ -19,7 +19,7 @@ export default defineConfig({
   // site: 'https://docs.scalekit.com',
   integrations: [
     starlight({
-      title: 'My Docs',
+      title: 'Scalekit Docs',
       tableOfContents: {
         minHeadingLevel: 2,
         maxHeadingLevel: 4,
@@ -39,7 +39,6 @@ export default defineConfig({
           'https://github.com/scalekit-inc/scalekit-docs/edit/main/src/content/docs/',
       },
       expressiveCode: {
-        // themes: ['material-theme', 'github-light'],
         useStarlightDarkModeSwitch: true,
       },
       customCss: [
@@ -208,12 +207,6 @@ export default defineConfig({
       },
     }),
   ],
-  redirects: {
-    '/': {
-      destination: '/manual/getting-started',
-      status: 301,
-    },
-  },
   vite: {
     resolve: {
       alias: {
