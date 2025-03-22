@@ -1,0 +1,145 @@
+---
+title: Production Launch Checklist for SCIM Service
+description: Essential steps to prepare your SCIM provisioning service for production deployment
+---
+
+import { Aside, TabItem, Tabs, Steps } from "@astrojs/starlight/components"
+import CheckItem from '@components/ui/CheckItem.astro';
+
+
+Before deploying your SCIM provisioning service to production, complete this checklist to ensure security, reliability, and optimal user experience. Each section includes specific actions and verification steps.
+
+## Environment Configuration
+
+### <CheckItem iconName="approve-check-circle"> Update Environment Variables</CheckItem>
+
+<Steps>
+
+1. Replace development credentials with production values: Client ID, Client Secret, and Environment URL.
+
+2. Verify environment configuration:
+
+   ```sh title="Example environment file structure"
+   SCALEKIT_CLIENT_ID=<skc_client_id>
+   SCALEKIT_CLIENT_SECRET=<sk_client_secret>
+   SCALEKIT_API_URL=<scalekit_environment_url>
+   ```
+
+</Steps>
+
+### <CheckItem iconName="approve-check-circle"> Secure Credentials</CheckItem>
+
+<Steps>
+
+1. Store the Client Secret securely: Use a secure secret management service, implement encryption at rest, and rotate secrets regularly.
+
+2. Follow our [security best practices](/sso/guides/key-concepts/manage-client-secrets) for detailed guidance.
+
+</Steps>
+
+## Integration Setup
+
+### <CheckItem iconName="approve-check-circle"> Configure Webhooks</CheckItem>
+
+<Steps>
+
+1. Set up webhook endpoints for real-time updates:
+   - User changes
+   - Group modifications
+   - Role assignments
+
+2. Implement security measures:
+   - Validate webhook signatures
+   - Use HTTPS endpoints
+   - Set up retry mechanisms
+
+   Learn more in our [webhook security guide](/scim/webhooks).
+
+</Steps>
+
+### <CheckItem iconName="approve-check-circle"> Verify Provisioning Workflows</CheckItem>
+
+Test each user lifecycle scenario:
+
+<Steps>
+
+1. User Management: Create new users, update user profiles, deactivate users, and delete user accounts.
+
+2. Group Operations: Add users to groups, remove users from groups, and update group memberships.
+
+3. Role Management: Assign roles, modify permissions, and revoke access.
+
+</Steps>
+
+## User Experience
+
+### <CheckItem iconName="approve-check-circle"> Brand Customization</CheckItem>
+
+<Steps>
+
+1. Update Admin Portal branding: Add your company logo, configure brand colors, and customize UI elements.
+
+2. Verify branding consistency across: Login pages, Dashboard interfaces, and email notifications.
+
+</Steps>
+
+### <CheckItem iconName="approve-check-circle"> Configure Custom Domain</CheckItem>
+
+<Steps>
+
+1. Set up your custom admin portal domain:
+   ```
+   https://admin.your-company.com
+   ```
+
+2. Update DNS configuration:
+   - Add CNAME records
+   - Configure SSL certificates
+   - Verify domain ownership
+
+3. Follow our [domain customization guide](/scim/domain-and-theme-customization) for detailed steps.
+
+</Steps>
+
+## Error Handling and Monitoring
+
+### <CheckItem iconName="approve-check-circle"> Implement Error Management</CheckItem>
+
+<Steps>
+
+1. Handle common error scenarios: Network timeouts, invalid data formats, authentication failures, and rate limiting.
+
+2. Set up error notifications: Configure alert thresholds, define escalation paths, and document recovery procedures.
+
+3. Test error scenarios: Duplicate user creation, invalid group assignments, incomplete profile data, and API throttling.
+
+
+</Steps>
+
+## Final Verification
+
+Before launch, verify these critical items:
+
+<CheckItem> All environment variables are properly set</CheckItem>
+<CheckItem> Client secrets are securely stored</CheckItem>
+<CheckItem> Webhooks are configured and tested</CheckItem>
+<CheckItem> All provisioning flows work as expected</CheckItem>
+<CheckItem> Branding is consistent across all interfaces</CheckItem>
+<CheckItem> Custom domain is properly configured</CheckItem>
+<CheckItem> Error handling is comprehensive</CheckItem>
+<CheckItem> Monitoring systems are active</CheckItem>
+
+<Aside type="tip">
+Keep this checklist handy during your deployment process. Each item is crucial for a successful production launch.
+</Aside>
+
+## Next Steps
+
+After completing this checklist:
+
+1. Schedule a final security review
+2. Plan your rollout strategy
+3. Document your emergency response procedures
+4. Set up regular maintenance schedules
+
+For additional guidance, contact our [support team](mailto:support@scalekit.com).
