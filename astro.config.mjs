@@ -89,6 +89,10 @@ export default defineConfig({
                     link: '/manual/fundamentals/test-sso-integration',
                   },
                   {
+                    label: 'Launch Checklist',
+                    link: '/manual/fundamentals/launch-checklist',
+                  },
+                  {
                     label: 'More product guides',
                     link: '/guides/',
                   },
