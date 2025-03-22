@@ -153,14 +153,14 @@ export default defineConfig({
                 label: 'UI Events',
                 link: '/reference/ui-events',
               },
-              {
-                label: 'Errors',
-                link: '/reference/errors',
-              },
               { label: 'SDKs', autogenerate: { directory: 'reference/sdks' } },
               {
                 label: 'Webhooks',
                 autogenerate: { directory: 'reference/webhooks' },
+              },
+              {
+                label: 'Errors',
+                autogenerate: { directory: 'reference/errors' },
               },
             ],
           },
