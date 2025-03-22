@@ -7,7 +7,11 @@ import InstallSDK from '@components/templates/_installsdk.mdx'
 import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 import Env from '@components/templates/_env.mdx'
 
-This guide explains how to install and configure the Scalekit SDK to add enterprise authentication features to your application. After completing this guide, you'll be able to:
+## Overview
+
+The Scalekit SDK adds enterprise authentication features to your application, including Single Sign-On (SSO), SCIM provisioning, and social login integration. This guide walks you through the installation and verification process.
+
+**After completing this guide, you'll be able to:**
 
 - Set up your Scalekit development environment
 - Install the SDK for your programming language
@@ -15,7 +19,7 @@ This guide explains how to install and configure the Scalekit SDK to add enterpr
 
 ## Prerequisites
 
-Before you begin, make sure you have:
+Before you begin, ensure you have:
 
 - A Scalekit account
 - Your preferred development environment set up (Node.js, Python, Go, or Java)
@@ -24,30 +28,35 @@ Before you begin, make sure you have:
 ## Installation Steps
 
 <Steps>
-1. Create a Scalekit Account
-   - [Sign up](https://app.scalekit.com/ws/signup) for a Scalekit account
-   - Navigate to API Settings to retrieve your API keys
+1. **Create a Scalekit Account**
+   - [Sign up](https://app.scalekit.com/ws/signup) for a Scalekit account if you don't have one
+   - Go to **Dashboard > API Settings** to retrieve your API keys
+   - Make note of your:
+     - Environment URL
+     - Client ID
+     - Client Secret
 
-2. Configure Environment Variables
+2. **Configure Environment Variables**
    Add your API credentials to your project's environment variables:
    <Env />
 
-3. Install the SDK
+3. **Install the SDK**
    Choose your programming language and follow the installation instructions:
    <InstallSDK />
 </Steps>
 
 ## Verify Your Installation
 
-Follow these steps to verify that the SDK is installed and configured correctly:
+Test that your SDK is installed and configured correctly:
 
 <Steps>
-1. Initialize the SDK
+1. **Initialize the SDK**
    <Tabs>
      <TabItem value="javascript" label="Node.js">
-       ```js showLineNumbers=false
+       ```js
        import { Scalekit } from '@scalekit-sdk/node';
 
+       // Initialize the client with your credentials
        const scalekit = new Scalekit(
           process.env.SCALEKIT_ENVIRONMENT_URL,
           process.env.SCALEKIT_CLIENT_ID,
@@ -55,10 +64,11 @@ Follow these steps to verify that the SDK is installed and configured correctly:
         );
        ```
      </TabItem>
-     <TabItem value="javascript" label="Python">
-       ```py showLineNumbers=false
-       from scalekit import ScalekitClient, AuthorizationUrlOptions,CodeAuthenticationOptions
+     <TabItem value="python" label="Python">
+       ```python
+       from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
 
+       # Initialize the client with your credentials
        scalekit = ScalekitClient(
           '<SCALEKIT_ENVIRONMENT_URL>',
           '<SCALEKIT_CLIENT_ID>',
@@ -66,12 +76,13 @@ Follow these steps to verify that the SDK is installed and configured correctly:
         )
        ```
      </TabItem>
-     <TabItem value="go" label="Golang">
-       ```go showLineNumbers=false
+     <TabItem value="go" label="Go">
+       ```go
        import (
           "github.com/scalekit/scalekit-sdk-go"
         )
 
+       // Initialize the client with your credentials
        scalekitClient := scalekit.NewScalekitClient(
           "<SCALEKIT_ENVIRONMENT_URL>",
           "<SCALEKIT_CLIENT_ID>",
@@ -80,10 +91,11 @@ Follow these steps to verify that the SDK is installed and configured correctly:
        ```
      </TabItem>
      <TabItem value="java" label="Java">
-       ```java showLineNumbers=false
+       ```java
        package com.scalekit;
        import com.scalekit.ScalekitClient;
 
+       // Initialize the client with your credentials
        ScalekitClient scalekitClient = new ScalekitClient(
           "<SCALEKIT_ENVIRONMENT_URL>",
           "<SCALEKIT_CLIENT_ID>",
@@ -92,78 +104,91 @@ Follow these steps to verify that the SDK is installed and configured correctly:
        ```
      </TabItem>
    </Tabs>
-2. Run a Test Query
+
+2. **Run a Test Query**
    Execute this sample code to list organizations:
    <Tabs>
      <TabItem value="javascript" label="Node.js">
-       ```js showLineNumbers=false
-       import { Scalekit } from '@scalekit-sdk/node';
-
-    const scalekit = new Scalekit(
-      process.env.SCALEKIT_ENVIRONMENT_URL || '',
-      process.env.SCALEKIT_CLIENT_ID || '',
-      process.env.SCALEKIT_CLIENT_SECRET || ''
-    );
-
-    const organizations = await scalekit.organization.listOrganization({});
-
-    console.log(organizations);
-   ```
+       ```js
+       // List all organizations in your account
+       const organizations = await scalekit.organization.listOrganization({});
+       console.log(organizations);
+       ```
+     </TabItem>
+     <TabItem value="python" label="Python">
+       ```python
+       # List all organizations in your account
+       organizations = scalekit.organization.list_organization({})
+       print(organizations)
+       ```
+     </TabItem>
+     <TabItem value="go" label="Go">
+       ```go
+       // List all organizations in your account
+       organizations, err := scalekitClient.Organization.ListOrganization(context.Background(), &emptypb.Empty{})
+       if err != nil {
+         log.Fatalf("Failed to list organizations: %v", err)
+       }
+       fmt.Printf("%+v\n", organizations)
+       ```
+     </TabItem>
+     <TabItem value="java" label="Java">
+       ```java
+       // List all organizations in your account
+       ListOrganizationResponse organizations = scalekitClient.getOrganizationClient().listOrganization(new Empty());
+       System.out.println(organizations);
+       ```
      </TabItem>
    </Tabs>
-3. Verify the Results
+
+3. **Verify the Results**
    You should see output similar to this:
    ```js
    {
      nextPageToken: '',
      totalSize: 3,
-       organizations: [
-         Organization {
-           id: 'org_59615694236418891',
-           displayName: 'BugJam',
-           regionCode: 1,
-           metadata: {},
-           createTime: [Timestamp],
-           updateTime: [Timestamp]
-         },
-         Organization {
-           id: 'org_59615193906282635',
-           displayName: 'Megasoft',
-           regionCode: 1,
-           metadata: {},
-           createTime: [Timestamp],
-           updateTime: [Timestamp]
-         },
-         Organization {
-           id: 'org_58327482079641606',
-           displayName: 'Test Organization',
-           regionCode: 1,
-           metadata: [Object],
-           createTime: [Timestamp],
-           updateTime: [Timestamp]
-         }
-       ],
-       prevPageToken: ''
-     }
+     organizations: [
+       Organization {
+         id: 'org_59615694236418891',
+         displayName: 'BugJam',
+         regionCode: 1,
+         metadata: {},
+         createTime: [Timestamp],
+         updateTime: [Timestamp]
+       },
+       // Additional organizations...
+     ],
+     prevPageToken: ''
+   }
    ```
 </Steps>
 
-## Troubleshooting
+## Common Issues and Solutions
 
-If you encounter issues during installation:
+| Problem | Possible Cause | Solution |
+|---------|----------------|----------|
+| Authentication error | Invalid API credentials | Double-check your Client ID and Secret |
+| SDK not found | Incomplete installation | Verify the package is installed correctly |
+| Connection failed | Network or URL issues | Check your environment URL and network connection |
+
+For additional troubleshooting:
 
 - Verify your API credentials are correct in your environment variables
 - Ensure you're using a supported version of your programming language
 - Check that all required dependencies are installed
 - Review the [error reference guide](/reference/errors) for specific error messages
 
-## Next Steps
+## What's Next?
 
-- [Set up SSO](/manual/sso-quickstart)
-- [Configure SCIM provisioning](/manual/scim-quickstart)
-- [Add social logins](/manual/social-logins-quickstart)
-- [Browse all guides](/guides)
+Ready to implement enterprise features in your app? Try these guides:
+
+- [**Set up SSO**](/manual/sso-quickstart) - Implement Single Sign-On for your enterprise users
+- [**Configure SCIM**](/manual/scim-provisioning) - Automate user provisioning with SCIM
+- [**Add social logins**](/manual/social-logins) - Enable authentication via Google, GitHub, and more
+- [**Browse all guides**](/guides) - Explore the full Scalekit documentation
 
 ## Need Help?
 
-- [Contact Scalekit Support](/manual/support/contact-us)
+- [**Join our Community**](https://discord.gg/scalekit) - Get help from other developers
+- [**Contact Support**](/manual/support/contact-us) - Reach our technical support team
+- [**Schedule a Demo**](https://calendly.com/scalekit/demo) - Get personalized guidance

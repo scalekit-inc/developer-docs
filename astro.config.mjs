@@ -50,7 +50,7 @@ export default defineConfig({
         './src/styles/custom.css',
       ],
       plugins: [
-        // starlightLinksValidator(), // TODO: Uncomment this when you go live
+        starlightLinksValidator(),
         // starlightLlmsTxt(), // TODO: Uncomment this when you go live
         starlightThemeRapide(),
         starlightImageZoom({

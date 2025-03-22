@@ -2,361 +2,516 @@
 title: Getting started with SSO
 sidebar:
   label: Single Sign-On (SSO)
-tableOfContents: false
+tableOfContents: true
 ---
 
 import { Steps, TabItem, Tabs, Aside } from "@astrojs/starlight/components";
 import InstallSDK from '@components/templates/_installsdk.mdx'
 
-Single Sign-On (SSO) enhances B2B SaaS application's security and offers a smooth user experience. Scalekit is an authentication platform that enables developers to implement enterprise features like SSO with just a few lines of code. Scalekit abstracts the complexities associated with SAML, OIDC and offers prebuilt integrations with all major identity providers like Okta, Microsoft Entra ID, Jumpcloud, Onelogin.
+Single Sign-On (SSO) enhances your B2B SaaS application's security and creates a seamless user experience. With Scalekit, you can implement enterprise-grade SSO with minimal code, without needing to understand the complexities of SAML or OIDC protocols.
 
-This quickstart guide will show you how to implement SSO using Scalekit.
+**After completing this guide, you'll be able to:**
+- Implement SSO login for your application
+- Connect to major identity providers (Okta, Microsoft Entra ID, etc.)
+- Process authenticated users and create sessions
 
-![](@/assets/docs/sso-quickstart/how-scalekit-connects.png)
+**Time to complete: ~30 minutes**
+
+![How Scalekit connects your application to identity providers](@/assets/docs/sso-quickstart/how-scalekit-connects.png)
+
+## Prerequisites
+
+Before implementing SSO with Scalekit, ensure you have:
+
+- [ ] A Scalekit account with API credentials
+- [ ] The Scalekit SDK installed for your programming language
+- [ ] Basic understanding of OAuth authentication flow
+- [ ] A web application with login functionality
+
+If you haven't installed Scalekit yet, see our [Installation Guide](/manual/getting-started/installation).
+
+## Implementation Steps
 
 <Steps>
 
-<ol>
+1. **Install and configure the Scalekit SDK**
 
-<li>Before diving in, make sure you have — Scalekit account and API credentials</li>
+   If you haven't already set up the SDK, follow these steps:
 
-<li>
+   - Install the SDK package for your programming language:
+     <InstallSDK />
 
-Use the installation instructions below for your technology stack.
-<InstallSDK />
+   - Configure your environment variables with your API credentials:
+     ```bash
+     SCALEKIT_ENVIRONMENT_URL='https://b2b-app-dev.scalekit.com'
+     SCALEKIT_CLIENT_ID='<CLIENT_ID_FROM_SCALEKIT_DASHBOARD>'
+     SCALEKIT_CLIENT_SECRET='<SECRET_FROM_SCALEKIT_DASHBOARD>'
+     ```
 
-</li>
-<li>
-  Never hardcode secrets in your app. Use environment variables instead. Here's how to set them in a `.env` file:
-<p>
-```zsh showLineNumbers=false
-SCALEKIT_ENVIRONMENT_URL='https://b2b-app-dev.scalekit.com'
-SCALEKIT_CLIENT_ID='<CLIENT_ID_FROM_SCALEKIT_DASHBOARD>'
-SCALEKIT_CLIENT_SECRET='<SECRET_FROM_SCALEKIT_DASHBOARD>'
-```
-</p>
+     <Aside type="caution">
+     Never hardcode secrets in your application code or commit them to version control.
+     </Aside>
 
-{/* <Aside type="caution">
+2. **Generate an Authorization URL**
 
-- Never commit your `.env` file to version control.
-- Rotate your `secret` regularly. See the [best practices for managing secrets](/sso/guides/key-concepts/manage-client-secrets).
+   When a user wants to log in with SSO, redirect them to the Scalekit Authorization URL with the appropriate parameters:
 
-</Aside> */}
+   ```http
+   https://auth.scalekit.com/authorize?
+     client_id=skc_122056050118122349527&
+     redirect_uri=https://yourapp.com/auth/callback&
+     organization_id=org_12434341
+   ```
 
-</li>
+   You can generate this URL programmatically:
 
-<li>
+   <Tabs groupId="tech-stack" queryString>
+   <TabItem value="nodejs" label="Node.js">
 
-To start login with Single Sign-On (SSO), your app must redirect users to the Scalekit Authorization URL with appropriate enterprise identity provider details.
+   ```js
+   import { ScalekitClient } from '@scalekit-sdk/node';
 
-Construct the Authorization URL using the following query parameters:
+   // Create the Scalekit client
+   const scalekit = new ScalekitClient(
+     process.env.SCALEKIT_ENVIRONMENT_URL,
+     process.env.SCALEKIT_CLIENT_ID,
+     process.env.SCALEKIT_CLIENT_SECRET
+   );
 
-<p>
+   // Configure authorization options (choose one)
+   const options = {};
 
-```sh showLineNumbers=false
-https://auth.scalekit.com/authorize?
-  client_id=skc_122056050118122349527&
-  redirect_uri=https://yourapp.com/auth/callback&
-  organization_id=org_12434341
-```
+   // Option 1: Specify organization ID (for enterprise SSO)
+   options.organizationId = 'org_15421144869927830';
 
-</p>
+   // Option 2: Specify connection ID (for a specific identity provider)
+   // options.connectionId = 'conn_15696105471768821';
 
-See our [Authorization URL Parameters Guide](/sso/guides/key-concepts/authorization-url) for a full
-list of accepted parameters.
+   // Option 3: Use login hint (email domain detects the correct provider)
+   // options.loginHint = 'user@example.com';
 
-Next, construct your Authorization URL with these parameters and redirect users to this URL when
-they try to log in.
-</li>
+   // Generate the authorization URL
+   const authorizationURL = scalekit.getAuthorizationUrl(
+     'https://yourapp.com/auth/callback', // Your redirect URI
+     options
+   );
 
-<li>
+   // Redirect the user to this URL
+   // res.redirect(authorizationURL);
+   ```
 
+   </TabItem>
+   <TabItem value="py" label="Python">
 
-<Tabs groupId="tech-stack" queryString>
-<TabItem value="nodejs" label="Node.js">
+   ```python
+   from scalekit import ScalekitClient, AuthorizationUrlOptions
 
-```js
-import { ScalekitClient } from '@scalekit-sdk/node';
+   # Create the Scalekit client
+   scalekit = ScalekitClient(
+     '<SCALEKIT_ENVIRONMENT_URL>',
+     '<SCALEKIT_CLIENT_ID>',
+     '<SCALEKIT_CLIENT_SECRET>'
+   )
+
+   # Configure authorization options
+   options = AuthorizationUrlOptions()
+
+   # Option 1: Specify organization ID (for enterprise SSO)
+   options.organization_id = 'org_15421144869927830'
+
+   # Option 2: Use login hint (email domain detects the correct provider)
+   # options.login_hint = 'user@example.com'
+
+   # Option 3: Specify connection ID (for a specific identity provider)
+   # options.connection_id = 'conn_15696105471768821'
+
+   # Generate the authorization URL
+   redirect_uri = 'https://yourapp.com/auth/callback'
+   authorization_url = scalekit.get_authorization_url(
+     redirect_uri=redirect_uri,
+     options=options
+   )
 
-const scalekit = new ScalekitClient(
-  '<SCALEKIT_ENVIRONMENT_URL>',
-  '<SCALEKIT_CLIENT_ID>',
-  '<SCALEKIT_CLIENT_SECRET>',
-);
+   # Redirect the user to this URL
+   # return redirect(authorization_url)
+   ```
+
+   </TabItem>
+   <TabItem value="go" label="Go">
 
-const options = {};
+   ```go
+   import (
+     "github.com/scalekit/scalekit-sdk-go"
+   )
+
+   // Create the Scalekit client
+   scalekitClient := scalekit.NewScalekitClient(
+     os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+     os.Getenv("SCALEKIT_CLIENT_ID"),
+     os.Getenv("SCALEKIT_CLIENT_SECRET")
+   )
+
+   // Configure authorization options
+   options := scalekitClient.AuthorizationUrlOptions{}
+
+   // Option 1: Specify organization ID (for enterprise SSO)
+   options.OrganizationId = "org_15421144869927830"
+
+   // Option 2: Specify connection ID (for a specific identity provider)
+   // options.ConnectionId = "conn_15696105471768821"
+
+   // Option 3: Use login hint (email domain detects the correct provider)
+   // options.LoginHint = "user@example.com"
+
+   // Generate the authorization URL
+   redirectUrl := "https://yourapp.com/auth/callback"
+   authorizationURL := scalekitClient.GetAuthorizationUrl(
+     redirectUrl,
+     options
+   )
+
+   // Redirect the user to this URL
+   // http.Redirect(w, r, authorizationURL, http.StatusFound)
+   ```
+
+   </TabItem>
+   <TabItem value="java" label="Java">
+
+   ```java
+   import com.scalekit.ScalekitClient;
+   import com.scalekit.internal.http.AuthorizationUrlOptions;
+
+   // Create the Scalekit client
+   ScalekitClient scalekitClient = new ScalekitClient(
+     System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+     System.getenv("SCALEKIT_CLIENT_ID"),
+     System.getenv("SCALEKIT_CLIENT_SECRET")
+   );
+
+   // Configure authorization options
+   AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+
+   // Option 1: Specify organization ID (for enterprise SSO)
+   options.setOrganizationId("org_13388706786312310");
+
+   // Option 2: Specify connection ID (for a specific identity provider)
+   // options.setConnectionId("con_13388706786312310");
+
+   // Option 3: Use login hint (email domain detects the correct provider)
+   // options.setLoginHint("user@example.com");
+
+   try {
+     // Generate the authorization URL
+     String redirectUrl = "https://yourapp.com/auth/callback";
+     String authorizationUrl = scalekitClient
+       .authentication()
+       .getAuthorizationUrl(redirectUrl, options)
+       .toString();
+
+     // Redirect the user to this URL
+     // response.sendRedirect(authorizationUrl);
+   } catch (Exception e) {
+     // Handle errors
+     System.out.println(e.getMessage());
+   }
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   <Aside type="note">
+   **Authorization Options Explained:**
+
+   - **organizationId**: Direct users to their organization's configured SSO provider
+   - **connectionId**: Specify a particular identity connection (Okta, Google, etc.)
+   - **loginHint**: Use user's email domain to detect the appropriate enterprise SSO connection
+
+   Choose the option that best fits your application's SSO flow.
+   </Aside>
+
+3. **Handle the Callback and Authenticate the User**
+
+   After authentication, users are redirected to your `redirect_uri` with a `code` parameter. Exchange this code for the user's profile:
+
+   <Tabs groupId="tech-stack" queryString>
+   <TabItem value="nodejs" label="Node.js">
+
+   ```javascript
+   // In your callback route handler
+   app.get('/auth/callback', async (req, res) => {
+     // Extract parameters from the callback
+     const {
+       code,
+       error,
+       error_description,
+       idp_initiated_login,
+       connection_id,
+       relay_state
+     } = req.query;
+
+     // Handle authentication errors
+     if (error) {
+       console.error(`Authentication error: ${error_description}`);
+       return res.redirect('/login?error=' + encodeURIComponent(error_description));
+     }
+
+     try {
+       // Exchange the code for user information
+       const result = await scalekit.authenticateWithCode(
+         code,
+         'https://yourapp.com/auth/callback' // Must match the original redirect_uri
+       );
+
+       // Extract user information
+       const { user, idToken, accessToken } = result;
+
+       // Create a session for the authenticated user
+       req.session.user = user;
+       req.session.accessToken = accessToken;
+
+       // Redirect to the application dashboard
+       res.redirect('/dashboard');
+     } catch (err) {
+       console.error('Failed to authenticate:', err);
+       res.redirect('/login?error=authentication_failed');
+     }
+   });
+   ```
+
+   </TabItem>
+   <TabItem value="py" label="Python">
+
+   ```python
+   # In your callback route handler (Flask example)
+   @app.route('/auth/callback')
+   def auth_callback():
+     # Extract parameters from the callback
+     code = request.args.get('code')
+     error = request.args.get('error')
+     error_description = request.args.get('error_description')
+     idp_initiated_login = request.args.get('idp_initiated_login')
+     connection_id = request.args.get('connection_id')
+     relay_state = request.args.get('relay_state')
+
+     # Handle authentication errors
+     if error:
+         flash(f"Authentication error: {error_description}")
+         return redirect(url_for('login'))
+
+     try:
+         # Exchange the code for user information
+         result = scalekit.authenticate_with_code(
+             code,
+             request.base_url  # Must match the original redirect_uri
+         )
+
+         # Extract user information
+         user = result.user
+         id_token = result.id_token
+         access_token = result.access_token
+
+         # Create a session for the authenticated user
+         session['user'] = {
+             'email': user.email,
+             'name': f"{user.given_name} {user.family_name}",
+             'id': user.id
+         }
+         session['access_token'] = access_token
+
+         # Redirect to the application dashboard
+         return redirect(url_for('dashboard'))
+     except Exception as e:
+         flash(f"Failed to authenticate: {str(e)}")
+         return redirect(url_for('login'))
+   ```
+
+   </TabItem>
+   <TabItem value="go" label="Go">
+
+   ```go
+   // In your callback route handler
+   func AuthCallback(w http.ResponseWriter, r *http.Request) {
+     // Extract parameters from the callback
+     code := r.URL.Query().Get("code")
+     error := r.URL.Query().Get("error")
+     errorDescription := r.URL.Query().Get("error_description")
+     idpInitiatedLogin := r.URL.Query().Get("idp_initiated_login")
+     connectionID := r.URL.Query().Get("connection_id")
+     relayState := r.URL.Query().Get("relay_state")
+
+     // Handle authentication errors
+     if error != "" {
+       log.Printf("Authentication error: %s", errorDescription)
+       http.Redirect(w, r, "/login?error="+url.QueryEscape(errorDescription), http.StatusFound)
+       return
+     }
+
+     // Exchange the code for user information
+     redirectUrl := "https://yourapp.com/auth/callback" // Must match the original redirect_uri
+     result, err := scalekitClient.AuthenticateWithCode(code, redirectUrl)
+
+     if err != nil {
+       log.Printf("Failed to authenticate: %v", err)
+       http.Redirect(w, r, "/login?error=authentication_failed", http.StatusFound)
+       return
+     }
+
+     // Extract user information
+     user := result.User
+     idToken := result.IdToken
+     accessToken := result.AccessToken
+
+     // Create a session for the authenticated user
+     session, _ := store.Get(r, "session")
+     session.Values["user"] = map[string]interface{}{
+       "email": user.Email,
+       "name": user.GivenName + " " + user.FamilyName,
+       "id": user.Id,
+     }
+     session.Values["accessToken"] = accessToken
+     session.Save(r, w)
+
+     // Redirect to the application dashboard
+     http.Redirect(w, r, "/dashboard", http.StatusFound)
+   }
+   ```
+
+   </TabItem>
+   <TabItem value="java" label="Java">
+
+   ```java
+   // In your callback route handler (Spring Boot example)
+   @GetMapping("/auth/callback")
+   public String authCallback(
+       @RequestParam(required = false) String code,
+       @RequestParam(required = false) String error,
+       @RequestParam(required = false) String error_description,
+       @RequestParam(required = false) String idp_initiated_login,
+       @RequestParam(required = false) String connection_id,
+       @RequestParam(required = false) String relay_state,
+       HttpSession session,
+       RedirectAttributes redirectAttributes
+   ) {
+       // Handle authentication errors
+       if (error != null && !error.isEmpty()) {
+           redirectAttributes.addFlashAttribute("error", "Authentication error: " + error_description);
+           return "redirect:/login";
+       }
+
+       try {
+           // Exchange the code for user information
+           String redirectUrl = "https://yourapp.com/auth/callback"; // Must match the original redirect_uri
+           AuthenticationResponse result = scalekitClient.authentication().authenticateWithCode(code, redirectUrl);
+
+           // Extract user information
+           User user = result.getUser();
+           String idToken = result.getIdToken();
+           String accessToken = result.getAccessToken();
+
+           // Create a session for the authenticated user
+           Map<String, Object> userInfo = new HashMap<>();
+           userInfo.put("email", user.getEmail());
+           userInfo.put("name", user.getGivenName() + " " + user.getFamilyName());
+           userInfo.put("id", user.getId());
+
+           session.setAttribute("user", userInfo);
+           session.setAttribute("accessToken", accessToken);
+
+           // Redirect to the application dashboard
+           return "redirect:/dashboard";
+       } catch (Exception e) {
+           redirectAttributes.addFlashAttribute("error", "Failed to authenticate: " + e.getMessage());
+           return "redirect:/login";
+       }
+   }
+   ```
+
+   </TabItem>
+   </Tabs>
+
+4. **Use the Authenticated User Information**
+
+   After successful authentication, you'll receive a response object containing the user profile and tokens:
+
+   ```json
+   {
+     "user": {
+       "email": "john.doe@example.com",
+       "familyName": "Doe",
+       "givenName": "John",
+       "username": "john.doe@example.com",
+       "id": "conn_326735950921X7829;cc4aaef2-b395-4b40-81ae-b8183c1006e1"
+     },
+     "idToken": "<USER_PROFILE_JWT>",
+     "accessToken": "<API_CALL_JWT>",
+     "expiresIn": 899
+   }
+   ```
+
+   <Aside type="tip">
+
+   - The `idToken` is a JWT containing user profile information
+   - The `accessToken` is used for making authenticated API calls
+   - For security reasons, Scalekit doesn't store user profile information in persistent databases
+
+   </Aside>
+
+   You can now:
+   - Create or update the user in your database
+   - Establish a session for the user
+   - Apply role-based access controls
+   - Redirect to the appropriate part of your application
 
-// Option 1: Authorization URL with the organization ID
- options['organizationId'] = 'org_15421144869927830';
-
-// Option 2: Authorization URL with login hint
- options['connectionId'] = 'conn_15696105471768821';
-
-// Option 3: Authorization URL with login hint
- options['loginHint'] = 'user@example.com';
-
-const authorizationURL = scalekit.getAuthorizationUrl(redirectUrl, options);
-```
-
-</TabItem>
-<TabItem value="py" label="Python">
-
-```python
-from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
-
-# Initialize the SDK client
-scalekit = ScalekitClient(
-  '<SCALEKIT_ENVIRONMENT_URL>',
-  '<SCALEKIT_CLIENT_ID>',
-  '<SCALEKIT_CLIENT_SECRET>'
-)
-
-options = AuthorizationUrlOptions()
-
-
-# Option 1: Authorization URL with the organization ID
-options.organization_id = 'org_15421144869927830'
-
-# Option 2: Authorization URL with login hint
-options.login_hint = 'user@example.com'
-
-# Option 3: Authorization URL with the connection ID
-options.connection_id = 'conn_15696105471768821'
-
-authorization_url = scalekit_client.get_authorization_url(
-  redirect_uri=<redirect_uri>,
-  options=options
-)
-
-# Redirect the user to this authorization URL
-```
-
-</TabItem>
-<TabItem value="golang" label="Go">
-
-```go showLineNumbers
-import (
-  "github.com/scalekit/scalekit-sdk-go"
-)
-
-func main() {
-  // Initialize the SDK client
-  scalekitClient := scalekit.NewScalekitClient(
-    "<SCALEKIT_ENVIRONMENT_URL>",
-    "<SCALEKIT_CLIENT_ID>",
-    "<SCALEKIT_CLIENT_SECRET>"
-  )
-
-  options := scalekitClient.AuthorizationUrlOptions{}
-
-
-  // Option 1: Authorization URL with the organization ID
-  options.OrganizationId = "org_15421144869927830"
-
-  // Option 2: Authorization URL with the connection ID
-  options.ConnectionId = "conn_15696105471768821"
-
-  // Option 3: Authorization URL with Login Hint
-  // User's email domain detects the correct enterprise SSO connection.
-  options.LoginHint = "user@example.com"
-
-  authorizationURL := scalekitClient.GetAuthorizationUrl(
-    redirectUrl,
-    options,
-  )
-   // Next step is to redirect the user to this authorization URL
-}
-
-// Redirect the user to this authorization URL
-```
-
-</TabItem>
-
-<TabItem value="java" label="Java">
-
-```java showLineNumbers
-package com.scalekit;
-
-import com.scalekit.ScalekitClient;
-import com.scalekit.internal.http.AuthorizationUrlOptions;
-
-public class Main {
-
-  public static void main(String[] args) {
-    // Initialize the SDK client
-    ScalekitClient scalekitClient = new ScalekitClient(
-      "<SCALEKIT_ENVIRONMENT_URL>",
-      "<SCALEKIT_CLIENT_ID>",
-      "<SCALEKIT_CLIENT_SECRET>"
-    );
-    AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-    // Option 1: Authorization URL with the organization ID
-    options.setOrganizationId("org_13388706786312310");
-    // Option 2: Authorization URL with the connection ID
-    options.setConnectionId("con_13388706786312310");
-    // Option 3: Authorization URL with Login Hint
-    // User's email domain detects the correct enterprise SSO connection.
-    options.setLoginHint("user@example.com");
-    try {
-      String url = scalekitClient
-        .authentication()
-        .getAuthorizationUrl(redirectUrl, options)
-        .toString();
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-    }
-  }
-}
-// Redirect the user to this authorization URL
-
-```
-
-</TabItem>
-</Tabs>
-</li>
-
-
-<li>
-
-After a successful SSO, Scalekit redirects the user to your `redirect_uri`
-with a unique `code` in the browser. Exchange the `code` for user profile
-details (on the serverside).
-
-
-<Tabs groupId="tech-stack" queryString>
-<TabItem value="nodejs" label="Node.js">
-
-```javascript showLineNumbers
-// Handle oauth redirect_url, fetch code and error_description from request params
-const { code, error, error_description, idp_initiated_login, connection_id, relay_state } =
-  req.query;
-
-if (error) {
-  // Handle errors
-}
-
-// Recommended: Handle idp initiated login
-
-const result = await scalekit.authenticateWithCode(code, redirectUri);
-const userEmail = result.user.email;
-
-// Next step: create a session for this user and allow access
-```
-
-</TabItem>
-<TabItem value="py" label="Python">
-
-```py showLineNumbers
-# Handle oauth redirect_url, fetch code and error_description from request params
-code = request.args.get('code')
-error = request.args.get('error')
-error_description = request.args.get('error_description')
-idp_initiated_login = request.args.get('idp_initiated_login')
-connection_id = request.args.get('connection_id')
-relay_state = request.args.get('relay_state')
-
-if error:
-    raise Exception(error_description)
-
-# Recommended: Handle idp initiated login
-
-result = scalekit.authenticate_with_code(code, '<redirect_uri>')
-
-# result.user has the authenticated user's details
-user_email = result.user.email
-
-# Next step: create a session for this user and allow access
-```
-
-</TabItem>
-<TabItem value="golang" label="Go">
-
-```go showLineNumbers
-// Handle oauth redirect_url, fetch code and error_description from request params
-code: = r.URL.Query().Get("code")
-error: = r.URL.Query().Get("error")
-errorDescription: = r.URL.Query().Get("error_description")
-idpInitiatedLogin: = r.URL.Query().Get("idp_initiated_login")
-connectionID: = r.URL.Query().Get("connection_id")
-relayState: = r.URL.Query().Get("relay_state")
-
-if error != "" {
-  // Handle errors
-}
-
-// Recommended: Handle idp initiated login
-
-result, err: = a.scalekit.AuthenticateWithCode(code,<redirectUrl>)
-
-if err != nil {
-  // Handle errors
-}
-
-// result.User has the authenticated user's details
-userEmail: = result.User.Email
-
-// Next step: create a session for this user and allow access
-```
-
-</TabItem>
-
-<TabItem value="java" label="Java">
-
-```java showLineNumbers
-// Handle oauth redirect_url, fetch code and error_description from request params
-String code = request.getParameter("code");
-String error = request.getParameter("error");
-String errorDescription = request.getParameter("error_description");
-String idpInitiatedLogin = request.getParameter("idp_initiated_login");
-String connectionID = request.getParameter("connection_id");
-String relayState = request.getParameter("relay_state");
-
-if (error != null && !error.isEmpty()) {
-    // Handle errors
-    return;
-}
-
-// Recommended: Handle idp initiated login
-
-try {
-    AuthenticationResponse result = scalekit.authentication().authenticateWithCode(code, redirectUrl);
-    String userEmail = result.getIdTokenClaims().getEmail();
-
-    // Next step: create a session for this user and allow access
-} catch (Exception e) {
-    // Handle errors
-}
-```
-
-</TabItem>
-
-</Tabs>
-
-The `result` object
-
-
-```json warp
-{
-  user: {
-    email: "john.doe@example.com",
-    familyName: "Doe",
-    givenName: "John",
-    username: "john.doe@example.com",
-    id: "conn_326735950921X7829;cc4aaef2-b395-4b40-81ae-b8183c1006e1"
-  },
-  idToken: "<USER_PROFILE_JWT>", // JWT containing user profile information
-  accessToken: "<API_CALL_JWT>", // Token for API calls
-  expiresIn: 899
-}
-```
-</li>
-</ol>
 </Steps>
 
-<Aside type="tip">
+## SSO Configuration Examples
 
-- The `idToken` is a JWT containing user profile information, while the `accessToken` is used for API calls.
+Here are common ways to configure SSO for your application:
 
-- For security and compliance reasons, Scalekit does not store user profile information in persistent databases.
+### By Organization
 
-</Aside>
+Ideal when users belong to specific organizations with pre-configured SSO:
+
+```js
+options.organizationId = 'org_15421144869927830';
+```
+
+### By Email Domain
+
+Perfect for automatically routing users to the appropriate SSO provider:
+
+```js
+options.loginHint = 'user@example.com';
+```
+
+### By Connection
+
+When you want to use a specific identity provider:
+
+```js
+options.connectionId = 'conn_15696105471768821';
+```
+
+## Troubleshooting
+
+| Problem | Possible Cause | Solution |
+|---------|----------------|----------|
+| "Invalid redirect URI" error | Redirect URI mismatch | Ensure the redirect URI in your code exactly matches the one configured in the Scalekit dashboard |
+| "Invalid client" error | Incorrect API credentials | Verify your Client ID and Client Secret |
+| User not authenticated | SSO configuration issue | Check that the organization has SSO properly configured with the identity provider |
+| No user information received | Code exchange failed | Ensure you're using the same redirect URI for authorization and code exchange |
+
+## Next Steps
+
+Now that you've implemented SSO, consider these additional features:
+
+- [**Set up SCIM Provisioning**](/manual/scim-quickstart) - Automate user provisioning
+- [**Implement Role-Based Access Control**](/manual/rbac) - Manage permissions for enterprise users
+- [**Add Social Logins**](/manual/social-logins-quickstart) - Allow authentication via Google, GitHub, etc.
+- [**Customize the Login Experience**](/manual/customizing-login) - Brand the SSO login page
+
+## Need Help?
+
+- [**Join our Discord Community**](https://discord.gg/scalekit) - Connect with other developers
+- [**Contact Support**](/manual/support/contact-us) - Get help from our technical team
+- [**Book a Demo**](https://calendly.com/scalekit/demo) - Get personalized guidance
