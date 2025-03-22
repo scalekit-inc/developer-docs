@@ -3,7 +3,13 @@ title: Validating client redirects
 description: Learn how to validate client redirects in Scalekit
 ---
 
-import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import {
+  Steps, Tabs, TabItem, Aside, CardGrid, Badge
+ } from '@astrojs/starlight/components';
+
+import CheckItem from '@components/ui/CheckItem.astro';
+
+Redirect URIs are a critical security component in the OAuth and SAML authentication flows. Scalekit requires all redirect URIs to be pre-registered to prevent common security vulnerabilities.
 
 ## Redirect URI Configuration Errors
 
@@ -79,7 +85,11 @@ import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
 ## Validation Rules by Environment
 
-### Development Environment
+<CardGrid>
+
+<div>
+
+<u>Development Environment</u>
 
 In development environments, Scalekit applies more lenient validation rules to facilitate testing:
 
@@ -90,7 +100,11 @@ In development environments, Scalekit applies more lenient validation rules to f
 - **Query parameters**: Not allowed
 - **Fragment components**: Not allowed
 
-### Production Environment
+</div>
+
+<div>
+
+<u>Production Environment</u>
 
 For production environments, stricter security rules apply:
 
@@ -101,7 +115,11 @@ For production environments, stricter security rules apply:
 - **Query parameters**: Not allowed
 - **Fragment components**: Not allowed
 
-## Wildcard Usage Guidelines (Development Only)
+</div>
+
+</CardGrid>
+
+## Wildcard Usage Guidelines <Badge text="Development Only" variant="note" />
 
 When using wildcards in development environments, the following rules apply:
 
@@ -110,16 +128,29 @@ When using wildcards in development environments, the following rules apply:
 - Wildcards must be located in a subdomain within the hostname component
 - The wildcard must be part of the subdomain that is farthest from the hostname component
 
-### Valid Examples:
-- `https://*.acmecorp.com`
-- `https://*.auth.acmecorp.com`
-- `https://auth-*.acmecorp.com`
+<CardGrid>
 
-### Invalid Examples:
-- `https://*.com`
-- `https://*.*. acmecorp.com`
-- `https://acmecorp.*.com`
-- `https://auth.*.acmecorp.com`
+
+
+<div>
+  ### Valid examples
+
+ <CheckItem iconName="approve-check-circle"> `https://*.acmecorp.com`</CheckItem>
+ <CheckItem iconName="approve-check-circle"> `https://*.auth.acmecorp.com`</CheckItem>
+ <CheckItem iconName="approve-check-circle"> `https://auth-*.acmecorp.com`</CheckItem>
+</div>
+
+
+
+<div>
+  ### Invalid examples
+
+ <CheckItem iconName="error"> `https://*.com`</CheckItem>
+ <CheckItem iconName="error"> `https://*.*. acmecorp.com`</CheckItem>
+ <CheckItem iconName="error"> `https://acmecorp.*.com`</CheckItem>
+ <CheckItem iconName="error"> `https://auth.*.acmecorp.com`</CheckItem>
+</div>
+</CardGrid>
 
 ## Best Practices for Redirect URI Security
 
