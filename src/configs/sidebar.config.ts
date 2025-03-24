@@ -17,7 +17,15 @@ export const sidebar = [
             link: '/coming-soon',
           },
           {
-            label: 'Launch Checklist',
+            label: 'Manage Users',
+            link: '/coming-soon',
+          },
+          {
+            label: 'Customize',
+            link: '/coming-soon',
+          },
+          {
+            label: 'Launch',
             link: '/manual/fundamentals/launch-checklist',
           },
         ],
@@ -47,7 +55,16 @@ export const sidebar = [
             link: '/coming-soon',
           },
           {
+            label: 'Organization Memberships',
+            link: '/coming-soon',
+          },
+          {
+            label: 'Emails',
+            link: '/coming-soon',
+          },
+          {
             label: 'SSO',
+            collapsed: true,
             items: [
               {
                 label: 'Test SSO Integration',
@@ -61,13 +78,14 @@ export const sidebar = [
           },
           {
             label: 'SCIM',
+            collapsed: true,
             items: [
               {
                 label: 'Test SCIM Integration',
                 link: '/coming-soon',
               },
               {
-                label: 'Automated Role Assignment',
+                label: 'Groups and Roles',
                 link: '/coming-soon',
               },
             ],
@@ -114,22 +132,22 @@ export const sidebar = [
             label: 'UI Events',
             link: '/reference/ui-events',
           },
+        ],
+      },
+      {
+        label: 'Concepts',
+        items: [
           {
-            label: 'Concepts',
-            items: [
-              {
-                label: 'Pagination',
-                link: '/coming-soon',
-              },
-              {
-                label: 'Rate Limits',
-                link: '/coming-soon',
-              },
-              {
-                label: 'External IDs and Metadata',
-                link: '/coming-soon',
-              },
-            ],
+            label: 'Pagination',
+            link: '/coming-soon',
+          },
+          {
+            label: 'Rate Limits',
+            link: '/coming-soon',
+          },
+          {
+            label: 'External IDs and Metadata',
+            link: '/coming-soon',
           },
         ],
       },
