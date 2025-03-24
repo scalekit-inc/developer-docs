@@ -38,32 +38,32 @@ export const sidebar = [
             label: 'Admin Portal',
             link: '/manual/fundamentals/admin-portal',
           },
-
           {
-            label: 'Test SSO Integration',
-            link: '/manual/fundamentals/test-sso-integration',
+            label: 'Users and Organizations',
+            link: '/coming-soon',
           },
           {
-            label: 'More product guides ↗',
-            link: '/guides/',
+            label: 'JIT Provisioning',
+            link: '/coming-soon',
           },
           {
-            label: 'Concepts',
+            label: 'SSO',
             items: [
               {
-                label: 'Users and Organizations',
-                link: '/coming-soon',
+                label: 'Test SSO Integration',
+                link: '/manual/fundamentals/test-sso-integration',
               },
               {
                 label: 'Sessions and Tokens',
                 link: '/coming-soon',
               },
+            ],
+          },
+          {
+            label: 'SCIM',
+            items: [
               {
-                label: 'JIT Provisioning',
-                link: '/coming-soon',
-              },
-              {
-                label: 'Metadata and External IDs',
+                label: 'Test SCIM Integration',
                 link: '/coming-soon',
               },
               {
@@ -72,31 +72,9 @@ export const sidebar = [
               },
             ],
           },
-        ],
-      },
-
-      {
-        label: 'Integrations',
-        items: [
           {
-            label: 'Auth0',
-            link: '/guides/auth-systems/auth0',
-          },
-          {
-            label: 'Cognito',
-            link: '/guides/auth-systems/aws-cognito',
-          },
-          {
-            label: 'Firebase',
-            link: '/guides/auth-systems/firebase',
-          },
-          {
-            label: 'IdP Connectors',
-            link: '/guides/sso-integrations',
-          },
-          {
-            label: 'Directory Connectors',
-            link: '/guides/scim-integrations',
+            label: 'More product guides ↗',
+            link: '/guides/',
           },
         ],
       },
@@ -143,6 +121,14 @@ export const sidebar = [
                 label: 'Pagination',
                 link: '/coming-soon',
               },
+              {
+                label: 'Rate Limits',
+                link: '/coming-soon',
+              },
+              {
+                label: 'External IDs and Metadata',
+                link: '/coming-soon',
+              },
             ],
           },
         ],
@@ -163,6 +149,7 @@ export const sidebar = [
   {
     label: 'Guides',
     link: '/guides/',
+    id: 'guides',
     icon: 'sun',
     items: [
       {
@@ -170,28 +157,36 @@ export const sidebar = [
         autogenerate: { directory: 'guides/product' },
       },
       {
+        label: 'Extended guides',
+        autogenerate: { directory: 'guides/extended' },
+      },
+    ],
+  },
+  {
+    label: 'Integrations',
+    link: '/integrations/',
+    id: 'integrations',
+    icon: 'puzzle',
+    items: [
+      {
         label: 'Social Connections',
         collapsed: true,
-        autogenerate: { directory: 'guides/social-connections' },
+        autogenerate: { directory: 'integrations/social-connections' },
       },
       {
         label: 'SSO Integrations',
         collapsed: true,
-        autogenerate: { directory: 'guides/sso-integrations' },
+        autogenerate: { directory: 'integrations/sso-integrations' },
       },
       {
         label: 'SCIM Integrations',
         collapsed: true,
-        autogenerate: { directory: 'guides/scim-integrations' },
+        autogenerate: { directory: 'integrations/scim-integrations' },
       },
       {
         label: 'Auth Systems',
         collapsed: true,
-        autogenerate: { directory: 'guides/auth-systems' },
-      },
-      {
-        label: 'Extended guides',
-        autogenerate: { directory: 'guides/extended' },
+        autogenerate: { directory: 'integrations/auth-systems' },
       },
     ],
   },

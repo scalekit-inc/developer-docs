@@ -7,7 +7,6 @@ import vue from '@astrojs/vue';
 import tailwind from '@astrojs/tailwind';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightSidebarTopics from 'starlight-sidebar-topics';
-import starlightSidebarTopicsDropdown from 'starlight-sidebar-topics-dropdown';
 import starlightViewModes from 'starlight-view-modes';
 import starlightImageZoom from 'starlight-image-zoom';
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
