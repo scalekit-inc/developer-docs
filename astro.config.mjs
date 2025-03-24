@@ -148,10 +148,18 @@ export default defineConfig({
             link: '/reference/',
             icon: 'starlight',
             items: [
-              { label: 'REST APIs', link: '/apis-scalar' },
               {
-                label: 'UI Events',
-                link: '/reference/ui-events',
+                label: 'API',
+                items: [
+                  {
+                    label: 'REST APIs ↗',
+                    link: '/apis-scalar',
+                  },
+                  {
+                    label: 'UI Events',
+                    link: '/reference/ui-events',
+                  },
+                ],
               },
               { label: 'SDKs', autogenerate: { directory: 'reference/sdks' } },
               {
