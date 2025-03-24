@@ -1,8 +1,10 @@
 ---
 title: UI Events
+tableOfContents: false
+
 ---
 
-import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem, Aside, CardGrid } from '@astrojs/starlight/components';
 
 Listen to the browser events emitted from the [embedded admin portal](/manual/fundamentals/admin-portal) to perform actions on your app. For example, showing a notification when the SSO connection is enabled.
 
@@ -14,6 +16,8 @@ Listen to the browser events emitted from the [embedded admin portal](/manual/fu
 | `ORGANIZATION_SSO_DISABLED`  | Triggered when the SSO connection is disabled |
 | `PORTAL_SESSION_EXPIRY`  | Triggered when the portal session expires |
 | `PORTAL_SESSION_TIMEOUT`  | Triggered when the portal session times out |
+| `ORGANIZATION_DIRECTORY_ENABLED`  | Triggered when the SCIM provisioning is enabled |
+| `ORGANIZATION_DIRECTORY_DISABLED`  | Triggered when the SCIM provisioning is disabled |
 
 To listen to these events:
 
@@ -39,6 +43,10 @@ The domain of your parent window must be listed in the Scalekit Dashboard > API 
 
 The following event types are emitted by the embedded admin portal. Each event includes specific data that you can use to update your application's UI or trigger other actions.
 
+<CardGrid>
+
+
+<div>
 
 #### `ORGANIZATION_SSO_ENABLED`
 
@@ -58,6 +66,9 @@ The following event types are emitted by the embedded admin portal. Each event i
   }
 }
 ```
+</div>
+
+<div>
 
 #### `ORGANIZATION_SSO_DISABLED`
 
@@ -77,6 +88,9 @@ The following event types are emitted by the embedded admin portal. Each event i
    }
 }
 ```
+</div>
+
+<div>
 
 #### `PORTAL_SESSION_WARNING`
 
@@ -91,6 +105,9 @@ The following event types are emitted by the embedded admin portal. Each event i
   }
 }
 ```
+</div>
+
+<div>
 
 #### `PORTAL_SESSION_EXPIRY`
 
@@ -105,3 +122,51 @@ The following event types are emitted by the embedded admin portal. Each event i
   }
 }
 ```
+</div>
+
+<div>
+
+#### `ORGANIZATION_DIRECTORY_ENABLED`
+
+```json
+
+{
+    "event_type": "ORGANIZATION_DIRECTORY_ENABLED",
+    "object": "directory",
+    "organization_id": "org_45716217859670289",
+    "message": "SCIM Provisioning enabled successfully!",
+    "data": {
+        "directory_type": "SCIM",
+        "status": "COMPLETED",
+        "id": "dir_45716228982964495",
+        "provider": "MICROSOFT_AD",
+        "enabled": true
+    }
+}
+
+```
+</div>
+
+<div>
+
+#### `ORGANIZATION_DIRECTORY_DISABLED`
+
+```json
+
+{
+    "event_type": "ORGANIZATION_DIRECTORY_DISABLED",
+    "object": "directory",
+    "organization_id": "org_45716217859670289",
+    "message": "SCIM Provisioning disabled successfully!",
+    "data": {
+        "directory_type": "SCIM",
+        "status": "COMPLETED",
+        "id": "dir_45716228982964495",
+        "provider": "MICROSOFT_AD",
+        "enabled": false
+    }
+}
+
+```
+</div>
+</CardGrid>
