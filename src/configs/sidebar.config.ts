@@ -59,6 +59,10 @@ export const sidebar = [
             link: '/coming-soon',
           },
           {
+            label: 'Organization Policies',
+            link: '/coming-soon',
+          },
+          {
             label: 'Emails',
             link: '/coming-soon',
           },
@@ -77,9 +81,13 @@ export const sidebar = [
             ],
           },
           {
-            label: 'SCIM',
+            label: 'Directory',
             collapsed: true,
             items: [
+              {
+                label: 'Setup up Provisioning',
+                link: '/coming-soon',
+              },
               {
                 label: 'Test SCIM Integration',
                 link: '/coming-soon',
@@ -137,6 +145,10 @@ export const sidebar = [
       {
         label: 'Concepts',
         items: [
+          {
+            label: 'API Authentication',
+            link: '/coming-soon',
+          },
           {
             label: 'Pagination',
             link: '/coming-soon',
