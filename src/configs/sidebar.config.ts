@@ -6,16 +6,29 @@ export const sidebar = [
     icon: 'open-book',
     items: [
       {
-        label: 'Quickstarts',
-        collapsed: false,
+        label: 'Getting Started',
         items: [
           {
             label: 'Installation',
             link: 'manual/getting-started/installation',
           },
+          {
+            label: 'Authenticate Users',
+            link: '/coming-soon',
+          },
+          {
+            label: 'Launch Checklist',
+            link: '/manual/fundamentals/launch-checklist',
+          },
+        ],
+      },
+      {
+        label: 'Quickstarts',
+        collapsed: false,
+        items: [
+          'manual/social-logins-quickstart',
           'manual/sso-quickstart',
           'manual/scim-quickstart',
-          'manual/social-logins-quickstart',
         ],
       },
       {
@@ -31,15 +44,37 @@ export const sidebar = [
             link: '/manual/fundamentals/test-sso-integration',
           },
           {
-            label: 'Launch Checklist',
-            link: '/manual/fundamentals/launch-checklist',
+            label: 'More product guides ↗',
+            link: '/guides/',
           },
           {
-            label: 'More product guides',
-            link: '/guides/',
+            label: 'Concepts',
+            items: [
+              {
+                label: 'Users and Organizations',
+                link: '/coming-soon',
+              },
+              {
+                label: 'Sessions and Tokens',
+                link: '/coming-soon',
+              },
+              {
+                label: 'JIT Provisioning',
+                link: '/coming-soon',
+              },
+              {
+                label: 'Metadata and External IDs',
+                link: '/coming-soon',
+              },
+              {
+                label: 'Automated Role Assignment',
+                link: '/coming-soon',
+              },
+            ],
           },
         ],
       },
+
       {
         label: 'Integrations',
         items: [
@@ -88,7 +123,7 @@ export const sidebar = [
     label: 'Reference',
     id: 'reference',
     link: '/reference/',
-    icon: 'starlight',
+    icon: 'document',
     items: [
       {
         label: 'API',
@@ -101,15 +136,26 @@ export const sidebar = [
             label: 'UI Events',
             link: '/reference/ui-events',
           },
+          {
+            label: 'Concepts',
+            items: [
+              {
+                label: 'Pagination',
+                link: '/coming-soon',
+              },
+            ],
+          },
         ],
       },
       { label: 'SDKs', autogenerate: { directory: 'reference/sdks' } },
       {
         label: 'Webhooks',
+        collapsed: true,
         autogenerate: { directory: 'reference/webhooks' },
       },
       {
         label: 'Errors',
+        collapsed: true,
         autogenerate: { directory: 'reference/errors' },
       },
     ],
@@ -117,27 +163,31 @@ export const sidebar = [
   {
     label: 'Guides',
     link: '/guides/',
-    icon: 'puzzle',
+    icon: 'sun',
     items: [
       {
+        label: 'Product',
+        autogenerate: { directory: 'guides/product' },
+      },
+      {
         label: 'Social Connections',
+        collapsed: true,
         autogenerate: { directory: 'guides/social-connections' },
       },
       {
         label: 'SSO Integrations',
+        collapsed: true,
         autogenerate: { directory: 'guides/sso-integrations' },
       },
       {
         label: 'SCIM Integrations',
+        collapsed: true,
         autogenerate: { directory: 'guides/scim-integrations' },
       },
       {
         label: 'Auth Systems',
+        collapsed: true,
         autogenerate: { directory: 'guides/auth-systems' },
-      },
-      {
-        label: 'Product',
-        autogenerate: { directory: 'guides/product' },
       },
       {
         label: 'Extended guides',

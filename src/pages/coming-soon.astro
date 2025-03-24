@@ -1,0 +1,68 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import '@/styles/tailwind.css';
+
+---
+
+<StarlightPage frontmatter={{
+  title: 'Coming Soon',
+  description: 'This page is under construction',
+  template: 'splash',
+  head: [
+    {
+      tag: 'title',
+      content: 'Coming Soon',
+    },
+      {
+      tag: 'script',
+      content: `
+  // This script runs on page load to determine the best "back" action
+  document.addEventListener('DOMContentLoaded', () => {
+    const backLinks = document.querySelectorAll('a[data-back-link="true"]');
+
+    // Get the referrer URL if available
+    const referrer = document.referrer;
+    const hasSameOriginReferrer = referrer &&
+      (new URL(referrer).origin === window.location.origin);
+
+    backLinks.forEach(link => {
+      // If we have a valid same-origin referrer, use it
+      if (hasSameOriginReferrer) {
+        link.setAttribute('href', referrer);
+      }
+
+      // Add click handler for cases with no referrer
+      link.addEventListener('click', (e) => {
+        // If the link doesn't have a valid href, prevent default and use history
+        if (link.getAttribute('href') === '/' && window.history.length > 1) {
+          e.preventDefault();
+          window.history.back();
+        }
+      });
+    });
+  });
+      `,
+      attrs: {
+        type: 'text/javascript'
+      }
+    }
+  ],
+  hero: {
+    title: 'Coming Soon',
+    tagline: 'Our time machine is bringing you the most comprehensive guides from the future. Buckle up!',
+    actions: [
+      {
+        text: 'Go Back',
+        link: '/',
+        icon: 'left-caret',
+        variant: 'minimal',
+        attrs: {
+          'data-back-link': 'true'
+        }
+      },
+    ],
+  },
+  prev: false,
+  next: false,
+}}>
+</StarlightPage>
