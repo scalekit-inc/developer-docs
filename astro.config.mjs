@@ -41,6 +41,7 @@ export default defineConfig({
       },
       expressiveCode: {
         useStarlightDarkModeSwitch: true,
+        themes: ['vitesse-dark', 'vitesse-light'],
       },
       customCss: [
         '@fontsource-variable/inter',
