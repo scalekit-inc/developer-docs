@@ -1,11 +1,346 @@
 ---
-title: Webhook Best Practices
+title: Webhook best practices
 description: Learn how to implement webhooks in your application to receive real-time notifications from Scalekit.
 sidebar:
-  label: Webhook Best Practices
-  badge:
-    variant: caution
-    text: Soon
+  label: Webhook best practices
 ---
 
-# Webhook Best Practices
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Webhooks are HTTP endpoints that you register with a system, allowing that system to inform your application about events by sending HTTP POST requests with event information in the body.
+
+Developers register their applications' webhook endpoints with Scalekit to listen to events from the directory providers of their enterprise customers.
+
+## Best practices for webhook implementation
+
+Here are some common best practices developers follow to ensure their apps are secure and performant:
+
+### 1. Verify webhook signatures
+
+Scalekit sends POST requests to your registered webhook endpoint. To ensure the request is coming from Scalekit and not a malicious actor, you should verify the request using the Signing Secret found in the Scalekit Dashboard > Webhook > _Any Endpoint_.
+
+Here's an example of how to verify webhooks using the Scalekit SDK:
+
+<Tabs>
+
+<TabItem label="Node.js" value="Node">
+
+```javascript showLineNumbers {9, 13}
+app.post('/webhook', async (req, res) => {
+  // Parse the JSON body of the request
+  const event = await req.json();
+
+  // Get headers from the request
+  const headers = req.headers;
+
+  // Secret from Scalekit Dashboard > Webhooks
+  const secret = process.env.SCALEKIT_WEBHOOK_SECRET;
+
+  try {
+    // Verify the webhook payload
+    await scalekit.verifyWebhookPayload(secret, headers, event);
+  } catch (error) {
+    return res.status(400).json({
+      error: 'Invalid signature',
+    });
+  }
+});
+```
+
+</TabItem>
+
+<TabItem label="Python" value="Python">
+
+```python showLineNumbers
+from fastapi import FastAPI, Request
+
+app = FastAPI()
+
+@app.post("/webhook")
+async def api_webhook(request: Request):
+    # Get request data
+    body = await request.body()
+
+    # Extract webhook headers
+    headers = {
+        'webhook-id': request.headers.get('webhook-id'),
+        'webhook-signature': request.headers.get('webhook-signature'),
+        'webhook-timestamp': request.headers.get('webhook-timestamp')
+    }
+
+    # Verify webhook signature
+    is_valid = scalekit.verify_webhook_payload(
+        secret='<secret>',
+        headers=headers,
+        payload=body
+    )
+    print(is_valid)
+
+    return JSONResponse(
+        status_code=201,
+        content=''
+    )
+```
+
+</TabItem>
+
+<TabItem label="Go" value="go">
+
+```go showLineNumbers
+mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
+    webhookSecret := os.Getenv("SCALEKIT_WEBHOOK_SECRET")
+
+    // Read request body
+    bodyBytes, err := io.ReadAll(r.Body)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    // Prepare headers for verification
+    headers := map[string]string{
+        "webhook-id":        r.Header.Get("webhook-id"),
+        "webhook-signature": r.Header.Get("webhook-signature"),
+        "webhook-timestamp": r.Header.Get("webhook-timestamp"),
+    }
+
+    // Verify webhook signature
+    _, err = sc.VerifyWebhookPayload(
+        webhookSecret,
+        headers,
+        bodyBytes
+    )
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusUnauthorized)
+        return
+    }
+})
+```
+
+</TabItem>
+
+<TabItem label="Java" value="Java">
+
+```java showLineNumbers
+@PostMapping("/webhook")
+public String webhook(@RequestBody String body, @RequestHeader Map<String, String> headers) {
+  String secret = "<WEBHOOK_SECRET>";
+
+  // Verify webhook signature
+  boolean valid = scalekit.webhook().verifyWebhookPayload(secret, headers, body.getBytes());
+
+  if (!valid) {
+    return "error";
+  }
+
+  ObjectMapper mapper = new ObjectMapper();
+
+  try {
+    // Parse event data
+    JsonNode node = mapper.readTree(body);
+    String eventType = node.get("type").asText();
+    JsonNode data = node.get("data");
+
+    // Handle different event types
+    switch (eventType) {
+      case "organization.directory.user_created":
+        handleUserCreate(data);
+        break;
+      case "organization.directory.user_updated":
+        handleUserUpdate(data);
+        break;
+      default:
+        System.out.println("Unhandled event type: " + eventType);
+    }
+  } catch (IOException e) {
+    return "error";
+  }
+
+  return "ok";
+}
+
+```
+
+</TabItem>
+
+</Tabs>
+
+### 2. Subscribe only to relevant events
+
+While you can listen to all events from Scalekit, it's best to subscribe only to the events your app
+needs. This approach has several benefits:
+
+- Your app doesn't have to process every event
+- You can avoid overloading a single execution context by handling every event type
+
+### 3. Check the `event.type` before processing
+
+Make sure to check the `event.type` before consuming the data received by the webhook endpoint. This ensures that your application relies on accurate information, even if more events are added in the future.
+
+<Tabs>
+
+<TabItem label="Node.js" value="Node">
+
+```javascript showLineNumbers
+app.post('/webhook', async (req, res) => {
+  const event = req.body;
+
+  // Handle different event types
+  switch (event.type) {
+    case 'organization.directory.user_created':
+      const { email, name } = event.data;
+      await createUserAccount(email, name);
+      break;
+
+    case 'organization.directory.user_updated':
+      await updateUserAccount(event.data);
+      break;
+
+    default:
+      console.log('Unhandled event type:', event.type);
+  }
+
+  return res.status(201).json({
+    status: 'success',
+  });
+});
+
+async function createUserAccount(email, name) {
+  // Implement your user creation logic
+}
+```
+
+</TabItem>
+
+<TabItem label="Python" value="Python">
+
+```python showLineNumbers
+from fastapi import FastAPI, Request
+
+app = FastAPI()
+
+@app.post("/webhook")
+async def api_webhook(request: Request):
+    # Parse request body
+    body = await request.body()
+    payload = json.loads(body.decode())
+    event_type = payload['type']
+
+    # Handle different event types
+    match event_type:
+        case 'organization.directory.user_created':
+            await handle_user_create(payload['data'])
+        case 'organization.directory.user_updated':
+            await handle_user_update(payload['data'])
+        case _:
+            print('Unhandled event type:', event_type)
+
+    return JSONResponse(
+        status_code=201,
+        content={'status': 'success'}
+    )
+```
+
+</TabItem>
+
+<TabItem label="Go" value="go">
+
+```go showLineNumbers
+mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
+    // Read and verify webhook payload
+    bodyBytes, err := io.ReadAll(r.Body)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    // Parse event data
+    var event map[string]interface{}
+    err = json.Unmarshal(bodyBytes, &event)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    // Handle different event types
+    eventType := event["type"]
+    switch eventType {
+    case "organization.directory.user_created":
+        handleUserCreate(event["data"])
+    case "organization.directory.user_updated":
+        handleUserUpdate(event["data"])
+    default:
+        fmt.Println("Unhandled event type:", eventType)
+    }
+
+    w.WriteHeader(http.StatusOK)
+})
+```
+
+</TabItem>
+
+<TabItem label="Java" value="Java">
+
+```java showLineNumbers
+@PostMapping("/webhook")
+public String webhook(@RequestBody String body, @RequestHeader Map<String, String> headers) {
+  // Verify webhook signature first
+  String secret = "<WEBHOOK_SECRET>";
+  if (!verifyWebhookSignature(secret, headers, body)) {
+    return "error";
+  }
+
+  try {
+    // Parse event data
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode node = mapper.readTree(body);
+    String eventType = node.get("type").asText();
+    JsonNode data = node.get("data");
+
+    // Handle different event types
+    switch (eventType) {
+      case "organization.directory.user_created":
+        handleUserCreate(data);
+        break;
+      case "organization.directory.user_updated":
+        handleUserUpdate(data);
+        break;
+      default:
+        System.out.println("Unhandled event type: " + eventType);
+    }
+  } catch (IOException e) {
+    return "error";
+  }
+
+  return "ok";
+}
+
+```
+
+</TabItem>
+
+</Tabs>
+
+### 4. Avoid webhook timeouts
+
+To avoid unnecessary timeouts, respond to the webhook trigger with a response code of 201 and
+process the event asynchronously.
+
+### 5. Do not ignore errors
+
+Do not overlook repeated 4xx and 5xx error codes. Instead, verify that your API interactions are
+correct. For instance, if an endpoint expects a string but receives a numeric value, a validation
+error should occur. Likewise, trying to access an unauthorized or nonexistent endpoint will trigger
+a 4xx error.
+
+## Implementing webhook error handling
+
+Good webhook implementations include proper error handling. Consider the following practices:
+
+- Log all webhook errors for debugging purposes
+- Implement retry logic for failed webhook processing
+- Set up monitoring to alert you when webhook errors exceed normal thresholds
+- Create a dedicated error queue for failed webhook events that need manual review
+
+By following these best practices, you can ensure that your application effectively handles events
+from Scalekit, maintaining optimal performance and security.
