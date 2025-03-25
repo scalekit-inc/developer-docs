@@ -88,19 +88,19 @@ Just one couple more parameters, your application can choose to initiate a Socia
 ```sh title="Console output" showLineNumbers=false wrap
     https://<scalekit-environment-domain>.scalekit.cloud/oauth/authorize?response_type=code&client_id=skc_58327482062864390&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fcallback&scope=openid%20profile%20email
   ```
-  <Aside type="tip">
 
-  Login process begins over the browser. The authorization endpoint that you've generated should be a GET request from your application from the browser.
+  Login process begins over the browser. The authorization endpoint that you've generated should be a GET request from your application from the browser. The above example will redirect the user to scalekit's login page.
 
-  </Aside>
+  ![](@/assets/docs/manual/getting-started/authenticate-users/3-loginbox.png)
+
+
+  Users can choose to continue with their email or social provider. Upon successful authentication, scalekit will callback the `redirect_uri` that you've provided (which is also pre-registered in the dashboard) in the authorization request with an authorization code.
 
   ## Follow redirects for authorization code
 
-  The Scalekit environment will receive the authentication request from your application and proceed to authenticate with the user's identity provider (IdP). This part of the flow is usually a login page of the IdP (for example, Google, Okta, etc.)
+  Once the user is authenticated, the Scalekit environment will redirect the user back to your application with an authorization code. An authorization code is a temporary code (<u>and is valid for only 5 minutes</u>) that your application can exchange for user profile details. This step is security measure to ensure that the authorization code is only used once and is not intercepted by a malicious actor.
 
-  ![](@/assets/docs/manual/getting-started/authenticate-users/2-how-auth-works.svg)
-
-  Once the user is authenticated, the Scalekit environment will redirect the user back to your application with an authorization code. An authorization code is a temporary code that your application can exchange for user profile details. This step is security measure to ensure that the authorization code is only used once and is not intercepted by a malicious actor.
+    ![](@/assets/docs/manual/getting-started/authenticate-users/2-how-auth-works.svg)
 
   <Tabs>
     <TabItem value="node" label="Node (express.js)">

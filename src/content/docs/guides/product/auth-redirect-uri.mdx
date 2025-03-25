@@ -1,6 +1,100 @@
 ---
-title: Redirect URIs
-description: Learn how to set the auth redirect URI for your application.
+title: Configuring Redirect URIs
+description: Learn how to set up and manage redirect URIs for secure authentication in your application.
 ---
 
-Auth redirect URI is the URL that the user will be redirected to after they authenticate with the identity provider. It's used to return the authorization code to your application.
+import {
+  Aside, Icon
+ } from '@astrojs/starlight/components';
+import CheckItem from '@/components/ui/CheckItem.astro';
+
+<Aside type="note">
+  <ul>
+    <li>Maximum of 5 redirect URIs per environment</li>
+    <li>Production environments support <code>https://</code> only</li>
+    <li>Localhost and wildcards allowed in development only</li>
+    <li>No query parameters or fragments allowed</li>
+    <li>Maximum URI length: 256 characters</li>
+  </ul>
+</Aside>
+
+Redirect URIs are URLs that your application registers with Scalekit to securely complete the authentication process. After users authenticate with an identity provider, Scalekit redirects them back to one of these pre-registered URLs with an authorization code that your application can exchange for tokens.
+
+## Why are redirect URIs important?
+
+Since redirect URIs can be manipulated by unauthorized parties, properly configuring them is crucial for security. Scalekit requires pre-registration of all redirect URIs used in login flows to prevent authentication code interception attacks.
+
+<Aside type="tip">
+ Scalekit uses your configured default Redirect URI to redirect users after authentication. [Learn more about handling IdP-initiated SSO flows](/guides/product/idp-init-sso).
+</Aside>
+
+## Who should use this guide
+
+This guide is for developers and security engineers who are:
+- Setting up authentication in a Scalekit environment
+- Troubleshooting redirect URI errors
+- Implementing OAuth 2.0 authentication flows
+
+## How to configure redirect URIs
+
+Follow these steps to set up redirect URIs in your Scalekit environment:
+
+1. Navigate to your environment settings in the Scalekit dashboard
+2. Locate the Redirect URI section
+3. Add up to 5 redirect URIs that follow the validation rules
+
+![](@/assets/docs/guides/product/redirect-uris/0.png)
+
+## Understanding redirect URI validation rules
+
+Redirect URIs must adhere to specific validation rules to ensure security:
+
+<CheckItem>Security validation rules for redirect URIs</CheckItem>
+
+| Validation Rule | Development Environment | Production Environment |
+| --- | --- | --- |
+| Schemes Supported | <CheckItem>`http`</CheckItem> <CheckItem>`https`</CheckItem> | <CheckItem>`https`</CheckItem> |
+| localhost | <CheckItem>Allowed</CheckItem> | <CheckItem iconName="warning">Not Allowed</CheckItem> |
+| Wildcard support (*) | <CheckItem>Allowed</CheckItem> See [below](#using-wildcards-in-development) for full details about wildcard character support | <CheckItem iconName="warning">Not Allowed</CheckItem> |
+| Max URI Length | 256 characters | 256 characters |
+| Query Parameters <br /> `https://your-domain.com/callback?query=value` | <CheckItem iconName="warning">Not Allowed</CheckItem> | <CheckItem iconName="warning">Not Allowed</CheckItem> |
+| Fragment Component <br /> `https://your-domain.com/callback#fragment=value` | <CheckItem iconName="warning">Not Allowed</CheckItem> | <CheckItem iconName="warning">Not Allowed</CheckItem> |
+
+## Using wildcards in development
+
+To simplify development and testing, Scalekit allows wildcard characters (`*`) in redirect URIs for development environments only. The OAuth 2.0 specification ([section 3.1.2 of RFC 6749](https://tools.ietf.org/html/rfc6749#section-3.1.2)) requires that redirect URIs must be absolute URIs, but this restriction is relaxed in development environments.
+
+When using wildcards, follow these rules to maintain security:
+
+| Wildcard Rule | Examples |
+| --- | --- |
+| Wildcard Characters are not allowed as a root-level domain | <CheckItem iconName="warning">`https://*.com`</CheckItem> <CheckItem>`https://*.acmecorp.com`</CheckItem> <CheckItem>`https://auth-*.acmecorp.com`</CheckItem> |
+| A redirect URI can have only one wildcard character | <CheckItem iconName="warning">`https://*.*.acmecorp.com`</CheckItem> <CheckItem>`https://*.acmecorp.com`</CheckItem> |
+| Wildcard character must be located in a subdomain within the hostname component | <CheckItem iconName="warning">`https://acmecorp.*.com`</CheckItem> <CheckItem>`https://*.acmecorp.com`</CheckItem> |
+| Wildcard must be part of the subdomain that is farthest from the hostname component |<CheckItem iconName="warning">https://auth.*.acmecorp.com</CheckItem> <CheckItem>`https://*.auth.acmecorp.com`</CheckItem> |
+
+## Using redirect URIs in authentication
+
+See [authenticating your users guide](/manual/getting-started/authenticate-users) to learn how applications use redirect URIs to complete the authentication and successfully retrieve an authorization code.
+
+## Troubleshooting redirect URI errors
+
+Common issues with redirect URIs and how to resolve them:
+
+### "Invalid redirect URI" error
+
+This error occurs when the redirect URI used in your authentication request doesn't match any of the URIs registered in your Scalekit environment.
+
+**Solution:** Verify that:
+1. The redirect URI in your code exactly matches one registered in the dashboard (including case and trailing slashes)
+2. You're using the correct environment (development vs. production)
+3. You haven't exceeded the limit of 5 redirect URIs per environment
+
+### "Redirect URI contains invalid characters" error
+
+This error appears when your redirect URI contains characters that aren't allowed in the URI specification.
+
+**Solution:**
+- Ensure the URI is properly URL-encoded
+- Remove any fragment components or query parameters
+- For production environments, remove any wildcard characters
