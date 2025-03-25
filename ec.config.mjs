@@ -5,4 +5,5 @@ import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-s
 
 export default {
   plugins: [pluginLineNumbers(), pluginCollapsibleSections()],
+  defaultProps: { collapseStyle: 'collapsible-auto' },
 };

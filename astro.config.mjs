@@ -85,6 +85,6 @@ export default defineConfig({
       include: ['vue'],
       exclude: [],
     },
-    plugins: [],
+    plugins: [pluginCollapsibleSections()],
   },
 });
