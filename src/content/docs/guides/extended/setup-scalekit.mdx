@@ -1,0 +1,57 @@
+---
+title: Set up your Scalekit environment
+sidebar:
+  label: Set up Scalekit
+tableOfContents: false
+---
+
+import { LinkButton, Aside, Steps } from '@astrojs/starlight/components';
+
+Scalekit provides enterprise-grade authentication services that integrate seamlessly with your applications. Before you start building, you'll need to set up your Scalekit environment and obtain your API credentials.
+
+<Steps>
+1. **Create a Scalekit Account**
+
+   Scalekit provides dedicated environments for both development and production use. These environments function as extensions of your application where you can manage your authentication services.
+
+   <LinkButton href="https://app.scalekit.com/ws/signup" variant="secondary" icon='right-arrow'>Create a Scalekit Account</LinkButton>
+
+2. **Set up your Environments**
+
+   After creating your account, you'll have access to two separate environments:
+
+   ```showLineNumbers=false wrap
+   https://{environment}.scalekit.dev  (Development)
+   https://{environment}.scalekit.com  (Production)
+   ```
+
+   <Aside type="note">
+     Development environments are perfect for testing, while production environments should be used for live systems. Each environment is isolated, so resources created in one cannot be transferred to another.
+   </Aside>
+
+   You can view your environment URLs by navigating to **Scalekit Dashboard > API Config**.
+
+   ![](@/assets/docs/guides/extended/setup-scalekit/0.png)
+
+3. **Obtain your API Keys**
+
+   Scalekit uses the OAuth 2.0 client credentials flow for secure API authentication. This approach provides better security than simple API keys, as your environment and its resources function as extensions of your application's authentication service.
+
+   From the API Config section, note down these three essential values:
+
+   ```sh showLineNumbers=false wrap title="Development Environment"
+   SCALEKIT_ENVIRONMENT_URL=https://<your-subdomain>.scalekit.cloud
+   SCALEKIT_CLIENT_ID=skc_<your-unique-identifier>
+   SCALEKIT_CLIENT_SECRET=test_<your-secret-key>
+   ```
+
+   <Aside type="tip">
+     Store these credentials securely. They'll be required when initializing the Scalekit SDK or making direct API calls.
+   </Aside>
+
+   For detailed information about API authentication, see [Authenticating with Scalekit API](/reference/concepts/authenticate-scalekit-api).
+</Steps>
+
+## Next Steps
+
+With your Scalekit account configured and API credentials in hand, you're ready to integrate authentication services into your application. Proceed to [Adding Enterprise Auth to Your Application](/manual/getting-started/installation) to start implementing SSO, SCIM provisioning, and social login capabilities.
