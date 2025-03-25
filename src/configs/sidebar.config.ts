@@ -13,11 +13,11 @@ export const sidebar = [
             link: 'manual/getting-started/installation',
           },
           {
-            label: 'Authenticate Users',
+            label: 'Authenticate users',
             link: '/coming-soon',
           },
           {
-            label: 'Manage Users',
+            label: 'Manage users sessions',
             link: '/coming-soon',
           },
           {
