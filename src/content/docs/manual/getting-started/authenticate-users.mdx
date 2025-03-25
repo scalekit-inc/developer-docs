@@ -1,0 +1,132 @@
+---
+title: Authenticate users
+description: Implement user authentication in your application
+sidebar:
+  label: Authenticate users
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Authorization endpoints are used to authenticate users during their sign in process. Scalekit sets up these endpoints for your environment and manages to authenticate users and gets your application the user profile details.
+
+Before you can use the authorization endpoints to login users, you need to [set up Scalekit for your application](/guides/extended/setup-scalekit/).
+
+## Authentication flow overview
+
+![](@/assets/docs/manual/getting-started/authenticate-users/1-sp-init-sso.svg)
+
+1. The user navigates to the login page of your application.
+2. Your application redirects the user to your Scalekit environment's authorization endpoint.
+3. Your Scalekit auth service authenticates the user and redirects the user back to your application.
+4. Your application validates the user and redirects the user to any logged in page.
+
+<Aside type="note">
+
+Interestingly, these are called "Authorization endpoints" rather than "Authentication endpoints" because they're part of OAuth 2.0 protocols where the primary function is authorizing the release of tokens, not just verifying identity.
+
+</Aside>
+
+## Build an authorization endpoint
+
+Scalekit sets up an dedicated environment for all authentication services to your application. It will also act as **authorization server** for your application. It's responsible for verifying the user's identity with their identity provider (IdP) and issuing user information to your application.
+
+Authorization endpoints have your scalekit environment domain as the base URL and end with `/oauth/authorize`
+
+```sh "<your-environment-domain>" title="Authorization endpoint" showLineNumbers=false
+https://<your-environment-domain>.scalekit.dev/oauth/authorize
+```
+
+Your app should send following request parameters to successfully identify your application and initiate the authentication process with a IdP.
+
+```sh title="Authorization request endpoint" showLineNumbers=false
+https://<your-environment-domain>.scalekit.cloud/oauth/authorize
+  ?response_type=code
+  &client_id=<your-client-id>          # Replace with your client ID
+  &redirect_uri=http://localhost:3000/api/callback
+  &scope=openid%20profile%20email      # URL-encoded space between scopes
+```
+
+| Parameter | Value Example | Description |
+|------------------|----------------------------------|-----------------------------------------------------------------------------|
+| <pre>response_type</pre> | code | Specifies OAuth 2.0 flow type. Must be code for Authorization Code flow. |
+| <pre>client_id</pre> | skc_58327482062864390 | Your application's unique identifier. Obtain from Scalekit dashboard. |
+| <pre>redirect_uri</pre> | http://localhost:3000/api/callback | Where to return after authentication. More on this later. |
+| <pre>scope</pre> | openid profile email | Space-separated permissions. Use URL-encoded spaces (%20), openid required for OIDC. |
+
+Now that you see what authorization request parameters are and how they look like, let's see how to build the authorization request. Scalekit provides a helper function to build the authorization request.
+
+<Aside type="tip">
+
+Just one couple more parameters, your application can choose to initiate a Social Login flow or a Single Sign-On (SSO) flow through Scalekit. Quickstart with [Social Login](/docs/manual/getting-started/social-login/) and [Single Sign-On](/docs/manual/getting-started/single-sign-on/) guides.
+
+</Aside>
+
+<Tabs>
+  <TabItem value="node" label="Node.js">
+  ```js collapse={1-11, 16-17}
+  import { Scalekit } from '@scalekit-sdk/node';
+    generateAuthorizationUrl();
+
+    async function generateAuthorizationUrl() {
+      // Create client instance with configuration
+      const scalekit = new Scalekit(
+        process.env.SCALEKIT_ENVIRONMENT_URL,
+        process.env.SCALEKIT_CLIENT_ID,
+        process.env.SCALEKIT_CLIENT_SECRET
+      );
+
+      const authorizationUrl = await scalekit.getAuthorizationUrl(
+        'http://localhost:3000/api/callback'
+      );
+
+      console.log(authorizationUrl);
+    }
+  ```
+  </TabItem>
+</Tabs>
+
+```sh title="Console output" showLineNumbers=false wrap
+    https://<scalekit-environment-domain>.scalekit.cloud/oauth/authorize?response_type=code&client_id=skc_58327482062864390&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fcallback&scope=openid%20profile%20email
+  ```
+  <Aside type="tip">
+
+  Login process begins over the browser. The authorization endpoint that you've generated should be a GET request from your application from the browser.
+
+  </Aside>
+
+  ## Follow redirects for authorization code
+
+  The Scalekit environment will receive the authentication request from your application and proceed to authenticate with the user's identity provider (IdP). This part of the flow is usually a login page of the IdP (for example, Google, Okta, etc.)
+
+  ![](@/assets/docs/manual/getting-started/authenticate-users/2-how-auth-works.svg)
+
+  Once the user is authenticated, the Scalekit environment will redirect the user back to your application with an authorization code. An authorization code is a temporary code that your application can exchange for user profile details. This step is security measure to ensure that the authorization code is only used once and is not intercepted by a malicious actor.
+
+  <Tabs>
+    <TabItem value="node" label="Node (express.js)">
+    ```js  "code" {11}
+    // Callback endpoint in your app: /api/callback
+    const { code, error, error_description } = req.query;
+
+    if (error) {
+      console.error('SSO callback error:', error, error_description);
+      res.render('login', {
+        error: `SSO login failed: ${error_description || error}`,
+      });
+      return;
+    }
+    ```
+    </TabItem>
+  </Tabs>
+
+  <Aside type="caution">
+    The authentication request that has `redirect_uri` must be registered in your Scalekit environment ahead of time. This is the endpoint where your scalekit environment will send your application the authorization code. See [Auth Redirect URI](/docs/guides/product/auth-redirect-uri/) for more details.
+  </Aside>
+
+  ## Exchange authorization code for user profile details
+
+  <i>
+  This section is work in progress.
+
+  Reason: The login box is not yet implemented.
+  </i>
