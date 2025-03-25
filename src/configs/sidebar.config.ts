@@ -14,7 +14,7 @@ export const sidebar = [
           },
           {
             label: 'Authenticate users',
-            link: '/coming-soon',
+            link: '/manual/getting-started/authenticate-users',
           },
           {
             label: 'Manage users sessions',
