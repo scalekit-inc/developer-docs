@@ -1,46 +1,35 @@
 ---
-title: "Implement Identity Provider initiated SSO"
-description: "IdP Initiated SSO"
+title: "Handle Identity Provider initiated SSO"
+description: "Learn how to securely implement IdP-initiated Single Sign-On for your application"
 sidebar:
   label: "IdP Initiated SSO"
 ---
 
 import { Tabs, TabItem, Steps } from '@astrojs/starlight/components';
 
-IdP-initiated SSO allows users to log into your application directly from their identity provider's portal. While convenient, it poses security risks such as stolen SAML assertions.
-
-In IdP initiated SSO:
+IdP-initiated SSO allows users to log into your application directly from their identity provider's portal. The workflow consists of three main steps:
 
 1. The user logs into their identity provider portal and selects your application.
 2. The identity provider sends the user's details as assertions to your application.
 3. Your application validates the assertions, retrieves the user information, and if everything checks out, logs the user in.
 
 <figure>
-  ![IdP initiated SSO workflow](@/assets/docs/guides/product/idp-init-sso/idp-initiated-sso.png)
+  ![Scalekit's recommended workflow for IdP initiated SSO](@/assets/docs/common/idp-init-sso.png)
 </figure>
 
 Since the login is initiated from the identity provider's portal, this flow is called IdP-initiated SSO.
 
-However, this convenience comes with potential security risks. Attackers can steal these assertions and use them to gain unauthorized access. To address these concerns, it's crucial to implement strategies that mitigate these risks while maintaining a seamless user experience.
-
-### Convert IdP-initiated to SP-initiated SSO
-
-Despite the security risks, IdP initiated SSO offers significant convenience to end users, allowing them to easily log into various applications used within their organization. As such, it's important for your application to support it. To support it securely, convert the incoming IdP-initiated request to an SP-initiated SSO flow. Refer the below diagram for the recommended workflow from Scalekit.
-
-<figure>
-  ![Scalekit's recommended workflow for IdP initiated SSO](@/assets/docs/common/idp-init-sso.png)
-</figure>
+To securely implement IdP-initiated SSO, follow these steps to convert incoming IdP-initiated requests to SP-initiated flows:
 
 <Steps>
 
-1. When Scalekit receives an IdP-initiated SSO request from a customer, it sends a request to your configured default `redirect_uri` (located in Scalekit Dashboard > API Config > Redirect URIs) with `idp_initiated_login` included as a request parameter.
+1. **Set up a default redirect endpoint**: When Scalekit receives an IdP-initiated SSO request, it sends a request to your configured default `redirect_uri` with an `idp_initiated_login` parameter.
 
    ```sh showLineNumbers=false  "idp_initiated_login=<encoded_jwt_token>"
    https://your-app.com/default-redirect-uri?idp_initiated_login=<encoded_jwt_token>
    ```
 
-2. The `idp_initiated_login` request parameter is a signed JWT token
-   containing all necessary details to identify the organization, SSO connection, and user information, enabling you to initiate a new authorization request.
+2. **Extract information from the JWT token**: The `idp_initiated_login` parameter contains a signed JWT with organization, connection, and user details.
 
    ```js showLineNumbers=false
    {
@@ -54,10 +43,10 @@ Despite the security risks, IdP initiated SSO offers significant convenience to 
    }
    ```
 
-3. You can use any of these three parameters to initiate a new SSO request. Below are examples in different programming languages:
+3. **Convert to SP-initiated flow**: Use the extracted parameters to initiate a new SSO request. Here are implementation examples:
 
    <div>
-   <Tabs sync="tech-stack" queryString>
+   <Tabs syncKey="tech-stack" queryString>
    <TabItem value="nodejs" label="Node.js">
 
    ```javascript showLineNumbers=false "idp_initiated_login"
@@ -217,8 +206,7 @@ Despite the security risks, IdP initiated SSO offers significant convenience to 
    </Tabs>
    </div>
 
-4. In case of error, the redirect URI will receive a callback containing the error information as query
-   parameters.
+4. **Handle errors**: If errors occur, the redirect URI will receive a callback with error information. See the [error handling](/reference/errors/) guide for more details.
 
    ```sh showLineNumbers=false wrap
    https://b2b-app.com/callback
@@ -228,47 +216,47 @@ Despite the security risks, IdP initiated SSO offers significant convenience to 
 
 </Steps>
 
-## Security Risks
+## Troubleshooting
 
-**Stolen SAML Assertions**: Attackers can steal these assertions and use them to gain unauthorized
-access. If an attacker manages to steal these assertions, they can:
+If you encounter issues implementing IdP-initiated SSO:
+
+1. Verify your redirect URI is properly configured in the Scalekit Dashboard
+2. Check that you're correctly processing the JWT token from the `idp_initiated_login` parameter
+3. Ensure your error handling properly captures and processes any error messages
+
+## Benefits of this approach
+
+The advantages of using Scalekit's approach are:
+
+- **Enhanced Security**: Overcomes the security risks of handling IdP-initiated SSO
+- **Seamless Experience**: The additional redirect is almost instantaneous, providing a smooth user experience
+
+## Security considerations
+
+While IdP-initiated SSO offers convenience, it comes with significant security risks:
+
+##### Potential security risks
+
+**Stolen SAML Assertions**: Attackers can steal SAML assertions and use them to gain unauthorized access. If an attacker manages to steal these assertions, they can:
 
 - Inject them into another service provider, gaining access to that user's account
-- Inject them back into your application with altered assertions, potentially elevating their
-  privileges
+- Inject them back into your application with altered assertions, potentially elevating their privileges
 
-With a stolen SAML assertion, an attacker can gain access to your application as the compromised
-user, bypassing the usual authentication process. This compromised behavior is much harder with
-Service Provider (SP) initiated SSO flow.
+With a stolen SAML assertion, an attacker can gain access to your application as the compromised user, bypassing the usual authentication process.
 
-### How Attackers Steal SAML Assertions
+##### How attackers steal SAML assertions
 
 Attackers can steal SAML assertions through various methods:
 
-- **Man-In-The-Middle (MITM) Attacks**: Intercepting and replacing the SAML response during
-  transmission.
-- **Open Redirect Attacks**: Exploiting improper endpoint validation to redirect the SAML response
-  to a malicious server.
-- **Leaky Logs and Headers**: Sensitive information, including SAML assertions, can be leaked
-  through logs or headers.
-- **Browser-Based Attacks**: Exploiting browser vulnerabilities to steal SAML assertions
+- **Man-In-The-Middle (MITM) Attacks**: Intercepting and replacing the SAML response during transmission.
+- **Open Redirect Attacks**: Exploiting improper endpoint validation to redirect the SAML response to a malicious server.
+- **Leaky Logs and Headers**: Sensitive information, including SAML assertions, can be leaked through logs or headers.
+- **Browser-Based Attacks**: Exploiting browser vulnerabilities to steal SAML assertions.
 
-### The Challenge for Service Providers
+##### The challenge for service providers
 
-The chief problem with stolen assertions is that everything appears legitimate to the service
-provider. The message and assertion are valid, issued by the expected identity provider, and signed
-with the expected key. However, the service provider cannot verify whether the assertions are stolen
-or not. This makes it difficult to detect and prevent unauthorized access through stolen SAML
-assertions.
+The chief problem with stolen assertions is that everything appears legitimate to the service provider. The message and assertion are valid, issued by the expected identity provider, and signed with the expected key. However, the service provider cannot verify whether the assertions are stolen or not.
 
+## Summary
 
-## Advantages
-
-The advantages of using this approach are:
-
-- **Enhanced Security**: Overcomes the security risks of handling IdP-initiated SSO
-- **Seamless Experience**: The additional redirect is almost instantaneous, providing a smooth user
-  experience
-
-By following these steps, you can support IdP-initiated SSO while maintaining a high level of
-security for your users
+By following the steps outlined in this guide, you can securely implement IdP-initiated SSO while maintaining a high level of security for your users. The key to secure implementation is converting IdP-initiated requests to SP-initiated flows.
