@@ -146,8 +146,8 @@ export const sidebar = [
         label: 'Concepts',
         items: [
           {
-            label: 'API Authentication',
-            link: '/coming-soon',
+            label: 'Authenticate Scalekit API',
+            link: '/reference/concepts/authenticate-scalekit-api',
           },
           {
             label: 'Pagination',

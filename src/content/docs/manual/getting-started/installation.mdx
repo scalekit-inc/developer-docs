@@ -10,7 +10,7 @@ head:
 
 import InstallSDK from '@components/templates/_installsdk.mdx';
 import CheckItem from '@components/ui/CheckItem.astro';
-import { Steps, Tabs, TabItem, Icon } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem, Icon, Aside } from '@astrojs/starlight/components';
 import Env from '@components/templates/_env.mdx'
 
 
@@ -25,21 +25,22 @@ After completing this guide, you'll be able to:
 ## Installation Steps
 
 <Steps>
-1. **Create a Scalekit Account**
-   [Sign up](https://app.scalekit.com/ws/signup) for a Scalekit account if you don't have one.
-   Go to **Dashboard > API Config** to retrieve your API keys.
-   Make note of your:
-   - Environment URL
-   - Client ID
-   - Client Secret
+1. Begin by [signing up for a free account](https://app.scalekit.com/ws/signup) if you don't have one already. Once logged in, navigate to **Dashboard > API Config** in the web portal to access your authentication credentials. You'll need these three essential values from the _API Keys_ section:
 
-2. **Configure Environment Variables**
-   Add your API credentials to your project's environment variables:
+   - **Environment URL**: `https://<your-subdomain>.scalekit.cloud`
+   - **Client ID**: `skc_<your-unique-identifier>`
+   - **Client Secret**: `test_<your-secret-key>`
+
+    <Aside type="note">
+      The default view shows **Development** environment credentials - ideal for testing. Remember to switch to **Production** environment when deploying to live systems.
+    </Aside>
+
+2. Add your API credentials to your project's environment variables:
    <Env />
 
-3. **Install the SDK**
-   Choose your programming language and follow the installation instructions:
+3. Choose your programming language and follow the installation instructions:
    <InstallSDK />
+
 </Steps>
 
 ## Verify Your Installation
@@ -47,13 +48,12 @@ After completing this guide, you'll be able to:
 Test that your SDK is installed and configured correctly:
 
 <Steps>
-1. **Initialize the SDK**
+1. Import the SDK and initialize the client
    <Tabs>
      <TabItem value="javascript" label="Node.js">
-       ```js
+       ```js wrap showLineNumbers=false {3-7}
        import { Scalekit } from '@scalekit-sdk/node';
 
-       // Initialize the client with your credentials
        const scalekit = new Scalekit(
           process.env.SCALEKIT_ENVIRONMENT_URL,
           process.env.SCALEKIT_CLIENT_ID,
@@ -62,10 +62,9 @@ Test that your SDK is installed and configured correctly:
        ```
      </TabItem>
      <TabItem value="python" label="Python">
-       ```python
+       ```python wrap showLineNumbers=false
        from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
 
-       # Initialize the client with your credentials
        scalekit = ScalekitClient(
           '<SCALEKIT_ENVIRONMENT_URL>',
           '<SCALEKIT_CLIENT_ID>',
@@ -74,12 +73,11 @@ Test that your SDK is installed and configured correctly:
        ```
      </TabItem>
      <TabItem value="go" label="Go">
-       ```go
+       ```go wrap showLineNumbers=false
        import (
           "github.com/scalekit/scalekit-sdk-go"
         )
 
-       // Initialize the client with your credentials
        scalekitClient := scalekit.NewScalekitClient(
           "<SCALEKIT_ENVIRONMENT_URL>",
           "<SCALEKIT_CLIENT_ID>",
@@ -88,7 +86,7 @@ Test that your SDK is installed and configured correctly:
        ```
      </TabItem>
      <TabItem value="java" label="Java">
-       ```java
+       ```java wrap showLineNumbers=false
        package com.scalekit;
        import com.scalekit.ScalekitClient;
 
@@ -102,25 +100,34 @@ Test that your SDK is installed and configured correctly:
      </TabItem>
    </Tabs>
 
-2. **Run a Test Query**
-   Execute this sample code to list organizations:
+2. Execute this sample code to list organizations:
    <Tabs>
+      <TabItem value="curl" label="cURL">
+
+      ```http "<SCALEKIT_ENVIRONMENT_URL>" wrap showLineNumbers=false
+      curl -L 'https://<SCALEKIT_ENVIRONMENT_URL>.scalekit.cloud/api/v1/organizations' \
+      -H 'Authorization: Bearer <your-access-token>' \
+      -d ''
+      ```
+
+      Scalekit API uses client credentials flow to authenticate requests. Learn how to [authenticate with the Scalekit API](/reference/concepts/authenticate-scalekit-api)
+      </TabItem>
      <TabItem value="javascript" label="Node.js">
-       ```js
+       ```js wrap
        // List all organizations in your account
        const organizations = await scalekit.organization.listOrganization({});
        console.log(organizations);
        ```
      </TabItem>
      <TabItem value="python" label="Python">
-       ```python
+       ```python wrap
        # List all organizations in your account
        organizations = scalekit.organization.list_organization({})
        print(organizations)
        ```
      </TabItem>
      <TabItem value="go" label="Go">
-       ```go
+       ```go wrap
        // List all organizations in your account
        organizations, err := scalekitClient.Organization.ListOrganization(context.Background(), &emptypb.Empty{})
        if err != nil {
@@ -130,7 +137,7 @@ Test that your SDK is installed and configured correctly:
        ```
      </TabItem>
      <TabItem value="java" label="Java">
-       ```java
+       ```java wrap
        // List all organizations in your account
        ListOrganizationResponse organizations = scalekitClient.getOrganizationClient().listOrganization(new Empty());
        System.out.println(organizations);
