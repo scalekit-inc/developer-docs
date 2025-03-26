@@ -141,12 +141,16 @@ export const sidebar = [
             link: '/apis-scalar',
           },
           {
-            label: 'Auth endpoints',
+            label: 'Authenticate Scalekit API',
+            link: '/reference/concepts/authenticate-scalekit-api',
+          },
+          {
+            label: 'User auth endpoints',
             link: '/reference/concepts/auth-endpoints',
           },
           {
-            label: 'UI Events',
-            link: '/reference/ui-events',
+            label: 'UI events',
+            link: '/reference/api-catalog/ui-events',
           },
         ],
       },
@@ -154,25 +158,16 @@ export const sidebar = [
         label: 'Concepts',
         items: [
           {
-            label: 'Authenticate Scalekit API',
-            link: '/reference/concepts/authenticate-scalekit-api',
+            label: 'Custom identifiers & data',
+            link: '/reference/concepts/external-ids-and-metadata',
           },
           {
-            label: 'Normalized User Profile',
+            label: 'Normalized user profile',
             link: '/reference/concepts/normalized-user-profile',
           },
-
           {
             label: 'Pagination',
             link: '/reference/concepts/pagination',
-          },
-          {
-            label: 'Rate Limits',
-            link: '/reference/concepts/rate-limits',
-          },
-          {
-            label: 'External IDs and Metadata',
-            link: '/coming-soon',
           },
         ],
       },
