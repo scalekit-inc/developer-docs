@@ -151,7 +151,7 @@ export const sidebar = [
           },
           {
             label: 'Pagination',
-            link: '/coming-soon',
+            link: '/reference/concepts/pagination',
           },
           {
             label: 'Rate Limits',
