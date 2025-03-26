@@ -170,7 +170,6 @@ export const sidebar = [
       { label: 'SDKs', autogenerate: { directory: 'reference/sdks' } },
       {
         label: 'Webhooks',
-        collapsed: true,
         autogenerate: { directory: 'reference/webhooks' },
       },
       {
