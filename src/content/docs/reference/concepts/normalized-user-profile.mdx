@@ -1,0 +1,100 @@
+---
+title: Normalized user profile
+description: Learn about the normalized user profile
+sidebar:
+  label: Normalized user profile
+  badge:
+    text: SSO
+    variant: tip
+---
+
+import { Aside } from "@astrojs/starlight/components"
+
+When a user logs in through SSO, identity providers share profile information in different formats. Scalekit simplifies this for developers by normalizing the data into a standardized structure across all providers. See [SSO quickstart](/manual/sso-quickstart) to see how you get the user profile as part of the Single Sign-on flow.
+
+You'll always receive user profiles in these consistent fields, regardless of the identity provider or protocol used. This standardization is a core feature of our Unified SSO solution.
+
+```json title="Example user profile" wrap
+{
+    "email": "john.doe@acmecorp.com",
+    "email_verified": true,
+    "family_name": "Doe",
+    "given_name": "John",
+    "locale": "en",
+    "name": "John Doe",
+    "picture": "https://lh3.googleusercontent.com/a/ACg8ocKNE4TZ...iEma17URCEf=s96-c",
+    "sub": "conn_17576372041941092;google-oauth2|104630259163176101050",
+    "identities": [
+        {
+            "connection_id": "conn_17576372041941092",
+            "organization_id": "org_17002852291444836",
+            "connection_type": "OIDC",
+            "provider_name": "AUTH0",
+            "social": false,
+            "provider_raw_attributes": {
+                "aud": "ztTgHijLLguDXJQab0oiPyIcDLXXrJX6",
+                "email": "john.doe@acmecorp.com",
+                "email_verified": true,
+                "exp": 1714580633,
+                "family_name": "Doe",
+                "given_name": "John",
+                "iat": 1714544633,
+                "iss": "https://dev-rmmfmus2g7vverbf.us.auth0.com/",
+                "locale": "en",
+                "name": "John Doe",
+                "nickname": "john.doe",
+                "nonce": "Lof9SpxEzs9dhUlJzgrrbQ==",
+                "picture": "https://lh3.googleusercontent.com/a/ACg8ocKNE4T...17URCEf=s96-c",
+                "sid": "5yqRJIfjPh8c7lr1s2N-IbY6WR8VyaIZ",
+                "sub": "google-oauth2|104630259163176101050",
+                "updated_at": "2024-04-30T10:02:30.988Z"
+            }
+        }
+    ]
+}
+```
+
+## Key user profile attributes
+
+### Sub
+**Identifier** combining:
+- Connection ID (`conn_17576372041941092`)
+- Provider-specific user ID (`google-oauth2|104630259163176101050`)
+
+### Email
+**Primary email address**
+*Verified status shown in `email_verified`*
+
+### Name
+**Full name** split into:
+- `given_name`: First name
+- `family_name`: Last name
+
+### Locale
+**Language preference** using BCP 47 format (e.g., `en`, `fr-CA`)
+
+### Picture
+**Profile photo URL** (always HTTPS)
+
+### Identities[]
+**Authentication sources** containing:
+- Connection details
+- Raw provider data
+
+## Identity object structure
+
+| Attribute | Description |
+|-----------|-------------|
+| `organization_id` | Parent organization GUID |
+| `connection_id` | Authentication connection GUID |
+| `connection_type` | `SAML` or `OIDC` |
+| `provider_name` | Vendor name (e.g., Okta, Google) |
+| `social` | `true` for social logins |
+| `provider_raw_attributes` | Unprocessed provider data |
+
+<Aside type="note">
+Key implementation details:
+- Combine multiple authentication methods in `identities[]`
+- Access raw provider data in `provider_raw_attributes`
+- Use `sub` for unique user identification across connections
+</Aside>
