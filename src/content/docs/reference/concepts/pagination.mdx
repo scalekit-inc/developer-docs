@@ -1,0 +1,93 @@
+---
+title: Cursor-based Pagination
+sidebar:
+  label: 'Pagination'
+---
+
+Scalekit API implements cursor-based pagination to efficiently navigate through large collections of resources while maintaining consistent results between requests.
+
+## How It Works
+
+When requesting a collection endpoint, the API returns:
+
+- A batch of resource objects (default limit: 10)
+- Encoded cursor tokens for navigating to adjacent pages
+- Total count of available resources
+
+## Example Request
+
+```bash
+curl https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations
+```
+
+## Example Response
+
+```json
+{
+  "next_page_token": ">:encodedtoken",
+  "organizations": [
+    {
+      "create_time": "2025-02-15T06:23:44.560Z",
+      "display_name": "Megasoft",
+      "external_id": "my_unique_id",
+      "id": "org_59615193906282635",
+      "metadata": {
+        "ANY_ADDITIONAL_PROPERTY": "..."
+      },
+      "region_code": "US",
+      "settings": {
+        "features": [
+          {
+            "enabled": true,
+            "name": "sso"
+          },
+          {
+            "enabled": false,
+            "name": "directory_sync"
+          }
+        ]
+      },
+      "update_time": "2025-02-15T06:23:44.560Z"
+    }
+  ],
+  "prev_page_token": "<:encodedtoken",
+  "total_size": 30
+}
+```
+
+## Navigating Pages
+
+To navigate through pages, append the token to your request:
+
+```bash wrap showLineNumbers=false
+# Get the next page
+curl https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations?page_token="<next_page_token>"
+
+# Get the previous page
+curl https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations?page_token="<prev_page_token>"
+```
+
+## Pagination Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `page_token` | Cursor token for retrieving a specific page |
+| `page_size` | Number of items per page (default: 10, max: 100) |
+
+## Understanding Cursor Tokens
+
+Our cursor tokens follow this pattern:
+- `>:encodedtoken` - Points to the next page
+- `<:encodedtoken` - Points to the previous page
+
+These tokens contain encoded information about your position in the result set and ensure:
+- Consistent ordering even when items are added/modified
+- Protection against duplicate or skipped records
+- Efficient database access patterns
+
+## Best Practices
+
+- Always use the provided tokens; don't construct them manually
+- Store both `next_page_token` and `prev_page_token` for bidirectional navigation
+- Check for null or empty tokens to detect the first/last page
+- Use consistent `page_size` values between requests for predictable pagination
