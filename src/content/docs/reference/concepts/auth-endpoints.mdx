@@ -1,0 +1,65 @@
+---
+title: Auth endpoints
+description: Learn about the different endpoints used for authentication in Scalekit.
+sidebar:
+  label: User auth endpoints
+---
+
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+To provide a seamless authentication experience, Scalekit offers two primary endpoints that you can use to authenticate users
+
+
+## /oauth/authorize
+
+The base URL for the `/oauth/authorize` endpoint is your environment's domain.
+
+```
+https://<environment-domain>.scalekit.dev/oauth/authorize
+```
+
+
+
+### Examples
+
+<Tabs>
+  <TabItem value="curl" label="cURL">
+  ```sh
+  curl -G "https://<scalekit-env-domain>.scalekit.dev/oauth/authorize" \
+     --data-urlencode "response_type=code" \
+     --data-urlencode "client_id=skc_58327482062864390" \
+     --data-urlencode "redirect_uri=http://localhost:3000/api/callback" \
+     --data-urlencode "scope=openid profile email"
+  ```
+  </TabItem>
+</Tabs>
+
+
+
+
+## /oauth/token
+
+The base URL for the `/oauth/token` endpoint is your environment's domain.
+
+### Getting user profile details
+
+```
+https://<environment-domain>.scalekit.dev/oauth/token
+```
+
+<Tabs>
+  <TabItem value="curl" label="cURL">
+  ```sh
+  curl -X POST "https://<scalekit-env-domain>.scalekit.dev/oauth/token" \
+     --data-urlencode "code=<code>" \
+     --data-urlencode "redirect_uri=<redirect_uri>" \
+     --data-urlencode "client_id=<client_id>" \
+     --data-urlencode "client_secret=<client_secret>" \
+     --data-urlencode "grant_type=authorization_code" \
+     --data-urlencode "scope=openid profile email offline_access"
+  ```
+  </TabItem>
+</Tabs>
+
+### Refreshing access tokens
+

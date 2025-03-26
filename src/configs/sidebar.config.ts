@@ -17,8 +17,8 @@ export const sidebar = [
             link: '/manual/getting-started/authenticate-users',
           },
           {
-            label: 'Manage users sessions',
-            link: '/coming-soon',
+            label: 'Manage user sessions',
+            link: '/manual/getting-started/manage-user-sessions',
           },
           {
             label: 'Customize',
@@ -152,6 +152,10 @@ export const sidebar = [
           {
             label: 'Normalized User Profile',
             link: '/reference/concepts/normalized-user-profile',
+          },
+          {
+            label: 'Auth endpoints',
+            link: '/reference/concepts/auth-endpoints',
           },
           {
             label: 'Pagination',
