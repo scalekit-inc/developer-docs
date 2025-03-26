@@ -137,6 +137,10 @@ export const sidebar = [
             link: '/apis-scalar',
           },
           {
+            label: 'Auth endpoints',
+            link: '/reference/concepts/auth-endpoints',
+          },
+          {
             label: 'UI Events',
             link: '/reference/ui-events',
           },
@@ -153,10 +157,7 @@ export const sidebar = [
             label: 'Normalized User Profile',
             link: '/reference/concepts/normalized-user-profile',
           },
-          {
-            label: 'Auth endpoints',
-            link: '/reference/concepts/auth-endpoints',
-          },
+
           {
             label: 'Pagination',
             link: '/reference/concepts/pagination',
