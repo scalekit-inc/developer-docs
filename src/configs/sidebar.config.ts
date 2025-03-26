@@ -105,8 +105,12 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Support',
+        label: 'Resources',
         items: [
+          {
+            label: 'API Collections',
+            link: 'https://github.com/scalekit-developers/api-collections',
+          },
           {
             label: 'Glossary',
             link: '/manual/support/glossary',
