@@ -150,12 +150,16 @@ export const sidebar = [
             link: '/reference/concepts/authenticate-scalekit-api',
           },
           {
+            label: 'Normalized User Profile',
+            link: '/reference/concepts/normalized-user-profile',
+          },
+          {
             label: 'Pagination',
             link: '/reference/concepts/pagination',
           },
           {
             label: 'Rate Limits',
-            link: '/coming-soon',
+            link: '/reference/concepts/rate-limits',
           },
           {
             label: 'External IDs and Metadata',
