@@ -142,7 +142,7 @@ export const sidebar = [
           },
           {
             label: 'Authenticate Scalekit API',
-            link: '/reference/concepts/authenticate-scalekit-api',
+            link: '/reference/api-catalog/authenticate-scalekit-api',
           },
           {
             label: 'User auth endpoints',
