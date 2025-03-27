@@ -160,6 +160,39 @@ When an access token expires, use the refresh token to obtain a new one without 
   Always store tokens securely and never expose them to client-side code or URLs. Access tokens typically expire in 5-60 minutes, so implement token refresh before expiration.
 </Aside>
 
+## The `/end_session` endpoint
+
+Use this endpoint to end a user's session. You must provide the user's ID token as a hint, and you can optionally specify a URL to redirect the user after logout.
+
+### Endpoint URL
+
+```
+https://<your-environment-domain>.scalekit.dev/end_session?id_token_hint=<idToken>&post_logout_redirect_uri=<postLogoutRedirectUri>
+```
+
+### Required Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `id_token_hint` | The user's ID token received during authentication. This helps Scalekit identify the session to end. |
+| `post_logout_redirect_uri` | (Optional) The URL where Scalekit should redirect the user after successfully ending the session. Must match a registered redirect URI. |
+
+### Example Request
+
+<Tabs>
+  <TabItem value="curl" label="cURL">
+  ```sh
+  curl -G "https://<your-environment-domain>.scalekit.dev/end_session" \
+     --data-urlencode "id_token_hint=ID_TOKEN_HERE" \
+     --data-urlencode "post_logout_redirect_uri=http://localhost:3000/login"
+  ```
+  </TabItem>
+</Tabs>
+
+<Aside type="note">
+  The `/end_session` endpoint is typically accessed through a browser redirect rather than directly via cURL. The cURL example is provided for testing purposes.
+</Aside>
+
 ## Common Authentication Errors
 
 | Error Code | Description | Solution |
