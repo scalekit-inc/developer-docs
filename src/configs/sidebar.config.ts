@@ -51,6 +51,10 @@ export const sidebar = [
             link: '/manual/fundamentals/admin-portal',
           },
           {
+            label: 'Automatically assign roles',
+            link: '/manual/fundamentals/group-based-role-assignment',
+          },
+          {
             label: 'More product guides ↗',
             link: '/guides/',
           },
