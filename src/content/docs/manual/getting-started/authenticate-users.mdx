@@ -2,7 +2,7 @@
 title: Authenticate users
 description: Implement user authentication in your application
 sidebar:
-  label: Authenticate users
+  label: Sign in
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
@@ -11,7 +11,7 @@ import SimpleList from '@/components/ui/SimpleList.astro'
 
 You'll learn how to set up authorization endpoints, authenticate users, and retrieve user profile information.
 - Setting up authorization endpoints for user authentication
-- Implementing the OAuth 2.0 authentication flow
+- Implementing the OpenID Connect authentication flow
 - Exchanging authorization codes for user profile details
 - Handling successful user authentication
 
@@ -41,7 +41,7 @@ Before we begin, here are some important terms used throughout this guide:
 
 | Term | Definition |
 |------|------------|
-| Authorization endpoint | An OAuth 2.0 endpoint that initiates the authentication process |
+| Authorization endpoint | An OIDC endpoint that initiates the authentication process |
 | Authentication | The process of verifying a user's identity |
 | Authorization code | A temporary code exchanged for access and ID tokens |
 | ID token | A JWT containing user profile information |
@@ -198,7 +198,7 @@ Your callback handler should send a POST request to the `/oauth/token` endpoint 
     --data-urlencode "client_id=CLIENT_ID" \
     --data-urlencode "client_secret=CLIENT_SECRET" \
     --data-urlencode "grant_type=authorization_code" \
-    --data-urlencode "scope=openid profile email offline_access"
+    --data-urlencode "scope=openid profile email"
   ```
   </TabItem>
   <TabItem value="node-axios" label="Nodejs (Axios)">
@@ -229,7 +229,7 @@ Your callback handler should send a POST request to the `/oauth/token` endpoint 
             client_id,
             client_secret,
             grant_type: 'authorization_code',
-            scopes: ['openid', 'profile', 'email', 'offline_access'],
+            scopes: ['openid', 'profile', 'email'],
           },
         }
       );

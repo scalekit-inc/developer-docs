@@ -13,15 +13,15 @@ export const sidebar = [
             link: 'manual/getting-started/installation',
           },
           {
-            label: 'Authenticate users',
+            label: 'Sign in users',
             link: '/manual/getting-started/authenticate-users',
           },
           {
-            label: 'Manage user sessions',
+            label: 'Manage sessions',
             link: '/manual/getting-started/manage-user-sessions',
           },
           {
-            label: 'Customize',
+            label: 'Sign out users',
             link: '/coming-soon',
           },
           {
