@@ -22,7 +22,7 @@ export const sidebar = [
           },
           {
             label: 'Sign out users',
-            link: '/coming-soon',
+            link: '/manual/getting-started/sign-out',
           },
           {
             label: 'Launch',
