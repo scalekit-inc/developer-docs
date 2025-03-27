@@ -43,60 +43,12 @@ export const sidebar = [
         label: 'Fundamentals',
         items: [
           {
+            label: 'IdP Simulator',
+            link: '/manual/fundamentals/test-sso-integration',
+          },
+          {
             label: 'Admin Portal',
             link: '/manual/fundamentals/admin-portal',
-          },
-          {
-            label: 'Users and Organizations',
-            link: '/coming-soon',
-          },
-          {
-            label: 'JIT Provisioning',
-            link: '/coming-soon',
-          },
-          {
-            label: 'Organization Memberships',
-            link: '/coming-soon',
-          },
-          {
-            label: 'Organization Policies',
-            link: '/coming-soon',
-          },
-          {
-            label: 'Emails',
-            link: '/coming-soon',
-          },
-          {
-            label: 'SSO',
-            collapsed: true,
-            items: [
-              {
-                label: 'Test SSO Integration',
-                link: '/manual/fundamentals/test-sso-integration',
-              },
-              {
-                label: 'Sessions and Tokens',
-                link: '/coming-soon',
-              },
-            ],
-          },
-          {
-            label: 'Directory',
-            collapsed: true,
-            items: [
-              {
-                label: 'Setup up Provisioning',
-                link: '/coming-soon',
-              },
-              {
-                label: 'Test SCIM Integration',
-                link: '/coming-soon',
-              },
-              {
-                label: 'Groups and Roles',
-                link: '/coming-soon',
-              },
-            ],
           },
           {
             label: 'More product guides ↗',
