@@ -69,7 +69,7 @@ export const sidebar = [
         items: [
           {
             label: 'Code examples',
-            link: '/coming-soon',
+            link: '/manual/support/code-examples-catalog',
           },
           {
             label: 'API collections',
@@ -77,7 +77,7 @@ export const sidebar = [
           },
           {
             label: 'Release notes',
-            link: '/coming-soon',
+            link: 'https://www.scalekit.com/product-updates',
           },
           {
             label: 'Chat with us!',
