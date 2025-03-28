@@ -59,6 +59,7 @@ export default defineConfig({
           showCaptions: true,
         }),
         starlightSidebarTopics(sidebarConfig),
+        // starlightViewModes(),
       ],
     }),
     tailwind({
