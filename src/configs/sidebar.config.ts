@@ -22,7 +22,7 @@ export const sidebar = [
           },
           {
             label: 'Manage users',
-            link: '/coming-soon',
+            link: '/manual/getting-started/manage-users',
           },
           {
             label: 'Sign out users',
