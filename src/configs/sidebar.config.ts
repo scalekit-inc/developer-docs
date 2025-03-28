@@ -21,6 +21,10 @@ export const sidebar = [
             link: '/manual/getting-started/manage-user-sessions',
           },
           {
+            label: 'Manage users',
+            link: '/coming-soon',
+          },
+          {
             label: 'Sign out users',
             link: '/manual/getting-started/sign-out',
           },
@@ -43,12 +47,12 @@ export const sidebar = [
         label: 'Fundamentals',
         items: [
           {
-            label: 'IdP Simulator',
-            link: '/manual/fundamentals/test-sso-integration',
-          },
-          {
             label: 'Admin Portal',
             link: '/manual/fundamentals/admin-portal',
+          },
+          {
+            label: 'IdP Simulator',
+            link: '/manual/fundamentals/test-sso-integration',
           },
           {
             label: 'Automatically assign roles',
@@ -64,16 +68,24 @@ export const sidebar = [
         label: 'Resources',
         items: [
           {
-            label: 'API Collections',
+            label: 'Code examples',
+            link: '/coming-soon',
+          },
+          {
+            label: 'API collections',
             link: 'https://github.com/scalekit-developers/api-collections',
           },
           {
-            label: 'Glossary',
-            link: '/manual/support/glossary',
+            label: 'Release notes',
+            link: '/coming-soon',
           },
           {
             label: 'Chat with us!',
             link: '/manual/support/contact-us',
+          },
+          {
+            label: 'Glossary',
+            link: '/manual/support/glossary',
           },
           {
             label: 'Status Page',
