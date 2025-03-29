@@ -1,9 +1,30 @@
 ---
 title: Manage users
-description: 'Learn how to manage users in your application using the Scalekit API.'
+description: 'Learn how to manage users in your application using the Scalekit API'
 sidebar:
   label: Manage users
 draft: true
 ---
 
-App
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Scalekit environment allows you to manage user records. Maintain user profiles, organization memberships and apply authentication policies for your application or specific to a organization user belongs to.
+
+In this guide, you'll learn how to manage your users in your Scalekit environment.
+
+## Create a user on sign up
+
+[Authentication flow](manual/getting-started/authenticate-users#authentication-flow-overview) allows you to create a user record on sign up by passing the `prompt=create` parameter to the [authorization endpoint](/manual/getting-started/authenticate-users#generate-the-authorization-url).
+
+```sh ins={6}
+https://<your-environment-domain>.scalekit.cloud/oauth/authorize
+  ?response_type=code
+  &client_id=<your-client-id>          # Replace with your client ID
+  &redirect_uri=http://localhost:3000/api/callback
+  &scope=openid%20profile%20email      # URL-encoded space between scopes
+  &prompt=create                      # Optional, forces the user to sign up if they don't have an account
+```
+See the expected [request format to the authorization endpoint](/reference/concepts/auth-endpoints#the-oauthauthorize-endpoint)
+
+This will create a user record in your Scalekit environment. You can then use the [user management API](/apis#tag/users) to manage the user record.
+
