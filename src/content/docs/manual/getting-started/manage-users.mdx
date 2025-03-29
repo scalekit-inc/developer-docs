@@ -1,30 +1,156 @@
 ---
-title: Manage users
-description: 'Learn how to manage users in your application using the Scalekit API'
+title: Manage Users
+description: 'Learn how to create, retrieve, update, and delete users in your application using the Scalekit API'
 sidebar:
-  label: Manage users
-draft: true
+  label: Manage Users
+draft: false
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components'
 
-Scalekit environment allows you to manage user records. Maintain user profiles, organization memberships and apply authentication policies for your application or specific to a organization user belongs to.
+Scalekit provides robust user management capabilities that allow you to create and maintain user records and apply authentication policies tailored to your application or specific organizations.
 
-In this guide, you'll learn how to manage your users in your Scalekit environment.
+**In this guide, you'll learn how to:**
+- Create users during signup
+- Retrieve user information
+- Update user profiles
+- Delete users
 
-## Create a user on sign up
+## User Management Overview
 
-[Authentication flow](manual/getting-started/authenticate-users#authentication-flow-overview) allows you to create a user record on sign up by passing the `prompt=create` parameter to the [authorization endpoint](/manual/getting-started/authenticate-users#generate-the-authorization-url).
+User management is a critical component of any application. With Scalekit, you can:
 
-```sh ins={6}
-https://<your-environment-domain>.scalekit.cloud/oauth/authorize
+- Store user profiles securely
+- Track user activity
+
+## Creating Users
+
+#### Option 1: Create a User During Sign Up
+
+The [authentication flow](/manual/getting-started/authenticate-users#authentication-flow-overview) allows you to automatically create a user record during signup by adding the `prompt=create` parameter to the [authorization endpoint](/manual/getting-started/authenticate-users#generate-the-authorization-url).
+
+<Tabs>
+  <TabItem label="Request Format">
+```sh
+https://<your-environment-domain>.scalekit.dev/oauth/authorize
   ?response_type=code
   &client_id=<your-client-id>          # Replace with your client ID
   &redirect_uri=http://localhost:3000/api/callback
   &scope=openid%20profile%20email      # URL-encoded space between scopes
-  &prompt=create                      # Optional, forces the user to sign up if they don't have an account
+  &prompt=create                       # Forces the user to sign up
 ```
-See the expected [request format to the authorization endpoint](/reference/concepts/auth-endpoints#the-oauthauthorize-endpoint)
+  </TabItem>
+</Tabs>
 
-This will create a user record in your Scalekit environment. You can then use the [user management API](/apis#tag/users) to manage the user record.
+See the complete [request format documentation](/reference/concepts/auth-endpoints#the-oauthauthorize-endpoint) for additional parameters.
 
+#### Option 2: Create a User via API
+
+You can programmatically create users using the User Management API.
+
+```sh
+curl 'https://$ENV_URL/api/v1/organizations/{organization_id}/users' \
+  --request POST \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "create_time": "",
+  "email": "user@example.com",
+  "external_id": "ext_12345a67b89c",
+  "id": "usr_1234abcd5678efgh",
+  "identity": "auth0|1234567890abcdef",
+  "last_login": "",
+  "metadata": {
+    "department": "engineering",
+    "location": "nyc-office"
+  },
+  "phone_number": "+14155552671",
+  "update_time": "",
+  "user_profile": {
+    "custom_attributes": {
+      "department": "engineering",
+      "security_clearance": "level2"
+    },
+    "first_name": "John",
+    "last_name": "Doe",
+    "locale": "en-US",
+    "metadata": {
+      "account_status": "active",
+      "signup_source": "mobile_app"
+    },
+    "name": "John Michael Doe"
+  }
+}'
+```
+
+Learn [how to authenticate API requests](/reference/api-catalog/authenticate-scalekit-api) to the Scalekit API.
+
+## Retrieving User Information
+
+You can retrieve user information using the User ID.
+
+```sh
+curl 'https://$ENV_URL/api/v1/organizations/{organization_id}/users/{id}'
+```
+
+You can also list all users in your environment:
+
+```sh
+curl 'https://$ENV_URL/api/v1/organizations/{organization_id}/users'
+```
+
+## Updating User Profiles
+
+Update a user's information like name, email, or custom metadata.
+
+```sh
+curl 'https://$ENV_URL/api/v1/organizations/{organization_id}/users/{id}' \
+  --request PATCH \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "email": "new.email@example.com",
+  "phone_number": "+14155552671"
+}'
+```
+
+## Deleting Users
+
+You can delete a user when they are no longer needed in your system.
+
+```sh wrap
+curl 'https://$ENV_URL/api/v1/organizations/{organization_id}/users/{id}' \
+  --request DELETE
+# Successful response returns empty response body
+```
+
+## Best Practices for User Management
+
+When implementing user management with Scalekit, consider these best practices:
+
+1. **Secure Access Control**: Always validate user permissions before allowing access to sensitive operations
+2. **Custom Metadata**: Use the metadata field to store application-specific user attributes
+3. **Error Handling**: Implement proper error handling for API requests
+4. **User Removal**: Archive users instead of permanently deleting them when appropriate
+5. **Audit Logging**: Track important user management operations for security and compliance
+
+<Aside type="caution">
+Never expose your API access tokens in client-side code. Always make user management API calls from your backend services.
+</Aside>
+
+## Troubleshooting
+
+Here are solutions to common issues you might encounter:
+
+| Issue | Solution |
+|-------|----------|
+| User creation fails | Verify that the email is valid and not already in use |
+| Cannot update user | Check that you have the proper permissions and are using a valid user ID |
+| Authentication errors | Verify your access token is valid and has the required scopes |
+
+<Aside type="tip">
+For comprehensive API documentation, refer to the [User Management API Reference](/apis#tag/users). Native SDKs for managing users are coming soon to make integration even easier.
+</Aside>
+
+## Next Steps
+
+- Learn how to [authenticate users](/manual/getting-started/authenticate-users)
+- Set up [Single Sign-On (SSO)](/manual/getting-started/configure-sso)
