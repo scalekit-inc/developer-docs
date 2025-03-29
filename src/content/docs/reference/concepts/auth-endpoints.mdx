@@ -15,14 +15,14 @@ This guide explains the authentication endpoints that Scalekit provides for impl
 
 This document is intended for developers who are implementing Scalekit authentication in their applications. It assumes you're familiar with OAuth 2.0 authentication flows and HTTP requests.
 
-## Authentication Flow Overview
+## Authentication flow overview
 
 Scalekit uses the standard OAuth 2.0 authorization code flow, which involves two primary endpoints:
 
 1. **`/oauth/authorize`**: Initiates the authentication process and redirects the user to log in
 2. **`/oauth/token`**: Exchanges authorization codes for tokens and refreshes expired tokens
 
-## The `/oauth/authorize` Endpoint
+## The `/oauth/authorize` endpoint
 
 Use this endpoint to start the authentication process and redirect users to log in.
 
@@ -32,7 +32,7 @@ Use this endpoint to start the authentication process and redirect users to log 
 https://<your-environment-domain>.scalekit.dev/oauth/authorize
 ```
 
-### Query Parameters
+### Query parameters
 
 | Parameter | Description |
 |-----------|-------------|
@@ -41,24 +41,26 @@ https://<your-environment-domain>.scalekit.dev/oauth/authorize
 | <pre>redirect_uri</pre> | The URI where users will be redirected after authentication |
 | <pre>scope</pre> | Space-separated list of permissions (e.g., `openid profile email`) |
 | <pre>state</pre> | Random string to prevent CSRF attacks (recommended) |
+| <pre>prompt</pre> | Pass `create` to force the user to sign up if they don't have an account |
 
 
-### Example Request
+### Example request
 
 <Tabs>
-  <TabItem value="curl" label="cURL">
+  <TabItem value="http" label="Browser">
   ```sh
-  curl -G "https://<your-environment-domain>.scalekit.dev/oauth/authorize" \
-     --data-urlencode "response_type=code" \
-     --data-urlencode "client_id=skc_58327482062864390" \
-     --data-urlencode "redirect_uri=http://localhost:3000/api/callback" \
-     --data-urlencode "scope=openid profile email" \
-     --data-urlencode "state=random_state_string"
+  https://<your-environment-domain>.scalekit.dev/oauth/authorize?
+    response_type=code&
+    client_id=skc_58327482062864390&
+    redirect_uri=http://localhost:3000/api/callback&
+    scope=openid%20profile%20email&
+    state=random_state_string&
+    prompt=create # Optional, forces the user to sign up if they don't have an account
   ```
   </TabItem>
 </Tabs>
 
-### What Happens Next
+### What happens next
 
 After the user authenticates successfully, they will be redirected to your `redirect_uri` with an authorization code appended as a query parameter:
 
@@ -70,7 +72,7 @@ http://localhost:3000/api/callback?code=AUTH_CODE_HERE&state=random_state_string
   Always verify that the `state` parameter in the response matches the one you sent in the request to prevent CSRF attacks.
 </Aside>
 
-## The `/oauth/token` Endpoint
+## The `/oauth/token` endpoint
 
 Use this endpoint to:
 1. Exchange authorization codes for tokens
@@ -82,11 +84,9 @@ Use this endpoint to:
 https://<your-environment-domain>.scalekit.dev/oauth/token
 ```
 
-### Exchanging Authorization Codes for Tokens
+### Exchanging authorization codes for tokens
 
-After receiving an authorization code, exchange it for access and refresh tokens.
-
-#### Required Parameters
+#### Required parameters
 
 | Parameter | Description |
 |-----------|-------------|
@@ -97,7 +97,7 @@ After receiving an authorization code, exchange it for access and refresh tokens
 | <pre>grant_type</pre> | Must be set to `authorization_code` for exchanging the authorization code for tokens. Use `refresh_token` for refreshing expired access tokens. |
 | <pre>scope</pre> | Space-separated list of permissions (e.g., `openid profile email`) |
 
-#### Example Request
+#### Example request
 
 <Tabs>
   <TabItem value="curl" label="cURL">
@@ -114,7 +114,7 @@ After receiving an authorization code, exchange it for access and refresh tokens
   </TabItem>
 </Tabs>
 
-#### Example Response
+#### Example response
 
 ```json
 {
@@ -127,11 +127,11 @@ After receiving an authorization code, exchange it for access and refresh tokens
 }
 ```
 
-### Refreshing Access Tokens
+### Refreshing access tokens
 
 When an access token expires, use the refresh token to obtain a new one without requiring the user to log in again.
 
-#### Required Parameters
+#### Required parameters
 
 | Parameter | Description |
 |-----------|-------------|
@@ -140,7 +140,7 @@ When an access token expires, use the refresh token to obtain a new one without 
 | `client_secret` | Your application's client secret |
 | `grant_type` | Must be set to `refresh_token` |
 
-#### Example Request
+#### Example request
 
 <Tabs>
   <TabItem value="curl" label="cURL">
@@ -170,14 +170,14 @@ Use this endpoint to end a user's session. You must provide the user's ID token 
 https://<your-environment-domain>.scalekit.dev/end_session?id_token_hint=<idToken>&post_logout_redirect_uri=<postLogoutRedirectUri>
 ```
 
-### Required Parameters
+### Required parameters
 
 | Parameter | Description |
 |-----------|-------------|
 | `id_token_hint` | The user's ID token received during authentication. This helps Scalekit identify the session to end. |
 | `post_logout_redirect_uri` | (Optional) The URL where Scalekit should redirect the user after successfully ending the session. Must match a registered redirect URI. |
 
-### Example Request
+### Example request
 
 <Tabs>
   <TabItem value="curl" label="cURL">
@@ -193,7 +193,7 @@ https://<your-environment-domain>.scalekit.dev/end_session?id_token_hint=<idToke
   The `/end_session` endpoint is typically accessed through a browser redirect rather than directly via cURL. The cURL example is provided for testing purposes.
 </Aside>
 
-## Common Authentication Errors
+## Common authentication errors
 
 | Error Code | Description | Solution |
 |------------|-------------|----------|
@@ -203,7 +203,7 @@ https://<your-environment-domain>.scalekit.dev/end_session?id_token_hint=<idToke
 | `unauthorized_client` | Client not authorized for this grant type | Check client configuration |
 | `invalid_scope` | Requested scope is invalid or unknown | Review and correct scope parameter |
 
-## Next Steps
+## Next steps
 
 Now that you understand the authentication endpoints, you can:
 
