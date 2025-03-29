@@ -8,6 +8,7 @@ sidebar:
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 import CheckItem from '@/components/ui/CheckItem.astro'
 import SimpleList from '@/components/ui/SimpleList.astro'
+import { ShowcaseCTA } from 'starlight-showcases'
 
 You'll learn how to set up authorization endpoints, authenticate users, and retrieve user profile information.
 - Setting up authorization endpoints for user authentication
@@ -82,6 +83,7 @@ https://<your-environment-domain>.scalekit.cloud/oauth/authorize
   &client_id=<your-client-id>          # Replace with your client ID
   &redirect_uri=http://localhost:3000/api/callback
   &scope=openid%20profile%20email      # URL-encoded space between scopes
+  &prompt=create                      # Optional, forces the user to sign up if they don't have an account
 ```
 
 | Parameter | Value Example | Description |
@@ -90,16 +92,11 @@ https://<your-environment-domain>.scalekit.cloud/oauth/authorize
 | <pre>client_id</pre> | skc_58327482062864390 | Your application's unique identifier. Obtain from Scalekit dashboard. |
 | <pre>redirect_uri</pre> | http:<span></span>//localhost:3000/api/callback | Where to return after authentication. Must be pre-registered in your Scalekit environment. |
 | <pre>scope</pre> | openid profile email | Space-separated permissions. Use URL-encoded spaces (%20), openid required for OIDC. |
+| <pre>prompt</pre> | create | Optional, forces the user to sign up if they don't have an account |
 
 ### Generate the authorization URL
 
 Scalekit provides a helper function to build the authorization request. Here's how to generate the authorization URL:
-
-<Aside type="tip">
-
-With just a few additional parameters, your application can initiate either a Social Login flow or a Single Sign-On (SSO) flow through Scalekit. See the [Social Login](/docs/manual/getting-started/social-login/) and [Single Sign-On](/docs/manual/getting-started/single-sign-on/) guides to get started quickly.
-
-</Aside>
 
 <Tabs>
   <TabItem value="node" label="Node.js">
@@ -136,7 +133,7 @@ With just a few additional parameters, your application can initiate either a So
 https://<scalekit-environment-domain>.scalekit.cloud/oauth/authorize?response_type=code&client_id=skc_58327482062864390&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fcallback&scope=openid%20profile%20email
 ```
 
-### Login process
+### Sign up or login process
 
 When a user visits this URL, they'll be directed to Scalekit's login page:
 
@@ -144,9 +141,13 @@ When a user visits this URL, they'll be directed to Scalekit's login page:
 
 Users can choose to continue with their email or social provider. You can configure these authentication methods in the Scalekit dashboard. After successful authentication, Scalekit will call back to the `redirect_uri` you provided with an authorization code.
 
-<Aside type="caution">
-  The `redirect_uri` in your authentication request **must be registered in your Scalekit environment ahead of time**. This is the endpoint where Scalekit will send the authorization code to your application. See the [Redirects guide](/guides/product/auth-redirect-uri/) for more details.
-</Aside>
+The `redirect_uri` in your authentication request **must be registered in your Scalekit environment ahead of time**. This is the endpoint where Scalekit will send the authorization code to your application. See the [Redirects guide](/guides/product/auth-redirect-uri/) for more details.
+
+<ShowcaseCTA title="Trigger sign up">
+
+Make sure to pass the `prompt=create` parameter to the authorization endpoint to force the user to sign up (currently, only with Google as the provider) if they don't have an account.
+
+</ShowcaseCTA>
 
 ## Process the authorization code
 
