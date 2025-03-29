@@ -29,8 +29,8 @@ export const sidebar = [
             link: '/manual/getting-started/sign-out',
           },
           {
-            label: 'Launch',
-            link: '/manual/fundamentals/launch-checklist',
+            label: 'Examples',
+            link: '/coming-soon',
           },
         ],
       },
@@ -41,6 +41,10 @@ export const sidebar = [
           'manual/social-logins-quickstart',
           'manual/sso-quickstart',
           'manual/scim-quickstart',
+          {
+            label: 'Launch',
+            link: '/manual/fundamentals/launch-checklist',
+          },
         ],
       },
       {
@@ -106,7 +110,7 @@ export const sidebar = [
         items: [
           {
             label: 'REST APIs ↗',
-            link: '/apis-scalar',
+            link: '/apis',
           },
           {
             label: 'Authenticate Scalekit API',
