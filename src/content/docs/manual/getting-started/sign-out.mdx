@@ -1,5 +1,78 @@
 ---
 title: Sign out users
+description: Learn how to securely end user sessions and implement a complete sign-out flow
 ---
 
-Applications 
+import { Steps, Tabs, TabItem, Icon, Aside } from '@astrojs/starlight/components';
+
+## Introduction
+
+This guide explains how to implement a secure sign-out process in your application using Scalekit. You'll learn how to properly end user sessions and redirect users after they sign out.
+
+### Prerequisites
+
+Before implementing the sign-out flow, you should:
+- Have a working Scalekit authentication system in your application
+- Understand [how Scalekit manages user sessions](/manual/getting-started/manage-user-sessions#implementing-session-management)
+- Be familiar with your application's redirect URIs configuration
+
+## Understanding the sign-out process
+
+When a user signs out, your application must communicate with the Scalekit environment to properly terminate the session. This two-part process ensures security by:
+1. Ending the session in the Scalekit environment
+2. Removing session cookies from the user's browser
+
+## Sign out flow
+
+<Steps>
+
+1. User clicks the sign out button
+2. Your application redirects to your Scalekit environment's sign out endpoint.
+3. Scalekit ends the session in your Scalekit environment
+4. Scalekit redirects the user back to your application
+5. Your application removes the cookies from the user's browser that were used to create and maintain the session
+
+</Steps>
+
+## Implementing sign-out in your application
+
+The sign-out implementation requires you to redirect users to your Scalekit environment's sign-out endpoint.
+
+### Building the sign-out endpoint URL
+
+The sign out endpoint is the browser URL that your application should redirect to when a user clicks the sign out button.
+
+```http wrap "/end_session" "<postLogoutRedirectUri>" "<idToken>"
+https://<your-environment-domain>.scalekit.dev/end_session?id_token_hint=<idToken>&post_logout_redirect_uri=<postLogoutRedirectUri>
+```
+
+[See the reference for the `/end_session` endpoint](/reference/concepts/auth-endpoints#the-end_session-endpoint)
+
+### Providing the required parameters
+
+You need to include two key parameters in your sign-out request:
+
+1. **id_token_hint**: The `id_token` received during the [user's sign-in process](/manual/getting-started/authenticate-users#understanding-the-response). Scalekit uses this to identify which session to terminate.
+
+2. **post_logout_redirect_uri**: The URL where users will be redirected after signing out. This URL must be whitelisted in your Scalekit environment configuration.
+
+<Aside type='tip'>
+You can whitelist redirect URIs in your Scalekit environment settings or [programmatically via the API](/apis-scalar#tag/client-configs/PUT/api/v1/clients/{client_id}).
+</Aside>
+
+<Aside type='caution'>
+The requirement to pass the `id_token_hint` will be made optional in the near future.
+</Aside>
+
+## Testing your sign-out implementation
+
+After implementing the sign-out flow, test it by:
+1. Signing in a user
+2. Triggering the sign-out process
+3. Verifying the user is properly redirected
+4. Confirming the user cannot access protected resources without signing in again
+
+## What's next
+
+- Learn how to [refresh user tokens](/manual/getting-started/refresh-tokens)
+- Explore how to [configure session policies](/guides/product/session-policies)
