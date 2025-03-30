@@ -150,7 +150,7 @@ export const sidebar = [
       },
       {
         label: 'Errors',
-        collapsed: true,
+        collapsed: false,
         autogenerate: { directory: 'reference/errors' },
       },
     ],
