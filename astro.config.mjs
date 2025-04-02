@@ -87,5 +87,8 @@ export default defineConfig({
       exclude: [],
     },
     plugins: [pluginCollapsibleSections()],
+    build: {
+      chunkSizeWarningLimit: 2000,
+    },
   },
 });
