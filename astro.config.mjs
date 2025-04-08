@@ -13,10 +13,12 @@ import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-s
 import starlightThemeRapide from 'starlight-theme-rapide';
 import starlightLlmsTxt from 'starlight-llms-txt';
 import { sidebar as sidebarConfig } from './src/configs/sidebar.config';
+import { redirects } from './src/configs/redirects.config';
 
 // https://astro.build/config
 export default defineConfig({
-  // site: 'https://docs.scalekit.com',
+  site: 'https://docs.scalekit.dev',
+  redirects,
   integrations: [
     starlight({
       title: 'Scalekit Docs',
@@ -53,7 +55,7 @@ export default defineConfig({
       ],
       plugins: [
         // starlightLinksValidator(), TODO: Uncomment this when you go live
-        // starlightLlmsTxt(), // TODO: Uncomment this when you go live
+        starlightLlmsTxt(),
         starlightThemeRapide(),
         starlightImageZoom({
           showCaptions: true,
