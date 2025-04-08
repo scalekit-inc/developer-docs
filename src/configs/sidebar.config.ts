@@ -29,8 +29,8 @@ export const sidebar = [
             link: '/manual/getting-started/sign-out',
           },
           {
-            label: 'Examples',
-            link: '/coming-soon',
+            label: 'Code examples',
+            link: '/manual/support/code-examples-catalog',
           },
         ],
       },
@@ -71,10 +71,6 @@ export const sidebar = [
       {
         label: 'Resources',
         items: [
-          {
-            label: 'Code examples',
-            link: '/manual/support/code-examples-catalog',
-          },
           {
             label: 'API collections',
             link: 'https://github.com/scalekit-developers/api-collections',
