@@ -39,7 +39,6 @@ export const redirects = {
 
   // API and SDKs
   '/sdks': '/reference/sdks',
-  '/apis': '/api/reference',
 
   // Support
   '/manual/support/contact-us': '/contact',
