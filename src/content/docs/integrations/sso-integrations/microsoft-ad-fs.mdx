@@ -1,0 +1,152 @@
+---
+title: Configuring Single Sign-On with Microsoft AD FS
+sidebar:
+  order: 5
+  label: "Microsoft ADFS"
+  badge:
+    variant: note
+    text: SAML
+---
+
+import { Steps, Aside, Badge } from "@astrojs/starlight/components"
+
+This guide walks you through configuring Single Sign-On (SSO) with Microsoft Active Directory Federation Services (AD FS) as your Identity Provider.
+
+## What you'll learn
+
+- How to set up a relying party trust in AD FS
+- How to configure claims issuance policies
+- How to establish the connection between AD FS and your application
+- How to configure optional role assignments
+
+## Before you begin
+
+To successfully set up AD FS SAML integration, you'll need:
+
+- Administrative access to your AD FS Management Console
+- The SP Metadata file from Scalekit
+- The IdP Metadata URL from your AD FS server
+
+<Aside type="tip">
+  Having these prerequisites ready before starting will make the configuration process smoother.
+</Aside>
+
+## Configuration steps
+
+<Steps>
+
+1. **Access ADFS Management**
+   - Open ADFS Management from the Server Manager by clicking on 'Tools'
+
+2. **Create a new Relying Party Trust**
+   - In the left navigation pane, under 'Trust Relationships'
+   - Right-click on 'Relying Party Trusts'
+   - Choose 'Add Relying Party Trust' and click 'Start'
+
+   ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/0.png)
+
+3. **Select data source**
+   - Choose 'Enter data about the relying party manually'
+   - Click 'Next'
+
+   ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/1.png)
+
+4. **Specify display name**
+   - Enter a descriptive name for your application (e.g., "Your App via Scalekit")
+   - Click 'Next'
+
+   ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/2.png)
+
+5. **Skip optional configurations**
+   - Click 'Next' to skip the 'Choose Profile' and 'Configure Certificate' screens
+
+6. **Configure SAML 2.0 support**
+   - Check 'Enable support for the SAML 2.0 SSO WebSSO protocol'
+
+7. **Gather service provider details**
+   - In your Scalekit admin portal, select AD FS as your Identity Provider
+   - Note the ACS URL and Entity ID provided in the Service Provider details
+
+8. **Enter ACS URL**
+   - Under 'Relying party SAML 2.0 SSO service URL', paste the ACS URL from Scalekit
+   - Click 'Next'
+
+9. **Configure identifiers**
+   - Add the SP Entity ID from Scalekit as a 'Relying party trust identifier'
+   - Click 'Next'
+
+10. **Skip additional configurations**
+    - Click 'Next' through the next three configuration screens
+
+11. **Complete the wizard**
+    - Check 'Open the Edit Claim Rules dialog for this relying party trust when the wizard closes'
+    - Click 'Close'
+
+    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/4.png)
+
+12. **Create LDAP attributes claim rule**
+    - In the 'Add Transform Claim Rule Wizard' window, select 'Send LDAP Attributes as Claims'
+    - Click 'Next'
+
+    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/5.png)
+
+13. **Configure attribute mapping**
+    - Enter a descriptive name for the rule (e.g., "User Attributes")
+    - Map the following attributes:
+      - `nameid` → ID
+      - `email` → Email Address
+      - `firstName` → First Name
+      - `lastName` → Last Name
+    - Click 'Finish'
+
+    <Aside type="note">
+      The attribute names are case-sensitive. For more information, see our [SSO user attributes guide](/guides/product/sso-user-attributes/).
+    </Aside>
+
+14. **Add Transform an Incoming Claim rule**
+    - Click 'Add rule' in the Edit Claim Rules window
+    - Choose 'Transform an Incoming Claim' from the dropdown
+    - Click 'Next'
+
+    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/6.png)
+
+15. **Configure Name ID transformation**
+    - Enter a descriptive name for the rule (e.g., "Email to NameID")
+    - Configure the following values:
+      - Incoming claim type: E-mail Address
+      - Outgoing claim type: Name ID
+      - Outgoing name ID format: Unspecified
+    - Click 'Finish'
+
+16. **Obtain the AD FS Metadata URL**
+    - The standard format is: `https://YOUR_SERVER/federationmetadata/2007-06/federationmetadata.xml`
+    - Alternatively, find it in AD FS Management under 'AD FS → Service → Endpoints' in the Metadata section
+
+17. **Complete the Scalekit configuration**
+    - In the Scalekit Admin Portal, navigate to Identity Provider Configuration
+    - Select "Configure using Metadata URL (recommended)"
+    - Enter the AD FS Metadata URL
+    - Click "Update" to save the changes
+
+</Steps>
+
+## Verification
+
+After completing the configuration, test the SSO integration by:
+
+1. Logging out of your application
+2. Attempting to log in using the SSO option
+3. Verifying you're redirected to AD FS and can authenticate successfully
+
+## Troubleshooting
+
+If you encounter issues with your AD FS integration:
+
+- Verify all claim mappings are correctly configured
+- Check that the Metadata URL is accessible from Scalekit
+- Ensure your AD FS server's clock is synchronized
+- Review AD FS event logs for any authentication errors
+
+<Aside type="tip">
+  For additional assistance, contact Scalekit support with your AD FS configuration details and any error messages you're receiving.
+</Aside>
