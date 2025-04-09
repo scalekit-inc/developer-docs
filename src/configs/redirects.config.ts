@@ -44,7 +44,6 @@ export const redirects = {
   '/manual/support/code-examples-catalog': '/reference/sdks',
 
   // Webhooks
-  '/reference/webhooks': '/guides/product/registering-webhooks',
   '/api/webhook-events': '/guides/product/registering-webhooks',
 
   // Social Logins
