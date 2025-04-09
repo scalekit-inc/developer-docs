@@ -39,10 +39,6 @@ export const redirects = {
   // API and SDKs
   '/sdks': '/reference/sdks',
 
-  // Support
-  '/manual/support/contact-us': '/contact',
-  '/manual/support/code-examples-catalog': '/reference/sdks',
-
   // Webhooks
   '/api/webhook-events': '/guides/product/registering-webhooks',
 
