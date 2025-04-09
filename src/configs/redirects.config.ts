@@ -35,7 +35,6 @@ export const redirects = {
   '/integrations/azure-scim': '/integrations/scim-integrations/azure-scim',
   '/integrations/okta-scim': '/integrations/scim-integrations/okta-scim',
   '/integrations/onelogin': '/integrations/scim-integrations/onelogin',
-  '/integrations/jumpcloud': '/integrations/scim-integrations/jumpcloud',
 
   // API and SDKs
   '/sdks': '/reference/sdks',
