@@ -41,6 +41,7 @@ export const sidebar = [
           'manual/social-logins-quickstart',
           'manual/sso-quickstart',
           'manual/scim-quickstart',
+          'manual/quickstarts/m2m',
           {
             label: 'Launch',
             link: '/manual/fundamentals/launch-checklist',
