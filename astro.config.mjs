@@ -39,7 +39,10 @@ export default defineConfig({
       defaultLocale: 'en',
       editLink: {
         baseUrl:
-          'https://github.com/saif-at-scalekit/astro/edit/main/src/content/docs/',
+          'https://github.com/scalekit-inc/developer-docs/edit/main/src/content/docs/',
+      },
+      pagefind: {
+        mergeIndex: [],
       },
       expressiveCode: {
         useStarlightDarkModeSwitch: true,
