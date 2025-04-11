@@ -1,0 +1,42 @@
+---
+title: JWKS
+draft: false
+sidebar:
+  label: "JSON Web Key Set"
+---
+
+
+A JSON Web Key Set (JWKS) is a collection of JSON objects that represent cryptographic keys used to verify JSON Web Tokens (JWT). It serves as a secure repository for public keys that are used to verify the authenticity of JWTs issued by an authorization server.
+
+## Key Components
+
+The JWKS endpoint is a public HTTPS endpoint (typically at `/.well-known/jwks.json` or `/keys`) that provides these public keys. This enables applications to verify JWT signatures without needing to store the keys locally. The keys in a JWKS contain important metadata including:
+
+- Key type (kty)
+- Signature algorithm (alg)
+- Key identifier (kid)
+- Key usage (use)
+- And other algorithm-specific parameters
+
+## JWKS endpoint
+
+Your auth environment will have a JWKS endpoint that you can use to verify the authenticity of the JWT. Especially, in the case of M2M authentication, if your application has Machine clients, they get access token. When these machines make programmatic requests to your API, you can use the JWKS endpoint to verify the authenticity of the JWT.
+
+```sh title="JWKS endpoint"
+curl -L 'https://<your-environment-domain>.scalekit.cloud/keys'
+```
+
+```json title="JWKS response" "kid"
+{
+    "keys": [
+        {
+            "use": "sig",
+            "kty": "RSA",
+            "kid": "snk_58327480432122566",
+            "alg": "RS256",
+            "n": "wUaqIj3pIE_zfGN9u4GySZs862..",
+            "e": "AQAB"
+        }
+    ]
+}
+```
