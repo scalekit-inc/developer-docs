@@ -41,7 +41,15 @@ export default defineConfig({
         baseUrl: 'https://github.com/scalekit-inc/developer-docs/edit/main',
       },
       pagefind: {
-        mergeIndex: [],
+        mergeIndex: [
+          // {
+          //   bundlePath: '/apis',
+          //   indexWeight: 1.5, // Give API reference slightly higher weight in search results
+          //   mergeFilter: {
+          //     resource: 'API Reference',
+          //   },
+          // },
+        ],
       },
       expressiveCode: {
         useStarlightDarkModeSwitch: true,
