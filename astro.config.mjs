@@ -38,8 +38,7 @@ export default defineConfig({
       },
       defaultLocale: 'en',
       editLink: {
-        baseUrl:
-          'https://github.com/scalekit-inc/developer-docs/edit/main/src/content/docs/',
+        baseUrl: 'https://github.com/scalekit-inc/developer-docs/edit/main',
       },
       pagefind: {
         mergeIndex: [],
