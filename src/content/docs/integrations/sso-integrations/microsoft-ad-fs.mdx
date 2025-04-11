@@ -34,12 +34,14 @@ To successfully set up AD FS SAML integration, you'll need:
 
 <Steps>
 
-1. **Open AD FS Management Console**
+1. Choose Microsoft AD FS as your identity provider to begin the configuration. Download the Metadata XML file. We will provide this later to AD FS Server going forward.
+
+2. **Open AD FS Management Console**
    - Launch Server Manager
    - Click 'Tools' in the top menu
    - Select 'AD FS Management'
 
-2. **Create a Relying Party Trust**
+3. **Create a Relying Party Trust**
    - In the left navigation pane, expand 'Trust Relationships'
    - Right-click 'Relying Party Trusts'
    - Select 'Add Relying Party Trust'
@@ -47,7 +49,7 @@ To successfully set up AD FS SAML integration, you'll need:
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/0.png)
 
-3. **Configure Trust Settings**
+4. **Configure Trust Settings**
    - Select 'Claims aware' as the trust type
    - Choose 'Enter data about the relying party manually'
    - Click 'Next' to proceed
@@ -60,18 +62,18 @@ To successfully set up AD FS SAML integration, you'll need:
      - Enter the Metadata URL directly (if network access allows)
    </Aside>
 
-4. **Set Display Name**
+5. **Set Display Name**
    - Enter a descriptive name for your application (e.g., "Your App via Scalekit")
    - Click 'Next' to continue
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/3.png)
 
-5. **Configure Access Control**
+6. **Configure Access Control**
    - Select an appropriate access control policy
    - For testing purposes, select 'Permit everyone'
    - Click 'Next' to proceed
 
-6. **Review Trust Configuration**
+7. **Review Trust Configuration**
    - Verify the following settings:
      - Monitoring configuration
      - Endpoints
@@ -84,14 +86,14 @@ To successfully set up AD FS SAML integration, you'll need:
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/6.png)
 
-7. **Create Claim Rules**
+8. **Create Claim Rules**
    - Click 'Add Rule' to create a new claim rule
    - Select 'Send LDAP Attributes as Claims' template
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/7.png)
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/8.png)
 
-8. **Map User Attributes**
+9. **Map User Attributes**
    - Enter a descriptive rule name (e.g., "ExampleApp via Scalekit")
    - Configure the following attribute mappings:
      - `E-Mail-Addresses` → E-Mail Address
@@ -102,23 +104,23 @@ To successfully set up AD FS SAML integration, you'll need:
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/9.png)
 
-9. **Complete Admin Portal Configuration**
-   - Navigate to Identity Provider Configuration in the Scalekit Admin Portal
-   - Select "Configure Manually"
-   - Enter these required details:
-     - Microsoft AD FS Identifier: `http://scalekit.local/adfs/services/trust`
-     - Login URL: `http://scalekit.local/adfs/ls`
-     - Certificate:
-       1. Access `https://scalekit.local/FederationMetadata/2007-06/FederationMetadata.xml`
-       2. Locate the text after the first `X509Certificate` tag
-       3. Copy and paste this certificate into the "Certificate" field
-   - Click "Update" to save the configuration
+10. **Complete Admin Portal Configuration**
+    - Navigate to Identity Provider Configuration in the Scalekit Admin Portal
+    - Select "Configure Manually"
+    - Enter these required details:
+      - Microsoft AD FS Identifier: `http://scalekit.local/adfs/services/trust`
+      - Login URL: `http://scalekit.local/adfs/ls`
+      - Certificate:
+        1. Access `https://scalekit.local/FederationMetadata/2007-06/FederationMetadata.xml`
+        2. Locate the text after the first `X509Certificate` tag
+        3. Copy and paste this certificate into the "Certificate" field
+    - Click "Update" to save the configuration
 
-   <Aside type="note">
-     The above endpoints are AD FS endpoints. You can find them listed in AD FS Console > Service > Endpoints > Tokens and Metadata sections
-   </Aside>
+    <Aside type="note">
+      The above endpoints are AD FS endpoints. You can find them listed in AD FS Console > Service > Endpoints > Tokens and Metadata sections
+    </Aside>
 
-10. **Test the Integration**
+11. **Test the Integration**
     - In the Scalekit Admin Portal, click "Test Connection"
     - You will be redirected to the AD FS login page
     - Enter your AD FS credentials
