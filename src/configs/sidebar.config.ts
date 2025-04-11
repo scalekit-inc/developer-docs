@@ -131,6 +131,10 @@ export const sidebar = [
             link: '/reference/concepts/external-ids-and-metadata',
           },
           {
+            label: 'JSON Web Key Set',
+            link: '/reference/concepts/jwks',
+          },
+          {
             label: 'Normalized user profile',
             link: '/reference/concepts/normalized-user-profile',
           },
