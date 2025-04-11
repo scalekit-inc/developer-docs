@@ -5,28 +5,28 @@ sidebar:
   label: "JSON Web Key Set"
 ---
 
+A JSON Web Key Set (JWKS) is a collection of public keys used to verify JSON Web Tokens (JWT). Think of it as a secure public directory that helps verify if a JWT was actually issued by your authorization server.
 
-A JSON Web Key Set (JWKS) is a collection of JSON objects that represent cryptographic keys used to verify JSON Web Tokens (JWT). It serves as a secure repository for public keys that are used to verify the authenticity of JWTs issued by an authorization server.
+The JWKS endpoint is a public HTTPS URL (usually at `/.well-known/jwks.json` or `/keys`) that provides these public keys. This lets your applications verify JWT signatures without storing the keys locally.
 
-## Key Components
 
-The JWKS endpoint is a public HTTPS endpoint (typically at `/.well-known/jwks.json` or `/keys`) that provides these public keys. This enables applications to verify JWT signatures without needing to store the keys locally. The keys in a JWKS contain important metadata including:
+## How to Use the JWKS Endpoint
 
-- Key type (kty)
-- Signature algorithm (alg)
-- Key identifier (kid)
-- Key usage (use)
-- And other algorithm-specific parameters
+Your authorization environment provides a JWKS endpoint to verify JWT authenticity. This is particularly important for machine-to-machine (M2M) authentication:
 
-## JWKS endpoint
+1. Machine clients receive access tokens
+2. When these machines make API requests
+3. Your API can verify the token's authenticity using the JWKS endpoint
 
-Your auth environment will have a JWKS endpoint that you can use to verify the authenticity of the JWT. Especially, in the case of M2M authentication, if your application has Machine clients, they get access token. When these machines make programmatic requests to your API, you can use the JWKS endpoint to verify the authenticity of the JWT.
+Here's how to access your JWKS endpoint:
 
-```sh title="JWKS endpoint"
-curl -L 'https://<your-environment-domain>.scalekit.cloud/keys'
+```sh title="Get your JWKS"
+curl -L 'https://<your-environment-domain>.scalekit.dev/keys'
 ```
 
-```json title="JWKS response" "kid"
+The response looks like this:
+
+```json title="JWKS Response" "kid"
 {
     "keys": [
         {
@@ -40,3 +40,58 @@ curl -L 'https://<your-environment-domain>.scalekit.cloud/keys'
     ]
 }
 ```
+Each key in the JWKS contains the following components:
+
+| Component | Description |
+|-----------|-------------|
+| Key type (kty) | The cryptographic algorithm family used with the key |
+| Signature algorithm (alg) | The specific algorithm used for signing |
+| Key identifier (kid) | A unique identifier for the key |
+| Key usage (use) | The intended use of the key |
+| Algorithm-specific parameters | Additional parameters required by the algorithm |
+
+## Example usage
+
+Since it's a standard format, a lot of libraries can help you verify JWTs using the JWKS endpoint. This allows you to verify JWTs without having to store the keys locally.
+
+Here's an example using the `express-jwt` library:
+
+```js
+const { expressjwt: jwt } = require("express-jwt");
+const jwks = require('jwks-rsa');
+
+const verifyJWT = jwt({
+    secret: jwks.expressJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksUri: 'https://<your-environment-domain>.scalekit.dev/keys'
+    }),
+    algorithms: ['RS256'],
+    issuer: 'https://<your-environment-domain>.scalekit.dev',
+    audience: 'analytics-api'
+});
+```
+
+## Key rotation
+
+Scalekit automatically rotates keys periodically to maintain security. When keys are rotated:
+
+1. New keys are added to the JWKS endpoint
+2. Both old and new keys are available during a transition period
+3. Old keys are eventually removed after the transition period
+
+Your application should:
+- Fetch the JWKS endpoint dynamically rather than hardcoding keys
+- Implement caching with reasonable TTL to avoid excessive requests
+- Handle multiple keys in the JWKS response
+
+## Best practices
+
+When working with JWKS:
+
+- Always validate tokens against the JWKS endpoint
+- Implement proper caching to reduce load on your authentication system
+- Set up monitoring for JWT validation failures which could indicate key rotation issues
+- Use libraries that handle key rotation automatically when possible
+
+For more information about implementing authentication with Scalekit, see our [authentication guides](/manual/quickstarts/m2m/).
