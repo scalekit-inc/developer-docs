@@ -131,7 +131,7 @@ export const sidebar = [
             link: '/reference/concepts/external-ids-and-metadata',
           },
           {
-            label: 'JSON Web Key Set',
+            label: 'JSON Web Key Sets',
             link: '/reference/concepts/jwks',
           },
           {
