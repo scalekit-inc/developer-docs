@@ -5,10 +5,19 @@ sidebar:
   label: "JSON Web Key Set"
 ---
 
-A JSON Web Key Set (JWKS) is a collection of public keys used to verify JSON Web Tokens (JWT). Think of it as a secure public directory that helps verify if a JWT was actually issued by your authorization server.
+A JSON Web Key Set (JWKS) is a collection of public keys that verify JSON Web Tokens (JWT). Think of it as a secure public directory that verifies if a JWT was issued by your authorization server.
 
 The JWKS endpoint is a public HTTPS URL (usually at `/.well-known/jwks.json` or `/keys`) that provides these public keys. This lets your applications verify JWT signatures without storing the keys locally.
 
+Each key in the JWKS contains the following components:
+
+| Component | Description |
+|-----------|-------------|
+| Key type (kty) | The cryptographic algorithm family used with the key |
+| Signature algorithm (alg) | The specific algorithm used for signing |
+| Key identifier (kid) | A unique identifier for the key |
+| Key usage (use) | The intended use of the key |
+| Algorithm-specific parameters | Additional parameters required by the algorithm |
 
 ## How to Use the JWKS Endpoint
 
@@ -40,19 +49,8 @@ The response looks like this:
     ]
 }
 ```
-Each key in the JWKS contains the following components:
 
-| Component | Description |
-|-----------|-------------|
-| Key type (kty) | The cryptographic algorithm family used with the key |
-| Signature algorithm (alg) | The specific algorithm used for signing |
-| Key identifier (kid) | A unique identifier for the key |
-| Key usage (use) | The intended use of the key |
-| Algorithm-specific parameters | Additional parameters required by the algorithm |
-
-## Example usage
-
-Since it's a standard format, a lot of libraries can help you verify JWTs using the JWKS endpoint. This allows you to verify JWTs without having to store the keys locally.
+Since it's a standard format, many libraries can help you verify JWTs using the JWKS endpoint. This allows you to verify JWTs without storing the keys locally.
 
 Here's an example using the `express-jwt` library:
 
@@ -72,8 +70,6 @@ const verifyJWT = jwt({
 });
 ```
 
-## Key rotation
-
 Scalekit automatically rotates keys periodically to maintain security. When keys are rotated:
 
 1. New keys are added to the JWKS endpoint
@@ -84,8 +80,6 @@ Your application should:
 - Fetch the JWKS endpoint dynamically rather than hardcoding keys
 - Implement caching with reasonable TTL to avoid excessive requests
 - Handle multiple keys in the JWKS response
-
-## Best practices
 
 When working with JWKS:
 
