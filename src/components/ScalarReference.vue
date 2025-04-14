@@ -11,6 +11,7 @@ import '@fontsource-variable/inter';
     <header class="custom-header scalar-app">
       <h1>Scalekit API Reference</h1>
       <nav>
+        <a href="https://github.com/scalekit-developers/api-collections">API Collections</a>
         <a href="https://docs.scalekit.dev">Back to Docs</a>
       </nav>
     </header>
