@@ -21,10 +21,9 @@ By the end of this guide, you'll be able to:
 - Handle user authentication and profile data
 
 Before you begin, make sure you have:
-1. Make sure you [get your auth environment](/guides/extended/setup-scalekit/)
+1. A configured Scalekit environment (see [setup guide](/guides/extended/setup-scalekit/))
 2. A social provider account (Google, Microsoft, GitHub, etc.)
 3. Your application's callback URL ready
-
 
 # Install the Scalekit SDK
 
@@ -48,9 +47,6 @@ Here's how to set up your environment variables:
 Never hardcode your credentials in your application. Always use environment variables or a secure configuration management system.
 </Aside>
 
-Now you're ready to start integrating social connections into your app! Next, we'll cover how to use the SDK to
-authenticate users.
-
 ## Authenticate users
 
 To implement social login, you'll need to redirect users to Scalekit's authorization URL. This URL contains the necessary parameters for authentication.
@@ -62,6 +58,7 @@ To implement social login, you'll need to redirect users to Scalekit's authoriza
 | <pre>`redirect_uri`</pre> | The URL where Scalekit will send users after authentication. Example: `https://your-app.com/auth/callback` |
 | <pre>`client_id`</pre> | Your application's Scalekit identifier (from API config) |
 | <pre>`provider`</pre> | The social provider to use. Supported values: `google`, `microsoft`, `github`, `gitlab`, `linkedin`, `salesforce` |
+| <pre>`scopes`</pre> | Space-separated permissions. Required: `openid`. Optional: `profile`, `email` |
 
 <Aside type="tip">
 The `redirect_uri` must exactly match the URL configured in your Scalekit dashboard. This is a security measure to prevent unauthorized redirects. See the guide on [setting up your redirects](/guides/product/auth-redirect-uri/)
@@ -71,19 +68,6 @@ The `redirect_uri` must exactly match the URL configured in your Scalekit dashbo
 
 Here's how to construct the authorization URL in your preferred language:
 
-<AuthURL />
-
-### Handle the callback
-
-After successful authentication, Scalekit redirects users to your `redirect_uri` with an authorization code. You'll need to exchange this code for user information.
-
-## Fetch user details
-
-After a successful SSO, Scalekit redirects the user to your `redirect_uri` with a unique `code` in the browser. Exchange the `code` for user profile details (on the serverside).
-
-Here's how to turn that `code` into user data:
-
-
 <Tabs syncKey="language-preference">
 <TabItem value="nodejs" label="Node.js">
 
@@ -91,12 +75,20 @@ Here's how to turn that `code` into user data:
 import { Scalekit } from '@scalekit-sdk/node';
 
 // Initialize the SDK client
-const scalekit = new Scalekit('<SCALEKIT_ENVIRONMENT_URL>', '<SCALEKIT_CLIENT_ID>', '<SCALEKIT_CLIENT_SECRET>');
+const scalekit = new Scalekit(
+  process.env.SCALEKIT_ENVIRONMENT_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
 
-const authorizationURL = scalekit.getAuthorizationUrl(redirectUri, {
-  provider: 'microsoft',
-  state: state, // optional
-});
+// Generate authorization URL for Google sign-in
+const authorizationURL = scalekit.getAuthorizationUrl(
+  'https://your-app.com/auth/callback',
+  {
+    provider: 'google',
+    scopes: ['openid', 'profile', 'email']
+  }
+);
 
 // Redirect the user to this authorizationURL
 ```
@@ -105,21 +97,21 @@ const authorizationURL = scalekit.getAuthorizationUrl(redirectUri, {
 <TabItem value="py" label="Python">
 
 ```python showLineNumbers
-from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
+from scalekit import ScalekitClient, AuthorizationUrlOptions
 
 # Initialize the SDK client
 scalekit_client = ScalekitClient(
-  '<SCALEKIT_ENVIRONMENT_URL>',
-  '<SCALEKIT_CLIENT_ID>',
-  '<SCALEKIT_CLIENT_SECRET>'
+  os.environ['SCALEKIT_ENVIRONMENT_URL'],
+  os.environ['SCALEKIT_CLIENT_ID'],
+  os.environ['SCALEKIT_CLIENT_SECRET']
 )
 
 options = AuthorizationUrlOptions()
-
-options.provider = 'microsoft'
+options.provider = 'google'
+options.scopes = ['openid', 'profile', 'email']
 
 authorization_url = scalekit_client.get_authorization_url(
-  redirect_uri=<redirect_uri>,
+  redirect_uri='https://your-app.com/auth/callback',
   options=options
 )
 
@@ -136,17 +128,17 @@ import (
 
 func main() {
   scalekitClient := scalekit.NewScalekitClient(
-    "<SCALEKIT_ENVIRONMENT_URL>",
-    "<SCALEKIT_CLIENT_ID>",
-    "<SCALEKIT_CLIENT_SECRET>"
+    os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+    os.Getenv("SCALEKIT_CLIENT_ID"),
+    os.Getenv("SCALEKIT_CLIENT_SECRET"),
   )
 
   options := scalekitClient.AuthorizationUrlOptions{}
-  // Pass the Social Login Provider details while constructing the authorization URL.
-  options.Provider = "microsoft"
+  options.Provider = "google"
+  options.Scopes = []string{"openid", "profile", "email"}
 
   authorizationURL := scalekitClient.GetAuthorizationUrl(
-    redirectUrl,
+    "https://your-app.com/auth/callback",
     options,
   )
   // Next step is to redirect the user to this authorization URL
@@ -154,7 +146,6 @@ func main() {
 ```
 
 </TabItem>
-
 <TabItem value="java" label="Java">
 
 ```java
@@ -163,53 +154,160 @@ package com.scalekit;
 import com.scalekit.internal.http.AuthorizationUrlOptions;
 
 public class Main {
-
   public static void main(String[] args) {
     ScalekitClient scalekitClient = new ScalekitClient(
-      "<SCALEKIT_ENVIRONMENT_URL>",
-      "<SCALEKIT_CLIENT_ID>",
-      "<SCALEKIT_CLIENT_SECRET>"
+      System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+      System.getenv("SCALEKIT_CLIENT_ID"),
+      System.getenv("SCALEKIT_CLIENT_SECRET")
     );
+
     AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-    options.setProvider("microsoft");
+    options.setProvider("google");
+    options.setScopes(Arrays.asList("openid", "profile", "email"));
+
     try {
-      // Pass the Social Login Provider details while constructing the authorization URL.
-      String url = scalekitClient.authentication().getAuthorizationUrl(redirectUrl, options).toString();
+      String url = scalekitClient.authentication()
+        .getAuthorizationUrl("https://your-app.com/auth/callback", options)
+        .toString();
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
   }
 }
-
 ```
 
 </TabItem>
 </Tabs>
 
-Finally, handle the callback at your `redirect_uri` to complete the Authentication.
+### Handle the callback
+
+After successful authentication, Scalekit redirects users to your `redirect_uri` with an authorization code. You'll need to exchange this code for user information.
+
+## Fetch user details
+
+After a successful SSO, Scalekit redirects the user to your `redirect_uri` with a unique `code` in the browser. Exchange the `code` for user profile details (on the serverside).
+
+Here's how to turn that `code` into user data:
+
+<Tabs syncKey="language-preference">
+<TabItem value="nodejs" label="Node.js">
+
+```javascript
+import { Scalekit } from '@scalekit-sdk/node';
+
+// Initialize the SDK client
+const scalekit = new Scalekit(
+  process.env.SCALEKIT_ENVIRONMENT_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
+
+// Exchange code for user data
+const result = await scalekit.authenticateWithCode(
+  code,
+  'https://your-app.com/auth/callback'
+);
+
+// Access user profile
+const { user, idToken, accessToken } = result;
+console.log('User profile:', user);
+```
+
+</TabItem>
+<TabItem value="py" label="Python">
+
+```python showLineNumbers
+from scalekit import ScalekitClient
+
+# Initialize the SDK client
+scalekit_client = ScalekitClient(
+  os.environ['SCALEKIT_ENVIRONMENT_URL'],
+  os.environ['SCALEKIT_CLIENT_ID'],
+  os.environ['SCALEKIT_CLIENT_SECRET']
+)
+
+# Exchange code for user data
+result = scalekit_client.authenticate_with_code(
+  code,
+  'https://your-app.com/auth/callback'
+)
+
+# Access user profile
+user = result.user
+id_token = result.id_token
+access_token = result.access_token
+print('User profile:', user)
+```
+
+</TabItem>
+<TabItem value="golang" label="Go">
+
+```go showLineNumbers
+import (
+  "github.com/scalekit/scalekit-sdk-go"
+)
+
+func main() {
+  scalekitClient := scalekit.NewScalekitClient(
+    os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+    os.Getenv("SCALEKIT_CLIENT_ID"),
+    os.Getenv("SCALEKIT_CLIENT_SECRET"),
+  )
+
+  // Exchange code for user data
+  result, err := scalekitClient.AuthenticateWithCode(
+    code,
+    "https://your-app.com/auth/callback",
+  )
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  // Access user profile
+  user := result.User
+  idToken := result.IdToken
+  accessToken := result.AccessToken
+  fmt.Println("User profile:", user)
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+package com.scalekit;
+
+public class Main {
+  public static void main(String[] args) {
+    ScalekitClient scalekitClient = new ScalekitClient(
+      System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+      System.getenv("SCALEKIT_CLIENT_ID"),
+      System.getenv("SCALEKIT_CLIENT_SECRET")
+    );
+
+    try {
+      // Exchange code for user data
+      AuthenticationResult result = scalekitClient.authentication()
+        .authenticateWithCode(code, "https://your-app.com/auth/callback");
+
+      // Access user profile
+      User user = result.getUser();
+      String idToken = result.getIdToken();
+      String accessToken = result.getAccessToken();
+      System.out.println("User profile: " + user);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+  }
+}
+```
+
+</TabItem>
+</Tabs>
 
 Example of a successful authentication response:
 
 ```json wrap showLineNumbers=false title="Result from SDK"
-{
-  "user": {
-    "email": "john@example.com",
-    "familyName": "Doe",
-    "givenName": "John",
-    "username": "john@example.com",
-    "id": "conn_32688947352043861;dc025689-4871-4772-8ed0-a31b1bdc010b"
-  },
-  "idToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6...[truncated]",
-  "accessToken": "eyJhbGciOiJSUzI1NiIsImtpZ...[truncated]",
-  "expiresIn": 899
-}
-```
-
-## Handle user authentication
-
-After successful authentication, you'll receive a response containing the user's profile information and tokens:
-
-```json wrap showLineNumbers=false title="Authentication response"
 {
   "user": {
     "email": "john@example.com",
