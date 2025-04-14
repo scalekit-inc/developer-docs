@@ -5,66 +5,114 @@ sidebar:
   label: Social Logins
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx'
 import Env from '@components/templates/_env.mdx'
 import AuthURL from '@components/templates/_authurl.mdx'
 
-Single Sign-On (SSO) enhances B2B SaaS application security and user experience by enabling secure authentication
-through an organization's Identity Provider (IdP). Some organizations use social identity providers like Google,
-Microsoft, GitHub, Salesforce etc.
-
-Scalekit enables your users login to your application with any of the social identity providers through OAuth 2.0. This
-quickstart guide will show you how to add Social Login (e.g., Login with Google) functionality to your application with
-just a few lines of code.
+Let your users sign in to your application using their existing social media accounts. This guide shows you how to add social login functionality (like "Sign in with Google") to your application in minutes.
 
 ![Login with Social Providers via Scalekit](@/assets/docs/manual/social-quickstart/scalekit_social.png)
 
+By the end of this guide, you'll be able to:
+- Set up social login providers in Scalekit
+- Install and configure the Scalekit SDK
+- Implement social login in your application
+- Handle user authentication and profile data
 
-Before diving in, make sure you have:
+Before you begin, make sure you have:
+1. A Scalekit account with API credentials
+2. A social provider account (Google, Microsoft, GitHub, etc.)
+3. Your application's callback URL ready
 
-- Access to your Scalekit account and API credentials
-- Your app's codebase for implementing and testing changes
+Scalekit enables your users login to your application with any of the social identity providers through OAuth 2.0. This
+quickstart guide will show you how to add Social Login (for example, Login with Google) functionality to your application with
+just a few lines of code.
+
+Before diving in, make sure you [get your auth environment](/guides/extended/setup-scalekit/).
 
 # Install the Scalekit SDK
 
-Scalekit offers language-specific SDKs for quick and easy integration with social login providers. Use the installation
-instructions below for your technology stack.
+Choose your preferred programming language to install the Scalekit SDK:
 
-<InstallSDK />
+<Tabs syncKey="language-preference">
+<TabItem value="nodejs" label="Node.js">
+```bash
+npm install @scalekit-sdk/node
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```bash
+pip install scalekit
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```bash
+go get github.com/scalekit/scalekit-sdk-go
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```xml
+<dependency>
+  <groupId>com.scalekit</groupId>
+  <artifactId>scalekit-sdk-java</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+</TabItem>
+</Tabs>
 
-#### Set up API credentials
+## Configure API Credentials
 
-Secure your Scalekit API communication by setting up environment variables. You'll need three key pieces of information
-from your Scalekit Dashboard (-> API Config ):
+To securely communicate with Scalekit's API, you'll need to set up your environment variables. Get these values from your Scalekit Dashboard (API Config section):
 
-1. **Environment URL**: The base URL for API calls. Each environment (dev, staging, prod) has a unique URL.
-2. **Client ID**: Your app's unique identifier for Scalekit communications.
-3. **Client Secret**: A private key to authenticate your API requests. Always keep this secret!
+1. **Environment URL**: The base URL for your Scalekit environment (e.g., `https://your-org.scalekit.dev`)
+2. **Client ID**: Your application's unique identifier
+3. **Client Secret**: A private key for API authentication (keep this secure!)
 
-Never hardcode secrets in your app. Use environment variables instead. Here's how to set them in a `.env` file:
+<Aside type="caution">
+Never hardcode your credentials in your application. Always use environment variables or a secure configuration management system.
+</Aside>
+
+Here's how to set up your environment variables:
 
 <Env />
 
 Now you're ready to start integrating social connections into your app! Next, we'll cover how to use the SDK to
 authenticate users.
 
-## Authorize the Users
+## Authorize Users
 
-To start login with social connections, your app must redirect users to the Scalekit Authorization URL with appropriate
-social connection provider details.
+To implement social login, you'll need to redirect users to Scalekit's authorization URL. This URL contains the necessary parameters for authentication.
 
-Construct the Authorization URL using the following query parameters:
+### Required Parameters
 
-| Parameter                                                        | Details                                                                                                                                                                                                                                                                                                                                                                    |
-| :--------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `redirect_uri`                                                   | Where Scalekit sends users after IdP authentication. <br />Example: `https://your-saas-app.com/auth/callback` After the user is logged into the social provider, Scalekit redirects the user to this URI with one time authorization `code`. |
-| `client_id`                                                      | Your app's unique Scalekit identifier which is mandatory for all requests. This uniquely identifies both your app and the environment (staging, prod).                                                                                                                                                                                                                     |
-| `provider`                                                       | Informs Scalekit which Social Provider to use. You can use `provider` as the request parameter with value being the unique code of the provider. <br />Currently, we support the following providers: `google`, `microsoft`, `github`, `gitlab`, `linkedin`, `salesforce`                                                    |
+| Parameter | Description |
+|-----------|-------------|
+| `redirect_uri` | The URL where Scalekit will send users after authentication. Example: `https://your-app.com/auth/callback` |
+| `client_id` | Your application's Scalekit identifier (from API Config) |
+| `provider` | The social provider to use. Supported values: `google`, `microsoft`, `github`, `gitlab`, `linkedin`, `salesforce` |
+
+<Aside type="tip">
+The `redirect_uri` must exactly match the URL configured in your Scalekit dashboard. This is a security measure to prevent unauthorized redirects.
+</Aside>
+
+### Generate Authorization URL
+
+Here's how to construct the authorization URL in your preferred language:
 
 <AuthURL />
 
-Next, construct your Authorization URL with these parameters and redirect users to this URL when they try to log in.
+### Handle the Callback
+
+After successful authentication, Scalekit redirects users to your `redirect_uri` with an authorization code. You'll need to exchange this code for user information.
+
+## Fetch User Details
+
+After a successful SSO, Scalekit redirects the user to your `redirect_uri` with a unique `code` in the browser. Exchange the `code` for user profile details (on the serverside).
+
+Here's how to turn that `code` into user data:
+
 
 <Tabs syncKey="language-preference">
 <TabItem value="nodejs" label="Node.js">
@@ -136,6 +184,7 @@ func main() {
 ```
 
 </TabItem>
+
 <TabItem value="java" label="Java">
 
 ```java
@@ -169,103 +218,6 @@ public class Main {
 
 Finally, handle the callback at your `redirect_uri` to complete the Authentication.
 
-## Fetch User Details
-
-After a successful SSO, Scalekit redirects the user to your `redirect_uri` with a unique `code` in the browser. Exchange the `code` for user profile details (on the serverside).
-
-Here's how to turn that `code` into user data:
-
-
-<Tabs syncKey="language-preference">
-<TabItem value="nodejs" label="Node.js">
-
-```javascript showLineNumbers
-const { code, state } = req.query;
-
-if (error) {
-  // Handle errors
-}
-
-const res = await scalekit.authenticateWithCode(code, redirectUri);
-
-// res.user has the authenticated user's details
-const userEmail = res.user.email;
-
-// Next step: create a session for this user and allow access
-```
-
-</TabItem>
-<TabItem value="py" label="Python">
-
-```python showLineNumbers
-code = request.args.get('code')
-error = request.args.get('error')
-error_description = request.args.get('error_description')
-
-if error:
-    raise Exception(error_description)
-
-result = scalekit_client.authenticate_with_code(
-  code,
-  <redirect_uri>
-)
-
-# result.user has the authenticated user's details
-user_email = result.user.email
-
-# Next step: create a session for this user and allow access
-```
-
-</TabItem>
-<TabItem value="golang" label="Go">
-
-```go showLineNumbers
-code := r.URL.Query().Get("code")
-error := r.URL.Query().Get("error")
-errorDescription := r.URL.Query().Get("error_description")
-
-if error != "" {
-  // Handle errors and exit
-}
-
-res, err := sc.AuthenticateWithCode(code, redirectUrl)
-if err != nil {
-  // Handle errors and exit
-}
-
-// res.User has the authenticated user's details
-userEmail := res.User.Email
-
-// Next step: create a session for this user and allow access
-```
-
-</TabItem>
-
-<TabItem value="java" label="Java">
-
-```java
-String code = request.getParameter("code");
-String error = request.getParameter("error");
-String errorDescription = request.getParameter("error_description");
-if (error != null && !error.isEmpty()) {
-  // Handle errors
-  return;
-}
-try {
-  AuthenticationResponse res = scalekitClient.authentication().authenticateWithCode(code, redirectUrl);
-  // res.getIdTokenClaims() has the authenticated user's details
-  String userEmail = res.getIdTokenClaims().getEmail();
-
-} catch (Exception e) {
-  // Handle errors
-}
-
-// Next step: create a session for this user and allow access
-```
-
-</TabItem>
-</Tabs>
-
 Example of a successful authentication response:
 
 ```json wrap showLineNumbers=false title="Result from SDK"
@@ -282,3 +234,45 @@ Example of a successful authentication response:
   "expiresIn": 899
 }
 ```
+
+## Handle User Authentication
+
+After successful authentication, you'll receive a response containing the user's profile information and tokens:
+
+```json wrap showLineNumbers=false title="Authentication Response"
+{
+  "user": {
+    "email": "john@example.com",
+    "familyName": "Doe",
+    "givenName": "John",
+    "username": "john@example.com",
+    "id": "conn_32688947352043861;dc025689-4871-4772-8ed0-a31b1bdc010b"
+  },
+  "idToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6...[truncated]",
+  "accessToken": "eyJhbGciOiJSUzI1NiIsImtpZ...[truncated]",
+  "expiresIn": 899
+}
+```
+
+<Aside type="note">
+The `idToken` contains the user's profile information, while the `accessToken` is used for making authenticated API calls to Scalekit.
+</Aside>
+
+### Next Steps
+
+Now that you've implemented social login, consider these next steps:
+
+1. **Create User Sessions**: Store the authentication tokens securely and create a session for the user
+2. **Implement Role-Based Access**: Use the user's profile information to determine their permissions
+3. **Add Multiple Providers**: Enable users to sign in with different social providers
+4. **Customize the Login Experience**: Brand the login page to match your application's design
+
+### Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| Invalid redirect URI | Ensure the redirect URI in your code matches exactly with what's configured in Scalekit |
+| Authentication failed | Check your API credentials and ensure the social provider is properly configured |
+| Missing user data | Verify that you've requested the necessary scopes from the social provider |
+
+If you need help, please [feel free to reach out to us](/manual/support/contact-us).
