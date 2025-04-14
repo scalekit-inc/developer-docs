@@ -110,11 +110,11 @@ export const sidebar = [
             link: '/apis',
           },
           {
-            label: 'Authenticate Scalekit API',
+            label: 'API Authentication',
             link: '/reference/api-catalog/authenticate-scalekit-api',
           },
           {
-            label: 'User auth endpoints',
+            label: 'User authentication',
             link: '/reference/concepts/auth-endpoints',
           },
           {
