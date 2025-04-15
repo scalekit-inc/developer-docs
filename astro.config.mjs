@@ -32,8 +32,9 @@ export default defineConfig({
         Sidebar: './src/components/overrides/Sidebar.astro',
       },
       logo: {
-        dark: '/src/assets/images/logos/scalekit-beta-logo-black.svg',
-        light: '/src/assets/images/logos/scalekit-beta-logo-white.svg',
+        dark: '/src/assets/images/logos/scalekit-docs-beta-green-logo-dark.svg',
+        light:
+          '/src/assets/images/logos/scalekit-docs-beta-green-logo-light.svg',
         replacesTitle: true,
       },
       defaultLocale: 'en',
