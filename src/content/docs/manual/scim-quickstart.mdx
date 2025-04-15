@@ -8,13 +8,13 @@ tableOfContents: true
 
 import InstallSDK from '@components/templates/_installsdk.mdx'
 import {
-  Tabs, TabItem, Aside, Steps, Icon
+  Tabs, TabItem, Aside, Steps, Icon, LinkCard, CardGrid
  } from '@astrojs/starlight/components';
 import SimpleCode from '@components/ui/SimpleCode.astro';
 import CheckItem from '@components/ui/CheckItem.astro';
 
 
-SCIM (System for Cross-domain Identity Management) is an open standard that automates user provisioning and deprovisioning between identity providers and applications. Scalekit's SCIM implementation simplifies this process by providing a single integration point between your application and various identity providers like Okta, Microsoft Entra ID, and more.
+SCIM (System for Cross-domain Identity Management) is an open standard that automates user provisioning and deprovisioning between directory providers and applications. Scalekit's SCIM implementation simplifies this process by providing a single integration point between your application and various identity providers like Okta, Microsoft Entra ID, and more.
 
 **After completing this guide, you'll be able to:**
 - Set up automated user provisioning and deprovisioning
@@ -22,45 +22,55 @@ SCIM (System for Cross-domain Identity Management) is an open standard that auto
 - Query directory data on demand with REST APIs
 - Implement complete user lifecycle management
 
-**Time to complete: ~45 minutes**
 
 ![](@/assets/docs/manual/scim-quickstart/1-quickstart-scim.png)
 
-### Key Benefits of SCIM with Scalekit
 
-Scalekit's SCIM implementation helps you:
+<details>
+  <summary>View prerequisites</summary>
 
-- **Automate onboarding** - Create user accounts when new employees join
-- **Streamline offboarding** - Deactivate accounts when employees leave
-- **Maintain access control** - Update permissions when employees change roles
-- **Reduce administrative overhead** - Eliminate manual user management
+  Before implementing SCIM with Scalekit, ensure you have:
 
-## Prerequisites
+  <CheckItem iconName="approve-check">
+    A <a href="https://app.scalekit.com/ws/signup">Scalekit account</a> with admin access
+  </CheckItem>
 
-Before implementing SCIM with Scalekit, ensure you have:
+  <CheckItem iconName="approve-check">
+    A Scalekit organization with a configured directory. [Customers set this up](/manual/fundamentals/admin-portal) or [test it yourself](/integrations/scim-integrations/).
+  </CheckItem>
 
-<CheckItem iconName="approve-check">
-  A <a href="https://app.scalekit.com/ws/signup">Scalekit account</a> with admin access
-</CheckItem>
+  <CheckItem iconName="approve-check">
+    Your application ready to store and manage user data
+  </CheckItem>
 
-<CheckItem iconName="approve-check">
-  An organization in Scalekit with a configured directory
-</CheckItem>
+  <CheckItem iconName="approve-check">
+    Basic familiarity with REST APIs and webhooks
+  </CheckItem>
 
-<CheckItem iconName="approve-check">
-  Your application ready to store and manage user data
-</CheckItem>
+  <CheckItem iconName="approve-check">
+    The Scalekit SDK installed in your application
+  </CheckItem>
 
-<CheckItem iconName="approve-check">
-  Basic familiarity with REST APIs and webhooks
-</CheckItem>
+  If you haven't set up Scalekit yet, refer to our [Installation Guide](/manual/getting-started/installation).
+</details>
 
-<CheckItem iconName="approve-check">
-  The Scalekit SDK installed in your application
-</CheckItem>
+<details>
+  <summary>Supported directories</summary>
 
+<CardGrid>
+  <LinkCard title="Okta" icon="document" href="/integrations/scim-integrations/okta-scim">
+    Configure SCIM with Okta for automated user provisioning
+  </LinkCard>
+  <LinkCard title="Microsoft Entra ID" icon="document" href="/integrations/scim-integrations/jumpcloud">
+    Set up SCIM with Microsoft Entra ID (Azure AD) for user lifecycle management
+  </LinkCard>
+  <LinkCard title="OneLogin" icon="document" href="/integrations/scim-integrations/onelogin">
+    Set up SCIM with OneLogin for user management
+  </LinkCard>
 
-If you haven't set up Scalekit yet, refer to our [Installation Guide](/manual/getting-started/installation).
+</CardGrid>
+
+</details>
 
 ## Implementation Steps
 
@@ -332,7 +342,7 @@ If you haven't set up Scalekit yet, refer to our [Installation Guide](/manual/ge
      **Example Use Case**: When setting up a new customer account, you can use this function to
      automatically connect to their directory and start syncing user data.
 
-     See [Directory User Object](/apis#tag/DirectoryUser/object)
+     See [Directory User Object](/reference/api-catalog/authenticate-scalekit-api)
 
    - **Listing Groups**
 
@@ -394,7 +404,7 @@ If you haven't set up Scalekit yet, refer to our [Installation Guide](/manual/ge
      application, assigning permissions based on the groups a user belongs to.
 
      Scalekit's Directory API provides a simple way to fetch user and group information on-demand. Refer
-     to our [API reference](/apis) and [examples](/scim/explore-sample-apps) to explore more
+     to our [API reference](/reference/webhooks) and [examples](/reference/sdks) to explore more
      capabilities.
 
 5. **Realtime User Provisioning with Webhooks**
@@ -529,8 +539,8 @@ If you haven't set up Scalekit yet, refer to our [Installation Guide](/manual/ge
 
      Click "Create" Once registered, the webhook endpoint will start receiving event payloads from the directory providers.
 
-     Refer to the [API reference](/apis#tag/Webhooks) for the list of all available event types and
-     [setting up webhooks](scim/webhooks.mdx) to explore testing webhooks with test endpoints.
+     Refer to the [API reference](/reference/webhooks) for the list of all available event types and
+     setting up webhooks to explore testing webhooks with test endpoints.
 
    - **Receive Event Payloads**
 
@@ -539,7 +549,7 @@ If you haven't set up Scalekit yet, refer to our [Installation Guide](/manual/ge
      let's log an example of a new hire gaining access to your app when Scalekit sends a user creation
      event.
 
-     See [Webhook Events](/apis#tag/Webhooks) for the list of all available event types.
+     See [Webhook Events](/reference/webhooks) for the list of all available event types.
 
      You have now successfully created and registered a webhook endpoint, allowing your app to receive
      real-time events to automate user provisioning.
@@ -698,16 +708,16 @@ The Scalekit Dashboard includes a "Test Webhook" feature that lets you send samp
 | | Rate limiting | Implement backoff strategies for API calls |
 | User attributes missing | Missing mappings | Check attribute mappings in both Scalekit and your identity provider |
 
-If you encounter persistent issues, check the [SCIM troubleshooting guide](/manual/troubleshooting/scim) or contact Scalekit support.
+If you encounter persistent issues, check the SCIM troubleshooting guide or contact Scalekit support.
 
 ## Next Steps
 
 Now that you've implemented SCIM with Scalekit, consider:
 
 - [**Setting up SSO**](/manual/sso-quickstart) - Implement Single Sign-On for your enterprise users
-- [**Configuring multi-tenancy**](/manual/multi-tenancy) - Set up organization-level isolation
-- [**Implementing role-based access control**](/manual/role-based-access) - Define permissions and roles
-- [**Customizing the user experience**](/manual/customizing-ux) - Brand the authentication flows
+- **Configuring multi-tenancy** - Set up organization-level isolation
+- **Implementing role-based access control** - Define permissions and roles
+- **Customizing the user experience** - Brand the authentication flows
 
 ## Need Help?
 
