@@ -4,7 +4,6 @@ import starlight from '@astrojs/starlight';
 import react from '@astrojs/react';
 import path from 'path';
 import vue from '@astrojs/vue';
-import tailwind from '@astrojs/tailwind';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightSidebarTopics from 'starlight-sidebar-topics';
 import starlightViewModes from 'starlight-view-modes';
@@ -14,6 +13,8 @@ import starlightThemeRapide from 'starlight-theme-rapide';
 import starlightLlmsTxt from 'starlight-llms-txt';
 import { sidebar as sidebarConfig } from './src/configs/sidebar.config';
 import { redirects } from './src/configs/redirects.config';
+
+import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
@@ -61,7 +62,7 @@ export default defineConfig({
         '@fontsource-variable/plus-jakarta-sans',
         '@fontsource-variable/space-grotesk',
         './src/styles/theme-priority.css',
-        // './src/styles/tailwind.css',
+        './src/styles/tailwind.css',
         './src/styles/custom.css',
       ],
       plugins: [
@@ -87,9 +88,6 @@ export default defineConfig({
         },
       ],
     }),
-    tailwind({
-      applyBaseStyles: false,
-    }),
     react(),
     vue({
       jsx: true,
@@ -114,7 +112,7 @@ export default defineConfig({
       include: ['vue'],
       exclude: [],
     },
-    plugins: [pluginCollapsibleSections()],
+    plugins: [pluginCollapsibleSections(), tailwindcss()],
     build: {
       chunkSizeWarningLimit: 2000,
     },
