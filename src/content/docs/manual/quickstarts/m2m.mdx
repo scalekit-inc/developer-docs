@@ -1,0 +1,297 @@
+---
+title: Authenticate Machine-to-Machine Clients
+sidebar:
+  label: "M2M Clients"
+---
+
+import {
+  Tabs, TabItem, Aside, Steps, Icon
+} from '@astrojs/starlight/components';
+
+Machine-to-Machine (M2M) authentication enables your services to communicate securely without human involvement. M2M clients act as digital identities for your services, with specific permissions defined by scopes.
+
+- Secure API calls between your backend services without human intervention, using access tokens with specific permissions.
+- Create automated clients or AI agents that can access your B2B app's APIs with organization-level permissions, similar to human users but for programmatic access.
+- Issue API keys or M2M clients tied to specific users, allowing external systems to access your API with the same permission boundaries as the associated user.
+
+## When to use M2M Authentication
+
+- Secure API calls between backend services using access tokens with specific permissions
+- Create automated clients or AI agents that access your B2B APIs with organization-level permissions
+- Issue API keys tied to specific users, allowing external systems to access your API with the same permission boundaries
+
+## Prerequisites
+
+Before starting, you need:
+
+- Development environment's client ID and secret from the API keys section
+- Basic familiarity with JWT authentication
+- Access to make API calls to Scalekit endpoints
+
+## Creating an M2M Client
+
+An M2M client represents a machine identity in your system. You can create an M2M client tied to:
+- An organization (organization-level permissions)
+- A specific user (user-level permissions)
+- Neither (standalone client)
+
+Select the appropriate tab below based on your needs:
+
+<Tabs syncKey="m2m">
+  <TabItem value="m2m_org" label="Organization-scoped Client">
+    ```sh
+    curl -X POST "https://{env_url}/api/v1/organizations/{organization_id}/m2m/clients" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer {access_token}" \
+    -d '{
+      "name": "Service Account 1",
+      "description": "This service account does xyz things",
+      "custom_claims": {
+        "claim_1": "value_1"
+      },
+      "scopes": ["scope1", "scope2"],
+      "audience": "analytics-api",
+      "expiry": 3600
+    }'
+    ```
+  </TabItem>
+  <TabItem value="m2m_user" label="User-scoped Client">
+    ```sh
+    curl -X POST "https://{env_url}/api/v1/organizations/{organization_id}/users/{user_id}/m2m/clients" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer {access_token}" \
+    -d '{
+      "name": "Service Account 1",
+      "description": "This service account does xyz things",
+      "custom_claims": {
+        "claim_1": "value_1"
+      },
+      "scopes": ["scope1", "scope2"],
+      "aud": "my-own-api",
+      "exp": 3600
+    }'
+    ```
+  </TabItem>
+  <TabItem value="m2m_all" label="Standalone Client">
+    ```sh
+    curl -X POST "https://{env_url}/api/v1/m2m/clients" \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer {access_token}" \
+      -d '{
+      "name": "Service Account 1",
+      "description": "This service account does xyz things",
+      "custom_claims": {
+        "claim_1": "value_1"
+      },
+      "scopes": ["scope1", "scope2"],
+      "exp": 3600
+      }'
+    ```
+   </TabItem>
+</Tabs>
+
+### Understanding the response
+
+After a successful API call, you'll receive a response containing important client credentials:
+
+<Tabs syncKey="m2m">
+  <TabItem value="m2m_org" label="Organization-scoped Client">
+    ```json
+    {
+      "client_id": "asdasdasdasd",
+      "client_secret": "asdasdasdasdasdasdasd",
+      "client_secret_last4": "dasd",
+      "custom_claims": {
+        "claim_1": "value_1"
+      },
+      "scopes": ["scope1", "scope2"],
+      "active": true,
+      "audience": "my-own-api",
+      "expiry": 3600,
+      "organization_id": "{org_id}",
+      "external_org_id": "{org_external_id}"
+    }
+    ```
+  </TabItem>
+  <TabItem value="m2m_user" label="User-scoped Client">
+    ```json
+    {
+      "client_id": "asdasdasdasd",
+      "client_secret": "asdasdasdasdasdasdasd",
+      "client_secret_last4": "dasd",
+      "custom_claims": {
+        "claim_1": "value_1"
+      },
+      "active": true,
+      "scopes": ["scope1", "scope2"],
+      "aud": "my-own-api",
+      "exp": 3600,
+      "oid": "{org_id}",
+      "external_oid": "{org_external_id}",
+      "uid": "{usr_id}",
+      "external_uid": "{usr_external_id}"
+    }
+    ```
+  </TabItem>
+  <TabItem value="m2m_all" label="Standalone Client">
+    ```json
+    {
+      "client_id": "asdasdasdasd",
+      "client_secret": "asdasdasdasdasdasdasd",
+      "client_secret_last4": "dasd",
+      "custom_claims": {
+        "claim_1": "value_1"
+      },
+      "scopes": ["scope1", "scope2"],
+      "active": true,
+      "exp": 3600,
+      "type": "microservice_client"
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="caution">
+**Important:** Save the `client_secret` immediately. This is the only time you will be able to view it in full. Scalekit stores only a hash of this value and cannot recover it if lost. If you lose the secret, you'll need to trigger a secret rotation flow.
+</Aside>
+
+## Retrieving Access Tokens
+
+Once you've created an M2M client, you need to obtain access tokens to authenticate API requests.
+
+### Request an access token
+
+Call the Token endpoint with your client credentials:
+
+```sh
+curl -X POST 'https://{env_url}/oauth/token' \
+-H 'Content-Type: application/x-www-form-urlencoded' \
+-d 'client_id={client_id}' \
+-d 'client_secret={client_secret}' \
+-d 'grant_type=client_credentials'
+```
+
+### Token response format
+
+The server will respond with a JWT access token:
+
+```json
+{
+  "access_token":"eyJhbGciOiJSUzI1NiIsImtpZCI6InNua181ODMyNzQ4MDk4OTEyMjU2NiIsInR5cCI6IkpXVCJ... ",
+  "token_type":"Bearer",
+  "expires_in":86399,
+  "scope":"openid"
+}
+```
+
+The `access_token` is signed with your project's JWKS and has a lifespan of one hour by default.
+
+## Authenticating M2M Clients
+
+Your services need to validate the access tokens presented by M2M clients. Here's how to implement token validation in Node.js:
+
+```js
+// Example using Node.js with jsonwebtoken and jwks-rsa libraries
+const jwt = require('jsonwebtoken');
+const jwksClient = require('jwks-rsa');
+
+// Initialize the JWKS client
+const client = jwksClient({
+  jwksUri: 'https://{env_url}/keys', // Your Scalekit JWKS endpoint
+  cache: true,
+  cacheMaxEntries: 5, // Default value
+  cacheMaxAge: 600000 // Cached for 10 minutes (in milliseconds)
+});
+
+// Verify the token
+function verifyToken(token) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, getSigningKey, {
+      algorithms: ['RS256'], // Scalekit uses RS256 for signing
+      audience: 'your-api-audience', // Must match what you specified when creating the M2M client
+      issuer: 'https://{env_url}/' // Your Scalekit environment URL
+    }, function(err, decoded) {
+      if (err) {
+        return reject(err);
+      }
+
+      // Check additional claims if needed
+      const currentTime = Math.floor(Date.now() / 1000);
+
+      // Verify token expiration
+      if (decoded.exp < currentTime) {
+        return reject(new Error('Token has expired'));
+      }
+
+      // Additional validation can be performed here
+      resolve(decoded);
+    });
+  });
+}
+
+// Helper function to get signing key
+function getSigningKey(header, callback) {
+  client.getSigningKey(header.kid, function(err, key) {
+    if (err) return callback(err);
+    const signingKey = key.publicKey || key.rsaPublicKey;
+    callback(null, signingKey);
+  });
+}
+
+// Example middleware for Express.js
+async function authenticateRequest(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Missing or invalid authorization header' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = await verifyToken(token);
+
+    // Attach the decoded token to the request
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid token', details: error.message });
+  }
+}
+```
+
+## Managing M2M Clients
+
+### Deactivating or deleting clients
+
+When an M2M client is no longer needed, you should deactivate or delete it:
+
+<Tabs syncKey="m2m">
+  <TabItem value="m2m_org" label="Organization-scoped Client">
+    ```sh
+    curl -X DELETE "https://{env_url}/api/v1/organizations/{id}/m2m/clients/{client_id}" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer {access_token}"
+    ```
+  </TabItem>
+  <TabItem value="m2m_user" label="User-scoped Client">
+    ```sh
+    curl -X DELETE "https://{env_url}/api/v1/organizations/{organization_id}/users/{user_id}/m2m/clients/{client_id}" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer {access_token}"
+    ```
+  </TabItem>
+  <TabItem value="m2m_all" label="Standalone Client">
+    ```sh
+    curl -X DELETE "https://{env_url}/api/v1/m2m/clients/{client_id}" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer {access_token}"
+    ```
+   </TabItem>
+</Tabs>
+
+## Troubleshooting
+
+Common issues and their solutions:
+
+- **Invalid client credentials**: Double-check your client ID and secret
+- **Token validation fails**: Ensure your audience value matches what was specified during client creation
+- **Permissions issues**: Verify the scopes assigned to your M2M client
