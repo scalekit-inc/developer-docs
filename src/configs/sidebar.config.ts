@@ -29,8 +29,8 @@ export const sidebar = [
             link: '/manual/getting-started/sign-out',
           },
           {
-            label: 'Examples',
-            link: '/coming-soon',
+            label: 'Code examples',
+            link: '/manual/support/code-examples-catalog',
           },
         ],
       },
@@ -41,6 +41,7 @@ export const sidebar = [
           'manual/social-logins-quickstart',
           'manual/sso-quickstart',
           'manual/scim-quickstart',
+          'manual/quickstarts/m2m',
           {
             label: 'Launch',
             link: '/manual/fundamentals/launch-checklist',
@@ -71,10 +72,6 @@ export const sidebar = [
       {
         label: 'Resources',
         items: [
-          {
-            label: 'Code examples',
-            link: '/manual/support/code-examples-catalog',
-          },
           {
             label: 'API collections',
             link: 'https://github.com/scalekit-developers/api-collections',
@@ -113,11 +110,11 @@ export const sidebar = [
             link: '/apis',
           },
           {
-            label: 'Authenticate Scalekit API',
+            label: 'API Authentication',
             link: '/reference/api-catalog/authenticate-scalekit-api',
           },
           {
-            label: 'User auth endpoints',
+            label: 'User authentication',
             link: '/reference/concepts/auth-endpoints',
           },
           {
@@ -132,6 +129,10 @@ export const sidebar = [
           {
             label: 'Custom identifiers & data',
             link: '/reference/concepts/external-ids-and-metadata',
+          },
+          {
+            label: 'JSON Web Key Sets',
+            link: '/reference/concepts/jwks',
           },
           {
             label: 'Normalized user profile',
