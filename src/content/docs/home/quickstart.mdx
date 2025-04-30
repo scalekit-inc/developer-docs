@@ -1,3 +1,107 @@
 ---
 title: Quickstart
+description: Learn how to integrate Scalekit to your project for secure authentication and user management.
+tableOfContents: false
 ---
+
+import { Card, CardGrid, Steps, TabItem, Tabs, Aside } from '@astrojs/starlight/components';
+import CheckItem from '@/components/ui/CheckItem.astro';
+import InstallSDK from '@components/templates/_installsdk.mdx'
+
+Learn how to integrate Scalekit to your project for secure authentication of the users.
+
+<div>
+   Before you begin
+  <CheckItem iconName="forward-slash">
+     [Set up your Scalekit account](/guides/extended/setup-scalekit/)
+  </CheckItem>
+  <CheckItem iconName="github">
+     [Clone the quickstart repository in express](/guides/extended/setup-scalekit/)
+  </CheckItem>
+</div>
+
+Let's get started!
+
+<Steps>
+ 1. #### Install the Scalekit SDK
+     <InstallSDK />
+    Copy your API credentials from the dashboard's API Config section and set them as environment variables.
+    ```bash
+    SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
+    SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
+    SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
+    ```
+
+    Create a new Scalekit client instance
+    <Tabs syncKey="tech-stack">
+      <TabItem value="nodejs" label="Node.js">
+      ```js
+      import { Scalekit } from '@scalekit-sdk/node';
+
+      const scalekit = new Scalekit(
+        process.env.SCALEKIT_ENVIRONMENT_URL,
+        process.env.SCALEKIT_CLIENT_ID,
+        process.env.SCALEKIT_CLIENT_SECRET
+      );
+      ```
+      </TabItem>
+    </Tabs>
+  2. #### Authorization endpoint for user sign-in
+      Create an authorization endpoint that handles user authentication. The endpoint needs a redirect URI - this is where Scalekit sends the user's profile information after successful authentication. You'll also need to specify which user data to access using scopes.
+        <Tabs>
+        <TabItem value="node" label="Node.js">
+        ```js title="Example in Express.js" ins={9} { "Redirect the user to the authorization endpoint": 8} { "Generate the authorization URL": 1}
+          //
+          const authorizationUrl = await scalekit.getAuthorizationUrl(
+            'http://localhost:3000/api/callback',
+            {
+              scopes: ['openid', 'profile', 'email'],
+            }
+          );
+          //
+          res.redirect(authorizationUrl);
+        }
+        ```
+        </TabItem>
+      </Tabs>
+
+      [Make sure to register](/guides/product/auth-redirect-uri/) your application's redirect URI in the Scalekit dashboard. This security measure ensures that only authorized applications can receive authentication responses.
+
+3. #### Exchange Authorization Code for User Profile
+      User can now sign in using their preferred authentication method on a mangaged sign-in page. On successful verification, Scalekit redirects them back to your application with an authorization code. This code is used to fetch the user's profile information.
+
+      <Tabs syncKey="tech-stack">
+        <TabItem value="node" label="Node.js">
+        ```js  "code" {11}  { "Get the code from the callback": 1} ins={1-2} { "Exchange the authorization code for a user profile": 8}
+        //
+        const { code, error, error_description } = req.query;
+
+        if (error) {
+          // Handle unauthorized access
+        }
+
+        //
+        const res = await scalekit.authenticateWithCode(code, redirectUri);
+
+        const { user, idToken } = res;
+        ```
+        </TabItem>
+      </Tabs>
+
+      The user profile details are contained in the `id_token` JWT or `user` object. You can [decode](https://authplay.io/pg/token-explorer) this JWT to access user information.
+
+      ```json title="user object"
+      {
+        "access_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6...", // JWT for API access
+        "token_type": "Bearer",                             // Authorization header format
+        "expires_in": 299,                                  // Token validity in seconds (4m 59s)
+        "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6...",     // JWT containing user profile
+        "scope": "openid profile email"                     // Granted permissions
+      }
+      ```
+
+</Steps>
+
+## Next steps (into sessions)
+
+Using the user details, you can now successfully sign in your users to access protected resources. However, you want to control how long the user stays signed in. Learn how to [manage sessions](/docs/manual/getting-started/manage-sessions/) to keep your users secure.

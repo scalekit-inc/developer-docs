@@ -202,7 +202,7 @@ export const sidebar = [
   },
   {
     label: 'Start',
-    link: '/home/',
+    link: '/home/quickstart',
     id: 'start',
     icon: 'rocket',
     items: [
