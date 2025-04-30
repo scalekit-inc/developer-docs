@@ -8,7 +8,7 @@ import { Card, CardGrid, Steps, TabItem, Tabs, Aside } from '@astrojs/starlight/
 import CheckItem from '@/components/ui/CheckItem.astro';
 import InstallSDK from '@components/templates/_installsdk.mdx'
 
-Learn how to integrate Scalekit to your project for secure authentication of the users.
+Learn how to integrate Scalekit into your project to implement secure, enterprise-grade authentication.
 
 <div>
    Before you begin
@@ -25,14 +25,14 @@ Let's get started!
 <Steps>
  1. #### Install the Scalekit SDK
      <InstallSDK />
-    Copy your API credentials from the dashboard's API Config section and set them as environment variables.
+    Copy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.
     ```bash
     SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
     SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
     SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
     ```
 
-    Create a new Scalekit client instance
+    Create a new Scalekit client instance after initializing the environment variables.
     <Tabs syncKey="tech-stack">
       <TabItem value="nodejs" label="Node.js">
       ```js
@@ -47,13 +47,13 @@ Let's get started!
       </TabItem>
     </Tabs>
   2. #### Authorization endpoint for user sign-in
-      Create an authorization endpoint that handles user authentication. The endpoint needs a redirect URI - this is where Scalekit sends the user's profile information after successful authentication. You'll also need to specify which user data to access using scopes.
+      Create an authorization endpoint. Generate the authorization URL by passing a _redirect URI_ and _scopes_ to the Scalekit SDK. The redirect URI is where Scalekit sends user profile data after authentication. Scopes define the user data to access.
         <Tabs>
         <TabItem value="node" label="Node.js">
-        ```js title="Example in Express.js" ins={9} { "Redirect the user to the authorization endpoint": 8} { "Generate the authorization URL": 1}
+        ```js title="Example in Express.js" ins={9} { "Browser redirects to the authorization endpoint": 8} { "Generate the authorization URL": 1} wrap
           //
           const authorizationUrl = await scalekit.getAuthorizationUrl(
-            'http://localhost:3000/api/callback',
+            'http://localhost:3000/api/callback', // Redirect URI to your app
             {
               scopes: ['openid', 'profile', 'email'],
             }
@@ -72,7 +72,7 @@ Let's get started!
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
-        ```js  "code" {11}  { "Get the code from the callback": 1} ins={1-2} { "Exchange the authorization code for a user profile": 8}
+        ```js  "code" {11}  { "Get the authorization code from the callback": 1} ins={1-2} { "Exchange the authorization code for a user profile": 8}
         //
         const { code, error, error_description } = req.query;
 
@@ -99,12 +99,13 @@ Let's get started!
         "scope": "openid profile email"                     // Granted permissions
       }
       ```
+      Refer to the [`id_token` JWT reference](/reference/concepts/auth-endpoints#example-response) to learn more about its structure.
 
 </Steps>
 
 ## What's next?
 
-Congratulations! You've completed the Scalekit quickstart and enabled secure authentication for your users.
+You've completed the Scalekit quickstart and enabled secure authentication for your users.
 
 Here are some recommended next steps:
 - [Manage user sessions](/manual/getting-started/manage-user-sessions) to control sign-in duration and security.
