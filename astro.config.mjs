@@ -64,7 +64,7 @@ export default defineConfig({
         './src/styles/theme-priority.css',
         './src/styles/custom.css',
         './src/styles/tailwind.css',
-        './src/styles/global.css',
+        // './src/styles/global.css',
       ],
       plugins: [
         starlightLinksValidator(),
