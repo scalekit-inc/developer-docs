@@ -62,8 +62,9 @@ export default defineConfig({
         '@fontsource-variable/plus-jakarta-sans',
         '@fontsource-variable/space-grotesk',
         './src/styles/theme-priority.css',
-        './src/styles/tailwind.css',
         './src/styles/custom.css',
+        './src/styles/tailwind.css',
+        './src/styles/global.css',
       ],
       plugins: [
         starlightLinksValidator(),
