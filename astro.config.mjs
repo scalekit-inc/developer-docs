@@ -29,7 +29,7 @@ export default defineConfig({
       },
       favicon: 'src/assets/favicons/logo.png',
       components: {
-        SocialIcons: './src/components/overrides/SocialIcons.astro',
+        // SocialIcons: './src/components/overrides/SocialIcons.astro',
         Sidebar: './src/components/overrides/Sidebar.astro',
       },
       logo: {

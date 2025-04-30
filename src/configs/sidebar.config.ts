@@ -200,4 +200,21 @@ export const sidebar = [
       },
     ],
   },
+  {
+    label: 'Start',
+    link: '/home/',
+    id: 'start',
+    icon: 'rocket',
+    items: [
+      {
+        label: 'Getting Started',
+        items: [
+          {
+            label: 'Quickstart',
+            link: '/home/quickstart',
+          },
+        ],
+      },
+    ],
+  },
 ];
