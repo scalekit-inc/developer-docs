@@ -47,7 +47,7 @@ Let's get started!
       </TabItem>
     </Tabs>
   2. #### Authorization endpoint for user sign-in
-      Create an authorization endpoint. Generate the authorization URL by passing a _redirect URI_ and _scopes_ to the Scalekit SDK. The redirect URI is where Scalekit sends user profile data after authentication. Scopes define the user data to access.
+       Generate the authorization URL by passing a  [registered](/guides/product/auth-redirect-uri/) _redirect URI_ and _scopes_ to the Scalekit SDK.
         <Tabs>
         <TabItem value="node" label="Node.js">
         ```js title="Example in Express.js" ins={9} { "Browser redirects to the authorization endpoint": 8} { "Generate the authorization URL": 1} wrap
@@ -65,10 +65,10 @@ Let's get started!
         </TabItem>
       </Tabs>
 
-      [Make sure to register](/guides/product/auth-redirect-uri/) your application's redirect URI in the Scalekit dashboard. This security measure ensures that only authorized applications can receive authentication responses.
+     This browser redirect points the users to Scalekit's managed sign-in page. User can now sign in using their preferred authentication method.
 
 3. #### Exchange authorization code for user profile
-      User can now sign in using their preferred authentication method on a mangaged sign-in page. On successful verification, Scalekit redirects them back to your application with an authorization code. This code is used to fetch the user's profile information.
+     On successful verification, Scalekit redirects them back to your registered _redirect URI_ with an authorization code. This code is exchanged for the user's profile information.
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
@@ -88,18 +88,55 @@ Let's get started!
         </TabItem>
       </Tabs>
 
-      The user profile details are contained in the `id_token` JWT or `user` object. You can [decode](https://authplay.io/pg/token-explorer) this JWT to access user information.
+      The `authenticateWithCode` method returns an object containing the user's profile information (`user` object) and `idToken` (JWT).
 
-      ```json title="user object"
+      <Tabs>
+        <TabItem value="user" label="User object">
+        ```json
       {
-        "access_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6...", // JWT for API access
-        "token_type": "Bearer",                             // Authorization header format
-        "expires_in": 299,                                  // Token validity in seconds (4m 59s)
-        "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6...",     // JWT containing user profile
-        "scope": "openid profile email"                     // Granted permissions
+        "user": {
+          "email": "john.doe@example.com",
+          "emailVerified": true,
+          "familyName": "Doe",
+          "givenName": "John",
+          "name": "John Doe",
+          "id": "usr_63261014140912035"
+        },
+        "idToken": "eyJh..",
+        "accessToken": "eyJhbGciOi..",
+        "expiresIn": 299
       }
       ```
-      Refer to the [`id_token` JWT reference](/reference/concepts/auth-endpoints#example-response) to learn more about its structure.
+      </TabItem>
+      <TabItem value="idToken" label="ID token">
+      ```json
+       {
+        "at_hash": "ec_jU2ZKpFelCKLTRWiRsg",
+        "aud": [
+          "skc_58327482062864390"
+        ],
+        "azp": "skc_58327482062864390",
+        "c_hash": "6wMreK9kWQQY6O5R0CiiYg",
+        "client_id": "skc_58327482062864390",
+        "email": "john.doe@example.com",
+        "email_verified": true,
+        "exp": 1742975822,
+        "family_name": "Doe",
+        "given_name": "John",
+        "iat": 1742974022,
+        "iss": "https://scalekit-z44iroqaaada-dev.scalekit.cloud",
+        "name": "John Doe",
+        "oid": "org_59615193906282635",
+        "sid": "ses_65274187031249433",
+        "sub": "usr_63261014140912135"
+      }
+      ```
+      </TabItem>
+      </Tabs>
+
+      The user profile details are primarily contained in the `idToken` JWT and the `user` object. You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
+
+      Refer to the [`idToken` JWT reference](/reference/concepts/auth-endpoints#id-token-structure) for more details on its structure.
 
 </Steps>
 
