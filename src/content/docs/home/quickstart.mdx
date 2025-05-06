@@ -1,0 +1,193 @@
+---
+title: Quickstart
+description: Learn how to integrate Scalekit to your project for secure authentication and user management.
+tableOfContents: false
+---
+
+import { Card, CardGrid, Steps, TabItem, Tabs, Aside } from '@astrojs/starlight/components';
+import CheckItem from '@/components/ui/CheckItem.astro';
+import InstallSDK from '@components/templates/_installsdk.mdx'
+
+Learn how to integrate Scalekit into your project to implement secure, enterprise-grade authentication.
+
+<div>
+   Before you begin
+  <CheckItem iconName="forward-slash">
+     [Set up your Scalekit account](/guides/extended/setup-scalekit/)
+  </CheckItem>
+  <CheckItem iconName="github">
+     [Clone the quickstart repository in express](https://github.com/scalekit-developers/nodejs-example-apps/tree/main/expressjs-loginbox-authn)
+  </CheckItem>
+</div>
+
+Let's get started!
+
+<Steps>
+ 1. #### Install the Scalekit SDK
+     <InstallSDK />
+    Copy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.
+    ```bash
+    SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
+    SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
+    SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
+    ```
+
+    Create a new Scalekit client instance after initializing the environment variables.
+    <Tabs syncKey="tech-stack">
+      <TabItem value="nodejs" label="Node.js">
+      ```js
+      import { Scalekit } from '@scalekit-sdk/node';
+
+      const scalekit = new Scalekit({
+        environmentUrl: process.env.SCALEKIT_ENVIRONMENT_URL,
+        clientId: process.env.SCALEKIT_CLIENT_ID,
+        clientSecret: process.env.SCALEKIT_CLIENT_SECRET
+      });
+      ```
+      </TabItem>
+    </Tabs>
+  2. #### Create the authorization endpoint for user sign-in
+       Generate the authorization URL by passing a  [registered](/guides/product/auth-redirect-uri/) _redirect URI_ and _scopes_ to the Scalekit SDK.
+        <Tabs>
+        <TabItem value="node" label="Node.js">
+        ```js title="Example in Express.js" ins={9} { "Browser redirects the user to the authorization endpoint": 8} { "Generate the authorization URL": 1} wrap
+          //
+          const authorizationUrl = await scalekit.getAuthorizationUrl(
+            {
+              redirect_to:'http://localhost:3000/api/callback',
+            }
+          );
+
+          //
+          res.redirect(authorizationUrl);
+        }
+        ```
+        </TabItem>
+      </Tabs>
+
+     This will redirect the user to Scalekit's managed sign-in page. User can now sign in using their [preferred authentication method](https://www.example.com).
+
+3. #### Exchange authorization code for user profile
+     On successful verification, Scalekit redirects them back to your registered _redirect URI_ with an authorization code. This code is exchanged for the user's profile information.
+
+      <Tabs syncKey="tech-stack">
+        <TabItem value="node" label="Node.js">
+        ```js  "code" {11}  { "Get the authorization code from the callback": 1} ins={1-2} { "Exchange the authorization code for a user profile": 8}
+        //
+        const { code, error, error_description } = req.query;
+
+        if (error) {
+          // Handle unauthorized access
+        }
+
+        //
+        const res = await scalekit.exchangeCodeForProfile(code, redirectUri);
+
+        const { user } = res;
+        ```
+        </TabItem>
+      </Tabs>
+
+      The `authenticateWithCode` method returns an object containing the user's profile information (`user` object) and `idToken` (JWT).
+      <Tabs>
+        <TabItem value="user" label="User object">
+        ```json {10}
+      {
+        "user": {
+          "email": "john.doe@example.com",
+          "emailVerified": true,
+          "familyName": "Doe",
+          "givenName": "John",
+          "name": "John Doe",
+          "id": "usr_63261014140912035"
+        },
+        "idToken": "eyJh..",
+        "accessToken": "eyJhbGciO..",
+        "refreshToken": "rt_8f7d6e5c4b3a2d1e0f9g8h7i6j..",
+        "expiresIn": 299
+      }
+      ```
+      </TabItem>
+      <TabItem value="idToken" label="ID token (decoded)">
+      ```json
+       {
+        "at_hash": "ec_jU2ZKpFelCKLTRWiRsg",
+        "aud": [
+          "skc_58327482062864390"
+        ],
+        "azp": "skc_58327482062864390",
+        "c_hash": "6wMreK9kWQQY6O5R0CiiYg",
+        "client_id": "skc_58327482062864390",
+        "email": "john.doe@example.com",
+        "email_verified": true,
+        "exp": 1742975822,
+        "family_name": "Doe",
+        "given_name": "John",
+        "iat": 1742974022,
+        "iss": "https://scalekit-z44iroqaaada-dev.scalekit.cloud",
+        "name": "John Doe",
+        "oid": "org_59615193906282635",
+        "sid": "ses_65274187031249433",
+        "sub": "usr_63261014140912135"
+      }
+      ```
+      </TabItem>
+      </Tabs>
+
+       You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
+
+      Refer to the [`idToken` JWT reference](/reference/concepts/auth-endpoints) for more details on its structure.
+
+4. #### Create a session and log in the user
+      Now that you have the user's profile information, you can create a session for the user in the cookie-based session storage.
+
+      <Tabs>
+        <TabItem value="javascript" label="Javascript">
+        ```js wrap {4-6}
+        // Destructure the session tokens on the response object
+        const { sessionTokens } = res;
+
+        try {
+          const session = await scalekit.createSession(sessionTokens);
+
+          // Set session ID or tokens as HttpOnly cookies (recommended)
+          res.cookie('session_id', session.id, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+          });
+
+          res.status(200).json({ success: true, session });
+        ```
+        </TabItem>
+      </Tabs>
+
+      This sets browser cookies with the session ID and tokens. Every request to your backend can be validated by the `validateSession` method.
+
+      <Tabs>
+        <TabItem value="node" label="Node.js">
+        ```js wrap {4,8}
+        const isValidSession = await scalekit.validateSession(req.cookies.session_id);
+
+        if (!isValidSession) {
+          return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        // User is authenticated, allow access to dashboard
+        return res.redirect('/dashboard');
+        ```
+        </TabItem>
+      </Tabs>
+
+      Successfully authenticated users can now access your dashboard with a default session timeout of 7 days. See the [session management](/manual/getting-started/manage-user-sessions) guide to learn how to customize the session related configurations.
+
+</Steps>
+
+
+## What's next?
+
+You've completed the Scalekit quickstart and enabled secure authentication for your users and sign-in flow.
+- It's time to add more [authentication methods](/manual/social-logins-quickstart/) to expand user choice, security and improve user acquisition.
+- Implement sign up flows such as Just-In-Time (JIT) provisioning to create new users and manage user profiles.
+- [Customize the login page](https://www.example.org) to match your brand's design and style.
