@@ -24,7 +24,11 @@ Let's get started!
 
 <Steps>
  1. #### Install the Scalekit SDK
-     <InstallSDK />
+
+    ```sh
+    npm install @scalekit/node
+    ```
+
     Copy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.
     ```bash
     SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
@@ -35,8 +39,8 @@ Let's get started!
     Create a new Scalekit client instance after initializing the environment variables.
     <Tabs syncKey="tech-stack">
       <TabItem value="nodejs" label="Node.js">
-      ```javascript
-      import { Scalekit } from '@scalekit-sdk/node';
+      ```javascript title="lib/auth.js"
+      import { Scalekit } from '@scalekit/node';
 
       const scalekit = new Scalekit({
         environmentUrl: process.env.SCALEKIT_ENVIRONMENT_URL,
@@ -44,20 +48,17 @@ Let's get started!
         clientSecret: process.env.SCALEKIT_CLIENT_SECRET,
       });
 
-      const auth = scalekit({
-        session: {
-          sealData: true,
-          sealingSecret: process.env.COOKIE_SEAL_SECRET,
-        }
+      export const auth = scalekit({
+        // Enable authentication capabilities through options
       });
       ```
       </TabItem>
     </Tabs>
-  2. #### Create the authorization endpoint for user sign-in
-       Generate the authorization URL by passing a [registered](/guides/product/auth-redirect-uri/) _redirect URI_ and _scopes_ to the Scalekit SDK.
+  2. #### Redirect the user to the authentication page
+       Generate the authorization URL by passing a [registered](/guides/product/auth-redirect-uri/) _callback URL_ and _scopes_ to the Scalekit SDK.
         <Tabs>
         <TabItem value="node" label="Node.js">
-        ```javascript
+        ```javascript title="Express.js"
         // Generate the authorization URL
         const {
           data: { url: authorizationUrl }
@@ -74,53 +75,112 @@ Let's get started!
         ```
         </TabItem>
         <TabItem value="javascript" label="React">
-        ```typescript
+        ```typescript title="lib/authClient.js"
         import { initAuthClient } from "@scalekit/client/react";
+        // optional plugins
         import { passkey, social, ssoClient } from "@scalekit/client/plugins";
 
-        export const authClient = initAuthClient({
+        const authClient = initAuthClient({
           baseURL: "http://localhost:3000",
-          plugins: [passkey(), social(), ssoClient()],
+          plugins: [passkey(), social(), ssoClient()]
         });
+        ```
 
-        const data = await authClient.signIn({
-          authMethod: 'default', // opts: 'passkey', 'social', 'sso'
-          organizationId: 'org_59615193906282635',
-        });
 
-        // data.url is the scalekit-managed authorization destination page
-        // The React component will redirect the user to this page
+        ```typescript title="src/app/handleSignIn.tsx"
+        import { authClient } from "@/lib/authClient.js"
+
+        const handleSignIn = async () => {
+          const { url } = await authClient.signIn({
+            // default uses scalekit's managed authentication page
+            authMethod: 'default', // opts: 'passkey', 'social', 'sso'
+            organizationId: 'org_59615193906282635'
+          });
+
+          window.location.href = url;
+        };
+
+        // Usage in React component:
+        // <button onClick={handleSignIn}>Sign In</button>
         ```
         </TabItem>
       </Tabs>
 
-     This will redirect the user to Scalekit's managed sign-in page. User can now sign in using their [preferred authentication method](https://www.example.com).
+     This will redirect the user to Scalekit's managed sign-in page. User can now sign in using their [preferred authentication method](https://www.example.com) enabled for that organization.
 
-3. #### Exchange authorization code for user profile
-     On successful verification, Scalekit redirects them back to your registered _redirect URI_ with an authorization code. This code is exchanged for the user's profile information.
+3. #### Retrieve user profile after identity verification
+      Scalekit redirects users back to your registered _callback URL_ with an authorization code. Exchange the code for the user's profile information.
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
         ```javascript
+        import auth from '@/lib/auth.js'
         // Get the authorization code from the callback
-        const { code, error, error_description } = req.query;
+        app.get('/api/callback', async (req, res) => {
+          const { code, error, error_description } = req.query;
 
-        if (error) {
-          // Handle unauthorized access
-        }
+          if (error) {
+            return res.status(401).json({ error, error_description });
+          }
 
-        // Exchange the authorization code for a user profile
-        const result = await auth.api.exchangeCode({
-          code,
-          callbackURL: '/api/callback'
+          try {
+            // Exchange the authorization code for a user profile
+            const authResponse = await auth.api.exchangeCode({
+              code,
+              callbackURL: '/api/callback'
+            });
+
+            const { user } = authResponse;
+
+            // "user" object contains the user's profile information
+            // Next step: Create a session and log in the user
+            res.redirect('/dashboard');
+          } catch (err) {
+            console.error('Error exchanging code:', err);
+            res.status(500).json({ error: 'Failed to authenticate user' });
+          }
         });
+        ```
+        </TabItem>
+        <TabItem value="javascript" label="React">
+        ```tsx
+        // Example React component using Scalekit authentication
+        import { authClient } from "@/lib/authClient.js"
+        const { useSession } = authClient()
 
-        const { user, sealedTokens } = result;
+        export function UserProfile() {
+            const {
+                data: session,
+                isPending,
+                error,
+            } = useSession()
+
+            if (isPending) {
+                return <div>Loading...</div>
+            }
+
+            if (error) {
+                return <div>Error: {error.message}</div>
+            }
+
+            return (
+                <div className="user-profile">
+                    <h2>Welcome, {session?.user?.name || 'User'}!</h2>
+                    <div className="profile-details">
+                        <p>Email: {session?.user?.email}</p>
+                        <p>User ID: {session?.user?.id}</p>
+                        {session?.user?.emailVerified && (
+                            <span className="verified-badge">✓ Verified</span>
+                        )}
+                    </div>
+                </div>
+            )
+        }
         ```
         </TabItem>
       </Tabs>
 
-      The `authenticateWithCode` method returns an object containing the user's profile information (`user` object) and `idToken` (JWT).
+      The `exchangeCode` method returns an object containing the user's profile information (`user` object) and `idToken` (JWT).
       <Tabs>
         <TabItem value="user" label="User object">
         ```json
@@ -134,9 +194,11 @@ Let's get started!
             "id": "usr_63261014140912035"
           },
           "idToken": "eyJh..",
-          "accessToken": "eyJhbGciO..",
-          "refreshToken": "rt_8f7d6e5c4b3a2d1e0f9g8h7i6j..",
-          "expiresIn": 299
+          "sessionTokens": {
+            "accessToken": "eyJhbGciO..",
+            "refreshToken": "rt_8f7d6e5c4b3a2d1e0f9g8h7i6j..",
+            "expiresIn": 299
+          }
         }
         ```
         </TabItem>
@@ -168,15 +230,25 @@ Let's get started!
 
       You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
 
-      Refer to the [`idToken` JWT reference](/reference/concepts/auth-endpoints) for more details on its structure.
-
 4. #### Create a session and log in the user
-      Create a session proxy
+      You have successfully verified the user's identity and retrieved their profile information. Maintain this authenticated state by creating a session and storing the session tokens in cookies.
 
-      <Tabs>
+      Enable the session option to retrieve the session tokens from the `authResponse` object. This allows for setting cookies and verify authentication state across multiple requests.
+
+      ```javascript title="lib/auth.js" {3-4}
+       export const auth = scalekit({
+        session: {
+          sealData: true,
+          sealingSecret: process.env.COOKIE_SEAL_SECRET,
+        }
+      });
+      ```
+
+      <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
         ```javascript
-        const { user, sealedTokens } = result;
+        const { sealedTokens } = authResponse;
+
         res.cookie('sk_session', sealedTokens, {
           httpOnly: true,
           secure: true,
@@ -187,15 +259,27 @@ Let's get started!
         res.status(200);
         ```
         </TabItem>
+        <TabItem value="javascript" label="React">
+        ```mdx warp showLineNumbers=false
+        Scalekit client automatically tracks authenticated state using cookies.
+        ```
+        </TabItem>
+
+
       </Tabs>
 
-      This sets browser cookies with the session ID and tokens. Every request to your backend can be validated by the `validateSession` method.
+      This sets browser cookies with the session ID and tokens. Every request to your backend is automatically authenticated through the `getSession` method.
 
-      <Tabs>
+      <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
         ```javascript
+        import auth from '@/lib/auth.js'
+
         const { isValidSession, user } = await auth.api.getSession({
           headers: req.headers // contains the session tokens in cookies
+          session: {
+            sealingSecret: process.env.COOKIE_SEAL_SECRET,
+          }
         });
 
         if (!isValidSession) {
@@ -206,15 +290,35 @@ Let's get started!
         return res.redirect('/dashboard');
         ```
         </TabItem>
+        <TabItem value="javascript" label="React">
+        ```tsx
+        // Example React component using Scalekit authentication
+        import { authClient } from "@/lib/authClient.js"
+        const { useSession } = authClient()
+
+        export function UserProfile() {
+            const {
+                data: session,
+                isPending,
+                error, // automatically validates session and throws on invalid
+            } = useSession()
+
+           return (
+            <div>
+              {error && <div>Error: {error.message}</div>}
+            </div>
+           )
+        }
+        ```
+        </TabItem>
       </Tabs>
 
-      Successfully authenticated users can now access your dashboard with a default session timeout of 7 days. See the [session management](/manual/getting-started/manage-user-sessions) guide to learn how to customize the session related configurations.
+      Successfully authenticated users can now access your dashboard.
 
 </Steps>
 
 ## What's next?
 
 You've completed the Scalekit quickstart and enabled secure authentication for your users and sign-in flow.
-- It's time to add more [authentication methods](/manual/social-logins-quickstart/) to expand user choice, security and improve user acquisition.
 - Implement sign up flows such as Just-In-Time (JIT) provisioning to create new users and manage user profiles.
 - [Customize the login page](https://www.example.org) to match your brand's design and style.
