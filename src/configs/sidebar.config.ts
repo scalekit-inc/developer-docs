@@ -213,6 +213,10 @@ export const sidebar = [
             label: 'Quickstart',
             link: '/home/quickstart',
           },
+          {
+            label: 'Model your data',
+            link: '/home/model-your-data',
+          },
         ],
       },
     ],
