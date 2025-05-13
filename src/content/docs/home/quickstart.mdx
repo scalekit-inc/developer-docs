@@ -35,32 +35,61 @@ Let's get started!
     Create a new Scalekit client instance after initializing the environment variables.
     <Tabs syncKey="tech-stack">
       <TabItem value="nodejs" label="Node.js">
-      ```js
+      ```javascript
       import { Scalekit } from '@scalekit-sdk/node';
 
       const scalekit = new Scalekit({
         environmentUrl: process.env.SCALEKIT_ENVIRONMENT_URL,
         clientId: process.env.SCALEKIT_CLIENT_ID,
-        clientSecret: process.env.SCALEKIT_CLIENT_SECRET
+        clientSecret: process.env.SCALEKIT_CLIENT_SECRET,
+      });
+
+      const auth = scalekit({
+        session: {
+          sealData: true,
+          sealingSecret: process.env.COOKIE_SEAL_SECRET,
+        }
       });
       ```
       </TabItem>
     </Tabs>
   2. #### Create the authorization endpoint for user sign-in
-       Generate the authorization URL by passing a  [registered](/guides/product/auth-redirect-uri/) _redirect URI_ and _scopes_ to the Scalekit SDK.
+       Generate the authorization URL by passing a [registered](/guides/product/auth-redirect-uri/) _redirect URI_ and _scopes_ to the Scalekit SDK.
         <Tabs>
         <TabItem value="node" label="Node.js">
-        ```js title="Example in Express.js" ins={9} { "Browser redirects the user to the authorization endpoint": 8} { "Generate the authorization URL": 1} wrap
-          //
-          const authorizationUrl = await scalekit.getAuthorizationUrl(
-            {
-              redirect_to:'http://localhost:3000/api/callback',
-            }
-          );
+        ```javascript
+        // Generate the authorization URL
+        const {
+          data: { url: authorizationUrl }
+        } = await auth.api.signIn({
+          authMethod: 'default',
+          body: {
+            organizationId: 'org_59615193906282635',
+            callbackURL: '/api/callback',
+          }
+        });
 
-          //
-          res.redirect(authorizationUrl);
-        }
+        // Redirect user to Scalekit's authorization page
+        res.redirect(authorizationUrl);
+        ```
+        </TabItem>
+        <TabItem value="javascript" label="React">
+        ```typescript
+        import { initAuthClient } from "@scalekit/client/react";
+        import { passkey, social, ssoClient } from "@scalekit/client/plugins";
+
+        export const authClient = initAuthClient({
+          baseURL: "http://localhost:3000",
+          plugins: [passkey(), social(), ssoClient()],
+        });
+
+        const data = await authClient.signIn({
+          authMethod: 'default', // opts: 'passkey', 'social', 'sso'
+          organizationId: 'org_59615193906282635',
+        });
+
+        // data.url is the scalekit-managed authorization destination page
+        // The React component will redirect the user to this page
         ```
         </TabItem>
       </Tabs>
@@ -72,18 +101,21 @@ Let's get started!
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
-        ```js  "code" {11}  { "Get the authorization code from the callback": 1} ins={1-2} { "Exchange the authorization code for a user profile": 8}
-        //
+        ```javascript
+        // Get the authorization code from the callback
         const { code, error, error_description } = req.query;
 
         if (error) {
           // Handle unauthorized access
         }
 
-        //
-        const res = await scalekit.exchangeCodeForProfile(code, redirectUri);
+        // Exchange the authorization code for a user profile
+        const result = await auth.api.exchangeCode({
+          code,
+          callbackURL: '/api/callback'
+        });
 
-        const { user } = res;
+        const { user, sealedTokens } = result;
         ```
         </TabItem>
       </Tabs>
@@ -91,74 +123,68 @@ Let's get started!
       The `authenticateWithCode` method returns an object containing the user's profile information (`user` object) and `idToken` (JWT).
       <Tabs>
         <TabItem value="user" label="User object">
-        ```json {10}
-      {
-        "user": {
+        ```json
+        {
+          "user": {
+            "email": "john.doe@example.com",
+            "emailVerified": true,
+            "familyName": "Doe",
+            "givenName": "John",
+            "name": "John Doe",
+            "id": "usr_63261014140912035"
+          },
+          "idToken": "eyJh..",
+          "accessToken": "eyJhbGciO..",
+          "refreshToken": "rt_8f7d6e5c4b3a2d1e0f9g8h7i6j..",
+          "expiresIn": 299
+        }
+        ```
+        </TabItem>
+        <TabItem value="idToken" label="ID token (decoded)">
+        ```json
+        {
+          "at_hash": "ec_jU2ZKpFelCKLTRWiRsg",
+          "aud": [
+            "skc_58327482062864390"
+          ],
+          "azp": "skc_58327482062864390",
+          "c_hash": "6wMreK9kWQQY6O5R0CiiYg",
+          "client_id": "skc_58327482062864390",
           "email": "john.doe@example.com",
-          "emailVerified": true,
-          "familyName": "Doe",
-          "givenName": "John",
+          "email_verified": true,
+          "exp": 1742975822,
+          "family_name": "Doe",
+          "given_name": "John",
+          "iat": 1742974022,
+          "iss": "https://scalekit-z44iroqaaada-dev.scalekit.cloud",
           "name": "John Doe",
-          "id": "usr_63261014140912035"
-        },
-        "idToken": "eyJh..",
-        "accessToken": "eyJhbGciO..",
-        "refreshToken": "rt_8f7d6e5c4b3a2d1e0f9g8h7i6j..",
-        "expiresIn": 299
-      }
-      ```
-      </TabItem>
-      <TabItem value="idToken" label="ID token (decoded)">
-      ```json
-       {
-        "at_hash": "ec_jU2ZKpFelCKLTRWiRsg",
-        "aud": [
-          "skc_58327482062864390"
-        ],
-        "azp": "skc_58327482062864390",
-        "c_hash": "6wMreK9kWQQY6O5R0CiiYg",
-        "client_id": "skc_58327482062864390",
-        "email": "john.doe@example.com",
-        "email_verified": true,
-        "exp": 1742975822,
-        "family_name": "Doe",
-        "given_name": "John",
-        "iat": 1742974022,
-        "iss": "https://scalekit-z44iroqaaada-dev.scalekit.cloud",
-        "name": "John Doe",
-        "oid": "org_59615193906282635",
-        "sid": "ses_65274187031249433",
-        "sub": "usr_63261014140912135"
-      }
-      ```
-      </TabItem>
+          "oid": "org_59615193906282635",
+          "sid": "ses_65274187031249433",
+          "sub": "usr_63261014140912135"
+        }
+        ```
+        </TabItem>
       </Tabs>
 
-       You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
+      You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
 
       Refer to the [`idToken` JWT reference](/reference/concepts/auth-endpoints) for more details on its structure.
 
 4. #### Create a session and log in the user
-      Now that you have the user's profile information, you can create a session for the user in the cookie-based session storage.
+      Create a session proxy
 
       <Tabs>
-        <TabItem value="javascript" label="Javascript">
-        ```js wrap {4-6}
-        // Destructure the session tokens on the response object
-        const { sessionTokens } = res;
+        <TabItem value="node" label="Node.js">
+        ```javascript
+        const { user, sealedTokens } = result;
+        res.cookie('sk_session', sealedTokens, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'strict',
+          maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
 
-        try {
-          const session = await scalekit.createSession(sessionTokens);
-
-          // Set session ID or tokens as HttpOnly cookies (recommended)
-          res.cookie('session_id', session.id, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-          });
-
-          res.status(200).json({ success: true, session });
+        res.status(200);
         ```
         </TabItem>
       </Tabs>
@@ -167,8 +193,10 @@ Let's get started!
 
       <Tabs>
         <TabItem value="node" label="Node.js">
-        ```js wrap {4,8}
-        const isValidSession = await scalekit.validateSession(req.cookies.session_id);
+        ```javascript
+        const { isValidSession, user } = await auth.api.getSession({
+          headers: req.headers // contains the session tokens in cookies
+        });
 
         if (!isValidSession) {
           return res.status(401).json({ error: 'Unauthorized' });
@@ -183,7 +211,6 @@ Let's get started!
       Successfully authenticated users can now access your dashboard with a default session timeout of 7 days. See the [session management](/manual/getting-started/manage-user-sessions) guide to learn how to customize the session related configurations.
 
 </Steps>
-
 
 ## What's next?
 
