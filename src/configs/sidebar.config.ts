@@ -217,6 +217,14 @@ export const sidebar = [
             label: 'Model your data',
             link: '/home/model-your-data',
           },
+          {
+            label: 'Sign up',
+            link: '/home/sign-up',
+          },
+          {
+            label: 'Sign out',
+            link: '/home/sign-out',
+          },
         ],
       },
     ],
