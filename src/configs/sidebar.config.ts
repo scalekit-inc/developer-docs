@@ -39,12 +39,36 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Concepts',
-        items: [],
-      },
-      {
         label: 'Guides',
-        items: [],
+        items: [
+          {
+            label: 'How to',
+            items: [
+              'home/guides/test-sso',
+              'home/guides/custom-domain',
+              'home/guides/idp-init-sso',
+              'home/guides/okta-sso-test',
+              {
+                label: 'Integrate with',
+                items: [
+                  'integrations/auth-systems/auth0',
+                  'integrations/auth-systems/firebase',
+                  'integrations/auth-systems/aws-cognito',
+                ],
+              },
+            ],
+          },
+          {
+            label: 'Concepts',
+            items: [
+              'home/guides/custom-domain',
+              'home/guides/idtoken-claims',
+              'home/guides/redirects',
+              'home/guides/sso-basics',
+              'home/guides/sso-user-attributes',
+            ],
+          },
+        ],
       },
     ],
   },
