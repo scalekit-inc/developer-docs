@@ -1,7 +1,7 @@
 export const sidebar = [
   {
     label: 'Start',
-    link: '/',
+    link: '/home/quickstart',
     id: 'start',
     icon: 'rocket',
     items: [
@@ -200,6 +200,22 @@ export const sidebar = [
         label: 'Errors',
         collapsed: false,
         autogenerate: { directory: 'reference/errors' },
+      },
+    ],
+  },
+  {
+    label: 'Guides',
+    link: '/guides/',
+    id: 'guides',
+    icon: 'sun',
+    items: [
+      {
+        label: 'Product',
+        autogenerate: { directory: 'guides/product' },
+      },
+      {
+        label: 'Extended guides',
+        autogenerate: { directory: 'guides/extended' },
       },
     ],
   },
