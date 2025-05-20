@@ -1,145 +1,101 @@
 ---
 title: Production Launch Checklist
-
+sidebar:
+  order: 1
+  label: "Launch Checklist"
 ---
 
 import { Aside, TabItem, Tabs, Steps } from "@astrojs/starlight/components"
 import CheckItem from '@components/ui/CheckItem.astro';
 
+As you prepare to deploy your Scalekit integration to production, it's crucial to verify that all configurations are optimized for security and user experience.
 
-Before deploying your SCIM provisioning service to production, complete this checklist to ensure security, reliability, and optimal user experience. Each section includes specific actions and verification steps.
+The following checklists help ensure your implementation is production-ready and efficient.
 
-## Environment Configuration
+<Tabs>
+<TabItem value="sso" label="SSO Integration">
 
-### <CheckItem iconName="approve-check-circle"> Update Environment Variables</CheckItem>
-
-<Steps>
-
-1. Replace development credentials with production values: Client ID, Client Secret, and Environment URL.
-
-2. Verify environment configuration:
-
-   ```sh title="Example environment file structure"
-   SCALEKIT_CLIENT_ID=<skc_client_id>
-   SCALEKIT_CLIENT_SECRET=<sk_client_secret>
-   SCALEKIT_API_URL=<scalekit_environment_url>
-   ```
-
-</Steps>
-
-### <CheckItem iconName="approve-check-circle"> Secure Credentials</CheckItem>
+As you get ready to deploy your Single Sign-On (SSO) implementation to production, it's important to double-check that everything is properly configured for optimal security and a seamless user experience. The checklist below outlines recommended steps to ensure your SSO integration is robust, efficient, and maintainable in a live environment.
 
 <Steps>
 
-1. Store the Client Secret securely: Use a secure secret management service, implement encryption at rest, and rotate secrets regularly.
+1. <CheckItem iconName="approve-check-circle"> **Use appropriate environment variables**</CheckItem>
 
-2. Follow our security best practices for detailed guidance.
+    Switch from development to production credentials, including the client ID, client secret, and environment URL.
+
+2. <CheckItem iconName="approve-check-circle"> **Secure the client secret** </CheckItem>
+
+    Your client secret is akin to a key to your application. Secure it with the utmost care. Go through our [best practices guide](/sso/guides/key-concepts/manage-client-secrets) to learn how to manage the client secrets safely and securely.
+
+3. <CheckItem iconName="approve-check-circle"> **Verify redirect URI configuration** </CheckItem>
+
+    Double-check your redirect URI settings in the production environment to ensure they point to the correct endpoints. For guidelines on valid configurations, visit our [Redirect URI configuration guide](/sso/guides/key-concepts/redirect-uri).
+
+4. <CheckItem iconName="approve-check-circle"> **Test the single sign-on flows** </CheckItem>
+
+    Ensure that you have implemented and tested all possible single sign-on workflows between your application and your customer's identity providers. Go through our [how-to guide](/sso/test-sso) to understand all the SSO scenarios and how to validate them for production readiness. Especially, ensure you have validated for the following important business cases:
+
+    - SP initiated SSO
+    - IdP initiated SSO
+    - Errors during SSO flow
+
+5. <CheckItem iconName="approve-check-circle"> **Finalize branding & theming** </CheckItem>
+
+    For a consistent and professional user experience, confirm your branding (logos, accent colors, etc) is applied to the admin portal.
+
+6. <CheckItem iconName="approve-check-circle"> **Review admin portal URL** </CheckItem>
+
+    Customize the admin portal URL to match your domain (for example, `https://sso.b2b-app.com`) for a seamless brand experience. Also, remember to update `.env` file post-CNAME configuration.
+
+7. <CheckItem iconName="approve-check-circle"> **Graceful error handling** </CheckItem>
+
+    Test your integration thoroughly across all possible edge cases, including incomplete, invalid, or duplicate data submissions.
 
 </Steps>
 
-## Integration Setup
+</TabItem>
 
-### <CheckItem iconName="approve-check-circle"> Configure Webhooks</CheckItem>
+<TabItem value="scim" label="SCIM Provisioning">
+
+As you prepare to deploy SCIM Provisioning, verify that all configurations are optimized for security and user experience. The following checklist helps ensure your implementation is production-ready and efficient.
 
 <Steps>
 
-1. Set up webhook endpoints for real-time updates:
-   - User changes
-   - Group modifications
-   - Role assignments
+1. <CheckItem iconName="approve-check-circle"> **Use appropriate environment variables** </CheckItem>
 
-2. Implement security measures:
-   - Validate webhook signatures
-   - Use HTTPS endpoints
-   - Set up retry mechanisms
+    Switch from development to production credentials, including the client ID, client secret, and environment URL.
 
-   Learn more in our [webhook security guide](/guides/extended/webhook-best-practices).
+2. <CheckItem iconName="approve-check-circle"> **Secure the client secret** </CheckItem>
 
-</Steps>
+    Your client secret is akin to a key to your application. Secure it with the utmost care. Go through our [best practices guide](/sso/guides/key-concepts/manage-client-secrets) to learn how to manage the client secrets safely and securely.
 
-### <CheckItem iconName="approve-check-circle"> Verify Provisioning Workflows</CheckItem>
+3. <CheckItem iconName="approve-check-circle"> **Configure webhooks** </CheckItem>
 
-Test each user lifecycle scenario:
+    Setup webhooks for receiving real-time updates on user and group changes. Follow our [webhook security guide](/scim/webhooks) to learn how to secure your webhooks.
 
-<Steps>
+4. <CheckItem iconName="approve-check-circle"> **Test provisioning flows** </CheckItem>
 
-1. User Management: Create new users, update user profiles, deactivate users, and delete user accounts.
+    Ensure that you have implemented and tested all possible SCIM Provisioning workflows such as:
 
-2. Group Operations: Add users to groups, remove users from groups, and update group memberships.
+    - User provisioning
+    - User de-provisioning
+    - User profile update
+    - Group membership changes
+    - Role assignments
 
-3. Role Management: Assign roles, modify permissions, and revoke access.
+5. <CheckItem iconName="approve-check-circle"> **Finalize branding & theming** </CheckItem>
 
-</Steps>
+    For a consistent user experience, ensure your branding (logo, colors) are added to the admin portal.
 
-## User Experience
+6. <CheckItem iconName="approve-check-circle"> **Review admin portal URL** </CheckItem>
 
-### <CheckItem iconName="approve-check-circle"> Brand Customization</CheckItem>
+    Customize the admin portal URL to match your domain (for example, `https://admin.hero-saas.app`) for a seamless brand experience. Also, remember to update `.env` file post CNAME configuration. Read [customizing the admin portal](/scim/domain-and-theme-customization) on how to match your brand.
 
-<Steps>
+7. <CheckItem iconName="approve-check-circle"> **Graceful error handling** </CheckItem>
 
-1. Update Admin Portal branding: Add your company logo, configure brand colors, and customize UI elements.
-
-2. Verify branding consistency across: Login pages, Dashboard interfaces, and email notifications.
+    Test thoroughly across all possible edge cases, including incomplete, invalid, or duplicate data.
 
 </Steps>
 
-### <CheckItem iconName="approve-check-circle"> Configure Custom Domain</CheckItem>
-
-<Steps>
-
-1. Set up your custom admin portal domain:
-   ```
-   https://admin.your-company.com
-   ```
-
-2. Update DNS configuration:
-   - Add CNAME records
-   - Configure SSL certificates
-   - Verify domain ownership
-
-3. Follow our domain customization guide for detailed steps.
-
-</Steps>
-
-## Error Handling and Monitoring
-
-### <CheckItem iconName="approve-check-circle"> Implement Error Management</CheckItem>
-
-<Steps>
-
-1. Handle common error scenarios: Network timeouts, invalid data formats, authentication failures, and rate limiting.
-
-2. Set up error notifications: Configure alert thresholds, define escalation paths, and document recovery procedures.
-
-3. Test error scenarios: Duplicate user creation, invalid group assignments, incomplete profile data, and API throttling.
-
-
-</Steps>
-
-## Final Verification
-
-Before launch, verify these critical items:
-
-<CheckItem> All environment variables are properly set</CheckItem>
-<CheckItem> Client secrets are securely stored</CheckItem>
-<CheckItem> Webhooks are configured and tested</CheckItem>
-<CheckItem> All provisioning flows work as expected</CheckItem>
-<CheckItem> Branding is consistent across all interfaces</CheckItem>
-<CheckItem> Custom domain is properly configured</CheckItem>
-<CheckItem> Error handling is comprehensive</CheckItem>
-<CheckItem> Monitoring systems are active</CheckItem>
-
-<Aside type="tip">
-Keep this checklist handy during your deployment process. Each item is crucial for a successful production launch.
-</Aside>
-
-## Next Steps
-
-After completing this checklist:
-
-1. Schedule a final security review
-2. Plan your rollout strategy
-3. Document your emergency response procedures
-4. Set up regular maintenance schedules
-
-For additional guidance, contact our [support team](mailto:support@scalekit.com).
+</TabItem>
+</Tabs>
