@@ -6,6 +6,10 @@ export const sidebar = [
     icon: 'rocket',
     items: [
       {
+        label: 'Quickstart',
+        link: '/home/quickstart',
+      },
+      {
         label: 'Getting Started',
         items: [
           {
