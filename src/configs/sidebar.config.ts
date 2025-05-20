@@ -1,5 +1,35 @@
 export const sidebar = [
   {
+    label: 'Start',
+    link: '/home/quickstart',
+    id: 'start',
+    icon: 'rocket',
+    items: [
+      {
+        label: 'Getting Started',
+        items: [
+          {
+            label: 'Quickstart',
+            link: '/home/quickstart',
+          },
+          {
+            label: 'Model your data',
+            link: '/home/model-your-data',
+          },
+          {
+            label: 'Sign up',
+            link: '/home/sign-up',
+          },
+          {
+            label: 'Sign out',
+            link: '/home/sign-out',
+          },
+        ],
+      },
+    ],
+  },
+  /* Remove this sidebar for migration release
+  {
     label: 'Manual',
     id: 'manual',
     link: '/manual/getting-started/',
@@ -96,6 +126,7 @@ export const sidebar = [
       },
     ],
   },
+  */
   {
     label: 'Reference',
     id: 'reference',
@@ -197,35 +228,6 @@ export const sidebar = [
         label: 'Auth Systems',
         collapsed: true,
         autogenerate: { directory: 'integrations/auth-systems' },
-      },
-    ],
-  },
-  {
-    label: 'Start',
-    link: '/home/quickstart',
-    id: 'start',
-    icon: 'rocket',
-    items: [
-      {
-        label: 'Getting Started',
-        items: [
-          {
-            label: 'Quickstart',
-            link: '/home/quickstart',
-          },
-          {
-            label: 'Model your data',
-            link: '/home/model-your-data',
-          },
-          {
-            label: 'Sign up',
-            link: '/home/sign-up',
-          },
-          {
-            label: 'Sign out',
-            link: '/home/sign-out',
-          },
-        ],
       },
     ],
   },
