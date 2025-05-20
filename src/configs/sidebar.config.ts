@@ -9,8 +9,12 @@ export const sidebar = [
         label: 'Getting Started',
         items: [
           {
-            label: 'Overview',
-            link: '/home/overview',
+            label: '👋 Welcome to Scalekit',
+            link: '/',
+          },
+          {
+            label: '🛠️ Installation',
+            link: '/home/setup-scalekit',
           },
           {
             label: 'Authentication',
