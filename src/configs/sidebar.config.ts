@@ -6,10 +6,6 @@ export const sidebar = [
     icon: 'rocket',
     items: [
       {
-        label: 'Quickstart',
-        link: '/home/quickstart',
-      },
-      {
         label: 'Getting Started',
         items: [
           {
@@ -17,16 +13,13 @@ export const sidebar = [
             link: '/home/quickstart',
           },
           {
-            label: 'Model your data',
-            link: '/home/model-your-data',
-          },
-          {
-            label: 'Sign up',
-            link: '/home/sign-up',
-          },
-          {
-            label: 'Sign out',
-            link: '/home/sign-out',
+            label: 'Authentication',
+            items: [
+              {
+                label: 'Single sign-on',
+                link: '/home/sign-up',
+              },
+            ],
           },
         ],
       },
