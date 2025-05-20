@@ -18,7 +18,19 @@ export const sidebar = [
           },
           {
             label: 'Authentication',
-            autogenerate: { directory: 'home/getting-started' },
+            items: [
+              'home/getting-started/authentication/social-logins-quickstart',
+              'home/getting-started/authentication/sso-quickstart',
+              'home/getting-started/authentication/m2m-quickstart',
+            ],
+          },
+          {
+            label: 'User Management',
+            items: ['home/getting-started/user-management/scim-quickstart'],
+          },
+          {
+            label: '📋 Launch checklist',
+            link: '/home/getting-started/launch-checklist',
           },
         ],
       },
