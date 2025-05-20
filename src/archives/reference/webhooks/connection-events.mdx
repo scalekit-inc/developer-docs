@@ -1,0 +1,127 @@
+---
+title: Connection events
+sidebar:
+  label: Connection events
+  order: 2
+---
+
+import { Badge, Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution">
+
+This page is work in progress. It will be updated with reference for all the properties in the event payloads.
+
+</Aside>
+
+### Event properties
+
+This webhook is triggered when an organization connection is enabled or disabled.
+
+| Property | Description |
+| --- | --- |
+| <pre>spec_version</pre> | Version of the event specification |
+| <pre>id</pre> | Unique identifier for the event |
+| <pre>object</pre> | The object type this event relates to |
+| <pre>environment_id</pre> | ID of the environment where the event occurred |
+| <pre>occurred_at</pre> | Timestamp when the event occurred |
+| <pre>organization_id</pre> | ID of the organization associated with this event |
+| <pre>type</pre> | Type of event that occurred |
+
+### Data properties
+
+| Property | Description |
+| --- | --- |
+| <pre>connection_type</pre> | The type of connection. Supported values are `OIDC` and `SAML` |
+| <pre>enabled</pre> | _Boolean_ Type. Supported values are `true` and `false` |
+| <pre>id</pre> | Unique identifier for the connection |
+| <pre>provider</pre> | The identity provider. Supported values are `OKTA` |
+| <pre>organization_id</pre> | ID of the organization that owns this connection |
+| <pre>status</pre> | Current status. Supported values are `COMPLETED` and `FAILED` |
+
+
+## organization.sso_enabled
+
+This webhook is triggered when an organization connection is enabled. The event type is  `organization.sso_enabled`
+
+```json title="Example organization enabled event"
+{
+  "spec_version": "1",
+  "id": "evt_55135294931862024",
+  "object": "Connection",
+  "environment_id": "env_27758032200925221",
+  "occurred_at": "2025-01-15T08:39:56.694563302Z",
+  "organization_id": "org_30682579501843011",
+  "type": "organization.sso_enabled",
+  "data": {
+    "connection_type": "OIDC",
+    "enabled": true,
+    "id": "conn_30682599886160264",
+    "provider": "OKTA",
+    "organization_id": "org_30682579501843011",
+    "status": "COMPLETED"
+  }
+}
+```
+## organization.sso_disabled
+
+```json title="Example organization disabled event"
+{
+  "environment_id": "env_27758032200925221",
+  "id": "evt_55135244717654530",
+  "object": "Connection",
+  "occurred_at": "2025-01-15T08:39:26.764447559Z",
+  "organization_id": "org_30682579501843011",
+  "spec_version": "1",
+  "type": "organization.sso_disabled",
+  "data": {
+    "organization_id": "org_30682579501843011",
+    "connection_type": "OIDC",
+    "enabled": false,
+    "id": "conn_30682599886160264",
+    "provider": "OKTA",
+    "status": "COMPLETED"
+  }
+}
+```
+
+
+## organization.sso_deleted <Badge text="In Development" variant="danger" />
+
+```json title="Example organization deleted event"
+{
+  "data": {
+    "connection_type": "OIDC",
+    "id": "conn_30682599886160264",
+    "provider": "OKTA",
+    "organization_id": "org_30682579501843011",
+  },
+  "environment_id": "env_27758032200925221",
+  "id": "evt_55135294931862024",
+  "object": "Connection",
+  "occurred_at": "2025-01-15T08:39:56.694563302Z",
+  "organization_id": "org_30682579501843011",
+  "spec_version": "1",
+  "type": "organization.sso_deleted"
+}
+```
+
+## organization.sso_created <Badge text="In Development" variant="danger" />
+
+```json title="Example organization created event"
+{
+  "data": {
+    "connection_type": "OIDC",
+    "id": "conn_30682599886160264",
+    "provider": "OKTA",
+    "organization_id": "org_30682579501843011",
+  },
+  "environment_id": "env_27758032200925221",
+  "id": "evt_55135294931862024",
+  "object": "Connection",
+  "occurred_at": "2025-01-15T08:39:56.694563302Z",
+  "organization_id": "org_30682579501843011",
+  "spec_version": "1",
+  "type": "organization.sso_created"
+}
+
+```
