@@ -29,7 +29,7 @@ export default defineConfig({
       },
       favicon: 'src/assets/favicons/logo.png',
       components: {
-        SocialIcons: './src/components/overrides/SocialIcons.astro',
+        // SocialIcons: './src/components/overrides/SocialIcons.astro',
         Sidebar: './src/components/overrides/Sidebar.astro',
       },
       logo: {
@@ -62,8 +62,9 @@ export default defineConfig({
         '@fontsource-variable/plus-jakarta-sans',
         '@fontsource-variable/space-grotesk',
         './src/styles/theme-priority.css',
-        './src/styles/tailwind.css',
-        './src/styles/custom.css',
+        // './src/styles/custom.css',
+        // './src/styles/tailwind.css',
+        // './src/styles/global.css',
       ],
       plugins: [
         starlightLinksValidator(),
