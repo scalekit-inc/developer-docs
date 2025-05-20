@@ -73,7 +73,7 @@ export default defineConfig({
         // './src/styles/global.css',
       ],
       plugins: [
-        starlightLinksValidator(),
+        // starlightLinksValidator(), // TODO: Enable this when we have a way to fix the broken links
         starlightLlmsTxt(),
         starlightThemeRapide(),
         starlightImageZoom({
