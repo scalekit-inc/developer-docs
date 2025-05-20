@@ -29,6 +29,10 @@ export const sidebar = [
             items: ['home/getting-started/user-management/scim-quickstart'],
           },
           {
+            label: '⚙️ Admin Portal',
+            link: '/home/getting-started/admin-portal',
+          },
+          {
             label: '📋 Launch checklist',
             link: '/home/getting-started/launch-checklist',
           },
