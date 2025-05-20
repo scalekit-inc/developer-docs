@@ -59,9 +59,15 @@ export default defineConfig({
       },
       customCss: [
         '@fontsource-variable/inter',
-        '@fontsource-variable/plus-jakarta-sans',
-        '@fontsource-variable/space-grotesk',
+        '@fontsource-variable/geist',
+        '@fontsource-variable/geist-mono',
+
+        /** Backup fonts. They can be removed if deemed unnecessary. */
+        // '@fontsource-variable/plus-jakarta-sans',
+        // '@fontsource-variable/space-grotesk',
         './src/styles/theme-priority.css',
+
+        /** The following order is covered in theme-priority.css. Consider removing if deemed unnecessary. */
         // './src/styles/custom.css',
         // './src/styles/tailwind.css',
         // './src/styles/global.css',
