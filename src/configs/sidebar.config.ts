@@ -9,17 +9,12 @@ export const sidebar = [
         label: 'Getting Started',
         items: [
           {
-            label: 'Quickstart',
-            link: '/home/quickstart',
+            label: 'Overview',
+            link: '/home/overview',
           },
           {
             label: 'Authentication',
-            items: [
-              {
-                label: 'Single sign-on',
-                link: '/home/sign-up',
-              },
-            ],
+            autogenerate: { directory: 'home/getting-started' },
           },
         ],
       },
