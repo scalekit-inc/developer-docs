@@ -115,7 +115,7 @@ export const sidebar = [
     icon: 'open-book',
     items: [
       {
-        label: 'Concepts',
+        label: 'Authentication',
         items: [
           {
             label: 'How to',
@@ -132,6 +132,19 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Sign-in configurations',
+        items: [
+          {
+            label: 'Social Connections',
+            autogenerate: { directory: 'integrations/social-connections' },
+          },
+          {
+            label: 'Third-party systems',
+            autogenerate: { directory: 'integrations/auth-systems' },
+          },
+        ],
+      },
+      {
         label: 'Administrator guides',
         items: [
           {
@@ -143,14 +156,6 @@ export const sidebar = [
             autogenerate: { directory: 'integrations/scim-integrations' },
           },
         ],
-      },
-      {
-        label: 'Social Connections',
-        autogenerate: { directory: 'integrations/social-connections' },
-      },
-      {
-        label: 'Auth Systems',
-        autogenerate: { directory: 'integrations/auth-systems' },
       },
     ],
   },
