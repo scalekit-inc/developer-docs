@@ -1,0 +1,140 @@
+---
+title: Managing webhook event logs
+description: Learn how to view, filter, and manage webhook event logs in Scalekit to monitor webhook deliveries and troubleshoot issues.
+draft: false
+sidebar:
+  label: Webhook event logs
+---
+
+Webhook event logs provide a detailed history of webhook deliveries, allowing you to monitor successful deliveries, identify failed requests, and troubleshoot any issues with your webhook integrations. This guide walks you through the process of accessing and managing webhook event logs in Scalekit.
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- Access to the Scalekit dashboard
+- Administrative permissions for the environment where webhooks are configured
+- At least one webhook configured in your environment
+
+## Accessing webhook event logs
+
+Follow these steps to access the webhook event logs:
+
+### 1. Navigate to the webhooks dashboard
+
+1. Sign in to [Scalekit](https://app.scalekit.cloud/)
+2. Navigate to your environment
+3. In the left navigation menu, click on **Webhooks**
+
+![Click on Webhooks in the left navigation menu](/assets/guides/product/event-logs/step-2-click-webhooks.png)
+
+### 2. Select a webhook
+
+From the webhooks dashboard, click on the webhook whose event logs you want to view.
+
+![Click on a webhook to view its details](/assets/guides/product/event-logs/step-3-click-example-webhook.png)
+
+## Filtering webhook event logs
+
+The webhook details page displays a list of recent webhook deliveries. You can filter these logs to find specific events:
+
+### 1. Set the time period
+
+By default, the logs show events from the last 24 hours. To change the time period, click on the time filter dropdown (e.g., "Last 30 days") and select your preferred time range.
+
+![Click on the time period filter](/assets/guides/product/event-logs/step-4-click-last-30-days.png)
+
+### 2. Filter by status and event type
+
+You can further filter the logs by:
+
+1. Click on the filter icon to open the filter options
+
+  ![Click on the filter icon](/assets/guides/product/event-logs/step-5-click-filter.png)
+
+2. Filter by delivery status (e.g., Success, Failed)
+
+  ![Select Success status from the filter](/assets/guides/product/event-logs/step-6-click-success.png)
+
+3. Filter by event type (e.g., organization.directory.user_created)
+
+  ![Select a specific event type](/assets/guides/product/event-logs/step-7-click-event-type.png)
+
+## Managing webhook deliveries
+
+### Resending a webhook delivery
+
+If a webhook delivery failed or you need to test your endpoint, you can resend a webhook:
+
+1. Find the webhook delivery you want to resend in the event logs
+2. Click the **Resend** button for that delivery
+
+![Click Resend button](/assets/guides/product/event-logs/step-8-click-resend.png)
+
+### Viewing delivery details
+
+To see detailed information about a specific webhook delivery:
+
+1. Click on a delivery in the event logs to expand its details
+  ![View webhook delivery details](/assets/guides/product/event-logs/step-9-success-details.png)
+
+2. Click on **Payload** to view the data that was sent
+
+  ![Click on Payload tab](/assets/guides/product/event-logs/step-10-click-payload.png)
+
+## Managing webhook security
+
+Scalekit provides security features to ensure that webhook deliveries are secure:
+
+### Viewing webhook signing keys
+
+1. Scroll down to the security section of the webhook details page
+
+  ![Webhook security section](/assets/guides/product/event-logs/step-11-security-section.png)
+
+2. Click on the **Show** button next to the signing key to reveal it
+
+  ![Click Show to reveal signing key](/assets/guides/product/event-logs/step-12-click-show-key.png)
+
+3. Click on the **Show** button next to the signing secret to reveal it
+
+  ![Click Show to reveal signing secret](/assets/guides/product/event-logs/step-13-click-show-secret.png)
+
+### Rotating webhook signing secrets
+
+For security best practices, you may want to periodically rotate your webhook signing secrets:
+
+1. Click on the dropdown menu next to the signing secret
+
+  ![Click on the dropdown menu](/assets/guides/product/event-logs/step-14-rotate-option.png)
+
+2. Select **Rotate Signing Secret**
+
+  ![Click Rotate Signing Secret](/assets/guides/product/event-logs/step-15-click-rotate.png)
+
+3. Click **Proceed** to confirm the rotation
+
+  ![Click Proceed to confirm rotation](/assets/guides/product/event-logs/step-16-click-proceed.png)
+
+> **Note:** After rotating a signing secret, you'll need to update your application to use the new secret for verifying webhook signatures.
+
+## Troubleshooting webhook deliveries
+
+If you're experiencing issues with webhook deliveries, check the following:
+
+1. **Delivery status:** A "Failed" status indicates the webhook couldn't be delivered. Check the HTTP response code for more details.
+
+2. **Endpoint availability:** Ensure your endpoint is publicly accessible and responding correctly.
+
+3. **Signature verification:** If your endpoint is rejecting webhooks, verify that your application is correctly validating the webhook signature.
+
+4. **Request timeout:** If requests are timing out, your endpoint might be taking too long to process the webhook.
+
+## What's next
+
+After learning how to manage webhook event logs, you might want to:
+
+- [Register additional webhooks](/guides/product/registering-webhooks) for different event types
+- Implement proper error handling for webhook deliveries in your application
+- Set up monitoring for failed webhook deliveries
+- Implement webhook signature verification in your application
