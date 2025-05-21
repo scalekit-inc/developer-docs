@@ -44,6 +44,21 @@ export const sidebar = [
           },
         ],
       },
+      {
+        label: 'Administrator guides',
+        autogenerate: { directory: 'guides/integrations/sso-integrations' },
+      },
+    ],
+  },
+  {
+    label: 'SCIM provisioning',
+    link: '/directory/scim/quickstart',
+    icon: 'seti:folder',
+    items: [
+      {
+        label: 'Quickstart',
+        items: ['directory/scim/quickstart'],
+      },
     ],
   },
   {
@@ -123,10 +138,10 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Reference',
+    label: 'APIs & SDKs',
     id: 'reference',
     link: '/reference/',
-    icon: 'document',
+    icon: 'seti:crystal_embedded',
     items: [
       {
         label: 'REST APIs ↗',
