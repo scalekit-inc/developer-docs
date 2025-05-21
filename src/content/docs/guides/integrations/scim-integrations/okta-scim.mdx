@@ -1,0 +1,168 @@
+---
+title: Okta Directory
+sidebar:
+  order: 2
+  label: Okta
+  badge:
+    variant: note
+    text: SCIM
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+This guide is designed to help administrators seamlessly sync their Okta Directory with an application they want to onboard to their organization. By integrating your application with Okta, you can automate user management tasks and ensure that access rights are consistently up-to-date.
+
+This registration sets up the following:
+
+1. **Endpoint**: This is the URL where Okta will send requests to the app you are onboarding. It acts as a communication
+   point between Okta and your application.
+2. **Bearer Token**: This token is used by Okta to authenticate its requests to the endpoint. It ensures that the
+   requests are secure and authorized.
+
+By setting up these components, you enable seamless synchronization between your application and the Okta directory.
+
+## Create an Endpoint and API Token
+
+Open the Admin Portal from the app being onboarded and select the "Directory Sync" tab. A list of Directory Providers will be displayed. Choose "Okta" as your Directory Provider. If the Admin Portal is not accessible from the app, request instructions from the app owner.
+
+<figure>
+  ![Okta SCIM](@/assets/docs/guides/scim-integrations/okta-scim/0.png)
+  <figcaption>Setting up Directory Sync in the admin portal of an app being onboarded: Okta selected as the provider, awaiting configuration.</figcaption>
+</figure>
+
+
+<Aside type="note">
+
+If the "Directory Sync" tab is not visible, it typically indicates that the feature is not enabled for your
+organization. Contact the app owner to enable it via the Scalekit Dashboard by navigating to Organizations > Your
+Organization > Enable Directory Sync.
+
+</Aside>
+
+<figure>
+![Okta directory sync setup: Endpoint URL and one-time visible bearer token provided.](@/assets/docs/guides/scim-integrations/okta-scim/5.png)
+<figcaption>Okta directory sync setup: Endpoint URL and one-time visible bearer token provided.</figcaption>
+</figure>
+
+After selecting "Okta," click "Configure." This action will generate an Endpoint URL and Bearer token for your
+organization, allowing the app to listen to events and maintain synchronization with your organization.
+
+## Add a New Application in Okta
+
+Log in to the Okta admin dashboard and navigate to "Applications" in the main menu.
+
+<figure>
+  ![Okta app catalog: SCIM 2.0 Test App integration options displayed.](@/assets/docs/guides/scim-integrations/okta-scim/1-scim-search.png)
+  <figcaption>Okta app catalog: SCIM 2.0 Test App integration options displayed.</figcaption>
+</figure>
+
+If you haven't previously created a SCIM application in Okta, select "Browse App Catalog." Otherwise, choose it from
+your existing list of applications. In the Okta Application dashboard, search for "SCIM 2.0 Test App (OAuth Bearer Token)" and select the corresponding
+result.
+
+Click "Add Integration" on the subsequent page.
+
+<figure>
+  ![Adding SCIM 2.0 Test App integration in Okta for app being onboarded](@/assets/docs/guides/scim-integrations/okta-scim/2.png)
+  <figcaption>Adding SCIM 2.0 Test App integration in Okta for app being onboarded.</figcaption>
+</figure>
+
+Provide a descriptive name for the app, then proceed by clicking "Next."
+
+<figure>
+  ![Naming the app 'Hero SaaS' during SCIM 2.0 Test App integration in Okta.](@/assets/docs/guides/scim-integrations/okta-scim/3.png)
+  <figcaption>Naming the app 'Hero SaaS' during SCIM 2.0 Test App integration in Okta.</figcaption>
+</figure>
+
+The default configuration is typically sufficient for most applications. However, if your directory requires additional
+settings, such as Attribute Statements, configure these on the Sign-On Options page. Complete the application creation
+process by clicking "Done."
+
+## Enable Sending and Receiving Events in Provisioning Settings
+
+In your application's Enterprise Okta admin panel, navigate to the "Provisioning" tab and select "Configure API
+Integration."
+
+<figure>
+  ![Enabling API Integration in Okta for app being onboarded.](@/assets/docs/guides/scim-integrations/okta-scim/4.png)
+  <figcaption>Enabling API Integration in Okta for app being onboarded.</figcaption>
+</figure>
+
+
+Copy the Endpoint URL and Bearer Token from your Admin Portal and paste them into the *SCIM 2.0 Base URL* field and *OAuth Bearer Token* field, respectively. Verify the configuration by clicking "Test API Credentials," then save the settings.
+
+<figure>
+  ![Verifying SCIM credentials for Hero SaaS integration in Okta](@/assets/docs/guides/scim-integrations/okta-scim/6.png)
+  <figcaption>Verifying SCIM credentials for Hero SaaS integration in Okta</figcaption>
+</figure>
+
+Give provisioning permissions to the API integration. This is necessary to allow Okta to send and receive events to the app. Upon successful configuration, the Provisioning tab will display a new set of options. These options will be utilized to
+complete the provisioning process for your application.
+
+<figure>
+  ![Saving verified SCIM API integration settings for Hero SaaS in Okta](@/assets/docs/guides/scim-integrations/okta-scim/7.png)
+  <figcaption>Saving verified SCIM API integration settings for Hero SaaS in Okta</figcaption>
+</figure>
+
+
+## Provisioning Options for the App being onboarded
+
+In the "To App" navigation section, enable the following options:
+
+- Create Users
+- Update User Attributes
+- Deactivate Users
+
+<figure>
+  ![Granting provisioning permissions to Hero SaaS app in Okta SCIM integration](@/assets/docs/guides/scim-integrations/okta-scim/4.1.png)
+  <figcaption>Granting provisioning permissions to Hero SaaS app in Okta SCIM integration.</figcaption>
+</figure>
+
+After enabling these options, click "Save" to apply the changes.These settings allow Okta to perform user provisioning
+actions in your application, including creating new user accounts, updating existing user information, and deactivating
+user accounts when necessary.
+
+
+
+## User and Group Assignment
+
+<figure>
+  ![Assigning users to Hero SaaS in Okta: Options to assign to individuals or groups](@/assets/docs/guides/scim-integrations/okta-scim/10.png)
+  <figcaption>Assigning users to Hero SaaS in Okta: Options to assign to individuals or groups</figcaption>
+</figure>
+
+To assign users to the SAML Application:
+
+1. Navigate to the "Assignments" tab.
+2. From the "Assign" dropdown, select "Assign to People."
+3. Choose the users you want to provision and click "Assign."
+4. A form will open for each user. Review and populate the user's metadata fields.
+5. Scroll to the bottom and click "Save and Go Back."
+6. Repeat this process for all users, then select "Done."
+
+<figure>
+  ![Assigning users to Hero SaaS in Okta: Selecting individuals for access](@/assets/docs/guides/scim-integrations/okta-scim/12.png)
+  <figcaption>Assigning users to Hero SaaS in Okta: Selecting individuals for access</figcaption>
+</figure>
+
+To push groups and sync group membership:
+
+1. Navigate to the "Push Groups" tab.
+2. From the "Push Groups" dropdown, select "Find groups by name."
+3. Search for and select the group you want to push.
+4. Ensure the "Push Immediately" box is checked.
+5. Click "Save."
+
+<figure>
+  ![Pushing group memberships to SCIM 2.0 Test App: Configuring the 'Avengers' group in Okta](@/assets/docs/guides/scim-integrations/okta-scim/15.png)
+  <figcaption>Pushing group memberships to SCIM 2.0 Test App: Configuring the 'Avengers' group in Okta</figcaption>
+</figure>
+
+<Aside type="tip">
+
+[Okta recommends using separate groups for push groups](https://help.okta.com/en-us/content/topics/users-groups-profiles/usgp-about-group-push.htm) and group assignments to ensure accurate membership reflection. Without this separation, manual group pushes may be required for membership changes.
+
+</Aside>
+
+
+After completing these steps, verify that the users and groups are successfully synced in the Administrator Portal.

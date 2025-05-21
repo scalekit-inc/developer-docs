@@ -11,7 +11,7 @@ import starlightImageZoom from 'starlight-image-zoom';
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
 import starlightThemeRapide from 'starlight-theme-rapide';
 import starlightLlmsTxt from 'starlight-llms-txt';
-import { sidebar as sidebarConfig } from './src/configs/sidebar.config';
+import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config';
 import { redirects } from './src/configs/redirects.config';
 
 import tailwindcss from '@tailwindcss/vite';
@@ -19,7 +19,7 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://docs.scalekit.dev',
-  redirects,
+  // redirects,
   integrations: [
     starlight({
       title: 'Scalekit Docs',
@@ -30,7 +30,7 @@ export default defineConfig({
       favicon: 'src/assets/favicons/logo.png',
       components: {
         // SocialIcons: './src/components/overrides/SocialIcons.astro',
-        Sidebar: './src/components/overrides/Sidebar.astro',
+        // Sidebar: './src/components/overrides/Sidebar.astro',
       },
       logo: {
         dark: '/src/assets/images/logos/scalekit-docs-beta-green-logo-dark.svg',
@@ -79,7 +79,7 @@ export default defineConfig({
         starlightImageZoom({
           showCaptions: true,
         }),
-        starlightSidebarTopics(sidebarConfig),
+        starlightSidebarTopics(sidebarConfig, { topics }),
         // starlightViewModes(),
       ],
       head: [

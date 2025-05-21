@@ -1,0 +1,150 @@
+---
+title: JumpCloud SCIM
+sidebar:
+  order: 3
+  label: "JumpCloud"
+  badge:
+    variant: note
+    text: SCIM
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+This guide is designed to assist administrators in integrating JumpCloud with the Scalekit platform using SCIM provisioning. By following these steps, you can automate user management tasks and ensure that access rights are consistently updated.
+
+This registration sets up the following:
+
+1. **Endpoint**: This is the URL where Scalekit will send requests to JumpCloud. It acts as a
+   communication point between Scalekit and JumpCloud.
+2. **Bearer Token**: This token is used by Scalekit to authenticate its requests to the endpoint,
+   ensuring that requests are secure and authorized.
+
+By setting up these components, you enable seamless synchronization between JumpCloud and Scalekit.
+
+## Create an Endpoint and API Token
+
+Open the Admin Portal  and select the "SCIM
+Provisioning" tab. A list of Directory Providers will be displayed. Choose "JumpCloud" as your Directory Provider. If the Admin Portal is not accessible from the app, request instructions from the app owner.
+
+<figure>
+  ![SCIM Provisioning
+  Setup](@/assets/docs/guides/scim-integrations/jumpcloud-scim/1-select-jumpcloud.png)
+  <figcaption>Selecting JumpCloud as the Directory Provider</figcaption>
+</figure>
+
+<figure>
+  ![SCIM Provisioning Setup](@/assets/docs/guides/scim-integrations/jumpcloud-scim/1-2-scimconfigs.png)
+  <figcaption>
+    JumpCloud directory sync setup: Endpoint URL and one-time visible bearer token provided.
+  </figcaption>
+</figure>
+
+This action will generate an Endpoint URL and Bearer token for your organization, allowing the app
+to listen to events and maintain synchronization with your organization.
+
+## Add a New Application in JumpCloud
+
+1. Go to the JumpCloud Admin Portal > SSO Applications and click on "+ Add New Application."
+
+<figure>
+  ![Add New Application](@/assets/docs/guides/scim-integrations/jumpcloud-scim/2-add-new-app.png)
+  <figcaption>Adding a new application in JumpCloud.</figcaption>
+</figure>
+
+2. Create a custom application by trying to do an non-existent application search.
+
+<figure>
+  ![Application
+  Selection](@/assets/docs/guides/scim-integrations/jumpcloud-scim/3-custom-integration.png)
+  <figcaption>Creating a custom integration in JumpCloud</figcaption>
+</figure>
+
+3. Click "Next" and choose the features you would like to enable. Since your application wants to
+   provision new users and user updates from JumpCloud, select "Export users to this app (Identity
+   Management)"
+
+<figure>
+  ![Feature Selection](@/assets/docs/guides/scim-integrations/jumpcloud-scim/4-export-users.png)
+  <figcaption>Enable JumpCloud to notify your app of user changes</figcaption>
+</figure>
+
+4. Finally, enter the general info such as display name (this example uses "Provisioning via
+   Scalekit") and click "Save Application"
+
+<figure>
+  ![Successful
+  addition](@/assets/docs/guides/scim-integrations/jumpcloud-scim/5-success-app-creation.png)
+  <figcaption>Successfully added the application in JumpCloud</figcaption>
+</figure>
+
+## Configure Provisioning Settings
+
+Click on "Configure Application" and proceed to configure the application settings. This opens a
+modal with "Identity Management" selected. Enter the Endpoint URL and Bearer Token provided by
+Scalekit.
+
+<figure>
+  ![Configure Application
+  Settings](@/assets/docs/guides/scim-integrations/jumpcloud-scim/6-scim-config-page.png)
+  <figcaption>Configuring application settings in JumpCloud.</figcaption>
+</figure>
+
+"Test Connection" will send the user details to Scalekit (hence your app).
+
+<Aside type="tip">
+
+Explore the logs in Scalekit Dashboard > Organizations > Customer > Events. This will help you troubleshoot any issues with the connection or inspect the connection for better understanding.
+
+</Aside>
+
+## Group Management
+
+Jumpcloud verifies if Scalekit supports groups, "Group Management" section appears. JumpCloud uses
+groups as the primary way provision users to your application.
+
+<figure>
+  ![Provisioning
+  Settings](@/assets/docs/guides/scim-integrations/jumpcloud-scim/7-group-management.png)
+  <figcaption>Enabling provisioning settings in JumpCloud.</figcaption>
+</figure>
+
+Click "Activate" and then "Save".
+
+## User and Group Assignment
+
+To assign users to the newly integrated application:
+
+<figure>
+  ![User Assignment](@/assets/docs/guides/scim-integrations/jumpcloud-scim/8-group-assigned.png)
+  <figcaption>Assigning users to the application in JumpCloud.</figcaption>
+</figure>
+
+1. Go to "SSO Applications" and select the application you created. This opens an Modal. Select the
+   User Group and click on "Save".
+2. Click on the "User Groups" tab and select the apps you want to assign to this group of users.
+3. If you don't have groups you can create one from "User Groups" tab. In this example, we have
+   created a group called "YourApp Users" and assigned the "Provisioning via Scalekit" app to it.
+4. Click on "Save Group" to save the changes.
+5. Now try adding a user to the group. If you don't have users, you can create one from "Users" tab.
+
+<Aside type="tip">
+
+Make sure to organize your users into groups for easier management and assignment of permissions.
+
+</Aside>
+
+## Verification
+
+After completing these steps, verify that users and groups are successfully synced between Scalekit
+and JumpCloud. Check for any errors or issues in the connection logs.
+
+<figure>
+  ![Verification Process](@/assets/docs/guides/scim-integrations/jumpcloud-scim/9-synced-user.png)
+  <figcaption>Synced user log in Scalekit Dashboard.</figcaption>
+</figure>
+
+<Aside type="note">
+
+When an group is dis-associated from an app in JumpCloud ("Provisioning via Scalekit" app),JumpCloud sends an group update event to Scalekit that unassigns all the group users to your app. However, the group association is not removed in Scalekit automatically.
+
+</Aside>

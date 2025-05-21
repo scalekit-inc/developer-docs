@@ -1,0 +1,58 @@
+---
+title: "Error handling during single sign-on"
+description: "Learn how to identify and resolve common single sign-on errors in Scalekit, ensuring a seamless authentication experience for your users."
+sidebar:
+  label: "Error reference"
+---
+
+
+
+Reference of error codes and how to handle them
+
+When users attempt to log in via single sign-on (SSO) using Scalekit, any issues encountered will result in error details being sent to your application's redirect URI via the `error` and `error_description` query parameters. Proper error handling ensures a better user experience.
+
+## Integration related errors
+
+If there is any issue between Scalekit and your application, the following errors may occur:
+
+:::tip
+Ideally, you would want to catch these errors in the development environments. These errors are not meant to be exposed to your customers in the production environments.
+:::
+
+| Error | Error description | Possible resolution strategy |
+|-------|------------------|----------------------------|
+| <pre>invalid_redirect_uri</pre> | Redirect URI is not part of the pre-approved list of redirect URIs. | Add the valid URL in the Scalekit dashboard before using it |
+| <pre>invalid_connection_selector</pre> | Missing `organization_id` (or) `connection_id` (or) `domain` (or) `provider` in the authorization URL. | Include at least one of these parameters in the request. |
+| <pre>no_active_connections</pre> | There are no active SSO connections configured to process the single sign-on request | Ensure active SSO connections are set up. |
+| <pre>connection_not_active</pre> | The configured connection is not active | Enable the SSO connection in the Scalekit dashboard. |
+| <pre>no_configured_connections</pre> | No active SSO connections configured | Ensure active SSO connections are set up |
+| <pre>invalid_organization_id</pre> | Invalid organization ID | Verify and use a valid organization ID |
+| <pre>invalid_connection_id</pre> | Invalid connection ID | Verify and use a valid connection ID |
+| <pre>domain_not_found</pre> | No domain specified for the SSO connection(s) | Check domain configuration in Scalekit dashboard |
+| <pre>invalid_user_domain</pre> | User's domain not allowed for this SSO connection | Ensure user domain is part of the allowed domains list |
+| <pre>server_error</pre> | _actual error description from the server_ | This must be a rare occurrence. Please reach out to us via your private slack channel or [via email](mailto:support@scalekit.com) |
+
+## SSO configuration related errors
+
+If SSO configuration issues arise, you will encounter the following errors:
+
+:::tip
+Ideally, these errors should have been caught and handled by your customer's IT admin at the time of SSO configuration. If your customers encounter problems with the single sign-on (SSO) setup, they will have the opportunity to review and correct the configuration during the "Test connection" step.
+
+Once your customer configures the SSO settings properly, tests the configuration and enables it - you shouldn't receive these errors unless something has been modified, tampered or changed with identity provider.
+:::
+
+| Error code | Error description | Possible resolution strategy |
+|------------|------------------|----------------------------|
+| <pre>mandatory_attribute_missing</pre> | Missing mandatory user attributes | Ensure all the mandatory user attributes are configured properly |
+| <pre>invalid_id_token</pre> | Invalid ID token | Check the identity provider's functioning |
+| <pre>failed_to_exchange_token</pre> | Token exchange failure due to incorrect `client_secret` | Update the `client_secret` with the correct value |
+| <pre>user_info_retrieve_failed</pre> | User info retrieval failed, possibly due to an incorrect `client_secret` or other issues. | Update the `client_secret` with the correct value. If unsuccessful, investigate further. Please reach out to us via your private slack channel or [via email](mailto:support@scalekit.com) |
+| <pre>invalid_saml_metadata</pre> | Incorrect SAML metadata configuration | Update SAML metadata URL with the correct value |
+| <pre>invalid_saml_response</pre> | Invalid SAML response | Review and fix SAML configuration settings |
+| <pre>signature_validation_failed</pre> | Failed signature validation | Review and update the ACS URL in the identity provider's settings |
+| <pre>invalid_acs_url</pre> | Invalid ACS URL | Review and update the ACS URL in the identity provider's settings |
+| <pre>invalid_status</pre> | Invalid status | Review and update the SAML configuration settings in the identity provider |
+| <pre>malformed_saml_response</pre> | Marshalling error | Ensure SAML response is properly formatted |
+| <pre>assertion_expired</pre> | Expired SAML assertion | We received an expired SAML assertion. This could be because of clock skew between the identity provider's server and our servers. Please reach out to us via your private slack channel or [via email](mailto:support@scalekit.com) |
+| <pre>response_expired</pre> | Expired SAML response | We received an expired SAML response. This could be because of clock skew between the identity provider's server and our servers. Please reach out to us via your private slack channel or [via email](mailto:support@scalekit.com) |
