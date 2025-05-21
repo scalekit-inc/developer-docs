@@ -57,8 +57,32 @@ export const sidebar = [
     id: 'directory',
     items: [
       {
-        label: 'Quickstart',
-        items: ['directory/scim/quickstart'],
+        label: 'Getting started',
+        items: [
+          'directory/scim/quickstart',
+          'directory/code-examples',
+          'guides/admin-portal',
+          'guides/launch-checklist',
+        ],
+      },
+      {
+        label: 'Guides',
+        items: [
+          'guides/directory/group-based-role-assignment',
+          'guides/custom-domain',
+          'guides/webhooks-best-practices',
+          {
+            label: 'Concepts',
+            items: [
+              'guides/directory/user-provisioning-basics',
+              'guides/directory/scim-protocol',
+            ],
+          },
+        ],
+      },
+      {
+        label: 'Administrator guides',
+        autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
     ],
   },
