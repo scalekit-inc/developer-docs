@@ -31,6 +31,7 @@ export default defineConfig({
       components: {
         // SocialIcons: './src/components/overrides/SocialIcons.astro',
         // Sidebar: './src/components/overrides/Sidebar.astro',
+        Head: './src/components/overrides/Head.astro',
       },
       logo: {
         dark: '/src/assets/images/logos/scalekit-docs-beta-green-logo-dark.svg',
@@ -66,6 +67,7 @@ export default defineConfig({
         // '@fontsource-variable/plus-jakarta-sans',
         // '@fontsource-variable/space-grotesk',
         './src/styles/theme-priority.css',
+        './src/styles/iframe.css',
 
         /** The following order is covered in theme-priority.css. Consider removing if deemed unnecessary. */
         // './src/styles/custom.css',
@@ -91,6 +93,27 @@ export default defineConfig({
                 api_host: 'https://us.i.posthog.com',
                 person_profiles: 'identified_only',
             })
+          `,
+        },
+        // Add the iframe detection script inline
+        {
+          tag: 'script',
+          content: `
+            function inIframe() {
+              try {
+                return window.self !== window.top;
+              } catch (e) {
+                return true;
+              }
+            }
+
+            // Add iframe detection on page load
+            document.addEventListener('DOMContentLoaded', function() {
+              // Only apply iframe styling if in an iframe AND iframe=true parameter is present
+              if (inIframe() && window.location.search.includes('iframe=true')) {
+                document.documentElement.classList.add('in-iframe');
+              }
+            });
           `,
         },
       ],
