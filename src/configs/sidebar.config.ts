@@ -18,7 +18,7 @@ export const sidebar = [
       {
         label: 'Social authentication',
         items: [
-          'sso/social-logins-quickstart',
+          'social-logins/quickstart',
           {
             label: 'connections',
             collapsed: true,
