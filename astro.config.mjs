@@ -11,7 +11,7 @@ import starlightImageZoom from 'starlight-image-zoom';
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
 import starlightThemeRapide from 'starlight-theme-rapide';
 import starlightLlmsTxt from 'starlight-llms-txt';
-import { sidebar as sidebarConfig } from './src/configs/sidebar.config';
+import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config';
 import { redirects } from './src/configs/redirects.config';
 
 import tailwindcss from '@tailwindcss/vite';
@@ -19,7 +19,7 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://docs.scalekit.dev',
-  redirects,
+  // redirects,
   integrations: [
     starlight({
       title: 'Scalekit Docs',
@@ -30,7 +30,8 @@ export default defineConfig({
       favicon: 'src/assets/favicons/logo.png',
       components: {
         // SocialIcons: './src/components/overrides/SocialIcons.astro',
-        Sidebar: './src/components/overrides/Sidebar.astro',
+        // Sidebar: './src/components/overrides/Sidebar.astro',
+        Head: './src/components/overrides/Head.astro',
       },
       logo: {
         dark: '/src/assets/images/logos/scalekit-docs-beta-green-logo-dark.svg',
@@ -59,21 +60,27 @@ export default defineConfig({
       },
       customCss: [
         '@fontsource-variable/inter',
-        '@fontsource-variable/plus-jakarta-sans',
-        '@fontsource-variable/space-grotesk',
+        '@fontsource-variable/geist',
+        '@fontsource-variable/geist-mono',
+
+        /** Backup fonts. They can be removed if deemed unnecessary. */
+        // '@fontsource-variable/plus-jakarta-sans',
+        // '@fontsource-variable/space-grotesk',
         './src/styles/theme-priority.css',
+
+        /** The following order is covered in theme-priority.css. Consider removing if deemed unnecessary. */
         // './src/styles/custom.css',
         // './src/styles/tailwind.css',
         // './src/styles/global.css',
       ],
       plugins: [
-        starlightLinksValidator(),
-        starlightLlmsTxt(),
+        // starlightLinksValidator(), // TODO: Enable this when we have a way to fix the broken links
+        // starlightLlmsTxt(),
         starlightThemeRapide(),
         starlightImageZoom({
           showCaptions: true,
         }),
-        starlightSidebarTopics(sidebarConfig),
+        starlightSidebarTopics(sidebarConfig, { topics }),
         // starlightViewModes(),
       ],
       head: [
@@ -85,6 +92,27 @@ export default defineConfig({
                 api_host: 'https://us.i.posthog.com',
                 person_profiles: 'identified_only',
             })
+          `,
+        },
+        // Add the iframe detection script inline
+        {
+          tag: 'script',
+          content: `
+            function inIframe() {
+              try {
+                return window.self !== window.top;
+              } catch (e) {
+                return true;
+              }
+            }
+
+            // Add iframe detection on page load
+            document.addEventListener('DOMContentLoaded', function() {
+              // Only apply iframe styling if in an iframe AND iframe=true parameter is present
+              if (inIframe() && window.location.search.includes('iframe=true')) {
+                document.documentElement.classList.add('in-iframe');
+              }
+            });
           `,
         },
       ],

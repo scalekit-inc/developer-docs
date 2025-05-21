@@ -43,6 +43,7 @@ export const redirects = {
   '/api/webhook-events': '/guides/product/registering-webhooks',
 
   // Social Logins
+  /*
   '/social-logins': '/manual/social-logins-quickstart',
   '/integrations/social-connections/google': '/manual/social-logins-quickstart',
   '/integrations/social-connections/github': '/manual/social-logins-quickstart',
@@ -53,4 +54,5 @@ export const redirects = {
   '/integrations/social-connections/gitlab': '/manual/social-logins-quickstart',
   '/integrations/social-connections/salesforce':
     '/manual/social-logins-quickstart',
+  */
 };
