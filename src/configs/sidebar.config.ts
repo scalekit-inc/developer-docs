@@ -54,6 +54,7 @@ export const sidebar = [
     label: 'SCIM provisioning',
     link: '/directory/scim/quickstart',
     icon: 'seti:folder',
+    id: 'directory',
     items: [
       {
         label: 'Quickstart',
