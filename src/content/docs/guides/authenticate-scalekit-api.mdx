@@ -1,0 +1,260 @@
+---
+title: Authenticate with the Scalekit API
+description: Learn how to authenticate your server applications with the Scalekit API using the OAuth 2.0 Client Credentials flow
+sidebar:
+  label: Authenticate Scalekit API
+topic: reference
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+This guide explains how to authenticate your server applications with the Scalekit API using the OAuth 2.0 Client Credentials flow. After reading this guide, you'll be able to:
+
+* Generate an access token using your API credentials
+* Make authenticated API requests to Scalekit endpoints
+* Handle authentication errors appropriately
+
+This guide targets developers who need to integrate Scalekit services into their backend applications or automate tasks through API calls.
+
+## Before you begin
+
+Before starting the authentication process, ensure you have set up your Scalekit account and obtained your API credentials.
+
+## Step 1: Configure your environment
+
+Store your API credentials securely as environment variables:
+
+```sh title="Environment variables"
+SCALEKIT_ENVIRONMENT_URL="<SCALEKIT_ENVIRONMENT_URL>"
+SCALEKIT_CLIENT_ID="<SCALEKIT_CLIENT_ID>"
+SCALEKIT_CLIENT_SECRET="<SCALEKIT_CLIENT_SECRET>"
+```
+
+## Step 2: Request an access token
+
+To authenticate your API requests, you must first obtain an access token from the Scalekit authorization server.
+
+### Token endpoint URL
+
+```sh title="Token endpoint URL"
+https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token
+```
+
+### Send a token request
+
+Choose your preferred method to request an access token:
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```bash
+curl -X POST \
+  "https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=<SCALEKIT_CLIENT_ID>" \
+  -d "client_secret=<SCALEKIT_CLIENT_SECRET>" \
+  -d "scope=openid profile email"
+```
+
+</TabItem>
+<TabItem value="nodejs" label="Node.js">
+
+```javascript
+import axios from 'axios';
+
+const config = {
+  clientId: process.env.SCALEKIT_CLIENT_ID,
+  clientSecret: process.env.SCALEKIT_CLIENT_SECRET,
+  tokenUrl: `${process.env.SCALEKIT_ENVIRONMENT_URL}/oauth/token`,
+  scope: 'openid email profile',
+};
+
+async function getClientCredentialsToken() {
+  try {
+    const params = new URLSearchParams();
+    params.append('grant_type', 'client_credentials');
+    params.append('client_id', config.clientId);
+    params.append('client_secret', config.clientSecret);
+
+    if (config.scope) {
+      params.append('scope', config.scope);
+    }
+
+    const response = await axios.post(config.tokenUrl, params, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    const { access_token, expires_in } = response.data;
+    console.log(`Token acquired successfully. Expires in ${expires_in} seconds.`);
+    return access_token;
+  } catch (error) {
+    console.error('Error getting client credentials token:', error);
+    throw new Error('Failed to obtain access token');
+  }
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+import os
+import json
+import requests
+
+def get_access_token():
+    """Request an access token using client credentials."""
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    params = {
+        "grant_type": "client_credentials",
+        "client_id": os.environ['SCALEKIT_CLIENT_ID'],
+        "client_secret": os.environ['SCALEKIT_CLIENT_SECRET']
+    }
+    oauth_token_url = os.environ['SCALEKIT_ENVIRONMENT_URL']
+
+    response = requests.post(oauth_token_url, headers=headers, data=params, verify=True)
+    access_token = response.json().get('access_token')
+    return access_token
+```
+
+</TabItem>
+</Tabs>
+
+### Understand the token response
+
+When your request succeeds, the server returns a JSON response with the following fields:
+
+| Field | Description |
+|-------|-------------|
+| `access_token` | The token you'll use to authenticate API requests |
+| `token_type` | The token type (always Bearer for this flow) |
+| `expires_in` | Token validity period in seconds (typically 24 hours) |
+| `scope` | The authorized scopes for this token |
+
+Example token response:
+
+```json title="Token response"
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNua181Ok4OTEyMjU2NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_in": 86399,
+  "scope": "openid"
+}
+```
+
+## Step 3: Make authenticated API requests
+
+After obtaining an access token, add it to the `Authorization` header in your API requests.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```bash
+curl --request GET "https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <access_token>"
+```
+
+</TabItem>
+<TabItem value="nodejs" label="Node.js (axios)">
+
+```javascript
+async function makeAuthenticatedRequest(endpoint) {
+  try {
+    const access_token = await getClientCredentialsToken();
+    const url = `${process.env.SCALEKIT_ENVIRONMENT_URL}${endpoint}`;
+
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+
+    console.log('API Response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error making authenticated request:', error);
+    throw error;
+  }
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python (requests)">
+
+```python
+import os
+import json
+import requests
+
+env_url = os.environ['SCALEKIT_ENVIRONMENT_URL']
+
+def get_access_token():
+    """Request an access token using client credentials."""
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    params = {
+        "grant_type": "client_credentials",
+        "client_id": os.environ['SCALEKIT_CLIENT_ID'],
+        "client_secret": os.environ['SCALEKIT_CLIENT_SECRET']
+    }
+
+    response = requests.post(
+        url=f"{env_url}/oauth/token",
+        headers=headers,
+        data=params,
+        verify=True)
+
+    access_token = response.json().get('access_token')
+    return access_token
+
+def get_organizations(get_orgs_endpoint):
+    """Retrieve all organizations for the specified environment."""
+    access_token = get_access_token()
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    response = requests.get(
+        url=f"{env_url}/{get_orgs_endpoint}",
+        headers=headers)
+    return response
+```
+
+</TabItem>
+</Tabs>
+
+```json title="Example API response"
+{
+  "next_page_token": "",
+  "total_size": 3,
+  "organizations": [
+    {
+      "id": "org_64444217115541813",
+      "create_time": "2025-03-20T13:55:46.690Z",
+      "update_time": "2025-03-21T05:55:03.416772Z",
+      "display_name": "Looney Corp",
+      "region_code": "US",
+      "external_id": "my_unique_id",
+      "metadata": {}
+    }
+  ],
+  "prev_page_token": ""
+}
+```
+
+## Common authentication issues
+
+| Issue | Possible cause | Solution |
+|-------|---------------|----------|
+| 401 Unauthorized | Invalid or expired token | Generate a new access token |
+| 403 Forbidden | Insufficient permissions | Check client credentials scopes |
+| Connection error | Network or server issue | Retry with exponential backoff |
+
+## Next steps
+
+Now that you can authenticate with the Scalekit API, you can:
+
+* Browse the complete API reference to discover available endpoints
+* Create a token management service to handle token refreshing
+* Implement error handling strategies for production use
