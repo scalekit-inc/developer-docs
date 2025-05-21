@@ -136,56 +136,28 @@ export const sidebar = [
     icon: 'seti:crystal_embedded',
     items: [
       {
-        label: 'REST APIs ↗',
-        link: '/apis',
-      },
-      {
-        label: 'API Authentication',
-        link: '/reference/api-catalog/authenticate-scalekit-api',
-      },
-      {
-        label: 'User authentication',
-        link: '/reference/concepts/auth-endpoints',
-      },
-      {
-        label: 'UI events',
-        link: '/reference/api-catalog/ui-events',
-      },
-      {
-        label: 'Webhooks',
-        autogenerate: { directory: 'reference/webhooks' },
-      },
-      {
-        label: 'Errors',
-        autogenerate: { directory: 'reference/errors' },
-      },
-    ],
-  },
-  {
-    label: 'Guides',
-    link: '/integrations/',
-    id: 'integrations',
-    icon: 'open-book',
-    items: [
-      {
-        label: 'Sign-in configurations',
+        label: 'Getting started',
         items: [
           {
-            label: 'Social Connections',
-            autogenerate: { directory: 'integrations/social-connections' },
+            label: 'API reference ↗',
+            link: '/apis',
+          },
+          {
+            label: 'Authenticate Scalekit API',
+            link: 'guides/authenticate-scalekit-api',
           },
         ],
       },
       {
-        label: 'Administrator guides',
+        label: 'Reference',
         items: [
           {
-            label: 'SSO Integrations',
-            autogenerate: { directory: 'integrations/sso-integrations' },
+            label: 'UI events',
+            link: '/reference/api-catalog/ui-events',
           },
           {
-            label: 'SCIM Integrations',
-            autogenerate: { directory: 'integrations/scim-integrations' },
+            label: 'Webhooks',
+            autogenerate: { directory: 'reference/webhooks' },
           },
         ],
       },
