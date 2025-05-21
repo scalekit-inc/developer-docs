@@ -17,7 +17,16 @@ export const sidebar = [
       },
       {
         label: 'Social authentication',
-        items: ['sso/social-logins-quickstart'],
+        items: [
+          'sso/social-logins-quickstart',
+          {
+            label: 'connections',
+            collapsed: true,
+            autogenerate: {
+              directory: 'guides/integrations/social-connections',
+            },
+          },
+        ],
       },
       {
         label: 'Guides',
