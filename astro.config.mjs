@@ -67,7 +67,6 @@ export default defineConfig({
         // '@fontsource-variable/plus-jakarta-sans',
         // '@fontsource-variable/space-grotesk',
         './src/styles/theme-priority.css',
-        './src/styles/iframe.css',
 
         /** The following order is covered in theme-priority.css. Consider removing if deemed unnecessary. */
         // './src/styles/custom.css',
@@ -76,7 +75,7 @@ export default defineConfig({
       ],
       plugins: [
         // starlightLinksValidator(), // TODO: Enable this when we have a way to fix the broken links
-        starlightLlmsTxt(),
+        // starlightLlmsTxt(),
         starlightThemeRapide(),
         starlightImageZoom({
           showCaptions: true,
