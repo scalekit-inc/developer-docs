@@ -136,15 +136,20 @@ export const sidebar = [
     icon: 'seti:crystal_embedded',
     items: [
       {
-        label: 'Getting started',
+        label: 'Developer kit',
         items: [
           {
-            label: 'API reference ↗',
+            label: 'API reference',
             link: '/apis',
+            badge: { text: 'REST ↗', variant: 'note' },
+          },
+          {
+            label: 'API collections',
+            link: 'https://github.com/scalekit-developers/api-collections',
           },
           {
             label: 'Authenticate Scalekit API',
-            link: 'guides/authenticate-scalekit-api',
+            link: '/guides/authenticate-scalekit-api',
           },
         ],
       },
@@ -152,12 +157,17 @@ export const sidebar = [
         label: 'Reference',
         items: [
           {
-            label: 'UI events',
-            link: '/reference/api-catalog/ui-events',
-          },
-          {
             label: 'Webhooks',
             autogenerate: { directory: 'reference/webhooks' },
+          },
+          'reference/glossary',
+          {
+            label: 'Release notes',
+            link: 'https://www.scalekit.com/product-updates',
+          },
+          {
+            label: 'Chat with us!',
+            link: '/manual/support/contact-us',
           },
         ],
       },
