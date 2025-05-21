@@ -87,82 +87,6 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Start',
-    link: '/',
-    id: 'start',
-    icon: 'rocket',
-    items: [
-      {
-        label: 'Getting Started',
-        items: [
-          {
-            label: '👋 Welcome to Scalekit',
-            link: '/',
-          },
-          {
-            label: '🛠️ Installation',
-            link: '/home/setup-scalekit',
-          },
-          {
-            label: 'Authentication',
-            items: [
-              'home/getting-started/authentication/social-logins-quickstart',
-              'home/getting-started/authentication/sso-quickstart',
-              'home/getting-started/authentication/m2m-quickstart',
-            ],
-          },
-          {
-            label: 'User Management',
-            items: ['home/getting-started/user-management/scim-quickstart'],
-          },
-          {
-            label: '⚙️ Admin Portal',
-            link: '/home/getting-started/admin-portal',
-          },
-          {
-            label: '📋 Launch checklist',
-            link: '/home/getting-started/launch-checklist',
-          },
-        ],
-      },
-      {
-        label: 'Foundations',
-        items: [
-          'home/guides/custom-domain',
-          'home/guides/redirects',
-          'home/guides/automatically-assign-roles',
-          'home/guides/test-sso',
-          'home/guides/sso-user-attributes',
-        ],
-      },
-      {
-        label: 'Resources',
-        items: [
-          {
-            label: 'API reference',
-            link: '/apis',
-          },
-          {
-            label: 'API collections',
-            link: 'https://github.com/scalekit-developers/api-collections',
-          },
-          {
-            label: 'Chat with us',
-            link: 'home/contact-us',
-          },
-          {
-            label: 'Glossary',
-            link: '/reference/glossary',
-          },
-          {
-            label: 'Status',
-            link: 'https://scalekit.statuspage.io/',
-          },
-        ],
-      },
-    ],
-  },
-  {
     label: 'APIs & SDKs',
     id: 'reference',
     link: '/reference/',
@@ -184,7 +108,6 @@ export const sidebar = [
         label: 'UI events',
         link: '/reference/api-catalog/ui-events',
       },
-      'home/guides/idtoken-claims',
       {
         label: 'Webhooks',
         autogenerate: { directory: 'reference/webhooks' },
@@ -201,23 +124,6 @@ export const sidebar = [
     id: 'integrations',
     icon: 'open-book',
     items: [
-      {
-        label: 'Authentication',
-        items: [
-          {
-            label: 'How to',
-            items: [
-              'home/guides/custom-domain',
-              'home/guides/idp-init-sso',
-              'home/guides/okta-sso-test',
-            ],
-          },
-          {
-            label: 'Basics',
-            items: ['home/guides/sso-basics'],
-          },
-        ],
-      },
       {
         label: 'Sign-in configurations',
         items: [
@@ -244,4 +150,12 @@ export const sidebar = [
   },
 ];
 
-export const topics = {};
+export const topics = {
+  exclude: [
+    'guides/redirects',
+    'guides/integrations',
+    'home/guides/*',
+    'home/guides/admin-portal',
+    'home/*',
+  ],
+};
