@@ -139,6 +139,10 @@ export const sidebar = [
         label: 'Developer kit',
         items: [
           {
+            label: 'Authenticate Scalekit API',
+            link: '/guides/authenticate-scalekit-api',
+          },
+          {
             label: 'API reference',
             link: '/apis',
             badge: { text: 'REST ↗', variant: 'note' },
@@ -147,15 +151,32 @@ export const sidebar = [
             label: 'API collections',
             link: 'https://github.com/scalekit-developers/api-collections',
           },
-          {
-            label: 'Authenticate Scalekit API',
-            link: '/guides/authenticate-scalekit-api',
-          },
         ],
       },
       {
         label: 'Reference',
         items: [
+          {
+            label: 'SDKs',
+            items: [
+              {
+                label: 'Nodejs',
+                link: 'https://github.com/scalekit-inc/scalekit-sdk-node',
+              },
+              {
+                label: 'Python',
+                link: 'https://github.com/scalekit-inc/scalekit-sdk-python',
+              },
+              {
+                label: 'Go',
+                link: 'https://github.com/scalekit-inc/scalekit-sdk-go',
+              },
+              {
+                label: 'Java',
+                link: 'https://github.com/scalekit-inc/scalekit-sdk-java',
+              },
+            ],
+          },
           {
             label: 'Webhooks',
             autogenerate: { directory: 'reference/webhooks' },
