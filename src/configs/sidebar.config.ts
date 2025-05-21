@@ -10,9 +10,9 @@ export const sidebar = [
         items: [
           'guides/sso/sso-basics',
           'sso/quickstart',
-          'guides/admin-portal',
           'guides/test-sso',
-          'guides/launch-checklist',
+          'guides/admin-portal',
+          'guides/sso/launch-checklist',
         ],
       },
       {
@@ -71,7 +71,7 @@ export const sidebar = [
           'directory/scim/quickstart',
           'directory/code-examples',
           'guides/admin-portal',
-          'guides/launch-checklist',
+          'guides/directory/launch-checklist',
         ],
       },
       {
@@ -131,17 +131,13 @@ export const sidebar = [
   },
   {
     label: 'APIs & SDKs',
-    id: 'reference',
-    link: '/reference/',
+    id: 'dev-kit',
+    link: '/dev-kit/',
     icon: 'seti:crystal_embedded',
     items: [
       {
         label: 'Developer kit',
         items: [
-          {
-            label: 'Authenticate Scalekit API',
-            link: '/guides/authenticate-scalekit-api',
-          },
           {
             label: 'API reference',
             link: '/apis',
@@ -150,6 +146,10 @@ export const sidebar = [
           {
             label: 'API collections',
             link: 'https://github.com/scalekit-developers/api-collections',
+          },
+          {
+            label: 'Code gists',
+            link: 'https://github.com/scalekit-developers/gists',
           },
         ],
       },
@@ -191,6 +191,10 @@ export const sidebar = [
             link: '/manual/support/contact-us',
           },
         ],
+      },
+      {
+        label: 'Guides',
+        items: ['guides/setup-scalekit', 'guides/authenticate-scalekit-api'],
       },
     ],
   },

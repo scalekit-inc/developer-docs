@@ -1,7 +1,13 @@
 {
-  "consumes": ["application/json"],
-  "produces": ["application/json"],
-  "schemes": ["https"],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "# Introduction\n\nScalekit API is (mostly) RESTful API. So you can use any HTTP client to make requests to the API.\n\nTo gain access to the Scalekit API, create an account on the [Scalekit Dashboard](https://app.scalekit.com). Once you've completed the signup process and acknowledged our terms, get a _environment_, _client_id_ and _client_secret_ from the [Dashboard](https://app.scalekit.com).\n\n- The Scalekit API is served over HTTPS TLS v1.2+ to ensure data privacy.\n- See the [Error reference](/reference/errors) in case of errors.\n\n#### API host\n\n```\nhttps://{environment}.scalekit.dev (Development)\nhttps://{environment}.scalekit.com (Production)\n```\n\nScalekit has two environments: Sandbox and Production. Items cannot be moved between environments.\n\n#### API Access\n\nScalekit API uses [OAuth 2.0 Client Credentials](https://www.oauth.com/oauth2-servers/access-tokens/client-credentials) based authentication.\n\nYou can obtain a secure token by making POST call to the `https://{ENV_URL}/oauth/token` endpoint and sending client_id and client_secret as part of the request body.\n\n```shell\ncurl https://{ENV_URL}/oauth/token \\\n -X POST \\\n -H 'Content-Type: application/x-www-form-urlencoded' \\\n -d 'client_id={client_id}' \\\n -d 'client_secret={client_secret}' \\\n -d 'grant_type=client_credentials'\\\n```\n\nOn success, you'll receive a response with an `access_token` and `refresh_token`.\n\n```json\n{\n\t\"access_token\": \"DCRD10-e7c5c8139165228a82e442445fe01c16\",\n\t\"token_type\": \"bearer\",\n\t\"expires_in\": 1799\n}\n```\n\nThe access_token is the OAuth access token you need to use for all subsequent API calls to Scalekit.\n\nTo make a request to one of our APIs, you need to include the access token in the Authorization header of the request as Bearer 'access_token' like the following example shows:\n\n```shell\n$ curl --request GET \"https://{ENV_URL}/api/v1/organizations\" \\\n-H \"Content-Type: application/json\" \\\n-H \"Authorization: Bearer {access_token}\"\n```\n\nOur SDKs will automatically handle the API authentication and error handling to make the job of using our APIs much easier for you. See the [SDKs](/docs/sdks) section for more information.\n\n# Error Handling\n\nOur APIs use standard HTTP status codes:\n\n- 200/201: Success\n- 400: Invalid request\n- 401: Authentication error\n- 404: Resource not found\n- 429: Rate limit exceeded\n- 500/501/504: Server error\n\nError responses include detailed messages, for example:\n\n```json\n{\n\t\"code\": 16,\n\t\"message\": \"Token empty\",\n\t\"details\": [\n\t\t{\n\t\t\t\"@type\": \"type.googleapis.com/scalekit.v1.errdetails.ErrorInfo\",\n\t\t\t\"error_code\": \"UNAUTHENTICATED\"\n\t\t}\n\t]\n}\n```\n",
@@ -19,10 +25,77 @@
   },
   "host": "$ENV_URL",
   "paths": {
+    "/api/v1/clients/{client_id}": {
+      "get": {
+        "description": "Retrieves client configuration details including authentication settings, redirect URIs, and security parameters. Includes current values for `redirect_uri`, `post_logout_redirect_uri`, and `backchannel_logout_uri`",
+        "tags": [
+          "Client Configs"
+        ],
+        "summary": "Get Client Configuration",
+        "operationId": "ClientService_GetClient",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the client application to retrieve. Must start with 'skc_' and be 1-32 characters long",
+            "name": "client_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Client configuration retrieved successfully. Returns full client metadata and security settings",
+            "schema": {
+              "$ref": "#/definitions/clientsGetClientResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces the entire client configuration with the provided values. Required fields: redirect_uris, default_redirect_uri. Immutable fields: id, create_time",
+        "tags": [
+          "Client Configs"
+        ],
+        "summary": "Update Client Configuration",
+        "operationId": "ClientService_UpdateClient",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier for your client application. Find this in Settings \u003e API Credentials",
+            "name": "client_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "client",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1clientsUpdateClient"
+            }
+          },
+          {
+            "type": "string",
+            "name": "mask",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Client configuration updated successfully. Returns the updated client resource with new update_time",
+            "schema": {
+              "$ref": "#/definitions/clientsUpdateClientResponse"
+            }
+          }
+        }
+      }
+    },
     "/api/v1/connections": {
       "get": {
         "description": "Retrieves a list of connections in the environment",
-        "tags": ["Connections"],
+        "tags": [
+          "Connection"
+        ],
         "summary": "List Connections",
         "operationId": "ConnectionService_ListConnections",
         "parameters": [
@@ -58,7 +131,9 @@
     "/api/v1/organizations": {
       "get": {
         "description": "Retrieve a paginated list of organizations within your environment. The response includes a `page_token` that can be used to access subsequent pages of results.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "List Organizations",
         "externalDocs": {
           "description": "Learn more about organization listing",
@@ -101,7 +176,9 @@
       },
       "post": {
         "description": "Creates a new organization in your environment. Use this endpoint to add a new tenant that can be configured with various settings and metadata",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Create an Organization",
         "operationId": "OrganizationService_CreateOrganization",
         "parameters": [
@@ -129,7 +206,9 @@
     "/api/v1/organizations/{id}": {
       "get": {
         "description": "Retrieves organization details by Scalekit ID, including name, region, metadata, and settings",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Get Organization details",
         "operationId": "OrganizationService_GetOrganization",
         "parameters": [
@@ -152,7 +231,9 @@
       },
       "delete": {
         "description": "Remove an existing organization from the environment using its unique identifier",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Delete an Organization",
         "operationId": "OrganizationService_DeleteOrganization",
         "parameters": [
@@ -173,7 +254,9 @@
       },
       "patch": {
         "description": "Updates an organization's display name, external ID, or metadata. Requires a valid organization identifier. Region code cannot be modified through this endpoint.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Update Organization details",
         "operationId": "OrganizationService_UpdateOrganization",
         "parameters": [
@@ -207,7 +290,9 @@
     "/api/v1/organizations/{id}/portal_links": {
       "put": {
         "description": "Creates a time-limited Admin Portal URL for IT administrators to configure and manage Single Sign-On (SSO) connections within their organization. Generated links expire after 7 days (168 hours).",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Generate Admin Portal Link",
         "operationId": "OrganizationService_GeneratePortalLink",
         "parameters": [
@@ -221,7 +306,10 @@
           {
             "type": "array",
             "items": {
-              "enum": ["dir_sync", "sso"],
+              "enum": [
+                "dir_sync",
+                "sso"
+              ],
               "type": "string"
             },
             "collectionFormat": "multi",
@@ -243,7 +331,9 @@
     "/api/v1/organizations/{id}/settings": {
       "patch": {
         "description": "Updates configuration settings for an organization. Supports modifying SSO configuration, directory synchronization settings, and session parameters. Requires organization ID and the specific settings to update.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Toggle Organization settings",
         "operationId": "OrganizationService_UpdateOrganizationSettings",
         "parameters": [
@@ -294,212 +384,12 @@
         }
       }
     },
-    "/api/v1/organizations/{organization_id}/clients": {
-      "post": {
-        "description": "Creates a new M2M client for an organization. This endpoint registers a new client application that can securely access your API on behalf of the organization. The response includes a client ID and secret that should be used for OAuth 2.0 client credentials flow. The plain secret is only returned once during creation and must be stored securely.",
-        "tags": ["M2M"],
-        "summary": "Create an Organization M2M Client",
-        "operationId": "ClientService_CreateOrganizationClient",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "client",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "Details of the client to be created",
-              "$ref": "#/definitions/clientsOrganizationClient"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "M2M client created successfully. Returns the client ID and plain secret (only available at creation time). The client can be configured with scopes, audience values, and custom claims for fine-grained access control.",
-            "schema": {
-              "$ref": "#/definitions/clientsCreateOrganizationClientResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/clients/{client_id}": {
-      "get": {
-        "description": "Retrieves the configuration details for an organization's M2M client. This endpoint returns the client's metadata, including its scopes, audience values, custom claims, and associated secrets. Use this to verify client settings or retrieve the list of active secrets.",
-        "tags": ["M2M"],
-        "summary": "Get Organization M2M Client",
-        "operationId": "ClientService_GetOrganizationClient",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the M2M client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the complete M2M client configuration, including all current settings and a list of active secrets. Note that secret values are not included in the response for security reasons.",
-            "schema": {
-              "$ref": "#/definitions/clientsGetOrganizationClientResponse"
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Permanently deletes an M2M client from an organization. This operation cannot be undone and will revoke all access for the client. All associated secrets will also be invalidated. Use this endpoint to remove unused or compromised clients.",
-        "tags": ["M2M"],
-        "summary": "Delete an Organization M2M Client",
-        "operationId": "ClientService_DeleteOrganizationClient",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization that owns the client. Must start with 'org_' prefix.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the M2M client to permanently delete. Must start with 'm2morg_' prefix.",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Organization M2M client successfully deleted and no longer accessible",
-            "schema": {}
-          }
-        }
-      },
-      "patch": {
-        "description": "Updates the configuration settings for an organization's M2M client. This endpoint allows you to modify client properties such as scopes, audience values, and custom claims. Use this to adjust access permissions or update metadata for the client. Note that client_id and create_time are immutable and cannot be modified.",
-        "tags": ["M2M"],
-        "summary": "Update Organization M2M client details",
-        "operationId": "ClientService_UpdateOrganizationClient",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "client",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "Updated details for the client",
-              "$ref": "#/definitions/clientsOrganizationClient"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the updated organization M2M client with all current details reflected in the response, including modified scopes, audience values, and custom claims.",
-            "schema": {
-              "$ref": "#/definitions/clientsUpdateOrganizationClientResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
-      "post": {
-        "description": "Generates a new client secret for an organization's M2M client. This endpoint creates a secure credential that can be used for OAuth 2.0 client credentials flow. The plain secret is only returned once during creation and should be stored securely by the client application. Use this endpoint to rotate secrets or create additional credentials for different environments.",
-        "tags": ["M2M"],
-        "summary": "Create a Secret for Organization M2M Client",
-        "operationId": "ClientService_CreateOrganizationClientSecret",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Client secret created successfully. Returns the new secret ID and the plain secret value (only available at creation time). The secret can be used immediately for authentication.",
-            "schema": {
-              "$ref": "#/definitions/clientsCreateOrganizationClientSecretResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets/{secret_id}": {
-      "delete": {
-        "description": "Permanently deletes a client secret for an organization's M2M client. This operation cannot be undone. Use this endpoint to remove compromised or unused secrets. After deletion, the secret can no longer be used for authentication. Consider creating a new secret before deleting the old one to avoid service interruption.",
-        "tags": ["M2M"],
-        "summary": "Delete an Organization M2M Client Secret",
-        "operationId": "ClientService_DeleteOrganizationClientSecret",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client secret",
-            "name": "secret_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Client secret successfully deleted and no longer accessible",
-            "schema": {}
-          }
-        }
-      }
-    },
     "/api/v1/organizations/{organization_id}/connections/{id}": {
       "get": {
         "description": "Retrieves the complete configuration and status details for a specific connection by its ID within an organization. Returns all connection properties including provider settings, protocols, and current status.",
-        "tags": ["Connections"],
+        "tags": [
+          "Connection"
+        ],
         "summary": "Get Connection details",
         "operationId": "ConnectionService_GetConnection",
         "parameters": [
@@ -531,7 +421,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:disable": {
       "patch": {
         "description": "Deactivate an existing connection for the specified organization. When disabled, users cannot authenticate using this connection. This endpoint changes the connection state from enabled to disabled without modifying other configuration settings",
-        "tags": ["Connections"],
+        "tags": [
+          "Connection"
+        ],
         "summary": "Disable Organization Connection",
         "operationId": "ConnectionService_DisableConnection",
         "parameters": [
@@ -563,7 +455,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:enable": {
       "patch": {
         "description": "Activate an existing connection for the specified organization. When enabled, users can authenticate using this connection. This endpoint changes the connection state from disabled to enabled without modifying other configuration settings",
-        "tags": ["Connections"],
+        "tags": [
+          "Connection"
+        ],
         "summary": "Enable Organization Connection",
         "operationId": "ConnectionService_EnableConnection",
         "parameters": [
@@ -594,7 +488,9 @@
     },
     "/api/v1/organizations/{organization_id}/directories": {
       "get": {
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List Organization Directories",
         "operationId": "DirectoryService_ListDirectories",
         "parameters": [
@@ -619,7 +515,9 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/groups": {
       "get": {
         "description": "Retrieves all groups from a specified directory. Use this endpoint to view group structures from your connected identity provider.",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List Directory Groups",
         "operationId": "DirectoryService_ListDirectoryGroups",
         "parameters": [
@@ -677,7 +575,9 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/users": {
       "get": {
         "description": "Retrieves a list of all users within a specified directory for an organization. This endpoint allows you to view user accounts associated with your connected Directory Providers.",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List Directory Users",
         "operationId": "DirectoryService_ListDirectoryUsers",
         "parameters": [
@@ -741,7 +641,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}": {
       "get": {
         "description": "Retrieves detailed information about a specific directory within an organization",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Get Directory details",
         "operationId": "DirectoryService_GetDirectory",
         "parameters": [
@@ -773,7 +675,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:disable": {
       "patch": {
         "description": "Stops synchronization of users and groups from a specified directory within an organization. This operation prevents further updates from the connected Directory provider",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Disable a Directory",
         "operationId": "DirectoryService_DisableDirectory",
         "parameters": [
@@ -805,7 +709,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:enable": {
       "patch": {
         "description": "Activates a directory within an organization, allowing it to synchronize users and groups with the connected Directory provider",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Enable a Directory",
         "operationId": "DirectoryService_EnableDirectory",
         "parameters": [
@@ -834,10 +740,273 @@
         }
       }
     },
+    "/api/v1/organizations/{organization_id}/users": {
+      "get": {
+        "description": "Retrieve a paginated list of all users within the specified organization. Use the 'page_token' from the response to access subsequent pages of results",
+        "tags": [
+          "Users"
+        ],
+        "summary": "List Organization Users",
+        "operationId": "UserService_ListUsers",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization for which to list users. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum number of users to return in a single response. Valid range: 1-100. Server may return fewer users than specified.",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Pagination token from a previous ListUserResponse. Used to retrieve the next page of results. Leave empty for the first request.",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of users in the organization",
+            "schema": {
+              "$ref": "#/definitions/usersListUserResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new user account within an organization. Required fields include email and username. Optional fields include phone_number and groups. The user receives an activation email unless this feature is disabled in the organization settings",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create Organization User",
+        "operationId": "UserService_CreateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/usersUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created successfully. Returns the created user object, including system-generated identifiers and timestamps",
+            "schema": {
+              "$ref": "#/definitions/usersCreateUserResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/users/{id}": {
+      "get": {
+        "description": "Retrieves complete user details using one of: system-generated ID, external ID, or identity provider ID. Includes organization memberships, and metadata",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get Organization User",
+        "operationId": "UserService_GetUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique organization identifier. Required and must start with 'org_' (1-32 characters).",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters).",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Immutable identity provider value from authentication systems.",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details retrieved successfully. Returns full user object with system-generated fields and timestamps.",
+            "schema": {
+              "$ref": "#/definitions/usersGetUserResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Associates an existing user with an organization. The user must already exist in the system and be identified by their unique ID, external ID, or identity provider ID",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Add User to Organization",
+        "operationId": "UserService_AddUserToOrganization",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the target organization. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters)",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "External system identifier from connected directories. Must be unique across the system",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Immutable identity provider value from authentication systems",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User successfully added to the organization. Returns details of the updated user membership",
+            "schema": {
+              "$ref": "#/definitions/usersAddUserResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Permanently removes a user from the organization using one of: system-generated ID, external ID, or identity provider ID. This action is irreversible and may cascade to related resources like group memberships.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete User",
+        "operationId": "UserService_DeleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique organization identifier. Must start with 'org_' and be 1-32 characters long",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters)",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "External system identifier from connected directories. Must match existing records",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Immutable identity provider value from authentication systems",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User successfully marked for deletion. No content returned",
+            "schema": {}
+          }
+        }
+      },
+      "patch": {
+        "description": "Performs partial updates to a user's configuration. Updatable fields: email, phone_number, user_profile, metadata. Immutable fields: id, environment_id, create_time. Returns the updated user resource.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update Organization User",
+        "operationId": "UserService_UpdateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization containing the user. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' and be 19-25 characters long.",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "User fields to update. Only specified fields will be modified. Required fields must be provided if being changed.",
+              "$ref": "#/definitions/v1usersUpdateUser",
+              "example": {
+                "email": "new.email@example.com",
+                "phone_number": "+14155552671"
+              }
+            }
+          },
+          {
+            "type": "string",
+            "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Immutable identity provider identifier. Must match the exact value returned by the IDP.",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully. Returns the modified user object with updated timestamps.",
+            "schema": {
+              "$ref": "#/definitions/usersUpdateUserResponse"
+            }
+          }
+        }
+      }
+    },
     "/api/v1/organizations:search": {
       "get": {
         "description": "Searches for organizations in your environment using a query string. The query matches against organization name, ID, or external ID. Returns multiple results when more than one organization matches the criteria.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Search Organizations",
         "operationId": "OrganizationService_SearchOrganization",
         "parameters": [
@@ -870,326 +1039,65 @@
           }
         }
       }
-    },
-    "/oauth/authorize": {
-      "get": {
-        "description": "Authorization URL initiates the Login flow with Scalekit.\n\nScalekit expects atleast one of the following parameters to be present. The parameters are used to determine the SSO connection used to Login in the user. \n\n`domain` - Email domain of the user. Domain should be mapped to an Organization. The SSO connection from the org would be used to login to the app.\n\n`connection_id` - ID of the SSO connection. If the Connection's status is `active`, the user will be redirected to the SSO Connection's identity provider configured.\n\n`organization_id` -  ID of Organization. The user will be redirected to the SSO connection's identity provider configured for that organization.\n\n`provider` -  ID of SSO Provider, Incase of Social Logins . e.g `google`",
-        "tags": ["Authentication"],
-        "summary": "Authorization URL",
-        "operationId": "OAuth_AuthorizeEndpoint",
-        "parameters": [
-          {
-            "type": "string",
-            "example": "code",
-            "description": "The client ID string that you obtain from the API Credentials page",
-            "name": "client_id",
-            "in": "query",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uri",
-            "example": "https://mysaasapp.com/redirect_uri",
-            "description": "Determines where the response is sent. The value of this parameter must exactly match one of the authorized redirect values that you set in the API Credentials page (including the HTTP or HTTPS scheme, case, and trailing '/', if any).",
-            "name": "redirect_uri",
-            "in": "query",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "hostname",
-            "example": "acmecorp.com",
-            "description": "Domain part of the email address that is mapped to an organization. Example. yourcustomer.com",
-            "name": "domain",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "example": "conn_16796494564719556",
-            "description": "Connection ID for which the SSO flow must be initiated for. If the Connection's status is `active`, the user will be redirected to the SSO Connection's identity provider configured",
-            "name": "connection_id",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "example": "org_16796494564719556",
-            "description": "Organization ID for which the SSO flow must be initiated for. Based on the organization ID supplied, the user will be redirected to the SSO connection's identity provider configured for that organization.",
-            "name": "organization_id",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "example": "github",
-            "description": "Key for the Social SSO Provider. This is common to all Organizations. e.g. `google`, `github`, `linkedin`, `gitlab`, `microsoft`, `salesforce`",
-            "name": "provider",
-            "in": "query"
-          },
-          {
-            "enum": ["code"],
-            "type": "string",
-            "example": "code",
-            "description": "Value must be `code`",
-            "name": "response_type",
-            "in": "query",
-            "required": true
-          },
-          {
-            "type": "string",
-            "example": "openid email profile",
-            "description": "Value must be `openid email profile`",
-            "name": "scope",
-            "in": "query",
-            "required": true
-          },
-          {
-            "type": "string",
-            "example": "S256",
-            "description": "An opaque string that is round-tripped in the protocol; that is to say, it is returned back as-is as a URI parameter in the Basic flow. The state can be useful for correlating requests and responses. Because your redirect_uri can be guessed, using a state value can increase your assurance that an incoming connection is the result of an authentication request initiated by your app.\n\nState will be useful if you would like to retain some information about the user that you would like to use at the end of the login flow. E.g. deep link URL in your product to redirect the user to after a successful login.\n\nIf you generate a random string or encode the hash of some client state (e.g., a cookie) in this state variable, you can validate the response to additionally ensure that the request and response originated in the same browser. This additional validation offers protection against attacks such as cross-site request forgery.",
-            "name": "state",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "example": "code",
-            "description": "A random value generated by your app that enables replay protection.",
-            "name": "nonce",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "format": "email",
-            "example": "johndoe@acmecorp.com",
-            "description": "When your app knows the email address of the user it is trying to authenticate, it can provide this parameter as a hint to the authentication server and Scalekit will pass this information to your customer's identity provider. Some identity providers prefill the login box with this value to make the login experience easier for the end user.",
-            "name": "login_hint",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "example": "a_rand_txt_34533",
-            "description": "A challenge code generated from `code_verifier` that is required for PKCE flows. This is used ensure if the request was handled by the right parties. The string is stored by Scalekit to be used when validating the token request with a `code_verifier`.  A code_challenge is generated as follows `code_challenge = SHA256(code_verifier)` .",
-            "name": "code_challenge",
-            "in": "query"
-          },
-          {
-            "enum": ["plain", "S256"],
-            "type": "string",
-            "example": "S256",
-            "description": "The algorithm used to process the code challenge. The value should be `S256`",
-            "name": "code_challenge_method",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "302": {
-            "description": "Success",
-            "schema": {}
-          }
-        }
-      }
-    },
-    "/oauth/token": {
-      "post": {
-        "description": "The code provided to the Redirect URI. Code can be exchanged for a ID Token containing the user details using the Token URL.",
-        "tags": ["Authentication"],
-        "summary": "Token URL",
-        "operationId": "OAuth_TokenEndpoint",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "description": "Parameters required to exchange an authorization code for an access token.",
-            "schema": {
-              "$ref": "#/definitions/oauthTokenRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Code validated Successfuly",
-            "schema": {
-              "$ref": "#/definitions/oauthTokenResponse"
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
-    "clientsClientSecret": {
-      "description": "A secure credential used for authenticating an M2M client. Each client can have multiple secrets for key rotation purposes.",
+    "clientsClient": {
       "type": "object",
-      "title": "Client Secret",
       "properties": {
+        "back_channel_logout_uri": {
+          "description": "HTTPS endpoint for receiving back-channel logout requests. Required for RP-initiated logout flows",
+          "type": "string",
+          "example": "https://auth.your-app.com/backchannel-logout"
+        },
         "create_time": {
-          "description": "The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.",
+          "description": "Timestamp indicating when the client configuration was initially created. Automatically set by the server.",
           "type": "string",
-          "format": "date-time",
-          "example": "2024-01-05T14:48:00.000Z"
+          "format": "date-time"
         },
-        "created_by": {
-          "description": "The identifier of the user or system that created this secret. This field helps track who created the secret for audit and compliance purposes.",
+        "default_redirect_uri": {
+          "description": "Primary redirect URI used when none is specified in authorization requests. Must match one of redirect_uris.",
           "type": "string",
-          "example": "user_12345"
-        },
-        "expire_time": {
-          "description": "The timestamp when this secret will expire. After this time, the secret cannot be used for authentication regardless of its status. If not set, the secret does not expire.",
-          "type": "string",
-          "format": "date-time",
-          "example": "2025-01-05T14:48:00.000Z"
+          "example": "https://auth.your-app.com/callback"
         },
         "id": {
-          "description": "The unique identifier for this client secret. This ID is used to reference the secret in API requests for management operations like updating or deleting the secret.",
+          "description": "Unique identifier for the client application. Automatically generated upon creation and immutable.",
           "type": "string",
-          "example": "sec_1234abcd5678efgh"
+          "example": "skc_1234abcd5678efgh"
         },
-        "last_used_time": {
-          "description": "The timestamp when this secret was last used for authentication. This field helps track secret usage for security monitoring and identifying unused secrets that may be candidates for rotation.",
+        "initiate_login_uri": {
+          "description": "Pre-configured URI for initiating login flows. Must use the https scheme and contain valid domain",
           "type": "string",
-          "format": "date-time",
-          "example": "2024-02-15T10:30:00.000Z"
+          "example": "https://auth.your-app.com/initiate-auth"
         },
-        "plain_secret": {
-          "description": "The full plaintext secret value. This field is only populated when the secret is first created and is never stored by the server. It must be securely stored by the client application as it cannot be retrieved again.",
+        "keyId": {
+          "description": "Identifier for the authentication key pair used to sign tokens. Rotate keys by generating new secrets.",
           "type": "string",
-          "example": "sec_1234567890abcdefghijklmnopqrstuvwxyz"
+          "example": "key_9876zyxw5432vuts"
         },
-        "secret_suffix": {
-          "description": "A suffix that helps identify this secret. This is the last few characters of the full secret value but is not sufficient for authentication. Helps identify which secret is being used in logs and debugging.",
-          "type": "string",
-          "example": "xyzw"
-        },
-        "status": {
-          "description": "The current status of this secret. A secret must be ACTIVE to be used for authentication. INACTIVE secrets cannot be used for authentication but are retained for audit purposes.",
-          "$ref": "#/definitions/clientsClientSecretStatus",
-          "example": "ACTIVE"
-        },
-        "update_time": {
-          "description": "The timestamp when this secret was last updated. This field is automatically updated by the server when the secret's status changes or other properties are modified.",
-          "type": "string",
-          "format": "date-time",
-          "example": "2024-01-10T09:12:00.000Z"
-        }
-      }
-    },
-    "clientsClientSecretStatus": {
-      "description": "ClientSecretStatus indicates whether a client secret can be used for authentication.\nACTIVE secrets can be used for authentication while INACTIVE secrets cannot.\n\n - INACTIVE: The secret is inactive and cannot be used for authentication",
-      "type": "string",
-      "enum": ["INACTIVE"]
-    },
-    "clientsCreateOrganizationClientResponse": {
-      "type": "object",
-      "properties": {
-        "client": {
-          "description": "Details of the created client",
-          "$ref": "#/definitions/clientsM2MClient"
-        },
-        "plain_secret": {
-          "description": "Client secret value (only returned once at creation)",
-          "type": "string",
-          "example": "CdExsdErfccxDDssddfffgfeFHH1"
-        }
-      }
-    },
-    "clientsCreateOrganizationClientSecretResponse": {
-      "type": "object",
-      "properties": {
-        "plain_secret": {
-          "description": "Client secret value (only returned once at creation)",
-          "type": "string",
-          "example": "m2morg_client_secret_xyz123"
-        },
-        "secret": {
-          "description": "Details of the created client secret",
-          "$ref": "#/definitions/clientsClientSecret"
-        }
-      }
-    },
-    "clientsCustomClaim": {
-      "type": "object",
-      "properties": {
-        "key": {
-          "description": "The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.",
-          "type": "string",
-          "example": "environment"
-        },
-        "value": {
-          "description": "The value of the custom claim. This value will be included in access tokens issued to the client.",
-          "type": "string",
-          "example": "production"
-        }
-      }
-    },
-    "clientsGetOrganizationClientResponse": {
-      "type": "object",
-      "properties": {
-        "client": {
-          "description": "Details of the requested client",
-          "$ref": "#/definitions/clientsM2MClient"
-        }
-      }
-    },
-    "clientsM2MClient": {
-      "type": "object",
-      "properties": {
-        "audience": {
-          "description": "The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.",
+        "post_logout_redirect_uris": {
+          "description": "Allowed URIs for post-logout redirection. Must use HTTPS and conform to OpenID Connect Session Management spec",
           "type": "array",
           "items": {
             "type": "string"
           },
-          "example": ["https://api.example.com"]
+          "example": [
+            "https://auth.your-app.com/logout"
+          ]
         },
-        "client_id": {
-          "description": "The unique identifier for this M2M client. This ID is used to identify the client in API requests and logs. It is automatically generated when the client is created and cannot be modified.",
-          "type": "string",
-          "example": "m2morg_1231234233424344"
-        },
-        "create_time": {
-          "description": "The timestamp when this M2M client was created. This field is automatically set by the server and cannot be modified.",
-          "type": "string",
-          "format": "date-time",
-          "example": "2024-01-05T14:48:00.000Z"
-        },
-        "custom_claims": {
-          "description": "Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/clientsCustomClaim"
-          }
-        },
-        "description": {
-          "description": "A detailed description of the client's purpose and usage. This helps administrators understand what the client is used for.",
-          "type": "string",
-          "example": "Service account for automated deployment processes"
-        },
-        "expiry": {
-          "description": "The lifetime of access tokens issued to this client, in seconds. This determines how long a token remains valid before it must be refreshed.",
-          "type": "string",
-          "format": "int64",
-          "example": 3600
-        },
-        "name": {
-          "description": "The display name of the M2M client. This name helps identify the client in the dashboard and logs.",
-          "type": "string",
-          "example": "GitHub Actions Deployment Service"
-        },
-        "organization_id": {
-          "description": "The ID of the organization that owns this M2M client. This ID is used to associate the client with the correct organization and enforce organization-specific access controls.",
-          "type": "string",
-          "example": "org_1231234233424344"
-        },
-        "scopes": {
-          "description": "The OAuth 2.0 scopes granted to this client. These scopes determine what resources and actions the client can access.",
+        "redirect_uris": {
+          "description": "Allowed redirect URIs for OAuth 2.0 flows. Must use HTTPS protocol in production environment and comply with RFC 6749.",
           "type": "array",
           "items": {
             "type": "string"
           },
-          "example": ["deploy:applications", "read:deployments"]
+          "example": [
+            "https://auth.your-app.com/callback",
+            "https://scalekit.example.org/auth"
+          ]
         },
         "secrets": {
-          "description": "List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.",
+          "description": "Hashed client secrets for authentication. Secrets are stored using bcrypt and displayed only during initial creation.",
           "type": "array",
           "items": {
             "type": "object",
@@ -1197,91 +1105,196 @@
           }
         },
         "update_time": {
-          "description": "The timestamp when this M2M client was last updated. This field is automatically updated by the server whenever the client's configuration changes.",
+          "description": "Timestamp of the last modification to the client configuration. Automatically updated by the server.",
           "type": "string",
-          "format": "date-time",
-          "example": "2024-01-05T14:48:00.000Z"
+          "format": "date-time"
         }
       }
     },
-    "clientsOrganizationClient": {
+    "clientsClientSecret": {
       "type": "object",
       "properties": {
-        "audience": {
-          "description": "The intended recipients of the access tokens issued to this client. Each audience value should be a URI that identifies the API or service that will validate the token.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "example": [
-            "https://api.example.com/api/analytics",
-            "https://deployment-api.acmecorp.com"
-          ]
-        },
-        "custom_claims": {
-          "description": "Additional claims to be included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions. Keep claims minimal to avoid increasing token size.",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/clientsCustomClaim"
-          },
-          "example": [
-            {
-              "key": "environment",
-              "value": "production"
-            },
-            {
-              "key": "service",
-              "value": "deployment"
-            }
-          ]
-        },
-        "description": {
-          "description": "A detailed explanation of the client's purpose and usage. This helps administrators understand what the client is used for and who manages it.",
+        "create_time": {
           "type": "string",
-          "example": "Service account for GitHub Actions to deploy applications to production"
+          "format": "date-time"
         },
-        "expiry": {
-          "description": "The lifetime of access tokens issued to this client, in seconds. This value determines how long a token remains valid before it must be refreshed. Defaults to 3600 (1 hour) if not specified.",
+        "created_by": {
+          "type": "string"
+        },
+        "expire_time": {
           "type": "string",
-          "format": "int64",
-          "example": 3600
+          "format": "date-time"
         },
-        "name": {
-          "description": "A descriptive name for the M2M client that helps identify its purpose. This name is displayed in the dashboard and logs. Must be between 1 and 128 characters.",
+        "id": {
+          "type": "string"
+        },
+        "last_used_time": {
           "type": "string",
-          "example": "GitHub Actions Deployment Service"
+          "format": "date-time"
         },
-        "scopes": {
-          "description": "OAuth 2.0 scopes that define the permissions granted to this client. Each scope represents a specific permission or set of permissions. The client can only access resources that match its granted scopes.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "example": ["deploy:applications", "read:deployments"]
+        "plain_secret": {
+          "type": "string"
+        },
+        "secret_suffix": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/clientsClientSecretStatus"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
-    "clientsUpdateOrganizationClientResponse": {
+    "clientsClientSecretStatus": {
+      "type": "string",
+      "enum": [
+        "INACTIVE"
+      ]
+    },
+    "clientsGetClientResponse": {
       "type": "object",
       "properties": {
         "client": {
-          "description": "Updated details of the client",
-          "$ref": "#/definitions/clientsM2MClient"
+          "$ref": "#/definitions/clientsClient"
+        }
+      }
+    },
+    "clientsUpdateClientResponse": {
+      "type": "object",
+      "properties": {
+        "client": {
+          "$ref": "#/definitions/clientsClient"
+        }
+      }
+    },
+    "commonsIdentityProviderType": {
+      "type": "string",
+      "enum": [
+        "OKTA",
+        "GOOGLE",
+        "MICROSOFT_AD",
+        "AUTH0",
+        "ONELOGIN",
+        "PING_IDENTITY",
+        "JUMPCLOUD",
+        "CUSTOM",
+        "GITHUB",
+        "GITLAB",
+        "LINKEDIN",
+        "SALESFORCE",
+        "MICROSOFT",
+        "IDP_SIMULATOR",
+        "SCALEKIT"
+      ]
+    },
+    "commonsMembershipRole": {
+      "type": "string",
+      "enum": [
+        "ADMIN",
+        "USER"
+      ]
+    },
+    "commonsOrganizationMembership": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "membership_status": {
+          "$ref": "#/definitions/commonsUserStatus"
+        },
+        "name": {
+          "type": "string"
+        },
+        "primary_identity_provider": {
+          "$ref": "#/definitions/commonsIdentityProviderType"
+        },
+        "role": {
+          "$ref": "#/definitions/commonsMembershipRole"
         }
       }
     },
     "commonsRegionCode": {
       "type": "string",
-      "enum": ["US", "EU"]
+      "enum": [
+        "US",
+        "EU"
+      ]
     },
-    "connectionsCodeChallengeType": {
+    "commonsUserProfile": {
+      "type": "object",
+      "properties": {
+        "custom_attributes": {
+          "description": "Custom attributes for extended user profile data. Keys (3-25 chars), values (1-256 chars).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "example": {
+            "department": "engineering",
+            "security_clearance": "level2"
+          }
+        },
+        "email_verified": {
+          "description": "Indicates if the user's email address has been verified. Automatically updated by the system.",
+          "type": "boolean",
+          "readOnly": true,
+          "example": true
+        },
+        "first_name": {
+          "description": "User's given name. Maximum 200 characters.",
+          "type": "string",
+          "example": "John"
+        },
+        "id": {
+          "description": "Unique system-generated identifier for the user profile. Immutable and read-only.",
+          "type": "string",
+          "readOnly": true,
+          "example": "usr_profile_1234abcd5678efgh"
+        },
+        "last_name": {
+          "description": "User's family name. Maximum 200 characters.",
+          "type": "string",
+          "example": "Doe"
+        },
+        "locale": {
+          "description": "User's localization preference in BCP-47 format. Defaults to organization settings.",
+          "type": "string",
+          "example": "en-US"
+        },
+        "metadata": {
+          "description": "System-managed key-value pairs for internal tracking. Keys (3-25 chars), values (1-256 chars).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "example": {
+            "account_status": "active",
+            "signup_source": "mobile_app"
+          }
+        },
+        "name": {
+          "description": "Full name in display format. Typically combines first_name and last_name.",
+          "type": "string",
+          "example": "John Michael Doe"
+        }
+      }
+    },
+    "commonsUserStatus": {
       "type": "string",
-      "enum": ["NUMERIC", "ALPHANUMERIC"]
+      "enum": [
+        "ACTIVE",
+        "INACTIVE"
+      ]
     },
     "connectionsConfigurationType": {
       "type": "string",
-      "enum": ["DISCOVERY", "MANUAL"]
+      "enum": [
+        "DISCOVERY",
+        "MANUAL"
+      ]
     },
     "connectionsConnection": {
       "type": "object",
@@ -1378,17 +1391,26 @@
         "SALESFORCE",
         "MICROSOFT",
         "IDP_SIMULATOR",
-        "SCALEKIT",
-        "ADFS"
+        "SCALEKIT"
       ]
     },
     "connectionsConnectionStatus": {
       "type": "string",
-      "enum": ["DRAFT", "IN_PROGRESS", "COMPLETED"]
+      "enum": [
+        "DRAFT",
+        "IN_PROGRESS",
+        "COMPLETED"
+      ]
     },
     "connectionsConnectionType": {
       "type": "string",
-      "enum": ["OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS"]
+      "enum": [
+        "OIDC",
+        "SAML",
+        "PASSWORD",
+        "OAUTH",
+        "PASSWORDLESS"
+      ]
     },
     "connectionsGetConnectionResponse": {
       "type": "object",
@@ -1481,7 +1503,12 @@
     },
     "connectionsNameIdFormat": {
       "type": "string",
-      "enum": ["UNSPECIFIED", "EMAIL", "TRANSIENT", "PERSISTENT"]
+      "enum": [
+        "UNSPECIFIED",
+        "EMAIL",
+        "TRANSIENT",
+        "PERSISTENT"
+      ]
     },
     "connectionsOAuthConnectionConfig": {
       "type": "object",
@@ -1522,7 +1549,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["openid", "profile"]
+          "example": [
+            "openid",
+            "profile"
+          ]
         },
         "token_uri": {
           "description": "Token URI",
@@ -1607,7 +1637,10 @@
           "items": {
             "$ref": "#/definitions/connectionsOIDCScope"
           },
-          "example": ["openid", "profile"]
+          "example": [
+            "openid",
+            "profile"
+          ]
         },
         "token_auth_type": {
           "description": "Token Auth Type",
@@ -1628,31 +1661,21 @@
     },
     "connectionsOIDCScope": {
       "type": "string",
-      "enum": ["openid", "profile", "email", "address", "phone"]
+      "enum": [
+        "openid",
+        "profile",
+        "email",
+        "address",
+        "phone"
+      ]
     },
     "connectionsPasswordLessConfig": {
       "type": "object",
       "properties": {
-        "code_challenge_length": {
-          "description": "Code Challenge Length",
-          "type": "integer",
-          "format": "int64",
-          "example": 6
-        },
-        "code_challenge_type": {
-          "description": "Code Challenge Type",
-          "$ref": "#/definitions/connectionsCodeChallengeType",
-          "example": "NUMERIC"
-        },
-        "enforce_same_browser_origin": {
-          "description": "Enforce Same Browser Origin",
-          "type": "boolean",
-          "example": true
-        },
         "frequency": {
           "description": "Link Frequency",
           "type": "integer",
-          "format": "int64",
+          "format": "int32",
           "example": 1
         },
         "type": {
@@ -1661,20 +1684,26 @@
           "example": "LINK"
         },
         "validity": {
-          "description": "Link Validity in Seconds",
-          "type": "integer",
-          "format": "int64",
-          "example": "600"
+          "description": "Link Validity",
+          "type": "string",
+          "example": "24h"
         }
       }
     },
     "connectionsPasswordlessType": {
       "type": "string",
-      "enum": ["LINK", "OTP", "LINK_OTP"]
+      "enum": [
+        "LINK",
+        "OTP",
+        "LINK_OTP"
+      ]
     },
     "connectionsRequestBinding": {
       "type": "string",
-      "enum": ["HTTP_POST", "HTTP_REDIRECT"]
+      "enum": [
+        "HTTP_POST",
+        "HTTP_REDIRECT"
+      ]
     },
     "connectionsSAMLConnectionConfigResponse": {
       "type": "object",
@@ -1818,7 +1847,10 @@
     },
     "connectionsTokenAuthType": {
       "type": "string",
-      "enum": ["URL_PARAMS", "BASIC_AUTH"]
+      "enum": [
+        "URL_PARAMS",
+        "BASIC_AUTH"
+      ]
     },
     "directoriesAttributeMapping": {
       "type": "object",
@@ -1966,7 +1998,10 @@
     },
     "directoriesDirectoryType": {
       "type": "string",
-      "enum": ["SCIM", "LDAP"]
+      "enum": [
+        "SCIM",
+        "LDAP"
+      ]
     },
     "directoriesDirectoryUser": {
       "type": "object",
@@ -2167,7 +2202,9 @@
     },
     "directoriesSecretStatus": {
       "type": "string",
-      "enum": ["INACTIVE"]
+      "enum": [
+        "INACTIVE"
+      ]
     },
     "directoriesStats": {
       "type": "object",
@@ -2226,7 +2263,10 @@
       "description": "- dir_sync: dir_sync enables directory synchronization configuration in the portal\n - sso: sso enables Single Sign-On (SSO) configuration in the portal",
       "type": "string",
       "title": "Feature represents the available features that can be enabled for an organization's portal link",
-      "enum": ["dir_sync", "sso"]
+      "enum": [
+        "dir_sync",
+        "sso"
+      ]
     },
     "organizationsGeneratePortalLinkResponse": {
       "type": "object",
@@ -2298,7 +2338,9 @@
     },
     "organizationsOrganization": {
       "type": "object",
-      "required": ["create_time"],
+      "required": [
+        "create_time"
+      ],
       "properties": {
         "create_time": {
           "description": "Timestamp when the organization was created",
@@ -2392,7 +2434,10 @@
       "description": "Controls the activation state of a specific organization feature",
       "type": "object",
       "title": "Organization Feature Toggle",
-      "required": ["name", "enabled"],
+      "required": [
+        "name",
+        "enabled"
+      ],
       "properties": {
         "enabled": {
           "description": "Whether the feature is enabled (true) or disabled (false) for this organization",
@@ -2441,6 +2486,162 @@
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.",
       "type": "string"
     },
+    "usersAddUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersCreateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersGetUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersListUserResponse": {
+      "type": "object",
+      "properties": {
+        "next_page_token": {
+          "description": "Opaque token for retrieving the next page of results. Empty if there are no more pages.",
+          "type": "string",
+          "example": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAidXNyXzEyMzQ1In0="
+        },
+        "prev_page_token": {
+          "description": "Opaque token for retrieving the previous page of results. Empty for the first page.",
+          "type": "string",
+          "example": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInVzcl85ODc2NSJ9"
+        },
+        "total_size": {
+          "description": "Total number of users matching the request criteria, regardless of pagination.",
+          "type": "integer",
+          "format": "int64",
+          "example": 1042
+        },
+        "users": {
+          "description": "List of user objects for the current page. May contain fewer entries than requested page_size.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/usersUser"
+          }
+        }
+      }
+    },
+    "usersUpdateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersUser": {
+      "type": "object",
+      "properties": {
+        "create_time": {
+          "description": "Timestamp when the user account was initially created. Automatically set by the server.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "description": "Primary email address for the user. Must be unique across the environment and valid per RFC 5322.",
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "external_id": {
+          "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+          "type": "string",
+          "example": "ext_12345a67b89c"
+        },
+        "id": {
+          "description": "Unique system-generated identifier for the user. Immutable once created.",
+          "type": "string",
+          "example": "usr_1234abcd5678efgh"
+        },
+        "identity": {
+          "description": "Unique identifier from the identity provider (IDP). Immutable once set.",
+          "type": "string",
+          "example": "auth0|1234567890abcdef"
+        },
+        "last_login": {
+          "description": "Timestamp of the user's most recent successful authentication. Updated automatically.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "metadata": {
+          "description": "Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "example": {
+            "department": "engineering",
+            "location": "nyc-office"
+          }
+        },
+        "organizations": {
+          "description": "List of organization memberships. Automatically populated based on group assignments.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/commonsOrganizationMembership"
+          },
+          "readOnly": true
+        },
+        "phone_number": {
+          "description": "Phone number in E.164 international format. Required for SMS-based authentication.",
+          "type": "string",
+          "example": "+14155552671"
+        },
+        "update_time": {
+          "description": "Timestamp of the last modification to the user account. Automatically updated by the server.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "user_profile": {
+          "description": "User's personal information including name, address, and other profile attributes.",
+          "$ref": "#/definitions/commonsUserProfile"
+        }
+      }
+    },
+    "v1clientsUpdateClient": {
+      "type": "object",
+      "properties": {
+        "back_channel_logout_uri": {
+          "type": "string"
+        },
+        "default_redirect_uri": {
+          "type": "string"
+        },
+        "initiate_login_uri": {
+          "type": "string"
+        },
+        "post_logout_redirect_uris": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "redirect_uris": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "v1organizationsCreateOrganization": {
       "type": "object",
       "properties": {
@@ -2488,60 +2689,35 @@
         }
       }
     },
-    "oauthTokenRequest": {
+    "v1usersUpdateUser": {
       "type": "object",
-      "description": "Request body for exchanging an authorization code for an access token.",
-      "required": ["code", "redirect_uri", "client_id", "client_secret"],
       "properties": {
-        "code": {
+        "external_id": {
+          "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
           "type": "string",
-          "description": "The code received by the Redirect URI as part of the Authentication Response."
+          "example": "ext_7890xyz"
         },
-        "redirect_uri": {
-          "type": "string",
-          "description": "The redirect URI where this code was received. This will used to validate the code to make the code was infact generated for this redirect_uri."
+        "metadata": {
+          "description": "System metadata updates. Replaces existing entries unless included. Max 10 pairs. Keys (3-25 chars), values (1-256 chars).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "example": {
+            "account_tier": "premium",
+            "support_contact": "team-alpha"
+          }
         },
-        "client_id": {
-          "type": "string",
-          "description": "Unique client ID that represents your application."
-        },
-        "client_secret": {
-          "type": "string",
-          "description": "The client secret to authorize the client."
-        },
-        "grant_type": {
-          "type": "string",
-          "description": "Grant Type must be `authorization_code`.",
-          "default": "authorization_code"
-        },
-        "code_verifier": {
-          "type": "string",
-          "description": "Used in PKCE flow, code_verifier is derived from the `code_challenge` presented at the Authorization Endpoint"
+        "user_profile": {
+          "description": "Updated profile information including name, locale, and address details. Partial updates are supported.",
+          "$ref": "#/definitions/commonsUserProfile",
+          "example": {
+            "first_name": "Michael",
+            "last_name": "Chen",
+            "locale": "fr-CA"
+          }
         }
       }
-    },
-    "oauthTokenResponse": {
-      "type": "object",
-      "properties": {
-        "access_token": {
-          "type": "string",
-          "description": "The access token issued by the authorization server."
-        },
-        "token_type": {
-          "type": "string",
-          "description": "The type of the token issued. Value is case insensitive.",
-          "enum": ["Bearer"]
-        },
-        "expires_in": {
-          "type": "integer",
-          "description": "The lifetime in seconds of the access token."
-        },
-        "id_token": {
-          "type": "string",
-          "description": "The ID Token containing the user's identity information."
-        }
-      },
-      "required": ["access_token", "token_type", "expires_in", "id_token"]
     }
   },
   "securityDefinitions": {
@@ -2564,24 +2740,12 @@
       "name": "Organizations"
     },
     {
-      "description": "User management endpoints for individual accounts within the organization. These endpoints allow for creating, reading, updating, and deleting user accounts, as well as managing user roles and permissions for accessing organizational resources.",
-      "name": "Users"
-    },
-    {
       "description": "The Directory API lets you connect external identity providers to your organizations. Use these endpoints to view users and groups, enable or disable directory connections, and configure access settings. Supports identity systems like Okta, Microsoft Entra ID, and Google Workspace through standard protocols.",
       "name": "Directory"
     },
     {
       "description": " Connection represents a unique Single Sign-on instance for an Organization. Connection has the configuration needed to establish an SSO and exchange user information securely between Scalekit and your customer's Identity Provider. Depending on the connection type parameter, the corresponding configuration details are found in `oidc_config` or `saml_config` parameter.\n\u003c!--\n**Connection Attributes**\n\n| Attribute Name | Attribute Description |\n|---|---|\n| `id`\u003cbr\u003e_string_ | Unique ID of an SSO Connection. This attribute is required for all API operations to be performed against this connection.  |\n| `provider`\u003cbr\u003e_ENUM_ | Name of the Identity Provider. Possible Values are: `OKTA`, `GOOGLE`, `MICROSOFT_AD`, `AUTH0`, `ONELOGIN`, `PING_IDENTITY`, `JUMPCLOUD`, `CUSTOM` |\n| `type`\u003cbr\u003e_ENUM_ | Protocol type that is used for this connection. Possible values are `SAML` or `OIDC` |\n| `status`\u003cbr\u003e_ENUM_ | Indicates the configuration progress status of the SSO Connection. Possible Values are `DRAFT`, `INPROGRESS`, `COMPLETED`. \u003cbr\u003e_Note_: This doesn't indicate whether this connection is active or not. |\n| `enabled`\u003cbr\u003e_boolean_ | Indicates whether this connection is active or not. Users can only login via active SSO connections. |\n| `organization_id`\u003cbr\u003e_string_ | Organization ID to which this SSO connection belongs to. |\n| `saml_config`\u003cbr\u003e_Object_ | If this connection is of type `SAML`, the configuration details are found in this object. |\n| `oidc_config`\u003cbr\u003e_Object_ | If this connection is of type `OIDC`, the configuration details are found in this object. |\n| `attribute_mapping`\u003cbr\u003e_Object_ | Array of attribute mappings using which the user information received from the Identity Provider is normalized. Example: \u003ccode\u003e \u003cbr/\u003e{ \u003cbr/\u003e\u0026nbsp;\u0026nbsp; \"email\": \"email\",\u003cbr/\u003e\u0026nbsp;\u0026nbsp; \"family_name\": \"lastName\", \u003cbr/\u003e\u0026nbsp;\u0026nbsp; \"given_name\": \"firstName\",\u003cbr/\u003e\u0026nbsp;\u0026nbsp;\u0026nbsp;\"sub\": \"nameid\" \u003cbr/\u003e} \u003c/code\u003e |\n| `create_time` | Timestamp at which this connection record was created in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. For Example: `2021-10-05T14:48:00.000Z` |\n| `update_time`\u003cbr\u003e_string_ | Timestamp at which this connection record was last updated in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. For Example: `2021-10-10T14:48:00.000Z` | --\u003e\n",
-      "name": "Connections"
-    },
-    {
-      "description": "Endpoints for managing client application configurations. Registered client applications can use these endpoints to retrieve and modify their configuration settings, including redirect URIs and other client-specific parameters.",
-      "name": "Client Configs"
-    },
-    {
-      "description": "Endpoints for managing roles and permissions for users and organizations. More APIs coming soon",
-      "name": "Roles"
+      "name": "Connection"
     },
     {
       "name": "ConnectionService"
@@ -2596,11 +2760,7 @@
       "name": "RolesService"
     },
     {
-      "description": "Endpoints for managing Machine-to-Machine (M2M) client applications. M2M clients enable secure, automated interactions between software systems without human intervention. Each client is uniquely identified by a `client_id` and can be configured with authentication settings, redirect URIs, and security parameters. Use these endpoints to create, manage, and configure M2M clients for your API clients.",
-      "name": "M2M",
-      "externalDocs": {
-        "url": "https://docs.scalekit.com/m2m/overview"
-      }
+      "name": "ClientService"
     }
   ],
   "externalDocs": {
