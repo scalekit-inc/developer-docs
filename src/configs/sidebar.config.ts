@@ -151,6 +151,10 @@ export const sidebar = [
             label: 'API collections',
             link: 'https://github.com/scalekit-developers/api-collections',
           },
+          {
+            label: 'Code gists',
+            link: 'https://github.com/scalekit-developers/gists',
+          },
         ],
       },
       {
