@@ -1,5 +1,52 @@
 export const sidebar = [
   {
+    label: 'Single sign-on',
+    link: '/sso/quickstart',
+    id: 'sso',
+    icon: 'seti:lock',
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'guides/sso/sso-basics',
+          'sso/quickstart',
+          'guides/admin-portal',
+          'guides/test-sso',
+          'guides/launch-checklist',
+        ],
+      },
+      {
+        label: 'Social authentication',
+        items: ['sso/social-logins-quickstart'],
+      },
+      {
+        label: 'Guides',
+        items: [
+          'guides/custom-domain',
+          'guides/sso/idp-init-sso',
+          'guides/sso/okta-sso-test',
+          'guides/sso/sso-user-attributes',
+          'reference/sso-integration-errors',
+          'reference/redirects',
+          {
+            label: 'Coexist with',
+            autogenerate: { directory: 'guides/integrations/auth-systems' },
+          },
+          {
+            label: 'Concepts',
+            items: [
+              'guides/sso/authorization-url',
+              'reference/redirects',
+              'guides/idtoken-claims',
+              'guides/sso/user-profile-details',
+              'guides/client-credentials-practices',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
     label: 'Start',
     link: '/',
     id: 'start',
@@ -138,10 +185,6 @@ export const sidebar = [
             label: 'Social Connections',
             autogenerate: { directory: 'integrations/social-connections' },
           },
-          {
-            label: 'Third-party systems',
-            autogenerate: { directory: 'integrations/auth-systems' },
-          },
         ],
       },
       {
@@ -160,3 +203,5 @@ export const sidebar = [
     ],
   },
 ];
+
+export const topics = {};
