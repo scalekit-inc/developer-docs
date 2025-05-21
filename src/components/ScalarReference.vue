@@ -11,8 +11,10 @@ import '@fontsource-variable/inter';
     <header class="custom-header scalar-app">
       <h1>Scalekit API Reference</h1>
       <nav>
-        <a href="https://github.com/scalekit-developers/api-collections">API Collections</a>
-        <a href="https://docs.scalekit.dev">Back to Docs</a>
+        <a href="https://github.com/scalekit-developers/api-collections"
+          >API Collections</a
+        >
+        <a href="https://docs.scalekit.com">Back to Docs</a>
       </nav>
     </header>
     <div class="api-reference-container">
@@ -23,7 +25,7 @@ import '@fontsource-variable/inter';
           customCss: `
             :root {
               --scalar-font-body: 'Inter Variable', sans-serif;
-              --scalar-font-heading: 'Space Grotesk Variable', sans-serif;
+              --scalar-font-heading: 'Geist Variable', sans-serif;
               --scalar-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
               --scalar-custom-header-height: 3rem;
             }
