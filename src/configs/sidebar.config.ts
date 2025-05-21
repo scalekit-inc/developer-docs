@@ -186,6 +186,9 @@ export const sidebar = [
 
 export const topics = {
   exclude: [
+    '', // Exclude empty path
+    '/', // Exclude root path
+    'index', // Exclude index by name
     'guides/redirects',
     'guides/integrations',
     'home/guides/*',
