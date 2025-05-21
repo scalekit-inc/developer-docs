@@ -87,6 +87,40 @@ export const sidebar = [
     ],
   },
   {
+    label: 'Machine-2-Machine',
+    link: '/m2m/quickstart',
+    id: 'm2m',
+    icon: 'seti:powershell',
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'guides/m2m/overview',
+          'm2m/quickstart',
+          {
+            label: 'Code examples',
+            link: 'https://github.com/scalekit-developers/gists/tree/main/m2m',
+          },
+        ],
+      },
+      {
+        label: 'Guides',
+        items: [
+          'guides/m2m/m2m-basics',
+          'guides/m2m/scopes',
+          {
+            label: 'How to',
+            items: [
+              'guides/m2m/api-auth-m2m-clients',
+              'guides/authenticate-scalekit-api',
+            ],
+          },
+          'guides/external-ids-and-metadata',
+        ],
+      },
+    ],
+  },
+  {
     label: 'APIs & SDKs',
     id: 'reference',
     link: '/reference/',
