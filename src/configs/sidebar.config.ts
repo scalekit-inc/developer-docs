@@ -12,7 +12,7 @@ export const sidebar = [
           'sso/quickstart',
           'guides/test-sso',
           'guides/admin-portal',
-          'guides/launch-checklist',
+          'guides/sso/launch-checklist',
         ],
       },
       {
@@ -71,7 +71,7 @@ export const sidebar = [
           'directory/scim/quickstart',
           'directory/code-examples',
           'guides/admin-portal',
-          'guides/launch-checklist',
+          'guides/directory/launch-checklist',
         ],
       },
       {
