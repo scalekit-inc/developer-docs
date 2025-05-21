@@ -108,8 +108,9 @@ export default defineConfig({
 
             // Add iframe detection on page load
             document.addEventListener('DOMContentLoaded', function() {
-              // Only apply iframe styling if in an iframe AND iframe=true parameter is present
-              if (inIframe() && window.location.search.includes('iframe=true')) {
+              // Only apply iframe styling if in an iframe AND inprouduct=true parameter is present
+              if (inIframe() && window.location.search.includes('inproduct=true')) {
+                document.documentElement.setAttribute('data-theme', 'light');
                 document.documentElement.classList.add('in-iframe');
               }
             });
