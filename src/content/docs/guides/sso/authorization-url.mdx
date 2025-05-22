@@ -1,16 +1,20 @@
 ---
 title: 'Authorization URL'
 description: 'Learn how to construct and implement authorization URLs in Scalekit to initiate secure single sign-on (SSO) flows with your identity provider.'
+prev: false
+next: false
 ---
+
+import { Aside, TabItem, Tabs } from '@astrojs/starlight/components'
 
 Authorization URL is the first step in the single sign-on flow where you will redirect the user to Scalekit to
 authenticate the user with the appropriate identity provider.
 
-Your application constructs a URL with specific parameters that tell the authorization server(in this case: Scalekit)
+Your application constructs a URL with specific parameters that tell the authorization server (in this case: Scalekit)
 what the app is requesting. This URL looks like:
 
-```xml
-https://b2b-app.scalekit.dev/oauth/authorize?
+```sh wrap
+https://your-subdomain.scalekit.dev/oauth/authorize?
     response_type=code&
     client_id=skc_1234&
     scope=openid%20profile&
@@ -35,23 +39,23 @@ https://b2b-app.scalekit.dev/oauth/authorize?
 | <pre>state</pre> | Optional | Opaque string for request-response correlation |
 | <pre>login_hint</pre> | Optional | Email address of the user for authentication hint |
 
-\* One of <pre>organization_id</pre>, <pre>connection_id</pre>, <pre>domain</pre>, or <pre>provider</pre> must be provided.
+\* One of `organization_id`, `connection_id`, `domain`, or `provider` must be provided.
 
 ## Usage notes
 
-1. The <pre>redirect_uri</pre> must exactly match one of the authorized redirect values set in the API credentials page.
-2. The <pre>state</pre> parameter is recommended for security purposes, including protection against cross-site request forgery.
-3. The <pre>login_hint</pre> can be used to prefill login information at the identity provider.
+1. The `redirect_uri` must exactly match one of the authorized redirect values set in the API credentials page.
+2. The `state` parameter is recommended for security purposes, including protection against cross-site request forgery.
+3. The `login_hint` can be used to prefill login information at the identity provider.
 
 ## SDK usage
 
-:::tabs
-:::tab{label="Node.js"}
+<Tabs>
+<TabItem label="Node.js">
 
 ```javascript
 import { ScalekitClient } from '@scalekit-sdk/node';
 
-const scalekit = new ScalekitClient('<SCALEKIT_ENVIRONMENT_URL>', '<SCALEKIT_CLIENT_ID>', '<SCALEKIT_CLIENT_SECRET>');
+const scalekit = new ScalekitClient('https://your-subdomain.scalekit.dev', '<SCALEKIT_CLIENT_ID>', '<SCALEKIT_CLIENT_SECRET>');
 
 const options = {
   loginHint: 'user@example.com',
@@ -61,14 +65,14 @@ const options = {
 const authorizationURL = scalekit.getAuthorizationUrl(redirectUri, options);
 ```
 
-:::
-:::tab{label="Python"}
+</TabItem>
+<TabItem label="Python">
 
 ```python
 from scalekit import ScalekitClient, AuthorizationUrlOptions
 
 scalekit = ScalekitClient(
-  '<SCALEKIT_ENVIRONMENT_URL>',
+  'https://your-subdomain.scalekit.dev',
   '<SCALEKIT_CLIENT_ID>',
   '<SCALEKIT_CLIENT_SECRET>'
 )
@@ -84,8 +88,8 @@ authorization_url = scalekit.get_authorization_url(
 )
 ```
 
-:::
-:::tab{label="Go"}
+</TabItem>
+<TabItem label="Go">
 
 ```go
 import (
@@ -94,7 +98,7 @@ import (
 
 func main() {
   scalekitClient := scalekit.NewScalekitClient(
-    "<SCALEKIT_ENVIRONMENT_URL>",
+    "https://your-subdomain.scalekit.dev",
     "<SCALEKIT_CLIENT_ID>",
     "<SCALEKIT_CLIENT_SECRET>"
   )
@@ -111,8 +115,8 @@ func main() {
 }
 ```
 
-:::
-:::tab{label="Java"}
+</TabItem>
+<TabItem label="Java">
 
 ```java
 package com.scalekit;
@@ -123,7 +127,7 @@ import com.scalekit.internal.http.AuthorizationUrlOptions;
 public class Main {
   public static void main(String[] args) {
     ScalekitClient scalekitClient = new ScalekitClient(
-      "<SCALEKIT_ENVIRONMENT_URL>",
+      "https://your-subdomain.scalekit.dev",
       "<SCALEKIT_CLIENT_ID>",
       "<SCALEKIT_CLIENT_SECRET>"
     );
@@ -144,15 +148,14 @@ public class Main {
 }
 ```
 
-:::
-:::
+</TabItem>
+</Tabs>
 
 When constructing your authorization URL, you need to specify which connection to use. The system follows a specific precedence order when multiple parameters are provided:
 
 1. **`provider`**: If this parameter is present, all other connection parameters are ignored, and the user is directed to the Google login screen if `provider=google`.
 
 2. **`connection_id`**: Takes highest precedence among enterprise SSO parameters. If provided with a valid value, this specific connection will be used regardless of other parameters. If invalid, the authorization will fail.
-
 3. **`organization_id`**: Used when no valid `connection_id` is provided. It uses the SSO connection configured for the specified organization.
 
 4. **`domain`**: Used when neither `connection_id` nor `organization_id` are provided. The system will use the SSO connection configured for the specified domain.
@@ -160,3 +163,5 @@ When constructing your authorization URL, you need to specify which connection t
 5. **`login_hint`**: Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
 
 If multiple parameters are provided (e.g., both `domain` and `organization_id`), the system will follow this precedence order to determine which parameter takes effect.
+
+If multiple parameters are provided (e.g., both domain and organization_id), the system will follow this precedence order to determine which parameter takes effect.

@@ -10,7 +10,7 @@ export const sidebar = [
         items: [
           'guides/sso/sso-basics',
           'sso/quickstart',
-          'guides/test-sso',
+          'guides/sso/test-sso',
           'guides/sso/admin-portal',
           'guides/sso/launch-checklist',
         ],
@@ -21,7 +21,7 @@ export const sidebar = [
           'social-logins/quickstart',
           {
             label: 'connections',
-            collapsed: true,
+            collapsed: false,
             autogenerate: {
               directory: 'guides/integrations/social-connections',
             },
@@ -35,7 +35,7 @@ export const sidebar = [
           'guides/sso/idp-init-sso',
           'guides/sso/okta-sso-test',
           'guides/sso/sso-user-attributes',
-          'reference/sso-integration-errors',
+          'reference/sso/sso-integration-errors',
           'reference/redirects',
           {
             label: 'Coexist with',
@@ -45,7 +45,6 @@ export const sidebar = [
             label: 'Concepts',
             items: [
               'guides/sso/authorization-url',
-              'reference/redirects',
               'guides/idtoken-claims',
               'guides/sso/user-profile-details',
               'guides/client-credentials-practices',
@@ -78,7 +77,6 @@ export const sidebar = [
         label: 'Guides',
         items: [
           'guides/directory/group-based-role-assignment',
-          'guides/custom-domain',
           'guides/webhooks-best-practices',
           {
             label: 'Concepts',
@@ -121,7 +119,6 @@ export const sidebar = [
             label: 'How to',
             items: ['guides/m2m/api-auth-m2m-clients'],
           },
-          'guides/external-ids-and-metadata',
         ],
       },
     ],
@@ -148,12 +145,6 @@ export const sidebar = [
             label: 'Code gists',
             link: 'https://github.com/scalekit-developers/gists',
           },
-        ],
-      },
-      {
-        label: 'Reference',
-        items: [
-          'reference/admin-portal/ui-events',
           {
             label: 'SDKs',
             items: [
@@ -175,24 +166,36 @@ export const sidebar = [
               },
             ],
           },
+        ],
+      },
+      {
+        label: 'Reference',
+        items: [
+          'reference/admin-portal/ui-events',
           {
             label: 'Webhooks',
             autogenerate: { directory: 'dev-kit/webhooks' },
           },
           'reference/glossary',
-          {
-            label: 'Release notes',
-            link: 'https://www.scalekit.com/product-updates',
-          },
-          {
-            label: 'Chat with us!',
-            link: '/manual/support/contact-us',
-          },
         ],
       },
       {
         label: 'Guides',
-        items: ['guides/setup-scalekit', 'guides/authenticate-scalekit-api'],
+        items: [
+          'guides/setup-scalekit',
+          'guides/authenticate-scalekit-api',
+          'guides/external-ids-and-metadata',
+          {
+            label: 'Support',
+            items: [
+              'reference/contact-us',
+              {
+                label: 'Release notes',
+                link: 'https://www.scalekit.com/product-updates',
+              },
+            ],
+          },
+        ],
       },
     ],
   },
