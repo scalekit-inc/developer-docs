@@ -6,7 +6,8 @@ sidebar:
   badge:
     text: 'Tips'
     variant: 'note'
-
+prev: false
+next: false
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
@@ -29,7 +30,10 @@ Scalekit sends POST requests to your registered webhook endpoint. To ensure the 
 
 Here's an example of how to verify webhooks using the Svix library:
 
-```javascript title="Webhook signature verification - Node.js"
+<Tabs>
+<TabItem label="Node.js">
+
+```javascript
 app.post('/webhook', async (req, res) => {
   // Parse the JSON body of the request
   const event = await req.json();
@@ -50,8 +54,11 @@ app.post('/webhook', async (req, res) => {
   }
 });
 ```
+</TabItem>
 
-```python title="Webhook signature verification - Python"
+<TabItem label="Python">
+
+```python
 from fastapi import FastAPI, Request
 
 app = FastAPI()
@@ -81,8 +88,11 @@ async def api_webhook(request: Request):
         content=''
     )
 ```
+</TabItem>
 
-```go title="Webhook signature verification - Go"
+<TabItem label="Go">
+
+```go
 mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
     webhookSecret := os.Getenv("SCALEKIT_WEBHOOK_SECRET")
 
@@ -112,8 +122,11 @@ mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
     }
 })
 ```
+</TabItem>
 
-```java title="Webhook signature verification - Java"
+<TabItem label="Java">
+
+```java
 @PostMapping("/webhook")
 public String webhook(@RequestBody String body, @RequestHeader Map<String, String> headers) {
   String secret = "<WEBHOOK SECRET>";
@@ -151,12 +164,17 @@ public String webhook(@RequestBody String body, @RequestHeader Map<String, Strin
   return "ok";
 }
 ```
+</TabItem>
+</Tabs>
 
 ## Check the event type before processing
 
 Make sure to check the event.type before consuming the data received by the webhook endpoint. This ensures that your application relies on accurate information, even if more events are added in the future.
 
-```javascript title="Event type handling - Node.js"
+<Tabs>
+<TabItem label="Node.js">
+
+```javascript
 app.post('/webhook', async (req, res) => {
   const event = req.body;
 
@@ -184,8 +202,11 @@ async function createUserAccount(email, name) {
   // Implement your user creation logic
 }
 ```
+</TabItem>
 
-```python title="Event type handling - Python"
+<TabItem label="Python">
+
+```python
 from fastapi import FastAPI, Request
 
 app = FastAPI()
@@ -211,8 +232,11 @@ async def api_webhook(request: Request):
         content={'status': 'success'}
     )
 ```
+</TabItem>
 
-```go title="Event type handling - Go"
+<TabItem label="Go">
+
+```go
 mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
     // Read and verify webhook payload
     bodyBytes, err := io.ReadAll(r.Body)
@@ -243,8 +267,11 @@ mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
 })
 ```
+</TabItem>
 
-```java title="Event type handling - Java"
+<TabItem label="Java">
+
+```java
 @PostMapping("/webhook")
 public String webhook(@RequestBody String body, @RequestHeader Map<String, String> headers) {
   // Verify webhook signature first
@@ -278,6 +305,8 @@ public String webhook(@RequestBody String body, @RequestHeader Map<String, Strin
   return "ok";
 }
 ```
+</TabItem>
+</Tabs>
 
 ## Avoid webhook timeouts
 
