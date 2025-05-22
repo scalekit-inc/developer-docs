@@ -145,12 +145,6 @@ export const sidebar = [
             label: 'Code gists',
             link: 'https://github.com/scalekit-developers/gists',
           },
-        ],
-      },
-      {
-        label: 'Reference',
-        items: [
-          'reference/admin-portal/ui-events',
           {
             label: 'SDKs',
             items: [
@@ -172,6 +166,12 @@ export const sidebar = [
               },
             ],
           },
+        ],
+      },
+      {
+        label: 'Reference',
+        items: [
+          'reference/admin-portal/ui-events',
           {
             label: 'Webhooks',
             autogenerate: { directory: 'dev-kit/webhooks' },
@@ -181,10 +181,6 @@ export const sidebar = [
             label: 'Release notes',
             link: 'https://www.scalekit.com/product-updates',
           },
-          {
-            label: 'Chat with us!',
-            link: '/manual/support/contact-us',
-          },
         ],
       },
       {
@@ -193,6 +189,16 @@ export const sidebar = [
           'guides/setup-scalekit',
           'guides/authenticate-scalekit-api',
           'guides/external-ids-and-metadata',
+          {
+            label: 'Support',
+            items: [
+              'reference/contact-us',
+              {
+                label: 'Release notes',
+                link: 'https://www.scalekit.com/product-updates',
+              },
+            ],
+          },
         ],
       },
     ],
