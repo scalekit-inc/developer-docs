@@ -11,21 +11,20 @@ This guide explains how to implement secure Machine-2-Machine (M2M) authenticati
 
 This guide provides code samples to help you integrate Scalekit's M2M authentication into your application.
 
-<Steps>
-
-1. ### Prerequisites
+#### Prerequisites
 
     Before you begin, ensure you have:
 
-    *   A Scalekit account with access to the M2M authentication feature. [Get it now](/home/setup-scalekit).
-    *   Familiarity with [authenticating requests to the Scalekit API](/m2m/authenticate-scalekit-api).
-    *   (Optional) An understanding of how Scalekit uses [Organizations and external identifiers](/m2m/external-ids-and-metadata) to represent your customers. Each Organization can have multiple M2M clients.
+    *   A Scalekit account with access to the M2M authentication feature. [Get it now](/guides/setup-scalekit/).
+    *   Familiarity with [authenticating requests to the Scalekit API](/guides/authenticate-scalekit-api/).
 
     You can use the Scalekit SDK for a more streamlined experience, or follow the curl examples if you prefer to work without the SDK.
 
     <InstallSDK />
 
-2. ### Register an M2M client
+<Steps>
+
+1. ### Register an M2M client
 
     To allow an external system (an API consumer) to securely access your API, you first register it as an M2M client within the relevant Scalekit Organization. This step typically occurs when your customer sets up an integration via their dashboard or a setup process you provide.
 
@@ -153,7 +152,7 @@ This guide provides code samples to help you integrate Scalekit's M2M authentica
     Scalekit only returns the `plain_secret` once during client creation and does not store it. Instruct your M2M client developers to store the `plain_secret` securely.
     </Aside>
 
-3. ### Authenticate the M2M client
+2. ### Authenticate the M2M client
 
     After registration, the M2M client authenticates with your Scalekit environment using its `client_id` and `client_secret` (the `plain_secret` obtained earlier) to request an access token. This process uses the OAuth 2.0 client credentials grant type.
 
@@ -187,7 +186,7 @@ This guide provides code samples to help you integrate Scalekit's M2M authentica
     </TabItem>
     </Tabs>
 
-    Refer to [API Authentication for M2M clients](/m2m/api-auth-for-m2m-clients) for detailed information on how M2M clients authenticate.
+    Refer to [API Authentication for M2M clients](/guides/m2m/api-auth-m2m-clients/) for detailed information on how M2M clients authenticate.
 
     Upon successful authentication, Scalekit issues a JWT access token.
 
@@ -202,88 +201,91 @@ This guide provides code samples to help you integrate Scalekit's M2M authentica
 
     The client includes this access token in the `Authorization` header of subsequent requests to your API server.
 
-4. ### Validate access tokens in your API server
+3. ### Validate access tokens in your API server
 
     Your API server must validate the incoming JWT access token to ensure the request originates from a trusted M2M client and that the token is legitimate.
 
     Validate the token in two steps:
 
+    <Steps>
+
     1.  **Retrieve the Public Key:** Fetch the appropriate public key from your Scalekit environment's JSON Web Key Set (JWKS) endpoint. Use the `kid` (Key ID) from the JWT header to identify the correct key. Cache the key according to standard JWKS practices.
 
-    <Tabs syncKey="tech-stack">
-    <TabItem value="curl" label="cURL">
+        <Tabs syncKey="tech-stack">
+        <TabItem value="curl" label="cURL">
 
-    ```js showLineNumbers
-    import jwksClient from 'jwks-rsa';
+        ```js showLineNumbers
+        import jwksClient from 'jwks-rsa';
 
-    const client = jwksClient({
-      jwksUri: 'YOUR_JWKS_URI',
-      cache: true
-    });
-
-    async function getPublicKey(header: any): Promise<string> {
-      return new Promise((resolve, reject) => {
-        client.getSigningKey(header.kid, (err, key) => {
-          if (err) reject(err);
-          else resolve(key.getPublicKey());
+        const client = jwksClient({
+        jwksUri: 'YOUR_JWKS_URI',
+        cache: true
         });
-      });
-    }
-    ```
 
-    </TabItem>
-    <TabItem value="python" label="Python">
+        async function getPublicKey(header: any): Promise<string> {
+        return new Promise((resolve, reject) => {
+            client.getSigningKey(header.kid, (err, key) => {
+            if (err) reject(err);
+            else resolve(key.getPublicKey());
+            });
+        });
+        }
+        ```
 
-    ```py showLineNumbers
-    # This is automatically taken care by Scalekit SDK
-    token = token_response["<M2M_JWT_ACCESS_TOKEN>"]
+        </TabItem>
+        <TabItem value="python" label="Python">
 
-    claims = scalekit_client.validate_access_token_and_get_claims(
-        token=token
-    )
-    ```
+        ```py showLineNumbers
+        # This is automatically taken care by Scalekit SDK
+        token = token_response["<M2M_JWT_ACCESS_TOKEN>"]
 
-    </TabItem>
-    </Tabs>
+        claims = scalekit_client.validate_access_token_and_get_claims(
+            token=token
+        )
+        ```
+
+        </TabItem>
+        </Tabs>
 
     2.  **Verify the Token Signature:** Use the retrieved public key and a JWT library to verify the token's signature and claims (like issuer, audience, and expiration).
 
-    <Tabs syncKey="tech-stack">
-    <TabItem value="curl" label="cURL">
+        <Tabs syncKey="tech-stack">
+        <TabItem value="curl" label="cURL">
 
-    ```js showLineNumbers
-    import jwt from 'jsonwebtoken';
+        ```js showLineNumbers
+        import jwt from 'jsonwebtoken';
 
-    async function verifyToken(token: string, publicKey: string) {
-      try {
-        const decoded = jwt.decode(token, { complete: true });
-        const verified = jwt.verify(token, publicKey, {
-          algorithms: ['RS256'],
-          complete: true
-        });
-        return verified.payload;
-      } catch (error) {
-        throw new Error('Token verification failed');
-      }
-    }
-    ```
+        async function verifyToken(token: string, publicKey: string) {
+        try {
+            const decoded = jwt.decode(token, { complete: true });
+            const verified = jwt.verify(token, publicKey, {
+            algorithms: ['RS256'],
+            complete: true
+            });
+            return verified.payload;
+        } catch (error) {
+            throw new Error('Token verification failed');
+        }
+        }
+        ```
 
-    </TabItem>
-    <TabItem value="python" label="Python">
+        </TabItem>
+        <TabItem value="python" label="Python">
 
-    ```py showLineNumbers
-    # Token from the incoming API request's authorization header
-    token = token_response["<M2M_JWT_ACCESS_TOKEN>"]
+        ```py showLineNumbers
+        # Token from the incoming API request's authorization header
+        token = token_response["<M2M_JWT_ACCESS_TOKEN>"]
 
-    claims = scalekit_client.validate_access_token_and_get_claims(
-        token=token
-    )
-    ```
+        claims = scalekit_client.validate_access_token_and_get_claims(
+            token=token
+        )
+        ```
 
-    </TabItem>
-    </Tabs>
+        </TabItem>
+        </Tabs>
+    </Steps>
 
-    Find complete code examples in the [Scalekit M2M Gists repository](https://github.com/scalekit-developers/gists/tree/main/m2m).
+    Find complete code examples in the <a href="https://github.com/scalekit-developers/gists/tree/main/m2m" target="_blank">Scalekit M2M Gists repository</a>.
 
     If the token verification succeeds, your API server can trust the request's authenticity and proceed with processing it based on the permissions (scopes) encoded within the token.
 

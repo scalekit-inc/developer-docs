@@ -119,7 +119,6 @@ export const sidebar = [
             label: 'How to',
             items: ['guides/m2m/api-auth-m2m-clients'],
           },
-          'guides/external-ids-and-metadata',
         ],
       },
     ],
@@ -190,7 +189,11 @@ export const sidebar = [
       },
       {
         label: 'Guides',
-        items: ['guides/setup-scalekit', 'guides/authenticate-scalekit-api'],
+        items: [
+          'guides/setup-scalekit',
+          'guides/authenticate-scalekit-api',
+          'guides/external-ids-and-metadata',
+        ],
       },
     ],
   },
