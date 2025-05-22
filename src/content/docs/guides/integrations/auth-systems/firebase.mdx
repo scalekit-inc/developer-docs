@@ -1,74 +1,79 @@
 ---
-title: Integrate with Firebase
+title: Co-exist with Firebase
 sidebar:
   label: Firebase
+prev: false
+next: false
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components'
 
-This guide streamlines the integration of Scalekit with Firebase applications, enabling seamless Single Sign-on (SSO) authentication for your users. We'll walk you through configuring your Firebase project with Scalekit and provide sample code to manage Scalekit SSO within your app's Firebase environment.
+This guide streamlines the integration of Scalekit with Firebase applications, enabling seamless Single Sign-on (SSO) authentication for users. We'll walk through configuring a Firebase project with Scalekit and provide sample code to manage Scalekit SSO within the app's Firebase environment.
 
- ![Scalekit - Firebase Integration](@/assets/docs/guides/auth-systems/firebase/0.png)
+![Scalekit - Firebase Integration](@/assets/docs/guides/auth-systems/firebase/0.png)
 
- ## Before You Begin
+## Before you begin
 
 - Ensure access to Firebase Authentication with Identity Platform. OpenID Connect is not available
   in Legacy Firebase Authentication. See the
-  [product comparison](https://cloud.google.com/identity-platform/docs/product-comparison) for
+  <a href="https://cloud.google.com/identity-platform/docs/product-comparison" target="_blank">product comparison</a> for
   details.
-- Access to your [Scalekit account](https://app.scalekit.com)
+- Access to a <a href="https://app.scalekit.com" target="_blank">Scalekit account</a>
 
-## Add Scalekit as an OpenID Connect Provider
+## Add Scalekit as an OpenID Connect provider
 
-1. Log in to the [Firebase Management Console](https://console.firebase.google.com/) and select your
+<Steps>
+
+1. Log in to the <a href="https://console.firebase.google.com/" target="_blank">Firebase Management Console</a> and select the
    project.
 2. Go to **Authentication** > **Sign-in method**.
 3. Click **Add new provider** and select OpenID Connect.
 4. Choose Code flow for the **Grant Type** and set the Name to "Scalekit".
-5. Retrieve the Client ID, Issuer URL, and Client secret from your Scalekit API Config.
-
-![Sign-in tab in your Firebase Console](@/assets/docs/guides/auth-systems/firebase/1.png)
-
-
-## Retrieve Configuration Details from Scalekit
-
-<Steps>
-
-1. Log in to your Scalekit Dashboard and navigate to **Settings** > **API Config**.
-2. Locate the following fields in your Scalekit API Config:
-   - Client ID
-   - Environment URL
-   - Client secret (generate a new one if needed)
-   ![Scalekit - Firebase Integration](@/assets/docs/guides/auth-systems/firebase/2.png)
-3. Copy the Client ID from Scalekit and paste it into the **Client ID** field in your Firebase project's OIDC provider settings.
-4. Copy the Environment URL from Scalekit and paste it into the **Issuer URL** field in your Firebase project's OIDC provider settings.
-5. Copy the newly generated Client secret from Scalekit and paste it into the **Client secret** field in your Firebase project's OIDC provider settings. After filling in these details, your Firebase project's OIDC provider settings should look similar to this:
-   ![Paste in your Firebase Console](@/assets/docs/guides/auth-systems/firebase/3.png)
-
+5. Retrieve the Client ID, Issuer URL, and Client secret from the Scalekit API Config.
 
 </Steps>
 
-## Add Redirect URI in Scalekit API Config
+![Sign-in tab in your Firebase Console](@/assets/docs/guides/auth-systems/firebase/1.png)
 
-After defining new OIDC provider, you would need to Configure OIDC Integration in your Firebase project. Copy the Callback URL from your Firebase project and add it as a new Redirect URI in your Scalekit API Config
+## Retrieve configuration details from Scalekit
+
+<Steps>
+
+1. Log in to the Scalekit Dashboard and navigate to **Settings** > **API Config**.
+2. Locate the following fields in the Scalekit API Config:
+   - Client ID
+   - Environment URL (use https://your-subdomain.scalekit.dev for Development or https://your-subdomain.scalekit.com for Production)
+   - Client secret (generate a new one if needed)
+   ![Scalekit - Firebase Integration](@/assets/docs/guides/auth-systems/firebase/2.png)
+3. Copy the Client ID from Scalekit and paste it into the **Client ID** field in the Firebase project's OIDC provider settings.
+4. Copy the Environment URL from Scalekit and paste it into the **Issuer URL** field in the Firebase project's OIDC provider settings.
+5. Copy the newly generated Client secret from Scalekit and paste it into the **Client secret** field in the Firebase project's OIDC provider settings.
+
+</Steps>
+
+After filling in these details, the Firebase project's OIDC provider settings should look similar to this:
+![Paste in your Firebase Console](@/assets/docs/guides/auth-systems/firebase/3.png)
+
+## Add redirect URI in Scalekit API config
+
+After defining new OIDC provider, configure OIDC Integration in the Firebase project. Copy the Callback URL from the Firebase project and add it as a new Redirect URI in the Scalekit API Config.
 
 ![In your Firebase project, copy the Callback URL under "Configure OIDC Integration](@/assets/docs/guides/auth-systems/firebase/4.png)
 
-Add this URL as a new Redirect URI in your Scalekit API Config.
+Add this URL as a new Redirect URI in the Scalekit API Config.
 
 ![Add this URL as a new Redirect URI in your Scalekit API Config](@/assets/docs/guides/auth-systems/firebase/5.png)
 
-## Handle Identity Provider-Initiated Single Sign-On
+## Handle identity provider-initiated Single Sign-on
 
-In the current setup, Firebase acts as an OpenID Connect (OIDC) provider for Scalekit. When a user signs in with Firebase, their information is sent to Scalekit. Scalekit then redirects the user to authenticate with their identity provider and sends the user information back to your app.
+In the current setup, Firebase acts as an OpenID Connect (OIDC) provider for Scalekit. When a user signs in with Firebase, their information is sent to Scalekit. Scalekit then redirects the user to authenticate with their identity provider and sends the user information back to the app.
 
-Users can access your app directly from their identity provider via Single Sign-On (SSO). To handle these SSO requests, create a dedicated endpoint in your app. This endpoint will complete the authentication flow when users initiate SSO from their identity provider. For detailed instructions
-on implementing the IdP-initiated SSO flow, refer to [Implement IdP-Initiated SSO](/guides/product/idp-init-sso/) guide. This guide walks you through the necessary steps to set up and handle SSO requests originating from the identity provider.
+Users can access the app directly from their identity provider via Single Sign-on (SSO). To handle these SSO requests, create a dedicated endpoint in the app. This endpoint will complete the authentication flow when users initiate SSO from their identity provider. For detailed instructions
+on implementing the IdP-initiated SSO flow, refer to [Implement IdP-Initiated SSO](/guides/product/idp-init-sso/) guide. This guide walks through the necessary steps to set up and handle SSO requests originating from the identity provider.
 
-## Enable Single Sign-on in Your Login Page
+## Enable Single Sign-on in your login page
 
-Modify your app's login page to invoke SSO and send the request to Scalekit with user details.
-
+Modify the app's login page to invoke SSO and send the request to Scalekit with user details.
 
 ```javascript {2, 6-8, 13 } title="Login.js" showLineNumbers="false" wrap
 // Initialize Scalekit as an OpenID Connect (OIDC) provider
@@ -79,6 +84,9 @@ const scalekitProvider = new OAuthProvider('oidc.scalekit');
 scalekitProvider.setCustomParameters({
   domain: 'customer@megasoft.org',
 });
+
+// Get reference to the login button element
+const loginbtn = document.getElementById('login-button');
 
 // Handle the SSO login button click event
 loginbtn.onclick = () => {
@@ -104,4 +112,4 @@ loginbtn.onclick = () => {
 };
 ```
 
-By following these steps, you can seamlessly integrate Scalekit's Social Login into your Firebase application, employ Single Sign-on authentication seamlessly.
+By following these steps, you can seamlessly integrate Scalekit's Social Login into a Firebase application, employ Single Sign-on authentication seamlessly.
