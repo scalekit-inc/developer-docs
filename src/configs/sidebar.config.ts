@@ -156,6 +156,7 @@ export const sidebar = [
       {
         label: 'Reference',
         items: [
+          'reference/admin-portal/ui-events',
           {
             label: 'SDKs',
             items: [

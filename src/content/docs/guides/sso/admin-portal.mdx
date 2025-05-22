@@ -16,15 +16,15 @@ By offering a self-service portal for your customers, you can minimize the need 
 
 ## No-Code Admin Portal
 
-A portal will show up for your customers to configure SSO settings by accessing a shareable link. This portal contains the configuration settings that lets your customers setup a connection to their identity provider.
+A portal will show up for your customers to configure Single sign-on settings by accessing a shareable link. This portal contains the configuration settings that lets your customers setup a connection to their identity provider.
 
 To create and share a link for the Admin Portal, follow these steps:
 
 <Steps>
-1. Log in to your [Scalekit Dashboard](https://app.scalekit.com).
-2. Navigate to the "Organizations" tab.
-3. Select the organization you want to provide access to.
-4. Click "Generate Link" to create a new, shareable Admin Portal link.
+1. Log in to your [Scalekit Dashboard](https://app.scalekit.com)
+2. Navigate to the "Organizations" tab
+3. Select the organization you want to provide access to
+4. Click "Generate Link" to create a new, shareable Admin Portal link
 </Steps>
 ![Integrate via Shareable Link](@/assets/docs/home/admin-portal/1-admin-portal-v2.png)
 
@@ -183,144 +183,8 @@ For example, if your application has a "Settings" page for your users, this page
 {/* ![Integrate via API](@/assets/docs/common/admin-portal-3.png) */}
 
 <Aside type="note">
-1. The programmatically generated link is designed for one-time use and expires after 1 minute. Once activated in iframe, the IT admin can configure SSO for an extended period. The session remains active until the setup is complete.
+1. The programmatically generated link is designed for one-time use and expires after 1 minute. Once activated in iframe, the IT admin can configure Single sign-on for an extended period. The session remains active until the setup is complete.
 2. The embedded portal session times out after 6 hours, requiring administrators to complete the configuration within this period.
-</Aside>
-
-## UI Events
-
-Listen to the browser events emitted from the embedded admin portal to perform actions on your app. For example, showing a notification when the SSO connection is enabled.
-
-| Event Type | Description |
-|------------|-------------|
-| `ORGANIZATION_SSO_ENABLED` | Triggered when the SSO connection is enabled |
-| `ORGANIZATION_SSO_DISABLED` | Triggered when the SSO connection is disabled |
-| `PORTAL_SESSION_EXPIRY` | Triggered when the portal session expires |
-| `PORTAL_SESSION_TIMEOUT` | Triggered when the portal session times out |
-| `ORGANIZATION_DIRECTORY_ENABLED` | Triggered when the SCIM Provisioning is enabled |
-| `ORGANIZATION_DIRECTORY_DISABLED` | Triggered when the SCIM Provisioning is disabled |
-
-To listen to these events:
-
-1. Add a listener to the parent window.
-2. Check the event origin and type to determine the action to take.
-3. Handle the event data as needed.
-
-```javascript title="Listening to events from the embedded admin portal" { 3-5 }
-window.onmessage = event => {
-  if (
-    event.origin === '<SCALEKIT_ENVIRONMENT_URL>' &&
-    event.data &&
-    event.data.event_type === '<EVENT_TYPE>'
-  ) {
-    console.log(event.data); // Handle the event data
-  }
-};
-```
-
-Below is an example of the data structure you might receive in your browser console when a event is triggered:
-
-#### `SSO_ENABLED`
-
-```json
-{
-  "event_type": "ORGANIZATION_SSO_ENABLED",
-  "object": "connection",
-  "organization_id": "org_4010340X34236531",
-  "message": "SSO Connection enabled successfully",
-  "data": {
-    "connection_type": "SSO",
-    "id": "conn_4256075523X312",
-    "type": "OIDC",
-    "provider": "OKTA",
-    "enabled": true
-  }
-}
-```
-
-#### `SSO_DISABLED`
-
-```json
-{
-  "event_type": "ORGANIZATION_SSO_DISABLED",
-  "object": "connection",
-  "organization_id": "org_4010340X34236531",
-  "message": "SSO Connection disabled successfully",
-  "data": {
-    "connection_type": "SSO",
-    "id": "conn_4256075523X312",
-    "type": "OIDC",
-    "provider": "OKTA",
-    "enabled": false
-  }
-}
-```
-
-#### `SESSION_EXPIRY`
-
-```json
-{
-  "event_type": "PORTAL_SESSION_EXPIRY",
-  "object": "session",
-  "message": "The admin portal session has expired",
-  "organization_id": "org_43982563588440584",
-  "data": {
-    "expiry": "2025-02-28T12:40:35.911Z"
-  }
-}
-```
-
-#### `SESSION_WARNING`
-
-```json
-{
-  "event_type": "PORTAL_SESSION_WARNING",
-  "object": "session",
-  "message": "The admin portal session will expire in 5 minutes",
-  "organization_id": "org_43982563588440584",
-  "data": {
-    "expiry": "2025-02-28T12:40:35.911Z"
-  }
-}
-```
-
-#### `DIRECTORY_ENABLED`
-
-```json
-{
-  "event_type": "ORGANIZATION_DIRECTORY_ENABLED",
-  "object": "directory",
-  "organization_id": "org_45716217859670289",
-  "message": "SCIM Provisioning enabled successfully!",
-  "data": {
-    "directory_type": "SCIM",
-    "id": "dir_45716228982964495",
-    "provider": "MICROSOFT_AD",
-    "enabled": true
-  }
-}
-```
-
-#### `DIRECTORY_DISABLED`
-
-```json
-{
-  "event_type": "ORGANIZATION_DIRECTORY_DISABLED",
-  "object": "directory",
-  "organization_id": "org_45716217859670289",
-  "message": "SCIM Provisioning disabled successfully!",
-  "data": {
-    "directory_type": "SCIM",
-    "id": "dir_45716228982964495",
-    "provider": "MICROSOFT_AD",
-    "enabled": false
-  }
-}
-```
-
-<Aside type="caution" title="Considerations">
-1. The domain of your parent window must be listed in the Scalekit Dashboard > API Config > Redirect URIs for security purpose
-2. Always validate the `event.origin` to ensure events are coming from a trusted source.
 </Aside>
 
 The Admin Portal can be customized to match your brand's logo and colors. Refer to the [Customize Admin Portal Guide](/guides/custom-domain/) for more information.
@@ -337,6 +201,12 @@ The Admin Portal can be customized to match your brand's logo and colors. Refer 
   title="SSO integrations"
   description="Administrator guides to set up SSO integrations"
   href="/guides/integrations/sso-integrations/"
+/>
+
+<LinkCard
+  title="Portal events"
+  description="Listen to the browser events emitted from the embedded admin portal"
+  href="/reference/admin-portal/ui-events/"
 />
 
 </CardGrid>
