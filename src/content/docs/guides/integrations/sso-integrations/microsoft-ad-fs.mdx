@@ -14,41 +14,37 @@ import { Steps, Aside, Badge } from "@astrojs/starlight/components"
 
 This guide walks you through configuring Single Sign-On (SSO) with Microsoft Active Directory Federation Services (AD FS) as your Identity Provider.
 
-## What you'll learn
-
-- How to set up a relying party trust in AD FS
-- How to configure claims issuance policies
-- How to establish the connection between AD FS and your application
-
-## Before you begin
+####  Before you begin
 
 To successfully set up AD FS SAML integration, you'll need:
 
 - Elevated access to your AD FS Management Console
-- Access to the Admin Portal of the application you're integrating Microsoft AD FS with.
+- Access to the Admin Portal of the application you're integrating Microsoft AD FS with
 
 <Aside type="tip">
-  Having these prerequisites ready before starting will make the configuration process smoother.
+  Having these prerequisites ready before starting will make the configuration process smoother
 </Aside>
 
 ## Configuration steps
 
 <Steps>
 
-1. Choose Microsoft AD FS as your identity provider to begin the configuration.
+1. #### Begin the configuration
+
+   Choose Microsoft AD FS as your identity provider
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/-1-1.png)
 
-   Download Metadata XML file so that you can configure AD FS Server going forward.
+   Download Metadata XML file so that you can configure AD FS Server going forward
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/-1.png)
 
-2. **Open AD FS Management Console**
+2. #### Open AD FS Management Console
    - Launch Server Manager
    - Click 'Tools' in the top menu
    - Select 'AD FS Management'
 
-3. **Create a Relying Party Trust**
+3. #### Create a Relying Party Trust
    - In the left navigation pane, expand 'Trust Relationships'
    - Right-click 'Relying Party Trusts'
    - Select 'Add Relying Party Trust'
@@ -56,32 +52,32 @@ To successfully set up AD FS SAML integration, you'll need:
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/0-1.png)
 
-4. **Configure Trust Settings**
+4. #### Configure Trust Settings
    - Select 'Claims aware' as the trust type
    - Choose 'Enter data about the relying party manually'
    - Click 'Next' to proceed
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/2.png)
 
-    Import the Metadata XML file that you downloaded earlier.
+   Import the Metadata XML file that you downloaded earlier
 
    <Aside type="note">
      You can configure the relying party trust using either of these methods:
      - Enter the Metadata URL directly (if network access allows)
    </Aside>
 
-5. **Set Display Name**
-   - Enter a descriptive name for your application (e.g., "Your App via Scalekit")
+5. #### Set Display Name
+   - Enter a descriptive name for your application (e.g., "ExampleApp")
    - Click 'Next' to continue
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/3.png)
 
-6. **Configure Access Control**
+6. #### Configure Access Control
    - Select an appropriate access control policy
    - For purposes of this guide, select 'Permit everyone'
    - Click 'Next' to proceed
 
-7. **Review Trust Configuration**
+7. #### Review Trust Configuration
    - Verify the following settings:
      - Monitoring configuration
      - Endpoints
@@ -90,19 +86,19 @@ To successfully set up AD FS SAML integration, you'll need:
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/5.png)
 
-   The wizard will complete with the 'Edit Claim Issuance Policy' option automatically selected.
+   The wizard will complete with the 'Edit Claim Issuance Policy' option automatically selected
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/6.png)
 
-8. **Create Claim Rules**
+8. #### Create Claim Rules
    - Click 'Add Rule' to create a new claim rule
    - Select 'Send LDAP Attributes as Claims' template
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/7.png)
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/8.png)
 
-9. **Map User Attributes**
-   - Enter a descriptive rule name (e.g., "ExampleApp via Scalekit")
+9. #### Map User Attributes
+   - Enter a descriptive rule name (e.g., "Example App")
    - Configure the following attribute mappings:
      - `E-Mail-Addresses` → E-Mail Address
      - `Given-Name` → Given Name
@@ -112,51 +108,32 @@ To successfully set up AD FS SAML integration, you'll need:
 
    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/9.png)
 
-10. **Complete Admin Portal Configuration**
-    - Navigate to Identity Provider Configuration in the Scalekit Admin Portal
+10. #### Complete Admin Portal Configuration
+    - Navigate to Identity Provider Configuration in the Admin Portal
     - Select "Configure Manually"
     - The above endpoints are AD FS endpoints. You can find them listed in AD FS Console > Service > Endpoints > Tokens and Metadata sections. Enter these required details:
       - Microsoft AD FS Identifier: `http://<your-adfs-server-domain>/adfs/services/trust`
       - Login URL: `http://<your-adfs-server-domain>/adfs/ls`
       - Certificate:
-        1. Access `https://<your-adfs-server-domain>/FederationMetadata/2007-06/FederationMetadata.xml`
+        1. Access <a href="https://<your-adfs-server-domain>/FederationMetadata/2007-06/FederationMetadata.xml" target="_blank">Federation Metadata URL</a>
         2. Locate the text after the first `X509Certificate` tag
         3. Copy and paste this certificate into the "Certificate" field
     - Click "Update" to save the configuration
 
     ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/12-1.png)
 
-    <Aside type="note">
-
-    </Aside>
-
-11. **Test the Integration**
-    - In the Scalekit Admin Portal, click "Test Connection"
+11. #### Test the Integration
+    - In the Admin Portal, click "Test Connection"
     - You will be redirected to the AD FS login page
     - Enter your AD FS credentials
     - Verify successful redirection back to the Admin Portal with the correct user attributes
 
-    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/11.png)
+    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/13.png)
+
+12. #### Enable Connection
+    - Click on **Enable Connection**
+    - This will let all your selected users login to the new application via your AD FS SSO
+
+    ![](@/assets/docs/guides/sso-integrations/microsoft-ad-fs/14.png)
 
 </Steps>
-
-## Verification
-
-After completing the configuration, test the SSO integration by:
-
-1. Logging out of your application
-2. Attempting to log in using the SSO option
-3. Verifying you're redirected to AD FS and can authenticate successfully
-
-## Troubleshooting
-
-If you encounter issues with your AD FS integration:
-
-- Verify all claim mappings are correctly configured
-- Check that the Metadata URL is accessible from Scalekit
-- Ensure your AD FS server's clock is synchronized
-- Review AD FS event logs for any authentication errors
-
-<Aside type="tip">
-  For additional assistance, contact Scalekit support with your AD FS configuration details and any error messages you're receiving.
-</Aside>
