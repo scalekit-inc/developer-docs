@@ -10,7 +10,7 @@ export const sidebar = [
         items: [
           'guides/sso/sso-basics',
           'sso/quickstart',
-          'guides/test-sso',
+          'guides/sso/test-sso',
           'guides/sso/admin-portal',
           'guides/sso/launch-checklist',
         ],
@@ -21,7 +21,7 @@ export const sidebar = [
           'social-logins/quickstart',
           {
             label: 'connections',
-            collapsed: true,
+            collapsed: false,
             autogenerate: {
               directory: 'guides/integrations/social-connections',
             },
@@ -35,7 +35,7 @@ export const sidebar = [
           'guides/sso/idp-init-sso',
           'guides/sso/okta-sso-test',
           'guides/sso/sso-user-attributes',
-          'reference/sso-integration-errors',
+          'reference/sso/sso-integration-errors',
           'reference/redirects',
           {
             label: 'Coexist with',
@@ -78,7 +78,6 @@ export const sidebar = [
         label: 'Guides',
         items: [
           'guides/directory/group-based-role-assignment',
-          'guides/custom-domain',
           'guides/webhooks-best-practices',
           {
             label: 'Concepts',
