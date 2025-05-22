@@ -11,14 +11,14 @@ export const sidebar = [
           'guides/sso/sso-basics',
           'sso/quickstart',
           'guides/test-sso',
-          'guides/admin-portal',
+          'guides/sso/admin-portal',
           'guides/sso/launch-checklist',
         ],
       },
       {
         label: 'Social authentication',
         items: [
-          'sso/social-logins-quickstart',
+          'social-logins/quickstart',
           {
             label: 'connections',
             collapsed: true,
@@ -70,7 +70,7 @@ export const sidebar = [
         items: [
           'directory/scim/quickstart',
           'directory/code-examples',
-          'guides/admin-portal',
+          'guides/directory/admin-portal',
           'guides/directory/launch-checklist',
         ],
       },
@@ -119,10 +119,7 @@ export const sidebar = [
           'guides/m2m/scopes',
           {
             label: 'How to',
-            items: [
-              'guides/m2m/api-auth-m2m-clients',
-              'guides/authenticate-scalekit-api',
-            ],
+            items: ['guides/m2m/api-auth-m2m-clients'],
           },
           'guides/external-ids-and-metadata',
         ],
@@ -156,6 +153,7 @@ export const sidebar = [
       {
         label: 'Reference',
         items: [
+          'reference/admin-portal/ui-events',
           {
             label: 'SDKs',
             items: [
@@ -179,7 +177,7 @@ export const sidebar = [
           },
           {
             label: 'Webhooks',
-            autogenerate: { directory: 'reference/webhooks' },
+            autogenerate: { directory: 'dev-kit/webhooks' },
           },
           'reference/glossary',
           {

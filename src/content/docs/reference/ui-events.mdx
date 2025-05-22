@@ -1,0 +1,151 @@
+---
+title: UI events from the embedded admin portal
+tableOfContents: false
+sidebar:
+  label: Portal events
+  badge:
+    text: "Embedded"
+    variant: "note"
+  order: 2
+slug: reference/admin-portal/ui-events
+---
+
+import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Listen to the browser events emitted from the embedded admin portal to perform actions on your app. For example, showing a notification when the Single sign-on connection is enabled.
+
+| Event Type       | Description      |
+|----------------|----------------|
+| [`ORGANIZATION_SSO_ENABLED`](#organization_sso_enabled)  | Triggered when the Single sign-on connection is enabled |
+| [`ORGANIZATION_SSO_DISABLED`](#organization_sso_disabled)  | Triggered when the Single sign-on connection is disabled |
+| [`PORTAL_SESSION_EXPIRY`](#portal_session_expiry)  | Triggered when the admin portal session expires |
+| [`PORTAL_SESSION_TIMEOUT`](#portal_session_timeout)  | Triggered when the admin portal session times out |
+| [`ORGANIZATION_DIRECTORY_ENABLED`](#organization_directory_enabled)  | Triggered when the SCIM Provisioning is enabled |
+| [`ORGANIZATION_DIRECTORY_DISABLED`](#organization_directory_disabled)  | Triggered when the SCIM Provisioning is disabled |
+
+To listen to these events:
+
+1. Add a listener to the parent window.
+2. Check the event origin and type to determine the action to take.
+3. Handle the event data as needed.
+
+```js {3,5} title="Listening to events from the embedded admin portal"
+window.onmessage = event => {
+  if (
+    event.origin === '<SCALEKIT_ENVIRONMENT_URL>' &&
+    event.data &&
+    event.data.event_type === '<EVENT_TYPE>'
+  ) {
+    console.log(event.data); // Handle the event data
+  }
+};
+```
+
+The domain of your parent window must be listed in the Scalekit Dashboard > API Config > Redirect URIs for security purpose. Always <u>validate the `event.origin` </u> to ensure events are coming from a trusted source.
+
+**Event types**
+
+The following event types are emitted by the embedded admin portal. Each event includes specific data that you can use to update your application's UI or trigger other actions.
+
+<h3 id="organization_sso_enabled">`ORGANIZATION_SSO_ENABLED`</h3>
+
+```json
+{
+  "event_type":"ORGANIZATION_SSO_ENABLED",
+  "object":"connection",
+  "organization_id":"org_4010340X34236531",
+  "message": "Single sign-on connection enabled successfully",
+  "data":{
+      "connection_type":"SSO",
+      "id":"conn_4256075523X312",
+      "type":"OIDC",
+      "provider":"OKTA",
+      "enabled":true
+  }
+}
+```
+
+<h3 id="organization_sso_disabled">`ORGANIZATION_SSO_DISABLED`</h3>
+
+```json
+{
+   "event_type":"ORGANIZATION_SSO_DISABLED",
+   "object":"connection",
+   "organization_id":"org_4010340X34236531",
+   "message": "Single sign-on connection disabled successfully",
+   "data":{
+      "connection_type":"SSO",
+      "id":"conn_4256075523X312",
+      "type":"OIDC",
+      "provider":"OKTA",
+      "enabled": false
+   }
+}
+```
+
+<h3 id="portal_session_warning">`PORTAL_SESSION_WARNING`</h3>
+
+```json
+{
+  "event_type": "PORTAL_SESSION_WARNING",
+  "object": "session",
+  "message": "The admin portal session will expire in 5 minutes",
+  "organization_id": "org_43982563588440584",
+  "data": {
+    "expiry": "2025-02-28T12:40:35.911Z"
+  }
+}
+```
+
+<h3 id="portal_session_expiry">`PORTAL_SESSION_EXPIRY`</h3>
+
+```json
+{
+  "event_type": "PORTAL_SESSION_EXPIRY",
+  "object": "session",
+  "message": "The admin portal session has expired",
+  "organization_id": "org_43982563588440584",
+  "data": {
+    "expiry": "2025-02-28T12:40:35.911Z"
+  }
+}
+```
+
+<h3 id="organization_directory_enabled">`ORGANIZATION_DIRECTORY_ENABLED`</h3>
+
+```json
+{
+    "event_type": "ORGANIZATION_DIRECTORY_ENABLED",
+    "object": "directory",
+    "organization_id": "org_45716217859670289",
+    "message": "SCIM Provisioning enabled successfully",
+    "data": {
+        "directory_type": "SCIM",
+        "id": "dir_45716228982964495",
+        "provider": "MICROSOFT_AD",
+        "enabled": true
+    }
+}
+```
+
+<h3 id="organization_directory_disabled">`ORGANIZATION_DIRECTORY_DISABLED`</h3>
+
+```json
+{
+    "event_type": "ORGANIZATION_DIRECTORY_DISABLED",
+    "object": "directory",
+    "organization_id": "org_45716217859670289",
+    "message": "SCIM Provisioning disabled successfully",
+    "data": {
+        "directory_type": "SCIM",
+        "id": "dir_45716228982964495",
+        "provider": "MICROSOFT_AD",
+        "enabled": false
+    }
+}
+```
+
+<Aside type="caution" title="Considerations">
+1. The domain of your parent window must be listed in the Scalekit Dashboard > API Config > Redirect URIs for security purpose
+2. Always validate the `event.origin` to ensure events are coming from a trusted source.
+</Aside>
