@@ -119,10 +119,7 @@ export const sidebar = [
           'guides/m2m/scopes',
           {
             label: 'How to',
-            items: [
-              'guides/m2m/api-auth-m2m-clients',
-              'guides/authenticate-scalekit-api',
-            ],
+            items: ['guides/m2m/api-auth-m2m-clients'],
           },
           'guides/external-ids-and-metadata',
         ],
@@ -180,7 +177,7 @@ export const sidebar = [
           },
           {
             label: 'Webhooks',
-            autogenerate: { directory: 'reference/webhooks' },
+            autogenerate: { directory: 'dev-kit/webhooks' },
           },
           'reference/glossary',
           {
