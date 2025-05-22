@@ -45,7 +45,6 @@ export const sidebar = [
             label: 'Concepts',
             items: [
               'guides/sso/authorization-url',
-              'reference/redirects',
               'guides/idtoken-claims',
               'guides/sso/user-profile-details',
               'guides/client-credentials-practices',
