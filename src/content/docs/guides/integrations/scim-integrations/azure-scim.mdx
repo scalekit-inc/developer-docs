@@ -1,11 +1,17 @@
 ---
-title: Microsoft Entra ID (Azure AD)
+title: Microsoft Azure AD
 description: Integrate Microsoft Entra ID with the host application for seamless user management
+sidebar:
+  order: 1
+  label: "Microsoft Entra ID"
+  badge:
+    variant: note
+    text: SCIM
+prev: false
+next: false
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
-import { Aside } from '@astrojs/starlight/components';
-import { Button } from '@astrojs/starlight/components';
+import { Steps, Aside } from '@astrojs/starlight/components';
 
 This guide helps administrators sync their EntraID directory with an application they want to onboard to their organization. Integrating your application with Entra ID automates user management tasks and ensures access rights stay up-to-date.
 
@@ -16,88 +22,77 @@ This registration sets up the following:
 
 These components enable seamless synchronization between your application and the EntraID directory.
 
-## 1.Create an endpoint and API token
+<Steps>
+1. ### Create an endpoint and API token
 
-Open the Admin Portal from the app being onboarded. Select the "Directory Sync" tab to display a list of Directory Providers. Choose "Entra ID" as your Directory Provider. If the Admin Portal is not accessible from the app, request instructions from the app owner.
+   Open the Admin Portal from the app being onboarded. Select the "Directory Sync" tab to display a list of Directory Providers. Choose "Entra ID" as your Directory Provider. If the Admin Portal is not accessible from the app, request instructions from the app owner.
 
-![Azure SCIM](@/assets/docs/guides/scim-integrations/google-dir-sync/1.png)
-*Setting up Directory Sync in the admin portal of an app being onboarded: Entra ID selected as the provider, awaiting configuration*
+   ![Setting up Directory Sync in the admin portal of an app being onboarded: Entra ID selected as the provider, awaiting configuration](@/assets/docs/guides/scim-integrations/google-dir-sync/1.png)
 
-Click "Configure" after selecting "EntraID" to generate an Endpoint URL and Bearer token for your organization, allowing the app to listen to events and maintain synchronization.
+   Click "Configure" after selecting "EntraID" to generate an Endpoint URL and Bearer token for your organization, allowing the app to listen to events and maintain synchronization.
 
-![Azure SCIM](@/assets/docs/guides/scim-integrations/entra-id-scim/00-2.png)
-*Endpoint URL and Bearer token for your organization.*
+   ![Endpoint URL and Bearer token for your organization.](@/assets/docs/guides/scim-integrations/entra-id-scim/00-2.png)
 
-## 2. Adding a new application in Entra ID
+2. ### Add a new application in Entra ID
 
-To send user-related updates to the app you want to onboard, create a new app in Microsoft Entra ID
+   To send user-related updates to the app you want to onboard, create a new app in Microsoft Entra ID.
 
-Go to the Microsoft Azure portal and select "Microsoft Entra ID".
+   Go to the Microsoft Azure portal and select "Microsoft Entra ID".
 
-![Azure SCIM](@/assets/docs/guides/scim-integrations/entra-id-scim/01.png)
-*Microsoft Entra ID in the Azure portal.*
+   ![Microsoft Entra ID in the Azure portal.](@/assets/docs/guides/scim-integrations/entra-id-scim/01.png)
 
-In the "Manage > All applications" tab, click "+ New application".
+   In the "Manage > All applications" tab, click "+ New application".
 
-![Azure SCIM](@/assets/docs/guides/scim-integrations/entra-id-scim/02.png)
-*Adding a new application in Microsoft Entra ID.*
+   ![Adding a new application in Microsoft Entra ID.](@/assets/docs/guides/scim-integrations/entra-id-scim/02.png)
 
-Click "+ Create your own application" in the modal that opens on the right.
+   Click "+ Create your own application" in the modal that opens on the right.
 
-![Azure SCIM](@/assets/docs/guides/scim-integrations/entra-id-scim/03.png)
-*Creating a new application in Microsoft Entra ID.*
+   ![Creating a new application in Microsoft Entra ID.](@/assets/docs/guides/scim-integrations/entra-id-scim/03.png)
 
-Name the app you want to onboard (e.g., "Hero SaaS") and click "Create", leaving other defaults as-is.
+   Name the app you want to onboard (e.g., "Hero SaaS") and click "Create", leaving other defaults as-is.
 
-![Azure SCIM](@/assets/docs/guides/scim-integrations/entra-id-scim/04.png)
-*Creating a new application in Microsoft Entra ID.*
+   ![Creating a new application in Microsoft Entra ID.](@/assets/docs/guides/scim-integrations/entra-id-scim/04.png)
 
-## 3. Configure provisioning
+3. ### Configure provisioning settings
 
-In the "Hero SaaS" app's overview, select "Manage > Provisioning" from the left sidebar.
+   In the "Hero SaaS" app's overview, select "Manage > Provisioning" from the left sidebar.
 
-![Azure SCIM](@/assets/docs/guides/scim-integrations/entra-id-scim/05.png)
-*Configuring provisioning for the "Hero SaaS" app.*
+   ![Configuring provisioning for the "Hero SaaS" app.](@/assets/docs/guides/scim-integrations/entra-id-scim/05.png)
 
-Set the Provisioning Mode to "Automatic".
+   Set the Provisioning Mode to "Automatic".
 
-In the Admin Credentials section, set:
+   In the Admin Credentials section, set:
 
-- Tenant URL: _Endpoint_
-- Secret Token: _Bearer Token generated previously_
+   - Tenant URL: _Endpoint_
+   - Secret Token: _Bearer Token generated previously_
 
-![Azure SCIM](@/assets/docs/guides/scim-integrations/entra-id-scim/06.png)
-*Setup Provisioning Mode and Admin Credentials.*
+   ![Setup Provisioning Mode and Admin Credentials.](@/assets/docs/guides/scim-integrations/entra-id-scim/06.png)
 
-In the Mappings section, click "Provision Microsoft Entra ID Users" and toggle "Enabled" to "Yes".
+   In the Mappings section, click "Provision Microsoft Entra ID Users" and toggle "Enabled" to "Yes".
 
-![Azure SCIM](@/assets/docs/guides/scim-integrations/entra-id-scim/07.png)
-*Making sure the "Provision Microsoft Entra ID Users" is enabled.*
+   ![Making sure the "Provision Microsoft Entra ID Users" is enabled.](@/assets/docs/guides/scim-integrations/entra-id-scim/07.png)
 
-![Azure SCIM](@/assets/docs/guides/scim-integrations/entra-id-scim/08.png)
-*Making sure the "Provision Microsoft Entra ID Users" is enabled.*
+   ![Making sure the "Provision Microsoft Entra ID Users" is enabled.](@/assets/docs/guides/scim-integrations/entra-id-scim/08.png)
 
-Close the modal and reload the page for changes to take effect.
+   Close the modal and reload the page for changes to take effect.
 
-Go to "Overview > Manage > Provisioning" and ensure "Provisioning Status" is toggled "On".
+   Go to "Overview > Manage > Provisioning" and ensure "Provisioning Status" is toggled "On".
 
-![Azure SCIM](@/assets/docs/guides/scim-integrations/entra-id-scim/010.png)
-*Making sure the "Provisioning Status" is toggled "On".*
+   ![Making sure the "Provisioning Status" is toggled "On".](@/assets/docs/guides/scim-integrations/entra-id-scim/010.png)
 
-Entra ID is now set up to send events to Hero SaaS when users are added or removed.
+   Entra ID is now set up to send events to Hero SaaS when users are added or removed.
 
-## 4. Testing user/group provisioning
+4. ### Test user and group provisioning
 
-In the Hero SaaS Application, go to "Provision on demand". Input a user name from your user list and click "Provision".
+   In the Hero SaaS Application, go to "Provision on demand". Input a user name from your user list and click "Provision".
 
-![Azure SCIM](@/assets/docs/guides/scim-integrations/entra-id-scim/020.png)
-*Provisioning a user/group on demand.*
+   ![Provisioning a user/group on demand.](@/assets/docs/guides/scim-integrations/entra-id-scim/020.png)
 
-Once provisioned, the user should appear in the admin portal, showing how many users have access to the Hero SaaS app.
+   Once provisioned, the user should appear in the admin portal, showing how many users have access to the Hero SaaS app.
 
-![Azure SCIM](@/assets/docs/guides/scim-integrations/entra-id-scim/013.png)
-*Group (Admins) provisioned in the admin portal.*
+   ![Group (Admins) provisioned in the admin portal.](@/assets/docs/guides/scim-integrations/entra-id-scim/013.png)
 
-<Aside type="note">
-Provisioning or deprovisioning users can be done from "Manage > User and groups > Add user/group". It usually takes upto 40 minutes for the changes made in Microsoft Entra ID to propagate to the application.
-</Aside>
+   <Aside type="note">
+   Provisioning or deprovisioning users can be done from "Manage > User and groups > Add user/group". It usually takes up to 40 minutes for the changes made in Microsoft Entra ID to propagate to the application.
+   </Aside>
+</Steps>
