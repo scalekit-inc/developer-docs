@@ -177,10 +177,6 @@ export const sidebar = [
             autogenerate: { directory: 'dev-kit/webhooks' },
           },
           'reference/glossary',
-          {
-            label: 'Release notes',
-            link: 'https://www.scalekit.com/product-updates',
-          },
         ],
       },
       {
