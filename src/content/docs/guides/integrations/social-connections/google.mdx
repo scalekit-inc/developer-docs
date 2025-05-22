@@ -7,6 +7,10 @@ sidebar:
     variant: note
     text: OAuth
 description: "Learn how to integrate Google Sign-In with Scalekit, enabling secure social authentication for your users with step-by-step OAuth configuration instructions."
+prev:
+  label: "Google sign-in quickstart"
+  link: /social-logins/quickstart/
+next: false
 ---
 
 import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
@@ -19,21 +23,21 @@ By the end of this guide, you will be able to:
 2. Set up an OAuth 2.0 connection between Scalekit and Google
 3. Implement 'Sign in with Google' in your application using the Scalekit SDK
 
-## Connect Google with Scalekit
+## Set up Google connection
 
-**Navigate to Social Login settings**
+### Access social login settings
 
 Open your Scalekit dashboard and navigate to Social Login under the Authentication section.
 
 ![Scalekit dashboard showcasing social login setup with various platform integration options.](@/assets/docs/guides/social-connections/google-social/1-navigate-to-social-logins.png)
 
-**Add a new Google connection**
+### Add Google connection
 
 Click the "+ Add Connection" button and select Google from the list of available options.
 
 ![Add social login connections: Google, Microsoft, GitHub, GitLab, Salesforce.](@/assets/docs/guides/social-connections/google-social/2-list-social-logins.png)
 
-## 1. Test using Scalekit credentials
+## Test with Scalekit credentials
 
 For faster development and testing, Scalekit provides pre-configured Google OAuth credentials, allowing you to test the authentication flow without setting up your own Google OAuth client.
 
@@ -43,8 +47,7 @@ Under OAuth Configuration, select **Use Scalekit credentials** and **save** the 
 
 ![Use Scalekit credentials to test connection](@/assets/docs/guides/social-connections/google-social/2-1-test-scalekit-credentials.png)
 
-
-## 2. Connect Google with Scalekit using your own credentials
+## Set up with your own credentials
 
 ### Configure OAuth settings
 
@@ -56,16 +59,16 @@ The OAuth Configuration details page helps you set up the connection:
 ### Get Google OAuth client credentials
 
 <Steps>
-1. Open the [Google Cloud Platform Console](https://console.cloud.google.com/). From the projects list, select an existing project or create a new one.
+1. Open the <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Platform Console</a>. From the projects list, select an existing project or create a new one.
 
-2. Navigate to the [Google Auth Platform's overview page](https://console.cloud.google.com/auth/overview).
+2. Navigate to the <a href="https://console.cloud.google.com/auth/overview" target="_blank" rel="noopener">Google Auth Platform's overview page</a>.
    - Click **Get Started** and provide details such as app information, audience, and contact information. Complete the process by clicking **Create**.
 
 3. On the "Overview" page, click the **Create OAuth Client** button to start setting up your app's OAuth client.
 
 4. Choose the appropriate application type (e.g., web application) from the dropdown menu.
 
-5. Copy the redirect URI from your Google Social Login configuration and paste it into the **Authorized Redirect URIs** field. The URI should follow this format (for development environment): `https://[YOUR_ENV_ID].scalekit.dev`.
+5. Copy the redirect URI from your Google Social Login configuration and paste it into the **Authorized Redirect URIs** field. The URI should follow this format (for development environment): `https://{your-subdomain}.scalekit.dev`.
 
 6. **Save and retrieve credentials**: Click **Save** to finalize the setup. You will be redirected to a list of Google OAuth Clients. Select the newly created client and copy the **Client ID** and **Client Secret** from the additional information section.
 
@@ -78,8 +81,7 @@ The OAuth Configuration details page helps you set up the connection:
 - Explore options like branding, audience, clients, and data access to customize your OAuth consent screen for your application's needs.
 - Ensure your app's verification status with Google is complete before enabling social login features for users to ensure trustworthiness.
 </Aside>
-
-For more details, refer to [Google's OAuth Guide](https://support.google.com/cloud/answer/6158849).
+For more details, refer to <a href="https://support.google.com/cloud/answer/6158849" target="_blank" rel="noopener">Google's OAuth guide</a>.
 
 ![Google OAuth configuration in Scalekit, showing redirect URI, client credentials, and scopes for social login setup.](@/assets/docs/common/social-connections/3-google-oauth-config.png)
 
@@ -90,7 +92,7 @@ After completing the setup, click "Save Changes" in Scalekit for the changes to 
 
 ![Google OAuth configuration for social login, showing redirect URI, client ID, and scopes for authentication.](@/assets/docs/guides/social-connections/google-social/4-after-oauth-config.png)
 
-### Choose the user experience for login prompt
+### Configure login prompt behavior
 
 Scalekit offers flexibility to control how and when users are prompted for reauthentication, consent, or account selection. Below are the available options for customizing user sign-in behavior:
 
@@ -106,12 +108,8 @@ Scalekit offers flexibility to control how and when users are prompted for reaut
 - **None**:
   The authorization server does not display any authentication or user consent screens; it will return an error if the user is not already authenticated and has not pre-configured consent for the requested scopes. You can use none to check for existing authentication and/or consent.
 
-## Test the connection
+## Verify the connection
 
 Click the "Test Connection" button in Scalekit. You will be redirected to the Google Consent screen to authorize access. A summary table will show the information that will be sent to your app.
 
 ![Test connection success](@/assets/docs/guides/social-connections/google-social/5-successful-test-connection.png)
-
-## Next steps
-
-Once the connection is set up, refer to our [Quickstart guide](/manual/social-logins-quickstart) to learn how to integrate this connection into your app using the Scalekit SDK.
