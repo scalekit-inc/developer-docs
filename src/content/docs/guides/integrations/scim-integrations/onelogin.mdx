@@ -1,215 +1,135 @@
 ---
-title: OneLogin SCIM
+title: OneLogin Directory
 sidebar:
   order: 3
-  label: "OneLogin SCIM"
+  label: "OneLogin"
   badge:
     variant: note
     text: SCIM
+prev: false
+next: false
 ---
-import { Aside } from '@astrojs/starlight/components';
+import { Steps, Aside } from '@astrojs/starlight/components';
 
-This guide helps administrators sync their OneLogin Directory with an application they want to onboard. Integrating your application with OneLogin automates user management tasks and keeps access rights up-to-date.
+This guide helps administrators sync their OneLogin directory with an application they want to onboard. Integrating your application with OneLogin automates user management tasks and keeps access rights up-to-date.
 
 Setting up the integration involves:
 
 1. **Endpoint**: The URL where OneLogin sends requests to your application, enabling communication between them.
-2. **Bearer Token**: A token OneLogin uses to authenticate its requests to the endpoint, ensuring security and
-   authorization.
+2. **Bearer Token**: A token OneLogin uses to authenticate its requests to the endpoint, ensuring security and authorization.
 
 By setting up these components, you enable seamless synchronization between your application and the OneLogin directory.
 
-## Setting Up the Endpoint and API Token
+<Steps>
+1. ### Create an endpoint and API token
 
-Open the Admin Portal from the app being onboarded and select the "Directory Sync" tab.
+   Open the Admin Portal from the app being onboarded and select the "Directory Sync" tab. Choose "OneLogin" as your Directory Provider.
 
-Choose "OneLogin" as your Directory Provider.
+   ![Setting up Directory Sync in the admin portal of an app being onboarded: OneLogin selected as the provider, awaiting configuration](@/assets/docs/guides/scim-integrations/onelogin-scim/0-1.png)
 
-<figure>
-  ![Setting up Directory Sync in the admin portal of an app being onboarded: OneLogin selected as the provider, awaiting
-  configuration](@/assets/docs/guides/scim-integrations/onelogin-scim/0-1.png)
-  <figcaption>
-    Setting up Directory Sync in the admin portal of an app being onboarded: OneLogin selected as the provider, awaiting
-    configuration
-  </figcaption>
-</figure>
+   Click "Configure" to generate an Endpoint URL and Bearer token for your organization.
 
-Click "Configure" to generate an Endpoint URL and Bearer token for your organization.
+   ![OneLogin directory sync setup: Endpoint URL and one-time visible bearer token provided](@/assets/docs/guides/scim-integrations/onelogin-scim/0-2.png)
 
-<figure>
-  ![OneLogin directory sync setup: Endpoint URL and one-time visible bearer token
-  provided](@/assets/docs/guides/scim-integrations/onelogin-scim/0-2.png)
-  <figcaption>OneLogin directory sync setup: Endpoint URL and one-time visible bearer token provided</figcaption>
-</figure>
+   <Aside type="note">
+   If the "Directory Sync" tab is not visible, contact the app owner to enable it via the Scalekit Dashboard (Organizations > Your Organization > Enable Directory Sync).
+   </Aside>
 
-<Aside>
+2. ### Add a new application in OneLogin
 
-If the "Directory Sync" tab is not visible, contact the app owner to enable it via the Scalekit Dashboard
-(Organizations > Your Organization > Enable Directory Sync).
+   In OneLogin, click "Administration" and then "Applications" from the top navigation pane.
 
-</Aside>
+   ![OneLogin Administration Applications](@/assets/docs/guides/scim-integrations/onelogin-scim/2.png)
 
-## Add New Application in OneLogin
+   Click "Add App" to add a new application.
 
-In OneLogin, click "Administration" and then "Applications" from the top navigation pane.
+   ![The OneLogin Applications page displays a list of apps with options to download JSON or add a new app.](@/assets/docs/guides/scim-integrations/onelogin-scim/3.png)
 
-<figure>
-  ![](@/assets/docs/guides/scim-integrations/onelogin-scim/2.png)
-</figure>
+   Search for "SCIM Provisioner with SAML (SCIM v2 Enterprise)"
 
-Click "Add App" to add a new application.
+   ![OneLogin application search results for "SCIM Provisioner with SAML" displaying SCIM v2 Enterprise option.](@/assets/docs/guides/scim-integrations/onelogin-scim/4.png)
 
-<figure>
-  ![](@/assets/docs/guides/scim-integrations/onelogin-scim/3.png)
-</figure>
+   Name the app (e.g., "Hero SaaS App") and click "Save".
 
-Search for "SCIM Provisioner with SAML (SCIM v2 Enterprise)"
+   ![Configuring the portal settings for the application in OneLogin, including display name and icon options.](@/assets/docs/guides/scim-integrations/onelogin-scim/5.png)
 
-<figure>
-  ![OneLogin application search results for "SCIM Provisioner with SAML" displaying SCIM v2 Enterprise option.](@/assets/docs/guides/scim-integrations/onelogin-scim/4.png)
-</figure>
+   Go to the "Provisioning" tab, enable provisioning, and click "Save".
 
-Name the app (e.g., "Hero SaaS App") and click "Save".
+   ![Setting up provisioning workflow for SCIM Provisioner with SAML in OneLogin, including options for user creation, deletion, and suspension actions.](@/assets/docs/guides/scim-integrations/onelogin-scim/6.png)
 
-<figure>
-  ![Configuring the portal settings for the application in OneLogin, including display name and icon
-  options.](@/assets/docs/guides/scim-integrations/onelogin-scim/5.png)
-</figure>
+3. ### Provision users
 
-Go to the "Provisioning" tab, enable provisioning, and click "Save".
+   Go to "Users" and click on a user you want to provision.
 
-<figure>
-  ![Setting up provisioning workflow for SCIM Provisioner with SAML in OneLogin, including options for user creation,
-  deletion, and suspension actions.](@/assets/docs/guides/scim-integrations/onelogin-scim/6.png)
-</figure>
+   ![OneLogin Users dashboard displaying user information, including roles, last login time, and account status.](@/assets/docs/guides/scim-integrations/onelogin-scim/7.png)
 
-## Provisioning Users
+   <Aside type="note">
+   You can create a new user for testing. Ensure users have a "username" property, which will be treated as a unique identifier in SCIM implementations. Using an email address as the username is also allowed.
+   </Aside>
 
-Go to "Users" and click on a user you want to provision.
+   Go to the "Applications" tab, click "+", and assign "Hero SaaS App". Click "Continue".
 
-<figure>
-  ![OneLogin Users dashboard displaying user information, including roles, last login time, and account
-  status.](@/assets/docs/guides/scim-integrations/onelogin-scim/7.png)
-</figure>
+   ![Assigning a new login to a user in OneLogin](@/assets/docs/guides/scim-integrations/onelogin-scim/8.png)
 
-<Aside>
+   Click "Pending" to approve provisioning.
 
-You can create a new user for testing. Ensure users have a "username" property, which will be treated as a unique
-identifier in SCIM implementations. Using an email address as the username is also allowed.
+   ![OneLogin user provisioning dialog for creating Kitty Flake in Hero SaaS App, with options to approve or skip the action.](@/assets/docs/guides/scim-integrations/onelogin-scim/9.png)
 
-</Aside>
+   The status should change to "Provisioned" within a few seconds.
 
-Go to the "Applications" tab, click "+", and assign "Hero SaaS App". Click "Continue".
+   ![OneLogin user profile for Kitty Flake displaying assigned applications, with Hero SaaS App provisioned and admin-configured.](@/assets/docs/guides/scim-integrations/onelogin-scim/10.png)
 
-<figure>
-  ![Assigning a new login to a user in OneLogin](@/assets/docs/guides/scim-integrations/onelogin-scim/8.png)
-</figure>
+   This action informs the Hero SaaS app that the user is approved for access, and the app can create an account for them. You can see the new user added to the "Hero SaaS App" in the portal.
 
-Click "Pending" to approve provisioning.
+   ![OneLogin Directory Sync interface showing user details for Kitty Flake in Your organization, with SCIM integration status.](@/assets/docs/guides/scim-integrations/onelogin-scim/11.png)
 
-<figure>
-  ![OneLogin user provisioning dialog for creating Kitty Flake in Hero SaaS App, with options to approve or skip the
-  action.](@/assets/docs/guides/scim-integrations/onelogin-scim/9.png)
-</figure>
+4. ### Configure group provisioning
 
-The status should change to "Provisioned" within a few seconds.
+   Applications being onboarded may have roles that scope access, such as "admin" roles allowing users to perform administrator actions like deleting logs. You can choose which users in your organization get administrator access while others get member access.
 
-<figure>
-  ![OneLogin user profile for Kitty Flake displaying assigned applications, with Hero SaaS App provisioned and
-  admin-configured.](@/assets/docs/guides/scim-integrations/onelogin-scim/10.png)
-</figure>
+   <Aside type="note">
+   Labels such as "Member" and "Admin" are specific to the app. Check the "Access Roles" section in the configuration portal provided by the application (in this case, Hero SaaS App). The app owner must enable this section based on its applicability.
+   </Aside>
 
-This action informs the Hero SaaS app that the user is approved for access, and the app can create an account for them.
-You can see the new user added to the "Hero SaaS App" in the portal.
+   To map users to groups in the app being onboarded:
 
-<figure>
-  ![OneLogin Directory Sync interface showing user details for Kitty Flake in Your organization, with SCIM integration
-  status.](@/assets/docs/guides/scim-integrations/onelogin-scim/11.png)
-</figure>
+   1. Create a role in OneLogin.
+   2. Enable the inclusion of the Group parameter.
+   3. Create a rule that automatically picks up a user's role value and sets it to the Group parameter.
+   4. Assign the role to the user.
+   5. Assign the user to the app.
 
-Congratulations! You have successfully provisioned a user with the Hero SaaS Application.
+5. ### Configure provisioning settings for groups
 
-## Provisioning Groups
+   Navigate to the list of Applications and select "Hero SaaS App". Ensure the provisioning workflow is enabled in the "Provisioning" tab.
 
-Applications being onboarded may have roles that scope access, such as "admin" roles allowing users to perform
-administrator actions like deleting logs. You can choose which users in your organization get administrator access while
-others get member access.
+   ![Setting up provisioning workflow for SCIM Provisioner with SAML in OneLogin, including options for user creation, deletion, and suspension actions.](@/assets/docs/guides/scim-integrations/onelogin-scim/6.png)
 
-<Aside>
+   Switch to "Rules" Tab and Click "Add Rule" button.
 
-Labels such as "Member" and "Admin" are specific to the app. Check the "Access Roles" section in the configuration
-portal provided by the application (in this case, Hero SaaS App). The app owner must enable this section based on its
-applicability.
+   Name the rule (e.g., "Assign Group in Hero SaaS") and set the action to "Set Groups in Hero SaaS App" for each "role" with any value.
 
-</Aside>
+   ![Configuring a new mapping for group assignment in the Hero SaaS App using OneLogin.](@/assets/docs/guides/scim-integrations/onelogin-scim/13.png)
 
-To map users to groups in the app being onboarded:
+   Select the "Parameters" tab, click on the "Groups" row, and check "Include in User Provisioning" in the popup.
 
-1. Create a role in OneLogin.
-2. Enable the inclusion of the Group parameter.
-3. Create a rule that automatically picks up a user's role value and sets it to the Group parameter.
-4. Assign the role to the user.
-5. Assign the user to the app.
+   ![Configuring field groups in OneLogin for SCIM Provisioning, including SAML assertion and user provisioning options.](@/assets/docs/guides/scim-integrations/onelogin-scim/12.png)
 
-### Configuring Provisioning for Groups
+6. ### Create and assign roles
 
-Navigate to the list of Applications and select "Hero SaaS App". Ensure the provisioning workflow is enabled in the
-"Provisioning" tab.
+   Click on the user and navigate to "Applications".
 
-<figure>
-  ![Setting up provisioning workflow for SCIM Provisioner with SAML in OneLogin, including options for user creation,
-  deletion, and suspension actions.](@/assets/docs/guides/scim-integrations/onelogin-scim/6.png)
-</figure>
+   ![Assigning the 'Hero SaaS App' to the 'hero_saas_viewer' role in OneLogin.](@/assets/docs/guides/scim-integrations/onelogin-scim/14.png)
 
-Switch to "Rules" Tab and Click "Add Rule" button.
+   Add "Hero SaaS App" and select the roles to be passed to the app (treated as Groups by Hero SaaS App).
 
-Name the rule (e.g., "Assign Group in Hero SaaS") and set the action to "Set Groups in Hero SaaS App" for each "role"
-with any value.
+   ![Viewing application assignment and status for 'Test User' in OneLogin, with 'Hero SaaS App' pending.](@/assets/docs/guides/scim-integrations/onelogin-scim/16.png)
 
-<figure>
-  ![Configuring a new mapping for group assignment in the Hero SaaS App using OneLogin.](@/assets/docs/guides/scim-integrations/onelogin-scim/13.png)
-</figure>
+   Approve the user provisioning along with the Group.
 
-Configuring a new mapping for group assignment in the Hero SaaS App using OneLogin.
+   ![Approving 'Test User' for the 'Hero SaaS App' with assigned groups: Viewer and hero_saas_viewer.](@/assets/docs/guides/scim-integrations/onelogin-scim/17.png)
 
-Select the "Parameters" tab, click on the "Groups" row, and check "Include in User Provisioning" in the popup.
+   Finally, verify that the groups are sent to the Hero SaaS App from the administrator portal where you configured the OneLogin connection.
 
-<figure>
-  ![Configuring field groups in OneLogin for SCIM provisioning, including SAML assertion and user provisioning
-  options.](@/assets/docs/guides/scim-integrations/onelogin-scim/12.png)
-</figure>
-
-Configuring field groups in OneLogin for SCIM provisioning, including SAML assertion and user provisioning options.
-
-### Creating a Role in OneLogin
-
-Click on the user and navigate to "Applications".
-
-<figure>
-  ![Assigning the 'Hero SaaS App' to the 'hero_saas_viewer' role in OneLogin.](@/assets/docs/guides/scim-integrations/onelogin-scim/14.png)
-</figure>
-
-Assigning the 'Hero SaaS App' to the 'hero_saas_viewer' role in OneLogin.
-
-Add "Hero SaaS App" and select the roles to be passed to the app (treated as Groups by Hero SaaS App).
-
-<figure>
-  ![Viewing application assignment and status for 'Test User' in OneLogin, with 'Hero SaaS App' pending.](@/assets/docs/guides/scim-integrations/onelogin-scim/16.png)
-</figure>
-
-Approve the user provisioning along with the Group.
-
-<figure>
-  ![Approving 'Test User' for the 'Hero SaaS App' with assigned groups: Viewer and hero_saas_viewer.](@/assets/docs/guides/scim-integrations/onelogin-scim/17.png)
-</figure>
-
-Approving 'Test User' for the 'Hero SaaS App' with assigned groups: Viewer and hero_saas_viewer.
-
-Finally, verify that the groups are sent to the Hero SaaS App from the administrator portal where you configured the
-OneLogin connection.
-
-<figure>
-  ![Directory sync status for Your Organization, showing linked groups and user count in OneLogin.](@/assets/docs/guides/scim-integrations/onelogin-scim/18.png)
-</figure>
-
-Congratulations! You have successfully provisioned groups along with users.
+   ![Directory sync status for Your Organization, showing linked groups and user count in OneLogin.](@/assets/docs/guides/scim-integrations/onelogin-scim/18.png)
+</Steps>
