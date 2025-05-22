@@ -2,16 +2,22 @@
 title: "Handle Identity Provider initiated SSO"
 description: "Learn how to securely implement IdP-initiated Single Sign-On for your application"
 sidebar:
-  label: "Handle IdP Initiated SSO"
+  label: "Handle IdP-initiated SSO"
+prev:
+  label: "SSO quickstart"
+  link: /sso/quickstart/
+next:
+  label: "Test IdP-initiated SSO"
+  link: /guides/sso/test-sso/
 ---
 
 import { Tabs, TabItem, Steps } from '@astrojs/starlight/components';
 
 IdP-initiated SSO allows users to log into your application directly from their identity provider's portal. The workflow consists of three main steps:
 
-1. The user logs into their identity provider portal and selects your application.
-2. The identity provider sends the user's details as assertions to your application.
-3. Your application validates the assertions, retrieves the user information, and if everything checks out, logs the user in.
+1. The user logs into their identity provider portal and selects your application
+2. The identity provider sends the user's details as assertions to your application
+3. Your application validates the assertions, retrieves the user information, and if everything checks out, logs the user in
 
 <figure>
   ![Scalekit's recommended workflow for IdP initiated SSO](@/assets/docs/common/idp-init-sso.png)
@@ -25,8 +31,8 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
 
 1. **Set up a default redirect endpoint**: When Scalekit receives an IdP-initiated SSO request, it sends a request to your configured default `redirect_uri` with an `idp_initiated_login` parameter.
 
-   ```sh showLineNumbers=false  "idp_initiated_login=<encoded_jwt_token>"
-   https://your-app.com/default-redirect-uri?idp_initiated_login=<encoded_jwt_token>
+   ```sh showLineNumbers=false  "idp_initiated_login=<encoded_jwt_token>" wrap
+   https://{your-subdomain}.scalekit.dev/default-redirect-uri?idp_initiated_login=<encoded_jwt_token>
    ```
 
 2. **Extract information from the JWT token**: The `idp_initiated_login` parameter contains a signed JWT with organization, connection, and user details.
@@ -46,7 +52,7 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
 3. **Convert to SP-initiated flow**: Use the extracted parameters to initiate a new SSO request. Here are implementation examples:
 
    <div>
-   <Tabs syncKey="tech-stack" queryString>
+   <Tabs syncKey="tech-stack">
    <TabItem value="nodejs" label="Node.js">
 
    ```javascript showLineNumbers=false "idp_initiated_login"
@@ -206,10 +212,10 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
    </Tabs>
    </div>
 
-4. **Handle errors**: If errors occur, the redirect URI will receive a callback with error information. See the [error handling](/reference/errors/) guide for more details.
+4. **Handle errors**: If errors occur, the redirect URI will receive a callback with error information. See the <a href="/reference/errors/" target="_blank">error handling</a> guide for more details.
 
    ```sh showLineNumbers=false wrap
-   https://b2b-app.com/callback
+   https://{your-subdomain}.scalekit.dev/callback
      ?error="<error_category>"
      &error_description="<details>"
    ```
@@ -228,31 +234,31 @@ If you encounter issues implementing IdP-initiated SSO:
 
 The advantages of using Scalekit's approach are:
 
-- **Enhanced Security**: Overcomes the security risks of handling IdP-initiated SSO
-- **Seamless Experience**: The additional redirect is almost instantaneous, providing a smooth user experience
+- **Enhanced security**: Overcomes the security risks of handling IdP-initiated SSO
+- **Seamless experience**: The additional redirect is almost instantaneous, providing a smooth user experience
 
 ## Security considerations
 
 While IdP-initiated SSO offers convenience, it comes with significant security risks:
 
-##### Potential security risks
+### Potential security risks
 
-**Stolen SAML Assertions**: Attackers can steal SAML assertions and use them to gain unauthorized access. If an attacker manages to steal these assertions, they can:
+**Stolen SAML assertions**: Attackers can steal SAML assertions and use them to gain unauthorized access. If an attacker manages to steal these assertions, they can:
 
 - Inject them into another service provider, gaining access to that user's account
 - Inject them back into your application with altered assertions, potentially elevating their privileges
 
 With a stolen SAML assertion, an attacker can gain access to your application as the compromised user, bypassing the usual authentication process.
 
-##### How attackers steal SAML assertions
+### How attackers steal SAML assertions
 
 Attackers can steal SAML assertions through various methods:
 
-- **Man-In-The-Middle (MITM) Attacks**: Intercepting and replacing the SAML response during transmission.
-- **Open Redirect Attacks**: Exploiting improper endpoint validation to redirect the SAML response to a malicious server.
-- **Leaky Logs and Headers**: Sensitive information, including SAML assertions, can be leaked through logs or headers.
-- **Browser-Based Attacks**: Exploiting browser vulnerabilities to steal SAML assertions.
+- **Man-in-the-middle (MITM) attacks**: Intercepting and replacing the SAML response during transmission
+- **Open redirect attacks**: Exploiting improper endpoint validation to redirect the SAML response to a malicious server
+- **Leaky logs and headers**: Sensitive information, including SAML assertions, can be leaked through logs or headers
+- **Browser-based attacks**: Exploiting browser vulnerabilities to steal SAML assertions
 
-#### The challenge for service providers (your application)
+### The challenge for service providers
 
-The chief problem with stolen assertions is that everything appears legitimate to the service provider. The message and assertion are valid, issued by the expected identity provider, and signed with the expected key. However, the service provider cannot verify whether the assertions are stolen or not.
+The chief problem with stolen assertions is that everything appears legitimate to the service provider (your application). The message and assertion are valid, issued by the expected identity provider, and signed with the expected key. However, the service provider cannot verify whether the assertions are stolen or not.
