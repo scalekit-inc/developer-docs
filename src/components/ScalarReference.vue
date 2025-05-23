@@ -11,8 +11,10 @@ import '@fontsource-variable/inter';
     <header class="custom-header scalar-app">
       <h1>Scalekit API Reference</h1>
       <nav>
-        <a href="https://github.com/scalekit-developers/api-collections">API Collections</a>
-        <a href="https://docs.scalekit.dev">Back to Docs</a>
+        <a href="https://github.com/scalekit-developers/api-collections"
+          >API Collections</a
+        >
+        <a href="https://docs.scalekit.com">Back to Docs</a>
       </nav>
     </header>
     <div class="api-reference-container">
@@ -23,12 +25,13 @@ import '@fontsource-variable/inter';
           customCss: `
             :root {
               --scalar-font-body: 'Inter Variable', sans-serif;
-              --scalar-font-heading: 'Space Grotesk Variable', sans-serif;
+              --scalar-font-heading: 'Geist Variable', sans-serif;
               --scalar-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
               --scalar-custom-header-height: 3rem;
             }
             .property-name, .scalar-code-block {
               font-family: var(--scalar-font-mono) !important;
+              white-space: pre-wrap;
             }
             * {
               font-family: var(--scalar-font-body);
@@ -43,19 +46,20 @@ import '@fontsource-variable/inter';
           hideTestRequestButton: true,
           hideModels: true,
           hideDarkModeToggle: false,
+          defaultOpenAllTags: true,
           hiddenClients: [
-            'libcurl',
-            'clj_http',
+            // 'libcurl',
+            // 'clj_http',
             'httpclient',
             'restsharp',
             'native',
             'http1.1',
             'asynchttp',
-            'nethttp',
+            // 'nethttp',
             'okhttp',
             'unirest',
             'jquery',
-            'okhttp',
+            // 'okhttp',
             'native',
             'request',
             'unirest',
@@ -66,21 +70,22 @@ import '@fontsource-variable/inter';
             'ofetch',
             'http1',
             'http2',
-            'webrequest',
+            // 'webrequest',
             'restmethod',
             'httr',
             'native',
             'httpie',
             'wget',
-            'nsurlsession',
+            // 'nsurlsession',
             'undici',
+            'requests',
+            'python3',
+            'axios',
+            'xhr',
+            'fetch',
           ],
           favicon:
             'https://cdn.prod.website-files.com/65b87d98fa638289e10b8f61/67ab35acf2f180e0fe0a94a8_S%20Icon%20-%20Black%20-%2032x32.png',
-          defaultHttpClient: {
-            targetKey: 'node',
-            clientKey: 'axios',
-          },
           hideClientButton: true,
         }"
       />

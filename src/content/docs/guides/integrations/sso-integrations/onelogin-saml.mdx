@@ -1,0 +1,133 @@
+---
+title: "OneLogin SAML"
+description: "A step-by-step guide to setting up Single Sign-On with OneLogin as the Identity Provider, including creating an enterprise application, configuring SAML, attribute mapping, assigning users, uploading IdP metadata, testing the connection, and enabling SSO."
+keywords:
+  [
+    'OneLogin SAML',
+    'Single Sign-On',
+    'SSO',
+    'Identity Provider',
+    'Enterprise Application',
+    'SAML Configuration',
+    'Attribute Mapping',
+    'User Assignment',
+    'IdP Metadata',
+    'Connection Testing',
+  ]
+prev: false
+next: false
+sidebar:
+  order: 5
+  label: "OneLogin"
+  badge:
+    variant: note
+    text: SAML
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+This guide walks you through configuring OneLogin as your SAML identity provider for the application you are onboarding, enabling secure single sign-on for your users. You'll learn how to set up an enterprise application, configure SAML settings to the host application. By following these steps, your users will be able to seamlessly authenticate using their OneLogin credentials.
+
+<Steps>
+1. ### Creating enterprise application
+
+   Login to your **OneLogin Portal**. Go to **Applications→ Applications.**
+
+   ![Locate Applications](@/assets/docs/guides/sso-integrations/onelogin-saml/0.png)
+
+   Click on **Add App.**
+
+   ![Click on Add App](@/assets/docs/guides/sso-integrations/onelogin-saml/1.png)
+
+   In the **Find Application** search box, type in **SAML Custom Connector (Advanced)**, and select it from the drop down list.
+
+   ![Select SAML Custom Connector from drop down (GIF)](/images/docs/guides/sso-integrations/onelogin-saml/2-5.gif)
+
+   Give your app a name that reflects the application you'll be connecting it to, so users can easily recognize it in their OneLogin portal., select your icon (optional) and then click on **Save.**
+
+   ![Click on Save](@/assets/docs/guides/sso-integrations/onelogin-saml/2.png)
+
+2. ### SAML configuration
+
+   On the Application page click on **Configuration.**
+
+   ![Locate Configuration](@/assets/docs/guides/sso-integrations/onelogin-saml/3.png)
+
+   From your **SSO Configuration Portal**, copy the **ACS (Consumer) URL**. Go back to your **OneLogin Admin Portal**, and paste it in the **Recipient** and **ACS (Consumer) URL Validator** fields.
+
+   ![Copy ACS (Consumer) URL on SSO Configuration Portal](@/assets/docs/guides/sso-integrations/onelogin-saml/4.png)
+
+   **OneLogin Admin Portal**
+
+   ![Paste it in Recipient, ACS URL Validator, and ACS(Consumer) URL fields on OneLogin Admin Portal](@/assets/docs/guides/sso-integrations/onelogin-saml/5.png)
+
+   Similarly, copy the **Audience (Entity ID) f**rom your SSO Configuration Portal. Go back to your **OneLogin Admin Portal**, and paste it in the **Audience (EntityID).**
+
+   ![Copy Audience (Entity ID) on SSO Configuration Portal](@/assets/docs/guides/sso-integrations/onelogin-saml/6.png)
+
+   ![Paste copied URL in Audience (EntityID) on OneLogin Admin Portal](@/assets/docs/guides/sso-integrations/onelogin-saml/7.png)
+
+   Click on **Save**.
+
+   ![Locate Save](@/assets/docs/guides/sso-integrations/onelogin-saml/8.png)
+
+3. ### Attribute mapping
+
+   Go to the **Parameters** tab on **OneLogin Admin Portal**, and click on the plus (+) sign to add attributes.
+
+   ![Locate Parameters tab](@/assets/docs/guides/sso-integrations/onelogin-saml/9.png)
+
+   Check the **Attribute Mapping** section in the **SSO Configuration Portal**, and carefully map the **exact** **same attributes** on your **OneLogin Admin Portal**.
+
+   ![Check attributes on SSO Configuration Portal](@/assets/docs/guides/sso-integrations/onelogin-saml/10.png)
+
+   ![Paste attributes on OneLogin Admin Portal](/images/docs/guides/sso-integrations/onelogin-saml/10-5.gif)
+
+4. ### Assign user/group
+
+   Go to the **Users** tab.
+
+   ![Locate Users under Users tab](@/assets/docs/guides/sso-integrations/onelogin-saml/11.png)
+
+   Click the user you want to assign to the application.
+
+   ![Select user to assign](@/assets/docs/guides/sso-integrations/onelogin-saml/12.png)
+
+   Click on the **Applications** tab. Click on the **+** sign to assign the newly created application.
+
+   ![Add application to previously selected user](@/assets/docs/guides/sso-integrations/onelogin-saml/13.png)
+
+   Select the newly created application from the drop down, and click on **Continue.**
+
+   ![Select application from drop-down](@/assets/docs/guides/sso-integrations/onelogin-saml/14.png)
+
+   Click on **Save**.
+
+   ![Save user assignment to application](@/assets/docs/guides/sso-integrations/onelogin-saml/15.png)
+
+5. ### Upload IdP metadata URL
+
+   On **OneLogin Admin Portal**, click on SSO. Copy the **Issuer URL**.
+
+   ![Copy Issuer URL on OneLogin Admin Portal](@/assets/docs/guides/sso-integrations/onelogin-saml/16.png)
+
+   Under **Identify Provider Configuration,** select **Configure using Metadata URL,** and paste it under **App Federation Metadata URL** on the **SSO Configuration Portal.**
+
+   ![Paste Issuer URL on SSO Configuration Portal](@/assets/docs/guides/sso-integrations/onelogin-saml/17.png)
+
+6. ### Test connection
+
+   Click on **Test Connection.** If everything is done correctly, you will see a **Success** response as shown below.
+
+   If the connection fails, you'll see an error, the reason for the error, and a way to solve that error right on the screen.
+
+   ![Test SSO Configuration](@/assets/docs/guides/sso-integrations/onelogin-saml/18.png)
+
+7. ### Enable connection
+
+   Click on **Enable Connection.** This will let all your selected users login to the new application via your **OneLogin Admin Portal** SSO.
+
+   ![Enable SSO on Onelogin Admin Console](@/assets/docs/guides/sso-integrations/onelogin-saml/19.png)
+</Steps>
+
+With this, we are done configuring your **OneLogin Admin Portal** application for an SSO login setup.

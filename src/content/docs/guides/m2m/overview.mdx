@@ -1,0 +1,43 @@
+---
+title: Machine-2-Machine (M2M) authentication
+sidebar:
+  label: Overview
+prev: false
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+M2M authentication secures interactions between software systems that operate without human intervention. This authentication method enables AI agents, apps, automation tools, and workflows to interact with your API securely.
+
+Your API provides essential data for M2M interactions. External systems require secure authentication to access this data through your application's API.
+
+Common M2M use cases include:
+
+- API integration with third-party services (CRM systems, analytics platforms, payment providers)
+- Scheduled services that automatically sync data with your API
+- Automated workflows that update external systems
+
+Scalekit provides an authentication layer for your API, requiring all downstream machines (AI agents, third-party services) to authenticate before consuming your API.
+
+### How M2M authentication works
+
+The following example demonstrates how to implement M2M authentication for a tasks API that enables customer Slack automations to post weekly reminders:
+
+![M2M Authentication Flow](@/assets/docs/m2m/m2m-flow.png)
+
+<Steps>
+1. Authenticate with the Scalekit API using your API credentials from your Scalekit environment.
+2. Create a client ID and client secret to identify API consumers through your customer interface.
+3. Your customer's application authenticates with your Scalekit environment using these credentials to obtain an access token.
+4. The customer's application uses this token to request data from your tasks API.
+5. Your application verifies the access token using your Scalekit environment's JSON Web Key Set (JWKS) before processing the request.
+</Steps>
+
+
+### Benefits of M2M Authentication
+
+
+- **Security**: Eliminates the need to share user credentials between services
+- **Auditability**: Each service has its own identity, making it easier to track and audit API usage
+- **Scalability**: Services can be easily added or removed without affecting other parts of the system
+- **Granular Control**: Fine-grained access control can be implemented at the service level

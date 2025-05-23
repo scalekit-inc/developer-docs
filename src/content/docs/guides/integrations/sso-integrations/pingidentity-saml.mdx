@@ -1,0 +1,112 @@
+---
+title: "PingIdentity SAML"
+prev: false
+next: false
+sidebar:
+  order: 5
+  label: "PingIdentity"
+  badge:
+    variant: note
+    text: SAML
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+This guide walks you through configuring Ping Identity as your SAML identity provider for the application you are onboarding, enabling secure single sign-on for your users. You'll learn how to set up an enterprise application, configure SAML settings to the host application. By following these steps, your users will be able to seamlessly authenticate using their Ping Identity credentials.
+
+<Steps>
+1. ### Create a custom SAML app in PingIdentity
+
+   Log in to PingOne Admin Console. Select Applications → Applications.
+
+   ![Custom SAML app](@/assets/docs/guides/sso-integrations/ping-identity-saml/0-ping-oidentity-saml.png)
+
+   Add a New SAML Application → Click **+ Add Application**.
+
+   Enter an **Application Name** and select the **SAML Application** as the Application Type. Click **Configure**.
+
+   ![Naming the custom SAML app](@/assets/docs/guides/sso-integrations/ping-identity-saml/0.1-ping-identity-saml.png)
+
+2. ### Configure the Service Provider in Ping Identity
+
+   Log in to your SSO configuration portal and click on Single Sign-on (SSO) → Ping Identity → SAML 2.0 for the organization you want to configure it for.
+
+   ![SSO Configuration Portal](@/assets/docs/guides/sso-integrations/ping-identity-saml/1-ping-identity-saml.png)
+
+   Now, copy the following details from Scalekit's SSO settings:
+
+   - **ACS URL** (Assertion Consumer Service URL)
+   - **SP Entity ID** (Service Provider Entity ID)
+   - **SP Metadata URL**
+
+   Paste the details copied from your SSO configuration portal into the respective fields under SAML configuration in the Ping Identity dashboard:
+
+   - Method 1: Import Metadata
+
+   ![Import Metadata](@/assets/docs/guides/sso-integrations/ping-identity-saml/1.1-ping-identity-saml.png)
+
+   - Method 2: Import from URL
+
+   ![Import from URL](@/assets/docs/guides/sso-integrations/ping-identity-saml/1.2-ping-identity-saml.png)
+
+   - Method 3: Manually Enter
+
+   ![Manually Enter](@/assets/docs/guides/sso-integrations/ping-identity-saml/1.3-ping-identity-saml.png)
+
+3. ### Configure Attribute mapping & assign users/groups
+
+   #### Attribute mapping
+
+   For the user profile details to be shared with us at the time of user login as part of SAML response payload, SAML Attributes need to be configured in your Identity Provider portal.
+
+   To ensure seamless login, the below user profile details are needed:
+   - Email Address
+   - First Name
+   - Last Name
+
+   To configure these attributes, locate **Attribute Mapping** section in the SAML Configuration page in your Identity Provider's application, and carefully map the attributes with the Attribute names exactly as shown in the below image.
+
+   ![Attribute Mapping](@/assets/docs/guides/sso-integrations/ping-identity-saml/2.1-ping-identity-saml.png)
+
+   #### Assign user/group
+
+   To finish the Service Provider section of the SAML configuration, you need to "add" the users who need to access to this application.
+
+   Find the User/Group assignment section in your Identity Provider application and select and assign all the required users or user groups that need access to this application via Single Sign-on.
+
+   ![Assign users & groups](@/assets/docs/guides/sso-integrations/ping-identity-saml/2.2-ping-identity-saml.png)
+
+4. ### Configure Identity Provider in your SSO configuration portal
+
+   In your SSO configuration portal, navigate to the Identity Provider Configuration section to complete the setup. You can do this in two ways:
+
+   - Method 1: Enter the Metadata URL and click update.
+
+   ![Configure using Metadata URL](@/assets/docs/guides/sso-integrations/ping-identity-saml/3.1-ping-identity-saml.png)
+
+   - Method 2: Configure manually
+
+   To do so, enter the IdP entity ID, IdP Single Sign-on URL, and upload the x.509 certificate that you downloaded from Ping Identity. Then, click update.
+
+   ![Configure using Metadata URL](@/assets/docs/guides/sso-integrations/ping-identity-saml/3.2-ping-identity-saml.png)
+
+5. ### Verify successful connection by simulating SSO upon clicking Test Connection
+
+   To verify whether the SAML SSO configuration is completed correctly, click on **Test Connection** on the SSO Configuration Portal.
+
+   If everything is done correctly, you will see a **Success** response as shown below.
+
+   ![Test Single Sign On](@/assets/docs/guides/sso-integrations/ping-identity-saml/4-ping-identity-saml.png)
+
+   If there's a misconfiguration, our test will identify the errors and will offer you a way to correct the configuration right on the screen.
+
+6. ### Enable your Single Sign-on connection
+
+   After you successfully verified that the connection is configured correctly, you can enable the connection to let your users login to this application via Single Sign-on.
+
+   Click on **Enable Connection**.
+
+   ![Enable SSO Connection](@/assets/docs/guides/sso-integrations/ping-identity-saml/5-ping-identity-saml.png)
+
+   With this, we are done configuring Ping Identity SAML for your application for an SSO login setup.
+</Steps>

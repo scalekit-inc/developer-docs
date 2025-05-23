@@ -1,203 +1,234 @@
 export const sidebar = [
   {
-    label: 'Manual',
-    id: 'manual',
-    link: '/manual/getting-started/',
-    icon: 'open-book',
+    label: 'Single sign-on',
+    link: '/sso/quickstart',
+    id: 'sso',
+    icon: 'seti:lock',
     items: [
       {
-        label: 'Getting Started',
+        label: 'Getting started',
         items: [
+          'guides/sso/sso-basics',
+          'sso/quickstart',
+          'guides/sso/test-sso',
+          'guides/sso/admin-portal',
+          'guides/sso/launch-checklist',
+        ],
+      },
+      {
+        label: 'Social authentication',
+        items: [
+          'social-logins/quickstart',
           {
-            label: 'Installation',
-            link: 'manual/getting-started/installation',
+            label: 'connections',
+            collapsed: false,
+            autogenerate: {
+              directory: 'guides/integrations/social-connections',
+            },
+          },
+        ],
+      },
+      {
+        label: 'Guides',
+        items: [
+          'guides/custom-domain',
+          'guides/sso/idp-init-sso',
+          'guides/sso/okta-sso-test',
+          'guides/sso/sso-user-attributes',
+          'reference/sso/sso-integration-errors',
+          'reference/redirects',
+          {
+            label: 'Coexist with',
+            autogenerate: { directory: 'guides/integrations/auth-systems' },
           },
           {
-            label: 'Sign in users',
-            link: '/manual/getting-started/authenticate-users',
+            label: 'Concepts',
+            items: [
+              'guides/sso/authorization-url',
+              'guides/idtoken-claims',
+              'guides/sso/user-profile-details',
+              'guides/client-credentials-practices',
+            ],
           },
+        ],
+      },
+    ],
+  },
+  {
+    label: 'SCIM provisioning',
+    link: '/directory/scim/quickstart',
+    icon: 'seti:folder',
+    id: 'directory',
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'directory/scim/quickstart',
+          'directory/code-examples',
+          'guides/directory/admin-portal',
+          'guides/directory/launch-checklist',
+        ],
+      },
+      {
+        label: 'Guides',
+        items: [
+          'guides/directory/group-based-role-assignment',
+          'guides/webhooks-best-practices',
           {
-            label: 'Manage sessions',
-            link: '/manual/getting-started/manage-user-sessions',
+            label: 'Concepts',
+            items: [
+              'guides/directory/user-provisioning-basics',
+              'guides/directory/scim-protocol',
+            ],
           },
-          {
-            label: 'Manage users',
-            link: '/manual/getting-started/manage-users',
-          },
-          {
-            label: 'Sign out users',
-            link: '/manual/getting-started/sign-out',
-          },
+        ],
+      },
+    ],
+  },
+  {
+    label: 'Machine-2-Machine',
+    link: '/m2m/quickstart',
+    id: 'm2m',
+    icon: 'seti:powershell',
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'guides/m2m/overview',
+          'm2m/quickstart',
           {
             label: 'Code examples',
-            link: '/manual/support/code-examples-catalog',
+            link: 'https://github.com/scalekit-developers/gists/tree/main/m2m',
+            attrs: { target: '_blank', rel: 'noopener' },
           },
         ],
       },
       {
-        label: 'Quickstarts',
-        collapsed: false,
+        label: 'Guides',
         items: [
-          'manual/social-logins-quickstart',
-          'manual/sso-quickstart',
-          'manual/scim-quickstart',
-          'manual/quickstarts/m2m',
+          'guides/m2m/m2m-basics',
+          'guides/m2m/scopes',
           {
-            label: 'Launch',
-            link: '/manual/fundamentals/launch-checklist',
-          },
-        ],
-      },
-      {
-        label: 'Fundamentals',
-        items: [
-          {
-            label: 'Admin Portal',
-            link: '/manual/fundamentals/admin-portal',
-          },
-          {
-            label: 'IdP Simulator',
-            link: '/manual/fundamentals/test-sso-integration',
-          },
-          {
-            label: 'Automatically assign roles',
-            link: '/manual/fundamentals/group-based-role-assignment',
-          },
-          {
-            label: 'More product guides ↗',
-            link: '/guides/',
-          },
-        ],
-      },
-      {
-        label: 'Resources',
-        items: [
-          {
-            label: 'API collections',
-            link: 'https://github.com/scalekit-developers/api-collections',
-          },
-          {
-            label: 'Release notes',
-            link: 'https://www.scalekit.com/product-updates',
-          },
-          {
-            label: 'Chat with us!',
-            link: '/manual/support/contact-us',
-          },
-          {
-            label: 'Glossary',
-            link: '/manual/support/glossary',
-          },
-          {
-            label: 'Status Page',
-            link: 'https://scalekit.statuspage.io/',
+            label: 'How to',
+            items: ['guides/m2m/api-auth-m2m-clients'],
           },
         ],
       },
     ],
   },
   {
-    label: 'Reference',
-    id: 'reference',
-    link: '/reference/',
-    icon: 'document',
+    label: 'APIs & SDKs',
+    id: 'dev-kit',
+    link: '/dev-kit/',
+    icon: 'seti:crystal_embedded',
     items: [
       {
-        label: 'API',
+        label: 'Developer kit',
         items: [
           {
-            label: 'REST APIs ↗',
+            label: 'API reference',
             link: '/apis',
+            attrs: { target: '_blank', rel: 'noopener' },
+            badge: { text: 'REST ↗', variant: 'note' },
           },
           {
-            label: 'API Authentication',
-            link: '/reference/api-catalog/authenticate-scalekit-api',
+            label: 'Postman collections',
+            link: 'https://github.com/scalekit-developers/api-collections',
+            attrs: { target: '_blank', rel: 'noopener' },
           },
           {
-            label: 'User authentication',
-            link: '/reference/concepts/auth-endpoints',
+            label: 'Code gists',
+            link: 'https://github.com/scalekit-developers/gists',
+            attrs: { target: '_blank', rel: 'noopener' },
           },
           {
-            label: 'UI events',
-            link: '/reference/api-catalog/ui-events',
+            label: 'SDKs',
+            items: [
+              {
+                label: 'Nodejs',
+                link: 'https://github.com/scalekit-inc/scalekit-sdk-node',
+                attrs: { target: '_blank', rel: 'noopener' },
+              },
+              {
+                label: 'Python',
+                link: 'https://github.com/scalekit-inc/scalekit-sdk-python',
+                attrs: { target: '_blank', rel: 'noopener' },
+              },
+              {
+                label: 'Go',
+                link: 'https://github.com/scalekit-inc/scalekit-sdk-go',
+                attrs: { target: '_blank', rel: 'noopener' },
+              },
+              {
+                label: 'Java',
+                link: 'https://github.com/scalekit-inc/scalekit-sdk-java',
+                attrs: { target: '_blank', rel: 'noopener' },
+              },
+            ],
           },
         ],
       },
       {
-        label: 'Concepts',
+        label: 'Reference',
+        items: [
+          'reference/admin-portal/ui-events',
+          {
+            label: 'Webhooks',
+            autogenerate: { directory: 'dev-kit/webhooks' },
+          },
+          'reference/glossary',
+        ],
+      },
+      {
+        label: 'Guides',
         items: [
           {
-            label: 'Custom identifiers & data',
-            link: '/reference/concepts/external-ids-and-metadata',
-          },
-          {
-            label: 'JSON Web Key Sets',
-            link: '/reference/concepts/jwks',
-          },
-          {
-            label: 'Normalized user profile',
-            link: '/reference/concepts/normalized-user-profile',
-          },
-          {
-            label: 'Pagination',
-            link: '/reference/concepts/pagination',
+            label: 'Support',
+            items: [
+              'reference/contact-us',
+              {
+                label: 'Release notes',
+                link: 'https://www.scalekit.com/product-updates',
+              },
+              {
+                label: 'Status',
+                link: 'https://scalekit.statuspage.io/',
+                attrs: { target: '_blank', rel: 'noopener' },
+              },
+            ],
           },
         ],
-      },
-      { label: 'SDKs', autogenerate: { directory: 'reference/sdks' } },
-      {
-        label: 'Webhooks',
-        autogenerate: { directory: 'reference/webhooks' },
-      },
-      {
-        label: 'Errors',
-        collapsed: false,
-        autogenerate: { directory: 'reference/errors' },
-      },
-    ],
-  },
-  {
-    label: 'Guides',
-    link: '/guides/',
-    id: 'guides',
-    icon: 'sun',
-    items: [
-      {
-        label: 'Product',
-        autogenerate: { directory: 'guides/product' },
-      },
-      {
-        label: 'Extended guides',
-        autogenerate: { directory: 'guides/extended' },
       },
     ],
   },
   {
     label: 'Integrations',
-    link: '/integrations/',
     id: 'integrations',
+    link: 'guides/integrations/sso-integrations',
     icon: 'puzzle',
     items: [
       {
-        label: 'Social Connections',
-        collapsed: true,
-        autogenerate: { directory: 'integrations/social-connections' },
+        label: 'SSO integrations',
+        autogenerate: { directory: 'guides/integrations/sso-integrations' },
       },
       {
-        label: 'SSO Integrations',
-        collapsed: true,
-        autogenerate: { directory: 'integrations/sso-integrations' },
-      },
-      {
-        label: 'SCIM Integrations',
-        collapsed: true,
-        autogenerate: { directory: 'integrations/scim-integrations' },
-      },
-      {
-        label: 'Auth Systems',
-        collapsed: true,
-        autogenerate: { directory: 'integrations/auth-systems' },
+        label: 'SCIM integrations',
+        autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
     ],
   },
 ];
+
+export const topics = {
+  exclude: [
+    '/', // Exclude root path
+    '/index', // Exclude index by name
+    '/guides/redirects',
+    '/guides/integrations',
+    '/home/guides/**/*',
+    '/home/guides/admin-portal',
+    '/home/**/*',
+    '/guides/setup-scalekit',
+    '/guides/external-ids-and-metadata',
+  ],
+};

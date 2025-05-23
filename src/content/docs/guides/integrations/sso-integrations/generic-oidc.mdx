@@ -1,0 +1,89 @@
+---
+title: "Generic OIDC"
+prev: false
+next: false
+sidebar:
+  order: 7
+  label: "Generic provider"
+  badge:
+    variant: note
+    text: OIDC
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+This guide walks you through configuring a generic OIDC identity provider for your application, enabling secure single sign-on for your users. You'll learn how to set up OIDC integration, configure client credentials, and test the connection.
+
+<Steps>
+1. ### Configure OIDC
+
+   Sign into the SSO Configuration Portal, select **Custom Provider**, then **OIDC,** and click on **Configure.**
+
+   ![Select Custom Provider→OIDC and then Configure](@/assets/docs/guides/sso-integrations/oidc-custom-provider/0.png)
+
+   Copy the **Redirect URl** from the **SSO Configuration Portal**.
+
+   ![Copy Redirect URI](@/assets/docs/guides/sso-integrations/oidc-custom-provider/1.png)
+
+   On your Identity Provider portal, select OIDC as the integration method, and Web Applications as application type.
+
+   Paste this Redirect URI in the sign in redirect URI space on your identity provider portal.
+
+2. ### Configure Attribute mapping
+
+   On your identity provider portal, if attribute mapping is required, map the given attributes exactly as shown below.
+
+   :::tip
+
+   Usually, you don't have to configure any attributes and by default - most identity providers support standard OIDC claims to send user information as part of ID Token or User Info endpoint.
+
+   :::
+
+   ![Map exact attributes shown](@/assets/docs/guides/sso-integrations/oidc-custom-provider/2.png)
+
+3. ### Assign users/groups
+
+   Choose who can access the app by assigning users to your app on your identity provider portal.
+
+4. ### Configure Identity Provider
+
+   Find the client ID from your identity provider portal. Paste this in the space for Client ID on your SSO Configuration Portal.
+
+   ![Enter copied Client ID in the SSO Configuration Portal](@/assets/docs/guides/sso-integrations/oidc-custom-provider/3.png)
+
+   Similarly, generate and copy the Client Secret from your SSO Configuration Portal and paste it under Client Secret under IdP Configuration.
+
+   ![Enter copied Client Secret in the SSO Configuration Portal](@/assets/docs/guides/sso-integrations/oidc-custom-provider/4.png)
+
+   Find and copy the Issuer URL from your custom provider's portal. Paste the above URL in the **SSO configuration Portal** under **Issuer URL**. Click on Update.
+
+   ![Enter copied Issuer URL, and click Update](@/assets/docs/guides/sso-integrations/oidc-custom-provider/5.png)
+
+   :::info
+   We support configuring Issuer URL field with Discovery Endpoint also.
+
+   Discovery Endpoints usually end with ./well-known/openid-configuration
+   :::
+
+5. ### Finalize application
+
+   Your IdP configuration section on the SSO Configuration Portal should look something like this once you're done configuring it.
+
+   ![Completed view of IdP configuration on the SSO Configuration Portal](@/assets/docs/guides/sso-integrations/oidc-custom-provider/6.png)
+
+6. ### Test connection
+
+   Click on **Test Connection.** If everything is done correctly, you will see a **Success** response as shown below.
+
+   If the connection fails, you'll see an error, the reason for the error, and a way to solve that error right on the screen.
+
+   ![Test SSO Configuration](@/assets/docs/guides/sso-integrations/oidc-custom-provider/7.png)
+
+7. ### Enable connection
+
+   Click on **Enable Connection.** This will let all your selected users login to the new application via OIDC.
+
+   ![Enable OIDC Connection](@/assets/docs/guides/sso-integrations/oidc-custom-provider/8.png)
+
+   With this, we are done configuring your application for an OIDC login setup.
+</Steps>
