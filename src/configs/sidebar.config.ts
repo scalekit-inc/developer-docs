@@ -181,9 +181,6 @@ export const sidebar = [
       {
         label: 'Guides',
         items: [
-          'guides/setup-scalekit',
-          'guides/authenticate-scalekit-api',
-          'guides/external-ids-and-metadata',
           {
             label: 'Support',
             items: [
@@ -226,5 +223,8 @@ export const topics = {
     'home/guides/*',
     'home/guides/admin-portal',
     'home/*',
+    'guides/setup-scalekit',
+    'guides/authenticate-scalekit-api',
+    'guides/external-ids-and-metadata',
   ],
 };
