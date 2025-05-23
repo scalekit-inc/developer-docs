@@ -20,7 +20,7 @@ import '@fontsource-variable/inter';
     <div class="api-reference-container">
       <ApiReference
         :configuration="{
-          url: '/api/scalekit.swagger.json',
+          url: '/api/scalekit.swagger-new.json',
           theme: 'saturn',
           customCss: `
             :root {
@@ -46,18 +46,18 @@ import '@fontsource-variable/inter';
           hideModels: true,
           hideDarkModeToggle: false,
           hiddenClients: [
-            'libcurl',
-            'clj_http',
+            // 'libcurl',
+            // 'clj_http',
             'httpclient',
             'restsharp',
             'native',
             'http1.1',
             'asynchttp',
-            'nethttp',
+            // 'nethttp',
             'okhttp',
             'unirest',
             'jquery',
-            'okhttp',
+            // 'okhttp',
             'native',
             'request',
             'unirest',
@@ -68,14 +68,19 @@ import '@fontsource-variable/inter';
             'ofetch',
             'http1',
             'http2',
-            'webrequest',
+            // 'webrequest',
             'restmethod',
             'httr',
             'native',
             'httpie',
             'wget',
-            'nsurlsession',
+            // 'nsurlsession',
             'undici',
+            'requests',
+            'python3',
+            'axios',
+            'xhr',
+            'fetch',
           ],
           favicon:
             'https://cdn.prod.website-files.com/65b87d98fa638289e10b8f61/67ab35acf2f180e0fe0a94a8_S%20Icon%20-%20Black%20-%2032x32.png',
