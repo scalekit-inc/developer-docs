@@ -215,16 +215,14 @@ export const sidebar = [
 
 export const topics = {
   exclude: [
-    '', // Exclude empty path
     '/', // Exclude root path
-    'index', // Exclude index by name
-    'guides/redirects',
-    'guides/integrations',
-    'home/guides/*',
-    'home/guides/admin-portal',
-    'home/*',
-    'guides/setup-scalekit',
-    'guides/authenticate-scalekit-api',
-    'guides/external-ids-and-metadata',
+    '/index', // Exclude index by name
+    '/guides/redirects',
+    '/guides/integrations',
+    '/home/guides/**/*',
+    '/home/guides/admin-portal',
+    '/home/**/*',
+    '/guides/setup-scalekit',
+    '/guides/external-ids-and-metadata',
   ],
 };
