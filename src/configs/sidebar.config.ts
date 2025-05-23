@@ -52,10 +52,6 @@ export const sidebar = [
           },
         ],
       },
-      {
-        label: 'Administrator guides',
-        autogenerate: { directory: 'guides/integrations/sso-integrations' },
-      },
     ],
   },
   {
@@ -86,10 +82,6 @@ export const sidebar = [
             ],
           },
         ],
-      },
-      {
-        label: 'Administrator guides',
-        autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
     ],
   },
@@ -138,7 +130,7 @@ export const sidebar = [
             badge: { text: 'REST ↗', variant: 'note' },
           },
           {
-            label: 'API collections',
+            label: 'Postman collections',
             link: 'https://github.com/scalekit-developers/api-collections',
           },
           {
@@ -196,6 +188,22 @@ export const sidebar = [
             ],
           },
         ],
+      },
+    ],
+  },
+  {
+    label: 'Integrations',
+    id: 'integrations',
+    link: 'guides/integrations/sso-integrations',
+    icon: 'puzzle',
+    items: [
+      {
+        label: 'SSO integrations',
+        autogenerate: { directory: 'guides/integrations/sso-integrations' },
+      },
+      {
+        label: 'SCIM integrations',
+        autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
     ],
   },
