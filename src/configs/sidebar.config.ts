@@ -52,10 +52,6 @@ export const sidebar = [
           },
         ],
       },
-      {
-        label: 'Administrator guides',
-        autogenerate: { directory: 'guides/integrations/sso-integrations' },
-      },
     ],
   },
   {
@@ -87,10 +83,6 @@ export const sidebar = [
           },
         ],
       },
-      {
-        label: 'Administrator guides',
-        autogenerate: { directory: 'guides/integrations/scim-integrations' },
-      },
     ],
   },
   {
@@ -107,6 +99,7 @@ export const sidebar = [
           {
             label: 'Code examples',
             link: 'https://github.com/scalekit-developers/gists/tree/main/m2m',
+            attrs: { target: '_blank', rel: 'noopener' },
           },
         ],
       },
@@ -138,12 +131,14 @@ export const sidebar = [
             badge: { text: 'REST ↗', variant: 'note' },
           },
           {
-            label: 'API collections',
+            label: 'Postman collections',
             link: 'https://github.com/scalekit-developers/api-collections',
+            attrs: { target: '_blank', rel: 'noopener' },
           },
           {
             label: 'Code gists',
             link: 'https://github.com/scalekit-developers/gists',
+            attrs: { target: '_blank', rel: 'noopener' },
           },
           {
             label: 'SDKs',
@@ -151,18 +146,22 @@ export const sidebar = [
               {
                 label: 'Nodejs',
                 link: 'https://github.com/scalekit-inc/scalekit-sdk-node',
+                attrs: { target: '_blank', rel: 'noopener' },
               },
               {
                 label: 'Python',
                 link: 'https://github.com/scalekit-inc/scalekit-sdk-python',
+                attrs: { target: '_blank', rel: 'noopener' },
               },
               {
                 label: 'Go',
                 link: 'https://github.com/scalekit-inc/scalekit-sdk-go',
+                attrs: { target: '_blank', rel: 'noopener' },
               },
               {
                 label: 'Java',
                 link: 'https://github.com/scalekit-inc/scalekit-sdk-java',
+                attrs: { target: '_blank', rel: 'noopener' },
               },
             ],
           },
@@ -182,9 +181,6 @@ export const sidebar = [
       {
         label: 'Guides',
         items: [
-          'guides/setup-scalekit',
-          'guides/authenticate-scalekit-api',
-          'guides/external-ids-and-metadata',
           {
             label: 'Support',
             items: [
@@ -199,17 +195,34 @@ export const sidebar = [
       },
     ],
   },
+  {
+    label: 'Integrations',
+    id: 'integrations',
+    link: 'guides/integrations/sso-integrations',
+    icon: 'puzzle',
+    items: [
+      {
+        label: 'SSO integrations',
+        autogenerate: { directory: 'guides/integrations/sso-integrations' },
+      },
+      {
+        label: 'SCIM integrations',
+        autogenerate: { directory: 'guides/integrations/scim-integrations' },
+      },
+    ],
+  },
 ];
 
 export const topics = {
   exclude: [
-    '', // Exclude empty path
     '/', // Exclude root path
-    'index', // Exclude index by name
-    'guides/redirects',
-    'guides/integrations',
-    'home/guides/*',
-    'home/guides/admin-portal',
-    'home/*',
+    '/index', // Exclude index by name
+    '/guides/redirects',
+    '/guides/integrations',
+    '/home/guides/**/*',
+    '/home/guides/admin-portal',
+    '/home/**/*',
+    '/guides/setup-scalekit',
+    '/guides/external-ids-and-metadata',
   ],
 };
