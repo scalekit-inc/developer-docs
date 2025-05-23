@@ -190,6 +190,11 @@ export const sidebar = [
                 label: 'Release notes',
                 link: 'https://www.scalekit.com/product-updates',
               },
+              {
+                label: 'Status',
+                link: 'https://scalekit.statuspage.io/',
+                attrs: { target: '_blank', rel: 'noopener' },
+              },
             ],
           },
         ],
