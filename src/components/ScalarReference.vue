@@ -46,6 +46,7 @@ import '@fontsource-variable/inter';
           hideTestRequestButton: true,
           hideModels: true,
           hideDarkModeToggle: false,
+          defaultOpenAllTags: true,
           hiddenClients: [
             // 'libcurl',
             // 'clj_http',
