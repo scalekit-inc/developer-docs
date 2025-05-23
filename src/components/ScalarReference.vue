@@ -20,7 +20,7 @@ import '@fontsource-variable/inter';
     <div class="api-reference-container">
       <ApiReference
         :configuration="{
-          url: '/api/scalekit.swagger-new.json',
+          url: '/api/scalekit.swagger.json',
           theme: 'saturn',
           customCss: `
             :root {
