@@ -128,6 +128,7 @@ export const sidebar = [
           {
             label: 'API reference',
             link: '/apis',
+            attrs: { target: '_blank', rel: 'noopener' },
             badge: { text: 'REST ↗', variant: 'note' },
           },
           {
