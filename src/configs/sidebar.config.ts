@@ -99,6 +99,7 @@ export const sidebar = [
           {
             label: 'Code examples',
             link: 'https://github.com/scalekit-developers/gists/tree/main/m2m',
+            attrs: { target: '_blank', rel: 'noopener' },
           },
         ],
       },
@@ -132,10 +133,12 @@ export const sidebar = [
           {
             label: 'Postman collections',
             link: 'https://github.com/scalekit-developers/api-collections',
+            attrs: { target: '_blank', rel: 'noopener' },
           },
           {
             label: 'Code gists',
             link: 'https://github.com/scalekit-developers/gists',
+            attrs: { target: '_blank', rel: 'noopener' },
           },
           {
             label: 'SDKs',
@@ -143,18 +146,22 @@ export const sidebar = [
               {
                 label: 'Nodejs',
                 link: 'https://github.com/scalekit-inc/scalekit-sdk-node',
+                attrs: { target: '_blank', rel: 'noopener' },
               },
               {
                 label: 'Python',
                 link: 'https://github.com/scalekit-inc/scalekit-sdk-python',
+                attrs: { target: '_blank', rel: 'noopener' },
               },
               {
                 label: 'Go',
                 link: 'https://github.com/scalekit-inc/scalekit-sdk-go',
+                attrs: { target: '_blank', rel: 'noopener' },
               },
               {
                 label: 'Java',
                 link: 'https://github.com/scalekit-inc/scalekit-sdk-java',
+                attrs: { target: '_blank', rel: 'noopener' },
               },
             ],
           },
