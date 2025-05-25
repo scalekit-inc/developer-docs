@@ -1,58 +1,46 @@
 export const redirects = {
-  // General docs redirects
-  '/sso/quickstart': '/manual/sso-quickstart',
-  '/sso/quickstart-admin-portal': '/manual/sso-quickstart-admin-portal',
-  '/sso/social-login': '/manual/social-logins-quickstart',
-  '/scim/checklist': '/manual/scim-quickstart',
+  // SSO
+  '/sso/quickstart-admin-portal': '/guides/sso/admin-portal',
+  '/sso/social-login': '/social-logins/quickstart/',
 
-  // SSO guides
+  // SSO Guides
   '/sso/guides/setup-sso/implement-idp-initiated-sso':
-    '/guides/product/idp-init-sso',
+    '/guides/sso/idp-init-sso/',
   '/sso/guides/setup-sso/handle-user-profile':
-    '/guides/product/sso-user-attributes',
-  '/sso/guides/setup-sso/build-login-page':
-    '/guides/product/sso-user-attributes',
+    '/guides/sso/sso-user-attributes/',
+  '/sso/guides/setup-sso/build-login-page': '/sso/quickstart/',
   '/sso/guides/key-concepts/authorization-url':
-    '/guides/product/auth-redirect-uri',
-  '/sso/guides/key-concepts/redirect-uri': '/guides/product/auth-redirect-uri',
-  '/sso/guides/key-concepts/idtoken-claims':
-    '/guides/product/sso-user-attributes',
+    '/guides/sso/authorization-url/',
+  '/sso/guides/key-concepts/redirect-uri': '/reference/redirects/',
+  '/sso/guides/key-concepts/idtoken-claims': '/guides/idtoken-claims/',
   '/sso/guides/key-concepts/manage-client-secrets':
-    '/guides/product/sso-user-attributes',
-  '/sso/guides/key-concepts/user-profile':
-    '/guides/product/sso-user-attributes',
-  '/sso/guides/test-your-integration/using-okta':
-    '/guides/extended/okta-sso-test',
+    '/guides/client-credentials-practices/',
+  '/sso/guides/key-concepts/user-profile': '/guides/sso/user-profile-details/',
+  '/sso/guides/test-your-integration/using-okta': '/guides/sso/okta-sso-test/',
 
-  // Integrations
-  '/integrations/auth0': '/integrations/auth-systems/auth0',
-  '/integrations/firebase': '/integrations/auth-systems/firebase',
-  '/integrations/cognito': '/integrations/auth-systems/aws-cognito',
-  '/integrations/azure-ad-saml': '/integrations/sso-integrations/azure-ad-saml',
-  '/integrations/okta-saml': '/integrations/sso-integrations/okta-saml',
-  '/integrations/onelogin-saml': '/integrations/sso-integrations/onelogin-saml',
-  '/integrations/jumpcloud': '/integrations/sso-integrations/jumpcloud-saml',
-  '/integrations/azure-scim': '/integrations/scim-integrations/azure-scim',
-  '/integrations/okta-scim': '/integrations/scim-integrations/okta-scim',
-  '/integrations/onelogin': '/integrations/scim-integrations/onelogin',
+  // SCIM
+  '/scim/checklist': '/guides/directory/admin-portal/',
 
-  // API and SDKs
-  '/sdks': '/reference/sdks',
+  // integrations
+  '/integrations/[...slug]/': '/guides/integrations/auth-systems/[...slug]/',
+  '/integrations/azure-ad-saml':
+    '/guides/integrations/sso-integrations/azure-ad-saml/',
+  '/integrations/okta-saml': '/guides/integrations/sso-integrations/okta-saml/',
+  '/integrations/onelogin-saml':
+    '/guides/integrations/sso-integrations/onelogin-saml/',
+  '/integrations/jumpcloud':
+    '/guides/integrations/sso-integrations/jumpcloud-saml/',
+  '/integrations/azure-scim':
+    '/guides/integrations/scim-integrations/azure-scim/',
+  '/integrations/okta-scim':
+    '/guides/integrations/scim-integrations/okta-scim/',
+  '/integrations/onelogin': '/guides/integrations/scim-integrations/onelogin/',
 
-  // Webhooks
-  '/api/webhook-events': '/guides/product/registering-webhooks',
+  // social logins
+  '/social-logins': '/social-logins/quickstart/',
+  '/integrations/social-connections/[...slug]/':
+    '/guides/integrations/social-connections/[...slug]/',
 
-  // Social Logins
-  /*
-  '/social-logins': '/manual/social-logins-quickstart',
-  '/integrations/social-connections/google': '/manual/social-logins-quickstart',
-  '/integrations/social-connections/github': '/manual/social-logins-quickstart',
-  '/integrations/social-connections/microsoft':
-    '/manual/social-logins-quickstart',
-  '/integrations/social-connections/linkedin':
-    '/manual/social-logins-quickstart',
-  '/integrations/social-connections/gitlab': '/manual/social-logins-quickstart',
-  '/integrations/social-connections/salesforce':
-    '/manual/social-logins-quickstart',
-  */
+  '/sdks': '/dev-kit/',
+  '/api/webhook-events': '/dev-kit/webhooks/directory-events/',
 };
