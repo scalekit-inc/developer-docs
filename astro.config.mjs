@@ -19,7 +19,7 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://docs.scalekit.dev',
-  // redirects,
+  redirects,
   integrations: [
     starlight({
       title: 'Scalekit Docs',
@@ -106,29 +106,12 @@ export default defineConfig({
               }
             }
 
-            function applyIframeStyling() {
+            // Add iframe detection on page load
+            document.addEventListener('DOMContentLoaded', function() {
+              // Only apply iframe styling if in an iframe AND inprouduct=true parameter is present
               if (inIframe() && window.location.search.includes('inproduct=true')) {
                 document.documentElement.setAttribute('data-theme', 'light');
                 document.documentElement.classList.add('in-iframe');
-              }
-            }
-
-            // Apply on initial load
-            document.addEventListener('DOMContentLoaded', applyIframeStyling);
-
-            // Apply on navigation
-            window.addEventListener('popstate', applyIframeStyling);
-
-            // Intercept navigation links to preserve inproduct=true
-            document.addEventListener('click', function(e) {
-              const link = e.target.closest('a');
-              if (link && link.href && link.href.startsWith(window.location.origin)) {
-                e.preventDefault();
-                const url = new URL(link.href);
-                if (!url.searchParams.has('inproduct')) {
-                  url.searchParams.set('inproduct', 'true');
-                }
-                window.location.href = url.toString();
               }
             });
           `,
