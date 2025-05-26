@@ -87,7 +87,7 @@ export const redirects = {
 
   // Other redirects
   '/sdks': '/dev-kit/',
-  '/api/webhook-events': '/dev-kit/webhooks/directory-events/',
+  '/api/webhook-events': '/reference/webhooks/directory-events/',
   '/manage-scalekit/glossary': '/reference/glossary/',
   '/index-old': '/',
   '/sso/launch-checklist': '/guides/sso/launch-checklist/',
