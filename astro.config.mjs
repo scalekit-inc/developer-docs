@@ -34,9 +34,8 @@ export default defineConfig({
         Head: './src/components/overrides/Head.astro',
       },
       logo: {
-        dark: '/src/assets/images/logos/scalekit-docs-beta-green-logo-dark.svg',
-        light:
-          '/src/assets/images/logos/scalekit-docs-beta-green-logo-light.svg',
+        dark: '/src/assets/images/logos/scalekit-logo-green-dark.svg',
+        light: '/src/assets/images/logos/scalekit-logo-green-light.svg',
         replacesTitle: true,
       },
       defaultLocale: 'en',
