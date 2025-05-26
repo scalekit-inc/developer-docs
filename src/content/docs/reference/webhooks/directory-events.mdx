@@ -3,13 +3,64 @@ title: Directory events
 sidebar:
   label: Directory events
   order: 3
+tableOfContents: false
 ---
 
-import { Aside, Badge } from '@astrojs/starlight/components';
+import { Aside, Badge, CardGrid } from '@astrojs/starlight/components';
+import WideLayout from '@components/ui/WideLayout.astro';
+import SideBySide from '@components/ui/SideBySide.astro';
+import SimpleList from '@components/ui/SimpleList.astro';
 
-## organization.directory_enabled
+This page documents the webhook events related to directory operations in Scalekit.
 
-```json title="Example directory enabled event"
+<CardGrid>
+
+<SimpleList>
+**Directory Toggle Events**
+  - [Directory Enabled](#organizationdirectory_enabled)
+  - [Directory Disabled](#organizationdirectory_disabled)
+
+**Directory User Events**
+  - [User Created](#organizationdirectoryuser_created)
+  - [User Updated](#organizationdirectoryuser_updated)
+  - [User Deleted](#organizationdirectoryuser_deleted)
+</SimpleList>
+
+<SimpleList>
+**Directory Group Events**
+  - [Group Created](#organizationdirectorygroup_created)
+  - [Group Updated](#organizationdirectorygroup_updated)
+  - [Group Deleted](#organizationdirectorygroup_deleted)
+</SimpleList>
+
+</CardGrid>
+----
+
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory_enabled`
+
+This webhook is triggered when a directory sync is enabled. The event type is `organization.directory_enabled`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Unique identifier for the directory connection |
+| directory_type | string | The type of directory synchronization |
+| enabled | boolean | Indicates if the directory sync is enabled |
+| environment_id | string | Identifier for the environment |
+| last_sync_at | null | Timestamp of the last synchronization, null if not yet synced |
+| organization_id | string | Identifier for the organization |
+| provider | string | The provider of the directory |
+| updated_at | string | Timestamp of when the configuration was last updated |
+| occurred_at | string | Timestamp of when the event occurred |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory_enabled"
 {
   "environment_id": "env_27758032200925221",
   "id": "evt_55136848686613000",
@@ -29,9 +80,35 @@ import { Aside, Badge } from '@astrojs/starlight/components';
 }
 ```
 
-## organization.directory_disabled
+</div>
+</SideBySide>
+</WideLayout>
 
-```json title="Example directory disabled event"
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory_disabled`
+
+This webhook is triggered when a directory sync is disabled. The event type is `organization.directory_disabled`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| directory_type | string | Type of directory protocol used for synchronization |
+| enabled | boolean | Indicates whether the directory synchronization is currently enabled or disabled |
+| id | string | Unique identifier for the directory connection |
+| last_sync_at | string | Timestamp of the most recent directory synchronization |
+| organization_id | string | Unique identifier of the organization associated with this directory |
+| provider | string | Identity provider for the directory connection |
+| status | string | Current status of the directory synchronization process |
+| updated_at | string | Timestamp of the most recent update to the directory connection |
+| occurred_at | string | Timestamp of when the event occurred |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory_disabled"
 {
   "spec_version": "1",
   "id": "evt_53891640779079756",
@@ -49,34 +126,47 @@ import { Aside, Badge } from '@astrojs/starlight/components';
     "updated_at": "2025-01-06T18:45:21.04978184Z"
   }
 }
-
 ```
 
-## organization.directory_deleted
+</div>
+</SideBySide>
+</WideLayout>
 
-```json title="Example directory deleted event"
-{
-  "spec_version": "1",
-  "id": "evt_53891640779079756",
-  "type": "organization.directory_deleted",
-  "occurred_at": "2025-01-06T18:45:21.057814Z",
-  "environment_id": "env_53814739859406915",
-  "organization_id": "org_53879494091473415",
-  "object": "Directory",
-  "data": {
-    "directory_type": "SCIM",
-    "id": "dir_53879621145330183",
-    "organization_id": "org_53879494091473415",
-    "provider": "OKTA"
-  }
-}
-```
+## Directory User Events
 
-## Directory user events
+<WideLayout>
+<SideBySide>
+<div slot="left">
 
-## organization.directory.user_created
+#### `organization.directory.user_created`
 
-```json title="Example user created event"
+This webhook is triggered when a new directory user is created. The event type is `organization.directory.user_created`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Unique ID of the Directory User |
+| organization_id | string | Unique ID of the Organization to which this directory user belongs |
+| dp_id | string | Unique ID of the User in the Directory Provider (IdP) system |
+| preferred_username | string | Preferred username of the directory user |
+| email | string | Email of the directory user |
+| active | boolean | Indicates if the directory user is active |
+| name | string | Fully formatted name of the directory user |
+| roles | array | Array of roles assigned to the directory user |
+| groups | array | Array of groups to which the directory user belongs |
+| given_name | string | Given name of the directory user |
+| family_name | string | Family name of the directory user |
+| nickname | string | Nickname of the directory user |
+| picture | string | URL of the directory user's profile picture |
+| phone_number | string | Phone number of the directory user |
+| address | object | Address of the directory user |
+| custom_attributes | object | Custom attributes of the directory user |
+| raw_attributes | object | Raw attributes of the directory user as received from the Directory Provider (IdP) |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory.user_created"
 {
   "spec_version": "1",
   "id": "evt_53891546994442316",
@@ -127,9 +217,43 @@ import { Aside, Badge } from '@astrojs/starlight/components';
 }
 ```
 
-## organization.directory.user_updated <Badge text="In Development" variant="danger" />
+</div>
+</SideBySide>
+</WideLayout>
 
-```json title="Example user updated event"
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory.user_updated`
+
+This webhook is triggered when a directory user is updated. The event type is `organization.directory.user_updated`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Unique ID of the Directory User |
+| organization_id | string | Unique ID of the Organization to which this directory user belongs |
+| dp_id | string | Unique ID of the User in the Directory Provider (IdP) system |
+| preferred_username | string | Preferred username of the directory user |
+| email | string | Email of the directory user |
+| active | boolean | Indicates if the directory user is active |
+| name | string | Fully formatted name of the directory user |
+| roles | array | Array of roles assigned to the directory user |
+| groups | array | Array of groups to which the directory user belongs |
+| given_name | string | Given name of the directory user |
+| family_name | string | Family name of the directory user |
+| nickname | string | Nickname of the directory user |
+| picture | string | URL of the directory user's profile picture |
+| phone_number | string | Phone number of the directory user |
+| address | object | Address of the directory user |
+| custom_attributes | object | Custom attributes of the directory user |
+| raw_attributes | object | Raw attributes of the directory user as received from the Directory Provider (IdP) |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory.user_updated"
 {
   "spec_version": "1",
   "id": "evt_53891546994442316",
@@ -176,9 +300,30 @@ import { Aside, Badge } from '@astrojs/starlight/components';
 }
 ```
 
-## organization.directory.user_deleted
+</div>
+</SideBySide>
+</WideLayout>
 
-```json title="Example user deleted event"
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory.user_deleted`
+
+This webhook is triggered when a directory user is deleted. The event type is `organization.directory.user_deleted`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Unique ID of the Directory User |
+| organization_id | string | Unique ID of the Organization to which this directory user belongs |
+| dp_id | string | Unique ID of the User in the Directory Provider (IdP) system |
+| email | string | Email of the directory user |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory.user_deleted"
 {
   "spec_version": "1",
   "id": "evt_53891546994442316",
@@ -196,11 +341,34 @@ import { Aside, Badge } from '@astrojs/starlight/components';
 }
 ```
 
-## Directory group events
+</div>
+</SideBySide>
+</WideLayout>
 
-## organization.directory.group_created
+## Directory Group Events
 
-```json title="Example group created event"
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory.group_created`
+
+This webhook is triggered when a new directory group is created. The event type is `organization.directory.group_created`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| directory_id | string | Unique identifier for the directory |
+| display_name | string | Display name of the directory group |
+| external_id | null | External identifier for the group, null if not specified |
+| id | string | Unique identifier for the directory group |
+| organization_id | string | Identifier for the organization associated with the group |
+| raw_attributes | object | Raw attributes of the directory provider |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory.group_created"
 {
   "spec_version": "1",
   "id": "evt_38862741515010639",
@@ -220,9 +388,32 @@ import { Aside, Badge } from '@astrojs/starlight/components';
 }
 ```
 
-## organization.directory.group_updated
+</div>
+</SideBySide>
+</WideLayout>
 
-```json title="Example group updated event"
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory.group_updated`
+
+This webhook is triggered when a directory group is updated. The event type is `organization.directory.group_updated`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| directory_id | string | Unique identifier for the directory |
+| display_name | string | Display name of the directory group |
+| external_id | null | External identifier for the group, null if not specified |
+| id | string | Unique identifier for the directory group |
+| organization_id | string | Identifier for the organization associated with the group |
+| raw_attributes | object | Raw attributes of the directory group |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory.group_updated"
 {
   "spec_version": "1",
   "id": "evt_38864948910162368",
@@ -241,9 +432,33 @@ import { Aside, Badge } from '@astrojs/starlight/components';
   }
 }
 ```
-## organization.directory.group_deleted
 
-```json title="Example group deleted event"
+</div>
+</SideBySide>
+</WideLayout>
+
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory.group_deleted`
+
+This webhook is triggered when a directory group is deleted. The event type is `organization.directory.group_deleted`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| directory_id | string | Unique identifier for the directory |
+| display_name | string | Display name of the directory group |
+| dp_id | string | Unique identifier for the group in the directory provider system |
+| id | string | Unique identifier for the directory group |
+| organization_id | string | Identifier for the organization associated with the group |
+| raw_attributes | object | Raw attributes of the directory group as received from the provider |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory.group_deleted"
 {
   "spec_version": "1",
   "id": "evt_40650399597723966",
@@ -263,4 +478,6 @@ import { Aside, Badge } from '@astrojs/starlight/components';
 }
 ```
 
-## Directory connection events
+</div>
+</SideBySide>
+</WideLayout>
