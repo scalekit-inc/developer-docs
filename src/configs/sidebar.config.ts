@@ -1,6 +1,6 @@
 export const sidebar = [
   {
-    label: 'Single sign-on',
+    label: 'Single Sign-On',
     link: '/sso/quickstart',
     id: 'sso',
     icon: 'seti:lock',
@@ -55,7 +55,7 @@ export const sidebar = [
     ],
   },
   {
-    label: 'SCIM provisioning',
+    label: 'SCIM Provisioning',
     link: '/directory/scim/quickstart',
     icon: 'seti:folder',
     id: 'directory',
@@ -86,10 +86,11 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Machine-2-Machine',
+    label: 'API Auth',
     link: '/m2m/quickstart',
     id: 'm2m',
     icon: 'seti:powershell',
+    badge: { text: 'Beta', variant: 'note' },
     items: [
       {
         label: 'Getting started',
@@ -189,6 +190,11 @@ export const sidebar = [
               {
                 label: 'Release notes',
                 link: 'https://www.scalekit.com/product-updates',
+              },
+              {
+                label: 'Status',
+                link: 'https://scalekit.statuspage.io/',
+                attrs: { target: '_blank', rel: 'noopener' },
               },
             ],
           },
