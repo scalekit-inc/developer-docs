@@ -21,27 +21,29 @@ export const redirects = {
   '/sso/guides/key-concepts/user-profile': '/guides/sso/user-profile-details/',
   '/sso/guides/test-your-integration/using-okta': '/guides/sso/okta-sso-test/',
   '/sso/overview': '/guides/sso/sso-basics/',
+  '/sso/guides/setup-sso/customize-user-attributes':
+    '/guides/sso/sso-user-attributes/',
 
   // SCIM
   '/scim/checklist': '/guides/directory/admin-portal/',
-  '/scim/quickstart': '/guides/directory/quickstart/',
-  '/scim/basics': '/guides/directory/basics/',
-  '/scim/protocol': '/guides/directory/protocol/',
-  '/scim/webhooks': '/guides/directory/webhooks/',
-  '/scim/automatically-assign-roles': '/guides/directory/auto-assign-roles/',
-  '/scim/map-user-attributes': '/guides/directory/map-attributes/',
-  '/scim/listen-directory-events': '/guides/directory/events/',
-  '/scim/gbac': '/guides/directory/gbac/',
-  '/scim/explore-sample-apps': '/guides/directory/sample-apps/',
-  '/scim/domain-and-theme-customization': '/guides/directory/customization/',
+  '/scim/basics': '/guides/directory/user-provisioning-basics/',
+  '/scim/protocol': '/guides/directory/scim-protocol/',
+  '/scim/webhooks': '/dev-kit/webhooks/directory-events/',
+  '/scim/automatically-assign-roles':
+    '/guides/directory/group-based-role-assignment/',
+  '/scim/map-user-attributes': '/guides/directory/user-provisioning-basics/',
+  '/scim/listen-directory-events': '/dev-kit/webhooks/directory-events/',
+  '/scim/gbac': '/guides/directory/group-based-role-assignment/',
+  '/scim/explore-sample-apps': '/directory/code-examples/',
+  '/scim/domain-and-theme-customization': '/guides/custom-domain/',
 
   // M2M
   '/m2m/overview': '/guides/m2m/overview/',
-  '/m2m/quickstart': '/guides/m2m/quickstart/',
-  '/m2m/m2m-basics': '/guides/m2m/basics/',
-  '/m2m/authenticate-scalekit-api': '/guides/m2m/authenticate/',
-  '/m2m/api-auth-for-m2m-clients': '/guides/m2m/client-auth/',
-  '/m2m/external-ids-and-metadata': '/guides/m2m/external-ids/',
+  '/m2m/quickstart': '/m2m/quickstart/',
+  '/m2m/m2m-basics': '/guides/m2m/m2m-basics/',
+  '/m2m/authenticate-scalekit-api': '/guides/authenticate-scalekit-api/',
+  '/m2m/api-auth-for-m2m-clients': '/guides/m2m/api-auth-m2m-clients/',
+  '/m2m/external-ids-and-metadata': '/guides/external-ids-and-metadata/',
   '/m2m/scopes': '/guides/m2m/scopes/',
 
   // integrations
@@ -87,11 +89,11 @@ export const redirects = {
   // Other redirects
   '/sdks': '/dev-kit/',
   '/api/webhook-events': '/dev-kit/webhooks/directory-events/',
-  '/contact-us': '/guides/contact/',
+  '/contact-us': '/reference/contact-us/',
   '/manage-scalekit/glossary': '/reference/glossary/',
   '/index-old': '/',
   '/sso/launch-checklist': '/guides/sso/launch-checklist/',
-  '/sso/test-sso': '/guides/sso/testing/',
-  '/sso/domain-and-theme-customization': '/guides/sso/customization/',
+  '/sso/test-sso': '/guides/sso/test-sso/',
+  '/sso/domain-and-theme-customization': '/guides/custom-domain/',
   '/sso/bkp/quickstart-admin-portal': '/guides/sso/admin-portal/',
 };
