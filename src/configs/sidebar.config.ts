@@ -175,7 +175,7 @@ export const sidebar = [
           'reference/admin-portal/ui-events',
           {
             label: 'Webhooks',
-            autogenerate: { directory: 'dev-kit/webhooks' },
+            autogenerate: { directory: 'reference/webhooks' },
           },
           'reference/glossary',
         ],
@@ -186,7 +186,7 @@ export const sidebar = [
           {
             label: 'Support',
             items: [
-              'reference/contact-us',
+              'support/contact-us',
               {
                 label: 'Release notes',
                 link: 'https://www.scalekit.com/product-updates',
