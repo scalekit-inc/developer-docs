@@ -28,18 +28,17 @@ export const redirects = {
   '/scim/checklist': '/guides/directory/admin-portal/',
   '/scim/basics': '/guides/directory/user-provisioning-basics/',
   '/scim/protocol': '/guides/directory/scim-protocol/',
-  '/scim/webhooks': '/dev-kit/webhooks/directory-events/',
+  '/scim/webhooks': '/reference/webhooks/directory-events/',
   '/scim/automatically-assign-roles':
     '/guides/directory/group-based-role-assignment/',
   '/scim/map-user-attributes': '/guides/directory/user-provisioning-basics/',
-  '/scim/listen-directory-events': '/dev-kit/webhooks/directory-events/',
+  '/scim/listen-directory-events': '/reference/webhooks/directory-events/',
   '/scim/gbac': '/guides/directory/group-based-role-assignment/',
   '/scim/explore-sample-apps': '/directory/code-examples/',
   '/scim/domain-and-theme-customization': '/guides/custom-domain/',
 
   // M2M
   '/m2m/overview': '/guides/m2m/overview/',
-  '/m2m/quickstart': '/m2m/quickstart/',
   '/m2m/m2m-basics': '/guides/m2m/m2m-basics/',
   '/m2m/authenticate-scalekit-api': '/guides/authenticate-scalekit-api/',
   '/m2m/api-auth-for-m2m-clients': '/guides/m2m/api-auth-m2m-clients/',

@@ -175,7 +175,7 @@ export const sidebar = [
           'reference/admin-portal/ui-events',
           {
             label: 'Webhooks',
-            autogenerate: { directory: 'dev-kit/webhooks' },
+            autogenerate: { directory: 'reference/webhooks' },
           },
           'reference/glossary',
         ],
