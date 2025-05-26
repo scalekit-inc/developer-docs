@@ -1,0 +1,483 @@
+---
+title: Directory events
+sidebar:
+  label: Directory events
+  order: 3
+tableOfContents: false
+---
+
+import { Aside, Badge, CardGrid } from '@astrojs/starlight/components';
+import WideLayout from '@components/ui/WideLayout.astro';
+import SideBySide from '@components/ui/SideBySide.astro';
+import SimpleList from '@components/ui/SimpleList.astro';
+
+This page documents the webhook events related to directory operations in Scalekit.
+
+<CardGrid>
+
+<SimpleList>
+**Directory Toggle Events**
+  - [Directory Enabled](#organizationdirectory_enabled)
+  - [Directory Disabled](#organizationdirectory_disabled)
+
+**Directory User Events**
+  - [User Created](#organizationdirectoryuser_created)
+  - [User Updated](#organizationdirectoryuser_updated)
+  - [User Deleted](#organizationdirectoryuser_deleted)
+</SimpleList>
+
+<SimpleList>
+**Directory Group Events**
+  - [Group Created](#organizationdirectorygroup_created)
+  - [Group Updated](#organizationdirectorygroup_updated)
+  - [Group Deleted](#organizationdirectorygroup_deleted)
+</SimpleList>
+
+</CardGrid>
+----
+
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory_enabled`
+
+This webhook is triggered when a directory sync is enabled. The event type is `organization.directory_enabled`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Unique identifier for the directory connection |
+| directory_type | string | The type of directory synchronization |
+| enabled | boolean | Indicates if the directory sync is enabled |
+| environment_id | string | Identifier for the environment |
+| last_sync_at | null | Timestamp of the last synchronization, null if not yet synced |
+| organization_id | string | Identifier for the organization |
+| provider | string | The provider of the directory |
+| updated_at | string | Timestamp of when the configuration was last updated |
+| occurred_at | string | Timestamp of when the event occurred |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory_enabled"
+{
+  "environment_id": "env_27758032200925221",
+  "id": "evt_55136848686613000",
+  "object": "Directory",
+  "occurred_at": "2025-01-15T08:55:22.802860294Z",
+  "organization_id": "org_55135410258444802",
+  "spec_version": "1",
+  "type": "organization.directory_enabled",
+  "data": {
+    "directory_type": "SCIM",
+    "enabled": false,
+    "id": "dir_55135622825771522",
+    "organization_id": "org_55135410258444802",
+    "provider": "OKTA",
+    "updated_at": "2025-01-15T08:55:22.792993454Z"
+  }
+}
+```
+
+</div>
+</SideBySide>
+</WideLayout>
+
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory_disabled`
+
+This webhook is triggered when a directory sync is disabled. The event type is `organization.directory_disabled`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| directory_type | string | Type of directory protocol used for synchronization |
+| enabled | boolean | Indicates whether the directory synchronization is currently enabled or disabled |
+| id | string | Unique identifier for the directory connection |
+| last_sync_at | string | Timestamp of the most recent directory synchronization |
+| organization_id | string | Unique identifier of the organization associated with this directory |
+| provider | string | Identity provider for the directory connection |
+| status | string | Current status of the directory synchronization process |
+| updated_at | string | Timestamp of the most recent update to the directory connection |
+| occurred_at | string | Timestamp of when the event occurred |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory_disabled"
+{
+  "spec_version": "1",
+  "id": "evt_53891640779079756",
+  "type": "organization.directory_disabled",
+  "occurred_at": "2025-01-06T18:45:21.057814Z",
+  "environment_id": "env_53814739859406915",
+  "organization_id": "org_53879494091473415",
+  "object": "Directory",
+  "data": {
+    "directory_type": "SCIM",
+    "enabled": false,
+    "id": "dir_53879621145330183",
+    "organization_id": "org_53879494091473415",
+    "provider": "OKTA",
+    "updated_at": "2025-01-06T18:45:21.04978184Z"
+  }
+}
+```
+
+</div>
+</SideBySide>
+</WideLayout>
+
+## Directory User Events
+
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory.user_created`
+
+This webhook is triggered when a new directory user is created. The event type is `organization.directory.user_created`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Unique ID of the Directory User |
+| organization_id | string | Unique ID of the Organization to which this directory user belongs |
+| dp_id | string | Unique ID of the User in the Directory Provider (IdP) system |
+| preferred_username | string | Preferred username of the directory user |
+| email | string | Email of the directory user |
+| active | boolean | Indicates if the directory user is active |
+| name | string | Fully formatted name of the directory user |
+| roles | array | Array of roles assigned to the directory user |
+| groups | array | Array of groups to which the directory user belongs |
+| given_name | string | Given name of the directory user |
+| family_name | string | Family name of the directory user |
+| nickname | string | Nickname of the directory user |
+| picture | string | URL of the directory user's profile picture |
+| phone_number | string | Phone number of the directory user |
+| address | object | Address of the directory user |
+| custom_attributes | object | Custom attributes of the directory user |
+| raw_attributes | object | Raw attributes of the directory user as received from the Directory Provider (IdP) |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory.user_created"
+{
+  "spec_version": "1",
+  "id": "evt_53891546994442316",
+  "type": "organization.directory.user_created",
+  "occurred_at": "2025-01-06T18:44:25.153954Z",
+  "environment_id": "env_53814739859406915",
+  "organization_id": "org_53879494091473415",
+  "object": "DirectoryUser",
+  "data": {
+    "active": true,
+    "cost_center": "QAUZJUHSTYCN",
+    "custom_attributes": {
+      "mobile_phone_number": "1-579-4072"
+    },
+    "department": "HNXJPGISMIFN",
+    "division": "MJFUEYJOKICN",
+    "dp_id": "<id from IDP>",
+    "email": "flavio@runolfsdottir.co.duk",
+    "employee_id": "AWNEDTILGaIZN",
+    "family_name": "Jaquelin",
+    "given_name": "Dayton",
+    "groups": [
+      {
+        "id": "dirgroup_12312312312312",
+        "name": "Group Name"
+      }
+    ],
+    "id": "diruser_53891546960887884",
+    "language": "se",
+    "locale": "LLWLEWESPLDC",
+    "name": "QURGUZZDYMFU",
+    "nickname": "DTUODYKGFPPC",
+    "organization": "AUIITQVUQGVH",
+    "organization_id": "org_53879494091473415",
+    "phone_number": "1-579-4072",
+    "preferred_username": "kuntala1233a",
+    "profile": "YMIUQUHKGVAX",
+    "raw_attributes": {},
+    "title": "FKQBHCWJXZSC",
+    "user_type": "RBQFJSQEFAEH",
+    "zoneinfo": "America/Araguaina",
+    "roles": [
+      {
+        "role_name": "billing_admin"
+      }
+    ]
+  }
+}
+```
+
+</div>
+</SideBySide>
+</WideLayout>
+
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory.user_updated`
+
+This webhook is triggered when a directory user is updated. The event type is `organization.directory.user_updated`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Unique ID of the Directory User |
+| organization_id | string | Unique ID of the Organization to which this directory user belongs |
+| dp_id | string | Unique ID of the User in the Directory Provider (IdP) system |
+| preferred_username | string | Preferred username of the directory user |
+| email | string | Email of the directory user |
+| active | boolean | Indicates if the directory user is active |
+| name | string | Fully formatted name of the directory user |
+| roles | array | Array of roles assigned to the directory user |
+| groups | array | Array of groups to which the directory user belongs |
+| given_name | string | Given name of the directory user |
+| family_name | string | Family name of the directory user |
+| nickname | string | Nickname of the directory user |
+| picture | string | URL of the directory user's profile picture |
+| phone_number | string | Phone number of the directory user |
+| address | object | Address of the directory user |
+| custom_attributes | object | Custom attributes of the directory user |
+| raw_attributes | object | Raw attributes of the directory user as received from the Directory Provider (IdP) |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory.user_updated"
+{
+  "spec_version": "1",
+  "id": "evt_53891546994442316",
+  "type": "organization.directory.user_updated",
+  "occurred_at": "2025-01-06T18:44:25.153954Z",
+  "environment_id": "env_53814739859406915",
+  "organization_id": "org_53879494091473415",
+  "object": "DirectoryUser",
+  "data": {
+    "id": "diruser_12312312312312",
+    "organization_id": "org_53879494091473415",
+    "dp_id": "<scim_external_id>",
+    "preferred_username": "<idp_user_name>",
+    "email": "john.doe@example.com",
+    "active": true,
+    "name": "John Doe",
+    "roles": [
+      {
+        "role_name": "billing_admin"
+      }
+    ],
+    "groups": [
+      {
+        "id": "dirgroup_12312312312312",
+        "name": "Group Name"
+      }
+    ],
+    "given_name": "John",
+    "family_name": "Doe",
+    "nickname": "Jhonny boy",
+    "picture": "https://image.com/profile.jpg",
+    "phone_number": "1234567892",
+    "address": {
+      "postal_code": "64112",
+      "state": "Missouri",
+      "formatted": "123, Oxford Lane, Kansas City, Missouri, 64112"
+    },
+    "custom_attributes": {
+      "attribute1": "value1",
+      "attribute2": "value2"
+    },
+    "raw_attributes": {}
+  }
+}
+```
+
+</div>
+</SideBySide>
+</WideLayout>
+
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory.user_deleted`
+
+This webhook is triggered when a directory user is deleted. The event type is `organization.directory.user_deleted`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | string | Unique ID of the Directory User |
+| organization_id | string | Unique ID of the Organization to which this directory user belongs |
+| dp_id | string | Unique ID of the User in the Directory Provider (IdP) system |
+| email | string | Email of the directory user |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory.user_deleted"
+{
+  "spec_version": "1",
+  "id": "evt_53891546994442316",
+  "type": "organization.directory.user_deleted",
+  "occurred_at": "2025-01-06T18:44:25.153954Z",
+  "environment_id": "env_53814739859406915",
+  "organization_id": "org_53879494091473415",
+  "object": "DirectoryUser",
+  "data": {
+    "id": "diruser_12312312312312",
+    "organization_id": "org_12312312312312",
+    "dp_id": "<scim_external_id>",
+    "email": "john.doe@example.com"
+  }
+}
+```
+
+</div>
+</SideBySide>
+</WideLayout>
+
+## Directory Group Events
+
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory.group_created`
+
+This webhook is triggered when a new directory group is created. The event type is `organization.directory.group_created`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| directory_id | string | Unique identifier for the directory |
+| display_name | string | Display name of the directory group |
+| external_id | null | External identifier for the group, null if not specified |
+| id | string | Unique identifier for the directory group |
+| organization_id | string | Identifier for the organization associated with the group |
+| raw_attributes | object | Raw attributes of the directory provider |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory.group_created"
+{
+  "spec_version": "1",
+  "id": "evt_38862741515010639",
+  "environment_id": "env_32080745237316098",
+  "object": "DirectoryGroup",
+  "occurred_at": "2024-09-25T02:26:39.036398577Z",
+  "organization_id": "org_38609339635728478",
+  "type": "organization.directory.group_created",
+  "data": {
+    "directory_id": "dir_38610496391217780",
+    "display_name": "Avengers",
+    "external_id": null,
+    "id": "dirgroup_38862741498233423",
+    "organization_id": "org_38609339635728478",
+    "raw_attributes": {}
+  }
+}
+```
+
+</div>
+</SideBySide>
+</WideLayout>
+
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory.group_updated`
+
+This webhook is triggered when a directory group is updated. The event type is `organization.directory.group_updated`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| directory_id | string | Unique identifier for the directory |
+| display_name | string | Display name of the directory group |
+| external_id | null | External identifier for the group, null if not specified |
+| id | string | Unique identifier for the directory group |
+| organization_id | string | Identifier for the organization associated with the group |
+| raw_attributes | object | Raw attributes of the directory group |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory.group_updated"
+{
+  "spec_version": "1",
+  "id": "evt_38864948910162368",
+  "organization_id": "org_38609339635728478",
+  "type": "organization.directory.group_updated",
+  "environment_id": "env_32080745237316098",
+  "object": "DirectoryGroup",
+  "occurred_at": "2024-09-25T02:48:34.745030921Z",
+  "data": {
+    "directory_id": "dir_38610496391217780",
+    "display_name": "Avengers",
+    "external_id": "<external_id>",
+    "id": "dirgroup_38862741498233423",
+    "organization_id": "org_38609339635728478",
+    "raw_attributes": {}
+  }
+}
+```
+
+</div>
+</SideBySide>
+</WideLayout>
+
+<WideLayout>
+<SideBySide>
+<div slot="left">
+
+#### `organization.directory.group_deleted`
+
+This webhook is triggered when a directory group is deleted. The event type is `organization.directory.group_deleted`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| directory_id | string | Unique identifier for the directory |
+| display_name | string | Display name of the directory group |
+| dp_id | string | Unique identifier for the group in the directory provider system |
+| id | string | Unique identifier for the directory group |
+| organization_id | string | Identifier for the organization associated with the group |
+| raw_attributes | object | Raw attributes of the directory group as received from the provider |
+
+</div>
+
+<div slot="right">
+
+```json title="organization.directory.group_deleted"
+{
+  "spec_version": "1",
+  "id": "evt_40650399597723966",
+  "environment_id": "env_12205603854221623",
+  "object": "DirectoryGroup",
+  "occurred_at": "2024-10-07T10:25:26.289331747Z",
+  "organization_id": "org_39802449573184223",
+  "type": "organization.directory.group_deleted",
+  "data": {
+    "directory_id": "dir_39802485862301855",
+    "display_name": "Admins",
+    "dp_id": "7c66a173-79c6-4270-ac78-8f35a8121e0a",
+    "id": "dirgroup_40072007005503806",
+    "organization_id": "org_39802449573184223",
+    "raw_attributes": {}
+  }
+}
+```
+
+</div>
+</SideBySide>
+</WideLayout>
