@@ -88,11 +88,11 @@ export const redirects = {
   // Other redirects
   '/sdks': '/dev-kit/',
   '/api/webhook-events': '/dev-kit/webhooks/directory-events/',
-  '/contact-us': '/reference/contact-us/',
   '/manage-scalekit/glossary': '/reference/glossary/',
   '/index-old': '/',
   '/sso/launch-checklist': '/guides/sso/launch-checklist/',
   '/sso/test-sso': '/guides/sso/test-sso/',
   '/sso/domain-and-theme-customization': '/guides/custom-domain/',
   '/sso/bkp/quickstart-admin-portal': '/guides/sso/admin-portal/',
+  '/contact-us': '/support/contact-us/',
 };

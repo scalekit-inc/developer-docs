@@ -186,7 +186,7 @@ export const sidebar = [
           {
             label: 'Support',
             items: [
-              'reference/contact-us',
+              'support/contact-us',
               {
                 label: 'Release notes',
                 link: 'https://www.scalekit.com/product-updates',
