@@ -5,15 +5,46 @@ sidebar:
   label: Event object
   order: 1
 prev: false
-next: false
+next:
+  label: Directory webhook events
+  link: /reference/webhooks/directory-events/
 ---
+
+import { Aside, CardGrid } from '@astrojs/starlight/components';
+import WideLayout from '@components/ui/WideLayout.astro';
+import SideBySide from '@components/ui/SideBySide.astro';
 
 A webhook (also called a web callback or HTTP push API) is a way for Scalekit to provide your applications with real-time information. A webhook delivers data to your applications as it happens, meaning you get data immediately, unlike typical APIs where you would need to poll for data very frequently to get it in real-time. Events represent specific actions or changes, while webhooks are the mechanism used to deliver these event notifications to your specified endpoint.
 
 By leveraging webhooks, you can build responsive and dynamic integrations that react immediately to changes in Scalekit System, enabling you to keep your systems in sync and automate user lifecycle management and other related use cases.
 
+<WideLayout>
 
- ```json wrap title="Sample Event Payload" showLineNumbers=false
+
+
+<SideBySide>
+<div slot="left">
+
+The webhook event object contains standardized fields that provide context about the event, along with event-specific data in the `data` field.
+
+| Property | Description |
+|----------|-------------|
+| <pre>spec_version</pre> | The version of the event specification format. Currently "1". |
+| <pre>id</pre> | A unique identifier for the event (e.g., `evt_123456789`). |
+| <pre>object</pre> | The type of object that triggered the event (e.g., "DirectoryUser", "Directory", "Connection"). |
+| <pre>environment_id</pre> | The ID of the environment where the event occurred. |
+| <pre>occurred_at</pre> | ISO 8601 timestamp indicating when the event occurred. |
+| <pre>organization_id</pre> | The ID of the organization associated with the event. |
+| <pre>type</pre> | The specific event type (e.g., "organization.directory.user_created"). |
+| <pre>data</pre> | Event-specific payload containing details relevant to the event type. |
+
+
+</div>
+
+<div slot="right">
+
+
+```json title="Sample Event Payload"
 {
   "spec_version": "1",
   "id": "evt_123456789",
@@ -28,28 +59,7 @@ By leveraging webhooks, you can build responsive and dynamic integrations that r
 }
 ```
 
-## Event object properties
+</div>
+</SideBySide>
 
-The webhook event object contains standardized fields that provide context about the event, along with event-specific data in the `data` field.
-
-| Property | Type | Description |
-|----------|------|-------------|
-| <pre>spec_version</pre> | string | The version of the event specification format. Currently "1". |
-| <pre>id</pre> | string | A unique identifier for the event (e.g., `evt_123456789`). |
-| <pre>object</pre> | string | The type of object that triggered the event (e.g., "DirectoryUser", "Directory", "Connection"). |
-| <pre>environment_id</pre> | string | The ID of the environment where the event occurred. |
-| <pre>occurred_at</pre> | string | ISO 8601 timestamp indicating when the event occurred. |
-| <pre>organization_id</pre> | string | The ID of the organization associated with the event. |
-| <pre>type</pre> | string | The specific event type (e.g., "organization.directory.user_created"). |
-| <pre>data</pre> | object | Event-specific payload containing details relevant to the event type. |
-
-## Event types
-
-Scalekit sends different event types based on actions that occur in the system. Common event types include:
-
-- **SSO events**: `organization.sso_enabled`, `organization.sso_disabled`
-- **Directory events**: `organization.directory_enabled`, `organization.directory_disabled`
-- **Directory user events**: `organization.directory.user_created`, `organization.directory.user_updated`, `organization.directory.user_deleted`
-- **Directory group events**: `organization.directory.group_created`, `organization.directory.group_updated`, `organization.directory.group_deleted`
-
-The structure of the `data` field varies depending on the event type. For example, a user creation event will include user details, while a directory enablement event will include directory configuration information.
+</WideLayout>
