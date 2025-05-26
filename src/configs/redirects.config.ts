@@ -24,6 +24,25 @@ export const redirects = {
 
   // SCIM
   '/scim/checklist': '/guides/directory/admin-portal/',
+  '/scim/quickstart': '/guides/directory/quickstart/',
+  '/scim/basics': '/guides/directory/basics/',
+  '/scim/protocol': '/guides/directory/protocol/',
+  '/scim/webhooks': '/guides/directory/webhooks/',
+  '/scim/automatically-assign-roles': '/guides/directory/auto-assign-roles/',
+  '/scim/map-user-attributes': '/guides/directory/map-attributes/',
+  '/scim/listen-directory-events': '/guides/directory/events/',
+  '/scim/gbac': '/guides/directory/gbac/',
+  '/scim/explore-sample-apps': '/guides/directory/sample-apps/',
+  '/scim/domain-and-theme-customization': '/guides/directory/customization/',
+
+  // M2M
+  '/m2m/overview': '/guides/m2m/overview/',
+  '/m2m/quickstart': '/guides/m2m/quickstart/',
+  '/m2m/m2m-basics': '/guides/m2m/basics/',
+  '/m2m/authenticate-scalekit-api': '/guides/m2m/authenticate/',
+  '/m2m/api-auth-for-m2m-clients': '/guides/m2m/client-auth/',
+  '/m2m/external-ids-and-metadata': '/guides/m2m/external-ids/',
+  '/m2m/scopes': '/guides/m2m/scopes/',
 
   // integrations
   '/integrations': '/guides/integrations/sso-integrations/',
@@ -65,6 +84,14 @@ export const redirects = {
   '/integrations/social-connections/salesforce/':
     '/guides/integrations/social-connections/salesforce/',
 
+  // Other redirects
   '/sdks': '/dev-kit/',
   '/api/webhook-events': '/dev-kit/webhooks/directory-events/',
+  '/contact-us': '/guides/contact/',
+  '/manage-scalekit/glossary': '/reference/glossary/',
+  '/index-old': '/',
+  '/sso/launch-checklist': '/guides/sso/launch-checklist/',
+  '/sso/test-sso': '/guides/sso/testing/',
+  '/sso/domain-and-theme-customization': '/guides/sso/customization/',
+  '/sso/bkp/quickstart-admin-portal': '/guides/sso/admin-portal/',
 };
