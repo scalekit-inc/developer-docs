@@ -35,6 +35,8 @@ export const redirects = {
   '/integrations/okta-scim':
     '/guides/integrations/scim-integrations/okta-scim/',
   '/integrations/onelogin': '/guides/integrations/scim-integrations/onelogin/',
+  '/integrations/scim-connections/[...slug]':
+    '/guides/integrations/scim-integrations/[...slug]/',
 
   // social logins
   '/social-logins': '/social-logins/quickstart/',
