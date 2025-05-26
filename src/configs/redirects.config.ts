@@ -21,6 +21,8 @@ export const redirects = {
   '/sso/guides/key-concepts/user-profile': '/guides/sso/user-profile-details/',
   '/sso/guides/test-your-integration/using-okta': '/guides/sso/okta-sso-test/',
   '/sso/overview': '/guides/sso/sso-basics/',
+  '/sso/guides/setup-sso/customize-user-attributes':
+    '/guides/sso/sso-user-attributes/',
 
   // SCIM
   '/scim/checklist': '/guides/directory/admin-portal/',
