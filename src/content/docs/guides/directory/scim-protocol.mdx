@@ -1,0 +1,201 @@
+---
+title: SCIM overview
+description: 'Comprehensive guide to the SCIM (System for Cross-domain Identity Management) protocol. Learn about core components, resources, schemas, and real-world implementation scenarios for identity management across cloud applications.'
+sidebar:
+  label: 'SCIM protocol'
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+System for Cross-domain Identity Management (SCIM) is an
+<a href="https://datatracker.ietf.org/doc/html/rfc7643#section-2" target="_blank">open standard API specification</a> designed
+to manage identities across cloud applications easily and scalably. The specification suite builds
+upon experience with existing schemas and deployments, emphasizing:
+
+- Simplicity of development and integration
+- Application of existing authentication, authorization, and privacy models
+
+Its intent is to reduce the cost and complexity of user management operations by providing:
+
+- A common user schema
+- An extension model; e.g., enterprise user
+- Binding documents to provide patterns for exchanging this schema using HTTP
+
+## SCIM protocol: Key components
+
+SCIM is a HTTP based protocol and uses structured
+<a href="https://datatracker.ietf.org/doc/html/rfc7159" target="_blank">JSON</a> payloads to exchange resource information
+between the SCIM client and service provider. To identify the SCIM protocol resources, the
+`application/scim+json` media type is used.
+
+### SCIM service provider
+
+SCIM service provider is any business application that provisions users and groups by synchronizing
+the changes made in a SCIM client, including creates, updates, and deletes. The synchronization
+enables end users to have seamless access to the business application for which they're assigned,
+with up-to-date profiles and permissions.
+
+Scalekit acts as the SCIM service provider on your behalf and integrates with your customer's
+identity providers or directory providers (e.g. Okta, Azure AD, Google Workspace, etc.) to provision
+users and groups.
+
+### SCIM client
+
+SCIM client facilitates provisioning, or managing user lifecycle events, through SCIM endpoints
+exposed by the SCIM service provider. Identity providers and HRMS act as very popular SCIM clients
+as they are treated as the source of truth for user identity data.
+
+Some of the most common SCIM clients are <a href="https://www.okta.com" target="_blank">Okta</a>,
+<a href="https://www.microsoft.com/en-in/security/business/identity-access/microsoft-entra-id" target="_blank">Microsoft Entra ID (aka Azure AD)</a>.
+
+### SCIM endpoints
+
+SCIM endpoints are the entry points to the SCIM API. They are the endpoints that the SCIM client
+will call to provision users and groups.
+
+The following are the most popular SCIM endpoints that any SCIM service provider should support:
+
+- `/Users`
+- `/Groups`
+
+### SCIM methods
+
+As SCIM is built on top of REST, SCIM methods are the HTTP methods that are used to perform CRUD
+operations on the SCIM resources. The following are the most common SCIM methods:
+
+- GET
+- POST
+- PUT
+- PATCH
+- DELETE
+
+### SCIM authentication
+
+SCIM uses OAuth 2.0 bearer token authentication to authenticate requests to the SCIM API. The token
+is a string that is used to authenticate the SCIM API requests to the SCIM service provider. The
+token is passed in the HTTP Authorization header using the Bearer scheme.
+
+## SCIM resources
+
+SCIM resources are the core building blocks of the SCIM protocol. They represent entities such as
+users, groups, and organizational units. Each resource has a set of attributes that describe the
+entity.
+
+While SCIM user resource has the basic attributes of a user like email address, phone number, and
+name, it is extensible by defining new JSON schemas that a service provider can choose to implement.
+An enterprise user is an example of a SCIM user extension resource. Enterprise user resource has
+attributes such as employee number, department, and manager which are valuable for enterprise
+implementation of user management using SCIM v2.
+
+```json title="Example SCIM user representation"
+{
+  "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
+  "userName": "bjensen",
+  "name": {
+    "givenName": "Barbara",
+    "familyName": "Jensen"
+  },
+  "emails": [
+    {
+      "value": "bjensen@example.com",
+      "type": "work",
+      "primary": true
+    }
+  ],
+  "entitlements": [
+    {
+      "value": "Employee",
+      "type": "role"
+    }
+  ]
+}
+```
+
+### SCIM schema
+
+SCIM schema is the core of the SCIM protocol. It is a JSON schema that defines the structure of the
+SCIM resources. The following are the most common SCIM schemas:
+
+- <a href="https://datatracker.ietf.org/doc/html/rfc7643#section-4.1" target="_blank">Core SCIM user schema</a>
+- <a href="https://datatracker.ietf.org/doc/html/rfc7643#section-4.3" target="_blank">Enterprise user schema</a>
+- <a href="https://datatracker.ietf.org/doc/html/rfc7643#section-4.2" target="_blank">Group schema</a>
+
+## Putting everything together
+
+Now that you have a high level understanding of the SCIM protocol and different components involved,
+let's put everything together to take a scenario of how SCIM protocol facilitates user provisioning
+from an identity provider to a SCIM service provider like Scalekit.
+
+### Scenario: New employee onboarding
+
+1. ACME Inc. hires a new employee, John Doe.
+2. ACME Inc. adds John Doe to their Okta directory.
+3. Okta send a SCIM `POST /Users` request to a pre-registered SCIM service
+   provider (your B2B application) with John Doe's information as per the SCIM protocol.
+4. You authenticate the request using the OAuth 2.0 bearer token authentication & validate the
+   request payload.
+5. You provision John Doe as a new user in your B2B application using the user payload.
+
+### Scenario: Employee termination
+
+1. ACME Inc. terminates John Doe's employment.
+2. ACME Inc. removes John Doe from their Okta directory.
+3. Okta send a SCIM `DELETE /Users/john.doe` request to a pre-registered SCIM
+   service provider (your B2B application) as per the SCIM protocol.
+4. You authenticate the request using the OAuth 2.0 bearer token authentication & validate the
+   request payload.
+5. You deactivate John Doe as an existing user in your B2B application using the user payload.
+
+### Scenario: Employee transfer
+
+1. ACME Inc. transfers John Doe to a different department.
+2. ACME Inc. updates John Doe's information in their Okta directory.
+3. Okta send a SCIM `PATCH /Users/john.doe` request to a pre-registered SCIM
+   service provider (your B2B application) as per the SCIM protocol.
+4. You authenticate the request using the OAuth 2.0 bearer token authentication & validate the
+   request payload.
+5. You update John Doe's information in your B2B application using the user payload.
+
+```http title="SCIM create user request"
+POST /Users HTTP/1.1
+Host: yourapp.scalekit.com/directory/dir_12442/scim/v2
+Accept: application/scim+json
+Content-Type: application/scim+json
+Authorization: Bearer YOUR_SCIM_API_TOKEN
+
+{
+    "schemas":["urn:ietf:params:scim:schemas:core:2.0:User"],
+    "userName":"bjensen",
+    "externalId":"bjensen",
+    "name":{
+        "formatted":"Ms. Barbara J Jensen III",
+        "familyName":"Jensen",
+        "givenName":"Barbara"
+    }
+}
+```
+
+## Scalekit's SCIM implementation
+
+Scalekit's SCIM implementation is built upon the principles of simplicity, security, and
+scalability. It provides a normalized implementation of the SCIM protocol across different identity
+providers & directory providers. This allows you to focus on integrating with Scalekit's API & leave
+the complexities of SCIM protocol implementation to us. While not all directory providers implement
+SCIM or support all SCIM features, Scalekit aims to abstract these complexities & provide a seamless
+experience for provisioning users and groups.
+
+### Webhooks
+
+Scalekit supports webhooks as a mechanism to send real-time updates to your application about user
+provisioning and deprovisioning events to your application as and when there are changes detected in
+your customer's SCIM compliant directory providers.
+
+We also normalize the webhook payloads across different directory providers to ensure that you can
+focus on building your application without having to worry about the nuances of each directory
+provider's SCIM implementations.
+
+<Aside type="tip">
+Refer to our <a href="/dev-kit/webhooks/event-object/">Webhooks</a> documentation to
+learn more on how you can use webhooks to listen for changes in the directory and update the user's
+roles in your application.
+</Aside>

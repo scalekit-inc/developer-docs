@@ -1,0 +1,168 @@
+---
+title: Test SSO
+description: Validate your Single Sign-On implementation using our test environment
+sidebar:
+  label: Test Single Sign-On
+prev:
+  link: /sso/quickstart
+  label: Integrate SSO
+next:
+  link: /guides/sso/admin-portal/
+  label: Admin Portal
+---
+
+import { Aside, TabItem, Tabs, Steps, Badge } from "@astrojs/starlight/components"
+
+After implementing Single Sign-On using our [Quickstart guide](/sso/quickstart/), you need to validate your integration for all possible scenarios. We have set up your development environment with two key components to make testing comprehensive and straightforward:
+
+1. **Identity Provider Simulator:** Test all possible Single Sign-On scenarios without requiring external services like Okta or Microsoft Entra ID.
+2. **Test organization:** Access a pre-configured organization with an SSO connection to our IdP Simulator and domains like `@example.com` or `@example.org` for testing.
+
+To ensure a successful SSO implementation, test all three scenarios described in this guide before deploying to production.
+
+## Service provider (SP) initiated SSO <Badge text="Scenario 1" variant="note" />
+
+In this common scenario, users start the Single Sign-On process from your application's login page.
+
+**How SP-initiated SSO works**
+
+<figure>
+  ![SP initiated SSO](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/1.png)
+  <figcaption>SP (Your application) Initiated SSO</figcaption>
+</figure>
+
+**Locating your test organization**
+
+  ![SP initiated SSO](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/1.1.png)
+
+
+### Generating an authorization URL
+
+Use the following code to generate an authorization URL with your organization ID (as shown in step 2 of the sequence diagram). See the [Authorization URL documentation](/guides/sso/authorization-url/) for more details.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+
+```js wrap
+const options = {};
+options['organizationId'] = 'org_32656XXXXXX0438';
+
+// Generate Authorization Url
+const authorizationURL = scalekit.getAuthorizationUrl(redirectUrl, options);
+
+res.redirect(authorizationUrl);
+```
+
+</TabItem>
+
+<TabItem value="python" label="Python">
+
+```py
+options = {"organizationId": 'org_32656XXXXXX0438'}
+
+# Generate Authorization URL
+authorization_url = scalekit.get_authorization_url(
+    redirect_url,
+    options,
+)
+
+redirect(authorization_url)
+```
+
+</TabItem>
+
+<TabItem value="go" label="Go">
+
+```go
+options.organizationId = "org_32656XXXXXX0438"
+
+// Generate Authorization URL
+authorizationURL := scalekitClient.GetAuthorizationUrl(
+  redirectUrl,
+  options,
+)
+
+// Redirect the user to the Authorization URL
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+options.setOrganizationId("org_32656XXXXXX0438");
+
+// Generate Authorization Url
+String url = scalekitClient
+        .authentication()
+        .getAuthorizationUrl(redirectUrl, options)
+        .toString();
+
+// Redirect the user to the Authorization URL
+```
+
+</TabItem>
+</Tabs>
+
+### Testing with the IdP Simulator
+
+1. The user will be redirected to the Identity Provider (IdP) Simulator
+2. Select "User login via SSO" to view the simulation form
+3. Enter user details to simulate a user signing in via SSO
+
+<figure>
+  ![IdP Simulator](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/2.1.png)
+</figure>
+
+After entering the user details, your application will receive an `idToken` indicating successful simulation. The token contains the following details:
+
+<figure>
+  ![IdP Simulator](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/2.2.png)
+</figure>
+
+<Aside>
+**Note:** To receive custom attributes from the IdP Simulator, first register them in Scalekit Workspace at Development > Single Sign-On > Custom Attributes.
+</Aside>
+
+## Identity Provider (IdP) initiated SSO <Badge text="Scenario 2" variant="note" />
+
+In this scenario, users start the sign-in process from the Identity Provider, typically through an applications catalog. This allows users to conveniently access applications available within their organization.
+
+If you haven't implemented IdP-initiated SSO in your application yet, follow our [guide for implementing IdP-initiated SSO](/guides/sso/idp-init-sso) before testing this scenario.
+
+![How IdP-initiated SSO works](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/4.png)
+
+### Testing IdP-initiated SSO
+
+1. Generate the authorization URL using the Test organization
+2. Get redirected to the IdP Simulator
+3. Select "IdP initiated SSO" from the dropdown menu
+4. Enter test user details to simulate the login
+
+![IdP initiated SSO](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/3.1.png)
+
+### Testing IdP-initiated requests
+
+Implement logic in your callback handler to identify and process IdP-initiated requests from Scalekit. Learn more about [implementing IdP-initiated SSO](/guides/sso/idp-init-sso).
+
+![IdP initiated SSO](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/3.2.png)
+
+For IdP-initiated callbacks, retrieve necessary details (such as `connection_id` or `organization_id`) from Scalekit to construct an authorization URL. This effectively converts an IdP-initiated SSO into an SP-initiated SSO.
+
+<Aside type="tip" >
+- For simulation purposes, select and simulate IdP-initiated SSO in the IdP simulator. In real scenarios, users would choose your app from their Identity Provider.
+- The IdP simulator uses the default redirect URL as the callback URL. Ensure the correct default redirect URL is configured in your Scalekit dashboard.
+</Aside>
+
+## Error handling <Badge text="Scenario 3" variant="note" />
+
+Your application should gracefully handle error scenarios to provide a good user experience.
+
+To test error handling:
+
+  ![Error scenario](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/5.png)
+
+<Steps>
+1. Redirect to the authorization URL
+2. Select the "Error" scenario in the IdP simulator
+3. Process the error in your callback handler
+</Steps>

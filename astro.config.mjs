@@ -11,15 +11,13 @@ import starlightImageZoom from 'starlight-image-zoom';
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
 import starlightThemeRapide from 'starlight-theme-rapide';
 import starlightLlmsTxt from 'starlight-llms-txt';
-import { sidebar as sidebarConfig } from './src/configs/sidebar.config';
-import { redirects } from './src/configs/redirects.config';
+import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config';
 
 import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://docs.scalekit.dev',
-  redirects,
   integrations: [
     starlight({
       title: 'Scalekit Docs',
@@ -29,13 +27,13 @@ export default defineConfig({
       },
       favicon: 'src/assets/favicons/logo.png',
       components: {
-        SocialIcons: './src/components/overrides/SocialIcons.astro',
-        Sidebar: './src/components/overrides/Sidebar.astro',
+        // SocialIcons: './src/components/overrides/SocialIcons.astro',
+        // Sidebar: './src/components/overrides/Sidebar.astro',
+        Head: './src/components/overrides/Head.astro',
       },
       logo: {
-        dark: '/src/assets/images/logos/scalekit-docs-beta-green-logo-dark.svg',
-        light:
-          '/src/assets/images/logos/scalekit-docs-beta-green-logo-light.svg',
+        dark: '/src/assets/images/logos/scalekit-logo-green-dark.svg',
+        light: '/src/assets/images/logos/scalekit-logo-green-light.svg',
         replacesTitle: true,
       },
       defaultLocale: 'en',
@@ -59,11 +57,18 @@ export default defineConfig({
       },
       customCss: [
         '@fontsource-variable/inter',
-        '@fontsource-variable/plus-jakarta-sans',
-        '@fontsource-variable/space-grotesk',
+        '@fontsource-variable/geist',
+        '@fontsource-variable/geist-mono',
+
+        /** Backup fonts. They can be removed if deemed unnecessary. */
+        // '@fontsource-variable/plus-jakarta-sans',
+        // '@fontsource-variable/space-grotesk',
         './src/styles/theme-priority.css',
-        './src/styles/tailwind.css',
-        './src/styles/custom.css',
+
+        /** The following order is covered in theme-priority.css. Consider removing if deemed unnecessary. */
+        // './src/styles/custom.css',
+        // './src/styles/tailwind.css',
+        // './src/styles/global.css',
       ],
       plugins: [
         starlightLinksValidator(),
@@ -72,7 +77,7 @@ export default defineConfig({
         starlightImageZoom({
           showCaptions: true,
         }),
-        starlightSidebarTopics(sidebarConfig),
+        starlightSidebarTopics(sidebarConfig, { topics }),
         // starlightViewModes(),
       ],
       head: [
@@ -85,6 +90,51 @@ export default defineConfig({
                 person_profiles: 'identified_only',
             })
           `,
+        },
+        // Add the iframe detection script inline
+        {
+          tag: 'script',
+          content: `
+            function inIframe() {
+              try {
+                return window.self !== window.top;
+              } catch (e) {
+                return true;
+              }
+            }
+
+            // Function to check and apply iframe styling
+            function applyIframeStyles() {
+              const urlParams = new URLSearchParams(window.location.search);
+              const hasInproductParam = urlParams.has('inproduct') && urlParams.get('inproduct') === 'true';
+              const storedInproduct = sessionStorage.getItem('inproduct') === 'true';
+
+              // If we have the parameter in URL, store it in sessionStorage
+              if (hasInproductParam) {
+                sessionStorage.setItem('inproduct', 'true');
+              }
+
+              // Apply iframe styling if in an iframe AND (inproduct=true parameter is present OR stored in sessionStorage)
+              if (inIframe() && (hasInproductParam || storedInproduct)) {
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.documentElement.classList.add('in-iframe');
+              }
+            }
+
+            // Add iframe detection on page load
+            document.addEventListener('DOMContentLoaded', applyIframeStyles);
+
+            // Also check on navigation changes (for SPAs or dynamic content)
+            window.addEventListener('popstate', applyIframeStyles);
+          `,
+        },
+        // remove this when going live
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'robots',
+            content: 'noindex',
+          },
         },
       ],
     }),

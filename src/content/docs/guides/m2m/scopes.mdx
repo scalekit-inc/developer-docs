@@ -1,0 +1,92 @@
+---
+title: M2M client scopes
+description: Learn how to define and validate permissions for M2M client applications
+sidebar:
+  label: M2M Client Scopes
+topic: m2m
+prev:
+  label: M2M quickstart
+  link: /m2m/quickstart/
+next: false
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Scopes define the permissions an application possesses. Within Scalekit, scopes allow your API server (acting as an M2M server) to determine the permissions granted to an M2M client application.
+
+When creating an M2M client via the API, your application specifies the required scopes. Scalekit includes this scope information in the access token that the M2M client uses for subsequent API requests.
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```bash title="Register an M2M client with specific scopes"
+curl -L 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<ORGANIZATION_ID>/clients' \
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer <SCALEKIT_ACCESS_TOKEN>' \
+-d '{
+    "name": "GitHub Actions Deployment Service",
+    "description": "Service account for GitHub Actions to deploy applications to production",
+    "scopes": [
+        "deploy:applications",
+        "read:deployments"
+    ],
+    "expiry": 3600 # Token expiry time in seconds
+}'
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Register an M2M client with specific scopes"
+from scalekit.v1.clients.clients_pb2 import OrganizationClient
+# Import and initialize the Scalekit client as sc
+
+m2m_client = OrganizationClient(
+    name="GitHub Actions Deployment Service",
+    description="Service account for GitHub Actions to deploy to production",
+    custom_claims=[
+        {"key": "github_repository", "value": "acmecorp/inventory-service"},
+        {"key": "environment", "value": "production_us"}
+    ],
+    scopes=["deploy:applications", "read:deployments"],
+    audience=["deployment-api.acmecorp.com"],
+    expiry=3600
+)
+
+response = sc.m2m_client.create_organization_client(
+    organization_id="SCALEKIT_ORGANIZATION_ID",
+    m2m_client=m2m_client
+)
+```
+
+</TabItem>
+</Tabs>
+
+The API returns a JSON object [containing comprehensive information](/m2m/quickstart/#register-an-m2m-client) about the newly created M2M client. Your application (acting as the M2M server) should securely provide only the `client_id` and `client_secret` from the response to the M2M client application that needs to authenticate.
+
+The M2M client then uses its client ID and client secret to [authenticate with your API server](/guides/m2m/api-auth-m2m-clients). Successful authentication grants the M2M client an access token, which it includes as a Bearer token in the `Authorization` header for future API requests.
+
+## Validating M2M client scopes
+
+When your API server receives a request from an M2M client, it must validate the scopes present in the access token provided in the `Authorization` header. The access token is a JSON Web Token (JWT).
+
+```json title="Example Decoded Access Token JWT Payload"
+{
+  "client_id": "m2morg_69038819013296423", // The unique ID of the M2M client
+  "exp": 1745305340, // Expiration timestamp
+  "iat": 1745218940, // Issued at timestamp
+  "iss": "<SCALEKIT_ENVIRONMENT_URL>", // Issuer (Scalekit environment URL)
+  "jti": "tkn_69041163914445100", // JWT unique identifier
+  "nbf": 1745218940, // Not before timestamp
+  "oid": "org_59615193906282635", // Organization ID the client belongs to
+  "scopes": [ // Array of permissions granted to this client
+    "deploy:applications",
+    "read:deployments"
+  ],
+  "sub": "m2morg_69038819013296423" // Subject (usually the client_id for M2M)
+}
+```
+
+Scalekit encodes the granted permissions in the `scopes` field within the JWT payload. The `oid` field identifies the specific organization (customer/tenant) associated with this M2M client.
+
+Your API server should inspect the `scopes` array in the received token payload. Use this information to authorize the requested operation, ensuring the client possesses the necessary permissions before processing the API request.

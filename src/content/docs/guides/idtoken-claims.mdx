@@ -1,0 +1,67 @@
+---
+title: ID token claims
+description: Reference for ID token claims
+prev: false
+next: false
+---
+
+An ID token is a JSON Web Token (JWT) containing cryptographically signed claims about a user's profile information. This is issued by Scalekit after successful authentication. The ID token is a Base64-encoded JSON object with three parts: header, payload, and signature.
+
+Here's an example of the payload. Note this is formatted for readability and the header and signature fields are skipped.
+
+```json title="Sample IdToken payload"
+
+{
+  "iss": "https://yoursaas.scalekit.com",
+  "azp": "skc_12205605011849527",
+  "aud": ["skc_12205605011849527"],
+  "amr": ["conn_17576372041941092"],
+  "sub": "conn_17576372041941092;google-oauth2|104630259163176101050",
+  "at_hash": "HK6E_P6Dh8Y93mRNtsDB1Q",
+  "c_hash": "HK6E_P6Dh8Y93mRNtsDB1Q",
+  "iat": 1353601026,
+  "exp": 1353604926,
+  "name": "John Doe",
+  "given_name": "John",
+  "family_name": "Doe",
+  "picture": "https://lh3.googleusercontent.com/a/ACg8ocKNE4TZj2kyLOj094kie_gDlUyU7JCZtbaiEma17URCEf=s96-c",
+  "locale": "en",
+  "email": "john.doe@acmecorp.com",
+  "email_verified": true
+}
+```
+
+## Full list of ID token claims
+
+| Claim                                                              | Presence | Description                                  |
+| ------------------------------------------------------------------ | -------- | -------------------------------------------- |
+| `aud`            | Always   | Intended audience (client ID)                |
+| `amr`            | Always   | Authentication method reference values       |
+| `exp`            | Always   | Expiration time (Unix timestamp)             |
+| `iat`            | Always   | Issuance time (Unix timestamp)               |
+| `iss`            | Always   | Issuer identifier (Scalekit environment URL) |
+| `oid`            | Always   | Organization ID of the user                  |
+| `sub`            | Always   | Subject identifier for the user              |
+| `at_hash`        | Always   | Access token hash                            |
+| `c_hash`         | Always   | Authorization code hash                      |
+| `azp`            | Always   | Authorized presenter (usually same as `aud`) |
+| `email`          | Always   | User's email address                         |
+| `email_verified` | Optional | Email verification status                    |
+| `name`           | Optional | User's full name                             |
+| `family_name`    | Optional | User's surname or last name                  |
+| `given_name`     | Optional | User's given name or first name              |
+| `locale`         | Optional | User's locale (BCP 47 language tag)          |
+| `picture`        | Optional | URL of user's profile picture                |
+
+## Usage
+1. The ID token is received over a secure HTTPS channel using the client secret.
+2. Validation of the ID token is handled automatically when using the Scalekit SDK.
+3. The `sub` claim combines the `connection_id` and the provider's unique identifier.
+4. The `iss` claim must match your Scalekit environment URL.
+5. The `amr` claim typically contains the `connection_id` used for authentication.
+
+This structure provides a neutral, factual reference for ID token claims in Scalekit, organized according to the data structure itself.
+
+An ID token is nothing but a cryptographically signed Base64-encoded JSON object containing a set of name/value pairs about the user's profile information. Essentially, it is a JWT token. Ideally, it is advised that you validate an ID token before you use it, but since you are communicating directly with Scalekit over an intermediary-free HTTPS channel and using your client secret to exchange the `code` for the ID token, you can be confident that the token you receive really comes from Scalekit and is valid.
+
+If you are using our Scalekit SDK to exchange the code for the ID token, the work of decoding the base64url-encoded values and parsing the JSON within, validating the JWT and accessing the claims within the ID token is automatically taken care of.
