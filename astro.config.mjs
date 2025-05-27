@@ -115,14 +115,6 @@ export default defineConfig({
             });
           `,
         },
-        // remove this when going live
-        {
-          tag: 'meta',
-          attrs: {
-            name: 'robots',
-            content: 'noindex',
-          },
-        },
       ],
     }),
     react(),
