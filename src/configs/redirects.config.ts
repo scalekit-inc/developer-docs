@@ -69,6 +69,8 @@ export const redirects = {
     '/guides/integrations/scim-integrations/google-dir-sync/',
   '/integrations/scim-connections/jumpcloud/':
     '/guides/integrations/scim-integrations/jumpcloud/',
+  '/integrations/google-saml':
+    '/guides/integrations/sso-integrations/google-saml/',
 
   // social logins
   '/social-logins': '/social-logins/quickstart/',
