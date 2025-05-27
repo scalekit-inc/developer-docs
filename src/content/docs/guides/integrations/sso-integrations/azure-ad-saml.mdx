@@ -1,0 +1,116 @@
+---
+title: "Azure AD SAML"
+prev: false
+next: false
+description: "Learn how to set up SAML-based Single Sign-On (SSO) in Scalekit using Microsoft Entra ID (Azure AD), with step-by-step instructions for enterprise application configuration."
+
+sidebar:
+  order: 3
+  label: "Microsoft Entra ID"
+  badge:
+    variant: note
+    text: SAML
+---
+
+import { Steps, Aside } from "@astrojs/starlight/components"
+
+> Step-by-step guide to configure Single Sign-On with Microsoft Entra ID as the identity provider
+
+This guide walks you through configuring Microsoft Entra ID as your SAML identity provider for the application you are onboarding, enabling secure Single Sign-On for your users. You'll learn how to set up an enterprise application, configure SAML settings, map user attributes, and assign users to the application. By following these steps, your users will be able to seamlessly authenticate using their Microsoft Entra ID credentials.
+
+## Download metadata XML
+
+<Steps>
+1. Sign into the SSO Configuration Portal, select **Microsoft Entra ID**, then **SAML**, and click on **Configure**
+
+   Under **Service Provider Details**, click on **Download Metadata XML**
+
+   ![Download Metadata XML](@/assets/docs/guides/sso-integrations/azure-ad-saml/0.png)
+</Steps>
+
+## Create enterprise application
+
+<Steps>
+1. Login to **Microsoft Entra ID** in the <a href="https://portal.azure.com/" target="_blank">Microsoft Azure Portal</a>. Select the option for **Entra ID application** and locate the **Enterprise Applications** tab
+
+   ![Locate Enterprise applications](@/assets/docs/guides/sso-integrations/azure-ad-saml/1.png)
+
+2. In the **Enterprise Applications** tab **New Application** in the top navigation bar
+
+   ![Click on New application](@/assets/docs/guides/sso-integrations/azure-ad-saml/2.png)
+
+3. Click on **Create your own Application** and give your application a name
+
+   Select the **_Integrate any other application you don't find in the gallery (Non-gallery)_** option. Click on **Create**
+
+   ![Create a new application on Entra ID](@/assets/docs/guides/sso-integrations/azure-ad-saml/3.gif)
+</Steps>
+
+## Configure SAML settings
+
+<Steps>
+1. Locate the **Single Sign-On** option under **Manage**, and choose **SAML**
+
+   ![Locate SAML under Single sign-on](@/assets/docs/guides/sso-integrations/azure-ad-saml/4.png)
+
+2. Click on **Upload metadata file**. Upload the **Metadata XML file** downloaded in step 1
+
+   ![Click on Upload metadata file](@/assets/docs/guides/sso-integrations/azure-ad-saml/4-5.png)
+
+3. Click on **Save**
+
+   ![Save button](@/assets/docs/guides/sso-integrations/azure-ad-saml/5.png)
+</Steps>
+
+## Map user attributes
+
+<Steps>
+1. Under **Attributes & Claims**, click on **Edit**
+
+   ![Click on Edit](@/assets/docs/guides/sso-integrations/azure-ad-saml/6.png)
+
+2. Check the **Attribute Mapping** section in the **SSO Configuration Portal**, and carefully map the same attributes on your **Entra ID** app
+
+   ![SSO Configuration Portal](@/assets/docs/guides/sso-integrations/azure-ad-saml/7.png)
+   ![Microsoft Entra ID](@/assets/docs/guides/sso-integrations/azure-ad-saml/8.png)
+</Steps>
+
+## Assign users and groups
+
+<Steps>
+1. Go to the **Users and groups** tab, and click on **Add user/group**
+
+   Here, please select all the required users or user groups that need login access to this application via Single Sign-On
+
+   ![Assigning users and groups to your application](@/assets/docs/guides/sso-integrations/azure-ad-saml/9.gif)
+</Steps>
+
+## Configure metadata URL
+
+<Steps>
+1. Under **SAML Certification**, copy the link under **App Federation Metadata URL on Entra ID**
+
+   ![Copy App Federation Metadata URL](@/assets/docs/guides/sso-integrations/azure-ad-saml/10.png)
+
+2. Under **Identify Provider Configuration**, select **Configure using Metadata URL**, and paste it under **App Federation Metadata URL** on the **SSO Configuration Portal**
+
+   ![Paste App Federation Metadata URL](@/assets/docs/guides/sso-integrations/azure-ad-saml/11.png)
+</Steps>
+
+## Test the connection
+
+Click on **Test Connection**. If everything is done correctly, you will see a **Success** response as shown below.
+
+![Test your SAML application for SSO](@/assets/docs/guides/sso-integrations/azure-ad-saml/12.png)
+
+<Aside type="note">
+If the connection fails, you'll see an error, the reason for the error, and a way to solve that error right on the screen.
+</Aside>
+
+## Enable the connection
+
+Click on **Enable Connection**. This will let all your selected users login to the new application via your Microsoft Entra ID SSO.
+
+![Enable SSO on Entra ID](@/assets/docs/guides/sso-integrations/azure-ad-saml/13.png)
+
+With this, we are done configuring your Microsoft Entra ID application for an SSO login setup.

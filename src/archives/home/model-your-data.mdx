@@ -1,0 +1,433 @@
+---
+title: Model your data
+---
+
+import { Tabs, TabItem, Aside, Steps } from '@astrojs/starlight/components';
+import CheckItem from '@/components/ui/CheckItem.astro';
+
+**Organization** and **User** objects are first-class citizens in Scalekit.
+
+- A Organization is a tenant of your application and represents a business customer. They pay for your service and own data and resources in their tenant.
+- A User is typically a member of one or more organizations and represents an individual user of your application.
+
+![Organization and User data model](https://placehold.co/700x300?text=Organization+and+User+data+model+(+coming+soon+))
+
+A User can be a member of one or more organizations, and conversely, an Organization can have one or more users.
+
+<Tabs>
+  <TabItem value="organization" label="Organization">
+    ```json
+    {
+      "organization": {
+        "id": "org_59615193906282635",
+        "display_name": "Megasoft",
+        "external_id": "my_unique_id",
+        "region_code": "US",
+        "create_time": "2025-02-15T06:23:44.560Z",
+        "update_time": "2025-02-15T06:23:44.560Z",
+        "metadata": {
+          "ANY_ADDITIONAL_PROPERTY": "string"
+        },
+        "settings": {
+          "features": [
+            {
+              "name": "sso",
+              "enabled": true
+            },
+            {
+              "name": "directory_sync",
+              "enabled": false
+            }
+          ]
+        }
+      }
+    }
+    ```
+    <details>
+      <summary>Schema</summary>
+      ```json
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "organization": {
+              "description": "The newly created organization",
+              "type": "object",
+              "required": ["create_time"],
+              "properties": {
+                "id": {
+                  "description": "Unique scalekit-generated identifier that uniquely references an organization",
+                  "type": "string",
+                  "title": "Id",
+                  "examples": ["org_59615193906282635"]
+                },
+                "display_name": {
+                  "description": "Name of the organization. Must be between 1 and 200 characters",
+                  "type": "string",
+                  "title": "Name of the org to be used in display",
+                  "examples": ["Megasoft"]
+                },
+                "external_id": {
+                  "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+                  "type": "string",
+                  "title": "External Id is useful to store a unique identifier for a given Org that. The unique Identifier can be the id of your tenant / org in your SaaSApp",
+                  "examples": ["my_unique_id"]
+                },
+                "region_code": {
+                  "description": "Geographic region code for the organization. Currently limited to US.",
+                  "type": "string",
+                  "title": "Optional regioncode",
+                  "enum": ["US", "EU"],
+                  "examples": ["US"]
+                },
+                "create_time": {
+                  "description": "Timestamp when the organization was created",
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Created Time",
+                  "examples": ["2025-02-15T06:23:44.560Z"]
+                },
+                "update_time": {
+                  "description": "Timestamp when the organization was last updated",
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Updated time",
+                  "examples": ["2025-02-15T06:23:44.560Z"]
+                },
+                "metadata": {
+                  "description": "Key value pairs extension attributes.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "settings": {
+                  "title": "Organization Settings",
+                  "description": "Configuration options that control organization-level features and capabilities",
+                  "type": "object",
+                  "properties": {
+                    "features": {
+                      "description": "List of feature toggles that control organization capabilities such as SSO authentication and directory synchronization",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": "Controls the activation state of a specific organization feature",
+                        "title": "Organization Feature Toggle",
+                        "required": ["name", "enabled"],
+                        "properties": {
+                          "name": {
+                            "description": "Feature identifier. Supported values include: \"sso\" (Single Sign-On), \"directory_sync\" (Directory Synchronization)",
+                            "type": "string",
+                            "examples": ["sso"]
+                          },
+                          "enabled": {
+                            "description": "Whether the feature is enabled (true) or disabled (false) for this organization",
+                            "type": "boolean",
+                            "examples": [true]
+                          }
+                        }
+                      },
+                      "examples": [
+                        [
+                          {
+                            "name": "sso",
+                            "enabled": true
+                          },
+                          {
+                            "name": "directory_sync",
+                            "enabled": false
+                          }
+                        ]
+                      ]
+                    }
+                  },
+                  "examples": [
+                    {
+                      "features": [
+                        {
+                          "name": "sso",
+                          "enabled": true
+                        },
+                        {
+                          "name": "directory_sync",
+                          "enabled": false
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+      ```
+    </details>
+  </TabItem>
+  <TabItem value="user" label="User">
+    ```json
+    {
+      "user": {
+        "id": "usr_1234abcd5678efgh",
+        "email": "user@example.com",
+        "external_id": "ext_12345a67b89c",
+        "identity": "auth0|1234567890abcdef",
+        "phone_number": "+14155552671",
+        "create_time": "2025-05-14T06:02:08.948Z",
+        "update_time": "2025-05-14T06:02:08.948Z",
+        "last_login": "2025-05-14T06:02:08.948Z",
+        "metadata": {
+          "department": "engineering",
+          "location": "nyc-office"
+        },
+        "organizations": [
+          {
+            "id": "string",
+            "name": "string",
+            "role": "ADMIN",
+            "membership_status": "ACTIVE",
+            "primary_identity_provider": "OKTA"
+          }
+        ],
+        "user_profile": {
+          "id": "usr_profile_1234abcd5678efgh",
+          "name": "John Michael Doe",
+          "first_name": "John",
+          "last_name": "Doe",
+          "locale": "en-US",
+          "email_verified": true,
+          "custom_attributes": {
+            "department": "engineering",
+            "security_clearance": "level2"
+          },
+          "metadata": {
+            "account_status": "active",
+            "signup_source": "mobile_app"
+          }
+        }
+      }
+    }
+    ```
+    <details>
+      <summary>Schema</summary>
+      ```json
+      {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "user": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Unique system-generated identifier for the user. Immutable once created.",
+                  "type": "string",
+                  "examples": ["usr_1234abcd5678efgh"]
+                },
+                "email": {
+                  "description": "Primary email address for the user. Must be unique across the environment and valid per RFC 5322.",
+                  "type": "string",
+                  "examples": ["user@example.com"]
+                },
+                "external_id": {
+                  "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+                  "type": "string",
+                  "examples": ["ext_12345a67b89c"]
+                },
+                "identity": {
+                  "description": "Unique identifier from the identity provider (IDP). Immutable once set.",
+                  "type": "string",
+                  "examples": ["auth0|1234567890abcdef"]
+                },
+                "phone_number": {
+                  "description": "Phone number in E.164 international format. Required for SMS-based authentication.",
+                  "type": "string",
+                  "examples": ["+14155552671"]
+                },
+                "create_time": {
+                  "description": "Timestamp when the user account was initially created. Automatically set by the server.",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "update_time": {
+                  "description": "Timestamp of the last modification to the user account. Automatically updated by the server.",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "last_login": {
+                  "description": "Timestamp of the user's most recent successful authentication. Updated automatically.",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "metadata": {
+                  "description": "Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "examples": [
+                    {
+                      "department": "engineering",
+                      "location": "nyc-office"
+                    }
+                  ]
+                },
+                "organizations": {
+                  "description": "List of organization memberships. Automatically populated based on group assignments.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "role": {
+                        "type": "string",
+                        "enum": ["ADMIN", "USER"]
+                      },
+                      "membership_status": {
+                        "type": "string",
+                        "enum": ["ACTIVE", "INACTIVE"]
+                      },
+                      "primary_identity_provider": {
+                        "type": "string",
+                        "enum": [
+                          "OKTA",
+                          "GOOGLE",
+                          "MICROSOFT_AD",
+                          "AUTH0",
+                          "ONELOGIN",
+                          "PING_IDENTITY",
+                          "JUMPCLOUD",
+                          "CUSTOM",
+                          "GITHUB",
+                          "GITLAB",
+                          "LINKEDIN",
+                          "SALESFORCE",
+                          "MICROSOFT",
+                          "IDP_SIMULATOR",
+                          "SCALEKIT"
+                        ]
+                      }
+                    }
+                  },
+                  "readOnly": true
+                },
+                "user_profile": {
+                  "description": "User's personal information including name, address, and other profile attributes.",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "Unique system-generated identifier for the user profile. Immutable and read-only.",
+                      "type": "string",
+                      "readOnly": true,
+                      "examples": ["usr_profile_1234abcd5678efgh"]
+                    },
+                    "name": {
+                      "description": "Full name in display format. Typically combines first_name and last_name.",
+                      "type": "string",
+                      "examples": ["John Michael Doe"]
+                    },
+                    "first_name": {
+                      "description": "User's given name. Maximum 200 characters.",
+                      "type": "string",
+                      "examples": ["John"]
+                    },
+                    "last_name": {
+                      "description": "User's family name. Maximum 200 characters.",
+                      "type": "string",
+                      "examples": ["Doe"]
+                    },
+                    "locale": {
+                      "description": "User's localization preference in BCP-47 format. Defaults to organization settings.",
+                      "type": "string",
+                      "examples": ["en-US"]
+                    },
+                    "email_verified": {
+                      "description": "Indicates if the user's email address has been verified. Automatically updated by the system.",
+                      "type": "boolean",
+                      "readOnly": true,
+                      "examples": [true]
+                    },
+                    "custom_attributes": {
+                      "description": "Custom attributes for extended user profile data. Keys (3-25 chars), values (1-256 chars).",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "examples": [
+                        {
+                          "department": "engineering",
+                          "security_clearance": "level2"
+                        }
+                      ]
+                    },
+                    "metadata": {
+                      "description": "System-managed key-value pairs for internal tracking. Keys (3-25 chars), values (1-256 chars).",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "examples": [
+                        {
+                          "account_status": "active",
+                          "signup_source": "mobile_app"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      ```
+    </details>
+  </TabItem>
+</Tabs>
+
+## Mapping the relationships between users and organizations
+
+The relationship between users and organizations depends on your application's requirements.
+
+Some applications require strict separation between organizations. For example, payroll or survey applications typically restrict users to a single organization to maintain data isolation for financial records — a 1:1 data model.
+
+Other applications prioritize collaboration across organizations. For instance, Notion allows users to join multiple organizations, enabling seamless collaboration between different teams and companies. — 1:N data model.
+
+Your data model choice affects key areas such as:
+
+1. Authentication flow - In a 1:1 model, users automatically access their organization. In a 1:N model, users must select which organization to access.
+
+2. Session management - The 1:1 model maintains a single organization context. The 1:N model tracks multiple organization contexts.
+
+3. Security implementation - The 1:1 model provides clear data isolation. The 1:N model requires careful permission management.
+
+## Migrations
+
+Start by understanding your app requirements and then choose the appropriate data model.
+
+<Steps>
+
+1. When planning your data model, you should determine if your application requires strict data isolation between organizations, consider how users will interact with multiple organizations, plan your authentication flow based on the chosen data model, design a session management strategy for organization context, and implement appropriate security measures and access controls.
+2. Review the [Organization and User API endpoints](https://docs.scalekit.dev/apis/#tag/users/POST/api/v1/organizations/{organization_id}/users) to understand how to create, update, and delete organizations and users.
+3. Consider a [no-down-time migration guide](https://www.example.com) if you can set up dual-write mechanism and run a backfill. {/* Refer: https://stytch.com/docs/b2b/guides/migrations/migrating-user-data */}
+
+</Steps>
+
+
+
+#### Considerations
+
+- For applications with both organization and individual users, create a dedicated organization for individual users.
+- Scalekit uses email addresses as the primary unique identifier even with different authentication methods. So, merge the user accounts before migrating to Scalekit.
+- The relationship between Organizations and Users is tracked using memberships. Scalekit returns the memberships information on the User object.
+- Export your organization and user data in your current auth system, contact support to import the data to Scalekit.
+
+## Link to your database using metadata
+
+Keep your existing database as the source of truth. Store your database's primary key of the user or organization in the `external_id` field to maintain the common identifier between Scalekit and your system.
+
+For extra data, use the `metadata` field to store custom key-value pair  when creating organizations and users. These fields are optional and available when you fetch the data later.

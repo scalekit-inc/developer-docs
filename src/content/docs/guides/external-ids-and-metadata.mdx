@@ -1,0 +1,95 @@
+---
+title: Managing organization identifiers & metadata
+sidebar:
+  label: External IDs & Metadata
+prev: false
+next: false
+topic: sso
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Applications often need to manage and track resources in their own systems. Scalekit provides two features to help with this:
+
+* **External IDs**: Associate your own identifiers with organizations
+* **Metadata**: Store custom key-value pairs with organizations
+
+### When to use external IDs and metadata
+
+Use these features when you need to:
+
+* Track organizations using your own identifiers instead of Scalekit's IDs
+* Store additional information about organizations like billing details or internal codes
+* Integrate Scalekit organizations with your existing systems
+
+### Add an external ID to an organization
+
+External IDs let you identify organizations using your own identifiers. You can set an external ID when creating or updating an organization.
+
+#### Create a new organization with an external ID
+
+This example shows how to create an organization with your custom identifier:
+
+```bash title="Create a new organization with an external ID"
+curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations \
+  --request POST \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "display_name": "Megasoft Inc",
+  "external_id": "CUST-12345-MGSFT",
+}'
+```
+
+#### Update an existing organization's external ID
+
+To change an organization's external ID, use the update endpoint:
+
+```bash title="Update an existing organization's external ID"
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/{id}' \
+  --request PATCH \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "display_name": "Megasoft Inc",
+  "external_id": "TENANT-12345-MGSFT",
+}'
+```
+
+### Add metadata to an organization
+
+Metadata lets you store custom information as key-value pairs. You can add metadata when creating or updating an organization.
+
+#### Create a new organization with metadata
+
+This example shows how to store billing information with a new organization:
+
+```bash title="Create a new organization with metadata"
+curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations \
+  --request POST \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "display_name": "Megasoft Inc",
+  "metadata": {
+    "invoice_email": "invoices@megasoft.com"
+  }
+}'
+```
+
+#### Update an existing organization's metadata
+
+To modify an organization's metadata, use the update endpoint:
+
+```bash title="Update an existing organization's metadata"
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/{id}' \
+  --request PATCH \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "display_name": "Megasoft Inc",
+  "metadata": {
+    "invoice_email": "billing@megasoft.com"
+  }
+}'
+```
+
+### View external IDs and metadata
+
+All organization endpoints that return organization details will include the external ID and metadata in their responses. This makes it easy to access your custom data when working with organizations.

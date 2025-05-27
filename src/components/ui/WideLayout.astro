@@ -1,0 +1,40 @@
+---
+// WideLayout.astro - A reusable component for wider page layouts
+export interface Props {
+  class?: string;
+  maxWidth?: string;
+}
+
+const {
+  class: className = '',
+  maxWidth = '75rem'
+} = Astro.props;
+---
+
+<div class={`wide-layout ${className}`} style={`--wide-max-width: ${maxWidth}`}>
+  <slot />
+</div>
+
+<style>
+  .wide-layout {
+    /* Break out of the parent container */
+    width: 100vw;
+    max-width: var(--wide-max-width, 75rem);
+    margin-left: 50%;
+    transform: translateX(-50%);
+    padding: 0 2rem;
+    box-sizing: border-box;
+  }
+
+  /* Ensure content inside uses full width */
+  .wide-layout > :global(*) {
+    max-width: 100%;
+  }
+
+  /* Responsive padding */
+  @media (max-width: 768px) {
+    .wide-layout {
+      padding: 0 1rem;
+    }
+  }
+</style>

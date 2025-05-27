@@ -1,0 +1,131 @@
+---
+title: Google Workspace
+tableOfContents:
+  minHeadingLevel: 3
+sidebar:
+  order: 4
+  label: "Google Workspace"
+  badge:
+    variant: note
+    text: SAML
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components'
+
+This guide walks you through configuring Google Workspace as your SAML identity provider for the application you are onboarding, enabling secure Single Sign-On for your users. You'll learn how to set up an enterprise application, configure SAML settings to the host application. By following these steps, your users will be able to seamlessly authenticate using their Google Workspace credentials.
+
+<Steps>
+
+1. ### Create a custom SAML app in Google Workspace
+
+   Google allows you to add custom SAML applications that connect with Scalekit over the SAML protocol. This is the first step in establishing a secure SSO connection.
+
+   1. Go to Google **Admin Console** (`admin.google.com`)
+   2. Select **Apps** → **Web and Mobile Apps**
+   3. Click **Add App** → **Add custom SAML app**
+
+   ![Custom SAML app](@/assets/docs/guides/sso-integrations/google-saml/0-google-saml.png)
+   *Creating a new custom SAML application in Google Workspace*
+
+   4. Provide an App Name (e.g., "YourApp") and upload an app icon if needed
+   5. Click **Continue**
+
+   Your SSO config portal connects with Google IdP using three essential pieces of information:
+   - **SSO URL**
+   - **Entity ID**
+   - **Certificate**
+
+   Copy these values from the Google console and paste them into your config portal.
+
+   ![Google IdP Details](@/assets/docs/guides/sso-integrations/google-saml/0.1-google-saml.png)
+   *Essential SAML configuration details from Google Workspace*
+
+2. ### Configure the Service Provider in Google Admin Console
+
+   In your SSO configuration portal:
+   1. Navigate to Single Sign-On (SSO) → Google Workspace → SAML 2.0
+   2. Select the organization you want to configure
+   3. Copy these critical details from the SSO settings:
+      - **ACS URL** (Assertion Consumer Service URL)
+      - **SP Entity ID** (Service Provider Entity ID)
+      - **SP Metadata URL**
+
+   ![SSO Config Portal](@/assets/docs/guides/sso-integrations/google-saml/1-google-saml.png)
+   *Service Provider configuration details in SSO portal*
+
+   In Google Admin Console:
+   1. Paste the copied details into their respective fields
+   2. Select **"Email"** as the **NameID format** (this serves as the primary user identifier during authentication)
+   3. Click **Continue**
+
+   ![Google Workspace](@/assets/docs/guides/sso-integrations/google-saml/1.1-google-saml.png)
+   *Configuring Service Provider details in Google Workspace*
+
+3. ### Configure Attribute Mapping
+
+   User profile attributes in Google IdP need to be mapped to your application's user attributes for seamless authentication. The essential attributes are:
+
+   - Email Address
+   - First Name
+   - Last Name
+
+   To configure these attributes:
+   1. Locate the **Attribute Mapping** section in your Identity Provider's application
+   2. Map the Google attributes to your application attributes as shown below
+
+   ![User profile attributes](@/assets/docs/guides/sso-integrations/google-saml/2.1-google-saml.png)
+   *Mapping user attributes between Google Workspace and your application*
+
+4. ### Assign Users and Groups
+
+   Control access to your application by assigning specific users or groups:
+
+   1. Go to the **User/Group assignment** section in your Identity Provider application
+   2. Select and assign the user groups that need access to your application via SSO
+
+   ![Group assignment](@/assets/docs/guides/sso-integrations/google-saml/2.2-google-saml.png)
+   *Assigning user groups for SSO access*
+
+5. ### Configure Identity Provider in SSO Portal
+
+   1. From your Google Workspace, copy the IdP details shown during custom app creation:
+
+   ![Google IdP details](@/assets/docs/guides/sso-integrations/google-saml/3.1-google-saml.png)
+   *Identity Provider details from Google Workspace*
+
+   2. In your SSO configuration portal:
+      - Navigate to Identity Provider Configuration
+      - Paste the Google IdP details into:
+        - Entity ID
+        - SSO URL
+        - x509 certificates
+
+   ![Update IdP details in SSO config portal](@/assets/docs/guides/sso-integrations/google-saml/3.2-google-saml.png)
+   *Updating Identity Provider configuration in SSO portal*
+
+   3. Click **Update** to save the configuration
+
+6. ### Test the Connection
+
+   Verify your SAML SSO configuration:
+
+   1. Click **Test Connection** in the SSO Configuration Portal
+   2. If successful, you'll see a confirmation message:
+
+   ![Test Single Sign On](@/assets/docs/guides/sso-integrations/google-saml/4-google-saml.png)
+   *Successful SSO connection test*
+
+   If there are any configuration issues, the test will identify them and provide guidance for correction.
+
+7. ### Enable SSO Connection
+
+   Once you've verified the configuration:
+
+   1. Click **Enable Connection** to activate SSO for your users
+
+   ![Enable SSO Connection](@/assets/docs/guides/sso-integrations/google-saml/5-google-saml.png)
+   *Enabling the SSO connection*
+
+</Steps>
+
+Congratulations! You have successfully configured Google SAML for your application. Your users can now securely authenticate using their Google Workspace credentials through Single Sign-On.

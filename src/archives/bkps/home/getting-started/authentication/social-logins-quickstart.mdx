@@ -1,0 +1,265 @@
+---
+title: Getting started with social connections
+sidebar:
+  label: "Social logins"
+---
+
+import { LinkButton, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+
+Single sign-on (SSO) enhances B2B SaaS application security and user experience by enabling secure authentication
+through an organization's identity provider (IdP). Some organizations use social identity providers like Google,
+Microsoft, GitHub, Salesforce etc.
+
+Scalekit enables your users login to your application with any of the social identity providers through OAuth 2.0. This
+quickstart guide will show you how to add social login (e.g., login with Google) functionality to your application with
+just a few lines of code.
+
+<figure>
+  ![How Scalekit works](@/assets/docs/common/social-connections/0.png)
+  <figcaption>Login with social connectors via Scalekit</figcaption>
+</figure>
+
+<Steps>
+
+1. ### Environment setup
+
+    Before diving in, make sure you have:
+
+    - Access to your Scalekit account and API credentials. [Set it up now](/home/setup-scalekit).
+    - Your app's codebase for implementing and testing changes
+
+   <InstallSDK />
+
+    Now you're ready to start integrating social connections into your app! Next, we'll cover how to use the SDK to
+    authenticate users.
+
+2. ### Authorize users
+
+    To start login with social connections, your app must redirect users to the Scalekit authorization URL with appropriate
+    social connection provider details.
+
+    Construct the authorization URL using the following query parameters:
+
+    | Parameter | Details |
+    | :-------- | :------ |
+    | <pre>redirect_uri</pre> | Where Scalekit sends users after IdP authentication. <br />Example: `https://your-saas-app.com/auth/callback` After the user is logged into the social provider, Scalekit redirects the user to this URI with one time authorization `code`. In the later section, we will explain how to use this unique `code` to fetch user details |
+    | <pre>client_id</pre> | Your app's unique Scalekit identifier which is mandatory for all requests. This uniquely identifies both your app and the environment (staging, prod). |
+    | <pre>provider</pre> | Informs Scalekit which social provider to use. You can use `provider` as the request parameter with value being the unique code of the provider. For e.g., `microsoft`. <br />Currently, we support the following providers: `google`, `microsoft`, `github`, `gitlab`, `linkedin`, `salesforce` |
+
+    ```sh title="Example authorization URL"
+    https://auth.scalekit.com/authorize?
+      client_id=skc_122056050118122349527&
+      redirect_uri=https://yourapp.com/auth/callback&
+      provider=google
+    ```
+
+    Next, construct your authorization URL with these parameters and redirect users to this URL when they try to log in.
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="nodejs" label="Node.js">
+
+    ```javascript showLineNumbers
+    import { Scalekit } from '@scalekit-sdk/node';
+
+    // Initialize the SDK client
+    const scalekit = new Scalekit('<SCALEKIT_ENVIRONMENT_URL>', '<SCALEKIT_CLIENT_ID>', '<SCALEKIT_CLIENT_SECRET>');
+
+    const authorizationURL = scalekit.getAuthorizationUrl(redirectUri, {
+      provider: 'google',
+      state: state, // optional
+    });
+
+    // Redirect the user to this authorizationURL
+    ```
+
+    </TabItem>
+    <TabItem value="py" label="Python">
+
+    ```python showLineNumbers
+    from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
+
+    # Initialize the SDK client
+    scalekit_client = ScalekitClient(
+      '<SCALEKIT_ENVIRONMENT_URL>',
+      '<SCALEKIT_CLIENT_ID>',
+      '<SCALEKIT_CLIENT_SECRET>'
+    )
+
+    options = AuthorizationUrlOptions()
+
+    options.provider = 'google'
+
+    authorization_url = scalekit_client.get_authorization_url(
+      redirect_uri=<redirect_uri>,
+      options=options
+    )
+
+    # Redirect the user to this authorization URL
+    ```
+
+    </TabItem>
+    <TabItem value="golang" label="Go">
+
+    ```go showLineNumbers
+    import (
+      "github.com/scalekit/scalekit-sdk-go"
+    )
+
+    func main() {
+      scalekitClient := scalekit.NewScalekitClient(
+        "<SCALEKIT_ENVIRONMENT_URL>",
+        "<SCALEKIT_CLIENT_ID>",
+        "<SCALEKIT_CLIENT_SECRET>"
+      )
+
+      options := scalekitClient.AuthorizationUrlOptions{}
+      // Pass the social login provider details while constructing the authorization URL.
+      options.Provider = "google"
+
+      authorizationURL := scalekitClient.GetAuthorizationUrl(
+        redirectUrl,
+        options,
+      )
+      // Next step is to redirect the user to this authorization URL
+    }
+    ```
+
+    </TabItem>
+    <TabItem value="java" label="Java">
+
+    ```java showLineNumbers
+    package com.scalekit;
+
+    import com.scalekit.internal.http.AuthorizationUrlOptions;
+
+    public class Main {
+
+      public static void main(String[] args) {
+        ScalekitClient scalekitClient = new ScalekitClient(
+          "<SCALEKIT_ENVIRONMENT_URL>",
+          "<SCALEKIT_CLIENT_ID>",
+          "<SCALEKIT_CLIENT_SECRET>"
+        );
+        AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+        options.setProvider("google");
+        try {
+          // Pass the social login provider details while constructing the authorization URL.
+          String url = scalekitClient.authentication().getAuthorizationUrl(redirectUrl, options).toString();
+        } catch (Exception e) {
+          System.out.println(e.getMessage());
+        }
+      }
+    }
+    ```
+
+    </TabItem>
+    </Tabs>
+
+    Finally, handle the callback at your `redirect_uri` to complete the authentication.
+
+3. ### Fetch user details
+
+    After a successful SSO, Scalekit redirects the user to your `redirect_uri` with a unique `code` in the browser. Exchange the `code` for user profile details (on the serverside).
+
+    Here's how to turn that `code` into user data:
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="nodejs" label="Node.js">
+
+    ```javascript showLineNumbers
+    const { code, state } = req.query;
+
+    if (error) {
+      // Handle errors
+    }
+
+    const res = await scalekit.authenticateWithCode(code, redirectUri);
+
+    // res.user has the authenticated user's details
+    const userEmail = res.user.email;
+
+    // Next step: create a session for this user and allow access
+    ```
+
+    </TabItem>
+    <TabItem value="py" label="Python">
+
+    ```python showLineNumbers
+    code = request.args.get('code')
+    error = request.args.get('error')
+    error_description = request.args.get('error_description')
+
+    if error:
+        raise Exception(error_description)
+
+    result = scalekit_client.authenticate_with_code(
+      code,
+      <redirect_uri>
+    )
+
+    # result.user has the authenticated user's details
+    user_email = result.user.email
+
+    # Next step: create a session for this user and allow access
+    ```
+
+    </TabItem>
+    <TabItem value="golang" label="Go">
+
+    ```go showLineNumbers
+    code := r.URL.Query().Get("code")
+    error := r.URL.Query().Get("error")
+    errorDescription := r.URL.Query().Get("error_description")
+
+    if error != "" {
+      // Handle errors and exit
+    }
+
+    res, err := sc.AuthenticateWithCode(code, redirectUrl)
+    if err != nil {
+      // Handle errors and exit
+    }
+
+    // res.User has the authenticated user's details
+    userEmail := res.User.Email
+
+    // Next step: create a session for this user and allow access
+    ```
+
+    </TabItem>
+
+    <TabItem value="java" label="Java">
+
+    ```java showLineNumbers
+    String code = request.getParameter("code");
+    String error = request.getParameter("error");
+    String errorDescription = request.getParameter("error_description");
+    if (error != null && !error.isEmpty()) {
+      // Handle errors
+      return;
+    }
+    try {
+      AuthenticationResponse res = scalekitClient.authentication().authenticateWithCode(code, redirectUrl);
+      // res.getIdTokenClaims() has the authenticated user's details
+      String userEmail = res.getIdTokenClaims().getEmail();
+
+    } catch (Exception e) {
+      // Handle errors
+    }
+
+    // Next step: create a session for this user and allow access
+    ```
+
+    </TabItem>
+    </Tabs>
+
+</Steps>
+
+<Aside type="note" title="Scalekit does not store user profile information">
+
+- The `idToken` is a JWT containing user profile information, while the `accessToken` is used for API calls.
+
+- For security and compliance reasons, Scalekit does not store user profile information in persistent databases.
+
+</Aside>

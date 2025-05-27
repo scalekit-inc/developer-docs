@@ -1,0 +1,46 @@
+---
+// SideBySide.astro - A reusable component for side-by-side content
+export interface Props {
+  class?: string;
+  gap?: string;
+  leftClass?: string;
+  rightClass?: string;
+}
+
+const {
+  class: className = '',
+  gap = '2rem',
+  leftClass = '',
+  rightClass = ''
+} = Astro.props;
+---
+
+<div class={`side-by-side ${className}`} style={`--gap: ${gap}`}>
+  <div class={`left-content ${leftClass}`}>
+    <slot name="left" />
+  </div>
+  <div class={`right-content ${rightClass}`}>
+    <slot name="right" />
+  </div>
+</div>
+
+<style>
+  .side-by-side {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap, 2rem);
+    margin: 2rem 0;
+    width: 100%;
+  }
+
+  .left-content,
+  .right-content {
+    min-width: 0;
+  }
+
+  @media (max-width: 768px) {
+    .side-by-side {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
