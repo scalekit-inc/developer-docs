@@ -1,7 +1,6 @@
 export const redirects = {
   // SSO
   '/sso/quickstart-admin-portal': '/guides/sso/admin-portal',
-  '/sso/social-login': '/social-logins/quickstart/',
 
   // SSO Guides
   '/sso/guides/setup-sso/implement-idp-initiated-sso':
