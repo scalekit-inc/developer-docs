@@ -109,10 +109,7 @@ export const sidebar = [
         items: [
           'guides/m2m/m2m-basics',
           'guides/m2m/scopes',
-          {
-            label: 'How to',
-            items: ['guides/m2m/api-auth-m2m-clients'],
-          },
+          'guides/m2m/api-auth-m2m-clients',
         ],
       },
     ],
@@ -181,22 +178,17 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Guides',
+        label: 'Support',
         items: [
+          'support/contact-us',
           {
-            label: 'Support',
-            items: [
-              'support/contact-us',
-              {
-                label: 'Release notes',
-                link: 'https://www.scalekit.com/product-updates',
-              },
-              {
-                label: 'Status',
-                link: 'https://scalekit.statuspage.io/',
-                attrs: { target: '_blank', rel: 'noopener' },
-              },
-            ],
+            label: 'Release notes',
+            link: 'https://www.scalekit.com/product-updates',
+          },
+          {
+            label: 'Status',
+            link: 'https://scalekit.statuspage.io/',
+            attrs: { target: '_blank', rel: 'noopener' },
           },
         ],
       },
