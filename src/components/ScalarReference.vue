@@ -12,7 +12,7 @@ import '../styles/api-reference.css';
     <header class="custom-header scalar-app">
       <a href="https://docs.scalekit.com">
         <img
-          src="/src/assets/images/logos/scalekit-logo-green-dark.svg"
+          src="/assets/logos/scalekit-logo-green-dark.svg"
           alt="Scalekit Logo"
           height="45"
         />
