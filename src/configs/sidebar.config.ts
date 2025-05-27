@@ -124,6 +124,10 @@ export const sidebar = [
         label: 'Getting started',
         items: ['fsa/quickstart'],
       },
+      {
+        label: 'Guides',
+        items: ['guides/fsa/redirects'],
+      },
     ],
   },
   {
