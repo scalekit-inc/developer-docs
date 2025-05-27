@@ -1,13 +1,7 @@
 {
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
-  "schemes": [
-    "https"
-  ],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "schemes": ["https"],
   "swagger": "2.0",
   "info": {
     "description": "# Introduction\n\nThe Scalekit API is a RESTful API that enables you to manage organizations, users, and authentication settings. All requests must use HTTPS.\n\n# Base URL\n\nAll API requests use the following base URLs:\n\n```\nhttps://{environment}.scalekit.dev (Development)\nhttps://{environment}.scalekit.com (Production)\nhttps://auth.example.com (Custom domain)\n```\n\nScalekit operates two separate environments: Development and Production. Resources cannot be moved between environments.\n\n# Authentication\n\nThe Scalekit API uses OAuth 2.0 Client Credentials for authentication.\n\nGetting an access token\n\n1. Get your credentials from the [Scalekit Dashboard](https://app.scalekit.com):\n\n   - environment\n   - client_id\n   - client_secret\n\n2. Request an access token:\n\n```shell\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/oauth/token \\\n  -X POST \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  -d 'client_id={client_id}' \\\n  -d 'client_secret={client_secret}' \\\n  -d 'grant_type=client_credentials'\n```\n\n3. Use the access token in API requests:\n\n```shell\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/api/v1/organizations \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer {access_token}'\n```\n\nThe response includes an access token:\n\n```json\n{\n\t\"access_token\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6InNua181Ok4OTEyMjU2NiIsInR5cCI6IkpXVCJ9...\",\n\t\"token_type\": \"Bearer\",\n\t\"expires_in\": 86399,\n\t\"scope\": \"openid\"\n}\n```\n\n# Response Codes\n\nThe API uses standard HTTP status codes:\n\n| Code        | Description          |\n| ----------- | -------------------- |\n| 200/201     | Success              |\n| 400         | Invalid request      |\n| 401         | Authentication error |\n| 404         | Resource not found   |\n| 429         | Rate limit exceeded  |\n| 500/501/504 | Server error         |\n\nError responses include detailed information:\n\n```json\n{\n\t\"code\": 16,\n\t\"message\": \"Token empty\",\n\t\"details\": [\n\t\t{\n\t\t\t\"@type\": \"type.googleapis.com/scalekit.v1.errdetails.ErrorInfo\",\n\t\t\t\"error_code\": \"UNAUTHENTICATED\"\n\t\t}\n\t]\n}\n```\n",
@@ -28,9 +22,7 @@
     "/api/v1/connections": {
       "get": {
         "description": "Retrieves a list of connections in the environment",
-        "tags": [
-          "Connections"
-        ],
+        "tags": ["Connections"],
         "summary": "List Connections",
         "operationId": "ConnectionService_ListConnections",
         "parameters": [
@@ -88,9 +80,7 @@
     "/api/v1/organizations": {
       "get": {
         "description": "Retrieve a paginated list of organizations within your environment. The response includes a `page_token` that can be used to access subsequent pages of results.",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "List Organizations",
         "externalDocs": {
           "description": "Learn more about organization listing",
@@ -155,9 +145,7 @@
       },
       "post": {
         "description": "Creates a new organization in your environment. Use this endpoint to add a new tenant that can be configured with various settings and metadata",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "Create an Organization",
         "operationId": "OrganizationService_CreateOrganization",
         "parameters": [
@@ -207,9 +195,7 @@
     "/api/v1/organizations/{id}": {
       "get": {
         "description": "Retrieves organization details by Scalekit ID, including name, region, metadata, and settings",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "Get Organization details",
         "operationId": "OrganizationService_GetOrganization",
         "parameters": [
@@ -254,9 +240,7 @@
       },
       "delete": {
         "description": "Remove an existing organization from the environment using its unique identifier",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "Delete an Organization",
         "operationId": "OrganizationService_DeleteOrganization",
         "parameters": [
@@ -299,9 +283,7 @@
       },
       "patch": {
         "description": "Updates an organization's display name, external ID, or metadata. Requires a valid organization identifier. Region code cannot be modified through this endpoint.",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "Update Organization details",
         "operationId": "OrganizationService_UpdateOrganization",
         "parameters": [
@@ -357,9 +339,7 @@
     "/api/v1/organizations/{id}/portal_links": {
       "put": {
         "description": "Creates a time-limited Admin Portal URL for IT administrators to configure and manage Single Sign-On (SSO) connections within their organization. Generated links expire after 7 days (168 hours).",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "Generate Admin Portal Link",
         "operationId": "OrganizationService_GeneratePortalLink",
         "parameters": [
@@ -373,10 +353,7 @@
           {
             "type": "array",
             "items": {
-              "enum": [
-                "dir_sync",
-                "sso"
-              ],
+              "enum": ["dir_sync", "sso"],
               "type": "string"
             },
             "collectionFormat": "multi",
@@ -420,9 +397,7 @@
     "/api/v1/organizations/{id}/settings": {
       "patch": {
         "description": "Updates configuration settings for an organization. Supports modifying SSO configuration, directory synchronization settings, and session parameters. Requires organization ID and the specific settings to update.",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "Toggle Organization settings",
         "operationId": "OrganizationService_UpdateOrganizationSettings",
         "parameters": [
@@ -498,9 +473,7 @@
     "/api/v1/organizations/{organization_id}/connections/{id}": {
       "get": {
         "description": "Retrieves the complete configuration and status details for a specific connection by its ID within an organization. Returns all connection properties including provider settings, protocols, and current status.",
-        "tags": [
-          "Connections"
-        ],
+        "tags": ["Connections"],
         "summary": "Get Connection details",
         "operationId": "ConnectionService_GetConnection",
         "parameters": [
@@ -554,9 +527,7 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:disable": {
       "patch": {
         "description": "Deactivate an existing connection for the specified organization. When disabled, users cannot authenticate using this connection. This endpoint changes the connection state from enabled to disabled without modifying other configuration settings",
-        "tags": [
-          "Connections"
-        ],
+        "tags": ["Connections"],
         "summary": "Disable Organization Connection",
         "operationId": "ConnectionService_DisableConnection",
         "parameters": [
@@ -610,9 +581,7 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:enable": {
       "patch": {
         "description": "Activate an existing connection for the specified organization. When enabled, users can authenticate using this connection. This endpoint changes the connection state from disabled to enabled without modifying other configuration settings",
-        "tags": [
-          "Connections"
-        ],
+        "tags": ["Connections"],
         "summary": "Enable Organization Connection",
         "operationId": "ConnectionService_EnableConnection",
         "parameters": [
@@ -665,9 +634,7 @@
     },
     "/api/v1/organizations/{organization_id}/directories": {
       "get": {
-        "tags": [
-          "Directory"
-        ],
+        "tags": ["Directory"],
         "summary": "List Organization Directories",
         "operationId": "DirectoryService_ListDirectories",
         "parameters": [
@@ -714,9 +681,7 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/groups": {
       "get": {
         "description": "Retrieves all groups from a specified directory. Use this endpoint to view group structures from your connected identity provider.",
-        "tags": [
-          "Directory"
-        ],
+        "tags": ["Directory"],
         "summary": "List Directory Groups",
         "operationId": "DirectoryService_ListDirectoryGroups",
         "parameters": [
@@ -802,9 +767,7 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/users": {
       "get": {
         "description": "Retrieves a list of all users within a specified directory for an organization. This endpoint allows you to view user accounts associated with your connected Directory Providers.",
-        "tags": [
-          "Directory"
-        ],
+        "tags": ["Directory"],
         "summary": "List Directory Users",
         "operationId": "DirectoryService_ListDirectoryUsers",
         "parameters": [
@@ -890,9 +853,7 @@
     "/api/v1/organizations/{organization_id}/directories/{id}": {
       "get": {
         "description": "Retrieves detailed information about a specific directory within an organization",
-        "tags": [
-          "Directory"
-        ],
+        "tags": ["Directory"],
         "summary": "Get Directory details",
         "operationId": "DirectoryService_GetDirectory",
         "parameters": [
@@ -946,9 +907,7 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:disable": {
       "patch": {
         "description": "Stops synchronization of users and groups from a specified directory within an organization. This operation prevents further updates from the connected Directory provider",
-        "tags": [
-          "Directory"
-        ],
+        "tags": ["Directory"],
         "summary": "Disable a Directory",
         "operationId": "DirectoryService_DisableDirectory",
         "parameters": [
@@ -1002,9 +961,7 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:enable": {
       "patch": {
         "description": "Activates a directory within an organization, allowing it to synchronize users and groups with the connected Directory provider",
-        "tags": [
-          "Directory"
-        ],
+        "tags": ["Directory"],
         "summary": "Enable a Directory",
         "operationId": "DirectoryService_EnableDirectory",
         "parameters": [
@@ -1059,24 +1016,15 @@
   "definitions": {
     "commonsRegionCode": {
       "type": "string",
-      "enum": [
-        "US",
-        "EU"
-      ]
+      "enum": ["US", "EU"]
     },
     "connectionsCodeChallengeType": {
       "type": "string",
-      "enum": [
-        "NUMERIC",
-        "ALPHANUMERIC"
-      ]
+      "enum": ["NUMERIC", "ALPHANUMERIC"]
     },
     "connectionsConfigurationType": {
       "type": "string",
-      "enum": [
-        "DISCOVERY",
-        "MANUAL"
-      ]
+      "enum": ["DISCOVERY", "MANUAL"]
     },
     "connectionsConnection": {
       "type": "object",
@@ -1179,21 +1127,11 @@
     },
     "connectionsConnectionStatus": {
       "type": "string",
-      "enum": [
-        "DRAFT",
-        "IN_PROGRESS",
-        "COMPLETED"
-      ]
+      "enum": ["DRAFT", "IN_PROGRESS", "COMPLETED"]
     },
     "connectionsConnectionType": {
       "type": "string",
-      "enum": [
-        "OIDC",
-        "SAML",
-        "PASSWORD",
-        "OAUTH",
-        "PASSWORDLESS"
-      ]
+      "enum": ["OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS"]
     },
     "connectionsGetConnectionResponse": {
       "type": "object",
@@ -1249,10 +1187,7 @@
           "items": {
             "type": "string"
           },
-          "example": [
-            "yourapp.com",
-            "yourworkspace.com"
-          ]
+          "example": ["yourapp.com", "yourworkspace.com"]
         },
         "enabled": {
           "description": "Whether the connection is currently active for organization users",
@@ -1302,12 +1237,7 @@
     },
     "connectionsNameIdFormat": {
       "type": "string",
-      "enum": [
-        "UNSPECIFIED",
-        "EMAIL",
-        "TRANSIENT",
-        "PERSISTENT"
-      ]
+      "enum": ["UNSPECIFIED", "EMAIL", "TRANSIENT", "PERSISTENT"]
     },
     "connectionsOAuthConnectionConfig": {
       "type": "object",
@@ -1348,10 +1278,7 @@
           "items": {
             "type": "string"
           },
-          "example": [
-            "openid",
-            "profile"
-          ]
+          "example": ["openid", "profile"]
         },
         "token_uri": {
           "description": "Token URI",
@@ -1436,10 +1363,7 @@
           "items": {
             "$ref": "#/definitions/connectionsOIDCScope"
           },
-          "example": [
-            "openid",
-            "profile"
-          ]
+          "example": ["openid", "profile"]
         },
         "token_auth_type": {
           "description": "Token Auth Type",
@@ -1460,13 +1384,7 @@
     },
     "connectionsOIDCScope": {
       "type": "string",
-      "enum": [
-        "openid",
-        "profile",
-        "email",
-        "address",
-        "phone"
-      ]
+      "enum": ["openid", "profile", "email", "address", "phone"]
     },
     "connectionsPasswordLessConfig": {
       "type": "object",
@@ -1508,18 +1426,11 @@
     },
     "connectionsPasswordlessType": {
       "type": "string",
-      "enum": [
-        "LINK",
-        "OTP",
-        "LINK_OTP"
-      ]
+      "enum": ["LINK", "OTP", "LINK_OTP"]
     },
     "connectionsRequestBinding": {
       "type": "string",
-      "enum": [
-        "HTTP_POST",
-        "HTTP_REDIRECT"
-      ]
+      "enum": ["HTTP_POST", "HTTP_REDIRECT"]
     },
     "connectionsSAMLConnectionConfigResponse": {
       "type": "object",
@@ -1663,10 +1574,7 @@
     },
     "connectionsTokenAuthType": {
       "type": "string",
-      "enum": [
-        "URL_PARAMS",
-        "BASIC_AUTH"
-      ]
+      "enum": ["URL_PARAMS", "BASIC_AUTH"]
     },
     "directoriesAttributeMapping": {
       "type": "object",
@@ -1829,11 +1737,7 @@
     },
     "directoriesDirectoryType": {
       "type": "string",
-      "enum": [
-        "SCIM",
-        "LDAP",
-        "POLL"
-      ]
+      "enum": ["SCIM", "LDAP", "POLL"]
     },
     "directoriesDirectoryUser": {
       "type": "object",
@@ -2032,9 +1936,7 @@
     },
     "directoriesSecretStatus": {
       "type": "string",
-      "enum": [
-        "INACTIVE"
-      ]
+      "enum": ["INACTIVE"]
     },
     "directoriesStats": {
       "type": "object",
@@ -2093,10 +1995,7 @@
       "description": "- dir_sync: dir_sync enables directory synchronization configuration in the portal\n - sso: sso enables Single Sign-On (SSO) configuration in the portal",
       "type": "string",
       "title": "Feature represents the available features that can be enabled for an organization's portal link",
-      "enum": [
-        "dir_sync",
-        "sso"
-      ]
+      "enum": ["dir_sync", "sso"]
     },
     "organizationsGeneratePortalLinkResponse": {
       "type": "object",
@@ -2168,9 +2067,7 @@
     },
     "organizationsOrganization": {
       "type": "object",
-      "required": [
-        "create_time"
-      ],
+      "required": ["create_time"],
       "properties": {
         "create_time": {
           "description": "Timestamp when the organization was created",
@@ -2264,10 +2161,7 @@
       "description": "Controls the activation state of a specific organization feature",
       "type": "object",
       "title": "Organization Feature Toggle",
-      "required": [
-        "name",
-        "enabled"
-      ],
+      "required": ["name", "enabled"],
       "properties": {
         "enabled": {
           "description": "Whether the feature is enabled (true) or disabled (false) for this organization",
@@ -2348,24 +2242,12 @@
       "name": "Organizations"
     },
     {
-      "description": "User management endpoints for individual accounts within the organization. These endpoints allow for creating, reading, updating, and deleting user accounts, as well as managing user roles and permissions for accessing organizational resources.",
-      "name": "Users"
-    },
-    {
       "description": "The Directory API lets you connect external identity providers to your organizations. Use these endpoints to view users and groups, enable or disable directory connections, and configure access settings. Supports identity systems like Okta, Microsoft Entra ID, and Google Workspace through standard protocols.",
       "name": "Directory"
     },
     {
       "description": " Connection represents a unique Single Sign-on instance for an Organization. Connection has the configuration needed to establish an SSO and exchange user information securely between Scalekit and your customer's Identity Provider. Depending on the connection type parameter, the corresponding configuration details are found in `oidc_config` or `saml_config` parameter.\n\u003c!--\n**Connection Attributes**\n\n| Attribute Name | Attribute Description |\n|---|---|\n| `id`\u003cbr\u003e_string_ | Unique ID of an SSO Connection. This attribute is required for all API operations to be performed against this connection.  |\n| `provider`\u003cbr\u003e_ENUM_ | Name of the Identity Provider. Possible Values are: `OKTA`, `GOOGLE`, `MICROSOFT_AD`, `AUTH0`, `ONELOGIN`, `PING_IDENTITY`, `JUMPCLOUD`, `CUSTOM` |\n| `type`\u003cbr\u003e_ENUM_ | Protocol type that is used for this connection. Possible values are `SAML` or `OIDC` |\n| `status`\u003cbr\u003e_ENUM_ | Indicates the configuration progress status of the SSO Connection. Possible Values are `DRAFT`, `INPROGRESS`, `COMPLETED`. \u003cbr\u003e_Note_: This doesn't indicate whether this connection is active or not. |\n| `enabled`\u003cbr\u003e_boolean_ | Indicates whether this connection is active or not. Users can only login via active SSO connections. |\n| `organization_id`\u003cbr\u003e_string_ | Organization ID to which this SSO connection belongs to. |\n| `saml_config`\u003cbr\u003e_Object_ | If this connection is of type `SAML`, the configuration details are found in this object. |\n| `oidc_config`\u003cbr\u003e_Object_ | If this connection is of type `OIDC`, the configuration details are found in this object. |\n| `attribute_mapping`\u003cbr\u003e_Object_ | Array of attribute mappings using which the user information received from the Identity Provider is normalized. Example: \u003ccode\u003e \u003cbr/\u003e{ \u003cbr/\u003e\u0026nbsp;\u0026nbsp; \"email\": \"email\",\u003cbr/\u003e\u0026nbsp;\u0026nbsp; \"family_name\": \"lastName\", \u003cbr/\u003e\u0026nbsp;\u0026nbsp; \"given_name\": \"firstName\",\u003cbr/\u003e\u0026nbsp;\u0026nbsp;\u0026nbsp;\"sub\": \"nameid\" \u003cbr/\u003e} \u003c/code\u003e |\n| `create_time` | Timestamp at which this connection record was created in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. For Example: `2021-10-05T14:48:00.000Z` |\n| `update_time`\u003cbr\u003e_string_ | Timestamp at which this connection record was last updated in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. For Example: `2021-10-10T14:48:00.000Z` | --\u003e\n",
       "name": "Connections"
-    },
-    {
-      "description": "Endpoints for managing client application configurations. Registered client applications can use these endpoints to retrieve and modify their configuration settings, including redirect URIs and other client-specific parameters.",
-      "name": "Client Configs"
-    },
-    {
-      "description": "Endpoints for managing roles and permissions for users and organizations. More APIs coming soon",
-      "name": "Roles"
     }
   ],
   "externalDocs": {
