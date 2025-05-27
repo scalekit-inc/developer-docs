@@ -12,14 +12,12 @@ import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-s
 import starlightThemeRapide from 'starlight-theme-rapide';
 import starlightLlmsTxt from 'starlight-llms-txt';
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config';
-import { redirects } from './src/configs/redirects.config';
 
 import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://docs.scalekit.dev',
-  redirects,
   integrations: [
     starlight({
       title: 'Scalekit Docs',
@@ -105,14 +103,29 @@ export default defineConfig({
               }
             }
 
-            // Add iframe detection on page load
-            document.addEventListener('DOMContentLoaded', function() {
-              // Only apply iframe styling if in an iframe AND inprouduct=true parameter is present
-              if (inIframe() && window.location.search.includes('inproduct=true')) {
+            // Function to check and apply iframe styling
+            function applyIframeStyles() {
+              const urlParams = new URLSearchParams(window.location.search);
+              const hasInproductParam = urlParams.has('inproduct') && urlParams.get('inproduct') === 'true';
+              const storedInproduct = sessionStorage.getItem('inproduct') === 'true';
+
+              // If we have the parameter in URL, store it in sessionStorage
+              if (hasInproductParam) {
+                sessionStorage.setItem('inproduct', 'true');
+              }
+
+              // Apply iframe styling if in an iframe AND (inproduct=true parameter is present OR stored in sessionStorage)
+              if (inIframe() && (hasInproductParam || storedInproduct)) {
                 document.documentElement.setAttribute('data-theme', 'light');
                 document.documentElement.classList.add('in-iframe');
               }
-            });
+            }
+
+            // Add iframe detection on page load
+            document.addEventListener('DOMContentLoaded', applyIframeStyles);
+
+            // Also check on navigation changes (for SPAs or dynamic content)
+            window.addEventListener('popstate', applyIframeStyles);
           `,
         },
         // remove this when going live
