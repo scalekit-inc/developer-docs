@@ -13,7 +13,7 @@ import '../styles/api-reference.css';
       <a href="https://docs.scalekit.com">
         <img
           src="/assets/logos/scalekit-logo-green-dark.svg"
-          alt="Scalekit Logo"
+          alt="Scalekit API Reference"
           height="45"
         />
       </a>
@@ -21,9 +21,15 @@ import '../styles/api-reference.css';
         <a
           href="https://github.com/scalekit-developers/api-collections"
           style="text-decoration: none"
+          target="_blank"
+          rel="noopener noreferrer"
           >Postman Collections</a
         >
-        <a href="https://docs.scalekit.com" style="text-decoration: none"
+        <a
+          href="https://docs.scalekit.com"
+          style="text-decoration: none"
+          target="_blank"
+          rel="noopener noreferrer"
           >Back to Docs</a
         >
       </nav>
