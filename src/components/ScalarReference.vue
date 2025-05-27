@@ -4,7 +4,7 @@ import '@scalar/api-reference/style.css';
 import '@fontsource-variable/plus-jakarta-sans';
 import '@fontsource-variable/space-grotesk';
 import '@fontsource-variable/inter';
-import '../styles/api-reference.css';
+import '@/styles/api-reference.css';
 </script>
 
 <template>
@@ -41,7 +41,7 @@ import '../styles/api-reference.css';
           theme: 'saturn',
           hideTestRequestButton: true,
           hideModels: true,
-          hideDarkModeToggle: false,
+          hideDarkModeToggle: true,
           defaultOpenAllTags: true,
           hiddenClients: [
             'httpclient',
