@@ -115,6 +115,18 @@ export const sidebar = [
     ],
   },
   {
+    label: 'Full Stack Auth',
+    id: 'full-stack-auth',
+    link: '/fsa/quickstart',
+    icon: 'codePen',
+    items: [
+      {
+        label: 'Getting started',
+        items: ['fsa/quickstart'],
+      },
+    ],
+  },
+  {
     label: 'APIs & SDKs',
     id: 'dev-kit',
     link: '/dev-kit/',
