@@ -36,6 +36,7 @@ export const redirects = {
   '/scim/gbac': '/guides/directory/group-based-role-assignment/',
   '/scim/explore-sample-apps': '/directory/code-examples/',
   '/scim/domain-and-theme-customization': '/guides/custom-domain/',
+  '/scim/in-product-quickstart': '/directory/scim/quickstart/',
 
   // M2M
   '/m2m/overview': '/guides/m2m/overview/',
