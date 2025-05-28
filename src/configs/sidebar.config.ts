@@ -117,6 +117,7 @@ export const sidebar = [
   {
     label: 'Full Stack Auth',
     id: 'full-stack-auth',
+    badge: { text: 'Beta', variant: 'note' },
     link: '/fsa/quickstart',
     icon: 'codePen',
     items: [
