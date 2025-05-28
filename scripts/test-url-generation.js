@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { extractApiRecords } from './algolia-api-indexer.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -17,6 +16,63 @@ function loadSwaggerSpec() {
   );
   const swaggerContent = fs.readFileSync(swaggerPath, 'utf8');
   return JSON.parse(swaggerContent);
+}
+
+// Generate URL fragment for API endpoint
+function generateUrlFragment(path, method, tags) {
+  const tag = tags && tags[0] ? tags[0].toLowerCase() : 'api';
+  const encodedPath = path.replace(/\{([^}]+)\}/g, '%7B$1%7D');
+  return `#tag/${tag}/${method.toUpperCase()}${encodedPath}`;
+}
+
+// Extract and structure API records from Swagger
+export function extractApiRecords(swagger) {
+  const records = [];
+  const baseUrl = 'https://docs.scalekit.com/apis/';
+
+  // Process each API endpoint
+  Object.entries(swagger.paths).forEach(([path, methods]) => {
+    Object.entries(methods).forEach(([method, operation]) => {
+      if (!operation || typeof operation !== 'object') return;
+
+      const {
+        summary,
+        description,
+        tags = [],
+        operationId,
+        parameters = [],
+      } = operation;
+
+      const tag = tags[0] || 'API';
+      const urlFragment = generateUrlFragment(path, method, tags);
+      const fullUrl = baseUrl + urlFragment;
+
+      // Create main endpoint record
+      const endpointRecord = {
+        objectID:
+          operationId || `${method}-${path.replace(/[^a-zA-Z0-9]/g, '-')}`,
+        title: summary || `${method.toUpperCase()} ${path}`,
+        description: description || summary || '',
+        content: `${method.toUpperCase()} ${path} - ${
+          description || summary || ''
+        }`,
+        url: fullUrl,
+        type: 'api-endpoint',
+        method: method.toUpperCase(),
+        path: path,
+        tag: tag,
+        hierarchy: {
+          lvl0: 'API Reference',
+          lvl1: `${tag} API`,
+          lvl2: summary || `${method.toUpperCase()} ${path}`,
+        },
+      };
+
+      records.push(endpointRecord);
+    });
+  });
+
+  return records;
 }
 
 // Test URL generation
