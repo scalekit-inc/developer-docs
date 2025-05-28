@@ -47,6 +47,10 @@ export const redirects = {
 
   // integrations
   '/integrations': '/guides/integrations/sso-integrations/',
+  '/integrations/saml': '/guides/integrations/sso-integrations/generic-saml/',
+  '/integrations/oidc': '/guides/integrations/sso-integrations/generic-oidc/',
+  '/integrations/adfs-saml':
+    '/guides/integrations/sso-integrations/microsoft-ad-fs/',
 
   // auth systems
   '/integrations/auth0/': '/guides/integrations/auth-systems/auth0/',
@@ -65,12 +69,18 @@ export const redirects = {
     '/guides/integrations/scim-integrations/azure-scim/',
   '/integrations/okta-scim/':
     '/guides/integrations/scim-integrations/okta-scim/',
+  '/integrations/onelogin-scim':
+    '/guides/integrations/scim-integrations/onelogin/',
   '/integrations/scim-connections/google-dir-sync/':
     '/guides/integrations/scim-integrations/google-dir-sync/',
   '/integrations/scim-connections/jumpcloud/':
     '/guides/integrations/scim-integrations/jumpcloud/',
   '/integrations/google-saml':
     '/guides/integrations/sso-integrations/google-saml/',
+  '/integrations/pingidentity-saml':
+    '/guides/integrations/sso-integrations/pingidentity-saml/',
+  '/integrations/jumpcloud-saml':
+    '/guides/integrations/sso-integrations/jumpcloud-saml/',
 
   // social logins
   '/social-logins': '/social-logins/quickstart/',
