@@ -18,7 +18,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://docs.scalekit.dev',
+  site: 'https://docs.scalekit.com',
   redirects,
   integrations: [
     starlight({
