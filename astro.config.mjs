@@ -112,9 +112,15 @@ export default defineConfig({
                 document.documentElement.setAttribute('data-theme', 'light');
                 document.documentElement.classList.add('in-iframe');
 
-                // Add data-zoom-off to all images
-                document.querySelectorAll('img').forEach(img => {
-                  img.setAttribute('data-zoom-off', '');
+                // Remove zoom functionality from images in iframe
+                document.querySelectorAll('starlight-image-zoom-zoomable').forEach(el => {
+                  const img = el.querySelector('img');
+                  const btn = el.querySelector('button');
+                  if (btn) btn.remove();
+                  if (img) {
+                    const newImg = img.cloneNode(true);
+                    el.parentNode.replaceChild(newImg, el);
+                  }
                 });
 
                 // Add MutationObserver to handle dynamically loaded images
@@ -122,9 +128,15 @@ export default defineConfig({
                   mutations.forEach((mutation) => {
                     mutation.addedNodes.forEach((node) => {
                       if (node.nodeType === 1) { // Element node
-                        const images = node.querySelectorAll('img');
-                        images.forEach(img => {
-                          img.setAttribute('data-zoom-off', '');
+                        const zoomables = node.querySelectorAll('starlight-image-zoom-zoomable');
+                        zoomables.forEach(el => {
+                          const img = el.querySelector('img');
+                          const btn = el.querySelector('button');
+                          if (btn) btn.remove();
+                          if (img) {
+                            const newImg = img.cloneNode(true);
+                            el.parentNode.replaceChild(newImg, el);
+                          }
                         });
                       }
                     });
