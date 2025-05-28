@@ -85,7 +85,7 @@ export default defineConfig({
         starlightDocSearch({
           appId: '7554BDRAJD',
           apiKey: '0a906499d09119c83fd6d0568e7f8517',
-          indexName: 'scalekit',
+          indexName: 'crawler_Scalekit Starlight',
         }),
       ],
       head: [
