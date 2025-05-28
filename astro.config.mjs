@@ -10,6 +10,7 @@ import starlightViewModes from 'starlight-view-modes';
 import starlightImageZoom from 'starlight-image-zoom';
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
 import starlightThemeRapide from 'starlight-theme-rapide';
+import starlightDocSearch from '@astrojs/starlight-docsearch';
 import starlightLlmsTxt from 'starlight-llms-txt';
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config';
 import { redirects } from './src/configs/redirects.config';
@@ -81,6 +82,11 @@ export default defineConfig({
         }),
         starlightSidebarTopics(sidebarConfig, { topics }),
         // starlightViewModes(),
+        starlightDocSearch({
+          appId: '7554BDRAJD',
+          apiKey: '0a906499d09119c83fd6d0568e7f8517',
+          indexName: 'scalekit',
+        }),
       ],
       head: [
         {
