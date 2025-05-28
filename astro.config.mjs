@@ -111,6 +111,30 @@ export default defineConfig({
               if (inIframe()) {
                 document.documentElement.setAttribute('data-theme', 'light');
                 document.documentElement.classList.add('in-iframe');
+
+                // Add data-zoom-off to all images
+                document.querySelectorAll('img').forEach(img => {
+                  img.setAttribute('data-zoom-off', '');
+                });
+
+                // Add MutationObserver to handle dynamically loaded images
+                const observer = new MutationObserver((mutations) => {
+                  mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                      if (node.nodeType === 1) { // Element node
+                        const images = node.querySelectorAll('img');
+                        images.forEach(img => {
+                          img.setAttribute('data-zoom-off', '');
+                        });
+                      }
+                    });
+                  });
+                });
+
+                observer.observe(document.body, {
+                  childList: true,
+                  subtree: true
+                });
               }
             });
           `,
