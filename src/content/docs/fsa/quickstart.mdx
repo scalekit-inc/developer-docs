@@ -79,7 +79,7 @@ Let's get started!
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
-        ```javascript
+        ```javascript collapse={22-26}
         import scalekit from '@/utils/auth.js'
         const redirectUri = 'http://localhost:3000/api/callback';
 
@@ -159,84 +159,93 @@ Let's get started!
       You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
 
 4. #### Create a session and log in the user
-      You have successfully verified the user's identity and retrieved their profile information. Maintain this authenticated state by creating a session and storing the session tokens in cookies.
+      You have successfully verified the user's identity and retrieved their profile information. Maintain this authenticated state by creating a session and storing the session tokens (specifically the `accessToken` and `refreshToken`).
 
-      Enable the session option to retrieve the session tokens from the `authResult` object. This allows for setting cookies and verify authentication state across multiple requests.
+      Enable the session option to retrieve the session tokens from the `authResult` object. This allows for setting `accessToken` as HTTP-only cookies and verify authentication state across multiple requests.
 
-      ```javascript title="lib/auth.js" {3-4}
-       export const auth = scalekit({
-        session: {
-          sealData: true,
-          sealingSecret: process.env.COOKIE_SEAL_SECRET,
-        }
+      ```javascript ins={1,3}
+      import cookieParser from 'cookie-parser';
+      // Set cookie parser middleware
+      app.use(cookieParser());
+
+      // setting up accessToken as HTTP-only cookie
+      res.cookie('accessToken', authResult.accessToken, {
+        maxAge: (authResult.expiresIn - 60) * 1000,
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        sameSite: 'strict'
       });
       ```
 
-      <Tabs syncKey="tech-stack">
-        <TabItem value="node" label="Node.js">
-        ```javascript
-        const { sealedTokens } = authResponse;
-
-        res.cookie('sk_session', sealedTokens, {
-          httpOnly: true,
-          secure: true,
-          sameSite: 'strict',
-          maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-        });
-
-        res.status(200);
-        ```
-        </TabItem>
-        <TabItem value="javascript" label="React">
-        ```mdx warp showLineNumbers=false
-        Scalekit client automatically tracks authenticated state using cookies.
-        ```
-        </TabItem>
-
-
-      </Tabs>
-
-      This sets browser cookies with the session ID and tokens. Every request to your backend is automatically authenticated through the `getSession` method.
+      This sets browser cookies with the session tokens. Every request to your backend needs to verify the `accessToken` to ensure the user is authenticated. If expired, use the `refreshToken` (store it secure database) to get a new access token.
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
-        ```javascript
-        import auth from '@/lib/auth.js'
+        ```javascript collapse={14-25, 40-55}
+        // Middleware to verify and refresh tokens if needed
+        const verifyToken = async (req, res, next) => {
+          try {
+            // Get access token from cookie
+            const accessToken = req.cookies.accessToken;
 
-        const { isValidSession, user } = await auth.api.getSession({
-          headers: req.headers // contains the session tokens in cookies
-          session: {
-            sealingSecret: process.env.COOKIE_SEAL_SECRET,
+            if (!accessToken) {
+              return res.status(401).json({ message: 'No access token provided' });
+            }
+
+            // Use Scalekit SDK to validate the token
+            const isValid = await scalekit.validateToken(accessToken);
+
+            if (isValid) {
+              // Token is valid, decode and attach user info to request
+              const decoded = jwt.decode(accessToken);
+              req.user = decoded;
+              return next();
+            }
+
+            // You would validate the refresh token against your database
+              const storedRefreshToken = await db.refreshTokens.findOne({ token: refreshToken });
+              if (!storedRefreshToken || storedRefreshToken.isRevoked) {
+                return res.status(401).json({ message: 'Invalid refresh token' });
+              }
+
+            // Use Scalekit SDK to refresh the token using refreshToken (store in secure database)
+            const newTokens = await scalekit.refreshToken(refreshToken);
+
+            // Set new access token in cookie
+            res.cookie('accessToken', newTokens.access_token, {
+              maxAge: (newTokens.expires_in - 60) * 1000, // Subtract 60 seconds for safety margin
+              httpOnly: false, // Set to true if you don't need client-side access
+              secure: process.env.NODE_ENV === 'production',
+              path: '/',
+              sameSite: 'strict'
+            });
+
+            // Update the refresh token in your database
+            await db.refreshTokens.updateOne(
+              { token: refreshToken },
+              { $set: { token: newTokens.refresh_token, updatedAt: new Date() } }
+            );
+            }
+
+            // Attach user info from new token to request
+            const decoded = jwt.decode(newTokens.access_token);
+            req.user = decoded;
+            next();
+          } catch (error) {
+            console.error('Token verification error:', error);
+            return res.status(401).json({ message: 'Authentication failed' });
           }
+        };
+
+        // Example of using the middleware to protect routes
+        app.get('/dashboard', verifyToken, (req, res) => {
+          // The user object is now available in req.user
+          res.json({
+            message: 'This is a protected route',
+            user: req.user
+          });
         });
-
-        if (!isValidSession) {
-          return res.status(401).json({ error: 'Unauthorized' });
-        }
-
-        // User is authenticated, allow access to dashboard
-        return res.redirect('/dashboard');
-        ```
-        </TabItem>
-        <TabItem value="javascript" label="React">
-        ```tsx
-        // Example React component using Scalekit authentication
-        import { authClient } from "@/lib/authClient.js"
-        const { useSession } = authClient()
-
-        export function UserProfile() {
-            const {
-                data: session,
-                isPending,
-                error, // automatically validates session and throws on invalid
-            } = useSession()
-
-           return (
-            <div>
-              {error && <div>Error: {error.message}</div>}
-            </div>
-           )
-        }
         ```
         </TabItem>
       </Tabs>
