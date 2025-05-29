@@ -470,6 +470,406 @@
         ]
       }
     },
+    "/api/v1/organizations/{org_id}/roles": {
+      "get": {
+        "description": "Retrieve a paginated list of all roles within the organization. Use the page_token from the response to access subsequent pages of results",
+        "tags": ["Roles"],
+        "summary": "List All Organization Roles",
+        "operationId": "RolesService_ListOrganizationRoles",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier to an Organization",
+            "name": "org_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of roles within the given organization",
+            "schema": {
+              "$ref": "#/definitions/rolesListOrganizationRolesResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new organization role to represent a specific role within the organization",
+        "tags": ["Roles"],
+        "summary": "Create a new Organization Role",
+        "operationId": "RolesService_CreateOrganizationRole",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier to an Organization",
+            "name": "org_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "role",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Organization role details",
+              "$ref": "#/definitions/v1rolesCreateRole"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Organization Role created successfully",
+            "schema": {
+              "$ref": "#/definitions/rolesCreateOrganizationRoleResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{org_id}/roles/{id}": {
+      "get": {
+        "description": "Fetch detailed information about a specific organization role using its unique identifier.",
+        "tags": ["Roles"],
+        "summary": "Retrieve Organization Role",
+        "operationId": "RolesService_GetOrganizationRole",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier to an Organization",
+            "name": "org_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier to a role",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved organization role details",
+            "schema": {
+              "$ref": "#/definitions/rolesGetOrganizationRoleResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Update an existing organization role using its unique identifier",
+        "tags": ["Roles"],
+        "summary": "Update an existing Organization Role",
+        "operationId": "RolesService_UpdateOrganizationRole",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier to an Organization",
+            "name": "org_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier to a role",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "role",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Organization role details",
+              "$ref": "#/definitions/v1rolesUpdateRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organization Role updated successfully",
+            "schema": {
+              "$ref": "#/definitions/rolesUpdateOrganizationRoleResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Remove an existing role from the organization using its unique identifier",
+        "tags": ["Roles"],
+        "summary": "Delete an Organization Role",
+        "operationId": "RolesService_DeleteOrganizationRole",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier to an Organization",
+            "name": "org_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier to a role",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted Successfully",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/clients": {
+      "post": {
+        "description": "Creates a new M2M client for an organization. This endpoint registers a new client application that can securely access your API on behalf of the organization. The response includes a client ID and secret that should be used for OAuth 2.0 client credentials flow. The plain secret is only returned once during creation and must be stored securely.",
+        "tags": ["M2M"],
+        "summary": "Create an Organization M2M Client",
+        "operationId": "ClientService_CreateOrganizationClient",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "client",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Details of the client to be created",
+              "$ref": "#/definitions/clientsOrganizationClient"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "M2M client created successfully. Returns the client ID and plain secret (only available at creation time). The client can be configured with scopes, audience values, and custom claims for fine-grained access control.",
+            "schema": {
+              "$ref": "#/definitions/clientsCreateOrganizationClientResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\nm2m_client = OrganizationClient(\n    name=\"GitHub Actions Deployment Service\",\n    description=\"Service account for GitHub Actions to deploy applications to production\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory-service\"},\n        {\"key\": \"environment\", \"value\": \"production_us\"}\n    ],\n    scopes=[\"deploy:applications\", \"read:deployments\"],\n    audience=[\"deployment-api.acmecorp.com\"],\n    expiry=3600\n)\n\nresponse = sc.m2m_client.create_organization_client(\n    organization_id=\"SCALEKIT_ORGANIZATION_ID\",\n    m2m_client=m2m_client\n)"
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}/clients/{client_id}": {
+      "get": {
+        "description": "Retrieves the configuration details for an organization's M2M client. This endpoint returns the client's metadata, including its scopes, audience values, custom claims, and associated secrets. Use this to verify client settings or retrieve the list of active secrets.",
+        "tags": ["M2M"],
+        "summary": "Get Organization M2M Client",
+        "operationId": "ClientService_GetOrganizationClient",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier of the M2M client",
+            "name": "client_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the complete M2M client configuration, including all current settings and a list of active secrets. Note that secret values are not included in the response for security reasons.",
+            "schema": {
+              "$ref": "#/definitions/clientsGetOrganizationClientResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# Get client ID from environment variables\norg_id = 'SCALEKIT_ORGANIZATION_ID'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Fetch client details for the specified organization\nresponse = sc.m2m_client.get_organization_client(\n    organization_id=org_id,\n    client_id=client_id\n)"
+          }
+        ]
+      },
+      "delete": {
+        "description": "Permanently deletes an M2M client from an organization. This operation cannot be undone and will revoke all access for the client. All associated secrets will also be invalidated. Use this endpoint to remove unused or compromised clients.",
+        "tags": ["M2M"],
+        "summary": "Delete an Organization M2M Client",
+        "operationId": "ClientService_DeleteOrganizationClient",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization that owns the client. Must start with 'org_' prefix.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier of the M2M client to permanently delete. Must start with 'm2morg_' prefix.",
+            "name": "client_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organization M2M client successfully deleted and no longer accessible",
+            "schema": {}
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# Get client ID from environment variables\norg_id = '\u003cSCALEKIT_ORGANIZATION_ID\u003e'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Delete the specified client from the organization\nresponse = sc.m2m_client.delete_organization_client(\n    organization_id=org_id,\n    client_id=client_id\n)"
+          }
+        ]
+      },
+      "patch": {
+        "description": "Updates the configuration settings for an organization's M2M client. This endpoint allows you to modify client properties such as scopes, audience values, and custom claims. Use this to adjust access permissions or update metadata for the client. Note that client_id and create_time are immutable and cannot be modified.",
+        "tags": ["M2M"],
+        "summary": "Update Organization M2M client details",
+        "operationId": "ClientService_UpdateOrganizationClient",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier of the client",
+            "name": "client_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "client",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Updated details for the client",
+              "$ref": "#/definitions/clientsOrganizationClient"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated organization M2M client with all current details reflected in the response, including modified scopes, audience values, and custom claims.",
+            "schema": {
+              "$ref": "#/definitions/clientsUpdateOrganizationClientResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\norg_id = '\u003cSCALEKIT_ORGANIZATION_ID\u003e'\nclient_id = os.environ['M2M_CLIENT_ID']\n\nupdate_m2m_client = OrganizationClient(\n    description=\"Service account for GitHub Actions to deploy applications to production_eu\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory\"},\n        {\"key\": \"environment\", \"value\": \"production_eu\"}\n    ]\n)\n\nresponse = sc.m2m_client.update_organization_client(\n    organization_id=org_id,\n    client_id=client_id,\n    m2m_client=update_m2m_client\n)"
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
+      "post": {
+        "description": "Generates a new client secret for an organization's M2M client. This endpoint creates a secure credential that can be used for OAuth 2.0 client credentials flow. The plain secret is only returned once during creation and should be stored securely by the client application. Use this endpoint to rotate secrets or create additional credentials for different environments.",
+        "tags": ["M2M"],
+        "summary": "Create a Secret for Organization M2M Client",
+        "operationId": "ClientService_CreateOrganizationClientSecret",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier of the client",
+            "name": "client_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Client secret created successfully. Returns the new secret ID and the plain secret value (only available at creation time). The secret can be used immediately for authentication.",
+            "schema": {
+              "$ref": "#/definitions/clientsCreateOrganizationClientSecretResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# Get client ID from environment variables\norg_id = 'SCALEKIT_ORGANIZATION_ID'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Add a new secret to the specified client\nresponse = sc.m2m_client.add_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id\n)\n\n# Extract the secret ID from the response\nsecret_id = response[0].secret.id"
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets/{secret_id}": {
+      "delete": {
+        "description": "Permanently deletes a client secret for an organization's M2M client. This operation cannot be undone. Use this endpoint to remove compromised or unused secrets. After deletion, the secret can no longer be used for authentication. Consider creating a new secret before deleting the old one to avoid service interruption.",
+        "tags": ["M2M"],
+        "summary": "Delete an Organization M2M Client Secret",
+        "operationId": "ClientService_DeleteOrganizationClientSecret",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier of the client",
+            "name": "client_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier of the client secret",
+            "name": "secret_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Client secret successfully deleted and no longer accessible",
+            "schema": {}
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# Get client and secret IDs from environment variables\norg_id = '\u003cSCALEKIT_ORGANIZATION_ID\u003e'\nclient_id = os.environ['M2M_CLIENT_ID']\nsecret_id = os.environ['M2M_SECRET_ID']\n\n# Remove the specified secret from the client\nresponse = sc.m2m_client.remove_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id,\n    secret_id=secret_id\n)"
+          }
+        ]
+      }
+    },
     "/api/v1/organizations/{organization_id}/connections/{id}": {
       "get": {
         "description": "Retrieves the complete configuration and status details for a specific connection by its ID within an organization. Returns all connection properties including provider settings, protocols, and current status.",
@@ -1012,457 +1412,623 @@
         ]
       }
     },
-    "/api/v1/organizations/{organization_id}/clients": {
-      "post": {
-        "description": "Creates a new M2M client for an organization. This endpoint registers a new client application that can securely access your API on behalf of the organization. The response includes a client ID and secret that should be used for OAuth 2.0 client credentials flow. The plain secret is only returned once during creation and must be stored securely.",
-        "tags": ["M2M"],
-        "summary": "Create an Organization M2M Client",
-        "operationId": "ClientService_CreateOrganizationClient",
+    "/api/v1/organizations/{organization_id}/users": {
+      "get": {
+        "description": "Retrieve a paginated list of all users within the specified organization. Use the 'page_token' from the response to access subsequent pages of results",
+        "tags": ["Users"],
+        "summary": "List Organization Users",
+        "operationId": "UserService_ListUsers",
         "parameters": [
           {
             "type": "string",
-            "description": "Unique identifier of the organization",
+            "description": "Unique identifier of the organization for which to list users. Must start with 'org_' and be 1-32 characters long.",
             "name": "organization_id",
             "in": "path",
             "required": true
           },
           {
-            "name": "client",
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum number of users to return in a single response. Valid range: 1-100. Server may return fewer users than specified.",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Pagination token from a previous ListUserResponse. Used to retrieve the next page of results. Leave empty for the first request.",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of users in the organization",
+            "schema": {
+              "$ref": "#/definitions/usersListUserResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new user account within an organization. Required fields include email and username. Optional fields include phone_number and groups. The user receives an activation email unless this feature is disabled in the organization settings",
+        "tags": ["Users"],
+        "summary": "Create Organization User",
+        "operationId": "UserService_CreateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "user",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "Details of the client to be created",
-              "$ref": "#/definitions/clientsOrganizationClient"
+              "$ref": "#/definitions/usersUser"
             }
           }
         ],
         "responses": {
           "201": {
-            "description": "M2M client created successfully. Returns the client ID and plain secret (only available at creation time). The client can be configured with scopes, audience values, and custom claims for fine-grained access control.",
+            "description": "User created successfully. Returns the created user object, including system-generated identifiers and timestamps",
             "schema": {
-              "$ref": "#/definitions/clientsCreateOrganizationClientResponse"
+              "$ref": "#/definitions/usersCreateUserResponse"
             }
           }
         }
       }
     },
-    "/api/v1/organizations/{organization_id}/clients/{client_id}": {
+    "/api/v1/organizations/{organization_id}/users/{id}": {
       "get": {
-        "description": "Retrieves the configuration details for an organization's M2M client. This endpoint returns the client's metadata, including its scopes, audience values, custom claims, and associated secrets. Use this to verify client settings or retrieve the list of active secrets.",
-        "tags": ["M2M"],
-        "summary": "Get Organization M2M Client",
-        "operationId": "ClientService_GetOrganizationClient",
+        "description": "Retrieves complete user details using one of: system-generated ID, external ID, or identity provider ID. Includes organization memberships, and metadata",
+        "tags": ["Users"],
+        "summary": "Get Organization User",
+        "operationId": "UserService_GetUser",
         "parameters": [
           {
             "type": "string",
-            "description": "Unique identifier of the organization",
+            "description": "Unique organization identifier. Required and must start with 'org_' (1-32 characters).",
             "name": "organization_id",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Unique identifier of the M2M client",
-            "name": "client_id",
+            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters).",
+            "name": "id",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Immutable identity provider value from authentication systems.",
+            "name": "identity",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "Returns the complete M2M client configuration, including all current settings and a list of active secrets. Note that secret values are not included in the response for security reasons.",
+            "description": "User details retrieved successfully. Returns full user object with system-generated fields and timestamps.",
             "schema": {
-              "$ref": "#/definitions/clientsGetOrganizationClientResponse"
+              "$ref": "#/definitions/usersGetUserResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Associates an existing user with an organization. The user must already exist in the system and be identified by their unique ID, external ID, or identity provider ID",
+        "tags": ["Users"],
+        "summary": "Add User to Organization",
+        "operationId": "UserService_AddUserToOrganization",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the target organization. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters)",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "External system identifier from connected directories. Must be unique across the system",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Immutable identity provider value from authentication systems",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User successfully added to the organization. Returns details of the updated user membership",
+            "schema": {
+              "$ref": "#/definitions/usersAddUserResponse"
             }
           }
         }
       },
       "delete": {
-        "description": "Permanently deletes an M2M client from an organization. This operation cannot be undone and will revoke all access for the client. All associated secrets will also be invalidated. Use this endpoint to remove unused or compromised clients.",
-        "tags": ["M2M"],
-        "summary": "Delete an Organization M2M Client",
-        "operationId": "ClientService_DeleteOrganizationClient",
+        "description": "Permanently removes a user from the organization using one of: system-generated ID, external ID, or identity provider ID. This action is irreversible and may cascade to related resources like group memberships.",
+        "tags": ["Users"],
+        "summary": "Delete User",
+        "operationId": "UserService_DeleteUser",
         "parameters": [
           {
             "type": "string",
-            "description": "Unique identifier of the organization that owns the client. Must start with 'org_' prefix.",
+            "description": "Unique organization identifier. Must start with 'org_' and be 1-32 characters long",
             "name": "organization_id",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Unique identifier of the M2M client to permanently delete. Must start with 'm2morg_' prefix.",
-            "name": "client_id",
+            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters)",
+            "name": "id",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "description": "External system identifier from connected directories. Must match existing records",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Immutable identity provider value from authentication systems",
+            "name": "identity",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "Organization M2M client successfully deleted and no longer accessible",
+            "description": "User successfully marked for deletion. No content returned",
             "schema": {}
           }
         }
       },
       "patch": {
-        "description": "Updates the configuration settings for an organization's M2M client. This endpoint allows you to modify client properties such as scopes, audience values, and custom claims. Use this to adjust access permissions or update metadata for the client. Note that client_id and create_time are immutable and cannot be modified.",
-        "tags": ["M2M"],
-        "summary": "Update Organization M2M client details",
-        "operationId": "ClientService_UpdateOrganizationClient",
+        "description": "Performs partial updates to a user's configuration. Updatable fields: email, phone_number, user_profile, metadata. Immutable fields: id, environment_id, create_time. Returns the updated user resource.",
+        "tags": ["Users"],
+        "summary": "Update Organization User",
+        "operationId": "UserService_UpdateUser",
         "parameters": [
           {
             "type": "string",
-            "description": "Unique identifier of the organization",
+            "description": "Unique identifier of the organization containing the user. Must start with 'org_' and be 1-32 characters long.",
             "name": "organization_id",
             "in": "path",
             "required": true
           },
           {
             "type": "string",
-            "description": "Unique identifier of the client",
-            "name": "client_id",
+            "description": "System-generated user ID. Must start with 'usr_' and be 19-25 characters long.",
+            "name": "id",
             "in": "path",
             "required": true
           },
           {
-            "name": "client",
+            "name": "user",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "Updated details for the client",
-              "$ref": "#/definitions/clientsOrganizationClient"
+              "description": "User fields to update. Only specified fields will be modified. Required fields must be provided if being changed.",
+              "$ref": "#/definitions/v1usersUpdateUser",
+              "example": {
+                "email": "new.email@example.com",
+                "phone_number": "+14155552671"
+              }
             }
+          },
+          {
+            "type": "string",
+            "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Immutable identity provider identifier. Must match the exact value returned by the IDP.",
+            "name": "identity",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "Returns the updated organization M2M client with all current details reflected in the response, including modified scopes, audience values, and custom claims.",
+            "description": "User updated successfully. Returns the modified user object with updated timestamps.",
             "schema": {
-              "$ref": "#/definitions/clientsUpdateOrganizationClientResponse"
+              "$ref": "#/definitions/usersUpdateUserResponse"
             }
           }
         }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
-      "post": {
-        "description": "Generates a new client secret for an organization's M2M client. This endpoint creates a secure credential that can be used for OAuth 2.0 client credentials flow. The plain secret is only returned once during creation and should be stored securely by the client application. Use this endpoint to rotate secrets or create additional credentials for different environments.",
-        "tags": ["M2M"],
-        "summary": "Create a Secret for Organization M2M Client",
-        "operationId": "ClientService_CreateOrganizationClientSecret",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Client secret created successfully. Returns the new secret ID and the plain secret value (only available at creation time). The secret can be used immediately for authentication.",
-            "schema": {
-              "$ref": "#/definitions/clientsCreateOrganizationClientSecretResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets/{secret_id}": {
-      "delete": {
-        "description": "Permanently deletes a client secret for an organization's M2M client. This operation cannot be undone. Use this endpoint to remove compromised or unused secrets. After deletion, the secret can no longer be used for authentication. Consider creating a new secret before deleting the old one to avoid service interruption.",
-        "tags": ["M2M"],
-        "summary": "Delete an Organization M2M Client Secret",
-        "operationId": "ClientService_DeleteOrganizationClientSecret",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client secret",
-            "name": "secret_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Client secret successfully deleted and no longer accessible",
-            "schema": {}
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/clients": {
-      "post": {
-        "description": "Creates a new M2M client for an organization. This endpoint registers a new client application that can securely access your API on behalf of the organization. The response includes a client ID and secret that should be used for OAuth 2.0 client credentials flow. The plain secret is only returned once during creation and must be stored securely.",
-        "tags": ["M2M"],
-        "summary": "Create an Organization M2M Client",
-        "operationId": "ClientService_CreateOrganizationClient",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "client",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "Details of the client to be created",
-              "$ref": "#/definitions/clientsOrganizationClient"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "M2M client created successfully. Returns the client ID and plain secret (only available at creation time). The client can be configured with scopes, audience values, and custom claims for fine-grained access control.",
-            "schema": {
-              "$ref": "#/definitions/clientsCreateOrganizationClientResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\nm2m_client = OrganizationClient(\n    name=\"GitHub Actions Deployment Service\",\n    description=\"Service account for GitHub Actions to deploy applications to production\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory-service\"},\n        {\"key\": \"environment\", \"value\": \"production_us\"}\n    ],\n    scopes=[\"deploy:applications\", \"read:deployments\"],\n    audience=[\"deployment-api.acmecorp.com\"],\n    expiry=3600\n)\n\nresponse = sc.m2m_client.create_organization_client(\n    organization_id=\"SCALEKIT_ORGANIZATION_ID\",\n    m2m_client=m2m_client\n)"
-          }
-        ]
-      }
-    },
-    "/api/v1/organizations/{organization_id}/clients/{client_id}": {
-      "get": {
-        "description": "Retrieves the configuration details for an organization's M2M client. This endpoint returns the client's metadata, including its scopes, audience values, custom claims, and associated secrets. Use this to verify client settings or retrieve the list of active secrets.",
-        "tags": ["M2M"],
-        "summary": "Get Organization M2M Client",
-        "operationId": "ClientService_GetOrganizationClient",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the M2M client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the complete M2M client configuration, including all current settings and a list of active secrets. Note that secret values are not included in the response for security reasons.",
-            "schema": {
-              "$ref": "#/definitions/clientsGetOrganizationClientResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "# Get client ID from environment variables\norg_id = 'SCALEKIT_ORGANIZATION_ID'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Fetch client details for the specified organization\nresponse = sc.m2m_client.get_organization_client(\n    organization_id=org_id,\n    client_id=client_id\n)"
-          }
-        ]
-      },
-      "delete": {
-        "description": "Permanently deletes an M2M client from an organization. This operation cannot be undone and will revoke all access for the client. All associated secrets will also be invalidated. Use this endpoint to remove unused or compromised clients.",
-        "tags": ["M2M"],
-        "summary": "Delete an Organization M2M Client",
-        "operationId": "ClientService_DeleteOrganizationClient",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization that owns the client. Must start with 'org_' prefix.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the M2M client to permanently delete. Must start with 'm2morg_' prefix.",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Organization M2M client successfully deleted and no longer accessible",
-            "schema": {}
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "# Get client ID from environment variables\norg_id = '\u003cSCALEKIT_ORGANIZATION_ID\u003e'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Delete the specified client from the organization\nresponse = sc.m2m_client.delete_organization_client(\n    organization_id=org_id,\n    client_id=client_id\n)"
-          }
-        ]
-      },
-      "patch": {
-        "description": "Updates the configuration settings for an organization's M2M client. This endpoint allows you to modify client properties such as scopes, audience values, and custom claims. Use this to adjust access permissions or update metadata for the client. Note that client_id and create_time are immutable and cannot be modified.",
-        "tags": ["M2M"],
-        "summary": "Update Organization M2M client details",
-        "operationId": "ClientService_UpdateOrganizationClient",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "client",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "Updated details for the client",
-              "$ref": "#/definitions/clientsOrganizationClient"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the updated organization M2M client with all current details reflected in the response, including modified scopes, audience values, and custom claims.",
-            "schema": {
-              "$ref": "#/definitions/clientsUpdateOrganizationClientResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\norg_id = '\u003cSCALEKIT_ORGANIZATION_ID\u003e'\nclient_id = os.environ['M2M_CLIENT_ID']\n\nupdate_m2m_client = OrganizationClient(\n    description=\"Service account for GitHub Actions to deploy applications to production_eu\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory\"},\n        {\"key\": \"environment\", \"value\": \"production_eu\"}\n    ]\n)\n\nresponse = sc.m2m_client.update_organization_client(\n    organization_id=org_id,\n    client_id=client_id,\n    m2m_client=update_m2m_client\n)"
-          }
-        ]
-      }
-    },
-    "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
-      "post": {
-        "description": "Generates a new client secret for an organization's M2M client. This endpoint creates a secure credential that can be used for OAuth 2.0 client credentials flow. The plain secret is only returned once during creation and should be stored securely by the client application. Use this endpoint to rotate secrets or create additional credentials for different environments.",
-        "tags": ["M2M"],
-        "summary": "Create a Secret for Organization M2M Client",
-        "operationId": "ClientService_CreateOrganizationClientSecret",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Client secret created successfully. Returns the new secret ID and the plain secret value (only available at creation time). The secret can be used immediately for authentication.",
-            "schema": {
-              "$ref": "#/definitions/clientsCreateOrganizationClientSecretResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "# Get client ID from environment variables\norg_id = 'SCALEKIT_ORGANIZATION_ID'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Add a new secret to the specified client\nresponse = sc.m2m_client.add_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id\n)\n\n# Extract the secret ID from the response\nsecret_id = response[0].secret.id"
-          }
-        ]
-      }
-    },
-    "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets/{secret_id}": {
-      "delete": {
-        "description": "Permanently deletes a client secret for an organization's M2M client. This operation cannot be undone. Use this endpoint to remove compromised or unused secrets. After deletion, the secret can no longer be used for authentication. Consider creating a new secret before deleting the old one to avoid service interruption.",
-        "tags": ["M2M"],
-        "summary": "Delete an Organization M2M Client Secret",
-        "operationId": "ClientService_DeleteOrganizationClientSecret",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client secret",
-            "name": "secret_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Client secret successfully deleted and no longer accessible",
-            "schema": {}
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "# Get client and secret IDs from environment variables\norg_id = '\u003cSCALEKIT_ORGANIZATION_ID\u003e'\nclient_id = os.environ['M2M_CLIENT_ID']\nsecret_id = os.environ['M2M_SECRET_ID']\n\n# Remove the specified secret from the client\nresponse = sc.m2m_client.remove_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id,\n    secret_id=secret_id\n)"
-          }
-        ]
       }
     }
   },
   "definitions": {
+    "clientsClientSecret": {
+      "description": "A secure credential used for authenticating an M2M client. Each client can have multiple secrets for key rotation purposes.",
+      "type": "object",
+      "title": "Client Secret",
+      "properties": {
+        "create_time": {
+          "description": "The timestamp when this secret was created. This field is automatically set by the server and cannot be modified.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-01-05T14:48:00.000Z"
+        },
+        "created_by": {
+          "description": "The identifier of the user or system that created this secret. This field helps track who created the secret for audit and compliance purposes.",
+          "type": "string",
+          "example": "user_12345"
+        },
+        "expire_time": {
+          "description": "The timestamp when this secret will expire. After this time, the secret cannot be used for authentication regardless of its status. If not set, the secret does not expire.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-05T14:48:00.000Z"
+        },
+        "id": {
+          "description": "The unique identifier for this client secret. This ID is used to reference the secret in API requests for management operations like updating or deleting the secret.",
+          "type": "string",
+          "example": "sec_1234abcd5678efgh"
+        },
+        "last_used_time": {
+          "description": "The timestamp when this secret was last used for authentication. This field helps track secret usage for security monitoring and identifying unused secrets that may be candidates for rotation.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-02-15T10:30:00.000Z"
+        },
+        "plain_secret": {
+          "description": "The full plaintext secret value. This field is only populated when the secret is first created and is never stored by the server. It must be securely stored by the client application as it cannot be retrieved again.",
+          "type": "string",
+          "example": "sec_1234567890abcdefghijklmnopqrstuvwxyz"
+        },
+        "secret_suffix": {
+          "description": "A suffix that helps identify this secret. This is the last few characters of the full secret value but is not sufficient for authentication. Helps identify which secret is being used in logs and debugging.",
+          "type": "string",
+          "example": "xyzw"
+        },
+        "status": {
+          "description": "The current status of this secret. A secret must be ACTIVE to be used for authentication. INACTIVE secrets cannot be used for authentication but are retained for audit purposes.",
+          "$ref": "#/definitions/clientsClientSecretStatus",
+          "example": "ACTIVE"
+        },
+        "update_time": {
+          "description": "The timestamp when this secret was last updated. This field is automatically updated by the server when the secret's status changes or other properties are modified.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-01-10T09:12:00.000Z"
+        }
+      }
+    },
+    "clientsClientSecretStatus": {
+      "description": "ClientSecretStatus indicates whether a client secret can be used for authentication.\nACTIVE secrets can be used for authentication while INACTIVE secrets cannot.\n\n - INACTIVE: The secret is inactive and cannot be used for authentication",
+      "type": "string",
+      "enum": ["INACTIVE"]
+    },
+    "clientsCreateOrganizationClientResponse": {
+      "type": "object",
+      "properties": {
+        "client": {
+          "description": "Details of the created client",
+          "$ref": "#/definitions/clientsM2MClient"
+        },
+        "plain_secret": {
+          "description": "Client secret value (only returned once at creation)",
+          "type": "string",
+          "example": "CdExsdErfccxDDssddfffgfeFHH1"
+        }
+      }
+    },
+    "clientsCreateOrganizationClientSecretResponse": {
+      "type": "object",
+      "properties": {
+        "plain_secret": {
+          "description": "Client secret value (only returned once at creation)",
+          "type": "string",
+          "example": "m2morg_client_secret_xyz123"
+        },
+        "secret": {
+          "description": "Details of the created client secret",
+          "$ref": "#/definitions/clientsClientSecret"
+        }
+      }
+    },
+    "clientsCustomClaim": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "description": "The name of the custom claim. Must be between 1 and 128 characters. Use descriptive names that clearly indicate the claim's purpose.",
+          "type": "string",
+          "example": "environment"
+        },
+        "value": {
+          "description": "The value of the custom claim. This value will be included in access tokens issued to the client.",
+          "type": "string",
+          "example": "production"
+        }
+      }
+    },
+    "clientsGetOrganizationClientResponse": {
+      "type": "object",
+      "properties": {
+        "client": {
+          "description": "Details of the requested client",
+          "$ref": "#/definitions/clientsM2MClient"
+        }
+      }
+    },
+    "clientsM2MClient": {
+      "type": "object",
+      "properties": {
+        "audience": {
+          "description": "The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": ["https://api.example.com"]
+        },
+        "client_id": {
+          "description": "The unique identifier for this M2M client. This ID is used to identify the client in API requests and logs. It is automatically generated when the client is created and cannot be modified.",
+          "type": "string",
+          "example": "m2morg_1231234233424344"
+        },
+        "create_time": {
+          "description": "The timestamp when this M2M client was created. This field is automatically set by the server and cannot be modified.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-01-05T14:48:00.000Z"
+        },
+        "custom_claims": {
+          "description": "Additional claims included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/clientsCustomClaim"
+          }
+        },
+        "description": {
+          "description": "A detailed description of the client's purpose and usage. This helps administrators understand what the client is used for.",
+          "type": "string",
+          "example": "Service account for automated deployment processes"
+        },
+        "expiry": {
+          "description": "The lifetime of access tokens issued to this client, in seconds. This determines how long a token remains valid before it must be refreshed.",
+          "type": "string",
+          "format": "int64",
+          "example": 3600
+        },
+        "name": {
+          "description": "The display name of the M2M client. This name helps identify the client in the dashboard and logs.",
+          "type": "string",
+          "example": "GitHub Actions Deployment Service"
+        },
+        "organization_id": {
+          "description": "The ID of the organization that owns this M2M client. This ID is used to associate the client with the correct organization and enforce organization-specific access controls.",
+          "type": "string",
+          "example": "org_1231234233424344"
+        },
+        "scopes": {
+          "description": "The OAuth 2.0 scopes granted to this client. These scopes determine what resources and actions the client can access.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": ["deploy:applications", "read:deployments"]
+        },
+        "secrets": {
+          "description": "List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/clientsClientSecret"
+          }
+        },
+        "update_time": {
+          "description": "The timestamp when this M2M client was last updated. This field is automatically updated by the server whenever the client's configuration changes.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-01-05T14:48:00.000Z"
+        }
+      }
+    },
+    "clientsOrganizationClient": {
+      "type": "object",
+      "properties": {
+        "audience": {
+          "description": "The intended recipients of the access tokens issued to this client. Each audience value should be a URI that identifies the API or service that will validate the token.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "https://api.example.com/api/analytics",
+            "https://deployment-api.acmecorp.com"
+          ]
+        },
+        "custom_claims": {
+          "description": "Additional claims to be included in access tokens issued to this client. These claims provide context about the client and can be used for authorization decisions. Keep claims minimal to avoid increasing token size.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/clientsCustomClaim"
+          },
+          "example": [
+            {
+              "key": "environment",
+              "value": "production"
+            },
+            {
+              "key": "service",
+              "value": "deployment"
+            }
+          ]
+        },
+        "description": {
+          "description": "A detailed explanation of the client's purpose and usage. This helps administrators understand what the client is used for and who manages it.",
+          "type": "string",
+          "example": "Service account for GitHub Actions to deploy applications to production"
+        },
+        "expiry": {
+          "description": "The lifetime of access tokens issued to this client, in seconds. This value determines how long a token remains valid before it must be refreshed. Defaults to 3600 (1 hour) if not specified.",
+          "type": "string",
+          "format": "int64",
+          "example": 3600
+        },
+        "name": {
+          "description": "A descriptive name for the M2M client that helps identify its purpose. This name is displayed in the dashboard and logs. Must be between 1 and 128 characters.",
+          "type": "string",
+          "example": "GitHub Actions Deployment Service"
+        },
+        "scopes": {
+          "description": "OAuth 2.0 scopes that define the permissions granted to this client. Each scope represents a specific permission or set of permissions. The client can only access resources that match its granted scopes.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": ["deploy:applications", "read:deployments"]
+        }
+      }
+    },
+    "clientsUpdateOrganizationClientResponse": {
+      "type": "object",
+      "properties": {
+        "client": {
+          "description": "Updated details of the client",
+          "$ref": "#/definitions/clientsM2MClient"
+        }
+      }
+    },
+    "commonsIdentityProviderType": {
+      "type": "string",
+      "enum": [
+        "OKTA",
+        "GOOGLE",
+        "MICROSOFT_AD",
+        "AUTH0",
+        "ONELOGIN",
+        "PING_IDENTITY",
+        "JUMPCLOUD",
+        "CUSTOM",
+        "GITHUB",
+        "GITLAB",
+        "LINKEDIN",
+        "SALESFORCE",
+        "MICROSOFT",
+        "IDP_SIMULATOR",
+        "SCALEKIT",
+        "ADFS"
+      ]
+    },
+    "commonsMembershipRole": {
+      "type": "string",
+      "enum": ["ADMIN", "USER"]
+    },
+    "commonsOrganizationMembership": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "membership_status": {
+          "$ref": "#/definitions/commonsUserStatus"
+        },
+        "name": {
+          "type": "string"
+        },
+        "primary_identity_provider": {
+          "$ref": "#/definitions/commonsIdentityProviderType"
+        },
+        "role": {
+          "$ref": "#/definitions/commonsMembershipRole"
+        }
+      }
+    },
     "commonsRegionCode": {
       "type": "string",
       "enum": ["US", "EU"]
+    },
+    "commonsUserProfile": {
+      "type": "object",
+      "properties": {
+        "custom_attributes": {
+          "description": "Custom attributes for extended user profile data. Keys (3-25 chars), values (1-256 chars).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "example": {
+            "department": "engineering",
+            "security_clearance": "level2"
+          }
+        },
+        "email_verified": {
+          "description": "Indicates if the user's email address has been verified. Automatically updated by the system.",
+          "type": "boolean",
+          "readOnly": true,
+          "example": true
+        },
+        "first_name": {
+          "description": "User's given name. Maximum 200 characters.",
+          "type": "string",
+          "example": "John"
+        },
+        "id": {
+          "description": "Unique system-generated identifier for the user profile. Immutable and read-only.",
+          "type": "string",
+          "readOnly": true,
+          "example": "usr_profile_1234abcd5678efgh"
+        },
+        "last_name": {
+          "description": "User's family name. Maximum 200 characters.",
+          "type": "string",
+          "example": "Doe"
+        },
+        "locale": {
+          "description": "User's localization preference in BCP-47 format. Defaults to organization settings.",
+          "type": "string",
+          "example": "en-US"
+        },
+        "metadata": {
+          "description": "System-managed key-value pairs for internal tracking. Keys (3-25 chars), values (1-256 chars).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "example": {
+            "account_status": "active",
+            "signup_source": "mobile_app"
+          }
+        },
+        "name": {
+          "description": "Full name in display format. Typically combines first_name and last_name.",
+          "type": "string",
+          "example": "John Michael Doe"
+        }
+      }
+    },
+    "commonsUserStatus": {
+      "type": "string",
+      "enum": ["ACTIVE", "INACTIVE"]
     },
     "connectionsCodeChallengeType": {
       "type": "string",
@@ -2634,6 +3200,193 @@
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.",
       "type": "string"
     },
+    "rolesCreateOrganizationRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/rolesRole"
+        }
+      }
+    },
+    "rolesGetOrganizationRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/rolesRole"
+        }
+      }
+    },
+    "rolesListOrganizationRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "description": "List of roles objects",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/rolesRole"
+          }
+        }
+      }
+    },
+    "rolesRole": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "rolesUpdateOrganizationRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/rolesRole"
+        }
+      }
+    },
+    "usersAddUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersCreateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersGetUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersListUserResponse": {
+      "type": "object",
+      "properties": {
+        "next_page_token": {
+          "description": "Opaque token for retrieving the next page of results. Empty if there are no more pages.",
+          "type": "string",
+          "example": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAidXNyXzEyMzQ1In0="
+        },
+        "prev_page_token": {
+          "description": "Opaque token for retrieving the previous page of results. Empty for the first page.",
+          "type": "string",
+          "example": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInVzcl85ODc2NSJ9"
+        },
+        "total_size": {
+          "description": "Total number of users matching the request criteria, regardless of pagination.",
+          "type": "integer",
+          "format": "int64",
+          "example": 1042
+        },
+        "users": {
+          "description": "List of user objects for the current page. May contain fewer entries than requested page_size.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/usersUser"
+          }
+        }
+      }
+    },
+    "usersUpdateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersUser": {
+      "type": "object",
+      "properties": {
+        "create_time": {
+          "description": "Timestamp when the user account was initially created. Automatically set by the server.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "description": "Primary email address for the user. Must be unique across the environment and valid per RFC 5322.",
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "external_id": {
+          "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+          "type": "string",
+          "example": "ext_12345a67b89c"
+        },
+        "id": {
+          "description": "Unique system-generated identifier for the user. Immutable once created.",
+          "type": "string",
+          "example": "usr_1234abcd5678efgh"
+        },
+        "identity": {
+          "description": "Unique identifier from the identity provider (IDP). Immutable once set.",
+          "type": "string",
+          "example": "auth0|1234567890abcdef"
+        },
+        "last_login": {
+          "description": "Timestamp of the user's most recent successful authentication. Updated automatically.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "metadata": {
+          "description": "Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "example": {
+            "department": "engineering",
+            "location": "nyc-office"
+          }
+        },
+        "organizations": {
+          "description": "List of organization memberships. Automatically populated based on group assignments.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/commonsOrganizationMembership"
+          },
+          "readOnly": true
+        },
+        "phone_number": {
+          "description": "Phone number in E.164 international format. Required for SMS-based authentication.",
+          "type": "string",
+          "example": "+14155552671"
+        },
+        "update_time": {
+          "description": "Timestamp of the last modification to the user account. Automatically updated by the server.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "user_profile": {
+          "description": "User's personal information including name, address, and other profile attributes.",
+          "$ref": "#/definitions/commonsUserProfile"
+        }
+      }
+    },
     "v1organizationsCreateOrganization": {
       "type": "object",
       "properties": {
@@ -2680,6 +3433,81 @@
           }
         }
       }
+    },
+    "v1rolesCreateRole": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "description": "Default Role",
+          "type": "boolean",
+          "example": true
+        },
+        "description": {
+          "description": "Description of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role will be used only for viewing the objects"
+        },
+        "display_name": {
+          "description": "Display Name of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role"
+        },
+        "name": {
+          "description": "Unique Name of the Organization's Role",
+          "type": "string",
+          "example": "org_viewer_role"
+        }
+      }
+    },
+    "v1rolesUpdateRole": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "description": "Default Role",
+          "type": "boolean",
+          "example": true
+        },
+        "description": {
+          "description": "Description of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role will be used only for viewing the objects"
+        },
+        "display_name": {
+          "description": "Display Name of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role"
+        }
+      }
+    },
+    "v1usersUpdateUser": {
+      "type": "object",
+      "properties": {
+        "external_id": {
+          "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+          "type": "string",
+          "example": "ext_7890xyz"
+        },
+        "metadata": {
+          "description": "System metadata updates. Replaces existing entries unless included. Max 10 pairs. Keys (3-25 chars), values (1-256 chars).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "example": {
+            "account_tier": "premium",
+            "support_contact": "team-alpha"
+          }
+        },
+        "user_profile": {
+          "description": "Updated profile information including name, locale, and address details. Partial updates are supported.",
+          "$ref": "#/definitions/commonsUserProfile",
+          "example": {
+            "first_name": "Michael",
+            "last_name": "Chen",
+            "locale": "fr-CA"
+          }
+        }
+      }
     }
   },
   "tags": [
@@ -2688,12 +3516,31 @@
       "name": "Organizations"
     },
     {
+      "description": "User management endpoints for individual accounts within the organization. These endpoints allow for creating, reading, updating, and deleting user accounts, as well as managing user roles and permissions for accessing organizational resources.",
+      "name": "Users"
+    },
+    {
       "description": "The Directory API lets you connect external identity providers to your organizations. Use these endpoints to view users and groups, enable or disable directory connections, and configure access settings. Supports identity systems like Okta, Microsoft Entra ID, and Google Workspace through standard protocols.",
       "name": "Directory"
     },
     {
       "description": " Connection represents a unique Single Sign-on instance for an Organization. Connection has the configuration needed to establish an SSO and exchange user information securely between Scalekit and your customer's Identity Provider. Depending on the connection type parameter, the corresponding configuration details are found in `oidc_config` or `saml_config` parameter.\n\u003c!--\n**Connection Attributes**\n\n| Attribute Name | Attribute Description |\n|---|---|\n| `id`\u003cbr\u003e_string_ | Unique ID of an SSO Connection. This attribute is required for all API operations to be performed against this connection.  |\n| `provider`\u003cbr\u003e_ENUM_ | Name of the Identity Provider. Possible Values are: `OKTA`, `GOOGLE`, `MICROSOFT_AD`, `AUTH0`, `ONELOGIN`, `PING_IDENTITY`, `JUMPCLOUD`, `CUSTOM` |\n| `type`\u003cbr\u003e_ENUM_ | Protocol type that is used for this connection. Possible values are `SAML` or `OIDC` |\n| `status`\u003cbr\u003e_ENUM_ | Indicates the configuration progress status of the SSO Connection. Possible Values are `DRAFT`, `INPROGRESS`, `COMPLETED`. \u003cbr\u003e_Note_: This doesn't indicate whether this connection is active or not. |\n| `enabled`\u003cbr\u003e_boolean_ | Indicates whether this connection is active or not. Users can only login via active SSO connections. |\n| `organization_id`\u003cbr\u003e_string_ | Organization ID to which this SSO connection belongs to. |\n| `saml_config`\u003cbr\u003e_Object_ | If this connection is of type `SAML`, the configuration details are found in this object. |\n| `oidc_config`\u003cbr\u003e_Object_ | If this connection is of type `OIDC`, the configuration details are found in this object. |\n| `attribute_mapping`\u003cbr\u003e_Object_ | Array of attribute mappings using which the user information received from the Identity Provider is normalized. Example: \u003ccode\u003e \u003cbr/\u003e{ \u003cbr/\u003e\u0026nbsp;\u0026nbsp; \"email\": \"email\",\u003cbr/\u003e\u0026nbsp;\u0026nbsp; \"family_name\": \"lastName\", \u003cbr/\u003e\u0026nbsp;\u0026nbsp; \"given_name\": \"firstName\",\u003cbr/\u003e\u0026nbsp;\u0026nbsp;\u0026nbsp;\"sub\": \"nameid\" \u003cbr/\u003e} \u003c/code\u003e |\n| `create_time` | Timestamp at which this connection record was created in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. For Example: `2021-10-05T14:48:00.000Z` |\n| `update_time`\u003cbr\u003e_string_ | Timestamp at which this connection record was last updated in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. For Example: `2021-10-10T14:48:00.000Z` | --\u003e\n",
       "name": "Connections"
+    },
+    {
+      "description": "Endpoints for managing client application configurations. Registered client applications can use these endpoints to retrieve and modify their configuration settings, including redirect URIs and other client-specific parameters.",
+      "name": "Client Configs"
+    },
+    {
+      "description": "Endpoints for managing roles and permissions for users and organizations. More APIs coming soon",
+      "name": "Roles"
+    },
+    {
+      "description": "Endpoints for managing Machine-to-Machine (M2M) client applications. M2M clients enable secure, automated interactions between software systems without human intervention. Each client is uniquely identified by a `client_id` and can be configured with authentication settings, redirect URIs, and security parameters. Use these endpoints to create, manage, and configure M2M clients for your API clients.",
+      "name": "M2M",
+      "externalDocs": {
+        "url": "https://docs.scalekit.com/m2m/overview"
+      }
     }
   ],
   "externalDocs": {
