@@ -2,7 +2,16 @@
 title: Quickstart
 sidebar:
   label: "Quickstart"
-tableOfContents: false
+tableOfContents: true
+next:
+  label: "Manage users"
+  link: "/docs/fsa/manage-users"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
 ---
 
 import { Card, CardGrid, Steps, TabItem, Tabs, Aside } from '@astrojs/starlight/components';
@@ -24,7 +33,7 @@ Learn how to integrate Scalekit into your project to implement secure, enterpris
 Let's get started!
 
 <Steps>
- 1. #### Install the Scalekit SDK
+ 1. ## Install the Scalekit SDK
 
     <InstallSDK />
 
@@ -49,7 +58,7 @@ Let's get started!
       ```
       </TabItem>
     </Tabs>
-  2. #### Redirect the user to the authentication page
+  2. ## Redirect the user to the authentication page
        Generate the authorization URL by passing a [registered](/reference/fsa/redirects) _callback URL_ and _scopes_ to the Scalekit SDK.
         <Tabs>
         <TabItem value="node" label="Node.js">
@@ -69,12 +78,12 @@ Let's get started!
 
      This will redirect the user to Scalekit's managed sign-in page.
 
-3. #### Allow users to sign in or sign up
+3. ## Allow users to sign in or sign up
       Users can now sign in or sign up using their [preferred authentication methods](/guides/fsa/auth-methods). Each authentication method is managed by Scalekit to successfully verify the user's identity.
 
       ![](@/assets/docs/fsa/quickstart/1.png)
 
-4. #### Retrieve user profile after identity verification
+4. ## Retrieve user profile after identity verification
       Scalekit triggers a callback to your registered _callback URL_ with an authorization code. Exchange the code to get the user's profile information.
 
       <Tabs syncKey="tech-stack">
@@ -158,7 +167,7 @@ Let's get started!
 
       You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
 
-4. #### Create a session and log in the user
+4. ## Create a session and log in the user
       You have successfully verified the user's identity and retrieved their profile information. Maintain this authenticated state by creating a session and storing the session tokens (specifically the `accessToken` and `refreshToken`).
 
       Enable the session option to retrieve the session tokens from the `authResult` object. This allows for setting `accessToken` as HTTP-only cookies and verify authentication state across multiple requests.
@@ -168,74 +177,55 @@ Let's get started!
       // Set cookie parser middleware
       app.use(cookieParser());
 
+      // encrypt the accessToken using a secure encryption algorithm
+      const encryptedAccessToken = encrypt(authResult.accessToken);
+
       // setting up accessToken as HTTP-only cookie
-      res.cookie('accessToken', authResult.accessToken, {
+      res.cookie('accessToken', encryptedAccessToken, {
         maxAge: (authResult.expiresIn - 60) * 1000,
-        httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        secure: true,
         path: '/',
         sameSite: 'strict'
       });
+
+      // Store the refreshToken in a secure place
       ```
 
-      This sets browser cookies with the session tokens. Every request to your backend needs to verify the `accessToken` to ensure the user is authenticated. If expired, use the `refreshToken` (store it secure database) to get a new access token.
+      This sets browser cookies with the session tokens. Every request to your backend needs to verify the `accessToken` to ensure the user is authenticated. If expired, use the `refreshToken` to get a new access token.
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
-        ```javascript collapse={14-25, 40-55}
+        ```javascript
         // Middleware to verify and refresh tokens if needed
         const verifyToken = async (req, res, next) => {
           try {
             // Get access token from cookie
             const accessToken = req.cookies.accessToken;
 
+            // Decrypt the accessToken using the same encryption algorithm
+            const decryptedAccessToken = decrypt(accessToken);
+
             if (!accessToken) {
               return res.status(401).json({ message: 'No access token provided' });
             }
 
             // Use Scalekit SDK to validate the token
-            const isValid = await scalekit.validateToken(accessToken);
+            const isValid = await scalekit.validateAccessToken(decryptedAccessToken);
 
-            if (isValid) {
-              // Token is valid, decode and attach user info to request
-              const decoded = jwt.decode(accessToken);
-              req.user = decoded;
-              return next();
+            if (!isValid) {
+              // Use stored refreshToken to get a new access token
+               const {
+                    user,
+                    idToken,
+                    accessToken,
+                    refreshToken: newRefreshToken,
+              } = await scalekit.refreshToken(refreshToken);
+
+              // Store the new refresh token
+              // Update the cookie with the new access token
             }
-
-            // You would validate the refresh token against your database
-              const storedRefreshToken = await db.refreshTokens.findOne({ token: refreshToken });
-              if (!storedRefreshToken || storedRefreshToken.isRevoked) {
-                return res.status(401).json({ message: 'Invalid refresh token' });
-              }
-
-            // Use Scalekit SDK to refresh the token using refreshToken (store in secure database)
-            const newTokens = await scalekit.refreshToken(refreshToken);
-
-            // Set new access token in cookie
-            res.cookie('accessToken', newTokens.access_token, {
-              maxAge: (newTokens.expires_in - 60) * 1000, // Subtract 60 seconds for safety margin
-              httpOnly: false, // Set to true if you don't need client-side access
-              secure: process.env.NODE_ENV === 'production',
-              path: '/',
-              sameSite: 'strict'
-            });
-
-            // Update the refresh token in your database
-            await db.refreshTokens.updateOne(
-              { token: refreshToken },
-              { $set: { token: newTokens.refresh_token, updatedAt: new Date() } }
-            );
-            }
-
-            // Attach user info from new token to request
-            const decoded = jwt.decode(newTokens.access_token);
-            req.user = decoded;
             next();
-          } catch (error) {
-            console.error('Token verification error:', error);
-            return res.status(401).json({ message: 'Authentication failed' });
-          }
         };
 
         // Example of using the middleware to protect routes
@@ -257,5 +247,5 @@ Let's get started!
 ## What's next?
 
 You've completed the Scalekit quickstart and enabled secure authentication for your users and sign-in flow.
-- Implement sign up flows such as Just-In-Time (JIT) provisioning to create new users and manage user profiles.
+- [Manage users](/docs/fsa/manage-users) to create, update, and delete user accounts.
 - [Customize the login page](https://www.example.org) to match your brand's design and style.
