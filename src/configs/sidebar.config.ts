@@ -130,7 +130,7 @@ export const sidebar = [
         items: [
           'guides/fsa/logout',
           'guides/fsa/auth-methods',
-          'guides/fsa/user-sessions',
+          'guides/fsa/manage-users',
           'guides/user-roles',
           {
             label: 'Customizations',
