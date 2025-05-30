@@ -115,6 +115,44 @@ export const sidebar = [
     ],
   },
   {
+    label: 'Full Stack Auth',
+    id: 'full-stack-auth',
+    badge: { text: 'Beta', variant: 'note' },
+    link: '/fsa/quickstart',
+    icon: 'codePen',
+    items: [
+      {
+        label: 'Getting started',
+        items: ['fsa/overview', 'fsa/quickstart', 'fsa/data-modelling'],
+      },
+      {
+        label: 'Guides',
+        items: [
+          'guides/fsa/logout',
+          'guides/fsa/auth-methods',
+          'guides/fsa/user-sessions',
+          'guides/user-roles',
+          {
+            label: 'Customizations',
+            items: [
+              'guides/fsa/login-page-branding',
+              'guides/email-templates-providers',
+            ],
+          },
+          {
+            label: 'Reference',
+            items: [
+              'reference/fsa/authorization-endpoint',
+              'reference/fsa/redirects',
+              'reference/fsa/session-configs',
+              'reference/fsa/user-profile',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
     label: 'APIs & SDKs',
     id: 'dev-kit',
     link: '/dev-kit/',
