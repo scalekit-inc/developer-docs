@@ -224,5 +224,5 @@ export const topics = {
     '/guides/setup-scalekit',
     '/guides/external-ids-and-metadata',
   ],
-  'dev-kit': ['/guides/unlisted/magic-links-as-service'],
+  'dev-kit': ['/guides/unlisted/passwordless-as-service'],
 };
