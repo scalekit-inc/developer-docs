@@ -1,51 +1,90 @@
 ---
-title: Add passwordless authentication to your app
-description: Learn how to add passwordless authentication to your app using our headless API solutions.
-slug: "guides/unlisted/passwordless-as-service"
-head:
-  - tag: style
-    content: |
-      h2 {
-        font-size: var(--sl-text-2xl) !important;
-      }
+title: Quickstart
+description: A comprehensive guide to implementing secure, passwordless authentication using Scalekit's Headless API
+slug: "guides/passwordless/quickstart"
 
 ---
 
 import { Aside, Steps, Badge, Tabs, TabItem, LinkCard } from '@astrojs/starlight/components';
 
+## Passwordless Authentication with Scalekit
 
-Allow your customers to sign in to your app without a password or enhance your existing password-based authentication with multi-factor authentication (MFA). Scalekit provides the following authentication methods:
+Enhance your application's security and user experience by implementing passwordless authentication. This guide will walk you through integrating Scalekit's passwordless authentication using verification codes sent via email.
 
-- Verification Code (for passwordless or MFA)
+## Why Passwordless Authentication?
+
+- **Improved Security**: Eliminate password-related vulnerabilities like phishing and credential stuffing
+- **Better User Experience**: Reduce sign-in friction with no passwords to remember
+- **Lower Support Costs**: Fewer password reset requests and account lockouts
+- **Modern Authentication**: Aligns with current security best practices
+
+## Authentication Methods
+
+Scalekit supports multiple passwordless authentication methods:
+
+- **Verification Code (OTP)**: Users receive a one-time passcode via email
 - Magic Link <Badge variant="note" text="Coming soon" />
 - Magic Link + Verification Code <Badge variant="note" text="Coming soon" />
 
-In this guide, let's use Scalekit's Headless API to verify the user's identity using a verification code whether you're building a new authentication system or enhancing an existing home grown authentication system.
+## Prerequisites
 
-**Prerequisites**
+Before you begin, ensure you have:
 
-- [Create a Scalekit account](https://app.scalekit.com/ws/signup) and get your API credentials.
-- Learn [how to use the API credentials](https://docs.scalekit.com/apis#description/authentication) to make requests to the Scalekit API.
+1. A [Scalekit account](https://app.scalekit.com/ws/signup)
+2. Valid API credentials
+3. Basic understanding of [API authentication](https://docs.scalekit.com/apis#description/authentication)
 
 <Aside type="note" title="API Authentication">
-You'll need to include an access token in the `Authorization` header for all API requests. Get this token using your client credentials through the OAuth 2.0 client credentials flow. See the [API authentication guide](https://docs.scalekit.com/apis#description/authentication) for details.
+All API requests require an access token in the `Authorization` header. Generate this token using OAuth 2.0 client credentials flow. See the [API authentication guide](https://docs.scalekit.com/apis#description/authentication) for implementation details.
 </Aside>
 
-Let's get started!
+## Implementation Guide
 
 <Steps>
 
-1. ## Enable passwordless authentication
+1. ## Configure Passwordless Authentication
 
-    Although enabled by default, ensure _Verification Code_ is selected in the _Passwordless_ section of the _Authentication > Auth Methods_ tab.
+    Before implementing the code, ensure passwordless authentication is properly configured in your Scalekit dashboard:
+
+    1. Navigate to _Authentication > Auth Methods_
+    2. Locate the _Passwordless_ section
+    3. Ensure _Verification Code_ is enabled
+    4. Save your changes
 
     ![](@/assets/docs/unlisted/passwordless/1.png)
 
-2. ## Send a verification code
+    <Aside type="tip" title="Pro Tip">
+    You can customize the verification email templates under _Branding > Email Templates_ to match your application's branding.
+    </Aside>
 
-   A verification code is sent to the user's email address, which when input in the app, verifies the user's identity.
+2. ## Send Verification Code
 
-   In your app's sign in page, collect the user's email address and trigger a verification code over email.
+   The first step in the passwordless flow is to send a verification code to the user's email. This code will be used to verify their identity.
+
+   ### Implementation Steps
+
+   Follow these steps to implement the verification code flow:
+
+   1. Create a form to collect the user's email address
+   2. Call the verification code API when the form is submitted
+   3. Handle the response to provide feedback to the user
+
+   ### API Endpoint
+
+   ```http
+   POST /api/v1/passwordless/email/send
+   ```
+
+   ### Request Parameters
+
+   | Parameter | Type | Required | Description |
+   |-----------|------|----------|-------------|
+   | `email` | string | Yes | Recipient's email address |
+   | `expires_in` | number | No | Code expiration time in seconds (default: 300) |
+   | `state` | string | No | OIDC state parameter for request validation |
+   | `template` | string | No | Email template to use (`SIGNIN` or `SIGNUP`) |
+
+   ### Example Implementation
 
    <Tabs>
     <TabItem label="Curl">
@@ -90,16 +129,10 @@ Let's get started!
         .catch((error) => {
         console.log(error);
         });
+
     ```
     </TabItem>
    </Tabs>
-
-        | Param | Description |
-        |-----------|-------------|
-        | <pre>email</pre> | The email address of the user to send the verification code to <Badge variant="note" text="string" /> |
-        | <pre>expires_in</pre> | The time in seconds after which the verification code will expire. Default is 100 seconds (5 minutes) <Badge variant="note" text="number" /> |
-        | <pre>state</pre> | A unique state parameter that validates the authentication response matches the original request, crucial for passwordless flows with delayed verification. Based on OIDC spec <Badge variant="note" text="string" /> |
-        | <pre>template</pre> | The email template to use. Currently supports `SIGNIN` and `SIGNUP` <Badge variant="note" text="string" /> |
 
 
         ```json showLineNumbers=false title="Response"
@@ -127,7 +160,7 @@ Let's get started!
 
    <Tabs>
     <TabItem label="Curl">
-    ```sh ins={5} "/api/v1/passwordless/email/resend" title="Request" "auth_request_id" wrap
+    ```sh ins={5} "/api/v1/passwordless/email/resend" title="Request"
     curl -L '<SCALEKIT_ENVIRONMENT_URL>/api/v1/passwordless/email/resend' \
     -H 'Content-Type: application/json' \
     -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsIm..' \
@@ -162,6 +195,7 @@ Let's get started!
         .catch((error) => {
             console.log(error);
         });
+
     ```
     </TabItem>
    </Tabs>
@@ -186,13 +220,36 @@ Let's get started!
         | <pre>state</pre> | A unique state parameter that validates the authentication response matches the original request, crucial for passwordless flows with delayed verification. Based on OIDC spec <Badge variant="note" text="string" /> |
         | <pre>template</pre> | The email template to use. Currently supports `SIGNIN` and `SIGNUP` <Badge variant="note" text="string" /> |
 
-4. ## Verify the code
+4. ## Verify the Code
 
-   After the user receives the verification code, they can enter it in your app. Use the following endpoint to verify the code.
+   Once the user receives the verification code, they'll enter it in your application. Use the following endpoint to validate the code and complete the authentication process.
+
+   ### Implementation Steps
+
+   Follow these steps to verify the user's code:
+
+   1. Create a form to collect the verification code
+   2. Call the verification API when the form is submitted
+   3. Handle the response to either grant access or show an error
+
+   ### API Endpoint
+
+   ```http
+   POST /api/v1/passwordless/email/verify
+   ```
+
+   ### Request Parameters
+
+   | Parameter | Type | Required | Description |
+   |-----------|------|----------|-------------|
+   | `code` | string | Yes | The verification code entered by the user |
+   | `auth_request_id` | string | Yes | The request ID from the send code response |
+
+   ### Example Implementation
 
    <Tabs>
     <TabItem label="Curl">
-    ```sh ins={5} "/api/v1/passwordless/email/verify" title="Request" "auth_request_id" wrap
+    ```sh ins={5,6} "/api/v1/passwordless/email/verify" title="Request"
     curl -L '<SCALEKIT_ENVIRONMENT_URL>/api/v1/passwordless/email/verify' \
     -H 'Content-Type: application/json' \
     -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsIm..' \
@@ -228,13 +285,14 @@ Let's get started!
     .catch((error) => {
         console.log(error);
     });
+
     ```
     </TabItem>
    </Tabs>
 
    | Param | Description |
    |-----------|-------------|
-   | <pre>otp_code</pre> | The verification code received by the user <Badge variant="note" text="string" /> |
+   | <pre>code</pre> | The verification code received by the user <Badge variant="note" text="string" /> |
    | <pre>auth_request_id</pre> | The unique identifier for the authentication request that was sent earlier <Badge variant="note" text="string" /> |
 
    ```json showLineNumbers=false title="Response"
@@ -255,10 +313,27 @@ Let's get started!
 
 </Steps>
 
-Passwordless authentication is now ready to use in your application. Users can sign in securely without passwords by entering a verification code sent to their email. 
+## Implementation Complete
+
+Congratulations! You've successfully implemented passwordless authentication in your application. Users can now sign in securely without passwords by entering a verification code sent to their email.
+
+### Next Steps
+
+- **Test Your Implementation**: Try the complete authentication flow to ensure everything works as expected
+- **Enhance Security**: Consider implementing rate limiting and suspicious activity monitoring
+- **Customize Emails**: Update the email templates to match your brand
+
+<Aside type="tip" title="Best Practices">
+
+- Always implement rate limiting on the client side to prevent abuse
+- Provide clear error messages for invalid or expired codes
+- Consider implementing session management after successful authentication
+- Monitor failed authentication attempts for security purposes
+
+</Aside>
 
 <LinkCard
-  title="Need more help?"
+  title="Need More Help?"
   href="/support/contact-us"
   description="Reach out to us for any questions or support"
 />
