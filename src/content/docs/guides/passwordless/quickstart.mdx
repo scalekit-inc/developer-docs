@@ -1,9 +1,9 @@
 ---
-title: Quickstart (Headless API)
+title: Email OTP quickstart (Headless API)
 description: A comprehensive guide to implementing secure, passwordless authentication using Scalekit's Headless API
 slug: "guides/passwordless/quickstart"
 sidebar:
- label: 'Quickstart'
+ label: 'Email OTP'
  badge:
    text: 'Headless'
    variant: 'default'
@@ -78,30 +78,52 @@ Before you begin, ensure you have:
    POST /api/v1/passwordless/email/send
    ```
 
-   **Request parameters**
-
-   | Parameters | Type | Required | Description |
-   |-----------|------|----------|-------------|
-   | `email` | string | Yes | Recipient's email address |
-   | `expires_in` | number | No | Code expiration time in seconds (default: 300) |
-   | `state` | string | No | OIDC state parameter for request validation |
-   | `template` | string | No | Email template to use (`SIGNIN` or `SIGNUP`) |
-
    **Example implementation**
 
    <Tabs syncKey='tech-stack'>
     <TabItem label="Curl">
-    ```sh ins={5-8} "/api/v1/passwordless/email/send" title="Request" wrap
+    ```sh ins={6-9} "/api/v1/passwordless/email/send" title="Request" wrap
+    # Send a passwordless verification code to user's email
     curl -L '<SCALEKIT_ENVIRONMENT_URL>/api/v1/passwordless/email/send' \
     -H 'Content-Type: application/json' \
     -H 'Authorization: Bearer eyJh..' \
     --data-raw '{
         "email": "john.doe@example.com",
-        "expires_in": 300,
+        "expires_in": 3600,
         "state": "jAy-state1-gM4fdZ...2nqm6Q",
         "template": "SIGNIN",
     }'
+
+    # Response:
+    # {
+    #     "auth_request_id": "jAy-state1-gM4fdZ...2nqm6Q",
+    #     "expires_at": "1748696575",
+    #     "expires_in": 100,
+    #     "passwordless_type": "OTP"
+    # }
     ```
+    <details>
+      <summary>Request Parameters</summary>
+
+      | Parameters  | Type | Required | Description |
+      |-----------|------|----------|-------------|
+      | `email` | string | Yes | Recipient's email address |
+      | `expires_in` | number | No | Code expiration time in seconds (default: 300) |
+      | `state` | string | No | OIDC state parameter for request validation |
+      | `template` | string | No | Email template to use (`SIGNIN` or `SIGNUP`) |
+    </details>
+
+    <details>
+      <summary>Response Parameters</summary>
+
+      | Parameters | Description |
+      |-----------|-------------|
+      | `auth_request_id` | A unique identifier for the authentication request that can be used to verify the code <Badge variant="note" text="string" /> |
+      | `expires_at` | Unix timestamp indicating when the verification code will expire <Badge variant="note" text="string" /> |
+      | `expires_in` | The time in seconds after which the verification code will expire. Default is 100 seconds <Badge variant="note" text="number" /> |
+      | `passwordless_type` | The type of passwordless authentication to use. Currently supports `OTP`, `LINK`, `LINK_OTP` <Badge variant="note" text="string" /> |
+    </details>
+
 
     </TabItem>
     <TabItem label="Node.js">
@@ -126,24 +148,30 @@ Before you begin, ensure you have:
     // }
 
     ```
+     <details>
+      <summary>Request Parameters</summary>
+      | Parameter | Required | Description |
+      |-----------|----------|-------------|
+      | `email` | Yes | The email address to send the passwordless link to <Badge variant="note" text="string" /> |
+      | `template` | No | The template type (`SIGNIN`/`SIGNUP`) <Badge variant="note" text="string" /> |
+      | `state` | No | Optional state parameter to maintain state between request and callback <Badge variant="note" text="string" /> |
+      | `expiresIn` | No | Optional expiration time in seconds (default: 3600) <Badge variant="note" text="number" /> |
+    </details>
+
+    <details>
+      <summary>Response Parameters</summary>
+
+      | Parameters | Description |
+      |-----------|-------------|
+      | `authRequestId` | Unique identifier for the passwordless authentication request <Badge variant="note" text="string" /> |
+      | `expiresAt` | Expiration time in seconds since epoch <Badge variant="note" text="number" /> |
+      | `expiresIn` | Expiration time in seconds <Badge variant="note" text="number" /> |
+      | `passwordlessType` | Type of passwordless authentication (OTP/LINK/LINK_OTP) <Badge variant="note" text="string" /> |
+    </details>
     </TabItem>
    </Tabs>
 
 
-    ```json showLineNumbers=false title="Response"
-    {
-        "auth_request_id": "jAy-state1-gM4fdZ...2nqm6Q",
-        "expires_at": "1748696575",
-        "expires_in": 100,
-        "passwordless_type": "OTP"
-    }
-    ```
-        | Parameters | Description |
-        |-----------|-------------|
-        | `auth_request_id` | A unique identifier for the authentication request that can be used to verify the code <Badge variant="note" text="string" /> |
-        | `expires_at` | Unix timestamp indicating when the verification code will expire <Badge variant="note" text="string" /> |
-        | `expires_in` | The time in seconds after which the verification code will expire. Default is 100 seconds <Badge variant="note" text="number" /> |
-        | `passwordless_type` | The type of passwordless authentication to use. Currently supports `OTP`, `LINK`, `LINK_OTP` <Badge variant="note" text="string" /> |
 
         <Aside type="caution" title="Rate limits">
         You can send a maximum of 2 passwordless emails per minute per email address, including emails resent.
@@ -162,8 +190,33 @@ Before you begin, ensure you have:
     -d '{
         "auth_request_id": "jAy-state1-gM4fdZ...2nqm6Q"
     }'
-    ```
 
+    # Response:
+    # {
+    #     "auth_request_id": "jAy-state1-gM4fdZ...2nqm6Q",
+    #     "expires_at": "1748696575",
+    #     "expires_in": 300,
+    #     "passwordless_type": "OTP"
+    # }
+    ```
+    <details>
+      <summary>Request Parameters</summary>
+
+      | Parameters | Type | Required | Description |
+      |-----------|------|----------|-------------|
+      | `auth_request_id` | string | Yes | The unique identifier for the authentication request that was sent earlier |
+    </details>
+
+    <details>
+      <summary>Response Parameters</summary>
+
+      | Parameters | Description |
+      |-----------|-------------|
+      | `auth_request_id` | A unique identifier for the authentication request that can be used to verify the code <Badge variant="note" text="string" /> |
+      | `expires_at` | Unix timestamp indicating when the verification code will expire <Badge variant="note" text="string" /> |
+      | `expires_in` | The time in seconds after which the verification code will expire. Default is 300 seconds <Badge variant="note" text="number" /> |
+      | `passwordless_type` | The type of passwordless authentication to use. Currently supports `OTP`, `LINK`, `LINK_OTP` <Badge variant="note" text="string" /> |
+    </details>
     </TabItem>
     <TabItem label="Node.js">
     ```js
@@ -173,35 +226,34 @@ Before you begin, ensure you have:
     );
 
     // resendResponse = {
-    //   authRequestId: string,
-    //   expiresAt: number,    // seconds since epoch
-    //   expiresIn: number,    // seconds
-    //   passwordlessType: string  // "OTP" | "LINK" | "LINK_OTP"
+    //   authRequestId: "jAy-state1-gM4fdZ...2nqm6Q",
+    //   expiresAt: "1748696575",
+    //   expiresIn: "300",
+    //   passwordlessType: "OTP"
     // }
-
     ```
+    <details>
+      <summary>Request Parameters</summary>
+
+      | Parameters | Required | Description |
+      |-----------|----------|-------------|
+      | `authRequestId` | Yes | The unique identifier for the authentication request that was sent earlier <Badge variant="note" text="string" /> |
+    </details>
+
+    <details>
+      <summary>Response Parameters</summary>
+
+      | Parameters | Description |
+      |-----------|-------------|
+      | `authRequestId` | Unique identifier for the passwordless authentication request <Badge variant="note" text="string" /> |
+      | `expiresAt` | Expiration time in seconds since epoch <Badge variant="note" text="number" /> |
+      | `expiresIn` | Expiration time in seconds <Badge variant="note" text="number" /> |
+      | `passwordlessType` | Type of passwordless authentication (`OTP`/`LINK`/`LINK_OTP`) <Badge variant="note" text="string" /> |
+    </details>
     </TabItem>
    </Tabs>
 
-   | Parameters | Description |
-   |-----------|-------------|
-   | `auth_request_id` | The unique identifier for the authentication request that was sent earlier <Badge variant="note" text="string" /> |
 
-    ```json showLineNumbers=false title="Response"
-    {
-        "auth_request_id": "MMXw81GFTH8p0cz..z1POS8C46fUVQ",
-        "expires_at": "1748700599",
-        "expires_in": 100,
-        "passwordless_type": "OTP"
-    }
-    ```
-
-    | Parameters | Description |
-    |-----------|-------------|
-    | `email` | The email address of the user to send the verification code to <Badge variant="note" text="string" /> |
-    | `expires_in` | The time in seconds after which the verification code will expire. Default is 100 seconds (5 minutes) <Badge variant="note" text="number" /> |
-    | `state` | A unique state parameter that validates the authentication response matches the original request, crucial for passwordless flows with delayed verification. Based on OIDC spec <Badge variant="note" text="string" /> |
-    | `template` | The email template to use. Currently supports `SIGNIN` and `SIGNUP` <Badge variant="note" text="string" /> |
 
 4. ### Verify the code
 
@@ -221,14 +273,7 @@ Before you begin, ensure you have:
    POST /api/v1/passwordless/email/verify
    ```
 
-   **Request parameters**
-
-   | Parameter | Type | Required | Description |
-   |-----------|------|----------|-------------|
-   | `code` | string | Yes | The verification code entered by the user |
-   | `auth_request_id` | string | Yes | The request ID from the send code response |
-
-    **Example implementation**
+   **Example implementation**
 
    <Tabs syncKey='tech-stack'>
     <TabItem label="Curl">
@@ -241,7 +286,24 @@ Before you begin, ensure you have:
         "auth_request_id": "YC4QR-dVZVtNNVHcHwrnHNDV..."
     }'
     ```
+    <details>
+      <summary>Request Parameters</summary>
+      | Parameters | Required | Description |
+      |-----------|----------|-------------|
+      | `code` | Yes | The verification code entered by the user <Badge variant="note" text="string" /> |
+      | `auth_request_id` | Yes | The request ID from the send code response <Badge variant="note" text="string" /> |
+    </details>
 
+    <details>
+      <summary>Response Parameters</summary>
+
+      | Parameters | Description |
+      |-----------|-------------|
+      | `email` | The email address of the user <Badge variant="note" text="string" /> |
+      | `state` | The state parameter that was passed in the original request <Badge variant="note" text="string" /> |
+      | `template` | The template that was used for the verification code <Badge variant="note" text="string" /> |
+      | `passwordless_type` | The type of passwordless authentication to use. Currently supports `OTP`, `LINK`, `LINK_OTP` <Badge variant="note" text="string" /> |
+    </details>
     </TabItem>
     <TabItem label="Node.js">
     ```js
@@ -252,37 +314,33 @@ Before you begin, ensure you have:
     );
 
     // verifyResponse = {
-    //   email: string,
-    //   state: string,        // optional
-    //   template: string,     // "SIGNIN" | "SIGNUP"
-    //   passwordlessType: string // "OTP" | "LINK" | "LINK_OTP"
-    // }
-
+    // "email": "saifshine7@gmail.com",
+    // "state": "jAy-state1-gM4fdZdV22nqm6Q_j..",
+    // "template": "SIGNIN",
+    // "passwordless_type": "OTP"
+    //}
     ```
+    <details>
+      <summary>Request Parameters</summary>
+
+      | Parameters | Required | Description |
+      |-----------|----------|-------------|
+      | `code` | Yes | The verification code received by the user <Badge variant="note" text="string" /> |
+      | `authRequestId` | Yes | The unique identifier for the authentication request that was sent earlier <Badge variant="note" text="string" /> |
+    </details>
+
+    <details>
+      <summary>Response Parameters</summary>
+
+      | Parameters | Description |
+      |-----------|-------------|
+      | `email` | The email address of the user <Badge variant="note" text="string" /> |
+      | `state` | The state parameter that was passed in the original request <Badge variant="note" text="string" /> |
+      | `template` | The template that was used for the verification code <Badge variant="note" text="string" /> |
+      | `passwordlessType` | The type of passwordless authentication to use. Currently supports `OTP`, `LINK`, `LINK_OTP` <Badge variant="note" text="string" /> |
+    </details>
     </TabItem>
    </Tabs>
-
-   | Parameters | Description |
-   |-----------|-------------|
-   | `code` | The verification code received by the user <Badge variant="note" text="string" /> |
-   | `auth_request_id` | The unique identifier for the authentication request that was sent earlier <Badge variant="note" text="string" /> |
-
-    ```json showLineNumbers=false title="Response"
-    {
-       "email": "saifshine7@gmail.com",
-       "state": "jAy-state1-gM4fdZdV22nqm6Q_j..",
-       "template": "SIGNIN",
-       "passwordless_type": "OTP"
-   }
-    ```
-
-   | Parameters | Description |
-   |-----------|-------------|
-   | `email` | The email address of the user <Badge variant="note" text="string" /> |
-   | `state` | The state parameter that was passed in the original request <Badge variant="note" text="string" /> |
-   | `template` | The template that was used for the verification code <Badge variant="note" text="string" /> |
-   | `passwordless_type` | The type of passwordless authentication to use. Currently supports `OTP`, `LINK`, `LINK_OTP` <Badge variant="note" text="string" /> |
-
 </Steps>
 
 Congratulations! You've successfully implemented passwordless authentication in your application. Users can now sign in securely without passwords by entering a verification code sent to their email.
