@@ -27,7 +27,7 @@ export default defineConfig({
         minHeadingLevel: 2,
         maxHeadingLevel: 4,
       },
-      favicon: "src/assets/favicons/logo.png",
+      favicon: '/images/favicon.png',
       components: {
         // SocialIcons: './src/components/overrides/SocialIcons.astro',
         // Sidebar: './src/components/overrides/Sidebar.astro',

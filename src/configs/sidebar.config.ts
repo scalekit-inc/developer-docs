@@ -131,7 +131,7 @@ export const sidebar = [
     ],
   },
   {
-    label: 'APIs & SDKs',
+    label: 'SDKs & APIs',
     id: 'dev-kit',
     link: '/dev-kit/',
     icon: 'seti:powershell',
