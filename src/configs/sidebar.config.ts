@@ -123,14 +123,21 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['fsa/overview', 'fsa/quickstart', 'fsa/data-modelling'],
+        items: [
+          'fsa/overview',
+          'fsa/quickstart',
+          'guides/fsa/manage-users',
+          'fsa/data-modelling',
+        ],
       },
       {
         label: 'Guides',
         items: [
           'guides/fsa/logout',
-          'guides/fsa/auth-methods',
-          'guides/fsa/manage-users',
+          {
+            label: 'Auth methods',
+            items: ['guides/fsa/auth-methods'],
+          },
           'guides/user-roles',
           {
             label: 'Customizations',
