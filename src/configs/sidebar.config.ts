@@ -93,7 +93,11 @@ export const sidebar = [
     items: [
       {
         label: "Getting started",
-        items: ["guides/passwordless/quickstart"],
+        items: [
+          "guides/passwordless/overview",
+          "guides/passwordless/quickstart",
+          "guides/passwordless/oidc",
+        ],
       },
     ],
   },
