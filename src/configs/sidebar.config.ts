@@ -86,10 +86,33 @@ export const sidebar = [
     ],
   },
   {
+    label: 'Passwordless Auth',
+    link: '/guides/passwordless/quickstart',
+    icon: 'email',
+    id: 'passwordless',
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'guides/passwordless/overview',
+          'guides/passwordless/quickstart',
+          'guides/passwordless/oidc',
+        ],
+      },
+      {
+        label: 'Email customization',
+        items: [
+          'guides/passwordless/custom-email-provider',
+          // 'guides/passwordless/custom-email-templates',
+        ],
+      },
+    ],
+  },
+  {
     label: 'API Auth',
     link: '/m2m/quickstart',
     id: 'm2m',
-    icon: 'seti:powershell',
+    icon: 'seti:crystal_embedded',
     badge: { text: 'Beta', variant: 'note' },
     items: [
       {
@@ -118,7 +141,7 @@ export const sidebar = [
     label: 'SDKs & APIs',
     id: 'dev-kit',
     link: '/dev-kit/',
-    icon: 'seti:crystal_embedded',
+    icon: 'seti:powershell',
     items: [
       {
         label: 'Developer kit',
@@ -224,4 +247,5 @@ export const topics = {
     '/guides/setup-scalekit',
     '/guides/external-ids-and-metadata',
   ],
+  'dev-kit': ['/guides/unlisted/passwordless-as-service'],
 };
