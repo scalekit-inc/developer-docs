@@ -23,7 +23,7 @@ This guide will walk you through implementing passwordless authentication by sen
 
 Before you begin, ensure you have:
 
-1. Access to your Scalekit Account and the API credentials. If you don't have a Scalekit account yet, you can [signup here](https://app.scalekit.com/ws/signup).
+1. Access to your Scalekit Account and the API credentials. If you don't have a Scalekit account yet, you can <a href="https://app.scalekit.com/ws/signup" target="_blank" rel="noopener">signup here</a>.
 2. Installed Scalekit SDK into your project
 
     ```sh showLineNumbers=false
@@ -54,10 +54,6 @@ Before you begin, ensure you have:
     4. Save your changes
 
     ![](@/assets/docs/unlisted/passwordless/1.png)
-
-    <Aside type="tip" title="Pro Tip">
-    You can customize the verification email templates under _Branding > Email Templates_ to match your application's branding.
-    </Aside>
 
 2. ### Send verification code
 
@@ -194,16 +190,16 @@ Before you begin, ensure you have:
     # {
     #     "auth_request_id": "jAy-state1-gM4fdZ...2nqm6Q",
     #     "expires_at": "1748696575",
-    #     "expires_in": 300,
+    #     "expires_in": 3600,
     #     "passwordless_type": "OTP"
     # }
     ```
     <details>
       <summary>Request parameters</summary>
 
-      | Parameters | Type | Required | Description |
-      |-----------|------|----------|-------------|
-      | `auth_request_id` | string | Yes | The unique identifier for the authentication request that was sent earlier |
+      | Parameters | Required | Description |
+      |-----------|----------|-------------|
+      | `auth_request_id` | Yes | The unique identifier for the authentication request that was sent earlier <Badge variant="note" text="string" /> |
     </details>
 
     <details>
@@ -213,7 +209,7 @@ Before you begin, ensure you have:
       |-----------|-------------|
       | `auth_request_id` | A unique identifier for the authentication request that can be used to verify the code <Badge variant="note" text="string" /> |
       | `expires_at` | Unix timestamp indicating when the verification code will expire <Badge variant="note" text="string" /> |
-      | `expires_in` | The time in seconds after which the verification code will expire. Default is 300 seconds <Badge variant="note" text="number" /> |
+      | `expires_in` | The time in seconds after which the verification code will expire. Default is 3600 seconds <Badge variant="note" text="number" /> |
       | `passwordless_type` | The type of passwordless authentication to use. Currently supports `OTP` <Badge variant="note" text="string" /> |
     </details>
     </TabItem>
@@ -227,7 +223,7 @@ Before you begin, ensure you have:
     // resendResponse = {
     //   authRequestId: "jAy-state1-gM4fdZ...2nqm6Q",
     //   expiresAt: "1748696575",
-    //   expiresIn: "300",
+    //   expiresIn: "3600",
     //   passwordlessType: "OTP"
     // }
     ```
@@ -246,7 +242,7 @@ Before you begin, ensure you have:
       |-----------|-------------|
       | `authRequestId` | Unique identifier for the passwordless authentication request <Badge variant="note" text="string" /> |
       | `expiresAt` | Expiration time in seconds since epoch <Badge variant="note" text="number" /> |
-      | `expiresIn` | Expiration time in seconds <Badge variant="note" text="number" /> |
+      | `expiresIn` | Expiration time in seconds. Default is 3600 seconds <Badge variant="note" text="number" /> |
       | `passwordlessType` | Type of passwordless authentication (`OTP`) <Badge variant="note" text="string" /> |
     </details>
     </TabItem>
@@ -306,10 +302,11 @@ Before you begin, ensure you have:
     </TabItem>
     <TabItem label="Node.js">
     ```js
+    const { authRequestId } = sendResponse;
     const verifyResponse = await scalekit.passwordless
     .verifyPasswordlessEmail(
-        "123456", // code received via email
-        sendResponse.authRequestId
+        { code: "123456"},
+        authRequestId
     );
 
     // verifyResponse = {
@@ -324,7 +321,7 @@ Before you begin, ensure you have:
 
       | Parameters | Required | Description |
       |-----------|----------|-------------|
-      | `code` | Yes | The verification code received by the user <Badge variant="note" text="string" /> |
+      | `options.code` | Yes | The verification code received by the user <Badge variant="note" text="string" /> |
       | `authRequestId` | Yes | The unique identifier for the authentication request that was sent earlier <Badge variant="note" text="string" /> |
     </details>
 
