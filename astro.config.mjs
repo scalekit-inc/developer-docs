@@ -1,28 +1,28 @@
 // @ts-check
-import { defineConfig, passthroughImageService } from "astro/config";
-import starlight from "@astrojs/starlight";
-import react from "@astrojs/react";
-import path from "path";
-import vue from "@astrojs/vue";
-import starlightLinksValidator from "starlight-links-validator";
-import starlightSidebarTopics from "starlight-sidebar-topics";
-import starlightViewModes from "starlight-view-modes";
-import starlightImageZoom from "starlight-image-zoom";
-import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
-import starlightThemeRapide from "starlight-theme-rapide";
-import starlightLlmsTxt from "starlight-llms-txt";
-import { sidebar as sidebarConfig, topics } from "./src/configs/sidebar.config";
-import { redirects } from "./src/configs/redirects.config";
+import { defineConfig, passthroughImageService } from 'astro/config';
+import starlight from '@astrojs/starlight';
+import react from '@astrojs/react';
+import path from 'path';
+import vue from '@astrojs/vue';
+import starlightLinksValidator from 'starlight-links-validator';
+import starlightSidebarTopics from 'starlight-sidebar-topics';
+import starlightViewModes from 'starlight-view-modes';
+import starlightImageZoom from 'starlight-image-zoom';
+import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
+import starlightThemeRapide from 'starlight-theme-rapide';
+import starlightLlmsTxt from 'starlight-llms-txt';
+import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config';
+import { redirects } from './src/configs/redirects.config';
 
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://docs.scalekit.com",
+  site: 'https://docs.scalekit.com',
   redirects,
   integrations: [
     starlight({
-      title: "Scalekit Docs",
+      title: 'Scalekit Docs',
       tableOfContents: {
         minHeadingLevel: 2,
         maxHeadingLevel: 4,
@@ -31,16 +31,16 @@ export default defineConfig({
       components: {
         // SocialIcons: './src/components/overrides/SocialIcons.astro',
         // Sidebar: './src/components/overrides/Sidebar.astro',
-        Head: "./src/components/overrides/Head.astro",
+        Head: './src/components/overrides/Head.astro',
       },
       logo: {
-        dark: "/src/assets/images/logos/scalekit-logo-green-dark.svg",
-        light: "/src/assets/images/logos/scalekit-logo-green-light.svg",
+        dark: '/src/assets/images/logos/scalekit-logo-green-dark.svg',
+        light: '/src/assets/images/logos/scalekit-logo-green-light.svg',
         replacesTitle: true,
       },
-      defaultLocale: "en",
+      defaultLocale: 'en',
       editLink: {
-        baseUrl: "https://github.com/scalekit-inc/developer-docs/edit/main",
+        baseUrl: 'https://github.com/scalekit-inc/developer-docs/edit/main',
       },
       pagefind: {
         mergeIndex: [
@@ -55,15 +55,15 @@ export default defineConfig({
       },
       expressiveCode: {
         useStarlightDarkModeSwitch: true,
-        themes: ["vitesse-dark", "vitesse-light"],
+        themes: ['vitesse-dark', 'vitesse-light'],
       },
       customCss: [
-        "@fontsource-variable/inter",
+        '@fontsource-variable/inter',
 
         /** Backup fonts. They can be removed if deemed unnecessary. */
         // '@fontsource-variable/plus-jakarta-sans',
         // '@fontsource-variable/space-grotesk',
-        "./src/styles/theme-priority.css",
+        './src/styles/theme-priority.css',
 
         /** The following order is covered in theme-priority.css. Consider removing if deemed unnecessary. */
         // './src/styles/custom.css',
@@ -82,7 +82,7 @@ export default defineConfig({
       ],
       head: [
         {
-          tag: "script",
+          tag: 'script',
           content: `
             !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug getPageViewId captureTraceFeedback captureTraceMetric".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
             posthog.init('phc_85pLP8gwYvRCQdxgLQP24iqXHPRGaLgEw4S4dgZHJZ', {
@@ -93,7 +93,7 @@ export default defineConfig({
         },
         // Add the iframe detection script inline
         {
-          tag: "script",
+          tag: 'script',
           content: `
             function inIframe() {
               try {
@@ -156,7 +156,7 @@ export default defineConfig({
       jsx: true,
       template: {
         compilerOptions: {
-          isCustomElement: (tag) => tag.includes("-"),
+          isCustomElement: (tag) => tag.includes('-'),
         },
       },
     }),
@@ -167,12 +167,12 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
-        "@": path.resolve("./src"),
-        "@components": path.resolve("./src/components"),
+        '@': path.resolve('./src'),
+        '@components': path.resolve('./src/components'),
       },
     },
     optimizeDeps: {
-      include: ["vue"],
+      include: ['vue'],
       exclude: [],
     },
     plugins: [pluginCollapsibleSections(), tailwindcss()],
