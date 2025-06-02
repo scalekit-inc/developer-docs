@@ -103,7 +103,7 @@ export const sidebar = [
         label: 'Email Customization',
         items: [
           'guides/passwordless/custom-email-provider',
-          'guides/passwordless/custom-email-templates',
+          // 'guides/passwordless/custom-email-templates',
         ],
       },
     ],
