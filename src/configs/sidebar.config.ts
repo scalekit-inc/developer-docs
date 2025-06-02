@@ -87,7 +87,7 @@ export const sidebar = [
   },
   {
     label: 'Passwordless Auth',
-    link: '/guides/passwordless/overview',
+    link: '/guides/passwordless/quickstart',
     icon: 'email',
     id: 'passwordless',
     items: [
@@ -95,7 +95,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'guides/passwordless/overview',
-          'guides/passwordless/email-otp-quickstart',
+          'guides/passwordless/quickstart',
           'guides/passwordless/oidc',
         ],
       },
