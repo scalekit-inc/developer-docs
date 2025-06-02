@@ -86,10 +86,10 @@ export const sidebar = [
     ],
   },
   {
-    label: "Passwordless Auth",
-    link: "/guides/passwordless/quickstart",
-    icon: "email",
-    id: "passwordless",
+    label: 'Passwordless Auth',
+    link: '/guides/passwordless/overview',
+    icon: 'email',
+    id: 'passwordless',
     items: [
       {
         label: "Getting started",
@@ -102,8 +102,10 @@ export const sidebar = [
       {
         label: "Email Customization",
         items: [
-          "guides/passwordless/custom-email-provider",
-          "guides/passwordless/custom-email-templates",
+          'guides/passwordless/overview',
+          'guides/passwordless/email-otp-quickstart',
+          // 'guides/passwordless/email-magiclink-quickstart',
+          'guides/passwordless/oidc',
         ],
       },
     ],
