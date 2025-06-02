@@ -59,8 +59,6 @@ export default defineConfig({
       },
       customCss: [
         '@fontsource-variable/inter',
-        '@fontsource-variable/geist',
-        '@fontsource-variable/geist-mono',
 
         /** Backup fonts. They can be removed if deemed unnecessary. */
         // '@fontsource-variable/plus-jakarta-sans',
