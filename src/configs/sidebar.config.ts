@@ -131,21 +131,21 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Auth methods',
+        items: [
+          'guides/fsa/auth-methods',
+          'guides/fsa/social-logins',
+          'guides/fsa/enterprise-sso',
+          'guides/fsa/passwordless',
+        ],
+      },
+      {
         label: 'Guides',
         items: [
           'guides/fsa/logout',
-          {
-            label: 'Auth methods',
-            items: ['guides/fsa/auth-methods'],
-          },
           'guides/user-roles',
-          {
-            label: 'Customizations',
-            items: [
-              'guides/fsa/login-page-branding',
-              'guides/email-templates-providers',
-            ],
-          },
+          'guides/fsa/login-page-branding',
+          'guides/email-templates-providers',
           {
             label: 'Reference',
             items: [
