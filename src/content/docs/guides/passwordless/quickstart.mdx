@@ -84,7 +84,7 @@ Before you begin, ensure you have:
         "state": "jAy-state1-gM4fdZ...2nqm6Q",
         "template": "SIGNIN",
 
-        "magiclink_auth_uri": "http://yourapp.com/passwordless/callback"
+        "magiclink_auth_uri": "http://yourapp.com/passwordless/verify"
     }'
 
     # Response:
@@ -357,7 +357,7 @@ Before you begin, ensure you have:
            -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsIm..' \
            -d '{
                "link_token": "a4143d8f-...c846ed91e_l",
-               "auth_request_id": "YC4QR-dVZVtNNVHcHwrnHNDV..."
+               "auth_request_id": "YC4QR-dVZVtNNVHcHwrnHNDV..." // (optional)
            }'
            ```
            <details>
@@ -365,7 +365,7 @@ Before you begin, ensure you have:
              | Parameters | Required | Description |
              |-----------|----------|-------------|
              | `link_token` | Yes | The link token received by the user <Badge variant="note" text="string" /> |
-             | `auth_request_id` | No | The request ID from the send code response. Required only if same browser origin is enforced in the Scalekit dashboard <Badge variant="note" text="string" /> |
+             | `auth_request_id` | No | The request ID from the send response. Required only if same browser origin is enforced in the Scalekit dashboard <Badge variant="note" text="string" /> |
            </details>
 
            <details>
@@ -392,7 +392,7 @@ Before you begin, ensure you have:
                const verifyResponse = await scalekit.passwordless
                  .verifyPasswordlessEmail(
                    { linkToken: link_token },
-                   authRequestId // from sendResponse.authRequestId
+                   authRequestId // (optional) sendResponse.authRequestId
                  );
 
                // 4. Successfully log the user in
