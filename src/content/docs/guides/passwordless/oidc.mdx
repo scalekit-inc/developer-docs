@@ -10,7 +10,7 @@ sidebar:
 head:
   - tag: style
     content: |
-      table td:first-child, table th:first-child {
+      table td:not(:last-child), table th:not(:last-child) {
         white-space: nowrap;
       }
 prev:
@@ -53,7 +53,7 @@ Before you begin, ensure you have:
 
     1. Navigate to _Authentication > Auth Methods_
     2. Locate the _Passwordless_ section
-    3. Ensure _Verification Code_ is enabled
+    3. Choose the type of passwordless authentication to use.
     4. Save your changes
 
     ![](@/assets/docs/unlisted/passwordless/1.png)
@@ -61,7 +61,7 @@ Before you begin, ensure you have:
 
 2. #### Initiate authorize request
 
-   To initiate passwordless authentication, redirect users to the Scalekit Authorization Endpoint with the appropriate parameters.
+   To initiate passwordless authentication, redirect users to the Scalekit authorization endpoint with the appropriate parameters.
 
     Construct your authorization URL with the following parameters and redirect the user to the authorization URL.
 
@@ -69,7 +69,7 @@ Before you begin, ensure you have:
     |-----------|-------------|
     | `redirect_uri` | Your application endpoint that will receive the authorization code after successful authentication. Example: `https://your-app.com/auth/callback` |
     | `client_id` | Your unique Scalekit application identifier that specifies both your app and environment (staging, production). |
-    | `login_hint` | The email address of the user to send the verification code to |
+    | `login_hint` | The email address of the user to send the verification email |
 
    **Example implementation**
 
@@ -215,14 +215,11 @@ Before you begin, ensure you have:
 
     ```javascript showLineNumbers wrap title="Fetch user profile"
     // Handle oauth redirect_url, fetch code and error_description from request params
-    const { code, error, error_description, idp_initiated_login, connection_id, relay_state } =
-      req.query;
+    const { code, error, error_description } = req.query;
 
     if (error) {
       // Handle errors
     }
-
-    // Recommended: Handle idp initiated login
 
     const result = await scalekit.authenticateWithCode(code, redirectUri);
     const userEmail = result.user.email;
@@ -241,8 +238,6 @@ Before you begin, ensure you have:
 
     if error:
         raise Exception(error_description)
-
-    # Recommended: Handle idp initiated login
 
     result = scalekit.authenticate_with_code(code, '<redirect_uri>')
 
@@ -292,8 +287,6 @@ Before you begin, ensure you have:
         return;
     }
 
-    // Recommended: Handle idp initiated login
-
     try {
         AuthenticationResponse result = scalekit.authentication().authenticateWithCode(code, redirectUrl);
         String userEmail = result.getIdTokenClaims().getEmail();
@@ -323,12 +316,12 @@ Before you begin, ensure you have:
 
 </Steps>
 
-Congratulations! You've successfully implemented passwordless authentication in your application. Users can now sign in securely without passwords by entering a verification code sent to their email.
+Congratulations! You've successfully implemented passwordless authentication in your application. Users can now sign in securely without passwords by entering a verification code or clicking a magic link sent to their email.
 
 ### Next steps
 
 - Bring your own email provider <Badge variant="note" text="Coming soon" />
-- Customize the email templates to match your brand
+- Customize the email templates to match your brand <Badge variant="note" text="Coming soon" />
 
 <LinkCard
   title="Need more help?"
