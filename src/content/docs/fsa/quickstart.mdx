@@ -243,13 +243,44 @@ Let's get started!
       Successfully authenticated users can now access your dashboard.
 
 5. ## Log out the user
-      Logging the user securely involves clearing the identifiers to users
+      To log out a user securely, you must:
+      1. Clear all session tokens from your application
+      2. Notify Scalekit to invalidate the user's session
 
-      ```javascript
-      res.clearCookie('accessToken');
-      res.clearCookie('refreshToken');
-      res.redirect('/');
-      ```
+      <Tabs syncKey="tech-stack">
+        <TabItem value="node" label="Node.js">
+          ```javascript
+          /**
+           * Handles user logout by:
+           * 1. Clearing local session data
+           * 2. Invalidating the Scalekit session
+           * 3. Redirecting to post-logout URL
+           */
+          app.get('/logout', (req, res) => {
+            // Clear all session data including cookies and local storage
+            clearSessionData();
+
+            /**
+             * Generates a Scalekit logout URL that will:
+             * - Invalidate the user's session on Scalekit's servers
+             * - Redirect the user to the specified post-logout URL
+             * @param {string} idToken - The user's ID token to invalidate
+             * @param {string} postLogoutRedirectUri - URL to redirect after logout
+             * @returns {string} The complete logout URL
+             */
+            const logoutUrl = scalekit.getLogoutUrl(
+              idToken,
+              postLogoutRedirectUri
+            );
+
+            // Redirect to Scalekit's logout endpoint
+            // Note: This is a one-time use URL that becomes invalid after use
+            res.redirect(logoutUrl);
+          });
+          ```
+        </TabItem>
+      </Tabs>
+      The logout process completes in two steps: Scalekit invalidates the user's session on our servers, then redirects them to your app's home page or another URL you specify.
 </Steps>
 
 ## What's next?
