@@ -1458,39 +1458,6 @@
         ]
       }
     },
-    "/api/v1/passwordless/email/resend": {
-      "post": {
-        "description": "Sends a new passwordless authentication email for an existing authentication request. Use this endpoint when users don't receive the initial email or when the previous email has expired. The new email will contain fresh credentials with a new expiration time.",
-        "tags": ["Passwordless Auth"],
-        "summary": "Resend passwordless email",
-        "operationId": "PasswordlessService_ResendPasswordlessEmail",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/passwordlessResendPasswordlessRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully resent the passwordless authentication email. Returns updated authentication request details with new expiration time.",
-            "schema": {
-              "$ref": "#/definitions/passwordlessSendPasswordlessResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const { authRequestId } = sendResponse;\nconst resendResponse = await scalekit.passwordless\n.resendPasswordlessEmail(\n    authRequestId\n);"
-          }
-        ]
-      }
-    },
     "/api/v1/passwordless/email/send": {
       "post": {
         "description": "Initiates a passwordless authentication flow by sending an email containing either a Verification Code (OTP) or a magic link to the specified email address. Use this endpoint to provide users with secure, password-free access to your application. The authentication method depends on your organization's configuration settings.",
@@ -1520,6 +1487,39 @@
             "label": "Node.js SDK",
             "lang": "javascript",
             "source": "const options = {\n  template: \"SIGNIN\",\n  state: \"jAy-state1-...2nqm6Q\",\n  expiresIn: 3600,\n  // Required if you selected Link or Link+OTP\n  magiclinkAuthUri: \"https://yourapp.com/passwordless/verify\"\n};\n\nconst sendResponse = await scalekit.passwordless\n  .sendPasswordlessEmail(\n    \"\u003cjohn.doe@example.com\u003e\",\n    options\n);"
+          }
+        ]
+      }
+    },
+    "/api/v1/passwordless/email/resend": {
+      "post": {
+        "description": "Sends a new passwordless authentication email for an existing authentication request. Use this endpoint when users don't receive the initial email or when the previous email has expired. The new email will contain fresh credentials with a new expiration time.",
+        "tags": ["Passwordless Auth"],
+        "summary": "Resend passwordless email",
+        "operationId": "PasswordlessService_ResendPasswordlessEmail",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/passwordlessResendPasswordlessRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully resent the passwordless authentication email. Returns updated authentication request details with new expiration time.",
+            "schema": {
+              "$ref": "#/definitions/passwordlessSendPasswordlessResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const { authRequestId } = sendResponse;\nconst resendResponse = await scalekit.passwordless\n.resendPasswordlessEmail(\n    authRequestId\n);"
           }
         ]
       }
