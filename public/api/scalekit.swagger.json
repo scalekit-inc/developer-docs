@@ -1486,14 +1486,14 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "const options = {\n  template: \"SIGNIN\",\n  state: \"jAy-state1-...2nqm6Q\",\n  expiresIn: 3600,\n  // Required if you selected Link or Link+OTP\n  magiclinkAuthUri: \"https://yourapp.com/passwordless/verify\"\n};\n\nconst sendResponse = await scalekit.passwordless\n  .sendPasswordlessEmail(\n    \"\u003cjohn.doe@example.com\u003e\",\n    options\n);"
+            "source": "const options = {\n  template: \"SIGNIN\",\n  state: \"jAy-state1-...2nqm6Q\",\n  expiresIn: 300,\n  // Required if you selected Link or Link+OTP\n  magiclinkAuthUri: \"https://yourapp.com/passwordless/verify\"\n};\n\nconst sendResponse = await scalekit.passwordless\n  .sendPasswordlessEmail(\n    \"\u003cjohn.doe@example.com\u003e\",\n    options\n);"
           }
         ]
       }
     },
     "/api/v1/passwordless/email/resend": {
       "post": {
-        "description": "Sends a new passwordless authentication email for an existing authentication request. Use this endpoint when users don't receive the initial email or when the previous email has expired. The new email will contain fresh credentials with a new expiration time.",
+        "description": "Sends a new passwordless authentication email for an existing authentication request.",
         "tags": ["Passwordless Auth"],
         "summary": "Resend passwordless email",
         "operationId": "PasswordlessService_ResendPasswordlessEmail",
@@ -1577,7 +1577,7 @@
           "example": "123456"
         },
         "link_token": {
-          "description": "The unique token from the magic link URL received via email. This token is automatically extracted when users click the magic link and are redirected to your application.",
+          "description": "The unique token from the magic link URL received via email. Extract this token when users click the magic link and are redirected to your application to later verify the user.",
           "type": "string",
           "example": "afe9d61c-d80d-4020-a8ee-61765ab71cb3"
         }
@@ -1601,7 +1601,7 @@
           "description": "The custom state parameter that was provided in the original authentication request, returned unchanged. Use this to restore your application's context after authentication.",
           "type": "string",
           "readOnly": true,
-          "example": "dashboard_redirect"
+          "example": "d62ivasry29lso"
         },
         "template": {
           "description": "The authentication intent that was specified in the original request, indicating whether this was a sign-in or sign-up flow.",
@@ -1614,7 +1614,7 @@
       "type": "object",
       "properties": {
         "auth_request_id": {
-          "description": "The authentication request identifier from the original send passwordless email request. Use this to resend the same authentication credentials to the same email address.",
+          "description": "The authentication request identifier from the original send passwordless email request. Use this to resend the Verification Code (OTP) or magic link to the same email address.",
           "type": "string",
           "example": "req_1234567890abcdef"
         }
@@ -1629,10 +1629,10 @@
           "example": "user@company.com"
         },
         "expires_in": {
-          "description": "Time in seconds until the passwordless authentication expires. Must be between 60 seconds (1 minute) and 604800 seconds (7 days). If not specified, defaults to 3600 seconds (1 hour).",
+          "description": "Time in seconds until the passwordless authentication expires. If not specified, defaults to 300 seconds (5 minutes).",
           "type": "integer",
           "format": "int64",
-          "example": 3600
+          "example": 300
         },
         "magiclink_auth_uri": {
           "description": "Your application's callback URL where users will be redirected after clicking the magic link in their email. The link token will be appended as a query parameter. This URL must be registered in your application's allowed redirect URIs.",
@@ -1642,7 +1642,7 @@
         "state": {
           "description": "Custom state parameter that will be returned unchanged in the verification response. Use this to maintain application state between the authentication request and callback, such as the intended destination after login.",
           "type": "string",
-          "example": "dashboard_redirect"
+          "example": "d62ivasry29lso"
         },
         "template": {
           "description": "Specifies the authentication intent for the passwordless request. Use SIGNIN for existing users or SIGNUP for new user registration. This affects the email template and user experience flow.",
@@ -1655,7 +1655,7 @@
       "type": "object",
       "properties": {
         "auth_request_id": {
-          "description": "Unique identifier for this passwordless authentication request. Use this ID to resend emails or track the authentication flow status.",
+          "description": "Unique identifier for this passwordless authentication request. Use this ID to resend emails.",
           "type": "string",
           "readOnly": true,
           "example": "req_1234567890abcdef"
@@ -1672,7 +1672,7 @@
           "type": "integer",
           "format": "int64",
           "readOnly": true,
-          "example": 3600
+          "example": 300
         },
         "passwordless_type": {
           "description": "Type of passwordless authentication that was sent via email. OTP sends a numeric code, LINK sends a clickable magic link, and LINK_OTP provides both options for user convenience.",
