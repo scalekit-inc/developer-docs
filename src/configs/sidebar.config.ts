@@ -123,20 +123,49 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
+        items: ['fsa/overview', 'fsa/quickstart', 'fsa/data-modelling'],
+      },
+      {
+        label: 'Authentication',
         items: [
-          'fsa/overview',
-          'fsa/quickstart',
-          'guides/fsa/manage-users',
-          'fsa/data-modelling',
+          'guides/fsa/implement-login',
+          {
+            label: 'Auth methods',
+            items: [
+              'guides/fsa/auth-methods',
+              'guides/fsa/social-logins',
+              'guides/fsa/enterprise-sso',
+              'guides/fsa/passwordless',
+            ],
+          },
+          'guides/fsa/implement-signup',
         ],
       },
       {
-        label: 'Auth methods',
+        label: 'Session management',
+        items: ['guides/fsa/manage-session', 'guides/fsa/logout'],
+      },
+      {
+        label: 'User management',
         items: [
-          'guides/fsa/auth-methods',
-          'guides/fsa/social-logins',
-          'guides/fsa/enterprise-sso',
-          'guides/fsa/passwordless',
+          'reference/fsa/redirects',
+          {
+            label: 'Organization',
+            items: [
+              'guides/fsa/manage-organization',
+              'guides/organization-settings',
+            ],
+          },
+          {
+            label: 'Users',
+            items: [
+              'reference/fsa/user-profile',
+              'guides/fsa/user-invite',
+              'guides/user-roles',
+              'reference/fsa/session-configs',
+              'guides/fsa/manage-users',
+            ],
+          },
         ],
       },
       {
@@ -144,22 +173,6 @@ export const sidebar = [
         items: [
           'guides/fsa/login-page-branding',
           'guides/email-templates-providers',
-        ],
-      },
-      {
-        label: 'Guides',
-        items: [
-          'guides/fsa/logout',
-          'guides/user-roles',
-          {
-            label: 'Reference',
-            items: [
-              'reference/fsa/authorization-endpoint',
-              'reference/fsa/redirects',
-              'reference/fsa/session-configs',
-              'reference/fsa/user-profile',
-            ],
-          },
         ],
       },
     ],
