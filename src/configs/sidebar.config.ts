@@ -128,6 +128,14 @@ export const sidebar = [
         ],
       },
       {
+        label: 'MCP Auth',
+        items: [
+          'guides/mcp/overview',
+          'guides/mcp/oauth',
+          //"guides/mcp/additional-reading",
+        ],
+      },
+      {
         label: 'Guides',
         items: [
           'guides/m2m/m2m-basics',
@@ -246,6 +254,7 @@ export const topics = {
     '/home/**/*',
     '/guides/setup-scalekit',
     '/guides/external-ids-and-metadata',
+    '/guides/mcp/additional-reading',
   ],
   'dev-kit': ['/guides/unlisted/passwordless-as-service'],
 };
