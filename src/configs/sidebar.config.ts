@@ -140,12 +140,17 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Customization',
+        items: [
+          'guides/fsa/login-page-branding',
+          'guides/email-templates-providers',
+        ],
+      },
+      {
         label: 'Guides',
         items: [
           'guides/fsa/logout',
           'guides/user-roles',
-          'guides/fsa/login-page-branding',
-          'guides/email-templates-providers',
           {
             label: 'Reference',
             items: [
