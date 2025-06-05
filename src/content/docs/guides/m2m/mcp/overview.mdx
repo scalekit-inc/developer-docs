@@ -1,7 +1,9 @@
 ---
-title: Auth for MCP Servers - Overview
+title: Auth for MCP servers - Overview
 description: Secure your Model Context Protocol (MCP) servers with Scalekit's drop-in OAuth 2.1 authorization solution
 slug: "guides/mcp/overview"
+tableOfContents:
+  maxHeadingLevel: 2
 sidebar:
   label: Overview
 prev: false
@@ -19,18 +21,18 @@ Think of MCP like a USB-C port for AI applications. Just as USB-C provides a sta
 
 The Model Context Protocol is an open standard that defines how AI applications can safely and efficiently access external resources, tools, and data sources. Instead of each AI system requiring custom integrations for every service it needs to access, MCP creates a universal interface that works across different AI models, platforms, and data sources.
 
-### The MCP Architecture
+### The MCP architecture
 
 At its core, MCP follows a client-server architecture where a host application can connect to multiple servers:
 
-- **MCP Hosts**: AI applications like Claude Desktop, IDEs, or custom AI tools that need to access external resources
-- **MCP Clients**: Protocol clients that maintain connections between hosts and servers
-- **MCP Servers**: Lightweight programs that expose specific capabilities (tools, data, or services) through the standardized protocol
-- **Data Sources**: Local files, databases, APIs, and services that MCP servers can access
+- **MCP hosts**: AI applications like Claude Desktop, IDEs, or custom AI tools that need to access external resources
+- **MCP clients**: Protocol clients that maintain connections between hosts and servers
+- **MCP servers**: Lightweight programs that expose specific capabilities (tools, data, or services) through the standardized protocol
+- **Data sources**: Local files, databases, APIs, and services that MCP servers can access
 
 This architecture enables a plugin ecosystem where AI models can seamlessly integrate with hundreds of different services without requiring custom code for each integration.
 
-## The Path to Secure MCP: OAuth 2.1 Integration
+## The path to secure MCP: OAuth 2.1 integration
 
 Recognizing these challenges, the MCP specification evolved to incorporate robust authorization mechanisms. The Model Context Protocol provides authorization capabilities at the transport level, enabling MCP clients to make requests to restricted MCP servers on behalf of resource owners.
 
@@ -38,18 +40,18 @@ Recognizing these challenges, the MCP specification evolved to incorporate robus
 
 The MCP specification chose OAuth 2.1 as its authorization framework for several compelling reasons:
 
-**Industry Standard**: OAuth 2.1 is a well-established, widely-adopted standard for delegated authorization, with extensive tooling and ecosystem support.
+**Industry standard**: OAuth 2.1 is a well-established, widely-adopted standard for delegated authorization, with extensive tooling and ecosystem support.
 
-**Security Best Practices**: OAuth 2.1 incorporates lessons learned from OAuth 2.0, removing deprecated flows and enforcing security measures like PKCE (Proof Key for Code Exchange).
+**Security best practices**: OAuth 2.1 incorporates lessons learned from OAuth 2.0, removing deprecated flows and enforcing security measures like PKCE (Proof Key for Code Exchange).
 
 **Flexibility**: Supports multiple grant types suitable for different MCP use cases:
 
-- **Authorization Code**: When AI agents act on behalf of human users
-- **Client Credentials**: For machine-to-machine integrations
+- **Authorization code**: When AI agents act on behalf of human users
+- **Client credentials**: For machine-to-machine integrations
 
-**Ecosystem Compatibility**: Works with existing identity providers and authorization servers, making it easier for enterprises to integrate MCP into their existing security infrastructure.
+**Ecosystem compatibility**: Works with existing identity providers and authorization servers, making it easier for enterprises to integrate MCP into their existing security infrastructure.
 
-### **MCP Authorization Specification Overview**
+### **MCP authorization specification overview**
 
 This authorization mechanism is based on established specifications listed below, but implements a selected subset of their features to ensure security and interoperability while maintaining simplicity:
 
@@ -58,33 +60,33 @@ This authorization mechanism is based on established specifications listed below
 - **OAuth 2.0 Dynamic Client Registration Protocol (RFC7591)**: Automatic client registration
 - **OAuth 2.0 Protected Resource Metadata (RFC9728)**: Resource server discovery
 
-## The Authorization Flow in Practice
+## The authorization flow in practice
 
-The MCP OAuth 2.1 authorization flow creates a secure, standardized process for AI agents to access protected resources:
+Here's how the MCP OAuth 2.1 flow unfolds step-by-step::
 ![MCP OAuth 2.1 Authorization Flow](@/assets/docs/guides/mcp/mcp-auth-flow.png)
 
-### **Discovery Phase**
+### **Discovery phase**
 
-1. **MCP Client** encounters a protected MCP server
+1. **MCP client** encounters a protected MCP server
 2. **Server** responds with `401 Unauthorized` and `WWW-Authenticate` header pointing to authorization server
 3. **Client** discovers authorization server capabilities through metadata endpoints
 
-### **Authorization Phase**
+### **Authorization phase**
 
 4. **Client** registers with authorization server (if using Dynamic Client Registration)
-5. **Authorization Server** issues client credentials
+5. **Authorization server** issues client credentials
 6. **Client** initiates appropriate OAuth flow (Authorization Code or Client Credentials)
 7. **User** grants consent (for Authorization Code flow)
-8. **Authorization Server** issues access token with appropriate scopes
+8. **Authorization server** issues access token with appropriate scopes
 
-### **Access Phase**
+### **Access phase**
 
 9. **Client** includes access token in requests to MCP server
-10. **MCP Server** validates token and enforces scope-based permissions
+10. **MCP server** validates token and enforces scope-based permissions
 11. **Server** processes request and returns response
 12. **All interactions** are logged for audit and compliance
 
-## Key Security Enhancements in MCP OAuth 2.1
+## Key security enhancements in MCP OAuth 2.1
 
 The current MCP authorization specification incorporates several critical security improvements:
 
@@ -92,15 +94,15 @@ The current MCP authorization specification incorporates several critical securi
 
 MCP clients MUST implement PKCE according to OAuth 2.1 Section 7.5.2. PKCE helps prevent authorization code interception and injection attacks by requiring clients to create a secret verifier-challenge pair, ensuring that only the original requestor can exchange an authorization code for tokens.
 
-### **Strict Redirect URI Validation**
+### **Strict redirect URI validation**
 
-MCP clients MUST have redirect URIs registered with the authorization server. Authorization servers MUST validate exact redirect URIs against pre-registered values to prevent redirection attacks.
+MCP clients MUST pre-register exact redirect URIs with the authorization server. During authorization, the server MUST enforce an exact match to prevent redirection attacks.
 
-### **Short-lived Tokens**
+### **Short-lived tokens**
 
 MCP authorization servers SHOULD issue short-lived access tokens to reduce the impact of leaked tokens. This minimizes the window of exposure if tokens are compromised.
 
-### **Comprehensive Scope Model**
+### **Comprehensive scope model**
 
 MCP OAuth 2.1 supports granular permissions through scopes like:
 
@@ -108,34 +110,34 @@ MCP OAuth 2.1 supports granular permissions through scopes like:
 - `mcp:resources:customer-data:read` - Read-only access to customer data
 - `mcp:exec:workflows:*` - Execute any workflow
 
-### **Dynamic Client Registration**
+### **Dynamic client registration**
 
 MCP clients and authorization servers SHOULD support the OAuth 2.0 Dynamic Client Registration Protocol to allow MCP clients to obtain OAuth client IDs without user interaction. This enables seamless onboarding of new AI agents without manual configuration.
 
-## Why Authorization Matters More Than Ever
+## Why authorization matters more than ever
 
 As AI applications become more sophisticated and handle increasingly sensitive operations, proper authorization is no longer optional — it's essential for several reasons:
 
-**Regulatory Compliance**
+**Regulatory compliance**
 
 Many industries require strict access controls and audit trails. Healthcare organizations must comply with HIPAA, financial services with SOX and PCI DSS, and global companies with GDPR. <a href="https://www.scalekit.com/blog/oauth-2-1-mcp-secure-ai-integrations" target="_blank">OAuth 2.1 and MCP provide the security framework needed for regulatory compliance</a>.
 
-**Enterprise Adoption**
+**Enterprise adoption**
 
 Enterprises won't deploy AI systems that can't integrate with their existing identity and access management infrastructure. OAuth 2.1 compatibility makes MCP servers enterprise-ready.
 
-**Risk Management**
+**Risk management**
 
 As AI agents gain the ability to perform real-world actions — sending emails, making purchases, modifying databases — the potential impact of unauthorized access grows exponentially. Proper authorization limits the blast radius of security incidents.
 
-**Trust and Transparency**
+**Trust and transparency**
 
 Users and organizations need to understand what AI systems can access and how that access is controlled. OAuth scopes provide clear, granular permissions that can be communicated to stakeholders.
 
-**Future-Proofing**
+**Future-proofing**
 
 As AI capabilities expand, authorization frameworks must be able to evolve. OAuth 2.1's extensible scope model and standards-based approach provide a foundation for future security enhancements.
 
-## Next Steps
+## Next steps
 
-Check out our comprehensive [implementation guide](/guides/mcp/oauth) that walks through setting up production-ready authorization for your MCP Server with code examples and best practices.
+Check out our comprehensive [implementation guide](/guides/mcp/oauth) that walks through setting up production-ready authorization for your MCP server with code examples and best practices.
