@@ -7,9 +7,13 @@ tableOfContents:
 sidebar:
   label: Overview
 prev: false
+next: false
 ---
 
-**How MCP is transforming AI application architecture and why authorization matters more than ever**
+import { Steps, LinkCard } from '@astrojs/starlight/components';
+import Subtitle from '@/components/ui/Subtitle.astro'
+
+<Subtitle>How MCP is transforming AI application architecture and why authorization matters more than ever</Subtitle>
 
 The artificial intelligence landscape is rapidly evolving from simple chatbots to sophisticated agents capable of interacting with real-world systems, accessing sensitive data, and performing complex workflows. As AI applications become more powerful and integrated into business-critical processes, the need for standardized, secure communication protocols has never been more urgent.
 
@@ -36,22 +40,18 @@ This architecture enables a plugin ecosystem where AI models can seamlessly inte
 
 Recognizing these challenges, the MCP specification evolved to incorporate robust authorization mechanisms. The Model Context Protocol provides authorization capabilities at the transport level, enabling MCP clients to make requests to restricted MCP servers on behalf of resource owners.
 
-### **Why OAuth 2.1 for MCP?**
+### Why OAuth 2.1 for MCP?
 
-The MCP specification chose OAuth 2.1 as its authorization framework for several compelling reasons:
+The MCP specification chose OAuth 2.1 as its authorization framework for several compelling reasons
 
-**Industry standard**: OAuth 2.1 is a well-established, widely-adopted standard for delegated authorization, with extensive tooling and ecosystem support.
+|  |  |
+|---------|-------------|
+| Industry standard | OAuth 2.1 is a well-established, widely-adopted standard for delegated authorization, with extensive tooling and ecosystem support. |
+| Security best practices | OAuth 2.1 incorporates lessons learned from OAuth 2.0, removing deprecated flows and enforcing security measures like PKCE (Proof Key for Code Exchange). |
+| Flexibility | Supports multiple grant types suitable for different MCP use cases:<br/> **Authorization code**: When AI agents act on behalf of human users<br/> **Client credentials**: For machine-to-machine integrations |
+| Ecosystem compatibility | Works with existing identity providers and authorization servers, making it easier for enterprises to integrate MCP into their existing security infrastructure. |
 
-**Security best practices**: OAuth 2.1 incorporates lessons learned from OAuth 2.0, removing deprecated flows and enforcing security measures like PKCE (Proof Key for Code Exchange).
-
-**Flexibility**: Supports multiple grant types suitable for different MCP use cases:
-
-- **Authorization code**: When AI agents act on behalf of human users
-- **Client credentials**: For machine-to-machine integrations
-
-**Ecosystem compatibility**: Works with existing identity providers and authorization servers, making it easier for enterprises to integrate MCP into their existing security infrastructure.
-
-### **MCP authorization specification overview**
+### MCP authorization specification overview
 
 This authorization mechanism is based on established specifications listed below, but implements a selected subset of their features to ensure security and interoperability while maintaining simplicity:
 
@@ -63,81 +63,94 @@ This authorization mechanism is based on established specifications listed below
 ## The authorization flow in practice
 
 Here's how the MCP OAuth 2.1 flow unfolds step-by-step::
+
 ![MCP OAuth 2.1 Authorization Flow](@/assets/docs/guides/mcp/mcp-auth-flow.png)
 
-### **Discovery phase**
+
+**Discovery phase**
+<Steps>
 
 1. **MCP client** encounters a protected MCP server
 2. **Server** responds with `401 Unauthorized` and `WWW-Authenticate` header pointing to authorization server
 3. **Client** discovers authorization server capabilities through metadata endpoints
 
-### **Authorization phase**
+</Steps>
 
+**Authorization phase**
+
+<Steps>
 4. **Client** registers with authorization server (if using Dynamic Client Registration)
 5. **Authorization server** issues client credentials
 6. **Client** initiates appropriate OAuth flow (Authorization Code or Client Credentials)
 7. **User** grants consent (for Authorization Code flow)
 8. **Authorization server** issues access token with appropriate scopes
+</Steps>
 
-### **Access phase**
+**Access phase**
 
+<Steps>
 9. **Client** includes access token in requests to MCP server
 10. **MCP server** validates token and enforces scope-based permissions
 11. **Server** processes request and returns response
 12. **All interactions** are logged for audit and compliance
+</Steps>
+
 
 ## Key security enhancements in MCP OAuth 2.1
 
 The current MCP authorization specification incorporates several critical security improvements:
 
-### **Mandatory PKCE**
+#### Mandatory PKCE
 
 MCP clients MUST implement PKCE according to OAuth 2.1 Section 7.5.2. PKCE helps prevent authorization code interception and injection attacks by requiring clients to create a secret verifier-challenge pair, ensuring that only the original requestor can exchange an authorization code for tokens.
 
-### **Strict redirect URI validation**
+#### Strict redirect URI validation
 
 MCP clients MUST pre-register exact redirect URIs with the authorization server. During authorization, the server MUST enforce an exact match to prevent redirection attacks.
 
-### **Short-lived tokens**
+#### Short-lived tokens
 
 MCP authorization servers SHOULD issue short-lived access tokens to reduce the impact of leaked tokens. This minimizes the window of exposure if tokens are compromised.
 
-### **Comprehensive scope model**
+#### Comprehensive scope model
 
 MCP OAuth 2.1 supports granular permissions through scopes like:
 
-- `mcp:tools:weather` - Access to weather tools only
-- `mcp:resources:customer-data:read` - Read-only access to customer data
-- `mcp:exec:workflows:*` - Execute any workflow
+| Scope                              | Description                          |
+|-------------------------------------|--------------------------------------|
+| `mcp:tools:weather`                 | Access to weather tools only         |
+| `mcp:resources:customer-data:read`  | Read-only access to customer data    |
+| `mcp:exec:workflows:*`              | Execute any workflow                 |
 
-### **Dynamic client registration**
+#### Dynamic client registration
 
-MCP clients and authorization servers SHOULD support the OAuth 2.0 Dynamic Client Registration Protocol to allow MCP clients to obtain OAuth client IDs without user interaction. This enables seamless onboarding of new AI agents without manual configuration.
+MCP clients and authorization servers SHOULD support the OAuth 2.1 Dynamic Client Registration Protocol to allow MCP clients to obtain OAuth client IDs without user interaction. This enables seamless onboarding of new AI agents without manual configuration.
 
 ## Why authorization matters more than ever
 
 As AI applications become more sophisticated and handle increasingly sensitive operations, proper authorization is no longer optional — it's essential for several reasons:
 
-**Regulatory compliance**
+#### Regulatory compliance
 
 Many industries require strict access controls and audit trails. Healthcare organizations must comply with HIPAA, financial services with SOX and PCI DSS, and global companies with GDPR. <a href="https://www.scalekit.com/blog/oauth-2-1-mcp-secure-ai-integrations" target="_blank">OAuth 2.1 and MCP provide the security framework needed for regulatory compliance</a>.
 
-**Enterprise adoption**
+#### Enterprise adoption
 
 Enterprises won't deploy AI systems that can't integrate with their existing identity and access management infrastructure. OAuth 2.1 compatibility makes MCP servers enterprise-ready.
 
-**Risk management**
+#### Risk management
 
 As AI agents gain the ability to perform real-world actions — sending emails, making purchases, modifying databases — the potential impact of unauthorized access grows exponentially. Proper authorization limits the blast radius of security incidents.
 
-**Trust and transparency**
+#### Trust and transparency
 
 Users and organizations need to understand what AI systems can access and how that access is controlled. OAuth scopes provide clear, granular permissions that can be communicated to stakeholders.
 
-**Future-proofing**
+#### Future-proofing
 
 As AI capabilities expand, authorization frameworks must be able to evolve. OAuth 2.1's extensible scope model and standards-based approach provide a foundation for future security enhancements.
 
-## Next steps
 
-Check out our comprehensive [implementation guide](/guides/mcp/oauth) that walks through setting up production-ready authorization for your MCP server with code examples and best practices.
+### Next steps
+
+<LinkCard href="/guides/mcp/oauth" title="MCP OAuth 2.1 implementation guide" description="Step-by-step instructions for setting up production-ready authorization for your MCP server, including code examples and best practices." />

@@ -1,36 +1,70 @@
 ---
-title: OAuth Authorization Server for MCP Servers
+title: OAuth authorization server for MCP servers
 description: Secure your Model Context Protocol (MCP) servers with Scalekit's drop-in OAuth 2.1 authorization solution
 slug: "guides/mcp/oauth"
+tableOfContents:
+  maxHeadingLevel: 3
 sidebar:
-  label: OAuth for MCP Servers
+  label: OAuth for MCP servers
+next: false
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
 ---
-**Secure your Model Context Protocol (MCP) servers with Scalekit's drop-in OAuth 2.1 authorization solution**
+import Subtitle from '@/components/ui/Subtitle.astro'
+import { CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Subtitle>Secure your Model Context Protocol (MCP) servers with Scalekit's drop-in OAuth 2.1 authorization solution</Subtitle>
 
 Scalekit provides a production-ready OAuth 2.1 authorization server that implements the <a href="https://modelcontextprotocol.io/specification/draft/basic/authorization" target="_blank" rel="noopener">MCP authorization specification</a>. This guide shows you how to integrate OAuth-based authentication and authorization into your MCP server with minimal code changes.
 
-**Key Benefits**: Identity-scoped access, granular permissions, OAuth 2.1 compliance, and comprehensive audit trails. For detailed background on why OAuth layer for your remote MCP servers is important, see our <a href="/guides/mcp/overview" target="_blank" rel="noopener">comprehensive overview article</a>.
+**Why use Scalekit OAuth for MCP servers?**
 
-## How It Works
+- **Identity-scoped access:** Restrict each token to a specific user or agent.
+- **Granular permissions:** Control exactly which tools and data each client can access using fine-grained scopes.
+- **OAuth 2.1 compliance:** Rely on a modern, secure, and widely adopted authorization standard.
+- **Comprehensive audit trails:** Track who accessed what, when, and with which permissions.
 
-Our authorization server acts as the OAuth 2.1 identity provider for your MCP server, implementing a clean separation of concerns.
+For a deeper explanation of why an OAuth layer is essential for remote MCP servers, read the <a href="/guides/mcp/overview" target="_blank" rel="noopener">MCP authorization overview</a>.
 
-**Scalekit OAuth Authorization Server** is your identity gatekeeper that:
+## How it works
+
+The Scalekit OAuth authorization server and your MCP server work together to secure access and enforce permissions.
+
+<CardGrid>
+
+<div>
+**Scalekit OAuth authorization server**
+
+Acts as the identity provider for your MCP server. It:
 
 - Authenticates users and agents
-- Issues access tokens with specific scopes
-- Handles OAuth 2.1 flows (authorization code, client credentials)
-- Supports dynamic client registration for seamless integration
+- Issues access tokens with fine-grained scopes
+- Manages OAuth 2.1 flows (authorization code, client credentials)
+- Supports dynamic client registration for easy onboarding
+</div>
 
-**Your MCP server** validates tokens and enforces permissions, only admitting requests with valid authorization.
+<div>
+**Your MCP server**
 
-## Getting Started
+Validates incoming access tokens and enforces the permissions encoded in each token. Only requests with valid, authorized tokens are allowed.
+
+</div>
+
+</CardGrid>
+
+This separation of responsibilities ensures a clear boundary: Scalekit handles identity and token issuance, while your MCP server focuses on resource protection.
+
+## Getting started
 
 ### Prerequisites
 
 Before you begin, ensure you have:
 
-1. Access to your Scalekit Account and the API credentials. If you don't have a Scalekit account yet, you can <a href="https://app.scalekit.com/ws/signup" target="_blank" rel="noopener">signup here</a>.
+1. Access to your Scalekit account and the API credentials. If you don't have a Scalekit account yet, you can <a href="https://app.scalekit.com/ws/signup" target="_blank" rel="noopener">signup here</a>.
 2. Installed Scalekit SDK into your project
 
     ```sh showLineNumbers=false
@@ -47,33 +81,32 @@ Before you begin, ensure you have:
     );
     ```
 
-### Step 1: Set Up Your Authorization Server
+### Step 1: Set up your authorization server
 
-In the Scalekit dashboard, navigate to **MCP Servers** and click **Add MCP Server**. Configure your server with the following settings:
+In the Scalekit dashboard, navigate to **MCP servers** and click **Add MCP server**. Configure your server with the following settings:
 
-![MCP Server Registration](@/assets/docs/guides/mcp/scalekit-register-mcp-server.png)
+![MCP server registration](@/assets/docs/guides/mcp/scalekit-register-mcp-server.png)
 
-**Basic Configuration:**
-
+**Basic configuration:**
 - **Server name**: A display name that users will see during authorization (e.g., "My AI Assistant")
 - **Resource identifier**: Your MCP server's unique identifier, typically your server's URL (e.g., `https://your-mcp-server.com`). All the tokens that are issued will be scoped to this identifier using `aud` parameter.
 - **Server logo**: Upload a 45x45 pixel logo to help users recognize your service
 
-**Access Control Settings:**
+**Access control settings:**
 
-- **Allow dynamic client registration**: ✅ **Recommended** - Enables MCP clients to register automatically without manual approval. For security reasons, Scalekit ensures that any client that registers via DCR has to implement PKCE based OAuth 2.1 flow.
-- **Allow offline access**: Enable if your MCP server needs to offer long-term access to resources via refresh tokens for MCP Clients that request `offline_access` scope. If you disable this setting, MCP Client needs to make a new authorization flow whenever the existing access token expires.
+- **Allow dynamic client registration** <Badge variant="note" text="Recommended" /> — Enables MCP clients to register automatically without manual approval. For security reasons, Scalekit ensures that any client that registers via DCR has to implement PKCE-based OAuth 2.1 flow.
+- **Allow offline access**: Enable if your MCP server needs to offer long-term access to resources via refresh tokens for MCP clients that request `offline_access` scope. If you disable this setting, MCP client needs to make a new authorization flow whenever the existing access token expires.
 
-**Token Configuration:**
+**Token configuration:**
 
 - **Access token lifetime**: Recommended 300-3600 seconds (5 minutes to 1 hour)
 - **Refresh token lifetime**: Recommended 300-86400 seconds (5 minutes to 24 hours)
 
-### Step 2: Implement Resource Metadata Discovery
+### Step 2: Implement resource metadata discovery
 
-Once you have added your MCP Server in the Scalekit Dashboard, you will be presented with the Protected Resource Metadata information that you can use to serve the `.well-known/oauth-protected-resource` endpoint.
+Once you have added your MCP server in the Scalekit dashboard, you will be presented with the protected resource metadata information that you can use to serve the `.well-known/oauth-protected-resource` endpoint.
 
-MCP clients discover your authorization server through the OAuth 2.0 Protected Resource Metadata endpoint.
+MCP clients discover your authorization server through the OAuth 2.0 protected resource metadata endpoint.
 
 Here is the code sample:
 
@@ -111,15 +144,17 @@ app.get('/.well-known/oauth-authorization-server', async (req, res) => {
 
 Description of the OAuth Protected Resource Metadata:
 
-- **resource**: The identifier of the resource server. This is the unique identifier of your MCP Server. Every token that Scalekit issues will be scoped to this identifier using `aud` parameter.
-- **authorization_servers**: A list of authorization servers that are trusted by the resource server. MCP Clients use this information to discover more about the authorization server capability to fetching the authorization server metadata from `https://your-org.scalekit.com/.well-known/oauth-authorization-server` endpoint.
-- **bearer_methods_supported**: A list of methods that are supported for bearer tokens. MCP Clients send the OAuth token as `Authorization: Bearer <token>` header.
-- **resource_documentation**: A URL to the documentation of the resource server.
-- **scopes_supported**: A list of scopes that are supported by the resource server. MCP Clients use this information to determine which scopes that they would like the token for as part of the OAuth authorize request.
+| Field                        | Description                                                                                                                                                                                                                                 |
+|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `resource`                   | The identifier of the resource server. This is the unique identifier of your MCP Server. Every token that Scalekit issues will be scoped to this identifier using `aud` parameter.                                                          |
+| `authorization_servers`      | A list of authorization servers that are trusted by the resource server. MCP Clients use this information to discover more about the authorization server capability by fetching the authorization server metadata from `https://your-org.scalekit.com/.well-known/oauth-authorization-server` endpoint. |
+| `bearer_methods_supported`   | A list of methods that are supported for bearer tokens. MCP Clients send the OAuth token as `Authorization: Bearer <token>` header.                                                                                                         |
+| `resource_documentation`     | A URL to the documentation of the resource server.                                                                                                                                                                                          |
+| `scopes_supported`           | A list of scopes that are supported by the resource server. MCP Clients use this information to determine which scopes that they would like the token for as part of the OAuth authorize request.                                            |
 
-### Step 3: Implement Authorization Checks in your MCP Server
+### Step 3: Implement authorization checks in your MCP server
 
-#### Token Validation Middleware
+#### Token validation middleware
 
 Your MCP server needs to validate incoming access tokens. Here's a complete middleware implementation:
 
@@ -141,14 +176,14 @@ const WWW_AUTHENTICATE_HEADER = [
 const validateToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = authHeader?.match(/^Bearer (.+)$/)?.[1];
-  
+
   if (!token) {
     return res
       .set('WWW-Authenticate', WWW_AUTHENTICATE_HEADER)
       .status(401)
-      .json({ 
+      .json({
         error: 'unauthorized',
-        error_description: 'Bearer token required' 
+        error_description: 'Bearer token required'
       });
   }
 
@@ -172,9 +207,9 @@ const validateToken = async (req, res, next) => {
     return res
       .set('WWW-Authenticate', WWW_AUTHENTICATE_HEADER)
       .status(401)
-      .json({ 
+      .json({
         error: 'invalid_token',
-        error_description: 'Bearer token is invalid or expired' 
+        error_description: 'Bearer token is invalid or expired'
       });
   }
 };
@@ -183,7 +218,7 @@ const validateToken = async (req, res, next) => {
 app.use('/mcp', validateToken);
 ```
 
-#### Scope-Based Authorization
+#### Scope-based authorization
 
 Implement granular permissions using OAuth scopes:
 
@@ -191,7 +226,7 @@ Implement granular permissions using OAuth scopes:
 const requireScope = (requiredScope) => {
   return (req, res, next) => {
     const userScopes = req.auth.scopes || [];
-    
+
     if (!userScopes.includes(requiredScope)) {
       return res.status(403).json({
         error: 'insufficient_scope',
@@ -199,29 +234,29 @@ const requireScope = (requiredScope) => {
         scope: requiredScope
       });
     }
-    
+
     next();
   };
 };
 
 // Example: Protect specific MCP tools with scopes
-app.post('/mcp/tools/weather', 
-  requireScope('mcp:tools:weather'), 
+app.post('/mcp/tools/weather',
+  requireScope('mcp:tools:weather'),
   handleWeatherRequest
 );
 
-app.post('/mcp/tools/calendar', 
-  requireScope('mcp:tools:calendar:read'), 
+app.post('/mcp/tools/calendar',
+  requireScope('mcp:tools:calendar:read'),
   handleCalendarRead
 );
 
-app.post('/mcp/tools/send-email', 
-  requireScope('mcp:tools:email:send'), 
+app.post('/mcp/tools/send-email',
+  requireScope('mcp:tools:email:send'),
   handleEmailSend
 );
 ```
 
-### Step 4: Test the Integration
+### Step 4: Test the integration
 
 Create a simple test to verify your setup:
 
@@ -239,9 +274,9 @@ const testMCPAuth = async () => {
       scope: 'mcp:tools:weather'
     })
   });
-  
+
   const { access_token } = await tokenResponse.json();
-  
+
   // Test MCP server with token
   const mcpResponse = await fetch('https://your-mcp-server.com/mcp/tools/weather', {
     method: 'POST',
@@ -254,14 +289,14 @@ const testMCPAuth = async () => {
       params: { location: 'San Francisco' }
     })
   });
-  
+
   console.log('MCP Response:', await mcpResponse.json());
 };
 ```
 
-## Sample Endpoints Reference
+## Sample endpoints reference
 
-### Protected Resource Metadata
+### Protected resource metadata
 
 MCP Server that you are implementing need to serve the following well-known endpoint that the MCP Clients that are connecting to your server know where to find the OAuth Authorization Server details. This is a static endpoint that returns the metadata about your MCP Server.
 
@@ -299,7 +334,7 @@ app.get('/.well-known/oauth-authorization-server', async (req, res) => {
 });
 ```
 
-### Authorization Server Metadata
+### Authorization server metadata
 
 Scalekit implements and serves the following endpoint so that the MCP Clients that want to get a token from Scalekit can discover the OAuth Authorization Server details. This is a static endpoint that returns the metadata about Scalekit Authorization Server. This will be specific for each MCP Server that you are registering with Scalekit.
 
@@ -323,7 +358,7 @@ GET https://your-org.scalekit.com/resource-id/.well-known/oauth-authorization-se
     ],
     response_types_supported: ['code'],
     response_modes_supported: ['query'],
-    grant_types_supported: ['authorization_code', 'refresh_token', 'client_credentials],
+    grant_types_supported: ['authorization_code', 'refresh_token', 'client_credentials'],
     token_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post'],
     subject_types_supported: ['public'],
     code_challenge_methods_supported: ['S256'],
