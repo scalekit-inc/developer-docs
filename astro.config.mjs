@@ -30,7 +30,7 @@ export default defineConfig({
       favicon: '/images/favicon.png',
       components: {
         // SocialIcons: './src/components/overrides/SocialIcons.astro',
-        // Sidebar: './src/components/overrides/Sidebar.astro',
+        Sidebar: './src/components/overrides/Sidebar.astro',
         Head: './src/components/overrides/Head.astro',
         Header: './src/components/overrides/Header.astro',
       },
