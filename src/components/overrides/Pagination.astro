@@ -1,0 +1,162 @@
+---
+import Default from 'starlight-theme-rapide/overrides/Pagination.astro';
+
+const { entry } = Astro.locals.starlightRoute;
+---
+
+<div class="copy-markdown-container">
+  <copy-markdown-button data-markdown={entry.body}>
+    <button class="copy-markdown-btn" aria-label="Copy page content as Markdown">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+        <path d="m4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+      </svg>
+      <span>Copy as Markdown</span>
+    </button>
+  </copy-markdown-button>
+</div>
+
+{/* Render the Rapide theme's Pagination component */}
+<Default><slot /></Default>
+
+<script>
+  customElements.define(
+    'copy-markdown-button',
+    class CopyMarkdownButton extends HTMLElement {
+      constructor() {
+        super();
+        const copyButton = this.querySelector('button');
+
+        copyButton?.addEventListener('click', async () => {
+          const originalText = copyButton.innerHTML;
+          const loadingText = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin">
+              <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg>
+            <span>Copying...</span>
+          `;
+          const successText = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20,6 9,17 4,12"></polyline>
+            </svg>
+            <span>Copied!</span>
+          `;
+
+          try {
+            const markdown = this.dataset.markdown;
+            if (!markdown) throw new Error('No markdown content to copy');
+
+            copyButton.innerHTML = loadingText;
+            copyButton.disabled = true;
+
+            await navigator.clipboard.writeText(markdown);
+
+            copyButton.innerHTML = successText;
+            copyButton.classList.add('success');
+
+            // Reset button after 2 seconds
+            setTimeout(() => {
+              copyButton.innerHTML = originalText;
+              copyButton.disabled = false;
+              copyButton.classList.remove('success');
+            }, 2000);
+
+          } catch (error) {
+            console.error('Failed to copy markdown:', error);
+
+            copyButton.innerHTML = `
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+              <span>Failed to copy</span>
+            `;
+            copyButton.classList.add('error');
+
+            // Reset button after 3 seconds
+            setTimeout(() => {
+              copyButton.innerHTML = originalText;
+              copyButton.disabled = false;
+              copyButton.classList.remove('error');
+            }, 3000);
+          }
+        });
+      }
+    }
+  );
+</script>
+
+<style>
+  .copy-markdown-container {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .copy-markdown-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+    color: var(--sl-color-white);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .copy-markdown-btn:hover {
+    background: var(--sl-color-gray-5);
+    border-color: var(--sl-color-gray-4);
+    transform: translateY(-1px);
+  }
+
+  .copy-markdown-btn:active {
+    transform: translateY(0);
+  }
+
+  .copy-markdown-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .copy-markdown-btn.success {
+    background: var(--sl-color-green);
+    border-color: var(--sl-color-green);
+  }
+
+  .copy-markdown-btn.error {
+    background: var(--sl-color-red);
+    border-color: var(--sl-color-red);
+  }
+
+  .copy-markdown-btn svg {
+    flex-shrink: 0;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  /* Dark mode adjustments */
+  :global([data-theme='dark']) .copy-markdown-btn {
+    background: var(--sl-color-gray-5);
+    border-color: var(--sl-color-gray-4);
+  }
+
+  :global([data-theme='dark']) .copy-markdown-btn:hover {
+    background: var(--sl-color-gray-4);
+    border-color: var(--sl-color-gray-3);
+  }
+</style>
