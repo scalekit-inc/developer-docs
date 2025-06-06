@@ -109,6 +109,23 @@ export const sidebar = [
     ],
   },
   {
+    label: 'MCP Auth',
+    link: '/guides/mcp/overview',
+    id: 'mcp',
+    icon: 'forward-slash',
+    badge: { text: 'Beta', variant: 'note' },
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'guides/mcp/overview',
+          'guides/mcp/oauth',
+          //"guides/mcp/additional-reading",
+        ],
+      },
+    ],
+  },
+  {
     label: 'API Auth',
     link: '/m2m/quickstart',
     id: 'm2m',
@@ -125,14 +142,6 @@ export const sidebar = [
             link: 'https://github.com/scalekit-developers/gists/tree/main/m2m',
             attrs: { target: '_blank', rel: 'noopener' },
           },
-        ],
-      },
-      {
-        label: 'MCP Auth',
-        items: [
-          'guides/mcp/overview',
-          'guides/mcp/oauth',
-          //"guides/mcp/additional-reading",
         ],
       },
       {
