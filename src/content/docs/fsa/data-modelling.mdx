@@ -4,10 +4,68 @@ sidebar:
   label: "Data model setup"
 ---
 
-# Model your data
+import {
+  CardGrid, Aside
 
-## Data modelling
+ } from '@astrojs/starlight/components'
 
-## Data modelling
+Before migrating to Scalekit, you need to map your existing data model to Scalekit's core entities. This guide shows you how to connect your data model to Scalekit's authentication and user management system. You'll learn different approaches for common data model patterns.
+Scalekit organizes your application's data into two main components:
 
-## Data modelling
+**Organizations** represent your application's tenants or workspaces. Each organization can contain multiple users who work together.
+
+**Users** are the people who access your application. Each user:
+- Has a unique email address within their organization
+- Can belong to multiple organizations
+- Is automatically linked across organizations when using the same email address
+
+This structure lets you manage access across different teams while keeping user identities consistent.
+
+![](@/assets/docs/fsa/model-your-data/0.png)
+
+## Organization
+
+A top-level Organization represents your business customers. These customers pay for your service and control their organization's data and resources. Each Organization has four key responsibilities:
+
+<CardGrid>
+
+<div>
+**Account ownership**
+- Manages subscription or contract terms
+- Controls billing and service upgrades
+- Handles free tier management
+</div>
+
+<div>
+**Access management**
+- Controls who can access their organization
+- Defines user roles and permissions
+- Manages access policies
+</div>
+
+<div>
+**User management**
+- Adds and removes users
+- Updates user information
+- Manages security settings such as authentication methods
+</div>
+
+<div>
+**Data segregation**
+- Keeps data isolated
+- Maintains security boundaries
+- Ensures data governance
+</div>
+
+</CardGrid>
+
+
+<Aside type='note'>
+
+For both business and individual users, create an Organization for each user. This lets individual users easily add team members later.
+
+</Aside>
+
+Store the `organization_id` as a column in your database to map your organization entity directly to Scalekit's Organization. This creates a simple one-to-one relationship between your system and Scalekit.
+
+### Custom metadata 
