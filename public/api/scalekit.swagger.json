@@ -1457,9 +1457,234 @@
           }
         ]
       }
+    },
+    "/api/v1/passwordless/email/send": {
+      "post": {
+        "description": "Send a verification email containing either a verification code (OTP), magic link, or both to a user's email address",
+        "tags": ["Passwordless Auth"],
+        "summary": "Send passwordless email",
+        "operationId": "PasswordlessService_SendPasswordlessEmail",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/passwordlessSendPasswordlessRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully sent passwordless authentication email. Returns the authentication request details including expiration time and request identifier",
+            "schema": {
+              "$ref": "#/definitions/passwordlessSendPasswordlessResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const options = {\n  template: \"SIGNIN\",\n  state: \"jAy-state1-...2nqm6Q\",\n  expiresIn: 300,\n  // Required if you selected Link or Link+OTP\n  magiclinkAuthUri: \"https://yourapp.com/passwordless/verify\"\n};\n\nconst sendResponse = await scalekit.passwordless\n  .sendPasswordlessEmail(\n    \"\u003cjohn.doe@example.com\u003e\",\n    options\n);"
+          }
+        ]
+      }
+    },
+    "/api/v1/passwordless/email/resend": {
+      "post": {
+        "description": "Resend a verification email if the user didn't receive it or if the previous code/link has expired",
+        "tags": ["Passwordless Auth"],
+        "summary": "Resend passwordless email",
+        "operationId": "PasswordlessService_ResendPasswordlessEmail",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/passwordlessResendPasswordlessRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully resent the passwordless authentication email. Returns updated authentication request details with new expiration time.",
+            "schema": {
+              "$ref": "#/definitions/passwordlessSendPasswordlessResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const { authRequestId } = sendResponse;\nconst resendResponse = await scalekit.passwordless\n.resendPasswordlessEmail(\n    authRequestId\n);"
+          }
+        ]
+      }
+    },
+    "/api/v1/passwordless/email/verify": {
+      "post": {
+        "description": "Verify a user's identity using either a verification code or magic link token",
+        "tags": ["Passwordless Auth"],
+        "summary": "Verify passwordless email",
+        "operationId": "PasswordlessService_VerifyPasswordlessEmail",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/authpasswordlessVerifyPasswordLessRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully verified the passwordless authentication. Returns user email",
+            "schema": {
+              "$ref": "#/definitions/authpasswordlessVerifyPasswordLessResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const { authRequestId } = sendResponse;\nconst verifyResponse = await scalekit.passwordless.\n  verifyPasswordlessEmail(\n\t// Verification Code (OTP)\n\t{ code: \"123456\" },\n\t// Magic Link Token\n\t{ linkToken: link_token },\n\tauthRequestId\n);"
+          }
+        ]
+      }
     }
   },
   "definitions": {
+    "authpasswordlessPasswordlessType": {
+      "type": "string",
+      "enum": ["OTP", "LINK", "LINK_OTP"]
+    },
+    "authpasswordlessVerifyPasswordLessRequest": {
+      "type": "object",
+      "properties": {
+        "auth_request_id": {
+          "description": "The authentication request identifier returned from the send passwordless email endpoint. Required when verifying OTP codes to link the verification with the original request.",
+          "type": "string",
+          "example": "req_1234567890abcdef"
+        },
+        "code": {
+          "description": "The Verification Code (OTP) received via email. This is typically a 6-digit numeric code that users enter manually to verify their identity.",
+          "type": "string",
+          "example": "123456"
+        },
+        "link_token": {
+          "description": "The unique token from the magic link URL received via email. Extract this token when users click the magic link and are redirected to your application to later verify the user.",
+          "type": "string",
+          "example": "afe9d61c-d80d-4020-a8ee-61765ab71cb3"
+        }
+      }
+    },
+    "authpasswordlessVerifyPasswordLessResponse": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "description": "Email address of the successfully authenticated user. This confirms which email account was verified through the passwordless flow.",
+          "type": "string",
+          "readOnly": true,
+          "example": "john.doe@example.com"
+        },
+        "passwordless_type": {
+          "description": "The type of passwordless authentication that was successfully verified, confirming which method the user completed.",
+          "$ref": "#/definitions/authpasswordlessPasswordlessType",
+          "example": "OTP"
+        },
+        "state": {
+          "description": "The custom state parameter that was provided in the original authentication request, returned unchanged. Use this to restore your application's context after authentication.",
+          "type": "string",
+          "readOnly": true,
+          "example": "kdt7yiag28t341fr1"
+        },
+        "template": {
+          "description": "Specifies which email template to choose. For User Signin choose SIGNIN and for User Signup use SIGNUP",
+          "$ref": "#/definitions/passwordlessTemplateType",
+          "example": "SIGNIN"
+        }
+      }
+    },
+    "passwordlessResendPasswordlessRequest": {
+      "type": "object",
+      "properties": {
+        "auth_request_id": {
+          "description": "The authentication request identifier from the original send passwordless email request. Use this to resend the Verification Code (OTP) or Magic Link to the same email address.",
+          "type": "string",
+          "example": "req_1234567890abcdef"
+        }
+      }
+    },
+    "passwordlessSendPasswordlessRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "description": "Email address where the passwordless authentication credentials will be sent. Must be a valid email format.",
+          "type": "string",
+          "example": "john.doe@example.com"
+        },
+        "expires_in": {
+          "description": "Time in seconds until the passwordless authentication expires. If not specified, defaults to 300 seconds (5 minutes)",
+          "type": "integer",
+          "format": "int64",
+          "example": 300
+        },
+        "magiclink_auth_uri": {
+          "description": "Your application's callback URL where users will be redirected after clicking the magic link in their email. The link token will be appended as a query parameter as link_token",
+          "type": "string",
+          "example": "https://yourapp.com/auth/passwordless/callback"
+        },
+        "state": {
+          "description": "Custom state parameter that will be returned unchanged in the verification response. Use this to maintain application state between the authentication request and callback, such as the intended destination after login",
+          "type": "string",
+          "example": "d62ivasry29lso"
+        },
+        "template": {
+          "description": "Specifies the authentication intent for the passwordless request. Use SIGNIN for existing users or SIGNUP for new user registration. This affects the email template and user experience flow.",
+          "$ref": "#/definitions/passwordlessTemplateType",
+          "example": "SIGNIN"
+        }
+      }
+    },
+    "passwordlessSendPasswordlessResponse": {
+      "type": "object",
+      "properties": {
+        "auth_request_id": {
+          "description": "Unique identifier for this passwordless authentication request. Use this ID to resend emails.",
+          "type": "string",
+          "readOnly": true,
+          "example": "req_1234567890abcdef"
+        },
+        "expires_at": {
+          "description": "Unix timestamp (seconds since epoch) when the passwordless authentication will expire. After this time, the OTP or magic link will no longer be valid.",
+          "type": "string",
+          "format": "int64",
+          "readOnly": true,
+          "example": 1748696575
+        },
+        "expires_in": {
+          "description": "Number of seconds from now until the passwordless authentication expires. This is a convenience field calculated from the expires_at timestamp.",
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true,
+          "example": 300
+        },
+        "passwordless_type": {
+          "description": "Type of passwordless authentication that was sent via email. OTP sends a numeric code, LINK sends a clickable magic link, and LINK_OTP provides both options for user convenience.",
+          "$ref": "#/definitions/authpasswordlessPasswordlessType",
+          "example": "OTP"
+        }
+      }
+    },
+    "passwordlessTemplateType": {
+      "type": "string",
+      "enum": ["SIGNIN", "SIGNUP"]
+    },
     "commonsRegionCode": {
       "type": "string",
       "enum": ["US", "EU"]
