@@ -1460,7 +1460,7 @@
     },
     "/api/v1/passwordless/email/send": {
       "post": {
-        "description": "Initiates a passwordless authentication flow by sending an email containing either a Verification Code (OTP) or a magic link to the specified email address. Use this endpoint to provide users with secure, password-free access to your application. The authentication method depends on your organization's configuration settings.",
+        "description": "Send a verification email containing either a verification code (OTP), magic link, or both to a user's email address",
         "tags": ["Passwordless Auth"],
         "summary": "Send passwordless email",
         "operationId": "PasswordlessService_SendPasswordlessEmail",
@@ -1476,7 +1476,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully sent passwordless authentication email. Returns the authentication request details including expiration time and request identifier for tracking purposes.",
+            "description": "Successfully sent passwordless authentication email. Returns the authentication request details including expiration time and request identifier",
             "schema": {
               "$ref": "#/definitions/passwordlessSendPasswordlessResponse"
             }
@@ -1493,7 +1493,7 @@
     },
     "/api/v1/passwordless/email/resend": {
       "post": {
-        "description": "Sends a new passwordless authentication email for an existing authentication request.",
+        "description": "Resend a verification email if the user didn't receive it or if the previous code/link has expired",
         "tags": ["Passwordless Auth"],
         "summary": "Resend passwordless email",
         "operationId": "PasswordlessService_ResendPasswordlessEmail",
@@ -1526,7 +1526,7 @@
     },
     "/api/v1/passwordless/email/verify": {
       "post": {
-        "description": "Completes the passwordless authentication flow by verifying the Verification Code (OTP) or magic link token received via email. Upon successful verification, this endpoint confirms the user's identity and provides authentication details. You must call this endpoint within the expiration time specified when the email was sent.",
+        "description": "Verify a user's identity using either a verification code or magic link token",
         "tags": ["Passwordless Auth"],
         "summary": "Verify passwordless email",
         "operationId": "PasswordlessService_VerifyPasswordlessEmail",
@@ -1542,7 +1542,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully verified the passwordless authentication. Returns user details and authentication state information.",
+            "description": "Successfully verified the passwordless authentication. Returns user email",
             "schema": {
               "$ref": "#/definitions/authpasswordlessVerifyPasswordLessResponse"
             }
@@ -1590,7 +1590,7 @@
           "description": "Email address of the successfully authenticated user. This confirms which email account was verified through the passwordless flow.",
           "type": "string",
           "readOnly": true,
-          "example": "user@company.com"
+          "example": "john.doe@example.com"
         },
         "passwordless_type": {
           "description": "The type of passwordless authentication that was successfully verified, confirming which method the user completed.",
@@ -1601,10 +1601,10 @@
           "description": "The custom state parameter that was provided in the original authentication request, returned unchanged. Use this to restore your application's context after authentication.",
           "type": "string",
           "readOnly": true,
-          "example": "d62ivasry29lso"
+          "example": "kdt7yiag28t341fr1"
         },
         "template": {
-          "description": "The authentication intent that was specified in the original request, indicating whether this was a sign-in or sign-up flow.",
+          "description": "Specifies which email template to choose. For User Signin choose SIGNIN and for User Signup use SIGNUP",
           "$ref": "#/definitions/passwordlessTemplateType",
           "example": "SIGNIN"
         }
@@ -1614,7 +1614,7 @@
       "type": "object",
       "properties": {
         "auth_request_id": {
-          "description": "The authentication request identifier from the original send passwordless email request. Use this to resend the Verification Code (OTP) or magic link to the same email address.",
+          "description": "The authentication request identifier from the original send passwordless email request. Use this to resend the Verification Code (OTP) or Magic Link to the same email address.",
           "type": "string",
           "example": "req_1234567890abcdef"
         }
@@ -1626,10 +1626,10 @@
         "email": {
           "description": "Email address where the passwordless authentication credentials will be sent. Must be a valid email format.",
           "type": "string",
-          "example": "user@company.com"
+          "example": "john.doe@example.com"
         },
         "expires_in": {
-          "description": "Time in seconds until the passwordless authentication expires. If not specified, defaults to 300 seconds (5 minutes).",
+          "description": "Time in seconds until the passwordless authentication expires. If not specified, defaults to 300 seconds (5 minutes)",
           "type": "integer",
           "format": "int64",
           "example": 300
@@ -1640,12 +1640,12 @@
           "example": "https://yourapp.com/auth/passwordless/callback"
         },
         "state": {
-          "description": "Custom state parameter that will be returned unchanged in the verification response. Use this to maintain application state between the authentication request and callback, such as the intended destination after login.",
+          "description": "Custom state parameter that will be returned unchanged in the verification response. Use this to maintain application state between the authentication request and callback, such as the intended destination after login",
           "type": "string",
           "example": "d62ivasry29lso"
         },
         "template": {
-          "description": "Specifies which email template to choose. For User Signin choose SIGNIN and for User Signup use SIGNUP",
+          "description": "Specifies the authentication intent for the passwordless request. Use SIGNIN for existing users or SIGNUP for new user registration. This affects the email template and user experience flow.",
           "$ref": "#/definitions/passwordlessTemplateType",
           "example": "SIGNIN"
         }
@@ -1665,7 +1665,7 @@
           "type": "string",
           "format": "int64",
           "readOnly": true,
-          "example": 1700000000
+          "example": 1748696575
         },
         "expires_in": {
           "description": "Number of seconds from now until the passwordless authentication expires. This is a convenience field calculated from the expires_at timestamp.",
