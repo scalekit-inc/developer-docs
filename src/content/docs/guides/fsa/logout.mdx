@@ -1,9 +1,85 @@
 ---
-title: Logout
+title: "Secure Logout"
+description: "Learn how to securely log out users from your application and invalidate their sessions with Scalekit."
 sidebar:
-  label: "Logout implementation"
+  label: "Logout"
+prev:
+  label: "Manage sessions"
+  link: "/guides/fsa/manage-session/"
 ---
+import { Aside, Badge, Steps } from '@astrojs/starlight/components';
 
-import { Aside } from '@astrojs/starlight/components';
+Securely logging a user out is a critical part of session management. A complete logout process involves two main actions:
+1.  **Clearing the application session**: Removing session tokens from your application's storage (e.g., browser cookies and backend database).
+2.  **Invalidating the Scalekit session**: Informing Scalekit to end the user's session on its servers.
 
-# Logout
+This guide covers how to implement both user-initiated and IdP-initiated logout flows.
+
+## User-Initiated Logout
+
+This is the standard flow where a user clicks a "Logout" button in your application.
+
+<Steps>
+1. ### Create a logout endpoint
+   Your application should have an endpoint, like `/logout`, that handles the logout logic.
+
+2. ### Clear the application session
+   First, clear all session data stored by your application. This includes the `accessToken` from cookies and the `refreshToken` from your database.
+
+    ```javascript title="Express.js"
+    // A function to clear session data
+    function clearSessionData(res, userId) {
+      // Clear the access token cookie
+      res.clearCookie('accessToken');
+
+      // Remove the refresh token from your database
+      await db.deleteRefreshToken(userId);
+    }
+
+    app.get('/logout', (req, res) => {
+      // Assuming you have the user's ID from a verified session
+      const userId = req.user.id;
+      const idToken = req.cookies.idToken; // Or retrieve from session
+      clearSessionData(res, userId);
+
+      // Proceed to invalidate the Scalekit session...
+    });
+    ```
+
+3. ### Invalidate the Scalekit session
+   After clearing your local session, redirect the user to the Scalekit logout endpoint. This will invalidate their session on Scalekit's servers and then redirect them back to your application.
+
+    ```javascript title="Express.js" {12-19}
+    app.get('/logout', (req, res) => {
+      const userId = req.user.id;
+      const idToken = req.cookies.idToken;
+      const postLogoutRedirectUri = 'http://localhost:3000/login';
+
+      // Clear local session data
+      clearSessionData(res, userId);
+
+      // Generate the Scalekit logout URL
+      const logoutUrl = scalekit.getLogoutUrl(
+        idToken,
+        postLogoutRedirectUri
+      );
+
+      // Redirect to Scalekit to complete the logout
+      res.redirect(logoutUrl);
+    });
+    ```
+</Steps>
+
+## IdP-Initiated Logout
+
+For enterprise customers using SSO, an administrator might initiate logout directly from their Identity Provider's (IdP) dashboard (e.g., Okta). Scalekit supports this flow by notifying your application to terminate the user's session.
+
+<Aside>
+  Your application must expose a webhook endpoint to receive logout notifications from Scalekit. <Badge text="Coming Soon" />
+</Aside>
+
+When this feature is available, the flow will be as follows:
+1.  An IdP administrator initiates a logout.
+2.  The IdP sends a logout request to Scalekit.
+3.  Scalekit calls a pre-configured webhook endpoint on your application.
+4.  Your application receives the request, identifies the user, and clears their session data, effectively logging them out.
