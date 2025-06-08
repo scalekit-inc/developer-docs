@@ -148,7 +148,6 @@ export const sidebar = [
       {
         label: 'User management',
         items: [
-          'reference/fsa/redirects',
           {
             label: 'Organization',
             items: [
@@ -166,6 +165,7 @@ export const sidebar = [
               'guides/fsa/manage-users',
             ],
           },
+          'reference/fsa/redirects',
         ],
       },
       {
