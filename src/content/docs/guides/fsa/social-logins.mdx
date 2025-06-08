@@ -1,12 +1,303 @@
 ---
 title: Social logins
 description: How to configure social logins for your application
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+prev: false
+next:
+  label: "Brand your login page"
+  link: "/guides/fsa/login-page-branding/"
 ---
+import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+import CheckItem from '@/components/ui/CheckItem.astro';
 
-# Social logins
+Social logins allow users to sign in to your application using their existing accounts from providers like Google, Microsoft, and GitHub. This guide shows you how to add social login to your application.
 
-Social logins are a way to authenticate users using their social media accounts.
+![Social Logins Flow](@/assets/docs/common/social-connections/0.png)
 
-## Google
+<div>
+   Before you begin
+  <CheckItem iconName="forward-slash">
+     [Set up your Scalekit account](https://app.scalekit.com/ws/signup)
+  </CheckItem>
+</div>
 
-## Facebook
+<Steps>
+1. ## Configure a social connection
+
+   To get started, you need to configure each social provider you want to offer from the Scalekit dashboard.
+
+   1. Log in to your [Scalekit Dashboard](https://app.scalekit.com).
+   2. Navigate to **Authentication > Social Logins**.
+   3. Select a provider and enter the required credentials (typically a Client ID and Client Secret) from your provider's developer console.
+   4. Save the connection.
+
+   ![Configure a social connection](@/assets/docs/fsa/auth-methods/social-logins-1.png)
+   Learn how to configure individual [social connection providers](/guides/integrations/social-connections/).
+   Once configured, the provider will be available on your sign-in page.
+
+2. ## Install the Scalekit SDK
+
+    <InstallSDK />
+
+    Copy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.
+    ```bash
+    SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
+    SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
+    SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
+    ```
+
+    Create a new Scalekit client instance.
+    <Tabs syncKey="tech-stack">
+      <TabItem value="nodejs" label="Node.js">
+      ```javascript title="utils/auth.js"
+      import { Scalekit } from '@scalekit-sdk/node';
+
+      export let scalekit = new Scalekit(
+        process.env.SCALEKIT_ENVIRONMENT_URL,
+        process.env.SCALEKIT_CLIENT_ID,
+        process.env.SCALEKIT_CLIENT_SECRET
+      );
+      ```
+      </TabItem>
+      <TabItem value="py" label="Python">
+      ```python title="utils/auth.py"
+      import os
+      from scalekit import ScalekitClient
+
+      scalekit_client = ScalekitClient(
+        environment_url=os.environ.get('SCALEKIT_ENVIRONMENT_URL'),
+        client_id=os.environ.get('SCALEKIT_CLIENT_ID'),
+        client_secret=os.environ.get('SCALEKIT_CLIENT_SECRET')
+      )
+      ```
+      </TabItem>
+      <TabItem value="go" label="Go">
+        ```go title="utils/auth.go"
+        package utils
+
+        import (
+        	"os"
+        	"github.com/scalekit/scalekit-sdk-go"
+        )
+
+        var ScalekitClient *scalekit.ScalekitClient
+
+        func init() {
+        	ScalekitClient = scalekit.NewScalekitClient(
+        		os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+        		os.Getenv("SCALEKIT_CLIENT_ID"),
+        		os.Getenv("SCALEKIT_CLIENT_SECRET"),
+        	)
+        }
+        ```
+      </TabItem>
+      <TabItem value="java" label="Java">
+        ```java title="utils/Auth.java"
+        package com.example.utils;
+
+        import com.scalekit.ScalekitClient;
+
+        public class Auth {
+            public static ScalekitClient scalekit;
+
+            static {
+                scalekit = new ScalekitClient(
+                    System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+                    System.getenv("SCALEKIT_CLIENT_ID"),
+                    System.getenv("SCALEKIT_CLIENT_SECRET")
+                );
+            }
+        }
+        ```
+      </TabItem>
+    </Tabs>
+
+3. ## Add a social login button
+
+    To initiate social login, redirect the user to Scalekit's authorization URL. You need to specify which social provider to use.
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="nodejs" label="Node.js">
+
+    ```javascript title="Express.js"
+    const redirectUri = 'http://localhost:3000/api/callback';
+
+    const authorizationURL = scalekit.getAuthorizationUrl(redirectUri, {
+      provider: 'google', // or 'github', 'microsoft', etc.
+    });
+
+    // Redirect the user to this authorizationURL
+    res.redirect(authorizationURL);
+    ```
+
+    </TabItem>
+    <TabItem value="py" label="Python">
+    ```python
+    from scalekit import AuthorizationUrlOptions
+
+    redirect_uri = 'http://localhost:3000/api/callback'
+    options = AuthorizationUrlOptions()
+    options.provider = 'google'
+
+    authorization_url = scalekit_client.get_authorization_url(
+      redirect_uri=redirect_uri,
+      options=options
+    )
+
+    # Redirect the user to this authorization URL
+    ```
+    </TabItem>
+    <TabItem value="go" label="Go">
+    ```go
+    import "github.com/scalekit/scalekit-sdk-go"
+
+    redirectUrl := "http://localhost:3000/api/callback"
+    options := scalekit.AuthorizationUrlOptions{
+        Provider: "google",
+    }
+
+    authorizationURL := ScalekitClient.GetAuthorizationUrl(
+        redirectUrl,
+        options,
+    )
+    // Next step is to redirect the user to this authorization URL
+    ```
+    </TabItem>
+    <TabItem value="java" label="Java">
+    ```java
+    import com.scalekit.internal.http.AuthorizationUrlOptions;
+
+    String redirectUrl = "http://localhost:3000/api/callback";
+    AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+    options.setProvider("google");
+    try {
+      String url = Auth.scalekit.authentication().getAuthorizationUrl(redirectUrl, options).toString();
+      // Redirect the user to this authorization URL
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+    ```
+    </TabItem>
+    </Tabs>
+
+    This redirect will send users to the selected social provider's authentication flow before being returned to your application.
+
+4. ## Retrieve user profile
+
+    After the user authenticates with the social provider, Scalekit redirects them to your `redirect_uri` with a temporary authorization code. Exchange this code for the user's profile information on your server.
+
+    <Tabs syncKey="tech-stack">
+        <TabItem value="node" label="Node.js">
+        ```javascript
+        import scalekit from '@/utils/auth.js'
+        const redirectUri = 'http://localhost:3000/api/callback';
+
+        app.get('/api/callback', async (req, res) => {
+          const { code, error, error_description } = req.query;
+
+          if (error) {
+            return res.status(401).json({ error, error_description });
+          }
+
+          try {
+            // Exchange the authorization code for a user profile
+            const authResult = await scalekit.authenticateWithCode(
+              code, redirectUri
+            );
+
+            const { user } = authResult;
+            // Next step: Create a session and log in the user
+            res.redirect('/dashboard');
+          } catch (err) {
+            console.error('Error exchanging code:', err);
+            res.status(500).json({ error: 'Failed to authenticate user' });
+          }
+        });
+        ```
+        </TabItem>
+        <TabItem value="py" label="Python">
+        ```python
+        # Handle oauth redirect_url
+        code = request.args.get('code')
+        error = request.args.get('error')
+        error_description = request.args.get('error_description')
+
+        if error:
+            raise Exception(error_description)
+
+        redirect_uri = 'http://localhost:3000/api/callback'
+        result = scalekit_client.authenticate_with_code(
+          code,
+          redirect_uri
+        )
+
+        # result.user has the authenticated user's details
+        user_email = result.user.email
+
+        # Next step: create a session for this user and allow access
+        ```
+        </TabItem>
+        <TabItem value="go" label="Go">
+        ```go
+        // Handle oauth redirect_url
+        code := r.URL.Query().Get("code")
+        error := r.URL.Query().Get("error")
+        errorDescription := r.URL.Query().Get("error_description")
+
+        if error != "" {
+          // Handle errors and exit
+        }
+
+        redirectUrl := "http://localhost:3000/api/callback"
+        result, err := ScalekitClient.AuthenticateWithCode(code, redirectUrl)
+        if err != nil {
+          // Handle errors and exit
+        }
+
+        // result.User has the authenticated user's details
+        userEmail := result.User.Email
+
+        // Next step: create a session for this user and allow access
+        ```
+        </TabItem>
+        <TabItem value="java" label="Java">
+        ```java
+        import com.scalekit.models.AuthenticationResponse;
+
+        // Handle oauth redirect_url
+        String code = request.getParameter("code");
+        String error = request.getParameter("error");
+        String errorDescription = request.getParameter("error_description");
+
+        if (error != null && !error.isEmpty()) {
+            // Handle errors
+            return;
+        }
+
+        try {
+            String redirectUrl = "http://localhost:3000/api/callback";
+            AuthenticationResponse result = Auth.scalekit.authentication().authenticateWithCode(code, redirectUrl);
+            // result.getIdTokenClaims() has the authenticated user's details
+            String userEmail = result.getIdTokenClaims().getEmail();
+
+            // Next step: create a session for this user and allow access
+        } catch (Exception e) {
+            // Handle errors
+        }
+        ```
+        </TabItem>
+    </Tabs>
+
+    The `user` object in the `authResult` contains the authenticated user's details.
+
+    <Aside type="note" title="What about creating a session and logging out?">
+    Session management and logout procedures for social logins are the same as in our main [Quickstart guide](/fsa/quickstart/). Refer to it for details on creating sessions, handling tokens, and secure logout.
+    </Aside>
+
+</Steps>
