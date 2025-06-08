@@ -6,6 +6,12 @@ sidebar:
 prev:
   label: "Manage sessions"
   link: "/guides/fsa/manage-session/"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
 ---
 import { Aside, Badge, Steps } from '@astrojs/starlight/components';
 
@@ -20,10 +26,10 @@ This guide covers how to implement both user-initiated and IdP-initiated logout 
 This is the standard flow where a user clicks a "Logout" button in your application.
 
 <Steps>
-1. ### Create a logout endpoint
+1. #### Create a logout endpoint
    Your application should have an endpoint, like `/logout`, that handles the logout logic.
 
-2. ### Clear the application session
+2. #### Clear the application session
    First, clear all session data stored by your application. This includes the `accessToken` from cookies and the `refreshToken` from your database.
 
     ```javascript title="Express.js"
@@ -46,7 +52,7 @@ This is the standard flow where a user clicks a "Logout" button in your applicat
     });
     ```
 
-3. ### Invalidate the Scalekit session
+3. #### Invalidate the Scalekit session
    After clearing your local session, redirect the user to the Scalekit logout endpoint. This will invalidate their session on Scalekit's servers and then redirect them back to your application.
 
     ```javascript title="Express.js" {12-19}
@@ -70,12 +76,12 @@ This is the standard flow where a user clicks a "Logout" button in your applicat
     ```
 </Steps>
 
-## IdP-Initiated Logout
+## IdP-initiated logout <Badge text="Coming Soon" />
 
 For enterprise customers using SSO, an administrator might initiate logout directly from their Identity Provider's (IdP) dashboard (e.g., Okta). Scalekit supports this flow by notifying your application to terminate the user's session.
 
 <Aside>
-  Your application must expose a webhook endpoint to receive logout notifications from Scalekit. <Badge text="Coming Soon" />
+  Your application must expose a webhook endpoint to receive logout notifications from Scalekit.
 </Aside>
 
 When this feature is available, the flow will be as follows:
