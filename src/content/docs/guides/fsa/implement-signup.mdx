@@ -1,20 +1,87 @@
 ---
-title: Implement signup
+title: "Implement the signup flow"
+description: "Learn how to handle new user signups with Scalekit, either through the managed UI or programmatically via API."
+sidebar:
+  label: "Implement signup"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev: false
+next: false
 ---
+import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard } from '@astrojs/starlight/components';
 
-import { Aside } from '@astrojs/starlight/components';
+User signup is the process of creating a new user and associating them with an organization within Scalekit. This ensures that their identity and data are correctly managed from the start.
 
-<Aside type="note">
+Scalekit provides two primary methods for handling user signups:
+1.  **Using Scalekit's Managed UI**: A quick and simple method that directs users to a pre-built signup page.
+2.  **Programmatically via API**: A flexible method for applications with custom signup forms.
 
-This guide is paused.
+## Method 1: Signup with Scalekit's Managed UI
 
-Reason: Not enough information on how signup and logout flow interms of implementation is different.
+You can direct users to Scalekit's managed signup page by adding the `prompt: 'create'` parameter when generating the authorization URL. This is the simplest way to implement a signup flow.
 
-</Aside>
-# Implement signup
+```javascript title="Express.js"
+const redirectUri = 'http://localhost:3000/api/callback';
 
-## Prerequisites
+const options = {
+  scopes: ['openid', 'profile', 'email', 'offline_access'],
+  prompt: 'create', // This explicitly takes the user to the signup flow
+};
 
-- [Scalekit account](https://app.scalekit.com/ws/signup)
-- [Scalekit SDK](https://docs.scalekit.com/sdk/node)
-- [Scalekit OAuth authorization server](https://docs.scalekit.com/guides/mcp/oauth)
+const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+
+res.redirect(authorizationUrl);
+```
+
+This flow will present the user with the authentication options you have enabled.
+
+<LinkCard
+  title="Configure Authentication Methods"
+  href="/guides/fsa/auth-methods/"
+  description="Enable passwordless, social, or enterprise SSO to customize the signup experience."
+/>
+
+After the user signs up, they are redirected back to your application, and you can proceed to [create a session](/guides/fsa/implement-login/#create-a-user-session) for them, just like in the login flow.
+
+## Method 2: Programmatic Signup via API
+
+If your application uses a custom signup form, you can create a user programmatically by calling the Scalekit API. This gives you full control over the user experience.
+
+<Steps>
+1. ### Collect user information
+   Use your custom form to collect the necessary details from the user, such as their name and email address.
+
+2. ### Create the user in Scalekit
+   After the user submits your form, make an API call to create the user in Scalekit. You must associate the user with an organization.
+
+    ```javascript
+    const newUser = await scalekit.users.create({
+      organizationId: 'org_xxxxxxxxxxxx', // The ID of the organization the user belongs to
+      email: "user@example.com",
+      userProfile: {
+        firstName: "John",
+        lastName: "Doe"
+      },
+      metadata: {
+        // Your internal user ID can be stored here
+        internal_user_id: "usr-abc-123",
+        department: "Engineering"
+      }
+    });
+    ```
+
+    <Aside type="note">
+    You can store additional information about the user, such as your application's internal user ID, using [custom metadata](/fsa/data-modelling/#custom-metadata).
+    </Aside>
+
+3. ### Initiate a login flow
+    After creating the user programmatically, they do not have an active session. You must then initiate a login flow to authenticate them and establish a session. You can do this by redirecting them to the [login page](/guides/fsa/implement-login/#redirect-to-the-login-page).
+
+</Steps>
