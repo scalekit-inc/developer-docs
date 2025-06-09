@@ -1,11 +1,88 @@
 ---
-title: Manage organization
+title: Manage organizations
+description: How to create and manage organizations in Scalekit.
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev: false
 ---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-# Manage organization
+**Organizations** in Scalekit represent your customers. You can create and manage organizations for your customers, and enable features for them. This guide will walk you through creating and managing organizations via the Scalekit Dashboard and the API.
 
-## Prerequisites
+## Via Scalekit dashboard
 
-- [Scalekit account](https://app.scalekit.com/ws/signup)
-- [Scalekit SDK](https://docs.scalekit.com/sdk/node)
-- [Scalekit OAuth authorization server](https://docs.scalekit.com/guides/mcp/oauth)
+### Create an organization
+
+1.  Navigate to the **Organizations** tab in the Scalekit Dashboard.
+2.  Click on the **+ Create organization** button.
+
+    <img src="/src/assets/docs/fsa/organizations/1-list-organizations-1.png" alt="List organizations" />
+
+3.  Enter a name for the organization. This is typically the name of your customer company.
+4.  You can also select the features you want to enable for this organization, such as SSO or Directory Sync.
+
+    <img src="/src/assets/docs/fsa/organizations/2-create-organization.png" alt="Create organization" />
+
+5.  Click **Create** to create the organization.
+
+### Onboard enterprise customers
+
+For enterprise customers who need to configure their own Single Sign-On (SSO) or SCIM, you can generate an admin portal link. This link provides your customer with a sandboxed environment to configure their identity provider or directory provider without accessing your Scalekit dashboard.
+
+After creating an organization and enabling features like SSO or Directory Sync, you can find the generated admin portal link on the organization's details page.
+
+<img src="/src/assets/docs/fsa/organizations/3-organization-details.png" alt="Organization details" />
+
+Share this link with your customer's IT admin to let them complete the configuration on their own.
+
+## Via API
+
+You can also manage organizations programmatically using the Scalekit API.
+
+### Create an organization
+
+Here's how to create an organization using the Node.js SDK:
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="nodejs">
+```javascript
+const organization = await sc.organization.createOrganization(name, {
+  externalId: 'externalId',
+});
+```
+</TabItem>
+</Tabs>
+
+### Generate admin portal link
+
+To enable features like SSO and Directory Sync for an organization and generate the admin portal link, you can update the organization's settings.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="nodejs">
+```javascript
+const settings = {
+  features: [
+    {
+      name: 'sso',
+      enabled: true,
+    },
+    {
+      name: 'dir_sync',
+      enabled: true,
+    },
+  ],
+};
+
+await sc.organization.updateOrganizationSettings('<organization_id>', settings);
+```
+</TabItem>
+</Tabs>
+
+After this, the admin portal link will be available for the organization.

@@ -1,11 +1,54 @@
 ---
 title: Organization settings
+description: How to configure SSO and SCIM for your customers from the Scalekit Dashboard.
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
+import { LinkCard } from '@astrojs/starlight/components';
 
-# Organization settings
+This guide is a continuation of [Manage organizations](/guides/fsa/manage-organization/). It explains how to set up SSO or SCIM configurations for your customers directly from the Scalekit Dashboard, as an alternative to sending them an admin portal link.
 
-## Prerequisites
+## SSO configuration
 
-- [Scalekit account](https://app.scalekit.com/ws/signup)
-- [Scalekit SDK](https://docs.scalekit.com/sdk/node)
-- [Scalekit OAuth authorization server](https://docs.scalekit.com/guides/mcp/oauth)
+Scalekit acts as a service provider on behalf of your application to your customer's identity provider.
+
+From the organization's settings page in the dashboard, you can configure SSO.
+
+<img src="/src/assets/docs/fsa/organizations/sso-config-screen.png" alt="SSO Configuration Screen" />
+
+The process involves:
+
+1.  **Configure User Attributes:** Map attributes from the identity provider to user profiles in Scalekit.
+2.  **Enter Identity Provider Configuration:** Input the metadata from your customer's IdP. This includes details like **Entity ID**, **ACS URL**, and **X.509 certificate**.
+3.  **Assign Users and Groups:** Specify which users and groups can use this SSO connection.
+4.  **Test SSO:** Perform a test login to ensure the connection works correctly.
+5.  **Enable Connection:** Once tested, enable the SSO connection for the organization.
+
+For detailed guides on configuring specific identity providers, refer to the admin guides under [SSO integrations](/guides/integrations/sso-integrations/).
+
+## SCIM configuration
+
+Scalekit can act as a SCIM provider on behalf of your application. This allows your customers to provision and manage users and groups in your application from their directory provider.
+
+<img src="/src/assets/docs/fsa/organizations/scim-config-screen.png" alt="SCIM Configuration Screen" />
+
+To set up SCIM:
+
+1.  **SCIM Endpoint:** Provide this endpoint to your customer to configure in their directory provider.
+2.  **Bearer Token:** Generate and provide this token to your customer. Note that this token is **rotatable** for security.
+3.  **Assign Users and Groups:** After the connection is active, you can see which users and groups are being synced.
+
+For detailed guides on configuring SCIM with specific providers, refer to the admin guides at [SCIM integrations](/guides/integrations/scim-integrations/).
+
+<LinkCard
+  title="Group-based role assignment"
+  href="/guides/directory/group-based-role-assignment/"
+  description="Learn how to assign roles to users based on their group memberships from the directory provider."
+/>
