@@ -1,21 +1,202 @@
 ---
-title: Implement login
+title: "Implement the login flow"
+description: "Learn how to integrate Scalekit into your project to handle user login and create secure sessions."
+sidebar:
+  label: "Implement login"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev: false
+next: false
 ---
+import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard } from '@astrojs/starlight/components';
+import CheckItem from '@/components/ui/CheckItem.astro';
+import InstallSDK from '@components/templates/_installsdk.mdx'
 
-import { Aside } from '@astrojs/starlight/components';
+This guide walks you through integrating Scalekit into your project to implement a secure, enterprise-grade login flow.
 
-<Aside type="note">
+<div>
+   Before you begin
+  <CheckItem iconName="forward-slash">
+     [Set up your Scalekit account](https://app.scalekit.com/ws/signup)
+  </CheckItem>
+  <CheckItem iconName="github">
+     [Clone a sample application from GitHub](https://github.com/scalekit-developers/nodejs-example-apps/tree/main/expressjs-loginbox-authn)
+  </CheckItem>
+</div>
 
-This guide is paused.
+Let's get started!
 
-Reason: Not enough information on how sign up and login flow interms of implementation is different.
+<Steps>
+ 1. ## Install the Scalekit SDK
 
-</Aside>
+    <InstallSDK />
 
-# Implement login
+    Copy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.
+    ```bash
+    SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
+    SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
+    SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
+    ```
 
-## Prerequisites
+    Create a new Scalekit client instance.
+    <Tabs syncKey="tech-stack">
+      <TabItem value="nodejs" label="Node.js">
+      ```javascript
+      import { Scalekit } from '@scalekit-sdk/node';
 
-- [Scalekit account](https://app.scalekit.com/ws/signup)
-- [Scalekit SDK](https://docs.scalekit.com/sdk/node)
-- [Scalekit OAuth authorization server](https://docs.scalekit.com/guides/mcp/oauth)
+      const scalekit = new Scalekit(
+        process.env.SCALEKIT_ENVIRONMENT_URL,
+        process.env.SCALEKIT_CLIENT_ID,
+        process.env.SCALEKIT_CLIENT_SECRET
+      );
+      ```
+      </TabItem>
+      <TabItem value="py" label="Python">
+      ```python
+      import os
+      from scalekit import ScalekitClient
+
+      scalekit_client = ScalekitClient(
+        environment_url=os.environ.get('SCALEKIT_ENVIRONMENT_URL'),
+        client_id=os.environ.get('SCALEKIT_CLIENT_ID'),
+        client_secret=os.environ.get('SCALEKIT_CLIENT_SECRET')
+      )
+      ```
+      </TabItem>
+      <TabItem value="go" label="Go">
+        ```go
+        package main
+
+        import (
+        	"os"
+        	"github.com/scalekit/scalekit-sdk-go"
+        )
+
+        var scalekitClient *scalekit.ScalekitClient
+
+        func main() {
+        	scalekitClient = scalekit.NewScalekitClient(
+        		os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+        		os.Getenv("SCALEKIT_CLIENT_ID"),
+        		os.Getenv("SCALEKIT_CLIENT_SECRET"),
+        	)
+        }
+        ```
+      </TabItem>
+      <TabItem value="java" label="Java">
+        ```java
+        package com.example;
+
+        import com.scalekit.ScalekitClient;
+
+        public class Main {
+            public static ScalekitClient scalekit;
+
+            public static void main(String[] args) {
+                scalekit = new ScalekitClient(
+                    System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+                    System.getenv("SCALEKIT_CLIENT_ID"),
+                    System.getenv("SCALEKIT_CLIENT_SECRET")
+                );
+            }
+        }
+        ```
+      </TabItem>
+    </Tabs>
+  2. ## Redirect to the login page
+       Generate the authorization URL to redirect users to the Scalekit-managed login page. To get a `refreshToken` for session management, ensure you include `offline_access` in the scopes.
+        <Tabs>
+        <TabItem value="node" label="Node.js">
+        ```javascript title="Express.js"
+        const redirectUri = 'http://localhost:3000/api/callback';
+        const options = {
+          scopes: ['openid', 'profile', 'email', 'offline_access'],
+        };
+
+         const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+
+         res.redirect(authorizationUrl);
+        ```
+        </TabItem>
+      </Tabs>
+
+     This will redirect the user to Scalekit's managed sign-in page.
+
+3. ## Handle user authentication
+      Users can now sign in using their preferred method. Scalekit handles the authentication details based on your configuration.
+
+      ![](@/assets/docs/fsa/quickstart/1.png)
+
+      <LinkCard
+        title="Configure Authentication Methods"
+        href="/guides/fsa/auth-methods/"
+        description="Learn how to enable and customize passwordless, social, and enterprise SSO login options."
+      />
+
+4. ## Retrieve user profile
+      After identity verification, Scalekit triggers a callback to your `redirect_uri` with an authorization code. Exchange this code to get the user's profile.
+
+      <Tabs syncKey="tech-stack">
+        <TabItem value="node" label="Node.js">
+        ```javascript
+        const redirectUri = 'http://localhost:3000/api/callback';
+
+        app.get('/api/callback', async (req, res) => {
+          const { code, error, error_description } = req.query;
+
+          if (error) {
+            return res.status(401).json({ error, error_description });
+          }
+
+          try {
+            const authResult = await scalekit.authenticateWithCode(
+              code, redirectUri
+            );
+
+            const { user } = authResult;
+            // Next step: Create a session for the user
+            res.redirect('/dashboard/profile');
+          } catch (err) {
+            console.error('Error exchanging code:', err);
+            res.status(500).json({ error: 'Failed to authenticate user' });
+          }
+        });
+        ```
+        </TabItem>
+      </Tabs>
+
+      The `authResult` contains the user's profile and the necessary tokens to create a session.
+
+4. ## Create a user session
+      With the user's identity verified, you can now establish a session. This typically involves storing the tokens securely and using them to manage the user's authenticated state.
+
+      ```javascript
+      // Continuing from the previous step...
+      const { accessToken, refreshToken, expiresIn } = authResult;
+
+      // Store the refreshToken securely, e.g., in a database
+      await db.saveRefreshToken(user.id, refreshToken);
+
+      // Set the accessToken as a secure, HTTP-only cookie
+      res.cookie('accessToken', accessToken, {
+        maxAge: (expiresIn - 60) * 1000,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      });
+      ```
+</Steps>
+
+## What's next?
+
+You have successfully implemented the login flow. Now you can:
+- [Manage user sessions](/guides/fsa/manage-session/) to handle token refreshes and expirations.
+- [Implement a secure logout flow](/guides/fsa/logout/).
+- Explore the normalized [user profile schema](/reference/fsa/user-profile/).
