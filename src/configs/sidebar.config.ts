@@ -159,6 +159,7 @@ export const sidebar = [
     id: 'dev-kit',
     link: '/dev-kit/',
     icon: 'seti:powershell',
+    hidden: true,
     items: [
       {
         label: 'Developer kit',
@@ -265,5 +266,5 @@ export const topics = {
     '/guides/external-ids-and-metadata',
     '/guides/mcp/additional-reading',
   ],
-  'dev-kit': ['/guides/unlisted/passwordless-as-service'],
+  'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
 };
