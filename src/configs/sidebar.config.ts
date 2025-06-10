@@ -127,18 +127,15 @@ export const sidebar = [
       },
       {
         label: 'Authentication',
+        items: ['guides/fsa/implement-login', 'guides/fsa/implement-signup'],
+      },
+      {
+        label: 'Auth methods',
         items: [
-          'guides/fsa/implement-login',
-          {
-            label: 'Auth methods',
-            items: [
-              'guides/fsa/auth-methods',
-              'guides/fsa/social-logins',
-              'guides/fsa/enterprise-sso',
-              'guides/fsa/passwordless',
-            ],
-          },
-          'guides/fsa/implement-signup',
+          'guides/fsa/auth-methods',
+          'guides/fsa/social-logins',
+          'guides/fsa/enterprise-sso',
+          'guides/fsa/passwordless',
         ],
       },
       {
