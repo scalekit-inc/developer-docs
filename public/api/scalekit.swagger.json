@@ -470,6 +470,387 @@
         ]
       }
     },
+    "/api/v1/organizations/{organization_id}/users": {
+      "get": {
+        "description": "Retrieve a paginated list of all users within the specified organization. Use the 'page_token' from the response to access subsequent pages of results",
+        "tags": ["Users"],
+        "summary": "List Organization Users",
+        "operationId": "UserService_ListUsers",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization for which to list users. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum number of users to return in a single response. Valid range: 1-100. Server may return fewer users than specified.",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Pagination token from a previous ListUserResponse. Used to retrieve the next page of results. Leave empty for the first request.",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of users in the organization",
+            "schema": {
+              "$ref": "#/definitions/usersListUserResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const users = await scalekit.user.listUsers(\n  organizationId, {\n\tpageSize: 10,\n});"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "users, err := scalekitClient.User.ListUsers(\n  ctx,\n  organizationId,\n  \u0026scalekit.ListUserOptions{\n    PageSize: 10,\n  }\n)"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "options = ListUserOptions()\noptions.page_size = 10\n\nusers = sc.user.list_users(\n  organization_id,\n  options=options\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ListUserRequest request = ListUserRequest.newBuilder()\n    .setPageSize(10)\n    .setPageToken(\"\")\n    .build();\n\nListUserResponse response = scalekitClient.users().listUsers(organizationId, request);"
+          }
+        ]
+      },
+      "post": {
+        "description": "Creates a new user account within an organization. Required fields include email and username. Optional fields include phone_number and groups. The user receives an activation email unless this feature is disabled in the organization settings",
+        "tags": ["Users"],
+        "summary": "Create Organization User",
+        "operationId": "UserService_CreateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/usersUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created successfully. Returns the created user object, including system-generated identifiers and timestamps",
+            "schema": {
+              "$ref": "#/definitions/usersCreateUserResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const user = await scalekit.user.createUser(\n  organizationId, {\n\temail: \"user@example.com\",\n\tuserProfile: {\n\t\tfirstName: \"John\",\n\t\tlastName: \"Doe\",\n\t},\n\tmetadata: {\n\t\t// Optional custom metadata\n\t\tdepartment: \"Engineering\",\n\t},\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "user = CreateUser()\nuser.email = \"user@example.com\"\nuser.first_name = \"John\"\nuser.last_name = \"Doe\"\n\nresponse = scalekit.user.create_user(\n    organization_id,\n    user=user\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "user := \u0026scalekit.User{\n    // Set user properties here\n    Email: \"user@example.com\",\n    Name: \"John Doe\",\n}\n\nresponse, err := scalekitClient.User.CreateUser(\n    ctx,\n    organizationId,\n    user,\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "CreateUserRequest request = CreateUserRequest.newBuilder()\n    .setEmail(\"user@example.com\")\n    .setFirstName(\"John\")\n    .setLastName(\"Doe\")\n    .build();\n\n// Create user in organization\nCreateUserResponse response = client.users().createUser(\"organization-id\", request);"
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}/users/{id}": {
+      "get": {
+        "description": "Retrieves complete user details using one of: system-generated ID, external ID, or identity provider ID. Includes organization memberships, and metadata",
+        "tags": ["Users"],
+        "summary": "Get Organization User",
+        "operationId": "UserService_GetUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique organization identifier. Required and must start with 'org_' (1-32 characters).",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters).",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Immutable identity provider value from authentication systems.",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details retrieved successfully. Returns full user object with system-generated fields and timestamps.",
+            "schema": {
+              "$ref": "#/definitions/usersGetUserResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const user = await scalekit.user.getUser(organizationId, \n  userId);"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "response = scalekit.user.get_user(\n    organization_id,\n    user_id=\"user_id\"\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "user, err := scalekitClient.User.GetUser(\n    ctx,\n    organizationId,\n    userId,\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "GetUserResponse response = client.users().getUser(\"organization-id\", \"user-id\");"
+          }
+        ]
+      },
+      "post": {
+        "description": "Associates an existing user with an organization. The user must already exist in the system and be identified by their unique ID, external ID, or identity provider ID",
+        "tags": ["Users"],
+        "summary": "Add User to Organization",
+        "operationId": "UserService_AddUserToOrganization",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the target organization. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters)",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "External system identifier from connected directories. Must be unique across the system",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Immutable identity provider value from authentication systems",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User successfully added to the organization. Returns details of the updated user membership",
+            "schema": {
+              "$ref": "#/definitions/usersAddUserResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const result = await scalekit.user.addUserToOrganization(\n\torganizationId,\n\tuserId\n);"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "response = scalekit.user.add_user_to_organization(\n    organization_id=\"org_1234abcd5678efgh\",\n    user_id=\"usr_1234abcd5678efgh\"\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "response, err := scalekitClient.User.AddUserToOrganization(\n    ctx,\n    organizationId,\n    userId,\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "AddUserRequest request = AddUserRequest.newBuilder()\n    .setId(\"user-id\")\n    .build();\n\n// Add user to organization\nAddUserResponse response = client.users(\n  ).addUserToOrganization(\"organization-id\", \"user-id\", \n    request);"
+          }
+        ]
+      },
+      "delete": {
+        "description": "Permanently removes a user from the organization using one of: system-generated ID, external ID, or identity provider ID. This action is irreversible and may cascade to related resources like group memberships.",
+        "tags": ["Users"],
+        "summary": "Delete User",
+        "operationId": "UserService_DeleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique organization identifier. Must start with 'org_' and be 1-32 characters long",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters)",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "External system identifier from connected directories. Must match existing records",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Immutable identity provider value from authentication systems",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User successfully marked for deletion. No content returned",
+            "schema": {}
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.organization.deleteUser(organizationId, \n  userId);"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "scalekit.user.delete_user(\n    organization_id,\n    user_id=\"user_id\"\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := scalekitClient.User.DeleteUser(\n    ctx,\n    organizationId,\n    userId,\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "client.users().deleteUser(\"organization-id\", \"user-id\");"
+          }
+        ]
+      },
+      "patch": {
+        "description": "Performs partial updates to a user's configuration. Updatable fields: email, phone_number, user_profile, metadata. Immutable fields: id, environment_id, create_time. Returns the updated user resource.",
+        "tags": ["Users"],
+        "summary": "Update Organization User",
+        "operationId": "UserService_UpdateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization containing the user. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' and be 19-25 characters long.",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "User fields to update. Only specified fields will be modified. Required fields must be provided if being changed.",
+              "$ref": "#/definitions/v1usersUpdateUser",
+              "example": {
+                "email": "new.email@example.com",
+                "phone_number": "+14155552671"
+              }
+            }
+          },
+          {
+            "type": "string",
+            "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Immutable identity provider identifier. Must match the exact value returned by the IDP.",
+            "name": "identity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully. Returns the modified user object with updated timestamps.",
+            "schema": {
+              "$ref": "#/definitions/usersUpdateUserResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const updatedUser = await scalekit.user.updateUser(\n  organizationId, userId, {\n\tuserProfile: {\n\t\tfirstName: \"John\",\n\t\tlastName: \"Smith\",\n\t},\n\tmetadata: {\n\t\t// Optional custom metadata\n\t\tdepartment: \"Product\",\n\t},\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "user = UpdateUser()\nuser.id = \"user_id\"\nuser.first_name = \"John\"\nuser.last_name = \"Smith\"\n\nresponse = scalekit.user.update_user(\n    organization_id,\n    user=user\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "updateUser := \u0026scalekit.UpdateUser{\n    // Set fields you want to update\n    Name: \"John Updated\",\n}\n\nresponse, err := scalekitClient.User.UpdateUser(\n    ctx,\n    organizationId,\n    userId,\n    updateUser,\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "UpdateUserRequest request = UpdateUserRequest.newBuilder()\n    .setFirstName(\"John\")\n    .setLastName(\"Smith\")\n    .setEmail(\"john.smith@example.com\")\n    .build();\n\n// Update user in organization\nUpdateUserResponse response = client.users().updateUser(\n\t\"organization-id\", \"user-id\", request\n\t);"
+          }
+        ]
+      }
+    },
     "/api/v1/organizations/{organization_id}/connections/{id}": {
       "get": {
         "description": "Retrieves the complete configuration and status details for a specific connection by its ID within an organization. Returns all connection properties including provider settings, protocols, and current status.",
@@ -1559,6 +1940,136 @@
     }
   },
   "definitions": {
+    "usersAddUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersCreateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersGetUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersListUserResponse": {
+      "type": "object",
+      "properties": {
+        "next_page_token": {
+          "description": "Opaque token for retrieving the next page of results. Empty if there are no more pages.",
+          "type": "string",
+          "example": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAidXNyXzEyMzQ1In0="
+        },
+        "prev_page_token": {
+          "description": "Opaque token for retrieving the previous page of results. Empty for the first page.",
+          "type": "string",
+          "example": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInVzcl85ODc2NSJ9"
+        },
+        "total_size": {
+          "description": "Total number of users matching the request criteria, regardless of pagination.",
+          "type": "integer",
+          "format": "int64",
+          "example": 1042
+        },
+        "users": {
+          "description": "List of user objects for the current page. May contain fewer entries than requested page_size.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/usersUser"
+          }
+        }
+      }
+    },
+    "usersUpdateUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
+    "usersUser": {
+      "type": "object",
+      "properties": {
+        "create_time": {
+          "description": "Timestamp when the user account was initially created. Automatically set by the server.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "description": "Primary email address for the user. Must be unique across the environment and valid per RFC 5322.",
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "external_id": {
+          "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+          "type": "string",
+          "example": "ext_12345a67b89c"
+        },
+        "id": {
+          "description": "Unique system-generated identifier for the user. Immutable once created.",
+          "type": "string",
+          "example": "usr_1234abcd5678efgh"
+        },
+        "identity": {
+          "description": "Unique identifier from the identity provider (IDP). Immutable once set.",
+          "type": "string",
+          "example": "1234567890abcdef"
+        },
+        "last_login": {
+          "description": "Timestamp of the user's most recent successful authentication. Updated automatically.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "metadata": {
+          "description": "Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "example": {
+            "department": "engineering",
+            "location": "nyc-office"
+          }
+        },
+        "organizations": {
+          "description": "List of organization memberships. Automatically populated based on group assignments.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/commonsOrganizationMembership"
+          },
+          "readOnly": true
+        },
+        "phone_number": {
+          "description": "Phone number in E.164 international format. Required for SMS-based authentication.",
+          "type": "string",
+          "example": "+14155552671"
+        },
+        "update_time": {
+          "description": "Timestamp of the last modification to the user account. Automatically updated by the server.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "user_profile": {
+          "description": "User's personal information including name, address, and other profile attributes.",
+          "$ref": "#/definitions/commonsUserProfile"
+        }
+      }
+    },
     "authpasswordlessPasswordlessType": {
       "type": "string",
       "enum": ["OTP", "LINK", "LINK_OTP"]
