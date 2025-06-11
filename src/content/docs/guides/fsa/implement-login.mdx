@@ -125,6 +125,43 @@ Let's get started!
          res.redirect(authorizationUrl);
         ```
         </TabItem>
+        <TabItem value="python" label="Python">
+        ```python title="Flask"
+        redirect_uri = 'http://localhost:3000/api/callback'
+        options = AuthorizationUrlOptions()
+        options.scopes = ['openid', 'profile', 'email', 'offline_access']
+
+        authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+
+        return redirect(authorization_url)
+        ```
+        </TabItem>
+        <TabItem value="go" label="Go">
+        ```go title="Gin"
+        redirectUri := "http://localhost:3000/api/callback"
+        options := scalekit.AuthorizationUrlOptions{
+            Scopes: []string{"openid", "profile", "email", "offline_access"},
+        }
+
+        authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+        if err != nil {
+            // Handle error
+        }
+
+        c.Redirect(http.StatusFound, authorizationUrl.String())
+        ```
+        </TabItem>
+        <TabItem value="java" label="Java">
+        ```java title="Spring Boot"
+        String redirectUri = "http://localhost:3000/api/callback";
+        AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+        options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+
+        String authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+
+        return "redirect:" + authorizationUrl;
+        ```
+        </TabItem>
       </Tabs>
 
      This will redirect the user to Scalekit's managed sign-in page.
@@ -170,6 +207,90 @@ Let's get started!
         });
         ```
         </TabItem>
+        <TabItem value="python" label="Python">
+        ```python
+        redirect_uri = 'http://localhost:3000/api/callback'
+
+        @app.route('/api/callback')
+        async def callback():
+            code = request.args.get('code')
+            error = request.args.get('error')
+            error_description = request.args.get('error_description')
+
+            if error:
+                return jsonify({'error': error, 'error_description': error_description}), 401
+
+            try:
+                options = CodeAuthenticationOptions()
+                auth_result = scalekit.authenticate_with_code(code, redirect_uri, options)
+                user = auth_result['user']
+                # Next step: Create a session for the user
+                return redirect('/dashboard/profile')
+            except Exception as err:
+                print('Error exchanging code:', err)
+                return jsonify({'error': 'Failed to authenticate user'}), 500
+        ```
+        </TabItem>
+        <TabItem value="go" label="Go">
+        ```go
+        redirectUri := "http://localhost:3000/api/callback"
+
+        func handleCallback(c *gin.Context) {
+            code := c.Query("code")
+            err := c.Query("error")
+            errDesc := c.Query("error_description")
+
+            if err != "" {
+                c.JSON(401, gin.H{
+                    "error": err,
+                    "error_description": errDesc,
+                })
+                return
+            }
+
+            options := scalekit.AuthenticationOptions{}
+            authResult, err := scalekit.AuthenticateWithCode(code, redirectUri, options)
+            if err != nil {
+                c.JSON(500, gin.H{"error": "Failed to authenticate user"})
+                return
+            }
+
+            user := authResult.User
+            // Next step: Create a session for the user
+            c.Redirect(http.StatusFound, "/dashboard/profile")
+        }
+        ```
+        </TabItem>
+        <TabItem value="java" label="Java">
+        ```java
+        String redirectUri = "http://localhost:3000/api/callback";
+
+        @GetMapping("/api/callback")
+        public String handleCallback(
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String error,
+            @RequestParam(required = false) String errorDescription
+        ) {
+            if (error != null) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    String.format("Error: %s, Description: %s", error, errorDescription));
+            }
+
+            try {
+                AuthenticationOptions options = new AuthenticationOptions();
+                AuthenticationResponse authResult = scalekit.authentication()
+                    .authenticateWithCode(code, redirectUri, options);
+
+                User user = authResult.getUser();
+                // Next step: Create a session for the user
+                return "redirect:/dashboard/profile";
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to authenticate user");
+            }
+        }
+        ```
+        </TabItem>
       </Tabs>
 
       The `authResult` contains the user's profile and the necessary tokens to create a session.
@@ -177,21 +298,93 @@ Let's get started!
 4. ## Create a user session
       With the user's identity verified, you can now establish a session. This typically involves storing the tokens securely and using them to manage the user's authenticated state.
 
-      ```javascript
-      // Continuing from the previous step...
-      const { accessToken, refreshToken, expiresIn } = authResult;
+      <Tabs syncKey="tech-stack">
+        <TabItem value="node" label="Node.js">
+        ```javascript
+        // Continuing from the previous step...
+        const { accessToken, refreshToken, expiresIn } = authResult;
 
-      // Store the refreshToken securely, e.g., in a database
-      await db.saveRefreshToken(user.id, refreshToken);
+        // Store the refreshToken securely, e.g., in a database
+        await db.saveRefreshToken(user.id, refreshToken);
 
-      // Set the accessToken as a secure, HTTP-only cookie
-      res.cookie('accessToken', accessToken, {
-        maxAge: (expiresIn - 60) * 1000,
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-      });
-      ```
+        // Set the accessToken as a secure, HTTP-only cookie
+        res.cookie('accessToken', accessToken, {
+          maxAge: (expiresIn - 60) * 1000,
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict'
+        });
+        ```
+        </TabItem>
+        <TabItem value="python" label="Python">
+        ```python
+        # Continuing from the previous step...
+        access_token = auth_result['access_token']
+        refresh_token = auth_result.get('refresh_token')
+        expires_in = auth_result.get('expires_in', 3600)  # Default to 1 hour if not provided
+
+        # Store the refresh_token securely, e.g., in a database
+        await db.save_refresh_token(user['id'], refresh_token)
+
+        # Set the access_token as a secure, HTTP-only cookie
+        response = redirect('/dashboard/profile')
+        response.set_cookie(
+            'accessToken',
+            access_token,
+            max_age=expires_in - 60,
+            httponly=True,
+            secure=os.environ.get('FLASK_ENV') == 'production',
+            samesite='Strict'
+        )
+        return response
+        ```
+        </TabItem>
+        <TabItem value="go" label="Go">
+        ```go
+        // Continuing from the previous step...
+        accessToken := authResult.AccessToken
+        refreshToken := authResult.RefreshToken
+        expiresIn := authResult.ExpiresIn
+
+        // Store the refreshToken securely, e.g., in a database
+        err = db.SaveRefreshToken(user.Id, refreshToken)
+        if err != nil {
+            c.JSON(500, gin.H{"error": "Failed to save refresh token"})
+            return
+        }
+
+        // Set the accessToken as a secure, HTTP-only cookie
+        c.SetCookie(
+            "accessToken",
+            accessToken,
+            expiresIn-60,
+            "/",
+            "",
+            os.Getenv("GIN_MODE") == "release",
+            true,
+        )
+        ```
+        </TabItem>
+        <TabItem value="java" label="Java">
+        ```java
+        // Continuing from the previous step...
+        String accessToken = authResult.getAccessToken();
+        String refreshToken = authResult.getRefreshToken();
+        int expiresIn = authResult.getExpiresIn();
+
+        // Store the refreshToken securely, e.g., in a database
+        refreshTokenRepository.save(user.getId(), refreshToken);
+
+        // Set the accessToken as a secure, HTTP-only cookie
+        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+        accessTokenCookie.setMaxAge(expiresIn - 60);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(System.getenv("SPRING_PROFILES_ACTIVE").equals("prod"));
+        accessTokenCookie.setPath("/");
+        response.addCookie(accessTokenCookie);
+        ```
+        </TabItem>
+      </Tabs>
 </Steps>
 
 ## What's next?
