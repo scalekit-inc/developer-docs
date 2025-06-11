@@ -5,6 +5,47 @@ template: doc
 tableOfContents: false
 editUrl: false
 topic: sso
+head:
+  - tag: style
+    content: |
+      :root {
+        --sl-content-width: 55rem !important;
+      }
+      .hero {
+        padding: 2rem 0;
+      }
+      .hero-content {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+        align-items: stretch;
+      }
+      .card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .card-grid .card {
+        margin-top: 0 !important;
+      }
+      .card-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .card h5 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+      .card ul {
+        margin-bottom: 1.5rem;
+      }
 hero:
   title: Scalekit Docs
   tagline: Plug-n-play auth for B2B SaaS
@@ -17,7 +58,7 @@ hero:
       variant: secondary
 ---
 
-import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkButton, LinkCard } from '@astrojs/starlight/components';
 import SimpleList from '@/components/ui/SimpleList.astro';
 import CheckItem from '@/components/ui/CheckItem.astro';
 import { ShowcaseText, ShowcaseCTA, ShowcaseYouTube } from 'starlight-showcases'
@@ -26,21 +67,20 @@ Scalekit helps you quickly add enterprise authentication to your B2B SaaS app wi
 
 Built for B2B use cases, Scalekit natively supports multi-tenancy and organization management. You can test auth flows in sandbox environments, simulate SSO without real IdP accounts, and deploy instantly with prebuilt integrations for Okta, Entra ID, JumpCloud, Google SSO, and Azure AD—no custom code required.
 
-<br />
-<CardGrid>
+<div class="card-grid">
 
-<Card>
-<h5>Ship SSO in a day, no custom dev</h5>
+<Card title="SSO" icon="seti:lock">
 
 - SAML and OIDC supported
 - Prebuilt integrations with IdPs like Okta, Entra ID, Google SSO, and more
 - Includes SP-initiated and IdP-initiated SSO flows
 
-    <LinkButton href="/sso/quickstart" variant="secondary">SSO Quickstart &rarr;</LinkButton>
+<LinkButton href="/sso/quickstart" variant="secondary">
+  SSO Quickstart &rarr;
+</LinkButton>
 </Card>
 
-<Card>
-<h5>SCIM Provisioning, ready in hours</h5>
+<Card title="SCIM" icon="seti:folder">
 
 - Automate user provisioning, de-provisioning, from directories and HR systems
 - Assign roles using groups and custom attributes defined in directories
@@ -49,26 +89,33 @@ Built for B2B use cases, Scalekit natively supports multi-tenancy and organizati
     <LinkButton href="/directory/scim/quickstart/" variant="secondary">SCIM Quickstart &rarr;</LinkButton>
 </Card>
 
-<Card>
-<h5>Social Logins, out of the box</h5>
+</div>
+<LinkCard
+  title="MCP Auth"
+  href="/guides/mcp/overview/"
+  icon="forward-slash"
+  description="OAuth 2.1 authorization for Model Context Protocol (MCP) servers"
+/>
+<LinkCard
+  title="API Auth"
+  href="/m2m/quickstart/"
+  icon="crystal_embedded"
+  description="OAuth 2.1 authorization for your API to facilitate Service Principals, M2M Authentication, and more"
+/>
+<LinkCard
+  title="Passwordless Auth"
+  href="/guides/passwordless/overview/"
+  icon="email"
+  description="Enable secure, verified logins to your customers via Email OTP or Magic Links or Both"
+/>
+<LinkCard
+  title="Social Logins"
+  href="/social-logins/quickstart/"
+  icon="list-format"
+  description="Enable OAuth-based logins with Google, Microsoft, GitHub, and more"
+/>
 
-- Enable OAuth-based logins with Google, Microsoft, GitHub, and more
-- Leverage trusted social platforms to provide secure, verified logins to users
-
-    <LinkButton href="/social-logins/quickstart/" variant="secondary">Social Logins Quickstart &rarr;</LinkButton>
-</Card>
-
-<Card>
-<h5>Self-serve setup with admin portal</h5>
-
-- Let your customers configure SSO and SCIM settings through Admin Portal
-- Embed the portal in your app or share as standalone link with your customers
-- Customize the portal with UI, colors that match your app's look and feel
-
-    <LinkButton href="/guides/sso/admin-portal/" variant="secondary">Configure Admin Portal &rarr;</LinkButton>
-</Card>
-
-</CardGrid>
+<br />
 
 <h2>How it works</h2>
 
@@ -84,7 +131,6 @@ Built for B2B use cases, Scalekit natively supports multi-tenancy and organizati
     },
   ]}
 />
-
 
 <br />
 
