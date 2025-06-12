@@ -740,87 +740,90 @@ Let's get started!
 
         @Component
         public class TokenVerificationInterceptor implements HandlerInterceptor {
+          @Override
+          public boolean preHandle(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Object handler
+          ) throws Exception {
+            try {
+              // Get access token from cookie
+              String accessToken = getCookieValue(request, "accessToken");
 
-            @Override
-            public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-                try {
-                    // Get access token from cookie
-                    String accessToken = getCookieValue(request, "accessToken");
+              if (accessToken == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("{\"message\": \"No access token provided\"}");
+                return false;
+              }
 
-                    if (accessToken == null) {
-                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        response.getWriter().write("{\"message\": \"No access token provided\"}");
-                        return false;
-                    }
+              // Decrypt the accessToken
+              String decryptedAccessToken = decrypt(accessToken);
 
-                    // Decrypt the accessToken
-                    String decryptedAccessToken = decrypt(accessToken);
+              // Use Scalekit SDK to validate the token
+              boolean isValid = scalekit.validateAccessToken(decryptedAccessToken);
 
-                    // Use Scalekit SDK to validate the token
-                    boolean isValid = scalekit.validateAccessToken(decryptedAccessToken);
+              if (!isValid) {
+                // Get stored refresh token
+                String refreshToken = getStoredRefreshToken(request);
 
-                    if (!isValid) {
-                        // Get stored refresh token
-                        String refreshToken = getStoredRefreshToken(request);
-
-                        if (refreshToken == null) {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.getWriter().write("{\"message\": \"No refresh token available\"}");
-                            return false;
-                        }
-
-                        // Use stored refreshToken to get a new access token
-                        AuthenticationResponse tokenResponse = scalekit.refreshToken(refreshToken);
-
-                        // Store the new refresh token
-                        storeRefreshToken(tokenResponse.getRefreshToken());
-
-                        // Update the cookie with the new access token
-                        String encryptedNewAccessToken = encrypt(tokenResponse.getAccessToken());
-                        Cookie newCookie = new Cookie("accessToken", encryptedNewAccessToken);
-                        newCookie.setHttpOnly(true);
-                        newCookie.setSecure(true);
-                        newCookie.setPath("/");
-                        response.addCookie(newCookie);
-
-                        request.setAttribute("tokenRefreshed", true);
-                    } else {
-                        request.setAttribute("tokenValid", true);
-                    }
-
-                    return true;
-
-                } catch (Exception e) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("{\"message\": \"Token verification failed: " + e.getMessage() + "\"}");
-                    return false;
+                if (refreshToken == null) {
+                  response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                  response.getWriter().write("{\"message\": \"No refresh token available\"}");
+                  return false;
                 }
-            }
 
-            private String getCookieValue(HttpServletRequest request, String cookieName) {
-                Cookie[] cookies = request.getCookies();
-                if (cookies != null) {
-                    for (Cookie cookie : cookies) {
-                        if (cookieName.equals(cookie.getName())) {
-                            return cookie.getValue();
-                        }
-                    }
-                }
-                return null;
+                // Use stored refreshToken to get a new access token
+                AuthenticationResponse tokenResponse = scalekit.refreshToken(refreshToken);
+
+                // Store the new refresh token
+                storeRefreshToken(tokenResponse.getRefreshToken());
+
+                // Update the cookie with the new access token
+                String encryptedNewAccessToken = encrypt(tokenResponse.getAccessToken());
+                Cookie newCookie = new Cookie("accessToken", encryptedNewAccessToken);
+                newCookie.setHttpOnly(true);
+                newCookie.setSecure(true);
+                newCookie.setPath("/");
+                response.addCookie(newCookie);
+
+                request.setAttribute("tokenRefreshed", true);
+              } else {
+                request.setAttribute("tokenValid", true);
+              }
+
+              return true;
+            } catch (Exception e) {
+              response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+              response.getWriter().write(
+                "{\"message\": \"Token verification failed: " + e.getMessage() + "\"}"
+              );
+              return false;
             }
+          }
+
+          private String getCookieValue(HttpServletRequest request, String cookieName) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+              for (Cookie cookie : cookies) {
+                if (cookieName.equals(cookie.getName())) {
+                  return cookie.getValue();
+                }
+              }
+            }
+            return null;
+          }
         }
 
         // Example of using the interceptor to protect routes
         @RestController
         public class DashboardController {
-
-            @GetMapping("/dashboard")
-            public ResponseEntity<Map<String, Object>> dashboard(HttpServletRequest request) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("message", "This is a protected route");
-                response.put("tokenValid", request.getAttribute("tokenValid"));
-                return ResponseEntity.ok(response);
-            }
+          @GetMapping("/dashboard")
+          public ResponseEntity<Map<String, Object>> dashboard(HttpServletRequest request) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "This is a protected route");
+            response.put("tokenValid", request.getAttribute("tokenValid"));
+            return ResponseEntity.ok(response);
+          }
         }
         ```
         </TabItem>
