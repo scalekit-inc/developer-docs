@@ -27,11 +27,12 @@ export default defineConfig({
         minHeadingLevel: 2,
         maxHeadingLevel: 4,
       },
-      favicon: 'src/assets/favicons/logo.png',
+      favicon: '/images/favicon.png',
       components: {
         // SocialIcons: './src/components/overrides/SocialIcons.astro',
         // Sidebar: './src/components/overrides/Sidebar.astro',
         Head: './src/components/overrides/Head.astro',
+        Header: './src/components/overrides/Header.astro',
       },
       logo: {
         dark: '/src/assets/images/logos/scalekit-logo-green-dark.svg',
@@ -59,8 +60,6 @@ export default defineConfig({
       },
       customCss: [
         '@fontsource-variable/inter',
-        '@fontsource-variable/geist',
-        '@fontsource-variable/geist-mono',
 
         /** Backup fonts. They can be removed if deemed unnecessary. */
         // '@fontsource-variable/plus-jakarta-sans',

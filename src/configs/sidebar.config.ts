@@ -86,10 +86,50 @@ export const sidebar = [
     ],
   },
   {
+    label: 'Passwordless Auth',
+    link: '/guides/passwordless/quickstart',
+    icon: 'email',
+    id: 'passwordless',
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'guides/passwordless/overview',
+          'guides/passwordless/quickstart',
+          'guides/passwordless/oidc',
+        ],
+      },
+      {
+        label: 'Email customization',
+        items: [
+          'guides/passwordless/custom-email-provider',
+          //'guides/passwordless/custom-email-templates',
+        ],
+      },
+    ],
+  },
+  {
+    label: 'MCP Auth',
+    link: '/guides/mcp/overview',
+    id: 'mcp',
+    icon: 'forward-slash',
+    badge: { text: 'Beta', variant: 'note' },
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'guides/mcp/overview',
+          'guides/mcp/oauth',
+          //"guides/mcp/additional-reading",
+        ],
+      },
+    ],
+  },
+  {
     label: 'API Auth',
     link: '/m2m/quickstart',
     id: 'm2m',
-    icon: 'seti:powershell',
+    icon: 'seti:crystal_embedded',
     badge: { text: 'Beta', variant: 'note' },
     items: [
       {
@@ -115,66 +155,65 @@ export const sidebar = [
     ],
   },
   {
-    label: 'APIs & SDKs',
+    label: 'SDKs & APIs',
     id: 'dev-kit',
     link: '/dev-kit/',
-    icon: 'seti:crystal_embedded',
+    icon: 'seti:powershell',
     items: [
       {
-        label: 'Developer kit',
+        label: 'SDKs',
         items: [
           {
-            label: 'API reference',
+            label: 'Node.js SDK',
+            link: 'https://github.com/scalekit-inc/scalekit-sdk-node',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+          {
+            label: 'Python SDK',
+            link: 'https://github.com/scalekit-inc/scalekit-sdk-python',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+          {
+            label: 'Go SDK',
+            link: 'https://github.com/scalekit-inc/scalekit-sdk-go',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+          {
+            label: 'Java SDK',
+            link: 'https://github.com/scalekit-inc/scalekit-sdk-java',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+      {
+        label: 'Webhooks',
+        autogenerate: { directory: 'reference/webhooks' },
+      },
+      {
+        label: 'Reference',
+        items: [
+          {
+            label: 'REST API reference',
             link: '/apis',
             attrs: { target: '_blank', rel: 'noopener' },
-            badge: { text: 'REST ↗', variant: 'note' },
           },
+          'reference/admin-portal/ui-events',
+          'reference/glossary',
+        ],
+      },
+      {
+        label: 'Development Tools',
+        items: [
           {
             label: 'Postman collections',
             link: 'https://github.com/scalekit-developers/api-collections',
             attrs: { target: '_blank', rel: 'noopener' },
           },
           {
-            label: 'Code gists',
+            label: 'Code examples',
             link: 'https://github.com/scalekit-developers/gists',
             attrs: { target: '_blank', rel: 'noopener' },
           },
-          {
-            label: 'SDKs',
-            items: [
-              {
-                label: 'Nodejs',
-                link: 'https://github.com/scalekit-inc/scalekit-sdk-node',
-                attrs: { target: '_blank', rel: 'noopener' },
-              },
-              {
-                label: 'Python',
-                link: 'https://github.com/scalekit-inc/scalekit-sdk-python',
-                attrs: { target: '_blank', rel: 'noopener' },
-              },
-              {
-                label: 'Go',
-                link: 'https://github.com/scalekit-inc/scalekit-sdk-go',
-                attrs: { target: '_blank', rel: 'noopener' },
-              },
-              {
-                label: 'Java',
-                link: 'https://github.com/scalekit-inc/scalekit-sdk-java',
-                attrs: { target: '_blank', rel: 'noopener' },
-              },
-            ],
-          },
-        ],
-      },
-      {
-        label: 'Reference',
-        items: [
-          'reference/admin-portal/ui-events',
-          {
-            label: 'Webhooks',
-            autogenerate: { directory: 'reference/webhooks' },
-          },
-          'reference/glossary',
         ],
       },
       {
@@ -182,7 +221,7 @@ export const sidebar = [
         items: [
           'support/contact-us',
           {
-            label: 'Release notes',
+            label: 'Release Notes',
             link: 'https://www.scalekit.com/product-updates',
           },
           {
@@ -223,5 +262,7 @@ export const topics = {
     '/home/**/*',
     '/guides/setup-scalekit',
     '/guides/external-ids-and-metadata',
+    '/guides/mcp/additional-reading',
   ],
+  'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
 };
