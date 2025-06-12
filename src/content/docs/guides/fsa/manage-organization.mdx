@@ -60,6 +60,25 @@ const organization = await sc.organization.createOrganization(name, {
 });
 ```
 </TabItem>
+<TabItem label="Python" value="python">
+```python
+organization = sc.organization.create_organization(name, external_id='externalId')
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go
+organization, err := sc.Organization.CreateOrganization(name, map[string]interface{}{
+    "externalId": "externalId",
+})
+```
+</TabItem>
+<TabItem label="Java" value="java">
+```java
+Organization organization = sc.getOrganization().createOrganization(name, new HashMap<String, Object>() {{
+    put("externalId", "externalId");
+}});
+```
+</TabItem>
 </Tabs>
 
 ### Generate admin portal link
@@ -83,6 +102,47 @@ const settings = {
 };
 
 await sc.organization.updateOrganizationSettings('<organization_id>', settings);
+```
+</TabItem>
+<TabItem label="Python" value="python">
+```python
+settings = {
+    "features": [
+        {"name": "sso", "enabled": True},
+        {"name": "dir_sync", "enabled": True}
+    ]
+}
+
+sc.organization.update_organization_settings('<organization_id>', settings)
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go
+settings := map[string]interface{}{
+    "features": []map[string]interface{}{
+        {"name": "sso", "enabled": true},
+        {"name": "dir_sync", "enabled": true},
+    },
+}
+
+err := sc.Organization.UpdateOrganizationSettings("<organization_id>", settings)
+```
+</TabItem>
+<TabItem label="Java" value="java">
+```java
+Map<String, Object> settings = new HashMap<>();
+settings.put("features", Arrays.asList(
+    new HashMap<String, Object>() {{
+        put("name", "sso");
+        put("enabled", true);
+    }},
+    new HashMap<String, Object>() {{
+        put("name", "dir_sync");
+        put("enabled", true);
+    }}
+));
+
+sc.getOrganization().updateOrganizationSettings("<organization_id>", settings);
 ```
 </TabItem>
 </Tabs>
