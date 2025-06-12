@@ -162,10 +162,14 @@ Social logins allow users to sign in to your application using their existing ac
         Provider: "google",
     }
 
-    authorizationURL := ScalekitClient.GetAuthorizationUrl(
+    authorizationURL, err := ScalekitClient.GetAuthorizationUrl(
         redirectUrl,
         options,
     )
+    if err != nil {
+        // handle error appropriately
+        return
+    }
     // Next step is to redirect the user to this authorization URL
     ```
     </TabItem>
@@ -177,7 +181,8 @@ Social logins allow users to sign in to your application using their existing ac
     AuthorizationUrlOptions options = new AuthorizationUrlOptions();
     options.setProvider("google");
     try {
-      String url = Auth.scalekit.authentication().getAuthorizationUrl(redirectUrl, options).toString();
+      URL url = Auth.scalekit.authentication().getAuthorizationUrl(redirectUrl, options);
+      String authorizationURL = url.toString();
       // Redirect the user to this authorization URL
     } catch (Exception e) {
       System.out.println(e.getMessage());
@@ -223,6 +228,8 @@ Social logins allow users to sign in to your application using their existing ac
         </TabItem>
         <TabItem value="py" label="Python">
         ```python
+        from scalekit import CodeAuthenticationOptions
+
         # Handle oauth redirect_url
         code = request.args.get('code')
         error = request.args.get('error')
@@ -232,19 +239,23 @@ Social logins allow users to sign in to your application using their existing ac
             raise Exception(error_description)
 
         redirect_uri = 'http://localhost:3000/api/callback'
+        options = CodeAuthenticationOptions()
         result = scalekit_client.authenticate_with_code(
           code,
-          redirect_uri
+          redirect_uri,
+          options
         )
 
-        # result.user has the authenticated user's details
-        user_email = result.user.email
+        # result['user'] has the authenticated user's details
+        user_email = result['user']['email']
 
         # Next step: create a session for this user and allow access
         ```
         </TabItem>
         <TabItem value="go" label="Go">
         ```go
+        import "github.com/scalekit/scalekit-sdk-go"
+
         // Handle oauth redirect_url
         code := r.URL.Query().Get("code")
         error := r.URL.Query().Get("error")
@@ -255,7 +266,8 @@ Social logins allow users to sign in to your application using their existing ac
         }
 
         redirectUrl := "http://localhost:3000/api/callback"
-        result, err := ScalekitClient.AuthenticateWithCode(code, redirectUrl)
+        options := scalekit.AuthenticationOptions{}
+        result, err := ScalekitClient.AuthenticateWithCode(code, redirectUrl, options)
         if err != nil {
           // Handle errors and exit
         }
@@ -268,7 +280,8 @@ Social logins allow users to sign in to your application using their existing ac
         </TabItem>
         <TabItem value="java" label="Java">
         ```java
-        import com.scalekit.models.AuthenticationResponse;
+        import com.scalekit.internal.http.AuthenticationOptions;
+        import com.scalekit.internal.http.AuthenticationResponse;
 
         // Handle oauth redirect_url
         String code = request.getParameter("code");
@@ -282,9 +295,12 @@ Social logins allow users to sign in to your application using their existing ac
 
         try {
             String redirectUrl = "http://localhost:3000/api/callback";
-            AuthenticationResponse result = Auth.scalekit.authentication().authenticateWithCode(code, redirectUrl);
-            // result.getIdTokenClaims() has the authenticated user's details
-            String userEmail = result.getIdTokenClaims().getEmail();
+            AuthenticationOptions options = new AuthenticationOptions();
+            AuthenticationResponse result = Auth.scalekit.authentication()
+                .authenticateWithCode(code, redirectUrl, options);
+
+            // result.getUser() has the authenticated user's details
+            String userEmail = result.getUser().getEmail();
 
             // Next step: create a session for this user and allow access
         } catch (Exception e) {

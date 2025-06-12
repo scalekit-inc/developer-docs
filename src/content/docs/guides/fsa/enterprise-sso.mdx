@@ -178,10 +178,14 @@ Enterprise SSO allows users to sign in to your application using their organizat
         LoginHint: userEmail,
     }
 
-    authorizationURL := ScalekitClient.GetAuthorizationUrl(
+    authorizationURL, err := ScalekitClient.GetAuthorizationUrl(
         redirectUrl,
         options,
     )
+    if err != nil {
+        // handle error appropriately
+        return
+    }
     // Next step is to redirect the user to this authorization URL
     ```
     </TabItem>
@@ -196,7 +200,8 @@ Enterprise SSO allows users to sign in to your application using their organizat
     options.setLoginHint(userEmail);
 
     try {
-      String url = Auth.scalekit.authentication().getAuthorizationUrl(redirectUrl, options).toString();
+      URL url = Auth.scalekit.authentication().getAuthorizationUrl(redirectUrl, options);
+      String authorizationURL = url.toString();
       // Redirect the user to this authorization URL
     } catch (Exception e) {
       System.out.println(e.getMessage());
@@ -242,6 +247,8 @@ Enterprise SSO allows users to sign in to your application using their organizat
         </TabItem>
         <TabItem value="py" label="Python">
         ```python
+        from scalekit import CodeAuthenticationOptions
+
         # Handle oauth redirect_url
         code = request.args.get('code')
         error = request.args.get('error')
@@ -251,9 +258,11 @@ Enterprise SSO allows users to sign in to your application using their organizat
             raise Exception(error_description)
 
         redirect_uri = 'http://localhost:3000/api/callback'
+        options = CodeAuthenticationOptions()
         result = scalekit_client.authenticate_with_code(
           code,
-          redirect_uri
+          redirect_uri,
+          options
         )
 
         # result.user has the authenticated user's details
@@ -264,6 +273,8 @@ Enterprise SSO allows users to sign in to your application using their organizat
         </TabItem>
         <TabItem value="go" label="Go">
         ```go
+        import "github.com/scalekit/scalekit-sdk-go"
+
         // Handle oauth redirect_url
         code := r.URL.Query().Get("code")
         error := r.URL.Query().Get("error")
@@ -274,7 +285,8 @@ Enterprise SSO allows users to sign in to your application using their organizat
         }
 
         redirectUrl := "http://localhost:3000/api/callback"
-        result, err := ScalekitClient.AuthenticateWithCode(code, redirectUrl)
+        options := scalekit.AuthenticationOptions{}
+        result, err := ScalekitClient.AuthenticateWithCode(code, redirectUrl, options)
         if err != nil {
           // Handle errors and exit
         }
@@ -287,6 +299,7 @@ Enterprise SSO allows users to sign in to your application using their organizat
         </TabItem>
         <TabItem value="java" label="Java">
         ```java
+        import com.scalekit.internal.http.AuthenticationOptions;
         import com.scalekit.models.AuthenticationResponse;
 
         // Handle oauth redirect_url
@@ -301,7 +314,10 @@ Enterprise SSO allows users to sign in to your application using their organizat
 
         try {
             String redirectUrl = "http://localhost:3000/api/callback";
-            AuthenticationResponse result = Auth.scalekit.authentication().authenticateWithCode(code, redirectUrl);
+            AuthenticationOptions options = new AuthenticationOptions();
+            AuthenticationResponse result = Auth.scalekit.authentication()
+                .authenticateWithCode(code, redirectUrl, options);
+
             // result.getIdTokenClaims() has the authenticated user's details
             String userEmail = result.getIdTokenClaims().getEmail();
 

@@ -61,7 +61,7 @@ Let's get started!
       <TabItem value="py" label="Python">
       ```python
       import os
-      from scalekit import ScalekitClient
+      from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
 
       scalekit_client = ScalekitClient(
         environment_url=os.environ.get('SCALEKIT_ENVIRONMENT_URL'),
@@ -95,12 +95,14 @@ Let's get started!
         package com.example;
 
         import com.scalekit.ScalekitClient;
+        import com.scalekit.models.AuthenticationOptions;
+        import com.scalekit.models.AuthenticationResponse;
 
         public class Main {
-            public static ScalekitClient scalekit;
+            private static ScalekitClient scalekitClient;
 
             public static void main(String[] args) {
-                scalekit = new ScalekitClient(
+                scalekitClient = new ScalekitClient(
                     System.getenv("SCALEKIT_ENVIRONMENT_URL"),
                     System.getenv("SCALEKIT_CLIENT_ID"),
                     System.getenv("SCALEKIT_CLIENT_SECRET")
@@ -120,9 +122,9 @@ Let's get started!
           scopes: ['openid', 'profile', 'email', 'offline_access'],
         };
 
-         const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+        const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
 
-         res.redirect(authorizationUrl);
+        res.redirect(authorizationUrl);
         ```
         </TabItem>
         <TabItem value="python" label="Python">
@@ -131,7 +133,7 @@ Let's get started!
         options = AuthorizationUrlOptions()
         options.scopes = ['openid', 'profile', 'email', 'offline_access']
 
-        authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+        authorization_url = scalekit_client.get_authorization_url(redirect_uri, options)
 
         return redirect(authorization_url)
         ```
@@ -143,9 +145,10 @@ Let's get started!
             Scopes: []string{"openid", "profile", "email", "offline_access"},
         }
 
-        authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+        authorizationUrl, err := scalekitClient.GetAuthorizationUrl(redirectUri, options)
         if err != nil {
-            // Handle error
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate authorization URL"})
+            return
         }
 
         c.Redirect(http.StatusFound, authorizationUrl.String())
@@ -157,7 +160,7 @@ Let's get started!
         AuthorizationUrlOptions options = new AuthorizationUrlOptions();
         options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
 
-        String authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+        String authorizationUrl = scalekitClient.authentication().getAuthorizationUrl(redirectUri, options);
 
         return "redirect:" + authorizationUrl;
         ```
@@ -197,7 +200,7 @@ Let's get started!
               code, redirectUri
             );
 
-            const { user } = authResult;
+            const { user, accessToken, refreshToken, expiresIn } = authResult;
             // Next step: Create a session for the user
             res.redirect('/dashboard/profile');
           } catch (err) {
@@ -222,8 +225,11 @@ Let's get started!
 
             try:
                 options = CodeAuthenticationOptions()
-                auth_result = scalekit.authenticate_with_code(code, redirect_uri, options)
+                auth_result = scalekit_client.authenticate_with_code(code, redirect_uri, options)
                 user = auth_result['user']
+                access_token = auth_result['access_token']
+                refresh_token = auth_result.get('refresh_token')
+                expires_in = auth_result.get('expires_in', 3600)
                 # Next step: Create a session for the user
                 return redirect('/dashboard/profile')
             except Exception as err:
@@ -241,7 +247,7 @@ Let's get started!
             errDesc := c.Query("error_description")
 
             if err != "" {
-                c.JSON(401, gin.H{
+                c.JSON(http.StatusUnauthorized, gin.H{
                     "error": err,
                     "error_description": errDesc,
                 })
@@ -249,13 +255,16 @@ Let's get started!
             }
 
             options := scalekit.AuthenticationOptions{}
-            authResult, err := scalekit.AuthenticateWithCode(code, redirectUri, options)
+            authResult, err := scalekitClient.AuthenticateWithCode(code, redirectUri, options)
             if err != nil {
-                c.JSON(500, gin.H{"error": "Failed to authenticate user"})
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to authenticate user"})
                 return
             }
 
             user := authResult.User
+            accessToken := authResult.AccessToken
+            refreshToken := authResult.RefreshToken
+            expiresIn := authResult.ExpiresIn
             // Next step: Create a session for the user
             c.Redirect(http.StatusFound, "/dashboard/profile")
         }
@@ -278,10 +287,13 @@ Let's get started!
 
             try {
                 AuthenticationOptions options = new AuthenticationOptions();
-                AuthenticationResponse authResult = scalekit.authentication()
+                AuthenticationResponse authResult = scalekitClient.authentication()
                     .authenticateWithCode(code, redirectUri, options);
 
                 User user = authResult.getUser();
+                String accessToken = authResult.getAccessToken();
+                String refreshToken = authResult.getRefreshToken();
+                int expiresIn = authResult.getExpiresIn();
                 // Next step: Create a session for the user
                 return "redirect:/dashboard/profile";
             } catch (Exception e) {

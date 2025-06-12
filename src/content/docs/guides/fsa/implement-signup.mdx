@@ -2,7 +2,7 @@
 title: "Implement signup"
 description: "Learn how to handle new user signups with Scalekit, either through the managed UI or programmatically via API."
 sidebar:
-  label: "Set up user registration"
+  label: "Set up user signup"
 head:
   - tag: style
     content: |
@@ -27,7 +27,10 @@ Scalekit provides two primary methods for handling user signups:
 
 You can direct users to Scalekit's managed signup page by adding the `prompt: 'create'` parameter when generating the authorization URL. This is the simplest way to implement a signup flow.
 
-```javascript title="Express.js"
+<Tabs>
+<TabItem value="node" label="Node.js">
+
+```javascript title="Express.js" wrap
 const redirectUri = 'http://localhost:3000/api/callback';
 
 const options = {
@@ -39,6 +42,59 @@ const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
 
 res.redirect(authorizationUrl);
 ```
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Flask"
+from scalekit import AuthorizationUrlOptions
+
+redirect_uri = 'http://localhost:3000/api/callback'
+options = AuthorizationUrlOptions(
+    scopes=['openid', 'profile', 'email', 'offline_access'],
+    prompt='create'  # This explicitly takes the user to the signup flow
+)
+
+authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+
+return redirect(authorization_url)
+```
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Gin"
+redirectUri := "http://localhost:3000/api/callback"
+options := scalekit.AuthorizationUrlOptions{
+    Scopes: []string{"openid", "profile", "email", "offline_access"},
+    Prompt: "create", // This explicitly takes the user to the signup flow
+}
+
+authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+if err != nil {
+    // handle error appropriately
+    panic(err)
+}
+
+c.Redirect(http.StatusFound, authorizationUrl.String())
+```
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Spring"
+import com.scalekit.internal.http.AuthorizationUrlOptions;
+import java.net.URL;
+import java.util.Arrays;
+
+String redirectUri = "http://localhost:3000/api/callback";
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+options.setPrompt("create"); // This explicitly takes the user to the signup flow
+
+URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+
+return "redirect:" + authorizationUrl.toString();
+```
+</TabItem>
+</Tabs>
 
 This flow will present the user with the authentication options you have enabled.
 
@@ -61,9 +117,11 @@ If your application uses a custom signup form, you can create a user programmati
 2. ### Create the user in Scalekit
    After the user submits your form, make an API call to create the user in Scalekit. You must associate the user with an organization.
 
-    ```javascript
-    const newUser = await scalekit.users.create({
-      organizationId: 'org_xxxxxxxxxxxx', // The ID of the organization the user belongs to
+    <Tabs>
+    <TabItem value="node" label="Node.js">
+
+    ```javascript wrap
+    const newUser = await scalekit.user.createUserAndMembership('org_xxxxxxxxxxxx', {
       email: "user@example.com",
       userProfile: {
         firstName: "John",
@@ -76,6 +134,92 @@ If your application uses a custom signup form, you can create a user programmati
       }
     });
     ```
+    </TabItem>
+    <TabItem value="python" label="Python">
+
+    ```python
+    from scalekit.users import UserClient
+    from scalekit.v1.users.users_pb2 import CreateUser, CreateUserProfile
+
+    # Initialize user client
+    user_client = UserClient(scalekit.core_client)
+
+    # Create user object
+    user = CreateUser(
+        email="user@example.com",
+        user_profile=CreateUserProfile(
+            first_name="John",
+            last_name="Doe"
+        ),
+        metadata={
+            # Your internal user ID can be stored here
+            "internal_user_id": "usr-abc-123",
+            "department": "Engineering"
+        }
+    )
+
+    # Create the user
+    new_user = user_client.create_user('org_xxxxxxxxxxxx', user)
+
+    # Note: Python SDK doesn't have createUserAndMembership equivalent
+    # User is automatically added to the organization when created
+    ```
+    </TabItem>
+    <TabItem value="go" label="Go">
+
+    ```go
+    import (
+        "context"
+        usersv1 "github.com/scalekit-inc/scalekit-sdk-go/pkg/grpc/scalekit/v1/users"
+    )
+
+    user := &usersv1.CreateUser{
+        Email: "user@example.com",
+        UserProfile: &usersv1.CreateUserProfile{
+            FirstName: "John",
+            LastName:  "Doe",
+        },
+        Metadata: map[string]string{
+            // Your internal user ID can be stored here
+            "internal_user_id": "usr-abc-123",
+            "department":       "Engineering",
+        },
+    }
+
+    newUser, err := scalekit.User().CreateUserAndMembership(
+        context.Background(),
+        "org_xxxxxxxxxxxx", // The ID of the organization the user belongs to
+        user,
+        false, // sendActivationEmail
+    )
+    if err != nil {
+        // handle error appropriately
+        return err
+    }
+    ```
+    </TabItem>
+    <TabItem value="java" label="Java">
+
+    ```java
+    import com.scalekit.grpc.scalekit.v1.users.*;
+
+    CreateUserAndMembershipRequest request = CreateUserAndMembershipRequest.newBuilder()
+        .setUser(CreateUser.newBuilder()
+            .setEmail("user@example.com")
+            .setUserProfile(CreateUserProfile.newBuilder()
+                .setFirstName("John")
+                .setLastName("Doe")
+                .build())
+            .putMetadata("internal_user_id", "usr-abc-123") // Your internal user ID can be stored here
+            .putMetadata("department", "Engineering")
+            .build())
+        .build();
+
+    CreateUserAndMembershipResponse newUser = scalekit.users()
+        .createUserAndMembership("org_xxxxxxxxxxxx", request); // The ID of the organization the user belongs to
+    ```
+    </TabItem>
+    </Tabs>
 
     <Aside type="note">
     You can store additional information about the user, such as your application's internal user ID, using [custom metadata](/fsa/data-modelling/#custom-metadata).
