@@ -54,29 +54,38 @@ Here's how to create an organization using the Node.js SDK:
 
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js" value="nodejs">
-```javascript
-const organization = await sc.organization.createOrganization(name, {
+```javascript wrap showLineNumbers=false
+const organization = await scalekit.organization.createOrganization(name, {
   externalId: 'externalId',
 });
 ```
 </TabItem>
 <TabItem label="Python" value="python">
-```python
-organization = sc.organization.create_organization(name, external_id='externalId')
+```python wrap showLineNumbers=false
+from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
+
+organization = scalekit_client.organization.create_organization(
+    CreateOrganization(
+        display_name=name,
+        external_id='externalId'
+    )
+)
 ```
 </TabItem>
 <TabItem label="Go" value="go">
-```go
-organization, err := sc.Organization.CreateOrganization(name, map[string]interface{}{
-    "externalId": "externalId",
+```go wrap showLineNumbers=false
+organization, err := scalekitClient.Organization.CreateOrganization(ctx, name, scalekit.CreateOrganizationOptions{
+    ExternalId: "externalId",
 })
 ```
 </TabItem>
 <TabItem label="Java" value="java">
-```java
-Organization organization = sc.getOrganization().createOrganization(name, new HashMap<String, Object>() {{
-    put("externalId", "externalId");
-}});
+```java wrap showLineNumbers=false
+CreateOrganization createOrg = CreateOrganization.newBuilder()
+    .setDisplayName(name)
+    .setExternalId("externalId")
+    .build();
+Organization organization = scalekitClient.getOrganization().create(createOrg);
 ```
 </TabItem>
 </Tabs>
@@ -87,7 +96,7 @@ To enable features like SSO and Directory Sync for an organization and generate 
 
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js" value="nodejs">
-```javascript
+```javascript wrap showLineNumbers=false
 const settings = {
   features: [
     {
@@ -101,11 +110,11 @@ const settings = {
   ],
 };
 
-await sc.organization.updateOrganizationSettings('<organization_id>', settings);
+await scalekit.organization.updateOrganizationSettings('<organization_id>', settings);
 ```
 </TabItem>
 <TabItem label="Python" value="python">
-```python
+```python wrap showLineNumbers=false
 settings = {
     "features": [
         {"name": "sso", "enabled": True},
@@ -113,11 +122,11 @@ settings = {
     ]
 }
 
-sc.organization.update_organization_settings('<organization_id>', settings)
+scalekit_client.organization.update_organization_settings('<organization_id>', settings)
 ```
 </TabItem>
 <TabItem label="Go" value="go">
-```go
+```go wrap showLineNumbers=false
 settings := map[string]interface{}{
     "features": []map[string]interface{}{
         {"name": "sso", "enabled": true},
@@ -125,11 +134,11 @@ settings := map[string]interface{}{
     },
 }
 
-err := sc.Organization.UpdateOrganizationSettings("<organization_id>", settings)
+err := scalekitClient.Organization.UpdateOrganizationSettings("<organization_id>", settings)
 ```
 </TabItem>
 <TabItem label="Java" value="java">
-```java
+```java wrap showLineNumbers=false
 Map<String, Object> settings = new HashMap<>();
 settings.put("features", Arrays.asList(
     new HashMap<String, Object>() {{
@@ -142,7 +151,7 @@ settings.put("features", Arrays.asList(
     }}
 ));
 
-sc.getOrganization().updateOrganizationSettings("<organization_id>", settings);
+scalekitClient.getOrganization().updateOrganizationSettings("<organization_id>", settings);
 ```
 </TabItem>
 </Tabs>
