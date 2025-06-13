@@ -82,6 +82,7 @@ export default defineConfig({
         // starlightViewModes(),
       ],
       head: [
+        // Temporarily commenting out PostHog to test if it's causing sidebar issues
         {
           tag: 'script',
           content: `
@@ -122,7 +123,7 @@ export default defineConfig({
                   }
                 });
 
-                // Add MutationObserver to handle dynamically loaded images
+                // Add MutationObserver to handle dynamically loaded images - ONLY IN IFRAME
                 const observer = new MutationObserver((mutations) => {
                   mutations.forEach((mutation) => {
                     mutation.addedNodes.forEach((node) => {

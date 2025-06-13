@@ -1,0 +1,108 @@
+---
+title: "User management settings"
+description: "Configure user management settings, including user attributes and configuration options from the Scalekit dashboard."
+sidebar:
+  label: "Configure user settings"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev: false
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+User management settings allow you to configure how user data is handled and what attributes are available for users in your application. These settings are accessible from the **User Management** section in the Scalekit dashboard.
+
+## Configuration
+
+The Configuration tab provides several important settings that control user registration, organization limits, and branding.
+
+![](@/assets/docs/fsa/user-management/2-configuration.png)
+
+### Sign-up for your application
+
+Control whether users can sign up and create new organizations. When enabled, users can register for your application and automatically create a new organization.
+
+### Organization creation limit per user
+
+Define the maximum number of organizations a single user can create. This helps prevent abuse and manage resource usage across your application.
+
+### User limit per organization
+
+Set the maximum number of users allowed per organization. In the example shown, each organization is limited to **50 users**. This setting helps you:
+- Control resource usage
+- Manage billing based on user count
+- Enforce subscription tier limits
+
+### Invitation expiry
+
+Configure how long user invitation links remain valid. The default setting of **15 days** ensures that invitations don't remain active indefinitely, improving security while giving invitees reasonable time to accept.
+
+### Organization meta name
+
+Customize what you call an "Organization" in your application. This meta name appears throughout all Scalekit-hosted pages. For example, you might call it:
+- "Company" for B2B applications
+- "Team" for collaboration tools
+- "Workspace" for productivity apps
+- "Account" for multi-tenant systems
+
+## User attributes
+
+The User Attributes tab allows you to define custom fields that will be available for user profiles. These attributes help you collect and store additional information about your users beyond the standard profile fields.
+
+![](@/assets/docs/fsa/user-management/1-user-profile.png)
+
+When you define custom user attributes, they become part of the user's profile data that your application can access. This allows you to:
+
+- Collect additional information during user registration
+- Store application-specific user data
+- Personalize user experiences based on these attributes
+- Use the data for application logic and user management
+
+These custom attributes are accessible when you retrieve user information via the Scalekit API:
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="nodejs">
+```javascript
+const user = await scalekit.user.getUser(organizationId, userId);
+
+// Custom user attributes will be available in the user object
+console.log(user.userProfile.customAttributes); // Contains custom attributes
+```
+</TabItem>
+<TabItem label="Python" value="python">
+```python
+# Get user by ID
+user = scalekit.user.get_user("org_123", "user_456")
+
+# Custom user attributes will be available in the user object
+print(user.user.user_profile.custom_attributes)  # Contains custom attributes
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go
+// Get user by ID
+user, err := scalekit.User().GetUser(ctx, "user_456")
+if err != nil {
+    // Handle error
+}
+
+// Custom user attributes will be available in the user object
+fmt.Println(user.User.UserProfile.CustomAttributes)  // Contains custom attributes
+```
+</TabItem>
+<TabItem label="Java" value="java">
+```java
+// Get user by ID
+GetUserResponse user = client.users().getUser("org_123", "user_456");
+
+// Custom user attributes will be available in the user object
+System.out.println(user.getUser().getUserProfile().getCustomAttributes());  // Contains custom attributes
+```
+</TabItem>
+</Tabs>

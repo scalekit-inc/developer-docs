@@ -1,0 +1,259 @@
+---
+title: Manage users
+description: How to create, update, and manage users in an organization using the Scalekit API.
+sidebar:
+  label: "Manage user accounts"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev: false
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+This guide explains how to manage users within a specific organization using the Scalekit API. You can perform operations like creating, listing, updating, and deleting users who belong to an organization.
+
+<Aside type="note">
+**Before you begin:** Ensure you have the organization ID for the organization where you want to manage users. You can get this from the [organization management](/guides/fsa/manage-organization/) workflow.
+</Aside>
+
+## Create a user
+
+Add a new user to an organization when you need to programmatically onboard team members. This is useful for bulk imports or automated user provisioning.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="nodejs">
+```javascript
+const user = await scalekit.organization.createUser(organizationId, {
+  email: "user@example.com",
+  user_profile: {
+    first_name: "John",
+    last_name: "Doe"
+  },
+  metadata: {
+    // Optional custom metadata
+    department: "Engineering",
+    role: "Developer"
+  }
+});
+```
+</TabItem>
+</Tabs>
+
+The response includes the created user's details:
+
+<Tabs>
+<TabItem label="Response" value="response">
+```json
+{
+  "user": {
+    "id": "usr_1234abcd5678efgh",
+    "email": "user@example.com",
+    "external_id": "ext_12345a67b89c",
+    "create_time": "2024-01-15T10:30:00Z",
+    "update_time": "2024-01-15T10:30:00Z",
+    "metadata": {
+      "department": "Engineering",
+      "role": "Developer"
+    },
+    "user_profile": {
+      "id": "usr_profile_1234abcd5678efgh",
+      "first_name": "John",
+      "last_name": "Doe",
+      "name": "John Doe",
+      "email_verified": false
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+## List users
+
+Retrieve all users within an organization. This is useful for building user management interfaces or generating reports.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="nodejs">
+```javascript
+const users = await scalekit.organization.listUsers(organizationId, {
+  pageSize: 10,
+  pageToken: 'optional_page_token' // For pagination
+});
+```
+</TabItem>
+</Tabs>
+
+The response includes pagination information:
+
+<Tabs>
+<TabItem label="Response" value="response">
+```json
+{
+  "users": [
+    {
+      "id": "usr_1234abcd5678efgh",
+      "email": "john.doe@example.com",
+      "user_profile": {
+        "first_name": "John",
+        "last_name": "Doe",
+        "name": "John Doe"
+      },
+      "metadata": {
+        "department": "engineering"
+      },
+      "create_time": "2024-01-15T10:30:00Z"
+    }
+  ],
+  "total_size": 1042,
+  "next_page_token": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAidXNyXzEyMzQ1In0=",
+  "prev_page_token": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInVzcl85ODc2NSJ9"
+}
+```
+</TabItem>
+</Tabs>
+
+For large organizations, use pagination to efficiently load users:
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="nodejs">
+```javascript
+let allUsers = [];
+let pageToken = null;
+
+do {
+  const response = await scalekit.organization.listUsers(organizationId, {
+    pageSize: 50,
+    pageToken: pageToken
+  });
+
+  allUsers.push(...response.users);
+  pageToken = response.nextPageToken;
+} while (pageToken);
+
+console.log(`Total users loaded: ${allUsers.length}`);
+```
+</TabItem>
+</Tabs>
+
+## Get a user
+
+Fetch detailed information about a specific user. This is useful when you need to display user profiles or validate user access.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="nodejs">
+```javascript
+const user = await scalekit.organization.getUser(organizationId, userId);
+```
+</TabItem>
+</Tabs>
+
+The response includes complete user details:
+
+<Tabs>
+<TabItem label="Response" value="response">
+```json
+{
+  "user": {
+    "id": "usr_1234abcd5678efgh",
+    "email": "user@example.com",
+    "external_id": "ext_12345a67b89c",
+    "identity": "auth0|1234567890abcdef",
+    "phone_number": "+14155552671",
+    "create_time": "2024-01-15T10:30:00Z",
+    "update_time": "2024-01-15T10:30:00Z",
+    "last_login": "2024-01-20T14:22:00Z",
+    "metadata": {
+      "department": "engineering",
+      "location": "nyc-office"
+    },
+    "user_profile": {
+      "id": "usr_profile_1234abcd5678efgh",
+      "first_name": "John",
+      "last_name": "Doe",
+      "name": "John Michael Doe",
+      "email_verified": true,
+      "locale": "en-US",
+      "custom_attributes": {
+        "department": "engineering",
+        "security_clearance": "level2"
+      }
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+## Update a user
+
+Modify user information such as profile details or custom metadata. This is commonly used when users update their profiles or when you need to change user attributes.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="nodejs">
+```javascript
+const updatedUser = await scalekit.organization.updateUser(organizationId, userId, {
+  user_profile: {
+    first_name: "John",
+    last_name: "Smith"
+  },
+  metadata: {
+    department: "Product",
+    title: "Senior Developer"
+  }
+});
+```
+</TabItem>
+</Tabs>
+
+<Aside type="tip">
+**Custom metadata** is perfect for storing application-specific information like department, job title, or preferences that you've defined in [User management settings](/reference/fsa/session-configs/).
+</Aside>
+
+## Delete a user
+
+Permanently remove a user from an organization. Use this carefully as it cannot be undone.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="nodejs">
+```javascript
+try {
+  await scalekit.organization.deleteUser(organizationId, userId);
+  console.log('User successfully deleted');
+} catch (error) {
+  console.error('Failed to delete user:', error.message);
+}
+```
+</TabItem>
+</Tabs>
+
+<Aside type="caution">
+**Deleting a user is permanent.** Consider deactivating users instead if you need to preserve audit trails or re-enable access later.
+</Aside>
+
+## Error handling
+
+When working with user management operations, handle common errors gracefully:
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="nodejs">
+```javascript
+try {
+  const user = await scalekit.organization.getUser(organizationId, userId);
+} catch (error) {
+  if (error.status === 404) {
+    console.log('User not found');
+  } else if (error.status === 403) {
+    console.log('Access denied');
+  } else {
+    console.error('Unexpected error:', error.message);
+  }
+}
+```
+</TabItem>
+</Tabs>

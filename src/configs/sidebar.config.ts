@@ -113,7 +113,6 @@ export const sidebar = [
     link: '/guides/mcp/overview',
     id: 'mcp',
     icon: 'forward-slash',
-    badge: { text: 'Beta', variant: 'note' },
     items: [
       {
         label: 'Getting started',
@@ -130,7 +129,6 @@ export const sidebar = [
     link: '/m2m/quickstart',
     id: 'm2m',
     icon: 'seti:crystal_embedded',
-    badge: { text: 'Beta', variant: 'note' },
     items: [
       {
         label: 'Getting started',
@@ -157,7 +155,6 @@ export const sidebar = [
   {
     label: 'Full Stack Auth',
     id: 'full-stack-auth',
-    badge: { text: 'Beta', variant: 'note' },
     link: '/fsa/quickstart',
     icon: 'codePen',
     items: [
