@@ -164,20 +164,20 @@ export const sidebar = [
       },
       {
         label: 'Authentication',
-        items: ['guides/fsa/implement-login', 'guides/fsa/implement-signup'],
+        items: ['fsa/guides/implement-login', 'fsa/guides/implement-signup'],
       },
       {
         label: 'Auth methods',
         items: [
-          'guides/fsa/auth-methods',
-          'guides/fsa/social-logins',
-          'guides/fsa/enterprise-sso',
-          'guides/fsa/passwordless',
+          'fsa/guides/auth-methods',
+          'fsa/guides/social-logins',
+          'fsa/guides/enterprise-sso',
+          'fsa/guides/passwordless',
         ],
       },
       {
         label: 'Session management',
-        items: ['guides/fsa/manage-session', 'guides/fsa/logout'],
+        items: ['fsa/guides/manage-session', 'fsa/guides/logout'],
       },
       {
         label: 'User management',
@@ -185,26 +185,26 @@ export const sidebar = [
           {
             label: 'Organization',
             items: [
-              'guides/fsa/manage-organization',
+              'fsa/guides/manage-organization',
               'guides/organization-settings',
             ],
           },
           {
             label: 'Users',
             items: [
-              'reference/fsa/user-profile',
+              'fsa/reference/user-profile',
               'guides/user-roles',
-              'reference/fsa/session-configs',
-              'guides/fsa/manage-users',
+              'fsa/reference/session-configs',
+              'fsa/guides/manage-users',
             ],
           },
-          'reference/fsa/redirects',
+          'fsa/reference/redirects',
         ],
       },
       {
         label: 'Customization',
         items: [
-          'guides/fsa/login-page-branding',
+          'fsa/guides/login-page-branding',
           'guides/email-templates-providers',
         ],
       },
