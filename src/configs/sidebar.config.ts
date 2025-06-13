@@ -193,7 +193,7 @@ export const sidebar = [
             label: 'Users',
             items: [
               'fsa/reference/user-profile',
-              'guides/user-roles',
+              'fsa/guides/user-roles',
               'fsa/reference/session-configs',
               'fsa/guides/manage-users',
             ],
