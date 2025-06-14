@@ -164,20 +164,21 @@ export const sidebar = [
       },
       {
         label: 'Authentication',
-        items: ['fsa/guides/implement-signup', 'fsa/guides/implement-signin'],
-      },
-      {
-        label: 'Auth methods',
         items: [
-          'fsa/guides/auth-methods',
-          'fsa/guides/social-logins',
-          'fsa/guides/enterprise-sso',
-          'fsa/guides/passwordless',
+          'fsa/guides/implement-signup',
+          'fsa/guides/implement-signin',
+          {
+            label: 'Auth methods',
+            items: [
+              'fsa/guides/auth-methods',
+              'fsa/guides/passwordless',
+              'fsa/guides/social-logins',
+              'fsa/guides/enterprise-sso',
+            ],
+          },
+          'fsa/guides/manage-session',
+          'fsa/guides/logout',
         ],
-      },
-      {
-        label: 'Session management',
-        items: ['fsa/guides/manage-session', 'fsa/guides/logout'],
       },
       {
         label: 'User management',
