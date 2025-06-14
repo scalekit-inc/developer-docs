@@ -1,0 +1,65 @@
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+    ```javascript title="Express.js" wrap "authorizationUrl" ins={3,4} {"Redirect user to Scalekit's authentication page":8}
+    const redirectUri = 'http://localhost:3000/api/callback';
+    const options = {
+      scopes: ['openid', 'profile', 'email', 'offline_access'],
+      prompt: 'create', // explicitly takes you to sign up flow
+    };
+
+    const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+
+    res.redirect(authorizationUrl);
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python title="Flask"
+    from scalekit import AuthorizationUrlOptions
+
+    redirect_uri = 'http://localhost:3000/api/callback'
+    options = AuthorizationUrlOptions(
+        scopes=['openid', 'profile', 'email', 'offline_access'],
+        prompt='create'  # optional: explicitly takes you to sign up flow
+    )
+
+    authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+
+    # For web frameworks like Flask/Django:
+    # return redirect(authorization_url)
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="Gin"
+    redirectUri := "http://localhost:3000/api/callback"
+    options := scalekit.AuthorizationUrlOptions{
+        Scopes: []string{"openid", "profile", "email", "offline_access"},
+        Prompt: "create", // explicitly takes you to sign up flow
+    }
+
+    authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+    if err != nil {
+        // handle error appropriately
+        panic(err)
+    }
+
+    // For web frameworks like Gin:
+    // c.Redirect(http.StatusFound, authorizationUrl.String())
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java title="Spring"
+    import com.scalekit.internal.http.AuthorizationUrlOptions;
+    import java.net.URL;
+    import java.util.Arrays;
+
+    String redirectUri = "http://localhost:3000/api/callback";
+    AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+    options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+    options.setPrompt("create");
+
+    URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+    ```
+  </TabItem>
+</Tabs>

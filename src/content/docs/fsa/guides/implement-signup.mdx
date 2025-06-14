@@ -2,7 +2,7 @@
 title: "Implement signup"
 description: "Learn how to handle new user signups with Scalekit, either through the managed UI or programmatically via API."
 sidebar:
-  label: "Set up user signup"
+  label: "Set up user sign up"
 head:
   - tag: style
     content: |
@@ -15,98 +15,71 @@ head:
 prev: false
 next: false
 ---
-import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard } from '@astrojs/starlight/components';
+import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, LinkButton } from '@astrojs/starlight/components';
+import { InstallSDKSection, EnvSection, RedirectAuthPageSection, RetrieveUserDetailsSection, UserProfileSection } from '@components/templates';
 
-User signup is the process of creating a new user and associating them with an organization within Scalekit. This ensures that their identity and data are correctly managed from the start.
+Signup is the first step in a user's journey with your application. For B2B applications, each user may be associated with an organization. A user can belong to one or more organizations.
 
-Scalekit provides two primary methods for handling user signups:
-1.  **Using Scalekit's Managed UI**: A quick and simple method that directs users to a pre-built signup page.
-2.  **Programmatically via API**: A flexible method for applications with custom signup forms.
+Here are some common signup use cases:
 
-## Method 1: Signup with Scalekit's Managed UI
+- **New user and organization**: The first user to sign up creates a new organization and becomes its administrator.
+- **Joining an existing organization**: An existing user can join another organization or workspace within your application.
+- **Invitation-based signup**: A new user signs up by accepting an email invitation and is automatically added to the inviting organization.
+- **Automatic organization joining**: A user with a corporate email (e.g., `jane.doe@acme.com`) signs up and is prompted to join the existing "ACME Inc." organization.
+- **User provisioning via identity provider**: A user account is created programmatically through an enterprise identity provider (e.g., Okta, Azure AD). The user first logs in via SSO instead of a traditional signup.
+
+Scalekit helps you implement all such signup flows while handling the complexity of user management and authentication.
+
+Choose one of the following to get started:
+
+<LinkButton href="#sign-up-with-scalekits-hosted-signup-page" variant='secondary'>Signup with Scalekit's hosted signup page</LinkButton>
+<LinkButton href="#bring-your-own-signup-form" variant='secondary'>Bring your own signup form</LinkButton>
+
+## Sign up with Scalekit's hosted signup page
 
 You can direct users to Scalekit's managed signup page by adding the `prompt: 'create'` parameter when generating the authorization URL. This is the simplest way to implement a signup flow.
 
-<Tabs>
-<TabItem value="node" label="Node.js">
+<Steps>
+ 1. ### Install the Scalekit SDK
 
-```javascript title="Express.js" wrap
-const redirectUri = 'http://localhost:3000/api/callback';
+    <InstallSDKSection />
 
-const options = {
-  scopes: ['openid', 'profile', 'email', 'offline_access'],
-  prompt: 'create', // This explicitly takes the user to the signup flow
-};
+    Copy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.
+    ```bash
+    SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
+    SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
+    SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
+    ```
 
-const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+    Create a new Scalekit client instance after initializing the environment variables.
+    <EnvSection />
+  2. ### Redirect the user to the sign up page
+       Generate the authorization URL by passing a [registered](/fsa/reference/redirects) _callback URL_ and _scopes_ to the Scalekit SDK.
+       <RedirectAuthPageSection />
+     This will redirect the user to Scalekit's managed sign-in page.
 
-res.redirect(authorizationUrl);
-```
-</TabItem>
-<TabItem value="python" label="Python">
+3. ### Allow users to sign up
+      Users can now sign in or sign up using their [preferred authentication methods](/fsa/guides/auth-methods). Each authentication method is managed by Scalekit to successfully verify the user's identity.
 
-```python title="Flask"
-from scalekit import AuthorizationUrlOptions
+      <LinkCard
+        title="Configure authentication methods"
+        href="/fsa/guides/auth-methods/"
+        description="Enable passwordless, social, or enterprise SSO to customize the signup experience."
+      />
 
-redirect_uri = 'http://localhost:3000/api/callback'
-options = AuthorizationUrlOptions(
-    scopes=['openid', 'profile', 'email', 'offline_access'],
-    prompt='create'  # This explicitly takes the user to the signup flow
-)
+4. ## Retrieve user profile after identity verification
+      Scalekit triggers a callback to your registered _callback URL_ with an authorization code. Exchange the code to get the user's profile information.
+      <RetrieveUserDetailsSection />
 
-authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+      The `authenticateWithCode` method returns an object containing the user's profile information (`user` object) and `idToken` (JWT).
+      <UserProfileSection />
 
-return redirect(authorization_url)
-```
-</TabItem>
-<TabItem value="go" label="Go">
-
-```go title="Gin"
-redirectUri := "http://localhost:3000/api/callback"
-options := scalekit.AuthorizationUrlOptions{
-    Scopes: []string{"openid", "profile", "email", "offline_access"},
-    Prompt: "create", // This explicitly takes the user to the signup flow
-}
-
-authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
-if err != nil {
-    // handle error appropriately
-    panic(err)
-}
-
-c.Redirect(http.StatusFound, authorizationUrl.String())
-```
-</TabItem>
-<TabItem value="java" label="Java">
-
-```java title="Spring"
-import com.scalekit.internal.http.AuthorizationUrlOptions;
-import java.net.URL;
-import java.util.Arrays;
-
-String redirectUri = "http://localhost:3000/api/callback";
-AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
-options.setPrompt("create"); // This explicitly takes the user to the signup flow
-
-URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
-
-return "redirect:" + authorizationUrl.toString();
-```
-</TabItem>
-</Tabs>
-
-This flow will present the user with the authentication options you have enabled.
-
-<LinkCard
-  title="Configure Authentication Methods"
-  href="/fsa/guides/auth-methods/"
-  description="Enable passwordless, social, or enterprise SSO to customize the signup experience."
-/>
+      You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
+</Steps>
 
 After the user signs up, they are redirected back to your application, and you can proceed to [create a session](/fsa/guides/implement-login/#create-a-user-session) for them, just like in the login flow.
 
-## Method 2: Programmatic Signup via API
+## Bring your own signup form
 
 If your application uses a custom signup form, you can create a user programmatically by calling the Scalekit API. This gives you full control over the user experience.
 
@@ -141,10 +114,10 @@ If your application uses a custom signup form, you can create a user programmati
     from scalekit.users import UserClient
     from scalekit.v1.users.users_pb2 import CreateUser, CreateUserProfile
 
-    # Initialize user client
+    // Initialize user client
     user_client = UserClient(scalekit.core_client)
 
-    # Create user object
+    // Create user object
     user = CreateUser(
         email="user@example.com",
         user_profile=CreateUserProfile(
@@ -152,17 +125,17 @@ If your application uses a custom signup form, you can create a user programmati
             last_name="Doe"
         ),
         metadata={
-            # Your internal user ID can be stored here
+            // Your internal user ID can be stored here
             "internal_user_id": "usr-abc-123",
             "department": "Engineering"
         }
     )
 
-    # Create the user
+    // Create the user
     new_user = user_client.create_user('org_xxxxxxxxxxxx', user)
 
-    # Note: Python SDK doesn't have createUserAndMembership equivalent
-    # User is automatically added to the organization when created
+    // Note: Python SDK doesn't have createUserAndMembership equivalent
+    // User is automatically added to the organization when created
     ```
     </TabItem>
     <TabItem value="go" label="Go">

@@ -164,7 +164,7 @@ export const sidebar = [
       },
       {
         label: 'Authentication',
-        items: ['fsa/guides/implement-login', 'fsa/guides/implement-signup'],
+        items: ['fsa/guides/implement-signup', 'fsa/guides/implement-login'],
       },
       {
         label: 'Auth methods',
