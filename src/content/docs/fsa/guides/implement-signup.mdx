@@ -16,7 +16,7 @@ prev: false
 next: false
 ---
 import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, LinkButton } from '@astrojs/starlight/components';
-import { InstallSDKSection, EnvSection, RedirectAuthPageSection, RetrieveUserDetailsSection, UserProfileSection } from '@components/templates';
+import { InstallSDKSection, EnvSection, RedirectAuthPageSection, RetrieveUserDetailsSection, UserProfileSection, CreateUserMembershipSection } from '@components/templates';
 
 Signup is the first step in a user's journey with your application. For B2B applications, each user may be associated with an organization. A user can belong to one or more organizations.
 
@@ -95,109 +95,7 @@ For applications that want to control the sign up experience on the UI, you can 
    <EnvSection />
 
 
-    <Tabs syncKey="tech-stack">
-    <TabItem value="node" label="Node.js">
-
-    ```javascript wrap
-    const newUser = await scalekit.user.createUserAndMembership('org_xxxxxxxxxxxx', {
-      email: "user@example.com",
-      userProfile: {
-        firstName: "John",
-        lastName: "Doe"
-      },
-      metadata: {
-        // Your internal user ID can be stored here
-        internal_user_id: "usr-abc-123",
-        department: "Engineering"
-      }
-    });
-    ```
-    </TabItem>
-    <TabItem value="python" label="Python">
-
-    ```python
-    from scalekit.users import UserClient
-    from scalekit.v1.users.users_pb2 import CreateUser, CreateUserProfile
-
-    // Initialize user client
-    user_client = UserClient(scalekit.core_client)
-
-    // Create user object
-    user = CreateUser(
-        email="user@example.com",
-        user_profile=CreateUserProfile(
-            first_name="John",
-            last_name="Doe"
-        ),
-        metadata={
-            // Your internal user ID can be stored here
-            "internal_user_id": "usr-abc-123",
-            "department": "Engineering"
-        }
-    )
-
-    // Create the user
-    new_user = user_client.create_user('org_xxxxxxxxxxxx', user)
-
-    // Note: Python SDK doesn't have createUserAndMembership equivalent
-    // User is automatically added to the organization when created
-    ```
-    </TabItem>
-    <TabItem value="go" label="Go">
-
-    ```go
-    import (
-        "context"
-        usersv1 "github.com/scalekit-inc/scalekit-sdk-go/pkg/grpc/scalekit/v1/users"
-    )
-
-    user := &usersv1.CreateUser{
-        Email: "user@example.com",
-        UserProfile: &usersv1.CreateUserProfile{
-            FirstName: "John",
-            LastName:  "Doe",
-        },
-        Metadata: map[string]string{
-            // Your internal user ID can be stored here
-            "internal_user_id": "usr-abc-123",
-            "department":       "Engineering",
-        },
-    }
-
-    newUser, err := scalekit.User().CreateUserAndMembership(
-        context.Background(),
-        "org_xxxxxxxxxxxx", // The ID of the organization the user belongs to
-        user,
-        false, // sendActivationEmail
-    )
-    if err != nil {
-        // handle error appropriately
-        return err
-    }
-    ```
-    </TabItem>
-    <TabItem value="java" label="Java">
-
-    ```java
-    import com.scalekit.grpc.scalekit.v1.users.*;
-
-    CreateUserAndMembershipRequest request = CreateUserAndMembershipRequest.newBuilder()
-        .setUser(CreateUser.newBuilder()
-            .setEmail("user@example.com")
-            .setUserProfile(CreateUserProfile.newBuilder()
-                .setFirstName("John")
-                .setLastName("Doe")
-                .build())
-            .putMetadata("internal_user_id", "usr-abc-123") // Your internal user ID can be stored here
-            .putMetadata("department", "Engineering")
-            .build())
-        .build();
-
-    CreateUserAndMembershipResponse newUser = scalekit.users()
-        .createUserAndMembership("org_xxxxxxxxxxxx", request); // The ID of the organization the user belongs to
-    ```
-    </TabItem>
-    </Tabs>
+    <CreateUserMembershipSection />
 
     <LinkCard
       title="API Reference"
