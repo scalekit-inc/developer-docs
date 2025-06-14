@@ -77,11 +77,11 @@ You can direct users to Scalekit's managed signup page by adding the `prompt: 'c
       You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
 </Steps>
 
-After the user signs up, they are redirected back to your application, and you can proceed to [create a session](/fsa/guides/implement-login/#create-a-user-session) for them, just like in the login flow.
+After the user signs up, they are redirected back to your application, and you can proceed to [create a session](/fsa/guides/implement-login/#create-a-user-session).
 
 ## Bring your own signup form
 
-If your application uses a custom signup form, you can create a user programmatically by calling the Scalekit API. This gives you full control over the user experience.
+For applications that want to control the sign up experience on the UI, you can use the Scalekit API to power the sign up form. This allows you to build your own signup forms while leveraging user management capabilities.
 
 <Steps>
 1. ### Collect user information
@@ -90,7 +90,12 @@ If your application uses a custom signup form, you can create a user programmati
 2. ### Create the user in Scalekit
    After the user submits your form, make an API call to create the user in Scalekit. You must associate the user with an organization.
 
-    <Tabs>
+   <InstallSDKSection />
+
+   <EnvSection />
+
+
+    <Tabs syncKey="tech-stack">
     <TabItem value="node" label="Node.js">
 
     ```javascript wrap
@@ -194,11 +199,16 @@ If your application uses a custom signup form, you can create a user programmati
     </TabItem>
     </Tabs>
 
+    <LinkCard
+      title="API Reference"
+      href="/apis#tag/users"
+      description="View the complete API documentation for user management endpoints"
+    />
+
     <Aside type="note">
-    You can store additional information about the user, such as your application's internal user ID, using [custom metadata](/fsa/data-modelling/#custom-metadata).
+    Use [external IDs](/fsa/data-modelling/#external-ids) to attach a unique ID you use to identify the user in your system. This helps you link the user to their account in your system.
     </Aside>
 
-3. ### Initiate a login flow
-    After creating the user programmatically, they do not have an active session. You must then initiate a login flow to authenticate them and establish a session. You can do this by redirecting them to the [login page](/fsa/guides/implement-login/#redirect-to-the-login-page).
-
 </Steps>
+
+After the user signs up, they are redirected back to your application, and you can proceed to [create a session](/fsa/guides/implement-login/#create-a-user-session).
