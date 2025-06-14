@@ -1,11 +1,16 @@
 ---
-title: Social logins
+title: Enable social logins
 description: How to configure social logins for your application
+sidebar:
+  label: "Social logins"
 head:
   - tag: style
     content: |
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
       }
 prev: false
 next:
@@ -16,32 +21,31 @@ import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 import CheckItem from '@/components/ui/CheckItem.astro';
 
-Social logins allow users to sign in to your application using their existing accounts from providers like Google, Microsoft, and GitHub. This guide shows you how to add social login to your application.
+Social logins allow users to sign in to your application using their existing accounts from providers like Google, Microsoft, and GitHub. Users can authenticate using any of the following methods:
+
+- Direct provider authentication when specifying a provider
+- Scalekit's hosted UI displaying all configured social providers
+- Combination of multiple social providers based on your configuration
+
+This guide shows you how to enable social login for your application.
 
 ![Social Logins Flow](@/assets/docs/common/social-connections/0.png)
 
-<div>
-   Before you begin
-  <CheckItem iconName="forward-slash">
-     [Set up your Scalekit account](https://app.scalekit.com/ws/signup)
-  </CheckItem>
-</div>
+## Implement social logins
+
+This approach allows users to authenticate using their preferred social providers. When you specify a provider, users are redirected directly to that provider's authentication flow. Without specifying a provider, users see Scalekit's hosted UI with all your configured social login options.
 
 <Steps>
-1. ## Configure a social connection
+1. ### Complete the prerequisites
 
-   To get started, you need to configure each social provider you want to offer from the Scalekit dashboard.
+    <CheckItem iconName="forward-slash">
+     [Set up your Scalekit account](https://app.scalekit.com/ws/signup)
+    </CheckItem>
+    <CheckItem iconName="forward-slash">
+     [Configure social connections](https://app.scalekit.com/dashboard/auth/social) in your Scalekit dashboard.
+    </CheckItem>
 
-   1. Log in to your [Scalekit Dashboard](https://app.scalekit.com).
-   2. Navigate to **Authentication > Social Logins**.
-   3. Select a provider and enter the required credentials (typically a Client ID and Client Secret) from your provider's developer console.
-   4. Save the connection.
-
-   ![Configure a social connection](@/assets/docs/fsa/auth-methods/social-logins-1.png)
-   Learn how to configure individual [social connection providers](/guides/integrations/social-connections/).
-   Once configured, the provider will be available on your sign-in page.
-
-2. ## Install the Scalekit SDK
+2. ### Install the Scalekit SDK
 
     <InstallSDK />
 
@@ -55,10 +59,10 @@ Social logins allow users to sign in to your application using their existing ac
     Create a new Scalekit client instance.
     <Tabs syncKey="tech-stack">
       <TabItem value="nodejs" label="Node.js">
-      ```javascript title="utils/auth.js"
+      ```javascript
       import { Scalekit } from '@scalekit-sdk/node';
 
-      export let scalekit = new Scalekit(
+      const scalekit = new Scalekit(
         process.env.SCALEKIT_ENVIRONMENT_URL,
         process.env.SCALEKIT_CLIENT_ID,
         process.env.SCALEKIT_CLIENT_SECRET
@@ -66,7 +70,7 @@ Social logins allow users to sign in to your application using their existing ac
       ```
       </TabItem>
       <TabItem value="py" label="Python">
-      ```python title="utils/auth.py"
+      ```python
       import os
       from scalekit import ScalekitClient
 
@@ -78,18 +82,19 @@ Social logins allow users to sign in to your application using their existing ac
       ```
       </TabItem>
       <TabItem value="go" label="Go">
-        ```go title="utils/auth.go"
-        package utils
+        ```go
+        package main
 
         import (
         	"os"
         	"github.com/scalekit/scalekit-sdk-go"
         )
 
-        var ScalekitClient *scalekit.ScalekitClient
+        var scalekitClient *scalekit.ScalekitClient
 
-        func init() {
-        	ScalekitClient = scalekit.NewScalekitClient(
+        func main() {
+        	// Or in an init() function
+        	scalekitClient = scalekit.NewScalekitClient(
         		os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
         		os.Getenv("SCALEKIT_CLIENT_ID"),
         		os.Getenv("SCALEKIT_CLIENT_SECRET"),
@@ -98,15 +103,15 @@ Social logins allow users to sign in to your application using their existing ac
         ```
       </TabItem>
       <TabItem value="java" label="Java">
-        ```java title="utils/Auth.java"
-        package com.example.utils;
+        ```java
+        package com.example;
 
         import com.scalekit.ScalekitClient;
 
-        public class Auth {
+        public class Main {
             public static ScalekitClient scalekit;
 
-            static {
+            public static void main(String[] args) {
                 scalekit = new ScalekitClient(
                     System.getenv("SCALEKIT_ENVIRONMENT_URL"),
                     System.getenv("SCALEKIT_CLIENT_ID"),
@@ -118,9 +123,9 @@ Social logins allow users to sign in to your application using their existing ac
       </TabItem>
     </Tabs>
 
-3. ## Add a social login button
+3. ### Start the social login flow
 
-    To initiate social login, redirect the user to Scalekit's authorization URL. You need to specify which social provider to use.
+    To initiate the social login flow, you can optionally specify which social provider to use in the `provider` parameter when redirecting to Scalekit's authorization URL.
 
     <Tabs syncKey="tech-stack">
     <TabItem value="nodejs" label="Node.js">
@@ -128,9 +133,13 @@ Social logins allow users to sign in to your application using their existing ac
     ```javascript title="Express.js"
     const redirectUri = 'http://localhost:3000/api/callback';
 
+    // Option 1: Direct provider authentication
     const authorizationURL = scalekit.getAuthorizationUrl(redirectUri, {
-      provider: 'google', // or 'github', 'microsoft', etc.
+      provider: 'google', // Takes user directly to Google's login
     });
+
+    // Option 2: Show Scalekit's hosted UI with all configured providers
+    const authorizationURL = scalekit.getAuthorizationUrl(redirectUri);
 
     // Redirect the user to this authorizationURL
     res.redirect(authorizationURL);
@@ -142,12 +151,19 @@ Social logins allow users to sign in to your application using their existing ac
     from scalekit import AuthorizationUrlOptions
 
     redirect_uri = 'http://localhost:3000/api/callback'
+
+    # Option 1: Direct provider authentication
     options = AuthorizationUrlOptions()
-    options.provider = 'google'
+    options.provider = 'google'  # Takes user directly to Google's login
 
     authorization_url = scalekit_client.get_authorization_url(
       redirect_uri=redirect_uri,
       options=options
+    )
+
+    # Option 2: Show Scalekit's hosted UI with all configured providers
+    authorization_url = scalekit_client.get_authorization_url(
+      redirect_uri=redirect_uri
     )
 
     # Redirect the user to this authorization URL
@@ -158,18 +174,20 @@ Social logins allow users to sign in to your application using their existing ac
     import "github.com/scalekit/scalekit-sdk-go"
 
     redirectUrl := "http://localhost:3000/api/callback"
+
+    // Option 1: Direct provider authentication
     options := scalekit.AuthorizationUrlOptions{
-        Provider: "google",
+        Provider: "google", // Takes user directly to Google's login
     }
 
-    authorizationURL, err := ScalekitClient.GetAuthorizationUrl(
+    authorizationURL := scalekitClient.GetAuthorizationUrl(
         redirectUrl,
         options,
     )
-    if err != nil {
-        // handle error appropriately
-        return
-    }
+
+    // Option 2: Show Scalekit's hosted UI with all configured providers
+    authorizationURL := scalekitClient.GetAuthorizationUrl(redirectUrl)
+
     // Next step is to redirect the user to this authorization URL
     ```
     </TabItem>
@@ -178,11 +196,21 @@ Social logins allow users to sign in to your application using their existing ac
     import com.scalekit.internal.http.AuthorizationUrlOptions;
 
     String redirectUrl = "http://localhost:3000/api/callback";
+
+    // Option 1: Direct provider authentication
     AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-    options.setProvider("google");
+    options.setProvider("google"); // Takes user directly to Google's login
+
     try {
-      URL url = Auth.scalekit.authentication().getAuthorizationUrl(redirectUrl, options);
-      String authorizationURL = url.toString();
+      String url = scalekit.authentication().getAuthorizationUrl(redirectUrl, options).toString();
+      // Redirect the user to this authorization URL
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+
+    // Option 2: Show Scalekit's hosted UI with all configured providers
+    try {
+      String url = scalekit.authentication().getAuthorizationUrl(redirectUrl).toString();
       // Redirect the user to this authorization URL
     } catch (Exception e) {
       System.out.println(e.getMessage());
@@ -191,16 +219,21 @@ Social logins allow users to sign in to your application using their existing ac
     </TabItem>
     </Tabs>
 
-    This redirect will send users to the selected social provider's authentication flow before being returned to your application.
+    **Authorization endpoint behavior:**
+    - **With provider specified**: Users are redirected directly to the specified social provider's authentication page (e.g., Google, GitHub, Microsoft). Useful to hyperlink behind a your own UI.
+    - **Without provider specified**: Users see Scalekit's hosted UI displaying all social providers you've configured in your dashboard.
 
-4. ## Retrieve user profile
+    <Aside type="tip" title="Default Google OAuth">
+    Scalekit provides a default Google OAuth configuration in all development environments. You can use this to test the social login flow before configuring your own Google OAuth application.
+    </Aside>
+
+4. ### Get the user's profile information
 
     After the user authenticates with the social provider, Scalekit redirects them to your `redirect_uri` with a temporary authorization code. Exchange this code for the user's profile information on your server.
 
     <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
         ```javascript
-        import scalekit from '@/utils/auth.js'
         const redirectUri = 'http://localhost:3000/api/callback';
 
         app.get('/api/callback', async (req, res) => {
@@ -228,8 +261,6 @@ Social logins allow users to sign in to your application using their existing ac
         </TabItem>
         <TabItem value="py" label="Python">
         ```python
-        from scalekit import CodeAuthenticationOptions
-
         # Handle oauth redirect_url
         code = request.args.get('code')
         error = request.args.get('error')
@@ -239,23 +270,19 @@ Social logins allow users to sign in to your application using their existing ac
             raise Exception(error_description)
 
         redirect_uri = 'http://localhost:3000/api/callback'
-        options = CodeAuthenticationOptions()
         result = scalekit_client.authenticate_with_code(
           code,
-          redirect_uri,
-          options
+          redirect_uri
         )
 
-        # result['user'] has the authenticated user's details
-        user_email = result['user']['email']
+        # result.user has the authenticated user's details
+        user_email = result.user.email
 
         # Next step: create a session for this user and allow access
         ```
         </TabItem>
         <TabItem value="go" label="Go">
         ```go
-        import "github.com/scalekit/scalekit-sdk-go"
-
         // Handle oauth redirect_url
         code := r.URL.Query().Get("code")
         error := r.URL.Query().Get("error")
@@ -266,8 +293,7 @@ Social logins allow users to sign in to your application using their existing ac
         }
 
         redirectUrl := "http://localhost:3000/api/callback"
-        options := scalekit.AuthenticationOptions{}
-        result, err := ScalekitClient.AuthenticateWithCode(code, redirectUrl, options)
+        result, err := scalekitClient.AuthenticateWithCode(code, redirectUrl)
         if err != nil {
           // Handle errors and exit
         }
@@ -280,8 +306,7 @@ Social logins allow users to sign in to your application using their existing ac
         </TabItem>
         <TabItem value="java" label="Java">
         ```java
-        import com.scalekit.internal.http.AuthenticationOptions;
-        import com.scalekit.internal.http.AuthenticationResponse;
+        import com.scalekit.models.AuthenticationResponse;
 
         // Handle oauth redirect_url
         String code = request.getParameter("code");
@@ -295,12 +320,9 @@ Social logins allow users to sign in to your application using their existing ac
 
         try {
             String redirectUrl = "http://localhost:3000/api/callback";
-            AuthenticationOptions options = new AuthenticationOptions();
-            AuthenticationResponse result = Auth.scalekit.authentication()
-                .authenticateWithCode(code, redirectUrl, options);
-
-            // result.getUser() has the authenticated user's details
-            String userEmail = result.getUser().getEmail();
+            AuthenticationResponse result = scalekit.authentication().authenticateWithCode(code, redirectUrl);
+            // result.getIdTokenClaims() has the authenticated user's details
+            String userEmail = result.getIdTokenClaims().getEmail();
 
             // Next step: create a session for this user and allow access
         } catch (Exception e) {
@@ -317,3 +339,24 @@ Social logins allow users to sign in to your application using their existing ac
     </Aside>
 
 </Steps>
+
+## Configure social login settings
+
+You can manage which social providers are available to your users and customize their behavior from the Scalekit dashboard without changing your code.
+
+![Configure a social connection](@/assets/docs/fsa/auth-methods/social-logins-1.png)
+
+### Add social providers
+
+<Steps>
+
+1. Log in to your [Scalekit Dashboard](https://app.scalekit.com).
+2. Navigate to **Authentication > Social Logins**.
+3. Select a provider and enter the required credentials (typically a Client ID and Client Secret) from your provider's developer console.
+4. Save the connection.
+
+</Steps>
+
+Learn how to configure individual [social connection providers](/guides/integrations/social-connections/).
+
+Once configured, the provider will be available on your sign-in page for users to sign into your application.
