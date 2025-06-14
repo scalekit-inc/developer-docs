@@ -1,6 +1,6 @@
 ---
 title: Manage organizations
-description: How to create and manage organizations in Scalekit.
+description: Create and manage organizations in Scalekit, configure settings, and enable enterprise features.
 head:
   - tag: style
     content: |
@@ -11,92 +11,201 @@ head:
         font-size: var(--sl-text-lg);
       }
 sidebar:
-  label: "Set up organizations"
+  label: "Manage organizations"
 prev: false
+next:
+  label: "Manage users"
+  link: "/fsa/guides/manage-users/"
 ---
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside, Badge } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+import CheckItem from '@/components/ui/CheckItem.astro';
 
-**Organizations** in Scalekit represent your customers. You can create and manage organizations for your customers, and enable features for them. This guide will walk you through creating and managing organizations via the Scalekit Dashboard and the API.
+Organizations are the foundation of your B2B application, representing your customers and their teams. In Scalekit, organizations serve as multi-tenant containers that isolate user data, configure authentication methods, and manage enterprise features like Single Sign-On (SSO) and directory synchronization.
 
-## Via Scalekit dashboard
+This guide shows you how to create and manage organizations programmatically and through the Scalekit dashboard.
 
-### Create an organization
+## Understanding organizations
 
-1.  Navigate to the **Organizations** tab in the Scalekit Dashboard.
-2.  Click on the **+ Create organization** button.
+Organizations in Scalekit work for different product architectures:
 
-    <img src="/src/assets/docs/fsa/organizations/1-list-organizations-1.png" alt="List organizations" />
+**Multi-tenant identity**: Users can belong to multiple organizations with the same identity. This is common in products like Notion, where users collaborate across multiple workspaces.
 
-3.  Enter a name for the organization. This is typically the name of your customer company.
-4.  You can also select the features you want to enable for this organization, such as SSO or Directory Sync.
+**Isolated identity**: Users maintain separate identities for each organization. This approach is typical for employee survey tools or other applications where strict tenant isolation is required.
 
-    <img src="/src/assets/docs/fsa/organizations/2-create-organization.png" alt="Create organization" />
+<Aside type="note">
+  You can customize the terminology to match your product. Organizations can be relabeled as "Workspaces," "Teams," or any term that makes sense for your users.
+</Aside>
 
-5.  Click **Create** to create the organization.
+## Create an organization
 
-### Onboard enterprise customers
+Organizations can be created automatically during user sign-up or programmatically through the API. When users sign up for your application, Scalekit creates a new organization and adds the user to it automatically.
 
-For enterprise customers who need to configure their own Single Sign-On (SSO) or SCIM, you can generate an admin portal link. This link provides your customer with a sandboxed environment to configure their identity provider or directory provider without accessing your Scalekit dashboard.
 
-After creating an organization and enabling features like SSO or Directory Sync, you can find the generated admin portal link on the organization's details page.
 
-<img src="/src/assets/docs/fsa/organizations/3-organization-details.png" alt="Organization details" />
 
-Share this link with your customer's IT admin to let them complete the configuration on their own.
 
-## Via API
+For more control over the organization creation process, create organizations programmatically:
 
-You can also manage organizations programmatically using the Scalekit API.
-
-### Create an organization
-
-Here's how to create an organization using the Node.js SDK:
+<InstallSDK />
 
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js" value="nodejs">
-```javascript wrap showLineNumbers=false
-const organization = await scalekit.organization.createOrganization(name, {
-  externalId: 'externalId',
+```javascript title="Create organization"
+const organization = await scalekit.organization.createOrganization('Acme Corporation', {
+  externalId: 'acme-corp-123',
+  metadata: {
+    plan: 'enterprise',
+    industry: 'technology'
+  }
 });
+
+console.log('Organization created:', organization.id);
 ```
 </TabItem>
 <TabItem label="Python" value="python">
-```python wrap showLineNumbers=false
+```python title="Create organization"
 from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
 
 organization = scalekit_client.organization.create_organization(
     CreateOrganization(
-        display_name=name,
-        external_id='externalId'
+        display_name='Acme Corporation',
+        external_id='acme-corp-123',
+        metadata={
+            'plan': 'enterprise',
+            'industry': 'technology'
+        }
     )
 )
+
+print(f'Organization created: {organization.id}')
 ```
 </TabItem>
 <TabItem label="Go" value="go">
-```go wrap showLineNumbers=false
-organization, err := scalekitClient.Organization.CreateOrganization(ctx, name, scalekit.CreateOrganizationOptions{
-    ExternalId: "externalId",
-})
+```go title="Create organization"
+organization, err := scalekitClient.Organization.CreateOrganization(
+    ctx,
+    "Acme Corporation",
+    scalekit.CreateOrganizationOptions{
+        ExternalId: "acme-corp-123",
+        Metadata: map[string]interface{}{
+            "plan": "enterprise",
+            "industry": "technology",
+        },
+    },
+)
+if err != nil {
+    log.Fatal(err)
+}
+
+fmt.Printf("Organization created: %s\n", organization.ID)
 ```
 </TabItem>
 <TabItem label="Java" value="java">
-```java wrap showLineNumbers=false
+```java title="Create organization"
+import java.util.Map;
+import java.util.HashMap;
+
+Map<String, Object> metadata = new HashMap<>();
+metadata.put("plan", "enterprise");
+metadata.put("industry", "technology");
+
 CreateOrganization createOrg = CreateOrganization.newBuilder()
-    .setDisplayName(name)
-    .setExternalId("externalId")
+    .setDisplayName("Acme Corporation")
+    .setExternalId("acme-corp-123")
+    .putAllMetadata(metadata)
     .build();
+
 Organization organization = scalekitClient.getOrganization().create(createOrg);
+System.out.println("Organization created: " + organization.getId());
 ```
 </TabItem>
 </Tabs>
 
-### Generate admin portal link
+**External ID**: An optional field to associate the organization with an ID from your system. This is useful for linking Scalekit organizations with records in your own database.
 
-To enable features like SSO and Directory Sync for an organization and generate the admin portal link, you can update the organization's settings.
+## Update organization details
+
+Organization administrators often need to make changes after the initial setup. Typical examples include:
+
+* Renaming the organization after a corporate re-brand.
+* Uploading or replacing the company logo shown on your dashboard or invoices.
+* Storing metadata your application needs at runtime—such as a billing plan identifier, Stripe customer ID, or internal account reference.
 
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js" value="nodejs">
-```javascript wrap showLineNumbers=false
+```javascript title="Update organization"
+const updatedOrganization = await scalekit.organization.updateOrganization(
+  'org_12345',
+  {
+    displayName: 'Acme Corporation Ltd',
+    metadata: {
+      plan: 'enterprise',
+      paymentMethod: 'stripe',
+      customField: 'custom-value'
+    }
+  }
+);
+```
+</TabItem>
+<TabItem label="Python" value="python">
+```python title="Update organization"
+updated_organization = scalekit_client.organization.update_organization(
+    'org_12345',
+    {
+        'display_name': 'Acme Corporation Ltd',
+        'metadata': {
+            'plan': 'enterprise',
+            'payment_method': 'stripe',
+            'custom_field': 'custom-value'
+        }
+    }
+)
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go title="Update organization"
+metadata := map[string]interface{}{
+    "plan": "enterprise",
+    "payment_method": "stripe",
+    "custom_field": "custom-value",
+}
+
+updatedOrganization, err := scalekitClient.Organization.UpdateOrganization(
+    ctx,
+    "org_12345",
+    scalekit.UpdateOrganizationOptions{
+        DisplayName: "Acme Corporation Ltd",
+        Metadata: metadata,
+    },
+)
+```
+</TabItem>
+<TabItem label="Java" value="java">
+```java title="Update organization"
+Map<String, Object> metadata = new HashMap<>();
+metadata.put("plan", "enterprise");
+metadata.put("payment_method", "stripe");
+metadata.put("custom_field", "custom-value");
+
+Organization updatedOrganization = scalekitClient.getOrganization()
+    .updateOrganization("org_12345", UpdateOrganizationRequest.builder()
+        .displayName("Acme Corporation Ltd")
+        .metadata(metadata)
+        .build());
+```
+</TabItem>
+</Tabs>
+
+**Metadata**: Store additional information about the organization, such as subscription plans, payment methods, or any custom data relevant to your application.
+
+## Configure organization features
+
+Enable enterprise features for your organizations to support authentication methods like SSO and user provisioning through SCIM.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="nodejs">
+```javascript title="Enable organization features"
 const settings = {
   features: [
     {
@@ -110,11 +219,14 @@ const settings = {
   ],
 };
 
-await scalekit.organization.updateOrganizationSettings('<organization_id>', settings);
+await scalekit.organization.updateOrganizationSettings(
+  'org_12345',
+  settings
+);
 ```
 </TabItem>
 <TabItem label="Python" value="python">
-```python wrap showLineNumbers=false
+```python title="Enable organization features"
 settings = {
     "features": [
         {"name": "sso", "enabled": True},
@@ -122,11 +234,14 @@ settings = {
     ]
 }
 
-scalekit_client.organization.update_organization_settings('<organization_id>', settings)
+scalekit_client.organization.update_organization_settings(
+    'org_12345',
+    settings
+)
 ```
 </TabItem>
 <TabItem label="Go" value="go">
-```go wrap showLineNumbers=false
+```go title="Enable organization features"
 settings := map[string]interface{}{
     "features": []map[string]interface{}{
         {"name": "sso", "enabled": true},
@@ -134,11 +249,15 @@ settings := map[string]interface{}{
     },
 }
 
-err := scalekitClient.Organization.UpdateOrganizationSettings("<organization_id>", settings)
+err := scalekitClient.Organization.UpdateOrganizationSettings(
+    ctx,
+    "org_12345",
+    settings
+)
 ```
 </TabItem>
 <TabItem label="Java" value="java">
-```java wrap showLineNumbers=false
+```java title="Enable organization features"
 Map<String, Object> settings = new HashMap<>();
 settings.put("features", Arrays.asList(
     new HashMap<String, Object>() {{
@@ -151,9 +270,73 @@ settings.put("features", Arrays.asList(
     }}
 ));
 
-scalekitClient.getOrganization().updateOrganizationSettings("<organization_id>", settings);
+scalekitClient.getOrganization().updateOrganizationSettings(
+    "org_12345",
+    settings
+);
 ```
 </TabItem>
 </Tabs>
 
-After this, the admin portal link will be available for the organization.
+
+### Admin Portal access (self-serve configuration)
+
+Enterprise customers usually want to manage SSO and directory sync on their own, without involving your support team. Scalekit provides an **Admin Portal** that you can surface to IT administrators in two ways:
+
+1. **Generate a shareable link** and send it via email or chat.
+2. **Embed the portal** inside your own settings page with an `<iframe>`.
+
+Both approaches give administrators a sandboxed interface to configure SSO (SAML/OIDC) connections, SCIM provisioning, and other security settings.
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js" value="nodejs">
+```javascript title="Generate Admin Portal link"
+const portalLink = await scalekit.organization.generatePortalLink('org_12345');
+
+// Present this URL to the organization's IT admin or load it in an iframe
+console.log('Admin Portal URL:', portalLink.url);
+```
+</TabItem>
+<TabItem label="Python" value="python">
+```python title="Generate Admin Portal link"
+portal_link = scalekit_client.organization.generate_portal_link('org_12345')
+print(f'Admin Portal URL: {portal_link.url}')
+```
+</TabItem>
+<TabItem label="Go" value="go">
+```go title="Generate Admin Portal link"
+portalLink, err := scalekitClient.Organization.GeneratePortalLink(ctx, "org_12345")
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Println("Admin Portal URL:", portalLink.URL)
+```
+</TabItem>
+<TabItem label="Java" value="java">
+```java title="Generate Admin Portal link"
+PortalLink portalLink = scalekitClient.getOrganization().generatePortalLink("org_12345");
+System.out.println("Admin Portal URL: " + portalLink.getUrl());
+```
+</TabItem>
+</Tabs>
+
+For advanced customization options, see the [Admin Portal guide](/guides/sso/admin-portal/).
+
+
+## Organization specific policies
+
+Configure advanced authentication and access control policies to meet your organization's security requirements.
+
+### Authentication methods <Badge type="note" text="Coming soon" />
+
+Organization admins will be able to configure which authentication methods are available to their organization members. For example, they can restrict access to only enterprise SSO for enhanced security, or allow a combination of SSO and passwordless authentication for flexible user access.
+
+### Session settings <Badge type="note" text="Coming soon" />
+
+Organization admins will be able to configure session settings for all their organization members. They can set session timeout, idle timeout, and other session-related settings that align with their organization's security policies and compliance requirements.
+
+## What's next?
+
+- [Manage users](/fsa/guides/manage-users/) to create, update, and delete user accounts within organizations
+- [Enable Enterprise SSO](/fsa/guides/enterprise-sso/) to configure single sign-on for your customers
+- [Set up SCIM provisioning](/guides/directory/scim/) to automate user and group management
