@@ -123,77 +123,30 @@ The most common way users join organizations is through self-service sign-up flo
 
 Scalekit automatically handles this during the authentication flow. When users complete sign-up through your application, Scalekit creates both the user and their organization automatically. See the [implement sign-up guide](/fsa/guides/implement-signup/) for detailed integration steps.
 
-### Invite users to join
+### Invite users to join <Badge type="note" text="Coming soon" />
 
 Organization members often need to invite colleagues, contractors, or partners to collaborate. This creates a pending invitation that users can accept to join the organization.
 
 **Scenario**: A team lead wants to invite a new contractor to access specific projects within their organization.
 
-<Badge type="note" text="Coming soon" />
-
 ```javascript title="Send user invitation"
 // This feature is coming soon
-const invitation = await scalekit.user.createInvitation("org_123", {
-  email: "contractor@example.com",
-  roles: ["member"],
-  message: "Welcome to our team! Please join our workspace to collaborate on the new project.",
-  expiresInDays: 7
-});
+
 ```
 
-### Just-in-Time (JIT) provisioning
+### Just-in-Time (JIT) provisioning <Badge type="note" text="Coming soon" />
 
-<Badge type="note" text="Coming soon" />
-
-When users attempt to sign in via SSO for the first time, their accounts can be created automatically without requiring pre-registration. This streamlines onboarding for enterprise customers.
+When users attempt to sign in (usually via SSO) for the first time, their accounts can be created automatically without requiring pre-registration. This streamlines onboarding for enterprise customers.
 
 **Scenario**: An employee at your customer's company tries to access your application through their company's SSO portal. Their account is created automatically based on their corporate identity.
 
 JIT provisioning will be configurable through the Scalekit Dashboard, allowing you to control which users can be automatically provisioned based on their email domain or group memberships.
 
-### SCIM-based provisioning
+### SCIM-based provisioning <Badge type="note" text="Coming soon" />
 
-<Badge type="note" text="Coming soon" />
-
-Enterprise customers can automatically provision and deprovision users through SCIM (System for Cross-domain Identity Management), keeping your application in sync with their HR systems.
+Enterprise customers can automatically provision and deprovision users through SCIM (System for Cross-domain Identity Management), keeping your application in sync with their source of truth.
 
 **Scenario**: When an employee joins or leaves your customer's company, their access to your application is automatically granted or revoked through their identity provider.
-
-## Manage user profiles
-
-Users need to keep their profile information current, and administrators may need to update user details for compliance or organizational changes.
-
-### Update user information
-
-**Scenario**: A user gets married and changes their last name, or an administrator needs to update a user's department after an internal transfer.
-
-```javascript title="Update user profile"
-const updatedUser = await scalekit.user.updateUser("org_123", "user_456", {
-  userProfile: {
-    firstName: "John",
-    lastName: "Smith" // Updated last name
-  },
-  metadata: {
-    department: "Product", // Transferred departments
-    role: "Senior Developer",
-    lastUpdated: new Date().toISOString()
-  }
-});
-
-console.log('User updated:', updatedUser.id);
-```
-
-### Get user details
-
-**Scenario**: Display a user's profile information in your application's settings page or admin dashboard.
-
-```javascript title="Retrieve user information"
-const user = await scalekit.user.getUser("org_123", "user_456");
-
-console.log('User email:', user.email);
-console.log('User name:', `${user.userProfile.firstName} ${user.userProfile.lastName}`);
-console.log('Department:', user.metadata.department);
-```
 
 ## Manage organization memberships
 
@@ -201,42 +154,45 @@ Users often need different levels of access within organizations, and their role
 
 ### Create membership for existing users
 
-**Scenario**: A consultant who already has an account in your system needs access to a new client's organization.
+**Scenario**: A consultant who already has an user account in your system needs access to a new client's organization.
 
-```javascript title="Add user to organization"
+```javascript title="Add user to organization" wrap
 const membership = await scalekit.user.createMembership("org_123", "user_456", {
   roles: ["member"],
   metadata: {
     joinDate: new Date().toISOString(),
     team: "Platform",
-    accessLevel: "read-write"
   },
   sendActivationEmail: true
 });
 
-console.log('Membership created:', membership.id);
+console.log('Membership created:', membership.user?.id);
 ```
 
-### Update membership roles
+### Update membership
 
-**Scenario**: A team member gets promoted to team lead and needs admin privileges within their organization.
+**Scenario**: A user's relationship with an organization changes - they move to a different team/organization/workspace, their contract terms are updated, or their access requirements change.
 
-```javascript title="Update user roles"
+```javascript title="Update user membership"
 const updatedMembership = await scalekit.user.updateMembership("org_123", "user_456", {
-  roles: ["admin", "member"], // Add admin role
+  roles: ["member"],
   metadata: {
     team: "Backend",
     level: "Senior",
-    promotionDate: "2024-03-20"
+    contractType: "Full-time",
+    accessExpiry: "2024-12-31",
+    manager: "jane.smith@example.com"
   }
 });
 
-console.log('Membership updated with new roles');
+console.log('Membership updated with new details');
 ```
 
 ### Remove user from organization
 
-**Scenario**: An employee leaves the company or a contractor's engagement ends, requiring removal of their access.
+**Scenario**:
+- An employee leaves the company or a contractor's engagement ends, requiring removal of their access.
+- Organization admin chooses to delete the organization from your application's settings.
 
 ```javascript title="Remove user membership"
 await scalekit.user.deleteMembership("org_123", "user_456");
