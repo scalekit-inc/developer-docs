@@ -1,0 +1,152 @@
+---
+import { Icon, Badge } from '@astrojs/starlight/components';
+
+// Get the topics from the route data provided by the sidebar topics plugin
+const { topics } = Astro.locals.starlightSidebarTopics || { topics: [] };
+
+// Define the main topics we want to display with their matching patterns
+const topicMappings = [
+  { id: 'sso', patterns: ['/sso/', '/guides/sso/', '/social-logins/'] },
+  { id: 'directory', patterns: ['/directory/', '/guides/directory/'] },
+  { id: 'm2m', patterns: ['/m2m/', '/guides/m2m/'] },
+  { id: 'passwordless', patterns: ['/guides/passwordless/'] },
+  { id: 'mcp', patterns: ['/guides/mcp/'] }
+];
+
+// Find topics based on their link patterns
+const orderedTopics = topicMappings
+  .map((mapping) => {
+    return topics.find((topic) =>
+      mapping.patterns.some((pattern) => topic.link?.includes(pattern))
+    );
+  })
+  .filter(Boolean);
+---
+
+<nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
+  <div class="nav-items">
+    {orderedTopics.map((topic) => topic && (
+      <a
+        href={topic.link}
+        class={`nav-item ${topic.isCurrent ? 'current' : ''}`}
+        aria-current={topic.isCurrent ? 'page' : false}
+      >
+        <div class="nav-item-content">
+          {topic.icon && (
+            <Icon name={topic.icon} class="nav-icon" />
+          )}
+          <span class="nav-label">{topic.label}</span>
+          {topic.badge && (
+            <Badge text={topic.badge.text} variant={topic.badge.variant} />
+          )}
+        </div>
+      </a>
+    ))}
+  </div>
+</nav>
+
+<style>
+  /* Hide the duplicate sidebar topics in the left sidebar */
+  :global(.starlight-sidebar-topics) {
+    display: none !important;
+  }
+
+  /* Add proper spacing to account for secondary nav */
+  :global(.main-frame) {
+    padding-top: 3.5rem;
+  }
+
+
+  .secondary-nav {
+    position: fixed;
+    top: var(--sl-nav-height);
+    left: 0;
+    right: 0;
+    z-index: 10;
+    width: 100%;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    background: var(--sl-color-bg-nav);
+    padding: 0 var(--sl-nav-pad-x);
+  }
+
+  .nav-items {
+    display: flex;
+    gap: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: flex-start;
+  }
+
+  .nav-items::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    position: relative;
+    line-height: 1.2;
+  }
+
+  .nav-item:hover {
+    color: var(--sl-color-white);
+    background: var(--sl-color-gray-6);
+  }
+
+  .nav-item.current {
+    color: var(--sl-color-white);
+    border-bottom-color: var(--sl-color-accent);
+    background: var(--sl-color-gray-6);
+  }
+
+  .nav-item-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .nav-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .nav-label {
+    font-size: var(--sl-text-sm);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 50rem) {
+    .secondary-nav {
+      display: none !important;
+    }
+
+    /* Remove the padding on mobile since nav is hidden */
+    :global(.main-frame) {
+      padding-top: 0;
+    }
+  }
+
+  @media (max-width: 72rem) {
+    .nav-item {
+      padding: 0.5rem 0.75rem;
+    }
+
+    .nav-label {
+      font-size: var(--sl-text-xs);
+    }
+  }
+</style>
