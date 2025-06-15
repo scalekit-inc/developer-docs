@@ -17,7 +17,7 @@ next:
   label: "Manage users"
   link: "/fsa/guides/manage-users/"
 ---
-import { Tabs, TabItem, Aside, Badge } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside, Badge, LinkCard } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 import CheckItem from '@/components/ui/CheckItem.astro';
 
@@ -322,6 +322,41 @@ System.out.println("Admin Portal URL: " + portalLink.getUrl());
 
 For advanced customization options, see the [Admin Portal guide](/guides/sso/admin-portal/).
 
+### Configure SSO and SCIM from the dashboard
+
+As an alternative to the Admin Portal, you can configure SSO and SCIM directly from the Scalekit dashboard. This approach is useful when you want to set up these features for your customers without sharing admin portal access.
+
+#### Set up SSO configuration
+
+Configure Single Sign-On to connect your customer's identity provider with Scalekit. From the organization's settings page in the dashboard, you can set up SSO connections.
+
+To configure SSO:
+
+1. **Configure user attributes** by mapping attributes from the identity provider to user profiles in Scalekit.
+2. **Enter identity provider configuration** with metadata from your customer's IdP, including Entity ID, ACS URL, and X.509 certificate.
+3. **Assign users and groups** to specify which users and groups can use this SSO connection.
+4. **Test SSO** by performing a test login to ensure the connection works correctly.
+5. **Enable connection** once you've verified the configuration is working.
+
+For step-by-step guides on configuring specific identity providers, see [SSO integrations](/guides/integrations/sso-integrations/).
+
+#### Set up SCIM configuration
+
+Configure SCIM provisioning to allow your customers to provision and manage users and groups automatically from their directory provider.
+
+To set up SCIM:
+
+1. **Generate SCIM endpoint** and provide this URL to your customer for configuration in their directory provider.
+2. **Create bearer token** and share this rotatable token with your customer for secure authentication.
+3. **Monitor synced users and groups** to verify which users and groups are being synced after the connection is active.
+
+For detailed configuration guides with specific providers, see [SCIM integrations](/guides/integrations/scim-integrations/).
+
+<LinkCard
+  title="Group-based role assignment"
+  href="/guides/directory/group-based-role-assignment/"
+  description="Learn how to assign roles to users based on their group memberships from the directory provider."
+/>
 
 ## Organization specific policies
 
