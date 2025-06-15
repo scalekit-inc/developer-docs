@@ -12,248 +12,364 @@ head:
       .sl-markdown-content h3 {
         font-size: var(--sl-text-lg);
       }
-prev: false
+prev:
+  label: "Manage organizations"
+  link: "/fsa/guides/manage-organization/"
+next: false
 ---
-import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside, Badge, Steps } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+import CheckItem from '@/components/ui/CheckItem.astro';
 
-This guide explains how to manage users within a specific organization using the Scalekit API. You can perform operations like creating, listing, updating, and deleting users who belong to an organization.
+Managing user accounts in B2B applications involves unique challenges around multi-tenant access, role assignments, and organizational boundaries. Users may belong to multiple organizations, have different roles in each, and require different levels of access to your application's features.
+
+This guide shows you how to manage users programmatically across different scenarios that B2B applications commonly encounter.
+
+## Understanding user management in B2B
+
+User management in B2B applications differs significantly from consumer apps. Consider these common scenarios:
+
+**For Organization Administrators:**
+- Invite users to join their organization and assign appropriate roles
+- Suspend or deactivate users who leave the company or change roles
+- Update user information and role assignments as teams evolve
+- View all active and inactive users within their organization
+- Enforce authentication policies like SSO for security compliance
+
+**For End Users:**
+- Join multiple organizations with the same email address
+- Switch between organizations they belong to
+- Update their own profile information across organizations
+- Accept invitations to join new organizations
+- Leave organizations they no longer need access to
+
+Scalekit handles these scenarios by creating separate user records for each organization membership while maintaining identity consistency through email addresses.
+
+## Prerequisites
+
+<Steps>
+1. ### Set up your environment
+
+    <CheckItem iconName="forward-slash">
+     [Create a Scalekit account](https://app.scalekit.com/ws/signup) and complete the quickstart
+    </CheckItem>
+    <CheckItem iconName="forward-slash">
+     Have at least one organization created in your environment
+    </CheckItem>
+
+2. ### Install the Scalekit SDK
+
+    <InstallSDK />
+
+    Configure your API credentials:
+    ```bash
+    SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
+    SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
+    SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
+    ```
+
+    Initialize the Scalekit client:
+    ```javascript
+    import { Scalekit } from '@scalekit-sdk/node';
+
+    const scalekit = new Scalekit(
+      process.env.SCALEKIT_ENVIRONMENT_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    ```
+</Steps>
+
+## Create and provision users
+
+Users can be added to organizations through multiple methods depending on your application's workflow and security requirements.
+
+### Create a user directly
+
+When you need to create user accounts programmatically—such as during data migrations, bulk imports, or admin-initiated account creation—you can create users directly with their organization membership.
+
+**Scenario**: An HR system integration that automatically creates accounts for new employees in your customer's organization.
+
+```javascript title="Create a user with organization membership"
+const newUser = await scalekit.user.createUserAndMembership("org_123", {
+  email: "john.doe@example.com",
+  userProfile: {
+    firstName: "John",
+    lastName: "Doe"
+  },
+  metadata: {
+    department: "Engineering",
+    role: "Developer",
+    employeeId: "EMP-001",
+    startDate: "2024-03-20"
+  },
+  sendActivationEmail: false // Set to true to send welcome email
+});
+
+console.log('User created:', newUser.user.id);
+console.log('Membership created:', newUser.membership.id);
+```
+
+**Key parameters:**
+- `sendActivationEmail`: Controls whether Scalekit sends a welcome email to the new user
+- `metadata`: Store custom information relevant to your application
+- `userProfile`: Basic profile information like name and other attributes
+
+### User sign-ups
+
+The most common way users join organizations is through self-service sign-up flows. This happens when users discover your application and want to create their own accounts.
+
+**Scenario**: A user visits your pricing page, signs up for a trial, and becomes the first member (and owner) of a new organization.
+
+Scalekit automatically handles this during the authentication flow. When users complete sign-up through your application, Scalekit creates both the user and their organization automatically. See the [implement sign-up guide](/fsa/guides/implement-signup/) for detailed integration steps.
+
+### Invite users to join
+
+Organization members often need to invite colleagues, contractors, or partners to collaborate. This creates a pending invitation that users can accept to join the organization.
+
+**Scenario**: A team lead wants to invite a new contractor to access specific projects within their organization.
+
+<Badge type="note" text="Coming soon" />
+
+```javascript title="Send user invitation"
+// This feature is coming soon
+const invitation = await scalekit.user.createInvitation("org_123", {
+  email: "contractor@example.com",
+  roles: ["member"],
+  message: "Welcome to our team! Please join our workspace to collaborate on the new project.",
+  expiresInDays: 7
+});
+```
+
+### Just-in-Time (JIT) provisioning
+
+<Badge type="note" text="Coming soon" />
+
+When users attempt to sign in via SSO for the first time, their accounts can be created automatically without requiring pre-registration. This streamlines onboarding for enterprise customers.
+
+**Scenario**: An employee at your customer's company tries to access your application through their company's SSO portal. Their account is created automatically based on their corporate identity.
+
+JIT provisioning will be configurable through the Scalekit Dashboard, allowing you to control which users can be automatically provisioned based on their email domain or group memberships.
+
+### SCIM-based provisioning
+
+<Badge type="note" text="Coming soon" />
+
+Enterprise customers can automatically provision and deprovision users through SCIM (System for Cross-domain Identity Management), keeping your application in sync with their HR systems.
+
+**Scenario**: When an employee joins or leaves your customer's company, their access to your application is automatically granted or revoked through their identity provider.
+
+## Manage user profiles
+
+Users need to keep their profile information current, and administrators may need to update user details for compliance or organizational changes.
+
+### Update user information
+
+**Scenario**: A user gets married and changes their last name, or an administrator needs to update a user's department after an internal transfer.
+
+```javascript title="Update user profile"
+const updatedUser = await scalekit.user.updateUser("org_123", "user_456", {
+  userProfile: {
+    firstName: "John",
+    lastName: "Smith" // Updated last name
+  },
+  metadata: {
+    department: "Product", // Transferred departments
+    role: "Senior Developer",
+    lastUpdated: new Date().toISOString()
+  }
+});
+
+console.log('User updated:', updatedUser.id);
+```
+
+### Get user details
+
+**Scenario**: Display a user's profile information in your application's settings page or admin dashboard.
+
+```javascript title="Retrieve user information"
+const user = await scalekit.user.getUser("org_123", "user_456");
+
+console.log('User email:', user.email);
+console.log('User name:', `${user.userProfile.firstName} ${user.userProfile.lastName}`);
+console.log('Department:', user.metadata.department);
+```
+
+## Manage organization memberships
+
+Users often need different levels of access within organizations, and their roles may change over time as responsibilities evolve.
+
+### Create membership for existing users
+
+**Scenario**: A consultant who already has an account in your system needs access to a new client's organization.
+
+```javascript title="Add user to organization"
+const membership = await scalekit.user.createMembership("org_123", "user_456", {
+  roles: ["member"],
+  metadata: {
+    joinDate: new Date().toISOString(),
+    team: "Platform",
+    accessLevel: "read-write"
+  },
+  sendActivationEmail: true
+});
+
+console.log('Membership created:', membership.id);
+```
+
+### Update membership roles
+
+**Scenario**: A team member gets promoted to team lead and needs admin privileges within their organization.
+
+```javascript title="Update user roles"
+const updatedMembership = await scalekit.user.updateMembership("org_123", "user_456", {
+  roles: ["admin", "member"], // Add admin role
+  metadata: {
+    team: "Backend",
+    level: "Senior",
+    promotionDate: "2024-03-20"
+  }
+});
+
+console.log('Membership updated with new roles');
+```
+
+### Remove user from organization
+
+**Scenario**: An employee leaves the company or a contractor's engagement ends, requiring removal of their access.
+
+```javascript title="Remove user membership"
+await scalekit.user.deleteMembership("org_123", "user_456");
+console.log('User removed from organization');
+```
 
 <Aside type="note">
-**Before you begin:** Ensure you have the organization ID for the organization where you want to manage users. You can get this from the [organization management](/fsa/guides/manage-organization/) workflow.
+Removing a membership doesn't delete the user's account entirely—they may still belong to other organizations. Use `deleteUser` only when you need to remove the user completely.
 </Aside>
 
-## Create a user
+## List and query users
 
-Add a new user to an organization when you need to programmatically onboard team members. This is useful for bulk imports or automated user provisioning.
+Organizations need visibility into their user base for auditing, billing, and management purposes.
 
-<Tabs syncKey="tech-stack">
-<TabItem label="Node.js" value="nodejs">
-```javascript
-const user = await scalekit.organization.createUser(organizationId, {
-  email: "user@example.com",
-  user_profile: {
-    first_name: "John",
-    last_name: "Doe"
-  },
-  metadata: {
-    // Optional custom metadata
-    department: "Engineering",
-    role: "Developer"
-  }
+### List organization users
+
+**Scenario**: An organization admin wants to see all users in their organization for a security audit or to review access permissions.
+
+```javascript title="List users in organization"
+const users = await scalekit.user.listOrganizationUsers("org_123", {
+  pageSize: 20,
+  pageToken: "next_page_token" // For pagination
 });
-```
-</TabItem>
-</Tabs>
 
-The response includes the created user's details:
+console.log(`Found ${users.users.length} users`);
+users.users.forEach(user => {
+  console.log(`${user.email} - ${user.userProfile.firstName} ${user.userProfile.lastName}`);
+});
 
-<Tabs>
-<TabItem label="Response" value="response">
-```json
-{
-  "user": {
-    "id": "usr_1234abcd5678efgh",
-    "email": "user@example.com",
-    "external_id": "ext_12345a67b89c",
-    "create_time": "2024-01-15T10:30:00Z",
-    "update_time": "2024-01-15T10:30:00Z",
-    "metadata": {
-      "department": "Engineering",
-      "role": "Developer"
-    },
-    "user_profile": {
-      "id": "usr_profile_1234abcd5678efgh",
-      "first_name": "John",
-      "last_name": "Doe",
-      "name": "John Doe",
-      "email_verified": false
-    }
-  }
+// Handle pagination
+if (users.nextPageToken) {
+  // Fetch next page of results
 }
 ```
-</TabItem>
-</Tabs>
 
-## List users
+### List users with filtering
 
-Retrieve all users within an organization. This is useful for building user management interfaces or generating reports.
+**Scenario**: Find all users in a specific department or with certain roles for targeted communications or policy updates.
 
-<Tabs syncKey="tech-stack">
-<TabItem label="Node.js" value="nodejs">
-```javascript
-const users = await scalekit.organization.listUsers(organizationId, {
+```javascript title="List users with pagination"
+const users = await scalekit.user.listUsers("org_123", {
   pageSize: 10,
-  pageToken: 'optional_page_token' // For pagination
+  pageToken: "next_page_token"
 });
+
+// Filter by metadata in your application logic
+const engineeringUsers = users.users.filter(user =>
+  user.metadata.department === "Engineering"
+);
 ```
-</TabItem>
-</Tabs>
 
-The response includes pagination information:
+## User deactivation and deletion
 
-<Tabs>
-<TabItem label="Response" value="response">
-```json
-{
-  "users": [
-    {
-      "id": "usr_1234abcd5678efgh",
-      "email": "john.doe@example.com",
-      "user_profile": {
-        "first_name": "John",
-        "last_name": "Doe",
-        "name": "John Doe"
-      },
-      "metadata": {
-        "department": "engineering"
-      },
-      "create_time": "2024-01-15T10:30:00Z"
-    }
-  ],
-  "total_size": 1042,
-  "next_page_token": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAidXNyXzEyMzQ1In0=",
-  "prev_page_token": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInVzcl85ODc2NSJ9"
-}
+Managing user lifecycle includes handling departures, suspensions, and account cleanup.
+
+### Deactivate users
+
+<Badge type="note" text="Coming soon" />
+
+**Scenario**: Temporarily suspend a user's access while investigating a security incident, or when an employee takes extended leave.
+
+Deactivation will preserve user data while preventing access to the organization. This is useful for temporary suspensions where you may need to reactivate the user later.
+
+### Delete users permanently
+
+**Scenario**: Completely remove a user when they've left the company permanently and you need to comply with data retention policies.
+
+```javascript title="Delete user permanently"
+await scalekit.user.deleteUser("org_123", "user_456");
+console.log('User deleted permanently');
 ```
-</TabItem>
-</Tabs>
-
-For large organizations, use pagination to efficiently load users:
-
-<Tabs syncKey="tech-stack">
-<TabItem label="Node.js" value="nodejs">
-```javascript
-let allUsers = [];
-let pageToken = null;
-
-do {
-  const response = await scalekit.organization.listUsers(organizationId, {
-    pageSize: 50,
-    pageToken: pageToken
-  });
-
-  allUsers.push(...response.users);
-  pageToken = response.nextPageToken;
-} while (pageToken);
-
-console.log(`Total users loaded: ${allUsers.length}`);
-```
-</TabItem>
-</Tabs>
-
-## Get a user
-
-Fetch detailed information about a specific user. This is useful when you need to display user profiles or validate user access.
-
-<Tabs syncKey="tech-stack">
-<TabItem label="Node.js" value="nodejs">
-```javascript
-const user = await scalekit.organization.getUser(organizationId, userId);
-```
-</TabItem>
-</Tabs>
-
-The response includes complete user details:
-
-<Tabs>
-<TabItem label="Response" value="response">
-```json
-{
-  "user": {
-    "id": "usr_1234abcd5678efgh",
-    "email": "user@example.com",
-    "external_id": "ext_12345a67b89c",
-    "identity": "auth0|1234567890abcdef",
-    "phone_number": "+14155552671",
-    "create_time": "2024-01-15T10:30:00Z",
-    "update_time": "2024-01-15T10:30:00Z",
-    "last_login": "2024-01-20T14:22:00Z",
-    "metadata": {
-      "department": "engineering",
-      "location": "nyc-office"
-    },
-    "user_profile": {
-      "id": "usr_profile_1234abcd5678efgh",
-      "first_name": "John",
-      "last_name": "Doe",
-      "name": "John Michael Doe",
-      "email_verified": true,
-      "locale": "en-US",
-      "custom_attributes": {
-        "department": "engineering",
-        "security_clearance": "level2"
-      }
-    }
-  }
-}
-```
-</TabItem>
-</Tabs>
-
-## Update a user
-
-Modify user information such as profile details or custom metadata. This is commonly used when users update their profiles or when you need to change user attributes.
-
-<Tabs syncKey="tech-stack">
-<TabItem label="Node.js" value="nodejs">
-```javascript
-const updatedUser = await scalekit.organization.updateUser(organizationId, userId, {
-  user_profile: {
-    first_name: "John",
-    last_name: "Smith"
-  },
-  metadata: {
-    department: "Product",
-    title: "Senior Developer"
-  }
-});
-```
-</TabItem>
-</Tabs>
-
-<Aside type="tip">
-**Custom metadata** is perfect for storing application-specific information like department, job title, or preferences that you've defined in [User management settings](/fsa/reference/session-configs/).
-</Aside>
-
-## Delete a user
-
-Permanently remove a user from an organization. Use this carefully as it cannot be undone.
-
-<Tabs syncKey="tech-stack">
-<TabItem label="Node.js" value="nodejs">
-```javascript
-try {
-  await scalekit.organization.deleteUser(organizationId, userId);
-  console.log('User successfully deleted');
-} catch (error) {
-  console.error('Failed to delete user:', error.message);
-}
-```
-</TabItem>
-</Tabs>
 
 <Aside type="caution">
-**Deleting a user is permanent.** Consider deactivating users instead if you need to preserve audit trails or re-enable access later.
+Permanent deletion removes all user data and cannot be undone. Consider deactivation for reversible user management.
 </Aside>
 
-## Error handling
+## Metadata and external IDs
 
-When working with user management operations, handle common errors gracefully:
+Store additional information about users to integrate with your existing systems and business logic.
 
-<Tabs syncKey="tech-stack">
-<TabItem label="Node.js" value="nodejs">
-```javascript
-try {
-  const user = await scalekit.organization.getUser(organizationId, userId);
-} catch (error) {
-  if (error.status === 404) {
-    console.log('User not found');
-  } else if (error.status === 403) {
-    console.log('Access denied');
-  } else {
-    console.error('Unexpected error:', error.message);
+### Using metadata for custom data
+
+**Scenario**: Track user-specific information like department, employee ID, hire date, or application-specific settings.
+
+```javascript title="Create user with metadata"
+const userWithMetadata = await scalekit.user.createUserAndMembership("org_123", {
+  email: "sarah.wilson@example.com",
+  userProfile: {
+    firstName: "Sarah",
+    lastName: "Wilson"
+  },
+  metadata: {
+    department: "Sales",
+    employeeId: "EMP-002",
+    territory: "West Coast",
+    quota: 150000,
+    manager: "john.doe@example.com"
   }
-}
+});
 ```
-</TabItem>
-</Tabs>
+
+### External IDs for system integration
+
+**Scenario**: Link Scalekit users with records in your CRM, HR system, or other business applications.
+
+```javascript title="Update user with external ID"
+const updatedUser = await scalekit.user.updateUser("org_123", "user_456", {
+  externalId: "SALESFORCE-003921", // Link to Salesforce contact
+  metadata: {
+    crmAccountId: "ACC-789",
+    hubspotContactId: "12345"
+  }
+});
+```
+
+This integration approach maintains consistent user identity across your system architecture while keeping Scalekit as the source of truth for authentication and authorization.
+
+## UI components <Badge type="note" text="Coming soon" />
+
+Scalekit will provide ready-to-use UI components that you can embed in your application for common user management tasks:
+
+**User List Component**: Display organization members with filtering, sorting, and pagination capabilities.
+
+**User Profile Component**: Show and edit user profile information with validation and error handling.
+
+**Invitation Component**: Allow organization admins to invite new users with customizable role selection.
+
+These components will integrate directly with Scalekit's APIs while matching your application's design system through customizable themes and styling options.
+
+## What's next?
+
+Now that you understand user management, explore related guides:
+
+- [Configure user roles](/fsa/guides/user-roles/) to define and assign permissions within organizations
+- [Set up SCIM provisioning](/directory/scim/quickstart/) to automate user lifecycle management
+- [Enable Enterprise SSO](/fsa/guides/enterprise-sso/) to streamline authentication for your customers

@@ -184,10 +184,10 @@ export const sidebar = [
         label: 'User management',
         items: [
           'fsa/guides/manage-organization',
+          'fsa/guides/manage-users',
           'fsa/reference/user-profile',
           'fsa/guides/user-roles',
           'fsa/reference/session-configs',
-          'fsa/guides/manage-users',
           'fsa/reference/redirects',
         ],
       },
