@@ -13,6 +13,9 @@ head:
         white-space: nowrap;
       }
 next: false
+tableOfContents:
+  minHeadingLevel: 2
+  maxHeadingLevel: 3
 ---
 
 import { Aside, Steps, Badge, Tabs, TabItem, LinkCard } from '@astrojs/starlight/components';
@@ -84,7 +87,10 @@ Before you begin, ensure you have:
         "state": "jAy-state1-gM4fdZ...2nqm6Q",
         "template": "SIGNIN",
 
-        "magiclink_auth_uri": "https://yourapp.com/passwordless/verify"
+        "magiclink_auth_uri": "https://yourapp.com/passwordless/verify",
+         "template_variables": {
+          "custom_variable_key": "custom_variable_value"
+        }
     }'
 
     # Response
@@ -106,6 +112,7 @@ Before you begin, ensure you have:
       | `state` | No | OIDC state parameter for request validation <Badge variant="note" text="string" /> |
       | `template` | No | Email template to use (`SIGNIN` or `SIGNUP`) <Badge variant="note" text="string" /> |
       | `magiclink_auth_uri` | No | Magic Link URI that will be sent to your user to complete the authentication flow. If the URL is of the format `https://yourapp.com/passwordless/verify`, the magic link sent to your user via email will be `https://yourapp.com/passwordless/verify?link_token=<link_token>`. Required if you selected Link or Link + OTP as the passwordless option.<Badge variant="note" text="string" /> |
+      | `template_variables` | No | Pass variables to be used in the email template sent to the user. You may include up to 30 key-value pairs to reference in the email template. <Badge variant="note" text="object" /> |
     </details>
 
     <details>
@@ -128,7 +135,11 @@ Before you begin, ensure you have:
       state: "jAy-state1-...2nqm6Q",
       expiresIn: 300,
       // Required if you selected Link or Link+OTP as passwordless option
-      magiclinkAuthUri: "https://yourapp.com/passwordless/verify"
+      magiclinkAuthUri: "https://yourapp.com/passwordless/verify",
+      		templateVariables: {
+            employeeID: "EMP523",
+            teamName: "Alpha Team",
+        },
     };
 
     const sendResponse = await scalekit.passwordless
@@ -155,6 +166,8 @@ Before you begin, ensure you have:
       | `state` | No | Optional state parameter to maintain state between request and callback <Badge variant="note" text="string" /> |
       | `expiresIn` | No | Optional expiration time in seconds (default: 300) <Badge variant="note" text="number" /> |
       | `magiclinkAuthUri` | No | Magic Link URI that will be sent to your user to complete the authentication flow. If the URL is of the format `https://yourapp.com/passwordless/verify`, the magic link sent to your user via email will be `https://yourapp.com/passwordless/verify?link_token=<link_token>`. Required if you selected Link or Link + OTP as the passwordless option.<Badge variant="note" text="string" /> |
+      | `template_variables` | No | Pass variables to be used in the email template sent to the user. You may include up to 30 key-value pairs to reference in the email template. <Badge variant="note" text="object" /> |
+
     </details>
 
     <details>
@@ -171,9 +184,6 @@ Before you begin, ensure you have:
     </TabItem>
    </Tabs>
 
-        <Aside type="caution" title="Rate limits">
-        You can send a maximum of 2 passwordless emails per minute per email address, including emails resent.
-        </Aside>
 
 3. ### Resend a verification email
 
@@ -256,6 +266,10 @@ Before you begin, ensure you have:
     </details>
     </TabItem>
    </Tabs>
+
+      <Aside type="caution" title="Rate limits">
+        You can send a maximum of 2 passwordless emails per minute per email address, including emails resent.
+      </Aside>
 
 4. ### Verify the user's identity
 
@@ -448,10 +462,59 @@ Before you begin, ensure you have:
        </Tabs>
      </TabItem>
    </Tabs>
-
 </Steps>
 
 Congratulations! You've successfully implemented passwordless authentication in your application. Users can now sign in securely without passwords by entering a verification code or clicking a magic link sent to their email.
+
+## Customize authentication emails with template variables
+
+Email templates support dynamic content through template variables. Use these variables to personalize authentication emails with custom information like welcome messages, user details, or application-specific data.
+
+Before using template variables:
+1. Configure your custom email template in your [own email provider](/guides/passwordless/custom-email-provider/) or Scalekit's email provider.
+2. Identify the variables you want to replace in your template
+3. Make sure none of your variables use these reserved names (they are reserved and cannot be used): `otp`, `expiry_time_relative`, `link`, `expire_time`, `expiry_time`
+
+**Requirements:**
+- Each template variable must be a key-value pair
+- You can define up to 30 variables per template
+- All variables referenced in your template must have corresponding template variables in the request defined
+
+This is how you can use template variables in your email template:
+
+<Steps>
+  1. Write an email template and use the `{{` and `}}` delimiters to reference the variables.<br />
+     For example:
+     ```html title="Example email template" showLineNumbers=false
+     <p>Hello {{ first_name }},</p>
+     <p>Welcome to {{ company_name }}.</p>
+     <p>Find your onboarding kit: {{ onboarding_resources }}</p>
+     ```
+  2. When sending the passwordless email, pass the template variables in the request.
+     ```js ins={3-8} showLineNumbers=false
+     const sendResponse = await scalekit.passwordless.sendPasswordlessEmail(
+       "<john.doe@example.com>",
+       {
+         templateVariables: {
+           first_name: "John",
+           company_name: "Acme Corp",
+           onboarding_resources: "https://acme.com/onboarding"
+         }
+       }
+     );
+     ```
+  3. The email will be sent with the variables substituted.
+     ```html title="Example email preview" showLineNumbers=false
+     Hello John,
+     Welcome to Acme Corp.
+     Find your onboarding kit: https://acme.com/onboarding
+     ```
+</Steps>
+
+<Aside type="caution">
+  If your email template references a variable that is not provided in the request, the API will return a 400 status code.
+</Aside>
+
 
 ## Next steps
 
@@ -466,9 +529,3 @@ Congratulations! You've successfully implemented passwordless authentication in 
 - Monitor failed authentication attempts for security purposes
 
 </Aside>
-
-<LinkCard
-  title="Need more help?"
-  href="/support/contact-us"
-  description="Reach out to us for any questions or support"
-/>

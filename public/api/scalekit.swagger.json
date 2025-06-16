@@ -1043,214 +1043,27 @@
               "$ref": "#/definitions/clientsCreateOrganizationClientResponse"
             }
           }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/clients/{client_id}": {
-      "get": {
-        "description": "Retrieves the configuration details for an organization's M2M client. This endpoint returns the client's metadata, including its scopes, audience values, custom claims, and associated secrets. Use this to verify client settings or retrieve the list of active secrets.",
-        "tags": ["M2M"],
-        "summary": "Get Organization M2M Client",
-        "operationId": "ClientService_GetOrganizationClient",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the M2M client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the complete M2M client configuration, including all current settings and a list of active secrets. Note that secret values are not included in the response for security reasons.",
-            "schema": {
-              "$ref": "#/definitions/clientsGetOrganizationClientResponse"
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Permanently deletes an M2M client from an organization. This operation cannot be undone and will revoke all access for the client. All associated secrets will also be invalidated. Use this endpoint to remove unused or compromised clients.",
-        "tags": ["M2M"],
-        "summary": "Delete an Organization M2M Client",
-        "operationId": "ClientService_DeleteOrganizationClient",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization that owns the client. Must start with 'org_' prefix.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the M2M client to permanently delete. Must start with 'm2morg_' prefix.",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Organization M2M client successfully deleted and no longer accessible",
-            "schema": {}
-          }
-        }
-      },
-      "patch": {
-        "description": "Updates the configuration settings for an organization's M2M client. This endpoint allows you to modify client properties such as scopes, audience values, and custom claims. Use this to adjust access permissions or update metadata for the client. Note that client_id and create_time are immutable and cannot be modified.",
-        "tags": ["M2M"],
-        "summary": "Update Organization M2M client details",
-        "operationId": "ClientService_UpdateOrganizationClient",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "client",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "Updated details for the client",
-              "$ref": "#/definitions/clientsOrganizationClient"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the updated organization M2M client with all current details reflected in the response, including modified scopes, audience values, and custom claims.",
-            "schema": {
-              "$ref": "#/definitions/clientsUpdateOrganizationClientResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
-      "post": {
-        "description": "Generates a new client secret for an organization's M2M client. This endpoint creates a secure credential that can be used for OAuth 2.0 client credentials flow. The plain secret is only returned once during creation and should be stored securely by the client application. Use this endpoint to rotate secrets or create additional credentials for different environments.",
-        "tags": ["M2M"],
-        "summary": "Create a Secret for Organization M2M Client",
-        "operationId": "ClientService_CreateOrganizationClientSecret",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Client secret created successfully. Returns the new secret ID and the plain secret value (only available at creation time). The secret can be used immediately for authentication.",
-            "schema": {
-              "$ref": "#/definitions/clientsCreateOrganizationClientSecretResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets/{secret_id}": {
-      "delete": {
-        "description": "Permanently deletes a client secret for an organization's M2M client. This operation cannot be undone. Use this endpoint to remove compromised or unused secrets. After deletion, the secret can no longer be used for authentication. Consider creating a new secret before deleting the old one to avoid service interruption.",
-        "tags": ["M2M"],
-        "summary": "Delete an Organization M2M Client Secret",
-        "operationId": "ClientService_DeleteOrganizationClientSecret",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client",
-            "name": "client_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier of the client secret",
-            "name": "secret_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Client secret successfully deleted and no longer accessible",
-            "schema": {}
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{organization_id}/clients": {
-      "post": {
-        "description": "Creates a new M2M client for an organization. This endpoint registers a new client application that can securely access your API on behalf of the organization. The response includes a client ID and secret that should be used for OAuth 2.0 client credentials flow. The plain secret is only returned once during creation and must be stored securely.",
-        "tags": ["M2M"],
-        "summary": "Create an Organization M2M Client",
-        "operationId": "ClientService_CreateOrganizationClient",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "client",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "Details of the client to be created",
-              "$ref": "#/definitions/clientsOrganizationClient"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "M2M client created successfully. Returns the client ID and plain secret (only available at creation time). The client can be configured with scopes, audience values, and custom claims for fine-grained access control.",
-            "schema": {
-              "$ref": "#/definitions/clientsCreateOrganizationClientResponse"
-            }
-          }
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const client = await sc.client.createOrganizationClient(\n  organizationId,\n  {\n    displayName: 'My M2M Client',\n  }\n);"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\nm2m_client = OrganizationClient(\n    name=\"GitHub Actions Deployment Service\",\n    description=\"Service account for GitHub Actions to deploy applications to production\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory-service\"},\n        {\"key\": \"environment\", \"value\": \"production_us\"}\n    ],\n    scopes=[\"deploy:applications\", \"read:deployments\"],\n    audience=[\"deployment-api.acmecorp.com\"],\n    expiry=3600\n)\n\nresponse = sc.m2m_client.create_organization_client(\n    organization_id=\"SCALEKIT_ORGANIZATION_ID\",\n    m2m_client=m2m_client\n)"
+            "source": "client = sc.client.create_organization_client(\n  organization_id,\n  {\n    \"display_name\": \"My M2M Client\"\n  }\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "client, err := sc.Client.CreateOrganizationClient(\n  ctx,\n  organizationId,\n  &scalekit.CreateOrganizationClientOptions{\n    DisplayName: \"My M2M Client\",\n  },\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "CreateOrganizationClient createM2MClient = CreateOrganizationClient.newBuilder()\n  .setDisplayName(\"My M2M Client\")\n  .build();\n\nM2MClient client = scalekitClient.clients().create(organizationId, createM2MClient);"
           }
         ]
       }
@@ -1287,9 +1100,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const client = await sc.client.getOrganizationClient(\n  organizationId,\n  clientId\n);"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Get client ID from environment variables\norg_id = 'SCALEKIT_ORGANIZATION_ID'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Fetch client details for the specified organization\nresponse = sc.m2m_client.get_organization_client(\n    organization_id=org_id,\n    client_id=client_id\n)"
+            "source": "client = sc.client.get_organization_client(\n  organization_id,\n  client_id\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "client, err := sc.Client.GetOrganizationClient(\n  ctx,\n  organizationId,\n  clientId,\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "M2MClient client = scalekitClient.clients().getById(clientId, organizationId);"
           }
         ]
       },
@@ -1322,9 +1150,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await sc.client.deleteOrganizationClient(organizationId, clientId);"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Get client ID from environment variables\norg_id = '\u003cSCALEKIT_ORGANIZATION_ID\u003e'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Delete the specified client from the organization\nresponse = sc.m2m_client.delete_organization_client(\n    organization_id=org_id,\n    client_id=client_id\n)"
+            "source": "sc.client.delete_organization_client(\n  organization_id,\n  client_id\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := sc.Client.DeleteOrganizationClient(\n  ctx,\n  organizationId,\n  clientId,\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "scalekitClient.clients().deleteById(clientId, organizationId);"
           }
         ]
       },
@@ -1368,9 +1211,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const updatedClient = await sc.client.updateOrganizationClient(\n  organizationId,\n  clientId,\n  {\n    displayName: 'Updated Client',\n  }\n);"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\norg_id = '\u003cSCALEKIT_ORGANIZATION_ID\u003e'\nclient_id = os.environ['M2M_CLIENT_ID']\n\nupdate_m2m_client = OrganizationClient(\n    description=\"Service account for GitHub Actions to deploy applications to production_eu\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory\"},\n        {\"key\": \"environment\", \"value\": \"production_eu\"}\n    ]\n)\n\nresponse = sc.m2m_client.update_organization_client(\n    organization_id=org_id,\n    client_id=client_id,\n    m2m_client=update_m2m_client\n)"
+            "source": "updated_client = sc.client.update_organization_client(\n  organization_id,\n  client_id,\n  {\n    \"display_name\": \"Updated Client\"\n  }\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "updatedClient, err := sc.Client.UpdateOrganizationClient(\n  ctx,\n  organizationId,\n  clientId,\n  &scalekit.UpdateOrganizationClient{\n    DisplayName: \"Updated Client\",\n  },\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "UpdateOrganizationClient updateClient = UpdateOrganizationClient.newBuilder()\n  .setDisplayName(\"Updated Client\")\n  .build();\n\nM2MClient updated = scalekitClient.clients().updateById(clientId, organizationId, updateClient);"
           }
         ]
       }
@@ -1407,9 +1265,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const secret = await sc.client.createOrganizationClientSecret(\n  organizationId,\n  clientId\n);"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Get client ID from environment variables\norg_id = 'SCALEKIT_ORGANIZATION_ID'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Add a new secret to the specified client\nresponse = sc.m2m_client.add_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id\n)\n\n# Extract the secret ID from the response\nsecret_id = response[0].secret.id"
+            "source": "secret = sc.client.create_organization_client_secret(\n  organization_id,\n  client_id\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "secret, err := sc.Client.CreateOrganizationClientSecret(\n  ctx,\n  organizationId,\n  clientId,\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ClientSecret secret = scalekitClient.clients().createSecret(clientId, organizationId);"
           }
         ]
       }
@@ -1451,9 +1324,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await sc.client.deleteOrganizationClientSecret(\n  organizationId,\n  clientId,\n  secretId\n);"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Get client and secret IDs from environment variables\norg_id = '\u003cSCALEKIT_ORGANIZATION_ID\u003e'\nclient_id = os.environ['M2M_CLIENT_ID']\nsecret_id = os.environ['M2M_SECRET_ID']\n\n# Remove the specified secret from the client\nresponse = sc.m2m_client.remove_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id,\n    secret_id=secret_id\n)"
+            "source": "sc.client.delete_organization_client_secret(\n  organization_id,\n  client_id,\n  secret_id\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := sc.Client.DeleteOrganizationClientSecret(\n  ctx,\n  organizationId,\n  clientId,\n  secretId,\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "scalekitClient.clients().deleteSecretById(secretId, clientId, organizationId);"
           }
         ]
       }
@@ -1648,6 +1536,11 @@
           "description": "Specifies the authentication intent for the passwordless request. Use SIGNIN for existing users or SIGNUP for new user registration. This affects the email template and user experience flow.",
           "$ref": "#/definitions/passwordlessTemplateType",
           "example": "SIGNIN"
+        },
+        "template_variables": {
+          "description": "A set of key-value pairs to personalize the email template.\n\n* You may include up to 30 key-value pairs.\n* The following variable names are reserved by the system and cannot be supplied: `otp`, `expiry_time_relative`, `link`, `expire_time`, `expiry_time`.\n* Every variable referenced in your email template must be included as a key-value pair.\n\nUse these variables to insert custom information, such as a team name, URL or the user's employee ID. All variables are interpolated before the email is sent, regardless of the email provider.",
+          "type": "object",
+          "example": "{\"custom_variable_key\": \"custom_variable_value\"}"
         }
       }
     },
@@ -2919,6 +2812,14 @@
     {
       "description": " Connection represents a unique Single Sign-on instance for an Organization. Connection has the configuration needed to establish an SSO and exchange user information securely between Scalekit and your customer's Identity Provider. Depending on the connection type parameter, the corresponding configuration details are found in `oidc_config` or `saml_config` parameter.\n\u003c!--\n**Connection Attributes**\n\n| Attribute Name | Attribute Description |\n|---|---|\n| `id`\u003cbr\u003e_string_ | Unique ID of an SSO Connection. This attribute is required for all API operations to be performed against this connection.  |\n| `provider`\u003cbr\u003e_ENUM_ | Name of the Identity Provider. Possible Values are: `OKTA`, `GOOGLE`, `MICROSOFT_AD`, `AUTH0`, `ONELOGIN`, `PING_IDENTITY`, `JUMPCLOUD`, `CUSTOM` |\n| `type`\u003cbr\u003e_ENUM_ | Protocol type that is used for this connection. Possible values are `SAML` or `OIDC` |\n| `status`\u003cbr\u003e_ENUM_ | Indicates the configuration progress status of the SSO Connection. Possible Values are `DRAFT`, `INPROGRESS`, `COMPLETED`. \u003cbr\u003e_Note_: This doesn't indicate whether this connection is active or not. |\n| `enabled`\u003cbr\u003e_boolean_ | Indicates whether this connection is active or not. Users can only login via active SSO connections. |\n| `organization_id`\u003cbr\u003e_string_ | Organization ID to which this SSO connection belongs to. |\n| `saml_config`\u003cbr\u003e_Object_ | If this connection is of type `SAML`, the configuration details are found in this object. |\n| `oidc_config`\u003cbr\u003e_Object_ | If this connection is of type `OIDC`, the configuration details are found in this object. |\n| `attribute_mapping`\u003cbr\u003e_Object_ | Array of attribute mappings using which the user information received from the Identity Provider is normalized. Example: \u003ccode\u003e \u003cbr/\u003e{ \u003cbr/\u003e\u0026nbsp;\u0026nbsp; \"email\": \"email\",\u003cbr/\u003e\u0026nbsp;\u0026nbsp; \"family_name\": \"lastName\", \u003cbr/\u003e\u0026nbsp;\u0026nbsp; \"given_name\": \"firstName\",\u003cbr/\u003e\u0026nbsp;\u0026nbsp;\u0026nbsp;\"sub\": \"nameid\" \u003cbr/\u003e} \u003c/code\u003e |\n| `create_time` | Timestamp at which this connection record was created in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. For Example: `2021-10-05T14:48:00.000Z` |\n| `update_time`\u003cbr\u003e_string_ | Timestamp at which this connection record was last updated in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format. For Example: `2021-10-10T14:48:00.000Z` | --\u003e\n",
       "name": "Connections"
+    },
+    {
+      "description": "The Passwordless Auth API allows you to implement passwordless authentication in your application. This API enables users to authenticate without passwords using one-time codes sent via email. It supports both verification code and magic link authentication methods, providing a secure and user-friendly authentication experience.",
+      "name": "Passwordless Auth"
+    },
+    {
+      "description": "M2M authentication secures interactions between software systems that operate without human intervention. This authentication method enables AI agents, apps, automation tools, and workflows to interact with your API securely.",
+      "name": "M2M"
     }
   ],
   "externalDocs": {
