@@ -236,7 +236,7 @@ export const sidebar = [
   {
     label: 'Integrations',
     id: 'integrations',
-    link: 'guides/integrations/sso-integrations',
+    link: '/guides/integrations',
     icon: 'puzzle',
     items: [
       {
@@ -257,6 +257,7 @@ export const topics = {
     '/index', // Exclude index by name
     '/guides/redirects',
     '/guides/integrations',
+    '/guides/integrations/index', // Exclude the integrations overview page from sidebar
     '/home/guides/**/*',
     '/home/guides/admin-portal',
     '/home/**/*',
@@ -265,4 +266,5 @@ export const topics = {
     '/guides/mcp/additional-reading',
   ],
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
+  integrations: ['/guides/integrations/**/*'], // Associate all integration pages with the integrations topic
 };
