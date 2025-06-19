@@ -186,6 +186,7 @@ export const sidebar = [
           'fsa/guides/manage-organization',
           'fsa/guides/organization-switching',
           'fsa/guides/manage-users',
+          'fsa/guides/invite-only-signup',
           'fsa/reference/user-profile',
           'fsa/guides/user-roles',
           'fsa/reference/session-configs',
