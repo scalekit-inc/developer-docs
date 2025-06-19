@@ -1,0 +1,68 @@
+---
+title: "Organization switching and access control"
+description: "Learn how Scalekit handles users who belong to multiple organizations and need to switch between different workspaces."
+sidebar:
+  label: "Organization switcher"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev: false
+next: false
+---
+import { Card, Badge, Steps, TabItem, Tabs, Aside, LinkCard } from '@astrojs/starlight/components';
+import CheckItem from '@/components/ui/CheckItem.astro';
+
+Organization switching allows users to access multiple organizations or workspaces within your application. This feature is essential for B2B applications where users may belong to several organizations simultaneously, such as their own company and client organizations they work with.
+
+![](@/assets/docs/fsa/org-switcher/1-switchr.png)
+
+## Common organization switching scenarios
+
+**Personal workspace to corporate workspace**
+
+A user might sign up for your app using their organization's email address, which creates their personal workspace. Later, when their organization subscribes to your app, a new corporate workspace is created (for example, "AcmeCorp workspace").
+
+Scalekit automatically detects when users belong to multiple organizations and presents them with an organization switcher. Users can then choose which workspace to access when signing into your app.
+
+**Multi-organization contractors**
+
+Many organizations work with external consultants or contractors who may belong to multiple organizations, each with their own SSO authentication policies. These users need to seamlessly switch between different client organizations while maintaining secure access to each workspace.
+
+
+## How Scalekit handles organization switching
+
+{/* <!-- TODO: Add a diagram here --> */}
+
+<Steps>
+
+1.  Click **Sign In** on your application.
+2.  Your application redirects you to the sign-in page.
+3.  Authenticate using one of the available sign-in methods.
+4.  Scalekit displays a list of organizations that you belong to.
+5.  Select the organization that you want to sign in to.
+6.  You are redirected to the organization's workspace and signed in.
+
+</Steps>
+
+<Aside type="note">
+  For organizations with Single Sign-On (SSO) enabled on a verified domain, the sign-in flow is automated. When a user enters their work email address, Scalekit redirects them to their organization's identity provider to sign in. The organization selection step is skipped.
+</Aside>
+
+Scalekit provides built-in support for organization switching through the following features:
+
+- **Automatic organization detection**: Scalekit identifies all organizations a user belongs to based on their email domain and invitation status
+- **Organization switcher UI**: Users see a list of available organizations when signing in
+- **Cross-organization authentication**: Users can access multiple organizations with different authentication policies <Badge type="tip" text="Coming soon" />
+- **Secure session management**: Each organization maintains its own authentication context and policies
+
+## What's next?
+
+- [Implement user sign in](/fsa/guides/implement-signin/) to set up the foundation for organization switching
+- [Configure authentication methods](/fsa/guides/auth-methods/) to handle different SSO policies across organizations
+- [Manage user sessions](/fsa/guides/manage-session/) to handle authentication across multiple workspaces

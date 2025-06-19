@@ -184,6 +184,7 @@ export const sidebar = [
         label: 'User management',
         items: [
           'fsa/guides/manage-organization',
+          'fsa/guides/organization-switching',
           'fsa/guides/manage-users',
           'fsa/reference/user-profile',
           'fsa/guides/user-roles',
