@@ -184,11 +184,11 @@ export const sidebar = [
         label: 'User management',
         items: [
           'fsa/guides/manage-organization',
+          'fsa/guides/just-in-time-provisioning',
           'fsa/guides/organization-switching',
           // 'fsa/guides/manage-users', // TODO: is it needed? assess later
           'fsa/guides/invite-only-signup',
           'fsa/guides/merge-identities',
-          'fsa/guides/just-in-time-provisioning',
           'fsa/reference/user-profile',
           'fsa/guides/user-roles',
           'fsa/reference/session-configs',

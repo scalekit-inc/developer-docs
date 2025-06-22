@@ -1,6 +1,7 @@
 ---
 title: Just-in-time provisioning
-description: Learn how to provision users just-in-time.
+description: Automatically create user accounts when users sign in for the first time
+tableOfContents: false
 sidebar:
   label: "JIT Provisioning"
   badge:
@@ -22,13 +23,52 @@ next:
   label: "User profile reference"
   link: "/fsa/reference/user-profile/"
 
-
 ---
 
 import { Badge } from '@astrojs/starlight/components';
 
-When users attempt to sign in (usually via SSO) for the first time, their accounts can be created automatically without requiring pre-registration. This streamlines onboarding for enterprise customers.
+Just-in-time (JIT) provisioning automatically creates user accounts when someone tries to sign in for the first time. Instead of requiring manual account creation or pre-registration, users can access your application immediately using their existing identity.
 
-**Scenario**: An employee at your customer's company tries to access your application through their company's SSO portal. Their account is created automatically based on their corporate identity.
+**JIT provisioning works across the web** - from enterprise applications where employees access company tools through their corporate identity, to consumer apps where users sign in with social accounts like Google or GitHub.
 
-JIT provisioning will be configurable through the Scalekit Dashboard, allowing you to control which users can be automatically provisioned based on their email domain or group memberships.
+When a user attempts to sign in for the first time, Scalekit automatically:
+
+1. **Creates a user account** based on their identity information
+2. **Sets up their profile** with details from their identity provider
+3. **Grants appropriate access** based on your application's rules
+
+This happens seamlessly in the background, so users can start using your application immediately.
+
+{/**
+ * TODO: Add a diagram showing the JIT provisioning flow here
+ */}
+
+## Authentication methods
+
+Scalekit supports JIT provisioning through three main authentication methods:
+
+**Social login and passwordless authentication**
+
+When users sign in with social login (Google, GitHub, etc.) or passwordless authentication for the first time, Scalekit automatically creates their account and user profile.
+
+**Example**: A user clicks "Sign in with Google" on your application. If they haven't used your app before, Scalekit creates their account automatically using their Google profile information.
+
+**Single sign-on (SSO)**
+
+Organizations can configure SSO for their users. When SSO is integrated with Scalekit and organization administrators have [verified their domains](/fsa/guides/merge-identities/#verify-organization-domains), Scalekit automatically creates user accounts.
+
+Users access your application through their organization's SSO portal. Scalekit creates accounts automatically for verified domain users. Contractors using external email addresses must be [invited](/fsa/guides/invite-only-signup/) first.
+
+Many organizations maintain catalogs of approved applications. When users access your app from their catalog for the first time, JIT provisioning happens automatically.
+
+**SCIM provisioning** <Badge type="note" text="Coming soon" />
+
+Organizations use [SCIM provisioning](/directory/scim/quickstart/) to sync user data from their identity provider. Scalekit automatically creates accounts for users provisioned through SCIM.
+
+## Getting started
+
+If your application is integrated with Scalekit, JIT provisioning is available by default. To integrate Scalekit with your application, see our [Quickstart guide](/fsa/quickstart/).
+
+{/**
+ * TODO: Confirm if JIT is enabled by default and mention it explicitly here
+ */}
