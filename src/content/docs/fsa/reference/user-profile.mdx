@@ -72,6 +72,12 @@ Scalekit automatically converts all these variations into a standard format, so 
     ```
 </Steps>
 
+{ /**
+ TODO: Definitely needs the getUser API endpoint sorted to document it
+ */}
+
+{ /*
+
 ## Access user profile data
 
 User profiles contain both standardized attributes and the original data from identity providers, giving you flexibility in how you use the information.
@@ -80,41 +86,147 @@ User profiles contain both standardized attributes and the original data from id
 
 **Scenario**: Display a user's profile information in your application's settings page or admin dashboard.
 
-```javascript title="Retrieve user profile"
-const user = await scalekit.user.getUser("org_123", "user_456");
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+    ```javascript
+    const user = await scalekit.user.getUser("org_123", "usr_456");
 
-// Access normalized profile data
-console.log('User email:', user.email);
-console.log('Full name:', user.name);
-console.log('First name:', user.userProfile.firstName);
-console.log('Last name:', user.userProfile.lastName);
-console.log('Profile picture:', user.picture);
-console.log('Email verified:', user.emailVerified);
+    // Access normalized profile data
+    console.log("User email:", user.email);
+    console.log("Full name:", user.name);
+    console.log("First name:", user.userProfile.firstName);
+    console.log("Last name:", user.userProfile.lastName);
+    console.log("Profile picture:", user.picture);
+    console.log("Email verified:", user.emailVerified);
 
-// Access custom metadata
-console.log('Department:', user.metadata?.department);
-console.log('Role:', user.metadata?.role);
-```
+    // Access custom metadata
+    console.log("Department:", user.metadata?.department);
+    console.log("Role:", user.metadata?.role);
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    user, _ = sc.users.get_user("org_123", "usr_456")
+
+    print("User email:", user.email)
+    print("Full name:", user.name)
+    print("First name:", user.user_profile.first_name)
+    print("Last name:", user.user_profile.last_name)
+    print("Profile picture:", user.picture)
+    print("Email verified:", user.email_verified)
+
+    # Custom metadata
+    print("Department:", user.metadata.get("department"))
+    print("Role:", user.metadata.get("role"))
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go
+    user, err := sc.User().GetUser(ctx, "org_123", "usr_456")
+    if err != nil { log.Fatal(err) }
+
+    fmt.Println("User email:", user.Email)
+    fmt.Println("Full name:", user.Name)
+    fmt.Println("First name:", user.UserProfile.FirstName)
+    fmt.Println("Last name:", user.UserProfile.LastName)
+    fmt.Println("Profile picture:", user.Picture)
+    fmt.Println("Email verified:", user.EmailVerified)
+
+    fmt.Println("Department:", user.Metadata["department"])
+    fmt.Println("Role:", user.Metadata["role"])
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java
+    GetUserResponse res = users.getUser("org_123", "usr_456");
+    var user = res.getUser();
+
+    System.out.println("User email: " + user.getEmail());
+    System.out.println("Full name: " + user.getName());
+    System.out.println("First name: " + user.getUserProfile().getFirstName());
+    System.out.println("Last name: " + user.getUserProfile().getLastName());
+    System.out.println("Profile picture: " + user.getPicture());
+    System.out.println("Email verified: " + user.getEmailVerified());
+
+    System.out.println("Department: " + user.getMetadataMap().get("department"));
+    System.out.println("Role: " + user.getMetadataMap().get("role"));
+    ```
+  </TabItem>
+</Tabs>
 
 ### Access original provider data
 
 **Scenario**: You need specific attributes that your identity provider sends but aren't part of the standard profile, such as employee ID from Active Directory or custom claims.
 
-```javascript title="Access provider-specific data"
-const user = await scalekit.user.getUser("org_123", "user_456");
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+    ```javascript
+    const user = await scalekit.user.getUser("org_123", "usr_456");
 
-// Access raw attributes from the identity provider
-if (user.identities && user.identities.length > 0) {
-  const identity = user.identities[0];
-  const rawAttributes = identity.providerRawAttributes;
+    if (user.identities?.length) {
+      const identity = user.identities[0];
+      const raw = identity.providerRawAttributes;
 
-  console.log('Provider name:', identity.providerName);
-  console.log('Connection type:', identity.connectionType);
-  console.log('Employee ID:', rawAttributes.employeeId);
-  console.log('Department from IdP:', rawAttributes.department);
-  console.log('All raw attributes:', rawAttributes);
-}
-```
+      console.log("Provider name:", identity.providerName);
+      console.log("Connection type:", identity.connectionType);
+      console.log("Employee ID:", raw.employeeId);
+      console.log("Department from IdP:", raw.department);
+      console.log("All raw attributes:", raw);
+    }
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    user, _ = sc.users.get_user("org_123", "usr_456")
+
+    if user.identities:
+        identity = user.identities[0]
+        raw = identity.provider_raw_attributes
+
+        print("Provider name:", identity.provider_name)
+        print("Connection type:", identity.connection_type)
+        print("Employee ID:", raw.get("employeeId"))
+        print("Department from IdP:", raw.get("department"))
+        print("All raw attributes:", raw)
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go
+    user, err := sc.User().GetUser(ctx, "org_123", "usr_456")
+    if err != nil { log.Fatal(err) }
+
+    if len(user.Identities) > 0 {
+        id := user.Identities[0]
+        raw := id.ProviderRawAttributes.AsMap()
+
+        fmt.Println("Provider name:", id.ProviderName)
+        fmt.Println("Connection type:", id.ConnectionType)
+        fmt.Println("Employee ID:", raw["employeeId"])
+        fmt.Println("Department from IdP:", raw["department"])
+        fmt.Println("All raw attributes:", raw)
+    }
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java
+    GetUserResponse res = users.getUser("org_123", "usr_456");
+    var user = res.getUser();
+
+    if (!user.getIdentitiesList().isEmpty()) {
+        var id = user.getIdentities(0);
+        var raw = id.getProviderRawAttributesMap();
+
+        System.out.println("Provider name: " + id.getProviderName());
+        System.out.println("Connection type: " + id.getConnectionType());
+        System.out.println("Employee ID: " + raw.get("employeeId"));
+        System.out.println("Department from IdP: " + raw.get("department"));
+        System.out.println("All raw attributes: " + raw);
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+*/}
 
 ## Update user profiles
 
@@ -124,43 +236,169 @@ Users need to keep their profile information current, and administrators may nee
 
 **Scenario**: A user's name changes due to marriage, or an administrator needs to update a user's department after an internal transfer.
 
-```javascript title="Update user profile"
-const updatedUser = await scalekit.user.updateUser("org_123", "user_456", {
-  userProfile: {
-    firstName: "Jane",
-    lastName: "Smith" // Updated after marriage
-  },
-  metadata: {
-    department: "Product", // Transferred departments
-    role: "Senior Developer",
-    lastUpdated: new Date().toISOString(),
-    manager: "john.doe@example.com"
-  }
-});
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+    ```javascript
+    const updatedUser = await scalekit.user.updateUser("usr_456", {
+      userProfile: {
+        firstName: "Jane",
+        lastName: "Smith", // Updated after marriage
+      },
+      metadata: {
+        department: "Product",            // Transferred departments
+        role: "Senior Developer",
+        lastUpdated: new Date().toISOString(),
+        manager: "john.doe@example.com",
+      },
+    });
 
-console.log('User profile updated:', updatedUser.id);
-```
+    console.log("User profile updated:", updatedUser.id);
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    from datetime import datetime
+    from scalekit.v1.users.users_pb2 import UpdateUser
+    from scalekit.v1.commons.commons_pb2 import UserProfile
+
+    update_user = UpdateUser(
+        user_profile=UserProfile(
+            first_name="Jane",
+            last_name="Smith",
+        ),
+        metadata={
+            "department": "Product",
+            "role": "Senior Developer",
+            "manager": "john.doe@example.com",
+            "lastUpdated": datetime.utcnow().isoformat(),
+        },
+    )
+
+    sc.users.update_user(user_id="usr_456", user=update_user)
+    print("User profile updated!")
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go
+    upd := &usersv1.UpdateUser{
+        UserProfile: &usersv1.UpdateUserProfile{
+            FirstName: "Jane",
+            LastName:  "Smith",
+        },
+        Metadata: map[string]string{
+            "department": "Product",
+            "role":       "Senior Developer",
+            "manager":    "john.doe@example.com",
+        },
+    }
+
+    resp, err := sc.User().UpdateUser(ctx, "usr_456", upd)
+    if err != nil {
+        log.Fatalf("update user: %v", err)
+    }
+    fmt.Println("User profile updated:", resp.User.Id)
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java
+    UpdateUser upd = UpdateUser.newBuilder()
+        .setUserProfile(UpdateUserProfile.newBuilder()
+            .setFirstName("Jane")
+            .setLastName("Smith")
+            .build())
+        .putMetadata("department", "Product")
+        .putMetadata("role", "Senior Developer")
+        .putMetadata("manager", "john.doe@example.com")
+        .build();
+
+    UpdateUserResponse res = users.updateUser(
+        "usr_456",
+        UpdateUserRequest.newBuilder().setUser(upd).build()
+    );
+    System.out.println("User profile updated: " + res.getUser().getId());
+    ```
+  </TabItem>
+</Tabs>
 
 ### Update user metadata
 
 **Scenario**: Store application-specific information like user preferences, billing details, or custom attributes that enhance your user experience.
 
-```javascript title="Update user metadata"
-const updatedUser = await scalekit.user.updateUser("org_123", "user_456", {
-  metadata: {
-    theme: "dark",
-    timezone: "America/New_York",
-    notificationPreferences: {
-      email: true,
-      slack: false,
-      mobile: true
-    },
-    lastLoginAt: new Date().toISOString()
-  }
-});
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+    ```javascript
+    const updatedUser = await scalekit.user.updateUser("usr_456", {
+      metadata: {
+        theme: "dark",
+        timezone: "America/New_York",
+        notificationPreferences: {
+          email: true,
+          slack: false,
+          mobile: true,
+        },
+        lastLoginAt: new Date().toISOString(),
+      },
+    });
 
-console.log('User metadata updated');
-```
+    console.log("User metadata updated");
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    from datetime import datetime
+    from scalekit.v1.users.users_pb2 import UpdateUser
+
+    update_user = UpdateUser(
+        metadata={
+            "theme": "dark",
+            "timezone": "America/New_York",
+            "notificationPreferences": {
+                "email": True,
+                "slack": False,
+                "mobile": True,
+            },
+            "lastLoginAt": datetime.utcnow().isoformat(),
+        },
+    )
+
+    sc.users.update_user(user_id="usr_456", user=update_user)
+    print("User metadata updated")
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go
+    upd := &usersv1.UpdateUser{
+        Metadata: map[string]string{
+            "theme":      "dark",
+            "timezone":   "America/New_York",
+            "lastLoginAt": time.Now().Format(time.RFC3339),
+        },
+    }
+
+    if _, err := sc.User().UpdateUser(ctx, "usr_456", upd); err != nil {
+        log.Fatalf("update metadata: %v", err)
+    }
+    fmt.Println("User metadata updated")
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java
+    UpdateUser upd = UpdateUser.newBuilder()
+        .putMetadata("theme", "dark")
+        .putMetadata("timezone", "America/New_York")
+        .putMetadata("lastLoginAt", Instant.now().toString())
+        .build();
+
+    users.updateUser(
+        "usr_456",
+        UpdateUserRequest.newBuilder().setUser(upd).build()
+    );
+    System.out.println("User metadata updated");
+    ```
+  </TabItem>
+</Tabs>
+
+
 
 ## User profile structure
 
@@ -171,18 +409,12 @@ Understanding the normalized profile structure helps you work with user data eff
   "id": "user_456",
   "email": "john.doe@acmecorp.com",
   "emailVerified": true,
-  "userProfile": {
-    "firstName": "John",
-    "lastName": "Doe"
-  },
   "name": "John Doe",
+  "givenName": "John",
+  "familyName": "Doe",
   "picture": "https://lh3.googleusercontent.com/a/ACg8ocKNE4TZ...iEma17URCEf=s96-c",
   "locale": "en",
-  "metadata": {
-    "department": "Engineering",
-    "role": "Developer",
-    "employeeId": "EMP-001"
-  },
+  "metadata": "{\"department\":\"Engineering\",\"role\":\"Developer\",\"employeeId\":\"EMP-001\"}", // optional
   "identities": [
     {
       "connectionId": "conn_17576372041941092",
@@ -190,16 +422,7 @@ Understanding the normalized profile structure helps you work with user data eff
       "connectionType": "OIDC",
       "providerName": "Google",
       "social": true,
-      "providerRawAttributes": {
-        "sub": "google-oauth2|104630259163176101050",
-        "email": "john.doe@acmecorp.com",
-        "email_verified": true,
-        "given_name": "John",
-        "family_name": "Doe",
-        "name": "John Doe",
-        "picture": "https://lh3.googleusercontent.com/a/ACg8ocKNE4T...17URCEf=s96-c",
-        "locale": "en"
-      }
+      "providerRawAttributes": "{\"sub\":\"google-oauth2|104630259163176101050\",\"email\":\"john.doe@acmecorp.com\",...}"
     }
   ]
 }
