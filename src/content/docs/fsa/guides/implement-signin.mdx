@@ -62,9 +62,82 @@ Let's get started!
   2. ## Redirect to the login page
        Generate the authorization URL to redirect users to the Scalekit-hosted login page. To get a `refreshToken` for session management, ensure you include `offline_access` in the scopes.
 
-      <RedirectAuthPageSection />
+      <Tabs syncKey="tech-stack">
+        <TabItem value="node" label="Node.js">
+          ```javascript title="Express.js" wrap "authorizationUrl" ins={3} {"Redirect user to Scalekit's authentication page":8}
+          const redirectUri = 'http://localhost:3000/api/callback';
+          const options = {
+            scopes: ['openid', 'profile', 'email', 'offline_access'],
+          };
+
+          const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+
+          res.redirect(authorizationUrl);
+          ```
+          <Aside type="note">
+        Pass `prompt: 'login'` as an option to explicitly take users to the sign in flow even if they are already logged in.
+      </Aside>
+        </TabItem>
+        <TabItem value="python" label="Python">
+          ```python title="Flask"
+          from scalekit import AuthorizationUrlOptions
+
+          redirect_uri = 'http://localhost:3000/api/callback'
+          options = AuthorizationUrlOptions(
+              scopes=['openid', 'profile', 'email', 'offline_access'],
+          )
+
+          authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+
+          # For web frameworks like Flask/Django:
+          # return redirect(authorization_url)
+          ```
+          <Aside type="note">
+        Pass `prompt='login'` as an option to explicitly take users to the sign in flow even if they are already logged in.
+      </Aside>
+        </TabItem>
+        <TabItem value="go" label="Go">
+          ```go title="Gin"
+          redirectUri := "http://localhost:3000/api/callback"
+          options := scalekit.AuthorizationUrlOptions{
+              Scopes: []string{"openid", "profile", "email", "offline_access"},
+          }
+
+          authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+          if err != nil {
+              // handle error appropriately
+              panic(err)
+          }
+
+          // For web frameworks like Gin:
+          // c.Redirect(http.StatusFound, authorizationUrl.String())
+          ```
+          <Aside type="note">
+        Pass `Prompt: "login"` as an option to explicitly take users to the sign in flow even if they are already logged in.
+      </Aside>
+        </TabItem>
+        <TabItem value="java" label="Java">
+          ```java title="Spring"
+          import com.scalekit.internal.http.AuthorizationUrlOptions;
+          import java.net.URL;
+          import java.util.Arrays;
+
+          String redirectUri = "http://localhost:3000/api/callback";
+          AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+          options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+
+          URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+          ```
+          <Aside type="note">
+        Pass `options.setPrompt("login")` as an option to explicitly take users to the sign in flow even if they are already logged in.
+      </Aside>
+        </TabItem>
+      </Tabs>
+
 
      This will redirect the user to Scalekit's hosted sign-in page.
+
+
 
 3. ## Handle user authentication
       Users can now sign in using their preferred method. Scalekit handles the authentication details based on your configuration.
