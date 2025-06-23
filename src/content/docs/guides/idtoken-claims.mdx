@@ -53,12 +53,32 @@ Here's an example of the payload. Note this is formatted for readability and the
 | `locale`         | Optional | User's locale (BCP 47 language tag)          |
 | `picture`        | Optional | URL of user's profile picture                |
 
-## Usage
-1. The ID token is received over a secure HTTPS channel using the client secret.
-2. Validation of the ID token is handled automatically when using the Scalekit SDK.
-3. The `sub` claim combines the `connection_id` and the provider's unique identifier.
-4. The `iss` claim must match your Scalekit environment URL.
-5. The `amr` claim typically contains the `connection_id` used for authentication.
+## Verifying the ID token
+
+In some cases, you may need to parse the ID token manually—for example, to access custom claims that are not part of the standard `User` object in the SDK method. These details are encoded in the ID token as JSON Web Token (JWT).
+
+To verify the signature, you need to:
+
+1.  Fetch the public signing keys from the JSON Web Key Set (JWKS) endpoint.
+2.  Use a JWT library for your language to decode and verify the token using the keys.
+
+The JWKS endpoint for your environment is located at:
+
+```sh
+https://<YOUR_ENVIRONMENT_URL>/keys
+```
+
+For example, if your Scalekit Environment URL is `https://your-environment.scalekit.com`, the keys can be found at `https://your-environment.scalekit.com/keys`.
+
+### Important claims
+
+When validating, pay special attention to these claims:
+
+-   **`iss` (Issuer)**: This must match your Scalekit environment URL.
+-   **`aud` (Audience)**: This must match your application's client ID.
+-   **`exp` (Expiration Time)**: Ensure the token has not expired.
+-   **`sub` (Subject)**: This uniquely identifies the user, often combining the `connection_id` and the identity provider's unique user ID.
+-   **`amr`**: Contains the `connection_id` used for authentication.
 
 This structure provides a neutral, factual reference for ID token claims in Scalekit, organized according to the data structure itself.
 

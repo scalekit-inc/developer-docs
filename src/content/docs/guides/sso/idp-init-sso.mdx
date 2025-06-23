@@ -222,6 +222,49 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
 
 </Steps>
 
+## Integrating with a Downstream Auth Provider
+
+If your application uses a third-party service like [Firebase Authentication](/guides/integrations/auth-systems/firebase/) to manage user sessions, you must initiate its sign-in flow after completing **Step&nbsp;3**.
+
+This process has two stages: first, the IdP redirects the user to your app via Scalekit, and second, your app triggers a new sign-in flow with Firebase using the Authorization URL you just generated.
+
+```mermaid
+graph LR;
+    subgraph "Part 1: IdP-initiated"
+        User-->IdP-->Scalekit-->YourApp["Your App (default endpoint)"];
+    end
+    subgraph "Part 2: SP-initiated Hand-off"
+        YourApp -- "triggers sign-in" --> Firebase;
+        Firebase -- "uses Authorization URL from Step 3" --> Scalekit;
+    end
+```
+
+The example below shows how to pass the Authorization URL to the Firebase Web SDK.
+
+<Tabs syncKey="downstream-auth">
+<TabItem value="firebase-js" label="Firebase (Web SDK)">
+
+```javascript
+import { getAuth, OAuthProvider, signInWithRedirect } from "firebase/auth";
+
+const auth = getAuth();
+
+// "scalekit" is the OIDC provider you configured in Firebase.
+const scalekitProvider = new OAuthProvider("scalekit");
+
+// This is the `authorizationUrl` from Step 3.
+scalekitProvider.setCustomParameters({
+  authorization_url: authorizationUrl,
+});
+
+signInWithRedirect(auth, scalekitProvider);
+```
+
+</TabItem>
+</Tabs>
+
+This pattern applies to other OIDC-compatible providers like Auth0 or AWS Cognito. Simply supply the Authorization URL from **Step&nbsp;3** to start the provider's standard sign-in flow.
+
 ## Troubleshooting
 
 If you encounter issues implementing IdP-initiated SSO:
