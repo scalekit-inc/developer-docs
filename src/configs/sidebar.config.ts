@@ -194,7 +194,6 @@ export const sidebar = [
           'fsa/reference/user-profile',
           'fsa/guides/user-roles',
           'fsa/reference/redirects',
-          'fsa/guides/ui-components',
         ],
       },
       {
