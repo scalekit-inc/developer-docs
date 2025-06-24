@@ -76,11 +76,147 @@ Scalekit automatically converts all these variations into a standard format, so 
  TODO: Definitely needs the getUser API endpoint sorted to document it
  */}
 
-{ /*
 
-## Access user profile data
+## Create and access user profile data
 
 User profiles contain both standardized attributes and the original data from identity providers, giving you flexibility in how you use the information.
+
+
+## Create users
+
+Create new users in your organization with profile information and metadata. Users can be created with or without an existing organization membership.
+
+### Create user with organization membership
+
+**Scenario**: Add a new employee to your organization with their profile information and role assignments.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+    ```javascript showLineNumbers=false
+    const { user } = await scalekit.user.createUserAndMembership("org_123", {
+      email: "user@example.com",
+      externalId: "ext_12345a67b89c",
+      metadata: {
+        department: "engineering",
+        location: "nyc-office"
+      },
+      userProfile: {
+        firstName: "John",
+        lastName: "Doe",
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python showLineNumbers=false
+    import os
+    from scalekit import ScalekitClient
+    from scalekit.v1.users.users_pb2 import User
+    from scalekit.v1.commons.commons_pb2 import UserProfile
+
+    sc = ScalekitClient(
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    )
+
+    user_msg = User(
+        email="user@example.com",
+        external_id="ext_12345a67b89c",
+        metadata={"department": "engineering", "location": "nyc-office"},
+        user_profile=UserProfile(
+            first_name="John",
+            last_name="Doe"
+        )
+    )
+    create_resp, _ = sc.users.create_user("org_123", user_msg)
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go showLineNumbers=false
+    newUser := &usersv1.CreateUser{
+        Email:      "user@example.com",
+        ExternalId: "ext_12345a67b89c",
+        Metadata: map[string]string{
+            "department": "engineering",
+            "location":   "nyc-office",
+        },
+        UserProfile: &usersv1.CreateUserProfile{
+            FirstName: "John",
+            LastName:  "Doe",
+        },
+    }
+    cuResp, err := sc.User().CreateUserAndMembership(ctx, "org_123", newUser, false)
+    if err != nil { /* handle error */ }
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java showLineNumbers=false
+    CreateUser createUser = CreateUser.newBuilder()
+        .setEmail("user@example.com")
+        .setExternalId("ext_12345a67b89c")
+        .putMetadata("department", "engineering")
+        .putMetadata("location", "nyc-office")
+        .setUserProfile(
+            CreateUserProfile.newBuilder()
+                .setFirstName("John")
+                .setLastName("Doe")
+                .build())
+        .build();
+
+    CreateUserAndMembershipRequest cuReq = CreateUserAndMembershipRequest.newBuilder()
+        .setUser(createUser)
+        .build();
+
+    CreateUserAndMembershipResponse cuResp = users.createUserAndMembership("org_123", cuReq);
+    System.out.println(cuResp.getUser().getId());
+    ```
+  </TabItem>
+  <TabItem value="curl" label="cURL">
+    ```bash showLineNumbers=false
+    curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/users' \
+      --request POST \
+      --header 'Content-Type: application/json' \
+      --data '{
+      "email": "user@example.com",
+      "external_id": "ext_12345a67b89c",
+      "membership": {
+        "metadata": {
+          "department": "engineering",
+          "location": "nyc-office"
+        },
+        "roles": "admin"
+      },
+      "metadata": {
+        "department": "engineering",
+        "location": "nyc-office"
+      },
+      "user_profile": {
+        "custom_attributes": {
+          "department": "engineering",
+          "security_clearance": "level2"
+        },
+        "first_name": "John",
+        "last_name": "Doe",
+        "locale": "en-US",
+        "metadata": {
+          "account_status": "active",
+          "signup_source": "mobile_app"
+        },
+        "name": "John Michael Doe",
+        "phone_number": "+14155552671"
+      }
+    }'
+    ```
+  </TabItem>
+</Tabs>
+
+
+  Most B2B applications create organizations or workspaces to group users together. You'll need to create an organization first before adding users to it by passing `organization_id` to the `createUserAndMembership` method.
+
+  <a href="https://docs.scalekit.com/apis#tag/organizations/POST/api/v1/organizations" target="_blank" rel="noopener">
+    Explore Organization APIs →
+  </a>
 
 ### Get user profile information
 
@@ -88,145 +224,30 @@ User profiles contain both standardized attributes and the original data from id
 
 <Tabs syncKey="tech-stack">
   <TabItem value="node" label="Node.js">
-    ```javascript
-    const user = await scalekit.user.getUser("org_123", "usr_456");
-
-    // Access normalized profile data
-    console.log("User email:", user.email);
-    console.log("Full name:", user.name);
-    console.log("First name:", user.userProfile.firstName);
-    console.log("Last name:", user.userProfile.lastName);
-    console.log("Profile picture:", user.picture);
-    console.log("Email verified:", user.emailVerified);
-
-    // Access custom metadata
-    console.log("Department:", user.metadata?.department);
-    console.log("Role:", user.metadata?.role);
+    ```javascript showLineNumbers=false
+    const { user } = await scalekit.user.getUser("usr_456");
     ```
   </TabItem>
   <TabItem value="python" label="Python">
-    ```python
-    user, _ = sc.users.get_user("org_123", "usr_456")
-
-    print("User email:", user.email)
-    print("Full name:", user.name)
-    print("First name:", user.user_profile.first_name)
-    print("Last name:", user.user_profile.last_name)
-    print("Profile picture:", user.picture)
-    print("Email verified:", user.email_verified)
-
-    # Custom metadata
-    print("Department:", user.metadata.get("department"))
-    print("Role:", user.metadata.get("role"))
+    ```python showLineNumbers=false
+    response = users.get_user("org_123", "usr_456")
+    user = response.user
     ```
   </TabItem>
   <TabItem value="go" label="Go">
-    ```go
-    user, err := sc.User().GetUser(ctx, "org_123", "usr_456")
+    ```go showLineNumbers=false
+    resp, err := sc.User().GetUser(ctx, "usr_456")
     if err != nil { log.Fatal(err) }
-
-    fmt.Println("User email:", user.Email)
-    fmt.Println("Full name:", user.Name)
-    fmt.Println("First name:", user.UserProfile.FirstName)
-    fmt.Println("Last name:", user.UserProfile.LastName)
-    fmt.Println("Profile picture:", user.Picture)
-    fmt.Println("Email verified:", user.EmailVerified)
-
-    fmt.Println("Department:", user.Metadata["department"])
-    fmt.Println("Role:", user.Metadata["role"])
+    user := resp.User
     ```
   </TabItem>
   <TabItem value="java" label="Java">
-    ```java
-    GetUserResponse res = users.getUser("org_123", "usr_456");
-    var user = res.getUser();
-
-    System.out.println("User email: " + user.getEmail());
-    System.out.println("Full name: " + user.getName());
-    System.out.println("First name: " + user.getUserProfile().getFirstName());
-    System.out.println("Last name: " + user.getUserProfile().getLastName());
-    System.out.println("Profile picture: " + user.getPicture());
-    System.out.println("Email verified: " + user.getEmailVerified());
-
-    System.out.println("Department: " + user.getMetadataMap().get("department"));
-    System.out.println("Role: " + user.getMetadataMap().get("role"));
+    ```java showLineNumbers=false
+    GetUserResponse resp = scalekit.users().getUser("usr_456");
+    var user = resp.getUser();
     ```
   </TabItem>
 </Tabs>
-
-### Access original provider data
-
-**Scenario**: You need specific attributes that your identity provider sends but aren't part of the standard profile, such as employee ID from Active Directory or custom claims.
-
-<Tabs syncKey="tech-stack">
-  <TabItem value="node" label="Node.js">
-    ```javascript
-    const user = await scalekit.user.getUser("org_123", "usr_456");
-
-    if (user.identities?.length) {
-      const identity = user.identities[0];
-      const raw = identity.providerRawAttributes;
-
-      console.log("Provider name:", identity.providerName);
-      console.log("Connection type:", identity.connectionType);
-      console.log("Employee ID:", raw.employeeId);
-      console.log("Department from IdP:", raw.department);
-      console.log("All raw attributes:", raw);
-    }
-    ```
-  </TabItem>
-  <TabItem value="python" label="Python">
-    ```python
-    user, _ = sc.users.get_user("org_123", "usr_456")
-
-    if user.identities:
-        identity = user.identities[0]
-        raw = identity.provider_raw_attributes
-
-        print("Provider name:", identity.provider_name)
-        print("Connection type:", identity.connection_type)
-        print("Employee ID:", raw.get("employeeId"))
-        print("Department from IdP:", raw.get("department"))
-        print("All raw attributes:", raw)
-    ```
-  </TabItem>
-  <TabItem value="go" label="Go">
-    ```go
-    user, err := sc.User().GetUser(ctx, "org_123", "usr_456")
-    if err != nil { log.Fatal(err) }
-
-    if len(user.Identities) > 0 {
-        id := user.Identities[0]
-        raw := id.ProviderRawAttributes.AsMap()
-
-        fmt.Println("Provider name:", id.ProviderName)
-        fmt.Println("Connection type:", id.ConnectionType)
-        fmt.Println("Employee ID:", raw["employeeId"])
-        fmt.Println("Department from IdP:", raw["department"])
-        fmt.Println("All raw attributes:", raw)
-    }
-    ```
-  </TabItem>
-  <TabItem value="java" label="Java">
-    ```java
-    GetUserResponse res = users.getUser("org_123", "usr_456");
-    var user = res.getUser();
-
-    if (!user.getIdentitiesList().isEmpty()) {
-        var id = user.getIdentities(0);
-        var raw = id.getProviderRawAttributesMap();
-
-        System.out.println("Provider name: " + id.getProviderName());
-        System.out.println("Connection type: " + id.getConnectionType());
-        System.out.println("Employee ID: " + raw.get("employeeId"));
-        System.out.println("Department from IdP: " + raw.get("department"));
-        System.out.println("All raw attributes: " + raw);
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-*/}
 
 ## Update user profiles
 
@@ -406,25 +427,54 @@ Understanding the normalized profile structure helps you work with user data eff
 
 ```json title="Sample normalized user profile"
 {
-  "id": "user_456",
-  "email": "john.doe@acmecorp.com",
-  "emailVerified": true,
-  "name": "John Doe",
-  "givenName": "John",
-  "familyName": "Doe",
-  "picture": "https://lh3.googleusercontent.com/a/ACg8ocKNE4TZ...iEma17URCEf=s96-c",
-  "locale": "en",
-  "metadata": "{\"department\":\"Engineering\",\"role\":\"Developer\",\"employeeId\":\"EMP-001\"}", // optional
-  "identities": [
-    {
-      "connectionId": "conn_17576372041941092",
-      "organizationId": "org_17002852291444836",
-      "connectionType": "OIDC",
-      "providerName": "Google",
-      "social": true,
-      "providerRawAttributes": "{\"sub\":\"google-oauth2|104630259163176101050\",\"email\":\"john.doe@acmecorp.com\",...}"
-    }
-  ]
+  "user": {
+    "id": "usr_1234abcd5678efgh",
+    "email": "john.doe@acmecorp.com",
+    "external_id": "ext_12345a67b89c",
+    "create_time": "2025-06-24T12:15:33.784Z",
+    "update_time": "2025-06-24T12:15:33.784Z",
+    "last_login": "2025-06-24T12:15:33.784Z",
+    "user_profile": {
+      "id": "usr_profile_1234abcd5678efgh",
+      "name": "John Michael Doe",
+      "first_name": "John",
+      "last_name": "Doe",
+      "phone_number": "+14155552671",
+      "email_verified": true,
+      "locale": "en-US",
+      "custom_attributes": {
+        "department": "engineering",
+        "security_clearance": "level2"
+      },
+      "metadata": {
+        "account_status": "active",
+        "signup_source": "mobile_app"
+      }
+    },
+    "metadata": {
+      "department": "engineering",
+      "location": "nyc-office"
+    },
+    "memberships": [
+      {
+        "organization_id": "org_1234abcd5678efgh",
+        "name": "Acme Corp",
+        "join_time": "2025-06-24T12:15:33.784Z",
+        "membership_status": "ACTIVE",
+        "primary_identity_provider": "OKTA",
+        "metadata": {
+          "department": "engineering",
+          "location": "nyc-office"
+        },
+        "roles": [
+          {
+            "id": "role_123",
+            "name": "Developer"
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 
@@ -432,28 +482,35 @@ Understanding the normalized profile structure helps you work with user data eff
 
 | Attribute | Data type | Description |
 |-----------|-----------|-------------|
-| `id` | string | Unique identifier for the user within the organization |
+| `id` | string | Unique identifier for the user |
 | `email` | string | The user's email address |
-| `emailVerified` | boolean | Whether the email address has been verified by the identity provider |
-| `userProfile.firstName` | string | The user's first name or given name |
-| `userProfile.lastName` | string | The user's last name or surname |
-| `name` | string | Full formatted name combining first and last name |
-| `picture` | string | URL to the user's profile picture |
-| `locale` | string | User's locale as a BCP 47 language tag (e.g., 'en', 'fr') |
+| `external_id` | string | External identifier for the user |
+| `create_time` | string | ISO 8601 timestamp when the user was created |
+| `update_time` | string | ISO 8601 timestamp when the user was last updated |
+| `last_login` | string | ISO 8601 timestamp of the user's last login |
+| `user_profile.name` | string | Full formatted name combining first and last name |
+| `user_profile.first_name` | string | The user's first name or given name |
+| `user_profile.last_name` | string | The user's last name or surname |
+| `user_profile.phone_number` | string | The user's phone number |
+| `user_profile.email_verified` | boolean | Whether the email address has been verified |
+| `user_profile.locale` | string | User's locale as a BCP 47 language tag (e.g., 'en-US', 'fr') |
+| `user_profile.custom_attributes` | object | Custom attributes specific to the user profile |
+| `user_profile.metadata` | object | Metadata specific to the user profile |
 | `metadata` | object | Custom key-value data specific to your application |
 
-### Identity information
+### Membership information
 
-The `identities` array contains detailed information about how the user authenticated, including the original data from their identity provider.
+The `memberships` array contains information about the user's organizational memberships and roles.
 
-| Identity attribute | Data type | Description |
-|-------------------|-----------|-------------|
-| `connectionId` | string | Unique identifier for the authentication connection |
-| `organizationId` | string | The organization this identity belongs to |
-| `connectionType` | string | Type of connection: SAML, OIDC, or others |
-| `providerName` | string | Name of the identity provider (e.g., Google, Okta, Auth0) |
-| `social` | boolean | Whether this is a social login (Google, GitHub) or enterprise connection |
-| `providerRawAttributes` | object | All original attributes from the identity provider |
+| Membership attribute | Data type | Description |
+|---------------------|-----------|-------------|
+| `organization_id` | string | Unique identifier for the organization |
+| `name` | string | Name of the organization |
+| `join_time` | string | ISO 8601 timestamp when the user joined the organization |
+| `membership_status` | string | Status of the membership (e.g., "ACTIVE", "INACTIVE") |
+| `primary_identity_provider` | string | Primary identity provider for this membership |
+| `metadata` | object | Organization-specific metadata for the user |
+| `roles` | array | Array of role objects with `id` and `name` properties |
 
 Now that you understand user profiles, explore related topics:
 
