@@ -244,6 +244,7 @@ This is the standard flow where a user clicks a "Logout" button in your applicat
         ```
       </TabItem>
     </Tabs>
+    The post logout redirect URI is the destination to which the user will be redirected after logging out. For example, take them to website landing page or a login page again. This must be [registered post-login URL](/fsa/reference/redirects/) in the Scalekit dashboard.
 </Steps>
 
 ## IdP-initiated logout <Badge text="Coming Soon" />
@@ -262,4 +263,26 @@ When this feature is available, the flow will be as follows:
 
 <Card title="Contact Support" icon="slack">
     This feature is currently available upon request. [Contact our support team](/support/contact-us) to have this feature enabled for your account.
+</Card>
+
+## Backchannel logout <Badge text="Coming Soon" />
+
+Consider a scenario where a organization or a workspace uses multiple applications that all authenticate through Scalekit: a project management tool, a document sharing platform, and a team chat application. When a user logs out from one application, they expect to be logged out from all applications automatically for security reasons.
+
+Backchannel logout enables this coordinated logout across multiple applications. Instead of relying on users to manually log out from each application, the system automatically terminates all related sessions.
+
+<Aside>
+  Your application must expose a backchannel logout endpoint to receive logout notification from Scalekit.
+</Aside>
+
+The flow will be as follows:
+1.  A user logs out from one of your applications.
+2.  Scalekit identifies all applications sharing the same user session.
+3.  Scalekit sends a logout notification to each application's registered backchannel logout endpoint.
+4.  Each application receives the notification, validates it, and terminates the user's session.
+
+This ensures that logging out from one application automatically logs the user out from all connected applications, providing a seamless and secure experience.
+
+<Card title="Contact Support" icon="slack">
+    This feature is currently in development. [Contact our support team](/support/contact-us) to learn more about backchannel logout capabilities.
 </Card>
