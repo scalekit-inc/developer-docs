@@ -14,7 +14,7 @@ head:
 ---
 
 import {
-  CardGrid, Aside, TabItem, Tabs
+  CardGrid, Aside, TabItem, Tabs, Card, LinkCard
  } from '@astrojs/starlight/components'
 
 The first step in architecting your application to use Scalekit is mapping your current data model to Scalekit's core entities. This guide outlines key considerations and approaches for a range of existing data models.
@@ -44,32 +44,32 @@ Key characteristics of a top-level tenant include:
 
 <CardGrid>
 
-<div>
-**Account ownership**
+<Card>
+##### Account ownership
 - Manages subscriptions or contract terms
 - Controls billing and service-level agreements
-</div>
+</Card>
 
-<div>
-**Access management**
+<Card>
+##### Access management
 - Controls who can access their organization
 - Defines user roles and permissions
 - Manages security policies
-</div>
+</Card>
 
-<div>
-**User management**
+<Card>
+##### User management
 - Adds and removes users
 - Updates user information
 - Manages authentication methods
-</div>
+</Card>
 
-<div>
-**Data segregation**
+<Card>
+##### Data segregation
 - Keeps data isolated
 - Maintains security boundaries
 - Ensures data privacy and governance
-</div>
+</Card>
 
 </CardGrid>
 
@@ -129,9 +129,11 @@ Your approach to mapping users will depend on your current data model.
 
 ### Migrating from a 1-to-1 model
 
-If your application defines an end user as belonging to a single Organization, you will create one User record in Scalekit for each existing user. Store the `user_id` from Scalekit in your internal user table for easy reference.
+To migrate from a single-organization model, create one Scalekit User record for each existing user in each organization. Store the Scalekit `user_id` in your internal user table for reference. Each organization maintains its own independent user profiles. A user's profile in one organization does not affect their profile in other organizations.
 
-Keep in mind that Scalekit allows a user's email to be associated with multiple Organizations. If your application requires that an email address only ever be associated with a single Organization, you will need to enforce this constraint in your own application logic creating any User memberships within Scalekit.
+<Aside type="note" title="Private beta">
+This feature is currently in private beta. [Contact us](/support/contact-us) to enable it for your account.
+</Aside>
 
 ### Migrating from a 1-to-many model
 
@@ -142,12 +144,20 @@ If you already have a membership table that stores the relationship between user
 
 ## User deduplication
 
-Scalekit uses the email address as the unique identifier for a User within an Organization. This means:
-- Two different Users cannot have the same email address within the same Organization.
+Scalekit uses the email address as the unique identifier for a User within an Environment. This means:
+- Two different Users cannot have the same email address within the same Environment.
 - Scalekit automatically consolidates accounts. If a user logs in with an email and password and later uses Google OAuth with the same email, both authentication methods will be linked to the same User record.
 
-Because of this, you may need to merge duplicate user accounts in your system before migrating to Scalekit. Attempting to create two Users with the same email in the same Organization will result in an error.
+Because of this, you may need to merge duplicate user accounts in your system before migrating to Scalekit. Attempting to create two Users with the same email in the same organization or environment will result in an error.
 
 ## Linking Scalekit IDs
 
-You should continue to maintain your own user and group tables and link them to Scalekit by storing the `organization_id` and `user_id` in your database. You can also store your internal identifiers in the `metadata` field on the corresponding Scalekit Organization or User objects for a two-way reference.
+You should continue to maintain your own user and group tables and link them to Scalekit by storing the `organization_id` and `user_id` in your database. You can also store your internal identifiers as `external_id` or additional `metadata` fields on the corresponding user objects for a two-way reference.
+
+<CardGrid>
+
+<LinkCard title="Refer to User API" href="https://docs.scalekit.com/apis#tag/users/POST/api/v1/memberships/organizations/{organization_id}/users/{id}" description='Add an existing user to an organization and assign them specific roles and permissions.' />
+
+<LinkCard title="Work with user profiles" href="/fsa/reference/user-profile/" description='Learn about user profile attributes and how to manage user information in Scalekit.' />
+
+</CardGrid>
