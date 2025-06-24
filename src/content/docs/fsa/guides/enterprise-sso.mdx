@@ -19,7 +19,7 @@ next:
   label: "Admin Portal"
   link: "/guides/sso/admin-portal/"
 ---
-import { Steps, Tabs, TabItem, Aside, LinkCard } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 import CheckItem from '@/components/ui/CheckItem.astro';
 
@@ -28,6 +28,8 @@ Enterprise SSO allows users to sign in to your application using their organizat
 ![How Scalekit connects your application to enterprise identity providers](@/assets/docs/sso-quickstart/how-scalekit-connects.png)
 
 This guide shows you how to enable enterprise SSO for your customers.
+
+## Add SSO to your app
 
 <LinkCard title="Integrate sign in" href="/fsa/guides/implement-signin/" description='Complete the sign in integration in your application' />
 
@@ -58,15 +60,14 @@ Once they have configured their IdP, the connection will be active for their org
   During development, you don't need to manually configure each identity provider your customers might use. Scalekit provides an IdP simulator that helps you test the SSO flow easily. Learn more about [testing your SSO integration](/guides/sso/test-sso/).
 </Aside>
 
-### Organization domain verification
+## Organization domain verification
 
-Scalekit automatically redirects users to their organization's identity provider for SSO authentication.
+When you verify organization domains, users can sign in directly through their organization's identity provider from the sign-in page. Scalekit uses the domain part of their email address (for example, `@megacorp.org`) to automatically redirect them to the correct identity provider for authentication.
 
-You can enable this capability in two ways:
+**Organization admins** can verify domains through the [admin portal](/guides/sso/admin-portal/). Once verified, any user with an email address from that domain can use SSO.
 
-1. **Organization admins** can add domains through the admin portal for users who will sign in with those domains.
-2. **You** can add domains directly from the Scalekit dashboard for specific organizations as requested by your customer's IT admin.
-
+1. **DNS verification**: Add a DNS TXT record to prove domain ownership. The Admin Portal guides you through each step of adding the record. Once you add the record correctly, Scalekit automatically completes the verification. <Badge type="note" text="Coming soon" />
+2. **Manual verification**: Request domain verification through the Scalekit Dashboard. This method is suitable when you have already verified domain ownership through other means.
 
 ## What's next?
 
