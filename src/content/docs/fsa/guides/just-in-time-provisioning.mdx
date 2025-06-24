@@ -1,9 +1,9 @@
 ---
 title: Just-in-time provisioning
-description: Automatically create user accounts when users sign in for the first time
-tableOfContents: false
+description: Automatically provision users when they sign in through SSO for the first time
 sidebar:
   label: "JIT Provisioning"
+  badge: "Soon"
 head:
   - tag: style
     content: |
@@ -17,55 +17,78 @@ prev:
   label: "Manage organizations"
   link: "/fsa/guides/manage-organization/"
 next:
-  label: "Organization switching"
-  link: "/fsa/guides/organization-switching/"
+  label: "Automated user provisioning"
+  link: "/fsa/guides/automated-user-provisioning/"
 
 ---
 
-import { Badge } from '@astrojs/starlight/components';
+import { Steps, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
 
-Just-in-time (JIT) provisioning automatically creates user accounts when someone tries to sign in for the first time. Instead of requiring manual account creation or pre-registration, users can access your application immediately using their existing identity.
+Just-in-time (JIT) provisioning automatically creates users and organization memberships when they sign in through SSO for the first time. This feature allows users to access your application without requiring manual invitations from IT administrators. For example, users don't need to remember separate credentials or go through additional signup steps - they just sign in through their familiar SSO portal. Your app signs them up instantly.
 
-**JIT provisioning works across the web** - from enterprise applications where employees access company tools through their corporate identity, to consumer apps where users sign in with social accounts like Google or GitHub.
+## Introduction
 
-When a user attempts to sign in for the first time, Scalekit automatically:
+JIT provisioning is particularly useful for enterprise customers who want to provide seamless access to your application for their employees while maintaining security and control through their identity provider.
 
-1. **Creates a user account** based on their identity information
-2. **Sets up their profile** with details from their identity provider
-3. **Grants appropriate access** based on your application's rules
+{/* TODO: Add illustration showing JIT provisioning flow */}
 
-This happens seamlessly in the background, so users can start using your application immediately.
 
-{/**
- * TODO: Add a diagram showing the JIT provisioning flow here
- */}
+When a user signs in through SSO for the first time, Scalekit automatically:
 
-## JIT provisioning through authentication methods
+1. **Detects the verified domain** - Scalekit checks if the user's email domain matches a verified domain in the organization
+2. **Creates the user account** - A new user profile is created using information from the identity provider
+3. **Establishes membership** - The user is automatically added as a member of the organization
+4. **Completes authentication** - The user is signed in and redirected to your application
 
-Scalekit supports JIT provisioning through three main authentication methods:
+This process happens seamlessly in the background, providing immediate access without manual intervention.
 
-**Social login and passwordless authentication**
+## Enabling JIT provisioning
 
-When users sign in with social login (Google, GitHub, etc.) or passwordless authentication for the first time, Scalekit automatically creates their account and user profile.
+JIT provisioning must be enabled for each organization that wants to use this feature. You can enable it through the Scalekit Dashboard or programmatically using the API.
 
-**Example**: A user clicks "Sign in with Google" on your application. If they haven't used your app before, Scalekit creates their account automatically using their Google profile information.
+### Enable via Dashboard <Badge type="note" text="Coming soon" />
 
-**Single sign-on (SSO)**
+<Steps>
 
-Organizations can configure SSO for their users. When SSO is integrated with Scalekit and organization administrators have [verified their domains](/fsa/guides/merge-identities/#verify-organization-domains), Scalekit automatically creates user accounts.
+1. Log in to your [Scalekit Dashboard](https://app.scalekit.com).
+2. Navigate to **Organizations** and select the organization.
+3. Go to **Settings** and find the **JIT Provisioning** section.
+4. Toggle the setting to enable JIT provisioning for this organization.
 
-Users access your application through their organization's SSO portal. Scalekit creates accounts automatically for verified domain users. Contractors using external email addresses must be [invited](/fsa/guides/invite-only-signup/) first.
+</Steps>
 
-Many organizations maintain catalogs of approved applications. When users access your app from their catalog for the first time, JIT provisioning happens automatically.
+### Enable via API
 
-**SCIM provisioning** <Badge type="note" text="Coming soon" />
+You can also enable JIT provisioning programmatically using the Scalekit API:
 
-Organizations use [SCIM provisioning](/directory/scim/quickstart/) to sync user data from their identity provider. Scalekit automatically creates accounts for users provisioned through SCIM.
+<InstallSDK />
 
-## Getting started
+```javascript title="Enable JIT provisioning"
+// Coming soon - API to enable JIT provisioning
+```
 
-If your application is integrated with Scalekit, JIT provisioning is available by default. To integrate Scalekit with your application, see our [Quickstart guide](/fsa/quickstart/).
+## Domain verification requirement
 
-{/**
- * TODO: Confirm if JIT is enabled by default and mention it explicitly here
- */}
+JIT provisioning only works for users whose email domains have been verified by the organization. This ensures that only legitimate members of the organization can automatically gain access to your application.
+
+**Organization admins** can verify domains through the [admin portal](/guides/sso/admin-portal/). Once verified, any user with an email address from that domain can use JIT provisioning when signing in through SSO.
+
+<Aside type="note">
+Learn more about [domain verification](/fsa/guides/enterprise-sso/#organization-domain-verification) in the Enterprise SSO guide.
+</Aside>
+
+## Guest users
+
+JIT provisioning has limitations for guest users whose email domains have not been verified by the organization:
+
+- **Contractors and external users** with unverified email domains cannot use JIT provisioning
+- These users must be [manually invited](/fsa/guides/invite-only-signup/) to join the organization before they can sign in through SSO
+- This ensures security by preventing unauthorized users from automatically gaining access
+
+
+## What's next?
+
+- Learn about [Automated User Provisioning](/fsa/guides/automated-user-provisioning/) for non-SSO authentication methods
+- Explore [Enterprise SSO](/fsa/guides/enterprise-sso/) setup and configuration
+- Set up [organization switching](/fsa/guides/organization-switching/) for users who belong to multiple organizations

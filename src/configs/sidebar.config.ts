@@ -186,6 +186,7 @@ export const sidebar = [
           'fsa/guides/manage-organization',
           'fsa/reference/user-management-settings',
           'fsa/guides/just-in-time-provisioning',
+          'fsa/guides/automated-user-provisioning',
           'fsa/guides/organization-switching',
           // 'fsa/guides/manage-users', // TODO: is it needed? assess later
           'fsa/guides/invite-only-signup',
