@@ -59,7 +59,7 @@ Let's get started!
       </TabItem>
       <TabItem value="python" label="Python">
       ```python title="utils/auth.py"
-      from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
+      from scalekit import ScalekitClient
       import os
 
       scalekit = ScalekitClient(
@@ -617,7 +617,7 @@ Let's get started!
 
                         # Update the cookie with the new access token
                         encrypted_new_access_token = encrypt(new_access_token)
-                        response = make_response()
+                        response = make_response(f(*args, **kwargs))
                         response.set_cookie(
                             'accessToken',
                             encrypted_new_access_token,
@@ -627,6 +627,9 @@ Let's get started!
                             samesite='Strict'
                         )
 
+                        return response
+
+                    # If the token was valid we just invoke the view as-is
                     return f(*args, **kwargs)
 
                 except Exception as e:

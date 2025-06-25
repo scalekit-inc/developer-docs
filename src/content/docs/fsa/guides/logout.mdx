@@ -58,6 +58,11 @@ This is the standard flow where a user clicks a "Logout" button in your applicat
       </TabItem>
       <TabItem label="Python">
         ```python title="Flask"
+        from flask import Flask, session, request, redirect, make_response
+        from scalekit import LogoutUrlOptions
+
+        app = Flask(__name__)
+
         @app.route('/logout')
         def logout():
             user_id = session.get('user_id')
@@ -65,6 +70,7 @@ This is the standard flow where a user clicks a "Logout" button in your applicat
             post_logout_redirect_uri = 'http://localhost:3000/login'
 
             # Clear local session data
+            response = make_response()
             clear_session_data(response, user_id)
 
             # Generate the Scalekit logout URL
@@ -166,6 +172,9 @@ This is the standard flow where a user clicks a "Logout" button in your applicat
       </TabItem>
       <TabItem label="Python">
         ```python title="Flask"
+        from flask import session, request, redirect, make_response
+        from scalekit import LogoutUrlOptions
+
         @app.route('/logout')
         def logout():
             user_id = session.get('user_id')
@@ -173,6 +182,7 @@ This is the standard flow where a user clicks a "Logout" button in your applicat
             post_logout_redirect_uri = 'http://localhost:3000/login'
 
             # Clear local session data
+            response = make_response()
             clear_session_data(response, user_id)
 
             # Generate the Scalekit logout URL
