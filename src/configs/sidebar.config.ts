@@ -199,10 +199,7 @@ export const sidebar = [
       },
       {
         label: 'Customization',
-        items: [
-          'fsa/guides/login-page-branding',
-          'guides/email-templates-providers',
-        ],
+        items: ['fsa/guides/login-page-branding', 'guides/email-providers'],
       },
     ],
   },
