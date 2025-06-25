@@ -1,0 +1,88 @@
+---
+title: "Assign application roles to users"
+description: "Learn how to define, assign, and manage user roles in Scalekit for granular access control."
+sidebar:
+  label: "Roles"
+  badge:
+    text: "Soon"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev: false
+---
+import { Tabs, TabItem, Badge, Aside, LinkCard } from '@astrojs/starlight/components';
+
+B2B applications often require different levels of access for different users. Roles are a powerful way to manage these permissions and ensure that users can only access the features and data appropriate for them.
+
+For example, you might have roles like:
+- **Admin**: Can access all features, including billing and user management.
+- **Editor**: Can create and edit content, but cannot manage users or settings.
+- **Viewer**: Can only view content, but cannot make any changes.
+
+Scalekit provides a flexible role-based access control (RBAC) system that allows you to define custom roles and assign them to users, helping you build a secure and scalable application.
+
+## How roles work
+
+By default, Scalekit provides two roles: `admin` and `member`. When the first user signs up and creates an organization, they are automatically assigned the `admin` role. Any subsequent users who join the organization are assigned the `member` role by default.
+
+## Managing roles
+
+You can manage roles, including creating custom ones, from the Scalekit dashboard:
+
+1.  Navigate to **User Management** > **Roles**.
+2.  You will see a list of existing roles. Click **+ Add Roles** to create a new role.
+3.  For each new role, you can define a **Role Name**, **Key**, and **Description**. The **Key** is what you will receive in the token and use in your application to control access.
+
+![](@/assets/docs/fsa/user-management/1-roles.png)
+
+<LinkCard
+  title="Integrate with Scalekit"
+  href="/fsa/quickstart/"
+  description="Follow our quickstart guide to integrate Scalekit into your application and start managing user roles."
+/>
+
+## Accessing user roles
+
+Once a user is authenticated, their assigned roles are included in the `idToken` and `accessToken`. You can use this information in your application's backend to control access to different resources.
+
+While the `roles` claim is an array, Scalekit currently supports a single role per user within an organization.
+
+Here's an example of a decoded `idToken` containing the `roles` claim:
+
+<Tabs>
+<TabItem label="ID Token (decoded)" value="idToken">
+```json
+{
+  "at_hash": "ec_jU2ZKpFelCKLTRWiRsg",
+  "aud": [
+    "skc_58327482062864390"
+  ],
+  "azp": "skc_58327482062864390",
+  "c_hash": "6wMreK9kWQQY6O5R0CiiYg",
+  "client_id": "skc_58327482062864390",
+  "email": "john.doe@example.com",
+  "email_verified": true,
+  "exp": 1742975822,
+  "family_name": "Doe",
+  "given_name": "John",
+  "iat": 1742974022,
+  "iss": "https://scalekit-z44iroqaaada-dev.scalekit.cloud",
+  "name": "John Doe",
+  "oid": "org_59615193906282635",
+  "sid": "ses_65274187031249433",
+  "sub": "usr_63261014140912135",
+  "roles": [
+    "admin"
+  ]
+}
+```
+</TabItem>
+</Tabs>
+
+With the role information readily available in the tokens, you can implement fine-grained access control in your application logic.
