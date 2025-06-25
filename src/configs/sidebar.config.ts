@@ -32,6 +32,7 @@ export const sidebar = [
         label: 'Guides',
         items: [
           'guides/custom-domain',
+          'guides/sso/add-login-ux-sso',
           'guides/sso/idp-init-sso',
           'guides/sso/okta-sso-test',
           'guides/sso/sso-user-attributes',
