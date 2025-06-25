@@ -113,7 +113,7 @@ export const sidebar = [
     label: 'MCP Auth',
     link: '/guides/mcp/overview',
     id: 'mcp',
-    icon: 'forward-slash',
+    icon: 'seti:puppet',
     items: [
       {
         label: 'Getting started',
@@ -186,8 +186,6 @@ export const sidebar = [
         items: [
           'fsa/guides/manage-organization',
           'fsa/reference/user-management-settings',
-          'fsa/guides/just-in-time-provisioning',
-          'fsa/guides/automated-user-provisioning',
           'fsa/guides/organization-switching',
           // 'fsa/guides/manage-users', // TODO: is it needed? assess later
           'fsa/guides/invite-only-signup',
@@ -195,6 +193,8 @@ export const sidebar = [
           'fsa/reference/user-profile',
           'fsa/guides/user-roles',
           'fsa/reference/redirects',
+          'fsa/guides/just-in-time-provisioning',
+          'fsa/guides/automated-user-provisioning',
         ],
       },
       {
