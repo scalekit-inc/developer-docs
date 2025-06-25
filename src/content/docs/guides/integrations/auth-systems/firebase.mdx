@@ -1,5 +1,15 @@
 ---
 title: Co-exist with Firebase
+description: Integrate Scalekit with Firebase applications for enterprise Single Sign-On (SSO) authentication.
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 sidebar:
   label: Firebase
 
@@ -49,7 +59,7 @@ Firebase handles the OAuth 2.0 flow automatically using its built-in OIDC provid
 
 <Steps>
 
-1. #### Add Scalekit as an OpenID Connect provider
+1. #### Configure Firebase to accept Scalekit as an identity provider
 
    Log in to the <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a> and navigate to your project.
 
@@ -60,7 +70,7 @@ Firebase handles the OAuth 2.0 flow automatically using its built-in OIDC provid
 
    ![Sign-in tab in your Firebase Console](@/assets/docs/guides/auth-systems/firebase/1.png)
 
-2. #### Retrieve configuration from Scalekit
+2. #### Copy your Scalekit API credentials
 
    In your Scalekit Dashboard, navigate to **Settings** > **API Config** and copy these values:
 
@@ -70,7 +80,7 @@ Firebase handles the OAuth 2.0 flow automatically using its built-in OIDC provid
 
    ![Scalekit API Configuration](@/assets/docs/guides/auth-systems/firebase/2.png)
 
-3. #### Configure Firebase OIDC provider
+3. #### Connect Firebase to Scalekit using your API credentials
 
    In Firebase Console, paste the Scalekit values into the corresponding fields:
 
@@ -80,7 +90,7 @@ Firebase handles the OAuth 2.0 flow automatically using its built-in OIDC provid
 
    ![Firebase OIDC Provider Configuration](@/assets/docs/guides/auth-systems/firebase/3.png)
 
-4. #### Add redirect URI to Scalekit
+4. #### Allow Firebase to redirect users back to your app
 
    Copy the **Callback URL** from your Firebase OIDC Integration settings.
 
@@ -90,7 +100,7 @@ Firebase handles the OAuth 2.0 flow automatically using its built-in OIDC provid
 
    ![Scalekit Redirect URI Configuration](@/assets/docs/guides/auth-systems/firebase/5.png)
 
-5. #### Implement SSO in your application
+5. #### Add SSO login to your frontend code
 
    Use Firebase's standard OIDC authentication in your frontend:
 
@@ -128,21 +138,43 @@ Firebase handles the OAuth 2.0 flow automatically using its built-in OIDC provid
 
 Use this approach if you have **Legacy Firebase Authentication** or need full control over the authentication flow. Your backend integrates directly with Scalekit and creates custom Firebase tokens.
 
+<details>
+<summary>View authentication flow summary</summary>
+
 ```mermaid wrap showLineNumbers=false title="How it works"
-graph LR
-    User --> IdentityProvider[Identity Provider]
-    IdentityProvider --> Scalekit
-    Scalekit --> YourBackend[Your Backend]
-    YourBackend --> CustomToken[Custom Firebase Token]
-    CustomToken --> FirebaseAuth[Firebase Auth]
-    FirebaseAuth --> YourApp[Your App]
+1. User clicks "Sign In"
+   ↓
+2. Frontend calls backend → Backend generates Scalekit auth URL
+   ↓
+3. Frontend redirects to Scalekit auth URL
+   ↓
+4. Scalekit redirects to Identity Provider
+   ↓
+5. User authenticates with IdP
+   ↓
+6. IdP redirects back to Scalekit
+   ↓
+7. Scalekit redirects to your backend callback URL with code
+   ↓
+8. Backend exchanges code for user profile with Scalekit
+   ↓
+9. Backend creates custom Firebase token
+   ↓
+10. Backend returns custom token to frontend
+    ↓
+11. Frontend calls signInWithCustomToken(firebase, customToken)
+    ↓
+12. Firebase creates/updates user and returns Firebase user object
+    ↓
+13. User is authenticated and can access your app!
 ```
+</details>
 
 Your backend handles SSO authentication and creates custom tokens for Firebase.
 
 <Steps>
 
-1. #### Set up your backend with Scalekit SDK
+1. #### Install Scalekit and Firebase Admin SDKs
 
    Install the Scalekit SDK and configure your backend server with Firebase Admin SDK:
 
@@ -162,16 +194,9 @@ Your backend handles SSO authentication and creates custom tokens for Firebase.
    );
 
    // Initialize Firebase Admin
-   admin.initializeApp({
-     credential: admin.credential.cert({
-       projectId: process.env.FIREBASE_PROJECT_ID,
-       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-       privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-     }),
-   });
    ```
 
-2. #### Create SSO authentication endpoint
+2. #### Handle SSO callback and create Firebase tokens
 
    Implement the SSO callback handler that exchanges the authorization code for user details and creates custom Firebase tokens:
 
@@ -216,67 +241,7 @@ Your backend handles SSO authentication and creates custom tokens for Firebase.
    });
    ```
 
-3. #### Implement frontend authentication
-
-   Create the frontend flow that initiates SSO and handles the custom token:
-
-   ```javascript title="Frontend SSO Implementation"
-   import { getAuth, signInWithCustomToken } from 'firebase/auth';
-
-   const auth = getAuth();
-
-   // Initiate SSO flow
-   const initiateSSO = async () => {
-     try {
-       // Get authorization URL from your backend
-       const response = await fetch('/auth/start-sso', {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({
-           organizationId: 'org_123456789', // or domain, connectionId
-         }),
-       });
-
-       const { authorizationUrl } = await response.json();
-
-       // Redirect to SSO
-       window.location.href = authorizationUrl;
-     } catch (error) {
-       console.error('Failed to initiate SSO:', error);
-     }
-   };
-
-   // Handle SSO callback (call this on your callback page)
-   const handleSSOCallback = async () => {
-     const urlParams = new URLSearchParams(window.location.search);
-     const code = urlParams.get('code');
-     const error = urlParams.get('error');
-
-     if (error) {
-       console.error('SSO failed:', error);
-       return;
-     }
-
-     try {
-       // Exchange code for custom token
-       const response = await fetch(`/auth/callback?code=${code}`);
-       const { customToken, user } = await response.json();
-
-       // Sign in to Firebase with custom token
-       const userCredential = await signInWithCustomToken(auth, customToken);
-       const firebaseUser = userCredential.user;
-
-       console.log('Successfully authenticated:', firebaseUser);
-
-       // Redirect to your app
-       window.location.href = '/dashboard';
-     } catch (error) {
-       console.error('Authentication failed:', error);
-     }
-   };
-   ```
-
-4. #### Add authorization URL endpoint
+3. #### Generate authorization URL to initiate SSO
 
    Create an endpoint to generate Scalekit authorization URLs:
 
@@ -408,6 +373,66 @@ Your backend handles SSO authentication and creates custom tokens for Firebase.
 
    </TabItem>
    </Tabs>
+
+4. #### Build frontend SSO flow with custom tokens
+
+   Create the frontend flow that initiates SSO and handles the custom token:
+
+   ```javascript title="Frontend SSO Implementation"
+   import { getAuth, signInWithCustomToken } from 'firebase/auth';
+
+   const auth = getAuth();
+
+   // Initiate SSO flow
+   const initiateSSO = async () => {
+     try {
+       // Get authorization URL from your backend
+       const response = await fetch('/auth/start-sso', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({
+           organizationId: 'org_123456789', // or domain, connectionId
+         }),
+       });
+
+       const { authorizationUrl } = await response.json();
+
+       // Redirect to SSO
+       window.location.href = authorizationUrl;
+     } catch (error) {
+       console.error('Failed to initiate SSO:', error);
+     }
+   };
+
+   // Handle SSO callback (call this on your callback page)
+   const handleSSOCallback = async () => {
+     const urlParams = new URLSearchParams(window.location.search);
+     const code = urlParams.get('code');
+     const error = urlParams.get('error');
+
+     if (error) {
+       console.error('SSO failed:', error);
+       return;
+     }
+
+     try {
+       // Exchange code for custom token
+       const response = await fetch(`/auth/callback?code=${code}`);
+       const { customToken, user } = await response.json();
+
+       // Sign in to Firebase with custom token
+       const userCredential = await signInWithCustomToken(auth, customToken);
+       const firebaseUser = userCredential.user;
+
+       console.log('Successfully authenticated:', firebaseUser);
+
+       // Redirect to your app
+       window.location.href = '/dashboard';
+     } catch (error) {
+       console.error('Authentication failed:', error);
+     }
+   };
+   ```
 
 </Steps>
 
