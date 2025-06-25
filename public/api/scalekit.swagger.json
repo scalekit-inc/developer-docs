@@ -1520,39 +1520,6 @@
         ]
       }
     },
-    "/api/v1/passwordless/email/resend": {
-      "post": {
-        "description": "Resend a verification email if the user didn't receive it or if the previous code/link has expired",
-        "tags": ["Passwordless Auth"],
-        "summary": "Resend passwordless email",
-        "operationId": "PasswordlessService_ResendPasswordlessEmail",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/passwordlessResendPasswordlessRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully resent the passwordless authentication email. Returns updated authentication request details with new expiration time.",
-            "schema": {
-              "$ref": "#/definitions/passwordlessSendPasswordlessResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const { authRequestId } = sendResponse;\nconst resendResponse = await scalekit.passwordless\n.resendPasswordlessEmail(\n    authRequestId\n);"
-          }
-        ]
-      }
-    },
     "/api/v1/passwordless/email/send": {
       "post": {
         "description": "Send a verification email containing either a verification code (OTP), magic link, or both to a user's email address",
@@ -1587,6 +1554,39 @@
             "label": "Node.js SDK",
             "lang": "javascript",
             "source": "const response = await scalekit.passwordless.\n  sendPasswordlessEmail(\n\t\"john.doe@example.com\",\n\t{\n\t\ttemplate: \"SIGNIN\",\n\t\texpiresIn: 100,\n\t\tmagiclinkAuthUri: \"https://www.google.com\",\n\t\ttemplateVariables: {\n\t\t\temployeeID: \"EMP523\",\n\t\t\tteamName: \"Alpha Team\",\n\t\t\tsupportEmail: \"support@yourcompany.com\",\n\t\t},\n\t}\n);"
+          }
+        ]
+      }
+    },
+    "/api/v1/passwordless/email/resend": {
+      "post": {
+        "description": "Resend a verification email if the user didn't receive it or if the previous code/link has expired",
+        "tags": ["Passwordless Auth"],
+        "summary": "Resend passwordless email",
+        "operationId": "PasswordlessService_ResendPasswordlessEmail",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/passwordlessResendPasswordlessRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully resent the passwordless authentication email. Returns updated authentication request details with new expiration time.",
+            "schema": {
+              "$ref": "#/definitions/passwordlessSendPasswordlessResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const { authRequestId } = sendResponse;\nconst resendResponse = await scalekit.passwordless\n.resendPasswordlessEmail(\n    authRequestId\n);"
           }
         ]
       }
