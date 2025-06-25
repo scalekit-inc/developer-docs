@@ -6,3 +6,7 @@ export { default as UserProfileSection } from './_user-profile.mdx';
 export { default as CreateUserMembershipSection } from './_create-user-membership.mdx';
 export { default as CreateSessionSection } from './_create-session.mdx';
 export { default as CreateOrganizationSection } from './_create-organization.mdx';
+export { default as SSOIntegrationsSection } from './_sso-integrations.mdx';
+export { default as SCIMIntegrationsSection } from './_scim-integrations.mdx';
+export { default as SocialIntegrationsSection } from './_social-integrations.mdx';
+export { default as AuthSystemsSection } from './_auth-systems.mdx';

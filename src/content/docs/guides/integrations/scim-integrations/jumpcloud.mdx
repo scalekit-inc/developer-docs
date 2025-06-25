@@ -12,14 +12,14 @@ next: false
 
 import { Steps, Aside } from '@astrojs/starlight/components';
 
-This guide is designed to assist administrators in integrating JumpCloud with the Scalekit platform using SCIM provisioning. By following these steps, you can automate user management tasks and ensure that access rights are consistently updated.
+This guide helps administrators sync their JumpCloud directory with an application they want to onboard to their organization. Integrating your application with JumpCloud automates user management tasks and ensures access rights stay up-to-date.
 
 This registration sets up the following:
 
-1. **Endpoint**: This is the URL where Scalekit will send requests to JumpCloud. It acts as a communication point between Scalekit and JumpCloud.
-2. **Bearer Token**: This token is used by Scalekit to authenticate its requests to the endpoint, ensuring that requests are secure and authorized.
+1. **Endpoint**: This is the URL where JumpCloud sends requests to the onboarded app, acting as a communication point between them.
+2. **Bearer Token**: Used by JumpCloud to authenticate its requests to the endpoint, ensuring security and authorization.
 
-By setting up these components, you enable seamless synchronization between JumpCloud and Scalekit.
+These components enable seamless synchronization between your application and the JumpCloud directory.
 
 <Steps>
 1. ### Create an endpoint and API token
@@ -46,25 +46,19 @@ By setting up these components, you enable seamless synchronization between Jump
 
    ![Feature Selection](@/assets/docs/guides/scim-integrations/jumpcloud-scim/4-export-users.png)
 
-   Finally, enter the general info such as display name (this example uses "Provisioning via Scalekit") and click "Save Application"
+   Finally, enter the general info such as display name (this example uses "YourApp") and click "Save Application"
 
    ![Successful addition](@/assets/docs/guides/scim-integrations/jumpcloud-scim/5-success-app-creation.png)
 
 3. ### Configure provisioning settings
 
-   Click on "Configure Application" and proceed to configure the application settings. This opens a modal with "Identity Management" selected. Enter the Endpoint URL and Bearer Token provided by Scalekit.
+   Click on "Configure Application" and proceed to configure the application settings. This opens a modal with "Identity Management" selected. Enter the Endpoint URL and Bearer Token provided in the Step 1.
 
    ![Configure Application Settings](@/assets/docs/guides/scim-integrations/jumpcloud-scim/6-scim-config-page.png)
 
-   "Test Connection" will send the user details to Scalekit (hence your app).
-
-   <Aside type="tip">
-   Explore the logs in Scalekit Dashboard > Organizations > Customer > Events. This will help you troubleshoot any issues with the connection or inspect the connection for better understanding.
-   </Aside>
-
 4. ### Configure group management
 
-   Jumpcloud verifies if Scalekit supports groups, "Group Management" section appears. JumpCloud uses groups as the primary way provision users to your application.
+   JumpCloud uses groups as the primary way provision users to your application.
 
    ![Provisioning Settings](@/assets/docs/guides/scim-integrations/jumpcloud-scim/7-group-management.png)
 
@@ -78,7 +72,7 @@ By setting up these components, you enable seamless synchronization between Jump
 
    1. Go to "SSO Applications" and select the application you created. This opens an Modal. Select the User Group and click on "Save".
    2. Click on the "User Groups" tab and select the apps you want to assign to this group of users.
-   3. If you don't have groups you can create one from "User Groups" tab. In this example, we have created a group called "YourApp Users" and assigned the "Provisioning via Scalekit" app to it.
+   3. If you don't have groups you can create one from "User Groups" tab. In this example, we have created a group called "YourApp Users" and assigned the "YourApp" app to it.
    4. Click on "Save Group" to save the changes.
    5. Now try adding a user to the group. If you don't have users, you can create one from "Users" tab.
 
@@ -86,13 +80,18 @@ By setting up these components, you enable seamless synchronization between Jump
    Make sure to organize your users into groups for easier management and assignment of permissions.
    </Aside>
 
-6. ### Verify successful connection
+6. ### Group based Role Assignment Configuration
 
-   After completing these steps, verify that users and groups are successfully synced between Scalekit and JumpCloud. Check for any errors or issues in the connection logs.
+   To automatically assign roles to users based on their group membership, configure appropriate group to role mapping in the SCIM Configuration Portal.
+
+7. ### Verify successful connection
+
+   After completing these steps, verify that the users and groups are successfully synced by visiting Users and Groups tab in the Admin Portal.
 
    ![Verification Process](@/assets/docs/guides/scim-integrations/jumpcloud-scim/9-synced-user.png)
 
    <Aside type="note">
-   When an group is dis-associated from an app in JumpCloud ("Provisioning via Scalekit" app), JumpCloud sends an group update event to Scalekit that unassigns all the group users to your app. However, the group association is not removed in Scalekit automatically.
+   When an group is disassociated from an app in JumpCloud ("YourApp"), JumpCloud sends an group update event that unassigns all the group users to your app. However, the group association is not removed automatically.
    </Aside>
+
 </Steps>

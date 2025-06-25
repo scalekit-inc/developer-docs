@@ -1,1 +1,11 @@
+#!/bin/sh
+# Check for uncommitted changes
+if [ -n "$(git status --porcelain)" ]; then
+  echo "❌ Error: You have uncommitted changes. Please commit or stash them before pushing."
+  git status --short
+  exit 1
+fi
+
+echo "Running build before push..."
+pnpm run generate-search-index
 pnpm run build

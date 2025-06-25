@@ -1,0 +1,126 @@
+---
+// This component will be hidden but contain all API endpoints for Pagefind to index
+
+import { extractApiRecords } from '../../scripts/search-index-apis';
+import fs from 'fs';
+import path from 'path';
+import AnchorHeading from '@astrojs/starlight/components/AnchorHeading.astro';
+
+// Load Swagger spec
+const swaggerPath = path.join(process.cwd(), 'public/api/scalekit.swagger.json');
+const swaggerContent = fs.readFileSync(swaggerPath, 'utf8');
+const swagger = JSON.parse(swaggerContent);
+const records = extractApiRecords(swagger);
+const endpointRecords = records.filter((r) => r.type === 'api-endpoint');
+
+// Group endpoints by tag for better organization
+const groupedEndpoints = endpointRecords.reduce((acc: Record<string, any[]>, record: any) => {
+  const tag = record.tag || 'Other';
+  if (!acc[tag]) {
+    acc[tag] = [];
+  }
+  acc[tag].push(record);
+  return acc;
+}, {});
+---
+
+<!-- Hidden from UI but indexed by Pagefind -->
+<div class="api-reference-content" style="display: none;" data-pagefind-body>
+  <AnchorHeading level="1" id="api-reference">API Reference</AnchorHeading>
+  <p>Complete reference for all Scalekit API endpoints</p>
+
+  {Object.entries(groupedEndpoints).map(([tag, endpoints]: [string, any[]]) => (
+    <section class="api-section">
+      <AnchorHeading level="2" id={`${tag.toLowerCase()}-apis`}>{tag} APIs</AnchorHeading>
+      <ul class="api-endpoint-list">
+        {endpoints.map((record: any) => (
+          <li class="api-endpoint-item">
+            <AnchorHeading level="3" id={`${record.title.toLowerCase().replace(/\s+/g, '-')}`}>
+              <a href={record.url}>{record.title}</a>
+            </AnchorHeading>
+            <p class="api-endpoint-description">{record.description}</p>
+            <div class="api-endpoint-meta">
+              <span class="api-method">{record.method}</span>
+              <code class="api-path">{record.path}</code>
+              <span class="api-tag">{record.tag}</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</div>
+<!-- Because the API reference is hidden, we don't need to style it
+<style>
+  .api-reference-content {
+    margin-bottom: 2rem;
+  }
+
+  .api-section {
+    margin-bottom: 3rem;
+  }
+
+  .api-endpoint-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .api-endpoint-item {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    background: var(--sl-color-bg-sidebar);
+  }
+
+  .api-endpoint-description {
+    font-size: 1rem;
+    color: var(--sl-color-gray-2);
+    margin: 0 0 1rem 0;
+  }
+
+  .api-endpoint-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .api-method {
+    background: var(--sl-color-accent-low);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-family: var(--sl-font-mono);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--sl-color-accent-high);
+  }
+
+  .api-path {
+    font-family: var(--sl-font-mono);
+    font-size: 0.875rem;
+    color: var(--sl-color-gray-2);
+    background: var(--sl-color-gray-6);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+  }
+
+  .api-tag {
+    color: var(--sl-color-gray-3);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .api-external-link {
+    color: var(--sl-color-accent-high);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-left: auto;
+  }
+
+  .api-external-link:hover {
+    text-decoration: underline;
+  }
+</style> -->

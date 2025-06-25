@@ -46,7 +46,7 @@ export const redirects = {
   '/m2m/scopes': '/guides/m2m/scopes/',
 
   // integrations
-  '/integrations': '/guides/integrations/sso-integrations/',
+  '/integrations': '/guides/integrations/',
   '/integrations/saml': '/guides/integrations/sso-integrations/generic-saml/',
   '/integrations/oidc': '/guides/integrations/sso-integrations/generic-oidc/',
   '/integrations/adfs-saml':

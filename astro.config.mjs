@@ -6,7 +6,6 @@ import path from 'path';
 import vue from '@astrojs/vue';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightSidebarTopics from 'starlight-sidebar-topics';
-import starlightViewModes from 'starlight-view-modes';
 import starlightImageZoom from 'starlight-image-zoom';
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
 import starlightThemeRapide from 'starlight-theme-rapide';
@@ -79,7 +78,6 @@ export default defineConfig({
           showCaptions: true,
         }),
         starlightSidebarTopics(sidebarConfig, { topics }),
-        // starlightViewModes(),
       ],
       head: [
         // Temporarily commenting out PostHog to test if it's causing sidebar issues
