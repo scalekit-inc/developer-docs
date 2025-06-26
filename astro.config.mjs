@@ -80,7 +80,22 @@ export default defineConfig({
         starlightSidebarTopics(sidebarConfig, { topics }),
       ],
       head: [
-        // Temporarily commenting out PostHog to test if it's causing sidebar issues
+        {
+          tag: 'script',
+          attrs: {
+            async: true,
+            src: 'https://www.googletagmanager.com/gtag/js?id=G-F4K36V5HPL',
+          },
+        },
+        {
+          tag: 'script',
+          content: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-F4K36V5HPL');
+          `,
+        },
         {
           tag: 'script',
           content: `
