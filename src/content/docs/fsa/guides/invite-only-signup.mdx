@@ -74,9 +74,8 @@ You can implement invite-only signup by configuring Scalekit to disable public s
            from scalekit import AuthorizationUrlOptions
 
            redirect_uri = 'http://localhost:3000/api/callback'
-           options = AuthorizationUrlOptions(
-               scopes=['openid', 'profile', 'email', 'offline_access']
-           )
+           options = AuthorizationUrlOptions()
+           options.scopes = ['openid', 'profile', 'email', 'offline_access']
 
            authorization_url = scalekit.get_authorization_url(redirect_uri, options)
 
@@ -127,7 +126,7 @@ You can implement invite-only signup by configuring Scalekit to disable public s
       You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
 </Steps>
 
-With these configurations, your B2B application now has a sign-in page but no public signup option, ensuring that only invited users can access your application. After successful authentication, you can proceed to [create a session](/fsa/guides/implement-login/#create-a-user-session).
+With these configurations, your B2B application now has a sign-in page but no public signup option, ensuring that only invited users can access your application. After successful authentication, you can proceed to [create a session](/fsa/guides/implement-signin/#create-a-user-session).
 
 ## Invite-only sign up using Scalekit SDK
 
@@ -150,7 +149,7 @@ Common use cases include:
     **Key parameters:**
     - `email`: The email address of the user to invite (required)
     - `organization_id`: The ID of the organization they're joining (required)
-    - `sendInvitationEmail`: Set to `true` to automatically send invitation emails (recommended)
+    - `sendActivationEmail`: Set to `true` to automatically send invitation emails (recommended)
     - `roles`: Optional array of roles to assign to the invited user
     - `metadata`: Optional custom data to associate with the membership
 
@@ -246,10 +245,9 @@ Common use cases include:
         @app.route('/auth/login/initiate')
         def initiate_login():
             redirect_uri = 'http://localhost:3000/api/callback'
-            options = AuthorizationUrlOptions(
-                scopes=['openid', 'profile', 'email', 'offline_access'],
-                prompt='create'
-            )
+            options = AuthorizationUrlOptions()
+            optons.scopes = ['openid', 'profile', 'email', 'offline_access']
+            options.prompt = 'create'
 
             authorization_url = scalekit.get_authorization_url(redirect_uri, options)
             return redirect(authorization_url)
