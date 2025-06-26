@@ -18,18 +18,39 @@ import { Card, CardGrid, Steps, TabItem, Tabs, Aside } from '@astrojs/starlight/
 import CheckItem from '@/components/ui/CheckItem.astro';
 import InstallSDK from '@components/templates/_installsdk.mdx'
 
-This quickstart guides you through integrating Full-Stack Authentication into your application. You'll configure hosted sign-in and sign-up pages, manage user accounts and sessions, and enable secure logout for your users. Built for B2B SaaS, Scalekit's multi-tenant architecture automatically respects your app's workspace and workspace-owner model out of the box.
+Get up and running with Scalekit's Full Stack Authentication in under 10 minutes. You'll build a complete authentication flow with hosted sign-in pages, user session management, and secure logout - all optimized for B2B SaaS applications.
 
-<div>
-   **Before you begin**
-  <CheckItem iconName="external">
-     [Set up your Scalekit account](https://app.scalekit.com/ws/signup)
-  </CheckItem>
-  <CheckItem iconName="github">
-     [Clone the quickstart repository in express](https://github.com/scalekit-developers/nodejs-example-apps/tree/main/expressjs-loginbox-authn)
-  </CheckItem>
-</div>
+## What you'll build
 
+By the end of this guide, your application will have:
+
+- **Hosted authentication pages** - Let Scalekit handle sign-in/sign-up UI
+- **Multi-tenant user management** - Automatic workspace separation for B2B apps
+- **Session management** - Secure token handling with automatic refresh
+- **Multiple auth methods** - Email/password, social logins, and enterprise SSO
+- **Secure logout** - Complete session invalidation
+
+## How it works
+
+Scalekit handles the complex authentication flow while you focus on your core product:
+
+![Full-Stack Authentication Flow](@/assets/docs/fsa/overview/1.png)
+
+1. **User initiates sign-in** - Your app redirects to Scalekit's hosted auth page
+2. **Identity verification** - User authenticates via their preferred method
+3. **Secure callback** - Scalekit returns user profile and session tokens
+4. **Session creation** - Your app establishes a secure user session
+5. **Protected access** - User can access your application's features
+
+## Before you begin
+
+- <a href="https://app.scalekit.com/ws/signup" target="_blank">Signup for a Scalekit account</a>
+- Copy your API credentials from the Scalekit dashboard's API Config section
+- Register your redirect URLs in the Scalekit Dashboard under Redirects section
+
+:::tip
+Redirect URL in code must exactly match what you configured in the Scalekit dashboard. Mismatched URLs are the most common integration issue.
+:::
 Let's get started!
 
 <Steps>
@@ -112,20 +133,19 @@ Let's get started!
       ```
       </TabItem>
     </Tabs>
-  2. ## Redirect the user to the authentication page
+  2. ## Redirect users to authentication page
        Generate the authorization URL by passing a [registered](/fsa/reference/redirects) _callback URL_ and _scopes_ to the Scalekit SDK.
         <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
-        ```javascript title="Express.js" wrap "authorizationUrl" ins={3,4} {"Redirect user to Scalekit's authentication page":8}
-        const redirectUri = 'http://localhost:3000/api/callback';
+        ```javascript title="Express.js"
+        const redirectUri = '<http://localhost:3000/api/callback>';
         const options = {
-          scopes: ['openid', 'profile', 'email', 'offline_access'],
-          prompt: 'create', // optional - 'login' for login flow or 'create' for sign up flow
+          scopes: ['openid', 'profile', 'email', 'offline_access']
         };
 
-         const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+        const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
 
-         res.redirect(authorizationUrl);
+        res.redirect(authorizationUrl);
         ```
         </TabItem>
         <TabItem value="python" label="Python">
@@ -133,9 +153,9 @@ Let's get started!
         from scalekit import AuthorizationUrlOptions
 
         redirect_uri = 'http://localhost:3000/api/callback'
-        options = AuthorizationUrlOptions()
-        options.scopes=['openid', 'profile', 'email', 'offline_access']
-        options.prompt='create'  # optional - 'login' for login flow or 'create' for sign up flow
+        options = AuthorizationUrlOptions(
+            scopes=['openid', 'profile', 'email', 'offline_access']
+        )
 
         authorization_url = scalekit.get_authorization_url(redirect_uri, options)
 
@@ -147,8 +167,7 @@ Let's get started!
         ```go title="Gin"
         redirectUri := "http://localhost:3000/api/callback"
         options := scalekit.AuthorizationUrlOptions{
-            Scopes: []string{"openid", "profile", "email", "offline_access"},
-            Prompt: "create", // optional - 'login' for login flow or 'create' for sign up flow
+            Scopes: []string{"openid", "profile", "email", "offline_access"}
         }
 
         authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
@@ -170,7 +189,6 @@ Let's get started!
         String redirectUri = "http://localhost:3000/api/callback";
         AuthorizationUrlOptions options = new AuthorizationUrlOptions();
         options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
-        options.setPrompt("create"); // optional - 'login' for login flow or 'create' for sign up flow
 
         URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
         ```
@@ -179,19 +197,14 @@ Let's get started!
 
      This will redirect the user to Scalekit's managed sign-in page.
 
+1. ## Handle Authentication Callback
 
-3. ## Allow users to sign in or sign up
-      Users can now sign in or sign up using their [preferred authentication methods](/fsa/guides/auth-methods). Each authentication method is managed by Scalekit to successfully verify the user's identity.
-
-      ![User journey from sign-in to Scalekit callback](@/assets/docs/fsa/quickstart/1.png)
-
-4. ## Retrieve user profile after identity verification
-      Scalekit triggers a callback to your registered _callback URL_ with an authorization code. Exchange the code to get the user's profile information.
+      After users authenticate, Scalekit redirects them back to your registered callback URL with an authorization code. Exchange this code to get the user's profile and session tokens:
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
         ```javascript collapse={22-26}
         import scalekit from '@/utils/auth.js'
-        const redirectUri = 'http://localhost:3000/api/callback';
+        const redirectUri = '<http://localhost:3000/api/callback>';
 
         // Get the authorization code from the scalekit initiated callback
         app.get('/api/callback', async (req, res) => {
@@ -365,7 +378,8 @@ Let's get started!
         </TabItem>
       </Tabs>
 
-      The `authenticateWithCode` method returns an object containing the user's profile information (`user` object) and `idToken` (JWT).
+      The `authenticateWithCode` method returns an object containing the user's profile information (`user` object) and session tokens including `idToken`, `accessToken` and `refreshToken`.
+
       <Tabs syncKey="auth-result">
         <TabItem value="authResult" label="authResult">
         ```js
@@ -412,10 +426,9 @@ Let's get started!
 
       You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
 
-5. ## Create a session and log in the user
-      You have successfully verified the user's identity and retrieved their profile information. Maintain this authenticated state by creating a session and storing the session tokens (specifically the `accessToken` and `refreshToken`).
+2. ## Create and manage user sessions
 
-      Enable the session option to retrieve the session tokens from the `authResult` object. This allows for setting `accessToken` as HTTP-only cookies and verify authentication state across multiple requests.
+      Now that you've the entire user's profile details including their email address, verification status, create a secure session by storing the session tokens. Use encrypted HTTP-only cookies for the access token and securely store the refresh token:
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
         ```javascript ins={1,3}
@@ -834,10 +847,9 @@ Let's get started!
 
       Successfully authenticated users can now access your dashboard.
 
-6. ## Log out the user
-      To log out a user securely, you must:
-      1. Clear all session tokens from your application
-      2. Notify Scalekit to invalidate the user's session
+3. ## Log out the user
+
+      To properly log out users, clear local session data and invalidate their session on Scalekit's servers:
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
@@ -959,8 +971,17 @@ Let's get started!
           ```
         </TabItem>
       </Tabs>
-      The logout process completes in two steps: Scalekit invalidates the user's session on our servers, then redirects them to your app's home page or another URL you registered in one of the [post-logout redirects](/fsa/reference/redirects).
+      The logout process completes when Scalekit invalidates the user's session and redirects them to your specified post-logout URL.
+
 </Steps>
+## What you've accomplished
+
+🎉 **Congratulations!** You've successfully integrated Scalekit's Full Stack Authentication. Your application now has:
+
+- **Complete authentication flow** - Sign-in, sign-up, and logout
+- **Secure session management** - Encrypted tokens with automatic refresh
+- **Multi-tenant architecture** - Ready for B2B SaaS scaling
+- **Enterprise-ready foundation** - Built to handle SSO and advanced auth methods
 
 ## What's next?
 
