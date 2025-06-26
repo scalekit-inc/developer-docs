@@ -111,25 +111,24 @@ Create new users in your organization with profile information and metadata. Use
     ```python showLineNumbers=false
     import os
     from scalekit import ScalekitClient
-    from scalekit.v1.users.users_pb2 import User
-    from scalekit.v1.commons.commons_pb2 import UserProfile
+    from scalekit.v1.users.users_pb2 import CreateUser, CreateUserProfile
 
-    sc = ScalekitClient(
+    scalekit_client = ScalekitClient(
         env_url=os.getenv("SCALEKIT_ENV_URL"),
         client_id=os.getenv("SCALEKIT_CLIENT_ID"),
         client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
     )
 
-    user_msg = User(
+    user_obj = CreateUser(
         email="user@example.com",
         external_id="ext_12345a67b89c",
         metadata={"department": "engineering", "location": "nyc-office"},
-        user_profile=UserProfile(
+        user_profile=CreateUserProfile(
             first_name="John",
             last_name="Doe"
         )
     )
-    create_resp, _ = sc.users.create_user("org_123", user_msg)
+    create_resp = scalekit_client.users.create_user_and_membership(organization_id="org_123", user=user_obj)
     ```
   </TabItem>
   <TabItem value="go" label="Go">
@@ -230,8 +229,8 @@ Create new users in your organization with profile information and metadata. Use
   </TabItem>
   <TabItem value="python" label="Python">
     ```python showLineNumbers=false
-    response = users.get_user("org_123", "usr_456")
-    user = response.user
+    response = scalekit_client.users.get_user(user_id="usr_456")
+    user = response[0].user
     ```
   </TabItem>
   <TabItem value="go" label="Go">
@@ -279,11 +278,10 @@ Users need to keep their profile information current, and administrators may nee
   <TabItem value="python" label="Python">
     ```python
     from datetime import datetime
-    from scalekit.v1.users.users_pb2 import UpdateUser
-    from scalekit.v1.commons.commons_pb2 import UserProfile
+    from scalekit.v1.users.users_pb2 import UpdateUser, UpdateUserProfile
 
     update_user = UpdateUser(
-        user_profile=UserProfile(
+        user_profile=UpdateUserProfile(
             first_name="Jane",
             last_name="Smith",
         ),
@@ -295,7 +293,7 @@ Users need to keep their profile information current, and administrators may nee
         },
     )
 
-    sc.users.update_user(user_id="usr_456", user=update_user)
+    response = scalekit_client.users.update_user(user_id="usr_456", user=update_user)
     print("User profile updated!")
     ```
   </TabItem>
@@ -382,7 +380,7 @@ Users need to keep their profile information current, and administrators may nee
         },
     )
 
-    sc.users.update_user(user_id="usr_456", user=update_user)
+    response = scalekit_client.users.update_user(user_id="usr_456", user=update_user)
     print("User metadata updated")
     ```
   </TabItem>
