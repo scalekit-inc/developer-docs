@@ -20,11 +20,15 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
   <TabItem value="python" label="Python">
     ```python
-    from scalekit.users import UserClient
+    
+    from scalekit import ScalekitClient
     from scalekit.v1.users.users_pb2 import CreateUser, CreateUserProfile
 
-    # Initialize user client
-    user_client = UserClient(scalekit.core_client)
+    # Initialize scalekit client
+    scalekit = ScalekitClient(
+            <'SCALEKIT_ENV_URL'>,
+            <'SCALEKIT_CLIENT_ID'>,
+            <'SCALEKIT_CLIENT_SECRET'>)
 
     # Create user object
     user = CreateUser(
@@ -41,10 +45,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     )
 
     # Create the user
-    new_user = user_client.create_user('org_xxxxxxxxxxxx', user)
-
-    # Note: Python SDK doesn't have createUserAndMembership equivalent
-    # User is automatically added to the organization when created
+    new_user = scalekit.users.create_user_and_membership(organization_id='org_xxxxxxxxxxxx', user=user)
     ```
   </TabItem>
   <TabItem value="go" label="Go">
