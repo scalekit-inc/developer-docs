@@ -1,0 +1,138 @@
+---
+title: Model your data
+sidebar:
+  label: "Design your data model"
+next:
+  label: "Need help to set up?"
+  link: "/contact-us"
+---
+
+import {
+  CardGrid, Aside, TabItem, Tabs
+ } from '@astrojs/starlight/components'
+
+Before migrating to Scalekit, you need to map your existing data model to Scalekit's core entities. This guide shows you how to connect your data model to Scalekit's authentication and user management system. You'll learn different approaches for common data model patterns.
+Scalekit organizes your application's data into two main components:
+
+**Organizations** represent your application's tenants or workspaces. Each organization can contain multiple users who work together.
+
+**Users** are the people who access your application. Each user:
+- Has a unique email address within their organization
+- Can belong to multiple organizations
+- Is automatically linked across organizations when using the same email address
+
+This structure lets you manage access across different teams while keeping user identities consistent.
+
+![](@/assets/docs/fsa/model-your-data/0.png)
+
+## Organization
+
+A top-level Organization represents your business customers. These customers pay for your service and control their organization's data and resources. Each Organization has four key responsibilities:
+
+<CardGrid>
+
+<div>
+**Account ownership**
+- Manages subscription or contract terms
+- Controls billing and service upgrades
+- Handles free tier management
+</div>
+
+<div>
+**Access management**
+- Controls who can access their organization
+- Defines user roles and permissions
+- Manages access policies
+</div>
+
+<div>
+**User management**
+- Adds and removes users
+- Updates user information
+- Manages security settings such as authentication methods
+</div>
+
+<div>
+**Data segregation**
+- Keeps data isolated
+- Maintains security boundaries
+- Ensures data governance
+</div>
+
+</CardGrid>
+
+
+<Aside type='note'>
+
+For both business and individual users, create an Organization for each user. This lets individual users easily add team members later.
+
+</Aside>
+
+Store the `organization_id` as a column in your database to map your organization entity directly to Scalekit's Organization. This creates a simple one-to-one relationship between your system and Scalekit.
+
+### Custom metadata
+
+Organizations support custom metadata fields to store additional information beyond the default attributes. Use metadata to track subscription plans, feature flags, business rules, and integration settings. This flexibility helps you maintain organization-specific configurations and preferences within your Scalekit implementation.
+
+<Tabs>
+
+<TabItem label='Metadata'>
+
+```sh title="Create a new organization with metadata" showLineNumbers=false
+curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations \
+  --request POST \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "display_name": "Megasoft Inc",
+  "metadata": {
+    "invoice_email": "invoices@megasoft.com"
+  }
+}'
+```
+</TabItem>
+
+</Tabs>
+
+### External IDs
+
+Organizations can store external IDs to link with your existing systems. This helps you maintain consistent organization identification across your infrastructure and track organization data in your current tools.
+
+<Tabs>
+
+<TabItem label='External IDs'>
+
+```sh title="Create a new organization with an external ID" showLineNumbers=false
+curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations \
+  --request POST \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "display_name": "Megasoft Inc",
+  "external_id": "CUST-12345-MGSFT",
+}'
+```
+
+</TabItem>
+</Tabs>
+
+## Map users to Scalekit identities
+
+Users represent people in Scalekit. Each User belongs to a specific Organization and is identified by their email address within that Organization. For example, if a person with email john.doe@megacorp.com belongs to three Organizations, Scalekit creates three separate User records - one for each Organization.
+
+Users can switch between Organizations without logging out. This design provides data isolation between Organizations while maintaining a smooth user experience. Each Organization controls which users can access its resources.
+
+You'll need to create User objects for each person in your application. The number of User objects depends on how your application manages user-organization relationships.
+
+### Migrating from 1:1 data model
+For applications where each user belongs to a single Organization, create one User record in Scalekit for each existing user. Store the Scalekit user_id in your system for easy reference.
+
+Scalekit allows users to belong to multiple Organizations, unlike systems that restrict users to a single Organization. If your application enforces a one-Organization-per-user rule, you must implement this constraint before calling Scalekit's APIs.
+
+Consider removing this restriction to support contractors and companies that need multiple instances of your application. This change is optional during migration.
+
+### Migrating from 1:many data model
+
+For applications that share user records across multiple Organizations, create separate User objects in Scalekit for each Organization-user relationship.
+
+If you maintain a membership table linking Users and Organizations, add Scalekit user_ids to these records. Note that updating a User's email or name in Scalekit only affects that specific User record. Keep your membership table synchronized with Scalekit, or use Scalekit as the source of truth for authentication and authorization.
+
+Many customers start by migrating their existing data model using a mapping table, then later update to an organization-tenancy model for better security and data governance.
