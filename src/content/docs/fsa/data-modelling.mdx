@@ -1,0 +1,163 @@
+---
+title: Model your data
+sidebar:
+  label: "Design your data model"
+next:
+  label: "Need help to set up?"
+  link: "/contact-us"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+---
+
+import {
+  CardGrid, Aside, TabItem, Tabs, Card, LinkCard
+ } from '@astrojs/starlight/components'
+
+The first step in architecting your application to use Scalekit is mapping your current data model to Scalekit's core entities. This guide outlines key considerations and approaches for a range of existing data models.
+
+Scalekit's B2B data model centers on two first-class API entities: Organizations and Users.
+
+## Scalekit's core concepts
+
+Scalekit organizes your application's data into two main components:
+
+- **Organizations** represent your application's tenants or workspaces. They are the core of Scalekit's multi-tenant architecture. Each organization can contain multiple users who work together.
+
+- **Users** are the people who access your application. Each user:
+  - Has a unique email address within their organization.
+  - Can belong to multiple organizations.
+  - Is automatically linked across organizations when using the same email address.
+
+This structure lets you manage access across different teams while keeping user identities consistent.
+
+![](@/assets/docs/fsa/model-your-data/1-v.png)
+
+## Defining your top-level tenant
+
+Your application's top-level tenant is typically your business customer, who pays for your service and owns all the data and resources within their workspace. This tenant maps directly to Scalekit's **Organization** entity. This meta label can be [customized](/fsa/guides/manage-organization/) to _team_, _workspace_, or _account_ to match your product's terminology.
+
+Key characteristics of a top-level tenant include:
+
+<CardGrid>
+
+<Card>
+##### Account ownership
+- Manages subscriptions or contract terms
+- Controls billing and service-level agreements
+</Card>
+
+<Card>
+##### Access management
+- Controls who can access their organization
+- Defines user roles and permissions
+- Manages security policies
+</Card>
+
+<Card>
+##### User management
+- Adds and removes users
+- Updates user information
+- Manages authentication methods
+</Card>
+
+<Card>
+##### Data segregation
+- Keeps data isolated
+- Maintains security boundaries
+- Ensures data privacy and governance
+</Card>
+
+</CardGrid>
+
+#### Organization meta label
+
+You can customize this meta label to _team_, _workspace_, or _account_ to match your product's terminology. Navigate to Scalekit Dashboard > User management > Settings and update the "Organization" meta name.
+
+
+### Extending Organizations
+
+Organizations support custom metadata and external IDs to integrate seamlessly with your existing systems.
+
+#### Custom metadata
+
+Use custom metadata to store additional information like subscription plans, internal customer IDs, or feature flags. This helps you manage organization-specific configurations within Scalekit and can be included in JWT claims for use in your application.
+
+<Tabs>
+<TabItem label='Metadata'>
+```sh title="Create a new organization with metadata" showLineNumbers=false
+curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations \
+  --request POST \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "display_name": "Megasoft Inc",
+  "metadata": {
+    "invoice_email": "invoices@megasoft.com",
+    "plan_type": "enterprise"
+  }
+}'
+```
+</TabItem>
+</Tabs>
+
+#### External IDs
+Use external IDs to link Scalekit Organizations with your existing systems, such as a customer ID from your billing platform. This maintains consistent identification across your infrastructure.
+
+<Tabs>
+<TabItem label='External IDs'>
+```sh title="Create a new organization with an external ID" showLineNumbers=false
+curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations \
+  --request POST \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "display_name": "Megasoft Inc",
+  "external_id": "CUST-12345-MGSFT",
+  "metadata": {}
+}'
+```
+</TabItem>
+</Tabs>
+
+## Map users to Scalekit identities
+
+In Scalekit, a **User** record represents a person's membership within a *specific* Organization. If one person belongs to three different Organizations, Scalekit creates three separate User records—one for each. This design ensures strict data isolation while allowing users to switch between Organizations seamlessly.
+
+Your approach to mapping users will depend on your current data model.
+
+### Migrating from a 1-to-1 model
+
+To migrate from a single-organization model, create one Scalekit User record for each existing user in each organization. Store the Scalekit `user_id` in your internal user table for reference. Each organization maintains its own independent user profiles. A user's profile in one organization does not affect their profile in other organizations.
+
+<Aside type="note" title="Private beta">
+This feature is currently in private beta. [Contact us](/support/contact-us) to enable it for your account.
+</Aside>
+
+### Migrating from a 1-to-many model
+
+If your application allows a single user record to be shared across multiple Organizations, you will create multiple User objects in Scalekit—one for each Organization that the user belongs to.
+
+If you already have a membership table that stores the relationship between users and organizations, you can add the Scalekit `user_id` to that table. Note that changing a User's name or other attributes in Scalekit only affects that specific record. It does not automatically propagate to other User records that share the same email address. You must manage these relationships and updates in your application.
+
+
+## User deduplication
+
+Scalekit uses the email address as the unique identifier for a User within an Environment. This means:
+- Two different Users cannot have the same email address within the same Environment.
+- Scalekit automatically consolidates accounts. If a user logs in with an email and password and later uses Google OAuth with the same email, both authentication methods will be linked to the same User record.
+
+Because of this, you may need to merge duplicate user accounts in your system before migrating to Scalekit. Attempting to create two Users with the same email in the same organization or environment will result in an error.
+
+## Linking Scalekit IDs
+
+You should continue to maintain your own user and group tables and link them to Scalekit by storing the `organization_id` and `user_id` in your database. You can also store your internal identifiers as `external_id` or additional `metadata` fields on the corresponding user objects for a two-way reference.
+
+<CardGrid>
+
+<LinkCard title="Refer to User API" href="https://docs.scalekit.com/apis#tag/users/POST/api/v1/memberships/organizations/{organization_id}/users/{id}" description='Add an existing user to an organization and assign them specific roles and permissions.' />
+
+<LinkCard title="Work with user profiles" href="/fsa/reference/user-profile/" description='Learn about user profile attributes and how to manage user information in Scalekit.' />
+
+</CardGrid>

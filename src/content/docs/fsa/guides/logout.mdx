@@ -1,0 +1,298 @@
+---
+title: "Secure logout"
+description: "Learn how to securely log out users from your application and invalidate their sessions with Scalekit."
+sidebar:
+  label: "Implement logout"
+prev:
+  label: "Manage sessions"
+  link: "/fsa/guides/manage-session/"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+---
+
+import { Aside, Badge, Steps, Tabs, TabItem, Card } from '@astrojs/starlight/components';
+
+Securely logging a user out is a critical part of session management. A complete logout process involves two main actions:
+1.  **Clearing the application session**: Removing session tokens from your application's storage (e.g., browser cookies and backend database).
+2.  **Invalidating the Scalekit session**: Informing Scalekit to end the user's session on its servers.
+
+
+## User-initiated logout
+
+This is the standard flow where a user clicks a "Logout" button in your application.
+
+![](@/assets/docs/fsa/logout/1.png)
+
+<Steps>
+1. #### Create a logout endpoint
+   Your application should have an endpoint, like `/logout`, that handles the logout logic.
+
+2. #### Clear the application session
+   First, clear all session data stored by your application. This includes the `accessToken` from cookies and the `refreshToken` from your database.
+
+    <Tabs syncKey="tech-stack">
+      <TabItem label="Node.js">
+        ```javascript title="Express.js"
+        // A function to clear session data
+        async function clearSessionData(res, userId) {
+          // Clear the access token cookie
+          res.clearCookie('accessToken');
+
+          // Remove the refresh token from your database
+          await db.deleteRefreshToken(userId);
+        }
+
+        app.get('/logout', (req, res) => {
+          // Assuming you have the user's ID from a verified session
+          const userId = req.user.id;
+          const idToken = req.cookies.idToken; // Or retrieve from session
+          clearSessionData(res, userId);
+
+          // Proceed to invalidate the Scalekit session...
+        });
+        ```
+      </TabItem>
+      <TabItem label="Python">
+        ```python title="Flask"
+        from flask import Flask, session, request, redirect, make_response
+        from scalekit import LogoutUrlOptions
+
+        app = Flask(__name__)
+
+        @app.route('/logout')
+        def logout():
+            user_id = session.get('user_id')
+            id_token = request.cookies.get('idToken')
+            post_logout_redirect_uri = 'http://localhost:3000/login'
+
+            # Clear local session data
+            response = make_response()
+            clear_session_data(response, user_id)
+
+            # Generate the Scalekit logout URL
+            logout_url = scalekit.get_logout_url(
+                LogoutUrlOptions(
+                    id_token_hint=id_token,
+                    post_logout_redirect_uri=post_logout_redirect_uri
+                )
+            )
+
+            # Redirect to Scalekit to complete the logout
+            return redirect(logout_url)
+        ```
+      </TabItem>
+      <TabItem label="Go">
+        ```go title="Gin"
+        func logoutHandler(c *gin.Context) {
+            userID := c.GetString("user_id")
+            idToken, _ := c.Cookie("idToken")
+            postLogoutRedirectURI := "http://localhost:3000/login"
+
+            // Clear local session data
+            if err := clearSessionData(c, userID); err != nil {
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+            }
+
+            // Generate the Scalekit logout URL
+            logoutURL, err := scalekit.GetLogoutUrl(LogoutUrlOptions{
+                IdTokenHint: idToken,
+                PostLogoutRedirectUri: postLogoutRedirectURI,
+            })
+            if err != nil {
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+            }
+
+            // Redirect to Scalekit to complete the logout
+            c.Redirect(http.StatusFound, logoutURL.String())
+        }
+        ```
+      </TabItem>
+      <TabItem label="Java">
+        ```java title="Spring Boot"
+        // A function to clear session data
+        private void clearSessionData(HttpServletResponse response, String userId) {
+            // Clear the access token cookie
+            Cookie cookie = new Cookie("accessToken", null);
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+
+            // Remove the refresh token from your database
+            db.deleteRefreshToken(userId);
+        }
+
+        @GetMapping("/logout")
+        public void logout(HttpServletRequest request, HttpServletResponse response) {
+            // Assuming you have the user's ID from a verified session
+            String userId = (String) request.getSession().getAttribute("user_id");
+            String idToken = Arrays.stream(request.getCookies())
+                .filter(c -> c.getName().equals("idToken"))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElse(null);
+
+            clearSessionData(response, userId);
+
+            // Proceed to invalidate the Scalekit session...
+        }
+        ```
+      </TabItem>
+    </Tabs>
+
+3. #### Invalidate the Scalekit session
+   After clearing your local session, redirect the user to the Scalekit logout endpoint. This will invalidate their session on Scalekit's servers and then redirect them back to your application.
+
+    <Tabs syncKey="tech-stack">
+      <TabItem label="Node.js">
+        ```javascript title="Express.js"
+        app.get('/logout', (req, res) => {
+          const userId = req.user.id;
+          const idToken = req.cookies.idToken;
+          const postLogoutRedirectUri = 'http://localhost:3000/login';
+
+          // Clear local session data
+          clearSessionData(res, userId);
+
+          // Generate the Scalekit logout URL
+          const logoutUrl = scalekit.getLogoutUrl({
+            idToken,
+            postLogoutRedirectUri
+          });
+
+          // Redirect to Scalekit to complete the logout
+          res.redirect(logoutUrl);
+        });
+        ```
+      </TabItem>
+      <TabItem label="Python">
+        ```python title="Flask"
+        from flask import session, request, redirect, make_response
+        from scalekit import LogoutUrlOptions
+
+        @app.route('/logout')
+        def logout():
+            user_id = session.get('user_id')
+            id_token = request.cookies.get('idToken')
+            post_logout_redirect_uri = 'http://localhost:3000/login'
+
+            # Clear local session data
+            response = make_response()
+            clear_session_data(response, user_id)
+
+            # Generate the Scalekit logout URL
+            logout_url = scalekit.get_logout_url(
+                LogoutUrlOptions(
+                    id_token_hint=id_token,
+                    post_logout_redirect_uri=post_logout_redirect_uri
+                )
+            )
+
+            # Redirect to Scalekit to complete the logout
+            return redirect(logout_url)
+        ```
+      </TabItem>
+      <TabItem label="Go">
+        ```go title="Gin"
+        func logoutHandler(c *gin.Context) {
+            userID := c.GetString("user_id")
+            idToken, _ := c.Cookie("idToken")
+            postLogoutRedirectURI := "http://localhost:3000/login"
+
+            // Clear local session data
+            if err := clearSessionData(c, userID); err != nil {
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+            }
+
+            // Generate the Scalekit logout URL
+            logoutURL, err := scalekit.GetLogoutUrl(LogoutUrlOptions{
+                IdTokenHint: idToken,
+                PostLogoutRedirectUri: postLogoutRedirectURI,
+            })
+            if err != nil {
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+            }
+
+            // Redirect to Scalekit to complete the logout
+            c.Redirect(http.StatusFound, logoutURL.String())
+        }
+        ```
+      </TabItem>
+      <TabItem label="Java">
+        ```java title="Spring Boot"
+        @GetMapping("/logout")
+        public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+            String userId = (String) request.getSession().getAttribute("user_id");
+            String idToken = Arrays.stream(request.getCookies())
+                .filter(c -> c.getName().equals("idToken"))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElse(null);
+            String postLogoutRedirectUri = "http://localhost:3000/login";
+
+            // Clear local session data
+            clearSessionData(response, userId);
+
+            // Generate the Scalekit logout URL
+            LogoutUrlOptions options = new LogoutUrlOptions();
+            options.setIdTokenHint(idToken);
+            options.setPostLogoutRedirectUri(postLogoutRedirectUri);
+            // options.setState(state);  // optional
+
+            URL logoutUrl = scalekit.authentication().getLogoutUrl(options);
+
+            // Redirect to Scalekit to complete the logout
+            response.sendRedirect(logoutUrl.toString());
+        }
+        ```
+      </TabItem>
+    </Tabs>
+    The post logout redirect URI is the destination to which the user will be redirected after logging out. For example, take them to website landing page or a login page again. This must be [registered post-login URL](/fsa/reference/redirects/) in the Scalekit dashboard.
+</Steps>
+
+## IdP-initiated logout <Badge text="Coming Soon" />
+
+For enterprise customers using SSO, an administrator might initiate logout directly from their Identity Provider's (IdP) dashboard (e.g., Okta). Scalekit supports this flow by notifying your application to terminate the user's session.
+
+<Aside>
+  Your application must expose a webhook endpoint to receive logout notifications from Scalekit.
+</Aside>
+
+When this feature is available, the flow will be as follows:
+1.  An IdP administrator initiates a logout.
+2.  The IdP sends a logout request to Scalekit.
+3.  Scalekit calls a pre-configured webhook endpoint on your application.
+4.  Your application receives the request, identifies the user, and clears their session data, effectively logging them out.
+
+<Card title="Contact Support" icon="slack">
+    This feature is currently available upon request. [Contact our support team](/support/contact-us) to have this feature enabled for your account.
+</Card>
+
+## Backchannel logout <Badge text="Coming Soon" />
+
+Consider a scenario where a organization or a workspace uses multiple applications that all authenticate through Scalekit: a project management tool, a document sharing platform, and a team chat application. When a user logs out from one application, they expect to be logged out from all applications automatically for security reasons.
+
+Backchannel logout enables this coordinated logout across multiple applications. Instead of relying on users to manually log out from each application, the system automatically terminates all related sessions.
+
+<Aside>
+  Your application must expose a backchannel logout endpoint to receive logout notification from Scalekit.
+</Aside>
+
+The flow will be as follows:
+1.  A user logs out from one of your applications.
+2.  Scalekit identifies all applications sharing the same user session.
+3.  Scalekit sends a logout notification to each application's registered backchannel logout endpoint.
+4.  Each application receives the notification, validates it, and terminates the user's session.
+
+This ensures that logging out from one application automatically logs the user out from all connected applications, providing a seamless and secure experience.
+
+<Card title="Contact Support" icon="slack">
+    This feature is currently in development. [Contact our support team](/support/contact-us) to learn more about backchannel logout capabilities.
+</Card>

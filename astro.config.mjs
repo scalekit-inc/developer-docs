@@ -80,7 +80,6 @@ export default defineConfig({
         starlightSidebarTopics(sidebarConfig, { topics }),
       ],
       head: [
-        // Google Analytics
         {
           tag: 'script',
           attrs: {
@@ -97,7 +96,6 @@ export default defineConfig({
             gtag('config', 'G-F4K36V5HPL');
           `,
         },
-        // PostHog Analytics
         {
           tag: 'script',
           content: `
@@ -138,7 +136,7 @@ export default defineConfig({
                   }
                 });
 
-                // Add MutationObserver to handle dynamically loaded images
+                // Add MutationObserver to handle dynamically loaded images - ONLY IN IFRAME
                 const observer = new MutationObserver((mutations) => {
                   mutations.forEach((mutation) => {
                     mutation.addedNodes.forEach((node) => {

@@ -1,0 +1,44 @@
+---
+title: "Bring your own signup form (Archived)"
+description: "Archived guide on building a custom signup form while using Scalekit APIs."
+sidebar: false
+---
+import { Steps, Aside, LinkCard } from '@astrojs/starlight/components';
+import { InstallSDKSection, EnvSection, CreateOrganizationSection, CreateUserMembershipSection } from '@components/templates';
+
+## Bring your own signup form
+
+For applications that want to control the sign-up experience on the UI, you can use the Scalekit API to power the sign-up form. This allows you to build your own signup forms while leveraging user-management capabilities.
+
+<Steps>
+1. ### Collect user information
+   Use your custom form to collect the necessary details from the user, such as their name and email address.
+
+2. ### Create the user in Scalekit
+   After the user submits your form, make an API call to create the user in Scalekit. You must associate the user with an organization.
+
+   <InstallSDKSection />
+
+   <EnvSection />
+
+    Create the organization first using the Scalekit SDK. This will return an organization object that you'll need to add the user to.
+
+    <CreateOrganizationSection />
+
+    Once you have created the organization, you can add the user to it by creating a user membership. This associates the user with the organization and allows them to access organization-specific resources.
+
+    <CreateUserMembershipSection />
+
+    <LinkCard
+      title="API Reference"
+      href="https://docs.scalekit.com/apis/#tag/users"
+      description="View the complete API documentation for user management endpoints"
+    />
+
+    <Aside type="note">
+    Use [external IDs](/fsa/data-modelling/#external-ids) to attach a unique ID you use to identify the user in your system. This helps you link the user to their account in your system.
+    </Aside>
+
+</Steps>
+
+After the user signs up, they are redirected back to your application, and you can proceed to [create a session](/fsa/guides/implement-signin/#create-a-user-session).

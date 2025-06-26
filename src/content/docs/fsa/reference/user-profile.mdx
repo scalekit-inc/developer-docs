@@ -1,0 +1,517 @@
+---
+title: "Work with user profiles"
+description: How to retrieve, update, and work with normalized user profile data in Scalekit
+sidebar:
+  label: "Work with user profiles"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+prev: false
+next: false
+---
+import { Tabs, TabItem, Aside, Badge, Steps } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+import CheckItem from '@/components/ui/CheckItem.astro';
+
+When users authenticate through any method—enterprise SSO, social login, or passwordless—Scalekit normalizes their profile information into a consistent, standardized format. This unified approach eliminates the complexity of handling different data formats from various identity providers.
+
+This guide shows you how to work with user profiles, retrieve profile information, and keep user data current across your application.
+
+## Understanding normalized profiles
+
+Different identity providers return user information in varying formats and structures. For example:
+- Google OAuth might return `given_name` and `family_name`
+- Active Directory could provide `givenName` and `surname`
+- A SAML provider might use `firstName` and `lastName`
+
+Scalekit automatically converts all these variations into a standard format, so your application logic remains consistent regardless of how users authenticate.
+
+**Scenario**: Your application needs to display user names consistently, whether they signed in via Google, Okta SAML, or passwordless email. With Scalekit's normalization, you always access this data the same way.
+
+## Prerequisites
+
+<Steps>
+1. ### Set up your environment
+
+    <CheckItem iconName="external">
+     [Create a Scalekit account](https://app.scalekit.com/ws/signup) and complete the quickstart
+    </CheckItem>
+    <CheckItem iconName="forward-slash">
+     Have users authenticating through your application
+    </CheckItem>
+
+2. ### Install the Scalekit SDK
+
+    <InstallSDK />
+
+    Configure your API credentials:
+    ```bash
+    SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
+    SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
+    SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
+    ```
+
+    Initialize the Scalekit client:
+    ```javascript
+    import { Scalekit } from '@scalekit-sdk/node';
+
+    const scalekit = new Scalekit(
+      process.env.SCALEKIT_ENVIRONMENT_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    ```
+</Steps>
+
+{ /**
+ TODO: Definitely needs the getUser API endpoint sorted to document it
+ */}
+
+
+## Create and access user profile data
+
+User profiles contain both standardized attributes and the original data from identity providers, giving you flexibility in how you use the information.
+
+
+## Create users
+
+Create new users in your organization with profile information and metadata. Users can be created with or without an existing organization membership.
+
+### Create user with organization membership
+
+**Scenario**: Add a new employee to your organization with their profile information and role assignments.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+    ```javascript showLineNumbers=false
+    const { user } = await scalekit.user.createUserAndMembership("org_123", {
+      email: "user@example.com",
+      externalId: "ext_12345a67b89c",
+      metadata: {
+        department: "engineering",
+        location: "nyc-office"
+      },
+      userProfile: {
+        firstName: "John",
+        lastName: "Doe",
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python showLineNumbers=false
+    import os
+    from scalekit import ScalekitClient
+    from scalekit.v1.users.users_pb2 import CreateUser, CreateUserProfile
+
+    scalekit_client = ScalekitClient(
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    )
+
+    user_obj = CreateUser(
+        email="user@example.com",
+        external_id="ext_12345a67b89c",
+        metadata={"department": "engineering", "location": "nyc-office"},
+        user_profile=CreateUserProfile(
+            first_name="John",
+            last_name="Doe"
+        )
+    )
+    create_resp = scalekit_client.users.create_user_and_membership(organization_id="org_123", user=user_obj)
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go showLineNumbers=false
+    newUser := &usersv1.CreateUser{
+        Email:      "user@example.com",
+        ExternalId: "ext_12345a67b89c",
+        Metadata: map[string]string{
+            "department": "engineering",
+            "location":   "nyc-office",
+        },
+        UserProfile: &usersv1.CreateUserProfile{
+            FirstName: "John",
+            LastName:  "Doe",
+        },
+    }
+    cuResp, err := sc.User().CreateUserAndMembership(ctx, "org_123", newUser, false)
+    if err != nil { /* handle error */ }
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java showLineNumbers=false
+    CreateUser createUser = CreateUser.newBuilder()
+        .setEmail("user@example.com")
+        .setExternalId("ext_12345a67b89c")
+        .putMetadata("department", "engineering")
+        .putMetadata("location", "nyc-office")
+        .setUserProfile(
+            CreateUserProfile.newBuilder()
+                .setFirstName("John")
+                .setLastName("Doe")
+                .build())
+        .build();
+
+    CreateUserAndMembershipRequest cuReq = CreateUserAndMembershipRequest.newBuilder()
+        .setUser(createUser)
+        .build();
+
+    CreateUserAndMembershipResponse cuResp = users.createUserAndMembership("org_123", cuReq);
+    System.out.println(cuResp.getUser().getId());
+    ```
+  </TabItem>
+  <TabItem value="curl" label="cURL">
+    ```bash showLineNumbers=false
+    curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/users' \
+      --request POST \
+      --header 'Content-Type: application/json' \
+      --data '{
+      "email": "user@example.com",
+      "external_id": "ext_12345a67b89c",
+      "membership": {
+        "metadata": {
+          "department": "engineering",
+          "location": "nyc-office"
+        },
+        "roles": "admin"
+      },
+      "metadata": {
+        "department": "engineering",
+        "location": "nyc-office"
+      },
+      "user_profile": {
+        "custom_attributes": {
+          "department": "engineering",
+          "security_clearance": "level2"
+        },
+        "first_name": "John",
+        "last_name": "Doe",
+        "locale": "en-US",
+        "metadata": {
+          "account_status": "active",
+          "signup_source": "mobile_app"
+        },
+        "name": "John Michael Doe",
+        "phone_number": "+14155552671"
+      }
+    }'
+    ```
+  </TabItem>
+</Tabs>
+
+
+  Most B2B applications create organizations or workspaces to group users together. You'll need to create an organization first before adding users to it by passing `organization_id` to the `createUserAndMembership` method.
+
+  <a href="https://docs.scalekit.com/apis#tag/organizations/POST/api/v1/organizations" target="_blank" rel="noopener">
+    Explore Organization APIs →
+  </a>
+
+### Get user profile information
+
+**Scenario**: Display a user's profile information in your application's settings page or admin dashboard.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+    ```javascript showLineNumbers=false
+    const { user } = await scalekit.user.getUser("usr_456");
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python showLineNumbers=false
+    response = scalekit_client.users.get_user(user_id="usr_456")
+    user = response[0].user
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go showLineNumbers=false
+    resp, err := sc.User().GetUser(ctx, "usr_456")
+    if err != nil { log.Fatal(err) }
+    user := resp.User
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java showLineNumbers=false
+    GetUserResponse resp = scalekit.users().getUser("usr_456");
+    var user = resp.getUser();
+    ```
+  </TabItem>
+</Tabs>
+
+## Update user profiles
+
+Users need to keep their profile information current, and administrators may need to update user details for compliance or organizational changes.
+
+### Update user information
+
+**Scenario**: An organization administrator needs to update a user's department after an internal transfer.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+    ```javascript
+    const updatedUser = await scalekit.user.updateUser("usr_456", {
+      userProfile: {
+        firstName: "Jane",
+        lastName: "Smith", // Updated after marriage
+      },
+      metadata: {
+        department: "Product",            // Transferred departments
+        role: "Senior Developer",
+        lastUpdated: new Date().toISOString(),
+        manager: "john.doe@example.com",
+      },
+    });
+
+    console.log("User profile updated:", updatedUser.id);
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    from datetime import datetime
+    from scalekit.v1.users.users_pb2 import UpdateUser, UpdateUserProfile
+
+    update_user = UpdateUser(
+        user_profile=UpdateUserProfile(
+            first_name="Jane",
+            last_name="Smith",
+        ),
+        metadata={
+            "department": "Product",
+            "role": "Senior Developer",
+            "manager": "john.doe@example.com",
+            "lastUpdated": datetime.utcnow().isoformat(),
+        },
+    )
+
+    response = scalekit_client.users.update_user(user_id="usr_456", user=update_user)
+    print("User profile updated!")
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go
+    upd := &usersv1.UpdateUser{
+        UserProfile: &usersv1.UpdateUserProfile{
+            FirstName: "Jane",
+            LastName:  "Smith",
+        },
+        Metadata: map[string]string{
+            "department": "Product",
+            "role":       "Senior Developer",
+            "manager":    "john.doe@example.com",
+        },
+    }
+
+    resp, err := sc.User().UpdateUser(ctx, "usr_456", upd)
+    if err != nil {
+        log.Fatalf("update user: %v", err)
+    }
+    fmt.Println("User profile updated:", resp.User.Id)
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java
+    UpdateUser upd = UpdateUser.newBuilder()
+        .setUserProfile(UpdateUserProfile.newBuilder()
+            .setFirstName("Jane")
+            .setLastName("Smith")
+            .build())
+        .putMetadata("department", "Product")
+        .putMetadata("role", "Senior Developer")
+        .putMetadata("manager", "john.doe@example.com")
+        .build();
+
+    UpdateUserResponse res = users.updateUser(
+        "usr_456",
+        UpdateUserRequest.newBuilder().setUser(upd).build()
+    );
+    System.out.println("User profile updated: " + res.getUser().getId());
+    ```
+  </TabItem>
+</Tabs>
+
+### Update user metadata
+
+**Scenario**: Store application-specific information like user preferences, billing details, or custom attributes that enhance your user experience.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+    ```javascript
+    const updatedUser = await scalekit.user.updateUser("usr_456", {
+      metadata: {
+        theme: "dark",
+        timezone: "America/New_York",
+        notificationPreferences: {
+          email: true,
+          slack: false,
+          mobile: true,
+        },
+        lastLoginAt: new Date().toISOString(),
+      },
+    });
+
+    console.log("User metadata updated");
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    from datetime import datetime
+    from scalekit.v1.users.users_pb2 import UpdateUser
+
+    update_user = UpdateUser(
+        metadata={
+            "theme": "dark",
+            "timezone": "America/New_York",
+            "notificationPreferences": {
+                "email": True,
+                "slack": False,
+                "mobile": True,
+            },
+            "lastLoginAt": datetime.utcnow().isoformat(),
+        },
+    )
+
+    response = scalekit_client.users.update_user(user_id="usr_456", user=update_user)
+    print("User metadata updated")
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go
+    upd := &usersv1.UpdateUser{
+        Metadata: map[string]string{
+            "theme":      "dark",
+            "timezone":   "America/New_York",
+            "lastLoginAt": time.Now().Format(time.RFC3339),
+        },
+    }
+
+    if _, err := sc.User().UpdateUser(ctx, "usr_456", upd); err != nil {
+        log.Fatalf("update metadata: %v", err)
+    }
+    fmt.Println("User metadata updated")
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java
+    UpdateUser upd = UpdateUser.newBuilder()
+        .putMetadata("theme", "dark")
+        .putMetadata("timezone", "America/New_York")
+        .putMetadata("lastLoginAt", Instant.now().toString())
+        .build();
+
+    users.updateUser(
+        "usr_456",
+        UpdateUserRequest.newBuilder().setUser(upd).build()
+    );
+    System.out.println("User metadata updated");
+    ```
+  </TabItem>
+</Tabs>
+
+
+
+## User profile structure
+
+Understanding the normalized profile structure helps you work with user data effectively across different authentication methods.
+
+```json title="Sample normalized user profile"
+{
+  "user": {
+    "id": "usr_1234abcd5678efgh",
+    "email": "john.doe@acmecorp.com",
+    "external_id": "ext_12345a67b89c",
+    "create_time": "2025-06-24T12:15:33.784Z",
+    "update_time": "2025-06-24T12:15:33.784Z",
+    "last_login": "2025-06-24T12:15:33.784Z",
+    "user_profile": {
+      "id": "usr_profile_1234abcd5678efgh",
+      "name": "John Michael Doe",
+      "first_name": "John",
+      "last_name": "Doe",
+      "phone_number": "+14155552671",
+      "email_verified": true,
+      "locale": "en-US",
+      "custom_attributes": {
+        "department": "engineering",
+        "security_clearance": "level2"
+      },
+      "metadata": {
+        "account_status": "active",
+        "signup_source": "mobile_app"
+      }
+    },
+    "metadata": {
+      "department": "engineering",
+      "location": "nyc-office"
+    },
+    "memberships": [
+      {
+        "organization_id": "org_1234abcd5678efgh",
+        "name": "Acme Corp",
+        "join_time": "2025-06-24T12:15:33.784Z",
+        "membership_status": "ACTIVE",
+        "primary_identity_provider": "OKTA",
+        "metadata": {
+          "department": "engineering",
+          "location": "nyc-office"
+        },
+        "roles": [
+          {
+            "id": "role_123",
+            "name": "Developer"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Standard profile attributes
+
+| Attribute | Data type | Description |
+|-----------|-----------|-------------|
+| `id` | string | Unique identifier for the user |
+| `email` | string | The user's email address |
+| `external_id` | string | External identifier for the user |
+| `create_time` | string | ISO 8601 timestamp when the user was created |
+| `update_time` | string | ISO 8601 timestamp when the user was last updated |
+| `last_login` | string | ISO 8601 timestamp of the user's last login |
+| `user_profile.name` | string | Full formatted name combining first and last name |
+| `user_profile.first_name` | string | The user's first name or given name |
+| `user_profile.last_name` | string | The user's last name or surname |
+| `user_profile.phone_number` | string | The user's phone number |
+| `user_profile.email_verified` | boolean | Whether the email address has been verified |
+| `user_profile.locale` | string | User's locale as a BCP 47 language tag (e.g., 'en-US', 'fr') |
+| `user_profile.custom_attributes` | object | Custom attributes specific to the user profile |
+| `user_profile.metadata` | object | Metadata specific to the user profile |
+| `metadata` | object | Custom key-value data specific to your application |
+
+### Membership information
+
+The `memberships` array contains information about the user's organizational memberships and roles.
+
+| Membership attribute | Data type | Description |
+|---------------------|-----------|-------------|
+| `organization_id` | string | Unique identifier for the organization |
+| `name` | string | Name of the organization |
+| `join_time` | string | ISO 8601 timestamp when the user joined the organization |
+| `membership_status` | string | Status of the membership (e.g., "ACTIVE", "INACTIVE") |
+| `primary_identity_provider` | string | Primary identity provider for this membership |
+| `metadata` | object | Organization-specific metadata for the user |
+| `roles` | array | Array of role objects with `id` and `name` properties |
+
+Now that you understand user profiles, explore related topics:
+
+- [Manage users](/fsa/reference/user-profile/) to learn about creating and managing user accounts
+- [Configure user roles](/fsa/guides/app-roles/) to define permissions and access control
+- [Implement sign-up](/fsa/guides/implement-signup/) to understand how profiles are created during registration

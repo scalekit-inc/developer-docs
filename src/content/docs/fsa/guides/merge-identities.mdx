@@ -1,0 +1,47 @@
+---
+title: Merge user identities
+description: Merge user identities
+tableOfContents: true
+sidebar:
+  label: Merged user identity
+next:
+  label: Work with user profiles
+  link: /fsa/reference/user-profile/
+prev: false
+---
+
+import { Badge } from '@astrojs/starlight/components';
+
+Users can sign into your application using different authentication methods. For example, a user might authenticate with a passwordless method today and LinkedIn OAuth tomorrow. You want to treat these as the same user, not create separate user accounts for each authentication method.
+
+{ /** TODO: Add a diagram */}
+
+## Link identities
+
+When users prove access to their email inbox through any authentication method, Scalekit treats this as an identity. Scalekit automatically links multiple identities together using the user's email address as the source of truth.
+
+Scalekit requires email verification to prevent security risks. Some identity providers allow users to create accounts with any email address without verification. For example, someone could create a social login account using another person's email address. Without email verification, this creates unauthorized access to accounts.
+
+## Verify organization domains
+
+Organization administrators often enforce security policies for their organization. Your application should respect these policies when signing users into their organization or workspace.
+
+Organization administrators must prove domain ownership to establish trust for their users:
+
+- **Authentication policies**: Scalekit respects the organization's authentication policies such as Multi-factor authentication (MFA) or Single Sign-On (SSO).
+- **Email verification**: Users from verified domains don't need to verify their email addresses individually, since the domain administrator already verified domain ownership.
+
+
+
+{/** TODO: Add a screenshot of adding verified domains */}
+
+### Link SSO identities
+
+Users can have multiple SSO credentials when they work with different organizations that each require SSO authentication.
+
+When users sign in through an SSO identity provider for the first time, Scalekit checks if their email domain is verified:
+
+- **Verified domains**: Scalekit automatically links the SSO credential to the user's existing account
+- **Unverified domains**: Scalekit prompts users to verify their email address before linking the SSO credential
+
+Users from unverified domains must receive an [invitation](/fsa/guides/invite-only-signup/) to join the organization before their first SSO sign-in. The invitation process ensures users can access the correct SSO identity provider during authentication.

@@ -1,0 +1,179 @@
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+    ```javascript collapse={22-26}
+    import scalekit from '@/utils/auth.js'
+    const redirectUri = 'http://localhost:3000/api/callback';
+
+    // Get the authorization code from the scalekit initiated callback
+    app.get('/api/callback', async (req, res) => {
+      const { code, error, error_description } = req.query;
+
+      if (error) {
+        return res.status(401).json({ error, error_description });
+      }
+
+      try {
+        // Exchange the authorization code for a user profile
+        const authResult = await scalekit.authenticateWithCode(
+          code, redirectUri
+        );
+
+        const { user } = authResult;
+
+        // "user" object contains the user's profile information
+        // Next step: Create a session and log in the user
+        res.redirect('/dashboard/profile');
+      } catch (err) {
+        console.error('Error exchanging code:', err);
+        res.status(500).json({ error: 'Failed to authenticate user' });
+      }
+    });
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python collapse={1-6, 29-32}
+    from flask import Flask, request, redirect, jsonify
+    from scalekit import ScalekitClient, CodeAuthenticationOptions
+
+    app = Flask(__name__)
+    # scalekit imported from your auth utils
+
+    redirect_uri = 'http://localhost:3000/api/callback'
+
+    @app.route('/api/callback')
+    def callback():
+        code = request.args.get('code')
+        error = request.args.get('error')
+        error_description = request.args.get('error_description')
+
+        if error:
+            return jsonify({'error': error, 'error_description': error_description}), 401
+
+        try:
+            # Exchange the authorization code for a user profile
+            options = CodeAuthenticationOptions()
+            auth_result = scalekit.authenticate_with_code(
+                code, redirect_uri, options
+            )
+
+            user = auth_result.user
+
+            # "user" object contains the user's profile information
+            # Next step: Create a session and log in the user
+            return redirect('/dashboard/profile')
+        except Exception as err:
+            print(f'Error exchanging code: {err}')
+            return jsonify({'error': 'Failed to authenticate user'}), 500
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go collapse={1-9}
+    package main
+
+    import (
+        "log"
+        "net/http"
+        "os"
+        "github.com/gin-gonic/gin"
+        "github.com/scalekit-inc/scalekit-sdk-go"
+    )
+
+    // Create Scalekit client instance
+    var scalekitClient = scalekit.NewScalekitClient(
+        os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+        os.Getenv("SCALEKIT_CLIENT_ID"),
+        os.Getenv("SCALEKIT_CLIENT_SECRET"),
+    )
+
+    const redirectUri = "http://localhost:3000/api/callback"
+
+    func callbackHandler(c *gin.Context) {
+        code := c.Query("code")
+        errorParam := c.Query("error")
+        errorDescription := c.Query("error_description")
+
+        if errorParam != "" {
+            c.JSON(http.StatusUnauthorized, gin.H{
+                "error": errorParam,
+                "error_description": errorDescription,
+            })
+            return
+        }
+
+        // Exchange the authorization code for a user profile
+        options := scalekit.AuthenticationOptions{}
+        authResult, err := scalekitClient.AuthenticateWithCode(
+            code, redirectUri, options,
+        )
+
+        if err != nil {
+            log.Printf("Error exchanging code: %v", err)
+            c.JSON(http.StatusInternalServerError, gin.H{
+                "error": "Failed to authenticate user",
+            })
+            return
+        }
+
+        user := authResult.User
+
+        // "user" object contains the user's profile information
+        // Next step: Create a session and log in the user
+        c.Redirect(http.StatusFound, "/dashboard/profile")
+    }
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java collapse={1-10, 40-47} wrap
+    import com.scalekit.ScalekitClient;
+    import com.scalekit.internal.http.AuthenticationOptions;
+    import com.scalekit.internal.http.AuthenticationResponse;
+    import org.springframework.web.bind.annotation.*;
+    import org.springframework.web.servlet.view.RedirectView;
+    import org.springframework.http.ResponseEntity;
+    import org.springframework.http.HttpStatus;
+    import java.util.HashMap;
+    import java.util.Map;
+
+    @RestController
+    public class CallbackController {
+
+        private final String redirectUri = "http://localhost:3000/api/callback";
+
+        @GetMapping("/api/callback")
+        public Object callback(
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String error,
+            @RequestParam(name = "error_description", required = false) String errorDescription
+        ) {
+            if (error != null) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", error);
+                errorResponse.put("error_description", errorDescription);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            }
+
+            try {
+                // Exchange the authorization code for a user profile
+                AuthenticationOptions options = new AuthenticationOptions();
+                AuthenticationResponse authResult = scalekit.authentication()
+                    .authenticateWithCode(code, redirectUri, options);
+
+                var user = authResult.getUser();
+
+                // "user" object contains the user's profile information
+                // Next step: Create a session and log in the user
+                return new RedirectView("/dashboard/profile");
+
+            } catch (Exception err) {
+                System.err.println("Error exchanging code: " + err.getMessage());
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Failed to authenticate user");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            }
+        }
+    }
+    ```
+  </TabItem>
+</Tabs>
