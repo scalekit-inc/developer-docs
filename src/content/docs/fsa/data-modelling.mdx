@@ -127,6 +127,62 @@ In Scalekit, a **User** record represents a person's membership within a *specif
 
 Your approach to mapping users will depend on your current data model.
 
+### Organization memberships
+
+Scalekit tracks how users belong to organizations through a `memberships` property on each User object. This property contains an array of membership objects that define the user's relationship to each organization they belong to.
+
+Each membership object includes these key properties:
+
+- `organization_id`: Identifies which organization the user belongs to
+- `roles`: Specifies the user's role within that organization
+- `status`: Indicates whether the membership is active, pending invite or invite expired
+
+The memberships property enables users to belong to multiple organizations while maintaining clear role and status information for each relationship.
+
+<details>
+<summary>View membership object structure</summary>
+```json title="Memberships example" "metadata" "roles" "organization_id"
+{
+    "memberships": [
+      {
+        "join_time": "2025-06-27T10:57:43.720Z",
+        "membership_status": "ACTIVE",
+        "metadata": {
+          "department": "engineering",
+          "location": "nyc-office"
+        },
+        "name": "string",
+        "organization_id": "org_1234abcd5678efgh",
+        "primary_identity_provider": "OKTA",
+        "roles": [
+          {
+            "id": "role_admin",
+            "name": "Admin"
+          }
+        ]
+      },
+      {
+        "join_time": "2025-07-15T14:30:22.451Z",
+        "membership_status": "ACTIVE",
+        "metadata": {
+          "department": "product",
+          "location": "sf-office"
+        },
+        "name": "Jane Smith",
+        "organization_id": "org_9876zyxw5432vuts",
+        "primary_identity_provider": "GOOGLE",
+        "roles": [
+          {
+            "id": "role_prod_manager",
+            "name": "Product Manager"
+          }
+        ]
+      }
+    ],
+}
+```
+</details>
+
 ### Migrating from a 1-to-1 model
 
 To migrate from a single-organization model, create one Scalekit User record for each existing user in each organization. Store the Scalekit `user_id` in your internal user table for reference. Each organization maintains its own independent user profiles. A user's profile in one organization does not affect their profile in other organizations.
