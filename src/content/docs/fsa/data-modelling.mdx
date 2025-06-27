@@ -28,9 +28,10 @@ Scalekit organizes your application's data into two main components:
 - **Organizations** represent your application's tenants or workspaces. They are the core of Scalekit's multi-tenant architecture. Each organization can contain multiple users who work together.
 
 - **Users** are the people who access your application. Each user:
-  - Has a unique email address within their organization.
+  - Has a unique email address within the Scalekit environment.
   - Can belong to multiple organizations.
   - Is automatically linked across organizations when using the same email address.
+  - Can have different roles in each organization they belong to.
 
 This structure lets you manage access across different teams while keeping user identities consistent.
 
@@ -123,24 +124,81 @@ curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations \
 
 ## Map users to Scalekit identities
 
-In Scalekit, a **User** record represents a person's membership within a *specific* Organization. If one person belongs to three different Organizations, Scalekit creates three separate User records—one for each. This design ensures strict data isolation while allowing users to switch between Organizations seamlessly.
+In Scalekit, a **User** is a unified profile that can belong to multiple Organizations. While the core user profile is shared, each Organization membership maintains distinct details like roles, status, and metadata. This allows a user to have different roles and permissions in each Organization they are a part of, while maintaining a single identity.
 
 Your approach to mapping users will depend on your current data model.
 
+### Organization memberships
+
+Scalekit tracks how users belong to organizations through a `memberships` property on each User object. This property contains an array of membership objects that define the user's relationship to each organization they belong to.
+
+Each membership object includes these key properties:
+
+- `organization_id`: Identifies which organization the user belongs to
+- `roles`: Specifies the user's roles (assigned by your application) within that organization
+- `status`: Indicates whether the membership is active, pending invite or invite expired
+
+The memberships property enables users to belong to multiple organizations while maintaining clear role and status information for each relationship.
+
+<details>
+<summary>View membership object structure</summary>
+```json title="Memberships example" "metadata" "roles" "organization_id"
+{
+    "memberships": [
+      {
+        "join_time": "2025-06-27T10:57:43.720Z",
+        "membership_status": "ACTIVE",
+        "metadata": {
+          "department": "engineering",
+          "location": "nyc-office"
+        },
+        "name": "string",
+        "organization_id": "org_1234abcd5678efgh",
+        "primary_identity_provider": "OKTA",
+        "roles": [
+          {
+            "id": "role_admin",
+            "name": "Admin"
+          }
+        ]
+      },
+      {
+        "join_time": "2025-07-15T14:30:22.451Z",
+        "membership_status": "ACTIVE",
+        "metadata": {
+          "department": "product",
+          "location": "sf-office"
+        },
+        "name": "Jane Smith",
+        "organization_id": "org_9876zyxw5432vuts",
+        "primary_identity_provider": "GOOGLE",
+        "roles": [
+          {
+            "id": "role_prod_manager",
+            "name": "Product Manager"
+          }
+        ]
+      }
+    ],
+}
+```
+</details>
+
 ### Migrating from a 1-to-1 model
 
-To migrate from a single-organization model, create one Scalekit User record for each existing user in each organization. Store the Scalekit `user_id` in your internal user table for reference. Each organization maintains its own independent user profiles. A user's profile in one organization does not affect their profile in other organizations.
+In a 1-to-1 data model, each user is associated with a single organization. The user's identity is tied to that specific organization, and they cannot belong to multiple organizations with the same identity. This model is common in applications that were not originally built with multi-tenancy in mind, or where each customer's data and user base are kept entirely separate.
 
-<Aside type="note" title="Private beta">
-This feature is currently in private beta. [Contact us](/support/contact-us) to enable it for your account.
+For example, many traditional enterprise software applications like **Slack**, **QuickBooks**, or **Adobe Creative Suite** use this model - each customer purchases their own license and has their own separate user accounts that cannot be shared across different customer organizations.
+
+<Aside type="note" title="Need help with migration?">
+If your application uses a 1-to-1 model and you're looking to migrate, please [contact us](/support/contact-us) for guidance on the best approach for your use case.
 </Aside>
 
 ### Migrating from a 1-to-many model
 
-If your application allows a single user record to be shared across multiple Organizations, you will create multiple User objects in Scalekit—one for each Organization that the user belongs to.
+If your application allows a single user to be part of multiple organizations, their profile in Scalekit will also be shared across those organizations. While the user's core profile is consistent, each organization membership stores distinct information like roles, status, and metadata.
 
-If you already have a membership table that stores the relationship between users and organizations, you can add the Scalekit `user_id` to that table. Note that changing a User's name or other attributes in Scalekit only affects that specific record. It does not automatically propagate to other User records that share the same email address. You must manage these relationships and updates in your application.
-
+If you already have a membership table that links users and organizations, you can add the Scalekit `user_id` to that table. When you update a user's profile, the changes will apply across all their organization memberships.
 
 ## User deduplication
 
