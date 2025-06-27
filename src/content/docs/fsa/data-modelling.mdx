@@ -123,7 +123,7 @@ curl https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations \
 
 ## Map users to Scalekit identities
 
-In Scalekit, a **User** record represents a person's membership within a *specific* Organization. If one person belongs to three different Organizations, Scalekit creates three separate User records—one for each. This design ensures strict data isolation while allowing users to switch between Organizations seamlessly.
+In Scalekit, a **User** is a unified profile that can belong to multiple Organizations. While the core user profile is shared, each Organization membership maintains distinct details like roles, status, and metadata. This allows a user to have different roles and permissions in each Organization they are a part of, while maintaining a single identity.
 
 Your approach to mapping users will depend on your current data model.
 
@@ -134,7 +134,7 @@ Scalekit tracks how users belong to organizations through a `memberships` proper
 Each membership object includes these key properties:
 
 - `organization_id`: Identifies which organization the user belongs to
-- `roles`: Specifies the user's role within that organization
+- `roles`: Specifies the user's roles (assigned by your application) within that organization
 - `status`: Indicates whether the membership is active, pending invite or invite expired
 
 The memberships property enables users to belong to multiple organizations while maintaining clear role and status information for each relationship.
@@ -193,10 +193,9 @@ This feature is currently in private beta. [Contact us](/support/contact-us) to 
 
 ### Migrating from a 1-to-many model
 
-If your application allows a single user record to be shared across multiple Organizations, you will create multiple User objects in Scalekit—one for each Organization that the user belongs to.
+If your application allows a single user to be part of multiple organizations, their profile in Scalekit will also be shared across those organizations. While the user's core profile is consistent, each organization membership stores distinct information like roles, status, and metadata.
 
-If you already have a membership table that stores the relationship between users and organizations, you can add the Scalekit `user_id` to that table. User records are shared across organizations at your Scalekt environment, so when you update a user record, the changes apply across all organizations.
-
+If you already have a membership table that links users and organizations, you can add the Scalekit `user_id` to that table. When you update a user's profile, the changes will apply across all their organization memberships.
 
 ## User deduplication
 
