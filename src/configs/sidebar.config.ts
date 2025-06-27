@@ -34,7 +34,6 @@ export const sidebar = [
           'fsa/guides/organization-switching',
           'fsa/reference/user-management-settings',
           // 'fsa/guides/manage-users', // TODO: is it needed? assess later
-          'fsa/guides/invite-only-signup',
           'fsa/guides/merge-identities',
           'fsa/reference/user-profile',
           'fsa/guides/app-roles',
@@ -313,6 +312,7 @@ export const topics = {
     '/guides/setup-scalekit',
     '/guides/external-ids-and-metadata',
     '/guides/mcp/additional-reading',
+    '/fsa/guides/invite-only-signup',
   ],
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
   integrations: ['/guides/integrations/**/*'], // Associate all integration pages with the integrations topic
