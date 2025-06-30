@@ -109,18 +109,10 @@ Let's get started!
       <TabItem value="java" label="Java">
       ```java title="utils/Auth.java"
       import com.scalekit.ScalekitClient;
-      import com.scalekit.Environment;
 
       public class Auth {
-          public static ScalekitClient scalekit;
-
-          static {
-              Environment.configure(
-                  System.getenv("SCALEKIT_ENVIRONMENT_URL"),
-                  System.getenv("SCALEKIT_CLIENT_ID"),
-                  System.getenv("SCALEKIT_CLIENT_SECRET")
-              );
-              scalekit = new ScalekitClient(
+          public ScalekitClient createScalekitClient() {
+              return new ScalekitClient(
                   System.getenv("SCALEKIT_ENVIRONMENT_URL"),
                   System.getenv("SCALEKIT_CLIENT_ID"),
                   System.getenv("SCALEKIT_CLIENT_SECRET")
@@ -345,29 +337,24 @@ Let's get started!
                 @RequestParam(name = "error_description", required = false) String errorDescription
             ) {
                 if (error != null) {
-                    Map<String, String> errorResponse = new HashMap<>();
-                    errorResponse.put("error", error);
-                    errorResponse.put("error_description", errorDescription);
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+                   // handle error
                 }
 
                 try {
                     // Exchange the authorization code for a user profile
                     AuthenticationOptions options = new AuthenticationOptions();
-                    AuthenticationResponse authResult = scalekit.authentication()
-                        .authenticateWithCode(code, redirectUri, options);
+                    AuthenticationResponse authResult = scalekit
+                        .authentication()
+                        .authenticateWithCode(code,redirectUri,options);
 
-                    var user = authResult.getUser();
+                    var user = authResult.getIdTokenClaims();
 
                     // "user" object contains the user's profile information
                     // Next step: Create a session and log in the user
                     return new RedirectView("/dashboard/profile");
 
                 } catch (Exception err) {
-                    System.err.println("Error exchanging code: " + err.getMessage());
-                    Map<String, String> errorResponse = new HashMap<>();
-                    errorResponse.put("error", "Failed to authenticate user");
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+                    // Handle exception (e.g., log error, return error response)
                 }
             }
         }
@@ -463,7 +450,7 @@ Let's get started!
         cipher_suite = Fernet(key)
         encrypted_access_token = cipher_suite.encrypt(authResult['accessToken'].encode()).decode()
 
-        # setting up accessToken as HTTP-only cookie
+        // setting up accessToken as HTTP-only cookie
         response = make_response()
         response.set_cookie(
             'accessToken',
@@ -475,7 +462,7 @@ Let's get started!
             samesite='Strict'
         )
 
-        # Store the refreshToken in a secure place
+        // Store the refreshToken in a secure place
         ```
         </TabItem>
 
@@ -518,21 +505,25 @@ Let's get started!
         import javax.servlet.http.HttpServletResponse;
         import java.util.Base64;
 
-        // encrypt the accessToken using a secure encryption algorithm
-        SecretKey secretKey = getSecretKey(); // Get from secure storage
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        String encryptedAccessToken = Base64.getEncoder().encodeToString(
-            cipher.doFinal(authResult.getAccessToken().getBytes())
-        );
+        
+        
 
         // setting up accessToken as HTTP-only cookie
-        Cookie cookie = new Cookie("accessToken", encryptedAccessToken);
-        cookie.setMaxAge((authResult.getExpiresIn() - 60) * 1000);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        String encryptedRefreshToken = encrypt(authResult.getAccessToken());
+        Cookie accessTokenCookie = new Cookie("accessToken", encryptedAccessToken);
+        accessTokenCookie.setMaxAge((authResult.getExpiresIn() - 60) * 1000);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(true);
+        accessTokenCookie.setPath("/");
+        response.addCookie(accessTokenCookie);
+
+        // setting up refreshToken as HTTP-only cookie
+        String encryptedRefreshToken = encrypt(authResult.getRefreshToken());
+        Cookie refreshTokenCookie = new Cookie("refreshToken", encryptedRefreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/");
+        response.addCookie(refreshTokenCookie);
 
         // Store the refreshToken in a secure place
         ```
@@ -753,90 +744,65 @@ Let's get started!
 
         @Component
         public class TokenVerificationInterceptor implements HandlerInterceptor {
-          @Override
-          public boolean preHandle(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Object handler
-          ) throws Exception {
-            try {
-              // Get access token from cookie
-              String accessToken = getCookieValue(request, "accessToken");
+            @Override
+            public boolean preHandle(
+                HttpServletRequest request,
+                HttpServletResponse response,
+                Object handler
+            ) throws Exception {
+                try {
+                    // Get access token from cookie
+                    String accessToken = getCookieValue(request, "accessToken");
+                    String refreshToken = getCookieValue(request, "refreshToken");
 
-              if (accessToken == null) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("{\"message\": \"No access token provided\"}");
-                return false;
-              }
+                    // Decrypt the tokens
+                    String decryptedAccessToken = decrypt(accessToken);
+                    String decryptedRefreshToken = decrypt(refreshToken);
 
-              // Decrypt the accessToken
-              String decryptedAccessToken = decrypt(accessToken);
+                    // Use Scalekit SDK to validate the token
+                    boolean isValid = scalekit.authentication().validateAccessToken(decryptedAccessToken);
 
-              // Use Scalekit SDK to validate the token
-              boolean isValid = scalekit.validateAccessToken(decryptedAccessToken);
+                        
+                    // Use refreshToken to get a new access token
+                    AuthenticationResponse tokenResponse = scalekit
+                            .authentication()
+                            .refreshToken(decryptedRefreshToken);
 
-              if (!isValid) {
-                // Get stored refresh token
-                String refreshToken = getStoredRefreshToken(request);
+                   
 
-                if (refreshToken == null) {
-                  response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                  response.getWriter().write("{\"message\": \"No refresh token available\"}");
-                  return false;
+                    // Update the cookie with the new access token and refresh token
+                    String encryptedNewAccessToken = encrypt(tokenResponse.getAccessToken());
+                    String encryptedNewRefreshToken = encrypt(tokenResponse.getRefreshToken());
+
+                    Cookie accessTokenCookie = new Cookie("accessToken", encryptedNewAccessToken);
+                    accessTokenCookie.setHttpOnly(true);
+                    accessTokenCookie.setSecure(true);
+                    accessTokenCookie.setPath("/");
+                    response.addCookie(accessTokenCookie);
+
+                    Cookie refreshTokenCookie = new Cookie("refreshToken", encryptedNewRefreshToken);
+                    refreshTokenCookie.setHttpOnly(true);
+                    refreshTokenCookie.setSecure(true);
+                    refreshTokenCookie.setPath("/");
+                    response.addCookie(refreshTokenCookie);
+
+                    return true;
+                } catch (Exception e) {
+                   // handle exception
                 }
-
-                // Use stored refreshToken to get a new access token
-                AuthenticationResponse tokenResponse = scalekit.refreshToken(refreshToken);
-
-                // Store the new refresh token
-                storeRefreshToken(tokenResponse.getRefreshToken());
-
-                // Update the cookie with the new access token
-                String encryptedNewAccessToken = encrypt(tokenResponse.getAccessToken());
-                Cookie newCookie = new Cookie("accessToken", encryptedNewAccessToken);
-                newCookie.setHttpOnly(true);
-                newCookie.setSecure(true);
-                newCookie.setPath("/");
-                response.addCookie(newCookie);
-
-                request.setAttribute("tokenRefreshed", true);
-              } else {
-                request.setAttribute("tokenValid", true);
-              }
-
-              return true;
-            } catch (Exception e) {
-              response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-              response.getWriter().write(
-                "{\"message\": \"Token verification failed: " + e.getMessage() + "\"}"
-              );
-              return false;
             }
-          }
 
-          private String getCookieValue(HttpServletRequest request, String cookieName) {
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-              for (Cookie cookie : cookies) {
-                if (cookieName.equals(cookie.getName())) {
-                  return cookie.getValue();
+            private String getCookieValue(HttpServletRequest request, String cookieName) {
+                Cookie[] cookies = request.getCookies();
+                if (cookies != null) {
+                    for (Cookie cookie : cookies) {
+                        if (cookieName.equals(cookie.getName())) {
+                            return cookie.getValue();
+                        }
+                    }
                 }
-              }
+                return null;
             }
-            return null;
-          }
-        }
-
-        // Example of using the interceptor to protect routes
-        @RestController
-        public class DashboardController {
-          @GetMapping("/dashboard")
-          public ResponseEntity<Map<String, Object>> dashboard(HttpServletRequest request) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "This is a protected route");
-            response.put("tokenValid", request.getAttribute("tokenValid"));
-            return ResponseEntity.ok(response);
-          }
         }
         ```
         </TabItem>
