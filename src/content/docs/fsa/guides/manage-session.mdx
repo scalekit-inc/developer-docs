@@ -80,13 +80,13 @@ Include `offline_access` in the list of scopes sent during the authorization req
       </TabItem>
       <TabItem value="java" label="Java">
       ```java title="Spring"
-      AuthResult authResult = scalekitClient.authentication().authenticateWithCode(
+      AuthenticationResponse authResult = scalekit.authentication().authenticateWithCode(
         code,
         redirectUri
       );
 
       // authResult contains user profile and session tokens
-      User user = authResult.getUser();
+      var user = authResult.getIdTokenClaims();
       String accessToken = authResult.getAccessToken();
       String refreshToken = authResult.getRefreshToken();
       int expiresIn = authResult.getExpiresIn();
@@ -196,18 +196,21 @@ Include `offline_access` in the list of scopes sent during the authorization req
       String accessToken = authResult.getAccessToken();
       int expiresIn = authResult.getExpiresIn();
       String refreshToken = authResult.getRefreshToken();
-      User user = authResult.getUser();
+      User user = authResult.getIdTokenClaims();
 
-      // Store the refresh token in your database
-      db.saveRefreshToken(user.getId(), refreshToken);
+      // Set both access token and refresh token as secure cookies
+      Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+      accessTokenCookie.setMaxAge((expiresIn - 60) * 1000); // Convert to milliseconds, subtract 60s buffer
+      accessTokenCookie.setHttpOnly(true);
+      accessTokenCookie.setSecure("production".equals(env.getActiveProfiles()[0]));
+      accessTokenCookie.setPath("/");
+      response.addCookie(accessTokenCookie);
 
-      // Set the access token as a secure cookie
-      Cookie cookie = new Cookie("accessToken", accessToken);
-      cookie.setMaxAge((expiresIn - 60) * 1000); // Convert to milliseconds, subtract 60s buffer
-      cookie.setHttpOnly(true);
-      cookie.setSecure("production".equals(env.getActiveProfiles()[0]));
-      cookie.setPath("/");
-      response.addCookie(cookie);
+      Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+      refreshTokenCookie.setHttpOnly(true);
+      refreshTokenCookie.setSecure("production".equals(env.getActiveProfiles()[0]));
+      refreshTokenCookie.setPath("/");
+      response.addCookie(refreshTokenCookie);
       ```
       </TabItem>
     </Tabs>
@@ -321,7 +324,7 @@ Include `offline_access` in the list of scopes sent during the authorization req
 
           try {
             // Validate the token using Scalekit SDK
-            User user = scalekit.validateAccessToken(accessToken);
+            var user = scalekit.authentication().validateAccessToken(accessToken);
             request.setAttribute("user", user); // Attach user information to the request
             return true;
           } catch (Exception e) {
@@ -506,57 +509,44 @@ Include `offline_access` in the list of scopes sent during the authorization req
       import javax.servlet.http.HttpServletRequest;
       import javax.servlet.http.HttpServletResponse;
       import javax.servlet.http.Cookie;
+      import org.springframework.web.servlet.HandlerInterceptor;
 
-      private boolean handleTokenRefresh(HttpServletRequest request, HttpServletResponse response)
-          throws Exception {
-        // Get the user ID from the expired token or session storage
-        String userId = getUserIdFromRequest(request); // Helper method to get user ID
+      @Component
+      public class AuthInterceptor implements HandlerInterceptor {
+        @Override
+        public boolean preHandle(
+          HttpServletRequest request,
+          HttpServletResponse response,
+          Object handler
+        ) throws Exception {
+          String accessToken = getCookieValue(request, "accessToken");
 
-        if (userId == null) {
-          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-          response.getWriter().write("{\"error\": \"Authentication required\"}");
-          return false;
+          if (accessToken == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"error\": \"Authentication required\"}");
+            return false;
+          }
+
+          try {
+            // Validate the token using Scalekit SDK
+            return scalekit.authentication().validateAccessToken(accessToken);
+            
+          } catch (Exception e) {
+            // Token is expired or invalid - attempt to refresh
+            return handleTokenRefresh(request, response);
+          }
         }
 
-        // Retrieve the stored refresh token from your database
-        String storedRefreshToken = db.getRefreshToken(userId);
-
-        if (storedRefreshToken == null) {
-          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-          response.getWriter().write("{\"error\": \"Session expired\"}");
-          return false;
-        }
-
-        try {
-          // Get new tokens using the refresh token
-          AuthResult authResult = scalekit.refreshToken(storedRefreshToken);
-          String accessToken = authResult.getAccessToken();
-          int expiresIn = authResult.getExpiresIn();
-          String newRefreshToken = authResult.getRefreshToken();
-
-          // Update the stored refresh token
-          db.saveRefreshToken(userId, newRefreshToken);
-
-          // Set the new access token as a cookie
-          Cookie cookie = new Cookie("accessToken", accessToken);
-          cookie.setMaxAge((expiresIn - 60) * 1000);
-          cookie.setHttpOnly(true);
-          cookie.setSecure("production".equals(env.getActiveProfiles()[0]));
-          cookie.setPath("/");
-          response.addCookie(cookie);
-
-          // Attach user information and continue
-          request.setAttribute("user", authResult.getUser());
-          return true;
-
-        } catch (Exception e) {
-          // Refresh failed - user must sign in again
-          Cookie expiredCookie = new Cookie("accessToken", "");
-          expiredCookie.setMaxAge(0);
-          response.addCookie(expiredCookie);
-          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-          response.getWriter().write("{\"error\": \"Session expired. Please sign in again.\"}");
-          return false;
+        private String getCookieValue(HttpServletRequest request, String cookieName) {
+          Cookie[] cookies = request.getCookies();
+          if (cookies != null) {
+            for (Cookie cookie : cookies) {
+              if (cookieName.equals(cookie.getName())) {
+                return cookie.getValue();
+              }
+            }
+          }
+          return null;
         }
       }
       ```
@@ -610,10 +600,9 @@ Include `offline_access` in the list of scopes sent during the authorization req
       </TabItem>
       <TabItem value="java" label="Java">
       ```java title="Controller.java"
-      // Protect routes that require authentication
       @GetMapping("/dashboard")
       public ResponseEntity<Map<String, String>> dashboard(HttpServletRequest request) {
-        User user = (User) request.getAttribute("user");
+        var user = (User) request.getAttribute("user");
         Map<String, String> response = new HashMap<>();
         response.put("message", "Welcome " + user.getName() + "!");
         return ResponseEntity.ok(response);
@@ -621,7 +610,7 @@ Include `offline_access` in the list of scopes sent during the authorization req
 
       @GetMapping("/api/profile")
       public ResponseEntity<Map<String, Object>> profile(HttpServletRequest request) {
-        User user = (User) request.getAttribute("user");
+        var user = (User) request.getAttribute("user");
         Map<String, Object> response = new HashMap<>();
         response.put("user", user);
         return ResponseEntity.ok(response);
