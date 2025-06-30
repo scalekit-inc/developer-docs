@@ -1,6 +1,6 @@
 ---
-title: "Manage user sessions"
-description: "Learn how to manage user sessions, including storing tokens and refreshing them when they expire."
+title: 'Manage user sessions'
+description: 'Learn how to manage user sessions, including storing tokens and refreshing them when they expire.'
 head:
   - tag: style
     content: |
@@ -11,15 +11,22 @@ head:
         font-size: var(--sl-text-lg);
       }
 sidebar:
-  label: "Handle user sessions"
+  label: 'Handle user sessions'
 prev:
-  label: "Implement sign-in"
-  link: "/fsa/guides/implement-login/"
+  label: 'Implement sign-in'
+  link: '/fsa/guides/implement-login/'
 next:
-  label: "Logout"
-  link: "/fsa/guides/logout/"
+  label: 'Logout'
+  link: '/fsa/guides/logout/'
 ---
-import { Steps, Tabs, TabItem, Aside, Card } from '@astrojs/starlight/components';
+
+import {
+  Steps,
+  Tabs,
+  TabItem,
+  Aside,
+  Card,
+} from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 import CheckItem from '@/components/ui/CheckItem.astro';
 
@@ -27,8 +34,10 @@ User sessions determine how long users stay signed in to your application. After
 
 Scalekit provides session management capabilities out of the box. Your application receives an `access_token` and `refresh_token` in the authentication response. This guide shows you how to store these tokens securely and refresh them before they expire.
 
-<Aside type="note">
-Include `offline_access` in the list of scopes sent during the authorization request to Scalekit to receive a `refresh_token`. This token allows you to get new access tokens without requiring users to sign in again.
+<Aside type='note'>
+  Include `offline_access` in the list of scopes sent during the authorization
+  request to Scalekit to receive a `refresh_token`. This token allows you to get
+  new access tokens without requiring users to sign in again.
 </Aside>
 
 <Steps>
@@ -36,600 +45,536 @@ Include `offline_access` in the list of scopes sent during the authorization req
 
    After [successful user authentication](/fsa/guides/implement-login/), your application receives session tokens in the response object.
 
-    <Tabs syncKey="tech-stack">
-      <TabItem value="node" label="Node.js">
-      ```javascript title="Express.js"
-      const authResult = await scalekit.authenticateWithCode(
-        code, redirectUri
-      );
+   <Tabs syncKey="tech-stack">
+     <TabItem value="node" label="Node.js">
+     ```javascript title="Express.js"
+     const authResult = await scalekit.authenticateWithCode(
+       code, redirectUri
+     );
+     // authResult contains user profile and session tokens
+     const { user, accessToken, refreshToken, expiresIn } = authResult;
+     ```
+     </TabItem>
+     <TabItem value="py" label="Python">
+     ```python title="Flask"
+     auth_result = scalekit_client.authenticate_with_code(
+       code=code,
+       redirect_uri=redirect_uri
+     )
+     # auth_result contains user profile and session tokens
+     user = auth_result.user
+     access_token = auth_result.access_token
+     refresh_token = auth_result.refresh_token
+     expires_in = auth_result.expires_in
+     ```
+     </TabItem>
+     <TabItem value="go" label="Go">
+     ```go title="Gin"
+     authResult, err := scalekitClient.AuthenticateWithCode(
+       code,
+       redirectUri,
+     )
+     if err != nil {
+       // Handle error
+     }
+     // authResult contains user profile and session tokens
+     user := authResult.User
+     accessToken := authResult.AccessToken
+     refreshToken := authResult.RefreshToken
+     expiresIn := authResult.ExpiresIn
+     ```
+     </TabItem>
+     <TabItem value="java" label="Java">
+     ```java title="Spring"
+     AuthResult authResult = scalekitClient.authentication().authenticateWithCode(
+       code,
+       redirectUri
+     );
+     // authResult contains user profile and session tokens
+     User user = authResult.getUser();
+     String accessToken = authResult.getAccessToken();
+     String refreshToken = authResult.getRefreshToken();
+     int expiresIn = authResult.getExpiresIn();
+     ```
+     </TabItem>
+   </Tabs>
 
-      // authResult contains user profile and session tokens
-      const { user, accessToken, refreshToken, expiresIn } = authResult;
-      ```
-      </TabItem>
-      <TabItem value="py" label="Python">
-      ```python title="Flask"
-      auth_result = scalekit_client.authenticate_with_code(
-        code=code,
-        redirect_uri=redirect_uri
-      )
+   Store each token based on its security requirements:
+   - **Access Token**: Store in a secure, HTTP-only cookie to prevent XSS attacks. This token has a short lifespan and provides access to protected resources.
+   - **Refresh Token**: Store in your backend database or secure server-side storage. This long-lived token generates new access tokens.
 
-      # auth_result contains user profile and session tokens
-      user = auth_result.user
-      access_token = auth_result.access_token
-      refresh_token = auth_result.refresh_token
-      expires_in = auth_result.expires_in
-      ```
-      </TabItem>
-      <TabItem value="go" label="Go">
-      ```go title="Gin"
-      authResult, err := scalekitClient.AuthenticateWithCode(
-        code,
-        redirectUri,
-      )
-      if err != nil {
-        // Handle error
-      }
+   Here's how to set secure cookies:
 
-      // authResult contains user profile and session tokens
-      user := authResult.User
-      accessToken := authResult.AccessToken
-      refreshToken := authResult.RefreshToken
-      expiresIn := authResult.ExpiresIn
-      ```
-      </TabItem>
-      <TabItem value="java" label="Java">
-      ```java title="Spring"
-      AuthResult authResult = scalekitClient.authentication().authenticateWithCode(
-        code,
-        redirectUri
-      );
+   <Tabs syncKey="tech-stack">
+     <TabItem value="node" label="Node.js">
+     ```javascript title="Express.js" wrap ins={12-17}
+     import cookieParser from 'cookie-parser';
+     // Configure cookie parser middleware
+     app.use(cookieParser());
+     // After receiving the authResult from scalekit.authenticateWithCode()
+     const { accessToken, expiresIn, refreshToken, user } = authResult;
+     // Store the refresh token in your database
+     await db.saveRefreshToken(user.id, refreshToken);
+     // Set the access token as a secure cookie
+     res.cookie('accessToken', accessToken, {
+       maxAge: (expiresIn - 60) * 1000, // Convert to milliseconds, subtract 60s buffer
+       httpOnly: true,
+       secure: process.env.NODE_ENV === 'production',
+       sameSite: 'strict'
+     });
+     ```
+     </TabItem>
+     <TabItem value="py" label="Python">
+     ```python title="Flask" wrap ins={16-24}
+     from flask import Flask, make_response
+     import os
+     app = Flask(__name__)
+     # After receiving the auth_result from scalekit.authenticate_with_code()
+     access_token = auth_result.access_token
+     expires_in = auth_result.expires_in
+     refresh_token = auth_result.refresh_token
+     user = auth_result.user
+     # Store the refresh token in your database
+     db.save_refresh_token(user.id, refresh_token)
+     # Set the access token as a secure cookie
+     response = make_response()
+     response.set_cookie(
+       'accessToken',
+       access_token,
+       max_age=(expires_in - 60) * 1000,  # Convert to milliseconds, subtract 60s buffer
+       httponly=True,
+       secure=os.environ.get('FLASK_ENV') == 'production',
+       samesite='Strict'
+     )
+     ```
+     </TabItem>
+     <TabItem value="go" label="Go">
+     ```go title="Gin" wrap ins={18-25}
+     import (
+       "net/http"
+       "os"
+       "time"
+       "github.com/gin-gonic/gin"
+     )
+     // After receiving the authResult from scalekit.AuthenticateWithCode()
+     accessToken := authResult.AccessToken
+     expiresIn := authResult.ExpiresIn
+     refreshToken := authResult.RefreshToken
+     user := authResult.User
+     // Store the refresh token in your database
+     db.SaveRefreshToken(user.ID, refreshToken)
+     // Set the access token as a secure cookie
+     c.SetCookie(
+       "accessToken",
+       accessToken,
+       (expiresIn-60)*1000, // Convert to milliseconds, subtract 60s buffer
+       "/",
+       "",
+       os.Getenv("GIN_MODE") == "release",
+       true, // httpOnly
+     )
+     c.SetSameSite(http.SameSiteStrictMode)
+     ```
+     </TabItem>
+     <TabItem value="java" label="Java">
+     ```java title="Spring" wrap ins={18-24}
+     import javax.servlet.http.Cookie;
+     import javax.servlet.http.HttpServletResponse;
+     import org.springframework.core.env.Environment;
+     @Autowired
+     private Environment env;
+     // After receiving the authResult from scalekit.authenticateWithCode()
+     String accessToken = authResult.getAccessToken();
+     int expiresIn = authResult.getExpiresIn();
+     String refreshToken = authResult.getRefreshToken();
+     User user = authResult.getUser();
+     // Store the refresh token in your database
+     db.saveRefreshToken(user.getId(), refreshToken);
+     // Set the access token as a secure cookie
+     Cookie cookie = new Cookie("accessToken", accessToken);
+     cookie.setMaxAge((expiresIn - 60) * 1000); // Convert to milliseconds, subtract 60s buffer
+     cookie.setHttpOnly(true);
+     cookie.setSecure("production".equals(env.getActiveProfiles()[0]));
+     cookie.setPath("/");
+     response.addCookie(cookie);
+     ```
+     </TabItem>
+   </Tabs>
 
-      // authResult contains user profile and session tokens
-      User user = authResult.getUser();
-      String accessToken = authResult.getAccessToken();
-      String refreshToken = authResult.getRefreshToken();
-      int expiresIn = authResult.getExpiresIn();
-      ```
-      </TabItem>
-    </Tabs>
-
-    Store each token based on its security requirements:
-
-    - **Access Token**: Store in a secure, HTTP-only cookie to prevent XSS attacks. This token has a short lifespan and provides access to protected resources.
-    - **Refresh Token**: Store in your backend database or secure server-side storage. This long-lived token generates new access tokens.
-
-    Here's how to set secure cookies:
-
-    <Tabs syncKey="tech-stack">
-      <TabItem value="node" label="Node.js">
-      ```javascript title="Express.js" wrap ins={12-17}
-      import cookieParser from 'cookie-parser';
-
-      // Configure cookie parser middleware
-      app.use(cookieParser());
-
-      // After receiving the authResult from scalekit.authenticateWithCode()
-      const { accessToken, expiresIn, refreshToken, user } = authResult;
-
-      // Store the refresh token in your database
-      await db.saveRefreshToken(user.id, refreshToken);
-
-      // Set the access token as a secure cookie
-      res.cookie('accessToken', accessToken, {
-        maxAge: (expiresIn - 60) * 1000, // Convert to milliseconds, subtract 60s buffer
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-      });
-      ```
-      </TabItem>
-      <TabItem value="py" label="Python">
-      ```python title="Flask" wrap ins={16-24}
-      from flask import Flask, make_response
-      import os
-
-      app = Flask(__name__)
-
-      # After receiving the auth_result from scalekit.authenticate_with_code()
-      access_token = auth_result.access_token
-      expires_in = auth_result.expires_in
-      refresh_token = auth_result.refresh_token
-      user = auth_result.user
-
-      # Store the refresh token in your database
-      db.save_refresh_token(user.id, refresh_token)
-
-      # Set the access token as a secure cookie
-      response = make_response()
-      response.set_cookie(
-        'accessToken',
-        access_token,
-        max_age=(expires_in - 60) * 1000,  # Convert to milliseconds, subtract 60s buffer
-        httponly=True,
-        secure=os.environ.get('FLASK_ENV') == 'production',
-        samesite='Strict'
-      )
-      ```
-      </TabItem>
-      <TabItem value="go" label="Go">
-      ```go title="Gin" wrap ins={18-25}
-      import (
-        "net/http"
-        "os"
-        "time"
-        "github.com/gin-gonic/gin"
-      )
-
-      // After receiving the authResult from scalekit.AuthenticateWithCode()
-      accessToken := authResult.AccessToken
-      expiresIn := authResult.ExpiresIn
-      refreshToken := authResult.RefreshToken
-      user := authResult.User
-
-      // Store the refresh token in your database
-      db.SaveRefreshToken(user.ID, refreshToken)
-
-      // Set the access token as a secure cookie
-      c.SetCookie(
-        "accessToken",
-        accessToken,
-        (expiresIn-60)*1000, // Convert to milliseconds, subtract 60s buffer
-        "/",
-        "",
-        os.Getenv("GIN_MODE") == "release",
-        true, // httpOnly
-      )
-      c.SetSameSite(http.SameSiteStrictMode)
-      ```
-      </TabItem>
-      <TabItem value="java" label="Java">
-      ```java title="Spring" wrap ins={18-24}
-      import javax.servlet.http.Cookie;
-      import javax.servlet.http.HttpServletResponse;
-      import org.springframework.core.env.Environment;
-
-      @Autowired
-      private Environment env;
-
-      // After receiving the authResult from scalekit.authenticateWithCode()
-      String accessToken = authResult.getAccessToken();
-      int expiresIn = authResult.getExpiresIn();
-      String refreshToken = authResult.getRefreshToken();
-      User user = authResult.getUser();
-
-      // Store the refresh token in your database
-      db.saveRefreshToken(user.getId(), refreshToken);
-
-      // Set the access token as a secure cookie
-      Cookie cookie = new Cookie("accessToken", accessToken);
-      cookie.setMaxAge((expiresIn - 60) * 1000); // Convert to milliseconds, subtract 60s buffer
-      cookie.setHttpOnly(true);
-      cookie.setSecure("production".equals(env.getActiveProfiles()[0]));
-      cookie.setPath("/");
-      response.addCookie(cookie);
-      ```
-      </TabItem>
-    </Tabs>
-
-    Configure session settings from your [Scalekit dashboard's Session Configuration](/fsa/reference/user-management-settings) to control session lifetimes and security policies.
+   Configure session settings from your [Scalekit dashboard's Session Configuration](/fsa/reference/user-management-settings) to control session lifetimes and security policies.
 
 2. ### Verify the access token
 
-    Create middleware to protect your application routes. This middleware validates the access token on every request to secured endpoints.
+   Create middleware to protect your application routes. This middleware validates the access token on every request to secured endpoints.
 
-    <Tabs syncKey="tech-stack">
-      <TabItem value="node" label="Node.js">
-      ```javascript title="middleware/auth.js" wrap showLineNumbers=true
-      async function verifyToken(req, res, next) {
-        const { accessToken } = req.cookies;
-
-        if (!accessToken) {
-          return res.status(401).json({ error: 'Authentication required' });
-        }
-
-        try {
-          // Validate the token using Scalekit SDK
-          const { user } = await scalekit.validateAccessToken(accessToken);
-          req.user = user; // Attach user information to the request
-          next();
-        } catch (error) {
-          // Token is expired or invalid - attempt to refresh
-          return handleTokenRefresh(req, res, next);
-        }
-      }
-      ```
-      </TabItem>
-      <TabItem value="py" label="Python">
-      ```python title="middleware/auth.py" wrap showLineNumbers=true
-      from flask import request, jsonify
-      from functools import wraps
-
-      def verify_token(f):
-          @wraps(f)
-          def decorated_function(*args, **kwargs):
-              access_token = request.cookies.get('accessToken')
-
-              if not access_token:
-                  return jsonify({'error': 'Authentication required'}), 401
-
-              try:
-                  # Validate the token using Scalekit SDK
-                  user = scalekit.validate_access_token(access_token)
-                  request.user = user  # Attach user information to the request
-                  return f(*args, **kwargs)
-              except Exception:
-                  # Token is expired or invalid - attempt to refresh
-                  return handle_token_refresh(f, *args, **kwargs)
-
-          return decorated_function
-      ```
-      </TabItem>
-      <TabItem value="go" label="Go">
-      ```go title="middleware/auth.go" wrap showLineNumbers=true
-      import (
-        "net/http"
-        "github.com/gin-gonic/gin"
-      )
-
-      func VerifyToken() gin.HandlerFunc {
-        return func(c *gin.Context) {
-          accessToken, err := c.Cookie("accessToken")
-
-          if err != nil || accessToken == "" {
-            c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
-            c.Abort()
-            return
-          }
-
-          // Validate the token using Scalekit SDK
-          user, err := scalekit.ValidateAccessToken(accessToken)
-          if err != nil {
-            // Token is expired or invalid - attempt to refresh
-            handleTokenRefresh(c)
-            return
-          }
-
-          c.Set("user", user) // Attach user information to the context
-          c.Next()
-        }
-      }
-      ```
-      </TabItem>
-      <TabItem value="java" label="Java">
-      ```java title="middleware/AuthInterceptor.java" wrap showLineNumbers=true
-      import javax.servlet.http.HttpServletRequest;
-      import javax.servlet.http.HttpServletResponse;
-      import javax.servlet.http.Cookie;
-      import org.springframework.web.servlet.HandlerInterceptor;
-
-      @Component
-      public class AuthInterceptor implements HandlerInterceptor {
-        @Override
-        public boolean preHandle(
-          HttpServletRequest request,
-          HttpServletResponse response,
-          Object handler
-        ) throws Exception {
-          String accessToken = getCookieValue(request, "accessToken");
-
-          if (accessToken == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("{\"error\": \"Authentication required\"}");
-            return false;
-          }
-
-          try {
-            // Validate the token using Scalekit SDK
-            User user = scalekit.validateAccessToken(accessToken);
-            request.setAttribute("user", user); // Attach user information to the request
-            return true;
-          } catch (Exception e) {
-            // Token is expired or invalid - attempt to refresh
-            return handleTokenRefresh(request, response);
-          }
-        }
-
-        private String getCookieValue(HttpServletRequest request, String cookieName) {
-          Cookie[] cookies = request.getCookies();
-          if (cookies != null) {
-            for (Cookie cookie : cookies) {
-              if (cookieName.equals(cookie.getName())) {
-                return cookie.getValue();
-              }
-            }
-          }
-          return null;
-        }
-      }
-      ```
-      </TabItem>
-    </Tabs>
+   <Tabs syncKey="tech-stack">
+     <TabItem value="node" label="Node.js">
+     ```javascript title="middleware/auth.js" wrap showLineNumbers=true
+     async function verifyToken(req, res, next) {
+       const { accessToken } = req.cookies;
+       if (!accessToken) {
+         return res.status(401).json({ error: 'Authentication required' });
+       }
+       try {
+         // Validate the token using Scalekit SDK (returns boolean)
+         const isValid = await scalekit.validateAccessToken(accessToken);
+         if (!isValid) {
+           // Token is expired or invalid - attempt to refresh
+           return handleTokenRefresh(req, res, next);
+         }
+         next();
+       } catch (error) {
+         // Validation failed - attempt to refresh
+         return handleTokenRefresh(req, res, next);
+       }
+     }
+     ```
+     </TabItem>
+     <TabItem value="py" label="Python">
+     ```python title="middleware/auth.py" wrap showLineNumbers=true
+     from flask import request, jsonify
+     from functools import wraps
+     def verify_token(f):
+         @wraps(f)
+         def decorated_function(*args, **kwargs):
+             access_token = request.cookies.get('accessToken')
+             if not access_token:
+                 return jsonify({'error': 'Authentication required'}), 401
+             try:
+                 // Validate the token using Scalekit SDK (returns boolean)
+                 is_valid = scalekit.validate_access_token(access_token)
+                 if not is_valid:
+                     // Token is expired or invalid - attempt to refresh
+                     return handle_token_refresh(f, *args, **kwargs)
+                 // Token valid – proceed to view
+                 return f(*args, **kwargs)
+             except Exception:
+                 // Validation threw error – attempt to refresh
+                 return handle_token_refresh(f, *args, **kwargs)
+         return decorated_function
+     ```
+     </TabItem>
+     <TabItem value="go" label="Go">
+     ```go title="middleware/auth.go" wrap showLineNumbers=true
+     import (
+       "net/http"
+       "github.com/gin-gonic/gin"
+     )
+     func VerifyToken() gin.HandlerFunc {
+       return func(c *gin.Context) {
+         accessToken, err := c.Cookie("accessToken")
+         if err != nil || accessToken == "" {
+           c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+           c.Abort()
+           return
+         }
+         // Validate the token using Scalekit SDK (returns bool)
+         isValid, err := scalekit.ValidateAccessToken(accessToken)
+         if err != nil || !isValid {
+           // Token is expired or invalid - attempt to refresh
+           handleTokenRefresh(c)
+           return
+         }
+         // Token valid – proceed
+         c.Next()
+       }
+     }
+     ```
+     </TabItem>
+     <TabItem value="java" label="Java">
+     ```java title="middleware/AuthInterceptor.java" wrap showLineNumbers=true
+     import javax.servlet.http.HttpServletRequest;
+     import javax.servlet.http.HttpServletResponse;
+     import javax.servlet.http.Cookie;
+     import org.springframework.web.servlet.HandlerInterceptor;
+     @Component
+     public class AuthInterceptor implements HandlerInterceptor {
+       @Override
+       public boolean preHandle(
+         HttpServletRequest request,
+         HttpServletResponse response,
+         Object handler
+       ) throws Exception {
+         String accessToken = getCookieValue(request, "accessToken");
+         if (accessToken == null) {
+           response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+           response.getWriter().write("{\"error\": \"Authentication required\"}");
+           return false;
+         }
+         try {
+           // Validate the token using Scalekit SDK (returns boolean)
+           boolean isValid = scalekit.validateAccessToken(accessToken);
+           if (!isValid) {
+             // Token is expired or invalid - attempt to refresh
+             return handleTokenRefresh(request, response);
+           }
+           return true;
+         } catch (Exception e) {
+           // Validation threw error – attempt to refresh
+           return handleTokenRefresh(request, response);
+         }
+       }
+       private String getCookieValue(HttpServletRequest request, String cookieName) {
+         Cookie[] cookies = request.getCookies();
+         if (cookies != null) {
+           for (Cookie cookie : cookies) {
+             if (cookieName.equals(cookie.getName())) {
+               return cookie.getValue();
+             }
+           }
+         }
+         return null;
+       }
+     }
+     ```
+     </TabItem>
+   </Tabs>
 
 3. ### Refresh expired access tokens
 
-    When access tokens expire, use the refresh token to get new ones. This maintains user sessions without requiring re-authentication.
+   When access tokens expire, use the refresh token to get new ones. This maintains user sessions without requiring re-authentication.
 
-    <Tabs syncKey="tech-stack">
-      <TabItem value="node" label="Node.js">
-      ```javascript title="middleware/auth.js" wrap showLineNumbers=true ins={2,10,14-20,23}
-      async function handleTokenRefresh(req, res, next) {
-        // Get the user ID from the expired token or session storage
-        const userId = req.session?.userId || req.user?.id;
+   <Tabs syncKey="tech-stack">
+     <TabItem value="node" label="Node.js">
+     ```javascript title="middleware/auth.js" wrap showLineNumbers=true ins={2,10,14-20,23}
+     async function handleTokenRefresh(req, res, next) {
+       // Get the user ID from the expired token or session storage
+       const userId = req.session?.userId || req.user?.id;
+       if (!userId) {
+         return res.status(401).json({ error: 'Authentication required' });
+       }
+       // Retrieve the stored refresh token from your database
+       const storedRefreshToken = await db.getRefreshToken(userId);
+       if (!storedRefreshToken) {
+         return res.status(401).json({ error: 'Session expired' });
+       }
+       try {
+         // Get new tokens using the refresh token
+         const authResult = await scalekit.refreshToken(storedRefreshToken);
+         const { accessToken, expiresIn, refreshToken: newRefreshToken } = authResult;
+         // Update the stored refresh token
+         await db.saveRefreshToken(userId, newRefreshToken);
+         // Set the new access token as a cookie
+         res.cookie('accessToken', accessToken, {
+           maxAge: (expiresIn - 60) * 1000,
+           httpOnly: true,
+           secure: process.env.NODE_ENV === 'production',
+           sameSite: 'strict'
+         });
+         // Attach user information and continue
+         req.user = authResult.user;
+         next();
+       } catch (error) {
+         // Refresh failed - user must sign in again
+         res.clearCookie('accessToken');
+         return res.status(401).json({ error: 'Session expired. Please sign in again.' });
+       }
+     }
+     ```
+     </TabItem>
+     <TabItem value="py" label="Python">
+     ```python title="middleware/auth.py" wrap showLineNumbers=true ins={2,10,14-20,23}
+     from flask import request, jsonify, make_response
+     def handle_token_refresh(f, *args, **kwargs):
+         # Get the user ID from the expired token or session storage
+         user_id = request.session.get('userId') if hasattr(request, 'session') else getattr(request, 'user', {}).get('id')
+         if not user_id:
+             return jsonify({'error': 'Authentication required'}), 401
+         # Retrieve the stored refresh token from your database
+         stored_refresh_token = db.get_refresh_token(user_id)
+         if not stored_refresh_token:
+             return jsonify({'error': 'Session expired'}), 401
+         try:
+             # Get new tokens using the refresh token
+             auth_result = scalekit.refresh_token(stored_refresh_token)
+             access_token = auth_result.access_token
+             expires_in = auth_result.expires_in
+             new_refresh_token = auth_result.refresh_token
+             # Update the stored refresh token
+             db.save_refresh_token(user_id, new_refresh_token)
+             # Set the new access token as a cookie
+             response = make_response(f(*args, **kwargs))
+             response.set_cookie(
+                 'accessToken',
+                 access_token,
+                 max_age=(expires_in - 60) * 1000,
+                 httponly=True,
+                 secure=os.environ.get('FLASK_ENV') == 'production',
+                 samesite='Strict'
+             )
+             # Attach user information and continue
+             request.user = auth_result.user
+             return response
+         except Exception:
+             # Refresh failed - user must sign in again
+             response = make_response(jsonify({'error': 'Session expired. Please sign in again.'}), 401)
+             response.set_cookie('accessToken', '', expires=0)
+             return response
+     ```
+     </TabItem>
+     <TabItem value="go" label="Go">
+     ```go title="middleware/auth.go" wrap showLineNumbers=true ins={2,10,14-20,23}
+     import (
+       "net/http"
+       "github.com/gin-gonic/gin"
+     )
+     func handleTokenRefresh(c *gin.Context) {
+       // Get the user ID from the expired token or session storage
+       userID := getUserIDFromContext(c) // Helper function to get user ID
+       if userID == "" {
+         c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+         c.Abort()
+         return
+       }
+       // Retrieve the stored refresh token from your database
+       storedRefreshToken, err := db.GetRefreshToken(userID)
+       if err != nil || storedRefreshToken == "" {
+         c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired"})
+         c.Abort()
+         return
+       }
+       // Get new tokens using the refresh token
+       authResult, err := scalekit.RefreshToken(storedRefreshToken)
+       if err != nil {
+         // Refresh failed - user must sign in again
+         c.SetCookie("accessToken", "", -1, "/", "", false, true)
+         c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired. Please sign in again."})
+         c.Abort()
+         return
+       }
+       // Update the stored refresh token
+       db.SaveRefreshToken(userID, authResult.RefreshToken)
+       // Set the new access token as a cookie
+       c.SetCookie(
+         "accessToken",
+         authResult.AccessToken,
+         (authResult.ExpiresIn-60)*1000,
+         "/",
+         "",
+         os.Getenv("GIN_MODE") == "release",
+         true,
+       )
+       // Attach user information and continue
+       c.Set("user", authResult.User)
+       c.Next()
+     }
+     ```
+     </TabItem>
+     <TabItem value="java" label="Java">
+     ```java title="middleware/AuthInterceptor.java" wrap showLineNumbers=true ins={2,10,14-20,23}
+     import javax.servlet.http.HttpServletRequest;
+     import javax.servlet.http.HttpServletResponse;
+     import javax.servlet.http.Cookie;
+     private boolean handleTokenRefresh(HttpServletRequest request, HttpServletResponse response)
+         throws Exception {
+       // Get the user ID from the expired token or session storage
+       String userId = getUserIdFromRequest(request); // Helper method to get user ID
+       if (userId == null) {
+         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+         response.getWriter().write("{\"error\": \"Authentication required\"}");
+         return false;
+       }
+       // Retrieve the stored refresh token from your database
+       String storedRefreshToken = db.getRefreshToken(userId);
+       if (storedRefreshToken == null) {
+         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+         response.getWriter().write("{\"error\": \"Session expired\"}");
+         return false;
+       }
+       try {
+         // Get new tokens using the refresh token
+         AuthResult authResult = scalekit.refreshToken(storedRefreshToken);
+         String accessToken = authResult.getAccessToken();
+         int expiresIn = authResult.getExpiresIn();
+         String newRefreshToken = authResult.getRefreshToken();
+         // Update the stored refresh token
+         db.saveRefreshToken(userId, newRefreshToken);
+         // Set the new access token as a cookie
+         Cookie cookie = new Cookie("accessToken", accessToken);
+         cookie.setMaxAge((expiresIn - 60) * 1000);
+         cookie.setHttpOnly(true);
+         cookie.setSecure("production".equals(env.getActiveProfiles()[0]));
+         cookie.setPath("/");
+         response.addCookie(cookie);
+         // Attach user information and continue
+         request.setAttribute("user", authResult.getUser());
+         return true;
+       } catch (Exception e) {
+         // Refresh failed - user must sign in again
+         Cookie expiredCookie = new Cookie("accessToken", "");
+         expiredCookie.setMaxAge(0);
+         response.addCookie(expiredCookie);
+         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+         response.getWriter().write("{\"error\": \"Session expired. Please sign in again.\"}");
+         return false;
+       }
+     }
+     ```
+     </TabItem>
+   </Tabs>
 
-        if (!userId) {
-          return res.status(401).json({ error: 'Authentication required' });
-        }
+   Apply this middleware to protected routes:
 
-        // Retrieve the stored refresh token from your database
-        const storedRefreshToken = await db.getRefreshToken(userId);
-
-        if (!storedRefreshToken) {
-          return res.status(401).json({ error: 'Session expired' });
-        }
-
-        try {
-          // Get new tokens using the refresh token
-          const authResult = await scalekit.refreshToken(storedRefreshToken);
-          const { accessToken, expiresIn, refreshToken: newRefreshToken } = authResult;
-
-          // Update the stored refresh token
-          await db.saveRefreshToken(userId, newRefreshToken);
-
-          // Set the new access token as a cookie
-          res.cookie('accessToken', accessToken, {
-            maxAge: (expiresIn - 60) * 1000,
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
-          });
-
-          // Attach user information and continue
-          req.user = authResult.user;
-          next();
-
-        } catch (error) {
-          // Refresh failed - user must sign in again
-          res.clearCookie('accessToken');
-          return res.status(401).json({ error: 'Session expired. Please sign in again.' });
-        }
-      }
-      ```
-      </TabItem>
-      <TabItem value="py" label="Python">
-      ```python title="middleware/auth.py" wrap showLineNumbers=true ins={2,10,14-20,23}
-      from flask import request, jsonify, make_response
-
-      def handle_token_refresh(f, *args, **kwargs):
-          # Get the user ID from the expired token or session storage
-          user_id = request.session.get('userId') if hasattr(request, 'session') else getattr(request, 'user', {}).get('id')
-
-          if not user_id:
-              return jsonify({'error': 'Authentication required'}), 401
-
-          # Retrieve the stored refresh token from your database
-          stored_refresh_token = db.get_refresh_token(user_id)
-
-          if not stored_refresh_token:
-              return jsonify({'error': 'Session expired'}), 401
-
-          try:
-              # Get new tokens using the refresh token
-              auth_result = scalekit.refresh_token(stored_refresh_token)
-              access_token = auth_result.access_token
-              expires_in = auth_result.expires_in
-              new_refresh_token = auth_result.refresh_token
-
-              # Update the stored refresh token
-              db.save_refresh_token(user_id, new_refresh_token)
-
-              # Set the new access token as a cookie
-              response = make_response(f(*args, **kwargs))
-              response.set_cookie(
-                  'accessToken',
-                  access_token,
-                  max_age=(expires_in - 60) * 1000,
-                  httponly=True,
-                  secure=os.environ.get('FLASK_ENV') == 'production',
-                  samesite='Strict'
-              )
-
-              # Attach user information and continue
-              request.user = auth_result.user
-              return response
-
-          except Exception:
-              # Refresh failed - user must sign in again
-              response = make_response(jsonify({'error': 'Session expired. Please sign in again.'}), 401)
-              response.set_cookie('accessToken', '', expires=0)
-              return response
-      ```
-      </TabItem>
-      <TabItem value="go" label="Go">
-      ```go title="middleware/auth.go" wrap showLineNumbers=true ins={2,10,14-20,23}
-      import (
-        "net/http"
-        "github.com/gin-gonic/gin"
-      )
-
-      func handleTokenRefresh(c *gin.Context) {
-        // Get the user ID from the expired token or session storage
-        userID := getUserIDFromContext(c) // Helper function to get user ID
-
-        if userID == "" {
-          c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
-          c.Abort()
-          return
-        }
-
-        // Retrieve the stored refresh token from your database
-        storedRefreshToken, err := db.GetRefreshToken(userID)
-
-        if err != nil || storedRefreshToken == "" {
-          c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired"})
-          c.Abort()
-          return
-        }
-
-        // Get new tokens using the refresh token
-        authResult, err := scalekit.RefreshToken(storedRefreshToken)
-        if err != nil {
-          // Refresh failed - user must sign in again
-          c.SetCookie("accessToken", "", -1, "/", "", false, true)
-          c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired. Please sign in again."})
-          c.Abort()
-          return
-        }
-
-        // Update the stored refresh token
-        db.SaveRefreshToken(userID, authResult.RefreshToken)
-
-        // Set the new access token as a cookie
-        c.SetCookie(
-          "accessToken",
-          authResult.AccessToken,
-          (authResult.ExpiresIn-60)*1000,
-          "/",
-          "",
-          os.Getenv("GIN_MODE") == "release",
-          true,
-        )
-
-        // Attach user information and continue
-        c.Set("user", authResult.User)
-        c.Next()
-      }
-      ```
-      </TabItem>
-      <TabItem value="java" label="Java">
-      ```java title="middleware/AuthInterceptor.java" wrap showLineNumbers=true ins={2,10,14-20,23}
-      import javax.servlet.http.HttpServletRequest;
-      import javax.servlet.http.HttpServletResponse;
-      import javax.servlet.http.Cookie;
-
-      private boolean handleTokenRefresh(HttpServletRequest request, HttpServletResponse response)
-          throws Exception {
-        // Get the user ID from the expired token or session storage
-        String userId = getUserIdFromRequest(request); // Helper method to get user ID
-
-        if (userId == null) {
-          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-          response.getWriter().write("{\"error\": \"Authentication required\"}");
-          return false;
-        }
-
-        // Retrieve the stored refresh token from your database
-        String storedRefreshToken = db.getRefreshToken(userId);
-
-        if (storedRefreshToken == null) {
-          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-          response.getWriter().write("{\"error\": \"Session expired\"}");
-          return false;
-        }
-
-        try {
-          // Get new tokens using the refresh token
-          AuthResult authResult = scalekit.refreshToken(storedRefreshToken);
-          String accessToken = authResult.getAccessToken();
-          int expiresIn = authResult.getExpiresIn();
-          String newRefreshToken = authResult.getRefreshToken();
-
-          // Update the stored refresh token
-          db.saveRefreshToken(userId, newRefreshToken);
-
-          // Set the new access token as a cookie
-          Cookie cookie = new Cookie("accessToken", accessToken);
-          cookie.setMaxAge((expiresIn - 60) * 1000);
-          cookie.setHttpOnly(true);
-          cookie.setSecure("production".equals(env.getActiveProfiles()[0]));
-          cookie.setPath("/");
-          response.addCookie(cookie);
-
-          // Attach user information and continue
-          request.setAttribute("user", authResult.getUser());
-          return true;
-
-        } catch (Exception e) {
-          // Refresh failed - user must sign in again
-          Cookie expiredCookie = new Cookie("accessToken", "");
-          expiredCookie.setMaxAge(0);
-          response.addCookie(expiredCookie);
-          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-          response.getWriter().write("{\"error\": \"Session expired. Please sign in again.\"}");
-          return false;
-        }
-      }
-      ```
-      </TabItem>
-    </Tabs>
-
-    Apply this middleware to protected routes:
-
-    <Tabs syncKey="tech-stack">
-      <TabItem value="node" label="Node.js">
-      ```javascript title="app.js"
-      // Protect routes that require authentication
-      app.get('/dashboard', verifyToken, (req, res) => {
-        res.json({ message: `Welcome ${req.user.name}!` });
-      });
-
-      app.get('/api/profile', verifyToken, (req, res) => {
-        res.json({ user: req.user });
-      });
-      ```
-      </TabItem>
-      <TabItem value="py" label="Python">
-      ```python title="app.py"
-      # Protect routes that require authentication
-      @app.route('/dashboard')
-      @verify_token
-      def dashboard():
-          return jsonify({'message': f'Welcome {request.user.name}!'})
-
-      @app.route('/api/profile')
-      @verify_token
-      def profile():
-          return jsonify({'user': request.user})
-      ```
-      </TabItem>
-      <TabItem value="go" label="Go">
-      ```go title="main.go"
-      // Protect routes that require authentication
-      r.GET("/dashboard", VerifyToken(), func(c *gin.Context) {
-        user, _ := c.Get("user")
-        c.JSON(http.StatusOK, gin.H{
-          "message": fmt.Sprintf("Welcome %s!", user.Name),
-        })
-      })
-
-      r.GET("/api/profile", VerifyToken(), func(c *gin.Context) {
-        user, _ := c.Get("user")
-        c.JSON(http.StatusOK, gin.H{"user": user})
-      })
-      ```
-      </TabItem>
-      <TabItem value="java" label="Java">
-      ```java title="Controller.java"
-      // Protect routes that require authentication
-      @GetMapping("/dashboard")
-      public ResponseEntity<Map<String, String>> dashboard(HttpServletRequest request) {
-        User user = (User) request.getAttribute("user");
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Welcome " + user.getName() + "!");
-        return ResponseEntity.ok(response);
-      }
-
-      @GetMapping("/api/profile")
-      public ResponseEntity<Map<String, Object>> profile(HttpServletRequest request) {
-        User user = (User) request.getAttribute("user");
-        Map<String, Object> response = new HashMap<>();
-        response.put("user", user);
-        return ResponseEntity.ok(response);
-      }
-      ```
-      </TabItem>
-    </Tabs>
-
+   <Tabs syncKey="tech-stack">
+     <TabItem value="node" label="Node.js">
+     ```javascript title="app.js"
+     // Protect routes that require authentication
+     app.get('/dashboard', verifyToken, (req, res) => {
+       res.json({ message: `Welcome ${req.user.name}!` });
+     });
+     app.get('/api/profile', verifyToken, (req, res) => {
+       res.json({ user: req.user });
+     });
+     ```
+     </TabItem>
+     <TabItem value="py" label="Python">
+     ```python title="app.py"
+     # Protect routes that require authentication
+     @app.route('/dashboard')
+     @verify_token
+     def dashboard():
+         return jsonify({'message': f'Welcome {request.user.name}!'})
+     @app.route('/api/profile')
+     @verify_token
+     def profile():
+         return jsonify({'user': request.user})
+     ```
+     </TabItem>
+     <TabItem value="go" label="Go">
+     ```go title="main.go"
+     // Protect routes that require authentication
+     r.GET("/dashboard", VerifyToken(), func(c *gin.Context) {
+       user, _ := c.Get("user")
+       c.JSON(http.StatusOK, gin.H{
+         "message": fmt.Sprintf("Welcome %s!", user.Name),
+       })
+     })
+     r.GET("/api/profile", VerifyToken(), func(c *gin.Context) {
+       user, _ := c.Get("user")
+       c.JSON(http.StatusOK, gin.H{"user": user})
+     })
+     ```
+     </TabItem>
+     <TabItem value="java" label="Java">
+     ```java title="Controller.java"
+     // Protect routes that require authentication
+     @GetMapping("/dashboard")
+     public ResponseEntity<Map<String, String>> dashboard(HttpServletRequest request) {
+       User user = (User) request.getAttribute("user");
+       Map<String, String> response = new HashMap<>();
+       response.put("message", "Welcome " + user.getName() + "!");
+       return ResponseEntity.ok(response);
+     }
+     @GetMapping("/api/profile")
+     public ResponseEntity<Map<String, Object>> profile(HttpServletRequest request) {
+       User user = (User) request.getAttribute("user");
+       Map<String, Object> response = new HashMap<>();
+       response.put("user", user);
+       return ResponseEntity.ok(response);
+     }
+     ```
+     </TabItem>
+   </Tabs>
 </Steps>
 
 ## Configure session settings
@@ -652,6 +597,7 @@ Shorter timeouts provide better security, while longer timeouts reduce authentic
 Enable organization administrators to control session settings for their workspace.
 
 [Contact our support team](/support/contact-us/) to activate this feature for your account.
+
 </Aside>
 
 ## What's next?
