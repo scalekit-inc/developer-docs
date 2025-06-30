@@ -312,8 +312,8 @@ export const topics = {
     '/guides/setup-scalekit',
     '/guides/external-ids-and-metadata',
     '/guides/mcp/additional-reading',
-    '/fsa/guides/invite-only-signup',
   ],
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
   integrations: ['/guides/integrations/**/*'], // Associate all integration pages with the integrations topic
+  'full-stack-auth': ['/fsa/**/*'], // Associate all fsa pages with the full-stack-auth topic
 };
