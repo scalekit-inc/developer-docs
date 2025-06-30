@@ -131,16 +131,16 @@ Include `offline_access` in the list of scopes sent during the authorization req
 
       app = Flask(__name__)
 
-      # After receiving the auth_result from scalekit.authenticate_with_code()
+      // After receiving the auth_result from scalekit.authenticate_with_code()
       access_token = auth_result.access_token
       expires_in = auth_result.expires_in
       refresh_token = auth_result.refresh_token
       user = auth_result.user
 
-      # Store the refresh token in your database
+      // Store the refresh token in your database
       db.save_refresh_token(user.id, refresh_token)
 
-      # Set the access token as a secure cookie
+      // Set the access token as a secure cookie
       response = make_response()
       response.set_cookie(
         'accessToken',
@@ -257,12 +257,12 @@ Include `offline_access` in the list of scopes sent during the authorization req
                   return jsonify({'error': 'Authentication required'}), 401
 
               try:
-                  # Validate the token using Scalekit SDK
+                  // Validate the token using Scalekit SDK
                   user = scalekit.validate_access_token(access_token)
                   request.user = user  # Attach user information to the request
                   return f(*args, **kwargs)
               except Exception:
-                  # Token is expired or invalid - attempt to refresh
+                  // Token is expired or invalid - attempt to refresh
                   return handle_token_refresh(f, *args, **kwargs)
 
           return decorated_function
@@ -323,8 +323,8 @@ Include `offline_access` in the list of scopes sent during the authorization req
           }
 
           try {
-            // Validate the token using Scalekit SDK
-            var user = scalekit.authentication().validateAccessToken(accessToken);
+            // Validate the token and get user details using Scalekit SDK
+            var user = scalekit.authentication().validateAccessTokenAndGetUser(accessToken);
             request.setAttribute("user", user); // Attach user information to the request
             return true;
           } catch (Exception e) {
@@ -528,9 +528,10 @@ Include `offline_access` in the list of scopes sent during the authorization req
           }
 
           try {
-            // Validate the token using Scalekit SDK
-            return scalekit.authentication().validateAccessToken(accessToken);
-            
+            // Validate the token and get user details using Scalekit SDK
+            var user = scalekit.authentication().validateAccessTokenAndGetUser(accessToken);
+            request.setAttribute("user", user); // Attach user information to the request
+            return true;
           } catch (Exception e) {
             // Token is expired or invalid - attempt to refresh
             return handleTokenRefresh(request, response);
