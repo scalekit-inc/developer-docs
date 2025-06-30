@@ -1,5 +1,54 @@
 export const sidebar = [
   {
+    label: 'Full Stack Auth',
+    id: 'full-stack-auth',
+    link: '/fsa/quickstart',
+    icon: 'codePen',
+    items: [
+      {
+        label: 'Getting started',
+        items: ['fsa/quickstart', 'fsa/data-modelling'],
+      },
+      {
+        label: 'Authentication',
+        items: [
+          'fsa/guides/implement-signup',
+          'fsa/guides/implement-login',
+          {
+            label: 'Auth methods',
+            items: [
+              'fsa/guides/auth-methods',
+              'fsa/guides/passwordless',
+              'fsa/guides/social-logins',
+              'fsa/guides/enterprise-sso',
+            ],
+          },
+          'fsa/guides/manage-session',
+          'fsa/guides/logout',
+        ],
+      },
+      {
+        label: 'User management',
+        items: [
+          'fsa/guides/manage-organization',
+          'fsa/guides/organization-switching',
+          'fsa/reference/user-management-settings',
+          // 'fsa/guides/manage-users', // TODO: is it needed? assess later
+          'fsa/guides/merge-identities',
+          'fsa/reference/user-profile',
+          'fsa/guides/app-roles',
+          'fsa/reference/redirects',
+          'fsa/guides/just-in-time-provisioning',
+          'fsa/guides/automated-user-provisioning',
+        ],
+      },
+      {
+        label: 'Customization',
+        items: ['fsa/guides/login-page-branding', 'guides/email-providers'],
+      },
+    ],
+  },
+  {
     label: 'Single Sign-On',
     link: '/sso/quickstart',
     id: 'sso',
@@ -150,55 +199,6 @@ export const sidebar = [
           'guides/m2m/scopes',
           'guides/m2m/api-auth-m2m-clients',
         ],
-      },
-    ],
-  },
-  {
-    label: 'Full Stack Auth',
-    id: 'full-stack-auth',
-    link: '/fsa/quickstart',
-    icon: 'codePen',
-    items: [
-      {
-        label: 'Getting started',
-        items: ['fsa/quickstart', 'fsa/data-modelling'],
-      },
-      {
-        label: 'Authentication',
-        items: [
-          'fsa/guides/implement-signup',
-          'fsa/guides/implement-login',
-          {
-            label: 'Auth methods',
-            items: [
-              'fsa/guides/auth-methods',
-              'fsa/guides/passwordless',
-              'fsa/guides/social-logins',
-              'fsa/guides/enterprise-sso',
-            ],
-          },
-          'fsa/guides/manage-session',
-          'fsa/guides/logout',
-        ],
-      },
-      {
-        label: 'User management',
-        items: [
-          'fsa/guides/manage-organization',
-          'fsa/guides/organization-switching',
-          'fsa/reference/user-management-settings',
-          'fsa/guides/invite-only-signup',
-          'fsa/guides/merge-identities',
-          'fsa/reference/user-profile',
-          'fsa/guides/app-roles',
-          'fsa/reference/redirects',
-          'fsa/guides/just-in-time-provisioning',
-          'fsa/guides/automated-user-provisioning',
-        ],
-      },
-      {
-        label: 'Customization',
-        items: ['fsa/guides/login-page-branding', 'guides/email-providers'],
       },
     ],
   },
