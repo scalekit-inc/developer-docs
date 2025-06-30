@@ -700,20 +700,14 @@ Let's get started!
                         return
                     }
 
-                    // Update the cookie with the new access token and refresh token
+                    // Update the cookie with the new access token
                     encryptedNewAccessToken, err := encrypt(tokenResponse.AccessToken)
                     if err != nil {
                         http.Error(w, `{"message": "Token encryption failed"}`, http.StatusInternalServerError)
                         return
                     }
 
-                    encryptedNewRefreshToken, err := encrypt(tokenResponse.RefreshToken)
-                    if err != nil {
-                        http.Error(w, `{"message": "Token encryption failed"}`, http.StatusInternalServerError)
-                        return
-                    }
-
-                    accessTokenCookie := &http.Cookie{
+                    newCookie := &http.Cookie{
                         Name:     "accessToken",
                         Value:    encryptedNewAccessToken,
                         HttpOnly: true,
@@ -721,17 +715,7 @@ Let's get started!
                         Path:     "/",
                         SameSite: http.SameSiteStrictMode,
                     }
-                    http.SetCookie(w, accessTokenCookie)
-
-                    refreshTokenCookie := &http.Cookie{
-                        Name:     "refreshToken",
-                        Value:    encryptedNewRefreshToken,
-                        HttpOnly: true,
-                        Secure:   true,
-                        Path:     "/",
-                        SameSite: http.SameSiteStrictMode,
-                    }
-                    http.SetCookie(w, refreshTokenCookie)
+                    http.SetCookie(w, newCookie)
 
                     r = r.WithContext(context.WithValue(r.Context(), "tokenValid", true))
                 } else {
