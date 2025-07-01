@@ -1,0 +1,74 @@
+---
+title: Enterprise SSO
+description: How to configure enterprise SSO for your application
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+sidebar:
+  label: "Enterprise SSO"
+prev:
+  label: "Social logins"
+  link: "/fsa/guides/social-logins/"
+next:
+  label: "Admin Portal"
+  link: "/guides/sso/admin-portal/"
+---
+import { Steps, Tabs, TabItem, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+import CheckItem from '@/components/ui/CheckItem.astro';
+
+Enterprise SSO allows users to sign in to your application using their organization's identity provider (IdP), such as Okta, Azure AD, or Google Workspace. This provides a secure and seamless authentication experience for your enterprise customers.
+
+![How Scalekit connects your application to enterprise identity providers](@/assets/docs/sso-quickstart/how-scalekit-connects.png)
+
+This guide shows you how to enable enterprise SSO for your customers.
+
+This guide shows you how to enable each passwordless login method. You should complete the [quickstart guide](/fsa/quickstart/) before following this guide, as it covers building a sign-in page that combines Scalekit's hosted UI.
+
+## Onboard your enterprise customer
+
+To enable SSO for a customer, you first need to create an Organization for them in Scalekit. Once the organization is created, you can provide them access to the Admin Portal where they can configure their own IdP settings.
+
+Scalekit provides two flexible ways to give your customers access to the Admin Portal:
+
+**Option 1: Shareable Link (No-Code)**
+1. Log in to your [Scalekit Dashboard](https://app.scalekit.com).
+2. Navigate to the "Organizations" tab and create a new organization for your customer.
+3. Select the organization and click "Generate Link" to create a shareable Admin Portal link.
+4. Share this link with your customer's IT admin through email, Slack, or other communication channels.
+
+**Option 2: Embedded Portal**
+You can also embed the Admin Portal directly within your application using an iframe, allowing customers to configure their SSO settings without leaving your app.
+
+Your customer can then use either approach to access a self-service portal and set up their SSO connection.
+
+![Admin Portal Link Generation](@/assets/docs/home/admin-portal/1-admin-portal-v2.png)
+
+Once they have configured their IdP, the connection will be active for their organization and will appear in your list of enterprise connections.
+
+![Enterprise Connections UI](@/assets/docs/fsa/auth-methods/enterpise-sso-1.png)
+
+<Aside type="note" title="Testing SSO Integration">
+  During development, you don't need to manually configure each identity provider your customers might use. Scalekit provides an IdP simulator that helps you test the SSO flow easily. Learn more about [testing your SSO integration](/guides/sso/test-sso/).
+</Aside>
+
+## Organization domain verification
+
+When you verify organization domains, users can sign in directly through their organization's identity provider from the sign-in page. Scalekit uses the domain part of their email address (for example, `@megacorp.org`) to automatically redirect them to the correct identity provider for authentication. Also called Home Realm Discovery.
+
+**Organization admins** can verify domains through the [admin portal](/guides/sso/admin-portal/). Once verified, any user with an email address from that domain can use SSO.
+
+1. **DNS verification**: Add a DNS TXT record to prove domain ownership. The Admin Portal guides you through each step of adding the record. Once you add the record correctly, Scalekit automatically completes the verification. <Badge type="note" text="Coming soon" />
+2. **Manual verification**: Request domain verification through the Scalekit Dashboard. This method is suitable when you have already verified domain ownership through other means.
+
+## What's next?
+
+- Learn more about the [Admin Portal](/guides/sso/admin-portal/) and its customization options.
+- [Customize the login page](/fsa/guides/login-page-branding/) to match your brand's design and style.
+- Explore our [SSO integration guides](/guides/integrations/sso-integrations/) for specific identity provider configurations.

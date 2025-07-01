@@ -1,0 +1,314 @@
+---
+title: Restricted access through invite-only sign ups
+description: Learn how to implement invite-only sign up for your application.
+draft: true
+sidebar:
+  label: Restricted sign ups
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev: false
+next: false
+---
+import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, LinkButton, Badge } from '@astrojs/starlight/components';
+import { InstallSDKSection, EnvSection, RedirectAuthPageSection, RetrieveUserDetailsSection, UserProfileSection, CreateUserMembershipSection, CreateOrganizationSection } from '@components/templates';
+
+Build applications that enable organization owners to invite users to join their organization. Scalekit takes care of sending the invite emails, verifying their email addresses, and creating the user accounts end to end.
+
+Invite-only signup is ideal for the following scenarios:
+
+- **Closed beta applications**: You want to control who can access your application during the beta phase.
+- **Enterprise applications**: Organization admins need to invite team members to join their workspace.
+- **B2B SaaS platforms**: You want to restrict access to invited users only
+- **Exclusive communities**: Applications that require invitation-based membership.
+
+Scalekit helps you implement invite-only signup flows while handling the complexity of user management and authentication.
+
+## Set up invite-only signup page with Scalekit
+
+You can implement invite-only signup by configuring Scalekit to disable public signups and using the invitation flow. This ensures that only invited users can create accounts.
+
+<Steps>
+ 1. ### Configure your application for invite-only access
+
+    <InstallSDKSection />
+
+    Copy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.
+    ```bash
+    SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
+    SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
+    SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
+    ```
+
+    Create a new Scalekit client instance after initializing the environment variables.
+    <EnvSection />
+
+    <Aside type="tip" title="Disable public signups">
+      Navigate to your Scalekit dashboard > **User Management** > **Settings** and turn off the "Allow public signups" option. This ensures that only invited users can create accounts, making your B2B app invite-only with a sign-in page but no public signup option.
+    </Aside>
+    {/* TODO: Add a diagram here */}
+
+  2. ### Redirect users to the sign-in page
+       Generate the authorization URL by passing a [registered](/fsa/reference/redirects) _callback URL_ and _scopes_ to the Scalekit SDK. Note that we don't include the `prompt: 'create'` parameter since public signup is disabled.
+
+       <Tabs syncKey="tech-stack">
+         <TabItem value="node" label="Node.js">
+           ```javascript title="Express.js" wrap "authorizationUrl" {"Redirect user to Scalekit's authentication page":7}
+           const redirectUri = 'http://localhost:3000/api/callback';
+           const options = {
+             scopes: ['openid', 'profile', 'email', 'offline_access'],
+           };
+
+           const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+
+           res.redirect(authorizationUrl);
+           ```
+         </TabItem>
+         <TabItem value="python" label="Python">
+           ```python title="Flask"
+           from scalekit import AuthorizationUrlOptions
+
+           redirect_uri = 'http://localhost:3000/api/callback'
+           options = AuthorizationUrlOptions()
+           options.scopes = ['openid', 'profile', 'email', 'offline_access']
+
+           authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+
+           # For web frameworks like Flask/Django:
+           # return redirect(authorization_url)
+           ```
+         </TabItem>
+         <TabItem value="go" label="Go">
+           ```go title="Gin"
+           redirectUri := "http://localhost:3000/api/callback"
+           options := scalekit.AuthorizationUrlOptions{
+               Scopes: []string{"openid", "profile", "email", "offline_access"},
+           }
+
+           authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+           if err != nil {
+               // handle error appropriately
+               panic(err)
+           }
+
+           // For web frameworks like Gin:
+           // c.Redirect(http.StatusFound, authorizationUrl.String())
+           ```
+         </TabItem>
+         <TabItem value="java" label="Java">
+           ```java title="Spring"
+           import com.scalekit.internal.http.AuthorizationUrlOptions;
+           import java.net.URL;
+           import java.util.Arrays;
+
+           String redirectUri = "http://localhost:3000/api/callback";
+           AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+           options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+
+           URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+           ```
+         </TabItem>
+       </Tabs>
+     This will redirect the user to Scalekit's managed sign-in page without signup options.
+
+3. ### Retrieve user profile after authentication
+      Scalekit triggers a callback to your registered _callback URL_ with an authorization code. Exchange the code to get the user's profile information.
+      <RetrieveUserDetailsSection />
+
+      The `authenticateWithCode` method returns an object containing the user's profile information (`user` object) and `idToken` (JWT).
+      <UserProfileSection />
+
+      You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
+</Steps>
+
+With these configurations, your B2B application now has a sign-in page but no public signup option, ensuring that only invited users can access your application. After successful authentication, you can proceed to [create a session](/fsa/guides/implement-login/#create-a-user-session).
+
+## Invite-only sign up using Scalekit SDK
+
+For applications where you want to build custom invitation flows in your own UI, Scalekit provides APIs to programmatically invite users. This is ideal when organization admins or workspace owners need to invite team members directly from your application's dashboard.
+
+Common use cases include:
+
+- **Admin dashboards**: Organization admins can invite users from a settings or team management page.
+- **Bulk invitations**: Import and invite multiple users at once from CSV files or directory systems.
+- **Custom workflows**: Implement approval processes or conditional invitations based on business logic.
+- **Integration with existing systems**: Connect invitation flows with your CRM, HR systems, or user directories.
+
+<Steps>
+ 1. ### Create user invitations programmatically
+
+    To invite a user to an organization, create a user membership with their email address and the target organization ID. Scalekit handles sending the invitation email and managing the signup process.
+
+    <CreateUserMembershipSection />
+
+    **Key parameters:**
+    - `email`: The email address of the user to invite (required)
+    - `organization_id`: The ID of the organization they're joining (required)
+    - `sendActivationEmail`: Set to `true` to automatically send invitation emails (recommended)
+    - `roles`: Optional array of roles to assign to the invited user
+    - `metadata`: Optional custom data to associate with the membership
+
+ 2. ### Handle invitation responses
+
+    When a user is successfully invited, Scalekit returns a user object with membership details. The membership status will be `INVITED` until the user accepts the invitation.
+
+    ```json title="Example invitation response"
+    {
+      "user": {
+        "id": "usr_01HTR0ABCXYZ",
+        "environmentId": "env_01HTQZ99MMNZ",
+        "createTime": "2025-06-19T15:41:22Z",
+        "updateTime": "2025-06-19T15:41:22Z",
+        "email": "user@example.com",
+        "externalId": "crm-user-87425",
+        "memberships": [
+          {
+            "organizationId": "org_xxxxxxxxxxxx",
+            "joinTime": "2025-06-19T15:41:22Z",
+            "membershipStatus": "ACTIVE",
+            "roles": [
+              {
+                "id": "role_admin",
+                "name": "admin"
+              }
+            ],
+            "primaryIdentityProvider": "IDENTITY_PROVIDER_UNSPECIFIED",
+            "metadata": {
+              "plan": "free",
+              "department": "Engineering"
+            }
+          }
+        ],
+        "userProfile": {
+          "id": "prof_01HTR0PQRMNO",
+          "firstName": "John",
+          "lastName": "Doe",
+          "name": "John Doe",
+          "locale": "en",
+          "emailVerified": false,
+          "phoneNumber": "",
+          "metadata": {},
+          "customAttributes": {}
+        },
+        "metadata": {
+          "plan": "free",
+          "department": "Engineering"
+        },
+        "lastLogin": null
+      }
+    }
+    ```
+
+    <Aside type="note" title="Membership status tracking">
+      Monitor the `membershipStatus` field to track invitation progress:
+      - `PENDING_INVITE`: User has been invited but hasn't accepted yet
+      - `ACTIVE`: User has accepted the invitation and can access the organization
+      - `INVITE_EXPIRED`: Membership has been deactivated
+    </Aside>
+
+ 3. ### Handle user invitation acceptance
+
+    When invited users click the invitation link in their email, Scalekit redirects them to your application's [registered initiate login endpoint](/fsa/reference/redirects/#understanding-redirect-types). Your application then completes the authentication flow.
+
+    **Set up the initiate login endpoint:**
+
+    1. **Register your endpoint** in the Scalekit dashboard (for example, `https://your-app.com/auth/login/initiate`)
+
+    2. **Handle the redirect** by constructing an authorization URL and redirecting the user to Scalekit's hosted login page
+
+    3. **Complete authentication** when the user returns to your callback URL
+
+    **Example endpoint implementation:**
+
+    <Tabs syncKey="tech-stack">
+      <TabItem value="node" label="Node.js">
+        ```javascript title="Express.js"
+        app.get('/auth/login/initiate', (req, res) => {
+          const redirectUri = 'http://localhost:3000/api/callback';
+          const options = {
+            scopes: ['openid', 'profile', 'email', 'offline_access'],
+            prompt: 'create'
+          };
+
+          const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+          res.redirect(authorizationUrl);
+        });
+        ```
+      </TabItem>
+      <TabItem value="python" label="Python">
+        ```python title="Flask"
+        @app.route('/auth/login/initiate')
+        def initiate_login():
+            redirect_uri = 'http://localhost:3000/api/callback'
+            options = AuthorizationUrlOptions()
+            optons.scopes = ['openid', 'profile', 'email', 'offline_access']
+            options.prompt = 'create'
+
+            authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+            return redirect(authorization_url)
+        ```
+      </TabItem>
+      <TabItem value="go" label="Go">
+        ```go title="Gin"
+        func initiateLogin(c *gin.Context) {
+            redirectUri := "http://localhost:3000/api/callback"
+            options := scalekit.AuthorizationUrlOptions{
+                Scopes: []string{"openid", "profile", "email", "offline_access"},
+                Prompt: "create",
+            }
+
+            authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+            if err != nil {
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+            }
+
+            c.Redirect(http.StatusFound, authorizationUrl.String())
+        }
+        ```
+      </TabItem>
+      <TabItem value="java" label="Java">
+        ```java title="Spring"
+        @GetMapping("/auth/login/initiate")
+        public ResponseEntity<Void> initiateLogin() {
+            String redirectUri = "http://localhost:3000/api/callback";
+            AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+            options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+            options.setPrompt("create");
+
+            URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+
+            return ResponseEntity.status(HttpStatus.FOUND)
+                .header("Location", authorizationUrl.toString())
+                .build();
+        }
+        ```
+      </TabItem>
+    </Tabs>
+
+    **Authentication flow:**
+
+    1. **User clicks invitation link** → Redirected to your initiate login endpoint
+    2. **Your endpoint redirects** → User goes to Scalekit's hosted login page
+    3. **User authenticates** → Scalekit verifies their email and credentials
+    4. **Scalekit redirects back** → User returns to your callback URL with authorization code
+    5. **Your app exchanges code** → Retrieve user profile and create session
+
+    <Aside type="note" title="Email verification">
+      Scalekit automatically sends verification emails to invited users. Users must verify their email address before they can access your application.
+    </Aside>
+</Steps>
+
+<LinkCard
+  title="User Management API Reference"
+  href="https://docs.scalekit.com/apis"
+  description="Explore all user and membership management endpoints for advanced invitation flows."
+/>
+
+This programmatic approach gives you full control over the invitation experience while leveraging Scalekit's robust user management and email delivery infrastructure.
