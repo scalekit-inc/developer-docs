@@ -1,5 +1,70 @@
-```sh showLineNumbers=false title=".env"
-SCALEKIT_ENVIRONMENT_URL=https://<your-subdomain>.scalekit.dev
-SCALEKIT_CLIENT_ID=skc_<your-unique-identifier>
-SCALEKIT_CLIENT_SECRET=test_<your-secret-key>
-```
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="tech-stack">
+      <TabItem value="nodejs" label="Node.js">
+      ```javascript title="utils/auth.js"
+      import { Scalekit } from '@scalekit-sdk/node';
+
+      export let scalekit = new Scalekit(
+        process.env.SCALEKIT_ENVIRONMENT_URL,
+        process.env.SCALEKIT_CLIENT_ID,
+        process.env.SCALEKIT_CLIENT_SECRET
+      );
+      ```
+      </TabItem>
+      <TabItem value="python" label="Python">
+      ```python title="utils/auth.py"
+      from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
+      import os
+
+      scalekit = ScalekitClient(
+          os.environ.get('SCALEKIT_ENVIRONMENT_URL'),
+          os.environ.get('SCALEKIT_CLIENT_ID'),
+          os.environ.get('SCALEKIT_CLIENT_SECRET')
+      )
+      ```
+      </TabItem>
+      <TabItem value="go" label="Go">
+      ```go title="utils/auth.go"
+      package main
+
+      import (
+          "os"
+          "github.com/scalekit-inc/scalekit-sdk-go"
+      )
+
+      var scalekit, err = scalekit.NewScalekitClient(
+          os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+          os.Getenv("SCALEKIT_CLIENT_ID"),
+          os.Getenv("SCALEKIT_CLIENT_SECRET"),
+      )
+      if err != nil {
+          panic(err)
+      }
+      ```
+      </TabItem>
+      <TabItem value="java" label="Java">
+      ```java title="utils/Auth.java"
+      import com.scalekit.ScalekitClient;
+      import com.scalekit.Environment;
+
+      public class Auth {
+          public static ScalekitClient scalekit;
+
+          static {
+              Environment.configure(
+                  System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+                  System.getenv("SCALEKIT_CLIENT_ID"),
+                  System.getenv("SCALEKIT_CLIENT_SECRET")
+              );
+              scalekit = new ScalekitClient(
+                  System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+                  System.getenv("SCALEKIT_CLIENT_ID"),
+                  System.getenv("SCALEKIT_CLIENT_SECRET")
+              );
+          }
+      }
+      ```
+      </TabItem>
+</Tabs>
