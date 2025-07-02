@@ -1,8 +1,8 @@
 ---
-title: Invite-only user access
-description: Learn how to implement invite-only user access to your application.
+title: Invite users
+description: Learn how to invite users to your application.
 sidebar:
-  label: Invite-only access
+  label: Invite users
 head:
   - tag: style
     content: |
@@ -13,7 +13,10 @@ head:
         font-size: var(--sl-text-lg);
       }
 prev: false
-next: false
+next:
+  label: User management API reference
+  link: https://docs.scalekit.com/apis
+
 ---
 import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, LinkButton, Badge } from '@astrojs/starlight/components';
 import { InstallSDKSection, EnvSection, RedirectAuthPageSection, RetrieveUserDetailsSection, UserProfileSection, CreateUserMembershipSection, CreateOrganizationSection } from '@components/templates';
@@ -26,13 +29,7 @@ Invite-only access is ideal for the following scenarios:
 - **B2B SaaS platforms**: You want to restrict access to invited users only
 - **Exclusive communities**: Applications that require invitation-based membership.
 
-Scalekit helps you implement invite-only signup flows while handling the complexity of user management and authentication.
-
-## Set up invite-only access with Scalekit
-
-You can implement invite-only access by configuring Scalekit to disable public signups and using the invitation flow. This ensures that only invited users can create accounts.
-
-
+Scalekit helps you implement invite-only access while handling the complexity of user management and authentication.
 
 For applications where you want to build custom invitation flows in your own UI, Scalekit provides APIs to programmatically invite users. This is ideal when organization admins or workspace owners need to invite team members directly from your application's dashboard.
 
@@ -44,9 +41,9 @@ Common use cases include:
 - **Integration with existing systems**: Connect invitation flows with your CRM, HR systems, or user directories.
 
 <Steps>
- 1. ### Create user invitations programmatically
+ 1. ## Create user invitations
 
-    To invite a user to an organization, create a user membership with their email address and the target organization ID. Scalekit handles sending the invitation email and managing the signup process.
+    To invite a user to an organization, create a user membership with their email address and the target organization ID. Scalekit handles sending the invitation email and managing the invitation process.
 
     <CreateUserMembershipSection />
 
@@ -57,7 +54,11 @@ Common use cases include:
     - `roles`: Optional array of roles to assign to the invited user
     - `metadata`: Optional custom data to associate with the membership
 
- 2. ### Handle invitation responses
+    <Aside type="note" title="Customize invitation expiration">
+      Configure invitation link expiration periods in **Scalekit Dashboard** → **User Management** → **Settings**.
+    </Aside>
+
+ 2. ## Handle invitation responses
 
     When a user is successfully invited, Scalekit returns a user object with membership details. The membership status will be `PENDING_INVITE` until the user accepts the invitation.
 
@@ -115,7 +116,7 @@ Common use cases include:
       - `INVITE_EXPIRED`: Membership has been deactivated
     </Aside>
 
- 3. ### Handle user invitation acceptance
+ 3. ## Handle user invitation acceptance
 
     When invited users click the invitation link in their email, Scalekit redirects them to your application's [registered initiate login endpoint](/fsa/reference/redirects/#understanding-redirect-types). Your application then completes the authentication flow.
 
@@ -135,8 +136,7 @@ Common use cases include:
         app.get('/auth/login/initiate', (req, res) => {
           const redirectUri = 'http://localhost:3000/api/callback';
           const options = {
-            scopes: ['openid', 'profile', 'email', 'offline_access'],
-            prompt: 'create'
+            scopes: ['openid', 'profile', 'email', 'offline_access']
           };
 
           const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
@@ -150,8 +150,7 @@ Common use cases include:
         def initiate_login():
             redirect_uri = 'http://localhost:3000/api/callback'
             options = AuthorizationUrlOptions()
-            optons.scopes = ['openid', 'profile', 'email', 'offline_access']
-            options.prompt = 'create'
+            options.scopes = ['openid', 'profile', 'email', 'offline_access']
 
             authorization_url = scalekit.get_authorization_url(redirect_uri, options)
             return redirect(authorization_url)
@@ -162,8 +161,7 @@ Common use cases include:
         func initiateLogin(c *gin.Context) {
             redirectUri := "http://localhost:3000/api/callback"
             options := scalekit.AuthorizationUrlOptions{
-                Scopes: []string{"openid", "profile", "email", "offline_access"},
-                Prompt: "create",
+                Scopes: []string{"openid", "profile", "email", "offline_access"}
             }
 
             authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
@@ -183,7 +181,6 @@ Common use cases include:
             String redirectUri = "http://localhost:3000/api/callback";
             AuthorizationUrlOptions options = new AuthorizationUrlOptions();
             options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
-            options.setPrompt("create");
 
             URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
 
@@ -197,6 +194,8 @@ Common use cases include:
 
     **Authentication flow:**
 
+    ![](@/assets/docs/fsa/user-management/2-email-invite.png)
+
     When a user accepts an invitation, Scalekit handles the authentication process automatically:
 
     1. **User clicks invitation link** → Scalekit redirects to your initiate login endpoint
@@ -209,11 +208,3 @@ Common use cases include:
     </Aside>
 
 </Steps>
-
-<LinkCard
-  title="User Management API Reference"
-  href="https://docs.scalekit.com/apis"
-  description="Explore all user and membership management endpoints for advanced invitation flows."
-/>
-
-This programmatic approach gives you full control over the invitation experience while leveraging Scalekit's robust user management and email delivery infrastructure.
