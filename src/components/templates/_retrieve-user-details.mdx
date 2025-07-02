@@ -148,29 +148,24 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
             @RequestParam(name = "error_description", required = false) String errorDescription
         ) {
             if (error != null) {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("error", error);
-                errorResponse.put("error_description", errorDescription);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+               // handle error
             }
 
             try {
                 // Exchange the authorization code for a user profile
                 AuthenticationOptions options = new AuthenticationOptions();
-                AuthenticationResponse authResult = scalekit.authentication()
-                    .authenticateWithCode(code, redirectUri, options);
+                AuthenticationResponse authResult = scalekit
+                    .authentication()
+                    .authenticateWithCode(code,redirectUri,options);
 
-                var user = authResult.getUser();
+                var user = authResult.getIdTokenClaims();
 
                 // "user" object contains the user's profile information
                 // Next step: Create a session and log in the user
                 return new RedirectView("/dashboard/profile");
 
             } catch (Exception err) {
-                System.err.println("Error exchanging code: " + err.getMessage());
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("error", "Failed to authenticate user");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+                // Handle exception (e.g., log error, return error response)
             }
         }
     }
