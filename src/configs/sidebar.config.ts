@@ -33,6 +33,7 @@ export const sidebar = [
           'fsa/guides/manage-organization',
           'fsa/guides/organization-switching',
           'fsa/reference/user-management-settings',
+          'fsa/guides/user-invitations',
           // 'fsa/guides/manage-users', // TODO: is it needed? assess later
           'fsa/guides/merge-identities',
           'fsa/reference/user-profile',
@@ -126,10 +127,7 @@ export const sidebar = [
           'guides/webhooks-best-practices',
           {
             label: 'Concepts',
-            items: [
-              'guides/directory/user-provisioning-basics',
-              'guides/directory/scim-protocol',
-            ],
+            items: ['guides/directory/user-provisioning-basics', 'guides/directory/scim-protocol'],
           },
         ],
       },
@@ -194,11 +192,7 @@ export const sidebar = [
       },
       {
         label: 'Guides',
-        items: [
-          'guides/m2m/m2m-basics',
-          'guides/m2m/scopes',
-          'guides/m2m/api-auth-m2m-clients',
-        ],
+        items: ['guides/m2m/m2m-basics', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
       },
     ],
   },
@@ -297,7 +291,7 @@ export const sidebar = [
       },
     ],
   },
-];
+]
 
 export const topics = {
   exclude: [
@@ -316,4 +310,4 @@ export const topics = {
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
   integrations: ['/guides/integrations/**/*'], // Associate all integration pages with the integrations topic
   'full-stack-auth': ['/fsa/**/*'], // Associate all fsa pages with the full-stack-auth topic
-};
+}
