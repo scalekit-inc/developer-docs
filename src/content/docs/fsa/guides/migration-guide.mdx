@@ -33,7 +33,7 @@ Our Solutions team has run dozens of successful migrations. [Contact us](/suppor
 
 1. ### Audit and export your data
 
-   Before migrating, create a comprehensive inventory of your existing setup and export your data:
+   Before you switch to Scalekit, create a comprehensive inventory of your existing setup and export your data:
 
    **Code audit:**
    - Sign-up and login flows
@@ -269,21 +269,20 @@ Our Solutions team has run dozens of successful migrations. [Contact us](/suppor
    </TabItem>
    </Tabs>
 
-   **Import tips:**
    - **Batch** your imports—run them in parallel for speed but respect rate limits
-   - Pass `email_verified=true` if you already trust the address
-   - Map existing app roles to Scalekit roles up-front (see step 4)
+   - Include `"sendInvitationEmail": false` when creating users to skip invite emails. Scalekit will automatically set the membership status to `active` and mark the email as verified.
    <br/>
 
 3. ### Configure redirects and roles
 
-   **Register callback URLs:**
-   Your app must be listed as an **Allowed Callback URL** so tokens return safely. Head to **Settings → Redirects** in the dashboard or update them via the API.
+   The authentication callback URL is necessary for tokens to return safely. However, depending on your application, you may want to add more redirects such as post-logout URLs, so you can control the user experience and destination after logout. Head to **Settings → Redirects** in the dashboard or update them via the API. Review our [redirect URI guide](/reference/redirects/) for validation rules, environment-specific requirements, and wildcard configuration.
 
    **Set up roles:**
+   Define roles in Scalekit to control what actions users can perform in your application. When users log in, Scalekit provides their assigned roles to your application.
+
    - Create your roles under **User Management → Roles** or via the SDK
-   - While importing users, include the `roles` array in the `membership` object
-   - Need tenant-specific roles? [Contact us](/support/contact-us)—we support per-org role templates
+   - While importing users, include the `roles` array in the `membership` object. [Read more about roles](/fsa/guides/app-roles/).
+   - Need organization-specific roles? [Reach out to discuss](/support/contact-us) your requirements
    <br/>
 
 4. ### Update your application code
@@ -296,12 +295,8 @@ Our Solutions team has run dozens of successful migrations. [Contact us](/suppor
 
    <Aside type="tip">Use our language SDKs for drop-in middlewares in Node, Go, Python, and Java.</Aside>
 
-   **Choose your login UI:**
-   1. **Scalekit-hosted** (fastest)
-   2. **Embedded modal**—drop in our React/Vue component <Badge type="tip" text="Coming soon"/>
-   3. **Fully custom**—call the SDK directly
-
-   All three options work with the same backend you just configured.
+   **Customize your Login Page:**
+   Your application redirects users to a **Scalekit-hosted login page**. Tailor the experience by updating your logo, colours, copy, and legal links in the dashboard.
 
    **Update secondary flows:**
    - Verify email prompt
