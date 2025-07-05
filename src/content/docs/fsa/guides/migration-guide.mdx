@@ -1,8 +1,8 @@
 ---
-title: "Migrate to Scalekit full-stack authentication"
+title: "Migrate to Full Stack Authentication"
 description: "Step-by-step guide to move user, organization, and auth flows from existing systems to Scalekit."
 sidebar:
-  label: "Migrate to full stack auth"
+  label: "Migrate to Full Stack Auth"
 head:
   - tag: style
     content: |
@@ -31,7 +31,7 @@ Our Solutions team has run dozens of successful migrations. [Contact us](/suppor
 
 <Steps>
 
-1. ### Audit and export your data
+1. ## Audit and export your data
 
    Before you switch to Scalekit, create a comprehensive inventory of your existing setup and export your data:
 
@@ -62,7 +62,7 @@ Our Solutions team has run dozens of successful migrations. [Contact us](/suppor
    | `last_name` | The user's family name. | Optional |
    | `email_verified` | Boolean flag. Treated as `false` if omitted. | Optional |
 
-2. ### Import organizations and users
+2. ## Import organizations and users
 
    Transform your exported data to match Scalekit's format. The `external_id` field is crucial—it stores your original primary key, enabling seamless lookups between your system and Scalekit.
 
@@ -273,9 +273,9 @@ Our Solutions team has run dozens of successful migrations. [Contact us](/suppor
    - Include `"sendInvitationEmail": false` when creating users to skip invite emails. Scalekit will automatically set the membership status to `active` and mark the email as verified.
    <br/>
 
-3. ### Configure redirects and roles
+3. ## Configure redirects and roles
 
-   The authentication callback URL is necessary for tokens to return safely. However, depending on your application, you may want to add more redirects such as post-logout URLs, so you can control the user experience and destination after logout. Head to **Settings → Redirects** in the dashboard or update them via the API. Review our [redirect URI guide](/reference/redirects/) for validation rules, environment-specific requirements, and wildcard configuration.
+   The authentication callback URL is necessary for tokens to return safely. However, depending on your application, you may want to add more redirects (such as post-logout URLs, so you can control the user experience and destination after logout). Head to **Settings → Redirects** in the dashboard. Review our [redirect URI guide](/reference/redirects/) for validation rules and wildcard configuration.
 
    **Set up roles:**
    Define roles in Scalekit to control what actions users can perform in your application. When users log in, Scalekit provides their assigned roles to your application.
@@ -285,13 +285,13 @@ Our Solutions team has run dozens of successful migrations. [Contact us](/suppor
    - Need organization-specific roles? [Reach out to discuss](/support/contact-us) your requirements
    <br/>
 
-4. ### Update your application code
+4. ## Update your application code
 
    **Replace session middleware:**
    Replace legacy JWT validation with the Scalekit SDK or our **JWKS endpoint**. Verify:
    - Access tokens are accepted across all routes
    - Refresh tokens renew seamlessly
-   - [Role checks read](/fsa/guides/app-roles/) from the `roles` claim
+   - Ensure your application's checks use the `roles` claim from Scalekit's tokens ([learn more](/fsa/guides/app-roles/#accessing-user-roles))
 
    <Aside type="tip">Use our language SDKs for drop-in middlewares in Node, Go, Python, and Java.</Aside>
 
@@ -303,7 +303,7 @@ Our Solutions team has run dozens of successful migrations. [Contact us](/suppor
    - [Branding (logo, colours, legal copy)](/fsa/guides/login-page-branding/)
    <br />
 
-5. ### Deploy and monitor
+5. ## Deploy and monitor
    Execute your migration carefully with proper monitoring:
 
    **Pre-deployment testing:**
@@ -328,23 +328,32 @@ Our Solutions team has run dozens of successful migrations. [Contact us](/suppor
 </Steps>
 
 
-## Troubleshooting common issues
+## Frequently Asked Questions
 
-**Users can't log in after migration:**
+<details>
+<summary>Why can't users log in after migration?</summary>
+
 - Verify callback URLs are registered in Scalekit dashboard
 - Check that `external_id` mappings are correct
 - Ensure email addresses match exactly between systems
+</details>
 
-**Session validation fails:**
+<details>
+<summary>Why is session validation failing?</summary>
+
 - Update JWT validation to use Scalekit's JWKS endpoint
 - Verify token expiration and refresh logic
 - Check that role claims are read correctly
+</details>
 
-**SSO connections not working:**
+<details>
+<summary>Why aren't SSO connections working?</summary>
+
 - Confirm organization has SSO enabled in features
 - Verify identity provider configuration
 - Test with IdP-initiated login
+</details>
 
 <Aside type="note" title="Password migration">
-Password-based authentication migration support is on the way. If you need to migrate existing passwords, please [contact us](/support/contact-us).
+Password-based authentication migrations are on the way. If you need to migrate existing passwords, please [contact us](/support/contact-us).
 </Aside>
