@@ -17,7 +17,7 @@ prev: false
 import { Aside, Steps, Tabs, TabItem, LinkCard, Badge } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-Migrating authentication is a big job. **But moving to Scalekit pays dividends**: you off-load password security, SSO integrations, SCIM provisioning, session handling, and more—so your team can focus on product. This guide walks you through a **safe, incremental migration** from any existing solution to **Scalekit's full-stack auth platform**.
+Migrating authentication is a big job. **But moving to Scalekit pays dividends**: you off-load SSO integrations, SCIM provisioning, session handling, and more—so your team can focus on product. This guide walks you through a **safe, incremental migration** from any existing solution to **Scalekit's full-stack auth platform**.
 
 This migration guide helps you:
 - Export user and organization data from your current system
@@ -26,7 +26,7 @@ This migration guide helps you:
 - Test and deploy the new authentication system
 
 <Aside type="note" title="Need a hand?">
-Our Solutions team has run dozens of successful migrations. If you store password hashes or need to migrate them, [contact us](/support/contact-us) and we'll craft a smooth cut-over plan together.
+Our Solutions team has run dozens of successful migrations. [Contact us](/support/contact-us) and we'll craft a smooth cut-over plan together.
 </Aside>
 
 <Steps>
@@ -39,7 +39,7 @@ Our Solutions team has run dozens of successful migrations. If you store passwor
    - Sign-up and login flows
    - Session middleware and token validation
    - Role-based access control (RBAC) logic
-   - Password reset and email verification flows
+   - Email verification flows
    - Logout and session termination
 
    **Data export:**
@@ -61,9 +61,6 @@ Our Solutions team has run dozens of successful migrations. If you store passwor
    | `first_name` | The user's given name. | Optional |
    | `last_name` | The user's family name. | Optional |
    | `email_verified` | Boolean flag. Treated as `false` if omitted. | Optional |
-   | `password_hash` | Bcrypt/Argon hash if you provide passwords. | Optional |
-
-   <Aside type="caution" title="Passwords">If you need to keep users' existing passwords, please reach out. We offer a zero-downtime hash-migration flow that preserves security and user experience.</Aside>
 
 2. ### Import organizations and users
 
@@ -307,7 +304,6 @@ Our Solutions team has run dozens of successful migrations. If you store passwor
    All three options work with the same backend you just configured.
 
    **Update secondary flows:**
-   - Forgot / Change password screens (if using passwords)
    - Verify email prompt
    - [Branding (logo, colours, legal copy)](/fsa/guides/login-page-branding/)
    <br />
@@ -336,6 +332,7 @@ Our Solutions team has run dozens of successful migrations. If you store passwor
 
 </Steps>
 
+
 ## Troubleshooting common issues
 
 **Users can't log in after migration:**
@@ -353,4 +350,6 @@ Our Solutions team has run dozens of successful migrations. If you store passwor
 - Verify identity provider configuration
 - Test with IdP-initiated login
 
-**Need help?** [Contact our support team](/support/contact-us) with your specific error messages and we'll help troubleshoot.
+<Aside type="note" title="Password migration">
+Password-based authentication migration support is on the way. If you need to migrate existing passwords, please [contact us](/support/contact-us).
+</Aside>
