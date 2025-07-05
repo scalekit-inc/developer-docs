@@ -71,6 +71,18 @@ Our Solutions team has run dozens of successful migrations. [Contact us](/suppor
    **Create organizations first:**
 
    <Tabs syncKey="tech-stack">
+   <TabItem label="cURL" value="curl">
+   ```bash title="Create an organization"
+   curl "$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations" \
+     --request POST \
+     --header 'Content-Type: application/json' \
+     --data '{
+       "display_name": "Megasoft Inc",
+       "external_id": "org_123",
+       "metadata": { "plan": "enterprise" }
+     }'
+   ```
+   </TabItem>
    <TabItem label="Node.js" value="nodejs">
    ```javascript title="Create organizations"
    const organizations = [
@@ -156,23 +168,31 @@ Our Solutions team has run dozens of successful migrations. [Contact us](/suppor
    }
    ```
    </TabItem>
-   <TabItem label="cURL" value="curl">
-   ```bash title="Create an organization"
-   curl "$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations" \
-     --request POST \
-     --header 'Content-Type: application/json' \
-     --data '{
-       "display_name": "Megasoft Inc",
-       "external_id": "org_123",
-       "metadata": { "plan": "enterprise" }
-     }'
-   ```
-   </TabItem>
    </Tabs>
 
    **Then create users within organizations:**
 
    <Tabs syncKey="tech-stack">
+   <TabItem label="cURL" value="curl">
+   ```bash title="Create a user inside an organization"
+   curl "$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/users" \
+     --request POST \
+     --header 'Content-Type: application/json' \
+     --data '{
+       "email": "user@example.com",
+       "external_id": "usr_987",
+       "membership": {
+         "roles": ["admin"],
+         "metadata": { "department": "engineering" }
+       },
+       "user_profile": {
+         "first_name": "John",
+         "last_name": "Doe",
+         "locale": "en-US"
+       }
+     }'
+   ```
+   </TabItem>
    <TabItem label="Node.js" value="nodejs">
    ```javascript title="Create users in organizations"
    const { user } = await scalekit.user.createUserAndMembership("org_123", {
@@ -245,26 +265,6 @@ Our Solutions team has run dozens of successful migrations. [Contact us](/suppor
    CreateUserAndMembershipResponse cuResp = scalekitClient.users()
      .createUserAndMembership("org_123", createUser);
    System.out.println("Created user: " + cuResp.getUser().getId());
-   ```
-   </TabItem>
-   <TabItem label="cURL" value="curl">
-   ```bash title="Create a user inside an organization"
-   curl "$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/users" \
-     --request POST \
-     --header 'Content-Type: application/json' \
-     --data '{
-       "email": "user@example.com",
-       "external_id": "usr_987",
-       "membership": {
-         "roles": ["admin"],
-         "metadata": { "department": "engineering" }
-       },
-       "user_profile": {
-         "first_name": "John",
-         "last_name": "Doe",
-         "locale": "en-US"
-       }
-     }'
    ```
    </TabItem>
    </Tabs>
