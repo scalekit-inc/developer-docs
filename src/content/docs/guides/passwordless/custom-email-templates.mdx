@@ -6,33 +6,83 @@ sidebar:
 slug: "guides/passwordless/custom-email-templates"
 tableOfContents: false
 next: false
-draft: true
 ---
 
-import { Badge, LinkCard, CardGrid, Card } from '@astrojs/starlight/components';
+import { Badge, LinkCard, CardGrid, Card, Aside, Steps } from '@astrojs/starlight/components';
 
-Scalekit uses default email templates to send emails to your users based on the scenario. But, we also support you customizing the email templates with your branding and content so that you can customize the email content to your branding and needs.
-
-To customize the email templates, navigate to _Branding > Email Templates_.
-
-On this page, you can customize the email templates by providing the following information:
-
-- **Subject**: The subject line of the email
-- **Body**: The body of the email
-- **Sender Name**: The name that will be displayed as the sender of the email
-- **Sender Email**: The email address that will be used as the sender of the email
-- **Reply To Email**: The email address that will be used as the reply to email address
-
-You can also use placeholders in the body of the email to customize the email content for each user. The placeholders are:
-
-- `{{user.name}}`: The name of the user
-- `{{user.email}}`: The email address of the user
-- `{{auth_request_id}}`: The authentication request ID
-- `{{otp}}`: The one-time passcode sent to the user
-- `{{magic_link}}`: The magic link sent to the user
-
-Once you have customized your email templates, all the emails that are sent to your users will use your customized emails.
-
-<Card title="Contact Support" icon="slack">
-    This feature is currently available upon request. [Contact our support team](/support/contact-us) to have this feature enabled for your account.
+<Card title="Feature availability" icon="slack">
+    Custom email templates are currently available upon request. [Contact our support team](/support/contact-us) to have this feature enabled for your account.
 </Card>
+
+Scalekit uses default email templates to send authentication emails to your users. You can customize these templates with your own branding and content to provide a consistent experience for your users.
+
+## Customize your email templates
+
+To customize your email templates:
+
+1. Navigate to _Branding > Email Templates_ in your Scalekit dashboard
+2. Customize the following fields:
+   - **Subject**: The subject line of the email
+   - **Body**: The body content of the email
+   - **Sender name**: The display name for the sender
+   - **Sender email**: The email address used as the sender
+   - **Reply to email**: The email address for replies
+
+Once saved, all subsequent emails will use your customized templates.
+
+## Use basic placeholders to personalize emails
+
+You can personalize emails using built-in placeholders. These placeholders are automatically replaced with user-specific information when the email is sent:
+
+- `{{user.name}}`: The user's name
+- `{{user.email}}`: The user's email address
+- `{{auth_request_id}}`: The authentication request ID
+- `{{otp}}`: The one-time passcode
+- `{{magic_link}}`: The magic link for authentication
+
+## Add template variables for advanced customization
+
+For more advanced personalization, you can use template variables to include custom dynamic content in your emails.
+
+### Template variable requirements
+
+- Each variable must be a key-value pair
+- Maximum of 30 variables per template
+- All template variables must have corresponding values in the request
+- Avoid using reserved names: `otp`, `expiry_time_relative`, `link`, `expire_time`, `expiry_time`
+
+### Implement template variables in three steps
+
+<Steps>
+  1. Create your email template with variables:
+     ```html title="Example email template" showLineNumbers=false
+     <p>Hello {{ first_name }},</p>
+     <p>Welcome to {{ company_name }}.</p>
+     <p>Find your onboarding kit: {{ onboarding_resources }}</p>
+     ```
+
+  2. Include variable values in your authentication request:
+     ```js ins={3-8} showLineNumbers=false
+     const sendResponse = await scalekit.passwordless.sendPasswordlessEmail(
+       "<john.doe@example.com>",
+       {
+         templateVariables: {
+           first_name: "John",
+           company_name: "Acme Corp",
+           onboarding_resources: "https://acme.com/onboarding"
+         }
+       }
+     );
+     ```
+
+  3. The sent email will include the replaced values:
+     ```html title="Example email preview" showLineNumbers=false
+     Hello John,
+     Welcome to Acme Corp.
+     Find your onboarding kit: https://acme.com/onboarding
+     ```
+</Steps>
+
+<Aside type="caution">
+  The API will return a 400 status code if your template references any variables that aren't provided in the request.
+</Aside>
