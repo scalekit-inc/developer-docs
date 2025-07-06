@@ -1,19 +1,19 @@
 // @ts-check
-import { defineConfig, passthroughImageService } from 'astro/config';
-import starlight from '@astrojs/starlight';
-import react from '@astrojs/react';
-import path from 'path';
-import vue from '@astrojs/vue';
-import starlightLinksValidator from 'starlight-links-validator';
-import starlightSidebarTopics from 'starlight-sidebar-topics';
-import starlightImageZoom from 'starlight-image-zoom';
-import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
-import starlightThemeRapide from 'starlight-theme-rapide';
-import starlightLlmsTxt from 'starlight-llms-txt';
-import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config';
-import { redirects } from './src/configs/redirects.config';
+import { defineConfig, passthroughImageService } from 'astro/config'
+import starlight from '@astrojs/starlight'
+import react from '@astrojs/react'
+import path from 'path'
+import vue from '@astrojs/vue'
+import starlightLinksValidator from 'starlight-links-validator'
+import starlightSidebarTopics from 'starlight-sidebar-topics'
+import starlightImageZoom from 'starlight-image-zoom'
+import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
+import starlightThemeRapide from 'starlight-theme-rapide'
+import starlightLlmsTxt from 'starlight-llms-txt'
+import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
+import { redirects } from './src/configs/redirects.config'
 
-import tailwindcss from '@tailwindcss/vite';
+import tailwindcss from '@tailwindcss/vite'
 
 // https://astro.build/config
 export default defineConfig({
@@ -33,6 +33,7 @@ export default defineConfig({
         Head: './src/components/overrides/Head.astro',
         Header: './src/components/overrides/Header.astro',
         Pagination: './src/components/overrides/Pagination.astro',
+        PageSidebar: './src/components/overrides/PageSidebar.astro',
       },
       logo: {
         dark: '/src/assets/images/logos/scalekit-logo-green-dark.svg',
@@ -196,4 +197,4 @@ export default defineConfig({
       chunkSizeWarningLimit: 2000,
     },
   },
-});
+})
