@@ -33,6 +33,7 @@ export const sidebar = [
           'fsa/guides/manage-organization',
           'fsa/guides/organization-switching',
           'fsa/reference/user-management-settings',
+          'fsa/guides/user-invitations',
           // 'fsa/guides/manage-users', // TODO: is it needed? assess later
           'fsa/guides/merge-identities',
           'fsa/reference/user-profile',
