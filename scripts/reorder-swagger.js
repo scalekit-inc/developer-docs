@@ -62,14 +62,22 @@ const slugify = (str) =>
 // Extract the first path segment after the version prefix (e.g. /api/v1/<segment>/...)
 // UPDATE 3: modify extractResourceKey to accept methodsObj and prefer tags; keep old signature but allow second arg optional
 function extractResourceKey(apiPath, methodsObject = {}) {
-  // Prefer first tag found in any operation within the path
+  // Attempt to use the first tag
+  let tagSlug = ''
   for (const method of Object.keys(methodsObject)) {
     const op = methodsObject[method]
     if (op && Array.isArray(op.tags) && op.tags.length) {
-      return slugify(op.tags[0])
+      tagSlug = slugify(op.tags[0])
+      break
     }
   }
-  // Fallback to path segment
+
+  // Use tag slug only if it is explicitly configured for ordering
+  if (tagSlug && (OPERATION_PRIORITY[tagSlug] || RESOURCE_PRIORITY.includes(tagSlug))) {
+    return tagSlug
+  }
+
+  // Fallback to the 3rd path segment
   const parts = apiPath.split('/').filter(Boolean)
   return parts[2] ? slugify(parts[2]) : ''
 }
