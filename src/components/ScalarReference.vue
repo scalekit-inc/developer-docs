@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ApiReference } from '@scalar/api-reference';
-import '@scalar/api-reference/style.css';
-import '@fontsource-variable/inter';
-import '@/styles/api-reference.css';
+import { ApiReference } from '@scalar/api-reference'
+import '@scalar/api-reference/style.css'
+import '@fontsource-variable/inter'
+import '@/styles/api-reference.css'
 </script>
 
 <template>
@@ -81,7 +81,6 @@ import '@/styles/api-reference.css';
           ],
           favicon:
             'https://cdn.prod.website-files.com/65b87d98fa638289e10b8f61/67ab35acf2f180e0fe0a94a8_S%20Icon%20-%20Black%20-%2032x32.png',
-          hideClientButton: true,
         }"
       />
     </div>

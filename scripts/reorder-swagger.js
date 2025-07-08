@@ -44,7 +44,7 @@ const METHOD_PRIORITY = ['get', 'post', 'put', 'patch', 'delete']
 // Key: resource name, Value: array of operation keywords in desired order
 const OPERATION_PRIORITY = {
   passwordless: ['send', 'resend', 'verify'],
-  users: ['list', 'create', 'get', 'update', 'delete'],
+  users: ['create', 'list', 'get', 'update', 'delete'],
   // 'organizations': ['create', 'list', 'get', 'update', 'delete'],
 }
 
