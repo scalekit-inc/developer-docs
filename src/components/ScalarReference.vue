@@ -46,6 +46,7 @@ import '@/styles/api-reference.css'
           theme: 'saturn',
           hideTestRequestButton: true,
           hideModels: true,
+          hideClientButton: true,
           hideDarkModeToggle: true,
           defaultOpenAllTags: true,
           hiddenClients: [
