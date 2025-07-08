@@ -22,22 +22,17 @@ import CheckItem from '@/components/ui/CheckItem.astro';
 
 Organization switching allows users to access multiple organizations or workspaces within your application. This feature is essential for B2B applications where users may belong to several organizations simultaneously, such as their own company and client organizations they work with.
 
+Common organization switching scenarios include:
+
+- **Personal workspace to corporate workspace**: A user signs up with their organization's email address, creating their personal workspace. Later, when their organization subscribes to your app, a new corporate workspace is created (for example, "AcmeCorp workspace").
+- **Multi-organization contractors**: External consultants or contractors who belong to multiple organizations, each with their own SSO authentication policies. These users need to seamlessly switch between different client organizations while maintaining secure access to each workspace.
+
 ![](@/assets/docs/fsa/org-switcher/1-switchr.png)
 
-## Common organization switching scenarios
 
-**Personal workspace to corporate workspace**
+## Default organization switching behavior
 
-A user might sign up for your app using their organization's email address, which creates their personal workspace. Later, when their organization subscribes to your app, a new corporate workspace is created (for example, "AcmeCorp workspace").
-
-Scalekit automatically detects when users belong to multiple organizations and presents them with an organization switcher. Users can then choose which workspace to access when signing into your app.
-
-**Multi-organization contractors**
-
-Many organizations work with external consultants or contractors who may belong to multiple organizations, each with their own SSO authentication policies. These users need to seamlessly switch between different client organizations while maintaining secure access to each workspace.
-
-
-## How Scalekit handles organization switching
+When users belong to multiple organizations, Scalekit automatically handles organization switching during the authentication flow:
 
 {/* <!-- TODO: Add a diagram here --> */}
 
@@ -63,8 +58,158 @@ Scalekit provides built-in support for organization switching through the follow
 - **Cross-organization authentication**: Users can access multiple organizations with different authentication policies <Badge type="tip" text="Coming soon" />
 - **Secure session management**: Each organization maintains its own authentication context and policies
 
-## What's next?
+## Control organization switching behavior
 
-- [Implement user sign in](/fsa/guides/implement-login/) to set up the foundation for organization switching
-- [Configure authentication methods](/fsa/guides/auth-methods/) to handle different SSO policies across organizations
-- [Manage user sessions](/fsa/guides/manage-session/) to handle authentication across multiple workspaces
+You can control when and how the organization switcher appears by using specific query parameters when generating authorization URLs. This gives you fine-grained control over the user experience.
+
+### Display organization switcher
+
+    To show the organization switcher, add the `prompt: 'select_account'` parameter when generating the authorization URL. This forces Scalekit to display a list of organizations the user belongs to, even if they're already signed in.
+
+    <Tabs syncKey="tech-stack">
+      <TabItem value="node" label="Node.js">
+        ```javascript title="Express.js" wrap "authorizationUrl" ins={4}
+        const redirectUri = 'http://localhost:3000/api/callback';
+        const options = {
+          scopes: ['openid', 'profile', 'email', 'offline_access'],
+          prompt: 'select_account'
+        };
+
+        const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+
+        res.redirect(authorizationUrl);
+        ```
+      </TabItem>
+      <TabItem value="python" label="Python">
+        ```python title="Flask" wrap "authorizationUrl" ins={6}
+        from scalekit import AuthorizationUrlOptions
+
+        redirect_uri = 'http://localhost:3000/api/callback'
+        options = AuthorizationUrlOptions()
+        options.scopes = ['openid', 'profile', 'email', 'offline_access']
+        options.prompt = 'select_account'
+
+        authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+        return redirect(authorization_url)
+        ```
+      </TabItem>
+      <TabItem value="go" label="Go">
+        ```go title="Gin" wrap "authorizationUrl" ins={5}
+        redirectUri := "http://localhost:3000/api/callback"
+        options := scalekit.AuthorizationUrlOptions{
+            Scopes: []string{"openid", "profile", "email", "offline_access"},
+            Prompt: "select_account",
+        }
+
+        authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+        if err != nil {
+            // handle error appropriately
+            panic(err)
+        }
+
+        c.Redirect(http.StatusFound, authorizationUrl.String())
+        ```
+      </TabItem>
+      <TabItem value="java" label="Java">
+        ```java title="Spring" wrap "authorizationUrl" ins={8}
+        import com.scalekit.internal.http.AuthorizationUrlOptions;
+        import java.net.URL;
+        import java.util.Arrays;
+
+        String redirectUri = "http://localhost:3000/api/callback";
+        AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+        options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+        options.setPrompt("select_account");
+
+        URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+        ```
+      </TabItem>
+    </Tabs>
+
+    This will display the organization switcher UI where users can choose which organization to access.
+
+### Direct organization access
+
+To bypass the organization switcher and directly authenticate users into a specific organization, include both the `prompt: 'select_account'` parameter and the organization ID:
+
+    <Tabs syncKey="tech-stack">
+      <TabItem value="node" label="Node.js">
+        ```javascript title="Express.js" wrap "authorizationUrl" ins={4,5}
+        const redirectUri = 'http://localhost:3000/api/callback';
+        const options = {
+          scopes: ['openid', 'profile', 'email', 'offline_access'],
+          prompt: 'select_account',
+          organizationId: 'org_1233434'
+        };
+
+        const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+
+        res.redirect(authorizationUrl);
+        ```
+      </TabItem>
+      <TabItem value="python" label="Python">
+        ```python title="Flask" wrap "authorizationUrl" ins={6,7}
+        from scalekit import AuthorizationUrlOptions
+
+        redirect_uri = 'http://localhost:3000/api/callback'
+        options = AuthorizationUrlOptions()
+        options.scopes = ['openid', 'profile', 'email', 'offline_access']
+        options.prompt = 'select_account'
+        options.organization_id = 'org_1233434'
+
+        authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+        return redirect(authorization_url)
+        ```
+      </TabItem>
+      <TabItem value="go" label="Go">
+        ```go title="Gin" wrap "authorizationUrl" ins={5,6}
+        redirectUri := "http://localhost:3000/api/callback"
+        options := scalekit.AuthorizationUrlOptions{
+            Scopes: []string{"openid", "profile", "email", "offline_access"},
+            Prompt: "select_account",
+            OrganizationId: "org_1233434",
+        }
+
+        authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+        if err != nil {
+            // handle error appropriately
+            panic(err)
+        }
+
+        c.Redirect(http.StatusFound, authorizationUrl.String())
+        ```
+      </TabItem>
+      <TabItem value="java" label="Java">
+        ```java title="Spring" wrap "authorizationUrl" ins={8,9}
+        import com.scalekit.internal.http.AuthorizationUrlOptions;
+        import java.net.URL;
+        import java.util.Arrays;
+
+        String redirectUri = "http://localhost:3000/api/callback";
+        AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+        options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+        options.setPrompt("select_account");
+        options.setOrganizationId("org_1233434");
+
+        URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+        ```
+      </TabItem>
+    </Tabs>
+
+    When you include both parameters, Scalekit will:
+- **If the user is already authenticated**: Directly sign them into the specified organization
+- **If the user needs to authenticate**: Direct them to the organization's authentication method, then sign them in
+
+## Organization switching parameters
+
+Use these parameters to control the organization switching behavior:
+
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `prompt=select_account` | Shows the organization switcher UI | Forces organization selection even for authenticated users |
+| `prompt=select_account&organizationId=org_123` | Direct organization access | Bypasses switcher and authenticates directly into the specified organization |
+
+<Aside type="tip">
+  The `organizationId` parameter works only when combined with `prompt=select_account`. Using `organizationId` alone will not have the desired effect.
+</Aside>
+
