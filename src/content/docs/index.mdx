@@ -108,17 +108,27 @@ head:
       }
   - tag: script
     content: |
-      // Remove open attribute from sidebar details only on first page load
-      (function() {
-        if (window.sidebarCollapsed) return; // Only run once
-        window.sidebarCollapsed = true;
+      // Collapse Starlight’s sidebar groups on the first page load.
+      (function () {
+        // Guard against SSR.
+        if (typeof window === 'undefined') return;
 
-        requestAnimationFrame(function() {
-          const sidebarDetails = document.querySelectorAll('#starlight__sidebar details[open]');
-          sidebarDetails.forEach(detail => {
-            detail.removeAttribute('open');
-          });
-        });
+        // Ensure the script only runs once per session.
+        if (window.__sidebarCollapsed) return;
+        window.__sidebarCollapsed = true;
+
+        function collapse() {
+          const groups = document.querySelectorAll('#starlight__sidebar details[open]');
+          groups.forEach((d) => d.removeAttribute('open'));
+        }
+
+        // If the DOM is still loading, wait for it to finish.
+        if (document.readyState === 'loading') {
+          window.addEventListener('DOMContentLoaded', collapse, { once: true });
+        } else {
+          // DOM is already ready – collapse immediately.
+          collapse();
+        }
       })();
 ---
 
