@@ -466,54 +466,6 @@ Before you begin, ensure you have:
 
 Congratulations! You've successfully implemented passwordless authentication in your application. Users can now sign in securely without passwords by entering a verification code or clicking a magic link sent to their email.
 
-## Customize authentication emails with template variables
-
-Email templates support dynamic content through template variables. Use these variables to personalize authentication emails with custom information like welcome messages, user details, or application-specific data.
-
-Before using template variables:
-1. Configure your custom email template in your [own email provider](/guides/passwordless/custom-email-provider/) or Scalekit's email provider.
-2. Identify the variables you want to replace in your template
-3. Make sure none of your variables use these reserved names (they are reserved and cannot be used): `otp`, `expiry_time_relative`, `link`, `expire_time`, `expiry_time`
-
-**Requirements:**
-- Each template variable must be a key-value pair
-- You can define up to 30 variables per template
-- All variables referenced in your template must have corresponding template variables in the request defined
-
-This is how you can use template variables in your email template:
-
-<Steps>
-  1. Write an email template and use the `{{` and `}}` delimiters to reference the variables.<br />
-     For example:
-     ```html title="Example email template" showLineNumbers=false
-     <p>Hello {{ first_name }},</p>
-     <p>Welcome to {{ company_name }}.</p>
-     <p>Find your onboarding kit: {{ onboarding_resources }}</p>
-     ```
-  2. When sending the passwordless email, pass the template variables in the request.
-     ```js ins={3-8} showLineNumbers=false
-     const sendResponse = await scalekit.passwordless.sendPasswordlessEmail(
-       "<john.doe@example.com>",
-       {
-         templateVariables: {
-           first_name: "John",
-           company_name: "Acme Corp",
-           onboarding_resources: "https://acme.com/onboarding"
-         }
-       }
-     );
-     ```
-  3. The email will be sent with the variables substituted.
-     ```html title="Example email preview" showLineNumbers=false
-     Hello John,
-     Welcome to Acme Corp.
-     Find your onboarding kit: https://acme.com/onboarding
-     ```
-</Steps>
-
-<Aside type="caution">
-  If your email template references a variable that is not provided in the request, the API will return a 400 status code.
-</Aside>
 
 
 ## Next steps

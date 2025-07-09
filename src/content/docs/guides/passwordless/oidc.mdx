@@ -189,7 +189,7 @@ Before you begin, ensure you have:
     This redirect will send users to the Scalekit authentication flow, where they'll authenticate with their email before being returned to your application.
 
     ```sh title="Example authorization URL"
-    <YOURAPP_SCALEKIT_ENVIRONMENT_URL>/authorize?
+    <YOURAPP_SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
       client_id=skc_122056050118122349527&
       redirect_uri=https://yourapp.com/auth/callback&
       login_hint=user@example.com&
@@ -303,25 +303,72 @@ Before you begin, ensure you have:
 
     The `result` object
 
-    ```js title="Result object" showLineNumbers=false
-    {
-      user: {
-        email: "john.doe@example.com"  // User's email address
-      },
-      idToken: "<USER_PROFILE_JWT>",   // JWT containing user profile information
-      accessToken: "<API_CALL_JWT>",   // Temporary Access Token for accessing user's email
-      expiresIn: 899                    // Token expiration time in seconds
-    }
-    ```
+    <Tabs>
+      <TabItem value="result" label="Result object">
+        ```js showLineNumbers=false wrap
+        {
+          user: {
+            email: "john.doe@example.com"  // User's email address
+          },
+          idToken: "<USER_PROFILE_JWT>",   // JWT containing user profile information
+          accessToken: "<API_CALL_JWT>",   // Temporary Access Token for accessing user's email
+          expiresIn: 899                    // Token expiration time in seconds
+        }
+        ```
+      </TabItem>
+      <TabItem value="idToken" label="Decoded idToken">
+        ```json showLineNumbers=false
+        {
+          "alg": "RS256",
+          "kid": "snk_82937465019283746",
+          "typ": "JWT"
+        }.{
+          "amr": [
+            "conn_92847563920187364"
+          ],
+          "at_hash": "j8kqPm3nRt5Kx2Vy9wL_Zp",
+          "aud": [
+            "skc_73645291837465928"
+          ],
+          "azp": "skc_73645291837465928",
+          "c_hash": "Hy4k2M9pWnX7vqR8_Jt3bg",
+          "client_id": "skc_73645291837465928",
+          "email": "alice.smith@example.com",
+          "email_verified": true,
+          "exp": 1751697469,
+          "iat": 1751438269,
+          "iss": "https://demo-company-dev.scalekit.cloud",
+          "sid": "ses_83746592018273645",
+          "sub": "conn_92847563920187364;alice.smith@example.com" // A scalekit user ID is sent if user management is enabled
+        }.[Signature]
+        ```
+      </TabItem>
+       <TabItem value="idToken" label="Decoded access token">
+        ```json showLineNumbers=false
+        {
+          "alg": "RS256",
+          "kid": "snk_794467716206433",
+          "typ": "JWT"
+        }.{
+          "iss": "https://acme-corp-dev.scalekit.cloud",
+          "sub": "conn_794467724427269;robert.wilson@acme.com",
+          "aud": [
+            "skc_794467724259497"
+          ],
+          "exp": 1751439169,
+          "iat": 1751438269,
+          "nbf": 1751438269,
+          "client_id": "skc_794467724259497",
+          "jti": "tkn_794754665320942"
+        }.[Signature]
+        ```
+      </TabItem>
+    </Tabs>
 
 </Steps>
 
 Congratulations! You've successfully implemented passwordless authentication in your application. Users can now sign in securely without passwords by entering a verification code or clicking a magic link sent to their email.
 
-### Next steps
-
-- Bring your own email provider <Badge variant="note" text="Coming soon" />
-- Customize the email templates to match your brand <Badge variant="note" text="Coming soon" />
 
 <LinkCard
   title="Need more help?"

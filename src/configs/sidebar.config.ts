@@ -33,6 +33,7 @@ export const sidebar = [
           'fsa/guides/manage-organization',
           'fsa/guides/organization-switching',
           'fsa/reference/user-management-settings',
+          'fsa/guides/user-invitations',
           // 'fsa/guides/manage-users', // TODO: is it needed? assess later
           'fsa/guides/merge-identities',
           'fsa/reference/user-profile',
@@ -40,6 +41,7 @@ export const sidebar = [
           'fsa/reference/redirects',
           'fsa/guides/just-in-time-provisioning',
           'fsa/guides/automated-user-provisioning',
+          'fsa/guides/migration-guide',
         ],
       },
       {
@@ -150,7 +152,7 @@ export const sidebar = [
         label: 'Email customization',
         items: [
           'guides/passwordless/custom-email-provider',
-          //'guides/passwordless/custom-email-templates',
+          'guides/passwordless/custom-email-templates',
         ],
       },
     ],

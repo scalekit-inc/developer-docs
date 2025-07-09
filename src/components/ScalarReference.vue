@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ApiReference } from '@scalar/api-reference';
-import '@scalar/api-reference/style.css';
-import '@fontsource-variable/inter';
-import '@/styles/api-reference.css';
+import { ApiReference } from '@scalar/api-reference'
+import '@scalar/api-reference/style.css'
+import '@fontsource-variable/inter'
+import '@/styles/api-reference.css'
 </script>
 
 <template>
