@@ -106,6 +106,20 @@ head:
       .sl-link-card:hover {
         border-color: var(--sl-color-green) !important;
       }
+  - tag: script
+    content: |
+      // Remove open attribute from sidebar details only on first page load
+      (function() {
+        if (window.sidebarCollapsed) return; // Only run once
+        window.sidebarCollapsed = true;
+
+        requestAnimationFrame(function() {
+          const sidebarDetails = document.querySelectorAll('#starlight__sidebar details[open]');
+          sidebarDetails.forEach(detail => {
+            detail.removeAttribute('open');
+          });
+        });
+      })();
 ---
 
 import {
