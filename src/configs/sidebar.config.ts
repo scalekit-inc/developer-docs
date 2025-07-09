@@ -41,6 +41,7 @@ export const sidebar = [
           'fsa/reference/redirects',
           'fsa/guides/just-in-time-provisioning',
           'fsa/guides/automated-user-provisioning',
+          'fsa/guides/migration-guide',
         ],
       },
       {
