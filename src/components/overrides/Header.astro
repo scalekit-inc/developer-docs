@@ -65,9 +65,18 @@ const { dir, entry, lang, locale } = Astro.props
   }
 
   .nav-links {
-    display: flex;
+    /* Hidden by default (mobile) — `md:sl-flex` utility will add flex display from the medium breakpoint,
+       but we also reinforce it here to counteract this scoped style’s default specificity. */
+    display: none;
     gap: 2rem;
     margin-left: auto;
+  }
+
+  /* Show nav links at the medium breakpoint (≈48 rem / 768 px) and above */
+  @media (min-width: 48rem) {
+    .nav-links {
+      display: flex;
+    }
   }
 
   .nav-link {
@@ -82,8 +91,16 @@ const { dir, entry, lang, locale } = Astro.props
   }
 
   .right-actions {
-    display: flex;
+    /* Hidden on mobile */
+    display: none;
     align-items: center;
+  }
+
+  /* Show right actions at the medium breakpoint (≈48 rem / 768 px) and above */
+  @media (min-width: 48rem) {
+    .right-actions {
+      display: flex;
+    }
   }
 
   .dashboard-btn {
