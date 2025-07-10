@@ -226,6 +226,16 @@ export const sidebar = [
             link: 'https://github.com/scalekit-inc/scalekit-sdk-java',
             attrs: { target: '_blank', rel: 'noopener' },
           },
+          {
+            label: 'Community',
+            items: [
+              {
+                label: 'PHP SDK',
+                link: 'https://github.com/pawan1793/scalekit-php-sdk',
+                attrs: { target: '_blank', rel: 'noopener' },
+              },
+            ],
+          },
         ],
       },
       {
