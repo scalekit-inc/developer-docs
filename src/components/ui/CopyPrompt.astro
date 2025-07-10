@@ -1,46 +1,39 @@
 ---
-import fs from 'fs';
-import path from 'path';
-import { LinkButton } from '@astrojs/starlight/components';
+import fs from 'fs'
+import path from 'path'
+import { LinkButton } from '@astrojs/starlight/components'
 
 interface Props {
-  text?: string;
-  promptType?: string;
-  label?: string;
-  variant?: 'primary' | 'secondary' | 'minimal';
-  className?: string;
-  title?: string;
+  text?: string
+  promptType?: string
+  label?: string
+  variant?: 'primary' | 'secondary' | 'minimal'
+  className?: string
+  title?: string
 }
 
-const {
-  text,
-  promptType,
-  label = 'Copy',
-  variant = 'primary',
-  className = '',
-  title
-} = Astro.props;
+const { text, promptType, label = 'Copy', variant = 'primary', className = '', title } = Astro.props
 
 // Map prompt types to their file paths
 const promptMap: Record<string, string> = {
-  'ssoQuickstartPrompt': 'src/components/templates/prompts/sso-quickstart.mdx',
+  ssoQuickstartPrompt: 'src/components/templates/prompts/sso-quickstart.mdx',
   // Add more prompt types here as needed
-};
+}
 
 // Get the text content based on promptType or use the direct text prop
-let textContent = text || '';
+let textContent = text || ''
 
 if (promptType && promptMap[promptType]) {
   try {
-    const promptPath = path.resolve(promptMap[promptType]);
-    textContent = fs.readFileSync(promptPath, 'utf-8');
+    const promptPath = path.resolve(promptMap[promptType])
+    textContent = fs.readFileSync(promptPath, 'utf-8')
   } catch (error) {
-    console.error(`Failed to read prompt file for type "${promptType}":`, error);
-    textContent = text || 'Error loading prompt content';
+    console.error(`Failed to read prompt file for type "${promptType}":`, error)
+    textContent = text || 'Error loading prompt content'
   }
 }
 
-const uniqueId = `copy-prompt-${Math.random().toString(36).substr(2, 9)}`;
+const uniqueId = `copy-prompt-${Math.random().toString(36).substr(2, 9)}`
 ---
 
 <LinkButton
@@ -57,103 +50,101 @@ const uniqueId = `copy-prompt-${Math.random().toString(36).substr(2, 9)}`;
 
 <script>
   function initializeCopyPrompt() {
-    const buttons = document.querySelectorAll('.copy-prompt-button');
+    const buttons = document.querySelectorAll('.copy-prompt-button')
 
-    buttons.forEach(button => {
-      if (button.hasAttribute('data-copy-initialized')) return;
+    buttons.forEach((button) => {
+      if (button.hasAttribute('data-copy-initialized')) return
 
-      button.setAttribute('data-copy-initialized', 'true');
+      button.setAttribute('data-copy-initialized', 'true')
 
       // Add title attribute for tooltip if provided
-      const titleText = button.getAttribute('data-title');
+      const titleText = button.getAttribute('data-title')
       if (titleText) {
-        button.setAttribute('title', titleText);
+        button.setAttribute('title', titleText)
       }
 
       button.addEventListener('click', async (e) => {
-        e.preventDefault(); // Prevent link navigation
+        e.preventDefault() // Prevent link navigation
 
-        const textToCopy = button.getAttribute('data-text');
-        const originalLabel = button.getAttribute('data-original-label') || 'Copy';
+        const textToCopy = button.getAttribute('data-text')
+        const originalLabel = button.getAttribute('data-original-label') || 'Copy'
 
-        if (!textToCopy) return;
+        if (!textToCopy) return
 
         try {
-          await navigator.clipboard.writeText(textToCopy);
+          await navigator.clipboard.writeText(textToCopy)
 
           // Show success state
-          button.textContent = 'Copied!';
+          button.textContent = 'Copied!'
 
           // Find and update the icon (LinkButton creates an SVG)
-          const iconElement = button.querySelector('svg');
+          const iconElement = button.querySelector('svg')
           if (iconElement) {
             // Store original icon HTML
             if (!button.hasAttribute('data-original-icon-html')) {
-              button.setAttribute('data-original-icon-html', iconElement.outerHTML);
+              button.setAttribute('data-original-icon-html', iconElement.outerHTML)
             }
 
             // Replace with checkmark (using Unicode or simple SVG)
             iconElement.outerHTML = `<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
-            </svg>`;
+            </svg>`
           }
 
           // Reset after 2 seconds
           setTimeout(() => {
-            button.textContent = originalLabel;
+            button.textContent = originalLabel
 
             // Restore original icon
-            const currentIcon = button.querySelector('svg');
-            const originalIconHtml = button.getAttribute('data-original-icon-html');
+            const currentIcon = button.querySelector('svg')
+            const originalIconHtml = button.getAttribute('data-original-icon-html')
             if (currentIcon && originalIconHtml) {
-              currentIcon.outerHTML = originalIconHtml;
+              currentIcon.outerHTML = originalIconHtml
             }
-          }, 2000);
-
+          }, 2000)
         } catch (err) {
-          console.error('Failed to copy text: ', err);
+          console.error('Failed to copy text: ', err)
 
           // Fallback for older browsers
-          const textArea = document.createElement('textarea');
-          textArea.value = textToCopy;
-          textArea.style.position = 'fixed';
-          textArea.style.left = '-999999px';
-          textArea.style.top = '-999999px';
-          document.body.appendChild(textArea);
-          textArea.focus();
-          textArea.select();
+          const textArea = document.createElement('textarea')
+          textArea.value = textToCopy
+          textArea.style.position = 'fixed'
+          textArea.style.left = '-999999px'
+          textArea.style.top = '-999999px'
+          document.body.appendChild(textArea)
+          textArea.focus()
+          textArea.select()
 
           try {
-            document.execCommand('copy');
+            document.execCommand('copy')
 
             // Show success state for fallback
-            button.textContent = 'Copied!';
+            button.textContent = 'Copied!'
 
             setTimeout(() => {
-              button.textContent = originalLabel;
-            }, 2000);
-
+              button.textContent = originalLabel
+            }, 2000)
           } catch (fallbackErr) {
-            console.error('Fallback copy failed: ', fallbackErr);
+            console.error('Fallback copy failed: ', fallbackErr)
 
             // Show error state
-            button.textContent = 'Copy failed';
+            button.textContent = 'Copy failed'
             setTimeout(() => {
-              button.textContent = originalLabel;
-            }, 2000);
+              button.textContent = originalLabel
+            }, 2000)
           }
 
-          document.body.removeChild(textArea);
+          document.body.removeChild(textArea)
         }
-      });
-    });
+      })
+    })
   }
 
   // Initialize on page load
-  document.addEventListener('DOMContentLoaded', initializeCopyPrompt);
+  document.addEventListener('DOMContentLoaded', initializeCopyPrompt)
 
   // Re-initialize after navigation (for client-side routing)
-  document.addEventListener('astro:page-load', initializeCopyPrompt);
+  document.addEventListener('astro:page-load', initializeCopyPrompt)
 </script>
 
 <style>
