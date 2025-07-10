@@ -336,104 +336,6 @@
         ]
       }
     },
-    "/api/v1/organizations/{id}/session-settings": {
-      "get": {
-        "description": "Retrieves the currently configured session timeout policies for a specific organization, including absolute and idle timeout values.",
-        "tags": ["Organizations"],
-        "summary": "Get organization session settings",
-        "operationId": "OrganizationService_GetOrganizationSessionSettings",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "The unique identifier of the organization whose session settings are being requested.",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "The environment ID to scope the request. This ensures the settings are retrieved from the correct environment.",
-            "name": "environment_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved organization session settings.",
-            "schema": {
-              "$ref": "#/definitions/organizationsGetOrganizationSessionSettingsResponse"
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Defines session timeout policies for an organization, including absolute and idle timeout durations. This endpoint is used to configure session lifetimes and enhance security by automatically logging out users after a specified period of inactivity.",
-        "tags": ["Organizations"],
-        "summary": "Create organization session settings",
-        "operationId": "OrganizationService_CreateOrganizationSessionSettings",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "The unique identifier of the organization for which to create session settings.",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "The environment ID where the organization exists. This scopes the creation of session settings to a specific environment.",
-            "name": "environment_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Session settings created successfully. Returns the newly configured session policies.",
-            "schema": {
-              "$ref": "#/definitions/organizationsCreateOrganizationSessionSettingsResponse"
-            }
-          }
-        }
-      },
-      "patch": {
-        "description": "Modifies the session timeout policies for an organization. Use this to adjust the absolute and idle session timeout durations to enforce different security levels.",
-        "tags": ["Organizations"],
-        "summary": "Update organization session settings",
-        "operationId": "OrganizationService_UpdateOrganizationSessionSettings",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier for the organization, beginning with an 'org_' prefix.",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "session_settings",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "The session settings to be applied, including absolute and idle timeout configurations.",
-              "$ref": "#/definitions/organizationsOrganizationSessionSettings"
-            }
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier for the environment where the organization resides, prefixed with 'env_'. This specifies the environment context for the session settings.",
-            "name": "environment_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Session settings updated successfully. Returns the modified session policies.",
-            "schema": {
-              "$ref": "#/definitions/organizationsUpdateOrganizationSessionSettingsResponse"
-            }
-          }
-        }
-      }
-    },
     "/api/v1/organizations/{id}/settings": {
       "patch": {
         "description": "Updates configuration settings for an organization. Supports modifying SSO configuration, directory synchronization settings, and session parameters. Requires organization ID and the specific settings to update.",
@@ -3409,25 +3311,6 @@
         }
       }
     },
-    "organizationsCreateOrganizationSessionSettingsResponse": {
-      "type": "object",
-      "properties": {
-        "environment_id": {
-          "description": "The environment ID where the session settings were created.",
-          "type": "string",
-          "example": "env_59615193906282635"
-        },
-        "organization_id": {
-          "description": "The unique identifier of the organization for which session settings were created.",
-          "type": "string",
-          "example": "org_59615193906282635"
-        },
-        "session_settings": {
-          "description": "The newly created session settings, including timeout policies.",
-          "$ref": "#/definitions/organizationsOrganizationSessionSettings"
-        }
-      }
-    },
     "organizationsFeature": {
       "description": "- dir_sync: dir_sync enables directory synchronization configuration in the portal\n - sso: sso enables Single Sign-On (SSO) configuration in the portal",
       "type": "string",
@@ -3573,33 +3456,6 @@
           "format": "date-time",
           "title": "Updated time",
           "example": "2025-02-15T06:23:44.560Z"
-        }
-      }
-    },
-    "organizationsOrganizationSessionSettings": {
-      "type": "object",
-      "properties": {
-        "absolute_session_timeout": {
-          "description": "The maximum duration in seconds that a session can remain active, regardless of activity. After this time, the user will be required to re-authenticate.",
-          "type": "integer",
-          "format": "int32",
-          "example": 86400
-        },
-        "idle_session_enabled": {
-          "description": "Enables or disables idle session timeout. If true, inactive sessions will be terminated after the specified idle duration.",
-          "type": "boolean",
-          "example": true
-        },
-        "idle_session_timeout": {
-          "description": "The duration in seconds that a session can remain idle before it is automatically terminated. Activity resets the timer.",
-          "type": "integer",
-          "format": "int32",
-          "example": 1800
-        },
-        "session_management_enabled": {
-          "description": "Enables or disables session management features for the organization. When true, session timeout policies are enforced.",
-          "type": "boolean",
-          "example": true
         }
       }
     },
