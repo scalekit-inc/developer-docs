@@ -3,8 +3,6 @@ export const redirects = {
   '/sso/quickstart-admin-portal': '/guides/sso/admin-portal',
   '/scim/quickstart': '/directory/scim/quickstart/',
   '/reference/errors': '/reference/sso/sso-integration-errors/',
-  '/sso/guides/integrate-with-your-auth-system/firebase':
-    '/guides/integrations/auth-systems/firebase/',
   '/sso/social-login': '/social-logins/quickstart/',
   '/sso/social-logins-quickstart': '/social-logins/quickstart/',
 
@@ -52,6 +50,9 @@ export const redirects = {
 
   // auth systems
   '/integrations/auth0/': '/guides/integrations/auth-systems/auth0/',
+  '/sso/guides/integrate-with-your-auth-system/firebase':
+    '/guides/integrations/auth-systems/firebase/',
+  '/sso/guides/integrate-with-your-auth-system/auth0': '/guides/integrations/auth-systems/auth0/',
   '/integrations/firebase/': '/guides/integrations/auth-systems/firebase/',
   '/integrations/cognito/': '/guides/integrations/auth-systems/aws-cognito/',
 
