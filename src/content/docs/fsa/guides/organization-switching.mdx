@@ -1,5 +1,5 @@
 ---
-title: "Organization switching and access control"
+title: "Implement organization switcher"
 description: "Learn how Scalekit handles users who belong to multiple organizations and need to switch between different workspaces."
 sidebar:
   label: "Organization switcher"
@@ -60,11 +60,13 @@ Scalekit provides built-in support for organization switching through the follow
 
 ## Control organization switching behavior
 
-You can control when and how the organization switcher appears by using specific query parameters when generating authorization URLs. This gives you fine-grained control over the user experience.
+After signing in, you can customize the organization switcher's behavior by adding query parameters and redirecting users to organization switcher.
+
+These parameters give you precise control over how users navigate between organizations.
 
 ### Display organization switcher
 
-    To show the organization switcher, add the `prompt: 'select_account'` parameter when generating the authorization URL. This forces Scalekit to display a list of organizations the user belongs to, even if they're already signed in.
+    To show the organization switcher, users first need to authenticate, then they can access the organization switcher. Add the `prompt: 'select_account'` parameter when generating the authorization URL. This forces Scalekit to display a list of organizations the user belongs to, even if they're already signed in.
 
     <Tabs syncKey="tech-stack">
       <TabItem value="node" label="Node.js">
@@ -128,9 +130,9 @@ You can control when and how the organization switcher appears by using specific
 
     This will display the organization switcher UI where users can choose which organization to access.
 
-### Direct organization access
+### Switch users directly to a specific organization
 
-To bypass the organization switcher and directly authenticate users into a specific organization, include both the `prompt: 'select_account'` parameter and the organization ID:
+To bypass the organization switcher and directly authenticate users into a specific organization, include both the `prompt: 'select_account'` parameter **and** the `organization_id=org_xxxx` parameter:
 
     <Tabs syncKey="tech-stack">
       <TabItem value="node" label="Node.js">
@@ -198,7 +200,7 @@ To bypass the organization switcher and directly authenticate users into a speci
 
     When you include both parameters, Scalekit will:
 - **If the user is already authenticated**: Directly sign them into the specified organization
-- **If the user needs to authenticate**: Direct them to the organization's authentication method, then sign them in
+- **If the user needs to authenticate**: First authenticate the user, then sign them into the specified organization
 
 ## Organization switching parameters
 
@@ -212,4 +214,3 @@ Use these parameters to control the organization switching behavior:
 <Aside type="tip">
   The `organizationId` parameter works only when combined with `prompt=select_account`. Using `organizationId` alone will not have the desired effect.
 </Aside>
-
