@@ -24,7 +24,7 @@ export const redirects = {
   // SCIM
   '/scim/checklist': '/guides/directory/admin-portal/',
   '/scim/basics': '/guides/directory/user-provisioning-basics/',
-  '/scim/protocol': '/guides/directory/scim-protocol/',
+  '/scim/scim-protocol': '/guides/directory/scim-protocol/',
   '/scim/webhooks': '/reference/webhooks/directory-events/',
   '/scim/automatically-assign-roles': '/guides/directory/group-based-role-assignment/',
   '/scim/map-user-attributes': '/guides/directory/user-provisioning-basics/',
