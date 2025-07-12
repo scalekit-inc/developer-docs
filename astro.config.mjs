@@ -32,6 +32,8 @@ export default defineConfig({
         // Sidebar: './src/components/overrides/Sidebar.astro',
         Head: './src/components/overrides/Head.astro',
         Header: './src/components/overrides/Header.astro',
+        Pagination: './src/components/overrides/Pagination.astro',
+        PageSidebar: './src/components/overrides/PageSidebar.astro',
       },
       logo: {
         dark: '/src/assets/images/logos/scalekit-logo-green-dark.svg',
