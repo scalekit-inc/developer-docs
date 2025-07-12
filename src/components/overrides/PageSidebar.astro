@@ -58,8 +58,10 @@ const editUrl =
             const originalIcon = linkButton.querySelector('svg')?.outerHTML
 
             try {
-              const markdown = this.dataset.markdown
+              let markdown = this.dataset.markdown
               if (!markdown) throw new Error('No markdown content to copy')
+              // Remove all lines that start with 'import'
+              markdown = markdown.replace(/^[ \t]*import[^\n]*\n?/gm, '')
 
               // Update to loading state
               linkButton.innerHTML = `
