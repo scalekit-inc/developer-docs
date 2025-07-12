@@ -3,6 +3,23 @@ import { ApiReference } from '@scalar/api-reference'
 import '@scalar/api-reference/style.css'
 import '@fontsource-variable/inter'
 import '@/styles/api-reference.css'
+import { onMounted, onUnmounted } from 'vue'
+
+// Makes sure selected lanugage is propagated else where to all snippets
+import { createDropdownSynchronizer } from '../utils/dropdownSync'
+
+// Create dropdown synchronizer instance
+const dropdownSync = createDropdownSynchronizer()
+
+onMounted(() => {
+  // Initialize dropdown synchronization
+  dropdownSync.initialize()
+})
+
+onUnmounted(() => {
+  // Clean up dropdown synchronization
+  dropdownSync.destroy()
+})
 </script>
 
 <template>
