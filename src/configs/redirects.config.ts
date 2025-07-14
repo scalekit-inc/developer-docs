@@ -2,7 +2,7 @@ export const redirects = {
   // SSO
   '/sso/quickstart-admin-portal': '/guides/sso/admin-portal',
   '/scim/quickstart': '/directory/scim/quickstart/',
-  '/reference/errors': '/reference/sso/sso-integration-errors/',
+  '/reference/errors': '/sso/reference/sso-integration-errors/',
   '/sso/social-login': '/social-logins/quickstart/',
   '/sso/social-logins-quickstart': '/social-logins/quickstart/',
   '/guides/sso/sso-basics/': '/sso/guides/sso-basics/',
@@ -10,19 +10,30 @@ export const redirects = {
   '/guides/sso/launch-checklist/': '/sso/guides/launch-checklist/',
 
   // SSO Guides
-  '/sso/guides/setup-sso/implement-idp-initiated-sso': '/guides/sso/idp-init-sso/',
-  '/sso/guides/setup-sso/handle-user-profile': '/guides/sso/sso-user-attributes/',
+  '/sso/guides/setup-sso/implement-idp-initiated-sso': '/sso/guides/idp-init-sso/',
+  '/sso/guides/setup-sso/handle-user-profile': '/sso/guides/sso-user-attributes/',
   '/sso/guides/setup-sso/build-login-page': '/sso/quickstart/',
-  '/sso/guides/key-concepts/authorization-url': '/guides/sso/authorization-url/',
-  '/sso/guides/key-concepts/redirect-uri': '/reference/redirects/',
-  '/best-practices/redirect-uri': '/reference/redirects/',
+  '/sso/guides/key-concepts/authorization-url': '/sso/guides/authorization-url/',
+  '/sso/guides/key-concepts/redirect-uri': '/sso/reference/redirects/',
+  '/best-practices/redirect-uri': '/sso/reference/redirects/',
   '/sso/guides/key-concepts/idtoken-claims': '/guides/idtoken-claims/',
   '/sso/guides/key-concepts/manage-client-secrets': '/guides/client-credentials-practices/',
   '/best-practices/manage-client-secrets': '/guides/client-credentials-practices/',
-  '/sso/guides/key-concepts/user-profile': '/guides/sso/user-profile-details/',
-  '/sso/guides/test-your-integration/using-okta': '/guides/sso/okta-sso-test/',
+  '/sso/guides/key-concepts/user-profile': '/sso/guides/user-profile-details/',
+  '/sso/guides/test-your-integration/using-okta': '/sso/guides/okta-sso-test/',
   '/sso/overview': '/guides/sso/sso-basics/',
-  '/sso/guides/setup-sso/customize-user-attributes': '/guides/sso/sso-user-attributes/',
+  '/sso/guides/setup-sso/customize-user-attributes': '/sso/guides/sso-user-attributes/',
+
+  // Legacy paths for SSO docs moved from /guides to /sso
+  '/guides/sso/add-login-ux-sso/': '/sso/guides/add-login-ux-sso/',
+  '/guides/sso/idp-init-sso/': '/sso/guides/idp-init-sso/',
+  '/guides/sso/okta-sso-test/': '/sso/guides/okta-sso-test/',
+  '/guides/sso/sso-user-attributes/': '/sso/guides/sso-user-attributes/',
+  '/guides/sso/authorization-url/': '/sso/guides/authorization-url/',
+  '/guides/sso/user-profile-details/': '/sso/guides/user-profile-details/',
+  // Legacy reference docs moved from /reference to /sso/reference
+  '/reference/sso/sso-integration-errors/': '/sso/reference/sso-integration-errors/',
+  '/reference/redirects/': '/sso/reference/redirects/',
 
   // SCIM
   '/scim/checklist': '/guides/directory/admin-portal/',
