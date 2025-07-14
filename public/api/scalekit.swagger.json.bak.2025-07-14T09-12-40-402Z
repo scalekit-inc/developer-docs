@@ -1,7 +1,13 @@
 {
-  "consumes": ["application/json"],
-  "produces": ["application/json"],
-  "schemes": ["https"],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "# Introduction\n\nThe Scalekit API is a RESTful API that enables you to manage organizations, users, and authentication settings. All requests must use HTTPS.\n\n# Base URL\n\nAll API requests use the following base URLs:\n\n```\nhttps://{environment}.scalekit.dev (Development)\nhttps://{environment}.scalekit.com (Production)\nhttps://auth.example.com (Custom domain)\n```\n\nScalekit operates two separate environments: Development and Production. Resources cannot be moved between environments.\n\n# Authentication\n\nThe Scalekit API uses OAuth 2.0 Client Credentials for authentication.\n\nGetting an access token\n\n1. Get your credentials from the [Scalekit Dashboard](https://app.scalekit.com):\n\n   - environment\n   - client_id\n   - client_secret\n\n2. Request an access token:\n\n```shell\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/oauth/token \\\n  -X POST \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  -d 'client_id={client_id}' \\\n  -d 'client_secret={client_secret}' \\\n  -d 'grant_type=client_credentials'\n```\n\n3. Use the access token in API requests:\n\n```shell\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/api/v1/organizations \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer {access_token}'\n```\n\nThe response includes an access token:\n\n```json\n{\n\t\"access_token\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6InNua181Ok4OTEyMjU2NiIsInR5cCI6IkpXVCJ9...\",\n\t\"token_type\": \"Bearer\",\n\t\"expires_in\": 86399,\n\t\"scope\": \"openid\"\n}\n```\n\n# Response Codes\n\nThe API uses standard HTTP status codes:\n\n| Code        | Description          |\n| ----------- | -------------------- |\n| 200/201     | Success              |\n| 400         | Invalid request      |\n| 401         | Authentication error |\n| 404         | Resource not found   |\n| 429         | Rate limit exceeded  |\n| 500/501/504 | Server error         |\n\nError responses include detailed information:\n\n```json\n{\n\t\"code\": 16,\n\t\"message\": \"Token empty\",\n\t\"details\": [\n\t\t{\n\t\t\t\"@type\": \"type.googleapis.com/scalekit.v1.errdetails.ErrorInfo\",\n\t\t\t\"error_code\": \"UNAUTHENTICATED\"\n\t\t}\n\t]\n}\n```\n",
@@ -19,10 +25,192 @@
   },
   "host": "$SCALEKIT_ENVIRONMENT_URL",
   "paths": {
+    "/api/v1/connections": {
+      "get": {
+        "description": "Retrieves a list of connections in the environment",
+        "tags": [
+          "Connections"
+        ],
+        "summary": "List connections",
+        "operationId": "ConnectionService_ListConnections",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Filter connections by organization identifier",
+            "name": "organization_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter connections by email domain associated with the organization",
+            "name": "domain",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter connections by status. Use 'all' to include all connections regardless of status. Default behavior shows only active (completed and enabled) connections",
+            "name": "include",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved connections",
+            "schema": {
+              "$ref": "#/definitions/connectionsListConnectionsResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// List connections by organization id\nconst connections = await scalekit.connection.listConnections(organizationId);\n\n// List connections by domain\nconst connections = await scalekit.connection.listConnectionsByDomain(domain);"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# List connections by organization id\nconnections = scalekit_client.connection.list_connections(\n  organization_id\n)\n\n# List connections by domain\nresponse = scalekit_client.connection.list_connections_by_domain(domain=\"example.com\")"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// List connections by organization id\nconnections, err := sc.Connection.ListConnections(\n  ctx,\n  organizationId\n)\n\n// List connections by domain\nconnections, err := scalekitClient.Connection().ListConnectionsByDomain(ctx, \n  domain)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// List connections by organization id\nListConnectionsResponse response = scalekitClient.connections(\n  ).listConnections(organizationId);\n\n// List connections by domain\nListConnectionsResponse response = scalekitClient.connections(\n  ).listConnectionsByDomain(\"your-domain.com\");"
+          }
+        ]
+      }
+    },
+    "/api/v1/memberships/organizations/{organization_id}/users/{id}": {
+      "post": {
+        "description": "Adds an existing user to an organization and assigns them specific roles and permissions. Use this endpoint when you want to grant an existing user access to a particular organization. You can specify roles, metadata, and other membership details during the invitation process.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Add existing user to organization",
+        "operationId": "UserService_CreateMembership",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the target organization. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters)",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "membership",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Membership details to create. Required fields must be provided.",
+              "$ref": "#/definitions/v1usersCreateMembership"
+            }
+          },
+          {
+            "type": "string",
+            "description": "External system identifier from connected directories. Must be unique across the system",
+            "name": "external_id",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "If true, sends an activation email to the user. Defaults to true.",
+            "name": "send_invitation_email",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User successfully added to the organization. Returns details of the updated membership details",
+            "schema": {
+              "$ref": "#/definitions/usersCreateMembershipResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "import { ScalekitClient } from \"@scalekit-sdk/node\";\nconst sc = new ScalekitClient(\n\tprocess.env.SCALEKIT_ENV_URL,\n\tprocess.env.SCALEKIT_CLIENT_ID,\n\tprocess.env.SCALEKIT_CLIENT_SECRET\n);\nawait sc.user.createMembership(\"org_123\", \"usr_123\", {\n\troles: [\"admin\"],\n\tmetadata: {\n\t\tdepartment: \"engineering\",\n\t\tlocation: \"nyc-office\",\n\t},\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "import os\nfrom scalekit import ScalekitClient\nsc = ScalekitClient(\n    env_url=os.getenv(\"SCALEKIT_ENV_URL\"),\n    client_id=os.getenv(\"SCALEKIT_CLIENT_ID\"),\n    client_secret=os.getenv(\"SCALEKIT_CLIENT_SECRET\"),\n)\n# The Python SDK currently exposes a helper that \n  #simply links an existing\n# user to an organization.\nresp, _ = sc.users.add_user_to_organization(\n    organization_id=\"org_123\",\n    user_id=\"usr_123\",\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "func main() {\n    sc := scalekit.NewScalekitClient(\n        os.Getenv(\"SCALEKIT_ENV_URL\"),\n        os.Getenv(\"SCALEKIT_CLIENT_ID\"),\n        os.Getenv(\"SCALEKIT_CLIENT_SECRET\"),\n    )\n    membership := \u0026usersv1.CreateMembership{\n        Roles: []*usersv1.Role{{Name: \"admin\"}},\n        Metadata: map[string]string{\n            \"department\": \"engineering\",\n            \"location\":   \"nyc-office\",\n        },\n    }\n    resp, \n      err := sc.User().CreateMembership(\n        context.Background(), \"org_123\", \n          \"usr_123\", membership, false)\n    if err != nil {\n        panic(err)\n    }\n}"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "import com.scalekit.ScalekitClient;\nimport com.scalekit.api.UserClient;\nimport com.scalekit.grpc.scalekit.v1.users.*;\nScalekitClient sk = new ScalekitClient(\n    System.getenv(\"SCALEKIT_ENV_URL\"),\n    System.getenv(\"SCALEKIT_CLIENT_ID\"),\n    System.getenv(\"SCALEKIT_CLIENT_SECRET\")\n);\nUserClient users = sk.users();\nCreateMembershipRequest membershipReq = CreateMemb\n  ershipRequest.newBuilder()\n        .setMembership(\n          CreateMembership.newBuilder()\n                .addRoles(Role.newBuilder(\n                  ).setName(\"admin\").build())\n                .putMetadata(\"department\", \"engineering\")\n                .putMetadata(\"location\", \"nyc-office\")\n                .build())\n        .build();\nCreateMembershipResponse res = users.\n  createMembership(\"org_123\", \"usr_123\", \n    membershipReq);"
+          }
+        ]
+      },
+      "delete": {
+        "description": "Removes a user from an organization by user ID or external ID. If the user has no memberships left and cascade is true, the user is also deleted. This action is irreversible and may also remove related group memberships.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete organization membership for user",
+        "operationId": "UserService_DeleteMembership",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique organization identifier. Must start with 'org_' and be 1-32 characters long",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters)",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "External system identifier from connected directories. Must match existing records",
+            "name": "external_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User successfully marked for deletion. No content returned",
+            "schema": {}
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "response = scalekit_client.users.delete_membership(\n  organization_id=org_id,user_id=user_id\n)"
+          }
+        ]
+      }
+    },
     "/api/v1/organizations": {
       "get": {
         "description": "Retrieve a paginated list of organizations within your environment. The response includes a `page_token` that can be used to access subsequent pages of results.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "List organizations",
         "externalDocs": {
           "description": "Learn more about organization listing",
@@ -87,7 +275,9 @@
       },
       "post": {
         "description": "Creates a new organization in your environment. Use this endpoint to add a new tenant that can be configured with various settings and metadata",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Create an organization",
         "operationId": "OrganizationService_CreateOrganization",
         "parameters": [
@@ -134,542 +324,12 @@
         ]
       }
     },
-    "/api/v1/organizations/{organization_id}/users": {
-      "post": {
-        "description": "Creates a new user account and immediately adds them to the specified organization. Use this endpoint when you want to create a user and grant them access to an organization in a single operation. You can provide user profile information, assign roles, and configure membership metadata. The user receives an activation email unless this feature is disabled in the organization settings.",
-        "tags": ["Users"],
-        "summary": "Create user and add to organization",
-        "operationId": "UserService_CreateUserAndMembership",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "user",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/usersCreateUser"
-            }
-          },
-          {
-            "type": "boolean",
-            "description": "If true, sends an activation email to the user. Defaults to true.",
-            "name": "send_invitation_email",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "User created successfully. Returns the created user object, including system-generated identifiers and timestamps",
-            "schema": {
-              "$ref": "#/definitions/usersCreateUserAndMembershipResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const {\n   user } = await sc.user.\n    createUserAndMembership(\"org_123\", {\n\temail: \"user@example.com\",\n\texternalId: \"ext_12345a67b89c\",\n\tmetadata: { department: \"engineering\", \n\t  location: \"nyc-office\" },\n\tuserProfile: {\n\t\tfirstName: \"John\",\n\t\tlastName: \"Doe\",\n\t},\n});"
-          },
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "import os\nfrom scalekit import ScalekitClient\nfrom scalekit.v1.users.users_pb2 import User\nfrom scalekit.v1.commons.\n  commons_pb2 import UserProfile\nsc = ScalekitClient(\n    env_url=os.getenv(\"SCALEKIT_ENV_URL\"),\n    client_id=os.getenv(\"SCALEKIT_CLIENT_ID\"),\n    client_secret=os.getenv(\"SCALEKIT_CLIENT_SECRET\"),\n)\nuser_msg = User(\n    email=\"user@example.com\",\n    external_id=\"ext_12345a67b89c\",\n    metadata={\"department\": \"engineering\", \"location\": \"nyc-office\"},\n    user_profile=UserProfile(\n        first_name=\"John\",\n        last_name=\"Doe\"\n    )\n)\ncreate_resp, \n  _ = sc.users.create_user(\"org_123\", user_msg)"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "newUser := \u0026usersv1.CreateUser{\n    Email:      \"user@example.com\",\n    ExternalId: \"ext_12345a67b89c\",\n    Metadata: map[string]string{\n        \"department\": \"engineering\",\n        \"location\":   \"nyc-office\",\n    },\n    UserProfile: \u0026usersv1.CreateUserProfile{\n        FirstName: \"John\",\n        LastName:  \"Doe\",\n    },\n}\ncuResp, \n  err := sc.User().CreateUserAndMembership(ctx, \"org_123\", newUser, false)\nif err != nil { /* handle error */ }"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "CreateUser createUser = CreateUser.newBuilder()\n        .setEmail(\"user@example.com\")\n        .setExternalId(\"ext_12345a67b89c\")\n        .putMetadata(\"department\", \"engineering\")\n        .putMetadata(\"location\", \"nyc-office\")\n        .setUserProfile(\n          CreateUserProfile.newBuilder()\n                .setFirstName(\"John\")\n                .setLastName(\"Doe\")\n                .build())\n        .build();\nCreateUserAndMembershipRequest cuReq = CreateUserA\n  ndMembershipRequest.newBuilder()\n        .setUser(createUser)\n        .build();\nCreateUserAndMembershipResponse cuResp = users.\n  createUserAndMembership(\"org_123\", cuReq);\nSystem.out.println(cuResp.getUser().getId());"
-          }
-        ]
-      },
-      "get": {
-        "description": "Retrieves a paginated list of all users who are members of the specified organization. Use this endpoint to view all users with access to a particular organization, including their roles, metadata, and membership details. Supports pagination for large user lists.",
-        "tags": ["Users"],
-        "summary": "List organization users",
-        "operationId": "UserService_ListOrganizationUsers",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization for which to list users. Must start with 'org_' and be 1-32 characters long.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "integer",
-            "format": "int64",
-            "description": "Maximum number of users to return in a single response. Valid range: 1-100. Server may return fewer users than specified.",
-            "name": "page_size",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Pagination token from a previous ListUserResponse. Used to retrieve the next page of results. Leave empty for the first request.",
-            "name": "page_token",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved the list of users in the organization",
-            "schema": {
-              "$ref": "#/definitions/usersListOrganizationUsersResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const response = await sc.user.\n  listOrganizationUsers(\"org_123\", {\n\tpageSize: 50,\n});\nconsole.log(response.users);"
-          },
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "resp, _ = sc.users.list_users(organization_id=\"org_123\", page_size=50)"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "list, \n  err := sc.User().ListOrganizationUsers(ctx, \"org_123\", \u0026scalekit.ListUsersOptions{PageSize: 50})\nif err != nil { /* handle error */ }\nfmt.Println(list.Users)"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "ListOrganizationUsersRequest listReq = ListOrganiz\n  ationUsersRequest.newBuilder()\n        .setPageSize(50)\n        .build();\nListOrganizationUsersResponse list = users.\n  listOrganizationUsers(\"org_123\", listReq);"
-          }
-        ]
-      }
-    },
-    "/api/v1/users": {
-      "get": {
-        "description": "Retrieves a paginated list of all users across your entire environment. Use this endpoint to view all users regardless of their organization memberships. This is useful for administrative purposes, user audits, or when you need to see all users in your Scalekit environment. Supports pagination for large user bases.",
-        "tags": ["Users"],
-        "summary": "List all users in environment",
-        "operationId": "UserService_ListUsers",
-        "parameters": [
-          {
-            "type": "integer",
-            "format": "int64",
-            "description": "Maximum number of organizations to return per page. Must be between 10 and 100",
-            "name": "page_size",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Pagination token from the previous response. Use to retrieve the next page of organizations",
-            "name": "page_token",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of users.",
-            "schema": {
-              "$ref": "#/definitions/usersListUsersResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const response = await sc.user.listUsers(\n  { pageSize: 100 });"
-          },
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "# pass empty org to fetch all users in environment\nresp,_ = sc.users.list_users(organization_id=\"\", page_size=100)"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "all, err := sc.User().ListOrganizationUsers(ctx, \"\", \u0026scalekit.ListUsersOptions{PageSize: 100})"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "ListUsersRequest lur = ListUsersRequest.\n  newBuilder().setPageSize(100).build();\nListUsersResponse allUsers = users.listUsers(lur);"
-          }
-        ]
-      }
-    },
-    "/api/v1/users/{id}": {
-      "get": {
-        "description": "Retrieves all details for a user by system-generated user ID or external ID. The response includes organization memberships and user metadata.",
-        "tags": ["Users"],
-        "summary": "Get user details",
-        "operationId": "UserService_GetUser",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "System-generated user ID",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
-            "name": "external_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User details retrieved successfully. Returns full user object with system-generated fields and timestamps.",
-            "schema": {
-              "$ref": "#/definitions/usersGetUserResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const { user } = await sc.user.getUser(user_id);"
-          },
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "response = users.get_user(organization_id, \n  user_id)"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "resp, err := sc.User().GetUser(ctx, userID)"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "GetUserResponse resp = scalekit.users().getUser(\n  userId);"
-          }
-        ]
-      },
-      "patch": {
-        "description": "Modifies user account information including profile details, metadata, and external ID. Use this endpoint to update a user's personal information, contact details, or custom metadata. You can update the user's profile, phone number, and metadata fields. Note that fields like user ID, email address, environment ID, and creation time cannot be modified.",
-        "tags": ["Users"],
-        "summary": "Update user details",
-        "operationId": "UserService_UpdateUser",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "System-generated user ID. Must start with 'usr_' and be 19-25 characters long.",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "user",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "User fields to update. Only specified fields will be modified. Required fields must be provided if being changed.",
-              "$ref": "#/definitions/v1usersUpdateUser",
-              "example": {
-                "firstName": "John",
-                "lastName": "Doe"
-              }
-            }
-          },
-          {
-            "type": "string",
-            "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
-            "name": "external_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User updated successfully. Returns the modified user object with updated timestamps.",
-            "schema": {
-              "$ref": "#/definitions/usersUpdateUserResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "await sc.user.updateUser(\"usr_123\", {\n\tuserProfile: {\n\t\tfirstName: \"John\",\n\t\tlastName: \"Smith\",\n\t},\n\tmetadata: {\n\t\tdepartment: \"sales\",\n\t},\n});"
-          },
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "import os\nfrom scalekit import ScalekitClient\nfrom scalekit.v1.users.users_pb2 import UpdateUser\nfrom scalekit.v1.commons.\n  commons_pb2 import UserProfile\nsc = ScalekitClient(\n    env_url=os.getenv(\"SCALEKIT_ENV_URL\"),\n    client_id=os.getenv(\"SCALEKIT_CLIENT_ID\"),\n    client_secret=os.getenv(\"SCALEKIT_CLIENT_SECRET\"),\n)\nupdate_user = UpdateUser(\n    user_profile=UserProfile(\n        first_name=\"John\",\n        last_name=\"Smith\"\n    ),\n    metadata={\"department\": \"sales\"}\n)\nsc.users.update_user(organization_id=\"org_123\", \n  user=update_user)"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "upd := \u0026usersv1.UpdateUser{\n    UserProfile: \u0026usersv1.UpdateUserProfile{\n        FirstName: \"John\",\n        LastName:  \"Smith\",\n    },\n    Metadata: map[string]string{\n        \"department\": \"sales\",\n    },\n}\nsc.User().UpdateUser(ctx, \"usr_123\", upd)"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "UpdateUser upd = UpdateUser.newBuilder()\n        .setUserProfile(\n          UpdateUserProfile.newBuilder()\n                .setFirstName(\"John\")\n                .setLastName(\"Smith\")\n                .build())\n        .putMetadata(\"department\", \"sales\")\n        .build();\nUpdateUserRequest updReq = UpdateUserRequest.\n  newBuilder().setUser(upd).build();\nusers.updateUser(\"usr_123\", updReq);"
-          }
-        ]
-      },
-      "delete": {
-        "description": "Permanently removes a user from your environment and deletes all associated data. Use this endpoint when you need to completely remove a user account. This action deletes the user's profile, memberships, and all related data across all organizations. This operation cannot be undone, so use with caution.",
-        "tags": ["Users"],
-        "summary": "Delete user permanently",
-        "operationId": "UserService_DeleteUser",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters)",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "External system identifier from connected directories. Must match existing records",
-            "name": "external_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User successfully deleted. No content returned",
-            "schema": {}
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "await sc.user.deleteUser(\"usr_123\");"
-          },
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "sc.users.delete_user(organization_id=\"org_123\", \n  user_id=\"usr_123\")"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "if err := sc.User().DeleteUser(ctx, \n  \"usr_123\"); err != nil {\n    panic(err)\n}"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "users.deleteUser(\"usr_123\");"
-          }
-        ]
-      }
-    },
-    "/api/v1/memberships/organizations/{organization_id}/users/{id}": {
-      "post": {
-        "description": "Adds an existing user to an organization and assigns them specific roles and permissions. Use this endpoint when you want to grant an existing user access to a particular organization. You can specify roles, metadata, and other membership details during the invitation process.",
-        "tags": ["Users"],
-        "summary": "Create membership to add user to organization",
-        "operationId": "UserService_CreateMembership",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the target organization. Must start with 'org_' and be 1-32 characters long.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters)",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "membership",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "Membership details to create. Required fields must be provided.",
-              "$ref": "#/definitions/v1usersCreateMembership"
-            }
-          },
-          {
-            "type": "string",
-            "description": "External system identifier from connected directories. Must be unique across the system",
-            "name": "external_id",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "description": "If true, sends an activation email to the user. Defaults to true.",
-            "name": "send_invitation_email",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "User successfully added to the organization. Returns details of the updated user membership",
-            "schema": {
-              "$ref": "#/definitions/usersCreateMembershipResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "import { ScalekitClient } from \"@scalekit-sdk/node\";\nconst sc = new ScalekitClient(\n\tprocess.env.SCALEKIT_ENV_URL,\n\tprocess.env.SCALEKIT_CLIENT_ID,\n\tprocess.env.SCALEKIT_CLIENT_SECRET\n);\nawait sc.user.createMembership(\"org_123\", \"usr_123\", {\n\troles: [\"admin\"],\n\tmetadata: {\n\t\tdepartment: \"engineering\",\n\t\tlocation: \"nyc-office\",\n\t},\n});"
-          },
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "import os\nfrom scalekit import ScalekitClient\nsc = ScalekitClient(\n    env_url=os.getenv(\"SCALEKIT_ENV_URL\"),\n    client_id=os.getenv(\"SCALEKIT_CLIENT_ID\"),\n    client_secret=os.getenv(\"SCALEKIT_CLIENT_SECRET\"),\n)\n# The Python SDK currently exposes a helper that \n  #simply links an existing\n# user to an organization.\nresp, _ = sc.users.add_user_to_organization(\n    organization_id=\"org_123\",\n    user_id=\"usr_123\",\n)"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "func main() {\n    sc := scalekit.NewScalekitClient(\n        os.Getenv(\"SCALEKIT_ENV_URL\"),\n        os.Getenv(\"SCALEKIT_CLIENT_ID\"),\n        os.Getenv(\"SCALEKIT_CLIENT_SECRET\"),\n    )\n    membership := \u0026usersv1.CreateMembership{\n        Roles: []*usersv1.Role{{Name: \"admin\"}},\n        Metadata: map[string]string{\n            \"department\": \"engineering\",\n            \"location\":   \"nyc-office\",\n        },\n    }\n    resp, \n      err := sc.User().CreateMembership(\n        context.Background(), \"org_123\", \n          \"usr_123\", membership, false)\n    if err != nil {\n        panic(err)\n    }\n}"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "import com.scalekit.ScalekitClient;\nimport com.scalekit.api.UserClient;\nimport com.scalekit.grpc.scalekit.v1.users.*;\nScalekitClient sk = new ScalekitClient(\n    System.getenv(\"SCALEKIT_ENV_URL\"),\n    System.getenv(\"SCALEKIT_CLIENT_ID\"),\n    System.getenv(\"SCALEKIT_CLIENT_SECRET\")\n);\nUserClient users = sk.users();\nCreateMembershipRequest membershipReq = CreateMemb\n  ershipRequest.newBuilder()\n        .setMembership(\n          CreateMembership.newBuilder()\n                .addRoles(Role.newBuilder(\n                  ).setName(\"admin\").build())\n                .putMetadata(\"department\", \"engineering\")\n                .putMetadata(\"location\", \"nyc-office\")\n                .build())\n        .build();\nCreateMembershipResponse res = users.\n  createMembership(\"org_123\", \"usr_123\", \n    membershipReq);"
-          }
-        ]
-      },
-      "patch": {
-        "description": "Updates a user's membership details within an organization by user ID or external ID. You can update roles and membership metadata.",
-        "tags": ["Users"],
-        "summary": "Update user membership details",
-        "operationId": "UserService_UpdateMembership",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization containing the membership. Must start with 'org_' and be 1-32 characters long.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "System-generated user ID. Must start with 'usr_' and be 19-25 characters long.",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "membership",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "Membership fields to update. Only specified fields will be modified.",
-              "$ref": "#/definitions/v1usersUpdateMembership",
-              "example": {
-                "role": "admin"
-              }
-            }
-          },
-          {
-            "type": "string",
-            "description": "Your application's unique identifier for this user.",
-            "name": "external_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Membership updated successfully. Returns the updated user object.",
-            "schema": {
-              "$ref": "#/definitions/usersUpdateMembershipResponse"
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Removes a user from an organization by user ID or external ID. If the user has no memberships left and cascade is true, the user is also deleted. This action is irreversible and may also remove related group memberships.",
-        "tags": ["Users"],
-        "summary": "Delete organization membership for user",
-        "operationId": "UserService_DeleteMembership",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique organization identifier. Must start with 'org_' and be 1-32 characters long",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters)",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "External system identifier from connected directories. Must match existing records",
-            "name": "external_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User successfully marked for deletion. No content returned",
-            "schema": {}
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "response = scalekit_client.users.delete_membership(\n  organization_id=org_id,user_id=user_id\n)"
-          }
-        ]
-      }
-    },
-    "/api/v1/organizations/-/connections": {
-      "get": {
-        "description": "Retrieves a list of connections for all the organizations",
-        "tags": ["Connections"],
-        "summary": "List organization connections",
-        "operationId": "ConnectionService_ListOrganizationConnections",
-        "parameters": [
-          {
-            "type": "integer",
-            "format": "int64",
-            "description": "Maximum number of organizations to return per page. Value must be between 1 and 30.",
-            "name": "page_size",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Token from a previous response for pagination. Provide this to retrieve the next page of results.",
-            "name": "page_token",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved connections",
-            "schema": {
-              "$ref": "#/definitions/connectionsSearchOrganizationConnectionsResponse"
-            }
-          }
-        }
-      }
-    },
     "/api/v1/organizations/{id}": {
       "get": {
         "description": "Retrieves organization details by Scalekit ID, including name, region, metadata, and settings",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Get organization details",
         "operationId": "OrganizationService_GetOrganization",
         "parameters": [
@@ -714,7 +374,9 @@
       },
       "delete": {
         "description": "Remove an existing organization from the environment using its unique identifier",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Delete an organization",
         "operationId": "OrganizationService_DeleteOrganization",
         "parameters": [
@@ -757,7 +419,9 @@
       },
       "patch": {
         "description": "Updates an organization's display name, external ID, or metadata. Requires a valid organization identifier. Region code cannot be modified through this endpoint.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Update organization details",
         "operationId": "OrganizationService_UpdateOrganization",
         "parameters": [
@@ -813,7 +477,9 @@
     "/api/v1/organizations/{id}/portal_links": {
       "put": {
         "description": "Creates a time-limited Admin Portal URL for IT administrators to configure and manage Single Sign-On (SSO) connections within their organization. Generated links expire after 7 days (168 hours).",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Generate admin portal link",
         "operationId": "OrganizationService_GeneratePortalLink",
         "parameters": [
@@ -827,7 +493,10 @@
           {
             "type": "array",
             "items": {
-              "enum": ["dir_sync", "sso"],
+              "enum": [
+                "dir_sync",
+                "sso"
+              ],
               "type": "string"
             },
             "collectionFormat": "multi",
@@ -868,108 +537,12 @@
         ]
       }
     },
-    "/api/v1/organizations/{id}/session-settings": {
-      "get": {
-        "description": "Retrieves the currently configured session timeout policies for a specific organization, including absolute and idle timeout values.",
-        "tags": ["Organizations"],
-        "summary": "Get organization session settings",
-        "operationId": "OrganizationService_GetOrganizationSessionSettings",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "The unique identifier of the organization whose session settings are being requested.",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "The environment ID to scope the request. This ensures the settings are retrieved from the correct environment.",
-            "name": "environment_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved organization session settings.",
-            "schema": {
-              "$ref": "#/definitions/organizationsGetOrganizationSessionSettingsResponse"
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Defines session timeout policies for an organization, including absolute and idle timeout durations. This endpoint is used to configure session lifetimes and enhance security by automatically logging out users after a specified period of inactivity.",
-        "tags": ["Organizations"],
-        "summary": "Create organization session settings",
-        "operationId": "OrganizationService_CreateOrganizationSessionSettings",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "The unique identifier of the organization for which to create session settings.",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "The environment ID where the organization exists. This scopes the creation of session settings to a specific environment.",
-            "name": "environment_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Session settings created successfully. Returns the newly configured session policies.",
-            "schema": {
-              "$ref": "#/definitions/organizationsCreateOrganizationSessionSettingsResponse"
-            }
-          }
-        }
-      },
-      "patch": {
-        "description": "Modifies the session timeout policies for an organization. Use this to adjust the absolute and idle session timeout durations to enforce different security levels.",
-        "tags": ["Organizations"],
-        "summary": "Update organization session settings",
-        "operationId": "OrganizationService_UpdateOrganizationSessionSettings",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier for the organization, beginning with an 'org_' prefix.",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "session_settings",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "The session settings to be applied, including absolute and idle timeout configurations.",
-              "$ref": "#/definitions/organizationsOrganizationSessionSettings"
-            }
-          },
-          {
-            "type": "string",
-            "description": "Unique identifier for the environment where the organization resides, prefixed with 'env_'. This specifies the environment context for the session settings.",
-            "name": "environment_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Session settings updated successfully. Returns the modified session policies.",
-            "schema": {
-              "$ref": "#/definitions/organizationsUpdateOrganizationSessionSettingsResponse"
-            }
-          }
-        }
-      }
-    },
     "/api/v1/organizations/{id}/settings": {
       "patch": {
         "description": "Updates configuration settings for an organization. Supports modifying SSO configuration, directory synchronization settings, and session parameters. Requires organization ID and the specific settings to update.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Toggle organization settings",
         "operationId": "OrganizationService_UpdateOrganizationSettings",
         "parameters": [
@@ -1045,7 +618,9 @@
     "/api/v1/organizations/{organization_id}/clients": {
       "post": {
         "description": "Creates a new API client for an organization. Returns the client details and a plain secret (available only once).",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Create organization API client",
         "operationId": "ClientService_CreateOrganizationClient",
         "parameters": [
@@ -1086,7 +661,9 @@
     "/api/v1/organizations/{organization_id}/clients/{client_id}": {
       "get": {
         "description": "Retrieves details of a specific API client in an organization.",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Get organization API client",
         "operationId": "ClientService_GetOrganizationClient",
         "parameters": [
@@ -1123,7 +700,9 @@
       },
       "delete": {
         "description": "Permanently deletes an API client from an organization. This operation cannot be undone and will revoke all access for the client. All associated secrets will also be invalidated. Use this endpoint to remove unused or compromised clients.",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Delete organization API client",
         "operationId": "ClientService_DeleteOrganizationClient",
         "parameters": [
@@ -1158,7 +737,9 @@
       },
       "patch": {
         "description": "Updates an existing organization API client. Only specified fields are modified.",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Update organization API client",
         "operationId": "ClientService_UpdateOrganizationClient",
         "parameters": [
@@ -1206,7 +787,9 @@
     "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
       "post": {
         "description": "Creates a new secret for an organization API client. Returns the plain secret (available only once).",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Create organization API client secret",
         "operationId": "ClientService_CreateOrganizationClientSecret",
         "parameters": [
@@ -1245,7 +828,9 @@
     "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets/{secret_id}": {
       "delete": {
         "description": "Permanently deletes a secret from an organization API client. This operation cannot be undone.",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Delete organization API client secret",
         "operationId": "ClientService_DeleteOrganizationClientSecret",
         "parameters": [
@@ -1289,7 +874,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}": {
       "get": {
         "description": "Retrieves the complete configuration and status details for a specific connection by its ID within an organization. Returns all connection properties including provider settings, protocols, and current status.",
-        "tags": ["Connections"],
+        "tags": [
+          "Connections"
+        ],
         "summary": "Get connection details",
         "operationId": "ConnectionService_GetConnection",
         "parameters": [
@@ -1343,7 +930,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:disable": {
       "patch": {
         "description": "Deactivate an existing connection for the specified organization. When disabled, users cannot authenticate using this connection. This endpoint changes the connection state from enabled to disabled without modifying other configuration settings",
-        "tags": ["Connections"],
+        "tags": [
+          "Connections"
+        ],
         "summary": "Disable organization connection",
         "operationId": "ConnectionService_DisableConnection",
         "parameters": [
@@ -1397,7 +986,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:enable": {
       "patch": {
         "description": "Activate an existing connection for the specified organization. When enabled, users can authenticate using this connection. This endpoint changes the connection state from disabled to enabled without modifying other configuration settings",
-        "tags": ["Connections"],
+        "tags": [
+          "Connections"
+        ],
         "summary": "Enable organization connection",
         "operationId": "ConnectionService_EnableConnection",
         "parameters": [
@@ -1450,7 +1041,9 @@
     },
     "/api/v1/organizations/{organization_id}/directories": {
       "get": {
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List organization directories",
         "operationId": "DirectoryService_ListDirectories",
         "parameters": [
@@ -1497,7 +1090,9 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/groups": {
       "get": {
         "description": "Retrieves all groups from a specified directory. Use this endpoint to view group structures from your connected identity provider.",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List directory groups",
         "operationId": "DirectoryService_ListDirectoryGroups",
         "parameters": [
@@ -1583,7 +1178,9 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/users": {
       "get": {
         "description": "Retrieves a list of all users within a specified directory for an organization. This endpoint allows you to view user accounts associated with your connected Directory Providers.",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List directory users",
         "operationId": "DirectoryService_ListDirectoryUsers",
         "parameters": [
@@ -1669,7 +1266,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}": {
       "get": {
         "description": "Retrieves detailed information about a specific directory within an organization",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Get directory details",
         "operationId": "DirectoryService_GetDirectory",
         "parameters": [
@@ -1723,7 +1322,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:disable": {
       "patch": {
         "description": "Stops synchronization of users and groups from a specified directory within an organization. This operation prevents further updates from the connected Directory provider",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Disable a directory",
         "operationId": "DirectoryService_DisableDirectory",
         "parameters": [
@@ -1777,7 +1378,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:enable": {
       "patch": {
         "description": "Activates a directory within an organization, allowing it to synchronize users and groups with the connected Directory provider",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Enable a directory",
         "operationId": "DirectoryService_EnableDirectory",
         "parameters": [
@@ -1828,10 +1431,134 @@
         ]
       }
     },
+    "/api/v1/organizations/{organization_id}/users": {
+      "get": {
+        "description": "Retrieves a paginated list of all users who are members of the specified organization. Use this endpoint to view all users with access to a particular organization, including their roles, metadata, and membership details. Supports pagination for large user lists.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "List organization users",
+        "operationId": "UserService_ListOrganizationUsers",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization for which to list users. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum number of users to return in a single response. Valid range: 1-100. Server may return fewer users than specified.",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Pagination token from a previous ListUserResponse. Used to retrieve the next page of results. Leave empty for the first request.",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of users in the organization",
+            "schema": {
+              "$ref": "#/definitions/usersListOrganizationUsersResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const response = await sc.user.\n  listOrganizationUsers(\"org_123\", {\n\tpageSize: 50,\n});\nconsole.log(response.users);"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "resp, _ = sc.users.list_users(organization_id=\"org_123\", page_size=50)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "list, \n  err := sc.User().ListOrganizationUsers(ctx, \"org_123\", \u0026scalekit.ListUsersOptions{PageSize: 50})\nif err != nil { /* handle error */ }\nfmt.Println(list.Users)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ListOrganizationUsersRequest listReq = ListOrganiz\n  ationUsersRequest.newBuilder()\n        .setPageSize(50)\n        .build();\nListOrganizationUsersResponse list = users.\n  listOrganizationUsers(\"org_123\", listReq);"
+          }
+        ]
+      },
+      "post": {
+        "description": "Creates a new user account and immediately adds them to the specified organization. Use this endpoint when you want to create a user and grant them access to an organization in a single operation. You can provide user profile information, assign roles, and configure membership metadata. The user receives an activation email unless this feature is disabled in the organization settings.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create new user in organization",
+        "operationId": "UserService_CreateUserAndMembership",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/usersCreateUser"
+            }
+          },
+          {
+            "type": "boolean",
+            "description": "If true, sends an activation email to the user. Defaults to true.",
+            "name": "send_invitation_email",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created successfully. Returns the created user object, including system-generated identifiers and timestamps",
+            "schema": {
+              "$ref": "#/definitions/usersCreateUserAndMembershipResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const {\n   user } = await sc.user.\n    createUserAndMembership(\"org_123\", {\n\temail: \"user@example.com\",\n\texternalId: \"ext_12345a67b89c\",\n\tmetadata: { department: \"engineering\", \n\t  location: \"nyc-office\" },\n\tuserProfile: {\n\t\tfirstName: \"John\",\n\t\tlastName: \"Doe\",\n\t},\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "import os\nfrom scalekit import ScalekitClient\nfrom scalekit.v1.users.users_pb2 import User\nfrom scalekit.v1.commons.\n  commons_pb2 import UserProfile\nsc = ScalekitClient(\n    env_url=os.getenv(\"SCALEKIT_ENV_URL\"),\n    client_id=os.getenv(\"SCALEKIT_CLIENT_ID\"),\n    client_secret=os.getenv(\"SCALEKIT_CLIENT_SECRET\"),\n)\nuser_msg = User(\n    email=\"user@example.com\",\n    external_id=\"ext_12345a67b89c\",\n    metadata={\"department\": \"engineering\", \"location\": \"nyc-office\"},\n    user_profile=UserProfile(\n        first_name=\"John\",\n        last_name=\"Doe\"\n    )\n)\ncreate_resp, \n  _ = sc.users.create_user(\"org_123\", user_msg)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "newUser := \u0026usersv1.CreateUser{\n    Email:      \"user@example.com\",\n    ExternalId: \"ext_12345a67b89c\",\n    Metadata: map[string]string{\n        \"department\": \"engineering\",\n        \"location\":   \"nyc-office\",\n    },\n    UserProfile: \u0026usersv1.CreateUserProfile{\n        FirstName: \"John\",\n        LastName:  \"Doe\",\n    },\n}\ncuResp, \n  err := sc.User().CreateUserAndMembership(ctx, \"org_123\", newUser, false)\nif err != nil { /* handle error */ }"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "CreateUser createUser = CreateUser.newBuilder()\n        .setEmail(\"user@example.com\")\n        .setExternalId(\"ext_12345a67b89c\")\n        .putMetadata(\"department\", \"engineering\")\n        .putMetadata(\"location\", \"nyc-office\")\n        .setUserProfile(\n          CreateUserProfile.newBuilder()\n                .setFirstName(\"John\")\n                .setLastName(\"Doe\")\n                .build())\n        .build();\nCreateUserAndMembershipRequest cuReq = CreateUserA\n  ndMembershipRequest.newBuilder()\n        .setUser(createUser)\n        .build();\nCreateUserAndMembershipResponse cuResp = users.\n  createUserAndMembership(\"org_123\", cuReq);\nSystem.out.println(cuResp.getUser().getId());"
+          }
+        ]
+      }
+    },
     "/api/v1/passwordless/email/resend": {
       "post": {
         "description": "Resend a verification email if the user didn't receive it or if the previous code/link has expired",
-        "tags": ["Passwordless Auth"],
+        "tags": [
+          "Passwordless Auth"
+        ],
         "summary": "Resend passwordless email",
         "operationId": "PasswordlessService_ResendPasswordlessEmail",
         "parameters": [
@@ -1864,7 +1591,9 @@
     "/api/v1/passwordless/email/send": {
       "post": {
         "description": "Send a verification email containing either a verification code (OTP), magic link, or both to a user's email address",
-        "tags": ["Passwordless Auth"],
+        "tags": [
+          "Passwordless Auth"
+        ],
         "summary": "Send passwordless email",
         "operationId": "PasswordlessService_SendPasswordlessEmail",
         "parameters": [
@@ -1897,7 +1626,9 @@
     "/api/v1/passwordless/email/verify": {
       "post": {
         "description": "Verify a user's identity using either a verification code or magic link token",
-        "tags": ["Passwordless Auth"],
+        "tags": [
+          "Passwordless Auth"
+        ],
         "summary": "Verify passwordless email",
         "operationId": "PasswordlessService_VerifyPasswordlessEmail",
         "parameters": [
@@ -1926,12 +1657,243 @@
           }
         ]
       }
+    },
+    "/api/v1/users": {
+      "get": {
+        "description": "Retrieves a paginated list of all users across your entire environment. Use this endpoint to view all users regardless of their organization memberships. This is useful for administrative purposes, user audits, or when you need to see all users in your Scalekit environment. Supports pagination for large user bases.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "List all users in environment",
+        "operationId": "UserService_ListUsers",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum number of organizations to return per page. Must be between 10 and 100",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Pagination token from the previous response. Use to retrieve the next page of organizations",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of users.",
+            "schema": {
+              "$ref": "#/definitions/usersListUsersResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const response = await sc.user.listUsers(\n  { pageSize: 100 });"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# pass empty org to fetch all users in environment\nresp,_ = sc.users.list_users(organization_id=\"\", page_size=100)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "all, err := sc.User().ListOrganizationUsers(ctx, \"\", \u0026scalekit.ListUsersOptions{PageSize: 100})"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ListUsersRequest lur = ListUsersRequest.\n  newBuilder().setPageSize(100).build();\nListUsersResponse allUsers = users.listUsers(lur);"
+          }
+        ]
+      }
+    },
+    "/api/v1/users/{id}": {
+      "get": {
+        "description": "Retrieves all details for a user by system-generated user ID or external ID. The response includes organization memberships and user metadata.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user",
+        "operationId": "UserService_GetUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "System-generated user ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+            "name": "external_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details retrieved successfully. Returns full user object with system-generated fields and timestamps.",
+            "schema": {
+              "$ref": "#/definitions/usersGetUserResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const { user } = await sc.user.getUser(user_id);"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "response = users.get_user(organization_id, \n  user_id)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := sc.User().GetUser(ctx, userID)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "GetUserResponse resp = scalekit.users().getUser(\n  userId);"
+          }
+        ]
+      },
+      "delete": {
+        "description": "Permanently removes a user from your environment and deletes all associated data. Use this endpoint when you need to completely remove a user account. This action deletes the user's profile, memberships, and all related data across all organizations. This operation cannot be undone, so use with caution.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete user permanently",
+        "operationId": "UserService_DeleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' (19-25 characters)",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "External system identifier from connected directories. Must match existing records",
+            "name": "external_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User successfully deleted. No content returned",
+            "schema": {}
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await sc.user.deleteUser(\"usr_123\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "sc.users.delete_user(organization_id=\"org_123\", \n  user_id=\"usr_123\")"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "if err := sc.User().DeleteUser(ctx, \n  \"usr_123\"); err != nil {\n    panic(err)\n}"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "users.deleteUser(\"usr_123\");"
+          }
+        ]
+      },
+      "patch": {
+        "description": "Modifies user account information including profile details, metadata, and external ID. Use this endpoint to update a user's personal information, contact details, or custom metadata. You can update the user's profile, phone number, and metadata fields. Note that fields like user ID, email address, environment ID, and creation time cannot be modified.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update user information",
+        "operationId": "UserService_UpdateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' and be 19-25 characters long.",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "User fields to update. Only specified fields will be modified. Required fields must be provided if being changed.",
+              "$ref": "#/definitions/v1usersUpdateUser",
+              "example": {
+                "firstName": "John",
+                "lastName": "Doe"
+              }
+            }
+          },
+          {
+            "type": "string",
+            "description": "Your application's unique identifier for this organization, used to link Scalekit with your system.",
+            "name": "external_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully. Returns the modified user object with updated timestamps.",
+            "schema": {
+              "$ref": "#/definitions/usersUpdateUserResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await sc.user.updateUser(\"usr_123\", {\n\tuserProfile: {\n\t\tfirstName: \"John\",\n\t\tlastName: \"Smith\",\n\t},\n\tmetadata: {\n\t\tdepartment: \"sales\",\n\t},\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "import os\nfrom scalekit import ScalekitClient\nfrom scalekit.v1.users.users_pb2 import UpdateUser\nfrom scalekit.v1.commons.\n  commons_pb2 import UserProfile\nsc = ScalekitClient(\n    env_url=os.getenv(\"SCALEKIT_ENV_URL\"),\n    client_id=os.getenv(\"SCALEKIT_CLIENT_ID\"),\n    client_secret=os.getenv(\"SCALEKIT_CLIENT_SECRET\"),\n)\nupdate_user = UpdateUser(\n    user_profile=UserProfile(\n        first_name=\"John\",\n        last_name=\"Smith\"\n    ),\n    metadata={\"department\": \"sales\"}\n)\nsc.users.update_user(organization_id=\"org_123\", \n  user=update_user)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "upd := \u0026usersv1.UpdateUser{\n    UserProfile: \u0026usersv1.UpdateUserProfile{\n        FirstName: \"John\",\n        LastName:  \"Smith\",\n    },\n    Metadata: map[string]string{\n        \"department\": \"sales\",\n    },\n}\nsc.User().UpdateUser(ctx, \"usr_123\", upd)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "UpdateUser upd = UpdateUser.newBuilder()\n        .setUserProfile(\n          UpdateUserProfile.newBuilder()\n                .setFirstName(\"John\")\n                .setLastName(\"Smith\")\n                .build())\n        .putMetadata(\"department\", \"sales\")\n        .build();\nUpdateUserRequest updReq = UpdateUserRequest.\n  newBuilder().setUser(upd).build();\nusers.updateUser(\"usr_123\", updReq);"
+          }
+        ]
+      }
     }
   },
   "definitions": {
     "authpasswordlessPasswordlessType": {
       "type": "string",
-      "enum": ["OTP", "LINK", "LINK_OTP"]
+      "enum": [
+        "OTP",
+        "LINK",
+        "LINK_OTP"
+      ]
     },
     "authpasswordlessVerifyPasswordLessRequest": {
       "type": "object",
@@ -2039,7 +2001,9 @@
     "clientsClientSecretStatus": {
       "description": "ClientSecretStatus indicates whether a client secret can be used for authentication.\nACTIVE secrets can be used for authentication while INACTIVE secrets cannot.\n\n - INACTIVE: The secret is inactive and cannot be used for authentication",
       "type": "string",
-      "enum": ["INACTIVE"]
+      "enum": [
+        "INACTIVE"
+      ]
     },
     "clientsCreateOrganizationClientResponse": {
       "type": "object",
@@ -2096,18 +2060,15 @@
     "clientsM2MClient": {
       "type": "object",
       "properties": {
-        "application_id": {
-          "description": "The ID of the application associated with this API client. This field is used to link the client to a specific application in the system.",
-          "type": "string",
-          "example": "app_1231234233424344"
-        },
         "audience": {
           "description": "The intended recipients of access tokens issued to this client. Each audience value should be a URI that identifies an API or service.",
           "type": "array",
           "items": {
             "type": "string"
           },
-          "example": ["https://api.example.com"]
+          "example": [
+            "https://api.example.com"
+          ]
         },
         "client_id": {
           "description": "The unique identifier for this API client. This ID is used to identify the client in API requests and logs. It is automatically generated when the client is created and cannot be modified.",
@@ -2157,13 +2118,21 @@
           },
           "example": "https://example.com/callback"
         },
+        "resource_id": {
+          "description": "The ID of the resource associated with this M2M client. This field is used to link the client to a specific resource in the system.",
+          "type": "string",
+          "example": "app_1231234233424344"
+        },
         "scopes": {
           "description": "The OAuth 2.0 scopes granted to this client. These scopes determine what resources and actions the client can access.",
           "type": "array",
           "items": {
             "type": "string"
           },
-          "example": ["deploy:applications", "read:deployments"]
+          "example": [
+            "deploy:resources",
+            "read:deployments"
+          ]
         },
         "secrets": {
           "description": "List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.",
@@ -2216,7 +2185,7 @@
         "description": {
           "description": "A detailed explanation of the client's purpose and usage. This helps administrators understand what the client is used for and who manages it.",
           "type": "string",
-          "example": "Service account for GitHub Actions to deploy applications to production"
+          "example": "Service account for GitHub Actions to deploy resources to production"
         },
         "expiry": {
           "description": "The lifetime of access tokens issued to this client, in seconds. This value determines how long a token remains valid before it must be refreshed. Defaults to 3600 (1 hour) if not specified.",
@@ -2235,7 +2204,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["deploy:applications", "read:deployments"]
+          "example": [
+            "deploy:resources",
+            "read:deployments"
+          ]
         }
       }
     },
@@ -2271,7 +2243,11 @@
     },
     "commonsMembershipStatus": {
       "type": "string",
-      "enum": ["ACTIVE", "INACTIVE", "PENDING_INVITE"]
+      "enum": [
+        "ACTIVE",
+        "INACTIVE",
+        "PENDING_INVITE"
+      ]
     },
     "commonsOrganizationMembership": {
       "type": "object",
@@ -2317,16 +2293,29 @@
     },
     "commonsRegionCode": {
       "type": "string",
-      "enum": ["US", "EU"]
+      "enum": [
+        "US",
+        "EU"
+      ]
     },
     "commonsRole": {
       "type": "object",
       "properties": {
+        "display_name": {
+          "description": "Human-readable name for the role",
+          "type": "string",
+          "example": "Dev Team"
+        },
         "id": {
-          "type": "string"
+          "description": "Role ID",
+          "type": "string",
+          "readOnly": true,
+          "example": "role_79643236410327240"
         },
         "name": {
-          "type": "string"
+          "description": "Unique key identifier for the role",
+          "type": "string",
+          "example": "team_dev"
         }
       }
     },
@@ -2396,11 +2385,17 @@
     },
     "connectionsCodeChallengeType": {
       "type": "string",
-      "enum": ["NUMERIC", "ALPHANUMERIC"]
+      "enum": [
+        "NUMERIC",
+        "ALPHANUMERIC"
+      ]
     },
     "connectionsConfigurationType": {
       "type": "string",
-      "enum": ["DISCOVERY", "MANUAL"]
+      "enum": [
+        "DISCOVERY",
+        "MANUAL"
+      ]
     },
     "connectionsConnection": {
       "type": "object",
@@ -2458,6 +2453,11 @@
           "$ref": "#/definitions/connectionsConnectionProvider",
           "example": "OKTA"
         },
+        "provider_key": {
+          "description": "Key ID of the identity provider service that handles authentication",
+          "type": "string",
+          "example": "google"
+        },
         "saml_config": {
           "description": "Configuration details for SAML connections. Present only when type is SAML.",
           "$ref": "#/definitions/connectionsSAMLConnectionConfigResponse"
@@ -2503,11 +2503,21 @@
     },
     "connectionsConnectionStatus": {
       "type": "string",
-      "enum": ["DRAFT", "IN_PROGRESS", "COMPLETED"]
+      "enum": [
+        "DRAFT",
+        "IN_PROGRESS",
+        "COMPLETED"
+      ]
     },
     "connectionsConnectionType": {
       "type": "string",
-      "enum": ["OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS"]
+      "enum": [
+        "OIDC",
+        "SAML",
+        "PASSWORD",
+        "OAUTH",
+        "PASSWORDLESS"
+      ]
     },
     "connectionsGetConnectionResponse": {
       "type": "object",
@@ -2558,7 +2568,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["yourapp.com", "yourworkspace.com"]
+          "example": [
+            "yourapp.com",
+            "yourworkspace.com"
+          ]
         },
         "enabled": {
           "description": "Whether the connection is currently active for organization users",
@@ -2585,6 +2598,11 @@
           "$ref": "#/definitions/connectionsConnectionProvider",
           "example": "CUSTOM"
         },
+        "provider_key": {
+          "description": "Key ID of the identity provider service that handles authentication",
+          "type": "string",
+          "example": "google"
+        },
         "status": {
           "description": "Current configuration status of the connection",
           "$ref": "#/definitions/connectionsConnectionStatus",
@@ -2598,32 +2616,27 @@
         }
       }
     },
-    "connectionsListOrganizationConnectionsResponse": {
+    "connectionsListConnectionsResponse": {
       "type": "object",
       "properties": {
         "connections": {
-          "description": "List of connections matching the filter criteria",
+          "description": "List of connections matching the request criteria",
           "type": "array",
           "items": {
             "type": "object",
             "$ref": "#/definitions/connectionsListConnection"
           }
-        },
-        "next_page_token": {
-          "type": "string"
-        },
-        "prev_page_token": {
-          "type": "string"
-        },
-        "total_size": {
-          "type": "integer",
-          "format": "int64"
         }
       }
     },
     "connectionsNameIdFormat": {
       "type": "string",
-      "enum": ["UNSPECIFIED", "EMAIL", "TRANSIENT", "PERSISTENT"]
+      "enum": [
+        "UNSPECIFIED",
+        "EMAIL",
+        "TRANSIENT",
+        "PERSISTENT"
+      ]
     },
     "connectionsOAuthConnectionConfig": {
       "type": "object",
@@ -2664,7 +2677,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["openid", "profile"]
+          "example": [
+            "openid",
+            "profile"
+          ]
         },
         "token_uri": {
           "description": "Token URI",
@@ -2749,7 +2765,10 @@
           "items": {
             "$ref": "#/definitions/connectionsOIDCScope"
           },
-          "example": ["openid", "profile"]
+          "example": [
+            "openid",
+            "profile"
+          ]
         },
         "token_auth_type": {
           "description": "Token Auth Type",
@@ -2770,7 +2789,13 @@
     },
     "connectionsOIDCScope": {
       "type": "string",
-      "enum": ["openid", "profile", "email", "address", "phone"]
+      "enum": [
+        "openid",
+        "profile",
+        "email",
+        "address",
+        "phone"
+      ]
     },
     "connectionsPasswordLessConfig": {
       "type": "object",
@@ -2812,11 +2837,18 @@
     },
     "connectionsPasswordlessType": {
       "type": "string",
-      "enum": ["LINK", "OTP", "LINK_OTP"]
+      "enum": [
+        "LINK",
+        "OTP",
+        "LINK_OTP"
+      ]
     },
     "connectionsRequestBinding": {
       "type": "string",
-      "enum": ["HTTP_POST", "HTTP_REDIRECT"]
+      "enum": [
+        "HTTP_POST",
+        "HTTP_REDIRECT"
+      ]
     },
     "connectionsSAMLConnectionConfigResponse": {
       "type": "object",
@@ -2943,29 +2975,6 @@
         "SAML_RESPONSE_OR_ASSERTION_SIGNING"
       ]
     },
-    "connectionsSearchOrganizationConnectionsResponse": {
-      "type": "object",
-      "properties": {
-        "connections": {
-          "description": "List of connections matching the filter criteria",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/connectionsListConnection"
-          }
-        },
-        "next_page_token": {
-          "type": "string"
-        },
-        "prev_page_token": {
-          "type": "string"
-        },
-        "total_size": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
     "connectionsToggleConnectionResponse": {
       "type": "object",
       "properties": {
@@ -2983,7 +2992,10 @@
     },
     "connectionsTokenAuthType": {
       "type": "string",
-      "enum": ["URL_PARAMS", "BASIC_AUTH"]
+      "enum": [
+        "URL_PARAMS",
+        "BASIC_AUTH"
+      ]
     },
     "directoriesAttributeMapping": {
       "type": "object",
@@ -3134,11 +3146,23 @@
     },
     "directoriesDirectoryProvider": {
       "type": "string",
-      "enum": ["OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "JUMPCLOUD", "PING_IDENTITY"]
+      "enum": [
+        "OKTA",
+        "GOOGLE",
+        "MICROSOFT_AD",
+        "AUTH0",
+        "ONELOGIN",
+        "JUMPCLOUD",
+        "PING_IDENTITY"
+      ]
     },
     "directoriesDirectoryType": {
       "type": "string",
-      "enum": ["SCIM", "LDAP", "POLL"]
+      "enum": [
+        "SCIM",
+        "LDAP",
+        "POLL"
+      ]
     },
     "directoriesDirectoryUser": {
       "type": "object",
@@ -3337,7 +3361,9 @@
     },
     "directoriesSecretStatus": {
       "type": "string",
-      "enum": ["INACTIVE"]
+      "enum": [
+        "INACTIVE"
+      ]
     },
     "directoriesStats": {
       "type": "object",
@@ -3392,30 +3418,14 @@
         }
       }
     },
-    "organizationsCreateOrganizationSessionSettingsResponse": {
-      "type": "object",
-      "properties": {
-        "environment_id": {
-          "description": "The environment ID where the session settings were created.",
-          "type": "string",
-          "example": "env_59615193906282635"
-        },
-        "organization_id": {
-          "description": "The unique identifier of the organization for which session settings were created.",
-          "type": "string",
-          "example": "org_59615193906282635"
-        },
-        "session_settings": {
-          "description": "The newly created session settings, including timeout policies.",
-          "$ref": "#/definitions/organizationsOrganizationSessionSettings"
-        }
-      }
-    },
     "organizationsFeature": {
       "description": "- dir_sync: dir_sync enables directory synchronization configuration in the portal\n - sso: sso enables Single Sign-On (SSO) configuration in the portal",
       "type": "string",
       "title": "Feature represents the available features that can be enabled for an organization's portal link",
-      "enum": ["dir_sync", "sso"]
+      "enum": [
+        "dir_sync",
+        "sso"
+      ]
     },
     "organizationsGeneratePortalLinkResponse": {
       "type": "object",
@@ -3432,25 +3442,6 @@
         "organization": {
           "description": "The newly created organization",
           "$ref": "#/definitions/organizationsOrganization"
-        }
-      }
-    },
-    "organizationsGetOrganizationSessionSettingsResponse": {
-      "type": "object",
-      "properties": {
-        "environment_id": {
-          "description": "The environment ID from which the session settings were retrieved.",
-          "type": "string",
-          "example": "env_59615193906282635"
-        },
-        "organization_id": {
-          "description": "The unique identifier of the organization whose session settings are returned.",
-          "type": "string",
-          "example": "org_59615193906282635"
-        },
-        "session_settings": {
-          "description": "The retrieved session timeout policies for the organization.",
-          "$ref": "#/definitions/organizationsOrganizationSessionSettings"
         }
       }
     },
@@ -3506,7 +3497,9 @@
     },
     "organizationsOrganization": {
       "type": "object",
-      "required": ["create_time"],
+      "required": [
+        "create_time"
+      ],
       "properties": {
         "create_time": {
           "description": "Timestamp when the organization was created",
@@ -3559,33 +3552,6 @@
         }
       }
     },
-    "organizationsOrganizationSessionSettings": {
-      "type": "object",
-      "properties": {
-        "absolute_session_timeout": {
-          "description": "The maximum duration in seconds that a session can remain active, regardless of activity. After this time, the user will be required to re-authenticate.",
-          "type": "integer",
-          "format": "int32",
-          "example": 86400
-        },
-        "idle_session_enabled": {
-          "description": "Enables or disables idle session timeout. If true, inactive sessions will be terminated after the specified idle duration.",
-          "type": "boolean",
-          "example": true
-        },
-        "idle_session_timeout": {
-          "description": "The duration in seconds that a session can remain idle before it is automatically terminated. Activity resets the timer.",
-          "type": "integer",
-          "format": "int32",
-          "example": 1800
-        },
-        "session_management_enabled": {
-          "description": "Enables or disables session management features for the organization. When true, session timeout policies are enforced.",
-          "type": "boolean",
-          "example": true
-        }
-      }
-    },
     "organizationsOrganizationSettings": {
       "description": "Configuration options that control organization-level features and capabilities",
       "type": "object",
@@ -3627,7 +3593,10 @@
       "description": "Controls the activation state of a specific organization feature",
       "type": "object",
       "title": "Organization Feature Toggle",
-      "required": ["name", "enabled"],
+      "required": [
+        "name",
+        "enabled"
+      ],
       "properties": {
         "enabled": {
           "description": "Whether the feature is enabled (true) or disabled (false) for this organization",
@@ -3647,25 +3616,6 @@
         "organization": {
           "description": "Updated organization details",
           "$ref": "#/definitions/organizationsOrganization"
-        }
-      }
-    },
-    "organizationsUpdateOrganizationSessionSettingsResponse": {
-      "type": "object",
-      "properties": {
-        "environment_id": {
-          "description": "The environment ID where the organization's session settings were updated.",
-          "type": "string",
-          "example": "env_59615193906282635"
-        },
-        "organization_id": {
-          "description": "The unique identifier of the organization whose session settings were updated.",
-          "type": "string",
-          "example": "org_59615193906282635"
-        },
-        "session_settings": {
-          "description": "The updated session settings, reflecting the new timeout policies.",
-          "$ref": "#/definitions/organizationsOrganizationSessionSettings"
         }
       }
     },
@@ -3752,7 +3702,10 @@
     },
     "passwordlessTemplateType": {
       "type": "string",
-      "enum": ["SIGNIN", "SIGNUP"]
+      "enum": [
+        "SIGNIN",
+        "SIGNUP"
+      ]
     },
     "protobufNullValue": {
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.",
@@ -3923,14 +3876,6 @@
             "type": "object",
             "$ref": "#/definitions/usersUser"
           }
-        }
-      }
-    },
-    "usersUpdateMembershipResponse": {
-      "type": "object",
-      "properties": {
-        "user": {
-          "$ref": "#/definitions/usersUser"
         }
       }
     },
@@ -4126,31 +4071,6 @@
         }
       }
     },
-    "v1usersUpdateMembership": {
-      "type": "object",
-      "properties": {
-        "metadata": {
-          "description": "Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "example": {
-            "department": "engineering",
-            "location": "nyc-office"
-          }
-        },
-        "roles": {
-          "description": "Role to assign to the user within the organization",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/commonsRole"
-          },
-          "example": "admin"
-        }
-      }
-    },
     "v1usersUpdateUser": {
       "type": "object",
       "properties": {
@@ -4183,7 +4103,6 @@
       "name": "Organizations"
     },
     {
-      "description": "Complete user lifecycle and organization membership operations. Create, retrieve, update, and delete users. Manage organization memberships and search across your environment.",
       "name": "Users"
     },
     {
