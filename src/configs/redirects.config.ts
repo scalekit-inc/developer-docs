@@ -5,6 +5,9 @@ export const redirects = {
   '/reference/errors': '/reference/sso/sso-integration-errors/',
   '/sso/social-login': '/social-logins/quickstart/',
   '/sso/social-logins-quickstart': '/social-logins/quickstart/',
+  '/guides/sso/sso-basics/': '/sso/guides/sso-basics/',
+  '/guides/sso/test-sso/': '/sso/guides/test-sso/',
+  '/guides/sso/launch-checklist/': '/sso/guides/launch-checklist/',
 
   // SSO Guides
   '/sso/guides/setup-sso/implement-idp-initiated-sso': '/guides/sso/idp-init-sso/',

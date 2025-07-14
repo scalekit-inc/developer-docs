@@ -59,11 +59,11 @@ export const sidebar = [
       {
         label: 'Getting started',
         items: [
-          'guides/sso/sso-basics',
+          'sso/guides/sso-basics',
           'sso/quickstart',
-          'guides/sso/test-sso',
+          'sso/guides/test-sso',
           'guides/sso/admin-portal',
-          'guides/sso/launch-checklist',
+          'sso/guides/launch-checklist',
         ],
       },
       {
