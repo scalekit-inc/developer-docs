@@ -1,7 +1,13 @@
 {
-  "consumes": ["application/json"],
-  "produces": ["application/json"],
-  "schemes": ["https"],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https"
+  ],
   "swagger": "2.0",
   "info": {
     "description": "# Introduction\n\nThe Scalekit API is a RESTful API that enables you to manage organizations, users, and authentication settings. All requests must use HTTPS.\n\n# Base URL\n\nAll API requests use the following base URLs:\n\n```\nhttps://{environment}.scalekit.dev (Development)\nhttps://{environment}.scalekit.com (Production)\nhttps://auth.example.com (Custom domain)\n```\n\nScalekit operates two separate environments: Development and Production. Resources cannot be moved between environments.\n\n# Authentication\n\nThe Scalekit API uses OAuth 2.0 Client Credentials for authentication.\n\nGetting an access token\n\n1. Get your credentials from the [Scalekit Dashboard](https://app.scalekit.com):\n\n   - environment\n   - client_id\n   - client_secret\n\n2. Request an access token:\n\n```shell\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/oauth/token \\\n  -X POST \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  -d 'client_id={client_id}' \\\n  -d 'client_secret={client_secret}' \\\n  -d 'grant_type=client_credentials'\n```\n\n3. Use the access token in API requests:\n\n```shell\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/api/v1/organizations \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer {access_token}'\n```\n\nThe response includes an access token:\n\n```json\n{\n\t\"access_token\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6InNua181Ok4OTEyMjU2NiIsInR5cCI6IkpXVCJ9...\",\n\t\"token_type\": \"Bearer\",\n\t\"expires_in\": 86399,\n\t\"scope\": \"openid\"\n}\n```\n\n# Response Codes\n\nThe API uses standard HTTP status codes:\n\n| Code        | Description          |\n| ----------- | -------------------- |\n| 200/201     | Success              |\n| 400         | Invalid request      |\n| 401         | Authentication error |\n| 404         | Resource not found   |\n| 429         | Rate limit exceeded  |\n| 500/501/504 | Server error         |\n\nError responses include detailed information:\n\n```json\n{\n\t\"code\": 16,\n\t\"message\": \"Token empty\",\n\t\"details\": [\n\t\t{\n\t\t\t\"@type\": \"type.googleapis.com/scalekit.v1.errdetails.ErrorInfo\",\n\t\t\t\"error_code\": \"UNAUTHENTICATED\"\n\t\t}\n\t]\n}\n```\n",
@@ -22,7 +28,9 @@
     "/api/v1/connections": {
       "get": {
         "description": "Retrieves a list of connections in the environment",
-        "tags": ["Connections"],
+        "tags": [
+          "Connections"
+        ],
         "summary": "List connections",
         "operationId": "ConnectionService_ListConnections",
         "parameters": [
@@ -40,7 +48,7 @@
           },
           {
             "type": "string",
-            "description": "Comma-separated list of additional fields to include in the response",
+            "description": "Filter connections by status. Use 'all' to include all connections regardless of status. Default behavior shows only active (completed and enabled) connections",
             "name": "include",
             "in": "query"
           }
@@ -80,7 +88,9 @@
     "/api/v1/memberships/organizations/{organization_id}/users/{id}": {
       "post": {
         "description": "Adds an existing user to an organization and assigns them specific roles and permissions. Use this endpoint when you want to grant an existing user access to a particular organization. You can specify roles, metadata, and other membership details during the invitation process.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Add existing user to organization",
         "operationId": "UserService_CreateMembership",
         "parameters": [
@@ -153,7 +163,9 @@
       },
       "delete": {
         "description": "Removes a user from an organization by user ID or external ID. If the user has no memberships left and cascade is true, the user is also deleted. This action is irreversible and may also remove related group memberships.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Delete organization membership for user",
         "operationId": "UserService_DeleteMembership",
         "parameters": [
@@ -196,7 +208,9 @@
     "/api/v1/organizations": {
       "get": {
         "description": "Retrieve a paginated list of organizations within your environment. The response includes a `page_token` that can be used to access subsequent pages of results.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "List organizations",
         "externalDocs": {
           "description": "Learn more about organization listing",
@@ -261,7 +275,9 @@
       },
       "post": {
         "description": "Creates a new organization in your environment. Use this endpoint to add a new tenant that can be configured with various settings and metadata",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Create an organization",
         "operationId": "OrganizationService_CreateOrganization",
         "parameters": [
@@ -308,41 +324,12 @@
         ]
       }
     },
-    "/api/v1/organizations/-/connections": {
-      "get": {
-        "description": "Retrieves a list of connections for all the organizations",
-        "tags": ["Connections"],
-        "summary": "List organization connections",
-        "operationId": "ConnectionService_ListOrganizationConnections",
-        "parameters": [
-          {
-            "type": "integer",
-            "format": "int64",
-            "description": "Maximum number of organizations to return per page. Value must be between 1 and 30.",
-            "name": "page_size",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Token from a previous response for pagination. Provide this to retrieve the next page of results.",
-            "name": "page_token",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved connections",
-            "schema": {
-              "$ref": "#/definitions/connectionsSearchOrganizationConnectionsResponse"
-            }
-          }
-        }
-      }
-    },
     "/api/v1/organizations/{id}": {
       "get": {
         "description": "Retrieves organization details by Scalekit ID, including name, region, metadata, and settings",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Get organization details",
         "operationId": "OrganizationService_GetOrganization",
         "parameters": [
@@ -387,7 +374,9 @@
       },
       "delete": {
         "description": "Remove an existing organization from the environment using its unique identifier",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Delete an organization",
         "operationId": "OrganizationService_DeleteOrganization",
         "parameters": [
@@ -430,7 +419,9 @@
       },
       "patch": {
         "description": "Updates an organization's display name, external ID, or metadata. Requires a valid organization identifier. Region code cannot be modified through this endpoint.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Update organization details",
         "operationId": "OrganizationService_UpdateOrganization",
         "parameters": [
@@ -486,7 +477,9 @@
     "/api/v1/organizations/{id}/portal_links": {
       "put": {
         "description": "Creates a time-limited Admin Portal URL for IT administrators to configure and manage Single Sign-On (SSO) connections within their organization. Generated links expire after 7 days (168 hours).",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Generate admin portal link",
         "operationId": "OrganizationService_GeneratePortalLink",
         "parameters": [
@@ -500,7 +493,10 @@
           {
             "type": "array",
             "items": {
-              "enum": ["dir_sync", "sso"],
+              "enum": [
+                "dir_sync",
+                "sso"
+              ],
               "type": "string"
             },
             "collectionFormat": "multi",
@@ -544,7 +540,9 @@
     "/api/v1/organizations/{id}/settings": {
       "patch": {
         "description": "Updates configuration settings for an organization. Supports modifying SSO configuration, directory synchronization settings, and session parameters. Requires organization ID and the specific settings to update.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Toggle organization settings",
         "operationId": "OrganizationService_UpdateOrganizationSettings",
         "parameters": [
@@ -620,7 +618,9 @@
     "/api/v1/organizations/{organization_id}/clients": {
       "post": {
         "description": "Creates a new API client for an organization. Returns the client details and a plain secret (available only once).",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Create organization API client",
         "operationId": "ClientService_CreateOrganizationClient",
         "parameters": [
@@ -661,7 +661,9 @@
     "/api/v1/organizations/{organization_id}/clients/{client_id}": {
       "get": {
         "description": "Retrieves details of a specific API client in an organization.",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Get organization API client",
         "operationId": "ClientService_GetOrganizationClient",
         "parameters": [
@@ -698,7 +700,9 @@
       },
       "delete": {
         "description": "Permanently deletes an API client from an organization. This operation cannot be undone and will revoke all access for the client. All associated secrets will also be invalidated. Use this endpoint to remove unused or compromised clients.",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Delete organization API client",
         "operationId": "ClientService_DeleteOrganizationClient",
         "parameters": [
@@ -733,7 +737,9 @@
       },
       "patch": {
         "description": "Updates an existing organization API client. Only specified fields are modified.",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Update organization API client",
         "operationId": "ClientService_UpdateOrganizationClient",
         "parameters": [
@@ -781,7 +787,9 @@
     "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
       "post": {
         "description": "Creates a new secret for an organization API client. Returns the plain secret (available only once).",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Create organization API client secret",
         "operationId": "ClientService_CreateOrganizationClientSecret",
         "parameters": [
@@ -820,7 +828,9 @@
     "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets/{secret_id}": {
       "delete": {
         "description": "Permanently deletes a secret from an organization API client. This operation cannot be undone.",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Delete organization API client secret",
         "operationId": "ClientService_DeleteOrganizationClientSecret",
         "parameters": [
@@ -864,7 +874,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}": {
       "get": {
         "description": "Retrieves the complete configuration and status details for a specific connection by its ID within an organization. Returns all connection properties including provider settings, protocols, and current status.",
-        "tags": ["Connections"],
+        "tags": [
+          "Connections"
+        ],
         "summary": "Get connection details",
         "operationId": "ConnectionService_GetConnection",
         "parameters": [
@@ -918,7 +930,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:disable": {
       "patch": {
         "description": "Deactivate an existing connection for the specified organization. When disabled, users cannot authenticate using this connection. This endpoint changes the connection state from enabled to disabled without modifying other configuration settings",
-        "tags": ["Connections"],
+        "tags": [
+          "Connections"
+        ],
         "summary": "Disable organization connection",
         "operationId": "ConnectionService_DisableConnection",
         "parameters": [
@@ -972,7 +986,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:enable": {
       "patch": {
         "description": "Activate an existing connection for the specified organization. When enabled, users can authenticate using this connection. This endpoint changes the connection state from disabled to enabled without modifying other configuration settings",
-        "tags": ["Connections"],
+        "tags": [
+          "Connections"
+        ],
         "summary": "Enable organization connection",
         "operationId": "ConnectionService_EnableConnection",
         "parameters": [
@@ -1025,7 +1041,9 @@
     },
     "/api/v1/organizations/{organization_id}/directories": {
       "get": {
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List organization directories",
         "operationId": "DirectoryService_ListDirectories",
         "parameters": [
@@ -1072,7 +1090,9 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/groups": {
       "get": {
         "description": "Retrieves all groups from a specified directory. Use this endpoint to view group structures from your connected identity provider.",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List directory groups",
         "operationId": "DirectoryService_ListDirectoryGroups",
         "parameters": [
@@ -1158,7 +1178,9 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/users": {
       "get": {
         "description": "Retrieves a list of all users within a specified directory for an organization. This endpoint allows you to view user accounts associated with your connected Directory Providers.",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List directory users",
         "operationId": "DirectoryService_ListDirectoryUsers",
         "parameters": [
@@ -1244,7 +1266,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}": {
       "get": {
         "description": "Retrieves detailed information about a specific directory within an organization",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Get directory details",
         "operationId": "DirectoryService_GetDirectory",
         "parameters": [
@@ -1298,7 +1322,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:disable": {
       "patch": {
         "description": "Stops synchronization of users and groups from a specified directory within an organization. This operation prevents further updates from the connected Directory provider",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Disable a directory",
         "operationId": "DirectoryService_DisableDirectory",
         "parameters": [
@@ -1352,7 +1378,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:enable": {
       "patch": {
         "description": "Activates a directory within an organization, allowing it to synchronize users and groups with the connected Directory provider",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Enable a directory",
         "operationId": "DirectoryService_EnableDirectory",
         "parameters": [
@@ -1406,7 +1434,9 @@
     "/api/v1/organizations/{organization_id}/users": {
       "get": {
         "description": "Retrieves a paginated list of all users who are members of the specified organization. Use this endpoint to view all users with access to a particular organization, including their roles, metadata, and membership details. Supports pagination for large user lists.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "List organization users",
         "operationId": "UserService_ListOrganizationUsers",
         "parameters": [
@@ -1464,7 +1494,9 @@
       },
       "post": {
         "description": "Creates a new user account and immediately adds them to the specified organization. Use this endpoint when you want to create a user and grant them access to an organization in a single operation. You can provide user profile information, assign roles, and configure membership metadata. The user receives an activation email unless this feature is disabled in the organization settings.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Create new user in organization",
         "operationId": "UserService_CreateUserAndMembership",
         "parameters": [
@@ -1524,7 +1556,9 @@
     "/api/v1/passwordless/email/resend": {
       "post": {
         "description": "Resend a verification email if the user didn't receive it or if the previous code/link has expired",
-        "tags": ["Passwordless Auth"],
+        "tags": [
+          "Passwordless Auth"
+        ],
         "summary": "Resend passwordless email",
         "operationId": "PasswordlessService_ResendPasswordlessEmail",
         "parameters": [
@@ -1557,7 +1591,9 @@
     "/api/v1/passwordless/email/send": {
       "post": {
         "description": "Send a verification email containing either a verification code (OTP), magic link, or both to a user's email address",
-        "tags": ["Passwordless Auth"],
+        "tags": [
+          "Passwordless Auth"
+        ],
         "summary": "Send passwordless email",
         "operationId": "PasswordlessService_SendPasswordlessEmail",
         "parameters": [
@@ -1590,7 +1626,9 @@
     "/api/v1/passwordless/email/verify": {
       "post": {
         "description": "Verify a user's identity using either a verification code or magic link token",
-        "tags": ["Passwordless Auth"],
+        "tags": [
+          "Passwordless Auth"
+        ],
         "summary": "Verify passwordless email",
         "operationId": "PasswordlessService_VerifyPasswordlessEmail",
         "parameters": [
@@ -1623,7 +1661,9 @@
     "/api/v1/users": {
       "get": {
         "description": "Retrieves a paginated list of all users across your entire environment. Use this endpoint to view all users regardless of their organization memberships. This is useful for administrative purposes, user audits, or when you need to see all users in your Scalekit environment. Supports pagination for large user bases.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "List all users in environment",
         "operationId": "UserService_ListUsers",
         "parameters": [
@@ -1676,7 +1716,9 @@
     "/api/v1/users/{id}": {
       "get": {
         "description": "Retrieves all details for a user by system-generated user ID or external ID. The response includes organization memberships and user metadata.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get user",
         "operationId": "UserService_GetUser",
         "parameters": [
@@ -1727,7 +1769,9 @@
       },
       "delete": {
         "description": "Permanently removes a user from your environment and deletes all associated data. Use this endpoint when you need to completely remove a user account. This action deletes the user's profile, memberships, and all related data across all organizations. This operation cannot be undone, so use with caution.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Delete user permanently",
         "operationId": "UserService_DeleteUser",
         "parameters": [
@@ -1776,7 +1820,9 @@
       },
       "patch": {
         "description": "Modifies user account information including profile details, metadata, and external ID. Use this endpoint to update a user's personal information, contact details, or custom metadata. You can update the user's profile, phone number, and metadata fields. Note that fields like user ID, email address, environment ID, and creation time cannot be modified.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Update user information",
         "operationId": "UserService_UpdateUser",
         "parameters": [
@@ -1843,7 +1889,11 @@
   "definitions": {
     "authpasswordlessPasswordlessType": {
       "type": "string",
-      "enum": ["OTP", "LINK", "LINK_OTP"]
+      "enum": [
+        "OTP",
+        "LINK",
+        "LINK_OTP"
+      ]
     },
     "authpasswordlessVerifyPasswordLessRequest": {
       "type": "object",
@@ -1951,7 +2001,9 @@
     "clientsClientSecretStatus": {
       "description": "ClientSecretStatus indicates whether a client secret can be used for authentication.\nACTIVE secrets can be used for authentication while INACTIVE secrets cannot.\n\n - INACTIVE: The secret is inactive and cannot be used for authentication",
       "type": "string",
-      "enum": ["INACTIVE"]
+      "enum": [
+        "INACTIVE"
+      ]
     },
     "clientsCreateOrganizationClientResponse": {
       "type": "object",
@@ -2014,7 +2066,9 @@
           "items": {
             "type": "string"
           },
-          "example": ["https://api.example.com"]
+          "example": [
+            "https://api.example.com"
+          ]
         },
         "client_id": {
           "description": "The unique identifier for this API client. This ID is used to identify the client in API requests and logs. It is automatically generated when the client is created and cannot be modified.",
@@ -2075,7 +2129,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["deploy:resources", "read:deployments"]
+          "example": [
+            "deploy:resources",
+            "read:deployments"
+          ]
         },
         "secrets": {
           "description": "List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.",
@@ -2147,7 +2204,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["deploy:resources", "read:deployments"]
+          "example": [
+            "deploy:resources",
+            "read:deployments"
+          ]
         }
       }
     },
@@ -2183,7 +2243,11 @@
     },
     "commonsMembershipStatus": {
       "type": "string",
-      "enum": ["ACTIVE", "INACTIVE", "PENDING_INVITE"]
+      "enum": [
+        "ACTIVE",
+        "INACTIVE",
+        "PENDING_INVITE"
+      ]
     },
     "commonsOrganizationMembership": {
       "type": "object",
@@ -2229,7 +2293,10 @@
     },
     "commonsRegionCode": {
       "type": "string",
-      "enum": ["US", "EU"]
+      "enum": [
+        "US",
+        "EU"
+      ]
     },
     "commonsRole": {
       "type": "object",
@@ -2318,11 +2385,17 @@
     },
     "connectionsCodeChallengeType": {
       "type": "string",
-      "enum": ["NUMERIC", "ALPHANUMERIC"]
+      "enum": [
+        "NUMERIC",
+        "ALPHANUMERIC"
+      ]
     },
     "connectionsConfigurationType": {
       "type": "string",
-      "enum": ["DISCOVERY", "MANUAL"]
+      "enum": [
+        "DISCOVERY",
+        "MANUAL"
+      ]
     },
     "connectionsConnection": {
       "type": "object",
@@ -2430,11 +2503,21 @@
     },
     "connectionsConnectionStatus": {
       "type": "string",
-      "enum": ["DRAFT", "IN_PROGRESS", "COMPLETED"]
+      "enum": [
+        "DRAFT",
+        "IN_PROGRESS",
+        "COMPLETED"
+      ]
     },
     "connectionsConnectionType": {
       "type": "string",
-      "enum": ["OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS"]
+      "enum": [
+        "OIDC",
+        "SAML",
+        "PASSWORD",
+        "OAUTH",
+        "PASSWORDLESS"
+      ]
     },
     "connectionsGetConnectionResponse": {
       "type": "object",
@@ -2485,7 +2568,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["yourapp.com", "yourworkspace.com"]
+          "example": [
+            "yourapp.com",
+            "yourworkspace.com"
+          ]
         },
         "enabled": {
           "description": "Whether the connection is currently active for organization users",
@@ -2543,32 +2629,14 @@
         }
       }
     },
-    "connectionsListOrganizationConnectionsResponse": {
-      "type": "object",
-      "properties": {
-        "connections": {
-          "description": "List of connections matching the filter criteria",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/connectionsListConnection"
-          }
-        },
-        "next_page_token": {
-          "type": "string"
-        },
-        "prev_page_token": {
-          "type": "string"
-        },
-        "total_size": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
     "connectionsNameIdFormat": {
       "type": "string",
-      "enum": ["UNSPECIFIED", "EMAIL", "TRANSIENT", "PERSISTENT"]
+      "enum": [
+        "UNSPECIFIED",
+        "EMAIL",
+        "TRANSIENT",
+        "PERSISTENT"
+      ]
     },
     "connectionsOAuthConnectionConfig": {
       "type": "object",
@@ -2609,7 +2677,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["openid", "profile"]
+          "example": [
+            "openid",
+            "profile"
+          ]
         },
         "token_uri": {
           "description": "Token URI",
@@ -2694,7 +2765,10 @@
           "items": {
             "$ref": "#/definitions/connectionsOIDCScope"
           },
-          "example": ["openid", "profile"]
+          "example": [
+            "openid",
+            "profile"
+          ]
         },
         "token_auth_type": {
           "description": "Token Auth Type",
@@ -2715,7 +2789,13 @@
     },
     "connectionsOIDCScope": {
       "type": "string",
-      "enum": ["openid", "profile", "email", "address", "phone"]
+      "enum": [
+        "openid",
+        "profile",
+        "email",
+        "address",
+        "phone"
+      ]
     },
     "connectionsPasswordLessConfig": {
       "type": "object",
@@ -2757,11 +2837,18 @@
     },
     "connectionsPasswordlessType": {
       "type": "string",
-      "enum": ["LINK", "OTP", "LINK_OTP"]
+      "enum": [
+        "LINK",
+        "OTP",
+        "LINK_OTP"
+      ]
     },
     "connectionsRequestBinding": {
       "type": "string",
-      "enum": ["HTTP_POST", "HTTP_REDIRECT"]
+      "enum": [
+        "HTTP_POST",
+        "HTTP_REDIRECT"
+      ]
     },
     "connectionsSAMLConnectionConfigResponse": {
       "type": "object",
@@ -2888,29 +2975,6 @@
         "SAML_RESPONSE_OR_ASSERTION_SIGNING"
       ]
     },
-    "connectionsSearchOrganizationConnectionsResponse": {
-      "type": "object",
-      "properties": {
-        "connections": {
-          "description": "List of connections matching the filter criteria",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/connectionsListConnection"
-          }
-        },
-        "next_page_token": {
-          "type": "string"
-        },
-        "prev_page_token": {
-          "type": "string"
-        },
-        "total_size": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
     "connectionsToggleConnectionResponse": {
       "type": "object",
       "properties": {
@@ -2928,7 +2992,10 @@
     },
     "connectionsTokenAuthType": {
       "type": "string",
-      "enum": ["URL_PARAMS", "BASIC_AUTH"]
+      "enum": [
+        "URL_PARAMS",
+        "BASIC_AUTH"
+      ]
     },
     "directoriesAttributeMapping": {
       "type": "object",
@@ -3079,11 +3146,23 @@
     },
     "directoriesDirectoryProvider": {
       "type": "string",
-      "enum": ["OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "JUMPCLOUD", "PING_IDENTITY"]
+      "enum": [
+        "OKTA",
+        "GOOGLE",
+        "MICROSOFT_AD",
+        "AUTH0",
+        "ONELOGIN",
+        "JUMPCLOUD",
+        "PING_IDENTITY"
+      ]
     },
     "directoriesDirectoryType": {
       "type": "string",
-      "enum": ["SCIM", "LDAP", "POLL"]
+      "enum": [
+        "SCIM",
+        "LDAP",
+        "POLL"
+      ]
     },
     "directoriesDirectoryUser": {
       "type": "object",
@@ -3282,7 +3361,9 @@
     },
     "directoriesSecretStatus": {
       "type": "string",
-      "enum": ["INACTIVE"]
+      "enum": [
+        "INACTIVE"
+      ]
     },
     "directoriesStats": {
       "type": "object",
@@ -3341,7 +3422,10 @@
       "description": "- dir_sync: dir_sync enables directory synchronization configuration in the portal\n - sso: sso enables Single Sign-On (SSO) configuration in the portal",
       "type": "string",
       "title": "Feature represents the available features that can be enabled for an organization's portal link",
-      "enum": ["dir_sync", "sso"]
+      "enum": [
+        "dir_sync",
+        "sso"
+      ]
     },
     "organizationsGeneratePortalLinkResponse": {
       "type": "object",
@@ -3413,7 +3497,9 @@
     },
     "organizationsOrganization": {
       "type": "object",
-      "required": ["create_time"],
+      "required": [
+        "create_time"
+      ],
       "properties": {
         "create_time": {
           "description": "Timestamp when the organization was created",
@@ -3507,7 +3593,10 @@
       "description": "Controls the activation state of a specific organization feature",
       "type": "object",
       "title": "Organization Feature Toggle",
-      "required": ["name", "enabled"],
+      "required": [
+        "name",
+        "enabled"
+      ],
       "properties": {
         "enabled": {
           "description": "Whether the feature is enabled (true) or disabled (false) for this organization",
@@ -3613,7 +3702,10 @@
     },
     "passwordlessTemplateType": {
       "type": "string",
-      "enum": ["SIGNIN", "SIGNUP"]
+      "enum": [
+        "SIGNIN",
+        "SIGNUP"
+      ]
     },
     "protobufNullValue": {
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.",
