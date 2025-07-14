@@ -56,6 +56,7 @@ export function extractApiRecords(swagger) {
           lvl1: `${tag} API`,
           lvl2: summary || `${method.toUpperCase()} ${path}`,
         },
+        parameters: parameters,
       }
 
       records.push(endpointRecord)
