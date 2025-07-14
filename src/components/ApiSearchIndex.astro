@@ -1,27 +1,27 @@
 ---
 // This component will be hidden but contain all API endpoints for Pagefind to index
 
-import { extractApiRecords } from '../../scripts/search-index-apis';
-import fs from 'fs';
-import path from 'path';
-import AnchorHeading from '@astrojs/starlight/components/AnchorHeading.astro';
+import { extractApiRecords } from '../../scripts/search-index-apis'
+import fs from 'fs'
+import path from 'path'
+import AnchorHeading from '@astrojs/starlight/components/AnchorHeading.astro'
 
 // Load Swagger spec
-const swaggerPath = path.join(process.cwd(), 'public/api/scalekit.swagger.json');
-const swaggerContent = fs.readFileSync(swaggerPath, 'utf8');
-const swagger = JSON.parse(swaggerContent);
-const records = extractApiRecords(swagger);
-const endpointRecords = records.filter((r) => r.type === 'api-endpoint');
+const swaggerPath = path.join(process.cwd(), 'public/api/scalekit.swagger.json')
+const swaggerContent = fs.readFileSync(swaggerPath, 'utf8')
+const swagger = JSON.parse(swaggerContent)
+const records = extractApiRecords(swagger)
+const endpointRecords = records.filter((r) => r.type === 'api-endpoint')
 
 // Group endpoints by tag for better organization
 const groupedEndpoints = endpointRecords.reduce((acc: Record<string, any[]>, record: any) => {
-  const tag = record.tag || 'Other';
+  const tag = record.tag || 'Other'
   if (!acc[tag]) {
-    acc[tag] = [];
+    acc[tag] = []
   }
-  acc[tag].push(record);
-  return acc;
-}, {});
+  acc[tag].push(record)
+  return acc
+}, {})
 ---
 
 <!-- Hidden from UI but indexed by Pagefind -->
@@ -29,26 +29,30 @@ const groupedEndpoints = endpointRecords.reduce((acc: Record<string, any[]>, rec
   <AnchorHeading level="1" id="api-reference">API Reference</AnchorHeading>
   <p>Complete reference for all Scalekit API endpoints</p>
 
-  {Object.entries(groupedEndpoints).map(([tag, endpoints]: [string, any[]]) => (
-    <section class="api-section">
-      <AnchorHeading level="2" id={`${tag.toLowerCase()}-apis`}>{tag} APIs</AnchorHeading>
-      <ul class="api-endpoint-list">
-        {endpoints.map((record: any) => (
-          <li class="api-endpoint-item">
-            <AnchorHeading level="3" id={`${record.title.toLowerCase().replace(/\s+/g, '-')}`}>
-              <a href={record.url}>{record.title}</a>
-            </AnchorHeading>
-            <p class="api-endpoint-description">{record.description}</p>
-            <div class="api-endpoint-meta">
-              <span class="api-method">{record.method}</span>
-              <code class="api-path">{record.path}</code>
-              <span class="api-tag">{record.tag}</span>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </section>
-  ))}
+  {
+    Object.entries(groupedEndpoints).map(([tag, endpoints]: [string, any[]]) => (
+      <section class="api-section">
+        <AnchorHeading level="2" id={`${tag.toLowerCase()}-apis`}>
+          {tag} APIs
+        </AnchorHeading>
+        <ul class="api-endpoint-list">
+          {endpoints.map((record: any) => (
+            <li class="api-endpoint-item">
+              <AnchorHeading level="3" id={record.url.split('#')[1]}>
+                <a href={record.url}>{record.title}</a>
+              </AnchorHeading>
+              <p class="api-endpoint-description">{record.description}</p>
+              <div class="api-endpoint-meta">
+                <span class="api-method">{record.method}</span>
+                <code class="api-path">{record.path}</code>
+                <span class="api-tag">{record.tag}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
 </div>
 <!-- Because the API reference is hidden, we don't need to style it
 <style>
