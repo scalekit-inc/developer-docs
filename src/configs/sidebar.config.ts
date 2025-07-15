@@ -59,11 +59,11 @@ export const sidebar = [
       {
         label: 'Getting started',
         items: [
-          'guides/sso/sso-basics',
+          'sso/guides/sso-basics',
           'sso/quickstart',
-          'guides/sso/test-sso',
+          'sso/guides/test-sso',
           'guides/sso/admin-portal',
-          'guides/sso/launch-checklist',
+          'sso/guides/launch-checklist',
         ],
       },
       {
@@ -83,12 +83,12 @@ export const sidebar = [
         label: 'Guides',
         items: [
           'guides/custom-domain',
-          'guides/sso/add-login-ux-sso',
-          'guides/sso/idp-init-sso',
-          'guides/sso/okta-sso-test',
-          'guides/sso/sso-user-attributes',
-          'reference/sso/sso-integration-errors',
-          'reference/redirects',
+          'sso/guides/add-login-ux-sso',
+          'sso/guides/idp-init-sso',
+          'sso/guides/okta-sso-test',
+          'sso/guides/sso-user-attributes',
+          'sso/reference/sso-integration-errors',
+          'sso/reference/redirects',
           {
             label: 'Coexist with',
             autogenerate: { directory: 'guides/integrations/auth-systems' },
@@ -96,9 +96,9 @@ export const sidebar = [
           {
             label: 'Concepts',
             items: [
-              'guides/sso/authorization-url',
+              'sso/guides/authorization-url',
               'guides/idtoken-claims',
-              'guides/sso/user-profile-details',
+              'sso/guides/user-profile-details',
               'guides/client-credentials-practices',
             ],
           },
