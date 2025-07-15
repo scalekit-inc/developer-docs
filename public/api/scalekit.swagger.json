@@ -781,6 +781,70 @@
         ]
       }
     },
+    "/api/v1/organizations/{organization_id}/settings/usermanagement": {
+      "get": {
+        "description": "Retrieves the user management settings for a specific organization.",
+        "tags": ["Organizations"],
+        "summary": "Get organization user management setting",
+        "operationId": "OrganizationService_GetOrganizationUserManagementSetting",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of the organization.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the requested organization setting.",
+            "schema": {
+              "$ref": "#/definitions/organizationsGetOrganizationUserManagementSettingsRequest"
+            }
+          },
+          "404": {
+            "description": "Organization or setting not found.",
+            "schema": {}
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates user management settings for an organization",
+        "tags": ["Organizations"],
+        "summary": "Update organization user setting",
+        "operationId": "OrganizationService_UpdateUserManagementSettings",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of the organization.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrganizationServiceUpdateUserManagementSettingsBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated organization setting.",
+            "schema": {
+              "$ref": "#/definitions/organizationsUpdateUserManagementSettingsResponse"
+            }
+          },
+          "404": {
+            "description": "Organization or setting not found.",
+            "schema": {}
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
       "post": {
         "description": "Creates a new secret for an organization API client. Returns the plain secret (available only once).",
@@ -1807,9 +1871,198 @@
           }
         ]
       }
+    },
+    "/api/v1/roles": {
+      "get": {
+        "description": "Retrieve a list of roles available within the environment. Supports pagination through standard query parameters.",
+        "tags": ["Roles"],
+        "summary": "List roles",
+        "operationId": "RolesService_ListRoles",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "env_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of roles",
+            "schema": {
+              "$ref": "#/definitions/rolesListRolesResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new role within the environment. Roles define permissions that can be assigned to users or groups.",
+        "tags": ["Roles"],
+        "summary": "Create a role",
+        "operationId": "RolesService_CreateRole",
+        "parameters": [
+          {
+            "name": "role",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1rolesCreateRole"
+            }
+          },
+          {
+            "type": "string",
+            "name": "env_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Role created successfully",
+            "schema": {
+              "$ref": "#/definitions/rolesCreateRoleResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.roles.roles_pb2 import CreateRole\n\nrole = CreateRole(\n    name=\"viewer\",\n    display_name=\"Viewer\",\n    description=\"Read-only access\",\n)\n\ncreate_response = scalekit_client.roles.create_role(\n    env_id=\"env_123\",\n    role=role,\n)"
+          }
+        ]
+      }
+    },
+    "/api/v1/roles/{id}": {
+      "get": {
+        "description": "Fetch detailed information about a specific role using its unique identifier.",
+        "tags": ["Roles"],
+        "summary": "Retrieve a role",
+        "operationId": "RolesService_GetRole",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "env_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved role details",
+            "schema": {
+              "$ref": "#/definitions/rolesGetRoleResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Updates an existing role identified by its unique ID. Only provided fields are modified.",
+        "tags": ["Roles"],
+        "summary": "Update a role",
+        "operationId": "RolesService_UpdateRole",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "role",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1rolesUpdateRole"
+            }
+          },
+          {
+            "type": "string",
+            "name": "env_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role updated successfully",
+            "schema": {
+              "$ref": "#/definitions/rolesUpdateRoleResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Removes an existing role from the environment using its unique identifier. Optionally reassign users to another role.",
+        "tags": ["Roles"],
+        "summary": "Delete a role",
+        "operationId": "RolesService_DeleteRole",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "env_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Role ID to reassign users to when deleting this role",
+            "name": "reassign_role_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted Successfully",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/v1/roles/default": {
+      "patch": {
+        "description": "Updates the default creator and member roles for the environment.",
+        "tags": ["Roles"],
+        "summary": "Update default roles",
+        "operationId": "RolesService_UpdateDefaultRoles",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/rolesUpdateDefaultRolesRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default roles updated successfully",
+            "schema": {
+              "$ref": "#/definitions/rolesUpdateDefaultRolesResponse"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
+    "OrganizationServiceUpdateUserManagementSettingsBody": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "description": "The new values for the setting fields to patch.",
+          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
+        }
+      }
+    },
     "authpasswordlessPasswordlessType": {
       "type": "string",
       "enum": ["OTP", "LINK", "LINK_OTP"]
@@ -2129,27 +2382,6 @@
         }
       }
     },
-    "commonsIdentityProviderType": {
-      "type": "string",
-      "enum": [
-        "OKTA",
-        "GOOGLE",
-        "MICROSOFT_AD",
-        "AUTH0",
-        "ONELOGIN",
-        "PING_IDENTITY",
-        "JUMPCLOUD",
-        "CUSTOM",
-        "GITHUB",
-        "GITLAB",
-        "LINKEDIN",
-        "SALESFORCE",
-        "MICROSOFT",
-        "IDP_SIMULATOR",
-        "SCALEKIT",
-        "ADFS"
-      ]
-    },
     "commonsMembershipStatus": {
       "type": "string",
       "enum": ["ACTIVE", "INACTIVE", "PENDING_INVITE"]
@@ -2157,6 +2389,11 @@
     "commonsOrganizationMembership": {
       "type": "object",
       "properties": {
+        "display_name": {
+          "description": "Display name for the Organization name.",
+          "type": "string",
+          "example": "AcmeCorp"
+        },
         "join_time": {
           "description": "Timestamp when the membership was created. Automatically set by the server.",
           "type": "string",
@@ -2177,15 +2414,14 @@
           }
         },
         "name": {
-          "type": "string"
+          "description": "Display name for the Organization name.",
+          "type": "string",
+          "example": "AcmeCorp"
         },
         "organization_id": {
           "description": "Unique identifier for the organization. Immutable and read-only.",
           "type": "string",
           "example": "org_1234abcd5678efgh"
-        },
-        "primary_identity_provider": {
-          "$ref": "#/definitions/commonsIdentityProviderType"
         },
         "roles": {
           "type": "array",
@@ -3284,6 +3520,24 @@
         }
       }
     },
+    "organizationsGetOrganizationUserManagementSettingsRequest": {
+      "type": "object",
+      "properties": {
+        "organization_id": {
+          "description": "ID of the organization.",
+          "type": "string"
+        }
+      }
+    },
+    "organizationsGetOrganizationUserManagementSettingsResponse": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "description": "List of organization settings.",
+          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
+        }
+      }
+    },
     "organizationsLink": {
       "type": "object",
       "properties": {
@@ -3444,12 +3698,36 @@
         }
       }
     },
+    "organizationsOrganizationUserManagementSettings": {
+      "type": "object",
+      "properties": {
+        "jit_provisioning_with_sso_enabled": {
+          "description": "Enables or disables user management features for the organization. When true, users can be added, removed, and managed.",
+          "type": "boolean",
+          "example": true
+        },
+        "sync_user_profile_on_signin": {
+          "description": "Enables or disables synchronization of user profiles upon sign-in. When true, user profiles are automatically updated with the latest information from the identity provider.",
+          "type": "boolean",
+          "example": true
+        }
+      }
+    },
     "organizationsUpdateOrganizationResponse": {
       "type": "object",
       "properties": {
         "organization": {
           "description": "Updated organization details",
           "$ref": "#/definitions/organizationsOrganization"
+        }
+      }
+    },
+    "organizationsUpdateUserManagementSettingsResponse": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "description": "The updated setting.",
+          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
         }
       }
     },
@@ -3541,6 +3819,105 @@
     "protobufNullValue": {
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.",
       "type": "string"
+    },
+    "rolesCreateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/v1rolesRole"
+        }
+      }
+    },
+    "rolesGetRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/v1rolesRole"
+        }
+      }
+    },
+    "rolesListRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1rolesRole"
+          }
+        }
+      }
+    },
+    "rolesUpdateDefaultRole": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Role ID to set as default creator/member",
+          "type": "string",
+          "example": "role_1234567890"
+        }
+      }
+    },
+    "rolesUpdateDefaultRolesRequest": {
+      "type": "object",
+      "properties": {
+        "default_creator": {
+          "description": "Default Creator Role",
+          "$ref": "#/definitions/rolesUpdateDefaultRole",
+          "example": {
+            "description": "Role for creating resources",
+            "display_name": "Creator Role",
+            "id": "role_1234567890",
+            "name": "creator"
+          }
+        },
+        "default_member": {
+          "description": "Default Member Role",
+          "$ref": "#/definitions/rolesUpdateDefaultRole",
+          "example": {
+            "description": "Role for regular members",
+            "display_name": "Member Role",
+            "id": "role_0987654321",
+            "name": "member"
+          }
+        },
+        "env_id": {
+          "type": "string"
+        }
+      }
+    },
+    "rolesUpdateDefaultRolesResponse": {
+      "type": "object",
+      "properties": {
+        "default_creator": {
+          "description": "Updated Default Creator Role",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "description": "Role for creating resources",
+            "display_name": "Creator Role",
+            "id": "role_1234567890",
+            "name": "creator"
+          }
+        },
+        "default_member": {
+          "description": "Updated Default Member Role",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "description": "Role for regular members",
+            "display_name": "Member Role",
+            "id": "role_0987654321",
+            "name": "member"
+          }
+        }
+      }
+    },
+    "rolesUpdateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/v1rolesRole"
+        }
+      }
     },
     "usersCreateMembershipResponse": {
       "type": "object",
@@ -3794,11 +4171,6 @@
           "type": "string",
           "example": "usr_1234abcd5678efgh"
         },
-        "last_login": {
-          "description": "Timestamp of the user's most recent successful authentication. Updated automatically.",
-          "type": "string",
-          "format": "date-time"
-        },
         "memberships": {
           "description": "List of organization memberships. Automatically populated based on group assignments.",
           "type": "array",
@@ -3877,6 +4249,111 @@
         }
       }
     },
+    "v1rolesCreateRole": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "description": "Default Role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_creator": {
+          "description": "Default Creator Role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_member": {
+          "description": "Default Member Role",
+          "type": "boolean",
+          "example": true
+        },
+        "description": {
+          "description": "Description of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role will be used only for viewing the objects"
+        },
+        "display_name": {
+          "description": "Display Name of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role"
+        },
+        "name": {
+          "description": "Unique Name of the Organization's Role",
+          "type": "string",
+          "example": "org_viewer_role"
+        }
+      }
+    },
+    "v1rolesRole": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "description": "Indicates if this role is the environment-wide default role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_creator": {
+          "description": "Indicates if this role is the default creator role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_member": {
+          "description": "Indicates if this role is the default member role",
+          "type": "boolean",
+          "example": true
+        },
+        "description": {
+          "description": "Optional description of the role (max 2000 characters)",
+          "type": "string",
+          "example": "Can view resources but cannot modify them"
+        },
+        "display_name": {
+          "description": "Human-readable role name for UI display",
+          "type": "string",
+          "example": "Viewer Role"
+        },
+        "id": {
+          "description": "Unique Scalekit-generated identifier that references a role",
+          "type": "string",
+          "example": "role_59615193906282635"
+        },
+        "name": {
+          "description": "Machine-friendly role name (1-100 chars). Must be unique within the environment",
+          "type": "string",
+          "example": "viewer"
+        }
+      }
+    },
+    "v1rolesUpdateRole": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "description": "Default Role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_creator": {
+          "description": "Default Creator Role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_member": {
+          "description": "Default Member Role",
+          "type": "boolean",
+          "example": true
+        },
+        "description": {
+          "description": "Description of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role will be used only for viewing the objects"
+        },
+        "display_name": {
+          "description": "Display Name of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role"
+        }
+      }
+    },
     "v1usersCreateMembership": {
       "type": "object",
       "properties": {
@@ -3935,6 +4412,9 @@
     },
     {
       "name": "Users"
+    },
+    {
+      "name": "Roles"
     },
     {
       "name": "Connections"
