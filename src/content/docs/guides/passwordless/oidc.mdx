@@ -206,10 +206,8 @@ Before you begin, ensure you have:
    After successful user authentication via OTP, Scalekit redirects users to your specified `redirect_uri` with a temporary authorization code parameter. This code must be exchanged for the user's profile information through a secure server-side request.
 
    <Aside type="caution" title="Validation attempt limits">
-     Scalekit tracks OTP validation attempts for each <code>auth_request_id</code>.
-     You can make **up to five** incorrect attempts within a ten-minute window.
-     If you exceed this limit, the <code>/passwordless/email/verify</code> endpoint returns **HTTP&nbsp;429&nbsp;Too&nbsp;Many&nbsp;Requests**.
-     Wait until the window resets, or start a new authentication request to try again.
+     To protect your application, Scalekit limits a user to **five** attempts to enter the correct OTP within a ten-minute window for each authentication request.
+     If the user exceeds this limit, they must restart the authentication process.
    </Aside>
 
     The authorization code exchange process should always be performed server-side to maintain security. This server-side request will:
