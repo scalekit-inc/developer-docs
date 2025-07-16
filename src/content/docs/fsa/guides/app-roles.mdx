@@ -3,8 +3,6 @@ title: "Assign application roles to users"
 description: "Learn how to define, assign, and manage user roles in Scalekit for granular access control."
 sidebar:
   label: "Roles"
-  badge:
-    text: "Soon"
 head:
   - tag: style
     content: |
@@ -37,9 +35,9 @@ You can manage roles, including creating custom ones, from the Scalekit dashboar
 
 1.  Navigate to **User Management** > **Roles**.
 2.  You will see a list of existing roles. Click **+ Add Roles** to create a new role.
-3.  For each new role, you can define a **Role Name**, **Key**, and **Description**. The **Key** is what you will receive in the token and use in your application to control access.
+3.  For each new role, you can define a **Display Name**, **Name**, and **Description**. The **Name** is what you will receive in the token and use in your application to control access.
 
-![](@/assets/docs/fsa/user-management/1-roles.png)
+![](@/assets/docs/fsa/user-management/1-roles-v3.png)
 
 <LinkCard
   title="Integrate with Scalekit"
@@ -47,9 +45,13 @@ You can manage roles, including creating custom ones, from the Scalekit dashboar
   description="Follow our quickstart guide to integrate Scalekit into your application and start managing user roles."
 />
 
+You can change the default role for both the organization creator and new members at any time in the **User Management → Roles** section of the dashboard.
+
 ## Accessing user roles
 
 Once a user is authenticated, their assigned roles are included in the `idToken` and `accessToken`. You can use this information in your application's backend to control access to different resources.
+
+The `roles` claim in the tokens contains the role key as **name** (not the display name). For example, if you create a role with the key `"editor"` and display name `"Content Editor"`, the token will contain `"editor"` in the roles array.
 
 While the `roles` claim is an array, Scalekit currently supports a single role per user within an organization.
 
