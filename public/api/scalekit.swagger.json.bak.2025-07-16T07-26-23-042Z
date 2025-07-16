@@ -75,7 +75,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "// List connections by organization id\nconnections, err := sc.Connection.ListConnections(\n  ctx,\n  organizationId\n)\n\n// List connections by domain\nconnections, err := scalekitClient.Connection().ListConnectionsByDomain(ctx, \n  domain)"
+            "source": "// List connections by organization id\nconnections, err := scalekitClient.Connection().ListConnections(\n  ctx,\n  organizationId\n)\n\n// List connections by domain\nconnections, err := scalekitClient.Connection().ListConnectionsByDomain(ctx, \n  domain)"
           },
           {
             "label": "Java SDK",
@@ -616,6 +616,51 @@
       }
     },
     "/api/v1/organizations/{organization_id}/clients": {
+      "get": {
+        "description": "Retrieves a paginated list of API clients for a specific organization. Returns client details including metadata, scopes, and secret information (without exposing actual secret values).",
+        "tags": [
+          "API Auth"
+        ],
+        "summary": "List organization API clients",
+        "operationId": "ClientService_ListOrganizationClients",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization whose clients to list. Must start with 'org_' prefix.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum number of clients to return per page\n\nMaximum number of API clients to return per page. Must be between 10 and 100",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Pagination token from the previous response\n\nPagination token from the previous response. Use to retrieve the next page of organization clients",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of organization API clients returned successfully. Each client includes its configuration details and metadata.",
+            "schema": {
+              "$ref": "#/definitions/clientsListOrganizationClientsResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# List clients for a specific organization\norg_id = 'SCALEKIT_ORGANIZATION_ID'\n\n# Retrieve all clients with default pagination\nresponse = sc.m2m_client.list_organization_clients(\n    organization_id=org_id,\n    page_size=30\n)\n\n# Access the clients list\nclients = response.clients\nfor client in clients:\n    print(f\"Client ID: {client.id}, Name: {client.name}\")"
+          }
+        ]
+      },
       "post": {
         "description": "Creates a new API client for an organization. Returns the client details and a plain secret (available only once).",
         "tags": [
@@ -1431,6 +1476,74 @@
         ]
       }
     },
+    "/api/v1/organizations/{organization_id}/settings/usermanagement": {
+      "get": {
+        "description": "Retrieves the user management settings for a specific organization.",
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Get organization user management setting",
+        "operationId": "OrganizationService_GetOrganizationUserManagementSetting",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of the organization.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the requested organization setting.",
+            "schema": {
+              "$ref": "#/definitions/organizationsGetOrganizationUserManagementSettingsRequest"
+            }
+          },
+          "404": {
+            "description": "Organization or setting not found.",
+            "schema": {}
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates user management settings for an organization",
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Update organization user setting",
+        "operationId": "OrganizationService_UpdateUserManagementSettings",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of the organization.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrganizationServiceUpdateUserManagementSettingsBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated organization setting.",
+            "schema": {
+              "$ref": "#/definitions/organizationsUpdateUserManagementSettingsResponse"
+            }
+          },
+          "404": {
+            "description": "Organization or setting not found.",
+            "schema": {}
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organization_id}/users": {
       "get": {
         "description": "Retrieves a paginated list of all users who are members of the specified organization. Use this endpoint to view all users with access to a particular organization, including their roles, metadata, and membership details. Supports pagination for large user lists.",
@@ -1654,6 +1767,171 @@
             "label": "Node.js SDK",
             "lang": "javascript",
             "source": "const { authRequestId } = sendResponse;\nconst verifyResponse = await scalekit.passwordless.\n  verifyPasswordlessEmail(\n\t// Verification Code (OTP)\n\t{ code: \"123456\" },\n\t// Magic Link Token\n\t{ linkToken: link_token },\n\tauthRequestId\n);"
+          }
+        ]
+      }
+    },
+    "/api/v1/roles": {
+      "get": {
+        "description": "Retrieve a list of roles available within the environment. Supports pagination through standard query parameters.",
+        "tags": [
+          "Roles"
+        ],
+        "summary": "List roles",
+        "operationId": "RolesService_ListRoles",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of roles",
+            "schema": {
+              "$ref": "#/definitions/rolesListRolesResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "roles_response = scalekit_client.roles.list_roles()"
+          }
+        ]
+      },
+      "post": {
+        "description": "Creates a new role within the environment. Roles define permissions that can be assigned to users or groups.",
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Create a role",
+        "operationId": "RolesService_CreateRole",
+        "parameters": [
+          {
+            "name": "role",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1rolesCreateRole"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Role created successfully",
+            "schema": {
+              "$ref": "#/definitions/rolesCreateRoleResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.roles.roles_pb2 import CreateRole\n\nrole = CreateRole(\n    name=\"viewer\",\n    display_name=\"Viewer\",\n    description=\"Read-only access\",\n)\ncreate_response = scalekit_client.roles.create_role(\n    role=role,\n)"
+          }
+        ]
+      }
+    },
+    "/api/v1/roles/{id}": {
+      "get": {
+        "description": "Fetch detailed information about a specific role using its unique identifier.",
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Get a role",
+        "operationId": "RolesService_GetRole",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved role details",
+            "schema": {
+              "$ref": "#/definitions/rolesGetRoleResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "role_response = scalekit_client.roles.get_role(\n    role_id=\"role_123456789\",\n)"
+          }
+        ]
+      },
+      "put": {
+        "description": "Updates an existing role identified by its unique ID. Only provided fields are modified.",
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Update a role",
+        "operationId": "RolesService_UpdateRole",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "role",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1rolesUpdateRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role updated successfully",
+            "schema": {
+              "$ref": "#/definitions/rolesUpdateRoleResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.roles.roles_pb2 import UpdateRole\n\nupdate_role = UpdateRole(\n    display_name=\"Viewer (Limited)\",\n    description=\"Read-only access, no billing\",\n)\nupdated_role = scalekit_client.roles.update_role(\n    role_id=\"role_123456789\",\n    role=update_role,\n)"
+          }
+        ]
+      },
+      "delete": {
+        "description": "Removes an existing role from the environment using its unique identifier. Optionally reassign users to another role.",
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Delete a role",
+        "operationId": "RolesService_DeleteRole",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Role ID to reassign users to when deleting this role",
+            "name": "reassign_role_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted Successfully",
+            "schema": {}
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "scalekit_client.roles.delete_role(\n    role_id=\"role_123456789\",\n)"
           }
         ]
       }
@@ -1887,6 +2165,15 @@
     }
   },
   "definitions": {
+    "OrganizationServiceUpdateUserManagementSettingsBody": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "description": "The new values for the setting fields to patch.",
+          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
+        }
+      }
+    },
     "authpasswordlessPasswordlessType": {
       "type": "string",
       "enum": [
@@ -2057,6 +2344,41 @@
         }
       }
     },
+    "clientsListOrganizationClientsResponse": {
+      "description": "Response message containing a paginated list of API clients for the specified organization.",
+      "type": "object",
+      "title": "List Organization Clients Response",
+      "properties": {
+        "clients": {
+          "description": "List of API client objects for the organization. Each client includes its configuration, metadata, and active secrets (without exposing actual secret values).",
+          "type": "array",
+          "title": "List of organization API clients",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/clientsM2MClient"
+          }
+        },
+        "next_page_token": {
+          "description": "Pagination token for the next page of results. Use this token to fetch the next page.",
+          "type": "string",
+          "title": "Pagination token for the next page of results",
+          "example": "\u003cnext_page_token\u003e"
+        },
+        "prev_page_token": {
+          "description": "Pagination token for the previous page of results. Use this token to fetch the previous page.",
+          "type": "string",
+          "title": "Pagination token for the previous page of results",
+          "example": "\u003cprev_page_token\u003e"
+        },
+        "total_size": {
+          "description": "Total number of API clients in the organization.",
+          "type": "integer",
+          "format": "int64",
+          "title": "Total number of clients in the organization",
+          "example": 30
+        }
+      }
+    },
     "clientsM2MClient": {
       "type": "object",
       "properties": {
@@ -2220,27 +2542,6 @@
         }
       }
     },
-    "commonsIdentityProviderType": {
-      "type": "string",
-      "enum": [
-        "OKTA",
-        "GOOGLE",
-        "MICROSOFT_AD",
-        "AUTH0",
-        "ONELOGIN",
-        "PING_IDENTITY",
-        "JUMPCLOUD",
-        "CUSTOM",
-        "GITHUB",
-        "GITLAB",
-        "LINKEDIN",
-        "SALESFORCE",
-        "MICROSOFT",
-        "IDP_SIMULATOR",
-        "SCALEKIT",
-        "ADFS"
-      ]
-    },
     "commonsMembershipStatus": {
       "type": "string",
       "enum": [
@@ -2252,6 +2553,11 @@
     "commonsOrganizationMembership": {
       "type": "object",
       "properties": {
+        "display_name": {
+          "description": "Display name for the Organization name.",
+          "type": "string",
+          "example": "AcmeCorp"
+        },
         "join_time": {
           "description": "Timestamp when the membership was created. Automatically set by the server.",
           "type": "string",
@@ -2272,15 +2578,14 @@
           }
         },
         "name": {
-          "type": "string"
+          "description": "Display name for the Organization name.",
+          "type": "string",
+          "example": "AcmeCorp"
         },
         "organization_id": {
           "description": "Unique identifier for the organization. Immutable and read-only.",
           "type": "string",
           "example": "org_1234abcd5678efgh"
-        },
-        "primary_identity_provider": {
-          "$ref": "#/definitions/commonsIdentityProviderType"
         },
         "roles": {
           "type": "array",
@@ -3445,6 +3750,24 @@
         }
       }
     },
+    "organizationsGetOrganizationUserManagementSettingsRequest": {
+      "type": "object",
+      "properties": {
+        "organization_id": {
+          "description": "ID of the organization.",
+          "type": "string"
+        }
+      }
+    },
+    "organizationsGetOrganizationUserManagementSettingsResponse": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "description": "List of organization settings.",
+          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
+        }
+      }
+    },
     "organizationsLink": {
       "type": "object",
       "properties": {
@@ -3610,12 +3933,36 @@
         }
       }
     },
+    "organizationsOrganizationUserManagementSettings": {
+      "type": "object",
+      "properties": {
+        "jit_provisioning_with_sso_enabled": {
+          "description": "Enables or disables user management features for the organization. When true, users can be added, removed, and managed.",
+          "type": "boolean",
+          "example": true
+        },
+        "sync_user_profile_on_signin": {
+          "description": "Enables or disables synchronization of user profiles upon sign-in. When true, user profiles are automatically updated with the latest information from the identity provider.",
+          "type": "boolean",
+          "example": true
+        }
+      }
+    },
     "organizationsUpdateOrganizationResponse": {
       "type": "object",
       "properties": {
         "organization": {
           "description": "Updated organization details",
           "$ref": "#/definitions/organizationsOrganization"
+        }
+      }
+    },
+    "organizationsUpdateUserManagementSettingsResponse": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "description": "The updated setting.",
+          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
         }
       }
     },
@@ -3710,6 +4057,42 @@
     "protobufNullValue": {
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.",
       "type": "string"
+    },
+    "rolesCreateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/v1rolesRole"
+        }
+      }
+    },
+    "rolesGetRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/v1rolesRole"
+        }
+      }
+    },
+    "rolesListRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1rolesRole"
+          }
+        }
+      }
+    },
+    "rolesUpdateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/v1rolesRole"
+        }
+      }
     },
     "usersCreateMembershipResponse": {
       "type": "object",
@@ -3963,11 +4346,6 @@
           "type": "string",
           "example": "usr_1234abcd5678efgh"
         },
-        "last_login": {
-          "description": "Timestamp of the user's most recent successful authentication. Updated automatically.",
-          "type": "string",
-          "format": "date-time"
-        },
         "memberships": {
           "description": "List of organization memberships. Automatically populated based on group assignments.",
           "type": "array",
@@ -4046,6 +4424,96 @@
         }
       }
     },
+    "v1rolesCreateRole": {
+      "type": "object",
+      "properties": {
+        "default_creator": {
+          "description": "Default Creator Role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_member": {
+          "description": "Default Member Role",
+          "type": "boolean",
+          "example": true
+        },
+        "description": {
+          "description": "Description of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role will be used only for viewing the objects"
+        },
+        "display_name": {
+          "description": "Display Name of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role"
+        },
+        "name": {
+          "description": "Unique Name of the Organization's Role",
+          "type": "string",
+          "example": "org_viewer_role"
+        }
+      }
+    },
+    "v1rolesRole": {
+      "type": "object",
+      "properties": {
+        "default_creator": {
+          "description": "Indicates if this role is the default creator role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_member": {
+          "description": "Indicates if this role is the default member role",
+          "type": "boolean",
+          "example": true
+        },
+        "description": {
+          "description": "Optional description of the role (max 2000 characters)",
+          "type": "string",
+          "example": "Can view resources but cannot modify them"
+        },
+        "display_name": {
+          "description": "Human-readable role name for UI display",
+          "type": "string",
+          "example": "Viewer Role"
+        },
+        "id": {
+          "description": "Unique Scalekit-generated identifier that references a role",
+          "type": "string",
+          "example": "role_59615193906282635"
+        },
+        "name": {
+          "description": "Machine-friendly role name (1-100 chars). Must be unique within the environment",
+          "type": "string",
+          "example": "viewer"
+        }
+      }
+    },
+    "v1rolesUpdateRole": {
+      "type": "object",
+      "properties": {
+        "default_creator": {
+          "description": "Default Creator Role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_member": {
+          "description": "Default Member Role",
+          "type": "boolean",
+          "example": true
+        },
+        "description": {
+          "description": "Description of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role will be used only for viewing the objects"
+        },
+        "display_name": {
+          "description": "Display Name of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role"
+        }
+      }
+    },
     "v1usersCreateMembership": {
       "type": "object",
       "properties": {
@@ -4104,6 +4572,9 @@
     },
     {
       "name": "Users"
+    },
+    {
+      "name": "Roles"
     },
     {
       "name": "Connections"
