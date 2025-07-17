@@ -150,7 +150,10 @@ export const sidebar = [
       },
       {
         label: 'Email customization',
-        items: ['guides/email-providers', 'guides/passwordless/custom-email-templates'],
+        items: [
+          'guides/passwordless/custom-email-provider',
+          'guides/passwordless/custom-email-templates',
+        ],
       },
     ],
   },
