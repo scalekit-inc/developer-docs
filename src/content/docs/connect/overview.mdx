@@ -1,0 +1,342 @@
+---
+title: Agent Connect Overview
+description: Learn about Agent Connect, Scalekit's solution for connecting to third-party applications and executing tools through a unified API.
+sidebar:
+  order: 1
+  label: "Overview"
+tableOfContents:
+  maxHeadingLevel: 3
+next:
+  label: "Quickstart"
+  link: "/connect/quickstart"
+---
+
+import { Card, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+
+Agent Connect is Scalekit's powerful solution that enables your applications to connect to third-party services and execute tools on behalf of your users. It provides a unified API interface for interacting with popular business applications like Gmail, Slack, Jira, and more.
+
+## What is Agent Connect?
+
+Agent Connect abstracts the complexity of integrating with multiple third-party APIs by providing:
+
+- **Unified API**: Single interface for all supported providers
+- **Secure authentication**: OAuth 2.0 and other authentication methods
+- **Tool execution**: Standardized way to perform actions across different platforms
+- **Token management**: Automatic token refresh and lifecycle management
+- **Error handling**: Consistent error responses and retry mechanisms
+
+## Key concepts
+
+### Providers
+
+Providers are third-party applications that your users can connect to. Each provider offers specific capabilities and tools.
+
+**Examples:**
+- **Gmail**: Send emails, fetch messages, create drafts
+- **Google Calendar**: Create events, fetch schedules, manage calendars
+- **Slack**: Send messages, create channels, manage workspaces
+- **Jira**: Create issues, update tickets, manage projects
+
+### Connections
+
+Connections are configurations that define how to authenticate and interact with a specific provider. They contain:
+
+- **Authentication credentials** (OAuth client ID/secret, API keys)
+- **Provider settings** (endpoints, scopes, rate limits)
+- **Tool definitions** and their parameters
+
+### Connected accounts
+
+Connected accounts represent individual user or organization connections to providers. They link a specific identifier (user_id, org_id) to a provider account and maintain:
+
+- **Authentication state** (active, expired, revoked)
+- **Access tokens** and refresh tokens
+- **Granted permissions** and scopes
+- **User metadata** and preferences
+
+### Tools
+
+Tools are standardized functions that can be executed against connected accounts. They abstract complex API operations into simple, consistent interfaces.
+
+## Architecture overview
+
+```mermaid
+graph TB
+    A[Your Application] --> B[Agent Connect API]
+    B --> C[Connected Account]
+    C --> D[Provider API]
+    
+    subgraph "Agent Connect"
+        B --> E[Authentication]
+        B --> F[Tool Execution]
+        B --> G[Token Management]
+        B --> H[Error Handling]
+    end
+    
+    subgraph "Providers"
+        D --> I[Gmail]
+        D --> J[Slack]
+        D --> K[Jira]
+        D --> L[Calendar]
+    end
+```
+
+## How Agent Connect works
+
+### 1. Setup connections
+
+Configure connections for each provider you want to support:
+
+```javascript
+// Create a connection for Gmail
+const gmailConnection = await agentConnect.connections.create({
+  provider: 'gmail',
+  auth_type: 'oauth2',
+  credentials: {
+    client_id: 'your-gmail-client-id',
+    client_secret: 'your-gmail-client-secret'
+  },
+  scopes: ['https://www.googleapis.com/auth/gmail.send']
+});
+```
+
+### 2. Create connected accounts
+
+When users want to connect their accounts, create connected accounts:
+
+```javascript
+// Create a connected account for a user
+const connectedAccount = await agentConnect.accounts.create({
+  connection_id: gmailConnection.id,
+  identifier: 'user_123',
+  identifier_type: 'user_id'
+});
+
+// Generate OAuth URL for user authentication
+const authUrl = await agentConnect.accounts.getAuthUrl(connectedAccount.id);
+// Redirect user to authUrl to complete OAuth flow
+```
+
+### 3. Execute tools
+
+Once authenticated, execute tools on behalf of users:
+
+```javascript
+// Send an email using the connected account
+const result = await agentConnect.tools.execute({
+  connected_account_id: connectedAccount.id,
+  tool: 'send_email',
+  parameters: {
+    to: 'recipient@example.com',
+    subject: 'Hello from Agent Connect',
+    body: 'This email was sent via Agent Connect'
+  }
+});
+```
+
+## Supported providers
+
+Agent Connect supports a wide range of popular business applications:
+
+<CardGrid>
+  <Card title="Communication" icon="chat">
+    - Gmail (Google Workspace)
+    - Outlook (Microsoft 365)
+    - Slack
+    - Microsoft Teams
+    - Discord
+  </Card>
+  <Card title="Productivity" icon="laptop">
+    - Google Calendar
+    - Microsoft Calendar
+    - Google Drive
+    - OneDrive
+    - Notion
+  </Card>
+  <Card title="Project Management" icon="puzzle">
+    - Jira
+    - Asana
+    - Trello
+    - Monday.com
+    - Linear
+  </Card>
+  <Card title="Development" icon="github">
+    - GitHub
+    - GitLab
+    - Bitbucket
+    - Figma
+    - Vercel
+  </Card>
+</CardGrid>
+
+## Common use cases
+
+### Customer support automation
+
+Automate customer support workflows across multiple platforms:
+
+```javascript
+// Create support ticket in Jira and notify team in Slack
+await Promise.all([
+  agentConnect.tools.execute({
+    connected_account_id: 'jira_account',
+    tool: 'create_issue',
+    parameters: {
+      project: 'SUPPORT',
+      summary: 'Customer inquiry from John Doe',
+      description: 'Customer needs help with billing'
+    }
+  }),
+  agentConnect.tools.execute({
+    connected_account_id: 'slack_account',
+    tool: 'send_message',
+    parameters: {
+      channel: '#support-team',
+      text: 'New support ticket created for John Doe'
+    }
+  })
+]);
+```
+
+### Email marketing campaigns
+
+Send personalized emails and track responses:
+
+```javascript
+// Send campaign email and create calendar reminder
+const emailResult = await agentConnect.tools.execute({
+  connected_account_id: 'gmail_account',
+  tool: 'send_email',
+  parameters: {
+    to: 'lead@example.com',
+    subject: 'Special offer for you',
+    body: 'Check out our latest product updates...'
+  }
+});
+
+// Schedule follow-up reminder
+await agentConnect.tools.execute({
+  connected_account_id: 'calendar_account',
+  tool: 'create_event',
+  parameters: {
+    title: 'Follow up with lead',
+    start_time: '2024-01-20T10:00:00Z',
+    end_time: '2024-01-20T10:30:00Z'
+  }
+});
+```
+
+### Project coordination
+
+Coordinate project activities across different tools:
+
+```javascript
+// Create project in Jira and set up Slack channel
+const project = await agentConnect.tools.execute({
+  connected_account_id: 'jira_account',
+  tool: 'create_project',
+  parameters: {
+    key: 'NEWPROJ',
+    name: 'New Project',
+    description: 'Exciting new project'
+  }
+});
+
+// Create dedicated Slack channel
+await agentConnect.tools.execute({
+  connected_account_id: 'slack_account',
+  tool: 'create_channel',
+  parameters: {
+    name: 'newproj-team',
+    topic: 'New Project coordination'
+  }
+});
+```
+
+## Key benefits
+
+### Developer experience
+
+- **Single API**: One interface for all providers
+- **Consistent responses**: Standardized response formats
+- **Automatic authentication**: Handle OAuth flows automatically
+- **Error handling**: Unified error handling across providers
+- **SDKs available**: Support for popular programming languages
+
+### Security and compliance
+
+- **OAuth 2.0**: Industry-standard authentication
+- **Token encryption**: Secure token storage and transmission
+- **Audit logging**: Comprehensive audit trails
+- **GDPR compliance**: Data protection and user privacy
+- **SOC 2 certified**: Enterprise-grade security
+
+### Scalability and reliability
+
+- **High availability**: 99.9% uptime SLA
+- **Auto-scaling**: Handle traffic spikes automatically
+- **Rate limiting**: Intelligent rate limit management
+- **Monitoring**: Real-time performance monitoring
+- **Global infrastructure**: Low-latency worldwide
+
+## Authentication options
+
+Agent Connect supports multiple authentication approaches:
+
+### Scalekit-managed OAuth
+
+Use Scalekit's shared OAuth applications for quick setup:
+
+- **Fast setup**: Get started in minutes
+- **Shared credentials**: No need to create OAuth apps
+- **Perfect for**: Development, testing, proof of concepts
+
+### Bring Your Own Authentication (BYOA)
+
+Use your own OAuth applications for complete control:
+
+- **Complete branding**: Users see your app name and logo
+- **Higher rate limits**: Dedicated quotas for your application
+- **Enhanced security**: Direct OAuth relationships with providers
+- **Perfect for**: Production applications, enterprise customers
+
+## Getting started
+
+Ready to start using Agent Connect? Here's what you need to do:
+
+<CardGrid>
+  <LinkCard title="Quickstart Guide" href="/connect/quickstart">
+    Get up and running with Agent Connect in minutes
+  </LinkCard>
+  <LinkCard title="Providers" href="/connect/providers">
+    Learn about supported third-party applications
+  </LinkCard>
+  <LinkCard title="Connections" href="/connect/connections">
+    Configure authentication and provider settings
+  </LinkCard>
+  <LinkCard title="Tool Execution" href="/connect/tools/execute">
+    Execute tools on behalf of your users
+  </LinkCard>
+</CardGrid>
+
+## Support and resources
+
+### Documentation
+
+- **API reference**: Complete API documentation
+- **SDK documentation**: Language-specific guides
+- **Integration examples**: Real-world use cases
+- **Best practices**: Security and performance guidelines
+
+### Community and support
+
+- **Developer community**: Join other developers using Agent Connect
+- **Support portal**: Get help with technical issues
+- **Professional services**: Expert assistance for complex integrations
+- **Training programs**: Learn advanced Agent Connect features
+
+<Aside type="note">
+**Ready to get started?** Check out our [Quickstart Guide](/connect/quickstart) to build your first Agent Connect integration in minutes.
+</Aside>
+
+Agent Connect makes it easy to build powerful integrations that connect your application to the tools your users already love. Start building today and unlock the full potential of connected applications.

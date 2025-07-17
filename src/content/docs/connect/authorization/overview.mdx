@@ -1,0 +1,527 @@
+---
+title: Authorization Overview
+description: Learn about authorization options in Agent Connect, including OAuth flows, permissions, and security best practices.
+sidebar:
+  order: 1
+  label: "Overview"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Custom tool definitions"
+  link: "/connect/tools/custom-definition"
+next:
+  label: "Direct API calls"
+  link: "/connect/authorization/direct-api-call"
+---
+
+import { Card, CardGrid, Aside, Steps } from '@astrojs/starlight/components';
+
+Authorization in Agent Connect ensures secure access to third-party applications on behalf of your users. This overview covers the different authorization methods, security models, and best practices for implementing secure integrations.
+
+## Authorization methods
+
+Agent Connect supports multiple authorization methods to accommodate different use cases and security requirements:
+
+<CardGrid>
+  <Card title="OAuth 2.0" icon="approve">
+    **Industry Standard**
+    - Secure token-based authentication
+    - Automatic token refresh
+    - Granular permission scopes
+    - User consent required
+  </Card>
+  <Card title="API Keys" icon="key">
+    **Simple Authentication**
+    - Static key-based access
+    - Server-to-server authentication
+    - No user consent required
+    - Limited to specific providers
+  </Card>
+  <Card title="JWT Tokens" icon="certificate">
+    **Token-Based Auth**
+    - Short-lived access tokens
+    - Self-contained claims
+    - Good for microservices
+    - Automatic expiration
+  </Card>
+  <Card title="Custom Auth" icon="setting">
+    **Provider-Specific**
+    - Custom authentication flows
+    - Legacy system integration
+    - Specialized requirements
+    - Full control over auth process
+  </Card>
+</CardGrid>
+
+## OAuth 2.0 flow
+
+OAuth 2.0 is the primary authorization method for most modern APIs. Here's how it works in Agent Connect:
+
+### Authorization code flow
+
+<Steps>
+1. **User initiates connection** - User clicks "Connect" in your application
+2. **Generate authorization URL** - Create OAuth URL with required parameters
+3. **User grants permissions** - User is redirected to provider for consent
+4. **Authorization code returned** - Provider returns code to your callback URL
+5. **Exchange code for tokens** - Your server exchanges code for access/refresh tokens
+6. **Store tokens securely** - Agent Connect stores tokens for future use
+7. **Execute tools** - Use tokens to perform actions on behalf of the user
+</Steps>
+
+### OAuth parameters
+
+Key OAuth parameters used in Agent Connect:
+
+```javascript
+const authUrl = await agentConnect.accounts.getAuthUrl(accountId, {
+  // Required parameters
+  client_id: 'your_oauth_client_id',
+  redirect_uri: 'https://your-app.com/callback',
+  scope: 'email profile read:user',
+  response_type: 'code',
+  
+  // Optional parameters
+  state: 'random_state_value',           // CSRF protection
+  code_challenge: 'base64url_challenge', // PKCE for security
+  code_challenge_method: 'S256',         // PKCE method
+  access_type: 'offline',                // Request refresh token
+  prompt: 'consent',                     // Force consent screen
+  login_hint: 'user@example.com'         // Pre-fill login
+});
+```
+
+## Permission scopes
+
+Scopes define what your application can access on behalf of the user:
+
+### Common scope patterns
+
+**Read-only access:**
+```javascript
+const readOnlyScopes = [
+  'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/calendar.readonly',
+  'https://www.googleapis.com/auth/drive.readonly'
+];
+```
+
+**Read-write access:**
+```javascript
+const readWriteScopes = [
+  'https://www.googleapis.com/auth/gmail.modify',
+  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/drive.file'
+];
+```
+
+**Administrative access:**
+```javascript
+const adminScopes = [
+  'https://www.googleapis.com/auth/admin.directory.user',
+  'https://www.googleapis.com/auth/admin.directory.group'
+];
+```
+
+### Provider-specific scopes
+
+Each provider has its own scope format:
+
+**Google scopes:**
+- `https://www.googleapis.com/auth/gmail.send` - Send emails
+- `https://www.googleapis.com/auth/calendar.events` - Manage calendar events
+- `https://www.googleapis.com/auth/drive.file` - Access files created by app
+
+**Microsoft scopes:**
+- `https://graph.microsoft.com/Mail.Read` - Read emails
+- `https://graph.microsoft.com/Calendar.ReadWrite` - Manage calendar
+- `https://graph.microsoft.com/Files.ReadWrite` - Access files
+
+**Slack scopes:**
+- `chat:write` - Send messages
+- `channels:read` - Read channel information
+- `files:read` - Read file information
+
+## Token management
+
+Agent Connect handles token lifecycle automatically:
+
+### Token types
+
+**Access tokens:**
+- Used for API requests
+- Short-lived (typically 1 hour)
+- Automatically refreshed
+- Scoped to specific permissions
+
+**Refresh tokens:**
+- Used to obtain new access tokens
+- Long-lived (weeks to months)
+- Stored securely
+- Can be revoked by user
+
+### Automatic token refresh
+
+Agent Connect automatically refreshes tokens:
+
+```javascript
+// Token refresh happens automatically
+const result = await agentConnect.tools.execute({
+  connected_account_id: 'account_123',
+  tool: 'send_email',
+  parameters: {
+    to: 'user@example.com',
+    subject: 'Test email',
+    body: 'This email was sent automatically'
+  }
+});
+
+// If token is expired, Agent Connect will:
+// 1. Detect the expired token
+// 2. Use refresh token to get new access token
+// 3. Retry the original request
+// 4. Return the result seamlessly
+```
+
+### Manual token refresh
+
+You can also manually refresh tokens:
+
+```javascript
+// Check token status
+const tokenStatus = await agentConnect.accounts.getTokenStatus('account_123');
+
+if (tokenStatus.expires_in < 300) { // Less than 5 minutes
+  // Manually refresh tokens
+  const refreshResult = await agentConnect.accounts.refreshTokens('account_123');
+  console.log('New token expires at:', refreshResult.expires_at);
+}
+```
+
+## Security best practices
+
+### OAuth security
+
+**Use PKCE (Proof Key for Code Exchange):**
+```javascript
+// Generate PKCE challenge
+const codeVerifier = generateCodeVerifier();
+const codeChallenge = generateCodeChallenge(codeVerifier);
+
+const authUrl = await agentConnect.accounts.getAuthUrl(accountId, {
+  code_challenge: codeChallenge,
+  code_challenge_method: 'S256'
+});
+
+// Later, when exchanging code for tokens
+await agentConnect.accounts.exchangeCode(accountId, code, state, {
+  code_verifier: codeVerifier
+});
+```
+
+**Validate state parameter:**
+```javascript
+// Generate random state
+const state = generateRandomState();
+
+// Store state in session
+req.session.oauth_state = state;
+
+// Include in authorization URL
+const authUrl = await agentConnect.accounts.getAuthUrl(accountId, {
+  state: state
+});
+
+// Validate state in callback
+app.get('/callback', (req, res) => {
+  const { state, code } = req.query;
+  
+  if (state !== req.session.oauth_state) {
+    return res.status(400).json({ error: 'Invalid state parameter' });
+  }
+  
+  // Proceed with code exchange
+});
+```
+
+### Token security
+
+**Secure token storage:**
+- Tokens are encrypted at rest
+- Access is logged and audited
+- Tokens are isolated by tenant
+- Regular security scans performed
+
+**Token rotation:**
+```javascript
+// Implement token rotation policy
+const rotateTokens = async (accountId) => {
+  try {
+    // Refresh tokens
+    const result = await agentConnect.accounts.refreshTokens(accountId);
+    
+    // Log rotation event
+    console.log(`Tokens rotated for account ${accountId}`);
+    
+    return result;
+  } catch (error) {
+    console.error(`Token rotation failed for ${accountId}:`, error);
+    throw error;
+  }
+};
+```
+
+## Permission management
+
+### Dynamic permissions
+
+Request permissions dynamically based on user actions:
+
+```javascript
+// Check current permissions
+const permissions = await agentConnect.accounts.getPermissions('account_123');
+
+// Request additional permissions if needed
+if (!permissions.includes('https://www.googleapis.com/auth/gmail.send')) {
+  const authUrl = await agentConnect.accounts.getAuthUrl('account_123', {
+    scope: 'https://www.googleapis.com/auth/gmail.send',
+    prompt: 'consent' // Force consent screen
+  });
+  
+  // Redirect user to grant additional permissions
+  res.redirect(authUrl);
+}
+```
+
+### Permission validation
+
+Validate permissions before tool execution:
+
+```javascript
+// Validate permissions before executing tool
+const validatePermissions = async (accountId, requiredScopes) => {
+  const account = await agentConnect.accounts.get(accountId);
+  
+  for (const scope of requiredScopes) {
+    if (!account.scopes.includes(scope)) {
+      throw new Error(`Missing required permission: ${scope}`);
+    }
+  }
+};
+
+// Use in tool execution
+await validatePermissions('account_123', [
+  'https://www.googleapis.com/auth/gmail.send'
+]);
+
+const result = await agentConnect.tools.execute({
+  connected_account_id: 'account_123',
+  tool: 'send_email',
+  parameters: { /* ... */ }
+});
+```
+
+## Error handling
+
+### Common authorization errors
+
+**Invalid or expired tokens:**
+```javascript
+try {
+  const result = await agentConnect.tools.execute({
+    connected_account_id: 'account_123',
+    tool: 'send_email',
+    parameters: { /* ... */ }
+  });
+} catch (error) {
+  if (error.code === 'TOKEN_EXPIRED') {
+    // Redirect user to re-authenticate
+    const authUrl = await agentConnect.accounts.getAuthUrl('account_123');
+    res.redirect(authUrl);
+  }
+}
+```
+
+**Insufficient permissions:**
+```javascript
+try {
+  const result = await agentConnect.tools.execute({
+    connected_account_id: 'account_123',
+    tool: 'send_email',
+    parameters: { /* ... */ }
+  });
+} catch (error) {
+  if (error.code === 'INSUFFICIENT_PERMISSIONS') {
+    // Request additional permissions
+    const authUrl = await agentConnect.accounts.getAuthUrl('account_123', {
+      scope: error.required_scopes.join(' '),
+      prompt: 'consent'
+    });
+    res.redirect(authUrl);
+  }
+}
+```
+
+### Error recovery strategies
+
+**Automatic retry with exponential backoff:**
+```javascript
+const executeWithRetry = async (request, maxRetries = 3) => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await agentConnect.tools.execute(request);
+    } catch (error) {
+      if (error.code === 'RATE_LIMIT_EXCEEDED' && attempt < maxRetries) {
+        const delay = Math.pow(2, attempt) * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+      throw error;
+    }
+  }
+};
+```
+
+## Authorization monitoring
+
+### Track authorization health
+
+Monitor authorization status across your connected accounts:
+
+```javascript
+// Get authorization health metrics
+const healthMetrics = await agentConnect.analytics.getAuthHealth({
+  time_period: '30d',
+  group_by: 'provider'
+});
+
+// Metrics include:
+// - Active vs expired accounts
+// - Token refresh success rates
+// - Permission grant rates
+// - Error rates by type
+```
+
+### Alert on authorization issues
+
+Set up alerts for authorization problems:
+
+```javascript
+// Monitor for authorization failures
+const monitorAuthFailures = async () => {
+  const failureRate = await agentConnect.analytics.getAuthFailureRate({
+    time_period: '1h'
+  });
+  
+  if (failureRate > 0.05) { // 5% failure rate
+    // Send alert
+    await sendAlert({
+      type: 'AUTH_FAILURE_SPIKE',
+      message: `Authorization failure rate: ${failureRate * 100}%`,
+      severity: 'high'
+    });
+  }
+};
+```
+
+## Compliance considerations
+
+### GDPR compliance
+
+**Data minimization:**
+- Request only necessary permissions
+- Implement data retention policies
+- Provide data export capabilities
+- Honor data deletion requests
+
+**User consent:**
+- Clear consent screens
+- Granular permission requests
+- Easy consent withdrawal
+- Audit consent changes
+
+### SOC 2 compliance
+
+**Access controls:**
+- Role-based access control
+- Principle of least privilege
+- Regular access reviews
+- Secure token storage
+
+**Audit logging:**
+- Log all authorization events
+- Track permission changes
+- Monitor token usage
+- Maintain detailed audit trails
+
+## Testing authorization
+
+### OAuth flow testing
+
+Test OAuth flows in development:
+
+```javascript
+// Test OAuth flow
+const testOAuthFlow = async () => {
+  // Create test account
+  const account = await agentConnect.accounts.create({
+    connection_id: 'test_connection',
+    identifier: 'test_user',
+    identifier_type: 'user_id'
+  });
+  
+  // Generate auth URL
+  const authUrl = await agentConnect.accounts.getAuthUrl(account.id, {
+    redirect_uri: 'http://localhost:3000/test-callback'
+  });
+  
+  console.log('Test auth URL:', authUrl);
+  
+  // Simulate OAuth callback
+  const testCode = 'test_authorization_code';
+  const testState = 'test_state';
+  
+  const result = await agentConnect.accounts.exchangeCode(
+    account.id,
+    testCode,
+    testState
+  );
+  
+  console.log('OAuth test result:', result);
+};
+```
+
+### Permission testing
+
+Test permission validation:
+
+```javascript
+// Test permission scenarios
+const testPermissions = async () => {
+  const accountId = 'test_account_123';
+  
+  // Test with valid permissions
+  await agentConnect.tools.execute({
+    connected_account_id: accountId,
+    tool: 'send_email',
+    parameters: { /* ... */ }
+  });
+  
+  // Test with insufficient permissions
+  try {
+    await agentConnect.tools.execute({
+      connected_account_id: accountId,
+      tool: 'admin_action',
+      parameters: { /* ... */ }
+    });
+  } catch (error) {
+    console.log('Expected permission error:', error.code);
+  }
+};
+```
+
+<Aside type="note">
+**Security First**: Always implement proper authorization security measures. Use HTTPS, validate all inputs, implement CSRF protection, and regularly audit your authorization flows.
+</Aside>
+
+Authorization is the foundation of secure integrations with Agent Connect. By following these patterns and best practices, you can build robust, secure applications that protect user data while providing powerful functionality.

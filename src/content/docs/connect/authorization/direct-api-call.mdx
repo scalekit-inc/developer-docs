@@ -1,0 +1,801 @@
+---
+title: Direct API Calls
+description: Learn how to make direct API calls to third-party providers using Agent Connect's authentication and token management.
+sidebar:
+  order: 2
+  label: "Direct API calls"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Authorization overview"
+  link: "/connect/authorization/overview"
+next:
+  label: "Verification"
+  link: "/connect/authorization/verification"
+---
+
+import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+While Agent Connect provides standardized tools for common operations, you may need to make direct API calls to third-party providers for specialized functionality not covered by existing tools. Agent Connect makes this easy by handling authentication, token management, and providing utility functions.
+
+## When to use direct API calls
+
+Consider direct API calls when:
+
+- **Specialized functionality**: You need provider-specific features not available in standard tools
+- **Custom data processing**: You need to process API responses in specific ways
+- **Beta features**: You want to access new provider APIs before tools are available
+- **Performance optimization**: You need to minimize API calls through custom batching
+- **Complex workflows**: You need to combine multiple API calls in specific sequences
+
+## Making authenticated requests
+
+Agent Connect provides utilities to make authenticated API calls using connected account tokens:
+
+### Basic authenticated request
+
+```javascript
+// Make authenticated API call
+const response = await agentConnect.api.request({
+  connected_account_id: 'gmail_account_123',
+  method: 'GET',
+  url: 'https://gmail.googleapis.com/gmail/v1/users/me/messages',
+  params: {
+    q: 'is:unread',
+    maxResults: 10
+  }
+});
+
+console.log('Gmail messages:', response.data);
+```
+
+### Request with custom headers
+
+```javascript
+// Add custom headers to request
+const response = await agentConnect.api.request({
+  connected_account_id: 'slack_account_123',
+  method: 'POST',
+  url: 'https://slack.com/api/chat.postMessage',
+  headers: {
+    'Content-Type': 'application/json; charset=utf-8'
+  },
+  data: {
+    channel: '#general',
+    text: 'Hello from direct API call!',
+    username: 'Bot'
+  }
+});
+```
+
+### Request with error handling
+
+```javascript
+try {
+  const response = await agentConnect.api.request({
+    connected_account_id: 'jira_account_123',
+    method: 'POST',
+    url: 'https://your-domain.atlassian.net/rest/api/3/issue',
+    data: {
+      fields: {
+        project: { key: 'PROJ' },
+        summary: 'New issue from API',
+        issuetype: { name: 'Task' }
+      }
+    }
+  });
+  
+  console.log('Issue created:', response.data);
+} catch (error) {
+  if (error.response?.status === 401) {
+    console.log('Authentication failed - token may be expired');
+  } else if (error.response?.status === 403) {
+    console.log('Insufficient permissions');
+  } else {
+    console.log('API error:', error.message);
+  }
+}
+```
+
+## Provider-specific examples
+
+### Google APIs
+
+<Tabs>
+<TabItem value="gmail" label="Gmail API">
+
+```javascript
+// Get Gmail user profile
+const profile = await agentConnect.api.request({
+  connected_account_id: 'gmail_account',
+  method: 'GET',
+  url: 'https://gmail.googleapis.com/gmail/v1/users/me/profile'
+});
+
+// Create Gmail label
+const label = await agentConnect.api.request({
+  connected_account_id: 'gmail_account',
+  method: 'POST',
+  url: 'https://gmail.googleapis.com/gmail/v1/users/me/labels',
+  data: {
+    name: 'Agent Connect',
+    labelListVisibility: 'labelShow',
+    messageListVisibility: 'show'
+  }
+});
+
+// Search emails with advanced query
+const emails = await agentConnect.api.request({
+  connected_account_id: 'gmail_account',
+  method: 'GET',
+  url: 'https://gmail.googleapis.com/gmail/v1/users/me/messages',
+  params: {
+    q: 'from:noreply@github.com subject:security',
+    maxResults: 50
+  }
+});
+```
+
+</TabItem>
+<TabItem value="calendar" label="Calendar API">
+
+```javascript
+// Get calendar list
+const calendars = await agentConnect.api.request({
+  connected_account_id: 'calendar_account',
+  method: 'GET',
+  url: 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
+});
+
+// Create calendar
+const newCalendar = await agentConnect.api.request({
+  connected_account_id: 'calendar_account',
+  method: 'POST',
+  url: 'https://www.googleapis.com/calendar/v3/calendars',
+  data: {
+    summary: 'Agent Connect Calendar',
+    description: 'Calendar managed by Agent Connect',
+    timeZone: 'America/New_York'
+  }
+});
+
+// Get free/busy information
+const freeBusy = await agentConnect.api.request({
+  connected_account_id: 'calendar_account',
+  method: 'POST',
+  url: 'https://www.googleapis.com/calendar/v3/freeBusy',
+  data: {
+    timeMin: '2024-01-15T09:00:00-05:00',
+    timeMax: '2024-01-15T17:00:00-05:00',
+    items: [
+      { id: 'primary' }
+    ]
+  }
+});
+```
+
+</TabItem>
+<TabItem value="drive" label="Drive API">
+
+```javascript
+// List files in Drive
+const files = await agentConnect.api.request({
+  connected_account_id: 'drive_account',
+  method: 'GET',
+  url: 'https://www.googleapis.com/drive/v3/files',
+  params: {
+    q: "mimeType='application/vnd.google-apps.folder'",
+    fields: 'files(id,name,createdTime)'
+  }
+});
+
+// Upload file to Drive
+const fileUpload = await agentConnect.api.request({
+  connected_account_id: 'drive_account',
+  method: 'POST',
+  url: 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
+  headers: {
+    'Content-Type': 'multipart/related'
+  },
+  data: {
+    name: 'example.txt',
+    parents: ['folder_id_here']
+  },
+  file: {
+    content: 'Hello from Agent Connect!',
+    mimeType: 'text/plain'
+  }
+});
+```
+
+</TabItem>
+</Tabs>
+
+### Microsoft Graph API
+
+<Tabs>
+<TabItem value="outlook" label="Outlook API">
+
+```javascript
+// Get user's mailbox settings
+const mailboxSettings = await agentConnect.api.request({
+  connected_account_id: 'outlook_account',
+  method: 'GET',
+  url: 'https://graph.microsoft.com/v1.0/me/mailboxSettings'
+});
+
+// Create mail folder
+const folder = await agentConnect.api.request({
+  connected_account_id: 'outlook_account',
+  method: 'POST',
+  url: 'https://graph.microsoft.com/v1.0/me/mailFolders',
+  data: {
+    displayName: 'Agent Connect Emails',
+    isHidden: false
+  }
+});
+
+// Search emails
+const messages = await agentConnect.api.request({
+  connected_account_id: 'outlook_account',
+  method: 'GET',
+  url: 'https://graph.microsoft.com/v1.0/me/messages',
+  params: {
+    $filter: "from/emailAddress/address eq 'noreply@github.com'",
+    $select: 'subject,receivedDateTime,from',
+    $top: 25
+  }
+});
+```
+
+</TabItem>
+<TabItem value="teams" label="Teams API">
+
+```javascript
+// Get user's teams
+const teams = await agentConnect.api.request({
+  connected_account_id: 'teams_account',
+  method: 'GET',
+  url: 'https://graph.microsoft.com/v1.0/me/joinedTeams'
+});
+
+// Get team channels
+const channels = await agentConnect.api.request({
+  connected_account_id: 'teams_account',
+  method: 'GET',
+  url: `https://graph.microsoft.com/v1.0/teams/${teamId}/channels`
+});
+
+// Send message to channel
+const message = await agentConnect.api.request({
+  connected_account_id: 'teams_account',
+  method: 'POST',
+  url: `https://graph.microsoft.com/v1.0/teams/${teamId}/channels/${channelId}/messages`,
+  data: {
+    body: {
+      contentType: 'html',
+      content: '<h1>Hello from Agent Connect!</h1><p>This is a direct API call.</p>'
+    }
+  }
+});
+```
+
+</TabItem>
+</Tabs>
+
+### Slack API
+
+<Tabs>
+<TabItem value="channels" label="Channels">
+
+```javascript
+// Get workspace info
+const workspaceInfo = await agentConnect.api.request({
+  connected_account_id: 'slack_account',
+  method: 'GET',
+  url: 'https://slack.com/api/team.info'
+});
+
+// List all channels
+const channels = await agentConnect.api.request({
+  connected_account_id: 'slack_account',
+  method: 'GET',
+  url: 'https://slack.com/api/conversations.list',
+  params: {
+    types: 'public_channel,private_channel',
+    exclude_archived: true
+  }
+});
+
+// Create private channel
+const privateChannel = await agentConnect.api.request({
+  connected_account_id: 'slack_account',
+  method: 'POST',
+  url: 'https://slack.com/api/conversations.create',
+  data: {
+    name: 'agent-connect-private',
+    is_private: true
+  }
+});
+```
+
+</TabItem>
+<TabItem value="users" label="Users">
+
+```javascript
+// Get user list
+const users = await agentConnect.api.request({
+  connected_account_id: 'slack_account',
+  method: 'GET',
+  url: 'https://slack.com/api/users.list'
+});
+
+// Get user presence
+const presence = await agentConnect.api.request({
+  connected_account_id: 'slack_account',
+  method: 'GET',
+  url: 'https://slack.com/api/users.getPresence',
+  params: {
+    user: 'U1234567890'
+  }
+});
+
+// Set user status
+const status = await agentConnect.api.request({
+  connected_account_id: 'slack_account',
+  method: 'POST',
+  url: 'https://slack.com/api/users.profile.set',
+  data: {
+    profile: {
+      status_text: 'Working with Agent Connect',
+      status_emoji: ':robot_face:',
+      status_expiration: Math.floor(Date.now() / 1000) + 3600 // 1 hour
+    }
+  }
+});
+```
+
+</TabItem>
+</Tabs>
+
+### Jira API
+
+<Tabs>
+<TabItem value="issues" label="Issues">
+
+```javascript
+// Get issue types
+const issueTypes = await agentConnect.api.request({
+  connected_account_id: 'jira_account',
+  method: 'GET',
+  url: 'https://your-domain.atlassian.net/rest/api/3/issuetype'
+});
+
+// Create issue with custom fields
+const issue = await agentConnect.api.request({
+  connected_account_id: 'jira_account',
+  method: 'POST',
+  url: 'https://your-domain.atlassian.net/rest/api/3/issue',
+  data: {
+    fields: {
+      project: { key: 'PROJ' },
+      summary: 'API Integration Issue',
+      description: {
+        type: 'doc',
+        version: 1,
+        content: [
+          {
+            type: 'paragraph',
+            content: [
+              {
+                type: 'text',
+                text: 'Created via Agent Connect direct API call'
+              }
+            ]
+          }
+        ]
+      },
+      issuetype: { name: 'Task' },
+      priority: { name: 'High' },
+      labels: ['agent-connect', 'api'],
+      'customfield_10001': 'Custom value'
+    }
+  }
+});
+```
+
+</TabItem>
+<TabItem value="projects" label="Projects">
+
+```javascript
+// Get all projects
+const projects = await agentConnect.api.request({
+  connected_account_id: 'jira_account',
+  method: 'GET',
+  url: 'https://your-domain.atlassian.net/rest/api/3/project'
+});
+
+// Get project versions
+const versions = await agentConnect.api.request({
+  connected_account_id: 'jira_account',
+  method: 'GET',
+  url: `https://your-domain.atlassian.net/rest/api/3/project/${projectId}/version`
+});
+
+// Create project version
+const version = await agentConnect.api.request({
+  connected_account_id: 'jira_account',
+  method: 'POST',
+  url: `https://your-domain.atlassian.net/rest/api/3/version`,
+  data: {
+    name: 'v2.0.0',
+    description: 'Major release with new features',
+    project: projectId,
+    released: false
+  }
+});
+```
+
+</TabItem>
+</Tabs>
+
+## Advanced patterns
+
+### Batch API calls
+
+Combine multiple API calls efficiently:
+
+```javascript
+// Batch multiple Gmail operations
+const batchOperations = async (accountId) => {
+  const operations = await Promise.all([
+    // Get user profile
+    agentConnect.api.request({
+      connected_account_id: accountId,
+      method: 'GET',
+      url: 'https://gmail.googleapis.com/gmail/v1/users/me/profile'
+    }),
+    
+    // Get recent emails
+    agentConnect.api.request({
+      connected_account_id: accountId,
+      method: 'GET',
+      url: 'https://gmail.googleapis.com/gmail/v1/users/me/messages',
+      params: { maxResults: 10 }
+    }),
+    
+    // Get labels
+    agentConnect.api.request({
+      connected_account_id: accountId,
+      method: 'GET',
+      url: 'https://gmail.googleapis.com/gmail/v1/users/me/labels'
+    })
+  ]);
+  
+  return {
+    profile: operations[0].data,
+    messages: operations[1].data,
+    labels: operations[2].data
+  };
+};
+```
+
+### Pagination handling
+
+Handle paginated API responses:
+
+```javascript
+// Fetch all Gmail messages with pagination
+const fetchAllMessages = async (accountId, query = '') => {
+  let allMessages = [];
+  let nextPageToken = null;
+  
+  do {
+    const response = await agentConnect.api.request({
+      connected_account_id: accountId,
+      method: 'GET',
+      url: 'https://gmail.googleapis.com/gmail/v1/users/me/messages',
+      params: {
+        q: query,
+        maxResults: 100,
+        pageToken: nextPageToken
+      }
+    });
+    
+    if (response.data.messages) {
+      allMessages = allMessages.concat(response.data.messages);
+    }
+    
+    nextPageToken = response.data.nextPageToken;
+  } while (nextPageToken);
+  
+  return allMessages;
+};
+```
+
+### File upload handling
+
+Handle file uploads with proper encoding:
+
+```javascript
+// Upload file to Google Drive
+const uploadFile = async (accountId, fileData, fileName, mimeType) => {
+  const metadata = {
+    name: fileName,
+    parents: ['parent_folder_id']
+  };
+  
+  const form = new FormData();
+  form.append('metadata', JSON.stringify(metadata), {
+    contentType: 'application/json'
+  });
+  form.append('file', fileData, {
+    filename: fileName,
+    contentType: mimeType
+  });
+  
+  const response = await agentConnect.api.request({
+    connected_account_id: accountId,
+    method: 'POST',
+    url: 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
+    data: form,
+    headers: {
+      'Content-Type': 'multipart/related'
+    }
+  });
+  
+  return response.data;
+};
+```
+
+## Rate limiting and error handling
+
+### Rate limit management
+
+Handle rate limits gracefully:
+
+```javascript
+const apiCallWithRateLimit = async (requestConfig, maxRetries = 3) => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await agentConnect.api.request(requestConfig);
+    } catch (error) {
+      if (error.response?.status === 429) { // Rate limited
+        const retryAfter = error.response.headers['retry-after'] || 
+                          Math.pow(2, attempt); // Exponential backoff
+        
+        console.log(`Rate limited, waiting ${retryAfter} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+        
+        if (attempt < maxRetries) {
+          continue;
+        }
+      }
+      throw error;
+    }
+  }
+};
+```
+
+### Error classification
+
+Classify and handle different types of errors:
+
+```javascript
+const handleAPIError = (error) => {
+  if (error.response) {
+    const status = error.response.status;
+    const data = error.response.data;
+    
+    switch (status) {
+      case 400:
+        return {
+          type: 'VALIDATION_ERROR',
+          message: 'Invalid request parameters',
+          details: data
+        };
+      
+      case 401:
+        return {
+          type: 'AUTHENTICATION_ERROR',
+          message: 'Authentication failed - token may be expired',
+          action: 'REFRESH_TOKEN'
+        };
+      
+      case 403:
+        return {
+          type: 'PERMISSION_ERROR',
+          message: 'Insufficient permissions',
+          action: 'REQUEST_PERMISSIONS'
+        };
+      
+      case 404:
+        return {
+          type: 'NOT_FOUND',
+          message: 'Resource not found',
+          details: data
+        };
+      
+      case 429:
+        return {
+          type: 'RATE_LIMIT',
+          message: 'Rate limit exceeded',
+          retryAfter: error.response.headers['retry-after']
+        };
+      
+      case 500:
+        return {
+          type: 'SERVER_ERROR',
+          message: 'Provider server error',
+          action: 'RETRY_LATER'
+        };
+      
+      default:
+        return {
+          type: 'UNKNOWN_ERROR',
+          message: 'Unknown API error',
+          status: status,
+          details: data
+        };
+    }
+  } else if (error.request) {
+    return {
+      type: 'NETWORK_ERROR',
+      message: 'Network error - no response received',
+      action: 'CHECK_CONNECTIVITY'
+    };
+  } else {
+    return {
+      type: 'REQUEST_ERROR',
+      message: 'Error setting up request',
+      details: error.message
+    };
+  }
+};
+```
+
+## Security considerations
+
+### Input validation
+
+Always validate inputs before making API calls:
+
+```javascript
+const validateEmailAddress = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const sendEmail = async (accountId, to, subject, body) => {
+  // Validate inputs
+  if (!validateEmailAddress(to)) {
+    throw new Error('Invalid email address');
+  }
+  
+  if (!subject || subject.trim().length === 0) {
+    throw new Error('Subject is required');
+  }
+  
+  if (!body || body.trim().length === 0) {
+    throw new Error('Body is required');
+  }
+  
+  // Make API call
+  return await agentConnect.api.request({
+    connected_account_id: accountId,
+    method: 'POST',
+    url: 'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
+    data: {
+      raw: encodeEmailMessage(to, subject, body)
+    }
+  });
+};
+```
+
+### Request sanitization
+
+Sanitize data before sending to APIs:
+
+```javascript
+const sanitizeInput = (input) => {
+  if (typeof input !== 'string') {
+    return input;
+  }
+  
+  // Remove potentially harmful characters
+  return input
+    .replace(/[<>]/g, '') // Remove HTML tags
+    .replace(/[\r\n]/g, ' ') // Replace line breaks with spaces
+    .trim();
+};
+
+const createJiraIssue = async (accountId, issueData) => {
+  const sanitizedData = {
+    ...issueData,
+    summary: sanitizeInput(issueData.summary),
+    description: sanitizeInput(issueData.description)
+  };
+  
+  return await agentConnect.api.request({
+    connected_account_id: accountId,
+    method: 'POST',
+    url: 'https://your-domain.atlassian.net/rest/api/3/issue',
+    data: { fields: sanitizedData }
+  });
+};
+```
+
+## Testing direct API calls
+
+### Mock API responses
+
+Test your API integration logic:
+
+```javascript
+// Mock Agent Connect API for testing
+const mockAgentConnect = {
+  api: {
+    request: jest.fn()
+  }
+};
+
+// Test successful API call
+mockAgentConnect.api.request.mockResolvedValue({
+  data: {
+    id: 'test_message_id',
+    threadId: 'test_thread_id'
+  }
+});
+
+// Test error handling
+mockAgentConnect.api.request.mockRejectedValue({
+  response: {
+    status: 403,
+    data: { error: 'Insufficient permissions' }
+  }
+});
+```
+
+### Integration tests
+
+Test with real API endpoints:
+
+```javascript
+describe('Gmail API Integration', () => {
+  let testAccountId;
+  
+  beforeEach(() => {
+    testAccountId = 'test_gmail_account';
+  });
+  
+  test('should get user profile', async () => {
+    const profile = await agentConnect.api.request({
+      connected_account_id: testAccountId,
+      method: 'GET',
+      url: 'https://gmail.googleapis.com/gmail/v1/users/me/profile'
+    });
+    
+    expect(profile.data).toHaveProperty('emailAddress');
+    expect(profile.data).toHaveProperty('messagesTotal');
+  });
+  
+  test('should handle rate limiting', async () => {
+    // Make multiple requests quickly to trigger rate limiting
+    const requests = Array(100).fill().map(() => 
+      agentConnect.api.request({
+        connected_account_id: testAccountId,
+        method: 'GET',
+        url: 'https://gmail.googleapis.com/gmail/v1/users/me/messages'
+      })
+    );
+    
+    await expect(Promise.all(requests)).resolves.not.toThrow();
+  });
+});
+```
+
+<Aside type="note">
+**Best Practice**: Use direct API calls sparingly and prefer standard Agent Connect tools when possible. Direct API calls require more error handling and maintenance, but provide maximum flexibility for specialized use cases.
+</Aside>
+
+Direct API calls give you the full power of provider APIs while still benefiting from Agent Connect's authentication and token management. Use them wisely to build sophisticated integrations that go beyond standard tool functionality.

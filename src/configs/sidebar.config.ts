@@ -158,6 +158,43 @@ export const sidebar = [
     ],
   },
   {
+    label: 'Agent Connect',
+    link: '/connect/overview',
+    id: 'connect',
+    icon: 'seti:robot',
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'connect/overview',
+          'connect/quickstart',
+          'connect/providers',
+          'connect/connections',
+          'connect/connected-accounts',
+        ],
+      },
+      {
+        label: 'Tools',
+        items: [
+          'connect/tools/overview',
+          'connect/tools/execute',
+          'connect/tools/definitions',
+          'connect/tools/custom-definition',
+        ],
+      },
+      {
+        label: 'Authorization',
+        items: [
+          'connect/authorization/overview',
+          'connect/authorization/direct-api-call',
+          'connect/authorization/verification',
+          'connect/authorization/bring-your-own-auth',
+          'connect/authorization/whitelabelling',
+        ],
+      },
+    ],
+  },
+  {
     label: 'MCP Auth',
     link: '/guides/mcp/overview',
     id: 'mcp',
@@ -321,4 +358,5 @@ export const topics = {
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
   integrations: ['/guides/integrations/**/*'], // Associate all integration pages with the integrations topic
   'full-stack-auth': ['/fsa/**/*'], // Associate all fsa pages with the full-stack-auth topic
+  connect: ['/connect/**/*'], // Associate all connect pages with the connect topic
 }

@@ -1,0 +1,225 @@
+---
+title: Bring your own OAuth credentials
+description: Enable complete whitelabeling by using your own OAuth client credentials for social login providers instead of Scalekit's shared credentials.
+sidebar:
+  order: 99
+  label: "Bring your own OAuth"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Salesforce"
+  link: /guides/integrations/social-connections/salesforce
+next: false
+---
+
+import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+For enterprises that require complete whitelabeling and want to maintain their own OAuth client relationships with social identity providers, Scalekit supports bringing your own OAuth credentials. This approach gives you full control over your OAuth applications and ensures your brand identity is maintained throughout the authentication process.
+
+## Why bring your own OAuth credentials?
+
+### Complete whitelabeling experience
+When you use your own OAuth credentials, users see your application name and branding in the OAuth consent screens instead of Scalekit's. This creates a seamless branded experience for your customers.
+
+### Enhanced security and compliance
+- **Direct relationship**: Maintain direct OAuth client relationships with providers
+- **Audit trail**: Full visibility into OAuth application usage and logs
+- **Compliance**: Meet regulatory requirements that mandate direct provider relationships
+- **Rate limits**: Avoid sharing rate limits with other Scalekit customers
+
+### Production readiness
+While Scalekit's shared credentials are perfect for development and testing, production applications benefit from:
+- **Higher rate limits**: Dedicated OAuth application quotas
+- **Custom verification**: Complete OAuth app verification process with providers
+- **Brand consistency**: Your company name appears in all OAuth flows
+
+## Default behavior with Scalekit credentials
+
+By default, Scalekit provides shared OAuth credentials for supported social providers to help you get started quickly:
+
+<Aside type="note">
+**Supported providers with Scalekit credentials:**
+- Google
+- Microsoft
+- GitHub
+- GitLab
+- LinkedIn
+- Salesforce
+</Aside>
+
+When using Scalekit's shared credentials:
+- Users see "Scalekit" in OAuth consent screens
+- You share rate limits with other Scalekit customers
+- Perfect for development, testing, and proof-of-concept implementations
+
+## Setting up your own OAuth credentials
+
+### General process
+
+The process for bringing your own OAuth credentials is similar across all supported providers:
+
+<Steps>
+1. **Create OAuth application** with the social provider
+2. **Configure redirect URI** using Scalekit's provided URI
+3. **Obtain client credentials** (Client ID and Client Secret)
+4. **Configure in Scalekit** using your own credentials instead of Scalekit's
+5. **Test the connection** to ensure proper setup
+</Steps>
+
+### Provider-specific configuration
+
+Each social provider has its own OAuth application setup process:
+
+<Tabs>
+<TabItem value="google" label="Google">
+
+**Steps for Google OAuth setup:**
+
+1. Visit the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Navigate to the [Google Auth Platform](https://console.cloud.google.com/auth/overview)
+4. Click "Create OAuth Client" and select "Web Application"
+5. Add the redirect URI from your Scalekit social login configuration
+6. Complete the OAuth consent screen setup with your branding
+7. Copy the generated Client ID and Client Secret
+
+**Key considerations:**
+- Complete OAuth app verification for production use
+- Configure OAuth consent screen with your company branding
+- Set appropriate scopes based on your application needs
+
+</TabItem>
+<TabItem value="microsoft" label="Microsoft">
+
+**Steps for Microsoft OAuth setup:**
+
+1. Visit the [Microsoft Identity Platform](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app)
+2. Register a new application in Azure Active Directory
+3. Configure the redirect URI from Scalekit
+4. Generate client credentials (Client ID and Client Secret)
+5. Configure API permissions and consent settings
+
+**Key considerations:**
+- Configure multi-tenant support if needed
+- Set up proper API permissions for your use case
+- Complete publisher verification for production applications
+
+</TabItem>
+<TabItem value="github" label="GitHub">
+
+**Steps for GitHub OAuth setup:**
+
+1. Navigate to your GitHub organization settings
+2. Go to "Developer settings" > "OAuth Apps"
+3. Click "New OAuth App"
+4. Fill in application details with your branding
+5. Set the authorization callback URL from Scalekit
+6. Generate and copy the Client ID and Client Secret
+
+**Key considerations:**
+- Choose between personal account or organization OAuth apps
+- Configure appropriate scopes for user data access
+- Set up proper application branding and description
+
+</TabItem>
+</Tabs>
+
+## Configuration in Scalekit
+
+After setting up your OAuth application with the provider:
+
+<Steps>
+1. **Navigate to Social Login** in your Scalekit dashboard
+2. **Select the provider** you want to configure
+3. **Choose "Use your own credentials"** instead of Scalekit credentials
+4. **Enter your credentials**:
+   - Client ID from your OAuth application
+   - Client Secret from your OAuth application
+5. **Configure additional settings** as needed:
+   - Scopes (if different from defaults)
+   - Login prompt behavior
+   - Custom parameters
+6. **Save the configuration**
+7. **Test the connection** to verify setup
+</Steps>
+
+## Testing your configuration
+
+<Steps>
+1. **Test connection** in Scalekit dashboard
+2. **Verify branding** appears correctly in OAuth consent screens
+3. **Check user data** is returned properly
+4. **Validate in your application** using the Scalekit SDK
+</Steps>
+
+## Best practices
+
+### Security considerations
+- **Rotate credentials regularly**: Set up a schedule for credential rotation
+- **Monitor usage**: Track OAuth application usage and logs
+- **Secure storage**: Store client secrets securely using environment variables
+- **Access control**: Limit access to OAuth application management
+
+### Production deployment
+- **Complete verification**: Ensure OAuth applications are verified with providers
+- **Rate limit monitoring**: Monitor your OAuth application usage
+- **Error handling**: Implement proper error handling for OAuth failures
+- **Fallback strategy**: Consider fallback mechanisms for OAuth failures
+
+### Maintenance
+- **Keep credentials updated**: Monitor for credential expiration
+- **Provider changes**: Stay informed about provider OAuth policy changes
+- **Regular testing**: Periodically test OAuth flows end-to-end
+- **Documentation**: Maintain internal documentation of OAuth setup
+
+## Migration from Scalekit credentials
+
+If you're currently using Scalekit's shared credentials and want to migrate to your own:
+
+<Steps>
+1. **Set up your OAuth applications** with each provider
+2. **Configure in Scalekit** with your credentials
+3. **Test thoroughly** in development environment
+4. **Deploy gradually** using feature flags if possible
+5. **Monitor for issues** during the transition period
+</Steps>
+
+<Aside type="caution">
+**Migration considerations:**
+- Users may need to re-consent to your OAuth application
+- Rate limits and quotas will change to your application's limits
+- OAuth consent screens will show your branding instead of Scalekit's
+</Aside>
+
+## Troubleshooting
+
+### Common issues and solutions
+
+**OAuth consent screen shows wrong branding:**
+- Verify OAuth application is configured with your company details
+- Check that you're using your own credentials, not Scalekit's
+- Ensure OAuth application verification is complete
+
+**Rate limit errors:**
+- Check your OAuth application quotas with the provider
+- Consider requesting quota increases if needed
+- Monitor usage patterns to optimize API calls
+
+**Authentication failures:**
+- Verify redirect URI matches exactly between provider and Scalekit
+- Check client credentials are correctly configured
+- Ensure OAuth application is active and not suspended
+
+**User data missing:**
+- Verify OAuth scopes are configured correctly
+- Check that your OAuth application has necessary permissions
+- Ensure user consent includes required scopes
+
+## Support and resources
+
+- **Provider documentation**: Refer to each provider's OAuth documentation
+- **Scalekit support**: Contact support for configuration assistance
+- **Community**: Join the Scalekit community for best practices sharing
+- **Status pages**: Monitor provider status pages for OAuth service issues
+
+By bringing your own OAuth credentials, you maintain complete control over your authentication experience while leveraging Scalekit's robust authentication infrastructure. This approach is recommended for production applications that require enterprise-grade security and complete whitelabeling.

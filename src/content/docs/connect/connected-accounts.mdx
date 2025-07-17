@@ -1,0 +1,586 @@
+---
+title: Connected accounts
+description: Learn how to manage connected accounts in Agent Connect, including user authentication, authorization status, and account lifecycle management.
+sidebar:
+  order: 4
+  label: "Connected accounts"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Connections"
+  link: "/connect/connections"
+next:
+  label: "Tool execution"
+  link: "/connect/tools/execute"
+---
+
+import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Connected accounts in Agent Connect represent individual user or organization connections to third-party providers. They contain the authentication state, tokens, and permissions needed to execute tools on behalf of a specific identifier (user_id, org_id, or custom identifier).
+
+## What are connected accounts?
+
+Connected accounts are the runtime instances that link your users to their third-party application accounts. Each connected account:
+
+- **Links to a connection**: Uses a pre-configured connection for authentication
+- **Has a unique identifier**: Associated with a user_id, org_id, or custom identifier
+- **Maintains auth state**: Tracks whether the user has completed authentication
+- **Stores tokens**: Securely holds access tokens and refresh tokens
+- **Manages permissions**: Tracks granted scopes and permissions
+
+## Connected account lifecycle
+
+Connected accounts go through several states during their lifecycle:
+
+### Account states
+
+1. **Pending**: Account created but user hasn't completed authentication
+2. **Active**: User has authenticated and tokens are valid
+3. **Expired**: Tokens have expired and need refresh
+4. **Revoked**: User has revoked access to the application
+5. **Error**: Account has authentication or configuration errors
+6. **Suspended**: Account temporarily disabled
+
+### State transitions
+
+```mermaid
+graph TD
+    A[Pending] --> B[Active]
+    B --> C[Expired]
+    C --> B
+    B --> D[Revoked]
+    B --> E[Error]
+    E --> B
+    B --> F[Suspended]
+    F --> B
+```
+
+## Creating connected accounts
+
+### Using the dashboard
+
+<Steps>
+1. **Navigate to connected accounts** in your Agent Connect dashboard
+2. **Click create account** to start the process
+3. **Select connection** to use for authentication
+4. **Enter identifier** (user_id, email, or custom identifier)
+5. **Configure settings** such as scopes and permissions
+6. **Generate auth URL** for the user to complete authentication
+7. **Monitor status** until user completes the flow
+</Steps>
+
+### Using the API
+
+Create connected accounts programmatically:
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```bash
+curl -X POST "https://api.scalekit.com/v1/connect/accounts" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "connection_id": "conn_gmail_oauth",
+    "identifier": "user_123",
+    "identifier_type": "user_id",
+    "scopes": ["https://www.googleapis.com/auth/gmail.send"],
+    "settings": {
+      "auto_refresh": true,
+      "expires_in": 3600
+    }
+  }'
+```
+
+</TabItem>
+<TabItem value="javascript" label="JavaScript">
+
+```javascript
+const connectedAccount = await agentConnect.accounts.create({
+  connection_id: 'conn_gmail_oauth',
+  identifier: 'user_123',
+  identifier_type: 'user_id',
+  scopes: ['https://www.googleapis.com/auth/gmail.send'],
+  settings: {
+    auto_refresh: true,
+    expires_in: 3600
+  }
+});
+
+// Generate authorization URL for user
+const authUrl = await agentConnect.accounts.getAuthUrl(connectedAccount.id);
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+connected_account = agent_connect.accounts.create(
+    connection_id='conn_gmail_oauth',
+    identifier='user_123',
+    identifier_type='user_id',
+    scopes=['https://www.googleapis.com/auth/gmail.send'],
+    settings={
+        'auto_refresh': True,
+        'expires_in': 3600
+    }
+)
+
+# Generate authorization URL for user
+auth_url = agent_connect.accounts.get_auth_url(connected_account.id)
+```
+
+</TabItem>
+</Tabs>
+
+## Authentication flow
+
+### OAuth 2.0 flow
+
+For OAuth connections, connected accounts follow the standard OAuth flow:
+
+<Steps>
+1. **Create connected account** with pending status
+2. **Generate authorization URL** for the user
+3. **User completes OAuth flow** with the third-party provider
+4. **Provider redirects back** with authorization code
+5. **Exchange code for tokens** and update account status
+6. **Account becomes active** and ready for tool execution
+</Steps>
+
+### Authorization URL generation
+
+Generate URLs for users to complete authentication:
+
+```javascript
+// Generate authorization URL
+const authUrl = await agentConnect.accounts.getAuthUrl('account_id', {
+  state: 'custom_state_value',
+  redirect_uri: 'https://your-app.com/callback',
+  scopes: ['additional_scope']
+});
+
+// Example generated URL
+// https://accounts.google.com/oauth/authorize?
+//   client_id=your_client_id&
+//   redirect_uri=https://your-app.com/callback&
+//   scope=https://www.googleapis.com/auth/gmail.send&
+//   response_type=code&
+//   state=custom_state_value
+```
+
+### Handling callbacks
+
+Process the OAuth callback to complete authentication:
+
+<Tabs>
+<TabItem value="javascript" label="JavaScript">
+
+```javascript
+// Handle OAuth callback
+app.get('/callback', async (req, res) => {
+  const { code, state, error } = req.query;
+  
+  if (error) {
+    // Handle OAuth error
+    return res.status(400).json({ error: error });
+  }
+  
+  try {
+    // Exchange code for tokens
+    const result = await agentConnect.accounts.exchangeCode(
+      'account_id',
+      code,
+      state
+    );
+    
+    // Account is now active
+    res.json({ status: 'success', account: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+@app.route('/callback')
+def handle_callback():
+    code = request.args.get('code')
+    state = request.args.get('state')
+    error = request.args.get('error')
+    
+    if error:
+        return jsonify({'error': error}), 400
+    
+    try:
+        # Exchange code for tokens
+        result = agent_connect.accounts.exchange_code(
+            'account_id',
+            code,
+            state
+        )
+        
+        # Account is now active
+        return jsonify({'status': 'success', 'account': result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+```
+
+</TabItem>
+</Tabs>
+
+## Managing connected accounts
+
+### Account information
+
+Retrieve connected account details:
+
+```javascript
+const account = await agentConnect.accounts.get('account_id');
+
+// Account object structure
+{
+  "id": "account_123",
+  "connection_id": "conn_gmail_oauth",
+  "identifier": "user_123",
+  "identifier_type": "user_id",
+  "provider": "gmail",
+  "status": "active",
+  "scopes": ["https://www.googleapis.com/auth/gmail.send"],
+  "created_at": "2024-01-15T10:30:00Z",
+  "updated_at": "2024-01-15T10:45:00Z",
+  "expires_at": "2024-01-15T11:45:00Z",
+  "metadata": {
+    "user_email": "user@example.com",
+    "provider_account_id": "google_user_123"
+  }
+}
+```
+
+### Token management
+
+Connected accounts automatically handle token lifecycle:
+
+**Automatic token refresh:**
+- Tokens are refreshed automatically before expiration
+- Refresh happens transparently during tool execution
+- Failed refresh attempts update account status to expired
+
+**Manual token refresh:**
+```javascript
+// Manually refresh tokens
+const refreshed = await agentConnect.accounts.refreshTokens('account_id');
+
+// Check token status
+const tokenStatus = await agentConnect.accounts.getTokenStatus('account_id');
+```
+
+### Account status monitoring
+
+Monitor account authentication status:
+
+```javascript
+// Check account status
+const status = await agentConnect.accounts.getStatus('account_id');
+
+// Possible status values:
+// - pending: Waiting for user authentication
+// - active: Authenticated and ready
+// - expired: Tokens expired, needs refresh
+// - revoked: User revoked access
+// - error: Authentication error
+// - suspended: Account temporarily disabled
+```
+
+## Account permissions and scopes
+
+### Scope management
+
+Connected accounts can have different scopes than their parent connection:
+
+```javascript
+// Create account with custom scopes
+const account = await agentConnect.accounts.create({
+  connection_id: 'conn_gmail_oauth',
+  identifier: 'user_123',
+  scopes: [
+    'https://www.googleapis.com/auth/gmail.readonly',  // Read-only access
+    'https://www.googleapis.com/auth/gmail.send'      // Send emails
+  ]
+});
+
+// Update account scopes (requires re-authentication)
+await agentConnect.accounts.updateScopes('account_id', {
+  scopes: ['https://www.googleapis.com/auth/gmail.modify']
+});
+```
+
+### Permission validation
+
+Verify account permissions before tool execution:
+
+```javascript
+// Check if account has required permissions
+const hasPermission = await agentConnect.accounts.hasPermission(
+  'account_id',
+  'https://www.googleapis.com/auth/gmail.send'
+);
+
+// Get all granted permissions
+const permissions = await agentConnect.accounts.getPermissions('account_id');
+```
+
+## Account metadata and settings
+
+### Custom metadata
+
+Store additional information with connected accounts:
+
+```javascript
+// Add custom metadata
+await agentConnect.accounts.updateMetadata('account_id', {
+  user_email: 'user@example.com',
+  department: 'engineering',
+  preferences: {
+    notification_settings: 'email',
+    timezone: 'UTC'
+  }
+});
+
+// Retrieve metadata
+const metadata = await agentConnect.accounts.getMetadata('account_id');
+```
+
+### Account settings
+
+Configure account-specific settings:
+
+```javascript
+// Update account settings
+await agentConnect.accounts.updateSettings('account_id', {
+  auto_refresh: true,
+  rate_limit: 100,
+  timeout: 30,
+  retry_attempts: 3
+});
+```
+
+## Bulk operations
+
+### Managing multiple accounts
+
+Handle multiple connected accounts efficiently:
+
+```javascript
+// Create multiple accounts
+const accounts = await agentConnect.accounts.createBulk([
+  {
+    connection_id: 'conn_gmail_oauth',
+    identifier: 'user_1',
+    identifier_type: 'user_id'
+  },
+  {
+    connection_id: 'conn_gmail_oauth',
+    identifier: 'user_2',
+    identifier_type: 'user_id'
+  }
+]);
+
+// Get accounts by connection
+const gmailAccounts = await agentConnect.accounts.list({
+  connection_id: 'conn_gmail_oauth'
+});
+
+// Get accounts by status
+const activeAccounts = await agentConnect.accounts.list({
+  status: 'active'
+});
+```
+
+### Batch operations
+
+Perform operations on multiple accounts:
+
+```javascript
+// Refresh tokens for multiple accounts
+const refreshResults = await agentConnect.accounts.refreshTokensBulk([
+  'account_1',
+  'account_2',
+  'account_3'
+]);
+
+// Update settings for multiple accounts
+await agentConnect.accounts.updateSettingsBulk([
+  'account_1',
+  'account_2'
+], {
+  auto_refresh: true,
+  rate_limit: 150
+});
+```
+
+## Error handling
+
+### Common errors
+
+Handle common connected account errors:
+
+```javascript
+try {
+  const account = await agentConnect.accounts.get('account_id');
+} catch (error) {
+  switch (error.code) {
+    case 'ACCOUNT_NOT_FOUND':
+      // Account doesn't exist
+      break;
+    case 'ACCOUNT_EXPIRED':
+      // Tokens expired, refresh needed
+      break;
+    case 'ACCOUNT_REVOKED':
+      // User revoked access
+      break;
+    case 'INVALID_PERMISSIONS':
+      // Insufficient permissions
+      break;
+    default:
+      // Other errors
+      break;
+  }
+}
+```
+
+### Error recovery
+
+Implement error recovery strategies:
+
+<Steps>
+1. **Detect error** - Monitor account status and API responses
+2. **Classify error** - Determine if error is recoverable
+3. **Attempt recovery** - Try token refresh or re-authentication
+4. **Notify user** - Inform user if manual action is required
+5. **Update status** - Update account status based on recovery result
+</Steps>
+
+## Security considerations
+
+### Token security
+
+Protect user tokens and credentials:
+
+- **Encryption**: All tokens are encrypted at rest and in transit
+- **Token rotation**: Implement regular token rotation
+- **Access logging**: Log all token access and usage
+- **Secure storage**: Use secure storage mechanisms for tokens
+
+### Permission management
+
+Follow principle of least privilege:
+
+- **Minimal scopes**: Request only necessary permissions
+- **Scope validation**: Verify permissions before tool execution
+- **Regular audit**: Review granted permissions regularly
+- **User consent**: Ensure users understand granted permissions
+
+### Account isolation
+
+Ensure proper account isolation:
+
+- **Tenant isolation**: Separate accounts by tenant/organization
+- **User isolation**: Prevent cross-user data access
+- **Connection isolation**: Separate different connection types
+- **Audit trail**: Maintain detailed audit logs
+
+## Monitoring and analytics
+
+### Account health monitoring
+
+Monitor connected account health:
+
+```javascript
+// Get account health metrics
+const health = await agentConnect.accounts.getHealth('account_id');
+
+// Health metrics include:
+// - Token expiry status
+// - Authentication success rate
+// - API error rates
+// - Last successful authentication
+```
+
+### Usage analytics
+
+Track account usage patterns:
+
+```javascript
+// Get account usage statistics
+const usage = await agentConnect.accounts.getUsage('account_id', {
+  start_date: '2024-01-01',
+  end_date: '2024-01-31'
+});
+
+// Usage data includes:
+// - Total tool executions
+// - API requests made
+// - Error rates
+// - Most used tools
+```
+
+## Best practices
+
+### Account lifecycle management
+
+- **Regular cleanup**: Remove unused or expired accounts
+- **Status monitoring**: Monitor account status changes
+- **Proactive refresh**: Refresh tokens before expiration
+- **User notifications**: Notify users of authentication issues
+
+### Performance optimization
+
+- **Connection pooling**: Reuse connections efficiently
+- **Token caching**: Cache tokens appropriately
+- **Batch operations**: Use bulk operations when possible
+- **Async processing**: Handle authentication flows asynchronously
+
+### User experience
+
+- **Clear error messages**: Provide helpful error messages to users
+- **Seamless re-auth**: Make re-authentication flows smooth
+- **Status visibility**: Show users their connection status
+- **Easy revocation**: Allow users to easily revoke access
+
+## Testing connected accounts
+
+### Development testing
+
+Test connected accounts in development:
+
+```javascript
+// Create test account
+const testAccount = await agentConnect.accounts.create({
+  connection_id: 'conn_test_provider',
+  identifier: 'test_user',
+  identifier_type: 'user_id',
+  test_mode: true
+});
+
+// Use test tokens
+const testTokens = await agentConnect.accounts.getTestTokens('account_id');
+```
+
+### Integration testing
+
+Test authentication flows:
+
+<Steps>
+1. **Create test connection** with test credentials
+2. **Create connected account** with test identifier
+3. **Generate auth URL** and complete OAuth flow
+4. **Verify account status** becomes active
+5. **Test tool execution** with the account
+6. **Test token refresh** and error scenarios
+</Steps>
+
+Next, learn how to [execute tools](/connect/tools/execute) using your connected accounts to interact with third-party applications.
