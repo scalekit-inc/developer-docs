@@ -85,401 +85,6 @@
         ]
       }
     },
-    "/api/v1/environments/-/roles": {
-      "get": {
-        "description": "Retrieve a list of roles available within the environment. Supports pagination through standard query parameters.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "List roles",
-        "operationId": "RolesService_ListRoles2",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved list of roles",
-            "schema": {
-              "$ref": "#/definitions/rolesListRolesResponse"
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new role within the environment. Roles define permissions that can be assigned to users or groups.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Create a role",
-        "operationId": "RolesService_CreateRole2",
-        "parameters": [
-          {
-            "name": "role",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1rolesCreateRole"
-            }
-          },
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Role created successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesCreateRoleResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "from scalekit.v1.roles.roles_pb2 import CreateRole\n\nrole = CreateRole(\n    name=\"viewer\",\n    display_name=\"Viewer\",\n    description=\"Read-only access\",\n)\n\ncreate_response = scalekit_client.roles.create_role(\n    env_id=\"env_123\",\n    role=role,\n)"
-          }
-        ]
-      }
-    },
-    "/api/v1/environments/-/roles/default": {
-      "patch": {
-        "description": "Updates the default creator and member roles for the environment.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Update default roles",
-        "operationId": "RolesService_UpdateDefaultRoles2",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateDefaultRolesRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Default roles updated successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateDefaultRolesResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/environments/-/roles/{id}": {
-      "get": {
-        "description": "Fetch detailed information about a specific role using its unique identifier.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Retrieve a role",
-        "operationId": "RolesService_GetRole2",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved role details",
-            "schema": {
-              "$ref": "#/definitions/rolesGetRoleResponse"
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Updates an existing role identified by its unique ID. Only provided fields are modified.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Update a role",
-        "operationId": "RolesService_UpdateRole2",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "role",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1rolesUpdateRole"
-            }
-          },
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Role updated successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateRoleResponse"
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Removes an existing role from the environment using its unique identifier. Optionally reassign users to another role.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Delete a role",
-        "operationId": "RolesService_DeleteRole2",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Role ID to reassign users to when deleting this role",
-            "name": "reassign_role_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Deleted Successfully",
-            "schema": {}
-          }
-        }
-      }
-    },
-    "/api/v1/environments/{env_id}/roles": {
-      "get": {
-        "description": "Retrieve a list of roles available within the environment. Supports pagination through standard query parameters.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "List roles",
-        "operationId": "RolesService_ListRoles3",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved list of roles",
-            "schema": {
-              "$ref": "#/definitions/rolesListRolesResponse"
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new role within the environment. Roles define permissions that can be assigned to users or groups.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Create a role",
-        "operationId": "RolesService_CreateRole3",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "role",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1rolesCreateRole"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Role created successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesCreateRoleResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "from scalekit.v1.roles.roles_pb2 import CreateRole\n\nrole = CreateRole(\n    name=\"viewer\",\n    display_name=\"Viewer\",\n    description=\"Read-only access\",\n)\n\ncreate_response = scalekit_client.roles.create_role(\n    env_id=\"env_123\",\n    role=role,\n)"
-          }
-        ]
-      }
-    },
-    "/api/v1/environments/{env_id}/roles/default": {
-      "patch": {
-        "description": "Updates the default creator and member roles for the environment.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Update default roles",
-        "operationId": "RolesService_UpdateDefaultRoles3",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/RolesServiceUpdateDefaultRolesBody"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Default roles updated successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateDefaultRolesResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/environments/{env_id}/roles/{id}": {
-      "get": {
-        "description": "Fetch detailed information about a specific role using its unique identifier.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Retrieve a role",
-        "operationId": "RolesService_GetRole3",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved role details",
-            "schema": {
-              "$ref": "#/definitions/rolesGetRoleResponse"
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Updates an existing role identified by its unique ID. Only provided fields are modified.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Update a role",
-        "operationId": "RolesService_UpdateRole3",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "role",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1rolesUpdateRole"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Role updated successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateRoleResponse"
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Removes an existing role from the environment using its unique identifier. Optionally reassign users to another role.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Delete a role",
-        "operationId": "RolesService_DeleteRole3",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Role ID to reassign users to when deleting this role",
-            "name": "reassign_role_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Deleted Successfully",
-            "schema": {}
-          }
-        }
-      }
-    },
     "/api/v1/memberships/organizations/{organization_id}/users/{id}": {
       "post": {
         "description": "Adds an existing user to an organization and assigns them specific roles and permissions. Use this endpoint when you want to grant an existing user access to a particular organization. You can specify roles, metadata, and other membership details during the invitation process.",
@@ -1011,6 +616,51 @@
       }
     },
     "/api/v1/organizations/{organization_id}/clients": {
+      "get": {
+        "description": "Retrieves a paginated list of API clients for a specific organization. Returns client details including metadata, scopes, and secret information (without exposing actual secret values).",
+        "tags": [
+          "API Auth"
+        ],
+        "summary": "List organization API clients",
+        "operationId": "ClientService_ListOrganizationClients",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization whose clients to list. Must start with 'org_' prefix.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum number of clients to return per page\n\nMaximum number of API clients to return per page. Must be between 10 and 100",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Pagination token from the previous response\n\nPagination token from the previous response. Use to retrieve the next page of organization clients",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of organization API clients returned successfully. Each client includes its configuration details and metadata.",
+            "schema": {
+              "$ref": "#/definitions/clientsListOrganizationClientsResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# List clients for a specific organization\norg_id = 'SCALEKIT_ORGANIZATION_ID'\n\n# Retrieve all clients with default pagination\nresponse = sc.m2m_client.list_organization_clients(\n    organization_id=org_id,\n    page_size=30\n)\n\n# Access the clients list\nclients = response.clients\nfor client in clients:\n    print(f\"Client ID: {client.id}, Name: {client.name}\")"
+          }
+        ]
+      },
       "post": {
         "description": "Creates a new API client for an organization. Returns the client details and a plain secret (available only once).",
         "tags": [
@@ -1264,6 +914,46 @@
             "source": "# Get client and secret IDs from environment variables\norg_id = '\u003cSCALEKIT_ORGANIZATION_ID\u003e'\nclient_id = os.environ['M2M_CLIENT_ID']\nsecret_id = os.environ['M2M_SECRET_ID']\n\n# Remove the specified secret from the client\nresponse = sc.m2m_client.remove_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id,\n    secret_id=secret_id\n)"
           }
         ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}/connections/{connection_id}/domains": {
+      "put": {
+        "description": "Assigns one or more domains to a specific connection within an organization. This allows the connection to be used for authentication on the specified domains",
+        "tags": [
+          "Connections"
+        ],
+        "summary": "Assign domains to a connection",
+        "operationId": "ConnectionService_AssignDomainsToConnection",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "connection_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConnectionServiceAssignDomainsToConnectionBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Domains assigned successfully",
+            "schema": {
+              "$ref": "#/definitions/connectionsAssignDomainsToConnectionResponse"
+            }
+          }
+        }
       }
     },
     "/api/v1/organizations/{organization_id}/connections/{id}": {
@@ -2047,6 +1737,11 @@
             "label": "Node.js SDK",
             "lang": "javascript",
             "source": "const { authRequestId } = sendResponse;\nconst resendResponse = await scalekit.passwordless\n.resendPasswordlessEmail(\n    authRequestId\n);"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resendResponse, err := client.Passwordless().ResendPasswordlessEmail(\n    ctx,\n    authRequestId,\n)\n\nif err != nil {\n    // Handle error\n    return\n}"
           }
         ]
       }
@@ -2082,6 +1777,11 @@
             "label": "Node.js SDK",
             "lang": "javascript",
             "source": "const response = await scalekit.passwordless.\n  sendPasswordlessEmail(\n\t\"john.doe@example.com\",\n\t{\n\t\ttemplate: \"SIGNIN\",\n\t\texpiresIn: 100,\n\t\tmagiclinkAuthUri: \"https://www.google.com\",\n\t\ttemplateVariables: {\n\t\t\temployeeID: \"EMP523\",\n\t\t\tteamName: \"Alpha Team\",\n\t\t\tsupportEmail: \"support@yourcompany.com\",\n\t\t},\n\t}\n);"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "templateType := scalekit.TemplateTypeSignin\nresponse, err := client.Passwordless().SendPasswordlessEmail(\n    ctx,\n    \"john.doe@example.com\",\n    \u0026scalekit.SendPasswordlessOptions{\n        Template:         \u0026templateType,\n        ExpiresIn:        100,\n        MagiclinkAuthUri: \"https://www.google.com\",\n        TemplateVariables: map[string]string{\n            \"employeeID\":    \"EMP523\",\n            \"teamName\":      \"Alpha Team\",\n            \"supportEmail\":  \"support@yourcompany.com\",\n        },\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\nauthRequestId := response.AuthRequestId"
           }
         ]
       }
@@ -2117,200 +1817,13 @@
             "label": "Node.js SDK",
             "lang": "javascript",
             "source": "const { authRequestId } = sendResponse;\nconst verifyResponse = await scalekit.passwordless.\n  verifyPasswordlessEmail(\n\t// Verification Code (OTP)\n\t{ code: \"123456\" },\n\t// Magic Link Token\n\t{ linkToken: link_token },\n\tauthRequestId\n);"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Verify with OTP code\nverifyResponse, err := client.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    \u0026scalekit.VerifyPasswordlessOptions{\n        Code:          \"123456\", // OTP code\n        AuthRequestId: authRequestId,\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// Verify with magic link token\nverifyResponse, err := client.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    \u0026scalekit.VerifyPasswordlessOptions{\n        LinkToken: linkToken, // Magic link token\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// User verified successfully\nuserEmail := verifyResponse.Email"
           }
         ]
-      }
-    },
-    "/api/v1/roles": {
-      "get": {
-        "description": "Retrieve a list of roles available within the environment. Supports pagination through standard query parameters.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "List roles",
-        "operationId": "RolesService_ListRoles",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved list of roles",
-            "schema": {
-              "$ref": "#/definitions/rolesListRolesResponse"
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new role within the environment. Roles define permissions that can be assigned to users or groups.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Create a role",
-        "operationId": "RolesService_CreateRole",
-        "parameters": [
-          {
-            "name": "role",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1rolesCreateRole"
-            }
-          },
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Role created successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesCreateRoleResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "from scalekit.v1.roles.roles_pb2 import CreateRole\n\nrole = CreateRole(\n    name=\"viewer\",\n    display_name=\"Viewer\",\n    description=\"Read-only access\",\n)\n\ncreate_response = scalekit_client.roles.create_role(\n    env_id=\"env_123\",\n    role=role,\n)"
-          }
-        ]
-      }
-    },
-    "/api/v1/roles/default": {
-      "patch": {
-        "description": "Updates the default creator and member roles for the environment.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Update default roles",
-        "operationId": "RolesService_UpdateDefaultRoles",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateDefaultRolesRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Default roles updated successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateDefaultRolesResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/roles/{id}": {
-      "get": {
-        "description": "Fetch detailed information about a specific role using its unique identifier.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Retrieve a role",
-        "operationId": "RolesService_GetRole",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved role details",
-            "schema": {
-              "$ref": "#/definitions/rolesGetRoleResponse"
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Updates an existing role identified by its unique ID. Only provided fields are modified.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Update a role",
-        "operationId": "RolesService_UpdateRole",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "role",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1rolesUpdateRole"
-            }
-          },
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Role updated successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateRoleResponse"
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Removes an existing role from the environment using its unique identifier. Optionally reassign users to another role.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Delete a role",
-        "operationId": "RolesService_DeleteRole",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "env_id",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "description": "Role ID to reassign users to when deleting this role",
-            "name": "reassign_role_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Deleted Successfully",
-            "schema": {}
-          }
-        }
       }
     },
     "/api/v1/users": {
@@ -2542,37 +2055,23 @@
     }
   },
   "definitions": {
+    "ConnectionServiceAssignDomainsToConnectionBody": {
+      "type": "object",
+      "properties": {
+        "domain_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "OrganizationServiceUpdateUserManagementSettingsBody": {
       "type": "object",
       "properties": {
         "settings": {
           "description": "The new values for the setting fields to patch.",
           "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
-        }
-      }
-    },
-    "RolesServiceUpdateDefaultRolesBody": {
-      "type": "object",
-      "properties": {
-        "default_creator": {
-          "description": "Default Creator Role",
-          "$ref": "#/definitions/rolesUpdateDefaultRole",
-          "example": {
-            "description": "Role for creating resources",
-            "display_name": "Creator Role",
-            "id": "role_1234567890",
-            "name": "creator"
-          }
-        },
-        "default_member": {
-          "description": "Default Member Role",
-          "$ref": "#/definitions/rolesUpdateDefaultRole",
-          "example": {
-            "description": "Role for regular members",
-            "display_name": "Member Role",
-            "id": "role_0987654321",
-            "name": "member"
-          }
         }
       }
     },
@@ -2743,6 +2242,41 @@
         "client": {
           "description": "Details of the requested client",
           "$ref": "#/definitions/clientsM2MClient"
+        }
+      }
+    },
+    "clientsListOrganizationClientsResponse": {
+      "description": "Response message containing a paginated list of API clients for the specified organization.",
+      "type": "object",
+      "title": "List Organization Clients Response",
+      "properties": {
+        "clients": {
+          "description": "List of API client objects for the organization. Each client includes its configuration, metadata, and active secrets (without exposing actual secret values).",
+          "type": "array",
+          "title": "List of organization API clients",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/clientsM2MClient"
+          }
+        },
+        "next_page_token": {
+          "description": "Pagination token for the next page of results. Use this token to fetch the next page.",
+          "type": "string",
+          "title": "Pagination token for the next page of results",
+          "example": "\u003cnext_page_token\u003e"
+        },
+        "prev_page_token": {
+          "description": "Pagination token for the previous page of results. Use this token to fetch the previous page.",
+          "type": "string",
+          "title": "Pagination token for the previous page of results",
+          "example": "\u003cprev_page_token\u003e"
+        },
+        "total_size": {
+          "description": "Total number of API clients in the organization.",
+          "type": "integer",
+          "format": "int64",
+          "title": "Total number of clients in the organization",
+          "example": 30
         }
       }
     },
@@ -3055,6 +2589,27 @@
         }
       }
     },
+    "connectionsAssignDomainsToConnectionResponse": {
+      "type": "object",
+      "properties": {
+        "connection": {
+          "description": "Connection with assigned domains",
+          "$ref": "#/definitions/connectionsConnection",
+          "example": {
+            "configuration_type": "MANUAL",
+            "debug_enabled": false,
+            "enabled": true,
+            "id": "conn_1234567890",
+            "organization_id": "org_1234567890",
+            "provider": "OKTA",
+            "status": "CONFIGURED",
+            "test_connection_uri": "https://auth.example.com/test-connection/conn_1234567890",
+            "type": "OIDC",
+            "ui_button_title": "Login with SSO"
+          }
+        }
+      }
+    },
     "connectionsCodeChallengeType": {
       "type": "string",
       "enum": [
@@ -3088,6 +2643,15 @@
           "description": "Enables testing mode that allows non-HTTPS endpoints. Should only be enabled in development environments, never in production.",
           "type": "boolean",
           "example": true
+        },
+        "domains": {
+          "description": "Domain associated with this connection, used for domain-based authentication flows.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/domainsDomain"
+          },
+          "example": "example.com"
         },
         "enabled": {
           "description": "Controls whether users can sign in using this connection. When false, the connection exists but cannot be used for authentication.",
@@ -3133,6 +2697,10 @@
         "saml_config": {
           "description": "Configuration details for SAML connections. Present only when type is SAML.",
           "$ref": "#/definitions/connectionsSAMLConnectionConfigResponse"
+        },
+        "static_config": {
+          "description": "Static configuration for custom connections. Present only when type is BASIC, BEARER, API_KEY, or custom.",
+          "$ref": "#/definitions/connectionsStaticAuthConfig"
         },
         "status": {
           "description": "Current configuration status of the connection. Possible values include IN_PROGRESS, CONFIGURED, and ERROR.",
@@ -3188,7 +2756,10 @@
         "SAML",
         "PASSWORD",
         "OAUTH",
-        "PASSWORDLESS"
+        "PASSWORDLESS",
+        "BASIC",
+        "BEARER",
+        "API_KEY"
       ]
     },
     "connectionsGetConnectionResponse": {
@@ -3313,6 +2884,11 @@
     "connectionsOAuthConnectionConfig": {
       "type": "object",
       "properties": {
+        "access_type": {
+          "description": "Access Type",
+          "type": "string",
+          "example": "offline"
+        },
         "authorize_uri": {
           "description": "Authorize URI",
           "type": "string",
@@ -3646,6 +3222,14 @@
         "SAML_RESPONSE_ASSERTION_SIGNING",
         "SAML_RESPONSE_OR_ASSERTION_SIGNING"
       ]
+    },
+    "connectionsStaticAuthConfig": {
+      "type": "object",
+      "properties": {
+        "static_config": {
+          "type": "object"
+        }
+      }
     },
     "connectionsToggleConnectionResponse": {
       "type": "object",
@@ -4081,6 +3665,64 @@
         }
       }
     },
+    "domainsDomain": {
+      "type": "object",
+      "properties": {
+        "connection_id": {
+          "type": "string"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "created_by": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "domain_type": {
+          "$ref": "#/definitions/domainsDomainType"
+        },
+        "environment_id": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "organization_id": {
+          "type": "string"
+        },
+        "txt_record_key": {
+          "type": "string"
+        },
+        "txt_record_secret": {
+          "type": "string"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "verification_status": {
+          "$ref": "#/definitions/domainsVerificationStatus"
+        }
+      }
+    },
+    "domainsDomainType": {
+      "type": "string",
+      "enum": [
+        "HOME_REALM_DISCOVERY",
+        "JIT_PROVISIONING_DOMAIN"
+      ]
+    },
+    "domainsVerificationStatus": {
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "VERIFIED",
+        "FAILED"
+      ]
+    },
     "organizationsCreateOrganizationResponse": {
       "type": "object",
       "properties": {
@@ -4425,105 +4067,6 @@
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.",
       "type": "string"
     },
-    "rolesCreateRoleResponse": {
-      "type": "object",
-      "properties": {
-        "role": {
-          "$ref": "#/definitions/v1rolesRole"
-        }
-      }
-    },
-    "rolesGetRoleResponse": {
-      "type": "object",
-      "properties": {
-        "role": {
-          "$ref": "#/definitions/v1rolesRole"
-        }
-      }
-    },
-    "rolesListRolesResponse": {
-      "type": "object",
-      "properties": {
-        "roles": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1rolesRole"
-          }
-        }
-      }
-    },
-    "rolesUpdateDefaultRole": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Role ID to set as default creator/member",
-          "type": "string",
-          "example": "role_1234567890"
-        }
-      }
-    },
-    "rolesUpdateDefaultRolesRequest": {
-      "type": "object",
-      "properties": {
-        "default_creator": {
-          "description": "Default Creator Role",
-          "$ref": "#/definitions/rolesUpdateDefaultRole",
-          "example": {
-            "description": "Role for creating resources",
-            "display_name": "Creator Role",
-            "id": "role_1234567890",
-            "name": "creator"
-          }
-        },
-        "default_member": {
-          "description": "Default Member Role",
-          "$ref": "#/definitions/rolesUpdateDefaultRole",
-          "example": {
-            "description": "Role for regular members",
-            "display_name": "Member Role",
-            "id": "role_0987654321",
-            "name": "member"
-          }
-        },
-        "env_id": {
-          "type": "string"
-        }
-      }
-    },
-    "rolesUpdateDefaultRolesResponse": {
-      "type": "object",
-      "properties": {
-        "default_creator": {
-          "description": "Updated Default Creator Role",
-          "$ref": "#/definitions/v1rolesRole",
-          "example": {
-            "description": "Role for creating resources",
-            "display_name": "Creator Role",
-            "id": "role_1234567890",
-            "name": "creator"
-          }
-        },
-        "default_member": {
-          "description": "Updated Default Member Role",
-          "$ref": "#/definitions/v1rolesRole",
-          "example": {
-            "description": "Role for regular members",
-            "display_name": "Member Role",
-            "id": "role_0987654321",
-            "name": "member"
-          }
-        }
-      }
-    },
-    "rolesUpdateRoleResponse": {
-      "type": "object",
-      "properties": {
-        "role": {
-          "$ref": "#/definitions/v1rolesRole"
-        }
-      }
-    },
     "usersCreateMembershipResponse": {
       "type": "object",
       "properties": {
@@ -4809,6 +4352,9 @@
     },
     "v1organizationsCreateOrganization": {
       "type": "object",
+      "required": [
+        "display_name"
+      ],
       "properties": {
         "display_name": {
           "description": "Name of the organization. Must be between 1 and 200 characters.",
@@ -4851,111 +4397,6 @@
           "example": {
             "industry": "technology"
           }
-        }
-      }
-    },
-    "v1rolesCreateRole": {
-      "type": "object",
-      "properties": {
-        "default": {
-          "description": "Default Role",
-          "type": "boolean",
-          "example": true
-        },
-        "default_creator": {
-          "description": "Default Creator Role",
-          "type": "boolean",
-          "example": true
-        },
-        "default_member": {
-          "description": "Default Member Role",
-          "type": "boolean",
-          "example": true
-        },
-        "description": {
-          "description": "Description of the Organization's Role",
-          "type": "string",
-          "example": "Organization Viewer Role will be used only for viewing the objects"
-        },
-        "display_name": {
-          "description": "Display Name of the Organization's Role",
-          "type": "string",
-          "example": "Organization Viewer Role"
-        },
-        "name": {
-          "description": "Unique Name of the Organization's Role",
-          "type": "string",
-          "example": "org_viewer_role"
-        }
-      }
-    },
-    "v1rolesRole": {
-      "type": "object",
-      "properties": {
-        "default": {
-          "description": "Indicates if this role is the environment-wide default role",
-          "type": "boolean",
-          "example": true
-        },
-        "default_creator": {
-          "description": "Indicates if this role is the default creator role",
-          "type": "boolean",
-          "example": true
-        },
-        "default_member": {
-          "description": "Indicates if this role is the default member role",
-          "type": "boolean",
-          "example": true
-        },
-        "description": {
-          "description": "Optional description of the role (max 2000 characters)",
-          "type": "string",
-          "example": "Can view resources but cannot modify them"
-        },
-        "display_name": {
-          "description": "Human-readable role name for UI display",
-          "type": "string",
-          "example": "Viewer Role"
-        },
-        "id": {
-          "description": "Unique Scalekit-generated identifier that references a role",
-          "type": "string",
-          "example": "role_59615193906282635"
-        },
-        "name": {
-          "description": "Machine-friendly role name (1-100 chars). Must be unique within the environment",
-          "type": "string",
-          "example": "viewer"
-        }
-      }
-    },
-    "v1rolesUpdateRole": {
-      "type": "object",
-      "properties": {
-        "default": {
-          "description": "Default Role",
-          "type": "boolean",
-          "example": true
-        },
-        "default_creator": {
-          "description": "Default Creator Role",
-          "type": "boolean",
-          "example": true
-        },
-        "default_member": {
-          "description": "Default Member Role",
-          "type": "boolean",
-          "example": true
-        },
-        "description": {
-          "description": "Description of the Organization's Role",
-          "type": "string",
-          "example": "Organization Viewer Role will be used only for viewing the objects"
-        },
-        "display_name": {
-          "description": "Display Name of the Organization's Role",
-          "type": "string",
-          "example": "Organization Viewer Role"
         }
       }
     },
@@ -5017,9 +4458,6 @@
     },
     {
       "name": "Users"
-    },
-    {
-      "name": "Roles"
     },
     {
       "name": "Connections"
