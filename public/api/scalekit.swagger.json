@@ -1816,6 +1816,44 @@
         ]
       }
     },
+    "/api/v1/organizations/{organization_id}/connections/{connection_id}/domains": {
+      "put": {
+        "description": "Assigns one or more domains to a specific connection within an organization. This allows the connection to be used for authentication on the specified domains",
+        "tags": ["Connections"],
+        "summary": "Assign domains to a connection",
+        "operationId": "ConnectionService_AssignDomainsToConnection",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "connection_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConnectionServiceAssignDomainsToConnectionBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Domains assigned successfully",
+            "schema": {
+              "$ref": "#/definitions/connectionsAssignDomainsToConnectionResponse"
+            }
+          }
+        }
+      }
+    },
     "/api/v1/passwordless/email/send": {
       "post": {
         "description": "Send a verification email containing either a verification code (OTP), magic link, or both to a user's email address",
@@ -1845,6 +1883,11 @@
             "label": "Node.js SDK",
             "lang": "javascript",
             "source": "const response = await scalekit.passwordless.\n  sendPasswordlessEmail(\n\t\"john.doe@example.com\",\n\t{\n\t\ttemplate: \"SIGNIN\",\n\t\texpiresIn: 100,\n\t\tmagiclinkAuthUri: \"https://www.google.com\",\n\t\ttemplateVariables: {\n\t\t\temployeeID: \"EMP523\",\n\t\t\tteamName: \"Alpha Team\",\n\t\t\tsupportEmail: \"support@yourcompany.com\",\n\t\t},\n\t}\n);"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "templateType := scalekit.TemplateTypeSignin\nresponse, err := ScalekitClient.Passwordless().SendPasswordlessEmail(\n    ctx,\n    \"john.doe@example.com\",\n    &scalekit.SendPasswordlessOptions{\n        Template:         &templateType,\n        ExpiresIn:        100,\n        MagiclinkAuthUri: \"https://www.google.com\",\n        TemplateVariables: map[string]string{\n            \"employeeID\":    \"EMP523\",\n            \"teamName\":      \"Alpha Team\",\n            \"supportEmail\":  \"support@yourcompany.com\",\n        },\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\nauthRequestId := response.AuthRequestId"
           }
         ]
       }
@@ -1878,6 +1921,11 @@
             "label": "Node.js SDK",
             "lang": "javascript",
             "source": "const { authRequestId } = sendResponse;\nconst resendResponse = await scalekit.passwordless\n.resendPasswordlessEmail(\n    authRequestId\n);"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resendResponse, err := ScalekitClient.Passwordless().ResendPasswordlessEmail(\n    ctx,\n    authRequestId,\n)\n\nif err != nil {\n    // Handle error\n    return\n}"
           }
         ]
       }
@@ -1911,167 +1959,28 @@
             "label": "Node.js SDK",
             "lang": "javascript",
             "source": "const { authRequestId } = sendResponse;\nconst verifyResponse = await scalekit.passwordless.\n  verifyPasswordlessEmail(\n\t// Verification Code (OTP)\n\t{ code: \"123456\" },\n\t// Magic Link Token\n\t{ linkToken: link_token },\n\tauthRequestId\n);"
-          }
-        ]
-      }
-    },
-    "/api/v1/roles": {
-      "get": {
-        "description": "Retrieve a list of roles available within the environment. Supports pagination through standard query parameters.",
-        "tags": ["Roles"],
-        "summary": "List roles",
-        "operationId": "RolesService_ListRoles",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved list of roles",
-            "schema": {
-              "$ref": "#/definitions/rolesListRolesResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "roles_response = scalekit_client.roles.list_roles()"
-          }
-        ]
-      },
-      "post": {
-        "description": "Creates a new role within the environment. Roles define permissions that can be assigned to users or groups.",
-        "tags": ["Roles"],
-        "summary": "Create a role",
-        "operationId": "RolesService_CreateRole",
-        "parameters": [
-          {
-            "name": "role",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1rolesCreateRole"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Role created successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesCreateRoleResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "from scalekit.v1.roles.roles_pb2 import CreateRole\n\nrole = CreateRole(\n    name=\"viewer\",\n    display_name=\"Viewer\",\n    description=\"Read-only access\",\n)\ncreate_response = scalekit_client.roles.create_role(\n    role=role,\n)"
-          }
-        ]
-      }
-    },
-    "/api/v1/roles/{id}": {
-      "get": {
-        "description": "Fetch detailed information about a specific role using its unique identifier.",
-        "tags": ["Roles"],
-        "summary": "Get a role",
-        "operationId": "RolesService_GetRole",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved role details",
-            "schema": {
-              "$ref": "#/definitions/rolesGetRoleResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "role_response = scalekit_client.roles.get_role(\n    role_id=\"role_123456789\",\n)"
-          }
-        ]
-      },
-      "put": {
-        "description": "Updates an existing role identified by its unique ID. Only provided fields are modified.",
-        "tags": ["Roles"],
-        "summary": "Update a role",
-        "operationId": "RolesService_UpdateRole",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "id",
-            "in": "path",
-            "required": true
           },
           {
-            "name": "role",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1rolesUpdateRole"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Role updated successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateRoleResponse"
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "from scalekit.v1.roles.roles_pb2 import UpdateRole\n\nupdate_role = UpdateRole(\n    display_name=\"Viewer (Limited)\",\n    description=\"Read-only access, no billing\",\n)\nupdated_role = scalekit_client.roles.update_role(\n    role_id=\"role_123456789\",\n    role=update_role,\n)"
-          }
-        ]
-      },
-      "delete": {
-        "description": "Removes an existing role from the environment using its unique identifier. Optionally reassign users to another role.",
-        "tags": ["Roles"],
-        "summary": "Delete a role",
-        "operationId": "RolesService_DeleteRole",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Role ID to reassign users to when deleting this role",
-            "name": "reassign_role_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Deleted Successfully",
-            "schema": {}
-          }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Python SDK",
-            "lang": "python",
-            "source": "scalekit_client.roles.delete_role(\n    role_id=\"role_123456789\",\n)"
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Verify with OTP code\nverifyResponse, err := ScalekitClient.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    &scalekit.VerifyPasswordlessOptions{\n        Code:          \"123456\", // OTP code\n        AuthRequestId: authRequestId,\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// Verify with magic link token\nverifyResponse, err := ScalekitClient.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    &scalekit.VerifyPasswordlessOptions{\n        LinkToken: linkToken, // Magic link token\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// User verified successfully\nuserEmail := verifyResponse.Email"
           }
         ]
       }
     }
   },
   "definitions": {
+    "ConnectionServiceAssignDomainsToConnectionBody": {
+      "type": "object",
+      "properties": {
+        "domain_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "OrganizationServiceUpdateUserManagementSettingsBody": {
       "type": "object",
       "properties": {
@@ -2574,6 +2483,27 @@
         }
       }
     },
+    "connectionsAssignDomainsToConnectionResponse": {
+      "type": "object",
+      "properties": {
+        "connection": {
+          "description": "Connection with assigned domains",
+          "$ref": "#/definitions/connectionsConnection",
+          "example": {
+            "configuration_type": "MANUAL",
+            "debug_enabled": false,
+            "enabled": true,
+            "id": "conn_1234567890",
+            "organization_id": "org_1234567890",
+            "provider": "OKTA",
+            "status": "CONFIGURED",
+            "test_connection_uri": "https://auth.example.com/test-connection/conn_1234567890",
+            "type": "OIDC",
+            "ui_button_title": "Login with SSO"
+          }
+        }
+      }
+    },
     "connectionsCodeChallengeType": {
       "type": "string",
       "enum": ["NUMERIC", "ALPHANUMERIC"]
@@ -2601,6 +2531,15 @@
           "description": "Enables testing mode that allows non-HTTPS endpoints. Should only be enabled in development environments, never in production.",
           "type": "boolean",
           "example": true
+        },
+        "domains": {
+          "description": "Domain associated with this connection, used for domain-based authentication flows.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/domainsDomain"
+          },
+          "example": "example.com"
         },
         "enabled": {
           "description": "Controls whether users can sign in using this connection. When false, the connection exists but cannot be used for authentication.",
@@ -2647,6 +2586,10 @@
           "description": "Configuration details for SAML connections. Present only when type is SAML.",
           "$ref": "#/definitions/connectionsSAMLConnectionConfigResponse"
         },
+        "static_config": {
+          "description": "Static configuration for custom connections. Present only when type is BASIC, BEARER, API_KEY, or custom.",
+          "$ref": "#/definitions/connectionsStaticAuthConfig"
+        },
         "status": {
           "description": "Current configuration status of the connection. Possible values include IN_PROGRESS, CONFIGURED, and ERROR.",
           "$ref": "#/definitions/connectionsConnectionStatus",
@@ -2692,7 +2635,7 @@
     },
     "connectionsConnectionType": {
       "type": "string",
-      "enum": ["OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS"]
+      "enum": ["OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY"]
     },
     "connectionsGetConnectionResponse": {
       "type": "object",
@@ -2808,6 +2751,11 @@
     "connectionsOAuthConnectionConfig": {
       "type": "object",
       "properties": {
+        "access_type": {
+          "description": "Access Type",
+          "type": "string",
+          "example": "offline"
+        },
         "authorize_uri": {
           "description": "Authorize URI",
           "type": "string",
@@ -3122,6 +3070,14 @@
         "SAML_RESPONSE_ASSERTION_SIGNING",
         "SAML_RESPONSE_OR_ASSERTION_SIGNING"
       ]
+    },
+    "connectionsStaticAuthConfig": {
+      "type": "object",
+      "properties": {
+        "static_config": {
+          "type": "object"
+        }
+      }
     },
     "connectionsToggleConnectionResponse": {
       "type": "object",
@@ -3540,6 +3496,57 @@
         }
       }
     },
+    "domainsDomain": {
+      "type": "object",
+      "properties": {
+        "connection_id": {
+          "type": "string"
+        },
+        "create_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "created_by": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "domain_type": {
+          "$ref": "#/definitions/domainsDomainType"
+        },
+        "environment_id": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "organization_id": {
+          "type": "string"
+        },
+        "txt_record_key": {
+          "type": "string"
+        },
+        "txt_record_secret": {
+          "type": "string"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "verification_status": {
+          "$ref": "#/definitions/domainsVerificationStatus"
+        }
+      }
+    },
+    "domainsDomainType": {
+      "type": "string",
+      "enum": ["HOME_REALM_DISCOVERY", "JIT_PROVISIONING_DOMAIN"]
+    },
+    "domainsVerificationStatus": {
+      "type": "string",
+      "enum": ["PENDING", "VERIFIED", "FAILED"]
+    },
     "organizationsCreateOrganizationResponse": {
       "type": "object",
       "properties": {
@@ -3873,42 +3880,6 @@
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.",
       "type": "string"
     },
-    "rolesCreateRoleResponse": {
-      "type": "object",
-      "properties": {
-        "role": {
-          "$ref": "#/definitions/v1rolesRole"
-        }
-      }
-    },
-    "rolesGetRoleResponse": {
-      "type": "object",
-      "properties": {
-        "role": {
-          "$ref": "#/definitions/v1rolesRole"
-        }
-      }
-    },
-    "rolesListRolesResponse": {
-      "type": "object",
-      "properties": {
-        "roles": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1rolesRole"
-          }
-        }
-      }
-    },
-    "rolesUpdateRoleResponse": {
-      "type": "object",
-      "properties": {
-        "role": {
-          "$ref": "#/definitions/v1rolesRole"
-        }
-      }
-    },
     "usersCreateMembershipResponse": {
       "type": "object",
       "properties": {
@@ -4194,6 +4165,7 @@
     },
     "v1organizationsCreateOrganization": {
       "type": "object",
+      "required": ["display_name"],
       "properties": {
         "display_name": {
           "description": "Name of the organization. Must be between 1 and 200 characters.",
@@ -4236,96 +4208,6 @@
           "example": {
             "industry": "technology"
           }
-        }
-      }
-    },
-    "v1rolesCreateRole": {
-      "type": "object",
-      "properties": {
-        "default_creator": {
-          "description": "Default Creator Role",
-          "type": "boolean",
-          "example": false
-        },
-        "default_member": {
-          "description": "Default Member Role",
-          "type": "boolean",
-          "example": true
-        },
-        "description": {
-          "description": "Description of the Organization's Role",
-          "type": "string",
-          "example": "Organization Viewer Role will be used only for viewing the objects"
-        },
-        "display_name": {
-          "description": "Display Name of the Organization's Role",
-          "type": "string",
-          "example": "Organization Viewer Role"
-        },
-        "name": {
-          "description": "Unique Name of the Organization's Role",
-          "type": "string",
-          "example": "org_viewer_role"
-        }
-      }
-    },
-    "v1rolesRole": {
-      "type": "object",
-      "properties": {
-        "default_creator": {
-          "description": "Indicates if this role is the default creator role",
-          "type": "boolean",
-          "example": false
-        },
-        "default_member": {
-          "description": "Indicates if this role is the default member role",
-          "type": "boolean",
-          "example": true
-        },
-        "description": {
-          "description": "Optional description of the role (max 2000 characters)",
-          "type": "string",
-          "example": "Can view resources but cannot modify them"
-        },
-        "display_name": {
-          "description": "Human-readable role name for UI display",
-          "type": "string",
-          "example": "Viewer Role"
-        },
-        "id": {
-          "description": "Unique Scalekit-generated identifier that references a role",
-          "type": "string",
-          "example": "role_59615193906282635"
-        },
-        "name": {
-          "description": "Machine-friendly role name (1-100 chars). Must be unique within the environment",
-          "type": "string",
-          "example": "viewer"
-        }
-      }
-    },
-    "v1rolesUpdateRole": {
-      "type": "object",
-      "properties": {
-        "default_creator": {
-          "description": "Default Creator Role",
-          "type": "boolean",
-          "example": false
-        },
-        "default_member": {
-          "description": "Default Member Role",
-          "type": "boolean",
-          "example": true
-        },
-        "description": {
-          "description": "Description of the Organization's Role",
-          "type": "string",
-          "example": "Organization Viewer Role will be used only for viewing the objects"
-        },
-        "display_name": {
-          "description": "Display Name of the Organization's Role",
-          "type": "string",
-          "example": "Organization Viewer Role"
         }
       }
     },
@@ -4387,9 +4269,6 @@
     },
     {
       "name": "Users"
-    },
-    {
-      "name": "Roles"
     },
     {
       "name": "Connections"
