@@ -472,7 +472,19 @@ Before you begin, ensure you have:
 
 Congratulations! You've successfully implemented passwordless authentication in your application. Users can now sign in securely without passwords by entering a verification code or clicking a magic link sent to their email.
 
+## Error handling
 
+When implementing passwordless authentication, you may encounter various error responses. Understanding these errors helps you provide better user experience and handle edge cases appropriately.
+
+### Common error responses
+
+| Error scenario | Description |
+|------------|----------------------|
+| Missing URI | **`invalid_argument`**: `magiclink_auth_uri` is required for LINK or LINK_OTP passwordless types. Ensure you're passing the `magiclink_auth_uri` parameter when using LINK or LINK_OTP authentication types. This parameter is required to specify where users will be redirected after clicking the magic link. |
+| Invalid URL | **`invalid_argument`**: invalid magiclink redirect URL. Verify that the `magiclink_auth_uri` is a valid URL format and points to your application's verification endpoint. The URL should be accessible and properly configured. |
+| Invalid Request | **`invalid_argument`**: invalid auth request. The `auth_request_id` provided is invalid or has expired. Ensure you're using the correct request ID from the most recent passwordless email request. |
+| Verification Failed | **`invalid_argument`**: verification failed. The verification code or link token is incorrect, expired, or has been used already. Prompt the user to request a new verification email. |
+| Rate Limited | **`resource_exhausted`**: too many requests. The user has exceeded the rate limit for passwordless authentication attempts. Wait for the cooldown period before allowing new requests. |
 
 ## Next steps
 
