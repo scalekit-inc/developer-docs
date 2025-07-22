@@ -505,8 +505,8 @@ Let's get started!
         import javax.servlet.http.HttpServletResponse;
         import java.util.Base64;
 
-        
-        
+
+
 
         // setting up accessToken as HTTP-only cookie
         String encryptedRefreshToken = encrypt(authResult.getAccessToken());
@@ -558,7 +558,7 @@ Let's get started!
                     idToken,
                     accessToken,
                     refreshToken: newRefreshToken,
-              } = await scalekit.refreshToken(refreshToken);
+              } = await scalekit.refreshAccessToken(refreshToken);
 
               // Store the new refresh token
               // Update the cookie with the new access token
@@ -606,7 +606,7 @@ Let's get started!
                             return jsonify({'message': 'No refresh token available'}), 401
 
                         # Use stored refreshToken to get a new access token
-                        token_response = scalekit.refresh_token(refresh_token)
+                        token_response = scalekit.refresh_access_token(refresh_token)
 
                         # Python SDK returns dict with access_token and refresh_token
                         new_access_token = token_response.get('access_token')
@@ -683,7 +683,7 @@ Let's get started!
                     }
 
                     // Use stored refreshToken to get a new access token
-                    tokenResponse, err := scalekit.RefreshToken(refreshToken)
+                    tokenResponse, err := scalekit.RefreshAccessToken(refreshToken)
                     if err != nil {
                         http.Error(w, `{"message": "Token refresh failed"}`, http.StatusUnauthorized)
                         return
@@ -762,13 +762,13 @@ Let's get started!
                     // Use Scalekit SDK to validate the token
                     boolean isValid = scalekit.authentication().validateAccessToken(decryptedAccessToken);
 
-                        
+
                     // Use refreshToken to get a new access token
                     AuthenticationResponse tokenResponse = scalekit
                             .authentication()
                             .refreshToken(decryptedRefreshToken);
 
-                   
+
 
                     // Update the cookie with the new access token and refresh token
                     String encryptedNewAccessToken = encrypt(tokenResponse.getAccessToken());
