@@ -48,9 +48,10 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 - Copy your API credentials from the Scalekit dashboard's API Config section
 - Register your redirect URLs in the Scalekit Dashboard under Redirects section
 
-:::tip
-Redirect URL in code must exactly match what you configured in the Scalekit dashboard. Mismatched URLs are the most common integration issue.
-:::
+<Aside type="tip">
+  Redirect URL in code must exactly match what you configured in the Scalekit dashboard. Mismatched URLs are the most common integration issue.
+</Aside>
+
 Let's get started!
 
 <Steps>
@@ -122,9 +123,21 @@ Let's get started!
       ```
       </TabItem>
     </Tabs>
-  2. ## Redirect users to hosted login page
+2. ## Redirect users to hosted login page
        Generate the authorization URL by passing a [registered callback URL](/fsa/reference/redirects) and scopes to the Scalekit SDK.
         <Tabs syncKey="tech-stack">
+        <TabItem value="curl" label="cURL">
+            ```sh wrap
+            curl -G -v --location "<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize" \
+            --data-urlencode 'grant_type=authorization_code' \
+            --data-urlencode "organization_id={organization_id}" \
+            --data-urlencode "response_type=code" \
+            --data-urlencode "scope=openid profile" \
+            --data-urlencode 'redirect_uri=https://your-app.com/callback' \
+            --data-urlencode "client_id={client_id}" \
+            --data-urlencode "state=random_state_value"
+            ```
+        </TabItem>
         <TabItem value="node" label="Node.js">
         ```javascript title="Express.js"
         const redirectUri = '<http://localhost:3000/api/callback>';
@@ -186,10 +199,21 @@ Let's get started!
 
      This will redirect the user to Scalekit's managed sign-in page.
 
-1. ## Handle Authentication Callback
+3. ## Handle Authentication Callback
 
       After users authenticate, Scalekit redirects them back to your registered callback URL with an authorization code. Exchange this code to get the user's profile and session tokens:
       <Tabs syncKey="tech-stack">
+        <TabItem value="curl" label="cURL">
+        ```sh wrap
+        curl -v --location "<SCALEKIT_ENVIRONMENT_URL>/oauth/token" \
+        --header 'Content-Type: application/x-www-form-urlencoded' \
+        --data-urlencode 'grant_type=authorization_code' \
+        --data-urlencode "code={authorization_code}" \
+        --data-urlencode 'redirect_uri=https://your-app.com/callback' \
+        --data-urlencode "client_id={client_id}" \
+        --data-urlencode "client_secret={client_secret}"
+        ```
+        </TabItem>
         <TabItem value="node" label="Node.js">
         ```javascript collapse={22-26}
         import scalekit from '@/utils/auth.js'
@@ -365,6 +389,17 @@ Let's get started!
       The `authenticateWithCode` method returns an object containing the user's profile information (`user` object) and session tokens including `idToken`, `accessToken` and `refreshToken`.
 
       <Tabs syncKey="auth-result">
+        <TabItem value="curl" label="cURL">
+        ```sh title="cURL response"
+        {
+        "access_token": "eyJhImtpZCI6InNu2NiIsInR5cCI6IkpXVCJ9...",
+        "token_type": "Bearer",
+        "expires_in": 86399,
+        "scope": "openid profile",
+        "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNuIsInR5cCI6IkpXVCJ9..."
+        }
+        ```
+        </TabItem>
         <TabItem value="authResult" label="authResult">
         ```js
         {
@@ -410,7 +445,7 @@ Let's get started!
 
       You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
 
-2. ## Create and manage user sessions
+4. ## Create and manage user sessions
 
       Now that you've the entire user's profile details including their email address, verification status, create a secure session by storing the session tokens. Use encrypted HTTP-only cookies for the access token and securely store the refresh token:
       <Tabs syncKey="tech-stack">
@@ -505,8 +540,8 @@ Let's get started!
         import javax.servlet.http.HttpServletResponse;
         import java.util.Base64;
 
-        
-        
+
+
 
         // setting up accessToken as HTTP-only cookie
         String encryptedRefreshToken = encrypt(authResult.getAccessToken());
@@ -558,7 +593,7 @@ Let's get started!
                     idToken,
                     accessToken,
                     refreshToken: newRefreshToken,
-              } = await scalekit.refreshToken(refreshToken);
+              } = await scalekit.refreshAccessToken(refreshToken);
 
               // Store the new refresh token
               // Update the cookie with the new access token
@@ -606,7 +641,7 @@ Let's get started!
                             return jsonify({'message': 'No refresh token available'}), 401
 
                         # Use stored refreshToken to get a new access token
-                        token_response = scalekit.refresh_token(refresh_token)
+                        token_response = scalekit.refresh_access_token(refresh_token)
 
                         # Python SDK returns dict with access_token and refresh_token
                         new_access_token = token_response.get('access_token')
@@ -683,7 +718,7 @@ Let's get started!
                     }
 
                     // Use stored refreshToken to get a new access token
-                    tokenResponse, err := scalekit.RefreshToken(refreshToken)
+                    tokenResponse, err := scalekit.RefreshAccessToken(refreshToken)
                     if err != nil {
                         http.Error(w, `{"message": "Token refresh failed"}`, http.StatusUnauthorized)
                         return
@@ -762,13 +797,13 @@ Let's get started!
                     // Use Scalekit SDK to validate the token
                     boolean isValid = scalekit.authentication().validateAccessToken(decryptedAccessToken);
 
-                        
+
                     // Use refreshToken to get a new access token
                     AuthenticationResponse tokenResponse = scalekit
                             .authentication()
                             .refreshToken(decryptedRefreshToken);
 
-                   
+
 
                     // Update the cookie with the new access token and refresh token
                     String encryptedNewAccessToken = encrypt(tokenResponse.getAccessToken());
@@ -810,7 +845,7 @@ Let's get started!
 
       Successfully authenticated users can now access your dashboard.
 
-3. ## Log out the user
+5. ## Log out the user
 
       To properly log out users, clear local session data and invalidate their session on Scalekit's servers:
 
