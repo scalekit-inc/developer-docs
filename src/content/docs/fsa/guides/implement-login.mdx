@@ -63,6 +63,18 @@ Let's get started!
        Generate the authorization URL to redirect users to the Scalekit-hosted login page. To get a `refreshToken` for session management, ensure you include `offline_access` in the scopes.
 
       <Tabs syncKey="tech-stack">
+        <TabItem value="curl" label="cURL">
+          ```sh
+          curl -G -v --location "<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize" \
+          --data-urlencode 'grant_type=authorization_code' \
+          --data-urlencode "organization_id={organization_id}" \
+          --data-urlencode "response_type=code" \
+          --data-urlencode "scope=openid profile" \
+          --data-urlencode 'redirect_uri=https://your-app.com/callback' \
+          --data-urlencode "client_id={client_id}" \
+          --data-urlencode "state=random_state_value"
+          ```
+        </TabItem>
         <TabItem value="node" label="Node.js">
           ```javascript title="Express.js" wrap "authorizationUrl" ins={3} {"Redirect user to Scalekit's authentication page":8}
           const redirectUri = 'http://localhost:3000/api/callback';

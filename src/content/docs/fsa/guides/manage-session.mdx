@@ -375,7 +375,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
        }
        try {
          // Get new tokens using the refresh token
-         const authResult = await scalekit.refreshToken(storedRefreshToken);
+         const authResult = await scalekit.refreshAccessToken(storedRefreshToken);
          const { accessToken, expiresIn, refreshToken: newRefreshToken } = authResult;
          // Update the stored refresh token
          await db.saveRefreshToken(userId, newRefreshToken);
@@ -411,7 +411,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
              return jsonify({'error': 'Session expired'}), 401
          try:
              # Get new tokens using the refresh token
-             auth_result = scalekit.refresh_token(stored_refresh_token)
+             auth_result = scalekit.refresh_access_token(stored_refresh_token)
              access_token = auth_result.access_token
              expires_in = auth_result.expires_in
              new_refresh_token = auth_result.refresh_token
@@ -459,7 +459,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
          return
        }
        // Get new tokens using the refresh token
-       authResult, err := scalekit.RefreshToken(storedRefreshToken)
+       authResult, err := scalekit.RefreshAccessToken(storedRefreshToken)
        if err != nil {
          // Refresh failed - user must sign in again
          c.SetCookie("accessToken", "", -1, "/", "", false, true)
