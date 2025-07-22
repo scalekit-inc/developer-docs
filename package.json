@@ -3,13 +3,15 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
+    "docs:prepare": "pnpm run docs:search-index && pnpm run docs:llm-context",
+    "docs:search-index": "node scripts/search-index-apis.js",
+    "docs:llm-context": "repomix --output public/llm-context.md --compress --style markdown --remote https://github.com/scalekit-inc/scalekit-sdk-node --remote https://github.com/scalekit-inc/scalekit-sdk-python --remote https://github.com/scalekit-inc/scalekit-sdk-go --remote https://github.com/scalekit-inc/scalekit-sdk-java",
     "dev": "astro dev --no-hmr",
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "upgrade": "pnpm dlx @astrojs/upgrade",
-    "generate-search-index": "node scripts/search-index-apis.js",
     "postinstall": "node scripts/setup-git-hooks.js",
     "format:check": "prettier --check '**/*.{md,mdx,js,ts,astro,css,vue}'",
     "reorder-swagger": "node scripts/reorder-swagger.js public/api/scalekit.swagger.json"
@@ -50,6 +52,7 @@
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.6.13",
     "pretty-quick": "^4.2.2",
+    "repomix": "^1.2.0",
     "simple-git-hooks": "^2.13.0"
   }
 }

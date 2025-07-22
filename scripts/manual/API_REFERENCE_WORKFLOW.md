@@ -6,13 +6,13 @@ This guide explains **how the API reference is wired together** in the docs repo
 
 ## 1. The Moving Parts
 
-| File / Component                      | Responsibility                                                                                                                                  |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `public/api/scalekit.swagger.json`    | Source-of-truth Swagger (OpenAPI 2) definition. Every endpoint lives here.                                                                      |
-| `scripts/search-index-apis.js`        | Parses the Swagger file → creates **search records** → returns an array used by Pagefind. Run manually or via `pnpm run generate-search-index`. |
-| `src/components/ApiSearchIndex.astro` | Hidden Astro component that renders the records from the script in HTML so Pagefind can crawl them.                                             |
-| `src/components/ScalarReference.vue`  | Embeds the interactive <kbd>@scalar/api-reference</kbd> viewer so humans can read the docs.                                                     |
-| `src/pages/apis.astro`                | Top-level page that hosts both the Scalar viewer **and** the hidden search index.                                                               |
+| File / Component                      | Responsibility                                                                                                                              |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public/api/scalekit.swagger.json`    | Source-of-truth Swagger (OpenAPI 2) definition. Every endpoint lives here.                                                                  |
+| `scripts/search-index-apis.js`        | Parses the Swagger file → creates **search records** → returns an array used by Pagefind. Run manually or via `pnpm run docs:search-index`. |
+| `src/components/ApiSearchIndex.astro` | Hidden Astro component that renders the records from the script in HTML so Pagefind can crawl them.                                         |
+| `src/components/ScalarReference.vue`  | Embeds the interactive <kbd>@scalar/api-reference</kbd> viewer so humans can read the docs.                                                 |
+| `src/pages/apis.astro`                | Top-level page that hosts both the Scalar viewer **and** the hidden search index.                                                           |
 
 Diagram:
 
@@ -54,7 +54,7 @@ Swagger → search-index-apis.js ──▶ records[] ──▶ ApiSearchIndex.as
 ### B. Regenerating the Search Index Manually
 
 ```bash
-pnpm run generate-search-index
+pnpm run docs:search-index
 ```
 
 The script:
@@ -92,12 +92,12 @@ If Scalar changes its anchor scheme:
 
 ## 5. Handy Scripts
 
-| Command                          | What it does                                                                 |
-| -------------------------------- | ---------------------------------------------------------------------------- |
-| `pnpm run generate-search-index` | Runs `scripts/search-index-apis.js` standalone – helpful for URL validation. |
-| `pnpm run reorder-swagger`       | Applies logical ordering to Swagger paths for readability.                   |
-| `pnpm run build`                 | Full static build (Astro, Pagefind, everything).                             |
-| `pnpm run preview`               | Serve the built site locally.                                                |
+| Command                      | What it does                                                                 |
+| ---------------------------- | ---------------------------------------------------------------------------- |
+| `pnpm run docs:search-index` | Runs `scripts/search-index-apis.js` standalone – helpful for URL validation. |
+| `pnpm run reorder-swagger`   | Applies logical ordering to Swagger paths for readability.                   |
+| `pnpm run build`             | Full static build (Astro, Pagefind, everything).                             |
+| `pnpm run preview`           | Serve the built site locally.                                                |
 
 ---
 
