@@ -36,8 +36,8 @@ export default defineConfig({
         PageSidebar: './src/components/overrides/PageSidebar.astro',
       },
       logo: {
-        dark: '/src/assets/images/logos/scalekit-logo-green-dark.svg',
-        light: '/src/assets/images/logos/scalekit-logo-green-light.svg',
+        dark: '/src/assets/images/logos-v2/scalekit-docs-black.svg',
+        light: '/src/assets/images/logos-v2/scalekit-docs-white.svg',
         replacesTitle: true,
       },
       defaultLocale: 'en',
