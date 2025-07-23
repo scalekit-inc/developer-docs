@@ -1,5 +1,56 @@
 export const sidebar = [
   {
+    label: 'Full Stack Auth',
+    id: 'full-stack-auth',
+    link: '/fsa/quickstart',
+    icon: 'codePen',
+    items: [
+      {
+        label: 'Getting started',
+        items: ['fsa/quickstart', 'fsa/data-modelling'],
+      },
+      {
+        label: 'Authentication',
+        items: [
+          'fsa/guides/implement-signup',
+          'fsa/guides/implement-login',
+          {
+            label: 'Auth methods',
+            items: [
+              'fsa/guides/auth-methods',
+              'fsa/guides/passwordless',
+              'fsa/guides/social-logins',
+              'fsa/guides/enterprise-sso',
+            ],
+          },
+          'fsa/guides/manage-session',
+          'fsa/guides/logout',
+        ],
+      },
+      {
+        label: 'User management',
+        items: [
+          'fsa/guides/manage-organization',
+          'fsa/guides/organization-switching',
+          'fsa/reference/user-management-settings',
+          'fsa/guides/user-invitations',
+          // 'fsa/guides/manage-users', // TODO: is it needed? assess later
+          'fsa/guides/merge-identities',
+          'fsa/reference/user-profile',
+          'fsa/guides/app-roles',
+          'fsa/reference/redirects',
+          'fsa/guides/just-in-time-provisioning',
+          'fsa/guides/automated-user-provisioning',
+          'fsa/guides/migration-guide',
+        ],
+      },
+      {
+        label: 'Customization',
+        items: ['fsa/guides/login-page-branding', 'guides/email-providers'],
+      },
+    ],
+  },
+  {
     label: 'Single Sign-On',
     link: '/sso/quickstart',
     id: 'sso',
@@ -8,11 +59,11 @@ export const sidebar = [
       {
         label: 'Getting started',
         items: [
-          'guides/sso/sso-basics',
+          'sso/guides/sso-basics',
           'sso/quickstart',
-          'guides/sso/test-sso',
+          'sso/guides/test-sso',
           'guides/sso/admin-portal',
-          'guides/sso/launch-checklist',
+          'sso/guides/launch-checklist',
         ],
       },
       {
@@ -32,11 +83,12 @@ export const sidebar = [
         label: 'Guides',
         items: [
           'guides/custom-domain',
-          'guides/sso/idp-init-sso',
-          'guides/sso/okta-sso-test',
-          'guides/sso/sso-user-attributes',
-          'reference/sso/sso-integration-errors',
-          'reference/redirects',
+          'sso/guides/add-login-ux-sso',
+          'sso/guides/idp-init-sso',
+          'sso/guides/okta-sso-test',
+          'sso/guides/sso-user-attributes',
+          'sso/reference/sso-integration-errors',
+          'sso/reference/redirects',
           {
             label: 'Coexist with',
             autogenerate: { directory: 'guides/integrations/auth-systems' },
@@ -44,9 +96,9 @@ export const sidebar = [
           {
             label: 'Concepts',
             items: [
-              'guides/sso/authorization-url',
+              'sso/guides/authorization-url',
               'guides/idtoken-claims',
-              'guides/sso/user-profile-details',
+              'sso/guides/user-profile-details',
               'guides/client-credentials-practices',
             ],
           },
@@ -76,10 +128,7 @@ export const sidebar = [
           'guides/webhooks-best-practices',
           {
             label: 'Concepts',
-            items: [
-              'guides/directory/user-provisioning-basics',
-              'guides/directory/scim-protocol',
-            ],
+            items: ['guides/directory/user-provisioning-basics', 'guides/directory/scim-protocol'],
           },
         ],
       },
@@ -103,7 +152,7 @@ export const sidebar = [
         label: 'Email customization',
         items: [
           'guides/passwordless/custom-email-provider',
-          //'guides/passwordless/custom-email-templates',
+          'guides/passwordless/custom-email-templates',
         ],
       },
     ],
@@ -112,8 +161,7 @@ export const sidebar = [
     label: 'MCP Auth',
     link: '/guides/mcp/overview',
     id: 'mcp',
-    icon: 'forward-slash',
-    badge: { text: 'Beta', variant: 'note' },
+    icon: 'seti:puppet',
     items: [
       {
         label: 'Getting started',
@@ -130,7 +178,6 @@ export const sidebar = [
     link: '/m2m/quickstart',
     id: 'm2m',
     icon: 'seti:crystal_embedded',
-    badge: { text: 'Beta', variant: 'note' },
     items: [
       {
         label: 'Getting started',
@@ -146,11 +193,7 @@ export const sidebar = [
       },
       {
         label: 'Guides',
-        items: [
-          'guides/m2m/m2m-basics',
-          'guides/m2m/scopes',
-          'guides/m2m/api-auth-m2m-clients',
-        ],
+        items: ['guides/m2m/m2m-basics', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
       },
     ],
   },
@@ -182,6 +225,16 @@ export const sidebar = [
             label: 'Java SDK',
             link: 'https://github.com/scalekit-inc/scalekit-sdk-java',
             attrs: { target: '_blank', rel: 'noopener' },
+          },
+          {
+            label: 'Community',
+            items: [
+              {
+                label: 'PHP SDK',
+                link: 'https://github.com/pawan1793/scalekit-php-sdk',
+                attrs: { target: '_blank', rel: 'noopener' },
+              },
+            ],
           },
         ],
       },
@@ -236,7 +289,7 @@ export const sidebar = [
   {
     label: 'Integrations',
     id: 'integrations',
-    link: 'guides/integrations/sso-integrations',
+    link: '/guides/integrations',
     icon: 'puzzle',
     items: [
       {
@@ -249,7 +302,7 @@ export const sidebar = [
       },
     ],
   },
-];
+]
 
 export const topics = {
   exclude: [
@@ -257,6 +310,7 @@ export const topics = {
     '/index', // Exclude index by name
     '/guides/redirects',
     '/guides/integrations',
+    '/guides/integrations/index', // Exclude the integrations overview page from sidebar
     '/home/guides/**/*',
     '/home/guides/admin-portal',
     '/home/**/*',
@@ -265,4 +319,6 @@ export const topics = {
     '/guides/mcp/additional-reading',
   ],
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
-};
+  integrations: ['/guides/integrations/**/*'], // Associate all integration pages with the integrations topic
+  'full-stack-auth': ['/fsa/**/*'], // Associate all fsa pages with the full-stack-auth topic
+}

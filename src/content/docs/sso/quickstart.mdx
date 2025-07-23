@@ -3,24 +3,50 @@ title: Getting started with SSO
 sidebar:
   order: 1
   label: "Single Sign-On"
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
 next:
   label: Test SSO
-  link: /guides/sso/test-sso/
+  link: /sso/guides/test-sso/
 prev: false
+
 ---
 
-import { LinkButton, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { LinkButton, Aside, Steps, Tabs, TabItem, CardGrid, Card } from '@astrojs/starlight/components';
+
 import InstallSDK from '@components/templates/_installsdk.mdx';
 import SimpleCode from '@components/ui/SimpleCode.astro';
-
+import CopyPrompt from '@components/ui/CopyPrompt.astro';
 
 Integrate **Single Sign-On (SSO)** with Scalekit to enhance your B2B SaaS application's security. Scalekit provides seamless user experiences by abstracting the complexities of **SAML** and **OIDC** protocols. Using Scalekit's authentication platform, you can implement enterprise-grade SSO with minimal code. We offer [pre-built integrations](/guides/integrations/sso-integrations) with major identity providers including Okta, Microsoft Entra ID, JumpCloud, and OneLogin.
-
-This quickstart guide walks you through the SSO implementation process. You will learn how to deliver enterprise authentication features without managing complex protocol details.
 
 The following diagram illustrates the flow in a nutshell:
 
 ![Diagram showing the SSO authentication flow: User initiates login → Scalekit handles protocol translation → Identity Provider authenticates → User gains access to your application](@/assets/docs/sso-quickstart/1.png)
+
+This quickstart guide walks you through the SSO implementation process. You will learn how to deliver enterprise authentication features without managing complex protocol details.
+
+<Card title="Generate SSO Code with AI in Minutes" icon="seti:vite" style="background-color: white !important;">
+<div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem'}}>
+<div style={{flex: '3'}}>
+Input this prompt in your IDE to analyze your existing code base and generate SSO implementation code accordingly.
+
+<span style={{fontSize: '0.875rem', color: '#6b7280', fontStyle: 'italic'}}>Compatible with Cursor, Windsurf, VS Code, and any AI-powered IDE</span>
+</div>
+<div style={{flex: '1'}}>
+<CopyPrompt
+        promptType="ssoQuickstartPrompt"
+       label="Copy Prompt"
+        variant="secondary"
+        title="Generate SSO integration code"
+/>
+</div>
+</div>
+</Card>
 
 <Steps>
 
@@ -39,9 +65,13 @@ The following diagram illustrates the flow in a nutshell:
 
     | Parameter | Description |
     |-----------|-------------|
-    | <pre>redirect_uri</pre> | Your application endpoint that will receive the authorization code after successful authentication. Example: `https://your-app.com/auth/callback` |
-    | <pre>client_id</pre> | Your unique Scalekit application identifier that specifies both your app and environment (staging, production). |
+    | `redirect_uri` | Your application endpoint that will receive the authorization code after successful authentication. Example: `https://your-app.com/auth/callback` |
+    | `client_id` | Your unique Scalekit application identifier that specifies both your app and environment (staging, production). |
     | SSO Connection identifier | Choose the appropriate identifier based on your implementation (use one). |
+
+    <Aside type="caution" title="Check your redirect_uri is registered">
+    Make sure your `redirect_uri` matches one of the **Allowed Callback URLs** you configured in your Scalekit dashboard. Scalekit uses this URL to send the authorization code back to your app after successful authentication.
+    </Aside>
 
     **SSO connection identifiers**
 

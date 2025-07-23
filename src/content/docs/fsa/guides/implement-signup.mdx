@@ -1,0 +1,77 @@
+---
+title: "Implement user sign up"
+description: "Learn how to handle new user signups with Scalekit, either through the managed UI or programmatically via API."
+sidebar:
+  label: "Set up user sign up"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev: false
+next: false
+---
+import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, LinkButton } from '@astrojs/starlight/components';
+import { InstallSDKSection, EnvSection, RedirectAuthPageSection, RetrieveUserDetailsSection, UserProfileSection, CreateUserMembershipSection, CreateOrganizationSection } from '@components/templates';
+
+Signup is the first step in a user's journey with your application. For B2B applications, each user may be associated with an organization. A user can belong to one or more organizations.
+
+Here are some common signup use cases:
+
+- **New user and organization**: The first user to sign up creates a new organization and becomes its administrator.
+- **Joining an existing organization**: An existing user can join another organization or workspace within your application.
+- **Invitation-based signup**: A new user signs up by accepting an email invitation and is automatically added to the inviting organization.
+- **Automatic organization joining**: A user with a corporate email (e.g., `jane.doe@acme.com`) signs up and is prompted to join the existing "ACME Inc." organization.
+- **User provisioning via identity provider**: A user account is created programmatically through an enterprise identity provider (e.g., Okta, Azure AD). The user first logs in via SSO instead of a traditional signup.
+
+Scalekit helps you implement all such signup flows while handling the complexity of user management and authentication.
+
+
+
+## Sign up with Scalekit's hosted signup page
+
+You can direct users to Scalekit's managed signup page by adding the `prompt: 'create'` parameter when generating the authorization URL. This is the simplest way to implement a signup flow.
+
+<Steps>
+ 1. ### Install the Scalekit SDK
+
+    <InstallSDKSection />
+
+    Copy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.
+    ```bash
+    SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
+    SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
+    SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
+    ```
+
+    Create a new Scalekit client instance after initializing the environment variables.
+    <EnvSection />
+  2. ### Redirect the user to the sign up page
+       Generate the authorization URL by passing a [registered](/fsa/reference/redirects) _callback URL_ and _scopes_ to the Scalekit SDK.
+       <RedirectAuthPageSection />
+     This will redirect the user to Scalekit's managed sign-in page.
+
+3. ### Allow users to sign up
+      Users can now sign in or sign up using their [preferred authentication methods](/fsa/guides/auth-methods). Each authentication method is managed by Scalekit to successfully verify the user's identity.
+
+      <LinkCard
+        title="Configure authentication methods"
+        href="/fsa/guides/auth-methods/"
+        description="Enable passwordless, social, or enterprise SSO to customize the signup experience."
+      />
+
+4. ## Retrieve user profile after identity verification
+      Scalekit triggers a callback to your registered _callback URL_ with an authorization code. Exchange the code to get the user's profile information.
+      <RetrieveUserDetailsSection />
+
+      The `authenticateWithCode` method returns an object containing the user's profile information (`user` object) and `idToken` (JWT).
+      <UserProfileSection />
+
+      You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
+</Steps>
+
+After the user signs up, they are redirected back to your application, and you can proceed to [create a session](/fsa/guides/implement-login/#create-a-user-session).

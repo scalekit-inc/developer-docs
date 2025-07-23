@@ -1,0 +1,104 @@
+---
+title: Just-in-time provisioning
+description: Automatically provision users when they sign in through SSO for the first time
+sidebar:
+  label: "JIT Provisioning"
+  badge: "Soon"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev:
+  label: "Manage organizations"
+  link: "/fsa/guides/manage-organization/"
+next:
+  label: "Automated user provisioning"
+  link: "/fsa/guides/automated-user-provisioning/"
+
+---
+
+import { Steps, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+
+Just-in-time (JIT) provisioning automatically creates users and organization memberships when they sign in through SSO for the first time. This feature allows users to access your application without requiring manual invitations from IT administrators. For example, users don't need to remember separate credentials or go through additional signup steps - they just sign in through their familiar SSO portal. Your app signs them up instantly.
+
+## Introduction
+
+JIT provisioning is particularly useful for enterprise customers who want to provide seamless access to your application for their employees while maintaining security and control through their identity provider.
+
+{/* TODO: Add illustration showing JIT provisioning flow */}
+
+
+When a user signs in through SSO for the first time, Scalekit automatically:
+
+1. **Detects the verified domain** - Scalekit checks if the user's email domain matches a verified domain in the organization
+2. **Creates the user account** - A new user profile is created using information from the identity provider
+3. **Establishes membership** - The user is automatically added as a member of the organization
+4. **Completes authentication** - The user is signed in and redirected to your application
+
+This process happens seamlessly in the background, providing immediate access without manual intervention.
+
+## Enabling JIT provisioning
+
+JIT provisioning must be enabled for each organization that wants to use this feature. You can enable it through the Scalekit Dashboard or programmatically using the API.
+
+### Enable via Dashboard <Badge type="note" text="Coming soon" />
+
+<Steps>
+
+1. Log in to your [Scalekit Dashboard](https://app.scalekit.com).
+2. Navigate to **Organizations** and select the organization.
+3. Go to **Settings** and find the **JIT Provisioning** section.
+4. Toggle the setting to enable JIT provisioning for this organization.
+
+</Steps>
+
+### Enable via API
+
+You can also enable JIT provisioning programmatically using the Scalekit API:
+
+<InstallSDK />
+
+```javascript title="Enable JIT provisioning"
+// Coming soon - API to enable JIT provisioning
+```
+
+## Domain verification requirement
+
+JIT provisioning only works for users whose email domains have been verified by the organization. This ensures that only legitimate members of the organization can automatically gain access to your application.
+
+**Organization admins** can verify domains through the [admin portal](/guides/sso/admin-portal/). Once verified, any user with an email address from that domain can use JIT provisioning when signing in through SSO.
+
+<Aside type="note">
+Learn more about [domain verification](/fsa/guides/enterprise-sso/#organization-domain-verification) in the Enterprise SSO guide.
+</Aside>
+
+
+
+{/*
+
+TODO: Uncomment after invite-only signup is published + reviewed
+
+## Guest users
+
+JIT provisioning has limitations for guest users whose email domains have not been verified by the organization:
+
+- **Contractors and external users** with unverified email domains cannot use JIT provisioning
+- These users must be [manually invited](/fsa/guides/invite-only-signup/) to join the organization before they can sign in through SSO
+- This ensures security by preventing unauthorized users from automatically gaining access
+
+*/}
+
+
+
+
+## What's next?
+
+- Learn about [Automated User Provisioning](/fsa/guides/automated-user-provisioning/) for non-SSO authentication methods
+- Explore [Enterprise SSO](/fsa/guides/enterprise-sso/) setup and configuration
+- Set up [organization switching](/fsa/guides/organization-switching/) for users who belong to multiple organizations

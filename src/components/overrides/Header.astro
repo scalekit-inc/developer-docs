@@ -1,46 +1,46 @@
 ---
-import type { Props } from '@astrojs/starlight/props';
-import { Icon } from '@astrojs/starlight/components';
-import LanguageSelect from '@astrojs/starlight/components/LanguageSelect.astro';
-import Search from '@astrojs/starlight/components/Search.astro';
-import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
-import SocialIcons from '@astrojs/starlight/components/SocialIcons.astro';
-import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro';
-import SecondaryNav from '../SecondaryNav.astro';
+import type { Props } from '@astrojs/starlight/props'
+import { Icon } from '@astrojs/starlight/components'
+import LanguageSelect from '@astrojs/starlight/components/LanguageSelect.astro'
+import Search from '@astrojs/starlight/components/Search.astro'
+import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro'
+import SocialIcons from '@astrojs/starlight/components/SocialIcons.astro'
+import ThemeSelect from 'starlight-theme-rapide/overrides/ThemeSelect.astro'
+import { LinkButton } from '@astrojs/starlight/components'
+import SecondaryNav from '../SecondaryNav.astro'
 
-const { dir, entry, lang, locale } = Astro.props;
+const { dir, entry, lang, locale } = Astro.props
 ---
 
-<div class="header sl-flex">
-  <div class="sl-flex">
-    <SiteTitle {locale} />
-  </div>
-  <div class="search-bar-container">
-    <Search {locale} />
-  </div>
-  <div class="sl-hidden md:sl-flex right-group">
-    <nav class="sl-nav-links">
-      <a href="/apis" class="sl-nav-link">API Reference</a>
-      <a href="/dev-kit" class="sl-nav-link">SDKs</a>
-      <a href="/integrations" class="sl-nav-link">Integrations</a>
-    </nav>
-    <div class="sl-flex social-icons">
-      <SocialIcons />
+<div class="header">
+  <SiteTitle {locale} />
+
+  <div class="center-content">
+    <div class="search-wrapper">
+      <Search {locale} />
     </div>
-    <ThemeSelect />
-    <LanguageSelect {locale} />
+    <nav class="nav-links sl-hidden md:sl-flex">
+      <LinkButton href="/apis" variant="minimal" class="nav-link">API Reference</LinkButton>
+      <LinkButton href="/dev-kit" variant="minimal" class="nav-link">SDKs</LinkButton>
+      <LinkButton href="/guides/integrations" variant="minimal" class="nav-link"
+        >Integrations</LinkButton
+      >
+    </nav>
   </div>
-  <!-- <div class="md:sl-hidden">
-    <button
-      aria-expanded="false"
-      aria-haspopup="menu"
-      aria-label="Menu"
-      class="sl-flex md:sl-hidden"
-      id="starlight__sidebar"
+
+  <div class="right-actions sl-hidden md:sl-flex">
+    <LinkButton
+      href="https://app.scalekit.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      variant="secondary"
+      class="dashboard-btn"
+      icon="right-arrow"
     >
-      <Icon name="bars" />
-    </button>
-  </div> -->
+      Go to Dashboard
+    </LinkButton>
+    <ThemeSelect />
+  </div>
 </div>
 
 <!-- Secondary Navigation Bar -->
@@ -48,73 +48,107 @@ const { dir, entry, lang, locale } = Astro.props;
 
 <style>
   .header {
-    gap: var(--sl-nav-gap);
+    display: flex;
     justify-content: space-between;
     align-items: center;
     height: 100%;
   }
 
-  .sl-nav-links {
+  .center-content {
     display: flex;
-    gap: 1rem;
     align-items: center;
-    margin-right: 1rem;
+    gap: 4rem;
+    flex: 1;
+    max-width: 800px;
+    margin: 0 3rem;
   }
 
-  .sl-nav-link {
-    color: var(--sl-color-gray-1);
-    text-decoration: none;
-    font-size: var(--sl-text-sm);
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.375rem;
-    transition: background-color 0.2s, color 0.2s;
-    white-space: nowrap;
+  .search-wrapper {
+    flex: 0 1 300px;
+    min-width: 250px;
   }
 
-  .sl-nav-link:hover {
-    background-color: var(--sl-color-gray-6);
-    color: var(--sl-color-white);
+  .nav-links {
+    /* Hidden by default (mobile) — `md:sl-flex` utility will add flex display from the medium breakpoint,
+       but we also reinforce it here to counteract this scoped style’s default specificity. */
+    display: none;
+    gap: 2rem;
+    margin-left: auto;
   }
 
-  @media (max-width: 50rem) {
-    .sl-nav-links {
-      display: none;
+  /* Show nav links at the medium breakpoint (≈48 rem / 768 px) and above */
+  @media (min-width: 48rem) {
+    .nav-links {
+      display: flex;
     }
   }
 
-  .right-group,
-  .social-icons {
-    gap: 1rem;
+  .nav-link {
+    font-size: var(--sl-text-sm);
+    white-space: nowrap;
+    color: var(--sl-color-gray-2);
+    transition: color 0.2s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--sl-color-accent);
+  }
+
+  .right-actions {
+    /* Hidden on mobile */
+    display: none;
     align-items: center;
   }
 
-  .social-icons {
-    gap: 0.5rem;
+  /* Show right actions at the medium breakpoint (≈48 rem / 768 px) and above */
+  @media (min-width: 48rem) {
+    .right-actions {
+      display: flex;
+    }
   }
 
-  #starlight__sidebar {
-    width: 2rem;
-    height: 2rem;
-    border: 0;
-    border-radius: 0.25rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    background: var(--sl-color-accent-low);
-    color: var(--sl-color-accent-high);
+  .dashboard-btn {
+    font-size: var(--sl-text-sm) !important;
+    padding: 0.4rem 1.2rem !important;
+    white-space: nowrap;
   }
 
-  #starlight__sidebar:hover {
-    background: var(--sl-color-accent);
-    color: var(--sl-color-white);
+  .divider {
+    width: 1px;
+    height: 1.5rem;
+    background-color: var(--sl-color-gray-4);
+    opacity: 0.6;
   }
 
-  .search-bar-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    margin: 0 1rem;
-    min-width: 0;
+  @media (max-width: 72rem) {
+    .center-content {
+      gap: 3rem;
+      margin: 0 2rem;
+    }
+
+    .nav-links {
+      gap: 1.5rem;
+    }
+
+    .dashboard-btn {
+      padding: 0.35rem 1rem !important;
+      font-size: var(--sl-text-xs) !important;
+    }
+  }
+
+  @media (max-width: 60rem) {
+    .center-content {
+      gap: 2rem;
+      margin: 0 1rem;
+    }
+
+    .nav-links {
+      gap: 1.2rem;
+    }
+
+    .search-wrapper {
+      flex: 0 1 250px;
+      min-width: 200px;
+    }
   }
 </style>

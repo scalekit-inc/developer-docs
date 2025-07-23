@@ -1,10 +1,10 @@
 ---
-title: Scalekit Docs
+title: "Welcome to Scalekit Docs 👋"
 description: Enterprise authentication for B2B SaaS apps without engineering overhead
 template: doc
 tableOfContents: false
 editUrl: false
-topic: sso
+topic: full-stack-auth
 head:
   - tag: style
     content: |
@@ -15,23 +15,31 @@ head:
         padding: 2rem 0;
       }
       .hero-content {
-        max-width: 800px;
-        margin: 0 auto;
+        margin: 0 20% 0 auto;
+        text-align: left;
       }
       .card-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 1.5rem;
-        margin: 2rem 0;
+        margin-top: 1rem;
         align-items: stretch;
       }
+      .card-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin: 1rem 0;
+        align-items: stretch;
+      }
+      .card-grid > *, .card-grid-3 > * {
+        margin-top: 0 !important;
+      }
+
       .card {
         height: 100%;
         display: flex;
         flex-direction: column;
-      }
-      .card-grid .card {
-        margin-top: 0 !important;
       }
       .card-content {
         flex: 1;
@@ -39,147 +47,197 @@ head:
         flex-direction: column;
         justify-content: space-between;
       }
-      .card h5 {
-        margin-top: 0;
-        margin-bottom: 1rem;
+      .featured-card {
+        border: 1.5px solid var(--sl-color-green) !important;
+        border-radius: 0.6rem;
       }
-      .card ul {
+      .featured-card .sl-flex {
+        border-radius: 0.5rem;
+      }
+      .featured-card .sl-flex * {
+        background: transparent !important;
+      }
+      .two-column-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 3rem;
+        margin-top: 2rem;
+        align-items: stretch;
+      }
+      .auth-modules-section {
+        flex: 1;
+        margin-top: 0;
+      }
+      .full-stack-section {
+        margin-top: 0;
+        flex: 1;
+        padding-left: 2rem;
+        border-left: 1.5px solid var(--sl-color-green);
+        background: var(--sl-color-bg-sidebar);
+      }
+      .full-stack-section h3 {
+        margin-bottom: 1rem !important;
+        font-size: 1.5rem;
+      }
+      .full-stack-section p {
         margin-bottom: 1.5rem;
       }
-hero:
-  title: Scalekit Docs
-  tagline: Plug-n-play auth for B2B SaaS
-  actions:
-    - text: Start building
-      link: /sso/quickstart/
-      variant: primary
-    - text: Sign up
-      link: https://app.scalekit.com/ws/signup
-      variant: secondary
+      @media (max-width: 768px) {
+        .two-column-layout {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+      }
+      .sl-link-button {
+        &.minimal {
+          padding-inline: 0rem;
+          padding-bottom: 0rem
+        }
+      }
+      [data-theme='light'] .card {
+        background-color: white !important;
+      }
+
+      /* Green accent border on hover for sl-link-card items */
+      .sl-link-card {
+        transition: border-color 0.2s ease-in-out;
+      }
+
+      .sl-link-card:hover {
+        border-color: var(--sl-color-green) !important;
+      }
+  - tag: script
+    content: |
+      // Collapse Starlight’s sidebar groups on the first page load.
+      (function () {
+        // Guard against SSR.
+        if (typeof window === 'undefined') return;
+
+        // Ensure the script only runs once per session.
+        if (window.__sidebarCollapsed) return;
+        window.__sidebarCollapsed = true;
+
+        function collapse() {
+          const groups = document.querySelectorAll('#starlight__sidebar details[open]');
+          groups.forEach((d) => d.removeAttribute('open'));
+        }
+
+        // If the DOM is still loading, wait for it to finish.
+        if (document.readyState === 'loading') {
+          window.addEventListener('DOMContentLoaded', collapse, { once: true });
+        } else {
+          // DOM is already ready – collapse immediately.
+          collapse();
+        }
+      })();
 ---
 
-import { Card, CardGrid, LinkButton, LinkCard } from '@astrojs/starlight/components';
-import SimpleList from '@/components/ui/SimpleList.astro';
-import CheckItem from '@/components/ui/CheckItem.astro';
-import { ShowcaseText, ShowcaseCTA, ShowcaseYouTube } from 'starlight-showcases'
+import {
+  Card,
+  CardGrid,
+  LinkButton,
+  LinkCard,
+  Icon,
+} from "@astrojs/starlight/components";
+import SimpleList from "@components/ui/SimpleList.astro";
+import {
+  ShowcaseText,
+  ShowcaseCTA,
+  ShowcaseYouTube,
+} from "starlight-showcases";
+import Footer from "@/components/templates/_footer.mdx";
+import CheckItem from "@components/ui/CheckItem.astro";
 
-Scalekit helps you quickly add enterprise authentication to your B2B SaaS app without engineering overhead. It provides plug-and-play auth solutions like SSO, SCIM, and Social Logins.
+<div class="hero-content">
 
-Built for B2B use cases, Scalekit natively supports multi-tenancy and organization management. You can test auth flows in sandbox environments, simulate SSO without real IdP accounts, and deploy instantly with prebuilt integrations for Okta, Entra ID, JumpCloud, Google SSO, and Azure AD—no custom code required.
+Scalekit helps developers handle authentication across agents, users, and APIs with drop-in modules.
+Explore our API reference, SDKs, quickstarts, and sample apps to get started quickly.
+
+
+<LinkButton href="/fsa/quickstart" variant="primary" icon='rocket'>
+  Get started
+</LinkButton>
+</div>
+
+  <div class="auth-modules-section" id="auth-modules">
+
+    <h1 style={{ textAlign: 'left', marginTop: '2rem', marginBottom: '0rem' }}>Drop-in auth modules for agents, users, and APIs</h1>
+   <p style={{ textAlign: 'left', marginBottom: '2rem', marginTop: '0.3rem' }}>Bring your user management or use Scalekit's full-stack auth</p>
+
+      <h3 style={{ marginTop: '0.2rem' }}>Secure AI agents and APIs</h3>
+      <div class="card-grid-3">
+
+      <LinkCard title="Add MCP Auth" description=' Ship MCP servers with OAuth 2.1 built in — including DCR, PKCE, and scoped token issuance' href="/guides/mcp/overview/" />
+
+     <LinkCard title="Add API Auth" description='Protect your APIs with user- and org-scoped tokens using secure OAuth flows' href="/m2m/quickstart/" />
+
+      </div>
+    </div>
+
+     <br />
+    <div>
+      <h3>Win enterprise customers</h3>
+      <div class="card-grid-3">
+        <LinkCard title="Add enterprise SSO" description='Support both SAML and OIDC flows for any IdPs your customers bring' href="/sso/quickstart/" />
+        <LinkCard title="Enable SCIM provisioning" description='Automatically sync users, roles, and access controls from any customer directory' href="/directory/scim/quickstart/" />
+      </div>
+    </div>
+
+
+    <div>
+    <br />
+      <div>
+      <h3>Modernize your login flows</h3>
+      <div class="card-grid-3">
+     <LinkCard title="Go passwordless" description='Offer modern auth methods like magic links, passkeys, OTPs, and MFA' href="/guides/passwordless/quickstart/" />
+
+      <LinkCard title="Add social login" description='Let users sign in with their existing accounts — Google, GitHub, Microsoft, and more' href="/social-logins/quickstart/" />
+      </div>
+    </div>
+
+   <h1 style={{ textAlign: 'left', marginTop: '3rem', marginBottom: '0rem' }}>Or let us handle your complete auth stack</h1>
+    <div>
+      <div>
+
+      <p style={{ marginTop: '0rem' }}>Power every customer’s unique setup:</p>
+      <ul style={{ marginTop: '0rem' }}>
+        <li>Native multi-tenant auth with org hierarchies and automatic org detection</li>
+        <li>Manage orgs, users,and role-based permissions</li>
+        <li>Enable magic links, Email OTP, social login, and passkeys</li>
+        <li>Deploy ready-to-use login pages, org management, and user portals with our UI components</li>
+      </ul>
+      <LinkButton href="/fsa/quickstart/" variant="primary" icon='right-arrow'>Full Stack Auth quickstart</LinkButton>
+    </div>
+    </div>
+
+  </div>
+
+# Deploy faster with our dev tool kit
 
 <div class="card-grid">
 
-<Card title="SSO" icon="seti:lock">
-
-- SAML and OIDC supported
-- Prebuilt integrations with IdPs like Okta, Entra ID, Google SSO, and more
-- Includes SP-initiated and IdP-initiated SSO flows
-
-<LinkButton href="/sso/quickstart" variant="secondary">
-  SSO Quickstart &rarr;
-</LinkButton>
+<Card title="SDKs & APIs">
+  <SimpleList>
+    <CheckItem iconName="seti:webpack">
+      SDKs available for [Node.js](https://github.com/scalekit-inc/scalekit-sdk-node), [Go](https://github.com/scalekit-inc/scalekit-sdk-go), [Python](https://github.com/scalekit-inc/scalekit-sdk-python), and [Java](https://github.com/scalekit-inc/scalekit-sdk-java)
+    </CheckItem>
+    <CheckItem iconName="seti:pipeline">
+      Browse our [API reference](https://docs.scalekit.com/apis/) for all endpoints
+    </CheckItem>
+  </SimpleList>
 </Card>
 
-<Card title="SCIM" icon="seti:folder">
-
-- Automate user provisioning, de-provisioning, from directories and HR systems
-- Assign roles using groups and custom attributes defined in directories
-- Single API for all integrations with Azure AD, Google Workspace, Rippling, and more directories
-
-    <LinkButton href="/directory/scim/quickstart/" variant="secondary">SCIM Quickstart &rarr;</LinkButton>
+<Card title="Build faster">
+  <SimpleList>
+    <CheckItem iconName="github">
+      <a href="https://github.com/orgs/scalekit-developers/repositories">Try our sample apps</a> to get started quickly
+    </CheckItem>
+    <CheckItem iconName="document">
+      <a href="https://github.com/scalekit-developers/api-collections">Download Postman collections</a> to play with APIs
+    </CheckItem>
+  </SimpleList>
 </Card>
 
 </div>
-<LinkCard
-  title="MCP Auth"
-  href="/guides/mcp/overview/"
-  icon="forward-slash"
-  description="OAuth 2.1 authorization for Model Context Protocol (MCP) servers"
-/>
-<LinkCard
-  title="API Auth"
-  href="/m2m/quickstart/"
-  icon="crystal_embedded"
-  description="OAuth 2.1 authorization for your API to facilitate Service Principals, M2M Authentication, and more"
-/>
-<LinkCard
-  title="Passwordless Auth"
-  href="/guides/passwordless/overview/"
-  icon="email"
-  description="Enable secure, verified logins to your customers via Email OTP or Magic Links or Both"
-/>
-<LinkCard
-  title="Social Logins"
-  href="/social-logins/quickstart/"
-  icon="list-format"
-  description="Enable OAuth-based logins with Google, Microsoft, GitHub, and more"
-/>
 
-<br />
-
-<h2>How it works</h2>
-
-<ShowcaseYouTube
-  entries={[
-    {
-      href: 'https://youtu.be/I7SZyFhKg-s',
-      title: 'Implement SSO in minutes',
-    },
-    {
-      href: 'https://youtu.be/SBJLtQaIbUk',
-      title: 'SCIM - Automate user lifecycle',
-    },
-  ]}
-/>
-
-<br />
-
-<h3>Frequently Asked Questions</h3>
-
-<details>
-<summary>What Identity Providers are supported for SSO?</summary>
-
-SSO includes native, prebuilt integrations with all identity providers including Okta, Entra ID (Azure AD), JumpCloud, Google SSO, and more. Works out-of-box with SAML and OIDC.
-</details>
-
-<details>
-<summary>What directories are supported for SCIM?</summary>
-
-Scalekit provides a single API with a unified data format for multi-directory integration. SCIM solution includes corporate directories and HRMS systems like Okta, Azure AD, Rippling, Google Workspace, and more. For directories that do not offer native SCIM support, we provide batch APIs for user provisioning.
-</details>
-
-<details>
-<summary>What's Admin Portal?</summary>
-
-Admin Portal enables your customers to self-serve manage SSO and SCIM configurations, thus reducing engineering and support overhead for your team. Using Admin Portal, IT admins (in your customers' organizations) can set up authentication connections, test SSO flows, map custom user attributes, and more. The portal can be embedded into your app with a fully branded UI or shared as a standalone link.
-</details>
-
-<details>
-<summary>How does Scalekit handle multi-tenancy?</summary>
-
-Scalekit is designed with native multi-tenancy and follows organization-first data model. Each organization in your app can have its own authentication policies, SSO/SCIM configuration—without requiring custom code.
-</details>
-
-<details>
-<summary>Does Scalekit support both SP-initiated and IdP-initiated SSO?</summary>
-
-Yes, we support both SP-initiated and IdP-initiated SSO flows for seamless enterprise authentication.
-</details>
-
-<details>
-<summary>Can I test SSO flows before going live?</summary>
-
-Yes, Scalekit provides a built-in IdP Simulator to validate SSO flows in a sandbox environment without affecting production. No real IdP accounts are needed. Test real-world edge cases and simulate error scenarios before deployment.
-</details>
-
-<details>
-<summary>What user attributes can be mapped through SSO and SCIM?</summary>
-
-Scalekit supports both default and custom attributes. You can define custom attributes and roles in your app and map them from identity providers (SSO) and directories (SCIM). This is a self-serve configuration, manageable by both your team and your customers.
-</details>
-
-<details>
-<summary>What deployment options are available?</summary>
-
-Scalekit is a multi-tenant auth platform hosted on public cloud infrastructure. Each of your workspace and environment is logically isolated, ensuring strict data security and access controls.
-</details>
+<Footer />

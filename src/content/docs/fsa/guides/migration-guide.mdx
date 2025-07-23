@@ -1,0 +1,359 @@
+---
+title: "Migrate to Full Stack Authentication"
+description: "Step-by-step guide to move user, organization, and auth flows from existing systems to Scalekit."
+sidebar:
+  label: "Migrate to Full Stack Auth"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev: false
+---
+import { Aside, Steps, Tabs, TabItem, LinkCard, Badge } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+
+Migrating authentication is a big job. **But moving to Scalekit pays dividends**: you off-load SSO integrations, SCIM provisioning, session handling, and more—so your team can focus on product. This guide walks you through a **safe, incremental migration** from any existing solution to **Scalekit's full-stack auth platform**.
+
+This migration guide helps you:
+- Export user and organization data from your current system
+- Import data into Scalekit using APIs or SDKs
+- Update your application's authentication flows
+- Test and deploy the new authentication system
+
+<Aside type="note" title="Need a hand?">
+Our Solutions team has run dozens of successful migrations. [Contact us](/support/contact-us) and we'll craft a smooth cut-over plan together.
+</Aside>
+
+<Steps>
+
+1. ## Audit and export your data
+
+   Before you switch to Scalekit, create a comprehensive inventory of your existing setup and export your data:
+
+   **Code audit:**
+   - Sign-up and login flows
+   - Session middleware and token validation
+   - Role-based access control (RBAC) logic
+   - Email verification flows
+   - Logout and session termination
+
+   **Data export:**
+   - User records (emails, names, verification status)
+   - Organization/tenant structure
+   - Role assignments and permissions
+   - Authentication provider configurations (if using SSO)
+
+   **Backup plan:**
+   - Export a sample JWT token or session cookie to understand your current format
+   - Set up a feature flag to route traffic back to the old system if needed
+   - Document your rollback procedure
+
+   The minimal user schema looks like this:
+
+   | **Field** | **Description** | **Status** |
+   |-----------|-----------------|------------|
+   | `email` | Primary login identifier. | Required |
+   | `first_name` | The user's given name. | Optional |
+   | `last_name` | The user's family name. | Optional |
+   | `email_verified` | Boolean flag. Treated as `false` if omitted. | Optional |
+
+2. ## Import organizations and users
+
+   Transform your exported data to match Scalekit's format. The `external_id` field is crucial—it stores your original primary key, enabling seamless lookups between your system and Scalekit.
+
+   <InstallSDK />
+
+   **Create organizations first:**
+
+   <Tabs syncKey="tech-stack">
+   <TabItem label="cURL" value="curl">
+   ```bash title="Create an organization"
+   curl "$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations" \
+     --request POST \
+     --header 'Content-Type: application/json' \
+     --data '{
+       "display_name": "Megasoft Inc",
+       "external_id": "org_123",
+       "metadata": { "plan": "enterprise" }
+     }'
+   ```
+   </TabItem>
+   <TabItem label="Node.js" value="nodejs">
+   ```javascript title="Create organizations"
+   const organizations = [
+     { display_name: "Megasoft Inc", external_id: "org_123", metadata: { plan: "enterprise" } },
+     { display_name: "Acme Corp", external_id: "org_456", metadata: { plan: "starter" } }
+   ];
+
+   for (const org of organizations) {
+     const result = await scalekit.organization.createOrganization(
+       org.display_name,
+       {
+         externalId: org.external_id,
+         metadata: org.metadata
+       }
+     );
+     console.log(`Created organization: ${result.id}`);
+   }
+   ```
+   </TabItem>
+   <TabItem label="Python" value="python">
+   ```python title="Create organizations"
+   from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
+
+   organizations = [
+     {"display_name": "Megasoft Inc", "external_id": "org_123", "metadata": {"plan": "enterprise"}},
+     {"display_name": "Acme Corp", "external_id": "org_456", "metadata": {"plan": "starter"}}
+   ]
+
+   for org in organizations:
+     result = scalekit_client.organization.create_organization(
+       CreateOrganization(
+         display_name=org["display_name"],
+         external_id=org["external_id"],
+         metadata=org["metadata"]
+       )
+     )
+     print(f"Created organization: {result.id}")
+   ```
+   </TabItem>
+   <TabItem label="Go" value="go">
+   ```go title="Create organizations"
+   organizations := []struct {
+     DisplayName string
+     ExternalID  string
+     Metadata    map[string]interface{}
+   }{
+     {"Megasoft Inc", "org_123", map[string]interface{}{"plan": "enterprise"}},
+     {"Acme Corp", "org_456", map[string]interface{}{"plan": "starter"}},
+   }
+
+   for _, org := range organizations {
+     result, err := scalekit.Organization.CreateOrganization(
+       ctx,
+       org.DisplayName,
+       scalekit.CreateOrganizationOptions{
+         ExternalID: org.ExternalID,
+         Metadata:   org.Metadata,
+       },
+     )
+     if err != nil {
+       log.Fatal(err)
+     }
+     fmt.Printf("Created organization: %s\n", result.ID)
+   }
+   ```
+   </TabItem>
+   <TabItem label="Java" value="java">
+   ```java title="Create organizations"
+   List<Map<String, Object>> organizations = Arrays.asList(
+     Map.of("display_name", "Megasoft Inc", "external_id", "org_123", "metadata", Map.of("plan", "enterprise")),
+     Map.of("display_name", "Acme Corp", "external_id", "org_456", "metadata", Map.of("plan", "starter"))
+   );
+
+   for (Map<String, Object> org : organizations) {
+     CreateOrganization createOrganization = CreateOrganization.newBuilder()
+       .setDisplayName((String) org.get("display_name"))
+       .setExternalId((String) org.get("external_id"))
+       .putAllMetadata((Map<String, String>) org.get("metadata"))
+       .build();
+
+     Organization result = scalekitClient.organizations().create(createOrganization);
+     System.out.println("Created organization: " + result.getId());
+   }
+   ```
+   </TabItem>
+   </Tabs>
+
+   **Then create users within organizations:**
+
+   <Tabs syncKey="tech-stack">
+   <TabItem label="cURL" value="curl">
+   ```bash title="Create a user inside an organization"
+   curl "$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/users" \
+     --request POST \
+     --header 'Content-Type: application/json' \
+     --data '{
+       "email": "user@example.com",
+       "external_id": "usr_987",
+       "membership": {
+         "roles": ["admin"],
+         "metadata": { "department": "engineering" }
+       },
+       "user_profile": {
+         "first_name": "John",
+         "last_name": "Doe",
+         "locale": "en-US"
+       }
+     }'
+   ```
+   </TabItem>
+   <TabItem label="Node.js" value="nodejs">
+   ```javascript title="Create users in organizations"
+   const { user } = await scalekit.user.createUserAndMembership("org_123", {
+     email: "user@example.com",
+     externalId: "usr_987",
+     metadata: {
+       department: "engineering",
+       location: "nyc-office"
+     },
+     userProfile: {
+       firstName: "John",
+       lastName: "Doe",
+     },
+   });
+   ```
+   </TabItem>
+   <TabItem label="Python" value="python">
+   ```python title="Create users in organizations"
+   from scalekit.v1.users.users_pb2 import CreateUser
+   from scalekit.v1.commons.commons_pb2 import UserProfile
+
+   user_msg = CreateUser(
+     email="user@example.com",
+     external_id="usr_987",
+     metadata={"department": "engineering", "location": "nyc-office"},
+     user_profile=UserProfile(
+       first_name="John",
+       last_name="Doe"
+     )
+   )
+
+   create_resp, _ = scalekit_client.user.create_user_and_membership("org_123", user_msg)
+   ```
+   </TabItem>
+   <TabItem label="Go" value="go">
+   ```go title="Create users in organizations"
+   newUser := &usersv1.CreateUser{
+     Email:      "user@example.com",
+     ExternalId: "usr_987",
+     Metadata: map[string]string{
+       "department": "engineering",
+       "location":   "nyc-office",
+     },
+     UserProfile: &usersv1.CreateUserProfile{
+       FirstName: "John",
+       LastName:  "Doe",
+     },
+   }
+
+   cuResp, err := scalekit.User().CreateUserAndMembership(ctx, "org_123", newUser, false)
+   if err != nil {
+     log.Fatal(err)
+   }
+   ```
+   </TabItem>
+   <TabItem label="Java" value="java">
+   ```java title="Create users in organizations"
+   CreateUser createUser = CreateUser.newBuilder()
+     .setEmail("user@example.com")
+     .setExternalId("usr_987")
+     .putMetadata("department", "engineering")
+     .putMetadata("location", "nyc-office")
+     .setUserProfile(
+       CreateUserProfile.newBuilder()
+         .setFirstName("John")
+         .setLastName("Doe")
+         .build())
+     .build();
+
+   CreateUserAndMembershipResponse cuResp = scalekitClient.users()
+     .createUserAndMembership("org_123", createUser);
+   System.out.println("Created user: " + cuResp.getUser().getId());
+   ```
+   </TabItem>
+   </Tabs>
+
+   - **Batch** your imports—run them in parallel for speed but respect rate limits
+   - Include `"sendInvitationEmail": false` when creating users to skip invite emails. Scalekit will automatically set the membership status to `active` and mark the email as verified.
+   <br/>
+
+3. ## Configure redirects and roles
+
+   The authentication callback URL is necessary for tokens to return safely. However, depending on your application, you may want to add more redirects (such as post-logout URLs, so you can control the user experience and destination after logout). Head to **Settings → Redirects** in the dashboard. Review our [redirect URI guide](/sso/reference/redirects/) for validation rules and wildcard configuration.
+
+   **Set up roles:**
+   Define roles in Scalekit to control what actions users can perform in your application. When users log in, Scalekit provides their assigned roles to your application.
+
+   - Create your roles under **User Management → Roles** or via the SDK
+   - While importing users, include the `roles` array in the `membership` object. [Read more about roles](/fsa/guides/app-roles/).
+   - Need organization-specific roles? [Reach out to discuss](/support/contact-us) your requirements
+   <br/>
+
+4. ## Update your application code
+
+   **Replace session middleware:**
+   Replace legacy JWT validation with the Scalekit SDK or our **JWKS endpoint**. Verify:
+   - Access tokens are accepted across all routes
+   - Refresh tokens renew seamlessly
+   - Ensure your application's checks use the `roles` claim from Scalekit's tokens ([learn more](/fsa/guides/app-roles/#accessing-user-roles))
+
+   <Aside type="tip">Use our language SDKs for drop-in middlewares in Node, Go, Python, and Java.</Aside>
+
+   **Customize your Login Page:**
+   Your application redirects users to a **Scalekit-hosted login page**. Tailor the experience by updating your logo, colours, copy, and legal links in the dashboard.
+
+   **Update secondary flows:**
+   - Verify email prompt
+   - [Branding (logo, colours, legal copy)](/fsa/guides/login-page-branding/)
+   <br />
+
+5. ## Deploy and monitor
+   Execute your migration carefully with proper monitoring:
+
+   **Pre-deployment testing:**
+   - Test login flows with a few migrated users
+   - Verify session management and token validation
+   - Check role-based access control
+
+   **Deployment steps:**
+   1. Deploy your updated application code
+   2. Enable the feature flag to route traffic to Scalekit
+   3. Monitor authentication success rates and error logs
+   4. Have your rollback plan ready
+
+   **Post-deployment monitoring:**
+   - Watch authentication error rates
+   - Monitor session creation and validation
+   - Check user feedback and support tickets
+   - Verify SSO connections work correctly
+
+   <Aside type="tip">Start with a small percentage of users (5-10%) before rolling out to everyone.</Aside>
+
+</Steps>
+
+
+## Frequently Asked Questions
+
+<details>
+<summary>Why can't users log in after migration?</summary>
+
+- Verify callback URLs are registered in Scalekit dashboard
+- Check that `external_id` mappings are correct
+- Ensure email addresses match exactly between systems
+</details>
+
+<details>
+<summary>Why is session validation failing?</summary>
+
+- Update JWT validation to use Scalekit's JWKS endpoint
+- Verify token expiration and refresh logic
+- Check that role claims are read correctly
+</details>
+
+<details>
+<summary>Why aren't SSO connections working?</summary>
+
+- Confirm organization has SSO enabled in features
+- Verify identity provider configuration
+- Test with IdP-initiated login
+</details>
+
+<Aside type="note" title="Password migration">
+Password-based authentication migrations are on the way. If you need to migrate existing passwords, please [contact us](/support/contact-us).
+</Aside>

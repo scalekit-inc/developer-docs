@@ -1,0 +1,46 @@
+---
+title: Redirect URI
+sidebar:
+  label: Configure redirects
+prev: false
+next: false
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import { Icon } from '@astrojs/starlight/components';
+
+A redirect URI is an endpoint where Scalekit redirects users post-authentication with the identity provider (IdP). In the Scalekit dashboard, you can configure up to 5 redirect URIs per environment.
+
+Since redirect URIs can be manipulated by unauthorized parties, Scalekit requires pre-registration of all redirect URIs used in login flows. Registration can be done in the Scalekit dashboard.
+
+<Aside type="note" title="IdP-initiated SAML SSO flow">
+
+Scalekit uses your configured default redirect URI to redirect users when users initiate SSO from their identity provider
+
+</Aside>
+
+## URI Requirements
+
+### Validation Rules
+
+| Validation rule                                                                                                 | Development environment                                                                                                                 | Production environment                         |
+| --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| Schemes supported                                                                                               | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `http` <Icon name="approve-check" /> `https`</div>                                     | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https`</div> |
+| localhost                                                                                                       | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> Allowed</div>                                                                                                                 | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> Not allowed</div>                       |
+| Wildcard support (\*)                                                                                           | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> Allowed</div> | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> Not allowed</div>                       |
+| Max URI length                                                                                                  | 256 characters                                                                                                                          | 256 characters                                 |
+| Query parameters <pre>yourapp.com/callback?query=value</pre>     | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> Not allowed</div>                                                                                                                | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> Not allowed</div>                       |
+| Fragment component <pre>`yourapp.com/callback#fragment=value`</pre> | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> Not allowed</div>                                                                                                                | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> Not allowed</div>                       |
+
+### Using Wildcards
+
+According to the <a href="https://tools.ietf.org/html/rfc6749#section-3.1.2" target="_blank">OAuth 2.0 specification</a>, a redirection URI must be an absolute URI. But, to make development and testing easier - this restriction is slightly relaxed in the development environments.
+
+For development, wildcards can simplify testing. However, they must follow these rules:
+
+| Validation rule                                                                     | Example                                                                                                                                                                                                          |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Wildcard characters are not allowed as a root-level domain                          | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> `https://*.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://*.acmecorp.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://auth-*.acmecorp.com`</div> |
+| A redirect URI can have only one wildcard character                                 | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> `https://*.*.acmecorp.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://*.acmecorp.com`</div>                                                                            |
+| Wildcard character must be located in a subdomain within the hostname component     | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> `https://acmecorp.*.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://*.acmecorp.com`</div>                                                                  |
+| Wildcard must be part of the subdomain that is farthest from the hostname component | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> `https://auth.*.acmecorp.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://*.auth.acmecorp.com`</div>                                                        |
