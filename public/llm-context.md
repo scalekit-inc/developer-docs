@@ -51890,6 +51890,393 @@ For more advanced personalization, you can use template variables to include cus
 </Aside>
 ````
 
+## File: src/content/docs/guides/passwordless/oidc.mdx
+
+````
+---
+title: Passwordless quickstart (via OIDC)
+description: A comprehensive guide to implementing secure, passwordless authentication using Scalekit's OIDC
+slug: "guides/passwordless/oidc"
+sidebar:
+ label: 'Passwordless'
+ badge:
+   text: 'OIDC'
+   variant: 'default'
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+prev:
+  link: '/guides/passwordless/overview'
+  label: 'Passwordless overview'
+---
+
+import { Aside, Steps, Badge, Tabs, TabItem, LinkCard } from '@astrojs/starlight/components';
+
+This guide will walk you through implementing passwordless authentication via Scalekit's OIDC flow. Depending on your configuration, your users will be sent either a one time passcode (OTP) or a magic link to verify their identity.
+
+### Prerequisites
+
+Before you begin, ensure you have:
+
+1. Access to your Scalekit Account and the API credentials. If you don't have a Scalekit account yet, you can <a href="https://app.scalekit.com/ws/signup" target="_blank" rel="noopener">signup here</a>.
+2. Installed Scalekit SDK into your project
+
+    ```sh showLineNumbers=false
+    npm install @scalekit/sdk
+    ```
+
+    ```js showLineNumbers=false
+    import { Scalekit } from '@scalekit-sdk/node';
+
+    const scalekit = new Scalekit(
+      '<SCALEKIT_ENVIRONMENT_URL>',
+      '<SCALEKIT_CLIENT_ID>',
+      '<SCALEKIT_CLIENT_SECRET>',
+    );
+    ```
+
+## Implementation guide
+
+<Steps>
+
+1. #### Configure settings
+
+    Before implementing the code, ensure passwordless authentication is properly configured in your Scalekit dashboard:
+
+    1. Navigate to _Authentication > Auth Methods_
+    2. Locate the _Passwordless_ section
+    3. Choose the type of passwordless authentication to use.
+    4. Save your changes
+
+    ![](@/assets/docs/unlisted/passwordless/1.png)
+
+
+2. #### Initiate authorize request
+
+   To initiate passwordless authentication, redirect users to the Scalekit authorization endpoint with the appropriate parameters.
+
+    Construct your authorization URL with the following parameters and redirect the user to the authorization URL.
+
+    | Parameter | Description |
+    |-----------|-------------|
+    | `redirect_uri` | Your application endpoint that will receive the authorization code after successful authentication. Example: `https://your-app.com/auth/callback` |
+    | `client_id` | Your unique Scalekit application identifier that specifies both your app and environment (staging, production). |
+    | `login_hint` | The email address of the user to send the verification email |
+
+   **Example implementation**
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="nodejs" label="Node.js">
+
+    ```javascript showLineNumbers wrap
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    // Initialize the SDK client
+    const scalekit = new ScalekitClient(
+      '<SCALEKIT_ENVIRONMENT_URL>',
+      '<SCALEKIT_CLIENT_ID>',
+      '<SCALEKIT_CLIENT_SECRET>',
+    );
+
+    const options = {};
+
+    options['loginHint'] = 'user@example.com';
+
+    const authorizationURL = scalekit.getAuthorizationUrl(redirectUrl, options);
+    ```
+
+    </TabItem>
+    <TabItem value="py" label="Python">
+
+    ```python showLineNumbers wrap
+    from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
+
+    # Initialize the SDK client
+    scalekit = ScalekitClient(
+      '<SCALEKIT_ENVIRONMENT_URL>',
+      '<SCALEKIT_CLIENT_ID>',
+      '<SCALEKIT_CLIENT_SECRET>'
+    )
+
+    options = AuthorizationUrlOptions()
+
+    # Authorization URL with login hint
+    options.login_hint = 'user@example.com'
+
+    authorization_url = scalekit_client.get_authorization_url(
+      redirect_uri=<redirect_uri>,
+      options=options
+    )
+
+    # Redirect the user to this authorization URL
+    ```
+
+    </TabItem>
+    <TabItem value="golang" label="Go">
+
+    ```go showLineNumbers
+    import (
+      "github.com/scalekit/scalekit-sdk-go"
+    )
+
+    func main() {
+      // Initialize the SDK client
+      scalekitClient := scalekit.NewScalekitClient(
+        "<SCALEKIT_ENVIRONMENT_URL>",
+        "<SCALEKIT_CLIENT_ID>",
+        "<SCALEKIT_CLIENT_SECRET>"
+      )
+
+      options := scalekitClient.AuthorizationUrlOptions{}
+      // User's email domain detects the correct enterprise SSO connection.
+      options.LoginHint = "user@example.com"
+
+      authorizationURL := scalekitClient.GetAuthorizationUrl(
+        redirectUrl,
+        options,
+      )
+      // Next step is to redirect the user to this authorization URL
+    }
+
+    // Redirect the user to this authorization URL
+    ```
+
+    </TabItem>
+
+    <TabItem value="java" label="Java">
+
+    ```java showLineNumbers
+    package com.scalekit;
+
+    import com.scalekit.ScalekitClient;
+    import com.scalekit.internal.http.AuthorizationUrlOptions;
+
+    public class Main {
+
+      public static void main(String[] args) {
+        // Initialize the SDK client
+        ScalekitClient scalekitClient = new ScalekitClient(
+          "<SCALEKIT_ENVIRONMENT_URL>",
+          "<SCALEKIT_CLIENT_ID>",
+          "<SCALEKIT_CLIENT_SECRET>"
+        );
+        AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+        // User's email domain detects the correct enterprise SSO connection.
+        options.setLoginHint("user@example.com");
+        try {
+          String url = scalekitClient
+            .authentication()
+            .getAuthorizationUrl(redirectUrl, options)
+            .toString();
+        } catch (Exception e) {
+          System.out.println(e.getMessage());
+        }
+      }
+    }
+    // Redirect the user to this authorization URL
+    ```
+
+    </TabItem>
+    </Tabs>
+
+    This redirect will send users to the Scalekit authentication flow, where they'll authenticate with their email before being returned to your application.
+
+    ```sh title="Example authorization URL"
+    <YOURAPP_SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
+      client_id=skc_122056050118122349527&
+      redirect_uri=https://yourapp.com/auth/callback&
+      login_hint=user@example.com&
+      response_type=code&
+      scope=openid%20profile%20email&
+      state=jAy-state1-gM4fdZdV22nqm6Q_jAy-XwpYdYFh..2nqm6Q
+
+    ```
+
+    After redirecting users to the Scalekit authorization endpoint, handle the callback at your `redirect_uri` to retrieve the user profile and complete the authentication process.
+
+3. ### Fetch user details
+
+   After successful user authentication via OTP, Scalekit redirects users to your specified `redirect_uri` with a temporary authorization code parameter. This code must be exchanged for the user's profile information through a secure server-side request.
+
+   <Aside type="caution" title="Validation attempt limits">
+     To protect your application, Scalekit limits a user to **five** attempts to enter the correct OTP within a ten-minute window for each authentication request.
+     If the user exceeds this limit, they must restart the authentication process.
+   </Aside>
+
+    The authorization code exchange process should always be performed server-side to maintain security. This server-side request will:
+
+    1. Validate the authorization code
+    2. Return the authenticated user's profile details
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="nodejs" label="Node.js">
+
+    ```javascript showLineNumbers wrap title="Fetch user profile"
+    // Handle oauth redirect_url, fetch code and error_description from request params
+    const { code, error, error_description } = req.query;
+
+    if (error) {
+      // Handle errors
+    }
+
+    const result = await scalekit.authenticateWithCode(code, redirectUri);
+    const userEmail = result.user.email;
+
+    // Next step: create a session for this user and allow access
+    ```
+
+    </TabItem>
+    <TabItem value="py" label="Python">
+
+    ```py showLineNumbers title="Fetch user profile"
+    # Handle oauth redirect_url, fetch code and error_description from request params
+    code = request.args.get('code')
+    error = request.args.get('error')
+    error_description = request.args.get('error_description')
+
+    if error:
+        raise Exception(error_description)
+
+    result = scalekit.authenticate_with_code(code, '<redirect_uri>')
+
+    # result.user has the authenticated user's details
+    user_email = result.user.email
+
+    # Next step: create a session for this user and allow access
+    ```
+
+    </TabItem>
+    <TabItem value="golang" label="Go">
+
+    ```go showLineNumbers title="Fetch user profile"
+    // Handle oauth redirect_url, fetch code and error_description from request params
+    code: = r.URL.Query().Get("code")
+    error: = r.URL.Query().Get("error")
+    errorDescription: = r.URL.Query().Get("error_description")
+
+    if error != "" {
+      // Handle errors
+    }
+
+    result, err: = a.scalekit.AuthenticateWithCode(code,<redirectUrl>)
+
+    if err != nil {
+      // Handle errors
+    }
+
+    // result.User has the authenticated user's details
+    userEmail: = result.User.Email
+
+    // Next step: create a session for this user and allow access
+    ```
+
+    </TabItem>
+
+    <TabItem value="java" label="Java">
+
+    ```java showLineNumbers title="Fetch user profile" wrap
+    // Handle oauth redirect_url, fetch code and error_description from request params
+    String code = request.getParameter("code");
+    String error = request.getParameter("error");
+    String errorDescription = request.getParameter("error_description");
+
+    if (error != null && !error.isEmpty()) {
+        // Handle errors
+        return;
+    }
+
+    try {
+        AuthenticationResponse result = scalekit.authentication().authenticateWithCode(code, redirectUrl);
+        String userEmail = result.getIdTokenClaims().getEmail();
+
+        // Next step: create a session for this user and allow access
+    } catch (Exception e) {
+        // Handle errors
+    }
+    ```
+
+    </TabItem>
+
+    </Tabs>
+
+    The `result` object
+
+    <Tabs>
+      <TabItem value="result" label="Result object">
+        ```js showLineNumbers=false wrap
+        {
+          user: {
+            email: "john.doe@example.com"  // User's email address
+          },
+          idToken: "<USER_PROFILE_JWT>",   // JWT containing user profile information
+          accessToken: "<API_CALL_JWT>",   // Temporary Access Token for accessing user's email
+          expiresIn: 899                    // Token expiration time in seconds
+        }
+        ```
+      </TabItem>
+      <TabItem value="idToken" label="Decoded idToken">
+        ```json showLineNumbers=false
+        {
+          "alg": "RS256",
+          "kid": "snk_82937465019283746",
+          "typ": "JWT"
+        }.{
+          "amr": [
+            "conn_92847563920187364"
+          ],
+          "at_hash": "j8kqPm3nRt5Kx2Vy9wL_Zp",
+          "aud": [
+            "skc_73645291837465928"
+          ],
+          "azp": "skc_73645291837465928",
+          "c_hash": "Hy4k2M9pWnX7vqR8_Jt3bg",
+          "client_id": "skc_73645291837465928",
+          "email": "alice.smith@example.com",
+          "email_verified": true,
+          "exp": 1751697469,
+          "iat": 1751438269,
+          "iss": "https://demo-company-dev.scalekit.cloud",
+          "sid": "ses_83746592018273645",
+          "sub": "conn_92847563920187364;alice.smith@example.com" // A scalekit user ID is sent if user management is enabled
+        }.[Signature]
+        ```
+      </TabItem>
+       <TabItem value="idToken" label="Decoded access token">
+        ```json showLineNumbers=false
+        {
+          "alg": "RS256",
+          "kid": "snk_794467716206433",
+          "typ": "JWT"
+        }.{
+          "iss": "https://acme-corp-dev.scalekit.cloud",
+          "sub": "conn_794467724427269;robert.wilson@acme.com",
+          "aud": [
+            "skc_794467724259497"
+          ],
+          "exp": 1751439169,
+          "iat": 1751438269,
+          "nbf": 1751438269,
+          "client_id": "skc_794467724259497",
+          "jti": "tkn_794754665320942"
+        }.[Signature]
+        ```
+      </TabItem>
+    </Tabs>
+
+</Steps>
+
+Congratulations! You've successfully implemented passwordless authentication in your application. Users can now sign in securely without passwords by entering a verification code or clicking a magic link sent to their email.
+
+
+<LinkCard
+  title="Need more help?"
+  href="/support/contact-us"
+  description="Reach out to us for any questions or support"
+/>
+````
+
 ## File: .prettierignore
 
 ```
@@ -52469,393 +52856,6 @@ You have successfully implemented the login flow. Now you can:
 - [Manage user sessions](/fsa/guides/manage-session/) to handle token refreshes and expirations.
 - [Implement a secure logout flow](/fsa/guides/logout/).
 - Explore the normalized [user profile schema](/fsa/reference/user-profile/).
-````
-
-## File: src/content/docs/guides/passwordless/oidc.mdx
-
-````
----
-title: Passwordless quickstart (via OIDC)
-description: A comprehensive guide to implementing secure, passwordless authentication using Scalekit's OIDC
-slug: "guides/passwordless/oidc"
-sidebar:
- label: 'Passwordless'
- badge:
-   text: 'OIDC'
-   variant: 'default'
-head:
-  - tag: style
-    content: |
-      table td:not(:last-child), table th:not(:last-child) {
-        white-space: nowrap;
-      }
-prev:
-  link: '/guides/passwordless/overview'
-  label: 'Passwordless overview'
----
-
-import { Aside, Steps, Badge, Tabs, TabItem, LinkCard } from '@astrojs/starlight/components';
-
-This guide will walk you through implementing passwordless authentication via Scalekit's OIDC flow. Depending on your configuration, your users will be sent either a one time passcode (OTP) or a magic link to verify their identity.
-
-### Prerequisites
-
-Before you begin, ensure you have:
-
-1. Access to your Scalekit Account and the API credentials. If you don't have a Scalekit account yet, you can <a href="https://app.scalekit.com/ws/signup" target="_blank" rel="noopener">signup here</a>.
-2. Installed Scalekit SDK into your project
-
-    ```sh showLineNumbers=false
-    npm install @scalekit/sdk
-    ```
-
-    ```js showLineNumbers=false
-    import { Scalekit } from '@scalekit-sdk/node';
-
-    const scalekit = new Scalekit(
-      '<SCALEKIT_ENVIRONMENT_URL>',
-      '<SCALEKIT_CLIENT_ID>',
-      '<SCALEKIT_CLIENT_SECRET>',
-    );
-    ```
-
-## Implementation guide
-
-<Steps>
-
-1. #### Configure settings
-
-    Before implementing the code, ensure passwordless authentication is properly configured in your Scalekit dashboard:
-
-    1. Navigate to _Authentication > Auth Methods_
-    2. Locate the _Passwordless_ section
-    3. Choose the type of passwordless authentication to use.
-    4. Save your changes
-
-    ![](@/assets/docs/unlisted/passwordless/1.png)
-
-
-2. #### Initiate authorize request
-
-   To initiate passwordless authentication, redirect users to the Scalekit authorization endpoint with the appropriate parameters.
-
-    Construct your authorization URL with the following parameters and redirect the user to the authorization URL.
-
-    | Parameter | Description |
-    |-----------|-------------|
-    | `redirect_uri` | Your application endpoint that will receive the authorization code after successful authentication. Example: `https://your-app.com/auth/callback` |
-    | `client_id` | Your unique Scalekit application identifier that specifies both your app and environment (staging, production). |
-    | `login_hint` | The email address of the user to send the verification email |
-
-   **Example implementation**
-
-    <Tabs syncKey="tech-stack">
-    <TabItem value="nodejs" label="Node.js">
-
-    ```javascript showLineNumbers wrap
-    import { ScalekitClient } from '@scalekit-sdk/node';
-    // Initialize the SDK client
-    const scalekit = new ScalekitClient(
-      '<SCALEKIT_ENVIRONMENT_URL>',
-      '<SCALEKIT_CLIENT_ID>',
-      '<SCALEKIT_CLIENT_SECRET>',
-    );
-
-    const options = {};
-
-    options['loginHint'] = 'user@example.com';
-
-    const authorizationURL = scalekit.getAuthorizationUrl(redirectUrl, options);
-    ```
-
-    </TabItem>
-    <TabItem value="py" label="Python">
-
-    ```python showLineNumbers wrap
-    from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
-
-    # Initialize the SDK client
-    scalekit = ScalekitClient(
-      '<SCALEKIT_ENVIRONMENT_URL>',
-      '<SCALEKIT_CLIENT_ID>',
-      '<SCALEKIT_CLIENT_SECRET>'
-    )
-
-    options = AuthorizationUrlOptions()
-
-    # Authorization URL with login hint
-    options.login_hint = 'user@example.com'
-
-    authorization_url = scalekit_client.get_authorization_url(
-      redirect_uri=<redirect_uri>,
-      options=options
-    )
-
-    # Redirect the user to this authorization URL
-    ```
-
-    </TabItem>
-    <TabItem value="golang" label="Go">
-
-    ```go showLineNumbers
-    import (
-      "github.com/scalekit/scalekit-sdk-go"
-    )
-
-    func main() {
-      // Initialize the SDK client
-      scalekitClient := scalekit.NewScalekitClient(
-        "<SCALEKIT_ENVIRONMENT_URL>",
-        "<SCALEKIT_CLIENT_ID>",
-        "<SCALEKIT_CLIENT_SECRET>"
-      )
-
-      options := scalekitClient.AuthorizationUrlOptions{}
-      // User's email domain detects the correct enterprise SSO connection.
-      options.LoginHint = "user@example.com"
-
-      authorizationURL := scalekitClient.GetAuthorizationUrl(
-        redirectUrl,
-        options,
-      )
-      // Next step is to redirect the user to this authorization URL
-    }
-
-    // Redirect the user to this authorization URL
-    ```
-
-    </TabItem>
-
-    <TabItem value="java" label="Java">
-
-    ```java showLineNumbers
-    package com.scalekit;
-
-    import com.scalekit.ScalekitClient;
-    import com.scalekit.internal.http.AuthorizationUrlOptions;
-
-    public class Main {
-
-      public static void main(String[] args) {
-        // Initialize the SDK client
-        ScalekitClient scalekitClient = new ScalekitClient(
-          "<SCALEKIT_ENVIRONMENT_URL>",
-          "<SCALEKIT_CLIENT_ID>",
-          "<SCALEKIT_CLIENT_SECRET>"
-        );
-        AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-        // User's email domain detects the correct enterprise SSO connection.
-        options.setLoginHint("user@example.com");
-        try {
-          String url = scalekitClient
-            .authentication()
-            .getAuthorizationUrl(redirectUrl, options)
-            .toString();
-        } catch (Exception e) {
-          System.out.println(e.getMessage());
-        }
-      }
-    }
-    // Redirect the user to this authorization URL
-    ```
-
-    </TabItem>
-    </Tabs>
-
-    This redirect will send users to the Scalekit authentication flow, where they'll authenticate with their email before being returned to your application.
-
-    ```sh title="Example authorization URL"
-    <YOURAPP_SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
-      client_id=skc_122056050118122349527&
-      redirect_uri=https://yourapp.com/auth/callback&
-      login_hint=user@example.com&
-      response_type=code&
-      scope=openid%20profile%20email&
-      state=jAy-state1-gM4fdZdV22nqm6Q_jAy-XwpYdYFh..2nqm6Q
-
-    ```
-
-    After redirecting users to the Scalekit authorization endpoint, handle the callback at your `redirect_uri` to retrieve the user profile and complete the authentication process.
-
-3. ### Fetch user details
-
-   After successful user authentication via OTP, Scalekit redirects users to your specified `redirect_uri` with a temporary authorization code parameter. This code must be exchanged for the user's profile information through a secure server-side request.
-
-   <Aside type="caution" title="Validation attempt limits">
-     To protect your application, Scalekit limits a user to **five** attempts to enter the correct OTP within a ten-minute window for each authentication request.
-     If the user exceeds this limit, they must restart the authentication process.
-   </Aside>
-
-    The authorization code exchange process should always be performed server-side to maintain security. This server-side request will:
-
-    1. Validate the authorization code
-    2. Return the authenticated user's profile details
-
-    <Tabs syncKey="tech-stack">
-    <TabItem value="nodejs" label="Node.js">
-
-    ```javascript showLineNumbers wrap title="Fetch user profile"
-    // Handle oauth redirect_url, fetch code and error_description from request params
-    const { code, error, error_description } = req.query;
-
-    if (error) {
-      // Handle errors
-    }
-
-    const result = await scalekit.authenticateWithCode(code, redirectUri);
-    const userEmail = result.user.email;
-
-    // Next step: create a session for this user and allow access
-    ```
-
-    </TabItem>
-    <TabItem value="py" label="Python">
-
-    ```py showLineNumbers title="Fetch user profile"
-    # Handle oauth redirect_url, fetch code and error_description from request params
-    code = request.args.get('code')
-    error = request.args.get('error')
-    error_description = request.args.get('error_description')
-
-    if error:
-        raise Exception(error_description)
-
-    result = scalekit.authenticate_with_code(code, '<redirect_uri>')
-
-    # result.user has the authenticated user's details
-    user_email = result.user.email
-
-    # Next step: create a session for this user and allow access
-    ```
-
-    </TabItem>
-    <TabItem value="golang" label="Go">
-
-    ```go showLineNumbers title="Fetch user profile"
-    // Handle oauth redirect_url, fetch code and error_description from request params
-    code: = r.URL.Query().Get("code")
-    error: = r.URL.Query().Get("error")
-    errorDescription: = r.URL.Query().Get("error_description")
-
-    if error != "" {
-      // Handle errors
-    }
-
-    result, err: = a.scalekit.AuthenticateWithCode(code,<redirectUrl>)
-
-    if err != nil {
-      // Handle errors
-    }
-
-    // result.User has the authenticated user's details
-    userEmail: = result.User.Email
-
-    // Next step: create a session for this user and allow access
-    ```
-
-    </TabItem>
-
-    <TabItem value="java" label="Java">
-
-    ```java showLineNumbers title="Fetch user profile" wrap
-    // Handle oauth redirect_url, fetch code and error_description from request params
-    String code = request.getParameter("code");
-    String error = request.getParameter("error");
-    String errorDescription = request.getParameter("error_description");
-
-    if (error != null && !error.isEmpty()) {
-        // Handle errors
-        return;
-    }
-
-    try {
-        AuthenticationResponse result = scalekit.authentication().authenticateWithCode(code, redirectUrl);
-        String userEmail = result.getIdTokenClaims().getEmail();
-
-        // Next step: create a session for this user and allow access
-    } catch (Exception e) {
-        // Handle errors
-    }
-    ```
-
-    </TabItem>
-
-    </Tabs>
-
-    The `result` object
-
-    <Tabs>
-      <TabItem value="result" label="Result object">
-        ```js showLineNumbers=false wrap
-        {
-          user: {
-            email: "john.doe@example.com"  // User's email address
-          },
-          idToken: "<USER_PROFILE_JWT>",   // JWT containing user profile information
-          accessToken: "<API_CALL_JWT>",   // Temporary Access Token for accessing user's email
-          expiresIn: 899                    // Token expiration time in seconds
-        }
-        ```
-      </TabItem>
-      <TabItem value="idToken" label="Decoded idToken">
-        ```json showLineNumbers=false
-        {
-          "alg": "RS256",
-          "kid": "snk_82937465019283746",
-          "typ": "JWT"
-        }.{
-          "amr": [
-            "conn_92847563920187364"
-          ],
-          "at_hash": "j8kqPm3nRt5Kx2Vy9wL_Zp",
-          "aud": [
-            "skc_73645291837465928"
-          ],
-          "azp": "skc_73645291837465928",
-          "c_hash": "Hy4k2M9pWnX7vqR8_Jt3bg",
-          "client_id": "skc_73645291837465928",
-          "email": "alice.smith@example.com",
-          "email_verified": true,
-          "exp": 1751697469,
-          "iat": 1751438269,
-          "iss": "https://demo-company-dev.scalekit.cloud",
-          "sid": "ses_83746592018273645",
-          "sub": "conn_92847563920187364;alice.smith@example.com" // A scalekit user ID is sent if user management is enabled
-        }.[Signature]
-        ```
-      </TabItem>
-       <TabItem value="idToken" label="Decoded access token">
-        ```json showLineNumbers=false
-        {
-          "alg": "RS256",
-          "kid": "snk_794467716206433",
-          "typ": "JWT"
-        }.{
-          "iss": "https://acme-corp-dev.scalekit.cloud",
-          "sub": "conn_794467724427269;robert.wilson@acme.com",
-          "aud": [
-            "skc_794467724259497"
-          ],
-          "exp": 1751439169,
-          "iat": 1751438269,
-          "nbf": 1751438269,
-          "client_id": "skc_794467724259497",
-          "jti": "tkn_794754665320942"
-        }.[Signature]
-        ```
-      </TabItem>
-    </Tabs>
-
-</Steps>
-
-Congratulations! You've successfully implemented passwordless authentication in your application. Users can now sign in securely without passwords by entering a verification code or clicking a magic link sent to their email.
-
-
-<LinkCard
-  title="Need more help?"
-  href="/support/contact-us"
-  description="Reach out to us for any questions or support"
-/>
 ````
 
 ## File: src/styles/custom.css
@@ -56124,69 +56124,6 @@ Congratulations! You've successfully implemented passwordless authentication in 
 
 </Aside>
 ````
-
-## File: package.json
-
-```json
-{
-  "name": "scalekit-docs",
-  "type": "module",
-  "version": "1.0.0",
-  "scripts": {
-    "docs:prepare": "pnpm run docs:api-index && pnpm run docs:llm-context",
-    "docs:api-index": "node scripts/search-index-apis.js",
-    "docs:llm-context": "repomix --output public/llm-context.md --compress --style markdown",
-    "dev": "astro dev --no-hmr",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro",
-    "upgrade": "pnpm dlx @astrojs/upgrade",
-    "postinstall": "node scripts/setup-git-hooks.js",
-    "format:check": "prettier --check '**/*.{md,mdx,js,ts,astro,css,vue}'",
-    "reorder-swagger": "node scripts/reorder-swagger.js public/api/scalekit.swagger.json"
-  },
-  "dependencies": {
-    "@astrojs/netlify": "^6.4.0",
-    "@astrojs/react": "^4.3.0",
-    "@astrojs/starlight": "^0.34.4",
-    "@astrojs/starlight-tailwind": "^4.0.1",
-    "@astrojs/tailwind": "^6.0.2",
-    "@astrojs/vue": "^5.1.0",
-    "@expressive-code/plugin-collapsible-sections": "^0.41.2",
-    "@expressive-code/plugin-line-numbers": "^0.41.2",
-    "@fontsource-variable/inter": "^5.2.6",
-    "@hideoo/starlight-plugins-docs-components": "^0.4.0",
-    "@scalar/api-reference": "^1.32.5",
-    "@tailwindcss/vite": "^4.1.11",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
-    "astro": "^5.10.1",
-    "pnpm": "^10.12.4",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "sharp": "^0.34.2",
-    "starlight-image-zoom": "^0.12.0",
-    "starlight-links-validator": "^0.16.0",
-    "starlight-llms-txt": "^0.5.1",
-    "starlight-showcases": "^0.3.0",
-    "starlight-sidebar-topics": "^0.6.0",
-    "starlight-sidebar-topics-dropdown": "^0.5.1",
-    "starlight-theme-rapide": "^0.5.1",
-    "tailwindcss": "^4.1.11",
-    "vue": "^3.5.17"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.4",
-    "prettier": "^3.6.1",
-    "prettier-plugin-astro": "^0.14.1",
-    "prettier-plugin-tailwindcss": "^0.6.13",
-    "pretty-quick": "^4.2.2",
-    "repomix": "^1.2.0",
-    "simple-git-hooks": "^2.13.0"
-  }
-}
-```
 
 ## File: public/api/scalekit.swagger.json
 
@@ -60487,6 +60424,69 @@ Congratulations! You've successfully implemented passwordless authentication in 
   }
 }
 ````
+
+## File: package.json
+
+```json
+{
+  "name": "scalekit-docs",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "docs:prepare": "pnpm run docs:api-index && pnpm run docs:llm-context",
+    "docs:api-index": "node scripts/search-index-apis.js",
+    "docs:llm-context": "repomix --output public/llm-context.md --compress --style markdown",
+    "dev": "astro dev --no-hmr",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "upgrade": "pnpm dlx @astrojs/upgrade",
+    "postinstall": "node scripts/setup-git-hooks.js",
+    "format:check": "prettier --check '**/*.{md,mdx,js,ts,astro,css,vue}'",
+    "reorder-swagger": "node scripts/reorder-swagger.js public/api/scalekit.swagger.json"
+  },
+  "dependencies": {
+    "@astrojs/netlify": "^6.4.0",
+    "@astrojs/react": "^4.3.0",
+    "@astrojs/starlight": "^0.34.4",
+    "@astrojs/starlight-tailwind": "^4.0.1",
+    "@astrojs/tailwind": "^6.0.2",
+    "@astrojs/vue": "^5.1.0",
+    "@expressive-code/plugin-collapsible-sections": "^0.41.2",
+    "@expressive-code/plugin-line-numbers": "^0.41.2",
+    "@fontsource-variable/inter": "^5.2.6",
+    "@hideoo/starlight-plugins-docs-components": "^0.4.0",
+    "@scalar/api-reference": "^1.32.5",
+    "@tailwindcss/vite": "^4.1.11",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "astro": "^5.10.1",
+    "pnpm": "^10.12.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "sharp": "^0.34.2",
+    "starlight-image-zoom": "^0.12.0",
+    "starlight-links-validator": "^0.16.0",
+    "starlight-llms-txt": "^0.5.1",
+    "starlight-showcases": "^0.3.0",
+    "starlight-sidebar-topics": "^0.6.0",
+    "starlight-sidebar-topics-dropdown": "^0.5.1",
+    "starlight-theme-rapide": "^0.5.1",
+    "tailwindcss": "^4.1.11",
+    "vue": "^3.5.17"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "prettier": "^3.6.1",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-tailwindcss": "^0.6.13",
+    "pretty-quick": "^4.2.2",
+    "repomix": "^1.2.0",
+    "simple-git-hooks": "^2.13.0"
+  }
+}
+```
 
 ## File: src/configs/sidebar.config.ts
 
