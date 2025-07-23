@@ -193,6 +193,14 @@ export default defineConfig({
       include: ['vue'],
       exclude: [],
     },
+    // Provide a safe fallback for libraries that reference the CommonJS
+    // global `__dirname` (e.g. canvaskit-wasm used by astro-og-canvas).
+    // When bundling for ESM, Node doesn’t define this variable which causes
+    // a runtime ReferenceError during `astro build`. Re-defining it at build
+    // time prevents the error without affecting runtime logic.
+    define: {
+      __dirname: '"/"',
+    },
     plugins: [pluginCollapsibleSections(), tailwindcss()],
     build: {
       chunkSizeWarningLimit: 2000,
