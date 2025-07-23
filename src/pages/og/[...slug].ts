@@ -1,6 +1,10 @@
 import { getCollection } from 'astro:content'
 import { OGImageRoute } from 'astro-og-canvas'
 
+/**
+ * @see https://github.com/delucis/astro-og-canvas/tree/latest/packages/astro-og-canvas#image-options
+ */
+
 // Fetch all entries from the `docs` content collection
 const entries = await getCollection('docs')
 
