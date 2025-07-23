@@ -22,6 +22,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Scalekit Docs',
+      routeMiddleware: './src/routeData.ts',
       tableOfContents: {
         minHeadingLevel: 2,
         maxHeadingLevel: 4,
