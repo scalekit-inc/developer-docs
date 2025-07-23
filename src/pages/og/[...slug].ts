@@ -17,9 +17,23 @@ export const { getStaticPaths, GET } = OGImageRoute({
     // Show title & description pulled from front-matter
     title: page.data.title,
     description: page.data.description,
+    dir: 'ltr',
+    logo: {
+      path: './src/assets/images/scalekit-logo-white.png',
+    },
     // A dark gradient background + border
-    bgGradient: [[24, 24, 27]],
-    border: { color: [63, 63, 70], width: 20 },
-    padding: 120,
+    bgGradient: [[18, 18, 18]], // Matches --sl-color-gray-7 from custom.css
+    border: { color: [0, 255, 127], width: 16 }, // Scalekit brand green (#00FF7F)
+    padding: 80,
+    font: {
+      title: {
+        families: ['Inter Variable'],
+        weights: [700],
+      },
+      description: {
+        families: ['Inter Variable'],
+        weights: [400],
+      },
+    },
   }),
 })
