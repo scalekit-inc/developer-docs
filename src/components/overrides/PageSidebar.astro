@@ -22,16 +22,25 @@ const editUrl =
 
   {/* Extra actions below the table of contents */}
   <div class="page-sidebar-actions">
-    <copy-markdown-button data-markdown={routeEntry.body}>
-      <a
-        href="#"
-        class="sidebar-action-link copy-markdown-link"
-        style="font-size: var(--sl-text-xs);"
-      >
+    <div class="copy-dropdown">
+      <button class="sidebar-action-link copy-dropdown-toggle" type="button">
         <Icon name="seti:markdown" size="var(--sl-text-xs)" />
         Copy for LLM context
-      </a>
-    </copy-markdown-button>
+        <svg
+          style="width: 1em; height: 1em; margin-left: 0.25em;"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          ><path
+            fill-rule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.855a.75.75 0 111.08 1.04l-4.25 4.417a.75.75 0 01-1.08 0l-4.25-4.417a.75.75 0 01.02-1.06z"
+            clip-rule="evenodd"></path></svg
+        >
+      </button>
+      <div class="copy-dropdown-menu">
+        <a href="#" class="copy-dropdown-item" data-copy-type="page">Copy current page</a>
+        <a href="#" class="copy-dropdown-item" data-copy-type="repo">Copy full docs</a>
+      </div>
+    </div>
 
     {
       editUrl && (
@@ -110,6 +119,79 @@ const editUrl =
       },
     )
   }
+
+  // Register the custom element only once to avoid duplicate definition errors.
+  if (!(window as any).__copyDropdownInit) {
+    ;(window as any).__copyDropdownInit = true
+    document.addEventListener('DOMContentLoaded', () => {
+      // Dropdown logic
+      document.querySelectorAll('.copy-dropdown-toggle').forEach((toggle) => {
+        toggle.addEventListener('click', (e) => {
+          e.preventDefault()
+          const menu = toggle.nextElementSibling
+          if (menu) menu.classList.toggle('open')
+        })
+      })
+      document.addEventListener('click', (e) => {
+        document.querySelectorAll('.copy-dropdown-menu.open').forEach((menu) => {
+          if (menu && menu.parentElement && !menu.parentElement.contains(e.target as Node)) {
+            menu.classList.remove('open')
+          }
+        })
+      })
+      // Copy logic
+      document.querySelectorAll('.copy-dropdown-item').forEach((item) => {
+        item.addEventListener('click', async (e) => {
+          e.preventDefault()
+          const type = item.getAttribute('data-copy-type')
+          const dropdown = item.closest('.copy-dropdown')
+          const toggle = dropdown ? dropdown.querySelector('.copy-dropdown-toggle') : null
+          const originalText = toggle && toggle.textContent ? toggle.textContent.trim() : ''
+          const originalIcon =
+            toggle && toggle.querySelector('svg') ? toggle.querySelector('svg').outerHTML : ''
+          let content = ''
+          try {
+            if (type === 'page') {
+              // Find the markdown from the closest .page-sidebar-actions
+              const sidebar = item.closest('.page-sidebar-actions')
+              const markdownButton = sidebar ? sidebar.querySelector('copy-markdown-button') : null
+              const markdown =
+                markdownButton && 'dataset' in markdownButton
+                  ? (markdownButton as HTMLElement).dataset.markdown
+                  : null
+              if (!markdown) throw new Error('No markdown content to copy')
+              content =
+                markdown.replace(/^[ \t]*import[^\n]*\n?/gm, '') +
+                '\n\nAdditional context: https://docs.scalekit.com/llms.txt'
+            } else if (type === 'repo') {
+              if (toggle) toggle.innerHTML = `${originalIcon} Copying...`
+              const resp = await fetch('/llm-context.md')
+              if (!resp.ok) throw new Error('Failed to fetch repo context')
+              content = await resp.text()
+              // Optionally warn if very large
+              if (content.length > 100000) {
+                content = content.slice(0, 100000) + '\n\n[Truncated: file too large for most LLMs]'
+              }
+            }
+            if (toggle) toggle.innerHTML = `${originalIcon} Copying...`
+            await navigator.clipboard.writeText(content)
+            if (toggle) toggle.innerHTML = `${originalIcon} Copied!`
+            setTimeout(() => {
+              if (toggle) toggle.innerHTML = `${originalIcon} ${originalText}`
+            }, 2000)
+          } catch (err) {
+            if (toggle) toggle.innerHTML = `${originalIcon} Failed to copy`
+            setTimeout(() => {
+              if (toggle) toggle.innerHTML = `${originalIcon} ${originalText}`
+            }, 3000)
+          }
+          // Close dropdown
+          const menu = item.closest('.copy-dropdown-menu')
+          if (menu) menu.classList.remove('open')
+        })
+      })
+    })
+  }
 </script>
 
 <style>
@@ -159,6 +241,48 @@ const editUrl =
 
   :global([data-theme='dark']) .sidebar-action-link:hover {
     color: var(--sl-color-gray-1);
+  }
+
+  .copy-dropdown {
+    position: relative;
+    width: 100%;
+  }
+  .copy-dropdown-toggle {
+    width: 100%;
+    cursor: pointer;
+    background: none;
+    border: none;
+    outline: none;
+    text-align: left;
+  }
+  .copy-dropdown-menu {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    min-width: 220px;
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-gray-6);
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    z-index: 10;
+    margin-top: 0.25rem;
+  }
+  .copy-dropdown-menu.open {
+    display: block;
+  }
+  .copy-dropdown-item {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    font-size: var(--sl-text-xs);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .copy-dropdown-item:hover {
+    background: var(--sl-color-gray-7);
+    color: var(--sl-color-white);
   }
 
   @media (max-width: 1024px) {
