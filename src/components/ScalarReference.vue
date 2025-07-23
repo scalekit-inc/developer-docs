@@ -25,20 +25,16 @@ onUnmounted(() => {
 <template>
   <div class="api-reference-wrapper">
     <header class="custom-header scalar-app">
-      <a
+      <!-- <a
         href="https://docs.scalekit.com"
         style="text-decoration: none"
         target="_blank"
         rel="noopener noreferrer"
         >Scalekit API Reference</a
-      >
-      <!-- <a href="https://docs.scalekit.com">
-        <img
-          src="/assets/logos/scalekit-logo-green-dark.svg"
-          alt="Scalekit API Reference"
-          height="45"
-        />
-      </a> -->
+      > -->
+      <a href="https://docs.scalekit.com">
+        <img src="/assets/logos/scalekit-api-black.svg" alt="Scalekit API Reference" height="30" />
+      </a>
       <nav>
         <a
           href="https://github.com/scalekit-developers/api-collections"
