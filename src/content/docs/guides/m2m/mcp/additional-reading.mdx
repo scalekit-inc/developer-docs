@@ -1,5 +1,6 @@
 ---
 title: MCP Servers - Additional Reading
+description: "Explore advanced topics for MCP servers, including OAuth 2.1 flows, scope design, dynamic client registration, and security best practices."
 slug: "guides/mcp/additional-reading"
 sidebar:
   label: Additional Reading
@@ -28,12 +29,12 @@ authURL.searchParams.set('code_challenge_method', 'S256');
 // Step 2: Handle callback and exchange code for token
 app.get('/callback', async (req, res) => {
   const { code, state } = req.query;
-  
+
   // Verify state parameter to prevent CSRF
   if (!isValidState(state)) {
     return res.status(400).json({ error: 'Invalid state parameter' });
   }
-  
+
   const tokenResponse = await fetch('https://your-org.scalekit.com/oauth/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -45,7 +46,7 @@ app.get('/callback', async (req, res) => {
       code_verifier: getPKCEVerifier() // From PKCE challenge generation
     })
   });
-  
+
   const tokens = await tokenResponse.json();
   // Store tokens securely and proceed with MCP calls
 });
@@ -68,7 +69,7 @@ const getMachineToken = async () => {
       audience: 'https://your-mcp-server.com',
     })
   });
-  
+
   return await response.json();
 };
 ```
@@ -102,14 +103,14 @@ Design OAuth scopes that reflect your MCP server's actual capabilities and secur
 ```javascript
 const ScopeValidator = {
   hasScope: (userScopes, requiredScope) => {
-    return userScopes.includes(requiredScope) || 
+    return userScopes.includes(requiredScope) ||
            userScopes.includes(requiredScope.split(':').slice(0, -1).join(':') + ':*');
   },
-  
+
   hasAnyScope: (userScopes, allowedScopes) => {
     return allowedScopes.some(scope => ScopeValidator.hasScope(userScopes, scope));
   },
-  
+
   validateToolAccess: (userScopes, toolName) => {
     const toolScope = `mcp:tools:${toolName}`;
     const wildcardScope = 'mcp:tools:*';
@@ -121,14 +122,14 @@ const ScopeValidator = {
 app.post('/mcp/tools/:toolName', (req, res) => {
   const { toolName } = req.params;
   const userScopes = req.auth.scopes;
-  
+
   if (!ScopeValidator.validateToolAccess(userScopes, toolName)) {
     return res.status(403).json({
       error: 'insufficient_scope',
       error_description: `Access to tool '${toolName}' requires appropriate scope`
     });
   }
-  
+
   // Process tool request
 });
 ```
@@ -155,7 +156,7 @@ const registerClient = async (clientMetadata) => {
       ...clientMetadata
     })
   });
-  
+
   return await response.json();
   // Returns: { client_id, client_secret, client_id_issued_at, ... }
 };
@@ -181,9 +182,9 @@ const createClientRateLimit = () => {
       return 50; // Default limit
     },
     keyGenerator: (req) => req.auth?.clientId || req.ip,
-    message: { 
+    message: {
       error: 'rate_limit_exceeded',
-      error_description: 'Too many requests from this client' 
+      error_description: 'Too many requests from this client'
     }
   });
 };
@@ -207,7 +208,7 @@ const auditLogger = {
       success
     }));
   },
-  
+
   logMCPAccess: (req, toolName, success, error = null) => {
     console.log(JSON.stringify({
       event: 'mcp_tool_access',
@@ -227,11 +228,11 @@ const auditLogger = {
 // Use in your MCP handlers
 app.post('/mcp/tools/:toolName', async (req, res) => {
   const { toolName } = req.params;
-  
+
   try {
     // Process tool request
     const result = await processToolRequest(toolName, req.body);
-    
+
     auditLogger.logMCPAccess(req, toolName, true);
     res.json(result);
   } catch (error) {
@@ -255,7 +256,7 @@ app.get('/health', async (req, res) => {
       oauth_server: 'unknown'
     }
   };
-  
+
   try {
     // Test OAuth server connectivity
     const oauthTest = await fetch('https://your-org.scalekit.com/.well-known/oauth-authorization-server');
@@ -264,7 +265,7 @@ app.get('/health', async (req, res) => {
     health.services.oauth_server = 'unhealthy';
     health.status = 'degraded';
   }
-  
+
   const statusCode = health.status === 'healthy' ? 200 : 503;
   res.status(statusCode).json(health);
 });
@@ -284,7 +285,7 @@ const debugTokenValidation = async (token) => {
     const [header, payload, signature] = token.split('.');
     console.log('Token Header:', JSON.parse(atob(header)));
     console.log('Token Payload:', JSON.parse(atob(payload)));
-    
+
     // Validate with detailed error info
     await jwtVerify(token, JWKS, {
       issuer: 'https://your-org.scalekit.com',
@@ -343,11 +344,11 @@ app.use((error, req, res, next) => {
   if (error.name === 'TokenExpiredError') {
     return sendOAuthError(res, 'invalid_token', 'Access token has expired', 401);
   }
-  
+
   if (error.name === 'InsufficientScopeError') {
     return sendOAuthError(res, 'insufficient_scope', `Required scope: ${error.requiredScope}`, 403);
   }
-  
+
   // Default error
   sendOAuthError(res, 'server_error', 'An unexpected error occurred', 500);
 });
@@ -395,10 +396,10 @@ const TokenManager = {
         client_secret: 'your-client-secret'
       })
     });
-    
+
     return await response.json();
   },
-  
+
   async autoRefreshWrapper(tokenStore, makeRequest) {
     try {
       return await makeRequest(tokenStore.accessToken);
@@ -408,7 +409,7 @@ const TokenManager = {
         const newTokens = await this.refreshToken(tokenStore.refreshToken);
         tokenStore.accessToken = newTokens.access_token;
         tokenStore.refreshToken = newTokens.refresh_token;
-        
+
         // Retry original request
         return await makeRequest(tokenStore.accessToken);
       }
