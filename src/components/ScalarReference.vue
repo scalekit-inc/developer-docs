@@ -99,7 +99,7 @@ onUnmounted(() => {
         >Scalekit API Reference</a
       > -->
       <a href="https://docs.scalekit.com">
-        <img :src="logoPath" alt="Scalekit API Reference" height="30" />
+        <img :src="logoPath" alt="Scalekit API Reference" height="32" />
       </a>
       <nav>
         <a
