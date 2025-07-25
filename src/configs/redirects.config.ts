@@ -47,6 +47,11 @@ export const redirects = {
   '/scim/explore-sample-apps': '/directory/code-examples/',
   '/scim/domain-and-theme-customization': '/guides/custom-domain/',
   '/scim/in-product-quickstart': '/directory/scim/quickstart/',
+  '/guides/directory/launch-checklist': '/directory/guides/launch-checklist',
+  '/guides/directory/group-based-role-assignment': '/directory/guides/group-based-role-assignment',
+  '/guides/directory/admin-portal': '/directory/guides/admin-portal',
+  '/guides/directory/user-provisioning-basics': '/directory/guides/user-provisioning-basics',
+  '/guides/directory/scim-protocol': '/directory/guides/scim-protocol',
 
   // M2M
   '/m2m/overview': '/guides/m2m/overview/',
