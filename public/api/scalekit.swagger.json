@@ -299,7 +299,7 @@
               "type": "string"
             },
             "collectionFormat": "multi",
-            "description": "Features to enable in the admin portal link. To enable features, append them as URL parameters:\n\n- Single Sign-On: ?features=sso\n- Directory Sync: ?features=dir_sync\n- Both features: ?features=sso&features=dir_sync\n\nExample URL: https://scalekit.com/portal/lnk_123?features=sso\n\n - dir_sync: dir_sync enables directory synchronization configuration in the portal\n - sso: sso enables Single Sign-On (SSO) configuration in the portal",
+            "description": "Features to enable in the admin portal link. To enable features, append them as URL parameters:\n\n- Single Sign-On: ?features=sso\n- Directory Sync: ?features=dir_sync\n- Both features: ?features=sso&features=dir_sync\n\nExample URL: https://scalekit.com/portal/lnk_123?features=sso\n\n - dir_sync: Enables directory synchronization configuration in the portal\n - sso: Enables Single Sign-On (SSO) configuration in the portal",
             "name": "features",
             "in": "query"
           }
@@ -843,7 +843,7 @@
           "200": {
             "description": "Returns the requested organization setting.",
             "schema": {
-              "$ref": "#/definitions/organizationsGetOrganizationUserManagementSettingsRequest"
+              "$ref": "#/definitions/organizationsGetOrganizationUserManagementSettingsResponse"
             }
           },
           "404": {
@@ -1887,7 +1887,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "templateType := scalekit.TemplateTypeSignin\nresponse, err := ScalekitClient.Passwordless().SendPasswordlessEmail(\n    ctx,\n    \"john.doe@example.com\",\n    &scalekit.SendPasswordlessOptions{\n        Template:         &templateType,\n        ExpiresIn:        100,\n        MagiclinkAuthUri: \"https://www.google.com\",\n        TemplateVariables: map[string]string{\n            \"employeeID\":    \"EMP523\",\n            \"teamName\":      \"Alpha Team\",\n            \"supportEmail\":  \"support@yourcompany.com\",\n        },\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\nauthRequestId := response.AuthRequestId"
+            "source": "templateType := scalekit.TemplateTypeSignin\nresponse, err := client.Passwordless().SendPasswordlessEmail(\n    ctx,\n    \"john.doe@example.com\",\n    &scalekit.SendPasswordlessOptions{\n        Template:         &templateType,\n        ExpiresIn:        100,\n        MagiclinkAuthUri: \"https://www.google.com\",\n        TemplateVariables: map[string]string{\n            \"employeeID\":    \"EMP523\",\n            \"teamName\":      \"Alpha Team\",\n            \"supportEmail\":  \"support@yourcompany.com\",\n        },\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\nauthRequestId := response.AuthRequestId"
           }
         ]
       }
@@ -1925,7 +1925,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "resendResponse, err := ScalekitClient.Passwordless().ResendPasswordlessEmail(\n    ctx,\n    authRequestId,\n)\n\nif err != nil {\n    // Handle error\n    return\n}"
+            "source": "resendResponse, err := client.Passwordless().ResendPasswordlessEmail(\n    ctx,\n    authRequestId,\n)\n\nif err != nil {\n    // Handle error\n    return\n}"
           }
         ]
       }
@@ -1963,7 +1963,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "// Verify with OTP code\nverifyResponse, err := ScalekitClient.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    &scalekit.VerifyPasswordlessOptions{\n        Code:          \"123456\", // OTP code\n        AuthRequestId: authRequestId,\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// Verify with magic link token\nverifyResponse, err := ScalekitClient.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    &scalekit.VerifyPasswordlessOptions{\n        LinkToken: linkToken, // Magic link token\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// User verified successfully\nuserEmail := verifyResponse.Email"
+            "source": "// Verify with OTP code\nverifyResponse, err := client.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    &scalekit.VerifyPasswordlessOptions{\n        Code:          \"123456\", // OTP code\n        AuthRequestId: authRequestId,\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// Verify with magic link token\nverifyResponse, err := client.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    &scalekit.VerifyPasswordlessOptions{\n        LinkToken: linkToken, // Magic link token\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// User verified successfully\nuserEmail := verifyResponse.Email"
           }
         ]
       }
@@ -2087,7 +2087,7 @@
         "status": {
           "description": "The current status of this secret. A secret must be ACTIVE to be used for authentication. INACTIVE secrets cannot be used for authentication but are retained for audit purposes.",
           "$ref": "#/definitions/clientsClientSecretStatus",
-          "example": "ACTIVE"
+          "example": "INACTIVE"
         },
         "update_time": {
           "description": "The timestamp when this secret was last updated. This field is automatically updated by the server when the secret's status changes or other properties are modified.",
@@ -2225,7 +2225,7 @@
           "example": "Service account for automated deployment processes"
         },
         "expiry": {
-          "description": "The lifetime of access tokens issued to this client, in seconds. This determines how long a token remains valid before it must be refreshed.",
+          "description": "Expiry time in seconds for the token generated by the client",
           "type": "string",
           "format": "int64",
           "example": 3600
@@ -2246,7 +2246,7 @@
           "items": {
             "type": "string"
           },
-          "example": "https://example.com/callback"
+          "example": ["https://example.com/callback"]
         },
         "resource_id": {
           "description": "The ID of the resource associated with this M2M client. This field is used to link the client to a specific resource in the system.",
@@ -2315,7 +2315,7 @@
           "example": "Service account for GitHub Actions to deploy resources to production"
         },
         "expiry": {
-          "description": "The lifetime of access tokens issued to this client, in seconds. This value determines how long a token remains valid before it must be refreshed. Defaults to 3600 (1 hour) if not specified.",
+          "description": "Expiry time in seconds for the token generated by the client",
           "type": "string",
           "format": "int64",
           "example": 3600
@@ -2539,7 +2539,11 @@
             "type": "object",
             "$ref": "#/definitions/domainsDomain"
           },
-          "example": "example.com"
+          "example": [
+            {
+              "name": "example.com"
+            }
+          ]
         },
         "enabled": {
           "description": "Controls whether users can sign in using this connection. When false, the connection exists but cannot be used for authentication.",
@@ -2695,6 +2699,11 @@
         },
         "id": {
           "description": "Unique identifier of the connection",
+          "type": "string",
+          "example": "conn_2123312131125533"
+        },
+        "key_id": {
+          "description": "Alternative identifier for this connection, typically used in frontend applications or URLs",
           "type": "string",
           "example": "conn_2123312131125533"
         },
@@ -2925,6 +2934,11 @@
           "format": "int64",
           "example": 1
         },
+        "regenerate_passwordless_credentials_on_resend": {
+          "description": "Regenerate the ",
+          "type": "boolean",
+          "example": true
+        },
         "type": {
           "description": "Passwordless Type",
           "$ref": "#/definitions/connectionsPasswordlessType",
@@ -2934,7 +2948,7 @@
           "description": "Link Validity in Seconds",
           "type": "integer",
           "format": "int64",
-          "example": "600"
+          "example": 600
         }
       }
     },
@@ -3444,7 +3458,7 @@
         "status": {
           "description": "Secret Status",
           "$ref": "#/definitions/directoriesSecretStatus",
-          "example": "ACTIVE"
+          "example": "INACTIVE"
         }
       }
     },
@@ -3557,7 +3571,7 @@
       }
     },
     "organizationsFeature": {
-      "description": "- dir_sync: dir_sync enables directory synchronization configuration in the portal\n - sso: sso enables Single Sign-On (SSO) configuration in the portal",
+      "description": "- dir_sync: Enables directory synchronization configuration in the portal\n - sso: Enables Single Sign-On (SSO) configuration in the portal",
       "type": "string",
       "title": "Feature represents the available features that can be enabled for an organization's portal link",
       "enum": ["dir_sync", "sso"]
@@ -3577,15 +3591,6 @@
         "organization": {
           "description": "The newly created organization",
           "$ref": "#/definitions/organizationsOrganization"
-        }
-      }
-    },
-    "organizationsGetOrganizationUserManagementSettingsRequest": {
-      "type": "object",
-      "properties": {
-        "organization_id": {
-          "description": "ID of the organization.",
-          "type": "string"
         }
       }
     },
@@ -4232,7 +4237,11 @@
             "type": "object",
             "$ref": "#/definitions/commonsRole"
           },
-          "example": "admin"
+          "example": [
+            {
+              "name": "admin"
+            }
+          ]
         }
       }
     },
