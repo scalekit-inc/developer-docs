@@ -12,7 +12,7 @@ import starlightThemeRapide from 'starlight-theme-rapide'
 import starlightLlmsTxt from 'starlight-llms-txt'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
-
+import mermaid from 'astro-mermaid';
 import tailwindcss from '@tailwindcss/vite'
 
 // https://astro.build/config
@@ -20,6 +20,7 @@ export default defineConfig({
   site: 'https://docs.scalekit.com',
   redirects,
   integrations: [
+    mermaid(),
     starlight({
       title: 'Scalekit Docs',
       tableOfContents: {
