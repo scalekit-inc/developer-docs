@@ -22,6 +22,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Scalekit Docs',
+      routeMiddleware: './src/routeData.ts',
       tableOfContents: {
         minHeadingLevel: 2,
         maxHeadingLevel: 4,
@@ -36,8 +37,8 @@ export default defineConfig({
         PageSidebar: './src/components/overrides/PageSidebar.astro',
       },
       logo: {
-        dark: '/src/assets/images/logos/scalekit-logo-green-dark.svg',
-        light: '/src/assets/images/logos/scalekit-logo-green-light.svg',
+        dark: '/src/assets/images/logos-v2/scalekit-docs-black.png',
+        light: '/src/assets/images/logos-v2/scalekit-docs-white.png',
         replacesTitle: true,
       },
       defaultLocale: 'en',
@@ -191,6 +192,14 @@ export default defineConfig({
     optimizeDeps: {
       include: ['vue'],
       exclude: [],
+    },
+    // Provide a safe fallback for libraries that reference the CommonJS
+    // global `__dirname` (e.g. canvaskit-wasm used by astro-og-canvas).
+    // When bundling for ESM, Node doesn’t define this variable which causes
+    // a runtime ReferenceError during `astro build`. Re-defining it at build
+    // time prevents the error without affecting runtime logic.
+    define: {
+      __dirname: '"/"',
     },
     plugins: [pluginCollapsibleSections(), tailwindcss()],
     build: {
