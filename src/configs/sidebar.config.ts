@@ -25,6 +25,7 @@ export const sidebar = [
           },
           'fsa/guides/manage-session',
           'fsa/guides/logout',
+          'guides/auth-logs',
         ],
       },
       {
