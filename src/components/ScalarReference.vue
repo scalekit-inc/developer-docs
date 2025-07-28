@@ -21,10 +21,21 @@ const logoPath = computed(() => {
     : '/assets/logos/scalekit-api-white.svg'
 })
 
-// Function to update color mode from localStorage
+// Function to update color mode from localStorage and system preference
 const updateColorMode = () => {
   const savedColorMode = localStorage.getItem('colorMode')
-  colorMode.value = savedColorMode || 'light'
+
+  if (savedColorMode) {
+    colorMode.value = savedColorMode
+  } else {
+    // Check system preference or document theme
+    const isDarkMode =
+      window.matchMedia('(prefers-color-scheme: dark)').matches ||
+      document.documentElement.classList.contains('dark') ||
+      document.documentElement.getAttribute('data-color-mode') === 'dark'
+
+    colorMode.value = isDarkMode ? 'dark' : 'light'
+  }
 }
 
 // Listen for storage changes (when color mode is changed)
