@@ -10,6 +10,7 @@ import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import starlightThemeRapide from 'starlight-theme-rapide'
 import starlightLlmsTxt from 'starlight-llms-txt'
+import starlightDocSearch from '@astrojs/starlight-docsearch'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 
@@ -45,17 +46,7 @@ export default defineConfig({
       editLink: {
         baseUrl: 'https://github.com/scalekit-inc/developer-docs/edit/main',
       },
-      pagefind: {
-        mergeIndex: [
-          // {
-          //   bundlePath: '/apis',
-          //   indexWeight: 1.5, // Give API reference slightly higher weight in search results
-          //   mergeFilter: {
-          //     resource: 'API Reference',
-          //   },
-          // },
-        ],
-      },
+      pagefind: false,
       expressiveCode: {
         useStarlightDarkModeSwitch: true,
         themes: ['vitesse-dark', 'vitesse-light'],
@@ -81,6 +72,11 @@ export default defineConfig({
           showCaptions: true,
         }),
         starlightSidebarTopics(sidebarConfig, { topics }),
+        starlightDocSearch({
+          appId: '7554BDRAJD',
+          apiKey: 'b2fecf525a556f05d46ef2389ad7e4b6',
+          indexName: 'crawler_Scalekit Starlight',
+        }),
       ],
       head: [
         {
