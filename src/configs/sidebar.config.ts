@@ -117,18 +117,18 @@ export const sidebar = [
         items: [
           'directory/scim/quickstart',
           'directory/code-examples',
-          'guides/directory/admin-portal',
-          'guides/directory/launch-checklist',
+          'directory/guides/admin-portal',
+          'directory/guides/launch-checklist',
         ],
       },
       {
         label: 'Guides',
         items: [
-          'guides/directory/group-based-role-assignment',
+          'directory/guides/group-based-role-assignment',
           'guides/webhooks-best-practices',
           {
             label: 'Concepts',
-            items: ['guides/directory/user-provisioning-basics', 'guides/directory/scim-protocol'],
+            items: ['directory/guides/user-provisioning-basics', 'directory/guides/scim-protocol'],
           },
         ],
       },
@@ -294,6 +294,7 @@ export const sidebar = [
       {
         label: 'Development Tools',
         items: [
+          'dev-kit/mcp',
           {
             label: 'Postman collections',
             link: 'https://github.com/scalekit-developers/api-collections',
