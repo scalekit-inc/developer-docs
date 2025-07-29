@@ -824,70 +824,6 @@
         ]
       }
     },
-    "/api/v1/organizations/{organization_id}/settings/usermanagement": {
-      "get": {
-        "description": "Retrieves the user management settings for a specific organization.",
-        "tags": ["Organizations"],
-        "summary": "Get organization user management setting",
-        "operationId": "OrganizationService_GetOrganizationUserManagementSetting",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of the organization.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the requested organization setting.",
-            "schema": {
-              "$ref": "#/definitions/organizationsGetOrganizationUserManagementSettingsResponse"
-            }
-          },
-          "404": {
-            "description": "Organization or setting not found.",
-            "schema": {}
-          }
-        }
-      },
-      "patch": {
-        "description": "Updates user management settings for an organization",
-        "tags": ["Organizations"],
-        "summary": "Update organization user setting",
-        "operationId": "OrganizationService_UpdateUserManagementSettings",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of the organization.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/OrganizationServiceUpdateUserManagementSettingsBody"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the updated organization setting.",
-            "schema": {
-              "$ref": "#/definitions/organizationsUpdateUserManagementSettingsResponse"
-            }
-          },
-          "404": {
-            "description": "Organization or setting not found.",
-            "schema": {}
-          }
-        }
-      }
-    },
     "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
       "post": {
         "description": "Creates a new secret for an organization API client. Returns the plain secret (available only once).",
@@ -1933,37 +1869,153 @@
     "/api/v1/passwordless/email/verify": {
       "post": {
         "description": "Verify a user's identity using either a verification code or magic link token",
-        "tags": ["Passwordless Auth"],
-        "summary": "Verify passwordless email",
-        "operationId": "PasswordlessService_VerifyPasswordlessEmail",
+        "tags": ["Roles"],
+        "summary": "Create a role",
+        "operationId": "RolesService_CreateRole",
         "parameters": [
           {
-            "name": "body",
+            "name": "role",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/authpasswordlessVerifyPasswordLessRequest"
+              "$ref": "#/definitions/v1rolesCreateRole"
             }
+          },
+          {
+            "type": "string",
+            "name": "env_id",
+            "in": "query"
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successfully verified the passwordless authentication. Returns user email",
+          "201": {
+            "description": "Role created successfully",
             "schema": {
-              "$ref": "#/definitions/authpasswordlessVerifyPasswordLessResponse"
+              "$ref": "#/definitions/rolesCreateRoleResponse"
             }
           }
         },
         "x-codeSamples": [
           {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const { authRequestId } = sendResponse;\nconst verifyResponse = await scalekit.passwordless.\n  verifyPasswordlessEmail(\n\t// Verification Code (OTP)\n\t{ code: \"123456\" },\n\t// Magic Link Token\n\t{ linkToken: link_token },\n\tauthRequestId\n);"
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.roles.roles_pb2 import CreateRole\n\nrole = CreateRole(\n    name=\"viewer\",\n    display_name=\"Viewer\",\n    description=\"Read-only access\",\n)\ncreate_response = scalekit_client.roles.create_role(\n    role=role,\n)"
+          }
+        ]
+      }
+    },
+    "/api/v1/roles/{id}": {
+      "get": {
+        "description": "Fetch detailed information about a specific role using its unique identifier.",
+        "tags": ["Roles"],
+        "summary": "Get a role",
+        "operationId": "RolesService_GetRole",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
           },
           {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "// Verify with OTP code\nverifyResponse, err := client.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    &scalekit.VerifyPasswordlessOptions{\n        Code:          \"123456\", // OTP code\n        AuthRequestId: authRequestId,\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// Verify with magic link token\nverifyResponse, err := client.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    &scalekit.VerifyPasswordlessOptions{\n        LinkToken: linkToken, // Magic link token\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// User verified successfully\nuserEmail := verifyResponse.Email"
+            "type": "string",
+            "name": "env_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved role details",
+            "schema": {
+              "$ref": "#/definitions/rolesGetRoleResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "role_response = scalekit_client.roles.get_role(\n    role_id=\"role_123456789\",\n)"
+          }
+        ]
+      },
+      "put": {
+        "description": "Updates an existing role identified by its unique ID. Only provided fields are modified.",
+        "tags": ["Roles"],
+        "summary": "Update a role",
+        "operationId": "RolesService_UpdateRole",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "role",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1rolesUpdateRole"
+            }
+          },
+          {
+            "type": "string",
+            "name": "env_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role updated successfully",
+            "schema": {
+              "$ref": "#/definitions/rolesUpdateRoleResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.roles.roles_pb2 import UpdateRole\n\nupdate_role = UpdateRole(\n    display_name=\"Viewer (Limited)\",\n    description=\"Read-only access, no billing\",\n)\nupdated_role = scalekit_client.roles.update_role(\n    role_id=\"role_123456789\",\n    role=update_role,\n)"
+          }
+        ]
+      },
+      "delete": {
+        "description": "Removes an existing role from the environment using its unique identifier. Optionally reassign users to another role.",
+        "tags": ["Roles"],
+        "summary": "Delete a role",
+        "operationId": "RolesService_DeleteRole",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "env_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Role ID to reassign users to when deleting this role",
+            "name": "reassign_role_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted Successfully",
+            "schema": {}
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "scalekit_client.roles.delete_role(\n    role_id=\"role_123456789\",\n)"
           }
         ]
       }
@@ -1981,12 +2033,19 @@
         }
       }
     },
-    "OrganizationServiceUpdateUserManagementSettingsBody": {
+    "UserServiceResendInviteBody": {
       "type": "object",
       "properties": {
-        "settings": {
-          "description": "The new values for the setting fields to patch.",
-          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
+        "membership_id": {
+          "type": "string"
+        }
+      }
+    },
+    "UserServiceRevokeInviteBody": {
+      "type": "object",
+      "properties": {
+        "membership_id": {
+          "type": "string"
         }
       }
     },
@@ -3594,15 +3653,6 @@
         }
       }
     },
-    "organizationsGetOrganizationUserManagementSettingsResponse": {
-      "type": "object",
-      "properties": {
-        "settings": {
-          "description": "List of organization settings.",
-          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
-        }
-      }
-    },
     "organizationsLink": {
       "type": "object",
       "properties": {
@@ -3763,36 +3813,12 @@
         }
       }
     },
-    "organizationsOrganizationUserManagementSettings": {
-      "type": "object",
-      "properties": {
-        "jit_provisioning_with_sso_enabled": {
-          "description": "Enables or disables user management features for the organization. When true, users can be added, removed, and managed.",
-          "type": "boolean",
-          "example": true
-        },
-        "sync_user_profile_on_signin": {
-          "description": "Enables or disables synchronization of user profiles upon sign-in. When true, user profiles are automatically updated with the latest information from the identity provider.",
-          "type": "boolean",
-          "example": true
-        }
-      }
-    },
     "organizationsUpdateOrganizationResponse": {
       "type": "object",
       "properties": {
         "organization": {
           "description": "Updated organization details",
           "$ref": "#/definitions/organizationsOrganization"
-        }
-      }
-    },
-    "organizationsUpdateUserManagementSettingsResponse": {
-      "type": "object",
-      "properties": {
-        "settings": {
-          "description": "The updated setting.",
-          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
         }
       }
     },
@@ -3884,6 +3910,42 @@
     "protobufNullValue": {
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.",
       "type": "string"
+    },
+    "rolesCreateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/v1rolesRole"
+        }
+      }
+    },
+    "rolesGetRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/v1rolesRole"
+        }
+      }
+    },
+    "rolesListRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1rolesRole"
+          }
+        }
+      }
+    },
+    "rolesUpdateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/v1rolesRole"
+        }
+      }
     },
     "usersCreateMembershipResponse": {
       "type": "object",
@@ -3995,6 +4057,51 @@
         }
       }
     },
+    "usersInvite": {
+      "type": "object",
+      "properties": {
+        "accepted_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "environment_id": {
+          "type": "string"
+        },
+        "expiry": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string"
+        },
+        "invited_by": {
+          "type": "string"
+        },
+        "invitee_name": {
+          "type": "string"
+        },
+        "link_id": {
+          "type": "string"
+        },
+        "organization_id": {
+          "type": "string"
+        },
+        "resent_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resent_times": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      }
+    },
     "usersListOrganizationUsersResponse": {
       "type": "object",
       "properties": {
@@ -4050,6 +4157,22 @@
             "type": "object",
             "$ref": "#/definitions/usersUser"
           }
+        }
+      }
+    },
+    "usersResendInviteResponse": {
+      "type": "object",
+      "properties": {
+        "invite": {
+          "$ref": "#/definitions/usersInvite"
+        }
+      }
+    },
+    "usersRevokeInviteResponse": {
+      "type": "object",
+      "properties": {
+        "invite": {
+          "$ref": "#/definitions/usersInvite"
         }
       }
     },
@@ -4216,6 +4339,101 @@
         }
       }
     },
+    "v1rolesCreateRole": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "description": "Default Role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_creator": {
+          "description": "Default Creator Role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_member": {
+          "description": "Default Member Role",
+          "type": "boolean",
+          "example": true
+        },
+        "description": {
+          "description": "Description of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role will be used only for viewing the objects"
+        },
+        "display_name": {
+          "description": "Display Name of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role"
+        },
+        "name": {
+          "description": "Unique Name of the Organization's Role",
+          "type": "string",
+          "example": "org_viewer_role"
+        }
+      }
+    },
+    "v1rolesRole": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "type": "boolean"
+        },
+        "default_creator": {
+          "description": "Indicates if this role is the default creator role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_member": {
+          "description": "Indicates if this role is the default member role",
+          "type": "boolean",
+          "example": true
+        },
+        "description": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "v1rolesUpdateRole": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "description": "Default Role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_creator": {
+          "description": "Default Creator Role",
+          "type": "boolean",
+          "example": true
+        },
+        "default_member": {
+          "description": "Default Member Role",
+          "type": "boolean",
+          "example": true
+        },
+        "description": {
+          "description": "Description of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role will be used only for viewing the objects"
+        },
+        "display_name": {
+          "description": "Display Name of the Organization's Role",
+          "type": "string",
+          "example": "Organization Viewer Role"
+        }
+      }
+    },
     "v1usersCreateMembership": {
       "type": "object",
       "properties": {
@@ -4278,6 +4496,9 @@
     },
     {
       "name": "Users"
+    },
+    {
+      "name": "Roles"
     },
     {
       "name": "Connections"
