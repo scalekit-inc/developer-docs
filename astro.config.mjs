@@ -46,7 +46,6 @@ export default defineConfig({
       editLink: {
         baseUrl: 'https://github.com/scalekit-inc/developer-docs/edit/main',
       },
-      pagefind: false,
       expressiveCode: {
         useStarlightDarkModeSwitch: true,
         themes: ['vitesse-dark', 'vitesse-light'],
@@ -75,7 +74,7 @@ export default defineConfig({
         starlightDocSearch({
           appId: '7554BDRAJD',
           apiKey: 'b2fecf525a556f05d46ef2389ad7e4b6',
-          indexName: 'crawler_Scalekit Starlight',
+          indexName: 'scalekit-starlight-crawler',
         }),
       ],
       head: [
