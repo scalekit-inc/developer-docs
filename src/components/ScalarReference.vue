@@ -101,41 +101,13 @@ onUnmounted(() => {
 
 <template>
   <div class="api-reference-wrapper">
-    <header class="custom-header scalar-app">
-      <!-- <a
-        href="https://docs.scalekit.com"
-        style="text-decoration: none"
-        target="_blank"
-        rel="noopener noreferrer"
-        >Scalekit API Reference</a
-      > -->
-      <a href="https://docs.scalekit.com">
-        <img :src="logoPath" alt="Scalekit API Reference" height="32" />
-      </a>
-      <nav>
-        <a
-          href="https://github.com/scalekit-developers/api-collections"
-          style="text-decoration: none"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Postman Collections</a
-        >
-        <a
-          href="https://docs.scalekit.com"
-          style="text-decoration: none"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Back to Docs</a
-        >
-      </nav>
-    </header>
     <div class="api-reference-container">
       <ApiReference
         :configuration="{
           url: '/api/scalekit.swagger.json',
-          theme: 'saturn',
           hideTestRequestButton: true,
           hideModels: true,
+          searchHotKey: 'p',
           hideDarkModeToggle: false,
           defaultOpenAllTags: true,
           hiddenClients: [

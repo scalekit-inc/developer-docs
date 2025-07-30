@@ -1,11 +1,11 @@
 ---
-import { Icon, Badge } from '@astrojs/starlight/components'
+import { Badge } from '@astrojs/starlight/components'
 
 // Get the topics from the route data provided by the sidebar topics plugin
 const { topics } = Astro.locals.starlightSidebarTopics || { topics: [] }
 
 // Define the main topics we want to display with their matching patterns
-const topicMappings = [
+const leftTopicMappings = [
   { id: 'fsa', patterns: ['/fsa/'] },
   { id: 'sso', patterns: ['/sso/', '/guides/sso/', '/social-logins/'] },
   { id: 'directory', patterns: ['/directory/', '/guides/directory/'] },
@@ -14,18 +14,26 @@ const topicMappings = [
   { id: 'mcp', patterns: ['/guides/mcp/'] },
 ]
 
+// Define the main topics we want to display with their matching patterns
+const rightTopicMappings = [
+  { id: 'apis', patterns: ['/apis/'] },
+  { id: 'dev-kit', patterns: ['/dev-kit/'] },
+  { id: 'integrations', patterns: ['/guides/integrations/'] },
+]
 // Find topics based on their link patterns
-const orderedTopics = topicMappings
-  .map((mapping) => {
-    return topics.find((topic) => mapping.patterns.some((pattern) => topic.link?.includes(pattern)))
-  })
-  .filter(Boolean)
+const leftOrderedTopics = leftTopicMappings.map((mapping) => {
+  return topics.find((topic) => mapping.patterns.some((pattern) => topic.link?.includes(pattern)))
+})
+
+const rightOrderedTopics = rightTopicMappings.map((mapping) => {
+  return topics.find((topic) => mapping.patterns.some((pattern) => topic.link?.includes(pattern)))
+})
 ---
 
 <nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
   <div class="nav-items">
     {
-      orderedTopics.map(
+      leftOrderedTopics.map(
         (topic) =>
           topic && (
             <a
@@ -34,7 +42,25 @@ const orderedTopics = topicMappings
               aria-current={topic.isCurrent ? 'page' : false}
             >
               <div class="nav-item-content">
-                {/* {topic.icon && <Icon name={topic.icon} class="nav-icon" />} */}
+                <span class="nav-label">{topic.label}</span>
+                {topic.badge && <Badge text={topic.badge.text} variant={topic.badge.variant} />}
+              </div>
+            </a>
+          ),
+      )
+    }
+  </div>
+  <div class="nav-items">
+    {
+      rightOrderedTopics.map(
+        (topic) =>
+          topic && (
+            <a
+              href={topic.link}
+              class={`nav-item ${topic.isCurrent ? 'current' : ''}`}
+              aria-current={topic.isCurrent ? 'page' : false}
+            >
+              <div class="nav-item-content">
                 <span class="nav-label">{topic.label}</span>
                 {topic.badge && <Badge text={topic.badge.text} variant={topic.badge.variant} />}
               </div>
@@ -65,6 +91,8 @@ const orderedTopics = topicMappings
 
   .secondary-nav {
     position: fixed;
+    display: flex;
+    justify-content: space-between;
     top: var(--sl-nav-height);
     left: 0;
     right: 0;
@@ -76,6 +104,7 @@ const orderedTopics = topicMappings
   }
 
   .nav-items {
+    font-weight: 500;
     display: flex;
     gap: 0;
     max-width: 100%;
@@ -106,13 +135,11 @@ const orderedTopics = topicMappings
 
   .nav-item:hover {
     color: var(--sl-color-white);
-    background: var(--sl-color-gray-6);
   }
 
   .nav-item.current {
-    color: var(--sl-color-white);
+    color: var(--sl-color-accent);
     border-bottom-color: var(--sl-color-accent);
-    background: var(--sl-color-gray-6);
   }
 
   .nav-item-content {

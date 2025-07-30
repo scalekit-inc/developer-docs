@@ -198,7 +198,7 @@ export const sidebar = [
     ],
   },
   {
-    label: 'SDKs & APIs',
+    label: 'Developer Kit',
     id: 'dev-kit',
     link: '/dev-kit/',
     icon: 'seti:powershell',
@@ -244,15 +244,7 @@ export const sidebar = [
       },
       {
         label: 'Reference',
-        items: [
-          {
-            label: 'REST API reference',
-            link: '/apis',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          'reference/admin-portal/ui-events',
-          'reference/glossary',
-        ],
+        items: ['reference/admin-portal/ui-events', 'reference/glossary'],
       },
       {
         label: 'Development Tools',
@@ -303,6 +295,12 @@ export const sidebar = [
       },
     ],
   },
+  {
+    label: 'API Reference',
+    id: 'apis',
+    link: '/apis',
+    items: ['apis'],
+  },
 ]
 
 export const topics = {
@@ -319,6 +317,7 @@ export const topics = {
     '/guides/external-ids-and-metadata',
     '/guides/mcp/additional-reading',
   ],
+  apis: ['/apis/#**/*'],
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
   integrations: ['/guides/integrations/**/*'], // Associate all integration pages with the integrations topic
   'full-stack-auth': ['/fsa/**/*'], // Associate all fsa pages with the full-stack-auth topic
