@@ -11,6 +11,7 @@ import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-s
 import starlightTocOverviewCustomizer from 'starlight-toc-overview-customizer'
 import starlightThemeRapide from 'starlight-theme-rapide'
 import starlightLlmsTxt from 'starlight-llms-txt'
+import starlightVideos from 'starlight-videos'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 
@@ -85,6 +86,7 @@ export default defineConfig({
         starlightTocOverviewCustomizer({
           overviewTitle: 'Overview',
         }),
+        starlightVideos(),
       ],
       head: [
         {
