@@ -8,6 +8,7 @@ import starlightLinksValidator from 'starlight-links-validator'
 import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
+import starlightTocOverviewCustomizer from 'starlight-toc-overview-customizer'
 import starlightThemeRapide from 'starlight-theme-rapide'
 import starlightLlmsTxt from 'starlight-llms-txt'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
@@ -81,6 +82,9 @@ export default defineConfig({
           showCaptions: true,
         }),
         starlightSidebarTopics(sidebarConfig, { topics }),
+        starlightTocOverviewCustomizer({
+          overviewTitle: 'Overview',
+        }),
       ],
       head: [
         {
