@@ -500,7 +500,7 @@
               "type": "string"
             },
             "collectionFormat": "multi",
-            "description": "Features to enable in the admin portal link. To enable features, append them as URL parameters:\n\n- Single Sign-On: ?features=sso\n- Directory Sync: ?features=dir_sync\n- Both features: ?features=sso\u0026features=dir_sync\n\nExample URL: https://scalekit.com/portal/lnk_123?features=sso\n\n - dir_sync: dir_sync enables directory synchronization configuration in the portal\n - sso: sso enables Single Sign-On (SSO) configuration in the portal",
+            "description": "Features to enable in the admin portal link. To enable features, append them as URL parameters:\n\n- Single Sign-On: ?features=sso\n- Directory Sync: ?features=dir_sync\n- Both features: ?features=sso\u0026features=dir_sync\n\nExample URL: https://scalekit.com/portal/lnk_123?features=sso\n\n - dir_sync: Enables directory synchronization configuration in the portal\n - sso: Enables Single Sign-On (SSO) configuration in the portal",
             "name": "features",
             "in": "query"
           }
@@ -1516,74 +1516,6 @@
         ]
       }
     },
-    "/api/v1/organizations/{organization_id}/settings/usermanagement": {
-      "get": {
-        "description": "Retrieves the user management settings for a specific organization.",
-        "tags": [
-          "Organizations"
-        ],
-        "summary": "Get organization user management setting",
-        "operationId": "OrganizationService_GetOrganizationUserManagementSetting",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of the organization.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the requested organization setting.",
-            "schema": {
-              "$ref": "#/definitions/organizationsGetOrganizationUserManagementSettingsRequest"
-            }
-          },
-          "404": {
-            "description": "Organization or setting not found.",
-            "schema": {}
-          }
-        }
-      },
-      "patch": {
-        "description": "Updates user management settings for an organization",
-        "tags": [
-          "Organizations"
-        ],
-        "summary": "Update organization user setting",
-        "operationId": "OrganizationService_UpdateUserManagementSettings",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of the organization.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/OrganizationServiceUpdateUserManagementSettingsBody"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the updated organization setting.",
-            "schema": {
-              "$ref": "#/definitions/organizationsUpdateUserManagementSettingsResponse"
-            }
-          },
-          "404": {
-            "description": "Organization or setting not found.",
-            "schema": {}
-          }
-        }
-      }
-    },
     "/api/v1/organizations/{organization_id}/users": {
       "get": {
         "description": "Retrieves a paginated list of all users who are members of the specified organization. Use this endpoint to view all users with access to a particular organization, including their roles, metadata, and membership details. Supports pagination for large user lists.",
@@ -2066,15 +1998,6 @@
         }
       }
     },
-    "OrganizationServiceUpdateUserManagementSettingsBody": {
-      "type": "object",
-      "properties": {
-        "settings": {
-          "description": "The new values for the setting fields to patch.",
-          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
-        }
-      }
-    },
     "authpasswordlessPasswordlessType": {
       "type": "string",
       "enum": [
@@ -2176,7 +2099,7 @@
         "status": {
           "description": "The current status of this secret. A secret must be ACTIVE to be used for authentication. INACTIVE secrets cannot be used for authentication but are retained for audit purposes.",
           "$ref": "#/definitions/clientsClientSecretStatus",
-          "example": "ACTIVE"
+          "example": "INACTIVE"
         },
         "update_time": {
           "description": "The timestamp when this secret was last updated. This field is automatically updated by the server when the secret's status changes or other properties are modified.",
@@ -2318,7 +2241,7 @@
           "example": "Service account for automated deployment processes"
         },
         "expiry": {
-          "description": "The lifetime of access tokens issued to this client, in seconds. This determines how long a token remains valid before it must be refreshed.",
+          "description": "Expiry time in seconds for the token generated by the client",
           "type": "string",
           "format": "int64",
           "example": 3600
@@ -2339,7 +2262,9 @@
           "items": {
             "type": "string"
           },
-          "example": "https://example.com/callback"
+          "example": [
+            "https://example.com/callback"
+          ]
         },
         "resource_id": {
           "description": "The ID of the resource associated with this M2M client. This field is used to link the client to a specific resource in the system.",
@@ -2411,7 +2336,7 @@
           "example": "Service account for GitHub Actions to deploy resources to production"
         },
         "expiry": {
-          "description": "The lifetime of access tokens issued to this client, in seconds. This value determines how long a token remains valid before it must be refreshed. Defaults to 3600 (1 hour) if not specified.",
+          "description": "Expiry time in seconds for the token generated by the client",
           "type": "string",
           "format": "int64",
           "example": 3600
@@ -2651,7 +2576,11 @@
             "type": "object",
             "$ref": "#/definitions/domainsDomain"
           },
-          "example": "example.com"
+          "example": [
+            {
+              "name": "example.com"
+            }
+          ]
         },
         "enabled": {
           "description": "Controls whether users can sign in using this connection. When false, the connection exists but cannot be used for authentication.",
@@ -2823,6 +2752,11 @@
         },
         "id": {
           "description": "Unique identifier of the connection",
+          "type": "string",
+          "example": "conn_2123312131125533"
+        },
+        "key_id": {
+          "description": "Alternative identifier for this connection, typically used in frontend applications or URLs",
           "type": "string",
           "example": "conn_2123312131125533"
         },
@@ -3070,6 +3004,11 @@
           "format": "int64",
           "example": 1
         },
+        "regenerate_passwordless_credentials_on_resend": {
+          "description": "Regenerate the ",
+          "type": "boolean",
+          "example": true
+        },
         "type": {
           "description": "Passwordless Type",
           "$ref": "#/definitions/connectionsPasswordlessType",
@@ -3079,7 +3018,7 @@
           "description": "Link Validity in Seconds",
           "type": "integer",
           "format": "int64",
-          "example": "600"
+          "example": 600
         }
       }
     },
@@ -3611,7 +3550,7 @@
         "status": {
           "description": "Secret Status",
           "$ref": "#/definitions/directoriesSecretStatus",
-          "example": "ACTIVE"
+          "example": "INACTIVE"
         }
       }
     },
@@ -3733,7 +3672,7 @@
       }
     },
     "organizationsFeature": {
-      "description": "- dir_sync: dir_sync enables directory synchronization configuration in the portal\n - sso: sso enables Single Sign-On (SSO) configuration in the portal",
+      "description": "- dir_sync: Enables directory synchronization configuration in the portal\n - sso: Enables Single Sign-On (SSO) configuration in the portal",
       "type": "string",
       "title": "Feature represents the available features that can be enabled for an organization's portal link",
       "enum": [
@@ -3756,24 +3695,6 @@
         "organization": {
           "description": "The newly created organization",
           "$ref": "#/definitions/organizationsOrganization"
-        }
-      }
-    },
-    "organizationsGetOrganizationUserManagementSettingsRequest": {
-      "type": "object",
-      "properties": {
-        "organization_id": {
-          "description": "ID of the organization.",
-          "type": "string"
-        }
-      }
-    },
-    "organizationsGetOrganizationUserManagementSettingsResponse": {
-      "type": "object",
-      "properties": {
-        "settings": {
-          "description": "List of organization settings.",
-          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
         }
       }
     },
@@ -3942,36 +3863,12 @@
         }
       }
     },
-    "organizationsOrganizationUserManagementSettings": {
-      "type": "object",
-      "properties": {
-        "jit_provisioning_with_sso_enabled": {
-          "description": "Enables or disables user management features for the organization. When true, users can be added, removed, and managed.",
-          "type": "boolean",
-          "example": true
-        },
-        "sync_user_profile_on_signin": {
-          "description": "Enables or disables synchronization of user profiles upon sign-in. When true, user profiles are automatically updated with the latest information from the identity provider.",
-          "type": "boolean",
-          "example": true
-        }
-      }
-    },
     "organizationsUpdateOrganizationResponse": {
       "type": "object",
       "properties": {
         "organization": {
           "description": "Updated organization details",
           "$ref": "#/definitions/organizationsOrganization"
-        }
-      }
-    },
-    "organizationsUpdateUserManagementSettingsResponse": {
-      "type": "object",
-      "properties": {
-        "settings": {
-          "description": "The updated setting.",
-          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
         }
       }
     },
@@ -4421,7 +4318,11 @@
             "type": "object",
             "$ref": "#/definitions/commonsRole"
           },
-          "example": "admin"
+          "example": [
+            {
+              "name": "admin"
+            }
+          ]
         }
       }
     },
