@@ -824,70 +824,6 @@
         ]
       }
     },
-    "/api/v1/organizations/{organization_id}/settings/usermanagement": {
-      "get": {
-        "description": "Retrieves the user management settings for a specific organization.",
-        "tags": ["Organizations"],
-        "summary": "Get organization user management setting",
-        "operationId": "OrganizationService_GetOrganizationUserManagementSetting",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of the organization.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the requested organization setting.",
-            "schema": {
-              "$ref": "#/definitions/organizationsGetOrganizationUserManagementSettingsResponse"
-            }
-          },
-          "404": {
-            "description": "Organization or setting not found.",
-            "schema": {}
-          }
-        }
-      },
-      "patch": {
-        "description": "Updates user management settings for an organization",
-        "tags": ["Organizations"],
-        "summary": "Update organization user setting",
-        "operationId": "OrganizationService_UpdateUserManagementSettings",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of the organization.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/OrganizationServiceUpdateUserManagementSettingsBody"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the updated organization setting.",
-            "schema": {
-              "$ref": "#/definitions/organizationsUpdateUserManagementSettingsResponse"
-            }
-          },
-          "404": {
-            "description": "Organization or setting not found.",
-            "schema": {}
-          }
-        }
-      }
-    },
     "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
       "post": {
         "description": "Creates a new secret for an organization API client. Returns the plain secret (available only once).",
@@ -1978,15 +1914,6 @@
           "items": {
             "type": "string"
           }
-        }
-      }
-    },
-    "OrganizationServiceUpdateUserManagementSettingsBody": {
-      "type": "object",
-      "properties": {
-        "settings": {
-          "description": "The new values for the setting fields to patch.",
-          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
         }
       }
     },
@@ -3594,15 +3521,6 @@
         }
       }
     },
-    "organizationsGetOrganizationUserManagementSettingsResponse": {
-      "type": "object",
-      "properties": {
-        "settings": {
-          "description": "List of organization settings.",
-          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
-        }
-      }
-    },
     "organizationsLink": {
       "type": "object",
       "properties": {
@@ -3763,36 +3681,12 @@
         }
       }
     },
-    "organizationsOrganizationUserManagementSettings": {
-      "type": "object",
-      "properties": {
-        "jit_provisioning_with_sso_enabled": {
-          "description": "Enables or disables user management features for the organization. When true, users can be added, removed, and managed.",
-          "type": "boolean",
-          "example": true
-        },
-        "sync_user_profile_on_signin": {
-          "description": "Enables or disables synchronization of user profiles upon sign-in. When true, user profiles are automatically updated with the latest information from the identity provider.",
-          "type": "boolean",
-          "example": true
-        }
-      }
-    },
     "organizationsUpdateOrganizationResponse": {
       "type": "object",
       "properties": {
         "organization": {
           "description": "Updated organization details",
           "$ref": "#/definitions/organizationsOrganization"
-        }
-      }
-    },
-    "organizationsUpdateUserManagementSettingsResponse": {
-      "type": "object",
-      "properties": {
-        "settings": {
-          "description": "The updated setting.",
-          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
         }
       }
     },
