@@ -10,7 +10,6 @@ import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import starlightTocOverviewCustomizer from 'starlight-toc-overview-customizer'
 import starlightThemeRapide from 'starlight-theme-rapide'
-import starlightLlmsTxt from 'starlight-llms-txt'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 
@@ -76,7 +75,6 @@ export default defineConfig({
       ],
       plugins: [
         starlightLinksValidator(),
-        starlightLlmsTxt(),
         starlightThemeRapide(),
         starlightImageZoom({
           showCaptions: true,

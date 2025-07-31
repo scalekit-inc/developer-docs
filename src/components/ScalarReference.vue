@@ -6,7 +6,7 @@ import '@/styles/api-reference.css'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 
 // Makes sure selected lanugage is propagated else where to all snippets
-import { createDropdownSynchronizer } from '../utils/dropdownSync'
+import { createDropdownSynchronizer } from '@/utils/dropdownSync'
 
 // Create dropdown synchronizer instance
 const dropdownSync = createDropdownSynchronizer()
