@@ -5,8 +5,10 @@ import '@fontsource-variable/inter'
 import '@/styles/api-reference.css'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 
-// Makes sure selected lanugage is propagated else where to all snippets
-import { createDropdownSynchronizer } from '@/utils/dropdownSync'
+// Makes sure selected language is propagated elsewhere to all snippets
+import { createDropdownSynchronizer } from '../utils/dropdownSync'
+// Import theme synchronization
+import { initializeThemeSync, type ThemeSynchronizer } from '../utils/themeSync'
 
 // Create dropdown synchronizer instance
 const dropdownSync = createDropdownSynchronizer()
@@ -21,95 +23,76 @@ const logoPath = computed(() => {
     : '/assets/logos/scalekit-api-white.svg'
 })
 
-// Function to update color mode from localStorage and system preference
-const updateColorMode = () => {
-  const savedColorMode = localStorage.getItem('colorMode')
-
-  if (savedColorMode) {
-    colorMode.value = savedColorMode
-  } else {
-    // Check system preference or document theme
-    const isDarkMode =
-      window.matchMedia('(prefers-color-scheme: dark)').matches ||
-      document.documentElement.classList.contains('dark') ||
-      document.documentElement.getAttribute('data-color-mode') === 'dark'
-
-    colorMode.value = isDarkMode ? 'dark' : 'light'
-  }
-}
-
-// Listen for storage changes (when color mode is changed)
-const handleStorageChange = (e: StorageEvent) => {
-  if (e.key === 'colorMode') {
-    colorMode.value = e.newValue || 'light'
-  }
-}
+// Initialize theme synchronization
+let themeSyncInstance: ThemeSynchronizer | null = null
 
 onMounted(() => {
   // Initialize dropdown synchronization
   dropdownSync.initialize()
 
-  // Set initial color mode
-  updateColorMode()
-
-  // Listen for localStorage changes
-  window.addEventListener('storage', handleStorageChange)
-
-  // Also listen for direct localStorage updates within the same tab
-  // Create a MutationObserver to watch for DOM changes that might indicate color mode changes
-  const observer = new MutationObserver(() => {
-    const currentMode = localStorage.getItem('colorMode')
-    if (currentMode && currentMode !== colorMode.value) {
-      colorMode.value = currentMode
-    }
+  // Initialize theme synchronization with callback
+  themeSyncInstance = initializeThemeSync({
+    onThemeChange: (theme: 'light' | 'dark') => {
+      console.log('Theme changed to:', theme)
+      colorMode.value = theme
+    },
   })
 
-  // Observe changes to the document body or html element classes/attributes
+  // Set initial color mode from synchronized theme
+  const initialTheme = themeSyncInstance.getStarlightTheme()
+  console.log('Initial theme detected:', initialTheme)
+  colorMode.value = initialTheme
+
+  // Also listen for manual data-theme attribute changes
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+        const newTheme = document.documentElement.getAttribute('data-theme')
+        console.log('Data-theme attribute changed to:', newTheme)
+        if (newTheme === 'dark' || newTheme === 'light') {
+          colorMode.value = newTheme
+        }
+      }
+    })
+  })
+
   observer.observe(document.documentElement, {
     attributes: true,
-    attributeFilter: ['class', 'data-color-mode'],
+    attributeFilter: ['data-theme'],
   })
 
   // Store observer for cleanup
-  ;(window as any).__colorModeObserver = observer
-
-  // Periodically check localStorage as a fallback
-  const interval = setInterval(updateColorMode, 1000)
-  ;(window as any).__colorModeInterval = interval
+  ;(window as any).__scalarThemeObserver = observer
 })
 
 onUnmounted(() => {
   // Clean up dropdown synchronization
   dropdownSync.destroy()
 
-  // Clean up event listeners
-  window.removeEventListener('storage', handleStorageChange)
-
-  // Clean up observer
-  if ((window as any).__colorModeObserver) {
-    ;(window as any).__colorModeObserver.disconnect()
-    delete (window as any).__colorModeObserver
+  // Clean up theme synchronization
+  if (themeSyncInstance) {
+    themeSyncInstance.destroy()
   }
 
-  // Clean up interval
-  if ((window as any).__colorModeInterval) {
-    clearInterval((window as any).__colorModeInterval)
-    delete (window as any).__colorModeInterval
+  // Clean up observer
+  if ((window as any).__scalarThemeObserver) {
+    ;(window as any).__scalarThemeObserver.disconnect()
+    delete (window as any).__scalarThemeObserver
   }
 })
 </script>
 
 <template>
-  <div class="api-reference-wrapper">
+  <div class="api-reference-wrapper" :class="colorMode + '-mode'">
     <div class="api-reference-container">
       <ApiReference
         :configuration="{
           url: '/api/scalekit.swagger.json',
           hideTestRequestButton: true,
-          theme: 'modern',
+          theme: 'default', // Changed from 'modern' to 'default' to match allowed values
           hideModels: true,
           searchHotKey: 'p',
-          hideDarkModeToggle: false,
+          hideDarkModeToggle: true, // Hide Scalar's own toggle since we're using Starlight's
           defaultOpenAllTags: true,
           hiddenClients: [
             'httpclient',
