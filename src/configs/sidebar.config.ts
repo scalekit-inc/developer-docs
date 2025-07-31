@@ -295,6 +295,7 @@ export const sidebar = [
         label: 'Development Tools',
         items: [
           'dev-kit/mcp',
+          'dev-kit/resources/ai-assisted-setup',
           {
             label: 'Postman collections',
             link: 'https://github.com/scalekit-developers/api-collections',

@@ -8,11 +8,13 @@ import starlightLinksValidator from 'starlight-links-validator'
 import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
+import starlightTocOverviewCustomizer from 'starlight-toc-overview-customizer'
 import starlightThemeRapide from 'starlight-theme-rapide'
 import starlightLlmsTxt from 'starlight-llms-txt'
+import starlightVideos from 'starlight-videos'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
-import mermaid from 'astro-mermaid';
+import mermaid from 'astro-mermaid'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://astro.build/config
@@ -82,6 +84,10 @@ export default defineConfig({
           showCaptions: true,
         }),
         starlightSidebarTopics(sidebarConfig, { topics }),
+        starlightTocOverviewCustomizer({
+          overviewTitle: 'Overview',
+        }),
+        starlightVideos(),
       ],
       head: [
         {
