@@ -24,135 +24,128 @@ export class ThemeSynchronizer {
     })
   }
 
-  // Get current theme from Starlight - make this public so it can be accessed
-  public getStarlightTheme(): 'light' | 'dark' {
-    // Check data-theme attribute first
-    const dataTheme = document.documentElement.getAttribute('data-theme')
-    console.log('Current data-theme attribute:', dataTheme)
+  // Get current theme from Starlight
+  getStarlightTheme(): 'light' | 'dark' {
+    // Log current state for debugging
+    const htmlElement = document.documentElement
+    const dataTheme = htmlElement.getAttribute('data-theme')
+    const classList = Array.from(htmlElement.classList)
+    const localStorageTheme = localStorage.getItem(this.starlightKey)
+    const systemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light'
 
+    console.log('Current theme state:', {
+      dataTheme,
+      classList,
+      localStorageTheme,
+      systemPreference,
+      htmlClasses: htmlElement.className,
+    })
+
+    // Check Starlight's theme classes first
+    if (htmlElement.classList.contains('theme-dark')) {
+      console.log('Theme detected from class: dark')
+      return 'dark'
+    }
+    if (htmlElement.classList.contains('theme-light')) {
+      console.log('Theme detected from class: light')
+      return 'light'
+    }
+
+    // Check data-theme attribute
     if (dataTheme === 'dark' || dataTheme === 'light') {
+      console.log('Theme detected from data-theme:', dataTheme)
       return dataTheme
     }
 
     // Check localStorage
-    const storedTheme = localStorage.getItem(this.starlightKey)
-    console.log('Stored theme in localStorage:', storedTheme)
-
-    if (storedTheme === 'dark' || storedTheme === 'light') {
-      return storedTheme
+    if (localStorageTheme === 'dark' || localStorageTheme === 'light') {
+      console.log('Theme detected from localStorage:', localStorageTheme)
+      return localStorageTheme
     }
 
-    // Check system preference
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    console.log('System prefers dark mode:', systemPrefersDark)
-
-    return systemPrefersDark ? 'dark' : 'light'
+    // Fall back to system preference
+    console.log('Theme detected from system preference:', systemPreference)
+    return systemPreference
   }
 
-  // Get current theme from Scalar
-  private getScalarTheme(): 'light' | 'dark' {
-    const storedTheme = localStorage.getItem(this.scalarKey)
-    console.log('Scalar theme in localStorage:', storedTheme)
-
-    if (storedTheme === 'dark' || storedTheme === 'light') {
-      return storedTheme
-    }
-    return 'light'
-  }
-
-  // Set theme for both systems
-  setTheme(theme: 'light' | 'dark'): void {
-    console.log('Setting theme to:', theme)
-
-    // Set Starlight theme
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem(this.starlightKey, theme)
-
-    // Set Scalar theme
+  // Sync theme from Starlight to Scalar
+  private syncToScalar(theme: 'light' | 'dark') {
+    console.log('Syncing theme to Scalar:', theme)
     localStorage.setItem(this.scalarKey, theme)
-
-    // Trigger callback
-    this.onThemeChange?.(theme)
-  }
-
-  // Sync themes between systems
-  syncThemes(): void {
-    const starlightTheme = this.getStarlightTheme()
-    const scalarTheme = this.getScalarTheme()
-
-    console.log('Syncing themes - Starlight:', starlightTheme, 'Scalar:', scalarTheme)
-
-    // If they're different, use Starlight's theme as the source of truth
-    if (starlightTheme !== scalarTheme) {
-      console.log('Themes are different, syncing to Starlight theme:', starlightTheme)
-      this.setTheme(starlightTheme)
+    if (this.onThemeChange) {
+      this.onThemeChange(theme)
     }
   }
 
-  // Initialize synchronization
-  initialize(): void {
-    console.log('Initializing theme synchronization...')
+  // Start watching for theme changes
+  start() {
+    console.log('Starting theme synchronization')
 
-    // Initial sync
-    this.syncThemes()
+    // Set initial theme
+    const initialTheme = this.getStarlightTheme()
+    console.log('Initial theme:', initialTheme)
+    this.syncToScalar(initialTheme)
 
-    // Watch for Starlight theme changes via data-theme attribute
+    // Watch for DOM changes on html element
     this.observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
-          const newTheme = document.documentElement.getAttribute('data-theme') as 'light' | 'dark'
-          console.log('MutationObserver detected data-theme change:', newTheme)
+      console.log('MutationObserver triggered with mutations:', mutations.length)
 
-          if (newTheme && (newTheme === 'light' || newTheme === 'dark')) {
-            // Update Scalar theme to match
-            localStorage.setItem(this.scalarKey, newTheme)
-            this.onThemeChange?.(newTheme)
+      mutations.forEach((mutation) => {
+        console.log('Mutation details:', {
+          type: mutation.type,
+          attributeName: mutation.attributeName,
+          target: mutation.target,
+          oldValue: mutation.oldValue,
+        })
+
+        if (mutation.type === 'attributes') {
+          if (mutation.attributeName === 'data-theme' || mutation.attributeName === 'class') {
+            const newTheme = this.getStarlightTheme()
+            console.log('Theme change detected via MutationObserver:', newTheme)
+            this.syncToScalar(newTheme)
           }
         }
       })
     })
 
+    // Observe the HTML element for attribute and class changes
     this.observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-theme'],
+      attributeFilter: ['data-theme', 'class'],
+      attributeOldValue: true,
     })
 
-    // Watch for localStorage changes (cross-tab synchronization)
-    window.addEventListener('storage', this.handleStorageChange)
+    // Also listen for storage events (for cross-tab sync)
+    window.addEventListener('storage', (e) => {
+      console.log('Storage event:', e)
+      if (e.key === this.starlightKey && (e.newValue === 'light' || e.newValue === 'dark')) {
+        console.log('Theme change detected via storage event:', e.newValue)
+        this.syncToScalar(e.newValue)
+      }
+    })
 
-    // Periodic sync as fallback
+    // Polling fallback to catch any missed changes
     this.interval = window.setInterval(() => {
-      this.syncThemes()
-    }, 2000)
+      const currentTheme = this.getStarlightTheme()
+      const scalarTheme = localStorage.getItem(this.scalarKey)
 
-    console.log('Theme synchronization initialized successfully')
+      if (currentTheme !== scalarTheme) {
+        console.log('Theme drift detected via polling:', {
+          starlight: currentTheme,
+          scalar: scalarTheme,
+        })
+        this.syncToScalar(currentTheme)
+      }
+    }, 500) // Check every 500ms
+
+    console.log('Theme synchronization started')
   }
 
-  // Handle storage changes
-  private handleStorageChange = (e: StorageEvent) => {
-    console.log('Storage change detected:', e.key, '=', e.newValue)
-
-    if (e.key === this.starlightKey && e.newValue) {
-      const theme = e.newValue as 'light' | 'dark'
-      if (theme === 'light' || theme === 'dark') {
-        console.log('Updating from Starlight storage change:', theme)
-        this.setTheme(theme)
-      }
-    } else if (e.key === this.scalarKey && e.newValue) {
-      const theme = e.newValue as 'light' | 'dark'
-      if (theme === 'light' || theme === 'dark') {
-        console.log('Updating from Scalar storage change:', theme)
-        // Update Starlight to match Scalar
-        document.documentElement.setAttribute('data-theme', theme)
-        localStorage.setItem(this.starlightKey, theme)
-        this.onThemeChange?.(theme)
-      }
-    }
-  }
-
-  // Clean up resources
-  destroy(): void {
-    console.log('Destroying theme synchronization...')
+  // Stop watching for theme changes
+  stop() {
+    console.log('Stopping theme synchronization')
 
     if (this.observer) {
       this.observer.disconnect()
@@ -164,18 +157,13 @@ export class ThemeSynchronizer {
       this.interval = null
     }
 
-    window.removeEventListener('storage', this.handleStorageChange)
-
-    console.log('Theme synchronization destroyed')
+    console.log('Theme synchronization stopped')
   }
 }
 
-// Create and export a singleton instance
-export const themeSync = new ThemeSynchronizer()
-
-// Export a simple function for easy use
-export function initializeThemeSync(options?: ThemeSyncOptions): ThemeSynchronizer {
+// Convenience function to initialize theme sync
+export function initializeThemeSync(options: ThemeSyncOptions = {}): ThemeSynchronizer {
   const synchronizer = new ThemeSynchronizer(options)
-  synchronizer.initialize()
+  synchronizer.start()
   return synchronizer
 }

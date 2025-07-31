@@ -30,54 +30,32 @@ onMounted(() => {
   // Initialize dropdown synchronization
   dropdownSync.initialize()
 
-  // Initialize theme synchronization with callback
+  console.log('ScalarReference component mounted, initializing theme sync...')
+
+  // Initialize theme synchronization
   themeSyncInstance = initializeThemeSync({
     onThemeChange: (theme: 'light' | 'dark') => {
-      console.log('Theme changed to:', theme)
+      console.log('Vue component received theme change:', theme)
       colorMode.value = theme
     },
   })
 
   // Set initial color mode from synchronized theme
   const initialTheme = themeSyncInstance.getStarlightTheme()
-  console.log('Initial theme detected:', initialTheme)
+  console.log('Initial theme detected in Vue component:', initialTheme)
   colorMode.value = initialTheme
-
-  // Also listen for manual data-theme attribute changes
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
-        const newTheme = document.documentElement.getAttribute('data-theme')
-        console.log('Data-theme attribute changed to:', newTheme)
-        if (newTheme === 'dark' || newTheme === 'light') {
-          colorMode.value = newTheme
-        }
-      }
-    })
-  })
-
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['data-theme'],
-  })
-
-  // Store observer for cleanup
-  ;(window as any).__scalarThemeObserver = observer
 })
 
 onUnmounted(() => {
+  console.log('ScalarReference component unmounting, cleaning up...')
+
   // Clean up dropdown synchronization
   dropdownSync.destroy()
 
   // Clean up theme synchronization
   if (themeSyncInstance) {
-    themeSyncInstance.destroy()
-  }
-
-  // Clean up observer
-  if ((window as any).__scalarThemeObserver) {
-    ;(window as any).__scalarThemeObserver.disconnect()
-    delete (window as any).__scalarThemeObserver
+    themeSyncInstance.stop()
+    themeSyncInstance = null
   }
 })
 </script>
