@@ -106,6 +106,7 @@ onUnmounted(() => {
         :configuration="{
           url: '/api/scalekit.swagger.json',
           hideTestRequestButton: true,
+          theme: 'modern',
           hideModels: true,
           searchHotKey: 'p',
           hideDarkModeToggle: false,
