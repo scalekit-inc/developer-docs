@@ -177,16 +177,16 @@ export const sidebar = [
         label: 'Tools',
         items: [
           'connect/tools/overview',
+          'connect/tools/authorize',
           'connect/tools/execute',
-          'connect/tools/definitions',
-          'connect/tools/custom-definition',
+          'connect/tools/custom-processors',
+          'connect/tools/custom-tools',
         ],
       },
       {
         label: 'Authorization',
         items: [
           'connect/authorization/overview',
-          'connect/authorization/direct-api-call',
           'connect/authorization/verification',
           'connect/authorization/bring-your-own-auth',
           'connect/authorization/whitelabelling',
