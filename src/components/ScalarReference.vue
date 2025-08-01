@@ -106,3 +106,22 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
+
+<style>
+.api-reference-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.api-reference-container {
+  position: fixed;
+  top: calc(
+    var(--sl-nav-height) + 2.5rem
+  ); /* Adjust based on the height of the header and secondary nav */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+}
+</style>
