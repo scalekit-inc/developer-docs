@@ -197,7 +197,6 @@ scalekit_client = ScalekitClient(
 
 def validate_token_with_issuer_audience(token: str) -> bool:
     """
-    Python equivalent of the .NET ValidateTokenWithIssuerAudienceAsync method
     
     :param token: The token to validate
     :return: True if token is valid, False otherwise
@@ -213,31 +212,6 @@ def validate_token_with_issuer_audience(token: str) -> bool:
     except Exception as ex:
         print(f"Token validation failed: {ex}")
         return False
-```
-
-</TabItem>
-<TabItem value="dotnet" label=".NET">
-
-```csharp showLineNumbers
-public async Task<bool> ValidateTokenWithIssuerAudienceAsync(string token)
-{
-    var options = new TokenValidationOptions
-    {
-        Issuer = "https://your-domain.scalekit.com",
-        Audience = new[] { "your-api-audience" }
-    };
-
-    try
-    {
-        bool isValid = await scalekitClient.ValidateAccessTokenAsync(token, options);
-        return isValid;
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Token validation failed: {ex.Message}");
-        return false;
-    }
-}
 ```
 
 </TabItem>
@@ -280,29 +254,6 @@ except ScalekitValidateTokenFailureException as ex:
         "error_description": f"Required scope: {scope}",
         "scope": scope
     }
-```
-
-</TabItem>
-<TabItem value="dotnet" label=".NET">
-
-```csharp showLineNumbers
-try
-{
-    await scalekitClient.ValidateAccessTokenAsync(token, new TokenValidationOptions
-    {
-        Audience = new[] { RESOURCE_ID },
-        RequiredScopes = new[] { scope }
-    });
-}
-catch (ScopeValidationException ex)
-{
-    return StatusCode(403, new
-    {
-        error = "insufficient_scope",
-        error_description = $"Required scope: {scope}",
-        scope = scope
-    });
-}
 ```
 
 </TabItem>
