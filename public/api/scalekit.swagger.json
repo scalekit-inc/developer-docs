@@ -15,7 +15,29 @@
       "name": "Apache 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0"
     },
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "x-scalar-sdk-installation": [
+      {
+        "description": "Install the Scalekit SDK for Node.js from npm:",
+        "lang": "node",
+        "source": "npm install @scalekit-sdk/node"
+      },
+      {
+        "description": "Install the Scalekit SDK for Python using pip:",
+        "lang": "python",
+        "source": "pip install scalekit-sdk-python"
+      },
+      {
+        "description": "Install the Scalekit SDK for Go:",
+        "lang": "Go",
+        "source": "go get -u github.com/scalekit-inc/scalekit-sdk-go"
+      },
+      {
+        "description": "Adding Java SDK dependency",
+        "lang": "Java",
+        "source": "/* Gradle users - add the following to your dependencies in build file */\nimplementation \"com.scalekit:scalekit-sdk-java:2.0.1\"\n\n<!-- Maven users - add the following to your `pom.xml` -->\n<dependency>\n  <groupId>com.scalekit</groupId>\n  <artifactId>scalekit-sdk-java</artifactId>\n  <version>2.0.1</version>\n</dependency>"
+      }
+    ]
   },
   "host": "$SCALEKIT_ENVIRONMENT_URL",
   "paths": {
@@ -1752,44 +1774,6 @@
         ]
       }
     },
-    "/api/v1/organizations/{organization_id}/connections/{connection_id}/domains": {
-      "put": {
-        "description": "Assigns one or more domains to a specific connection within an organization. This allows the connection to be used for authentication on the specified domains",
-        "tags": ["Connections"],
-        "summary": "Assign domains to a connection",
-        "operationId": "ConnectionService_AssignDomainsToConnection",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "connection_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ConnectionServiceAssignDomainsToConnectionBody"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Domains assigned successfully",
-            "schema": {
-              "$ref": "#/definitions/connectionsAssignDomainsToConnectionResponse"
-            }
-          }
-        }
-      }
-    },
     "/api/v1/passwordless/email/send": {
       "post": {
         "description": "Send a verification email containing either a verification code (OTP), magic link, or both to a user's email address",
@@ -1906,17 +1890,6 @@
     }
   },
   "definitions": {
-    "ConnectionServiceAssignDomainsToConnectionBody": {
-      "type": "object",
-      "properties": {
-        "domain_ids": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
-    },
     "authpasswordlessPasswordlessType": {
       "type": "string",
       "enum": ["OTP", "LINK", "LINK_OTP"]
@@ -2407,27 +2380,6 @@
           "description": "Phone number in E.164 international format. Required for SMS-based authentication.",
           "type": "string",
           "example": "+14155552671"
-        }
-      }
-    },
-    "connectionsAssignDomainsToConnectionResponse": {
-      "type": "object",
-      "properties": {
-        "connection": {
-          "description": "Connection with assigned domains",
-          "$ref": "#/definitions/connectionsConnection",
-          "example": {
-            "configuration_type": "MANUAL",
-            "debug_enabled": false,
-            "enabled": true,
-            "id": "conn_1234567890",
-            "organization_id": "org_1234567890",
-            "provider": "OKTA",
-            "status": "CONFIGURED",
-            "test_connection_uri": "https://auth.example.com/test-connection/conn_1234567890",
-            "type": "OIDC",
-            "ui_button_title": "Login with SSO"
-          }
         }
       }
     },

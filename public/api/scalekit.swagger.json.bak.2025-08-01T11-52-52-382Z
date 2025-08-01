@@ -21,7 +21,29 @@
       "name": "Apache 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0"
     },
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "x-scalar-sdk-installation": [
+      {
+        "description": "Install the Scalekit SDK for Node.js from npm:",
+        "lang": "node",
+        "source": "npm install @scalekit-sdk/node"
+      },
+      {
+        "description": "Install the Scalekit SDK for Python using pip:",
+        "lang": "python",
+        "source": "pip install scalekit-sdk-python"
+      },
+      {
+        "description": "Install the Scalekit SDK for Go:",
+        "lang": "Go",
+        "source": "go get -u github.com/scalekit-inc/scalekit-sdk-go"
+      },
+      {
+        "description": "Adding Java SDK dependency",
+        "lang": "Java",
+        "source": "/* Gradle users - add the following to your dependencies in build file */\nimplementation \"com.scalekit:scalekit-sdk-java:2.0.1\"\n\n\u003c!-- Maven users - add the following to your `pom.xml` --\u003e\n\u003cdependency\u003e\n  \u003cgroupId\u003ecom.scalekit\u003c/groupId\u003e\n  \u003cartifactId\u003escalekit-sdk-java\u003c/artifactId\u003e\n  \u003cversion\u003e2.0.1\u003c/version\u003e\n\u003c/dependency\u003e"
+      }
+    ]
   },
   "host": "$SCALEKIT_ENVIRONMENT_URL",
   "paths": {
@@ -916,46 +938,6 @@
         ]
       }
     },
-    "/api/v1/organizations/{organization_id}/connections/{connection_id}/domains": {
-      "put": {
-        "description": "Assigns one or more domains to a specific connection within an organization. This allows the connection to be used for authentication on the specified domains",
-        "tags": [
-          "Connections"
-        ],
-        "summary": "Assign domains to a connection",
-        "operationId": "ConnectionService_AssignDomainsToConnection",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "connection_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ConnectionServiceAssignDomainsToConnectionBody"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Domains assigned successfully",
-            "schema": {
-              "$ref": "#/definitions/connectionsAssignDomainsToConnectionResponse"
-            }
-          }
-        }
-      }
-    },
     "/api/v1/organizations/{organization_id}/connections/{id}": {
       "get": {
         "description": "Retrieves the complete configuration and status details for a specific connection by its ID within an organization. Returns all connection properties including provider settings, protocols, and current status.",
@@ -1516,74 +1498,6 @@
         ]
       }
     },
-    "/api/v1/organizations/{organization_id}/settings/usermanagement": {
-      "get": {
-        "description": "Retrieves the user management settings for a specific organization.",
-        "tags": [
-          "Organizations"
-        ],
-        "summary": "Get organization user management setting",
-        "operationId": "OrganizationService_GetOrganizationUserManagementSetting",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of the organization.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the requested organization setting.",
-            "schema": {
-              "$ref": "#/definitions/organizationsGetOrganizationUserManagementSettingsResponse"
-            }
-          },
-          "404": {
-            "description": "Organization or setting not found.",
-            "schema": {}
-          }
-        }
-      },
-      "patch": {
-        "description": "Updates user management settings for an organization",
-        "tags": [
-          "Organizations"
-        ],
-        "summary": "Update organization user setting",
-        "operationId": "OrganizationService_UpdateUserManagementSettings",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of the organization.",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/OrganizationServiceUpdateUserManagementSettingsBody"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the updated organization setting.",
-            "schema": {
-              "$ref": "#/definitions/organizationsUpdateUserManagementSettingsResponse"
-            }
-          },
-          "404": {
-            "description": "Organization or setting not found.",
-            "schema": {}
-          }
-        }
-      }
-    },
     "/api/v1/organizations/{organization_id}/users": {
       "get": {
         "description": "Retrieves a paginated list of all users who are members of the specified organization. Use this endpoint to view all users with access to a particular organization, including their roles, metadata, and membership details. Supports pagination for large user lists.",
@@ -2055,26 +1969,6 @@
     }
   },
   "definitions": {
-    "ConnectionServiceAssignDomainsToConnectionBody": {
-      "type": "object",
-      "properties": {
-        "domain_ids": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "OrganizationServiceUpdateUserManagementSettingsBody": {
-      "type": "object",
-      "properties": {
-        "settings": {
-          "description": "The new values for the setting fields to patch.",
-          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
-        }
-      }
-    },
     "authpasswordlessPasswordlessType": {
       "type": "string",
       "enum": [
@@ -2588,27 +2482,6 @@
           "description": "Phone number in E.164 international format. Required for SMS-based authentication.",
           "type": "string",
           "example": "+14155552671"
-        }
-      }
-    },
-    "connectionsAssignDomainsToConnectionResponse": {
-      "type": "object",
-      "properties": {
-        "connection": {
-          "description": "Connection with assigned domains",
-          "$ref": "#/definitions/connectionsConnection",
-          "example": {
-            "configuration_type": "MANUAL",
-            "debug_enabled": false,
-            "enabled": true,
-            "id": "conn_1234567890",
-            "organization_id": "org_1234567890",
-            "provider": "OKTA",
-            "status": "CONFIGURED",
-            "test_connection_uri": "https://auth.example.com/test-connection/conn_1234567890",
-            "type": "OIDC",
-            "ui_button_title": "Login with SSO"
-          }
         }
       }
     },
@@ -3775,15 +3648,6 @@
         }
       }
     },
-    "organizationsGetOrganizationUserManagementSettingsResponse": {
-      "type": "object",
-      "properties": {
-        "settings": {
-          "description": "List of organization settings.",
-          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
-        }
-      }
-    },
     "organizationsLink": {
       "type": "object",
       "properties": {
@@ -3949,36 +3813,12 @@
         }
       }
     },
-    "organizationsOrganizationUserManagementSettings": {
-      "type": "object",
-      "properties": {
-        "jit_provisioning_with_sso_enabled": {
-          "description": "Enables or disables user management features for the organization. When true, users can be added, removed, and managed.",
-          "type": "boolean",
-          "example": true
-        },
-        "sync_user_profile_on_signin": {
-          "description": "Enables or disables synchronization of user profiles upon sign-in. When true, user profiles are automatically updated with the latest information from the identity provider.",
-          "type": "boolean",
-          "example": true
-        }
-      }
-    },
     "organizationsUpdateOrganizationResponse": {
       "type": "object",
       "properties": {
         "organization": {
           "description": "Updated organization details",
           "$ref": "#/definitions/organizationsOrganization"
-        }
-      }
-    },
-    "organizationsUpdateUserManagementSettingsResponse": {
-      "type": "object",
-      "properties": {
-        "settings": {
-          "description": "The updated setting.",
-          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
         }
       }
     },
