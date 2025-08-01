@@ -1,32 +1,15 @@
 ---
-import { Badge } from '@astrojs/starlight/components'
-
-// Get the topics from the route data provided by the sidebar topics plugin
-const { topics } = Astro.locals.starlightSidebarTopics || { topics: [] }
-
-// Define the main topics we want to display with their matching patterns
-const leftTopicMappings = [
-  { id: 'fsa', patterns: ['/fsa/'] },
-  { id: 'sso', patterns: ['/sso/', '/guides/sso/', '/social-logins/'] },
-  { id: 'directory', patterns: ['/directory/', '/guides/directory/'] },
-  { id: 'm2m', patterns: ['/m2m/', '/guides/m2m/'] },
-  { id: 'passwordless', patterns: ['/guides/passwordless/'] },
-  { id: 'mcp', patterns: ['/guides/mcp/'] },
-]
-
-// Define the main topics we want to display with their matching patterns
-const rightTopicMappings = [
-  { id: 'dev-kit', patterns: ['/dev-kit/'] },
-  { id: 'integrations', patterns: ['/guides/integrations/'] },
-]
-// Find topics based on their link patterns
-const leftOrderedTopics = leftTopicMappings.map((mapping) => {
-  return topics.find((topic) => mapping.patterns.some((pattern) => topic.link?.includes(pattern)))
-})
-
-const rightOrderedTopics = rightTopicMappings.map((mapping) => {
-  return topics.find((topic) => mapping.patterns.some((pattern) => topic.link?.includes(pattern)))
-})
+function startsWithAny(mainString: string, patterns: string[]) {
+  if (!mainString || !patterns) {
+    return false
+  }
+  for (let i = 0; i < patterns.length; i++) {
+    if (mainString.startsWith(patterns[i])) {
+      return true // Found a match, return true immediately
+    }
+  }
+  return false // No match found after checking all patterns
+}
 ---
 
 <nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
@@ -40,51 +23,89 @@ const rightOrderedTopics = rightTopicMappings.map((mapping) => {
         <span class="nav-label">🏠</span>
       </div>
     </a>
-    {
-      leftOrderedTopics.map(
-        (topic) =>
-          topic && (
-            <a
-              href={topic.link}
-              class={`nav-item ${topic.isCurrent ? 'current' : ''}`}
-              aria-current={topic.isCurrent ? 'page' : false}
-            >
-              <div class="nav-item-content">
-                <span class="nav-label">{topic.label}</span>
-                {topic.badge && <Badge text={topic.badge.text} variant={topic.badge.variant} />}
-              </div>
-            </a>
-          ),
-      )
-    }
+    <a
+      href="/guides/mcp/overview"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/guides/mcp/', '/connect/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">Agentic Auth</span>
+      </div>
+    </a>
+    <a
+      href="/fsa/quickstart"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/fsa/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">Full-stack Auth</span>
+      </div>
+    </a>
+    <a
+      href="/sso/quickstart"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/sso/', '/guides/sso/', '/social-logins/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">Single Sign-On</span>
+      </div>
+    </a>
+    <a
+      href="/directory/scim/quickstart"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/directory/', '/guides/directory/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">SCIM</span>
+      </div>
+    </a>
+    <a
+      href="/guides/passwordless/quickstart"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/guides/passwordless/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">Passwordless</span>
+      </div>
+    </a>
+    <a
+      href="/m2m/quickstart"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/m2m/', '/guides/m2m/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">M2M</span>
+      </div>
+    </a>
   </div>
   <div class="nav-items">
     <a
       href="/apis/"
-      class={`nav-item ${Astro.url.pathname === '/apis/' ? 'current' : ''}`}
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/apis']) ? 'current' : ''}`}
       aria-current="page"
     >
       <div class="nav-item-content">
         <span class="nav-label">API Reference</span>
       </div>
     </a>
-    {
-      rightOrderedTopics.map(
-        (topic) =>
-          topic && (
-            <a
-              href={topic.link}
-              class={`nav-item ${topic.isCurrent ? 'current' : ''}`}
-              aria-current={topic.isCurrent ? 'page' : false}
-            >
-              <div class="nav-item-content">
-                <span class="nav-label">{topic.label}</span>
-                {topic.badge && <Badge text={topic.badge.text} variant={topic.badge.variant} />}
-              </div>
-            </a>
-          ),
-      )
-    }
+    <a
+      href="/dev-kit/"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/dev-kit/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">Developer Resources</span>
+      </div>
+    </a>
+    <a
+      href="/guides/integrations/"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/guides/integrations/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">Integrations</span>
+      </div>
+    </a>
   </div>
 </nav>
 

@@ -68,16 +68,7 @@ export const sidebar = [
       },
       {
         label: 'Social authentication',
-        items: [
-          'social-logins/quickstart',
-          {
-            label: 'connections',
-            collapsed: false,
-            autogenerate: {
-              directory: 'guides/integrations/social-connections',
-            },
-          },
-        ],
+        items: ['social-logins/quickstart'],
       },
       {
         label: 'Guides',
@@ -198,7 +189,7 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Developer Kit',
+    label: 'Developer Resources',
     id: 'dev-kit',
     link: '/dev-kit/',
     icon: 'seti:powershell',
@@ -294,13 +285,13 @@ export const sidebar = [
         label: 'SCIM integrations',
         autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
+      {
+        label: 'Social connections',
+        autogenerate: {
+          directory: 'guides/integrations/social-connections',
+        },
+      },
     ],
-  },
-  {
-    label: 'API Reference',
-    id: 'apis',
-    link: '/apis',
-    items: ['apis'],
   },
 ]
 
