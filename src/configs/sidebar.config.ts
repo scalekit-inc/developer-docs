@@ -68,16 +68,7 @@ export const sidebar = [
       },
       {
         label: 'Social authentication',
-        items: [
-          'social-logins/quickstart',
-          {
-            label: 'connections',
-            collapsed: false,
-            autogenerate: {
-              directory: 'guides/integrations/social-connections',
-            },
-          },
-        ],
+        items: ['social-logins/quickstart'],
       },
       {
         label: 'Guides',
@@ -198,7 +189,7 @@ export const sidebar = [
     ],
   },
   {
-    label: 'SDKs & APIs',
+    label: 'Developer Resources',
     id: 'dev-kit',
     link: '/dev-kit/',
     icon: 'seti:powershell',
@@ -244,15 +235,7 @@ export const sidebar = [
       },
       {
         label: 'Reference',
-        items: [
-          {
-            label: 'REST API reference',
-            link: '/apis',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          'reference/admin-portal/ui-events',
-          'reference/glossary',
-        ],
+        items: ['reference/admin-portal/ui-events', 'reference/glossary'],
       },
       {
         label: 'Development Tools',
@@ -302,6 +285,12 @@ export const sidebar = [
         label: 'SCIM integrations',
         autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
+      {
+        label: 'Social connections',
+        autogenerate: {
+          directory: 'guides/integrations/social-connections',
+        },
+      },
     ],
   },
 ]
@@ -320,6 +309,7 @@ export const topics = {
     '/guides/external-ids-and-metadata',
     '/guides/mcp/additional-reading',
   ],
+  apis: ['/apis/#**/*'],
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
   integrations: ['/guides/integrations/**/*'], // Associate all integration pages with the integrations topic
   'full-stack-auth': ['/fsa/**/*'], // Associate all fsa pages with the full-stack-auth topic
