@@ -29,13 +29,13 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
 
 <Steps>
 
-1. **Set up a default redirect endpoint**: When Scalekit receives an IdP-initiated SSO request, it sends a request to your configured default `redirect_uri` with an `idp_initiated_login` parameter.
+1.  **Set up an Initiate login endpoint**: This endpoint in your application starts the authentication process. When Scalekit receives an IdP-initiated SSO request, it redirects the user to this endpoint with an `idp_initiated_login` parameter.
 
-   ```sh showLineNumbers=false  "idp_initiated_login=<encoded_jwt_token>" wrap
-   https://{your-subdomain}.scalekit.dev/default-redirect-uri?idp_initiated_login=<encoded_jwt_token>
-   ```
+    ```sh showLineNumbers=false "idp_initiated_login=<encoded_jwt_token>" wrap
+    https://yourapp.com/login?idp_initiated_login=<encoded_jwt_token>
+    ```
 
-2. **Extract information from the JWT token**: The `idp_initiated_login` parameter contains a signed JWT with organization, connection, and user details.
+2.  **Extract information from the JWT token**: The `idp_initiated_login` parameter contains a signed JWT with organization, connection, and user details.
 
    ```js showLineNumbers=false
    {
@@ -56,7 +56,7 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
    <TabItem value="nodejs" label="Node.js">
 
    ```javascript showLineNumbers=false "idp_initiated_login"
-   // 1. Default redirect URL is callback with JWT
+   // 1. Your Initiate Login Endpoint receives a JWT
    const { code, error_description, idp_initiated_login } = req.query;
 
      if (error_description) {
@@ -93,7 +93,7 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
    <TabItem value="python" label="Python">
 
    ```python showLineNumbers "idp_initiated_login"
-   # 1. Default redirect URL is callback with JWT
+   # 1. Your Initiate Login Endpoint receives a JWT
    code = request.args.get('code')
    error_description = request.args.get('error_description')
    idp_initiated_login = request.args.get('idp_initiated_login')
@@ -126,7 +126,7 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
    <TabItem value="golang" label="Go">
 
    ```go showLineNumbers "idp_initiated_login"
-   // 1. Default redirect URL is callback with JWT
+   // 1. Your Initiate Login Endpoint receives a JWT
    code := r.URL.Query().Get("code")
    err_description := r.URL.Query().Get("error_description")
    if err_description != "" {
@@ -163,7 +163,7 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
    <TabItem value="java" label="Java">
 
    ```java showLineNumbers=false wrap "idp_initiated_login"
-   // 1. Default redirect URL is callback with JWT
+   // 1. Your Initiate Login Endpoint receives a JWT
    @GetMapping("/callback")
    public RedirectView callbackHandler(
        @RequestParam(required = false) String code,
@@ -231,7 +231,7 @@ This process has two stages: first, the IdP redirects the user to your app via S
 ```mermaid
 graph LR;
     subgraph "Part 1: IdP-initiated"
-        User-->IdP-->Scalekit-->YourApp["Your App (default endpoint)"];
+        User-->IdP-->Scalekit-->YourApp["Your App (Initiate login endpoint)"];
     end
     subgraph "Part 2: SP-initiated Hand-off"
         YourApp -- "triggers sign-in" --> Firebase;
