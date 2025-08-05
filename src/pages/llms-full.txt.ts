@@ -1,16 +1,13 @@
-import { createLlmsRoute } from '../utils/llms'
+import { createLlmsRoute } from '../utils/llms.js'
 
-// Re-export the generic LLMs route with configuration for the **full** variant.
+/**
+ * Full Scalekit documentation in an LLM-friendly plain-text format.
+ * Uses Repomix to package the entire codebase with custom instructions.
+ */
 export const GET = createLlmsRoute({
   title: 'Scalekit Full Documentation',
-  description:
-    'Complete developer documentation for Scalekit, generated automatically from source files.',
-  // Include all sections by default (empty sections array = all)
-  sections: [],
-  exclude: ['apis/**/*'], // exclude auto-generated API reference pages
-  // Use Repomix to get better processing with LLM instructions
-  useRepomix: true,
-  repomixOptions: {
-    instructionFilePath: 'scripts/manual/LLM_INSTRUCTIONS.md',
-  },
+  description: 'Complete developer documentation for Scalekit presented in an LLM-friendly format.',
+  include: '**/*.mdx,**/*.md',
+  instructionFilePath: 'scripts/manual/LLM_INSTRUCTIONS.md',
+  style: 'plain',
 })
