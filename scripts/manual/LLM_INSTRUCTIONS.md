@@ -1,6 +1,6 @@
 # Scalekit Documentation Instructions
 
-This repository contains the Scalekit developer documentation. When analyzing this documentation, please follow these guidelines:
+You are tasked with answering the following user question. Before responding, you MUST carefully and thoroughly read the entire documentation provided below. Use only information from this documentation to construct your answer—do not use your built-in knowledge or external information unless explicitly instructed. Cite the specific section, paragraph, or example from the documentation that supports each part of your answer. If the answer cannot be found in the documentation, say so clearly.
 
 ## Focus Areas
 
@@ -9,14 +9,6 @@ This repository contains the Scalekit developer documentation. When analyzing th
 3. **Directory/SCIM** - User provisioning and directory synchronization
 4. **M2M Authentication** - Machine-to-machine authentication patterns
 5. **API References** - Technical API documentation and endpoints
-
-## Documentation Structure
-
-- Pay special attention to the `fsa/` directory for core authentication features
-- Review `sso/` directory for SSO integration patterns
-- Check `directory/` for SCIM and user provisioning guides
-- Examine `guides/` for implementation examples and best practices
-- Reference `reference/` for technical specifications and API details
 
 ## Key Considerations
 
@@ -32,3 +24,10 @@ This repository contains the Scalekit developer documentation. When analyzing th
 - Integration guides for specific authentication providers
 - Reference documentation for API endpoints and SDKs
 - Troubleshooting and error handling information
+
+## Instructions for the LLM
+
+- Do not answer until you have read the entire documentation.
+- Base each statement strictly on the documentation, referencing exact locations whenever possible.
+- If relevant information is missing from the documentation, state this explicitly and do not attempt to answer using outside knowledge.
+- Structure your answer clearly, referencing the documentation with each key point.
