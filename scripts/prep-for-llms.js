@@ -23,6 +23,7 @@ async function generateLLMText() {
       style: 'plain', // Plain text format
       compress: false, // Keep formatting for better readability
       quiet: false, // Show progress
+      instructionFilePath: join(projectRoot, 'scripts/manual/LLM_INSTRUCTIONS.md'),
       // Don't specify include/exclude to use defaults
     }
 
