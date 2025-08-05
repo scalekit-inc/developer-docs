@@ -30,7 +30,9 @@ export function createLlmsRoute(config: LlmsConfig): APIRoute {
       const options: CliOptions = {
         output: tempOutputFile,
         style: config.style || 'plain',
-        include: config.include || '**/*.mdx,**/*.md',
+        include: config.include || '**/*.mdx,**/*.md, scalekit.swagger.json',
+        compress: true,
+        directoryStructure: false,
         headerText,
         security: {
           enableSecurityCheck: false, // Disable security check for docs
