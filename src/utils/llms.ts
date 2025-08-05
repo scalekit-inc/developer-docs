@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import { unlinkSync, existsSync } from 'fs'
 import { getCollection, type CollectionEntry } from 'astro:content'
 import type { APIContext } from 'astro'
 import type { APIRoute } from 'astro'
@@ -106,6 +107,14 @@ export async function generateLlmsContent(cfg: LlmsConfig, context: APIContext):
         ...(cfg.repomixOptions ?? {}),
       }
       const result: any = await runCli([docsPath], projectRoot, options)
+      // Remove any output file Repomix may have created (repomix-output.txt by default)
+      if (result?.packResult?.filePath && existsSync(result.packResult.filePath)) {
+        try {
+          unlinkSync(result.packResult.filePath)
+        } catch {
+          /* ignore */
+        }
+      }
       if (result?.packResult?.combinedText) {
         const preamble = [`# ${cfg.title}`]
         if (cfg.description) preamble.push(`> ${cfg.description}`)
