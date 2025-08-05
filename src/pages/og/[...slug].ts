@@ -29,6 +29,9 @@ export const { getStaticPaths, GET } = OGImageRoute({
     bgGradient: [[18, 18, 18]], // Matches --sl-color-gray-7 from custom.css
     border: { color: [0, 255, 127], width: 16 }, // Scalekit brand green (#00FF7F)
     padding: 80,
+    bgImage: {
+      path: './src/assets/images/og/backdrop.png',
+    },
     font: {
       title: {
         families: ['Inter Variable'],
