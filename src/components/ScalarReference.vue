@@ -16,6 +16,9 @@ const dropdownSync = createDropdownSynchronizer()
 // Reactive color mode tracking
 const colorMode = ref<string>('light')
 
+// Add a key to force re-render of the Scalar component
+const scalarKey = ref(0)
+
 // Computed logo path based on color mode
 const logoPath = computed(() => {
   return colorMode.value === 'dark'
@@ -37,6 +40,8 @@ onMounted(() => {
     onThemeChange: (theme: 'light' | 'dark') => {
       console.log('Vue component received theme change:', theme)
       colorMode.value = theme
+      // Force re-render of the Scalar component by changing the key
+      scalarKey.value++
     },
   })
 
@@ -64,6 +69,7 @@ onUnmounted(() => {
   <div class="api-reference-wrapper" :class="colorMode + '-mode'">
     <div class="api-reference-container">
       <ApiReference
+        :key="scalarKey"
         :configuration="{
           url: '/api/scalekit.swagger.json',
           hideTestRequestButton: true,
