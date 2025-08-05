@@ -5,9 +5,7 @@ import '@fontsource-variable/inter'
 import '@/styles/api-reference.css'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 
-// Makes sure selected language is propagated elsewhere to all snippets
 import { createDropdownSynchronizer } from '../utils/dropdownSync'
-// Import theme synchronization
 import { initializeThemeSync, type ThemeSynchronizer } from '../utils/themeSync'
 
 // Create dropdown synchronizer instance
@@ -18,13 +16,6 @@ const colorMode = ref<string>('light')
 
 // Add a key to force re-render of the Scalar component
 const scalarKey = ref(0)
-
-// Computed logo path based on color mode
-const logoPath = computed(() => {
-  return colorMode.value === 'dark'
-    ? '/assets/logos/scalekit-api-black.svg'
-    : '/assets/logos/scalekit-api-white.svg'
-})
 
 // Initialize theme synchronization
 let themeSyncInstance: ThemeSynchronizer | null = null
@@ -38,7 +29,6 @@ onMounted(() => {
   // Initialize theme synchronization
   themeSyncInstance = initializeThemeSync({
     onThemeChange: (theme: 'light' | 'dark') => {
-      console.log('Vue component received theme change:', theme)
       colorMode.value = theme
       // Force re-render of the Scalar component by changing the key
       scalarKey.value++
@@ -47,13 +37,10 @@ onMounted(() => {
 
   // Set initial color mode from synchronized theme
   const initialTheme = themeSyncInstance.getStarlightTheme()
-  console.log('Initial theme detected in Vue component:', initialTheme)
   colorMode.value = initialTheme
 })
 
 onUnmounted(() => {
-  console.log('ScalarReference component unmounting, cleaning up...')
-
   // Clean up dropdown synchronization
   dropdownSync.destroy()
 
