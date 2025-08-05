@@ -17,11 +17,11 @@ export const { getStaticPaths, GET } = OGImageRoute({
   // matches the `[...slug].ts` filename
   param: 'slug',
   // Customize the look of the generated card using front-matter
-  getImageOptions: (_id, page: (typeof pages)[number]) => ({
+  getImageOptions: (_id: string, page: any) => ({
     // Show title & description pulled from front-matter
     title: page.data.title,
     description: page.data.description,
-    dir: 'ltr',
+    dir: 'ltr' as const,
     logo: {
       path: './src/assets/images/scalekit-logo-white.png',
     },
