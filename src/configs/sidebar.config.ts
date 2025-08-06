@@ -25,6 +25,7 @@ export const sidebar = [
           },
           'fsa/guides/manage-session',
           'fsa/guides/logout',
+          'fsa/guides/auth-logs',
         ],
       },
       {
@@ -80,6 +81,7 @@ export const sidebar = [
           'sso/guides/sso-user-attributes',
           'sso/reference/sso-integration-errors',
           'sso/reference/redirects',
+          'sso/guides/auth-logs',
           {
             label: 'Coexist with',
             autogenerate: { directory: 'guides/integrations/auth-systems' },
@@ -145,6 +147,10 @@ export const sidebar = [
           'guides/passwordless/custom-email-provider',
           'guides/passwordless/custom-email-templates',
         ],
+      },
+      {
+        label: 'Guides',
+        items: ['passwordless/guides/auth-logs'],
       },
     ],
   },

@@ -15,7 +15,7 @@ head:
       }
 ---
 import Subtitle from '@/components/ui/Subtitle.astro'
-import { CardGrid, Badge } from '@astrojs/starlight/components';
+import { CardGrid, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Subtitle>Secure your Model Context Protocol (MCP) servers with Scalekit's drop-in OAuth 2.1 authorization solution</Subtitle>
 
@@ -141,6 +141,9 @@ Your MCP server needs to validate whether all the incoming requests have a valid
 
 You can use Scalekit SDKs (across Node.js, Java, GoLang, Python) to determine whether the token is valid or not and whether the token has appropriate claim values like `aud`, `iss`, `exp`, `iat`, `scope` etc.
 
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+
 ```javascript
 import { Scalekit, TokenValidationOptions } from '@scalekit-sdk/node';
 import { NextFunction, Request, Response } from 'express';
@@ -178,11 +181,50 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
 app.use('/', authMiddleware);
 ```
 
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python showLineNumbers
+from scalekit import ScalekitClient
+from scalekit.common.scalekit import TokenValidationOptions
+
+# Initialize the Scalekit client
+scalekit_client = ScalekitClient(
+  '<SCALEKIT_ENVIRONMENT_URL>',
+  '<SCALEKIT_CLIENT_ID>',
+  '<SCALEKIT_CLIENT_SECRET>'
+)
+
+def validate_token_with_issuer_audience(token: str) -> bool:
+    """
+    
+    :param token: The token to validate
+    :return: True if token is valid, False otherwise
+    """
+    options = TokenValidationOptions(
+        issuer="https://your-domain.scalekit.com",
+        audience=["your-api-audience"]
+    )
+    
+    try:
+        is_valid = scalekit_client.validate_access_token(token, options=options)
+        return is_valid
+    except Exception as ex:
+        print(f"Token validation failed: {ex}")
+        return False
+```
+
+</TabItem>
+</Tabs>
+
 ### Step 4: (Optional) Implement Scope-based authorization at the tool execution level
 
 Implement scope validation at the MCP tool execution level to ensure that the tool is only executed if the user has authorized the MCP client for the required scope.
 
-```javascript
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+
+```javascript showLineNumbers
     try{
         await scalekit.validateToken(token, { audience: [RESOURCE_ID], requiredScopes: [scope] });
     } catch(error){
@@ -192,8 +234,30 @@ Implement scope validation at the MCP tool execution level to ensure that the to
             scope: scope
       });
     }
-
 ```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python showLineNumbers
+try:
+    scalekit_client.validate_access_token(
+        token, 
+        options=TokenValidationOptions(
+            audience=[RESOURCE_ID],
+            required_scopes=[scope]
+        )
+    )
+except ScalekitValidateTokenFailureException as ex:
+    return {
+        "error": "insufficient_scope",
+        "error_description": f"Required scope: {scope}",
+        "scope": scope
+    }
+```
+
+</TabItem>
+</Tabs>
 
 ## Next Steps
 
