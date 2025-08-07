@@ -1,0 +1,445 @@
+---
+title: Connections
+description: Learn how to configure and manage connections in Agent Connect to enable authentication and tool execution with third-party providers.
+sidebar:
+  order: 3
+  label: "Connections"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Providers"
+  link: "/connect/providers"
+next:
+  label: "Connected accounts"
+  link: "/connect/connected-accounts"
+---
+
+import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Connections in Agent Connect are specific configurations that define how your application authenticates and interacts with third-party providers. Each connection contains the necessary credentials, settings, and parameters required to establish secure communication with a provider's API.
+
+## What are connections?
+
+Connections serve as the bridge between your Agent Connect setup and third-party providers. They contain:
+
+- **Authentication credentials** (OAuth client ID/secret, API keys, etc.)
+- **Configuration settings** (scopes, permissions, endpoints)
+- **Tool definitions** and their parameters
+- **Rate limiting** and retry policies
+- **Custom settings** specific to your use case
+
+## Connection types
+
+Agent Connect supports various connection types based on different authentication methods:
+
+### OAuth 2.0 connections
+
+Most modern APIs use OAuth 2.0 for secure authentication:
+
+```json
+{
+  "connection_id": "conn_gmail_oauth",
+  "provider": "gmail",
+  "auth_type": "oauth2",
+  "credentials": {
+    "client_id": "your-client-id",
+    "client_secret": "your-client-secret",
+    "redirect_uri": "https://your-app.com/callback"
+  },
+  "scopes": ["https://www.googleapis.com/auth/gmail.send"],
+  "settings": {
+    "auto_refresh": true,
+    "expires_in": 3600
+  }
+}
+```
+
+### API key connections
+
+Simple authentication using static API keys:
+
+```json
+{
+  "connection_id": "conn_jira_api",
+  "provider": "jira",
+  "auth_type": "api_key",
+  "credentials": {
+    "api_key": "your-api-key",
+    "base_url": "https://your-domain.atlassian.net"
+  },
+  "settings": {
+    "rate_limit": 100,
+    "timeout": 30
+  }
+}
+```
+
+### Custom authentication
+
+For providers with unique authentication requirements:
+
+```json
+{
+  "connection_id": "conn_custom_auth",
+  "provider": "custom_provider",
+  "auth_type": "custom",
+  "credentials": {
+    "username": "your-username",
+    "password": "your-password",
+    "token": "bearer-token"
+  },
+  "settings": {
+    "auth_endpoint": "https://api.provider.com/auth",
+    "refresh_endpoint": "https://api.provider.com/refresh"
+  }
+}
+```
+
+## Creating connections
+
+### Using the dashboard
+
+<Steps>
+1. **Navigate to connections** in your Agent Connect dashboard
+2. **Select provider** from the list of available providers
+3. **Choose connection type** based on your authentication method
+4. **Configure credentials** by entering your API keys or OAuth settings
+5. **Set permissions** and scopes for the connection
+6. **Test connection** to verify configuration
+7. **Save connection** for use with connected accounts
+</Steps>
+
+### Using the API
+
+Create connections programmatically using the Agent Connect API:
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```bash
+curl -X POST "https://api.scalekit.com/v1/connect/connections" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "gmail",
+    "auth_type": "oauth2",
+    "credentials": {
+      "client_id": "your-client-id",
+      "client_secret": "your-client-secret"
+    },
+    "scopes": ["https://www.googleapis.com/auth/gmail.send"],
+    "settings": {
+      "auto_refresh": true
+    }
+  }'
+```
+
+</TabItem>
+<TabItem value="javascript" label="JavaScript">
+
+```javascript
+const connection = await agentConnect.connections.create({
+  provider: 'gmail',
+  auth_type: 'oauth2',
+  credentials: {
+    client_id: 'your-client-id',
+    client_secret: 'your-client-secret'
+  },
+  scopes: ['https://www.googleapis.com/auth/gmail.send'],
+  settings: {
+    auto_refresh: true
+  }
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+connection = agent_connect.connections.create(
+    provider='gmail',
+    auth_type='oauth2',
+    credentials={
+        'client_id': 'your-client-id',
+        'client_secret': 'your-client-secret'
+    },
+    scopes=['https://www.googleapis.com/auth/gmail.send'],
+    settings={
+        'auto_refresh': True
+    }
+)
+```
+
+</TabItem>
+</Tabs>
+
+## Connection configuration
+
+### Authentication settings
+
+Configure authentication based on your provider's requirements:
+
+**OAuth 2.0 settings:**
+- **Client ID**: Your OAuth application's client identifier
+- **Client Secret**: Your OAuth application's client secret
+- **Redirect URI**: Where users return after authorization
+- **Scopes**: Permissions your application requests
+- **Authorization URL**: Provider's OAuth authorization endpoint
+- **Token URL**: Provider's token exchange endpoint
+
+**API Key settings:**
+- **API Key**: Your provider-issued API key
+- **Base URL**: Provider's API base URL
+- **Authentication Header**: How the API key is sent (header, query param)
+- **Key Prefix**: Any prefix required (e.g., "Bearer ", "API-Key ")
+
+### Scopes and permissions
+
+Define what your application can access:
+
+<Aside type="note">
+Scopes determine what data and actions your application can access on behalf of users. Request only the minimum scopes necessary for your use case.
+</Aside>
+
+**Common scope patterns:**
+
+- **Read-only**: Access to view data only
+- **Read-write**: Access to view and modify data
+- **Admin**: Full administrative access
+- **Specific resources**: Access to particular data types
+
+**Example scopes for popular providers:**
+
+```javascript
+// Gmail scopes
+const gmailScopes = [
+  'https://www.googleapis.com/auth/gmail.readonly',    // Read emails
+  'https://www.googleapis.com/auth/gmail.send',       // Send emails
+  'https://www.googleapis.com/auth/gmail.modify'      // Modify emails
+];
+
+// Slack scopes
+const slackScopes = [
+  'channels:read',      // Read channel information
+  'chat:write',         // Send messages
+  'files:read'          // Read file information
+];
+
+// Jira scopes
+const jiraScopes = [
+  'read:jira-work',     // Read issues and projects
+  'write:jira-work',    // Create and update issues
+  'manage:jira-project' // Manage projects
+];
+```
+
+### Rate limiting and throttling
+
+Configure how your connection handles API rate limits:
+
+```json
+{
+  "rate_limiting": {
+    "requests_per_minute": 100,
+    "requests_per_hour": 1000,
+    "burst_limit": 10,
+    "backoff_strategy": "exponential",
+    "retry_attempts": 3
+  }
+}
+```
+
+### Connection settings
+
+Customize connection behavior:
+
+**Token management:**
+- **Auto-refresh**: Automatically refresh expired tokens
+- **Token expiry**: How long tokens remain valid
+- **Refresh buffer**: Refresh tokens before expiry
+- **Token storage**: Where tokens are securely stored
+
+**Request settings:**
+- **Timeout**: Maximum request duration
+- **Retry policy**: How failed requests are retried
+- **User agent**: Custom user agent string
+- **Base headers**: Headers sent with every request
+
+## Managing connections
+
+### Connection lifecycle
+
+Connections go through various states:
+
+1. **Draft**: Connection is being configured
+2. **Active**: Connection is ready for use
+3. **Testing**: Connection is being validated
+4. **Inactive**: Connection is disabled
+5. **Error**: Connection has configuration issues
+
+### Updating connections
+
+Modify existing connections when requirements change:
+
+<Tabs>
+<TabItem value="dashboard" label="Dashboard">
+
+1. Navigate to your connections list
+2. Select the connection to modify
+3. Update credentials, scopes, or settings
+4. Test the updated connection
+5. Save changes
+
+</TabItem>
+<TabItem value="api" label="API">
+
+```javascript
+const updatedConnection = await agentConnect.connections.update('conn_id', {
+  scopes: ['new-scope-1', 'new-scope-2'],
+  settings: {
+    rate_limit: 200,
+    timeout: 60
+  }
+});
+```
+
+</TabItem>
+</Tabs>
+
+### Connection monitoring
+
+Monitor connection health and performance:
+
+- **Authentication status**: Track token validity and refresh cycles
+- **API usage**: Monitor request volume and rate limit consumption
+- **Error rates**: Track failed requests and common errors
+- **Performance metrics**: Response times and throughput
+
+## Security considerations
+
+### Credential management
+
+Secure handling of connection credentials:
+
+- **Encryption**: All credentials are encrypted at rest
+- **Access control**: Limit who can view or modify connections
+- **Audit logging**: Track all credential access and changes
+- **Rotation**: Regular credential rotation policies
+
+### OAuth best practices
+
+Follow OAuth 2.0 security best practices:
+
+- **Use PKCE**: Proof Key for Code Exchange for public clients
+- **Validate state**: Prevent CSRF attacks with state parameters
+- **Scope limitation**: Request minimal necessary scopes
+- **Token storage**: Secure token storage and transmission
+
+### API key security
+
+Protect API keys properly:
+
+- **Environment variables**: Store keys in environment variables
+- **Key rotation**: Regular key rotation schedules
+- **Access logging**: Log API key usage
+- **Least privilege**: Use keys with minimal required permissions
+
+## Troubleshooting connections
+
+### Common issues
+
+**Authentication failures:**
+- Invalid credentials
+- Expired tokens
+- Incorrect scopes
+- Provider API changes
+
+**Rate limiting errors:**
+- Exceeded request limits
+- Incorrect rate limit configuration
+- Burst limit violations
+- Shared quota issues
+
+**Configuration problems:**
+- Incorrect endpoint URLs
+- Missing required settings
+- Invalid scope combinations
+- Provider-specific requirements
+
+### Debugging steps
+
+<Steps>
+1. **Check credentials** - Verify all credentials are correct and current
+2. **Test authentication** - Use the connection test feature
+3. **Review logs** - Check connection logs for error details
+4. **Validate settings** - Ensure all settings match provider requirements
+5. **Check provider status** - Verify provider API is operational
+6. **Update configuration** - Apply any necessary fixes
+7. **Re-test connection** - Confirm issues are resolved
+</Steps>
+
+## Best practices
+
+### Connection organization
+
+- **Naming convention**: Use clear, descriptive connection names
+- **Environment separation**: Separate connections for dev/staging/prod
+- **Documentation**: Document connection purposes and configurations
+- **Version control**: Track connection configuration changes
+
+### Security practices
+
+- **Regular updates**: Keep credentials and settings current
+- **Monitoring**: Continuously monitor connection health
+- **Backup**: Maintain secure backups of connection configurations
+- **Access review**: Regularly review who has access to connections
+
+### Performance optimization
+
+- **Connection pooling**: Reuse connections efficiently
+- **Caching**: Cache frequently accessed configuration data
+- **Batch operations**: Group API calls when possible
+- **Error handling**: Implement robust error handling and retry logic
+
+## Connection templates
+
+Use templates for common connection patterns:
+
+### Google Workspace template
+
+```json
+{
+  "provider": "google_workspace",
+  "auth_type": "oauth2",
+  "scopes": [
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/calendar.readonly"
+  ],
+  "settings": {
+    "auto_refresh": true,
+    "rate_limit": 100,
+    "timeout": 30
+  }
+}
+```
+
+### Slack workspace template
+
+```json
+{
+  "provider": "slack",
+  "auth_type": "oauth2",
+  "scopes": [
+    "channels:read",
+    "chat:write",
+    "users:read"
+  ],
+  "settings": {
+    "auto_refresh": true,
+    "rate_limit": 50,
+    "timeout": 15
+  }
+}
+```
+
+Next, learn how to create and manage [Connected accounts](/connect/connected-accounts) that use these connections to authenticate and execute tools for your users.

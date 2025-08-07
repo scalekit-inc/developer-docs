@@ -1,0 +1,673 @@
+---
+title: Whitelabeling
+description: Learn how to create a fully whitelabeled experience with Agent Connect using your own branding and OAuth applications.
+sidebar:
+  order: 5
+  label: "Whitelabeling"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Bring your own auth"
+  link: "/connect/authorization/bring-your-own-auth"
+next: false
+---
+
+import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Whitelabeling with Agent Connect allows you to create a seamless, branded experience for your users. When properly implemented, users see only your company's branding throughout the entire authentication and tool execution process.
+
+## What is whitelabeling?
+
+Whitelabeling in Agent Connect means:
+
+- **Your branding everywhere**: Users see your company name, logo, and colors
+- **No Scalekit references**: Scalekit branding is hidden from end users
+- **Consistent experience**: Unified look and feel across all touchpoints
+- **Professional appearance**: Enterprise-grade presentation to your users
+
+## Components of whitelabeling
+
+### OAuth consent screens
+When users authenticate with third-party providers, they see your application name and branding instead of Scalekit's.
+
+### API responses
+All API responses can be customized to remove Scalekit references and include your branding.
+
+### Error messages
+Error messages and notifications display your company information.
+
+### Email communications
+Any automated emails from providers reference your application name.
+
+## Setting up whitelabeling
+
+### 1. Configure your OAuth applications
+
+The foundation of whitelabeling is using your own OAuth applications:
+
+<Steps>
+1. **Create OAuth applications** with each provider (Google, Microsoft, Slack, etc.)
+2. **Configure branding** in each OAuth application
+3. **Set up custom domains** for redirect URIs
+4. **Add your applications** to Agent Connect connections
+</Steps>
+
+### 2. Brand your OAuth applications
+
+<Tabs>
+<TabItem value="google" label="Google">
+
+**Google Cloud Console branding:**
+```javascript
+// Configure OAuth consent screen
+const googleBranding = {
+  application_name: 'Your Application Name',
+  application_logo: 'https://your-domain.com/logo.png',
+  application_homepage: 'https://your-domain.com',
+  application_privacy_policy: 'https://your-domain.com/privacy',
+  application_terms_of_service: 'https://your-domain.com/terms',
+  authorized_domains: ['your-domain.com'],
+  developer_contact: 'support@your-domain.com'
+};
+```
+
+**Consent screen configuration:**
+- Application name: Your company/product name
+- User support email: Your support email
+- Logo: Your company logo (120x120px)
+- Application homepage: Your main website
+- Privacy policy: Your privacy policy URL
+- Terms of service: Your terms of service URL
+
+</TabItem>
+<TabItem value="microsoft" label="Microsoft">
+
+**Azure AD application branding:**
+```javascript
+// Configure application manifest
+const microsoftBranding = {
+  displayName: 'Your Application Name',
+  publisherDomain: 'your-domain.com',
+  signInAudience: 'AzureADMultipleOrgs',
+  web: {
+    homePageUrl: 'https://your-domain.com',
+    redirectUris: [
+      'https://your-domain.com/auth/microsoft/callback'
+    ]
+  },
+  info: {
+    logoUrl: 'https://your-domain.com/logo.png',
+    marketingUrl: 'https://your-domain.com',
+    privacyStatementUrl: 'https://your-domain.com/privacy',
+    supportUrl: 'https://your-domain.com/support',
+    termsOfServiceUrl: 'https://your-domain.com/terms'
+  }
+};
+```
+
+**Branding elements:**
+- Display name: Your application name
+- Publisher domain: Your verified domain
+- Home page URL: Your main website
+- Logo URL: Your company logo
+- Privacy statement: Your privacy policy
+- Terms of service: Your terms URL
+
+</TabItem>
+<TabItem value="slack" label="Slack">
+
+**Slack app branding:**
+```javascript
+// Configure Slack app manifest
+const slackBranding = {
+  display_information: {
+    name: 'Your Application Name',
+    description: 'Your application description',
+    background_color: '#your-brand-color',
+    long_description: 'Detailed description of your application'
+  },
+  oauth_config: {
+    redirect_urls: [
+      'https://your-domain.com/auth/slack/callback'
+    ],
+    scopes: {
+      bot: ['chat:write', 'channels:read']
+    }
+  },
+  settings: {
+    interactivity: {
+      is_enabled: true,
+      request_url: 'https://your-domain.com/slack/interactivity'
+    },
+    org_deploy_enabled: true,
+    socket_mode_enabled: false
+  }
+};
+```
+
+**App store listing:**
+- App name: Your application name
+- App icon: Your company logo (512x512px)
+- Description: Your application description
+- Background color: Your brand color
+- Developer info: Your company information
+
+</TabItem>
+</Tabs>
+
+### 3. Configure custom domains
+
+Use your own domains for OAuth callbacks:
+
+```javascript
+// Configure custom domains for OAuth callbacks
+const customDomains = {
+  google: {
+    redirect_uri: 'https://auth.your-domain.com/google/callback',
+    authorized_domains: ['your-domain.com', 'auth.your-domain.com']
+  },
+  microsoft: {
+    redirect_uri: 'https://auth.your-domain.com/microsoft/callback',
+    reply_urls: ['https://auth.your-domain.com/microsoft/callback']
+  },
+  slack: {
+    redirect_uri: 'https://auth.your-domain.com/slack/callback',
+    request_url: 'https://api.your-domain.com/slack/events'
+  }
+};
+```
+
+### 4. Implement custom branding in your application
+
+Apply your branding to all user-facing elements:
+
+```javascript
+// Custom branding configuration
+const brandingConfig = {
+  company_name: 'Your Company Name',
+  logo_url: 'https://your-domain.com/logo.png',
+  brand_color: '#your-brand-color',
+  support_email: 'support@your-domain.com',
+  privacy_url: 'https://your-domain.com/privacy',
+  terms_url: 'https://your-domain.com/terms'
+};
+
+// Apply branding to OAuth URLs
+const generateBrandedAuthUrl = async (provider, accountId) => {
+  const authUrl = await agentConnect.accounts.getAuthUrl(accountId, {
+    redirect_uri: `https://auth.your-domain.com/${provider}/callback`,
+    branding: brandingConfig
+  });
+  
+  return authUrl;
+};
+```
+
+## Customizing user interfaces
+
+### OAuth consent flow
+
+Create a branded consent flow:
+
+```javascript
+// Custom consent flow with branding
+const ConsentFlow = ({ provider, onApprove, onDeny }) => {
+  return (
+    <div className="consent-container">
+      <header className="consent-header">
+        <img src={brandingConfig.logo_url} alt={brandingConfig.company_name} />
+        <h1>{brandingConfig.company_name}</h1>
+      </header>
+      
+      <main className="consent-main">
+        <h2>Connect to {provider}</h2>
+        <p>
+          {brandingConfig.company_name} would like to connect to your {provider} account
+          to provide you with enhanced functionality.
+        </p>
+        
+        <div className="permissions-list">
+          <h3>This will allow {brandingConfig.company_name} to:</h3>
+          <ul>
+            <li>Send emails on your behalf</li>
+            <li>Access your calendar</li>
+            <li>Read your profile information</li>
+          </ul>
+        </div>
+        
+        <div className="consent-actions">
+          <button onClick={onApprove} className="btn-primary">
+            Connect to {provider}
+          </button>
+          <button onClick={onDeny} className="btn-secondary">
+            Cancel
+          </button>
+        </div>
+      </main>
+      
+      <footer className="consent-footer">
+        <p>
+          By connecting, you agree to our{' '}
+          <a href={brandingConfig.terms_url}>Terms of Service</a> and{' '}
+          <a href={brandingConfig.privacy_url}>Privacy Policy</a>.
+        </p>
+      </footer>
+    </div>
+  );
+};
+```
+
+### Connection status displays
+
+Show branded connection status:
+
+```javascript
+// Branded connection status component
+const ConnectionStatus = ({ connections }) => {
+  return (
+    <div className="connections-panel">
+      <h2>Connected Accounts</h2>
+      {connections.map(connection => (
+        <div key={connection.id} className="connection-item">
+          <div className="connection-info">
+            <img src={getProviderLogo(connection.provider)} alt={connection.provider} />
+            <span>{connection.provider}</span>
+            <span className={`status ${connection.status}`}>
+              {connection.status === 'active' ? 'Connected' : 'Disconnected'}
+            </span>
+          </div>
+          
+          <div className="connection-actions">
+            {connection.status === 'active' ? (
+              <button onClick={() => disconnect(connection.id)}>
+                Disconnect
+              </button>
+            ) : (
+              <button onClick={() => connect(connection.provider)}>
+                Connect
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+      
+      <footer className="connections-footer">
+        <p>
+          Connections are managed securely by {brandingConfig.company_name}.
+          <a href={brandingConfig.privacy_url}>Learn more</a>
+        </p>
+      </footer>
+    </div>
+  );
+};
+```
+
+## Customizing API responses
+
+### Response transformation
+
+Transform API responses to include your branding:
+
+```javascript
+// Custom response transformer
+const transformResponse = (response, branding) => {
+  return {
+    ...response,
+    branding: {
+      powered_by: branding.company_name,
+      logo_url: branding.logo_url,
+      support_email: branding.support_email
+    },
+    // Remove Scalekit references
+    provider: response.provider,
+    // Add custom metadata
+    metadata: {
+      ...response.metadata,
+      application: branding.company_name,
+      timestamp: new Date().toISOString()
+    }
+  };
+};
+
+// Apply transformation to tool execution
+const executeToolWithBranding = async (request) => {
+  const response = await agentConnect.tools.execute(request);
+  return transformResponse(response, brandingConfig);
+};
+```
+
+### Error message customization
+
+Customize error messages with your branding:
+
+```javascript
+// Custom error messages
+const customErrorMessages = {
+  'ACCOUNT_NOT_AUTHENTICATED': {
+    message: `Please connect your account to continue using ${brandingConfig.company_name}.`,
+    action: 'Connect Account',
+    support_url: `mailto:${brandingConfig.support_email}`
+  },
+  'INSUFFICIENT_PERMISSIONS': {
+    message: `${brandingConfig.company_name} needs additional permissions to perform this action.`,
+    action: 'Grant Permissions',
+    support_url: `mailto:${brandingConfig.support_email}`
+  },
+  'RATE_LIMIT_EXCEEDED': {
+    message: `You've reached the usage limit. Please try again later or contact ${brandingConfig.company_name} support.`,
+    action: 'Try Again',
+    support_url: `mailto:${brandingConfig.support_email}`
+  }
+};
+
+// Apply custom error handling
+const handleError = (error) => {
+  const customError = customErrorMessages[error.code];
+  if (customError) {
+    return {
+      ...error,
+      message: customError.message,
+      action: customError.action,
+      support_url: customError.support_url,
+      branding: brandingConfig
+    };
+  }
+  return error;
+};
+```
+
+## Advanced whitelabeling techniques
+
+### Custom domains for all endpoints
+
+Use your own domains for all API endpoints:
+
+```javascript
+// Custom domain configuration
+const customDomainConfig = {
+  auth_domain: 'auth.your-domain.com',
+  api_domain: 'api.your-domain.com',
+  webhook_domain: 'webhooks.your-domain.com'
+};
+
+// Configure Agent Connect to use custom domains
+const agentConnect = new AgentConnect({
+  baseUrl: `https://${customDomainConfig.api_domain}`,
+  authUrl: `https://${customDomainConfig.auth_domain}`,
+  webhookUrl: `https://${customDomainConfig.webhook_domain}`,
+  clientId: 'your-client-id',
+  clientSecret: 'your-client-secret'
+});
+```
+
+### Custom webhook endpoints
+
+Set up branded webhook endpoints:
+
+```javascript
+// Custom webhook handler with branding
+const handleWebhook = async (req, res) => {
+  const event = req.body;
+  
+  // Transform webhook payload
+  const brandedEvent = {
+    ...event,
+    source: brandingConfig.company_name,
+    branding: brandingConfig,
+    timestamp: new Date().toISOString()
+  };
+  
+  // Process the event
+  await processEvent(brandedEvent);
+  
+  // Send branded response
+  res.json({
+    success: true,
+    processed_by: brandingConfig.company_name,
+    timestamp: new Date().toISOString()
+  });
+};
+```
+
+### Custom email templates
+
+Customize email templates for notifications:
+
+```javascript
+// Custom email template
+const createBrandedEmailTemplate = (type, data) => {
+  const templates = {
+    connection_success: {
+      subject: `Successfully connected to ${data.provider} - ${brandingConfig.company_name}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <header style="background: ${brandingConfig.brand_color}; padding: 20px; text-align: center;">
+            <img src="${brandingConfig.logo_url}" alt="${brandingConfig.company_name}" style="max-height: 50px;">
+          </header>
+          
+          <main style="padding: 20px;">
+            <h2>Connection Successful!</h2>
+            <p>You've successfully connected your ${data.provider} account to ${brandingConfig.company_name}.</p>
+            
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+              <h3>What's next?</h3>
+              <ul>
+                <li>Start using ${brandingConfig.company_name} features</li>
+                <li>Manage your connections in your account settings</li>
+                <li>Contact support if you need help</li>
+              </ul>
+            </div>
+          </main>
+          
+          <footer style="background: #f0f0f0; padding: 20px; text-align: center; font-size: 12px;">
+            <p>This email was sent by ${brandingConfig.company_name}</p>
+            <p>
+              <a href="${brandingConfig.privacy_url}">Privacy Policy</a> | 
+              <a href="${brandingConfig.terms_url}">Terms of Service</a> | 
+              <a href="mailto:${brandingConfig.support_email}">Support</a>
+            </p>
+          </footer>
+        </div>
+      `
+    }
+  };
+  
+  return templates[type];
+};
+```
+
+## Testing whitelabeling
+
+### Verify branding consistency
+
+Test that your branding appears consistently:
+
+```javascript
+// Test branding consistency
+const testBrandingConsistency = async () => {
+  const tests = [
+    // Test OAuth consent screens
+    async () => {
+      const authUrl = await generateBrandedAuthUrl('google', 'test_account');
+      return authUrl.includes('your-domain.com');
+    },
+    
+    // Test API responses
+    async () => {
+      const response = await executeToolWithBranding({
+        tool: 'send_email',
+        parameters: { to: 'test@example.com', subject: 'Test', body: 'Test' }
+      });
+      return response.branding.powered_by === brandingConfig.company_name;
+    },
+    
+    // Test error messages
+    async () => {
+      try {
+        await agentConnect.tools.execute({ tool: 'invalid_tool' });
+      } catch (error) {
+        const customError = handleError(error);
+        return customError.branding.company_name === brandingConfig.company_name;
+      }
+    }
+  ];
+  
+  const results = await Promise.all(tests.map(test => test()));
+  return results.every(result => result === true);
+};
+```
+
+### User experience testing
+
+Test the complete user journey:
+
+```javascript
+// Test complete user journey
+const testUserJourney = async () => {
+  const journey = [
+    'Visit application',
+    'See branded login page',
+    'Click connect to provider',
+    'See branded OAuth consent',
+    'Grant permissions',
+    'Return to application',
+    'See branded success message',
+    'Use application features',
+    'Receive branded notifications'
+  ];
+  
+  // Implement automated testing for each step
+  for (const step of journey) {
+    const result = await testStep(step);
+    if (!result.success) {
+      console.error(`Failed at step: ${step}`, result.error);
+      return false;
+    }
+  }
+  
+  return true;
+};
+```
+
+## Compliance and legal considerations
+
+### Terms of service and privacy policy
+
+Ensure your legal documents cover whitelabeling:
+
+```javascript
+// Legal compliance for whitelabeling
+const legalCompliance = {
+  privacy_policy: {
+    data_collection: 'How you collect user data through integrations',
+    data_usage: 'How you use data from connected accounts',
+    data_sharing: 'Whether you share data with third parties',
+    data_retention: 'How long you retain user data',
+    user_rights: 'How users can control their data'
+  },
+  
+  terms_of_service: {
+    service_description: 'What your service does',
+    acceptable_use: 'How users can use your service',
+    limitations: 'Service limitations and restrictions',
+    liability: 'Liability limitations',
+    termination: 'How users can terminate service'
+  }
+};
+```
+
+### Provider compliance
+
+Ensure compliance with provider requirements:
+
+```javascript
+// Provider compliance checklist
+const providerCompliance = {
+  google: {
+    branding_requirements: 'Follow Google branding guidelines',
+    data_usage_policy: 'Comply with Google API terms',
+    verification: 'Complete OAuth verification process'
+  },
+  microsoft: {
+    branding_requirements: 'Follow Microsoft branding guidelines',
+    data_usage_policy: 'Comply with Microsoft Graph terms',
+    verification: 'Complete publisher verification'
+  },
+  slack: {
+    branding_requirements: 'Follow Slack branding guidelines',
+    data_usage_policy: 'Comply with Slack API terms',
+    app_review: 'Complete Slack app review process'
+  }
+};
+```
+
+## Monitoring whitelabeled deployments
+
+### Branding verification
+
+Monitor that branding appears correctly:
+
+```javascript
+// Monitor branding consistency
+const monitorBranding = async () => {
+  const checks = [
+    {
+      name: 'OAuth consent screens',
+      test: async () => {
+        // Check that OAuth apps show correct branding
+        const apps = await getOAuthApps();
+        return apps.every(app => app.branding.name === brandingConfig.company_name);
+      }
+    },
+    {
+      name: 'API responses',
+      test: async () => {
+        // Check that API responses include branding
+        const response = await agentConnect.tools.execute({
+          tool: 'send_email',
+          parameters: { to: 'test@example.com', subject: 'Test', body: 'Test' }
+        });
+        return response.branding?.powered_by === brandingConfig.company_name;
+      }
+    }
+  ];
+  
+  const results = await Promise.all(checks.map(async check => ({
+    name: check.name,
+    success: await check.test()
+  })));
+  
+  return results;
+};
+```
+
+### User feedback monitoring
+
+Track user feedback about branding:
+
+```javascript
+// Monitor user feedback
+const monitorUserFeedback = async () => {
+  const feedback = await getUserFeedback();
+  
+  const brandingFeedback = feedback.filter(item => 
+    item.category === 'branding' || 
+    item.content.includes('branding') ||
+    item.content.includes('logo') ||
+    item.content.includes('design')
+  );
+  
+  return {
+    total_feedback: feedback.length,
+    branding_feedback: brandingFeedback.length,
+    positive_branding: brandingFeedback.filter(item => item.sentiment === 'positive').length,
+    negative_branding: brandingFeedback.filter(item => item.sentiment === 'negative').length
+  };
+};
+```
+
+<Aside type="note">
+**Complete experience**: Whitelabeling is most effective when applied consistently across all user touchpoints. Pay attention to details like email notifications, error messages, and support communications.
+</Aside>
+
+Whitelabeling with Agent Connect creates a professional, branded experience that builds trust with your users and reinforces your company's identity throughout the entire integration process.
