@@ -113,7 +113,7 @@ Below is the code sample to implement resource metadata discovery in your MCP Se
 <Tabs syncKey="tech-stack">
 <TabItem value="nodejs" label="Node.js">
 
-```javascript showLineNumbers=false title="ExpressJS" wrap
+```javascript showLineNumbers=false title="ExpressJS"
 // OAuth Protected Resource Metadata endpoint - Required for MCP client discovery
 // This endpoint provides metadata about your OAuth protected resource, including supported scopes and token types.
 // Replace the placeholder URL with the actual authorization server URL from your Scalekit dashboard.
@@ -136,7 +136,7 @@ app.get('/.well-known/oauth-protected-resource', (req, res) => {
 </TabItem>
 <TabItem value="python" label="Python">
 
-```python showLineNumbers=false title="FastAPI" collapse={1-5} wrap
+```python showLineNumbers=false title="FastAPI" collapse={1-5}
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
@@ -182,40 +182,56 @@ You can use Scalekit SDKs (across Node.js, Java, GoLang, Python) to determine wh
 <Tabs syncKey="tech-stack">
 <TabItem value="nodejs" label="Node.js">
 
-```javascript
+```javascript collapse={1-10} showLineNumbers=true ins={39-41}
 import { Scalekit, TokenValidationOptions } from '@scalekit-sdk/node';
 import { NextFunction, Request, Response } from 'express';
 
-const scalekit = new Scalekit('<SCALEKIT_ENVIRONMENT_URL>', '<SCALEKIT_CLIENT_ID>', '<SCALEKIT_CLIENT_SECRET>');
-// Resource identifier configured in your Scalekit dashboard - must match the 'resource' field in metadata
-const RESOURCE_ID = `https://your-mcp-server.com`;
-// Resource metadata endpoint URL for WWW-Authenticate header - copy from your Scalekit dashboard
-const resource_metadata_endpoint = `https://your-mcp-server.com/.well-known/oauth-protected-resource`;
-export const WWWHeader = {HeaderKey: 'WWW-Authenticate',HeaderValue: `Bearer realm="OAuth", resource_metadata="${resource_metadata_endpoint}"`}
+// Initialize Scalekit client with environment credentials
+const scalekit = new Scalekit(
+  '<SCALEKIT_ENVIRONMENT_URL>',
+  '<SCALEKIT_CLIENT_ID>',
+  '<SCALEKIT_CLIENT_SECRET>'
+);
+
+// Resource configuration
+const RESOURCE_ID = 'https://your-mcp-server.com';
+const METADATA_ENDPOINT = 'https://your-mcp-server.com/.well-known/oauth-protected-resource';
+
+// WWW-Authenticate header for unauthorized responses
+export const WWWHeader = {
+  HeaderKey: 'WWW-Authenticate',
+  HeaderValue: `Bearer realm="OAuth", resource_metadata="${METADATA_ENDPOINT}"`
+};
 
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
-    try {
-        // Allow public access to well-known endpoints for metadata discovery
-        // MCP clients need to discover authorization server information without authentication
-        if (req.path.includes('.well-known')) {
-            return next();
-        }
-
-        // Extract Bearer token from Authorization header for all MCP requests
-        // MCP clients send tokens in the format: Authorization: Bearer <token>
-        const authHeader = req.headers['authorization'];
-        const token = authHeader?.startsWith('Bearer ')? authHeader.split('Bearer ')[1]?.trim(): null;
-
-        if (!token) {
-            throw new Error('Missing or invalid Bearer token');
-        }
-
-        // Validate token against configured resource audience to ensure it was issued for this MCP server
-        await scalekit.validateToken(token, { audience: [RESOURCE_ID] });
-        next();
-    } catch (err) {
-        return res.status(401).set(WWWHeader.HeaderKey, WWWHeader.HeaderValue).end();
+  try {
+    // Allow public access to well-known endpoints for metadata discovery
+    if (req.path.includes('.well-known')) {
+      return next();
     }
+
+    // Extract Bearer token from Authorization header
+    const authHeader = req.headers['authorization'];
+    const token = authHeader?.startsWith('Bearer ')
+      ? authHeader.split('Bearer ')[1]?.trim()
+      : null;
+
+    if (!token) {
+      throw new Error('Missing or invalid Bearer token');
+    }
+
+    // Validate token against configured resource audience
+    await scalekit.validateToken(token, {
+      audience: [RESOURCE_ID]
+    });
+
+    next();
+  } catch (err) {
+    return res
+      .status(401)
+      .set(WWWHeader.HeaderKey, WWWHeader.HeaderValue)
+      .end();
+  }
 }
 
 // Apply authentication middleware to all MCP endpoints
@@ -225,7 +241,7 @@ app.use('/', authMiddleware);
 </TabItem>
 <TabItem value="python" label="Python">
 
-```python  showLineNumbers=false
+```python  showLineNumbers=true collapse={1-10} showLineNumbers=true ins={27, 49}
 from scalekit import ScalekitClient
 from scalekit.common.scalekit import TokenValidationOptions
 
@@ -242,8 +258,6 @@ scalekit_client = ScalekitClient(
 def validate_token_with_issuer_audience(token: str) -> bool:
     """
     Validates a token and returns True if valid, False otherwise.
-    This method catches all exceptions and returns False on any validation failure.
-    Use this for simple authorization checks where detailed error information is not needed.
 
     :param token: The token to validate
     :return: True if token is valid, False otherwise
@@ -266,8 +280,6 @@ def validate_token_with_issuer_audience(token: str) -> bool:
 def validate_token_and_get_claims(token: str) -> dict:
     """
     Validates a token with specific audience and raises exception on failure.
-    This method raises exceptions on validation failures, providing detailed error information.
-    Use this when you need to access token claims or implement finer authorization logic.
 
     :param token: The token to validate
     :raises: ScalekitValidateTokenFailureException if validation fails
@@ -278,7 +290,7 @@ def validate_token_and_get_claims(token: str) -> dict:
         required_scopes=["read:users", "write:users"]  # Optional: validate specific scopes for finer access control
     )
 
-        scalekit_client.validate_token(token, options=options)
+    scalekit_client.validate_token(token, options=options)
 ```
 
 </TabItem>
@@ -291,23 +303,28 @@ Implement scope validation at the MCP tool execution level to ensure that the to
 <Tabs syncKey="tech-stack">
 <TabItem value="nodejs" label="Node.js">
 
-```javascript showLineNumbers
-    // Validate token has required scope for this specific tool execution
-    try{
-        await scalekit.validateToken(token, { audience: [RESOURCE_ID], requiredScopes: [scope] });
-    } catch(error){
-        return res.status(403).json({
-            error: 'insufficient_scope',
-            error_description: `Required scope: ${scope}`,
-            scope: scope
-      });
-    }
+```javascript showLineNumbers=true wrap "requiredScopes"
+// Validate token has required scope for this specific tool execution
+try{
+    await scalekit.validateToken(
+      token, {
+        audience: [RESOURCE_ID],
+        requiredScopes: [scope]
+        }
+      );
+} catch(error){
+    return res.status(403).json({
+        error: 'insufficient_scope',
+        error_description: `Required scope: ${scope}`,
+        scope: scope
+  });
+}
 ```
 
 </TabItem>
 <TabItem value="python" label="Python">
 
-```python showLineNumbers
+```python showLineNumbers=true wrap "required_scopes"
 # Validate token has required scope for this specific tool execution
 try:
     scalekit_client.validate_access_token(
