@@ -101,6 +101,11 @@ export const redirects = {
   '/integrations/social-connections/salesforce/':
     '/guides/integrations/social-connections/salesforce/',
 
+  // passwordless
+  '/guides/passwordless/quickstart': '/passwordless/quickstart',
+  '/guides/passwordless/oidc': '/passwordless/oidc',
+  '/guides/passwordless/overview': '/passwordless/overview',
+
   // Other redirects
   '/sdks': '/dev-kit/',
   '/dev-kit/webhooks/event-object/': '/dev-kit',
