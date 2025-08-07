@@ -84,7 +84,7 @@ In the Scalekit dashboard, navigate to **MCP servers** and click **Add MCP serve
 **Basic configuration:**
 
 - **Server name**: A display name that users will see during authorization (e.g., "My AI Assistant")
-- **Resource identifier**: Your MCP server's unique identifier, typically your server's URL (e.g., `https://mcp.mycompany.com`). Access tokens minted by Scalekit will have the resource identifier as `aud` claim.
+- **Resource identifier**: Your MCP server's unique identifier, typically your server's URL (e.g., `https://mcp.yourapp.com`). Access tokens minted by Scalekit will have the resource identifier as `aud` claim.
 
 **Access control settings:**
 
@@ -110,23 +110,58 @@ MCP clients discover your authorization server through the OAuth 2.0 protected r
 
 Below is the code sample to implement resource metadata discovery in your MCP Server:
 
-```javascript
-// Required: OAuth Protected Resource Metadata endpoint
-// Copy the actual well-known endpoint and the corresponding metadata from the Scalekit dashboard. What is shown here is just a sample
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+
+```javascript showLineNumbers=false title="ExpressJS" wrap
+// OAuth Protected Resource Metadata endpoint - Required for MCP client discovery
+// This endpoint provides metadata about your OAuth protected resource, including supported scopes and token types.
+// Replace the placeholder URL with the actual authorization server URL from your Scalekit dashboard.
+// Example: https://yourapp.scalekit.com/.well-known/oauth-protected-resource
 app.get('/.well-known/oauth-protected-resource', (req, res) => {
   res.json({
     "authorization_servers": [
-      "https://your-company.scalekit.com/resources/res_82829009141891595"
+      "https://<SCALEKIT_ENVIRONMENT_URL>/resources/res_82829009141891595"
     ],
     "bearer_methods_supported": [
       "header"
     ],
-    "resource": "https://mcp.mycompany.com",
-    "resource_documentation": "https://mcp.mycompany.com/docs",
+    "resource": "https://mcp.yourapp.com",
+    "resource_documentation": "https://mcp.yourapp.com/docs",
     "scopes_supported": ["weather:read", "weather:write"]
   });
 });
 ```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python showLineNumbers=false title="FastAPI" collapse={1-5} wrap
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+
+app = FastAPI()
+
+# OAuth Protected Resource Metadata endpoint - Required for MCP client discovery
+# Copy the actual authorization server URL and metadata from your Scalekit dashboard.
+# The values shown here are examples - replace with your actual configuration.
+@app.get("/.well-known/oauth-protected-resource")
+async def get_oauth_protected_resource():
+    return JSONResponse({
+        "authorization_servers": [
+            "https://<SCALEKIT_ENVIRONMENT_URL>/resources/res_82829009141891595"
+        ],
+        "bearer_methods_supported": [
+            "header"
+        ],
+        "resource": "https://mcp.yourapp.com",
+        "resource_documentation": "https://mcp.yourapp.com/docs",
+        "scopes_supported": ["weather:read", "weather:write"]
+    })
+```
+
+</TabItem>
+</Tabs>
 
 Description of the OAuth Protected Resource Metadata:
 
@@ -152,20 +187,22 @@ import { Scalekit, TokenValidationOptions } from '@scalekit-sdk/node';
 import { NextFunction, Request, Response } from 'express';
 
 const scalekit = new Scalekit('<SCALEKIT_ENVIRONMENT_URL>', '<SCALEKIT_CLIENT_ID>', '<SCALEKIT_CLIENT_SECRET>');
-// your resource id that you configure in the scalekit dashboard
+// Resource identifier configured in your Scalekit dashboard - must match the 'resource' field in metadata
 const RESOURCE_ID = `https://your-mcp-server.com`;
-// your resource metadata endpoint that you can copy from the scalekit dashboard
+// Resource metadata endpoint URL for WWW-Authenticate header - copy from your Scalekit dashboard
 const resource_metadata_endpoint = `https://your-mcp-server.com/.well-known/oauth-protected-resource`;
 export const WWWHeader = {HeaderKey: 'WWW-Authenticate',HeaderValue: `Bearer realm="OAuth", resource_metadata="${resource_metadata_endpoint}"`}
 
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
-        // Allow public access to well-known endpoints
+        // Allow public access to well-known endpoints for metadata discovery
+        // MCP clients need to discover authorization server information without authentication
         if (req.path.includes('.well-known')) {
             return next();
         }
 
-        // Apply authentication to all MCP requests
+        // Extract Bearer token from Authorization header for all MCP requests
+        // MCP clients send tokens in the format: Authorization: Bearer <token>
         const authHeader = req.headers['authorization'];
         const token = authHeader?.startsWith('Bearer ')? authHeader.split('Bearer ')[1]?.trim(): null;
 
@@ -173,6 +210,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
             throw new Error('Missing or invalid Bearer token');
         }
 
+        // Validate token against configured resource audience to ensure it was issued for this MCP server
         await scalekit.validateToken(token, { audience: [RESOURCE_ID] });
         next();
     } catch (err) {
@@ -180,18 +218,18 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
     }
 }
 
-// Apply to all MCP endpoints
+// Apply authentication middleware to all MCP endpoints
 app.use('/', authMiddleware);
 ```
 
 </TabItem>
 <TabItem value="python" label="Python">
 
-```python showLineNumbers
+```python  showLineNumbers=false
 from scalekit import ScalekitClient
 from scalekit.common.scalekit import TokenValidationOptions
 
-# Initialize the Scalekit client
+# Initialize Scalekit client with your environment credentials
 scalekit_client = ScalekitClient(
   '<SCALEKIT_ENVIRONMENT_URL>',
   '<SCALEKIT_CLIENT_ID>',
@@ -199,17 +237,19 @@ scalekit_client = ScalekitClient(
 )
 
 # Method 1: validate_access_token - Returns boolean (True/False)
-# Use this when you only need to know if the token is valid or not
+# Use this method when you only need to verify token validity without detailed error information.
+# This approach is suitable for simple authorization checks where you don't need token claims.
 def validate_token_with_issuer_audience(token: str) -> bool:
     """
     Validates a token and returns True if valid, False otherwise.
     This method catches all exceptions and returns False on any validation failure.
+    Use this for simple authorization checks where detailed error information is not needed.
 
     :param token: The token to validate
     :return: True if token is valid, False otherwise
     """
     options = TokenValidationOptions(
-        issuer="https://your-domain.scalekit.com",
+        issuer="<SCALEKIT_ENVIRONMENT_URL>",
         audience=["your-api-audience"]
     )
 
@@ -221,19 +261,21 @@ def validate_token_with_issuer_audience(token: str) -> bool:
         return False
 
 # Method 2: validate_token - Returns token claims/payload
-# Use this when you need the actual token claims or detailed error information
+# Use this method when you need access to token claims (user info, scopes, etc.) or detailed error information.
+# This approach is suitable for authorization that requires specific user context or scope validation.
 def validate_token_and_get_claims(token: str) -> dict:
     """
     Validates a token with specific audience and raises exception on failure.
     This method raises exceptions on validation failures, providing detailed error information.
+    Use this when you need to access token claims or implement finer authorization logic.
 
     :param token: The token to validate
     :raises: ScalekitValidateTokenFailureException if validation fails
     """
     options = TokenValidationOptions(
-        issuer="https://your-domain.scalekit.com",
+        issuer="<SCALEKIT_ENVIRONMENT_URL>",
         audience=["your-api-audience"],
-        required_scopes=["read:users", "write:users"]  # Optional: validate specific scopes
+        required_scopes=["read:users", "write:users"]  # Optional: validate specific scopes for finer access control
     )
 
         scalekit_client.validate_token(token, options=options)
@@ -250,6 +292,7 @@ Implement scope validation at the MCP tool execution level to ensure that the to
 <TabItem value="nodejs" label="Node.js">
 
 ```javascript showLineNumbers
+    // Validate token has required scope for this specific tool execution
     try{
         await scalekit.validateToken(token, { audience: [RESOURCE_ID], requiredScopes: [scope] });
     } catch(error){
@@ -265,6 +308,7 @@ Implement scope validation at the MCP tool execution level to ensure that the to
 <TabItem value="python" label="Python">
 
 ```python showLineNumbers
+# Validate token has required scope for this specific tool execution
 try:
     scalekit_client.validate_access_token(
         token,
