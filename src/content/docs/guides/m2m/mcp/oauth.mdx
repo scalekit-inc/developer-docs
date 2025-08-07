@@ -58,19 +58,22 @@ Before you begin, ensure you have:
 1. Access to your Scalekit account and the API credentials. If you don't have a Scalekit account yet, you can <a href="https://app.scalekit.com/ws/signup" target="_blank" rel="noopener">signup here</a>.
 2. Installed Scalekit SDK into your project
 
-    ```sh showLineNumbers=false
-    npm install @scalekit/sdk
-    ```
-
-    ```js showLineNumbers=false
-    import { Scalekit } from '@scalekit-sdk/node';
-
-    const scalekit = new Scalekit(
-      '<SCALEKIT_ENVIRONMENT_URL>',
-      '<SCALEKIT_CLIENT_ID>',
-      '<SCALEKIT_CLIENT_SECRET>',
-    );
-    ```
+<Tabs syncKey="tech-stack">
+  <TabItem value="nodejs" label="Node.js">
+    <p>
+      ```bash showLineNumbers=false frame="none"
+      npm install @scalekit-sdk/node
+      ```
+    </p>
+  </TabItem>
+   <TabItem value="python" label="Python">
+    <p>
+      ```sh showLineNumbers=false frame="none"
+      pip install scalekit-sdk-python
+      ```
+    </p>
+  </TabItem>
+</Tabs>
 
 ### Step 1: Register your MCP server
 
@@ -86,7 +89,7 @@ In the Scalekit dashboard, navigate to **MCP servers** and click **Add MCP serve
 **Access control settings:**
 
 - **Allow dynamic client registration** — Enables MCP clients to register automatically without manual approval. For security reasons, Scalekit ensures that any client that registers via DCR has to implement PKCE-based OAuth 2.1 flow to prevent authorization code interception attacks.
-  
+
 **Token configuration:**
 
 - **Access token lifetime**: Recommended 300-3600 seconds (5 minutes to 1 hour)
@@ -201,7 +204,7 @@ def validate_token_with_issuer_audience(token: str) -> bool:
     """
     Validates a token and returns True if valid, False otherwise.
     This method catches all exceptions and returns False on any validation failure.
-    
+
     :param token: The token to validate
     :return: True if token is valid, False otherwise
     """
@@ -223,7 +226,7 @@ def validate_token_and_get_claims(token: str) -> dict:
     """
     Validates a token with specific audience and raises exception on failure.
     This method raises exceptions on validation failures, providing detailed error information.
-    
+
     :param token: The token to validate
     :raises: ScalekitValidateTokenFailureException if validation fails
     """
@@ -264,7 +267,7 @@ Implement scope validation at the MCP tool execution level to ensure that the to
 ```python showLineNumbers
 try:
     scalekit_client.validate_access_token(
-        token, 
+        token,
         options=TokenValidationOptions(
             audience=[RESOURCE_ID],
             required_scopes=[scope]
