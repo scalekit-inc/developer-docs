@@ -195,8 +195,12 @@ scalekit_client = ScalekitClient(
   '<SCALEKIT_CLIENT_SECRET>'
 )
 
+# Method 1: validate_access_token - Returns boolean (True/False)
+# Use this when you only need to know if the token is valid or not
 def validate_token_with_issuer_audience(token: str) -> bool:
     """
+    Validates a token and returns True if valid, False otherwise.
+    This method catches all exceptions and returns False on any validation failure.
     
     :param token: The token to validate
     :return: True if token is valid, False otherwise
@@ -205,13 +209,31 @@ def validate_token_with_issuer_audience(token: str) -> bool:
         issuer="https://your-domain.scalekit.com",
         audience=["your-api-audience"]
     )
-    
+
     try:
         is_valid = scalekit_client.validate_access_token(token, options=options)
         return is_valid
     except Exception as ex:
         print(f"Token validation failed: {ex}")
         return False
+
+# Method 2: validate_token - Returns token claims/payload
+# Use this when you need the actual token claims or detailed error information
+def validate_token_and_get_claims(token: str) -> dict:
+    """
+    Validates a token with specific audience and raises exception on failure.
+    This method raises exceptions on validation failures, providing detailed error information.
+    
+    :param token: The token to validate
+    :raises: ScalekitValidateTokenFailureException if validation fails
+    """
+    options = TokenValidationOptions(
+        issuer="https://your-domain.scalekit.com",
+        audience=["your-api-audience"],
+        required_scopes=["read:users", "write:users"]  # Optional: validate specific scopes
+    )
+
+        scalekit_client.validate_token(token, options=options)
 ```
 
 </TabItem>
