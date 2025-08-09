@@ -25,7 +25,7 @@ export const sidebar = [
           },
           'fsa/guides/manage-session',
           'fsa/guides/logout',
-          'fsa/guides/auth-logs',
+          'guides/dashboard/auth-logs',
         ],
       },
       {
@@ -39,7 +39,7 @@ export const sidebar = [
           'fsa/guides/merge-identities',
           'fsa/reference/user-profile',
           'fsa/guides/app-roles',
-          'fsa/reference/redirects',
+          'guides/dashboard/redirects',
           'fsa/guides/just-in-time-provisioning',
           'fsa/guides/automated-user-provisioning',
           'fsa/guides/migration-guide',
@@ -89,8 +89,8 @@ export const sidebar = [
           'sso/guides/okta-sso-test',
           'sso/guides/sso-user-attributes',
           'sso/reference/sso-integration-errors',
-          'sso/reference/redirects',
-          'sso/guides/auth-logs',
+          'guides/dashboard/redirects',
+          'guides/dashboard/auth-logs',
           {
             label: 'Coexist with',
             autogenerate: { directory: 'guides/integrations/auth-systems' },
@@ -207,38 +207,7 @@ export const sidebar = [
     items: [
       {
         label: 'SDKs',
-        items: [
-          {
-            label: 'Node.js SDK',
-            link: 'https://github.com/scalekit-inc/scalekit-sdk-node',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Python SDK',
-            link: 'https://github.com/scalekit-inc/scalekit-sdk-python',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Go SDK',
-            link: 'https://github.com/scalekit-inc/scalekit-sdk-go',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Java SDK',
-            link: 'https://github.com/scalekit-inc/scalekit-sdk-java',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Community',
-            items: [
-              {
-                label: 'PHP SDK',
-                link: 'https://github.com/pawan1793/scalekit-php-sdk',
-                attrs: { target: '_blank', rel: 'noopener' },
-              },
-            ],
-          },
-        ],
+        items: ['dev-kit/sdks/overview'],
       },
       {
         label: 'Webhooks',
