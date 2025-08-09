@@ -289,15 +289,9 @@ export const topics = {
   exclude: [
     '/', // Exclude root path
     '/index', // Exclude index by name
-    '/guides/redirects',
-    '/guides/integrations',
-    '/guides/integrations/index', // Exclude the integrations overview page from sidebar
-    '/home/guides/**/*',
-    '/home/guides/admin-portal',
+    '/guides/**/*',
+    '/reference/**/*',
     '/home/**/*',
-    '/guides/setup-scalekit',
-    '/guides/external-ids-and-metadata',
-    '/guides/mcp/additional-reading',
   ],
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
   integrations: ['/guides/integrations/**/*'], // Associate all integration pages with the integrations topic
