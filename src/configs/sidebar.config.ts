@@ -245,22 +245,29 @@ export const sidebar = [
         autogenerate: { directory: 'reference/webhooks' },
       },
       {
+        label: 'Guides',
+        items: [
+          'guides/setup-scalekit',
+          'dev-kit/resources/ai-assisted-setup',
+          'guides/dashboard/auth-logs',
+          'guides/external-ids-and-metadata',
+        ],
+      },
+      {
         label: 'Reference',
         items: [
           {
-            label: 'REST API reference',
+            label: 'REST API',
             link: '/apis',
             attrs: { target: '_blank', rel: 'noopener' },
           },
           'reference/admin-portal/ui-events',
-          'reference/glossary',
         ],
       },
       {
         label: 'Development Tools',
         items: [
           'dev-kit/mcp',
-          'dev-kit/resources/ai-assisted-setup',
           {
             label: 'Postman collections',
             link: 'https://github.com/scalekit-developers/api-collections',
@@ -286,6 +293,7 @@ export const sidebar = [
             link: 'https://scalekit.statuspage.io/',
             attrs: { target: '_blank', rel: 'noopener' },
           },
+          'reference/glossary',
         ],
       },
     ],
