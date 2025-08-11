@@ -109,9 +109,7 @@ onUnmounted(() => {
 
 .api-reference-container {
   position: fixed;
-  top: calc(
-    var(--sl-nav-height) + 2.5rem
-  ); /* Adjust based on the height of the header and secondary nav */
+  top: var(--sl-nav-height);
   left: 0;
   right: 0;
   bottom: 0;
