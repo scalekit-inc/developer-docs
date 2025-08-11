@@ -233,7 +233,66 @@ Scalekit's directory API allows you to fetch information about users, groups, an
     </TabItem>
     </Tabs>
 
-5. ### Listing groups
+
+5. ### Listing users in a directory
+
+    Fetch users within a specific directory:
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="nodejs" label="Node.js">
+
+    ```javascript
+    const { users } = await scalekit.directory.listDirectoryUsers('<organization_id>', '<directory_id>');
+    //  users[0].email has the email of the first user in the directory
+    ```
+
+    </TabItem>
+
+    <TabItem value="python" label="Python">
+
+    ```python
+    directory_users = scalekit_client.directory.list_directory_users(
+      organization_id='<organization_id>', directory_id='<directory_id>'
+    )
+    ```
+
+    </TabItem>
+
+    <TabItem value="go" label="Go">
+
+    ```go
+    options := &ListDirectoryUsersOptions{
+        PageSize: 10,
+        PageToken: "",
+    }
+
+    directoryUsers,err := sc.Directory().ListDirectoryUsers(ctx, organizationId, directoryId, options)
+    ```
+
+    </TabItem>
+
+    <TabItem value="java" label="Java">
+
+    ```java
+    var options = ListDirectoryResourceOptions.builder()
+      .pageSize(10)
+      .pageToken("")
+      .includeDetail(true)
+      .build();
+
+    ListDirectoryUsersResponse usersResponse = scalekitClient
+      .directories()
+      .listDirectoryUsers(directory.getId(), organizationId, options);
+    ```
+
+    </TabItem>
+    </Tabs>
+
+    **Example Use Case**: When setting up a new customer account, you can use this function to
+    automatically connect to their directory and start syncing user data.
+
+
+6. ### Listing groups
 
     Retrieve groups within a directory:
 
