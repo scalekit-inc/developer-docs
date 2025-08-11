@@ -27,7 +27,6 @@
   --sl-text-h3: var(--sl-text-xl) !important;
   --sl-text-h4: var(--sl-text-lg) !important;
   --sl-text-h5: var(--sl-text-base) !important;
-  --sl-rapide-ui-header-bg-color: var(--sl-color-bg-nav);
   --sl-line-height: 1.75;
   --sl-line-height-headings: 1.2;
 
@@ -42,16 +41,6 @@
   --__sl-font: var(--sl-font, var(--sl-font-system)), var(--sl-font-system);
   --__sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
 
-  /** Key layout values */
-  --sl-nav-height: 3.5rem;
-  --sl-nav-pad-x: 1rem;
-  --sl-nav-pad-y: 0.75rem;
-  --sl-mobile-toc-height: 3rem;
-  --sl-sidebar-width: 15.75rem;
-  --sl-sidebar-pad-x: 1rem;
-  --sl-content-width: 70%;
-  --sl-content-pad-x: 1rem;
-  --sl-nav-gap: var(--sl-content-pad-x);
   /* Offset required to show outline inside an element instead of round the outside */
   --sl-outline-offset-inside: -0.1875rem;
 
@@ -62,21 +51,19 @@
   --sl-z-index-skiplink: 20;
 }
 
-@media (min-width: 50em) {
-  :root {
-    --sl-nav-height: 4rem;
-    --sl-nav-pad-x: 1.5rem;
-    --sl-text-h1: var(--sl-text-5xl);
-    --sl-text-h2: var(--sl-text-4xl);
-    --sl-text-h3: var(--sl-text-3xl);
-    --sl-text-h4: var(--sl-text-2xl);
-  }
+/* Reintroduce only header height composition so content sits below header + secondary nav */
+:root {
+  /* Defaults for small screens: no secondary nav */
+  --sl-header-height-base: 3.5rem;
+  --secondary-nav-height: 0rem;
+  --sl-nav-height: var(--sl-header-height-base);
 }
 
-@media (min-width: 72rem) {
+@media (min-width: 50em) {
   :root {
-    --sl-content-pad-x: 1.5rem;
-    --sl-mobile-toc-height: 0rem;
+    --sl-header-height-base: 4rem; /* Nova desktop header height */
+    --secondary-nav-height: 2.75rem; /* height of secondary nav */
+    --sl-nav-height: calc(var(--sl-header-height-base) + var(--secondary-nav-height));
   }
 }
 
@@ -102,12 +89,14 @@ header.header {
   width: inherit;
   margin: inherit;
 }
-.sl-container {
+
+/*Remove these in future after  review*/
+/* .sl-container {
   max-width: 100%;
-}
-.content-panel {
+} */
+/* .content-panel {
   padding-bottom: 0rem !important;
-}
+} */
 
 .footnotes {
   font-size: 0.875rem;
@@ -134,11 +123,11 @@ header.header {
   display: none;
 }
 
-.sidebar-content,
+/* .sidebar-content,
 .main-pane,
 .right-sidebar-panel {
   margin-top: 2rem !important;
-}
+} */
 
 /* Image styling - add border to all images */
 starlight-image-zoom-zoomable img {
@@ -151,3 +140,9 @@ starlight-image-zoom-zoomable img {
 .site-title img {
   height: 32px;
 }
+
+.nova-page-frame-header {
+  padding: 0.4rem;
+}
+
+/* (Use Nova defaults for content margins/centering.) */

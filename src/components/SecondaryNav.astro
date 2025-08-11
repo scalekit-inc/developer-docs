@@ -1,4 +1,6 @@
 ---
+import { Icon } from '@astrojs/starlight/components'
+
 function startsWithAny(mainString: string, patterns: string[]) {
   if (!mainString || !patterns) {
     return false
@@ -20,7 +22,8 @@ function startsWithAny(mainString: string, patterns: string[]) {
       aria-current="page"
     >
       <div class="nav-item-content">
-        <span class="nav-label">🏠</span>
+        <Icon name="star" />
+        <!-- <span class="nav-label">Home</span> -->
       </div>
     </a>
     <a
@@ -122,22 +125,13 @@ function startsWithAny(mainString: string, patterns: string[]) {
     }
   }
 
-  /* Add proper spacing to account for secondary nav */
-  :global(.main-frame) {
-    padding-top: 3.5rem;
-  }
-
   .secondary-nav {
-    position: fixed;
+    position: sticky;
     display: flex;
     justify-content: space-between;
-    top: var(--sl-nav-height);
-    left: 0;
-    right: 0;
-    z-index: 10;
+    top: var(--sl-header-height-base);
+    z-index: var(--sl-z-index-navbar);
     width: 100%;
-    border-bottom: 1px solid var(--sl-color-gray-5);
-    background: var(--sl-rapide-ui-header-bg-color);
     padding: 0 var(--sl-nav-pad-x);
   }
 
@@ -204,11 +198,6 @@ function startsWithAny(mainString: string, patterns: string[]) {
   @media (max-width: 50rem) {
     .secondary-nav {
       display: none !important;
-    }
-
-    /* Remove the padding on mobile since nav is hidden */
-    :global(.main-frame) {
-      margin-top: 0.5rem;
     }
   }
 

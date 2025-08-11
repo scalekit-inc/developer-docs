@@ -1,9 +1,11 @@
 /*
  * This file ensures StarlightThemeRapide styles take precedence
- * Import Tailwind and custom.css with lower specificity
+ * and centralizes Tailwind/Starlight base imports to avoid duplication.
  */
 
-/* First import Tailwind utilities */
+/* Use Nova's defaults; ensure Tailwind utilities are available but don't override Nova layout */
+@layer base, starlight, theme, components, utilities;
+@import '@astrojs/starlight-tailwind';
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities);
 
@@ -19,10 +21,34 @@
  * that might be overriding StarlightThemeRapide styles
  */
 
-/* Make sure root styles don't override StarlightThemeRapide's theme variables */
-:root:not([data-theme]) {
-  /* Don't add any variables here, let StarlightThemeRapide control them */
+/* Optional brand tokens; avoid layout-affecting variables */
+:root[data-theme='light'] {
+  /* Accent palette (example: keeps your existing values) */
+  --color-accent-50: #f5f7ff;
+  --color-accent-100: #edf0ff;
+  --color-accent-200: #dce3ff;
+  --color-accent-300: #c2cdff;
+  --color-accent-400: #a3b2ff;
+  --color-accent-500: #8096ff;
+  --color-accent-600: #5a73f9;
+  --color-accent-700: #3f54dd;
+  --color-accent-800: #2e3db2;
+  --color-accent-900: #1f2b88;
+  --color-accent-950: #141c5e;
+
+  /* Gray scale (aligned with your current tokens) */
+  --color-gray-50: #f6f6f6;
+  --color-gray-100: #f6f6f6;
+  --color-gray-200: #edeeee;
+  --color-gray-300: #c1c2c2;
+  --color-gray-400: #8b8c8c;
+  --color-gray-500: #575858;
+  --color-gray-600: #474848;
+  --color-gray-700: #383838;
+  --color-gray-800: #262727;
+  --color-gray-900: #181818;
+  --color-gray-950: #0e0e0e;
 }
 
-/* If there are specific styles that absolutely need to be kept from custom.css,
-   they can be added here with high specificity but should be minimized */
+:root[data-theme='dark'] {
+}

@@ -103,18 +103,16 @@ onUnmounted(() => {
 <style>
 .api-reference-wrapper {
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: calc(100vh - var(--sl-header-height-base) - var(--secondary-nav-height));
 }
 
 .api-reference-container {
-  position: fixed;
-  top: calc(
-    var(--sl-nav-height) + 2.5rem
-  ); /* Adjust based on the height of the header and secondary nav */
+  position: sticky;
+  top: calc(var(--sl-header-height-base) + var(--secondary-nav-height));
   left: 0;
   right: 0;
-  bottom: 0;
-  overflow-y: auto;
+  max-height: calc(100vh - var(--sl-nav-height));
+  overflow: auto;
 }
 </style>
