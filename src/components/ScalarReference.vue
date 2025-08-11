@@ -103,8 +103,8 @@ onUnmounted(() => {
 <style>
 .api-reference-wrapper {
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: calc(100vh - var(--sl-header-height-base) - var(--secondary-nav-height));
 }
 
 .api-reference-container {
