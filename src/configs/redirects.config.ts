@@ -14,8 +14,8 @@ export const redirects = {
   '/sso/guides/setup-sso/handle-user-profile': '/sso/guides/sso-user-attributes/',
   '/sso/guides/setup-sso/build-login-page': '/sso/quickstart/',
   '/sso/guides/key-concepts/authorization-url': '/sso/guides/authorization-url/',
-  '/sso/guides/key-concepts/redirect-uri': '/sso/reference/redirects/',
-  '/best-practices/redirect-uri': '/sso/reference/redirects/',
+  '/sso/guides/key-concepts/redirect-uri': '/guides/dashboard/redirects/',
+  '/best-practices/redirect-uri': '/guides/dashboard/redirects/',
   '/sso/guides/key-concepts/idtoken-claims': '/guides/idtoken-claims/',
   '/sso/guides/key-concepts/manage-client-secrets': '/guides/client-credentials-practices/',
   '/best-practices/manage-client-secrets': '/guides/client-credentials-practices/',
@@ -23,6 +23,11 @@ export const redirects = {
   '/sso/guides/test-your-integration/using-okta': '/sso/guides/okta-sso-test/',
   '/sso/overview': '/guides/sso/sso-basics/',
   '/sso/guides/setup-sso/customize-user-attributes': '/sso/guides/sso-user-attributes/',
+  '/sso/guides/auth-logs': '/guides/dashboard/auth-logs/',
+  '/sso/reference/redirects': '/guides/dashboard/redirects/',
+
+  // FSA
+  '/fsa/guides/auth-logs': '/guides/dashboard/auth-logs/',
 
   // Legacy paths for SSO docs moved from /guides to /sso
   '/guides/sso/add-login-ux-sso/': '/sso/guides/add-login-ux-sso/',
@@ -33,7 +38,7 @@ export const redirects = {
   '/guides/sso/user-profile-details/': '/sso/guides/user-profile-details/',
   // Legacy reference docs moved from /reference to /sso/reference
   '/reference/sso/sso-integration-errors/': '/sso/reference/sso-integration-errors/',
-  '/reference/redirects/': '/sso/reference/redirects/',
+  '/reference/redirects/': '/guides/dashboard/redirects/',
 
   // SCIM
   '/scim/checklist': '/guides/directory/admin-portal/',
@@ -100,6 +105,11 @@ export const redirects = {
   '/integrations/social-connections/linkedin/': '/guides/integrations/social-connections/linkedin/',
   '/integrations/social-connections/salesforce/':
     '/guides/integrations/social-connections/salesforce/',
+
+  // passwordless
+  '/guides/passwordless/quickstart': '/passwordless/quickstart',
+  '/guides/passwordless/oidc': '/passwordless/oidc',
+  '/guides/passwordless/overview': '/passwordless/overview',
 
   // Other redirects
   '/sdks': '/dev-kit/',
