@@ -49,7 +49,7 @@
   --sl-mobile-toc-height: 3rem;
   --sl-sidebar-width: 15.75rem;
   --sl-sidebar-pad-x: 1rem;
-  --sl-content-width: 70%;
+  --sl-content-width: 55rem;
   --sl-content-pad-x: 1rem;
   --sl-nav-gap: var(--sl-content-pad-x);
   /* Offset required to show outline inside an element instead of round the outside */
@@ -64,7 +64,10 @@
 
 @media (min-width: 50em) {
   :root {
-    --sl-nav-height: 4rem;
+    /* Base header height (Starlight default desktop header). Secondary nav height will be added on top. */
+    --sl-header-height-base: 4.25rem;
+    --secondary-nav-height: 2.75rem;
+    --sl-nav-height: calc(var(--sl-header-height-base) + var(--secondary-nav-height));
     --sl-nav-pad-x: 1.5rem;
     --sl-text-h1: var(--sl-text-5xl);
     --sl-text-h2: var(--sl-text-4xl);
@@ -77,6 +80,16 @@
   :root {
     --sl-content-pad-x: 1.5rem;
     --sl-mobile-toc-height: 0rem;
+  }
+}
+
+/* On small screens, secondary nav is hidden; ensure header height reverts to base */
+@media (max-width: 50em) {
+  :root {
+    --secondary-nav-height: 0rem;
+    /* Starlight’s mobile header is 3.5rem by default */
+    --sl-header-height-base: 3.5rem;
+    --sl-nav-height: var(--sl-header-height-base);
   }
 }
 
@@ -102,12 +115,14 @@ header.header {
   width: inherit;
   margin: inherit;
 }
-.sl-container {
+
+/*Remove these in future after  review*/
+/* .sl-container {
   max-width: 100%;
-}
-.content-panel {
+} */
+/* .content-panel {
   padding-bottom: 0rem !important;
-}
+} */
 
 .footnotes {
   font-size: 0.875rem;
@@ -134,11 +149,11 @@ header.header {
   display: none;
 }
 
-.sidebar-content,
+/* .sidebar-content,
 .main-pane,
 .right-sidebar-panel {
   margin-top: 2rem !important;
-}
+} */
 
 /* Image styling - add border to all images */
 starlight-image-zoom-zoomable img {
@@ -150,4 +165,11 @@ starlight-image-zoom-zoomable img {
 /* Logo height in header */
 .site-title img {
   height: 32px;
+}
+
+/* Ensure content stays centered on wide screens when both sidebar and TOC are present */
+@media (min-width: 72rem) {
+  html[data-has-sidebar][data-has-toc] {
+    --sl-content-margin-inline: 0 auto;
+  }
 }
