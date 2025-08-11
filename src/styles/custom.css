@@ -41,16 +41,6 @@
   --__sl-font: var(--sl-font, var(--sl-font-system)), var(--sl-font-system);
   --__sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
 
-  /** Key layout values */
-  --sl-nav-height: 3.5rem;
-  --sl-nav-pad-x: 1rem;
-  --sl-nav-pad-y: 0.75rem;
-  --sl-mobile-toc-height: 3rem;
-  --sl-sidebar-width: 15.75rem;
-  --sl-sidebar-pad-x: 1rem;
-  /* --sl-content-width: 55rem; */
-  --sl-content-pad-x: 1rem;
-  --sl-nav-gap: var(--sl-content-pad-x);
   /* Offset required to show outline inside an element instead of round the outside */
   --sl-outline-offset-inside: -0.1875rem;
 
@@ -61,34 +51,19 @@
   --sl-z-index-skiplink: 20;
 }
 
+/* Reintroduce only header height composition so content sits below header + secondary nav */
+:root {
+  /* Defaults for small screens: no secondary nav */
+  --sl-header-height-base: 3.5rem;
+  --secondary-nav-height: 0rem;
+  --sl-nav-height: var(--sl-header-height-base);
+}
+
 @media (min-width: 50em) {
   :root {
-    /* Base header height (Starlight default desktop header). Secondary nav height will be added on top. */
-    --sl-header-height-base: 4.25rem;
-    --secondary-nav-height: 2.75rem;
+    --sl-header-height-base: 4rem; /* Nova desktop header height */
+    --secondary-nav-height: 2.75rem; /* height of secondary nav */
     --sl-nav-height: calc(var(--sl-header-height-base) + var(--secondary-nav-height));
-    --sl-nav-pad-x: 1.5rem;
-    --sl-text-h1: var(--sl-text-5xl);
-    --sl-text-h2: var(--sl-text-4xl);
-    --sl-text-h3: var(--sl-text-3xl);
-    --sl-text-h4: var(--sl-text-2xl);
-  }
-}
-
-@media (min-width: 72rem) {
-  :root {
-    --sl-content-pad-x: 1.5rem;
-    --sl-mobile-toc-height: 0rem;
-  }
-}
-
-/* On small screens, secondary nav is hidden; ensure header height reverts to base */
-@media (max-width: 50em) {
-  :root {
-    --secondary-nav-height: 0rem;
-    /* Starlight’s mobile header is 3.5rem by default */
-    --sl-header-height-base: 3.5rem;
-    --sl-nav-height: var(--sl-header-height-base);
   }
 }
 
@@ -170,9 +145,4 @@ starlight-image-zoom-zoomable img {
   padding: 0.4rem;
 }
 
-/* Ensure content stays centered on wide screens when both sidebar and TOC are present */
-@media (min-width: 72rem) {
-  html[data-has-sidebar][data-has-toc] {
-    --sl-content-margin-inline: 0 auto;
-  }
-}
+/* (Use Nova defaults for content margins/centering.) */
