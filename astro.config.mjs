@@ -9,7 +9,6 @@ import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import starlightTocOverviewCustomizer from 'starlight-toc-overview-customizer'
-import starlightThemeRapide from 'starlight-theme-rapide'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
 import { viewTransitions } from 'astro-vtbot/starlight-view-transitions'
@@ -36,7 +35,6 @@ export default defineConfig({
         // Sidebar: './src/components/overrides/Sidebar.astro',
         Head: './src/components/overrides/Head.astro',
         Header: './src/components/overrides/Header.astro',
-        Pagination: './src/components/overrides/Pagination.astro',
         PageSidebar: './src/components/overrides/PageSidebar.astro',
       },
       logo: {
@@ -61,7 +59,8 @@ export default defineConfig({
       },
       expressiveCode: {
         useStarlightDarkModeSwitch: true,
-        themes: ['vitesse-dark', 'vitesse-light'],
+        // themes: ['vitesse-dark', 'vitesse-light'],
+        themes: ['tokyo-night', 'light-plus'],
       },
       customCss: ['@fontsource-variable/inter', './src/styles/theme-priority.css'],
       plugins: [
