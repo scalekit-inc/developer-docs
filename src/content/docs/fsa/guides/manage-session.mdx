@@ -50,7 +50,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
-     ```javascript title="Express.js"
+     ```javascript title="Express.js" showLineNumbers=false
      const authResult = await scalekit.authenticateWithCode(
        code, redirectUri
      );
@@ -59,7 +59,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
      ```
      </TabItem>
      <TabItem value="py" label="Python">
-     ```python title="Flask"
+     ```python title="Flask" showLineNumbers=false
      auth_result = scalekit_client.authenticate_with_code(
        code=code,
        redirect_uri=redirect_uri
@@ -72,7 +72,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
      ```
      </TabItem>
      <TabItem value="go" label="Go">
-     ```go title="Gin"
+     ```go title="Gin" showLineNumbers=false
      authResult, err := scalekitClient.AuthenticateWithCode(
        code,
        redirectUri,
@@ -88,7 +88,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
      ```
      </TabItem>
      <TabItem value="java" label="Java">
-     ```java title="Spring"
+     ```java title="Spring" showLineNumbers=false
      AuthResult authResult = scalekitClient.authentication().authenticateWithCode(
        code,
        redirectUri
@@ -132,7 +132,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
-     ```javascript title="Express.js" wrap ins={12-17}
+     ```javascript title="Express.js" wrap showLineNumbers=true {6-13}
      import cookieParser from 'cookie-parser';
      // Configure cookie parser middleware
      app.use(cookieParser());
@@ -150,7 +150,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
      ```
      </TabItem>
      <TabItem value="py" label="Python">
-     ```python title="Flask" wrap ins={16-24}
+     ```python title="Flask" wrap showLineNumbers=true {9-20}
      from flask import Flask, make_response
      import os
      app = Flask(__name__)
@@ -174,7 +174,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
      ```
      </TabItem>
      <TabItem value="go" label="Go">
-     ```go title="Gin" wrap ins={18-25}
+     ```go title="Gin" wrap showLineNumbers=true {12-24}
      import (
        "net/http"
        "os"
@@ -202,7 +202,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
      ```
      </TabItem>
      <TabItem value="java" label="Java">
-     ```java title="Spring" wrap ins={18-24}
+     ```java title="Spring" wrap showLineNumbers=true {11-19}
      import javax.servlet.http.Cookie;
      import javax.servlet.http.HttpServletResponse;
      import org.springframework.core.env.Environment;
@@ -234,7 +234,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
-     ```javascript title="middleware/auth.js" wrap showLineNumbers=true
+     ```javascript title="middleware/auth.js" wrap showLineNumbers=true {2-4,8-12,15-16}
      async function verifyToken(req, res, next) {
        const { accessToken } = req.cookies;
        if (!accessToken) {
@@ -256,7 +256,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
      ```
      </TabItem>
      <TabItem value="py" label="Python">
-     ```python title="middleware/auth.py" wrap showLineNumbers=true
+     ```python title="middleware/auth.py" wrap showLineNumbers=true {6-8,11-16,18-19}
      from flask import request, jsonify
      from functools import wraps
      def verify_token(f):
@@ -266,21 +266,21 @@ Scalekit provides session management capabilities out of the box. Your applicati
              if not access_token:
                  return jsonify({'error': 'Authentication required'}), 401
              try:
-                 // Validate the token using Scalekit SDK (returns boolean)
+                  # Validate the token using Scalekit SDK (returns boolean)
                  is_valid = scalekit.validate_access_token(access_token)
                  if not is_valid:
-                     // Token is expired or invalid - attempt to refresh
+                      # Token is expired or invalid - attempt to refresh
                      return handle_token_refresh(f, *args, **kwargs)
-                 // Token valid – proceed to view
+                  # Token valid – proceed to view
                  return f(*args, **kwargs)
              except Exception:
-                 // Validation threw error – attempt to refresh
+                  # Validation threw error – attempt to refresh
                  return handle_token_refresh(f, *args, **kwargs)
          return decorated_function
      ```
      </TabItem>
      <TabItem value="go" label="Go">
-     ```go title="middleware/auth.go" wrap showLineNumbers=true
+     ```go title="middleware/auth.go" wrap showLineNumbers=true {7-12,14-18,21}
      import (
        "net/http"
        "github.com/gin-gonic/gin"
@@ -307,7 +307,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
      ```
      </TabItem>
      <TabItem value="java" label="Java">
-     ```java title="middleware/AuthInterceptor.java" wrap showLineNumbers=true
+     ```java title="middleware/AuthInterceptor.java" wrap showLineNumbers=true {9-13,17-21,25}
      import javax.servlet.http.HttpServletRequest;
      import javax.servlet.http.HttpServletResponse;
      import javax.servlet.http.Cookie;
@@ -350,9 +350,9 @@ Scalekit provides session management capabilities out of the box. Your applicati
          }
          return null;
        }
-     }
-     ```
-     </TabItem>
+      }
+      ```
+      </TabItem>
    </Tabs>
 
 3. ### Refresh expired access tokens
@@ -361,7 +361,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
-     ```javascript title="middleware/auth.js" wrap showLineNumbers=true ins={2,10,14-20,23}
+     ```javascript title="middleware/auth.js" wrap showLineNumbers=true {10-20}
      async function handleTokenRefresh(req, res, next) {
        // Get the user ID from the expired token or session storage
        const userId = req.session?.userId || req.user?.id;
@@ -398,7 +398,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
      ```
      </TabItem>
      <TabItem value="py" label="Python">
-     ```python title="middleware/auth.py" wrap showLineNumbers=true ins={2,10,14-20,23}
+     ```python title="middleware/auth.py" wrap showLineNumbers=true {11-26}
      from flask import request, jsonify, make_response
      def handle_token_refresh(f, *args, **kwargs):
          # Get the user ID from the expired token or session storage
@@ -438,7 +438,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
      ```
      </TabItem>
      <TabItem value="go" label="Go">
-     ```go title="middleware/auth.go" wrap showLineNumbers=true ins={2,10,14-20,23}
+     ```go title="middleware/auth.go" wrap showLineNumbers=true {10-23}
      import (
        "net/http"
        "github.com/gin-gonic/gin"
@@ -486,7 +486,7 @@ Scalekit provides session management capabilities out of the box. Your applicati
      ```
      </TabItem>
      <TabItem value="java" label="Java">
-     ```java title="middleware/AuthInterceptor.java" wrap showLineNumbers=true ins={2,10,14-20,23}
+     ```java title="middleware/AuthInterceptor.java" wrap showLineNumbers=true {11-23}
      import javax.servlet.http.HttpServletRequest;
      import javax.servlet.http.HttpServletResponse;
      import javax.servlet.http.Cookie;
@@ -533,9 +533,9 @@ Scalekit provides session management capabilities out of the box. Your applicati
          response.getWriter().write("{\"error\": \"Session expired. Please sign in again.\"}");
          return false;
        }
-     }
-     ```
-     </TabItem>
+      }
+      ```
+      </TabItem>
    </Tabs>
 
    Apply this middleware to protected routes:
@@ -619,10 +619,7 @@ You can control how long users stay signed in and how often they need to log in 
 Shorter timeouts provide better security, while longer timeouts reduce authentication interruptions.
 
 <Aside type="tip" title="Organization-level session settings">
-Enable organization administrators to control session settings for their workspace.
-
-[Contact our support team](/support/contact-us/) to activate this feature for your account.
-
+Enable organization administrators to control session settings for their workspace. [Contact our support team](/support/contact-us/) to activate this feature for your account.
 </Aside>
 
 ## What's next?

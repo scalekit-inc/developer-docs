@@ -30,15 +30,12 @@ To create and share a link for the Admin Portal, follow these steps:
 4. Click "Generate Link" to create a new, shareable Admin Portal link
 </Steps>
 
-
-
-```http title="Example" wrap showLineNumbers=false
+```http title="Magic link example" wrap showLineNumbers=false
 https://your-app.scalekit.dev/magicLink/2cbe56de-eec4-41d2-abed-90a5b82286c4_p
 ```
 
 The **link expires in 7 days** but can be revoked at any time from the dashboard for security purposes. You can share the link through communication channels such as email, Slack, or other preferred methods.
 
-{/* ![Integrate via Shareable Link](@/assets/docs/common/admin-portal-2.png) */}
 
 <Aside type="caution">
 Be cautious when sharing the link, as anyone with access to it can view and update the organization's connection settings
@@ -70,7 +67,7 @@ Use the **Generate Portal Link API** to create a unique, embeddable Admin Portal
 <Tabs syncKey="tech-stack">
   <TabItem value="nodejs" label="Node.js">
 
-    ```javascript
+    ```javascript title="server.js" {9-12}
     import { Scalekit } from '@scalekit-sdk/node';
 
     const scalekit = new Scalekit(
@@ -89,7 +86,7 @@ Use the **Generate Portal Link API** to create a unique, embeddable Admin Portal
 
   <TabItem value="python" label="Python">
 
-    ```python
+    ```python title="generate_link.py" {8-10}
     from scalekit import Scalekit
 
     scalekit = Scalekit(
@@ -107,7 +104,7 @@ Use the **Generate Portal Link API** to create a unique, embeddable Admin Portal
 
   <TabItem value="go" label="Go">
 
-    ```go
+    ```go title="main.go" {14-17,21-27}
     import (
         "context"
         "encoding/json"
@@ -139,7 +136,7 @@ Use the **Generate Portal Link API** to create a unique, embeddable Admin Portal
 
   <TabItem value="java" label="Java">
 
-    ```java
+    ```java title="PortalLinkGenerator.java" {11-17,21-26}
     import com.scalekit.client.Scalekit;
     import com.scalekit.client.models.Link;
     import com.scalekit.client.models.Feature;
@@ -171,7 +168,7 @@ Use the **Generate Portal Link API** to create a unique, embeddable Admin Portal
 
 The API will return a JSON object containing the `location` property, which is the URL to the Admin Portal.
 
-```json title="Generate Portal Link (Response Object)" {3}
+```json title="Generate portal link (response)" {3}
 {
   "id": "8930509d-68cf-4e2c-8c6d-94d2b5e2db43",
   "location": "https://random-subdomain.scalekit.dev/magicLink/8930509d-68cf-4e2c-8c6d-94d2b5e2db43",
@@ -181,7 +178,7 @@ The API will return a JSON object containing the `location` property, which is t
 
 Access the `location` property and set it as the `src` attribute of an iframe in your web pages at runtime. Ensure your domain is listed as one of the Redirect URIs in the **Scalekit Dashboard > API Config**
 
-```html title="Render admin portal in iframe (example)" {3-9} wrap
+```html title="Render admin portal in iframe (example)" {4-10} wrap
 <body>
   <h1>Admin Portal (Embed)</h1>
   <iframe
