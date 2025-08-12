@@ -11,7 +11,6 @@ import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-s
 import starlightTocOverviewCustomizer from 'starlight-toc-overview-customizer'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
-import { viewTransitions } from 'astro-vtbot/starlight-view-transitions'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 
@@ -74,7 +73,6 @@ export default defineConfig({
           overviewTitle: 'Overview',
         }),
         starlightVideos(),
-        viewTransitions(),
       ],
       head: [
         {
