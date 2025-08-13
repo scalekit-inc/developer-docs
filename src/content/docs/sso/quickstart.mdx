@@ -10,6 +10,12 @@ head:
       table td:not(:last-child), table th:not(:last-child) {
         white-space: nowrap;
       }
+      .sl-markdown-content h2 {
+          font-size: var(--sl-text-xl);
+       }
+      .sl-markdown-content h3 {
+          font-size: var(--sl-text-lg);
+       }
 next:
   label: Test SSO
   link: /sso/guides/test-sso/
@@ -58,15 +64,14 @@ This quickstart guide walks you through the SSO implementation process. You will
 
 <Steps>
 
-1. ### Environment Setup
+1. ## Environment Setup
 
     Before implementing SSO with Scalekit, prepare your development environment with the necessary credentials and SDK. Sign up and get API credentials from the Scalekit dashboard.
 
     <InstallSDK />
 
     Now you're ready to start integrating SSO into your app! Next, we'll cover how to use the SDK to authenticate users.
-
-2. ### Authorize users
+2. ## Authorize users
 
     To initiate Single Sign-On (SSO) authentication, redirect users to the Scalekit Authorization URL with the appropriate enterprise identity provider parameters.
 
@@ -78,9 +83,19 @@ This quickstart guide walks you through the SSO implementation process. You will
     | `client_id` | Your unique Scalekit application identifier that specifies both your app and environment (staging, production). |
     | SSO Connection identifier | Choose the appropriate identifier based on your implementation (use one). |
 
-    <Aside type="caution" title="Check your redirect_uri is registered">
-    Make sure your `redirect_uri` matches one of the **Allowed Callback URLs** you configured in your Scalekit dashboard. Scalekit uses this URL to send the authorization code back to your app after successful authentication.
-    </Aside>
+    **Configure callback URLs**
+      <p>Before testing your SSO integration, ensure your callback URL is properly configured:</p>
+
+      <ol>
+        <li><strong>Set your redirect URI:</strong> Use the same URL in your app's OAuth configuration</li>
+        <li><strong>Add to Scalekit Dashboard:</strong> Go to Authentication → Redirects → Allowed Callback URLs</li>
+        <li><strong>Match exactly:</strong> The URLs must be identical (including protocol, domain, and path)</li>
+      </ol>
+
+      <p><strong>Example:</strong> If your app uses <code>https://myapp.com/auth/callback</code>, add the exact same URL to Scalekit's allowed list.</p>
+
+      <p>Scalekit will redirect users to this URL with an authorization code after successful authentication.</p>
+
 
     **SSO connection identifiers**
 
@@ -249,7 +264,7 @@ This quickstart guide walks you through the SSO implementation process. You will
 
     After redirecting users to the Scalekit authorization endpoint, handle the callback at your `redirect_uri` to retrieve the user profile and complete the authentication process.
 
-3. ### Fetch user details
+3. ## Fetch user details
 
     After successful SSO authentication, Scalekit redirects users to your specified redirect_uri with a temporary authorization code parameter. This code must be exchanged for the user's profile information through a secure server-side request.
 
@@ -388,11 +403,3 @@ This quickstart guide walks you through the SSO implementation process. You will
     ```
 
 </Steps>
-
-<Aside type="note" title="Scalekit does not store user profile information">
-
-- The `idToken` is a JWT containing user profile information, while the `accessToken` is used for API calls.
-
-- For security and compliance reasons, Scalekit does not store user profile information in persistent databases.
-
-</Aside>
