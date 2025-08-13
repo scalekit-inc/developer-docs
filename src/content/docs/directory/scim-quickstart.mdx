@@ -8,11 +8,15 @@ prev: false
 next: false
 ---
 
-import { LinkButton, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { LinkButton, Aside, Steps, Tabs, TabItem, Card } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
+import { VideoPlayer, List } from 'starlight-videos/components'
+import CopyPrompt from '@components/ui/CopyPrompt.astro';
 
 
 Enterprises need to automatically provision and de-provision employee access to applications to ensure security. Scalekit simplifies this process by providing a single interface to your app, abstracting the complexities of various directory providers.
+
+<VideoPlayer link="https://youtu.be/SBJLtQaIbUk" />
 
 With [SCIM Provisioning](/directory/guides/user-provisioning-basics) from Scalekit, you can:
 
@@ -24,7 +28,6 @@ With [SCIM Provisioning](/directory/guides/user-provisioning-basics) from Scalek
   ![SCIM Quickstart](@/assets/docs/common/scim-chart.png)
 
 
-
 Scalekit enables you to sync user accounts with the latest data in the directory provider. This
 allows you to:
 
@@ -32,29 +35,45 @@ allows you to:
 - Deactivate accounts when employees depart
 - Adjust access levels as employees change roles
 
+<Card title="Generate SCIM Code with AI in Minutes" icon="seti:vite" style="background-color: white !important;">
+  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem'}}>
+    <div style={{flex: '3'}}>
+      Input this prompt in your IDE to analyze your existing code base and generate SCIM implementation code accordingly.
+
+      <span style={{fontSize: '0.875rem', color: '#6b7280', fontStyle: 'italic'}}>
+        Compatible with Cursor, Windsurf, VS Code, and any AI-powered IDE
+      </span>
+    </div>
+    <div style={{flex: '1'}}>
+      <CopyPrompt
+        promptType="dirScimQuickstartPrompt"
+        label="Copy Prompt"
+        variant="secondary"
+        title="Generate SCIM provisioning integration code"
+      />
+    </div>
+  </div>
+</Card>
+
+## User provisioning with Scalekit's directory API
+
+Scalekit's directory API allows you to fetch information about users, groups, and directories associated with an organization on-demand. This is useful for scenarios like running cron jobs to sync user and group data. In this guide, we'll demonstrate how to use the list users in a directory API to retrieve a list of users in a specific directory.
+
 <Steps>
-
-1. ### User provisioning with Scalekit's directory API
-
-    Scalekit's directory API allows you to fetch information about users, groups, and directories
-    associated with an organization on-demand. This is useful for scenarios like running cron jobs to
-    sync user and group data. In this guide, we'll demonstrate how to use the list users in a directory
-    API to retrieve a list of users in a specific directory.
-
+1. ### Setting up the SDK
     Before you begin, ensure that your organization has a directory set up in Scalekit.
 
-    Before diving in, ensure you have:
+    <List title='Before diving in, ensure you have:' variant='tip'>
+    - [ ]  A Scalekit account
+    - [ ] An organization with a configured directory
+    - [ ] Access to the Scalekit dashboard
+    </List>
 
-    1. A Scalekit account
-    2. An organization with a configured directory
-    3. Access to the Scalekit dashboard
-
-    #### Setting up the SDK
-
-    Scalekit offers language-specific SDKs for fast SSO integration. Use the installation instructions
-    below for your technology stack:
+    Scalekit offers language-specific SDKs for fast SSO integration. Use the installation instructions below for your technology stack:
 
     <InstallSDK />
+
+2. ### Instantiate the SDK
 
     Navigate to the API config tab in the Scalekit dashboard to obtain your credentials. Store your
     credentials securely in a `.env` file:
@@ -65,6 +84,7 @@ allows you to:
     SCALEKIT_CLIENT_SECRET='<SECRET_FROM_SCALEKIT_DASHBOARD>'
     ```
 
+3. ### First API call
     Initialize the SDK with your API credentials and make your first API call to list organizations.
 
     <Tabs syncKey="tech-stack">
@@ -150,10 +170,7 @@ allows you to:
     </TabItem>
     </Tabs>
 
-2. ### Working with directories
-
-    #### Retrieving a directory
-
+4. ### Retrieving a directory
     To begin syncing user and group data, first retrieve the directory associated with your
     organization:
 
@@ -212,7 +229,7 @@ allows you to:
     </TabItem>
     </Tabs>
 
-    #### Listing users in a directory
+5. ### Listing users in a directory
 
     Fetch users within a specific directory:
 
@@ -269,7 +286,8 @@ allows you to:
     **Example Use Case**: When setting up a new customer account, you can use this function to
     automatically connect to their directory and start syncing user data.
 
-    #### Listing groups
+
+6. ### Listing groups
 
     Retrieve groups within a directory:
 
@@ -332,9 +350,15 @@ allows you to:
     to our <a href="https://docs.scalekit.com/apis" target="_blank" rel="noopener noreferrer">API reference</a> and [examples](/directory/code-examples/) to explore more
     capabilities.
 
-3. ### Realtime user provisioning with webhooks
 
-    #### Create a webhook endpoint
+
+</Steps>
+
+
+## Realtime user provisioning with webhooks
+
+<Steps>
+1. ### Create a webhook endpoint
 
     To receive realtime events from directory providers, create a webhook endpoint and register it in the Scalekit dashboard. The secret to verify the webhook payload will be available in the Scalekit dashboard (&rarr;   _Webhooks_) after the endpoint is registered.
 
@@ -449,20 +473,17 @@ allows you to:
 
     In this example, the endpoint URL is `https://www.your-app.app/api/webhook/user-access`
 
-    When the endpoint receives an HTTP POST request with event data, it extracts the name and email from
-    the payload and calls `createUserAccount()` to perform the necessary business
-    logic — in this case, creating a user account.
+    When the endpoint receives an HTTP POST request with event data, it extracts the name and email from the payload and calls `createUserAccount()` to perform the necessary business logic — in this case, creating a user account.
 
-    #### Register webhook endpoint
+2. ### Register webhook endpoint
 
     First, navigate to the "Webhooks" tab in the Scalekit Dashboard. Click on the "+Add Endpoint" button and enter the endpoint URL along with a meaningful description. Finally, select the desired event types, for example `organization.directory.user_created`, to subscribe to the relevant events.
 
     Click "Create" Once registered, the webhook endpoint will start receiving event payloads from the directory providers.
 
-    Refer to the <a href="https://docs.scalekit.com/apis" target="_blank" rel="noopener noreferrer">API reference</a> for the list of all available event types and
-    [setting up webhooks](/reference/webhooks/directory-events) to explore testing webhooks with test endpoints.
+    Refer to the <a href="https://docs.scalekit.com/apis" target="_blank" rel="noopener noreferrer">API reference</a> for the list of all available event types and [setting up webhooks](/reference/webhooks/directory-events) to explore testing webhooks with test endpoints.
 
-    #### Receive event payloads
+3. ### Receive event payloads
 
     Scalekit sends event payloads to your app for consumption and standardizes the payload structure
     across different directory providers your customers may use.Since we subscribed to user events,
@@ -487,5 +508,7 @@ allows you to:
     - 10 hours
     - 10 hours
     </Aside>
+
+
 
 </Steps>
