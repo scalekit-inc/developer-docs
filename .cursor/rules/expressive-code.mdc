@@ -1,0 +1,79 @@
+---
+globs: **/*.md,**/*.mdx
+---
+
+### Expressive Code: improve code snippets in Markdown/MDX
+
+Use Expressive Code consistently across all documentation pages. Prefer Starlight’s `<Code>` component for rich features (titles, markers, accurate syntax highlighting) and dynamic snippets.
+
+- **Docs**: See Expressive Code documentation (`https://expressive-code.com/llms-full.txt`).
+- **Framework**: This site uses Astro + Starlight. Import `<Code>` from `@astrojs/starlight/components` in `.mdx` files.
+
+### How to use in `.mdx`
+- **Import once per file (below frontmatter)**:
+
+```mdx
+import { Code } from '@astrojs/starlight/components'
+```
+
+- **Static snippet (prefer `<Code>` when you need title/markers)**:
+
+```mdx
+<Code code={"console.log('Hello world!')"} lang="js" />
+```
+
+- **With filename and text markers**:
+
+```mdx
+export const exampleCode = `console.log('This could come from a file or CMS!')`
+export const fileName = 'example.js'
+export const highlights = ['file', 'CMS']
+
+<Code code={exampleCode} lang="js" title={fileName} mark={highlights} />
+```
+
+### Authoring guidance
+- **Prefer `<Code>` when** you need any of: filename/title, text markers, programmatic/dynamic content, or consistent theming across tabs.
+- **Fenced blocks are OK** for simple, static examples. Always add a language: e.g., ```js not just ```.
+- **Keep examples minimal and runnable.** Avoid extraneous comments; explain intent above or below the block, not inline.
+- **Use sentence case for nearby headings** (e.g., “Authenticate users”).
+
+### Quick checklist before saving
+- **Language set**: Every code example has a language (`lang` prop or fenced language id).
+- **Title when relevant**: Provide a `title` when the snippet represents a file.
+- **Markers optional**: Use `mark` with an array of strings to emphasize important tokens.
+- **Consistent imports**: `import { Code } from '@astrojs/starlight/components'` in `.mdx` files (place below frontmatter).
+- **No redundant comments**: Follow comment standards and document the “why,” not the obvious “what.”
+
+### Examples to refactor
+- **From fenced to `<Code>` when a title is needed**:
+
+```mdx
+// Before
+```bash
+curl -X GET https://api.example.com/health
+```
+
+// After
+<Code code={`curl -X GET https://api.example.com/health`} lang="bash" title="terminal" />
+```
+
+- **From fenced to `<Code>` with markers**:
+
+```mdx
+// Before
+```js
+fetch('/api', { headers: { Authorization: 'Bearer <token>' } })
+```
+
+// After
+<Code
+  code={`fetch('/api', { headers: { Authorization: 'Bearer <token>' } })`}
+  lang="js"
+  mark={["Authorization", "Bearer"]}
+/>
+```
+
+### Notes
+- In `.astro` files (not covered by this rule), imports go in frontmatter: `import { Code } from 'astro-expressive-code/components'` or Starlight variant depending on context. For docs `.mdx`, always use `@astrojs/starlight/components`.
+- Do not change semantics of the example—only improve presentation and clarity.

@@ -1,8 +1,18 @@
 ---
-title: Redirect URI
-description: "Learn how to configure and validate redirect URIs in Scalekit for secure post-authentication flows, including rules for development and production environments."
+title: Allowed Callback URLs
+description: "Learn how to configure and validate Allowed Callback URIs in Scalekit for secure post-authentication flows, including rules for development and production environments."
 sidebar:
   label: Configure redirects
+head:
+  - tag: style
+    content: |
+
+      .sl-markdown-content h2 {
+          font-size: var(--sl-text-xl);
+       }
+      .sl-markdown-content h3 {
+          font-size: var(--sl-text-lg);
+       }
 prev: false
 next: false
 ---
@@ -10,9 +20,13 @@ next: false
 import { Aside } from '@astrojs/starlight/components';
 import { Icon } from '@astrojs/starlight/components';
 
-A redirect URI is an endpoint where Scalekit redirects users post-authentication with the identity provider (IdP). In the Scalekit dashboard, you can configure up to 5 redirect URIs per environment.
+A redirect URI is an endpoint where Scalekit redirects users post-authentication with the identity provider (IdP). In the Scalekit dashboard, you can configure up to 5 Allowed Callback URIs per environment.
 
-Since redirect URIs can be manipulated by unauthorized parties, Scalekit requires pre-registration of all redirect URIs used in login flows. Registration can be done in the Scalekit dashboard.
+![](@/assets/docs/common/redirects/1-redirects-ui.png)
+
+
+
+Since redirect URIs can be manipulated by unauthorized parties, Scalekit requires pre-registration of all Allowed Callback URIs used in login flows. Registration can be done in the Scalekit dashboard at Dashboard > Authentication > Redirects > Allowed Callback URIs.
 
 <Aside type="note" title="IdP-initiated SAML SSO flow">
 
@@ -20,9 +34,7 @@ Scalekit uses your configured default redirect URI to redirect users when users 
 
 </Aside>
 
-## URI Requirements
-
-### Validation Rules
+## Validation Rules
 
 | Validation rule                                                                                                 | Development environment                                                                                                                 | Production environment                         |
 | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
@@ -33,7 +45,7 @@ Scalekit uses your configured default redirect URI to redirect users when users 
 | Query parameters <pre>yourapp.com/callback?query=value</pre>     | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> Not allowed</div>                                                                                                                | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> Not allowed</div>                       |
 | Fragment component <pre>`yourapp.com/callback#fragment=value`</pre> | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> Not allowed</div>                                                                                                                | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> Not allowed</div>                       |
 
-### Using Wildcards
+## Using Wildcards
 
 According to the <a href="https://tools.ietf.org/html/rfc6749#section-3.1.2" target="_blank">OAuth 2.0 specification</a>, a redirection URI must be an absolute URI. But, to make development and testing easier - this restriction is slightly relaxed in the development environments.
 

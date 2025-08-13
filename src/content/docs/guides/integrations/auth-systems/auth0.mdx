@@ -1,8 +1,18 @@
 ---
 title: Auth0
 description: "Learn how to integrate Scalekit with Auth0 for seamless Single Sign-On (SSO) authentication, allowing enterprise users to log in via Scalekit."
-tableOfContents:
-  minHeadingLevel: 3
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+      .sl-markdown-content h2 {
+          font-size: var(--sl-text-xl);
+       }
+      .sl-markdown-content h3 {
+          font-size: var(--sl-text-lg);
+       }
 sidebar:
   label: "Auth0"
 ---
@@ -46,33 +56,33 @@ Because of an <a href="https://community.auth0.com/t/creating-an-oidc-connection
 
 | Parameter              | Description                                                                                                                                                                         |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| AUTH0_TENANT_DOMAIN    | This is your Auth0 tenant url. Typically, looks like https:<span></span>//yourapp.us.auth0.com                                                                                         |
-| API_TOKEN              | <a href="https://auth0.com/docs/secure/tokens/access-tokens/management-api-access-tokens" target="_blank">Generate an API token</a> from your Auth0 dashboard and use it to authenticate your Auth0 API calls |
-| SCALEKIT_ENVIRONMENT_URL       | Find this in your <a href="https://app.scalekit.com" target="_blank">API config</a> section of Scalekit Dashboard. For development use `https://{your-subdomain}.scalekit.dev`, for production use `https://{your-subdomain}.scalekit.com` |
-| SCALEKIT_CLIENT_SECRET | Generate a new client secret in your <a href="https://app.scalekit.com" target="_blank">API config</a> section of Scalekit Dashboard and use that here                                                         |
-| SCALEKIT_CLIENT_ID    | Find this in your <a href="https://app.scalekit.com" target="_blank">API config</a> section of Scalekit Dashboard                                                                                              |
+| `AUTH0_TENANT_DOMAIN`    | This is your Auth0 tenant url. Typically, looks like https:<span></span>//yourapp.us.auth0.com                                                                                         |
+| `API_TOKEN`              | <a href="https://auth0.com/docs/secure/tokens/access-tokens/management-api-access-tokens" target="_blank">Generate an API token</a> from your Auth0 dashboard and use it to authenticate your Auth0 API calls |
+| `SCALEKIT_ENVIRONMENT_URL`       | Find this in your <a href="https://app.scalekit.com" target="_blank">API config</a> section of Scalekit Dashboard. For development use `https://{your-subdomain}.scalekit.dev`, for production use `https://{your-subdomain}.scalekit.com` |
+| `SCALEKIT_CLIENT_SECRET` | Generate a new client secret in your <a href="https://app.scalekit.com" target="_blank">API config</a> section of Scalekit Dashboard and use that here                                                         |
+| `SCALEKIT_CLIENT_ID`    | Find this in your <a href="https://app.scalekit.com" target="_blank">API config</a> section of Scalekit Dashboard                                                                                              |
 
 After the successful execution of the above API call, you will see a new OpenID connection created in your Auth0 tenant. To confirm this, you can navigate to <a href="https://auth0.com/docs/authenticate/enterprise-connections#view-enterprise-connections" target="_blank">Enterprise Connections</a> in your Auth0 dashboard.
 
-## Add redirect URI in Scalekit
+## Register redirect URI in Scalekit
 
 After creating Scalekit as a new OIDC connection, you need to:
 
 <Steps>
 1. Copy the Callback URL from your Auth0 Dashboard
-2. Add it as a new Redirect URI in your Scalekit API Config section
+2. Add it as a new Allowed Callback URI in your Scalekit Authentication > Redirects section
 </Steps>
 
-### Copy callback URL from Auth0
+## Copy callback URL from Auth0
 
 In your Auth0 dashboard, go to Authentication > Enterprise > OpenID Connect > Scalekit > Settings.
 Copy the "Callback URL" that's available in the General section of settings.
 
 ![Copy Callback URL from your Auth0 Dashboard](@/assets/docs/guides/auth-systems/auth0/1.png)
 
-### Set redirect URI in Scalekit API config
+## Set redirect URI in Scalekit API config
 
-Go to your Scalekit dashboard. Select environment as Development or Production. Navigate to the "API Config" in the Settings (left nav). In the Redirect URIs section, select **Add new URI**. Paste the Callback URL that you copied from Auth0 dashboard. Click on Add button.
+Go to your Scalekit dashboard. Select environment as Development or Production. Navigate to **Authentication** > **Redirects** > **Allowed Callback URIs**. In the Allowed Callback URIs section, select **Add new URI**. Paste the Callback URL that you copied from Auth0 dashboard. Click on Add button.
 
 ![Add new Redirect URI in Scalekit Dashboard](@/assets/docs/guides/auth-systems/auth0/2.png)
 
