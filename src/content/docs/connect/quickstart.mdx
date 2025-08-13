@@ -23,10 +23,9 @@ This quickstart guide will help you get up and running with Agent Connect in min
 
 In this quickstart, you'll build a simple integration that:
 
-1. **Connects to Gmail** using OAuth 2.0
-2. **Authenticates a user** to access their Gmail account
-3. **Sends an email** using the connected account
-4. **Fetches recent emails** from the user's inbox
+1. **Authenticates a user with GMail** to authenticate their Gmail account via OAuth 2.0
+2. **Sends an email** using the connected account
+3. **Fetches recent emails** from the user's inbox
 
 ## Prerequisites
 
@@ -36,93 +35,14 @@ Before you start, make sure you have:
 - **API credentials** (Client ID and Client Secret)
 - **Development environment** (Node.js, Python, or similar)
 
-## Step 1: Install the SDK
+## Step 1: Set up your environment
 
 First, install the Scalekit SDK for your preferred language:
 <InstallSDK />
 
-## Step 2: Create a Gmail connection
+## Step 2: Create a connected account
 
-:::tip
-We have already created a default connection with connection name 'gmail' in your development environment with Scalekit Credentials.
-
-You can use this connection to authenticate users and execute tools for your testing and development purposes.
-:::
-
-Create a new connection to Gmail. For this quickstart, we'll use Scalekit's shared OAuth credentials:
-
-<Tabs>
-<TabItem value="nodejs" label="Node.js">
-
-```javascript
-// Create a Gmail connection
-const connection = await scalekit.connect.connections.create({
-  provider: 'gmail',
-  name: 'gmail_test',
-  auth_type: 'oauth2',
-  use_scalekit_credentials: true, // Use Scalekit's shared credentials
-  scopes: [
-    'https://www.googleapis.com/auth/gmail.send',
-    'https://www.googleapis.com/auth/gmail.readonly'
-  ],
-  settings: {
-    auto_refresh: true
-  }
-});
-
-console.log('Connection created:', connection.id);
-```
-
-</TabItem>
-<TabItem value="python" label="Python">
-
-```python
-# Create a Gmail connection
-connection = agent_connect.connections.create(
-    provider='gmail',
-    name='gmail_test',
-    auth_type='oauth2',
-    use_scalekit_credentials=True,  # Use Scalekit's shared credentials
-    scopes=[
-        'https://www.googleapis.com/auth/gmail.send',
-        'https://www.googleapis.com/auth/gmail.readonly'
-    ],
-    settings={
-        'auto_refresh': True
-    }
-)
-
-print(f'Connection created: {connection.id}')
-```
-
-</TabItem>
-<TabItem value="curl" label="cURL">
-
-```bash
-curl -X POST "${SCALEKIT_ENVIRONMENT_URL}/v1/connect/connections" \
-  -H "Authorization: Bearer ${SCALEKIT_CLIENT_SECRET}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "provider": "gmail",
-    "name": "gmail_test",
-    "auth_type": "oauth2",
-    "use_scalekit_credentials": true,
-    "scopes": [
-      "https://www.googleapis.com/auth/gmail.send",
-      "https://www.googleapis.com/auth/gmail.readonly"
-    ],
-    "settings": {
-      "auto_refresh": true
-    }
-  }'
-```
-
-</TabItem>
-</Tabs>
-
-## Step 3: Create a connected account
-
-Create a connected account for your user. This represents the user's connection to their Gmail account:
+Let's authorize a user to access their Gmail account by creating a connected account. This represents the user's connection to their Gmail account:
 
 <Tabs>
 <TabItem value="nodejs" label="Node.js">
@@ -130,7 +50,7 @@ Create a connected account for your user. This represents the user's connection 
 ```javascript
 // Create a connected account for user
 const connectedAccount = await agentConnect.accounts.create({
-  connection_id: connection.id, // Connection ID from Step 2 or you can also use unique connection name like 'gmail_test'
+  connection_id: 'gmail', // this is the unique connection name for this application.
   identifier: 'user_123', // Your user's unique identifier. this can be email address or user_id from your system.
 });
 
@@ -166,15 +86,15 @@ curl -X POST "${SCALEKIT_ENVIRONMENT_URL}/v1/connect/accounts" \
 </TabItem>
 </Tabs>
 
-## Step 4: Authenticate the user
+## Step 3: Authenticate the user
 
-Generate an OAuth URL for the user to complete authentication. Once the user completes the auth workflow, our system will handle the token exchange and store the tokens in the connected account.
+Generate an OAuth URL for the user to complete authentication. Once the user completes the auth workflow, our system will handle the token exchange and store the tokens in the connected account. This step is not needed if the user has already authenticated with the gmail provider before.
 
 <Tabs>
 <TabItem value="nodejs" label="Node.js">
 
 ```javascript
-// Generate the magic link whether the end user can complete the authentication process for their gmail account
+// Generate the magic link using which the end user can complete the authentication process for their gmail account
 const authUrl = await agentConnect.accounts.getAuthUrl(connectedAccount.id);
 
 console.log('Redirect user to:', authUrl);
@@ -185,7 +105,7 @@ console.log('Redirect user to:', authUrl);
 <TabItem value="python" label="Python">
 
 ```python
-# Generate the magic link whether the end user can complete the authentication process for their gmail account
+# Generate the magic link using which the end user can complete the authentication process for their gmail account
 auth_url = agent_connect.accounts.get_auth_url(
     connected_account.id
 )
@@ -199,13 +119,13 @@ print(f'Redirect user to: {auth_url}')
 
 ```bash
 curl -X GET "${SCALEKIT_ENVIRONMENT_URL}/v1/connect/accounts/ACCOUNT_ID/auth-url" \
-  -H "Authorization: Bearer ${SCALEKIT_CLIENT_SECRET}" 
+  -H "Authorization: Bearer ${SCALEKIT_ACCESS_TOKEN}" 
 ```
 
 </TabItem>
 </Tabs>
 
-## Step 5: Execute your first tool
+## Step 4: Execute a tool - Send an email
 
 Now that the user is authenticated, you can execute tools on their behalf. Let's send an email:
 
@@ -252,7 +172,7 @@ print(f'Email sent: {email_result}')
 
 ```bash
 curl -X POST "${SCALEKIT_BASE_URL}/v1/connect/tools/execute" \
-  -H "Authorization: Bearer ${SCALEKIT_CLIENT_SECRET}" \
+  -H "Authorization: Bearer ${SCALEKIT_ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
     "connected_account_id": "CONNECTED_ACCOUNT_ID",
@@ -269,7 +189,7 @@ curl -X POST "${SCALEKIT_BASE_URL}/v1/connect/tools/execute" \
 </TabItem>
 </Tabs>
 
-## Step 7: Fetch emails
+## Step 5: Execute another tool - Fetch emails
 
 Let's also fetch some recent emails from the user's inbox:
 
@@ -312,7 +232,7 @@ print(f'Recent emails: {emails.result}')
 
 ```bash
 curl -X POST "${SCALEKIT_BASE_URL}/v1/connect/tools/execute" \
-  -H "Authorization: Bearer ${SCALEKIT_CLIENT_SECRET}" \
+  -H "Authorization: Bearer ${SCALEKIT_ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
     "connected_account_id": "CONNECTED_ACCOUNT_ID",
@@ -322,183 +242,6 @@ curl -X POST "${SCALEKIT_BASE_URL}/v1/connect/tools/execute" \
       "max_results": 10
     }
   }'
-```
-
-</TabItem>
-</Tabs>
-
-## Complete example
-
-Here's a complete example that puts it all together:
-
-<Tabs>
-<TabItem value="nodejs" label="Node.js">
-
-```javascript
-import { Scalekit } from '@scalekit/agent-connect';
-import express from 'express';
-
-const app = express();
-const scalekit = new Scalekit({
-  environment_url: 'https://api.scalekit.com',
-  client_id: 'your-client-id',
-  client_secret: 'your-client-secret'
-});
-
-// Step 1: Create connection and connected account
-app.get('/connect', async (req, res) => {
-  try {
-    // Create connection
-    const connection = await scalekit.connections.create({
-      provider: 'gmail',
-      auth_type: 'oauth2',
-      use_scalekit_credentials: true,
-      scopes: [
-        'https://www.googleapis.com/auth/gmail.send',
-        'https://www.googleapis.com/auth/gmail.readonly'
-      ]
-    });
-
-    // Create connected account
-    const connectedAccount = await scalekit.accounts.create({
-      connection_id: connection.id,
-      identifier: 'user_123',
-      identifier_type: 'user_id'
-    });
-
-    // Generate auth URL
-    const authUrl = await scalekit.accounts.getAuthUrl(connectedAccount.id);
-
-    res.redirect(authUrl);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Step 3: Send email
-app.post('/send-email', async (req, res) => {
-  try {
-    const result = await scalekit.tools.execute({
-      connected_account_id: req.body.account_id,
-      tool: 'send_email',
-      parameters: {
-        to: req.body.to,
-        subject: req.body.subject,
-        body: req.body.body
-      }
-    });
-    
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Step 4: Fetch emails
-app.get('/emails/:account_id', async (req, res) => {
-  try {
-    const emails = await scalekit.tools.execute({
-      connected_account_id: req.params.account_id,
-      tool: 'fetch_emails',
-      parameters: {
-        query: 'is:unread',
-        max_results: 10
-      }
-    });
-    
-    res.json(emails.result);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
-  console.log('Visit http://localhost:3000/connect to start');
-});
-```
-
-</TabItem>
-<TabItem value="python" label="Python">
-
-```python
-from flask import Flask, request, jsonify, redirect
-from scalekit import Scalekit
-
-app = Flask(__name__)
-scalekit = Scalekit(
-    environment_url='https://api.scalekit.com',
-    client_id='your-client-id',
-    client_secret='your-client-secret'
-)
-
-@app.route('/connect')
-def connect():
-    try:
-        # Create connection
-        connection = scalekit.connections.create(
-            provider='gmail',
-            auth_type='oauth2',
-            use_scalekit_credentials=True,
-            scopes=[
-                'https://www.googleapis.com/auth/gmail.send',
-                'https://www.googleapis.com/auth/gmail.readonly'
-            ]
-        )
-
-        # Create connected account
-        connected_account = scalekit.accounts.create(
-            connection_id=connection.id,
-            identifier='user_123'
-        )
-
-        # Generate auth URL
-        auth_url = scalekit.accounts.get_auth_url(
-            connected_account.id
-        )
-
-        return redirect(auth_url)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/send-email', methods=['POST'])
-def send_email():
-    try:
-        data = request.get_json()
-        result = scalekit.tools.execute(
-            connected_account_id=data['account_id'],
-            tool='send_email',
-            parameters={
-                'to': data['to'],
-                'subject': data['subject'],
-                'body': data['body']
-            }
-        )
-        
-        return jsonify(result)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/emails/<account_id>')
-def get_emails(account_id):
-    try:
-        emails = scalekit.tools.execute(
-            connected_account_id=account_id,
-            tool='fetch_emails',
-            parameters={
-                'query': 'is:unread',
-                'max_results': 10
-            }
-        )
-        
-        return jsonify(emails.result)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3000, debug=True)
-    print('Server running on http://localhost:3000')
-    print('Visit http://localhost:3000/connect to start')
 ```
 
 </TabItem>

@@ -1,0 +1,147 @@
+---
+title: Agentic Tool Calling
+description: Learn how to authenticate a user to GMail and use LLMs to create an agentic tool calling workflow.
+---
+
+import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+
+This quickstart guide will help you implement tool calling using LLMs to determine which tool to call with what parameters based on the user's input.
+
+## What you'll build
+
+In this quickstart, you'll build a simple integration that:
+
+1. **Authenticates a user with GMail** to authenticate their Gmail account via OAuth 2.0
+2. **Sends an email** using the connected account
+3. **Fetches recent emails** from the user's inbox
+
+## Prerequisites
+
+Before you start, make sure you have:
+
+- **Scalekit account** with Agent Connect enabled
+- **API credentials** (Client ID and Client Secret)
+- **Development environment** (Node.js, Python, or similar)
+
+## Step 1: Set up your environment
+
+First, install the Scalekit SDK for your preferred language:
+<InstallSDK />
+
+## Step 2: Create a connected account
+
+Let's authorize a user to access their Gmail account by creating a connected account. This represents the user's connection to their Gmail account:
+
+<Tabs>
+
+<TabItem value="python" label="Python">
+
+```python
+# Create a connected account for user
+gmail_connected_account = agent_connect.accounts.create(
+    connection_id='gmail',
+    identifier='user_123',  # Your user's unique identifier. this can be email address or user_id from your system.
+)
+
+slack_connected_account = agent_connect.accounts.create(
+    connection_id='slack',
+    identifier='user_123',  # Your user's unique identifier. this can be email address or user_id from your system.
+)
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+```bash
+curl -X POST "${SCALEKIT_ENVIRONMENT_URL}/v1/connect/accounts" \
+  -H "Authorization: Bearer ${SCALEKIT_ACCESS_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "connection_id": "gmail",
+    "identifier": "user_123"
+  }'
+```
+
+</TabItem>
+</Tabs>
+
+## Step 3: Authenticate the user
+
+Generate an OAuth URL for the user to complete authentication. Once the user completes the auth workflow, our system will handle the token exchange and store the tokens in the connected account. This step is not needed if the user has already authenticated with the gmail provider before.
+
+<Tabs>
+<TabItem value="nodejs" label="Node.js">
+
+```javascript
+// Generate the magic link using which the end user can complete the authentication process for their gmail account
+const authUrl = await agentConnect.accounts.getAuthUrl(gmail_connected_account.id);
+const authUrl = await agentConnect.accounts.getAuthUrl(slack_connected_account.id);
+
+console.log('Redirect user to:', authUrl);
+// In a real app, redirect the user to this URL
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+# Generate the magic link using which the end user can complete the authentication process for their gmail account
+auth_url = agent_connect.accounts.get_auth_url(
+    connected_account.id
+)
+
+print(f'Redirect user to: {auth_url}')
+# In a real app, redirect the user to this URL
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+```bash
+curl -X GET "${SCALEKIT_ENVIRONMENT_URL}/v1/connect/accounts/ACCOUNT_ID/auth-url" \
+  -H "Authorization: Bearer ${SCALEKIT_CLIENT_SECRET}" 
+```
+
+</TabItem>
+</Tabs>
+
+## Step 4: Build an agentic workflow
+
+Now that the user is authenticated, you can execute tools on their behalf. Let's build an agentic workflow that:
+
+1. Reads the latest email from the user's inbox
+2. Sends a summary of the email to a Slack channel
+
+<Tabs>
+
+<TabItem value="python" label="Python">
+
+```python
+# Send an email
+tools = [slack_tool,fetch_gmail_emails]
+# Initialize the OpenAI LLM
+
+tools = scalekit.connect.get_tools([],identifier)
+
+llm = ChatOpenAI(model="gpt-4o")
+agent = create_openai_tools_agent(llm, tools, prompt)
+agent_executor = AgentExecutor(agent=agent, tools=tools,verbose=True)
+
+# Invoke the agent with a Slack message request
+result = agent_executor.invoke(
+    {
+        "input": "read the latest email and send summary of that email to Slack channel #connect",
+    }
+)
+```
+
+</TabItem>
+
+</Tabs>
+
+## Next steps
+
+Congratulations! You've successfully implemented tool calling using LLMs to determine which tool to call with what parameters based on the user's input. Here's what you can do next:
+
+You're now ready to build powerful integrations with Agent Connect!
