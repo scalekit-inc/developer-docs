@@ -5,49 +5,73 @@ import LanguageSelect from '@astrojs/starlight/components/LanguageSelect.astro'
 import Search from '@astrojs/starlight/components/Search.astro'
 import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro'
 import SocialIcons from '@astrojs/starlight/components/SocialIcons.astro'
-import ThemeSelect from 'starlight-theme-rapide/overrides/ThemeSelect.astro'
+import ThemeSelect from 'starlight-theme-nova/components/ThemeSelect.astro'
 import { LinkButton } from '@astrojs/starlight/components'
+import SecondaryNav from '../SecondaryNav.astro'
 
 const { dir, entry, lang, locale } = Astro.props
 ---
 
 <div class="header">
-  <SiteTitle {locale} />
+  <div class="top-row">
+    <SiteTitle {locale} />
 
-  <div class="center-content">
-    <div class="search-wrapper">
-      <Search {locale} />
+    <div class="center-content">
+      <div class="search-wrapper">
+        <Search {locale} />
+      </div>
     </div>
-    <nav class="nav-links sl-hidden md:sl-flex">
-      <LinkButton href="/apis" variant="minimal" class="nav-link">API Reference</LinkButton>
-      <LinkButton href="/dev-kit" variant="minimal" class="nav-link">SDKs</LinkButton>
-      <LinkButton href="/guides/integrations" variant="minimal" class="nav-link"
-        >Integrations</LinkButton
+
+    <div class="right-actions sl-hidden md:sl-flex">
+      <LinkButton
+        href="https://schedule.scalekit.com/meet/ravi-madabhushi/demo-8b100203"
+        target="_blank"
+        variant="secondary"
+        iconPlacement="start"
+        class="dashboard-btn"
       >
-    </nav>
+        Talk to an Engineer
+      </LinkButton>
+      <LinkButton
+        href="https://app.scalekit.com/"
+        target="_blank"
+        variant="minimal"
+        class="dashboard-btn"
+      >
+        Login
+      </LinkButton>
+      <LinkButton
+        href="https://app.scalekit.com/ws/signup?src=docs"
+        target="_blank"
+        variant="primary"
+        class="dashboard-btn"
+      >
+        Signup
+      </LinkButton>
+      <div class="ml-4">
+        <ThemeSelect />
+      </div>
+    </div>
   </div>
 
-  <div class="right-actions sl-hidden md:sl-flex">
-    <LinkButton
-      href="https://app.scalekit.com"
-      target="_blank"
-      rel="noopener noreferrer"
-      variant="secondary"
-      class="dashboard-btn"
-      icon="right-arrow"
-    >
-      Go to Dashboard
-    </LinkButton>
-    <ThemeSelect />
-  </div>
+  <!-- Secondary Navigation Bar -->
+  <SecondaryNav />
 </div>
 
 <style>
   .header {
+    position: sticky;
+    top: 0;
+    z-index: var(--sl-z-index-navbar);
+    background-color: var(--sl-color-bg);
+  }
+
+  .top-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    height: 100%;
+    justify-content: space-between;
+    height: var(--sl-header-height-base);
+    padding: 0 var(--sl-nav-pad-x);
   }
 
   .center-content {
@@ -83,7 +107,6 @@ const { dir, entry, lang, locale } = Astro.props
     font-size: var(--sl-text-sm);
     white-space: nowrap;
     color: var(--sl-color-gray-2);
-    transition: color 0.2s ease;
   }
 
   .nav-link:hover {
@@ -94,6 +117,7 @@ const { dir, entry, lang, locale } = Astro.props
     /* Hidden on mobile */
     display: none;
     align-items: center;
+    font-weight: 500;
   }
 
   /* Show right actions at the medium breakpoint (≈48 rem / 768 px) and above */
@@ -104,7 +128,6 @@ const { dir, entry, lang, locale } = Astro.props
   }
 
   .dashboard-btn {
-    font-size: var(--sl-text-sm) !important;
     padding: 0.4rem 1.2rem !important;
     white-space: nowrap;
   }

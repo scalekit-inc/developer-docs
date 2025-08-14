@@ -9,8 +9,7 @@ import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import starlightTocOverviewCustomizer from 'starlight-toc-overview-customizer'
-import starlightThemeRapide from 'starlight-theme-rapide'
-import starlightLlmsTxt from 'starlight-llms-txt'
+import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
@@ -35,12 +34,11 @@ export default defineConfig({
         // Sidebar: './src/components/overrides/Sidebar.astro',
         Head: './src/components/overrides/Head.astro',
         Header: './src/components/overrides/Header.astro',
-        Pagination: './src/components/overrides/Pagination.astro',
         PageSidebar: './src/components/overrides/PageSidebar.astro',
       },
       logo: {
-        dark: '/src/assets/images/logos-v2/scalekit-docs-black.png',
-        light: '/src/assets/images/logos-v2/scalekit-docs-white.png',
+        dark: '/src/assets/images/logos-v4/sk-docs-dark.svg',
+        light: '/src/assets/images/logos-v4/sk-docs-light.svg',
         replacesTitle: true,
       },
       defaultLocale: 'en',
@@ -60,25 +58,13 @@ export default defineConfig({
       },
       expressiveCode: {
         useStarlightDarkModeSwitch: true,
-        themes: ['vitesse-dark', 'vitesse-light'],
+        // themes: ['vitesse-dark', 'vitesse-light'],
+        themes: ['tokyo-night', 'light-plus'],
       },
-      customCss: [
-        '@fontsource-variable/inter',
-
-        /** Backup fonts. They can be removed if deemed unnecessary. */
-        // '@fontsource-variable/plus-jakarta-sans',
-        // '@fontsource-variable/space-grotesk',
-        './src/styles/theme-priority.css',
-
-        /** The following order is covered in theme-priority.css. Consider removing if deemed unnecessary. */
-        // './src/styles/custom.css',
-        // './src/styles/tailwind.css',
-        // './src/styles/global.css',
-      ],
+      customCss: ['@fontsource-variable/inter', './src/styles/theme-priority.css'],
       plugins: [
         starlightLinksValidator(),
-        starlightLlmsTxt(),
-        starlightThemeRapide(),
+        starlightThemeNova(),
         starlightImageZoom({
           showCaptions: true,
         }),
