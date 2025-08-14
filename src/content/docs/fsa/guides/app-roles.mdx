@@ -1,8 +1,8 @@
 ---
-title: "Assign application roles to users"
-description: "Learn how to define, assign, and manage user roles in Scalekit for granular access control."
+title: "Roles and permissions"
+description: "Create, assign, and manage user roles and permissions to control access to your application"
 sidebar:
-  label: "Roles"
+  label: "Roles and permissions"
 head:
   - tag: style
     content: |
@@ -14,30 +14,76 @@ head:
       }
 prev: false
 ---
-import { Tabs, TabItem, Badge, Aside, LinkCard } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code } from '@astrojs/starlight/components';
 
-B2B applications often require different levels of access for different users. Roles are a powerful way to manage these permissions and ensure that users can only access the features and data appropriate for them.
+Applications often include many capabilities. Not every user should be able to perform every action (for example, only owners should manage billing or payments). Scalekit helps you restrict access cleanly with roles and permissions so users get only the access they need.
 
-For example, you might have roles like:
-- **Admin**: Can access all features, including billing and user management.
-- **Editor**: Can create and edit content, but cannot manage users or settings.
-- **Viewer**: Can only view content, but cannot make any changes.
-
-Scalekit provides a flexible role-based access control (RBAC) system that allows you to define custom roles and assign them to users, helping you build a secure and scalable application.
+Scalekit’s Full Stack Auth (FSA) lets your users sign in to your app. Once integrated, Scalekit acts as access middleware: it verifies identity and shares the user’s role and permissions with your application so you can allow or restrict actions.
 
 ![](@/assets/docs/app-roles/1-roles-home.png)
 
-## How roles work
+## Understand roles and permissions
 
-By default, Scalekit provides two roles: `admin` and `member`. When the first user signs up and creates an organization, they are automatically assigned the `admin` role. Any subsequent users who join the organization are assigned the `member` role by default.
+- **Role**: A convenient bundle of actions. Examples: Admin, Manager, Editor, Viewer. Roles state what a user can and cannot do.
+- **Permission**: A single allowed action in your system, typically rendered as `resource:action` (for example, `projects:create`, `tasks:read`). Use permissions when you need fine-grained control.
 
-## Managing roles
+### Defaults
 
-You can manage roles, including creating custom ones, from the Scalekit dashboard:
+When a new Scalekit environment is created:
+- The first user is assigned the `creator` role.
+- Subsequent users default to the `member` role.
 
-1.  Navigate to **User Management** > **Roles**.
-2.  You will see a list of existing roles. Click **+ Add Roles** to create a new role.
-3.  For each new role, you can define a **Display Name**, **Name**, and **Description**. The **Name** is what you will receive in the token and use in your application to control access.
+These defaults only matter when your application enforces them. You decide what a creator or member can do.
+
+## Model roles for your app
+
+Design roles that reflect how your users work. For a project management app (similar to Linear), you might define:
+
+| Role | Permissions |
+|------|-------------|
+| Admin | `org:manage`, `billing:manage`, `projects:create`, `projects:write`, `projects:read`, `tasks:create`, `tasks:write`, `tasks:read`, `members:manage` |
+| Project owner | `projects:create`, `projects:write`, `projects:read`, `tasks:create`, `tasks:write`, `tasks:read` |
+| Editor | `projects:write`, `projects:read`, `tasks:create`, `tasks:write`, `tasks:read` |
+| Member | `projects:read`, `tasks:create`, `tasks:read` |
+| Viewer | `projects:read`, `tasks:read` |
+
+Keep headers short and permissions focused. Expand this table to match your product.
+
+## Manage roles and permissions
+
+You can register roles and permissions from the Scalekit dashboard:
+
+<Steps>
+
+1. ### Create roles
+
+   - Go to **Authorization → Roles**
+   - Click **+ Add role** and provide a Display name, Name (key), and Description. These help your customers understand the role and what they can do.
+   - Use a short, machine-friendly key for the Name (for example, `project_owner`)
+
+   ![](@/assets/docs/app-roles/add-role.png)
+
+2. ### Define permissions
+
+   - Go to **User management → Permissions**
+   - Create granular permissions like `projects:create`, `tasks:read`, `billing:manage`
+   - Map these permissions to the roles you created
+
+   ![](@/assets/docs/app-roles/creating-permissions.png)
+
+3. ### Use inheritance <Badge type="tip" text='Optional'/>
+
+   - Make roles easier to manage by inheriting from other roles
+   - Example: let `editor` inherit all permissions from `viewer`, then add `tasks:create` and `projects:write`
+
+   ![](@/assets/docs/app-roles/inheritance.png)
+
+4. ### Set defaults
+
+   - Confirm default role for the environment creator is `creator`
+   - Confirm default role for new members is `member`
+
+</Steps>
 
 
 
@@ -47,31 +93,27 @@ You can manage roles, including creating custom ones, from the Scalekit dashboar
   description="Follow our quickstart guide to integrate Scalekit into your application and start managing user roles."
 />
 
-You can change the default role for both the organization creator and new members at any time in the **User Management → Roles** section of the dashboard.
+You can change the default role for both the environment creator and new members at any time in **Authorization → Roles**.
 
-## Accessing user roles
+## Token contents and sessions
 
-Once a user is authenticated, their assigned roles are included in the `idToken` and `accessToken`. You can use this information in your application's backend to control access to different resources.
+When your app is integrated with Full Stack Auth and a user signs in, Scalekit issues an access token and a refresh token, and creates a session to track access duration. Roles and permissions are included in token claims so your backend can make authorization decisions.
 
-The `roles` claim in the tokens contains the role key as **name** (not the display name). For example, if you create a role with the key `"editor"` and display name `"Content Editor"`, the token will contain `"editor"` in the roles array.
+The `roles` claim contains the role key (not the display name). For example, if the role key is `editor` and the display name is “Content Editor,” the token includes `"editor"`.
 
 While the `roles` claim is an array, Scalekit currently supports a single role per user within an organization.
 
-Here's an example of a decoded `idToken` containing the `roles` claim:
+Here's an example of decoded tokens containing `roles` and `permissions` claims:
 
 <Tabs>
 <TabItem label="ID Token (decoded)" value="idToken">
-```json
-{
-  "amr": [
-    "conn_123456789012345678"
-  ],
-  "at_hash": "QwertyUioP",
-  "aud": [
-    "skc_987654321098765432"
-  ],
+<Code
+  lang="json"
+  title="idToken.json"
+  code={`{
+  "amr": ["conn_123456789012345678"],
+  "aud": ["skc_987654321098765432"],
   "azp": "skc_987654321098765432",
-  "c_hash": "A1b2C3d4E5",
   "client_id": "skc_987654321098765432",
   "email": "john.doe@example.com",
   "email_verified": true,
@@ -82,35 +124,43 @@ Here's an example of a decoded `idToken` containing the `roles` claim:
   "iss": "http://example.localhost:8889",
   "name": "John Doe",
   "oid": "org_987654321098765432",
-  "roles": [
-    "member"
-  ],
+  "roles": ["member"],
   "sid": "ses_987654321098765432",
   "sub": "usr_987654321098765432"
-}
-```
+}`} />
 </TabItem>
 <TabItem label="Access Token (decoded)" value="accessToken">
-```json
-{
-  "aud": [
-    "skc_987654321098765432"
-  ],
+<Code
+  lang="json"
+  title="accessToken.json"
+  code={`{
+  "aud": ["skc_987654321098765432"],
   "client_id": "skc_987654321098765432",
   "exp": 1750850145,
   "iat": 1750849845,
   "iss": "http://example.localhost:8889",
   "jti": "tkn_987654321098765432",
   "nbf": 1750849845,
-  "roles": [
-    "member"
-  ],
+  "roles": ["member"],
+  "oid": "org_69615647365005430",
+  "permissions": ["emails:read", "inbox:read"],
   "sid": "ses_987654321098765432",
   "sub": "usr_987654321098765432",
   "xuid": "john.doe"
-}
-```
+}`} />
 </TabItem>
 </Tabs>
 
-With the role information readily available in the tokens, you can implement fine-grained access control in your application logic.
+With roles and permissions available in tokens, enforce access in your backend and UI. Example checks:
+
+```js showLineNumbers=false
+// Example: check role
+const isProjectOwner = token.roles?.includes('project_owner');
+
+// Example: check permission
+const canCreateProject = token.permissions?.includes('projects:create');
+```
+
+<Aside type="tip" title="Custom roles per workspace">
+  Building a multi-tenant app and need custom roles per workspace? [Contact us](/support/contact-us) and we’ll help you design a model that fits your tenants while keeping management simple.
+</Aside>
