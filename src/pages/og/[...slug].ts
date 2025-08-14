@@ -42,5 +42,10 @@ export const { getStaticPaths, GET } = OGImageRoute({
         weights: [400],
       },
     },
+    // Load fonts locally to avoid remote fetch timeouts during build
+    fonts: [
+      './node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
+      './node_modules/@fontsource-variable/inter/files/inter-latin-wght-italic.woff2',
+    ],
   }),
 })
