@@ -31,6 +31,8 @@ const RESOURCE_PRIORITY = [
   'organizations',
   'users',
   'memberships',
+  'roles',
+  'permissions',
   'connections',
   'directories',
   'clients',
@@ -46,6 +48,18 @@ const OPERATION_PRIORITY = {
   passwordless: ['send', 'resend', 'verify'],
   users: ['create', 'list', 'get', 'update', 'delete'],
   // 'organizations': ['create', 'list', 'get', 'update', 'delete'],
+}
+
+// Map tag slugs to our canonical resource keys for ordering
+// Handles aliases and singular/plural differences
+const TAG_ALIASES = {
+  api_auth: 'clients',
+  directory: 'directories',
+  user: 'users',
+  role: 'roles',
+  permission: 'permissions',
+  connection: 'connections',
+  membership: 'memberships',
 }
 
 // UPDATE 1: add slugify helper just below CONFIG section
@@ -219,6 +233,48 @@ function reorderSwagger(swaggerJson) {
   })
 
   newSwagger.paths = newPaths
+
+  // Build a top-level tags array to influence renderer grouping & order
+  // Strategy:
+  // 1) Collect unique tag names from all operations
+  // 2) Sort tags by RESOURCE_PRIORITY via alias mapping; unknown tags go after, alphabetically
+  const uniqueTagNames = new Set()
+  for (const pathKey of Object.keys(newPaths)) {
+    const methodsObject = newPaths[pathKey]
+    for (const verb of Object.keys(methodsObject)) {
+      const op = methodsObject[verb]
+      if (op && Array.isArray(op.tags)) {
+        for (const t of op.tags) {
+          if (t && typeof t === 'string') uniqueTagNames.add(t)
+        }
+      }
+    }
+  }
+
+  const tagList = Array.from(uniqueTagNames)
+
+  const tagPriorityIndex = (tagName) => {
+    const slug = slugify(tagName)
+    const canonical = TAG_ALIASES[slug] || slug
+    const idx = RESOURCE_PRIORITY.indexOf(canonical)
+    return idx === -1 ? Number.POSITIVE_INFINITY : idx
+  }
+
+  tagList.sort((a, b) => {
+    const aIdx = tagPriorityIndex(a)
+    const bIdx = tagPriorityIndex(b)
+    if (aIdx !== bIdx) return aIdx - bIdx
+    // Same priority bucket (likely unknowns) → alpha by display name
+    return a.localeCompare(b)
+  })
+
+  // Preserve any existing tag descriptions if present
+  const existingTags = Array.isArray(swaggerJson.tags) ? swaggerJson.tags : []
+  const nameToExisting = new Map(existingTags.map((t) => [t && t.name, t]))
+  newSwagger.tags = tagList.map((name) => {
+    const existing = nameToExisting.get(name)
+    return existing && typeof existing === 'object' ? existing : { name }
+  })
   return newSwagger
 }
 
