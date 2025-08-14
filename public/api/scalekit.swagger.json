@@ -1836,102 +1836,6 @@
         }
       }
     },
-    "/api/v1/organizations/{org_id}/roles": {
-      "get": {
-        "description": "Retrieves a paginated list of all roles within the organization. Use the page_token from the response to access subsequent pages of results.",
-        "tags": ["Roles"],
-        "summary": "List all organization roles",
-        "operationId": "RolesService_ListOrganizationRoles",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "org_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)",
-            "name": "include",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved the list of roles within the given organization",
-            "schema": {
-              "$ref": "#/definitions/rolesListOrganizationRolesResponse"
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new organization role to represent a specific role within the organization.",
-        "tags": ["Roles"],
-        "summary": "Create a new organization role",
-        "operationId": "RolesService_CreateOrganizationRole",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "org_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "role",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "Organization role details",
-              "$ref": "#/definitions/v1rolesCreateOrganizationRole"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Organization role created successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesCreateOrganizationRoleResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{org_id}/roles:set_defaults": {
-      "patch": {
-        "description": "Update the default member role for the organization",
-        "tags": ["Roles"],
-        "summary": "Update default organization roles",
-        "operationId": "RolesService_UpdateDefaultOrganizationRoles",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "org_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/RolesServiceUpdateDefaultOrganizationRolesBody"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Default roles updated successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateDefaultOrganizationRolesResponse"
-            }
-          }
-        }
-      }
-    },
     "/api/v1/roles/{role_name}/base": {
       "delete": {
         "description": "Remove the base role relationship for a given role",
@@ -2036,6 +1940,31 @@
         }
       }
     },
+    "/api/v1/roles/{role_name}/permissions:all": {
+      "get": {
+        "description": "Retrieves all effective permissions assigned to a role, including permissions inherited from any base roles. Use this endpoint to view the complete set of permissions that apply to a role, accounting for both direct assignments and inherited permissions. Provide the role name as a path parameter. Returns a list of permission names representing the full set of effective permissions for the specified role.",
+        "tags": ["Roles"],
+        "summary": "List effective permissions for role",
+        "operationId": "RolesService_ListEffectiveRolePermissions",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the role",
+            "name": "role_name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the list of effective permissions for the role",
+            "schema": {
+              "$ref": "#/definitions/rolesListEffectiveRolePermissionsResponse"
+            }
+          }
+        }
+      }
+    },
     "/api/v1/roles/{role_name}/users:count": {
       "get": {
         "description": "Retrieves the total number of users currently assigned to the specified role. Use this endpoint to monitor role usage or enforce limits based on user assignments. Provide the role's unique name as a path parameter. The response includes the user count for the requested role. This operation does not modify any data and has no side effects.",
@@ -2057,117 +1986,6 @@
             "schema": {
               "$ref": "#/definitions/rolesGetRoleUsersCountResponse"
             }
-          }
-        }
-      }
-    },
-    "/api/v1/organizations/{org_id}/roles/{role_name}": {
-      "get": {
-        "description": "Fetch detailed information about a specific organization role using its unique identifier.",
-        "tags": ["Roles"],
-        "summary": "Retrieve organization role",
-        "operationId": "RolesService_GetOrganizationRole",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "org_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique name of the role",
-            "name": "role_name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)",
-            "name": "include",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved organization role details",
-            "schema": {
-              "$ref": "#/definitions/rolesGetOrganizationRoleResponse"
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Updates an existing organization role using its unique identifier.",
-        "tags": ["Roles"],
-        "summary": "Update an existing organization role",
-        "operationId": "RolesService_UpdateOrganizationRole",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "org_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique name of the role",
-            "name": "role_name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "role",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "Organization role details",
-              "$ref": "#/definitions/v1rolesUpdateRole"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Organization role updated successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateOrganizationRoleResponse"
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Removes an existing role from the organization using its unique identifier.",
-        "tags": ["Roles"],
-        "summary": "Delete an organization role",
-        "operationId": "RolesService_DeleteOrganizationRole",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Unique identifier of the organization",
-            "name": "org_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Unique name of the role",
-            "name": "role_name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Role name to reassign users to when deleting this role",
-            "name": "reassign_role_name",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Deleted successfully",
-            "schema": {}
           }
         }
       }
@@ -2679,16 +2497,6 @@
           "items": {
             "type": "string"
           }
-        }
-      }
-    },
-    "RolesServiceUpdateDefaultOrganizationRolesBody": {
-      "type": "object",
-      "properties": {
-        "default_member_role": {
-          "description": "Unique name of the default member role",
-          "type": "string",
-          "example": "member"
         }
       }
     },
@@ -4568,14 +4376,6 @@
         }
       }
     },
-    "rolesCreateOrganizationRoleResponse": {
-      "type": "object",
-      "properties": {
-        "role": {
-          "$ref": "#/definitions/v1rolesRole"
-        }
-      }
-    },
     "rolesCreatePermissionResponse": {
       "type": "object",
       "properties": {
@@ -4596,14 +4396,6 @@
             "id": "role_1234abcd5678efgh",
             "name": "content_editor"
           }
-        }
-      }
-    },
-    "rolesGetOrganizationRoleResponse": {
-      "type": "object",
-      "properties": {
-        "role": {
-          "$ref": "#/definitions/v1rolesRole"
         }
       }
     },
@@ -4659,15 +4451,15 @@
         }
       }
     },
-    "rolesListOrganizationRolesResponse": {
+    "rolesListEffectiveRolePermissionsResponse": {
       "type": "object",
       "properties": {
-        "roles": {
-          "description": "List of roles objects",
+        "permissions": {
+          "description": "List of all effective permissions including those inherited from base roles",
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1rolesRole"
+            "$ref": "#/definitions/rolesPermission"
           }
         }
       }
@@ -4761,21 +4553,6 @@
         }
       }
     },
-    "rolesUpdateDefaultOrganizationRolesResponse": {
-      "type": "object",
-      "properties": {
-        "default_member": {
-          "description": "Updated default member role",
-          "$ref": "#/definitions/v1rolesRole",
-          "example": {
-            "description": "Role for regular members",
-            "display_name": "Member Role",
-            "id": "role_0987654321",
-            "name": "member"
-          }
-        }
-      }
-    },
     "rolesUpdateDefaultRole": {
       "type": "object",
       "properties": {
@@ -4846,14 +4623,6 @@
             "id": "role_0987654321",
             "name": "member"
           }
-        }
-      }
-    },
-    "rolesUpdateOrganizationRoleResponse": {
-      "type": "object",
-      "properties": {
-        "role": {
-          "$ref": "#/definitions/v1rolesRole"
         }
       }
     },
@@ -5273,39 +5042,6 @@
           "example": {
             "industry": "technology"
           }
-        }
-      }
-    },
-    "v1rolesCreateOrganizationRole": {
-      "type": "object",
-      "properties": {
-        "description": {
-          "description": "Description of the organization's role",
-          "type": "string",
-          "example": "Organization Viewer Role will be used only for viewing the objects"
-        },
-        "display_name": {
-          "description": "Display name of the organization's role",
-          "type": "string",
-          "example": "Organization Viewer Role"
-        },
-        "extends": {
-          "description": "Base role name for hierarchical roles",
-          "type": "string",
-          "example": "admin_role"
-        },
-        "name": {
-          "description": "Unique name of the organization's role",
-          "type": "string",
-          "example": "org_viewer_role"
-        },
-        "permissions": {
-          "description": "List of permission names to assign to this role. Permissions must exist in the current environment.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "example": ["read:users", "write:documents"]
         }
       }
     },
