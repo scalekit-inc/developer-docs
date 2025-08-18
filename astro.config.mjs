@@ -23,6 +23,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Scalekit Docs',
+      titleDelimiter: '',
       routeMiddleware: './src/routeData.ts',
       tableOfContents: {
         minHeadingLevel: 2,
@@ -61,7 +62,11 @@ export default defineConfig({
         // themes: ['vitesse-dark', 'vitesse-light'],
         themes: ['tokyo-night', 'light-plus'],
       },
-      customCss: ['@fontsource-variable/inter', './src/styles/theme-priority.css'],
+      customCss: [
+        '@fontsource-variable/inter',
+        './src/styles/theme-priority.css',
+        './src/styles/custom.css',
+      ],
       plugins: [
         starlightLinksValidator(),
         starlightThemeNova(),
