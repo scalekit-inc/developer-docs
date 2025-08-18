@@ -209,6 +209,7 @@ export const sidebar = [
         items: [
           'guides/setup-scalekit',
           'dev-kit/resources/ai-assisted-setup',
+          'guides/dashboard/redirects',
           'guides/dashboard/auth-logs',
           'guides/external-ids-and-metadata',
         ],
