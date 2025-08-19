@@ -5,13 +5,12 @@ import { CardGrid, Card } from '@astrojs/starlight/components'
 
 <StarlightPage
   frontmatter={{
-    title: 'What is Scalekit?',
-    template: 'splash',
+    title: 'Scalekit documentation',
     tableOfContents: false,
   }}
   hasSidebar={false}
 >
-  <section class="fold fold--light full-bleed">
+  <section class="fold fold--muted full-bleed">
     <div class="home-container">
       <div class="fold-grid">
         <div>
@@ -207,56 +206,23 @@ import { CardGrid, Card } from '@astrojs/starlight/components'
     margin: 0;
   }
 
-  /* Fold base */
   .fold {
     padding: 4rem 0;
+    margin: 0;
   }
 
-  /* Base mapping for fold variants (overridden by alternating rules below) */
   .fold--light {
-    background: #ffffff;
+    background: var(--home-bg-plain);
   }
 
   .fold--muted {
-    background: #f7f9ff;
-  }
-
-  /* Optional: auto‑alternate if you don’t want to add classes manually */
-  .fold.auto:nth-of-type(even) {
-    background: var(--sl-color-surface);
-    border-top: 1px solid var(--sl-color-border);
-    border-bottom: 1px solid var(--sl-color-border);
-  }
-  .fold.auto:nth-of-type(odd) {
-    background: #ffffff;
-  }
-  .fold.auto:nth-of-type(even) {
-    background: #f7f9ff;
-  }
-
-  /* Base fold
-  .fold {
-    padding: 4rem 0;
-  } */
-
-  /* Alternate backgrounds: first is #f7f9ff, then #ffffff, and so on */
-  .fold:nth-of-type(odd) {
-    background: #f7f9ff;
-  }
-  .fold:nth-of-type(even) {
-    background: #ffffff;
-  }
-
-  /* Optional: borders for separation */
-  .fold {
-    border-top: 1px solid var(--sl-color-border);
-    border-bottom: 1px solid var(--sl-color-border);
+    background: var(--home-bg-muted);
   }
 
   .hero-section {
     text-align: center;
     padding: 4rem 0;
-    background: #f7f9ff; /* was gradient */
+    background: var(--home-bg-muted); /* was gradient */
   }
 
   /* Break out of Starlight’s centered container to span the viewport */
@@ -275,15 +241,7 @@ import { CardGrid, Card } from '@astrojs/starlight/components'
 
   /* Hero color (first fold) */
   .hero-section {
-    background: #f7f9ff;
-  }
-
-  /* Alternating folds */
-  .fold--light {
-    background: #ffffff;
-  }
-  .fold--muted {
-    background: #f7f9ff;
+    background: var(--home-bg-muted);
   }
 
   /* Two-column layout inside each fold: text/cards left, image right */
@@ -299,7 +257,7 @@ import { CardGrid, Card } from '@astrojs/starlight/components'
     height: auto;
     border-radius: 12px;
     border: 1px solid var(--sl-color-border);
-    background: #fff;
+    background: var(--sl-color-bg);
   }
 
   .fold-header {
@@ -309,9 +267,10 @@ import { CardGrid, Card } from '@astrojs/starlight/components'
     font-size: 1.5rem;
     font-weight: 700;
     margin: 0 0 0.25rem;
+    color: var(--home-text-primary);
   }
   .fold-lead {
-    color: var(--sl-color-text-accent);
+    color: var(--home-text-secondary);
     margin: 0;
   }
 
@@ -327,7 +286,7 @@ import { CardGrid, Card } from '@astrojs/starlight/components'
   /* Card description + CTA pattern to emulate Figma cards */
   .card-desc {
     margin: 0 0 0.5rem;
-    color: var(--sl-color-text-accent);
+    color: var(--home-text-secondary);
   }
   .card-cta {
     display: inline-flex;
@@ -356,20 +315,30 @@ import { CardGrid, Card } from '@astrojs/starlight/components'
 </style>
 
 <style is:global>
+  :root[data-theme='light'],
+  .theme-light {
+    --home-bg-plain: #ffffff;
+    --home-bg-muted: #f7f9ff;
+    --home-text-primary: #1a1a1a;
+    --home-text-secondary: #666666;
+  }
+
+  :root[data-theme='dark'],
+  .theme-dark {
+    --home-bg-plain: #202020;
+    --home-bg-muted: #111111;
+    --home-text-primary: #ffffff;
+    --home-text-secondary: #e0e0e0;
+  }
   /* Hide the first Starlight content panel only on the homepage */
   main > .content-panel:first-of-type {
-    display: none !important;
-  }
-  /* Completely hide the footer on the homepage */
-  footer,
-  .sl-flex.astro-ow4otdjb,
-  .nova-pagination {
     display: none !important;
   }
 
   /* Remove padding from content panels on the homepage */
   .content-panel {
-    padding: 0 !important;
+    border: 0;
+    padding: 0;
   }
   /* Ensure three cards per row on the homepage at desktop sizes */
   @media (min-width: 1024px) {
