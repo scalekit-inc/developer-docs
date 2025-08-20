@@ -23,6 +23,10 @@ export const redirects = {
   '/sso/guides/test-your-integration/using-okta': '/sso/guides/okta-sso-test/',
   '/sso/overview': '/guides/sso/sso-basics/',
   '/sso/guides/setup-sso/customize-user-attributes': '/sso/guides/sso-user-attributes/',
+  '/sso/reference/redirects': '/guides/dashboard/redirects/',
+
+  //FSA
+  '/fsa/guides/auth-logs': '/guides/dashboard/auth-logs/',
 
   // Legacy paths for SSO docs moved from /guides to /sso
   '/guides/sso/add-login-ux-sso/': '/sso/guides/add-login-ux-sso/',
