@@ -4,4 +4,48 @@ import Default from '@astrojs/starlight/components/Head.astro'
 
 <Default>
   <slot />
+  <script>
+    ;(function () {
+      function decodeHashIfNeeded() {
+        if (!location.hash) return
+        const rawHash = location.hash
+        let decodedHash
+        try {
+          decodedHash = '#' + decodeURIComponent(rawHash.slice(1))
+        } catch {
+          // If decoding fails, do nothing
+          return
+        }
+        if (decodedHash === rawHash) return
+
+        // Replace the URL with the decoded hash without adding a history entry
+        const newUrl = location.pathname + location.search + decodedHash
+        history.replaceState(null, '', newUrl)
+
+        // Try to scroll to the decoded target if it exists
+        const targetId = decodedHash.slice(1)
+        if (targetId) {
+          const el = document.getElementById(targetId)
+          if (el && typeof el.scrollIntoView === 'function') {
+            // Use instant behavior to avoid jank on initial load
+            try {
+              el.scrollIntoView({ behavior: 'instant', block: 'start' })
+            } catch {
+              el.scrollIntoView()
+            }
+          }
+        }
+      }
+
+      // Run after DOM is ready so anchors exist
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', decodeHashIfNeeded)
+      } else {
+        decodeHashIfNeeded()
+      }
+
+      // Normalize encoded hashes that arrive later
+      window.addEventListener('hashchange', decodeHashIfNeeded)
+    })()
+  </script>
 </Default>
