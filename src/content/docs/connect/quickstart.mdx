@@ -15,7 +15,6 @@ next:
 ---
 
 import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
-import InstallSDK from '@components/templates/_installsdk.mdx';
 
 This quickstart guide will help you get up and running with Agent Connect in minutes. You'll learn how to create connections, authenticate users, and execute your first tools.
 
@@ -24,243 +23,103 @@ This quickstart guide will help you get up and running with Agent Connect in min
 In this quickstart, you'll build a simple integration that:
 
 1. **Authenticates a user with GMail** to authenticate their Gmail account via OAuth 2.0
-2. **Sends an email** using the connected account
-3. **Fetches recent emails** from the user's inbox
+2. **Fetches last 5 unread emails** from the user's inbox
 
 ## Prerequisites
 
 Before you start, make sure you have:
 
-- **Scalekit account** with Agent Connect enabled
-- **API credentials** (Client ID and Client Secret)
+- **Scalekit API credentials** (Client ID and Client Secret)
 - **Development environment** (Node.js, Python, or similar)
 
 ## Step 1: Set up your environment
 
-First, install the Scalekit SDK for your preferred language:
-<InstallSDK />
+First, install the Scalekit Python SDK and initialize the client with your API credentials:
+
+<p>
+  ```sh showLineNumbers=false frame="none"
+  pip install scalekit-sdk-python
+  ```
+</p>
+<p>
+  ```python showLineNumbers=false frame="none"
+  import scalekit.client
+  import os
+
+  scalekit = scalekit.client.ScalekitClient(
+      client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+      client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+      env_url=os.getenv("SCALEKIT_ENV_URL"),
+  )
+  connect = scalekit.connect
+
+  ```
+</p>
 
 ## Step 2: Create a connected account
 
 Let's authorize a user to access their Gmail account by creating a connected account. This represents the user's connection to their Gmail account:
 
-<Tabs>
-<TabItem value="nodejs" label="Node.js">
-
-```javascript
-// Create a connected account for user
-const connectedAccount = await agentConnect.accounts.create({
-  connection_id: 'gmail', // this is the unique connection name for this application.
-  identifier: 'user_123', // Your user's unique identifier. this can be email address or user_id from your system.
-});
-
-console.log('Connected account created:', connectedAccount.id);
-```
-
-</TabItem>
-<TabItem value="python" label="Python">
 
 ```python
-# Create a connected account for user
-connected_account = agent_connect.accounts.create(
-    connection_id=connection.id,
-    identifier='user_123',  # Your user's unique identifier. this can be email address or user_id from your system.
-)
+# Create a connected account for user if it doesn't exist already
+connected_account = connect.get_or_create_connected_account(
+            connection_name="gmail",
+            identifier="user_123"
+        )
+
 
 print(f'Connected account created: {connected_account.id}')
 ```
 
-</TabItem>
-<TabItem value="curl" label="cURL">
-
-```bash
-curl -X POST "${SCALEKIT_ENVIRONMENT_URL}/v1/connect/accounts" \
-  -H "Authorization: Bearer ${SCALEKIT_CLIENT_SECRET}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "connection_id": "CONNECTION_ID_FROM_STEP_2",
-    "identifier": "user_123"
-  }'
-```
-
-</TabItem>
-</Tabs>
-
 ## Step 3: Authenticate the user
 
-Generate an OAuth URL for the user to complete authentication. Once the user completes the auth workflow, our system will handle the token exchange and store the tokens in the connected account. This step is not needed if the user has already authenticated with the gmail provider before.
+Inorder to execute any tools on behalf of the user, the user first needs to grant authorization to access their gmail account. Scalekit automatically handles the entire OAuth workflow with the Gmail provider, gets the access token, refreshes the access token periodically based on the refresh token etc.
 
-<Tabs>
-<TabItem value="nodejs" label="Node.js">
-
-```javascript
-// Generate the magic link using which the end user can complete the authentication process for their gmail account
-const authUrl = await agentConnect.accounts.getAuthUrl(connectedAccount.id);
-
-console.log('Redirect user to:', authUrl);
-// In a real app, redirect the user to this URL
-```
-
-</TabItem>
-<TabItem value="python" label="Python">
+If the user's access token is expired, Scalekit will automatically refresh the access token using the refresh token. At any time, you can check the authorization status of the connected account and determine if the user needs to re-authorize the connection.
 
 ```python
-# Generate the magic link using which the end user can complete the authentication process for their gmail account
-auth_url = agent_connect.accounts.get_auth_url(
-    connected_account.id
-)
+# If the user hasn't yet authorized the gmail connection or if the user's access token is expired, generate a link for them to authorize the connection
+if(connected_account.status != "ACTIVE"):
+      print(f"gmail is not connected: {connected_account.status}")
+      link_response = connect.get_authorization_link(
+          connection_name="gmail",
+          identifier="user_123"
+      )
+      print(f"🔗click on the link to authorize gmail", link_response.link)
+      input(f"⎆ Press Enter after authorizing gmail...")
 
-print(f'Redirect user to: {auth_url}')
-# In a real app, redirect the user to this URL
+# In a real app, redirect the user to this URL so that the user can complete the authentication process for their gmail account
 ```
-
-</TabItem>
-<TabItem value="curl" label="cURL">
-
-```bash
-curl -X GET "${SCALEKIT_ENVIRONMENT_URL}/v1/connect/accounts/ACCOUNT_ID/auth-url" \
-  -H "Authorization: Bearer ${SCALEKIT_ACCESS_TOKEN}" 
-```
-
-</TabItem>
-</Tabs>
 
 ## Step 4: Execute a tool - Send an email
 
-Now that the user is authenticated, you can execute tools on their behalf. Let's send an email:
-
-<Tabs>
-<TabItem value="nodejs" label="Node.js">
-
-```javascript
-// Send an email
-const emailResult = await agentConnect.tools.execute({
-  connected_account_id: connectedAccount.id,
-  tool: 'send_email',
-  parameters: {
-    to: 'recipient@example.com',
-    subject: 'Hello from Agent Connect!',
-    body: 'This is my first email sent via Agent Connect.',
-    html_body: '<p>This is my first email sent via <strong>Agent Connect</strong>.</p>'
-  }
-});
-
-console.log('Email sent:', emailResult);
-```
-
-</TabItem>
-<TabItem value="python" label="Python">
-
-```python
-# Send an email
-email_result = agent_connect.tools.execute(
-    connected_account_id=connected_account.id,
-    tool='send_email',
-    parameters={
-        'to': 'recipient@example.com',
-        'subject': 'Hello from Agent Connect!',
-        'body': 'This is my first email sent via Agent Connect.',
-        'html_body': '<p>This is my first email sent via <strong>Agent Connect</strong>.</p>'
-    }
-)
-
-print(f'Email sent: {email_result}')
-```
-
-</TabItem>
-<TabItem value="curl" label="cURL">
-
-```bash
-curl -X POST "${SCALEKIT_BASE_URL}/v1/connect/tools/execute" \
-  -H "Authorization: Bearer ${SCALEKIT_ACCESS_TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "connected_account_id": "CONNECTED_ACCOUNT_ID",
-    "tool": "send_email",
-    "parameters": {
-      "to": "recipient@example.com",
-      "subject": "Hello from Agent Connect!",
-      "body": "This is my first email sent via Agent Connect.",
-      "html_body": "<p>This is my first email sent via <strong>Agent Connect</strong>.</p>"
-    }
-  }'
-```
-
-</TabItem>
-</Tabs>
-
-## Step 5: Execute another tool - Fetch emails
-
-Let's also fetch some recent emails from the user's inbox:
-
-<Tabs>
-<TabItem value="nodejs" label="Node.js">
-
-```javascript
-// Fetch recent emails
-const emails = await agentConnect.tools.execute({
-  connected_account_id: connectedAccount.id,
-  tool: 'fetch_emails',
-  parameters: {
-    query: 'is:unread',
-    max_results: 10
-  }
-});
-
-console.log('Recent emails:', emails.result);
-```
-
-</TabItem>
-<TabItem value="python" label="Python">
+Now that the user has successfully authorized the gmail connection, you can execute tools on their behalf. For this example, let's fetch the last 5 unread emails from the user's inbox.
 
 ```python
 # Fetch recent emails
 emails = agent_connect.tools.execute(
     connected_account_id=connected_account.id,
-    tool='fetch_emails',
+    tool='gmail_fetch_mails',
     parameters={
         'query': 'is:unread',
-        'max_results': 10
+        'max_results': 5
     }
 )
 
 print(f'Recent emails: {emails.result}')
 ```
 
-</TabItem>
-<TabItem value="curl" label="cURL">
-
-```bash
-curl -X POST "${SCALEKIT_BASE_URL}/v1/connect/tools/execute" \
-  -H "Authorization: Bearer ${SCALEKIT_ACCESS_TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "connected_account_id": "CONNECTED_ACCOUNT_ID",
-    "tool": "fetch_emails",
-    "parameters": {
-      "query": "is:unread",
-      "max_results": 10
-    }
-  }'
-```
-
-</TabItem>
-</Tabs>
-
 ## Next steps
 
-Congratulations! You've successfully created your first Agent Connect integration. Here's what you can do next:
+Congratulations! You've successfully created implemented tool calls on behalf of a user.
+
+In this example, we showed how to implement tool calls on behalf of a user. You can now use the same approach to implement tool calls for other providers and tools.
+
+Let's make it more interesting by implementing a simple agent that can fetch the last 5 unread emails from the user's inbox and send an email to the user. Go through our Agentic Tool Calling guide to implement the same usecase using Langchain and Agent Connect.
 
 <CardGrid>
-  <LinkCard title="Explore More Providers" icon="star" href="/connect/providers/">
-    Try connecting to Slack, Jira, or other supported providers
-  </LinkCard>
-  <LinkCard title="Add More Tools" icon="puzzle" href="/connect/tools/definitions/">
-    Explore the full range of tools available for each provider
-  </LinkCard>
-  <LinkCard title="Use Your Own OAuth" icon="setting" href="/connect/authorization/bring-your-own-auth">
-    Set up your own OAuth applications for production use
+  <LinkCard title="Agentic Tool Calling" icon="star" href="/connect/agentic-quickstart">
+    Implement a simple agent that can fetch the last 5 unread emails from the user's inbox and generate a summary of the emails.
   </LinkCard>
 </CardGrid>
-
-You're now ready to build powerful integrations with Agent Connect!

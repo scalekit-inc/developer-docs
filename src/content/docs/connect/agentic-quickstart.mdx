@@ -13,135 +13,109 @@ This quickstart guide will help you implement tool calling using LLMs to determi
 In this quickstart, you'll build a simple integration that:
 
 1. **Authenticates a user with GMail** to authenticate their Gmail account via OAuth 2.0
-2. **Sends an email** using the connected account
-3. **Fetches recent emails** from the user's inbox
+2. **Fetches last 5 unread emails** from the user's inbox
 
 ## Prerequisites
 
 Before you start, make sure you have:
 
-- **Scalekit account** with Agent Connect enabled
-- **API credentials** (Client ID and Client Secret)
+- **Scalekit API credentials** (Client ID and Client Secret)
 - **Development environment** (Node.js, Python, or similar)
 
 ## Step 1: Set up your environment
 
-First, install the Scalekit SDK for your preferred language:
-<InstallSDK />
+First, install the Scalekit Python SDK and initialize the client with your API credentials:
+
+<p>
+  ```sh showLineNumbers=false frame="none"
+  pip install scalekit-sdk-python
+  ```
+</p>
+<p>
+  ```python showLineNumbers=false frame="none"
+  import scalekit.client
+  import os
+
+  scalekit = scalekit.client.ScalekitClient(
+      client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+      client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+      env_url=os.getenv("SCALEKIT_ENV_URL"),
+  )
+  connect = scalekit.connect
+
+  ```
+</p>
 
 ## Step 2: Create a connected account
-
 Let's authorize a user to access their Gmail account by creating a connected account. This represents the user's connection to their Gmail account:
 
-<Tabs>
-
-<TabItem value="python" label="Python">
 
 ```python
-# Create a connected account for user
-gmail_connected_account = agent_connect.accounts.create(
-    connection_id='gmail',
-    identifier='user_123',  # Your user's unique identifier. this can be email address or user_id from your system.
-)
+# Create a connected account for user if it doesn't exist already
+connected_account = connect.get_or_create_connected_account(
+            connection_name="gmail",
+            identifier="user_123"
+        )
 
-slack_connected_account = agent_connect.accounts.create(
-    connection_id='slack',
-    identifier='user_123',  # Your user's unique identifier. this can be email address or user_id from your system.
-)
+
+print(f'Connected account created: {connected_account.id}')
 ```
-
-</TabItem>
-<TabItem value="curl" label="cURL">
-
-```bash
-curl -X POST "${SCALEKIT_ENVIRONMENT_URL}/v1/connect/accounts" \
-  -H "Authorization: Bearer ${SCALEKIT_ACCESS_TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "connection_id": "gmail",
-    "identifier": "user_123"
-  }'
-```
-
-</TabItem>
-</Tabs>
 
 ## Step 3: Authenticate the user
 
-Generate an OAuth URL for the user to complete authentication. Once the user completes the auth workflow, our system will handle the token exchange and store the tokens in the connected account. This step is not needed if the user has already authenticated with the gmail provider before.
+Inorder to execute any tools on behalf of the user, the user first needs to grant authorization to access their gmail account. Scalekit automatically handles the entire OAuth workflow with the Gmail provider, gets the access token, refreshes the access token periodically based on the refresh token etc.
 
-<Tabs>
-<TabItem value="nodejs" label="Node.js">
-
-```javascript
-// Generate the magic link using which the end user can complete the authentication process for their gmail account
-const authUrl = await agentConnect.accounts.getAuthUrl(gmail_connected_account.id);
-const authUrl = await agentConnect.accounts.getAuthUrl(slack_connected_account.id);
-
-console.log('Redirect user to:', authUrl);
-// In a real app, redirect the user to this URL
-```
-
-</TabItem>
-<TabItem value="python" label="Python">
+If the user's access token is expired, Scalekit will automatically refresh the access token using the refresh token. At any time, you can check the authorization status of the connected account and determine if the user needs to re-authorize the connection.
 
 ```python
-# Generate the magic link using which the end user can complete the authentication process for their gmail account
-auth_url = agent_connect.accounts.get_auth_url(
-    connected_account.id
+# If the user hasn't yet authorized the gmail connection or if the user's access token is expired, generate a link for them to authorize the connection
+if(connected_account.status != "ACTIVE"):
+      print(f"gmail is not connected: {connected_account.status}")
+      link_response = connect.get_authorization_link(
+          connection_name="gmail",
+          identifier="user_123"
+      )
+      print(f"🔗click on the link to authorize gmail", link_response.link)
+      input(f"⎆ Press Enter after authorizing gmail...")
+
+# In a real app, redirect the user to this URL so that the user can complete the authentication process for their gmail account
+```
+
+## Step 4: Build a Langchain Agent
+
+Let's build a simple agent that can fetch the last 5 unread emails from the user's inbox and generate a summary of the emails.
+
+1. Fetch the last 5 unread emails from the user's inbox
+2. Generate a summary of the emails.
+
+```python
+from langchain_openai import ChatOpenAI
+from langchain.agents import AgentExecutor, create_openai_tools_agent
+
+# use scalekit SDK to fetch all GMAIL tools in langchain format
+tools =  connect.langchain.get_tools(
+    identifier="user_123",
+    filter =Filter(
+        provider = "GMAIL" # all tools for provider used by default
+    )
 )
 
-print(f'Redirect user to: {auth_url}')
-# In a real app, redirect the user to this URL
-```
-
-</TabItem>
-<TabItem value="curl" label="cURL">
-
-```bash
-curl -X GET "${SCALEKIT_ENVIRONMENT_URL}/v1/connect/accounts/ACCOUNT_ID/auth-url" \
-  -H "Authorization: Bearer ${SCALEKIT_CLIENT_SECRET}" 
-```
-
-</TabItem>
-</Tabs>
-
-## Step 4: Build an agentic workflow
-
-Now that the user is authenticated, you can execute tools on their behalf. Let's build an agentic workflow that:
-
-1. Reads the latest email from the user's inbox
-2. Sends a summary of the email to a Slack channel
-
-<Tabs>
-
-<TabItem value="python" label="Python">
-
-```python
-# Send an email
-tools = [slack_tool,fetch_gmail_emails]
-# Initialize the OpenAI LLM
-
-tools = scalekit.connect.get_tools([],identifier)
-
+# create a langchain agent and supply the tools to the agent. We are using gpt-4o as the LLM for this example.
 llm = ChatOpenAI(model="gpt-4o")
 agent = create_openai_tools_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(agent=agent, tools=tools,verbose=True)
 
-# Invoke the agent with a Slack message request
+
 result = agent_executor.invoke(
     {
-        "input": "read the latest email and send summary of that email to Slack channel #connect",
+        "input":
+            '''
+            Fetch last 5 unread emails from my inbox and summarize them.
+            ''',
     }
 )
 ```
 
-</TabItem>
-
-</Tabs>
-
 ## Next steps
 
-Congratulations! You've successfully implemented tool calling using LLMs to determine which tool to call with what parameters based on the user's input. Here's what you can do next:
-
-You're now ready to build powerful integrations with Agent Connect!
+Congratulations! You've successfully built a langchain agent and gave it access to gmail tools to execute tool calls on behalf of a user.
