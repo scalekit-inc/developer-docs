@@ -38,6 +38,24 @@ const updateColorMode = () => {
   }
 }
 
+// Provide a redirect function to Scalar so it normalizes the
+// incoming URL hash before it initializes routing.
+function scalarRedirect(input: string): string | undefined {
+  if (typeof window === 'undefined' || typeof input !== 'string') return undefined
+  // Input is typically just the hash (e.g., "#tag/..."), unless pathRouting is enabled
+  const hashIndex = input.indexOf('#')
+  if (hashIndex === -1) return undefined
+  const prefix = input.slice(0, hashIndex) // path when pathRouting=true, otherwise ""
+  const rawHash = input.slice(hashIndex + 1)
+  try {
+    const decodedHash = decodeURIComponent(rawHash)
+    const candidate = `${prefix}#${decodedHash}`
+    return candidate !== input ? candidate : undefined
+  } catch {
+    return undefined
+  }
+}
+
 // Normalize percent-encoded URL fragments so deep links work (e.g., %7B → {)
 function normalizeEncodedLocationHash(): boolean {
   if (typeof window === 'undefined') return
@@ -58,8 +76,12 @@ function normalizeEncodedLocationHash(): boolean {
 
 // Run normalization as early as possible so the reference reads the decoded hash
 let __normalizedOnce = false
+let __initialTargetHash: string | null = null
 if (typeof window !== 'undefined') {
   __normalizedOnce = normalizeEncodedLocationHash()
+  if (__normalizedOnce) {
+    __initialTargetHash = window.location.hash
+  }
   window.addEventListener('hashchange', normalizeEncodedLocationHash)
 }
 
@@ -102,21 +124,51 @@ onMounted(() => {
   const interval = setInterval(updateColorMode, 1000)
   ;(window as any).__colorModeInterval = interval
 
-  // If we normalized the hash before mount, dispatch a hashchange now that
-  // listeners (like Scalar ApiReference) are attached.
-  if (__normalizedOnce) {
-    // Dispatch twice to be safe: once now and once on next microtask.
+  // Stabilize the initially requested hash for a short window so
+  // Scalar's intersection-based hash updates don't override it.
+  const protectionDeadline = Date.now() + 2000
+  let enforceTries = 0
+  function enforceInitialTarget() {
+    if (!__initialTargetHash) return
+    if (Date.now() > protectionDeadline) return
+    if (window.location.hash !== __initialTargetHash) {
+      const url = window.location.pathname + window.location.search + __initialTargetHash
+      window.history.replaceState(null, '', url)
+      const id = __initialTargetHash.slice(1)
+      const el = document.getElementById(id)
+      if (el) {
+        try {
+          el.scrollIntoView({ behavior: 'instant', block: 'start' })
+        } catch {
+          el.scrollIntoView()
+        }
+      }
+    }
+    if (++enforceTries < 8) setTimeout(enforceInitialTarget, 150)
+  }
+  if (__initialTargetHash) setTimeout(enforceInitialTarget, 60)
+
+  const guard = (e: HashChangeEvent) => {
+    if (!__initialTargetHash) return
+    if (Date.now() > protectionDeadline) return
+    if (window.location.hash !== __initialTargetHash) {
+      // If deviated within protection window, enforce again
+      enforceInitialTarget()
+    }
+  }
+  window.addEventListener('hashchange', guard)
+  ;(window as any).__hashGuard = guard
+
+  // Nudge Scalar to process the current hash by firing hashchange
+  // after it has mounted and registered its handler.
+  const fire = () => {
     try {
       window.dispatchEvent(new HashChangeEvent('hashchange'))
-    } catch {
-      // no-op
-    }
-    queueMicrotask(() => {
-      try {
-        window.dispatchEvent(new HashChangeEvent('hashchange'))
-      } catch {}
-    })
+    } catch {}
   }
+  setTimeout(fire, 0)
+  setTimeout(fire, 120)
+  setTimeout(fire, 300)
 })
 
 onUnmounted(() => {
@@ -140,6 +192,10 @@ onUnmounted(() => {
 
   // Clean up hash normalization listener
   window.removeEventListener('hashchange', normalizeEncodedLocationHash)
+  if ((window as any).__hashGuard) {
+    window.removeEventListener('hashchange', (window as any).__hashGuard)
+    delete (window as any).__hashGuard
+  }
 })
 </script>
 
@@ -211,6 +267,7 @@ onUnmounted(() => {
           favicon:
             'https://cdn.prod.website-files.com/65b87d98fa638289e10b8f61/67ab35acf2f180e0fe0a94a8_S%20Icon%20-%20Black%20-%2032x32.png',
           hideClientButton: true,
+          redirect: scalarRedirect,
         }"
       />
     </div>
