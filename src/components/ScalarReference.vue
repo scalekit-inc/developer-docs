@@ -38,6 +38,31 @@ const updateColorMode = () => {
   }
 }
 
+// Normalize percent-encoded URL fragments so deep links work (e.g., %7B → {)
+function normalizeEncodedLocationHash(): boolean {
+  if (typeof window === 'undefined') return
+  const currentHash = window.location.hash
+  if (!currentHash) return false
+  try {
+    const decoded = '#' + decodeURIComponent(currentHash.slice(1))
+    if (decoded !== currentHash) {
+      const replacement = window.location.pathname + window.location.search + decoded
+      window.history.replaceState(null, '', replacement)
+      return true
+    }
+  } catch {
+    // ignore invalid escape sequences
+  }
+  return false
+}
+
+// Run normalization as early as possible so the reference reads the decoded hash
+let __normalizedOnce = false
+if (typeof window !== 'undefined') {
+  __normalizedOnce = normalizeEncodedLocationHash()
+  window.addEventListener('hashchange', normalizeEncodedLocationHash)
+}
+
 // Listen for storage changes (when color mode is changed)
 const handleStorageChange = (e: StorageEvent) => {
   if (e.key === 'colorMode') {
@@ -76,6 +101,22 @@ onMounted(() => {
   // Periodically check localStorage as a fallback
   const interval = setInterval(updateColorMode, 1000)
   ;(window as any).__colorModeInterval = interval
+
+  // If we normalized the hash before mount, dispatch a hashchange now that
+  // listeners (like Scalar ApiReference) are attached.
+  if (__normalizedOnce) {
+    // Dispatch twice to be safe: once now and once on next microtask.
+    try {
+      window.dispatchEvent(new HashChangeEvent('hashchange'))
+    } catch {
+      // no-op
+    }
+    queueMicrotask(() => {
+      try {
+        window.dispatchEvent(new HashChangeEvent('hashchange'))
+      } catch {}
+    })
+  }
 })
 
 onUnmounted(() => {
@@ -96,6 +137,9 @@ onUnmounted(() => {
     clearInterval((window as any).__colorModeInterval)
     delete (window as any).__colorModeInterval
   }
+
+  // Clean up hash normalization listener
+  window.removeEventListener('hashchange', normalizeEncodedLocationHash)
 })
 </script>
 
