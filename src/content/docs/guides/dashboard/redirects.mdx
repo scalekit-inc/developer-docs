@@ -1,5 +1,6 @@
 ---
 title: "Redirects"
+topic: dev-kit
 description: "Learn how to configure and validate redirect URLs in Scalekit for secure authentication flows, including callback, login, logout, and back-channel logout endpoints."
 sidebar:
   label: "Redirect configurations"
@@ -11,7 +12,6 @@ Redirects are registered endpoints in Scalekit that control where users are dire
 
 All redirect URIs must be registered under Authentication settings in your Scalekit dashboard. This is a security requirement to prevent unauthorized redirects.
 
-![](@/assets/docs/common/redirects/1-redirects-ui.png)
 
 ## Understanding redirect types
 
@@ -22,10 +22,18 @@ Scalekit uses four types of redirect endpoints, each serving a specific purpose 
 
 **Example scenario**: A user completes sign-in and Scalekit redirects them to `https://yourapp.com/callback` where your application processes the authentication response.
 
-### Intiate login URL
-**Purpose**: Where users are redirected to start the authentication process when they need to sign in.
+### Initiate login URL
+**Purpose**: When authentication does not initiate from your application, Scalekit redirects users back to your application's login initiation endpoint. This endpoint should point to a route in your application that ultimately redirects users to Scalekit's `/authorize` endpoint.
 
-**Example scenario**: When a user's session expires or they access a protected resource, they're redirected to `https://yourapp.com/login` which then redirects to Scalekit's authentication endpoint.
+**Example scenarios**:
+
+- **Bookmarked login page**: A user bookmarks your login page and visits it directly. Your application detects they're not authenticated and redirects them to Scalekit's authorization endpoint.
+
+- **Organization invitation flow**: A user clicks an invitation link to join an organization. Your application receives the invitation token and redirects the user to Scalekit's authorization endpoint to complete the sign-up process.
+
+- **IdP-initiated SSO**: An administrator initiates single sign-on from their identity provider dashboard. The IdP redirects users to your application, which then redirects them to Scalekit's authorization endpoint to complete authentication.
+
+- **Session expiration**: When a user's session expires or they access a protected resource, they're redirected to `https://yourapp.com/login` which then redirects to Scalekit's authentication endpoint.
 
 ### Post logout URL
 **Purpose**: Where users are sent after successfully signing out of your application.
@@ -33,9 +41,9 @@ Scalekit uses four types of redirect endpoints, each serving a specific purpose 
 **Example scenario**: After logging out, users are redirected to `https://yourapp.com/goodbye` to confirm their session has ended.
 
 ### Back channel logout URL
-**Purpose**: A secure endpoint that receives notifications when an administrator logs out a user, commonly used in Enterprise SSO scenarios.
+**Purpose**: A secure endpoint that receives notifications whenever a user is logged out from Scalekit, regardless of how the logout was initiated — admin triggered, user initiated, or due to session policies like idle timeout.
 
-**Example scenario**: An IT administrator removes a user from their organization's identity provider, and Scalekit sends a logout notification to `https://yourapp.com/api/logout` to terminate the user's session.
+**Example scenario**: When a user logs out from any application (user-initiated, admin-initiated, or due to session policies like idle timeout), Scalekit sends a logout notification to `https://yourapp.com/logout` to suggest termination of the user's session across all connected applications, ensuring coordinated logout for enhanced security.
 
 ## Configure redirect URLs
 
