@@ -1556,7 +1556,7 @@
     },
     "/api/v1/invites/organizations/{organization_id}/users/{id}/resend": {
       "patch": {
-        "description": "Resends an invitation email to a user who has a pending invitation in the specified organization. Use this endpoint when a user hasn't responded to their initial invitation and you need to send them a reminder. The system will generate a new invitation email with updated expiration time and increment the resend counter. This is useful for users who may have missed the original email or need additional time to complete their account setup.",
+        "description": "Resends an invitation email to a user who has a pending or expired invitation in the specified organization. If the invitation has expired, a new invitation will be automatically created and sent. If the invitation is still valid, a reminder email will be sent instead. Use this endpoint when a user hasn't responded to their initial invitation and you need to send them a reminder or when the original invitation has expired. The invitation email includes a secure magic link that allows the user to complete their account setup and join the organization. Each resend operation increments the resent counter.",
         "tags": ["Users"],
         "summary": "Resend user invitation email",
         "operationId": "UserService_ResendInvite",
@@ -1586,9 +1586,27 @@
         ],
         "responses": {
           "200": {
-            "description": "Invitation email resent successfully. Returns the updated invite object with new expiration time and incremented resend counter.",
+            "description": "Successfully resent the invitation email. Returns the updated invitation object with organization ID, user ID, membership status, timestamps, and resent count. If expired, a new invitation is created; otherwise, the existing one is resent.",
             "schema": {
               "$ref": "#/definitions/usersResendInviteResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request — common causes include user ID or organization ID is invalid, full-stack authentication is disabled, user profile is missing, invite already accepted, or missing expiry time in user management settings.",
+            "schema": {
+              "$ref": "#/definitions/errdetailsErrorInfo"
+            }
+          },
+          "404": {
+            "description": "Resource not found — the specified user, organization, membership, or invitation could not be found in the specified environment. Verify that all IDs are correct and that the resources exist before attempting to resend an invitation.",
+            "schema": {
+              "$ref": "#/definitions/errdetailsErrorInfo"
+            }
+          },
+          "500": {
+            "description": "Internal server error — an unexpected error occurred while processing the invitation resend request. This may be due to database connectivity issues, problems generating the secure magic link, email delivery service failures, or transaction errors during invitation processing. Contact support if the problem persists.",
+            "schema": {
+              "$ref": "#/definitions/errdetailsErrorInfo"
             }
           }
         }
@@ -1930,8 +1948,47 @@
     }
   },
   "definitions": {
+    "HelpInfoLink": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "RolesServiceAddPermissionsToRoleBody": {
+      "type": "object",
+      "properties": {
+        "permission_names": {
+          "description": "List of permission names to add to the role",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "UserServiceResendInviteBody": {
       "type": "object"
+    },
+    "ValidationErrorInfoFieldViolation": {
+      "description": "A message type used to describe a single bad request field.",
+      "type": "object",
+      "properties": {
+        "constraint": {
+          "type": "string"
+        },
+        "description": {
+          "description": "A description of why the request element is bad.",
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        }
+      }
     },
     "authpasswordlessPasswordlessType": {
       "type": "string",
@@ -3502,6 +3559,136 @@
       "type": "string",
       "enum": ["PENDING", "VERIFIED", "FAILED"]
     },
+    "errdetailsDebugInfo": {
+      "description": "Describes additional debugging info.",
+      "type": "object",
+      "properties": {
+        "detail": {
+          "description": "Additional debugging information provided by the server.",
+          "type": "string"
+        },
+        "stack_entries": {
+          "description": "The stack trace entries indicating where the error occurred.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "errdetailsErrorInfo": {
+      "type": "object",
+      "properties": {
+        "debug_info": {
+          "$ref": "#/definitions/errdetailsDebugInfo"
+        },
+        "error_code": {
+          "type": "string"
+        },
+        "help_info": {
+          "$ref": "#/definitions/errdetailsHelpInfo"
+        },
+        "localized_message_info": {
+          "$ref": "#/definitions/errdetailsLocalizedMessageInfo"
+        },
+        "request_info": {
+          "$ref": "#/definitions/errdetailsRequestInfo"
+        },
+        "resource_info": {
+          "$ref": "#/definitions/errdetailsResourceInfo"
+        },
+        "tool_error_info": {
+          "$ref": "#/definitions/errdetailsToolErrorInfo"
+        },
+        "validation_error_info": {
+          "$ref": "#/definitions/errdetailsValidationErrorInfo"
+        }
+      }
+    },
+    "errdetailsHelpInfo": {
+      "type": "object",
+      "properties": {
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/HelpInfoLink"
+          }
+        }
+      }
+    },
+    "errdetailsLocalizedMessageInfo": {
+      "type": "object",
+      "properties": {
+        "locale": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "errdetailsRequestInfo": {
+      "description": "Contains metadata about the request that clients can attach when filing a bug\nor providing other forms of feedback.",
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "description": "An opaque string that should only be interpreted by the service generating\nit. For example, it can be used to identify requests in the service's logs.",
+          "type": "string"
+        },
+        "serving_data": {
+          "description": "Any data that was used to serve this request. For example, an encrypted\nstack trace that can be sent back to the service provider for debugging.",
+          "type": "string"
+        }
+      }
+    },
+    "errdetailsResourceInfo": {
+      "description": "Describes the resource that is being accessed.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Describes what error is encountered when accessing this resource.\nFor example, updating a cloud project may require the `writer` permission\non the developer console project.",
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "resource_name": {
+          "type": "string"
+        },
+        "resource_type": {
+          "type": "string"
+        }
+      }
+    },
+    "errdetailsToolErrorInfo": {
+      "type": "object",
+      "properties": {
+        "execution_id": {
+          "type": "string"
+        },
+        "tool_error_code": {
+          "type": "string"
+        },
+        "tool_error_message": {
+          "type": "string"
+        }
+      }
+    },
+    "errdetailsValidationErrorInfo": {
+      "description": "Describes violations in a client request. This error type focuses on the\nsyntactic aspects of the request.",
+      "type": "object",
+      "properties": {
+        "field_violations": {
+          "description": "Describes all violations in a client request.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ValidationErrorInfoFieldViolation"
+          }
+        }
+      }
+    },
     "organizationsCreateOrganizationResponse": {
       "type": "object",
       "properties": {
@@ -3792,6 +3979,268 @@
     "protobufNullValue": {
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.",
       "type": "string"
+    },
+    "rolesAddPermissionsToRoleResponse": {
+      "type": "object",
+      "properties": {
+        "permissions": {
+          "description": "List of all permissions belonging to the role after addition",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/rolesPermission"
+          }
+        }
+      }
+    },
+    "rolesCreateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "description": "The created role object with system-generated ID and all configuration details.",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "description": "Can edit content",
+            "display_name": "Content Editor",
+            "id": "role_1234abcd5678efgh",
+            "name": "content_editor"
+          }
+        }
+      }
+    },
+    "rolesGetRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "description": "The complete role object with all metadata, permissions, and inheritance details.",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "dependent_roles_count": 2,
+            "display_name": "Content Editor",
+            "id": "role_1234abcd5678efgh",
+            "name": "content_editor",
+            "permissions": [
+              {
+                "name": "read:content"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rolesGetRoleUsersCountResponse": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "description": "Number of users associated with the role",
+          "type": "string",
+          "format": "int64",
+          "example": 10
+        }
+      }
+    },
+    "rolesListDependentRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "description": "List of dependent roles",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1rolesRole"
+          }
+        }
+      }
+    },
+    "rolesListEffectiveRolePermissionsResponse": {
+      "type": "object",
+      "properties": {
+        "permissions": {
+          "description": "List of all effective permissions including those inherited from base roles",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/rolesPermission"
+          }
+        }
+      }
+    },
+    "rolesListRolePermissionsResponse": {
+      "type": "object",
+      "properties": {
+        "permissions": {
+          "description": "List of permissions directly assigned to the role",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/rolesPermission"
+          }
+        }
+      }
+    },
+    "rolesListRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "description": "List of all roles in the environment with their metadata and optionally their permissions.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1rolesRole"
+          },
+          "example": [
+            {
+              "display_name": "Administrator",
+              "id": "role_1234abcd5678efgh",
+              "name": "admin"
+            },
+            {
+              "display_name": "Viewer",
+              "id": "role_9876zyxw5432vuts",
+              "name": "viewer"
+            }
+          ]
+        }
+      }
+    },
+    "rolesPermission": {
+      "type": "object",
+      "title": "Permission Entity",
+      "properties": {
+        "create_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "rolesRolePermission": {
+      "type": "object",
+      "title": "RolePermissions represents a permission with role source information",
+      "properties": {
+        "create_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role_name": {
+          "description": "Name of the role from which this permission was sourced",
+          "type": "string",
+          "example": "admin_role"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "rolesUpdateDefaultRole": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "description": "Unique name of the role",
+          "type": "string",
+          "example": "creator"
+        }
+      }
+    },
+    "rolesUpdateDefaultRolesRequest": {
+      "type": "object",
+      "properties": {
+        "default_creator": {
+          "description": "Default creator role (deprecated - use default_creator_role field instead)",
+          "$ref": "#/definitions/rolesUpdateDefaultRole",
+          "example": {
+            "description": "Role for creating resources",
+            "display_name": "Creator Role",
+            "id": "role_1234567890",
+            "name": "creator"
+          }
+        },
+        "default_creator_role": {
+          "description": "Name of the role to set as the default creator role. This role will be automatically assigned to users who create new resources in the environment. Must be a valid role name that exists in the environment.",
+          "type": "string",
+          "example": "creator"
+        },
+        "default_member": {
+          "description": "Default member role (deprecated - use default_member_role field instead)",
+          "$ref": "#/definitions/rolesUpdateDefaultRole",
+          "example": {
+            "description": "Role for regular members",
+            "display_name": "Member Role",
+            "id": "role_0987654321",
+            "name": "member"
+          }
+        },
+        "default_member_role": {
+          "description": "Name of the role to set as the default member role. This role will be automatically assigned to new users when they join the environment. Must be a valid role name that exists in the environment.",
+          "type": "string",
+          "example": "member"
+        }
+      }
+    },
+    "rolesUpdateDefaultRolesResponse": {
+      "type": "object",
+      "properties": {
+        "default_creator": {
+          "description": "The role that is now set as the default creator role for the environment. Contains complete role information including permissions and metadata.",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "description": "Role for creating resources",
+            "display_name": "Creator Role",
+            "id": "role_1234567890",
+            "name": "creator"
+          }
+        },
+        "default_member": {
+          "description": "The role that is now set as the default member role for the environment. Contains complete role information including permissions and metadata.",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "description": "Role for regular members",
+            "display_name": "Member Role",
+            "id": "role_0987654321",
+            "name": "member"
+          }
+        }
+      }
+    },
+    "rolesUpdateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "description": "The updated role object with all current configuration details.",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "description": "Can edit and approve content",
+            "display_name": "Senior Editor",
+            "id": "role_1234abcd5678efgh",
+            "name": "content_editor"
+          }
+        }
+      }
     },
     "usersCreateMembershipResponse": {
       "type": "object",
@@ -4189,6 +4638,139 @@
         }
       }
     },
+    "v1rolesCreateRole": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Detailed description of the role's purpose, capabilities, and intended use cases. Maximum 2000 characters.",
+          "type": "string",
+          "example": "Can create, edit, and publish content but cannot delete content or manage user accounts"
+        },
+        "display_name": {
+          "description": "Human-readable display name for the role. Used in user interfaces, reports, and user-facing communications.",
+          "type": "string",
+          "example": "Content Editor"
+        },
+        "extends": {
+          "description": "Name of the base role that this role extends. Enables hierarchical role inheritance where this role inherits all permissions from the base role.",
+          "type": "string",
+          "example": "viewer"
+        },
+        "name": {
+          "description": "Unique name identifier for the role. Must be alphanumeric with underscores, 1-64 characters. This name is used in API calls and cannot be changed after creation.",
+          "type": "string",
+          "example": "content_editor"
+        },
+        "permissions": {
+          "description": "List of permission names to assign to this role. Permissions must exist in the current environment. Maximum 100 permissions per role.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": ["read:content", "write:content", "publish:content"]
+        }
+      }
+    },
+    "v1rolesRole": {
+      "type": "object",
+      "properties": {
+        "default_creator": {
+          "description": "Indicates if this role is the default creator role for new organizations.",
+          "type": "boolean",
+          "example": true
+        },
+        "default_member": {
+          "description": "Indicates if this role is the default member role for new users.",
+          "type": "boolean",
+          "example": true
+        },
+        "dependent_roles_count": {
+          "description": "Number of roles that extend from this role (dependent roles count). Read-only field.",
+          "type": "integer",
+          "format": "int32",
+          "example": 3
+        },
+        "description": {
+          "description": "Detailed description of the role's purpose and capabilities. Maximum 2000 characters.",
+          "type": "string",
+          "example": "Can create, edit, and publish content but cannot delete or manage users"
+        },
+        "display_name": {
+          "description": "Human-readable display name for the role. Used in user interfaces and reports.",
+          "type": "string",
+          "example": "Content Editor"
+        },
+        "extends": {
+          "description": "Name of the base role that this role extends. Enables hierarchical role inheritance.",
+          "type": "string",
+          "example": "admin_role"
+        },
+        "id": {
+          "description": "Unique system-generated identifier for the role. Immutable once created.",
+          "type": "string",
+          "readOnly": true,
+          "example": "role_1234abcd5678efgh"
+        },
+        "is_org_role": {
+          "description": "Indicates if this role is an organization role.",
+          "type": "boolean",
+          "example": true
+        },
+        "name": {
+          "description": "Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.",
+          "type": "string",
+          "example": "content_editor"
+        },
+        "permissions": {
+          "description": "List of permissions with role source information. Only included when 'include' parameter is specified in the request.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/rolesRolePermission"
+          },
+          "example": [
+            {
+              "description": "Read Content",
+              "name": "read:content",
+              "role_name": "admin_role"
+            },
+            {
+              "description": "Write Content",
+              "name": "write:content",
+              "role_name": "editor_role"
+            }
+          ]
+        }
+      }
+    },
+    "v1rolesUpdateRole": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Detailed description of the role's purpose, capabilities, and intended use cases. Maximum 2000 characters.",
+          "type": "string",
+          "example": "Can create, edit, publish, and approve content. Cannot delete content or manage user accounts."
+        },
+        "display_name": {
+          "description": "Human-readable display name for the role. Used in user interfaces, reports, and user-facing communications.",
+          "type": "string",
+          "example": "Senior Content Editor"
+        },
+        "extends": {
+          "description": "Name of the base role that this role extends. Enables hierarchical role inheritance where this role inherits all permissions from the base role.",
+          "type": "string",
+          "example": "content_editor"
+        },
+        "permissions": {
+          "description": "List of permission names to assign to this role. When provided, this replaces all existing role-permission mappings. Permissions must exist in the current environment. Maximum 100 permissions per role.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": ["read:content", "write:content", "publish:content", "approve:content"]
+        }
+      }
+    },
     "v1usersCreateMembership": {
       "type": "object",
       "properties": {
@@ -4253,6 +4835,10 @@
     {
       "description": "Organization represents a customer or a tenant of your product. This is the top level entity and all resources are mapped to this Organization object. Each organization is uniquely identified by `organization_id`.\n\n<!-- ## Organization Attributes\n\n| Attribute Name             | Attribute Description                                                                                                                        |\n| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |\n| `id`<br>_string_           | Unique ID of an Organization. Required for all API operations against this organization.                                                     |\n| `display_name`<br>_string_ | Name of the Organization                                                                                                                     |\n| `create_time`<br>_string_  | Creation timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.<br>Example: `2011-10-05T14:48:00.000Z`                      |\n| `update_time`<br>_string_  | Last update timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.<br>Example: `2021-10-05T14:48:00.000Z`                   |\n| `external_id`<br>_string_  | Your system's unique ID for this organization. You can use this to fetch Organization and Connection details without storing Scalekit's IDs. |\n| `metadata`<br>_object_     | Additional organization information stored as JSON.<br>Example: `{\"key\":\"value\"}`                                                            |\n| `region_code`<br>_string_  | Data center region where organization data is stored. Currently always returns `US`.                                                         | -->\n",
       "name": "Organizations"
+    },
+    {
+      "description": "Permission management for defining and controlling access to system resources. Create, retrieve, update, and delete granular permissions that represent specific actions users can perform. Permissions are the building blocks of role-based access control (RBAC) and can be assigned to roles to grant users the ability to perform specific operations. Use this service to define custom permissions for your application's unique access control requirements.",
+      "name": "Permissions"
     },
     {
       "description": "Comprehensive user management operations including user lifecycle, organization memberships, and invitation workflows. This service provides endpoints for creating, retrieving, updating, and deleting user accounts across your Scalekit environment. It supports both individual user operations and bulk operations for user administration, including user search, pagination, and metadata management. The service also handles user invitations and organization membership management.",
