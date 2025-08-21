@@ -38,57 +38,41 @@ const updateColorMode = () => {
   }
 }
 
-// Provide a redirect function to Scalar so it normalizes the
-// incoming URL hash before it initializes routing.
-function scalarRedirect(input: string): string | undefined {
-  if (typeof window === 'undefined' || typeof input !== 'string') return undefined
-  // Input is typically just the hash (e.g., "#tag/..."), unless pathRouting is enabled
-  const hashIndex = input.indexOf('#')
-  if (hashIndex === -1) return undefined
-  const prefix = input.slice(0, hashIndex) // path when pathRouting=true, otherwise ""
-  const rawHash = input.slice(hashIndex + 1)
-  try {
-    const decodedHash = decodeURIComponent(rawHash)
-    const candidate = `${prefix}#${decodedHash}`
-    return candidate !== input ? candidate : undefined
-  } catch {
-    return undefined
-  }
-}
-
-// Normalize percent-encoded URL fragments so deep links work (e.g., %7B → {)
-function normalizeEncodedLocationHash(): boolean {
-  if (typeof window === 'undefined') return
-  const currentHash = window.location.hash
-  if (!currentHash) return false
-  try {
-    const decoded = '#' + decodeURIComponent(currentHash.slice(1))
-    if (decoded !== currentHash) {
-      const replacement = window.location.pathname + window.location.search + decoded
-      window.history.replaceState(null, '', replacement)
-      return true
-    }
-  } catch {
-    // ignore invalid escape sequences
-  }
-  return false
-}
-
-// Run normalization as early as possible so the reference reads the decoded hash
-let __normalizedOnce = false
-let __initialTargetHash: string | null = null
-if (typeof window !== 'undefined') {
-  __normalizedOnce = normalizeEncodedLocationHash()
-  if (__normalizedOnce) {
-    __initialTargetHash = window.location.hash
-  }
-  window.addEventListener('hashchange', normalizeEncodedLocationHash)
-}
-
 // Listen for storage changes (when color mode is changed)
 const handleStorageChange = (e: StorageEvent) => {
   if (e.key === 'colorMode') {
     colorMode.value = e.newValue || 'light'
+  }
+}
+
+// Handle initial URL navigation once Scalar is ready
+const handleInitialUrl = () => {
+  // Check if there's a hash in the URL that needs navigation
+  const currentHash = window.location.hash
+  if (currentHash) {
+    // Decode the hash if it contains encoded characters
+    try {
+      const decodedHash = decodeURIComponent(currentHash)
+      if (decodedHash !== currentHash) {
+        // Update the URL with decoded version
+        const newUrl = window.location.pathname + window.location.search + decodedHash
+        window.history.replaceState(null, '', newUrl)
+
+        // Trigger Scalar's internal navigation to the decoded hash
+        // This ensures both sidebar and main content are properly synchronized
+        setTimeout(() => {
+          // Fire a hashchange event to trigger Scalar's navigation
+          window.dispatchEvent(
+            new HashChangeEvent('hashchange', {
+              oldURL: window.location.href,
+              newURL: newUrl,
+            }),
+          )
+        }, 100) // Small delay to ensure URL update is processed
+      }
+    } catch (error) {
+      console.warn('Failed to decode URL hash:', error)
+    }
   }
 }
 
@@ -124,51 +108,29 @@ onMounted(() => {
   const interval = setInterval(updateColorMode, 1000)
   ;(window as any).__colorModeInterval = interval
 
-  // Stabilize the initially requested hash for a short window so
-  // Scalar's intersection-based hash updates don't override it.
-  const protectionDeadline = Date.now() + 2000
-  let enforceTries = 0
-  function enforceInitialTarget() {
-    if (!__initialTargetHash) return
-    if (Date.now() > protectionDeadline) return
-    if (window.location.hash !== __initialTargetHash) {
-      const url = window.location.pathname + window.location.search + __initialTargetHash
-      window.history.replaceState(null, '', url)
-      const id = __initialTargetHash.slice(1)
-      const el = document.getElementById(id)
-      if (el) {
-        try {
-          el.scrollIntoView({ behavior: 'instant', block: 'start' })
-        } catch {
-          el.scrollIntoView()
-        }
-      }
+  // Watch for Scalar to be fully ready and then handle initial URL navigation
+  let scalarReady = false
+  const scalarObserver = new MutationObserver(() => {
+    // Check if Scalar has rendered its main content
+    const scalarContent = document.querySelector('.scalar-api-reference')
+    if (scalarContent && !scalarReady) {
+      scalarReady = true
+      // Give Scalar a moment to fully initialize its navigation system
+      setTimeout(() => {
+        // Now we can safely handle URL navigation
+        handleInitialUrl()
+      }, 300)
     }
-    if (++enforceTries < 8) setTimeout(enforceInitialTarget, 150)
-  }
-  if (__initialTargetHash) setTimeout(enforceInitialTarget, 60)
+  })
 
-  const guard = (e: HashChangeEvent) => {
-    if (!__initialTargetHash) return
-    if (Date.now() > protectionDeadline) return
-    if (window.location.hash !== __initialTargetHash) {
-      // If deviated within protection window, enforce again
-      enforceInitialTarget()
-    }
-  }
-  window.addEventListener('hashchange', guard)
-  ;(window as any).__hashGuard = guard
+  // Observe the entire document for changes
+  scalarObserver.observe(document.body, {
+    childList: true,
+    subtree: true,
+  })
 
-  // Nudge Scalar to process the current hash by firing hashchange
-  // after it has mounted and registered its handler.
-  const fire = () => {
-    try {
-      window.dispatchEvent(new HashChangeEvent('hashchange'))
-    } catch {}
-  }
-  setTimeout(fire, 0)
-  setTimeout(fire, 120)
-  setTimeout(fire, 300)
+  // Store observer for cleanup
+  ;(window as any).__scalarObserver = scalarObserver
 })
 
 onUnmounted(() => {
@@ -190,11 +152,10 @@ onUnmounted(() => {
     delete (window as any).__colorModeInterval
   }
 
-  // Clean up hash normalization listener
-  window.removeEventListener('hashchange', normalizeEncodedLocationHash)
-  if ((window as any).__hashGuard) {
-    window.removeEventListener('hashchange', (window as any).__hashGuard)
-    delete (window as any).__hashGuard
+  // Clean up Scalar observer
+  if ((window as any).__scalarObserver) {
+    ;(window as any).__scalarObserver.disconnect()
+    delete (window as any).__scalarObserver
   }
 })
 </script>
@@ -207,10 +168,10 @@ onUnmounted(() => {
         style="text-decoration: none"
         target="_blank"
         rel="noopener noreferrer"
-        >Scalekit API Reference</a
-      > -->
-      <a href="https://docs.scalekit.com">
+        >Scalekit API Reference</a> -->
+      <a href="https://docs.scalekit.com" aria-label="Scalekit API Reference">
         <img :src="logoPath" alt="Scalekit API Reference" height="32" />
+        <span class="sr-only">Scalekit API Reference</span>
       </a>
       <nav>
         <a
@@ -267,7 +228,6 @@ onUnmounted(() => {
           favicon:
             'https://cdn.prod.website-files.com/65b87d98fa638289e10b8f61/67ab35acf2f180e0fe0a94a8_S%20Icon%20-%20Black%20-%2032x32.png',
           hideClientButton: true,
-          redirect: scalarRedirect,
         }"
       />
     </div>
