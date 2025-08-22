@@ -49,14 +49,12 @@ First, install the Scalekit Python SDK and initialize the client with your API c
 ## Step 2: Create a connected account
 Let's authorize a user to access their Gmail account by creating a connected account. This represents the user's connection to their Gmail account:
 
-
 ```python
 # Create a connected account for user if it doesn't exist already
 connected_account = connect.get_or_create_connected_account(
             connection_name="gmail",
             identifier="user_123"
         )
-
 
 print(f'Connected account created: {connected_account.id}')
 ```
@@ -68,9 +66,9 @@ Inorder to execute any tools on behalf of the user, the user first needs to gran
 If the user's access token is expired, Scalekit will automatically refresh the access token using the refresh token. At any time, you can check the authorization status of the connected account and determine if the user needs to re-authorize the connection.
 
 ```python
-# If the user hasn't yet authorized the gmail connection or if the user's access token is expired, generate a link for them to authorize the connection
+# If the user hasn't yet authorized the gmail connection or if the user's access token is expired, 
+# generate a magic link and redirect the user to this link so that the user can complete authorization
 if(connected_account.status != "ACTIVE"):
-      print(f"gmail is not connected: {connected_account.status}")
       link_response = connect.get_authorization_link(
           connection_name="gmail",
           identifier="user_123"
@@ -94,28 +92,17 @@ from langchain.agents import AgentExecutor, create_openai_tools_agent
 
 # use scalekit SDK to fetch all GMAIL tools in langchain format
 tools =  connect.langchain.get_tools(
-    identifier="user_123",
-    filter =Filter(
-        provider = "GMAIL" # all tools for provider used by default
-    )
+    identifier=identifier,
+    filter = Filter(provider = "GMAIL") # all tools for provider used by default
 )
 
-# create a langchain agent and supply the tools to the agent. We are using gpt-4o as the LLM for this example.
 llm = ChatOpenAI(model="gpt-4o")
 agent = create_openai_tools_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(agent=agent, tools=tools,verbose=True)
-
-
-result = agent_executor.invoke(
-    {
-        "input":
-            '''
-            Fetch last 5 unread emails from my inbox and summarize them.
-            ''',
-    }
+result = agent_executor.invoke({"input":"fetch my last 5 unread emails and summarize it"}
 )
 ```
 
 ## Next steps
 
-Congratulations! You've successfully built a langchain agent and gave it access to gmail tools to execute tool calls on behalf of a user.
+Congratulations! You've successfully built a langchain agent and gave it access to gmail tools to execute tool calls on behalf of a user based on the user's query.
