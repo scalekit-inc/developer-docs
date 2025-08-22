@@ -39,7 +39,7 @@ export const sidebar = [
           'fsa/guides/merge-identities',
           'fsa/reference/user-profile',
           'fsa/guides/app-roles',
-          'fsa/reference/redirects',
+          'guides/dashboard/redirects',
           'fsa/guides/just-in-time-provisioning',
           'fsa/guides/automated-user-provisioning',
           'fsa/guides/migration-guide',
@@ -89,7 +89,7 @@ export const sidebar = [
           'sso/guides/okta-sso-test',
           'sso/guides/sso-user-attributes',
           'sso/reference/sso-integration-errors',
-          'sso/reference/redirects',
+          'guides/dashboard/redirects',
           'sso/guides/auth-logs',
           {
             label: 'Coexist with',
@@ -298,6 +298,10 @@ export const sidebar = [
         autogenerate: { directory: 'reference/webhooks' },
       },
       {
+        label: 'Guides',
+        items: ['guides/dashboard/redirects'],
+      },
+      {
         label: 'Reference',
         items: [
           {
@@ -365,7 +369,6 @@ export const topics = {
   exclude: [
     '/', // Exclude root path
     '/index', // Exclude index by name
-    '/guides/redirects',
     '/guides/integrations',
     '/guides/integrations/index', // Exclude the integrations overview page from sidebar
     '/home/guides/**/*',
