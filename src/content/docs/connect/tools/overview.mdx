@@ -5,76 +5,29 @@ description: Learn about tools in Agent Connect - the standardized functions tha
 
 import { Card, CardGrid, Aside, Steps } from '@astrojs/starlight/components';
 
-Tools are the core building blocks of Agent Connect that enable you to perform actions across different third-party providers through a unified interface. Each tool represents a specific operation that can be executed on behalf of a connected user.
+LLMs today are very powerful reasoning and answering machines but their ability is restricted to data sets that they are trained upon and cannot natively interact with web services or saas applications. Tool Calling or Function Calling is how you extend the capabilities of these models to interact and take actions in third party applications on behalf of the users.
 
-## What are tools?
+For example, if you would like to build an email summarizer agent, there are a few challenges that you need to tackle:
 
-Tools in Agent Connect are standardized functions that:
+1. How to give agents access to gmail
+2. How to authorize these agents access to my gmail account
+3. What should be the appropriate input parameters to access gmail based on user context and query
 
-- **Abstract API complexity**: Hide provider-specific API details behind simple interfaces
-- **Ensure consistency**: Provide uniform input/output formats across all providers
-- **Handle authentication**: Automatically use connected account tokens
-- **Manage errors**: Provide consistent error handling and responses
-- **Support batching**: Allow multiple operations to be executed efficiently
+Agent Connect solves these problems by giving you simple abstractions using our SDK to help you give additional capabilities to the agents you are building regardless of the underlying model and agent framework in three simple steps.
 
-## Tool categories
+1. Use Scalekit SDK to fetch all the appropriate tools
+2. Complete user authorization handling in one single line of code
+3. Use Scalekit's optimized tool metadata and pass it to the underlying model for optimal tool selection and input parameters.
 
-Tools are organized into logical categories based on their functionality:
+## Tool Metadata
 
-<CardGrid>
-  <Card title="Communication" icon="chat">
-    **Email & Messaging**
-    - Send emails and messages
-    - Fetch conversations
-    - Manage drafts and templates
-    - Handle attachments
-  </Card>
-  <Card title="Calendar & Scheduling" icon="calendar">
-    **Time Management**
-    - Create and update events
-    - Fetch schedules
-    - Manage recurring events
-    - Handle attendees and notifications
-  </Card>
-  <Card title="File Management" icon="document">
-    **Document Operations**
-    - Upload and download files
-    - Create and update documents
-    - Manage permissions
-    - Handle version control
-  </Card>
-  <Card title="Project Management" icon="puzzle">
-    **Task & Issue Tracking**
-    - Create and update issues
-    - Manage projects and boards
-    - Track time and progress
-    - Handle workflows
-  </Card>
-  <Card title="CRM & Sales" icon="star">
-    **Customer Relations**
-    - Manage contacts and leads
-    - Track opportunities
-    - Handle customer support
-    - Generate reports
-  </Card>
-  <Card title="Data & Analytics" icon="chart">
-    **Information Processing**
-    - Fetch and analyze data
-    - Generate reports
-    - Handle search queries
-    - Process bulk operations
-  </Card>
-</CardGrid>
+Every tool in Agent Connect follows a consistent structure with a name, description and structured input and output schema. Agentic frameworks like Langchain can work with the underlying LLMs to select the right tool to solve the user's query based on the tool metadata.
 
-## Tool structure
-
-Every tool in Agent Connect follows a consistent structure:
-
-### Tool definition
+### Sample Tool definition
 
 ```json
 {
-  "name": "send_email",
+  "name": "gmail_send_email",
   "display_name": "Send Email",
   "description": "Send an email message to one or more recipients",
   "provider": "gmail",
@@ -134,270 +87,7 @@ console.log(result.message_id); // "msg_456"
 console.log(result.status);     // "sent"
 ```
 
-## Common tools by provider
-
-### Gmail tools
-
-**Communication tools:**
-
-- `send_email` - Send email messages
-- `fetch_emails` - Retrieve email messages
-- `create_draft` - Create email drafts
-- `reply_to_email` - Reply to existing emails
-- `forward_email` - Forward email messages
-- `search_emails` - Search through emails
-- `mark_as_read` - Mark emails as read/unread
-- `delete_email` - Delete email messages
-
-**Example usage:**
-
-```javascript
-// Send an email with attachment
-const result = await agentConnect.tools.execute({
-  connected_account_id: 'gmail_account',
-  tool: 'send_email',
-  parameters: {
-    to: ['customer@example.com'],
-    subject: 'Your invoice is ready',
-    body: 'Please find your invoice attached.',
-    attachments: [
-      {
-        filename: 'invoice.pdf',
-        content: base64EncodedPDF,
-        mime_type: 'application/pdf'
-      }
-    ]
-  }
-});
-```
-
-### Google Calendar tools
-
-**Scheduling tools:**
-
-- `create_event` - Create calendar events
-- `fetch_events` - Retrieve calendar events
-- `update_event` - Update existing events
-- `delete_event` - Delete calendar events
-- `create_recurring_event` - Create recurring events
-- `find_available_slots` - Find available time slots
-- `send_meeting_invite` - Send meeting invitations
-
-**Example usage:**
-
-```javascript
-// Create a recurring team meeting
-const meeting = await agentConnect.tools.execute({
-  connected_account_id: 'calendar_account',
-  tool: 'create_recurring_event',
-  parameters: {
-    title: 'Weekly Team Standup',
-    description: 'Regular team sync meeting',
-    start_time: '2024-01-15T09:00:00Z',
-    end_time: '2024-01-15T10:00:00Z',
-    recurrence: {
-      frequency: 'weekly',
-      interval: 1,
-      days_of_week: ['monday']
-    },
-    attendees: ['team@example.com']
-  }
-});
-```
-
-### Slack tools
-
-**Messaging tools:**
-
-- `send_message` - Send messages to channels or users
-- `fetch_messages` - Retrieve channel messages
-- `create_channel` - Create new channels
-- `invite_to_channel` - Invite users to channels
-- `upload_file` - Upload files to Slack
-- `set_status` - Update user status
-- `schedule_message` - Schedule messages for later
-
-**Example usage:**
-
-```javascript
-// Send a message with rich formatting
-const message = await agentConnect.tools.execute({
-  connected_account_id: 'slack_account',
-  tool: 'send_message',
-  parameters: {
-    channel: '#general',
-    text: 'Deployment completed successfully!',
-    attachments: [
-      {
-        color: 'good',
-        title: 'Production Deploy',
-        text: 'Version 2.1.0 deployed to production',
-        fields: [
-          {
-            title: 'Version',
-            value: '2.1.0',
-            short: true
-          },
-          {
-            title: 'Environment',
-            value: 'Production',
-            short: true
-          }
-        ]
-      }
-    ]
-  }
-});
-```
-
-### Jira tools
-
-**Project management tools:**
-
-- `create_issue` - Create new issues
-- `fetch_issues` - Retrieve issues
-- `update_issue` - Update existing issues
-- `transition_issue` - Change issue status
-- `add_comment` - Add comments to issues
-- `create_project` - Create new projects
-- `assign_issue` - Assign issues to users
-- `search_issues` - Search for issues using JQL
-
-**Example usage:**
-
-```javascript
-// Create a bug report with details
-const bug = await agentConnect.tools.execute({
-  connected_account_id: 'jira_account',
-  tool: 'create_issue',
-  parameters: {
-    project: 'PROJ',
-    issue_type: 'Bug',
-    summary: 'Login page not responsive on mobile',
-    description: 'The login page layout breaks on mobile devices',
-    priority: 'High',
-    assignee: 'john.doe@example.com',
-    labels: ['mobile', 'ui', 'urgent'],
-    custom_fields: {
-      'environment': 'Production',
-      'browser': 'Chrome Mobile',
-      'device': 'iPhone 12'
-    }
-  }
-});
-```
-
-## Tool parameters and validation
-
-### Parameter types
-
-Tools support various parameter types:
-
-- **String**: Text values, emails, URLs
-- **Number**: Integers and floating-point numbers
-- **Boolean**: True/false values
-- **Array**: Lists of values
-- **Object**: Complex nested structures
-- **File**: File uploads and attachments
-
-### Parameter validation
-
-Agent Connect automatically validates parameters:
-
-```javascript
-// Invalid parameters will be rejected
-try {
-  await agentConnect.tools.execute({
-    connected_account_id: 'account_123',
-    tool: 'send_email',
-    parameters: {
-      to: 'invalid-email', // Should be array
-      subject: '',          // Required field is empty
-      body: 'Test'
-    }
-  });
-} catch (error) {
-  console.log(error.code); // 'INVALID_PARAMETERS'
-  console.log(error.validation_errors); // Detailed validation errors
-}
-```
-
-### Optional and required parameters
-
-Tools clearly define which parameters are required:
-
-```javascript
-// Required parameters
-{
-  "required": ["to", "subject", "body"],
-  "optional": ["cc", "bcc", "attachments", "html_body"]
-}
-
-// Usage with optional parameters
-const result = await agentConnect.tools.execute({
-  connected_account_id: 'account_123',
-  tool: 'send_email',
-  parameters: {
-    to: ['recipient@example.com'],
-    subject: 'Hello',
-    body: 'Plain text body',
-    html_body: '<p>HTML body</p>',  // Optional
-    cc: ['cc@example.com'],         // Optional
-    attachments: [...]              // Optional
-  }
-});
-```
-
-## Tool responses and error handling
-
-### Standard response format
-
-All tools return responses in a consistent format:
-
-```javascript
-{
-  "success": true,
-  "execution_id": "exec_123",
-  "tool": "send_email",
-  "connected_account_id": "account_123",
-  "provider": "gmail",
-  "result": {
-    "message_id": "msg_456",
-    "status": "sent",
-    "sent_at": "2024-01-15T10:30:00Z"
-  },
-  "metadata": {
-    "execution_time": 1.23,
-    "api_calls": 1,
-    "rate_limit_remaining": 99
-  }
-}
-```
-
-### Error responses
-
-When tools fail, they return structured error information:
-
-```javascript
-{
-  "success": false,
-  "error": {
-    "code": "RATE_LIMIT_EXCEEDED",
-    "message": "Rate limit exceeded for Gmail API",
-    "details": {
-      "limit": 100,
-      "used": 100,
-      "resets_at": "2024-01-15T11:00:00Z"
-    },
-    "retry_after": 60
-  },
-  "execution_id": "exec_123",
-  "tool": "send_email",
-  "connected_account_id": "account_123"
-}
-```
-
-## Tool discovery and documentation
+## Fetching
 
 ### List available tools
 
