@@ -17,6 +17,12 @@ import { redirects } from './src/configs/redirects.config'
 
 import tailwindcss from '@tailwindcss/vite'
 
+console.log('Current NODE_ENV:', process.env.NODE_ENV)
+console.log(
+  'All env vars:',
+  Object.keys(process.env).filter((key) => key.includes('NODE')),
+)
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://docs.scalekit.com',
@@ -107,71 +113,15 @@ export default defineConfig({
         },
         {
           tag: 'script',
-          content: `
-            !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug getPageViewId captureTraceFeedback captureTraceMetric".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-            posthog.init('phc_85pLP8gwYvRCQdxgLQP24iqXHPRGaLgEw4S4dgZHJZ', {
-                api_host: 'https://us.i.posthog.com',
-                person_profiles: 'identified_only',
-            })
-          `,
+          attrs: {
+            src: '/js/posthog.js',
+          },
         },
-        // Add the iframe detection script inline
         {
           tag: 'script',
-          content: `
-            function inIframe() {
-              try {
-                return window.self !== window.top;
-              } catch (e) {
-                return true;
-              }
-            }
-
-            // Add iframe detection on page load
-            document.addEventListener('DOMContentLoaded', function() {
-              // Only apply iframe styling if in an iframe
-              if (inIframe()) {
-                document.documentElement.setAttribute('data-theme', 'light');
-                document.documentElement.classList.add('in-iframe');
-
-                // Remove zoom functionality from images in iframe
-                document.querySelectorAll('starlight-image-zoom-zoomable').forEach(el => {
-                  const img = el.querySelector('img');
-                  const btn = el.querySelector('button');
-                  if (btn) btn.remove();
-                  if (img) {
-                    const newImg = img.cloneNode(true);
-                    el.parentNode.replaceChild(newImg, el);
-                  }
-                });
-
-                // Add MutationObserver to handle dynamically loaded images - ONLY IN IFRAME
-                const observer = new MutationObserver((mutations) => {
-                  mutations.forEach((mutation) => {
-                    mutation.addedNodes.forEach((node) => {
-                      if (node.nodeType === 1) { // Element node
-                        const zoomables = node.querySelectorAll('starlight-image-zoom-zoomable');
-                        zoomables.forEach(el => {
-                          const img = el.querySelector('img');
-                          const btn = el.querySelector('button');
-                          if (btn) btn.remove();
-                          if (img) {
-                            const newImg = img.cloneNode(true);
-                            el.parentNode.replaceChild(newImg, el);
-                          }
-                        });
-                      }
-                    });
-                  });
-                });
-
-                observer.observe(document.body, {
-                  childList: true,
-                  subtree: true
-                });
-              }
-            });
-          `,
+          attrs: {
+            src: '/js/iframe-detection.js',
+          },
         },
       ],
     }),
