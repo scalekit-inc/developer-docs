@@ -18,7 +18,7 @@ import { Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code } from '@astrojs/sta
 
 Applications often include many capabilities. Not every user should be able to perform every action (for example, only owners should manage billing or payments). Scalekit helps you restrict access cleanly with roles and permissions so users get only the access they need.
 
-Scalekit’s Full Stack Auth (FSA) lets your users sign in to your app. Once integrated, Scalekit acts as access middleware: it verifies identity and shares the user’s role and permissions with your application so you can allow or restrict actions.
+Scalekit's Full Stack Auth (FSA) lets your users sign in to your app. Once integrated, Scalekit acts as access middleware: it verifies identity and shares the user's role and permissions with your application so you can allow or restrict actions.
 
 ![](@/assets/docs/app-roles/1-roles-home.png)
 
@@ -27,13 +27,14 @@ Scalekit’s Full Stack Auth (FSA) lets your users sign in to your app. Once int
 - **Role**: A convenient bundle of actions. Examples: Admin, Manager, Editor, Viewer. Roles state what a user can and cannot do.
 - **Permission**: A single allowed action in your system, typically rendered as `resource:action` (for example, `projects:create`, `tasks:read`). Use permissions when you need fine-grained control.
 
-### Defaults
+### Default roles
 
-When a new Scalekit environment is created:
-- The first user is assigned the `creator` role.
-- Subsequent users default to the `member` role.
+Scalekit automatically assigns default roles when setting up your organization:
 
-These defaults only matter when your application enforces them. You decide what a creator or member can do.
+- **Organization creator**: The first user who creates your Scalekit organization gets the `creator` role automatically
+- **New members**: When you invite users to your organization, they're automatically assigned the `member` role
+
+These default roles provide a starting point for access control. You can customize what permissions these roles have and change the default role assignments at any time.
 
 ## Model roles for your app
 
@@ -55,33 +56,81 @@ You can register roles and permissions from the Scalekit dashboard:
 
 <Steps>
 
-1. ### Create roles
-
-   - Go to **Authorization → Roles**
-   - Click **+ Add role** and provide a Display name, Name (key), and Description. These help your customers understand the role and what they can do.
-   - Use a short, machine-friendly key for the Name (for example, `project_owner`)
-
-   ![](@/assets/docs/app-roles/add-role.png)
-
-2. ### Define permissions
+1. ### Define permissions for your application
 
    - Go to **User management → Permissions**
    - Create granular permissions like `projects:create`, `tasks:read`, `billing:manage`
-   - Map these permissions to the roles you created
+   - Think about your app's resources and actions when defining permissions
+   - Use consistent naming patterns: `resource:action` (e.g., `projects:create`, `projects:read`, `projects:update`, `projects:delete`)
 
    ![](@/assets/docs/app-roles/creating-permissions.png)
 
-3. ### Use inheritance <Badge type="tip" text='Optional'/>
+2. ### Create roles
 
-   - Make roles easier to manage by inheriting from others as base roles
-   - Example: let `editor` inherit all permissions from `viewer`, then add `tasks:create` and `projects:write`
+   - Go to **Authorization → Roles**
+   - Click **+ Add role** and provide:
+     - **Display name**: Human-readable name (e.g., "Project Owner")
+     - **Name (key)**: Machine-friendly identifier (e.g., `project_owner`)
+     - **Description**: Clear explanation of what users with this role can do
+   - Use short, machine-friendly keys for the Name field
+
+   ![](@/assets/docs/app-roles/add-role.png)
+
+3. ### Understand role inheritance <Badge type="tip" text='Optional'/>
+
+   Role inheritance lets you build permission hierarchies by having one role inherit all permissions from another role, then adding or removing specific permissions. This approach reduces duplication and makes permission management more maintainable.
+
+   **How inheritance works:**
+   - A role automatically gets all permissions from its base role
+   - You can then add new permissions specific to the inheriting role
+   - You can also remove specific permissions if needed
+   - Changes to the base role automatically propagate to all inheriting roles
+
+   **Example hierarchy:**
+   ```
+   viewer (base role)
+   ├── projects:read
+   ├── tasks:read
+   └── comments:read
+
+   editor (inherits from viewer)
+   ├── [inherits all viewer permissions]
+   ├── projects:write
+   ├── tasks:create
+   └── tasks:write
+
+   project_owner (inherits from editor)
+   ├── [inherits all editor permissions]
+   ├── projects:create
+   └── members:invite
+
+   admin (inherits from project_owner)
+   ├── [inherits all project_owner permissions]
+   ├── org:manage
+   ├── billing:manage
+   └── members:manage
+   ```
+
+   **Benefits of inheritance:**
+   - **Easier maintenance**: Update permissions in one place and they automatically apply to all inheriting roles
+   - **Consistent access levels**: Ensures users with higher roles always have at least the same access as base roles
+   - **Reduced duplication**: No need to repeatedly assign the same permissions to multiple roles
+   - **Logical structure**: Clear progression from basic access to full administrative capabilities
 
    ![](@/assets/docs/app-roles/inheritance.png)
 
-4. ### Set defaults
+4. ### Map permissions to roles
+
+   - Assign the permissions you created to each role
+   - Consider using inheritance to build permission sets efficiently
+   - Test your permission model to ensure users have appropriate access levels
+   - Document your permission structure for your development team
+
+5. ### Set defaults
 
    - Confirm default role for the environment creator is `creator`
    - Confirm default role for new members is `member`
+   - You can change these defaults at any time in **Authorization → Roles**
 
 </Steps>
 
@@ -93,15 +142,19 @@ You can register roles and permissions from the Scalekit dashboard:
   description="Follow our quickstart guide to integrate Scalekit into your application and start managing user roles."
 />
 
-You can change the default role for both the environment creator and new members at any time in **Authorization → Roles**.
+
 
 ## Token contents and sessions
 
-When your app is integrated with Full Stack Auth and a user signs in, Scalekit issues an access token and a refresh token, and creates a session to track access duration. Roles and permissions are included in token claims so your backend can make authorization decisions.
+When your app is integrated with Full Stack Auth and a user signs in, Scalekit issues an access token and a refresh token, and creates a session to track access duration.
 
-The `roles` claim contains the role key (not the display name). For example, if the role key is `editor` and the display name is “Content Editor,” the token includes `"editor"`.
+**Token claim availability:**
+- **Access token**: Contains both `roles` and `permissions` claims
+- **ID token**: Contains only the `roles` claim
 
-While the `roles` claim is an array, Scalekit currently supports a single role per user within an organization.
+The `roles` claim contains the role name (not the display name). For example, if the role name is `editor` and the display name is "Content Editor," the token includes `"editor"`.
+
+The `permissions` claim contains the permission name (not the description). For example, if the permission name is `projects:create` and the description is "Create new projects," the token includes `"projects:create"`.
 
 Here's an example of decoded tokens containing `roles` and `permissions` claims:
 
@@ -162,5 +215,5 @@ const canCreateProject = token.permissions?.includes('projects:create');
 ```
 
 <Aside type="tip" title="Custom roles per workspace">
-  Building a multi-tenant app and need custom roles per workspace? [Contact us](/support/contact-us) and we’ll help you design a model that fits your tenants while keeping management simple.
+  Building a multi-tenant app and need custom roles per workspace? [Contact us](/support/contact-us) and we'll help you design a model that fits your tenants while keeping management simple.
 </Aside>
