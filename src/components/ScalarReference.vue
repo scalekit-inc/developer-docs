@@ -2,52 +2,82 @@
 import { ApiReference } from '@scalar/api-reference'
 import '@fontsource-variable/inter'
 import '@/styles/api-reference.css'
-import { onMounted, onUnmounted, ref, computed } from 'vue'
-
-import { createDropdownSynchronizer } from '../utils/dropdownSync'
+import { onMounted, onUnmounted, ref, nextTick } from 'vue'
 import { initializeThemeSync, type ThemeSynchronizer } from '../utils/themeSync'
-
-// Create dropdown synchronizer instance
-const dropdownSync = createDropdownSynchronizer()
 
 // Reactive color mode tracking
 const colorMode = ref<string>('light')
 
-// Add a key to force re-render of the Scalar component
-const scalarKey = ref(0)
-
 // Initialize theme synchronization
 let themeSyncInstance: ThemeSynchronizer | null = null
 
-onMounted(() => {
-  // Initialize dropdown synchronization
-  dropdownSync.initialize()
+// Function to handle deep link scrolling
+const handleDeepLinkScroll = async () => {
+  const hash = window.location.hash
+  if (!hash) return
 
+  // Remove the leading # and decode the hash
+  const hashFragment = decodeURIComponent(hash.substring(1))
+
+  // Wait for the next tick to ensure DOM is updated
+  await nextTick()
+
+  // Try to find the element by ID
+  const targetElement = document.getElementById(hashFragment)
+
+  if (targetElement) {
+    // Scroll to the element with smooth behavior
+    targetElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  } else {
+    // If element not found immediately, wait a bit more for Scalar to fully render
+    setTimeout(() => {
+      const retryElement = document.getElementById(hashFragment)
+      if (retryElement) {
+        retryElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        })
+      }
+    }, 2000)
+  }
+}
+
+onMounted(async () => {
   console.log('ScalarReference component mounted, initializing theme sync...')
 
   // Initialize theme synchronization
   themeSyncInstance = initializeThemeSync({
     onThemeChange: (theme: 'light' | 'dark') => {
       colorMode.value = theme
-      // Force re-render of the Scalar component by changing the key
-      scalarKey.value++
     },
   })
 
   // Set initial color mode from synchronized theme
   const initialTheme = themeSyncInstance.getStarlightTheme()
   colorMode.value = initialTheme
+
+  // Handle deep link scrolling after component is mounted
+  // Wait a bit for Scalar to fully render
+  setTimeout(() => {
+    handleDeepLinkScroll()
+  }, 500)
+
+  // Listen for hash changes (for navigation within the same page)
+  window.addEventListener('hashchange', handleDeepLinkScroll)
 })
 
 onUnmounted(() => {
-  // Clean up dropdown synchronization
-  dropdownSync.destroy()
-
   // Clean up theme synchronization
   if (themeSyncInstance) {
     themeSyncInstance.stop()
     themeSyncInstance = null
   }
+
+  // Remove hash change listener
+  window.removeEventListener('hashchange', handleDeepLinkScroll)
 })
 </script>
 
@@ -55,7 +85,6 @@ onUnmounted(() => {
   <div class="api-reference-wrapper" :class="colorMode + '-mode'">
     <div class="api-reference-container">
       <ApiReference
-        :key="scalarKey"
         :configuration="{
           url: '/api/scalekit.swagger.json',
           hideTestRequestButton: true,
