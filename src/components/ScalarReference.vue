@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ApiReference } from '@scalar/api-reference'
-import '@scalar/api-reference/style.css'
 import '@fontsource-variable/inter'
 import '@/styles/api-reference.css'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
@@ -64,7 +63,7 @@ onUnmounted(() => {
           hideModels: true,
           searchHotKey: 'p',
           hideDarkModeToggle: true, // Hide Scalar's own toggle since we're using Starlight's
-          defaultOpenAllTags: true,
+          defaultOpenAllTags: false,
           hiddenClients: [
             'httpclient',
             'restsharp',
@@ -101,12 +100,6 @@ onUnmounted(() => {
 </template>
 
 <style>
-.api-reference-wrapper {
-  position: relative;
-  width: 100vw;
-  height: calc(100vh - var(--sl-header-height-base) - var(--secondary-nav-height));
-}
-
 .api-reference-container {
   position: sticky;
   top: calc(var(--sl-header-height-base) + var(--secondary-nav-height));
