@@ -1,16 +1,10 @@
 {
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
-  "schemes": [
-    "https"
-  ],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "schemes": ["https"],
   "swagger": "2.0",
   "info": {
-    "description": "# Introduction\n\nThe Scalekit API is a RESTful API that enables you to manage organizations, users, and authentication settings. All requests must use HTTPS.\n\n# Base URL\n\nAll API requests use the following base URLs:\n\n```\nhttps://{environment}.scalekit.dev (Development)\nhttps://{environment}.scalekit.com (Production)\nhttps://auth.example.com (Custom domain)\n```\n\nScalekit operates two separate environments: Development and Production. Resources cannot be moved between environments.\n\n# Authentication\n\nThe Scalekit API uses OAuth 2.0 Client Credentials for authentication.\n\nGetting an access token\n\n1. Get your credentials from the [Scalekit Dashboard](https://app.scalekit.com):\n\n   - environment\n   - client_id\n   - client_secret\n\n2. Request an access token:\n\n```shell\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/oauth/token \\\n  -X POST \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  -d 'client_id={client_id}' \\\n  -d 'client_secret={client_secret}' \\\n  -d 'grant_type=client_credentials'\n```\n\n3. Use the access token in API requests:\n\n```shell\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/api/v1/organizations \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer {access_token}'\n```\n\nThe response includes an access token:\n\n```json\n{\n\t\"access_token\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6InNua181Ok4OTEyMjU2NiIsInR5cCI6IkpXVCJ9...\",\n\t\"token_type\": \"Bearer\",\n\t\"expires_in\": 86399,\n\t\"scope\": \"openid\"\n}\n```\n\n# Response Codes\n\nThe API uses standard HTTP status codes:\n\n| Code        | Description          |\n| ----------- | -------------------- |\n| 200/201     | Success              |\n| 400         | Invalid request      |\n| 401         | Authentication error |\n| 404         | Resource not found   |\n| 429         | Rate limit exceeded  |\n| 500/501/504 | Server error         |\n\nError responses include detailed information:\n\n```json\n{\n\t\"code\": 16,\n\t\"message\": \"Token empty\",\n\t\"details\": [\n\t\t{\n\t\t\t\"@type\": \"type.googleapis.com/scalekit.v1.errdetails.ErrorInfo\",\n\t\t\t\"error_code\": \"UNAUTHENTICATED\"\n\t\t}\n\t]\n}\n```\n",
+    "description": "# Introduction\n\nThe Scalekit API is a comprehensive RESTful API that enables you to manage organizations, users, authentication settings, and identity provider integrations. All requests must use HTTPS and require proper authentication.\n\n### Base URL\n\nAll API requests use the following base URLs:\n\n```\nhttps://{environment}.scalekit.dev (Development)\nhttps://{environment}.scalekit.com (Production)\nhttps://auth.example.com (Custom domain)\n```\n\nScalekit operates two separate environments: Development and Production. Resources cannot be moved between environments.\n\n# Authentication\n\nThe Scalekit API uses OAuth 2.0 Client Credentials for authentication.\n\nGetting an access token\n\n1. Get your credentials from the [Scalekit Dashboard](https://app.scalekit.com): `SCALEKIT_ENVIRONMENT_URL`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`\n\n2. Request an access token:\n\n```shell\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/oauth/token \\\n  -X POST \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  -d 'client_id={client_id}' \\\n  -d 'client_secret={client_secret}' \\\n  -d 'grant_type=client_credentials'\n```\n\nUse the access token in API requests:\n\n```shell\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/api/v1/organizations \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer {access_token}'\n```\n\nThe response includes an access token:\n\n```json\n{\n\t\"access_token\": \"eyJhbGciOiJSUzI1NiIsImInR5cCI6IkpXVCJ9...\",\n\t\"token_type\": \"Bearer\",\n\t\"expires_in\": 86399,\n\t\"scope\": \"openid\"\n}\n```\n",
     "title": "Scalekit APIs",
     "contact": {
       "name": "Scalekit Inc",
@@ -21,16 +15,36 @@
       "name": "Apache 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0"
     },
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "x-scalar-sdk-installation": [
+      {
+        "description": "Install the Scalekit SDK for Node.js from npm:",
+        "lang": "node",
+        "source": "npm install @scalekit-sdk/node"
+      },
+      {
+        "description": "Install the Scalekit SDK for Python using pip:",
+        "lang": "python",
+        "source": "pip install scalekit-sdk-python"
+      },
+      {
+        "description": "Install the Scalekit SDK for Go:",
+        "lang": "Go",
+        "source": "go get -u github.com/scalekit-inc/scalekit-sdk-go"
+      },
+      {
+        "description": "Adding Java SDK dependency",
+        "lang": "Java",
+        "source": "/* Gradle users - add the following to your dependencies in build file */\nimplementation \"com.scalekit:scalekit-sdk-java:2.0.1\"\n\n\u003c!-- Maven users - add the following to your `pom.xml` --\u003e\n\u003cdependency\u003e\n  \u003cgroupId\u003ecom.scalekit\u003c/groupId\u003e\n  \u003cartifactId\u003escalekit-sdk-java\u003c/artifactId\u003e\n  \u003cversion\u003e2.0.1\u003c/version\u003e\n\u003c/dependency\u003e"
+      }
+    ]
   },
   "host": "$SCALEKIT_ENVIRONMENT_URL",
   "paths": {
     "/api/v1/connections": {
       "get": {
         "description": "Retrieves a list of connections in the environment",
-        "tags": [
-          "Connections"
-        ],
+        "tags": ["Connections"],
         "summary": "List connections",
         "operationId": "ConnectionService_ListConnections",
         "parameters": [
@@ -85,12 +99,68 @@
         ]
       }
     },
+    "/api/v1/invites/organizations/{organization_id}/users/{id}/resend": {
+      "patch": {
+        "description": "Resends an invitation email to a user who has a pending or expired invitation in the specified organization. If the invitation has expired, a new invitation will be automatically created and sent. If the invitation is still valid, a reminder email will be sent instead. Use this endpoint when a user hasn't responded to their initial invitation and you need to send them a reminder or when the original invitation has expired. The invitation email includes a secure magic link that allows the user to complete their account setup and join the organization. Each resend operation increments the resent counter.",
+        "tags": ["Users"],
+        "summary": "Resend user invitation email",
+        "operationId": "UserService_ResendInvite",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization containing the pending invitation. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "System-generated user ID of the user who has a pending invitation. Must start with 'usr_' and be 19-25 characters long.",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserServiceResendInviteBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully resent the invitation email. Returns the updated invitation object with organization ID, user ID, membership status, timestamps, and resent count. If expired, a new invitation is created; otherwise, the existing one is resent.",
+            "schema": {
+              "$ref": "#/definitions/usersResendInviteResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request — common causes include user ID or organization ID is invalid, full-stack authentication is disabled, user profile is missing, invite already accepted, or missing expiry time in user management settings.",
+            "schema": {
+              "$ref": "#/definitions/errdetailsErrorInfo"
+            }
+          },
+          "404": {
+            "description": "Resource not found — the specified user, organization, membership, or invitation could not be found in the specified environment. Verify that all IDs are correct and that the resources exist before attempting to resend an invitation.",
+            "schema": {
+              "$ref": "#/definitions/errdetailsErrorInfo"
+            }
+          },
+          "500": {
+            "description": "Internal server error — an unexpected error occurred while processing the invitation resend request. This may be due to database connectivity issues, problems generating the secure magic link, email delivery service failures, or transaction errors during invitation processing. Contact support if the problem persists.",
+            "schema": {
+              "$ref": "#/definitions/errdetailsErrorInfo"
+            }
+          }
+        }
+      }
+    },
     "/api/v1/memberships/organizations/{organization_id}/users/{id}": {
       "post": {
         "description": "Adds an existing user to an organization and assigns them specific roles and permissions. Use this endpoint when you want to grant an existing user access to a particular organization. You can specify roles, metadata, and other membership details during the invitation process.",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Add existing user to organization",
         "operationId": "UserService_CreateMembership",
         "parameters": [
@@ -163,9 +233,7 @@
       },
       "delete": {
         "description": "Removes a user from an organization by user ID or external ID. If the user has no memberships left and cascade is true, the user is also deleted. This action is irreversible and may also remove related group memberships.",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Delete organization membership for user",
         "operationId": "UserService_DeleteMembership",
         "parameters": [
@@ -208,9 +276,7 @@
     "/api/v1/organizations": {
       "get": {
         "description": "Retrieve a paginated list of organizations within your environment. The response includes a `page_token` that can be used to access subsequent pages of results.",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "List organizations",
         "externalDocs": {
           "description": "Learn more about organization listing",
@@ -275,9 +341,7 @@
       },
       "post": {
         "description": "Creates a new organization in your environment. Use this endpoint to add a new tenant that can be configured with various settings and metadata",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "Create an organization",
         "operationId": "OrganizationService_CreateOrganization",
         "parameters": [
@@ -327,9 +391,7 @@
     "/api/v1/organizations/{id}": {
       "get": {
         "description": "Retrieves organization details by Scalekit ID, including name, region, metadata, and settings",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "Get organization details",
         "operationId": "OrganizationService_GetOrganization",
         "parameters": [
@@ -374,9 +436,7 @@
       },
       "delete": {
         "description": "Remove an existing organization from the environment using its unique identifier",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "Delete an organization",
         "operationId": "OrganizationService_DeleteOrganization",
         "parameters": [
@@ -419,9 +479,7 @@
       },
       "patch": {
         "description": "Updates an organization's display name, external ID, or metadata. Requires a valid organization identifier. Region code cannot be modified through this endpoint.",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "Update organization details",
         "operationId": "OrganizationService_UpdateOrganization",
         "parameters": [
@@ -477,9 +535,7 @@
     "/api/v1/organizations/{id}/portal_links": {
       "put": {
         "description": "Creates a time-limited Admin Portal URL for IT administrators to configure and manage Single Sign-On (SSO) connections within their organization. Generated links expire after 7 days (168 hours).",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "Generate admin portal link",
         "operationId": "OrganizationService_GeneratePortalLink",
         "parameters": [
@@ -493,10 +549,7 @@
           {
             "type": "array",
             "items": {
-              "enum": [
-                "dir_sync",
-                "sso"
-              ],
+              "enum": ["dir_sync", "sso"],
               "type": "string"
             },
             "collectionFormat": "multi",
@@ -540,9 +593,7 @@
     "/api/v1/organizations/{id}/settings": {
       "patch": {
         "description": "Updates configuration settings for an organization. Supports modifying SSO configuration, directory synchronization settings, and session parameters. Requires organization ID and the specific settings to update.",
-        "tags": [
-          "Organizations"
-        ],
+        "tags": ["Organizations"],
         "summary": "Toggle organization settings",
         "operationId": "OrganizationService_UpdateOrganizationSettings",
         "parameters": [
@@ -618,9 +669,7 @@
     "/api/v1/organizations/{organization_id}/clients": {
       "get": {
         "description": "Retrieves a paginated list of API clients for a specific organization. Returns client details including metadata, scopes, and secret information (without exposing actual secret values).",
-        "tags": [
-          "API Auth"
-        ],
+        "tags": ["API Auth"],
         "summary": "List organization API clients",
         "operationId": "ClientService_ListOrganizationClients",
         "parameters": [
@@ -663,9 +712,7 @@
       },
       "post": {
         "description": "Creates a new API client for an organization. Returns the client details and a plain secret (available only once).",
-        "tags": [
-          "API Auth"
-        ],
+        "tags": ["API Auth"],
         "summary": "Create organization API client",
         "operationId": "ClientService_CreateOrganizationClient",
         "parameters": [
@@ -706,9 +753,7 @@
     "/api/v1/organizations/{organization_id}/clients/{client_id}": {
       "get": {
         "description": "Retrieves details of a specific API client in an organization.",
-        "tags": [
-          "API Auth"
-        ],
+        "tags": ["API Auth"],
         "summary": "Get organization API client",
         "operationId": "ClientService_GetOrganizationClient",
         "parameters": [
@@ -745,9 +790,7 @@
       },
       "delete": {
         "description": "Permanently deletes an API client from an organization. This operation cannot be undone and will revoke all access for the client. All associated secrets will also be invalidated. Use this endpoint to remove unused or compromised clients.",
-        "tags": [
-          "API Auth"
-        ],
+        "tags": ["API Auth"],
         "summary": "Delete organization API client",
         "operationId": "ClientService_DeleteOrganizationClient",
         "parameters": [
@@ -782,9 +825,7 @@
       },
       "patch": {
         "description": "Updates an existing organization API client. Only specified fields are modified.",
-        "tags": [
-          "API Auth"
-        ],
+        "tags": ["API Auth"],
         "summary": "Update organization API client",
         "operationId": "ClientService_UpdateOrganizationClient",
         "parameters": [
@@ -832,9 +873,7 @@
     "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
       "post": {
         "description": "Creates a new secret for an organization API client. Returns the plain secret (available only once).",
-        "tags": [
-          "API Auth"
-        ],
+        "tags": ["API Auth"],
         "summary": "Create organization API client secret",
         "operationId": "ClientService_CreateOrganizationClientSecret",
         "parameters": [
@@ -873,9 +912,7 @@
     "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets/{secret_id}": {
       "delete": {
         "description": "Permanently deletes a secret from an organization API client. This operation cannot be undone.",
-        "tags": [
-          "API Auth"
-        ],
+        "tags": ["API Auth"],
         "summary": "Delete organization API client secret",
         "operationId": "ClientService_DeleteOrganizationClientSecret",
         "parameters": [
@@ -916,52 +953,10 @@
         ]
       }
     },
-    "/api/v1/organizations/{organization_id}/connections/{connection_id}/domains": {
-      "put": {
-        "description": "Assigns one or more domains to a specific connection within an organization. This allows the connection to be used for authentication on the specified domains",
-        "tags": [
-          "Connections"
-        ],
-        "summary": "Assign domains to a connection",
-        "operationId": "ConnectionService_AssignDomainsToConnection",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "organization_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "connection_id",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ConnectionServiceAssignDomainsToConnectionBody"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Domains assigned successfully",
-            "schema": {
-              "$ref": "#/definitions/connectionsAssignDomainsToConnectionResponse"
-            }
-          }
-        }
-      }
-    },
     "/api/v1/organizations/{organization_id}/connections/{id}": {
       "get": {
         "description": "Retrieves the complete configuration and status details for a specific connection by its ID within an organization. Returns all connection properties including provider settings, protocols, and current status.",
-        "tags": [
-          "Connections"
-        ],
+        "tags": ["Connections"],
         "summary": "Get connection details",
         "operationId": "ConnectionService_GetConnection",
         "parameters": [
@@ -1015,9 +1010,7 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:disable": {
       "patch": {
         "description": "Deactivate an existing connection for the specified organization. When disabled, users cannot authenticate using this connection. This endpoint changes the connection state from enabled to disabled without modifying other configuration settings",
-        "tags": [
-          "Connections"
-        ],
+        "tags": ["Connections"],
         "summary": "Disable organization connection",
         "operationId": "ConnectionService_DisableConnection",
         "parameters": [
@@ -1071,9 +1064,7 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:enable": {
       "patch": {
         "description": "Activate an existing connection for the specified organization. When enabled, users can authenticate using this connection. This endpoint changes the connection state from disabled to enabled without modifying other configuration settings",
-        "tags": [
-          "Connections"
-        ],
+        "tags": ["Connections"],
         "summary": "Enable organization connection",
         "operationId": "ConnectionService_EnableConnection",
         "parameters": [
@@ -1126,9 +1117,7 @@
     },
     "/api/v1/organizations/{organization_id}/directories": {
       "get": {
-        "tags": [
-          "Directory"
-        ],
+        "tags": ["Directory"],
         "summary": "List organization directories",
         "operationId": "DirectoryService_ListDirectories",
         "parameters": [
@@ -1175,9 +1164,7 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/groups": {
       "get": {
         "description": "Retrieves all groups from a specified directory. Use this endpoint to view group structures from your connected identity provider.",
-        "tags": [
-          "Directory"
-        ],
+        "tags": ["Directory"],
         "summary": "List directory groups",
         "operationId": "DirectoryService_ListDirectoryGroups",
         "parameters": [
@@ -1263,9 +1250,7 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/users": {
       "get": {
         "description": "Retrieves a list of all users within a specified directory for an organization. This endpoint allows you to view user accounts associated with your connected Directory Providers.",
-        "tags": [
-          "Directory"
-        ],
+        "tags": ["Directory"],
         "summary": "List directory users",
         "operationId": "DirectoryService_ListDirectoryUsers",
         "parameters": [
@@ -1351,9 +1336,7 @@
     "/api/v1/organizations/{organization_id}/directories/{id}": {
       "get": {
         "description": "Retrieves detailed information about a specific directory within an organization",
-        "tags": [
-          "Directory"
-        ],
+        "tags": ["Directory"],
         "summary": "Get directory details",
         "operationId": "DirectoryService_GetDirectory",
         "parameters": [
@@ -1407,9 +1390,7 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:disable": {
       "patch": {
         "description": "Stops synchronization of users and groups from a specified directory within an organization. This operation prevents further updates from the connected Directory provider",
-        "tags": [
-          "Directory"
-        ],
+        "tags": ["Directory"],
         "summary": "Disable a directory",
         "operationId": "DirectoryService_DisableDirectory",
         "parameters": [
@@ -1463,9 +1444,7 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:enable": {
       "patch": {
         "description": "Activates a directory within an organization, allowing it to synchronize users and groups with the connected Directory provider",
-        "tags": [
-          "Directory"
-        ],
+        "tags": ["Directory"],
         "summary": "Enable a directory",
         "operationId": "DirectoryService_EnableDirectory",
         "parameters": [
@@ -1519,9 +1498,7 @@
     "/api/v1/organizations/{organization_id}/users": {
       "get": {
         "description": "Retrieves a paginated list of all users who are members of the specified organization. Use this endpoint to view all users with access to a particular organization, including their roles, metadata, and membership details. Supports pagination for large user lists.",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "List organization users",
         "operationId": "UserService_ListOrganizationUsers",
         "parameters": [
@@ -1579,9 +1556,7 @@
       },
       "post": {
         "description": "Creates a new user account and immediately adds them to the specified organization. Use this endpoint when you want to create a user and grant them access to an organization in a single operation. You can provide user profile information, assign roles, and configure membership metadata. The user receives an activation email unless this feature is disabled in the organization settings.",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Create new user in organization",
         "operationId": "UserService_CreateUserAndMembership",
         "parameters": [
@@ -1641,9 +1616,7 @@
     "/api/v1/passwordless/email/resend": {
       "post": {
         "description": "Resend a verification email if the user didn't receive it or if the previous code/link has expired",
-        "tags": [
-          "Passwordless Auth"
-        ],
+        "tags": ["Passwordless Auth"],
         "summary": "Resend passwordless email",
         "operationId": "PasswordlessService_ResendPasswordlessEmail",
         "parameters": [
@@ -1681,9 +1654,7 @@
     "/api/v1/passwordless/email/send": {
       "post": {
         "description": "Send a verification email containing either a verification code (OTP), magic link, or both to a user's email address",
-        "tags": [
-          "Passwordless Auth"
-        ],
+        "tags": ["Passwordless Auth"],
         "summary": "Send passwordless email",
         "operationId": "PasswordlessService_SendPasswordlessEmail",
         "parameters": [
@@ -1721,9 +1692,7 @@
     "/api/v1/passwordless/email/verify": {
       "post": {
         "description": "Verify a user's identity using either a verification code or magic link token",
-        "tags": [
-          "Passwordless Auth"
-        ],
+        "tags": ["Passwordless Auth"],
         "summary": "Verify passwordless email",
         "operationId": "PasswordlessService_VerifyPasswordlessEmail",
         "parameters": [
@@ -1761,9 +1730,7 @@
     "/api/v1/users": {
       "get": {
         "description": "Retrieves a paginated list of all users across your entire environment. Use this endpoint to view all users regardless of their organization memberships. This is useful for administrative purposes, user audits, or when you need to see all users in your Scalekit environment. Supports pagination for large user bases.",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "List all users in environment",
         "operationId": "UserService_ListUsers",
         "parameters": [
@@ -1816,9 +1783,7 @@
     "/api/v1/users/{id}": {
       "get": {
         "description": "Retrieves all details for a user by system-generated user ID or external ID. The response includes organization memberships and user metadata.",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Get user",
         "operationId": "UserService_GetUser",
         "parameters": [
@@ -1869,9 +1834,7 @@
       },
       "delete": {
         "description": "Permanently removes a user from your environment and deletes all associated data. Use this endpoint when you need to completely remove a user account. This action deletes the user's profile, memberships, and all related data across all organizations. This operation cannot be undone, so use with caution.",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Delete user permanently",
         "operationId": "UserService_DeleteUser",
         "parameters": [
@@ -1920,9 +1883,7 @@
       },
       "patch": {
         "description": "Modifies user account information including profile details, metadata, and external ID. Use this endpoint to update a user's personal information, contact details, or custom metadata. You can update the user's profile, phone number, and metadata fields. Note that fields like user ID, email address, environment ID, and creation time cannot be modified.",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Update user information",
         "operationId": "UserService_UpdateUser",
         "parameters": [
@@ -1987,10 +1948,22 @@
     }
   },
   "definitions": {
-    "ConnectionServiceAssignDomainsToConnectionBody": {
+    "HelpInfoLink": {
       "type": "object",
       "properties": {
-        "domain_ids": {
+        "description": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "RolesServiceAddPermissionsToRoleBody": {
+      "type": "object",
+      "properties": {
+        "permission_names": {
+          "description": "List of permission names to add to the role",
           "type": "array",
           "items": {
             "type": "string"
@@ -1998,13 +1971,28 @@
         }
       }
     },
+    "UserServiceResendInviteBody": {
+      "type": "object"
+    },
+    "ValidationErrorInfoFieldViolation": {
+      "description": "A message type used to describe a single bad request field.",
+      "type": "object",
+      "properties": {
+        "constraint": {
+          "type": "string"
+        },
+        "description": {
+          "description": "A description of why the request element is bad.",
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        }
+      }
+    },
     "authpasswordlessPasswordlessType": {
       "type": "string",
-      "enum": [
-        "OTP",
-        "LINK",
-        "LINK_OTP"
-      ]
+      "enum": ["OTP", "LINK", "LINK_OTP"]
     },
     "authpasswordlessVerifyPasswordLessRequest": {
       "type": "object",
@@ -2112,9 +2100,7 @@
     "clientsClientSecretStatus": {
       "description": "ClientSecretStatus indicates whether a client secret can be used for authentication.\nACTIVE secrets can be used for authentication while INACTIVE secrets cannot.\n\n - INACTIVE: The secret is inactive and cannot be used for authentication",
       "type": "string",
-      "enum": [
-        "INACTIVE"
-      ]
+      "enum": ["INACTIVE"]
     },
     "clientsCreateOrganizationClientResponse": {
       "type": "object",
@@ -2212,9 +2198,7 @@
           "items": {
             "type": "string"
           },
-          "example": [
-            "https://api.example.com"
-          ]
+          "example": ["https://api.example.com"]
         },
         "client_id": {
           "description": "The unique identifier for this API client. This ID is used to identify the client in API requests and logs. It is automatically generated when the client is created and cannot be modified.",
@@ -2262,9 +2246,7 @@
           "items": {
             "type": "string"
           },
-          "example": [
-            "https://example.com/callback"
-          ]
+          "example": ["https://example.com/callback"]
         },
         "resource_id": {
           "description": "The ID of the resource associated with this M2M client. This field is used to link the client to a specific resource in the system.",
@@ -2277,10 +2259,7 @@
           "items": {
             "type": "string"
           },
-          "example": [
-            "deploy:resources",
-            "read:deployments"
-          ]
+          "example": ["deploy:resources", "read:deployments"]
         },
         "secrets": {
           "description": "List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.",
@@ -2352,10 +2331,7 @@
           "items": {
             "type": "string"
           },
-          "example": [
-            "deploy:resources",
-            "read:deployments"
-          ]
+          "example": ["deploy:resources", "read:deployments"]
         }
       }
     },
@@ -2370,19 +2346,34 @@
     },
     "commonsMembershipStatus": {
       "type": "string",
-      "enum": [
-        "ACTIVE",
-        "INACTIVE",
-        "PENDING_INVITE"
-      ]
+      "enum": ["ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"]
     },
     "commonsOrganizationMembership": {
       "type": "object",
       "properties": {
+        "accepted_at": {
+          "description": "Timestamp when the user accepted the invitation.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "created_at": {
+          "description": "Timestamp when the invitation was created.",
+          "type": "string",
+          "format": "date-time"
+        },
         "display_name": {
           "description": "Display name for the Organization name.",
           "type": "string",
           "example": "AcmeCorp"
+        },
+        "expires_at": {
+          "description": "Timestamp when the invitation expired.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "invited_by": {
+          "description": "ID of the user who invited this user.",
+          "type": "string"
         },
         "join_time": {
           "description": "Timestamp when the membership was created. Automatically set by the server.",
@@ -2424,10 +2415,7 @@
     },
     "commonsRegionCode": {
       "type": "string",
-      "enum": [
-        "US",
-        "EU"
-      ]
+      "enum": ["US", "EU"]
     },
     "commonsRole": {
       "type": "object",
@@ -2514,40 +2502,13 @@
         }
       }
     },
-    "connectionsAssignDomainsToConnectionResponse": {
-      "type": "object",
-      "properties": {
-        "connection": {
-          "description": "Connection with assigned domains",
-          "$ref": "#/definitions/connectionsConnection",
-          "example": {
-            "configuration_type": "MANUAL",
-            "debug_enabled": false,
-            "enabled": true,
-            "id": "conn_1234567890",
-            "organization_id": "org_1234567890",
-            "provider": "OKTA",
-            "status": "CONFIGURED",
-            "test_connection_uri": "https://auth.example.com/test-connection/conn_1234567890",
-            "type": "OIDC",
-            "ui_button_title": "Login with SSO"
-          }
-        }
-      }
-    },
     "connectionsCodeChallengeType": {
       "type": "string",
-      "enum": [
-        "NUMERIC",
-        "ALPHANUMERIC"
-      ]
+      "enum": ["NUMERIC", "ALPHANUMERIC"]
     },
     "connectionsConfigurationType": {
       "type": "string",
-      "enum": [
-        "DISCOVERY",
-        "MANUAL"
-      ]
+      "enum": ["DISCOVERY", "MANUAL"]
     },
     "connectionsConnection": {
       "type": "object",
@@ -2672,24 +2633,11 @@
     },
     "connectionsConnectionStatus": {
       "type": "string",
-      "enum": [
-        "DRAFT",
-        "IN_PROGRESS",
-        "COMPLETED"
-      ]
+      "enum": ["DRAFT", "IN_PROGRESS", "COMPLETED"]
     },
     "connectionsConnectionType": {
       "type": "string",
-      "enum": [
-        "OIDC",
-        "SAML",
-        "PASSWORD",
-        "OAUTH",
-        "PASSWORDLESS",
-        "BASIC",
-        "BEARER",
-        "API_KEY"
-      ]
+      "enum": ["OIDC", "SAML", "PASSWORD", "OAUTH", "PASSWORDLESS", "BASIC", "BEARER", "API_KEY"]
     },
     "connectionsGetConnectionResponse": {
       "type": "object",
@@ -2740,10 +2688,7 @@
           "items": {
             "type": "string"
           },
-          "example": [
-            "yourapp.com",
-            "yourworkspace.com"
-          ]
+          "example": ["yourapp.com", "yourworkspace.com"]
         },
         "enabled": {
           "description": "Whether the connection is currently active for organization users",
@@ -2808,12 +2753,7 @@
     },
     "connectionsNameIdFormat": {
       "type": "string",
-      "enum": [
-        "UNSPECIFIED",
-        "EMAIL",
-        "TRANSIENT",
-        "PERSISTENT"
-      ]
+      "enum": ["UNSPECIFIED", "EMAIL", "TRANSIENT", "PERSISTENT"]
     },
     "connectionsOAuthConnectionConfig": {
       "type": "object",
@@ -2859,10 +2799,7 @@
           "items": {
             "type": "string"
           },
-          "example": [
-            "openid",
-            "profile"
-          ]
+          "example": ["openid", "profile"]
         },
         "token_uri": {
           "description": "Token URI",
@@ -2947,10 +2884,7 @@
           "items": {
             "$ref": "#/definitions/connectionsOIDCScope"
           },
-          "example": [
-            "openid",
-            "profile"
-          ]
+          "example": ["openid", "profile"]
         },
         "token_auth_type": {
           "description": "Token Auth Type",
@@ -2971,13 +2905,7 @@
     },
     "connectionsOIDCScope": {
       "type": "string",
-      "enum": [
-        "openid",
-        "profile",
-        "email",
-        "address",
-        "phone"
-      ]
+      "enum": ["openid", "profile", "email", "address", "phone"]
     },
     "connectionsPasswordLessConfig": {
       "type": "object",
@@ -3024,18 +2952,11 @@
     },
     "connectionsPasswordlessType": {
       "type": "string",
-      "enum": [
-        "LINK",
-        "OTP",
-        "LINK_OTP"
-      ]
+      "enum": ["LINK", "OTP", "LINK_OTP"]
     },
     "connectionsRequestBinding": {
       "type": "string",
-      "enum": [
-        "HTTP_POST",
-        "HTTP_REDIRECT"
-      ]
+      "enum": ["HTTP_POST", "HTTP_REDIRECT"]
     },
     "connectionsSAMLConnectionConfigResponse": {
       "type": "object",
@@ -3187,10 +3108,7 @@
     },
     "connectionsTokenAuthType": {
       "type": "string",
-      "enum": [
-        "URL_PARAMS",
-        "BASIC_AUTH"
-      ]
+      "enum": ["URL_PARAMS", "BASIC_AUTH"]
     },
     "directoriesAttributeMapping": {
       "type": "object",
@@ -3341,23 +3259,11 @@
     },
     "directoriesDirectoryProvider": {
       "type": "string",
-      "enum": [
-        "OKTA",
-        "GOOGLE",
-        "MICROSOFT_AD",
-        "AUTH0",
-        "ONELOGIN",
-        "JUMPCLOUD",
-        "PING_IDENTITY"
-      ]
+      "enum": ["OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "JUMPCLOUD", "PING_IDENTITY"]
     },
     "directoriesDirectoryType": {
       "type": "string",
-      "enum": [
-        "SCIM",
-        "LDAP",
-        "POLL"
-      ]
+      "enum": ["SCIM", "LDAP", "POLL"]
     },
     "directoriesDirectoryUser": {
       "type": "object",
@@ -3556,9 +3462,7 @@
     },
     "directoriesSecretStatus": {
       "type": "string",
-      "enum": [
-        "INACTIVE"
-      ]
+      "enum": ["INACTIVE"]
     },
     "directoriesStats": {
       "type": "object",
@@ -3649,18 +3553,141 @@
     },
     "domainsDomainType": {
       "type": "string",
-      "enum": [
-        "HOME_REALM_DISCOVERY",
-        "JIT_PROVISIONING_DOMAIN"
-      ]
+      "enum": ["HOME_REALM_DISCOVERY", "JIT_PROVISIONING_DOMAIN"]
     },
     "domainsVerificationStatus": {
       "type": "string",
-      "enum": [
-        "PENDING",
-        "VERIFIED",
-        "FAILED"
-      ]
+      "enum": ["PENDING", "VERIFIED", "FAILED"]
+    },
+    "errdetailsDebugInfo": {
+      "description": "Describes additional debugging info.",
+      "type": "object",
+      "properties": {
+        "detail": {
+          "description": "Additional debugging information provided by the server.",
+          "type": "string"
+        },
+        "stack_entries": {
+          "description": "The stack trace entries indicating where the error occurred.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "errdetailsErrorInfo": {
+      "type": "object",
+      "properties": {
+        "debug_info": {
+          "$ref": "#/definitions/errdetailsDebugInfo"
+        },
+        "error_code": {
+          "type": "string"
+        },
+        "help_info": {
+          "$ref": "#/definitions/errdetailsHelpInfo"
+        },
+        "localized_message_info": {
+          "$ref": "#/definitions/errdetailsLocalizedMessageInfo"
+        },
+        "request_info": {
+          "$ref": "#/definitions/errdetailsRequestInfo"
+        },
+        "resource_info": {
+          "$ref": "#/definitions/errdetailsResourceInfo"
+        },
+        "tool_error_info": {
+          "$ref": "#/definitions/errdetailsToolErrorInfo"
+        },
+        "validation_error_info": {
+          "$ref": "#/definitions/errdetailsValidationErrorInfo"
+        }
+      }
+    },
+    "errdetailsHelpInfo": {
+      "type": "object",
+      "properties": {
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/HelpInfoLink"
+          }
+        }
+      }
+    },
+    "errdetailsLocalizedMessageInfo": {
+      "type": "object",
+      "properties": {
+        "locale": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "errdetailsRequestInfo": {
+      "description": "Contains metadata about the request that clients can attach when filing a bug\nor providing other forms of feedback.",
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "description": "An opaque string that should only be interpreted by the service generating\nit. For example, it can be used to identify requests in the service's logs.",
+          "type": "string"
+        },
+        "serving_data": {
+          "description": "Any data that was used to serve this request. For example, an encrypted\nstack trace that can be sent back to the service provider for debugging.",
+          "type": "string"
+        }
+      }
+    },
+    "errdetailsResourceInfo": {
+      "description": "Describes the resource that is being accessed.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Describes what error is encountered when accessing this resource.\nFor example, updating a cloud project may require the `writer` permission\non the developer console project.",
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "resource_name": {
+          "type": "string"
+        },
+        "resource_type": {
+          "type": "string"
+        }
+      }
+    },
+    "errdetailsToolErrorInfo": {
+      "type": "object",
+      "properties": {
+        "execution_id": {
+          "type": "string"
+        },
+        "tool_error_code": {
+          "type": "string"
+        },
+        "tool_error_message": {
+          "type": "string"
+        }
+      }
+    },
+    "errdetailsValidationErrorInfo": {
+      "description": "Describes violations in a client request. This error type focuses on the\nsyntactic aspects of the request.",
+      "type": "object",
+      "properties": {
+        "field_violations": {
+          "description": "Describes all violations in a client request.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ValidationErrorInfoFieldViolation"
+          }
+        }
+      }
     },
     "organizationsCreateOrganizationResponse": {
       "type": "object",
@@ -3675,10 +3702,7 @@
       "description": "- dir_sync: Enables directory synchronization configuration in the portal\n - sso: Enables Single Sign-On (SSO) configuration in the portal",
       "type": "string",
       "title": "Feature represents the available features that can be enabled for an organization's portal link",
-      "enum": [
-        "dir_sync",
-        "sso"
-      ]
+      "enum": ["dir_sync", "sso"]
     },
     "organizationsGeneratePortalLinkResponse": {
       "type": "object",
@@ -3750,9 +3774,7 @@
     },
     "organizationsOrganization": {
       "type": "object",
-      "required": [
-        "create_time"
-      ],
+      "required": ["create_time"],
       "properties": {
         "create_time": {
           "description": "Timestamp when the organization was created",
@@ -3846,10 +3868,7 @@
       "description": "Controls the activation state of a specific organization feature",
       "type": "object",
       "title": "Organization Feature Toggle",
-      "required": [
-        "name",
-        "enabled"
-      ],
+      "required": ["name", "enabled"],
       "properties": {
         "enabled": {
           "description": "Whether the feature is enabled (true) or disabled (false) for this organization",
@@ -3955,14 +3974,273 @@
     },
     "passwordlessTemplateType": {
       "type": "string",
-      "enum": [
-        "SIGNIN",
-        "SIGNUP"
-      ]
+      "enum": ["SIGNIN", "SIGNUP"]
     },
     "protobufNullValue": {
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.",
       "type": "string"
+    },
+    "rolesAddPermissionsToRoleResponse": {
+      "type": "object",
+      "properties": {
+        "permissions": {
+          "description": "List of all permissions belonging to the role after addition",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/rolesPermission"
+          }
+        }
+      }
+    },
+    "rolesCreateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "description": "The created role object with system-generated ID and all configuration details.",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "description": "Can edit content",
+            "display_name": "Content Editor",
+            "id": "role_1234abcd5678efgh",
+            "name": "content_editor"
+          }
+        }
+      }
+    },
+    "rolesGetRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "description": "The complete role object with all metadata, permissions, and inheritance details.",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "dependent_roles_count": 2,
+            "display_name": "Content Editor",
+            "id": "role_1234abcd5678efgh",
+            "name": "content_editor",
+            "permissions": [
+              {
+                "name": "read:content"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rolesGetRoleUsersCountResponse": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "description": "Number of users associated with the role",
+          "type": "string",
+          "format": "int64",
+          "example": 10
+        }
+      }
+    },
+    "rolesListDependentRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "description": "List of dependent roles",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1rolesRole"
+          }
+        }
+      }
+    },
+    "rolesListEffectiveRolePermissionsResponse": {
+      "type": "object",
+      "properties": {
+        "permissions": {
+          "description": "List of all effective permissions including those inherited from base roles",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/rolesPermission"
+          }
+        }
+      }
+    },
+    "rolesListRolePermissionsResponse": {
+      "type": "object",
+      "properties": {
+        "permissions": {
+          "description": "List of permissions directly assigned to the role",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/rolesPermission"
+          }
+        }
+      }
+    },
+    "rolesListRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "description": "List of all roles in the environment with their metadata and optionally their permissions.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1rolesRole"
+          },
+          "example": [
+            {
+              "display_name": "Administrator",
+              "id": "role_1234abcd5678efgh",
+              "name": "admin"
+            },
+            {
+              "display_name": "Viewer",
+              "id": "role_9876zyxw5432vuts",
+              "name": "viewer"
+            }
+          ]
+        }
+      }
+    },
+    "rolesPermission": {
+      "type": "object",
+      "title": "Permission Entity",
+      "properties": {
+        "create_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "rolesRolePermission": {
+      "type": "object",
+      "title": "RolePermissions represents a permission with role source information",
+      "properties": {
+        "create_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role_name": {
+          "description": "Name of the role from which this permission was sourced",
+          "type": "string",
+          "example": "admin_role"
+        },
+        "update_time": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "rolesUpdateDefaultRole": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "description": "Unique name of the role",
+          "type": "string",
+          "example": "creator"
+        }
+      }
+    },
+    "rolesUpdateDefaultRolesRequest": {
+      "type": "object",
+      "properties": {
+        "default_creator": {
+          "description": "Default creator role (deprecated - use default_creator_role field instead)",
+          "$ref": "#/definitions/rolesUpdateDefaultRole",
+          "example": {
+            "description": "Role for creating resources",
+            "display_name": "Creator Role",
+            "id": "role_1234567890",
+            "name": "creator"
+          }
+        },
+        "default_creator_role": {
+          "description": "Name of the role to set as the default creator role. This role will be automatically assigned to users who create new resources in the environment. Must be a valid role name that exists in the environment.",
+          "type": "string",
+          "example": "creator"
+        },
+        "default_member": {
+          "description": "Default member role (deprecated - use default_member_role field instead)",
+          "$ref": "#/definitions/rolesUpdateDefaultRole",
+          "example": {
+            "description": "Role for regular members",
+            "display_name": "Member Role",
+            "id": "role_0987654321",
+            "name": "member"
+          }
+        },
+        "default_member_role": {
+          "description": "Name of the role to set as the default member role. This role will be automatically assigned to new users when they join the environment. Must be a valid role name that exists in the environment.",
+          "type": "string",
+          "example": "member"
+        }
+      }
+    },
+    "rolesUpdateDefaultRolesResponse": {
+      "type": "object",
+      "properties": {
+        "default_creator": {
+          "description": "The role that is now set as the default creator role for the environment. Contains complete role information including permissions and metadata.",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "description": "Role for creating resources",
+            "display_name": "Creator Role",
+            "id": "role_1234567890",
+            "name": "creator"
+          }
+        },
+        "default_member": {
+          "description": "The role that is now set as the default member role for the environment. Contains complete role information including permissions and metadata.",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "description": "Role for regular members",
+            "display_name": "Member Role",
+            "id": "role_0987654321",
+            "name": "member"
+          }
+        }
+      }
+    },
+    "rolesUpdateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "description": "The updated role object with all current configuration details.",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "description": "Can edit and approve content",
+            "display_name": "Senior Editor",
+            "id": "role_1234abcd5678efgh",
+            "name": "content_editor"
+          }
+        }
+      }
     },
     "usersCreateMembershipResponse": {
       "type": "object",
@@ -4074,6 +4352,55 @@
         }
       }
     },
+    "usersInvite": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "description": "Timestamp when the invite was originally created.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-07-10T08:00:00Z"
+        },
+        "expires_at": {
+          "description": "The time at which the invite expires.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-12-31T23:59:59Z"
+        },
+        "invited_by": {
+          "description": "Identifier of the user or system that initiated the invite.",
+          "type": "string",
+          "example": "admin_998877"
+        },
+        "organization_id": {
+          "description": "The organization to which the invite belongs.",
+          "type": "string",
+          "example": "org_987654321"
+        },
+        "resent_at": {
+          "description": "Timestamp when the invite was last resent, if applicable.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-07-15T09:30:00Z"
+        },
+        "resent_count": {
+          "description": "Number of times the invite has been resent.",
+          "type": "integer",
+          "format": "int32",
+          "example": 2
+        },
+        "status": {
+          "description": "Current status of the invite (e.g., pending, accepted, expired, revoked).",
+          "type": "string",
+          "example": "pending_invite"
+        },
+        "user_id": {
+          "description": "User ID to whom the invite is sent. May be empty if the user has not signed up yet.",
+          "type": "string",
+          "example": "usr_123456"
+        }
+      }
+    },
     "usersListOrganizationUsersResponse": {
       "type": "object",
       "properties": {
@@ -4128,6 +4455,22 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/usersUser"
+          }
+        }
+      }
+    },
+    "usersResendInviteResponse": {
+      "type": "object",
+      "properties": {
+        "invite": {
+          "description": "Updated invitation object containing the resent invitation details, including new expiration time and incremented resend counter.",
+          "$ref": "#/definitions/usersInvite",
+          "example": {
+            "expires_at": "2025-12-31T23:59:59Z",
+            "organization_id": "org_123",
+            "resent_count": 2,
+            "status": "pending_invite",
+            "user_id": "usr_456"
           }
         }
       }
@@ -4249,9 +4592,7 @@
     },
     "v1organizationsCreateOrganization": {
       "type": "object",
-      "required": [
-        "display_name"
-      ],
+      "required": ["display_name"],
       "properties": {
         "display_name": {
           "description": "Name of the organization. Must be between 1 and 200 characters.",
@@ -4297,9 +4638,147 @@
         }
       }
     },
+    "v1rolesCreateRole": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Detailed description of the role's purpose, capabilities, and intended use cases. Maximum 2000 characters.",
+          "type": "string",
+          "example": "Can create, edit, and publish content but cannot delete content or manage user accounts"
+        },
+        "display_name": {
+          "description": "Human-readable display name for the role. Used in user interfaces, reports, and user-facing communications.",
+          "type": "string",
+          "example": "Content Editor"
+        },
+        "extends": {
+          "description": "Name of the base role that this role extends. Enables hierarchical role inheritance where this role inherits all permissions from the base role.",
+          "type": "string",
+          "example": "viewer"
+        },
+        "name": {
+          "description": "Unique name identifier for the role. Must be alphanumeric with underscores, 1-64 characters. This name is used in API calls and cannot be changed after creation.",
+          "type": "string",
+          "example": "content_editor"
+        },
+        "permissions": {
+          "description": "List of permission names to assign to this role. Permissions must exist in the current environment. Maximum 100 permissions per role.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": ["read:content", "write:content", "publish:content"]
+        }
+      }
+    },
+    "v1rolesRole": {
+      "type": "object",
+      "properties": {
+        "default_creator": {
+          "description": "Indicates if this role is the default creator role for new organizations.",
+          "type": "boolean",
+          "example": true
+        },
+        "default_member": {
+          "description": "Indicates if this role is the default member role for new users.",
+          "type": "boolean",
+          "example": true
+        },
+        "dependent_roles_count": {
+          "description": "Number of roles that extend from this role (dependent roles count). Read-only field.",
+          "type": "integer",
+          "format": "int32",
+          "example": 3
+        },
+        "description": {
+          "description": "Detailed description of the role's purpose and capabilities. Maximum 2000 characters.",
+          "type": "string",
+          "example": "Can create, edit, and publish content but cannot delete or manage users"
+        },
+        "display_name": {
+          "description": "Human-readable display name for the role. Used in user interfaces and reports.",
+          "type": "string",
+          "example": "Content Editor"
+        },
+        "extends": {
+          "description": "Name of the base role that this role extends. Enables hierarchical role inheritance.",
+          "type": "string",
+          "example": "admin_role"
+        },
+        "id": {
+          "description": "Unique system-generated identifier for the role. Immutable once created.",
+          "type": "string",
+          "readOnly": true,
+          "example": "role_1234abcd5678efgh"
+        },
+        "is_org_role": {
+          "description": "Indicates if this role is an organization role.",
+          "type": "boolean",
+          "example": true
+        },
+        "name": {
+          "description": "Unique name identifier for the role. Must be alphanumeric with underscores, 1-100 characters.",
+          "type": "string",
+          "example": "content_editor"
+        },
+        "permissions": {
+          "description": "List of permissions with role source information. Only included when 'include' parameter is specified in the request.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/rolesRolePermission"
+          },
+          "example": [
+            {
+              "description": "Read Content",
+              "name": "read:content",
+              "role_name": "admin_role"
+            },
+            {
+              "description": "Write Content",
+              "name": "write:content",
+              "role_name": "editor_role"
+            }
+          ]
+        }
+      }
+    },
+    "v1rolesUpdateRole": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Detailed description of the role's purpose, capabilities, and intended use cases. Maximum 2000 characters.",
+          "type": "string",
+          "example": "Can create, edit, publish, and approve content. Cannot delete content or manage user accounts."
+        },
+        "display_name": {
+          "description": "Human-readable display name for the role. Used in user interfaces, reports, and user-facing communications.",
+          "type": "string",
+          "example": "Senior Content Editor"
+        },
+        "extends": {
+          "description": "Name of the base role that this role extends. Enables hierarchical role inheritance where this role inherits all permissions from the base role.",
+          "type": "string",
+          "example": "content_editor"
+        },
+        "permissions": {
+          "description": "List of permission names to assign to this role. When provided, this replaces all existing role-permission mappings. Permissions must exist in the current environment. Maximum 100 permissions per role.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": ["read:content", "write:content", "publish:content", "approve:content"]
+        }
+      }
+    },
     "v1usersCreateMembership": {
       "type": "object",
       "properties": {
+        "inviter_email": {
+          "description": "Email address of the user who invited this member. Must be a valid email address.",
+          "type": "string",
+          "example": "john.doe@example.com"
+        },
         "metadata": {
           "description": "Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).",
           "type": "object",
@@ -4358,13 +4837,24 @@
       "name": "Organizations"
     },
     {
+      "description": "Permission management for defining and controlling access to system resources. Create, retrieve, update, and delete granular permissions that represent specific actions users can perform. Permissions are the building blocks of role-based access control (RBAC) and can be assigned to roles to grant users the ability to perform specific operations. Use this service to define custom permissions for your application's unique access control requirements.",
+      "name": "Permissions"
+    },
+    {
+      "description": "Comprehensive user management operations including user lifecycle, organization memberships, and invitation workflows. This service provides endpoints for creating, retrieving, updating, and deleting user accounts across your Scalekit environment. It supports both individual user operations and bulk operations for user administration, including user search, pagination, and metadata management. The service also handles user invitations and organization membership management.",
       "name": "Users"
     },
     {
+      "description": "Manage enterprise connections for your Scalekit environment. This service provides endpoints for retrieving, and updating connections.",
       "name": "Connections"
     },
     {
+      "description": "Directory management for viewing and controlling external identity provider connections in your Scalekit environment. This service provides endpoints for retrieving directory information, listing directories and their contents, and enabling or disabling directory synchronization.",
       "name": "Directory"
+    },
+    {
+      "description": "Role-based access control (RBAC) for defining and managing permissions in an environment. Create and update custom roles with explicit permissions, model role hierarchies through inheritance, view dependent roles, manage role-permission assignments, and list roles and permissions. Also provides a utility to count users assigned to a role.",
+      "name": "Roles"
     },
     {
       "description": "Endpoints for managing API client applications. API clients enable secure, automated interactions between software systems without human intervention. Each client is uniquely identified by a `client_id` and can be configured with authentication settings, redirect URIs, and security parameters. Use these endpoints to create, manage, and configure API clients for your API clients.",

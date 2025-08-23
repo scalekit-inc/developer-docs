@@ -161,7 +161,7 @@ export const sidebar = [
         items: [
           'guides/mcp/overview',
           'guides/mcp/oauth',
-          //"guides/mcp/additional-reading",
+          { label: 'Bring your own Auth', link: 'guides/mcp/custom-auth' },
         ],
       },
     ],
@@ -206,6 +206,10 @@ export const sidebar = [
       },
       {
         label: 'Guides',
+        items: ['guides/dashboard/redirects'],
+      },
+      {
+        label: 'Reference',
         items: [
           'guides/setup-scalekit',
           'dev-kit/resources/ai-assisted-setup',
@@ -282,6 +286,10 @@ export const topics = {
     '/index', // Exclude index by name
     '/guides/**/*',
     '/reference/**/*',
+    '/guides/integrations',
+    '/guides/integrations/index', // Exclude the integrations overview page from sidebar
+    '/home/guides/**/*',
+    '/home/guides/admin-portal',
     '/home/**/*',
   ],
   apis: ['/apis/#**/*'],
