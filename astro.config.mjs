@@ -61,9 +61,15 @@ export default defineConfig({
         useStarlightDarkModeSwitch: true,
         // themes: ['vitesse-dark', 'vitesse-light'],
         themes: ['tokyo-night', 'light-plus'],
+        styleOverrides: {
+          codeFontFamily:
+            "'Geist Mono Variable','Inter Mono Variable', ui-monospace, 'Courier New', monospace",
+          borderRadius: '0.375rem',
+        },
       },
       customCss: [
         '@fontsource-variable/inter',
+        '@fontsource-variable/geist-mono',
         './src/styles/theme-priority.css',
         './src/styles/custom.css',
       ],
