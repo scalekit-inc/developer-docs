@@ -8,6 +8,9 @@ import { initializeThemeSync, type ThemeSynchronizer } from '../utils/themeSync'
 // Reactive color mode tracking
 const colorMode = ref<string>('light')
 
+// Hash tracking
+const hash = ref('')
+
 // Initialize theme synchronization
 let themeSyncInstance: ThemeSynchronizer | null = null
 
@@ -24,6 +27,21 @@ onMounted(async () => {
   // Set initial color mode from synchronized theme
   const initialTheme = themeSyncInstance.getStarlightTheme()
   colorMode.value = initialTheme
+
+  // Set initial hash
+  hash.value = window.location.hash.substring(1)
+
+  // Listen for hash changes to handle deep links
+  window.addEventListener('hashchange', () => {
+    hash.value = window.location.hash.substring(1)
+    console.log('hash changed to:', hash.value)
+
+    // If Scalar is already loaded, scroll immediately
+    // If not loaded yet, the onLoaded callback will handle it
+    if (document.querySelector('.api-reference-container')) {
+      handleDeepLink()
+    }
+  })
 })
 
 onUnmounted(() => {
@@ -33,6 +51,52 @@ onUnmounted(() => {
     themeSyncInstance = null
   }
 })
+
+// Function to get clean, decoded hash
+const getCleanHash = () => {
+  const rawHash = window.location.hash.substring(1)
+  // Decode any URL encoding
+  const decodedHash = decodeURIComponent(rawHash)
+  console.log('Raw hash:', rawHash)
+  console.log('Decoded hash:', decodedHash)
+  return decodedHash
+}
+
+// Function to handle scrolling to hash element
+const handleScrollToHash = (href?: string) => {
+  // Use provided href or fall back to current hash
+  const targetId = href || hash.value
+
+  if (targetId) {
+    console.log('scrolling to element with id:', targetId)
+    const element = document.getElementById(targetId)
+    console.log('scrolling to element', element)
+    element?.scrollIntoView({ behavior: 'smooth' })
+  }
+}
+
+// Function to handle initial hash navigation when Scalar loads
+const handleInitialLoad = () => {
+  console.log('Scalar loaded, checking for hash:', hash.value)
+
+  if (hash.value) {
+    // Wait a bit for Scalar to fully render the DOM
+    setTimeout(() => {
+      console.log('waited for 5000ms')
+      const cleanHash = getCleanHash()
+      handleScrollToHash(cleanHash)
+    }, 2500)
+  }
+}
+
+// Function to handle deep link navigation
+const handleDeepLink = () => {
+  if (hash.value) {
+    const cleanHash = getCleanHash()
+    console.log('handling deep link:', cleanHash)
+    handleScrollToHash(cleanHash)
+  }
+}
 </script>
 
 <template>
@@ -41,7 +105,7 @@ onUnmounted(() => {
       <ApiReference
         :configuration="{
           url: '/api/scalekit.swagger.json',
-          isLoading: true,
+          onLoaded: handleInitialLoad,
           hideTestRequestButton: true,
           withDefaultFonts: false,
           theme: 'default', // Changed from 'modern' to 'default' to match allowed values
