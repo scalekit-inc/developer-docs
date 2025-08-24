@@ -1,8 +1,9 @@
 /*
-* Custom CSS Propertiesfor Starlight
+* Custom CSS Properties for Starlight
 * https://github.com/withastro/starlight/blob/main/packages/starlight/style/props.css
 */
 
+/* Base font and size settings */
 :root,
 ::backdrop {
   /* Text size and line height */
@@ -27,31 +28,14 @@
   --sl-text-h3: var(--sl-text-xl) !important;
   --sl-text-h4: var(--sl-text-lg) !important;
   --sl-text-h5: var(--sl-text-base) !important;
-
   --sl-line-height: 1.75;
   --sl-line-height-headings: 1.2;
 
-  --sl-font-system:
-    'Inter Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-    'Segoe UI Symbol', 'Noto Color Emoji';
-  --sl-font-h1:
-    'Inter Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  --sl-font-system: 'Inter Variable', ui-sans-serif, system-ui, Roboto, Arial, sans-serif;
   --sl-font-system-mono: 'Inter Mono Variable', ui-monospace, monospace;
-  --__sl-font: var(--sl-font, var(--sl-font-system)), var(--sl-font-system);
+  --__sl-font: var(--sl-font-system);
   --__sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
 
-  /** Key layout values */
-  --sl-nav-height: 3.5rem;
-  --sl-nav-pad-x: 1rem;
-  --sl-nav-pad-y: 0.75rem;
-  --sl-mobile-toc-height: 3rem;
-  --sl-sidebar-width: 15.75rem;
-  --sl-sidebar-pad-x: 1rem;
-  --sl-content-width: 45rem; /* Reverted back to default */
-  --sl-content-pad-x: 1rem;
-  --sl-nav-gap: var(--sl-content-pad-x);
   /* Offset required to show outline inside an element instead of round the outside */
   --sl-outline-offset-inside: -0.1875rem;
 
@@ -62,30 +46,56 @@
   --sl-z-index-skiplink: 20;
 }
 
+/* Reintroduce only header height composition so content sits below header + secondary nav */
+:root {
+  /* Defaults for small screens: no secondary nav */
+  --sl-header-height-base: 3.5rem;
+  --secondary-nav-height: 0rem;
+  --sl-nav-height: var(--sl-header-height-base);
+}
+
 @media (min-width: 50em) {
   :root {
-    --sl-nav-height: 4rem;
-    --sl-nav-pad-x: 1.5rem;
-    --sl-text-h1: var(--sl-text-5xl);
-    --sl-text-h2: var(--sl-text-4xl);
-    --sl-text-h3: var(--sl-text-3xl);
-    --sl-text-h4: var(--sl-text-2xl);
+    --sl-header-height-base: 4rem; /* Nova desktop header height */
+    --secondary-nav-height: 2.75rem; /* height of secondary nav */
+    --sl-nav-height: calc(var(--sl-header-height-base) + var(--secondary-nav-height));
   }
 }
 
-@media (min-width: 72rem) {
-  :root {
-    --sl-content-pad-x: 1.5rem;
-    --sl-mobile-toc-height: 0rem;
-  }
+/* Dark mode color tokens */
+:root[data-theme='dark'] {
+  /* Mihir's proposed colors */
+  /* --sl-color-bg: #111111; */
+  /* --sl-color-bg-nav: #111111; */
+
+  /* Navigation colors */
+  --sl-color-text-accent: #ffffff;
+  --sl-color-text-nav: #cecece; /* Nav bar unselected */
+  --sl-color-text-nav-current: #ffffff; /* Nav bar selected */
+  --sl-color-border-nav: #cecece; /* Nav bar border */
+
+  /* Typography colors */
+  --sl-color-text: #ffffff;
+  --sl-color-text-heading: #ffffff; /* Header text */
+  --sl-color-text-muted: #cecece; /* Subtext */
+
+  /* Card and component colors */
+  --sl-color-bg-card: #202020;
+  --sl-color-border: #8d8d8d; /* Card stroke color */
+  --sl-color-bg-sidebar: #111111;
+
+  /* Action colors */
+  --sl-color-text-accent: #ffffff; /* CTA color */
+
+  /* Band color settings */
+  --sl-color-bg-band: #202020;
+  --sl-color-bg-card-in-band: #2c2c2c;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5 {
-  font-family: var(--sl-font-h1);
+/* Light mode defaults - partial implementation */
+:root[data-theme='light'] {
+  /* We'll keep default light theme values for now */
+  /* Add specific light mode overrides as needed */
 }
 
 .sl-link-button.primary {
@@ -96,13 +106,13 @@ h5 {
   border-radius: 0.2rem !important;
 }
 
+header.header {
+  border-bottom: none;
+}
+
 .starlight-sidebar-topics-dropdown-dropdown {
   width: inherit;
   margin: inherit;
-}
-
-.content-panel {
-  padding-bottom: 0rem !important;
 }
 
 .footnotes {
@@ -130,13 +140,6 @@ h5 {
   display: none;
 }
 
-/* Hide the last two items in the topics list - tablet and desktop only (so they appear only on mobile) */
-@media (min-width: 50em) {
-  .starlight-sidebar-topics li:nth-last-child(-n + 2) {
-    display: none;
-  }
-}
-
 /* Image styling - add border to all images */
 starlight-image-zoom-zoomable img {
   border: 1px solid var(--sl-color-gray-5);
@@ -146,5 +149,11 @@ starlight-image-zoom-zoomable img {
 
 /* Logo height in header */
 .site-title img {
-  height: 32px;
+  height: 40px;
 }
+
+.nova-page-frame-header {
+  background-color: var(--sl-color-bg);
+}
+
+/* (Use Nova defaults for content margins/centering.) */
