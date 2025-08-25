@@ -6,6 +6,15 @@ sidebar:
   hidden: true
 topic: 'sso'
 tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
 import { Steps, Aside, Badge } from '@astrojs/starlight/components'
@@ -17,10 +26,10 @@ In this guide, you will migrate SSO connections to Scalekit without requiring cu
 
 ### Prerequisites
 
-1. You control DNS for your auth domain, and its CNAME points to your external SSO provider (for example, WorkOS).
+1. You control DNS for your auth domain, and its CNAME points to your external SSO provider.
 2. Scalekit is set up — you have <a href="https://app.scalekit.com" target="_blank" rel="noopener">signed up</a> and installed the <a href="https://docs.scalekit.com/fsa/quickstart/#install-the-scalekit-sdk" target="_blank" rel="noopener">Scalekit SDK</a>.
 
-## Current setup with WorkOS as an external SSO provider
+## Current setup with external SSO provider
 
 ### IdP configurations
 
@@ -28,18 +37,18 @@ Your customers have configured their identity provider with necessary settings s
 
 ### SSO integrations
 
-Your application integrates with WorkOS to manage SSO connections with your customers' identity providers. This is the ideal flow:
+Your application integrates with an external SSO provider to manage SSO connections with your customers' identity providers. This is the ideal flow:
 
 1. Users come to your application and enter their email address to log in using SSO.
 2. Your app uses connection selectors such as email domain, organization ID, or connection ID to identify the user's identity provider.
 3. Your app redirects the user to the identity provider and verifies their identity to continue login.
-4. Your app receives an authorization code from the external SSO provider (WorkOS) and exchanges it for user profile information to complete login.
+4. Your app receives an authorization code from the external SSO provider and exchanges it for user profile information to complete login.
 
 ## Approach to migrate SSO connections
 
 Customers have already configured their identity provider with necessary service provider settings over the domain you own and the CNAME is correctly configured with your external SSO provider. An ideal experience should not require reconfiguration or cause disruption.
 
-1. Set up an **SSO proxy** service that sits between your application and the external SSO provider (WorkOS). The proxy is responsible for handling authentication requests between Scalekit and the external provider. **This ensures existing SSO connections continue to work while new connections use Scalekit.**
+1. Set up an **SSO proxy** service that sits between your application and the external SSO provider. The proxy is responsible for handling authentication requests between Scalekit and the external provider. **This ensures existing SSO connections continue to work while new connections use Scalekit.**
 2. Gradually migrate existing SSO connections to Scalekit.
 
 No reconfiguration of the identity provider is required as long as the **SSO proxy** handles authentication requests between Scalekit and the external SSO provider.
@@ -52,26 +61,26 @@ New SSO connections (the 21st and beyond) will use Scalekit as the SSO provider 
 
 ### Set up SSO proxy to co-exist with external SSO provider <Badge type="note" text="Phase 1"/>
 
-![Diagram: SSO proxy coexisting with external provider (WorkOS)](@/assets/docs/sso-migration-strategy/proxy-workos.png)
+![Diagram: SSO proxy coexisting with external provider](@/assets/docs/sso-migration-strategy/proxy-workos.png)
 
 
-All existing organizations still authenticate through an external SSO provider (for example, WorkOS). The SSO proxy ensures those connections continue to work while you gradually migrate. This approach is ideal when you prefer a staged rollout—move organizations one by one without forcing customers to reconfigure their IdP. We use WorkOS in examples below where needed; adapt hostnames and SDK calls for your provider.
+All existing organizations still authenticate through an external SSO provider. The SSO proxy ensures those connections continue to work while you gradually migrate. This approach is ideal when you prefer a staged rollout—move organizations one by one without forcing customers to reconfigure their IdP.
 
 <Steps>
-1. **Add a conditional between external provider (WorkOS) and Scalekit authorization URL generation**
+1. **Add a conditional between external provider and Scalekit authorization URL generation**
 
-   Decide per organization (for example, by domain, organization ID, or connection ID) whether to initiate SSO with WorkOS or Scalekit. This enables both systems to co-exist during migration.
+   Decide per organization (for example, by domain, organization ID, or connection ID) whether to initiate SSO with the external provider or Scalekit. This enables both systems to co-exist during migration.
 
    ```javascript title="auth-server.js"
    import express from "express";
-   import { WorkOS } from "@workos-inc/node";
+   import { ExternalSSOProvider } from "external-sso-sdk";
    import { ScalekitClient } from "@scalekit-sdk/node";
 
    const app = express();
 
-   const workosOrganizationIds = ["org_test_idp", "org_01EHZNVPK3SFK441A1RGBFSHRT"]; // example selector
+   const externalProviderOrganizationIds = ["org_test_idp", "org_01EHZNVPK3SFK441A1RGBFSHRT"]; // example selector
 
-   const workos = new WorkOS(process.env.WORKOS_API_KEY);
+   const externalProvider = new ExternalSSOProvider(process.env.EXTERNAL_SSO_API_KEY);
    const scalekit = new ScalekitClient(
      process.env.SCALEKIT_ENVIRONMENT_URL,
      process.env.SCALEKIT_CLIENT_ID,
@@ -82,12 +91,12 @@ All existing organizations still authenticate through an external SSO provider (
      const organizationIdentifier = req.query.organization; // e.g. 'org_test_idp'
      let redirectUrl;
 
-     if (workosOrganizationIds.includes(organizationIdentifier)) {
-       redirectUrl = workos.sso.getAuthorizationUrl({
+     if (externalProviderOrganizationIds.includes(organizationIdentifier)) {
+       redirectUrl = externalProvider.sso.getAuthorizationUrl({
          organization: organizationIdentifier,
-         clientId: process.env.WORKOS_CLIENT_ID,
+         clientId: process.env.EXTERNAL_SSO_CLIENT_ID,
          redirectUri: "https://yourapp.com/auth/ext-provider/callback",
-         state: "workos_p",
+         state: "external_provider",
        });
      } else {
        const portal = await scalekit.organization.generatePortalLink(
@@ -111,15 +120,15 @@ All existing organizations still authenticate through an external SSO provider (
    https://yourapp.com/auth/scalekit/callback
    ```
 
-3. **Proxy rewrites authorization to external SSO provider (WorkOS)**
+3. **Proxy rewrites authorization to external SSO provider**
 
-   The proxy forwards requests to the external provider (WorkOS), preserving identifiers such as **`state`** and **`organization`**.
+   The proxy forwards requests to the external provider, preserving identifiers such as **`state`** and **`organization`**.
 
-   ```bash title="Example external provider authorize request (WorkOS)"
-   GET https://api.workos.com/sso/authorize?response_type=code \
+   ```bash title="Example external provider authorize request"
+   GET https://api.external-provider.com/sso/authorize?response_type=code \
      &client_id=sk_example_123456 \
-     &redirect_uri=https://yourapp.com/callback/workos \
-     &state=workos_p \
+     &redirect_uri=https://yourapp.com/callback/external-provider \
+     &state=external_provider \
      &organization=org_01EHZNVPK3SFK441A1RGBFSHRT
    ```
 
@@ -131,34 +140,34 @@ All existing organizations still authenticate through an external SSO provider (
    https://auth.yourapp.com/sso/saml/acs/{connection_id}
    ```
 
-5. **Map the entity ID (callback ID)** so the proxy knows to use the external provider (WorkOS)
+5. **Map the entity ID (callback ID)** so the proxy knows to use the external provider
 
-   Provide the proxy with your existing **WorkOS callback identifiers** (often opaque IDs). The proxy uses these to route the SAML/OIDC callback to WorkOS for processing. You can store these in environment variables or a JSON mapping file.
+   Provide the proxy with your existing **external provider callback identifiers** (often opaque IDs). The proxy uses these to route the SAML/OIDC callback to the external provider for processing. You can store these in environment variables or a JSON mapping file.
 
    ```text title="Example opaque callback path"
    https://auth.yourapp.com/ivETDqla2SfNIsvUH4mqqq6UL
    ```
 
-6. **Receive the authorization code at your app's callback and exchange with the external provider (WorkOS)**
+6. **Receive the authorization code at your app's callback and exchange with the external provider**
 
-   The external provider completes the handshake and redirects to your app's registered callback. The proxy can add a sentinel **state** (for example, **`workos_p`**) so your app knows to exchange the code with the external provider (WorkOS) and fetch the user profile.
+   The external provider completes the handshake and redirects to your app's registered callback. The proxy can add a sentinel **state** (for example, **`external_provider`**) so your app knows to exchange the code with the external provider and fetch the user profile.
 
    ```javascript title="callback-handler.js (external provider)"
    import express from "express";
-   import { WorkOS } from "@workos-inc/node";
+   import { ExternalSSOProvider } from "external-sso-sdk";
 
    const app = express();
-   const workos = new WorkOS(process.env.WORKOS_API_KEY);
+   const externalProvider = new ExternalSSOProvider(process.env.EXTERNAL_SSO_API_KEY);
 
    app.get("/auth/ext-provider/callback", async (req, res) => {
      const { code, state, error, error_description } = req.query;
      if (error) return res.status(400).json({ error, error_description });
 
      try {
-       const result = await workos.sso.getProfileAndToken({
+       const result = await externalProvider.sso.getProfileAndToken({
          code,
-         clientId: process.env.WORKOS_CLIENT_ID,
-         clientSecret: process.env.WORKOS_CLIENT_SECRET,
+         clientId: process.env.EXTERNAL_SSO_CLIENT_ID,
+         clientSecret: process.env.EXTERNAL_SSO_CLIENT_SECRET,
          redirectUri: "https://yourapp.com/auth/ext-provider/callback",
        });
        // result.profile contains user details; create session
@@ -180,10 +189,10 @@ All existing organizations still authenticate through an external SSO provider (
 
 ![Diagram: SSO proxy routing callbacks to Scalekit](@/assets/docs/sso-migration-strategy/proxy-scalekit.png)
 
-Once you create equivalent organizations in Scalekit for the ones you plan to migrate, the proxy can begin routing callbacks to Scalekit for those organizations while others continue on WorkOS.
+Once you create equivalent organizations in Scalekit for the ones you plan to migrate, the proxy can begin routing callbacks to Scalekit for those organizations while others continue on the external provider.
 
 <Aside type="note">
-  We're developing a migration utility that automatically detects your WorkOS organizations and creates equivalent ones in Scalekit. This tool significantly reduces manual setup during migration. If you'd like early access to this utility, <a href="https://docs.scalekit.com/support/contact-us/">contact our support team</a>.
+  We're developing a migration utility that automatically detects your external SSO provider organizations and creates equivalent ones in Scalekit. This tool significantly reduces manual setup during migration. If you'd like early access to this utility, <a href="https://docs.scalekit.com/support/contact-us/">contact our support team</a>.
 </Aside>
 
 <Steps>
