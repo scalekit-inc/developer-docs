@@ -1,10 +1,6 @@
-console.log(
-  'Loading PostHog',
-  window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1',
-)
-console.log(window.location.hostname)
 // Only initialize PostHog in non-localhost environments
-if (true) {
+if (!window.location.host.includes('127.0.0.1') && !window.location.host.includes('localhost')) {
+  console.log('Loading PostHog')
   !(function (t, e) {
     var o, n, p, r
     e.__SV ||
