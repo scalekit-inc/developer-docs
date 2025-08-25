@@ -14,9 +14,7 @@ import starlightLlmsTxt from 'starlight-llms-txt'
 import starlightVideos from 'starlight-videos'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
-
 import tailwindcss from '@tailwindcss/vite'
-
 import d2 from 'astro-d2'
 
 // https://astro.build/config
@@ -66,6 +64,7 @@ export default defineConfig({
       },
       customCss: [
         '@fontsource-variable/inter',
+        '@fontsource-variable/geist',
 
         /** Backup fonts. They can be removed if deemed unnecessary. */
         // '@fontsource-variable/plus-jakarta-sans',
@@ -186,7 +185,18 @@ export default defineConfig({
         },
       },
     }),
-    d2(),
+    d2({
+      theme: {
+        default: '4',
+        dark: '200', // choose at https://d2lang.com/tour/themes/
+      },
+      sketch: true,
+      fonts: {
+        regular: 'public/fonts/geist/Geist-Regular.ttf',
+        bold: 'public/fonts/geist/Geist-Bold.ttf',
+        italic: 'public/fonts/geist/Geist-Light.ttf',
+      },
+    }),
   ],
   image: {
     service: passthroughImageService(),
