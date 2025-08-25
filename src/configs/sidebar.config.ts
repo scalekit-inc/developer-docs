@@ -25,7 +25,7 @@ export const sidebar = [
           },
           'fsa/guides/manage-session',
           'fsa/guides/logout',
-          'fsa/guides/auth-logs',
+          'guides/dashboard/auth-logs',
         ],
       },
       {
@@ -39,7 +39,7 @@ export const sidebar = [
           'fsa/guides/merge-identities',
           'fsa/reference/user-profile',
           'fsa/guides/app-roles',
-          'fsa/reference/redirects',
+          'guides/dashboard/redirects',
           'fsa/guides/just-in-time-provisioning',
           'fsa/guides/automated-user-provisioning',
           'fsa/guides/migration-guide',
@@ -89,8 +89,8 @@ export const sidebar = [
           'sso/guides/okta-sso-test',
           'sso/guides/sso-user-attributes',
           'sso/reference/sso-integration-errors',
-          'sso/reference/redirects',
-          'sso/guides/auth-logs',
+          'guides/dashboard/redirects',
+          'guides/dashboard/auth-logs',
           {
             label: 'Coexist with',
             autogenerate: { directory: 'guides/integrations/auth-systems' },
@@ -155,7 +155,7 @@ export const sidebar = [
       },
       {
         label: 'Guides',
-        items: ['passwordless/guides/auth-logs'],
+        items: ['guides/dashboard/auth-logs'],
       },
     ],
   },
@@ -170,7 +170,7 @@ export const sidebar = [
         items: [
           'guides/mcp/overview',
           'guides/mcp/oauth',
-          //"guides/mcp/additional-reading",
+          { label: 'Bring your own Auth', link: 'guides/mcp/custom-auth' },
         ],
       },
     ],
@@ -245,6 +245,10 @@ export const sidebar = [
         autogenerate: { directory: 'reference/webhooks' },
       },
       {
+        label: 'Guides',
+        items: ['guides/dashboard/redirects', 'guides/dashboard/auth-logs'],
+      },
+      {
         label: 'Reference',
         items: [
           {
@@ -312,7 +316,6 @@ export const topics = {
   exclude: [
     '/', // Exclude root path
     '/index', // Exclude index by name
-    '/guides/redirects',
     '/guides/integrations',
     '/guides/integrations/index', // Exclude the integrations overview page from sidebar
     '/home/guides/**/*',
