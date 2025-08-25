@@ -4,7 +4,7 @@ console.log(
 )
 console.log(window.location.hostname)
 // Only initialize PostHog in non-localhost environments
-if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+if (true) {
   !(function (t, e) {
     var o, n, p, r
     e.__SV ||
@@ -51,7 +51,7 @@ if (window.location.hostname !== 'localhost' && window.location.hostname !== '12
 
   // Initialize PostHog
   posthog.init('phc_85pLP8gwYvRCQdxgLQP24iqXHPRGaLgEw4S4dgZHJZ', {
-    api_host: 'https://us.i.posthog.com',
+    api_host: 'https://app.posthog.com',
     person_profiles: 'identified_only',
   })
 }
