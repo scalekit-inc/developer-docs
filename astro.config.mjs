@@ -187,8 +187,8 @@ export default defineConfig({
     }),
     d2({
       theme: {
-        default: '4',
-        dark: '200', // choose at https://d2lang.com/tour/themes/
+        default: '0',
+        dark: '1', // choose at https://d2lang.com/tour/themes/
       },
       sketch: true,
       fonts: {
