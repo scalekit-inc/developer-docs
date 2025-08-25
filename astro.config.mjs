@@ -191,11 +191,6 @@ export default defineConfig({
         dark: '1', // choose at https://d2lang.com/tour/themes/
       },
       sketch: true,
-      fonts: {
-        regular: 'public/fonts/geist/Geist-Regular.ttf',
-        bold: 'public/fonts/geist/Geist-Bold.ttf',
-        italic: 'public/fonts/geist/Geist-Light.ttf',
-      },
     }),
   ],
   image: {
