@@ -1,8 +1,8 @@
 ---
-title: Automated user provisioning
-description: Automatically provision users when they sign up using social logins and passwordless authentication
+title: Allowed email domains
+description: Define trusted email domains for an organization to allow user to directly join an org
 sidebar:
-  label: 'SCIM provisioning'
+  label: 'Allowed email domains'
 head:
   - tag: style
     content: |
@@ -23,26 +23,29 @@ next:
 import { Steps, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-Automated user provisioning allows users to be automatically added to organizations when they sign up using non-SSO authentication methods such as social logins (Google, GitHub, Microsoft) or passwordless authentication. Unlike JIT provisioning which works with SSO connections, this feature provides an organization switcher interface where users can join organizations based on their email domain.
+Allowed email domains lets organization admins define trusted domains for their organization. When a user signs in or signs up with a matching email domain, Scalekit suggests the user to join that organization in the **organization switcher** so the user can join the organization with one click. This feature is authentication-method agnostic: regardless of whether a user authenticates via SSO, social login, or passwordless authentication, organization options are suggested based on their email domain.
 
 ## Introduction
 
-Automated user provisioning is particularly useful for applications that support multiple authentication methods and want to provide seamless organization membership for users authenticating through social providers or passwordless methods.
+Allowed email domains can reduce the burden of manual invitation for organization admins, avoid duplicate organization creation, and streamline membership for end users by suggesting the right organization at sign-in/sign-up.  
 
-{/* TODO: Add illustration showing automated user provisioning flow */}
+{/* TODO: Insert the flow illustration from the design: login → domain match → suggest org in switcher → join/create. */}
 
-When a user signs up or signs in using social logins or passwordless authentication, Scalekit can automatically:
 
-1. **Match email domains** - Check if the user's email domain matches configured allowed domains for an organization
-2. **Present organization options** - Show the user available organizations they can join through an organization switcher
-3. **Enable user choice** - Allow users to select which organization to join or create a new one
-4. **Create organization membership** - Automatically add the user to their selected organization
+When a user signs up or signs in, Scalekit can automatically:
 
-This process provides flexibility for users who may work across multiple organizations or need to create their own workspace.
+1. **Match email domains** - Check if the user's email domain matches configured allowed domains for any organization.
+2. **Suggest organization options** - Show the user available organizations they can join through an organization switcher.
+3. **Enable user choice** - Allow users to decide which of the suggested organizations they want to join.
+4. **Create organization membership** - Automatically add the user to their selected organization.
 
-## Enabling automated user provisioning
+## Security consideration
 
-Automated user provisioning must be configured for each organization by setting allowed email domains. You can configure this through the Scalekit Dashboard or programmatically using the API.
+- **Disposable and generic email domains are blocked** and cannot be added to the allow-list (e.g., `gmail.com`, `outlook.com`). We maintain a blocklist to enforce this.  
+
+## Enabling allowed email domains
+
+Allowed email domains can be configured for an organization through the Scalekit Dashboard or programmatically using the API.
 
 ### Enable via Dashboard <Badge type="note" text="Coming soon" />
 
@@ -50,32 +53,17 @@ Automated user provisioning must be configured for each organization by setting 
 
 1. Log in to your [Scalekit Dashboard](https://app.scalekit.com).
 2. Navigate to **Organizations** and **select an organization**.
-3. Go to **Settings** and find the **Automated Provisioning** section.
-4. Configure the allowed email domains for automatic provisioning.
+3. Open the **Security** tab and find **Allowed Email Domains**.
+4. Add or edit allowed email domains for automatic suggestions/provisioning.
 
 </Steps>
 
 ### Enable via API
 
-You can also configure automated user provisioning programmatically using the Scalekit API:
+You can also configure allowed email domains for an organization programmatically using the Scalekit API:
 
 <InstallSDK />
 
 ```javascript title="Configure allowed domains"
 // Coming soon - API to configure allowed email domains
 ```
-
-## Supported authentication methods
-
-Automated user provisioning works with the following authentication methods:
-
-- **[Social logins](/fsa/guides/social-logins/)** - Google, Microsoft, GitHub, LinkedIn, and other social providers.
-- **[Passwordless authentication](/fsa/guides/passwordless/)** - Magic link and verification codes.
-
-Users authenticate with their preferred method and are then presented with organization options based on their email domain.
-
-## What's next?
-
-- Learn about [organization switching](/fsa/guides/organization-switching/) capabilities for users who belong to multiple organizations
-- Explore [JIT provisioning](/fsa/guides/just-in-time-provisioning/) for SSO-based workflows
-- Set up [social logins](/fsa/guides/social-logins/) for your application
