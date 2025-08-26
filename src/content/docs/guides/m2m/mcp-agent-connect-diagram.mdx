@@ -1,0 +1,45 @@
+---
+title: "MCP Agent Connect Diagram"
+description: "Visual diagram and explanation of how MCP agents connect to Scalekit for secure AI application integration"
+topic: dev-kit
+tableOfContents: false
+draft: true
+description: "Diagram showing how MCP agents connect to Scalekit"
+---
+
+**How to use this page**
+
+If you'd like to modify or experiment with this diagram:
+
+1. The diagram is created using D2, a declarative diagramming language
+2. Reference: [D2 documentation](https://d2lang.com/)
+3. Try changes in the [D2 Playground](https://play.d2lang.com/)
+
+Welcome collaboration - please submit feedback or improvements via GitHub issues or pull requests.
+
+```d2
+shape: sequence_diagram
+
+MCPClient: "User (Cursor/Claude)"
+AIHub: "AI Hub (MCP Server)"
+MCPAuth: "Scalekit MCP Auth"
+AgentConnect: "Agent Connect"
+Jira: "Jira (3rd Party Service)"
+Okta: "IDP (Okta)"
+
+MCPClient -> AIHub: "Connect to AI Hub"
+AIHub -> MCPAuth: "OAuth/Authorize"
+MCPAuth -> Okta: "User authentication"
+Okta -> MCPAuth: "User authenticated"
+MCPAuth -> MCPClient: "Scopes approval"
+MCPClient -> AIHub: "Query: Get all open tasks last month"
+AIHub -> AgentConnect: "Passes query to connector"
+AgentConnect -> Jira: "OAuth request to Jira"
+Jira -> AgentConnect: "User authenticates, tokens issued"
+AgentConnect -> AIHub: "Tokens returned"
+AIHub -> AgentConnect: "Execute query with user's token"
+AgentConnect -> Jira: "Fetch tasks"
+Jira -> AgentConnect: "Return task data"
+AgentConnect -> AIHub: "Results returned"
+AIHub -> MCPClient: "Show result in Claude"
+```
