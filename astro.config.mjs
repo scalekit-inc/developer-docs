@@ -14,8 +14,8 @@ import starlightLlmsTxt from 'starlight-llms-txt'
 import starlightVideos from 'starlight-videos'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
-
 import tailwindcss from '@tailwindcss/vite'
+import d2 from 'astro-d2'
 
 console.log('Current NODE_ENV:', process.env.NODE_ENV)
 console.log(
@@ -70,6 +70,7 @@ export default defineConfig({
       },
       customCss: [
         '@fontsource-variable/inter',
+        '@fontsource-variable/geist',
 
         /** Backup fonts. They can be removed if deemed unnecessary. */
         // '@fontsource-variable/plus-jakarta-sans',
@@ -105,11 +106,11 @@ export default defineConfig({
         {
           tag: 'script',
           content: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-F4K36V5HPL');
-          `,
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-F4K36V5HPL');
+        `,
         },
         {
           tag: 'script',
@@ -133,6 +134,13 @@ export default defineConfig({
           isCustomElement: (tag) => tag.includes('-'),
         },
       },
+    }),
+    d2({
+      theme: {
+        default: '0',
+        dark: '1', // choose at https://d2lang.com/tour/themes/
+      },
+      sketch: true,
     }),
   ],
   image: {
