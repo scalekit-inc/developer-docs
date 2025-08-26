@@ -1,5 +1,9 @@
-// Only initialize PostHog in non-localhost environments
-if (!window.location.host.includes('127.0.0.1') && !window.location.host.includes('localhost')) {
+// Only initialize PostHog in non-localhost and non-netlify environments
+if (
+  !window.location.host.includes('127.0.0.1') &&
+  !window.location.host.includes('localhost') &&
+  !window.location.host.includes('netlify.app')
+) {
   !(function (t, e) {
     var o, n, p, r
     e.__SV ||
