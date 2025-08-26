@@ -17,12 +17,6 @@ import { redirects } from './src/configs/redirects.config'
 import tailwindcss from '@tailwindcss/vite'
 import d2 from 'astro-d2'
 
-console.log('Current NODE_ENV:', process.env.NODE_ENV)
-console.log(
-  'All env vars:',
-  Object.keys(process.env).filter((key) => key.includes('NODE')),
-)
-
 // https://astro.build/config
 export default defineConfig({
   site: 'https://docs.scalekit.com',
