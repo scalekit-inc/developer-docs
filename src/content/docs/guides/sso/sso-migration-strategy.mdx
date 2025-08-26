@@ -90,260 +90,142 @@ SSOProxy -> App: Forward user details {style.animated: true}
 App -> User: Access granted
 ```
 
-
-### SSO proxy implementation
+## SSO proxy implementation
 
 The SSO proxy ensures those connections continue to work while you gradually migrate. This approach is ideal when you prefer a staged rollout—move organizations one by one or all at once with data migration utilty without forcing customers to reconfigure SSO connection settings in their IdP.
 
+### Proxy routes SSO requests to external providers or Scalekit
+
+The SSO proxy acts as a smart router that directs authentication requests to the right provider. It sits between your application and both SSO systems, making migration seamless.
+
 <Steps>
-1. asdf
+
+1. **Provider selection**
+
+   Your app sends login requests with user information (email, domain, or organization ID). The proxy analyzes this data and routes authentication to either the external provider or Scalekit.
+
+2. **Redirection to proxy domain**
+
+   Users are redirected to your proxy domain (e.g., `auth.yourapp.com`) to begin authentication. This domain handles all SSO traffic during migration.
+
+3. **Request forwarding**
+
+   The proxy forwards authentication requests to the selected provider while preserving all necessary identifiers and session parameters.
+
+4. **Identity provider processing**
+
+   The user's IdP processes authentication and sends responses (SAML or OIDC) back to your proxy domain via configured callback URLs.
+
+5. **Response routing**
+
+   The proxy examines response identifiers to determine which provider handled authentication and routes the callback accordingly.
+
+6. **Code exchange**
+
+   Your app receives an authorization code with a state indicator showing which provider processed the request. Use this information to complete the authentication flow.
 
 </Steps>
 
--------
-<Steps>
-1. **Add a conditional between external provider and Scalekit authorization URL generation**
+## Set up provider selection in your auth server
 
-   Decide per organization (for example, by domain, organization ID, or connection ID) whether to initiate SSO with the external provider or Scalekit. This enables both systems to co-exist during migration.
+
+<Steps>
+
+1. **Maintain organization migration mapping**
+
+   Store information about which organizations are migrated to Scalekit versus those still using external SSO providers. You can use a database, configuration file, or API endpoint based on your app architecture. This mapping determines which SSO provider to use for each organization.
+
+   ```javascript title="example: organization-mapping.js"
+   const organizationMapping = {
+     'megasoft.com': { provider: 'workos', migrated: false },
+     'example.com': { provider: 'workos', migrated: false },
+     'newcompany.com': { provider: 'scalekit', migrated: true }
+   };
+   ```
+
+2. **Implement conditional routing logic**
+
+   Add logic to your authentication endpoint that checks the organization mapping and redirects users to the appropriate SSO provider. For migrated organizations, route to Scalekit; for others, use the external provider.
 
    ```javascript title="example: auth-server.js"
-    const orgsOfWorkos = [
-      {
-        domain: 'megasoft.com',
-        organizationId:
-          process.env.WORKOS_ORG_ID || 'org_01K365D5XXSYX9Y26FBM70GK8K',
-        label: 'WorkOS Organization',
-      },
-      {
-        domain: 'example.com',
-        organizationId: process.env.WORKOS_ORG_ID || 'org_test_idp',
-        label: 'Example Organization',
-      },
-      // Add more organizations as needed
-    ];
+   app.post('/sso-login', (req, res) => {
+     const { email } = req.body;
+     const [, domain] = email.split('@');
 
-        app.post('/sso-login', (req, res) => {
-      const { email } = req.body;
-      let [, domain] = email.split('@');
+     // Check for force Scalekit header (helpful for debugging)
+     const forceScalekit = req.headers['x-force-sk-route'] === 'yes';
 
-        // Check for force Scalekit header
-        const forceScalekitHeader =
-          req.headers['x-force-sk-route'] || req.headers['X-Force-Sk-Route'];
-        const shouldForceScalekit =
-          forceScalekitHeader && forceScalekitHeader.toLowerCase() === 'yes';
-
-        // If force Scalekit header is set to "yes", always use Scalekit
-        if (shouldForceScalekit) {
-          let options = Object.create({});
-          options['loginHint'] = email;
-          options['domain'] = domain; // Add domain parameter for Scalekit
-          // Remove organizationId and use domain-based discovery instead
-          // options['organizationId'] = 'org_86863029123154451';
-
-          try {
-            const authorizationUrl = scalekit.getAuthorizationUrl(
-              redirectUri,
-              options
-            );
-            console.log(
-              `Force using Scalekit for domain: ${domain} (header override)`
-            );
-            console.log('Scalekit Authorization URL:', authorizationUrl);
-            res.redirect(authorizationUrl);
-            return;
-          } catch (error) {
-            console.error('Scalekit SSO login error:', error);
-            res.render('sso-login', {
-              error: 'An error occurred while initiating Scalekit SSO login',
-            });
-            return;
-          }
-        }
-
-      // Check if the domain belongs to an organization that uses WorkOS
-      const workosOrg = orgsOfWorkos.find((org) => org.domain === domain);
-
-      if (workosOrg) {
-        // Use WorkOS for this organization
-        try {
-          const authorizationUrl = workos.sso.getAuthorizationUrl({
-            organization: workosOrg.organizationId,
-            redirectUri: 'http://localhost:3000/from-workos/callback',
-            clientId: workosClientId,
-          });
-
-          console.log(
-            `Using WorkOS for domain: ${domain}, organization: ${workosOrg.label}`
-          );
-          console.log('WorkOS Authorization URL:', authorizationUrl);
-          res.redirect(authorizationUrl);
-        } catch (error) {
-          console.error('WorkOS SSO login error:', error);
-          res.render('sso-login', {
-            error: 'An error occurred while initiating WorkOS SSO login',
-          });
-        }
-      } else {
-        // Use Scalekit for other domains
-        let options = Object.create({});
-        options['loginHint'] = email;
-        options['domain'] = domain; // Add domain parameter for Scalekit
-        // Remove organizationId and use domain-based discovery instead
-        // options['organizationId'] = 'org_86863029123154451';c
-
-        try {
-          const authorizationUrl = scalekit.getAuthorizationUrl(
-            redirectUri,
-            options
-          );
-          console.log(`Using Scalekit for domain: ${domain}`);
-          // Redirect the user to the authorization URL
-          res.redirect(authorizationUrl);
-        } catch (error) {
-          console.error('Scalekit SSO login error:', error);
-          res.render('sso-login', {
-            error: 'An error occurred while initiating Scalekit SSO login',
-          });
-        }
-      }
-    });
-   ```
-
-2. **Redirect users to your SSO proxy domain**
-
-   After choosing the provider, send users to your SSO proxy (fronted by your **CNAME**, for example `auth.yourapp.com`). Ensure your proxy is deployed and reachable before testing.
-
-   ```text title="Register both callback endpoints"
-   https://yourapp.com/auth/ext-provider/callback
-   https://yourapp.com/auth/scalekit/callback
-   ```
-
-3. **Proxy rewrites authorization to external SSO provider**
-
-   The proxy forwards requests to the external provider, preserving identifiers such as **`state`** and **`organization`**.
-
-   ```bash title="Example external provider authorize request"
-   GET https://api.external-provider.com/sso/authorize?response_type=code \
-     &client_id=sk_example_123456 \
-     &redirect_uri=https://yourapp.com/callback/external-provider \
-     &state=external_provider \
-     &organization=org_01EHZNVPK3SFK441A1RGBFSHRT
-   ```
-
-4. **IdP authenticates and posts the response to your CNAME (proxy)**
-
-   Your customers' IdP is configured with ACS/redirect URLs under your domain (CNAME), so successful SAML/OIDC responses return to the SSO proxy, not directly to your app.
-
-   ```text title="ACS example"
-   https://auth.yourapp.com/sso/saml/acs/{connection_id}
-   ```
-
-5. **Map the entity ID (callback ID)** so the proxy knows to use the external provider
-
-   Provide the proxy with your existing **external provider callback identifiers** (often opaque IDs). The proxy uses these to route the SAML/OIDC callback to the external provider for processing. You can store these in environment variables or a JSON mapping file.
-
-   ```text title="Example opaque callback path"
-   https://auth.yourapp.com/ivETDqla2SfNIsvUH4mqqq6UL
-   ```
-
-6. **Receive the authorization code at your app's callback and exchange with the external provider**
-
-   The external provider completes the handshake and redirects to your app's registered callback. The proxy can add a sentinel **state** (for example, **`external_provider`**) so your app knows to exchange the code with the external provider and fetch the user profile.
-
-   ```javascript title="callback-handler.js (external provider)"
-   import express from "express";
-   import { ExternalSSOProvider } from "external-sso-sdk";
-
-   const app = express();
-   const externalProvider = new ExternalSSOProvider(process.env.EXTERNAL_SSO_API_KEY);
-
-   app.get("/auth/ext-provider/callback", async (req, res) => {
-     const { code, state, error, error_description } = req.query;
-     if (error) return res.status(400).json({ error, error_description });
-
-     try {
-       const result = await externalProvider.sso.getProfileAndToken({
-         code,
-         clientId: process.env.EXTERNAL_SSO_CLIENT_ID,
-         clientSecret: process.env.EXTERNAL_SSO_CLIENT_SECRET,
-         redirectUri: "https://yourapp.com/auth/ext-provider/callback",
-       });
-       // result.profile contains user details; create session
-       return res.redirect("/dashboard");
-     } catch (e) {
-       return res.status(500).json({ error: "External code exchange failed" });
+     if (forceScalekit || organizationMapping[domain]?.migrated) {
+       // Route to Scalekit
+       const authUrl = scalekit.getAuthorizationUrl(redirectUri, { loginHint: email, domain });
+       res.redirect(authUrl);
+     } else {
+       // Route to external provider
+       const authUrl = externalProvider.getAuthorizationUrl(redirectUri, { email });
+       res.redirect(authUrl);
      }
    });
    ```
+    <Aside type="note" title="Debugging tip">
+      Add the `x-force-sk-route: yes` header to force requests to Scalekit. This is especially helpful for troubleshooting - customers can use browser extensions like ModHeader to add this header and reproduce flow issues.
+    </Aside>
 
-7. **Create a session and finish login**
+3. **SSO proxy handles provider interactions**
 
-   Validate the tokens, establish the session, and redirect the user to the appropriate page in your application.
+   The SSO proxy manages all interactions with SSO providers and identity providers. See the [SSO proxy architecture overview](#how-the-sso-proxy-works-for-your-application) section above for details on how this works.
+
+4. **Create separate callback endpoints**
+
+   Set up two callback endpoints to handle authorization codes from different providers. While you can use one endpoint, separate endpoints are recommended for clarity and easier debugging.
+
+   ```text title="Callback endpoints"
+   https://yourapp.com/auth/ext-provider/callback  # External provider
+   https://yourapp.com/auth/scalekit/callback     # Scalekit
+   ```
+
+5. **Handle code exchange and user profile retrieval**
+
+   Your callback endpoints receive authorization codes and exchange them for user profile details. The proxy adds state indicators to help identify which provider processed the authentication.
+
+   ```javascript title="example: callback-handlers.js"
+   // External provider callback
+   app.get("/auth/ext-provider/callback", async (req, res) => {
+     const { code, state } = req.query;
+     // Exchange code with external provider for user profile
+     const userProfile = await externalProvider.exchangeCode(code);
+     // Create session and redirect
+   });
+
+   // Scalekit callback
+   app.get("/auth/scalekit/callback", async (req, res) => {
+     const { code } = req.query;
+     // Exchange code with Scalekit for user profile
+     const userProfile = await scalekit.authenticateWithCode(code, redirectUri);
+     // Create session and redirect
+   });
+   ```
 
 </Steps>
-
-
-### Wrap up SSO proxy to handle SSO with Scalekit <Badge type="note" text="Phase 2"/>
 
 
 Once you create equivalent organizations in Scalekit for the ones you plan to migrate, the proxy can begin routing callbacks to Scalekit for those organizations while others continue on the external provider.
 
-<Aside type="note">
-  We're developing a migration utility that automatically detects your external SSO provider organizations and creates equivalent ones in Scalekit. This tool significantly reduces manual setup during migration. If you'd like early access to this utility, <a href="https://docs.scalekit.com/support/contact-us/">contact our support team</a>.
-</Aside>
+
+Once you create equivalent organizations in Scalekit for the ones you plan to migrate, the proxy can begin routing callbacks to Scalekit for those organizations while others continue on the external provider.
 
 <Steps>
-1. **Select provider per organization; route migrated organizations to Scalekit**
 
-   Implement a provider selection check using your domain/organization/connection selector. For **organizations created in Scalekit**, choose the Scalekit branch and redirect the user to your **SSO proxy domain**.
+1. **Update organization mapping for migrated organizations**
 
-2. **Scalekit manages the SSO connection and sends the user to the IdP**
+   When organizations are ready for Scalekit, update your mapping to mark them as migrated. The proxy will automatically route these to Scalekit.
 
-   The customer's IdP configuration still points to your CNAME, so the successful SAML/OIDC response returns to the SSO proxy.
+2. **Proxy routes Scalekit requests appropriately**
 
-3. **Proxy rewrites the callback to Scalekit**
+   The proxy detects migrated organizations and routes authentication to Scalekit while maintaining the same callback URLs for seamless user experience.
 
-   The proxy uses the known legacy **callback ID** (from the earlier external provider) and issues a **307 redirect** to the Scalekit **Single Sign-On URL** for that organization in your Scalekit environment.
+3. **Handle Scalekit callbacks**
 
-4. **Scalekit returns the authorization code to your Scalekit callback**
-
-   Register a **separate callback URL** for Scalekit (recommended) so your app can clearly distinguish code exchanges from external provider vs. Scalekit flows.
-
-5. **Identify the source and exchange the code with Scalekit**
-
-   The proxy can set a sentinel **state** (for example, **`scalekit_p`**). When your app receives the code with this state, use **`scalekit.authenticateWithCode()`** or the **`/oauth/token`** endpoint to fetch ID and access tokens and the user's profile.
-
-   ```javascript title="callback-handler.js (Scalekit)"
-   import express from "express";
-   import { ScalekitClient } from "@scalekit-sdk/node";
-
-   const app = express();
-   const scalekit = new ScalekitClient(
-     process.env.SCALEKIT_ENVIRONMENT_URL,
-     process.env.SCALEKIT_CLIENT_ID,
-     process.env.SCALEKIT_CLIENT_SECRET
-   );
-
-   app.get("/auth/scalekit/callback", async (req, res) => {
-     const { code, error, error_description } = req.query;
-     if (error) return res.status(400).json({ error, error_description });
-
-     try {
-       const auth = await scalekit.authenticateWithCode(
-         code,
-         "https://yourapp.com/auth/scalekit/callback"
-       );
-       // auth.user contains user details; create session
-       return res.redirect("/dashboard");
-     } catch (e) {
-       return res.status(500).json({ error: "Scalekit code exchange failed" });
-     }
-   });
-   ```
-
-6. **Complete login and session**
-
-   Validate tokens, create the session, and proceed to your post-login route.
+   Use your existing Scalekit callback endpoint to process authentication responses and complete the login flow.
 
 </Steps>
 
