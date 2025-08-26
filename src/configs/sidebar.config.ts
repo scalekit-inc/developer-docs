@@ -161,55 +161,55 @@ export const sidebar = [
   },
   {
     label: 'Agent Connect',
-    link: '/connect/overview',
+    link: '/connect/quickstart',
     id: 'connect',
-    icon: 'seti:robot',
+    icon: 'rocket',
     items: [
       {
         label: 'Getting started',
-        items: ['connect/overview', 'connect/quickstart', 'connect/agentic-quickstart'],
+        items: ['connect/quickstart', 'connect/agentic-quickstart'],
       },
-      {
-        label: 'Tools',
-        items: [
-          'connect/tools/overview',
-          'connect/tools/authorize',
-          'connect/tools/execute',
-          'connect/tools/custom-processors',
-          // 'connect/tools/custom-tools',
-          // 'connect/tools/proxy-tools',
-        ],
-      },
-      {
-        label: 'MCP',
-        items: ['connect/mcp/quickstart', 'connect/mcp/custom-mcp', 'connect/mcp/manage'],
-      },
-      {
-        label: 'AI Frameworks',
-        items: [
-          'connect/frameworks/langchain',
-          'connect/frameworks/google-adk',
-          'connect/frameworks/crewai',
-          'connect/frameworks/mastra',
-          'connect/frameworks/vercel-ai',
-          'connect/frameworks/openai',
-          'connect/frameworks/anthropic',
-          'connect/frameworks/google-genai',
-        ],
-      },
+      // {
+      //   label: 'Tools',
+      //   items: [
+      //     'connect/tools/overview',
+      //     'connect/tools/authorize',
+      //     'connect/tools/execute',
+      //     'connect/tools/custom-processors',
+      //     // 'connect/tools/custom-tools',
+      //     // 'connect/tools/proxy-tools',
+      //   ],
+      // },
+      // {
+      //   label: 'MCP',
+      //   items: ['connect/mcp/quickstart', 'connect/mcp/custom-mcp', 'connect/mcp/manage'],
+      // },
+      // {
+      //   label: 'AI Frameworks',
+      //   items: [
+      //     'connect/frameworks/langchain',
+      //     'connect/frameworks/google-adk',
+      //     'connect/frameworks/crewai',
+      //     'connect/frameworks/mastra',
+      //     'connect/frameworks/vercel-ai',
+      //     'connect/frameworks/openai',
+      //     'connect/frameworks/anthropic',
+      //     'connect/frameworks/google-genai',
+      //   ],
+      // },
 
-      {
-        label: 'Authorization',
-        items: [
-          'connect/authorization/overview',
-          'connect/authorization/magic-links',
-          'connect/authorization/bring-your-own-oauth',
-        ],
-      },
-      {
-        label: 'Concepts',
-        items: ['connect/providers', 'connect/connections', 'connect/connected-accounts'],
-      },
+      // {
+      //   label: 'Authorization',
+      //   items: [
+      //     'connect/authorization/overview',
+      //     'connect/authorization/magic-links',
+      //     'connect/authorization/bring-your-own-oauth',
+      //   ],
+      // },
+      // {
+      //   label: 'Concepts',
+      //   items: ['connect/providers', 'connect/connections', 'connect/connected-accounts'],
+      // },
     ],
   },
   {
