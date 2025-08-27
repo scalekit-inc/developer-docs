@@ -163,11 +163,19 @@ export const sidebar = [
     label: 'Agent Connect',
     link: '/connect/quickstart',
     id: 'connect',
+    badge: {
+      text: 'New', // The text to display in the badge
+      variant: 'tip', // Optional: 'note', 'tip', 'caution', 'danger', 'success'
+    },
     icon: 'rocket',
     items: [
       {
         label: 'Getting started',
         items: ['connect/quickstart', 'connect/agentic-quickstart'],
+      },
+      {
+        label: 'Authorization',
+        items: ['connect/authorization/overview', 'connect/authorization/bring-your-own-oauth'],
       },
       // {
       //   label: 'Tools',
@@ -198,14 +206,6 @@ export const sidebar = [
       //   ],
       // },
 
-      // {
-      //   label: 'Authorization',
-      //   items: [
-      //     'connect/authorization/overview',
-      //     'connect/authorization/magic-links',
-      //     'connect/authorization/bring-your-own-oauth',
-      //   ],
-      // },
       // {
       //   label: 'Concepts',
       //   items: ['connect/providers', 'connect/connections', 'connect/connected-accounts'],
