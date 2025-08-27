@@ -43,16 +43,24 @@ Connected accounts go through several states during their lifecycle:
 
 ### State transitions
 
-```mermaid
-graph TD
-    A[Pending] --> B[Active]
-    B --> C[Expired]
-    C --> B
-    B --> D[Revoked]
-    B --> E[Error]
-    E --> B
-    B --> F[Suspended]
-    F --> B
+```d2
+direction: right
+
+A: Pending
+B: Active
+C: Expired
+D: Revoked
+E: Error
+F: Suspended
+
+A -> B
+B -> C
+C -> B
+B -> D
+B -> E
+E -> B
+B -> F
+F -> B
 ```
 
 ## Creating connected accounts
@@ -180,12 +188,12 @@ Process the OAuth callback to complete authentication:
 // Handle OAuth callback
 app.get('/callback', async (req, res) => {
   const { code, state, error } = req.query;
-  
+
   if (error) {
     // Handle OAuth error
     return res.status(400).json({ error: error });
   }
-  
+
   try {
     // Exchange code for tokens
     const result = await agentConnect.accounts.exchangeCode(
@@ -193,7 +201,7 @@ app.get('/callback', async (req, res) => {
       code,
       state
     );
-    
+
     // Account is now active
     res.json({ status: 'success', account: result });
   } catch (err) {
@@ -211,10 +219,10 @@ def handle_callback():
     code = request.args.get('code')
     state = request.args.get('state')
     error = request.args.get('error')
-    
+
     if error:
         return jsonify({'error': error}), 400
-    
+
     try:
         # Exchange code for tokens
         result = agent_connect.accounts.exchange_code(
@@ -222,7 +230,7 @@ def handle_callback():
             code,
             state
         )
-        
+
         # Account is now active
         return jsonify({'status': 'success', 'account': result})
     except Exception as e:

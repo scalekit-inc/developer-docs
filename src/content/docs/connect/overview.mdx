@@ -59,20 +59,61 @@ graph TB
     A[Your Application] --> B[Agent Connect API]
     B --> C[Connected Account]
     C --> D[Provider API]
-    
+
     subgraph "Agent Connect"
         B --> E[Authentication]
         B --> F[Tool Execution]
         B --> G[Token Management]
         B --> H[Error Handling]
     end
-    
+
     subgraph "Providers"
         D --> I[Gmail]
         D --> J[Slack]
         D --> K[Jira]
         D --> L[Calendar]
     end
+```
+
+```d2
+direction: down
+
+A: "Your Application"
+C: "Connected Account"
+
+// Agent Connect group
+AgentConnect: {
+  label: "Agent Connect"
+  B: "Agent Connect API"
+  E: "Authentication"
+  F: "Tool Execution"
+  G: "Token Management"
+  H: "Error Handling"
+
+  B -> E
+  B -> F
+  B -> G
+  B -> H
+}
+
+// Providers group
+Providers: {
+  label: "Providers"
+  D: "Provider API"
+  I: "Gmail"
+  J: "Slack"
+  K: "Jira"
+  L: "Calendar"
+
+  D -> I
+  D -> J
+  D -> K
+  D -> L
+}
+
+A -> B
+B -> C
+C -> D
 ```
 
 ## How Agent Connect works
