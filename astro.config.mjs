@@ -14,7 +14,6 @@ import starlightLlmsTxt from 'starlight-llms-txt'
 import starlightVideos from 'starlight-videos'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
-import mermaid from 'astro-mermaid'
 import tailwindcss from '@tailwindcss/vite'
 import d2 from 'astro-d2'
 
@@ -23,7 +22,6 @@ export default defineConfig({
   site: 'https://docs.scalekit.com',
   redirects,
   integrations: [
-    mermaid(),
     starlight({
       title: 'Scalekit Docs',
       routeMiddleware: './src/routeData.ts',
