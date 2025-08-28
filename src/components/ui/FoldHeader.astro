@@ -2,14 +2,34 @@
 export interface Props {
   title: string
   description: string
+  titleSize?: string
+  titleWeight?: string
+  titleColor?: string
+  titleAlign?: string
+  descriptionColor?: string
+  className?: string
 }
 
-const { title, description } = Astro.props
+const {
+  title,
+  description,
+  titleSize = '1.5rem',
+  titleWeight = '700',
+  titleColor = 'var(--home-text-primary)',
+  titleAlign = 'left',
+  descriptionColor = 'var(--home-text-secondary)',
+  className = '',
+} = Astro.props
 ---
 
-<header class="fold-header">
-  <h2 class="fold-title">{title}</h2>
-  <p class="fold-lead">{description}</p>
+<header class={`fold-header ${className}`}>
+  <h2
+    class="fold-title"
+    style={`font-size: ${titleSize}; font-weight: ${titleWeight}; color: ${titleColor}; text-align: ${titleAlign};`}
+  >
+    {title}
+  </h2>
+  <p class="fold-lead" style={`color: ${descriptionColor};`}>{description}</p>
 </header>
 
 <style>
@@ -17,13 +37,12 @@ const { title, description } = Astro.props
     margin-bottom: 1.25rem;
   }
   .fold-title {
-    font-size: 1.5rem;
-    font-weight: 700;
     margin: 0 0 0.25rem;
-    color: var(--home-text-primary);
+    font-family:
+      'Geist Variable', 'Inter Variable', ui-sans-serif, system-ui, Roboto, Arial, sans-serif;
+    line-height: 118%;
   }
   .fold-lead {
-    color: var(--home-text-secondary);
     margin: 0;
   }
 </style>
