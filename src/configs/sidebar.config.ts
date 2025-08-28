@@ -91,6 +91,7 @@ export const sidebar = [
           'sso/reference/sso-integration-errors',
           'guides/dashboard/redirects',
           'guides/dashboard/auth-logs',
+          'guides/sso/sso-migration-strategy',
           {
             label: 'Coexist with',
             autogenerate: { directory: 'guides/integrations/auth-systems' },

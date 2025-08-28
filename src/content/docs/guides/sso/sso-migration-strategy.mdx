@@ -1,0 +1,245 @@
+---
+title: "Migrate SSO without IdP reconfiguration for customers"
+description: "Learn how to coexist with external SSO providers while gradually migrating to Scalekit's SSO solution"
+sidebar:
+  label: 'SSO migration strategy'
+  hidden: true
+topic: 'sso'
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import { Steps, Aside, Badge } from '@astrojs/starlight/components'
+
+
+Single Sign-On capability of your application allows users in your customer's organizations to access your application using their existing credentials. In this guide, you will migrate SSO connections to Scalekit without requiring customers to reconfigure their identity providers from their existing SSO provider solutions such as Auth0 or WorkOS.
+
+### Prerequisites
+
+1. You control DNS for your auth domain, and its CNAME points to your external SSO provider.
+    ```d2 layout=dagre
+    direction: right
+
+    Customer's IdP Configuration -> Your Application's DNS <- External SSO Provider: auth.yourapp.com/rest/the/path
+    ```
+2. Scalekit is set up — you have <a href="https://app.scalekit.com" target="_blank" rel="noopener">signed up</a> and installed the <a href="https://docs.scalekit.com/fsa/quickstart/#install-the-scalekit-sdk" target="_blank" rel="noopener">Scalekit SDK</a>.
+
+<Aside title='Verify custom domain configurations'>
+ Some existing customers will have configured their identity provider with necessary settings such as **SP Entity ID** and **ACS URL**. These should start with a domain that you own such as `auth.yourapp.com/rest/of/the/path` where CNAME is correctly configured with your external SSO provider.
+ </Aside>
+
+
+## Approach to migrate SSO connections
+
+Our main goal is to make sure your current SSO connections keep working seamlessly, while enabling new connections to be set up with Scalekit—giving you the flexibility to migrate to Scalekit whenever you're ready.
+
+
+This primarily involves two key components:
+
+<Steps>
+
+1. The data migration of tenant resources such as organizations and users. We provide a data migration utility to automate this approach.
+2. A SSO proxy service that routes SSO connections between your existing SSO provider and Scalekit. We can assist with a ready-to-deploy SSO proxy service that best suits your infrastructure.
+
+</Steps>
+<Aside type="tip" title="Migration assistance available">
+  Scalekit offers specialized migration tools to streamline both data migration and SSO proxy configuration. For personalized assistance with your migration plan, <a href="https://docs.scalekit.com/support/contact-us/" target="_blank" rel="noopener">contact our support team</a>.
+</Aside>
+
+
+```d2 title="SSO proxy sequence diagram"
+direction: right
+shape: sequence_diagram
+
+User: User
+App: YourApp
+SSOProxy: SSO Proxy {
+  icon: "https://icons.terrastruct.com/gcp%2FProducts%20and%20services%2FNetworking%2FCloud%20Routes.svg"
+}
+WorkOS: SSO Provider
+ScaleKit: ScaleKit
+IDP: Identity Provider
+
+SSOProxy.style.fill: yellow
+App.style.fill: yellow
+
+
+User -> App: SSO login request
+App -> App: Check if organization has been migrated {style.animated: true}
+App -> SSOProxy: Forward request
+
+SSOProxy -> WorkOS: To External SSO Provider {style.animated: true}
+WorkOS -> IDP: SAML/OIDC auth
+IDP -> WorkOS: User details
+WorkOS -> SSOProxy: Return user details
+
+SSOProxy -> ScaleKit: To ScaleKit (Migrated tenant) {style.animated: true}
+ScaleKit -> IDP: SAML/OIDC auth
+IDP -> ScaleKit: User details
+ScaleKit -> SSOProxy: Return user details
+
+SSOProxy -> App: Forward user details {style.animated: true}
+App -> User: Access granted
+```
+
+## SSO proxy implementation
+
+The SSO proxy ensures those connections continue to work while you gradually migrate. This approach is ideal when you prefer a staged rollout—move organizations one by one or all at once with data migration utilty without forcing customers to reconfigure SSO connection settings in their IdP.
+
+### Proxy routes SSO requests to external providers or Scalekit
+
+The SSO proxy acts as a smart router that directs authentication requests to the right provider. It sits between your application and both SSO systems, making migration seamless.
+
+<Steps>
+
+1. **Provider selection**
+
+   Your app sends login requests with user information (email, domain, or organization ID). The proxy analyzes this data and routes authentication to either the external provider or Scalekit.
+
+2. **Redirection to proxy domain**
+
+   Users are redirected to your proxy domain (e.g., `auth.yourapp.com`) to begin authentication. This domain handles all SSO traffic during migration.
+
+3. **Request forwarding**
+
+   The proxy forwards authentication requests to the selected provider while preserving all necessary identifiers and session parameters.
+
+4. **Identity provider processing**
+
+   The user's IdP processes authentication and sends responses (SAML or OIDC) back to your proxy domain via configured callback URLs.
+
+5. **Response routing**
+
+   The proxy examines response identifiers to determine which provider handled authentication and routes the callback accordingly.
+
+6. **Code exchange**
+
+   Your app receives an authorization code with a state indicator showing which provider processed the request. Use this information to complete the authentication flow.
+
+</Steps>
+
+## Set up provider selection in your auth server
+
+
+<Steps>
+
+1. **Maintain organization migration mapping**
+
+   Store information about which organizations are migrated to Scalekit versus those still using external SSO providers. You can use a database, configuration file, or API endpoint based on your app architecture. This mapping determines which SSO provider to use for each organization.
+
+   ```javascript title="example: organization-mapping.js"
+   const organizationMapping = {
+     'megasoft.com': { provider: 'workos', migrated: false },
+     'example.com': { provider: 'workos', migrated: false },
+     'newcompany.com': { provider: 'scalekit', migrated: true }
+   };
+   ```
+
+2. **Implement conditional routing logic**
+
+   Add logic to your authentication endpoint that checks the organization mapping and redirects users to the appropriate SSO provider. For migrated organizations, route to Scalekit; for others, use the external provider.
+
+   ```javascript title="example: auth-server.js"
+   app.post('/sso-login', (req, res) => {
+     const { email } = req.body;
+     const [, domain] = email.split('@');
+
+     // Check for force Scalekit header (helpful for debugging)
+     const forceScalekit = req.headers['x-force-sk-route'] === 'yes';
+
+     if (forceScalekit || organizationMapping[domain]?.migrated) {
+       // Route to Scalekit
+       const authUrl = scalekit.getAuthorizationUrl(redirectUri, { loginHint: email, domain });
+       res.redirect(authUrl);
+     } else {
+       // Route to external provider
+       const authUrl = externalProvider.getAuthorizationUrl(redirectUri, { email });
+       res.redirect(authUrl);
+     }
+   });
+   ```
+    <Aside type="note" title="Debugging tip">
+      Add the `x-force-sk-route: yes` header to force requests to Scalekit. This is especially helpful for troubleshooting - customers can use browser extensions like ModHeader to add this header and reproduce flow issues.
+    </Aside>
+
+3. **SSO proxy handles provider interactions**
+
+   The SSO proxy manages all interactions with SSO providers and identity providers. See the [SSO proxy architecture overview](#proxy-routes-sso-requests-to-external-providers-or-scalekit) section above for details on how this works.
+
+4. **Create separate callback endpoints**
+
+   Set up two callback endpoints to handle authorization codes from different providers. While you can use one endpoint, separate endpoints are recommended for clarity and easier debugging.
+
+   ```text title="Callback endpoints"
+   https://yourapp.com/auth/ext-provider/callback  # External provider
+   https://yourapp.com/auth/scalekit/callback     # Scalekit
+   ```
+
+5. **Handle code exchange and user profile retrieval**
+
+   Your callback endpoints receive authorization codes and exchange them for user profile details. The proxy adds state indicators to help identify which provider processed the authentication.
+
+   ```javascript title="example: callback-handlers.js"
+   // External provider callback
+   app.get("/auth/ext-provider/callback", async (req, res) => {
+     const { code, state } = req.query;
+     // Exchange code with external provider for user profile
+     const userProfile = await externalProvider.exchangeCode(code);
+     // Create session and redirect
+   });
+
+   // Scalekit callback
+   app.get("/auth/scalekit/callback", async (req, res) => {
+     const { code } = req.query;
+     // Exchange code with Scalekit for user profile
+     const userProfile = await scalekit.authenticateWithCode(code, redirectUri);
+     // Create session and redirect
+   });
+   ```
+
+</Steps>
+
+
+Once you create equivalent organizations in Scalekit for the ones you plan to migrate, the proxy can begin routing callbacks to Scalekit for those organizations while others continue on the external provider.
+
+
+Once you create equivalent organizations in Scalekit for the ones you plan to migrate, the proxy can begin routing callbacks to Scalekit for those organizations while others continue on the external provider.
+
+<Steps>
+
+1. **Update organization mapping for migrated organizations**
+
+   When organizations are ready for Scalekit, update your mapping to mark them as migrated. The proxy will automatically route these to Scalekit.
+
+2. **Proxy routes Scalekit requests appropriately**
+
+   The proxy detects migrated organizations and routes authentication to Scalekit while maintaining the same callback URLs for seamless user experience.
+
+3. **Handle Scalekit callbacks**
+
+   Use your existing Scalekit callback endpoint to process authentication responses and complete the login flow.
+
+</Steps>
+
+
+<Aside type="note">
+  <p>
+    Setting up an SSO proxy can be streamlined based on your infrastructure:
+  </p>
+  <ul>
+    <li>Ready to deploy SSO proxy setup on AWS Lambda</li>
+    <li>DNS configuration assistance with Cloudflare</li>
+    <li>Custom infrastructure requirements</li>
+  </ul>
+  <p>
+    For any technical assistance with your specific environment or infrastructure needs, please <a href="https://docs.scalekit.com/support/contact-us/">contact our team</a>. We're here to help ensure a smooth migration process.
+  </p>
+</Aside>
