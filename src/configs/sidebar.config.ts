@@ -82,6 +82,7 @@ export const sidebar = [
           'sso/reference/sso-integration-errors',
           'guides/dashboard/redirects',
           'guides/dashboard/auth-logs',
+          'guides/sso/sso-migration-strategy',
           {
             label: 'Coexist with',
             autogenerate: { directory: 'guides/integrations/auth-systems' },
@@ -146,7 +147,7 @@ export const sidebar = [
       },
       {
         label: 'Guides',
-        items: ['passwordless/guides/auth-logs'],
+        items: ['guides/dashboard/auth-logs'],
       },
     ],
   },
@@ -206,7 +207,7 @@ export const sidebar = [
       },
       {
         label: 'Guides',
-        items: ['guides/dashboard/redirects'],
+        items: ['guides/dashboard/redirects', 'guides/dashboard/auth-logs'],
       },
       {
         label: 'Reference',
