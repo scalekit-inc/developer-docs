@@ -135,6 +135,7 @@ export default defineConfig({
         dark: '1', // choose at https://d2lang.com/tour/themes/
       },
       sketch: true,
+      layout: 'elk',
     }),
   ],
   image: {
