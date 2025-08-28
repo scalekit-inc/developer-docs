@@ -38,8 +38,8 @@ export default defineConfig({
         PageSidebar: './src/components/overrides/PageSidebar.astro',
       },
       logo: {
-        dark: '/src/assets/images/logos-v3/sk-docs-dark-plain.svg',
-        light: '/src/assets/images/logos-v3/sk-docs-light-plain.svg',
+        dark: '/src/assets/images/logos-v4/sk-docs-dark.svg',
+        light: '/src/assets/images/logos-v4/sk-docs-light.svg',
         replacesTitle: true,
       },
       defaultLocale: 'en',
