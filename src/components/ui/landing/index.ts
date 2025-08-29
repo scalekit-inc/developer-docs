@@ -1,0 +1,5 @@
+export { default as Fold1 } from './Fold1.astro'
+export { default as Fold2 } from './Fold2.astro'
+export { default as Fold3 } from './Fold3.astro'
+export { default as Fold4 } from './Fold4.astro'
+export { default as Fold5 } from './Fold5.astro'
