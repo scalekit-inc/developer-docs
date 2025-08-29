@@ -1,0 +1,89 @@
+---
+title: Allowed email domains
+description: Define trusted email domains for an organization to allow user to directly join an org
+sidebar:
+  label: 'Allowed email domains'
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev:
+  label: 'JIT Provisioning'
+  link: '/fsa/guides/just-in-time-provisioning/'
+next:
+  label: 'Organization switching'
+  link: '/fsa/guides/organization-switching/'
+---
+
+import { Steps, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+
+Allowed email domains lets organization admins define trusted domains for their organization. When a user signs in or signs up with a matching email domain, Scalekit suggests the user to join that organization in the **organization switcher** so the user can join the organization with one click. This feature is authentication-method agnostic: regardless of whether a user authenticates via SSO, social login, or passwordless authentication, organization options are suggested based on their email domain.
+
+## Introduction
+
+Allowed email domains can reduce the burden of manual invitation for organization admins, avoid duplicate organization creation, and streamline membership for end users by suggesting the right organization at sign-in/sign-up.
+
+{/* TODO: Insert the flow illustration from the design: login → domain match → suggest org in switcher → join/create. */}
+
+```d2
+direction: right
+
+login: "Login"
+domain_match: "Domain Match?"
+suggest_org: "Suggest Org in Switcher"
+join_create: "Join or Create"
+create_only: "Only Show 'Create a Workspace'"
+
+login -> domain_match
+
+domain_match -> suggest_org: "Yes"
+suggest_org -> join_create
+
+domain_match -> create_only: "No"
+```
+
+
+When a user signs up or signs in, Scalekit can automatically:
+
+1. **Match email domains** - Check if the user's email domain matches configured allowed domains for any organization.
+2. **Suggest organization options** - Show the user available organizations they can join through an organization switcher.
+3. **Enable user choice** - Allow users to decide which of the suggested organizations they want to join.
+4. **Create organization membership** - Automatically add the user to their selected organization.
+
+## Security consideration
+
+- **Disposable and generic email domains are blocked** and cannot be added to the allow-list (e.g., `gmail.com`, `outlook.com`). We maintain a blocklist to enforce this.
+
+## Enabling allowed email domains
+
+Allowed email domains can be configured for an organization through the Scalekit Dashboard or programmatically using the API.
+
+### Enable via Dashboard
+
+
+![](@/assets/docs/allowed-email-domains/ui.png)
+
+<Steps>
+
+1. Log in to your [Scalekit Dashboard](https://app.scalekit.com).
+2. Navigate to **Organizations** and **select an organization**.
+3. Open the **Roles** tab and find **Allowed Email Domains**.
+4. Add or edit allowed email domains for automatic suggestions/provisioning.
+
+</Steps>
+
+### Enable via API
+
+You can also configure allowed email domains for an organization programmatically using the Scalekit API:
+
+<InstallSDK />
+
+```javascript title="Configure allowed domains"
+// Coming soon - API to configure allowed email domains
+```
