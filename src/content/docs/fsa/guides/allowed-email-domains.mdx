@@ -20,7 +20,7 @@ next:
   link: '/fsa/guides/organization-switching/'
 ---
 
-import { Steps, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
+import { Steps, Aside, LinkCard, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
 Allowed email domains lets organization admins define trusted domains for their organization. When a user signs in or signs up with a matching email domain, Scalekit suggests the user to join that organization in the **organization switcher** so the user can join the organization with one click. This feature is authentication-method agnostic: regardless of whether a user authenticates via SSO, social login, or passwordless authentication, organization options are suggested based on their email domain.
@@ -29,23 +29,17 @@ Allowed email domains lets organization admins define trusted domains for their 
 
 Allowed email domains can reduce the burden of manual invitation for organization admins, avoid duplicate organization creation, and streamline membership for end users by suggesting the right organization at sign-in/sign-up.
 
-{/* TODO: Insert the flow illustration from the design: login → domain match → suggest org in switcher → join/create. */}
-
 ```d2
 direction: right
 
-login: "Login"
-domain_match: "Domain Match?"
-suggest_org: "Suggest Org in Switcher"
-join_create: "Join or Create"
-create_only: "Only Show 'Create a Workspace'"
 
-login -> domain_match
+domain_match: "Domain Match?"
+suggest_org: "Show option for the user to join workspace"
+join_create: "User joined the workspace"
 
 domain_match -> suggest_org: "Yes"
-suggest_org -> join_create
+suggest_org -> join_create: ""
 
-domain_match -> create_only: "No"
 ```
 
 
@@ -84,6 +78,96 @@ You can also configure allowed email domains for an organization programmaticall
 
 <InstallSDK />
 
-```javascript title="Configure allowed domains"
-// Coming soon - API to configure allowed email domains
+<Tabs>
+
+<TabItem value="create" label="Register email domain">
+
+```sh title="Register an allowed email domain" wrap
+curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains' \
+  --request POST \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "domain": "customerdomain.com",
+  "domain_type": "ALLOWED_EMAIL_DOMAIN"
+}'
 ```
+
+**Path Parameters:**
+  - `organization_id` (string, required): The ID of the organization
+
+**Request Body:**
+  - `domain` (string, required): The email domain to allow (e.g., "customerdomain.com")
+  - `domain_type` (string, required): Must be "ALLOWED_EMAIL_DOMAIN"
+
+```json title="Response"
+{
+  "domain": {
+    "connection_id": "string",
+    "create_time": "2025-09-01T11:30:19.426Z",
+    "created_by": "string",
+    "domain": "string",
+    "domain_type": "ALLOWED_EMAIL_DOMAIN",
+    "environment_id": "string",
+    "id": "string",
+    "organization_id": "string",
+    "update_time": "2025-09-01T11:30:19.426Z",
+  }
+}
+```
+
+</TabItem>
+
+<TabItem value="list" label="List email domains">
+
+**Request Parameters:**
+
+- **Path Parameters:**
+  - `organization_id` (string, required): The ID of the organization
+  - `id` (string, required): The ID of the domain to delete
+
+```sh title="List all the registered allowed email domains" wrap
+curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains
+```
+
+```json title="Response"
+{
+  "domains": [
+    {
+      "connection_id": "connection_id",
+      "create_time": "2025-09-01T11:59:50.005Z",
+      "created_by": "string",
+      "domain": "customerdomain.com",
+      "domain_type": "ALLOWED_EMAIL_DOMAIN",
+      "environment_id": "environment_id",
+      "id": "domain_id",
+      "organization_id": "org_987654321",
+      "update_time": "2025-09-01T11:59:50.005Z",
+      "verification_status": "AUTO_VERIFIED"
+    }
+  ],
+  "page_number": 1,
+  "page_size": 1
+}
+```
+
+</TabItem>
+
+
+
+<TabItem value="delete" label="Delete email domain">
+
+```sh title="Delete a allowed email domain" wrap
+curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains/{id}' \
+  --request DELETE
+```
+
+**Request Parameters:**
+
+- **Path Parameters:**
+  - `organization_id` (string, required): The ID of the organization
+  - `id` (string, required): The ID of the domain to delete
+
+
+</TabItem>
+
+</Tabs>
