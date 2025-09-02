@@ -15,6 +15,7 @@ import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import tailwindcss from '@tailwindcss/vite'
 import d2 from 'astro-d2'
+import Icons from 'unplugin-icons/vite'
 
 // https://astro.build/config
 export default defineConfig({
@@ -157,7 +158,7 @@ export default defineConfig({
     define: {
       __dirname: '"/"',
     },
-    plugins: [pluginCollapsibleSections(), tailwindcss()],
+    plugins: [pluginCollapsibleSections(), tailwindcss(), Icons({ compiler: 'astro' })],
     build: {
       chunkSizeWarningLimit: 2000,
     },

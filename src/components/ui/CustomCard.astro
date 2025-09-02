@@ -1,0 +1,100 @@
+---
+export interface Props {
+  title: string
+  icon?: any
+  href?: string
+}
+
+const { title, icon: Icon, href } = Astro.props
+const isLink = !!href
+---
+
+{
+  isLink ? (
+    <a href={href} class="custom-card card-link">
+      <article class="sl-card">
+        <div class="card-header">
+          {Icon && <Icon class="card-icon" aria-hidden="true" />}
+          <h3 class="card-title">{title}</h3>
+        </div>
+        <div class="card-content">
+          <slot />
+        </div>
+      </article>
+    </a>
+  ) : (
+    <article class="custom-card sl-card">
+      <div class="card-header">
+        {Icon && <Icon class="card-icon" aria-hidden="true" />}
+        <h3 class="card-title">{title}</h3>
+      </div>
+      <div class="card-content">
+        <slot />
+      </div>
+    </article>
+  )
+}
+
+<style>
+  .custom-card {
+    background: var(--sl-color-bg-card);
+    border: 1px solid var(--sl-color-gray-6);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .card-link:hover .custom-card {
+    border-color: var(--sl-color-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  :global(.card-icon) {
+    font-size: 1.5rem;
+    color: var(--sl-color-accent);
+    flex-shrink: 0;
+  }
+
+  .card-title {
+    margin: 0;
+    font-size: var(--sl-text-lg);
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+  }
+
+  .card-content {
+    color: var(--sl-color-text-muted);
+    line-height: 1.6;
+  }
+
+  .card-content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  /* Support for card content with buttons */
+  .card-content :global(.dk-card-cta) {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .card-content :global(.sl-link-button) {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+  }
+</style>
