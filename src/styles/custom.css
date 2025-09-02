@@ -3,176 +3,188 @@
 * https://github.com/withastro/starlight/blob/main/packages/starlight/style/props.css
 */
 
-/* Base font and size settings */
-:root,
-::backdrop {
-  /* Text size and line height */
-  --sl-text-2xs: 0.75rem; /* 12px */
-  --sl-text-xs: 0.8125rem; /* 13px */
-  --sl-text-sm: 0.875rem; /* 14px */
-  --sl-text-base: 0.9rem; /* 16px */
-  --sl-text-lg: 1.125rem; /* 18px */
-  --sl-text-xl: 1.25rem; /* 20px */
-  --sl-text-2xl: 1.5rem; /* 24px */
-  --sl-text-3xl: 1.8125rem; /* 29px */
-  --sl-text-4xl: 2.1875rem; /* 35px */
-  --sl-text-5xl: 2.625rem; /* 42px */
-  --sl-text-6xl: 4rem; /* 64px */
+/* Layer declarations */
+@layer nova, starlight, scalekit.tokens, scalekit.layout, scalekit.components, scalekit.overrides;
 
-  --sl-text-body: var(--sl-text-base);
-  --sl-text-body-sm: var(--sl-text-xs);
-  --sl-text-code: var(--sl-text-sm);
-  --sl-text-code-sm: var(--sl-text-xs);
-  --sl-text-h1: var(--sl-text-3xl) !important;
-  --sl-text-h2: var(--sl-text-2xl) !important;
-  --sl-text-h3: var(--sl-text-xl) !important;
-  --sl-text-h4: var(--sl-text-lg) !important;
-  --sl-text-h5: var(--sl-text-base) !important;
-  --sl-line-height: 1.75;
-  --sl-line-height-headings: 1.2;
+/* =============================================================================
+   TOKENS LAYER - Design system tokens and theme variables
+   ============================================================================= */
+@layer scalekit.tokens {
+  /* Dark mode color tokens: remove these to use Nova's dark mode colors */
+  :root[data-theme='dark'] {
+    /* --sl-color-bg: #111111;
+    --sl-color-bg-nav: #111111;
+    --sl-color-bg-sidebar: #111111; */
 
-  --sl-font-system: 'Inter Variable', ui-sans-serif, system-ui, Roboto, Arial, sans-serif;
-  --sl-font-system-mono: 'Inter Mono Variable', ui-monospace, monospace;
-  --__sl-font: var(--sl-font-system);
-  --__sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
+    /* Navigation colors */
+    /* --sl-color-text-nav: #cecece;
+    --sl-color-text-nav-current: #ffffff;
+    --sl-color-border-nav: #cecece; */
 
-  /* Offset required to show outline inside an element instead of round the outside */
-  --sl-outline-offset-inside: -0.1875rem;
+    /* Typography colors */
+    /* --sl-color-text: #ffffff;
+    --sl-color-text-heading: #ffffff;
+    --sl-color-text-muted: #cecece; */
 
-  /* Global z-index values */
-  --sl-z-index-toc: 4;
-  --sl-z-index-menu: 5;
-  --sl-z-index-navbar: 10;
-  --sl-z-index-skiplink: 20;
-}
+    /* Card and component colors */
+    /* --sl-color-bg-card: #202020;
+    --sl-color-border: #8d8d8d; */
 
-/* Reintroduce only header height composition so content sits below header + secondary nav */
-:root {
-  /* Defaults for small screens: no secondary nav */
-  --sl-header-height-base: 3.5rem;
-  --secondary-nav-height: 0rem;
-  --sl-nav-height: var(--sl-header-height-base);
-}
+    /* Action colors */
+    /* --sl-color-text-accent: #ffffff; */
 
-@media (min-width: 50em) {
-  :root {
-    --sl-header-height-base: 4rem; /* Nova desktop header height */
-    --secondary-nav-height: 2.75rem; /* height of secondary nav */
-    --sl-nav-height: calc(var(--sl-header-height-base) + var(--secondary-nav-height));
+    /* Band color settings */
+    /* --sl-color-bg-band: #202020;
+    --sl-color-bg-card-in-band: #2c2c2c; */
+  }
+
+  /* Typography tokens */
+  :root,
+  ::backdrop {
+    /* Text size and line height */
+    --sl-text-2xs: 0.75rem; /* 12px */
+    --sl-text-xs: 0.8125rem; /* 13px */
+    --sl-text-sm: 0.875rem; /* 14px */
+    --sl-text-base: 0.9rem; /* 16px */
+    --sl-text-lg: 1.125rem; /* 18px */
+    --sl-text-xl: 1.25rem; /* 20px */
+    --sl-text-2xl: 1.5rem; /* 24px */
+    --sl-text-3xl: 1.8125rem; /* 29px */
+    --sl-text-4xl: 2.1875rem; /* 35px */
+    --sl-text-5xl: 2.625rem; /* 42px */
+    --sl-text-6xl: 4rem; /* 64px */
+
+    --sl-text-body: var(--sl-text-base);
+    --sl-text-body-sm: var(--sl-text-xs);
+    --sl-text-code: var(--sl-text-sm);
+    --sl-text-code-sm: var(--sl-text-xs);
+    --sl-text-h1: var(--sl-text-3xl) !important;
+    --sl-text-h2: var(--sl-text-2xl) !important;
+    --sl-text-h3: var(--sl-text-xl) !important;
+    --sl-text-h4: var(--sl-text-lg) !important;
+    --sl-text-h5: var(--sl-text-base) !important;
+    --sl-line-height: 1.75;
+    --sl-line-height-headings: 1.2;
+
+    --sl-font-system: 'Inter Variable', ui-sans-serif, system-ui, Roboto, Arial, sans-serif;
+    --sl-font-system-mono: 'Inter Mono Variable', ui-monospace, monospace;
+    --__sl-font: var(--sl-font-system);
+    --__sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
+
+    /* Outline and accessibility tokens */
+    --sl-outline-offset-inside: -0.1875rem;
+
+    /* Z-index tokens */
+    --sl-z-index-toc: 4;
+    --sl-z-index-menu: 5;
+    --sl-z-index-navbar: 10;
+    --sl-z-index-skiplink: 20;
   }
 }
 
-/* Dark mode color tokens */
-:root[data-theme='dark'] {
-  /* Background colors */
-  --sl-color-bg: #111111; /* Main background */
-  --sl-color-bg-nav: #111111; /* Navigation background */
-  --sl-color-bg-sidebar: #111111; /* Sidebar background */
+/* =============================================================================
+   LAYOUT LAYER - Layout-specific variables and responsive design
+   ============================================================================= */
+@layer scalekit.layout {
+  /* Header and navigation layout tokens */
+  :root {
+    /* Defaults for small screens: no secondary nav */
+    --sl-header-height-base: 3.5rem;
+    --secondary-nav-height: 0rem;
+    --sl-nav-height: var(--sl-header-height-base);
+  }
 
-  /* Navigation colors */
-  --sl-color-text-nav: #cecece; /* Nav bar unselected elements */
-  --sl-color-text-nav-current: #ffffff; /* Nav bar selected elements */
-  --sl-color-border-nav: #cecece; /* Nav bar border */
-
-  /* Typography colors */
-  --sl-color-text: #ffffff; /* Main text */
-  --sl-color-text-heading: #ffffff; /* Header text - Inter/Medium/36px */
-  --sl-color-text-muted: #cecece; /* Subtext - Inter/Regular/18px */
-
-  /* Card and component colors */
-  --sl-color-bg-card: #202020; /* Card background */
-  --sl-color-border: #8d8d8d; /* Card stroke color */
-
-  /* Action colors */
-  --sl-color-text-accent: #ffffff; /* CTA color */
-
-  /* Band color settings */
-  --sl-color-bg-band: #202020; /* Band color */
-  --sl-color-bg-card-in-band: #2c2c2c; /* Card color when in band */
+  @media (min-width: 50em) {
+    :root {
+      --sl-header-height-base: 4rem; /* Nova desktop header height */
+      --secondary-nav-height: 2.75rem; /* height of secondary nav */
+      --sl-nav-height: calc(var(--sl-header-height-base) + var(--secondary-nav-height));
+    }
+  }
 }
 
-/* Light mode uses Starlight's default colors */
+/* =============================================================================
+   COMPONENTS LAYER - Reusable component styles
+   ============================================================================= */
+@layer scalekit.components {
+  /* Button components */
+  .sk-primary,
+  .sk-secondary,
+  .sk-minimal {
+    display: inline-flex;
+    padding: 0.75rem 1.5rem;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.375rem;
+  }
 
-/* Override API Reference sidebar colors to match our theme */
-.sidebar-content {
-  background: var(--sl-color-bg-sidebar);
+  .sk-primary {
+    border-radius: 0.375rem;
+  }
+
+  :root[data-theme='dark'] .sk-primary {
+    background: #202020;
+    box-shadow: 0 1px 2px 0 rgba(10, 10, 10, 0.05);
+  }
+
+  :root[data-theme='dark'] .sk-primary:hover {
+    border-radius: 0.375rem;
+    background: #505050;
+    box-shadow:
+      0 4px 10px -2px rgba(10, 10, 10, 0.1),
+      0 2px 5px -2px rgba(10, 10, 10, 0.05);
+  }
+
+  /* Image components */
+  starlight-image-zoom-zoomable img {
+    border: 1px solid var(--sl-color-gray-5);
+    padding: 10px;
+    border-radius: 4px;
+  }
+
+  /* Typography components */
+  .footnotes {
+    font-size: 0.875rem;
+  }
 }
 
-header.header {
-  border-bottom: none;
-}
+/* =============================================================================
+   OVERRIDES LAYER - Framework and third-party overrides
+   ============================================================================= */
+@layer scalekit.overrides {
+  #starlight__sidebar details summary {
+    display: flex;
+  }
 
-.starlight-sidebar-topics-dropdown-dropdown {
-  width: inherit;
-  margin: inherit;
-}
+  #starlight__sidebar details details summary span {
+    opacity: 0.5;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    display: block;
+  }
 
-.footnotes {
-  font-size: 0.875rem;
-}
+  #starlight__sidebar details details summary svg {
+    display: none;
+  }
 
-/* Base summary styles */
-#starlight__sidebar details summary {
-  display: flex;
-}
+  .starlight-sidebar-topics-dropdown-dropdown {
+    width: inherit;
+    margin: inherit;
+  }
 
-/* Nested navigation labels (like DATA SOURCES) */
-#starlight__sidebar details details summary span {
-  opacity: 0.5;
-  text-transform: uppercase;
-  font-weight: 700;
-  font-size: 0.75rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  display: block;
-}
+  /* Header and navigation overrides */
+  header.header {
+    border-bottom: none;
+  }
 
-/* Hide SVG icon in nested navigation items */
-#starlight__sidebar details details summary svg {
-  display: none;
-}
+  .site-title img {
+    height: 35px;
+  }
 
-/* Image styling - add border to all images */
-starlight-image-zoom-zoomable img {
-  border: 1px solid var(--sl-color-gray-5);
-  padding: 10px;
-  border-radius: 4px;
-}
-
-/* Logo height in header */
-.site-title img {
-  height: 35px;
-}
-
-.nova-page-frame-header {
-  background-color: var(--sl-color-bg);
-}
-
-/* SK Button Layout Styles */
-.sk-primary,
-.sk-secondary,
-.sk-minimal {
-  display: inline-flex;
-  padding: 0.75rem 1.5rem;
-  justify-content: center;
-  align-items: center;
-  border-radius: 0.375rem;
-}
-
-.sk-primary {
-  border-radius: 0.375rem;
-}
-
-:root[data-theme='dark'] .sk-primary {
-  background: #202020;
-  box-shadow: 0 1px 2px 0 rgba(10, 10, 10, 0.05);
-}
-
-:root[data-theme='dark'] .sk-primary:hover {
-  border-radius: 0.375rem;
-  background: #505050;
-  /* Shadows/md */
-  box-shadow:
-    0 4px 10px -2px rgba(10, 10, 10, 0.1),
-    0 2px 5px -2px rgba(10, 10, 10, 0.05);
+  /* .nova-page-frame-header {
+    background-color: var(--sl-color-bg);
+  } */
 }
