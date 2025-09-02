@@ -152,6 +152,59 @@ export const sidebar = [
     ],
   },
   {
+    label: 'Agent Connect',
+    link: '/connect/quickstart',
+    id: 'connect',
+    badge: {
+      text: 'New', // The text to display in the badge
+      variant: 'tip', // Optional: 'note', 'tip', 'caution', 'danger', 'success'
+    },
+    icon: 'rocket',
+    items: [
+      {
+        label: 'Getting started',
+        items: ['connect/quickstart', 'connect/agentic-quickstart'],
+      },
+      {
+        label: 'Authorization',
+        items: ['connect/authorization/overview', 'connect/authorization/bring-your-own-oauth'],
+      },
+      // {
+      //   label: 'Tools',
+      //   items: [
+      //     'connect/tools/overview',
+      //     'connect/tools/authorize',
+      //     'connect/tools/execute',
+      //     'connect/tools/custom-processors',
+      //     // 'connect/tools/custom-tools',
+      //     // 'connect/tools/proxy-tools',
+      //   ],
+      // },
+      // {
+      //   label: 'MCP',
+      //   items: ['connect/mcp/quickstart', 'connect/mcp/custom-mcp', 'connect/mcp/manage'],
+      // },
+      // {
+      //   label: 'AI Frameworks',
+      //   items: [
+      //     'connect/frameworks/langchain',
+      //     'connect/frameworks/google-adk',
+      //     'connect/frameworks/crewai',
+      //     'connect/frameworks/mastra',
+      //     'connect/frameworks/vercel-ai',
+      //     'connect/frameworks/openai',
+      //     'connect/frameworks/anthropic',
+      //     'connect/frameworks/google-genai',
+      //   ],
+      // },
+
+      // {
+      //   label: 'Concepts',
+      //   items: ['connect/providers', 'connect/connections', 'connect/connected-accounts'],
+      // },
+    ],
+  },
+  {
     label: 'MCP Auth',
     link: '/guides/mcp/overview',
     id: 'mcp',
@@ -297,4 +350,5 @@ export const topics = {
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
   integrations: ['/guides/integrations/**/*'], // Associate all integration pages with the integrations topic
   'full-stack-auth': ['/fsa/**/*'], // Associate all fsa pages with the full-stack-auth topic
+  connect: ['/connect/**/*'], // Associate all connect pages with the connect topic
 }

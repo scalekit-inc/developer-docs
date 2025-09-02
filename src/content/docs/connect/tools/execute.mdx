@@ -1,0 +1,688 @@
+---
+title: Tool Calling
+description: Learn how to execute tools in Agent Connect to interact with third-party applications using connected accounts.
+---
+
+import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Tool execution is the core functionality of Agent Connect that allows you to perform actions on third-party applications using connected accounts. Tools abstract complex API operations into simple, consistent function calls.
+
+## What is tool execution?
+
+Tool execution in Agent Connect enables you to:
+
+- **Perform actions** on third-party applications via connected accounts
+- **Execute operations** like sending emails, creating calendar events, or fetching data
+- **Use unified API** regardless of the underlying provider's API structure
+- **Handle authentication** automatically using connected account tokens
+- **Manage rate limits** and errors transparently
+
+## Tool execution workflow
+
+<Steps>
+1. **Identify the tool** you want to execute (e.g., `send_email`, `create_event`)
+2. **Select connected account** that has the required permissions
+3. **Prepare parameters** needed for the tool execution
+4. **Execute the tool** using the Agent Connect API
+5. **Handle the response** and any errors that occur
+</Steps>
+
+## Basic tool execution
+
+### Simple tool execution
+
+Execute a tool with basic parameters:
+
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```bash
+curl -X POST "https://api.scalekit.com/v1/connect/tools/execute" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "connected_account_id": "account_123",
+    "tool": "send_email",
+    "parameters": {
+      "to": "recipient@example.com",
+      "subject": "Hello from Agent Connect",
+      "body": "This email was sent via Agent Connect"
+    }
+  }'
+```
+
+</TabItem>
+<TabItem value="javascript" label="JavaScript">
+
+```javascript
+const result = await agentConnect.tools.execute({
+  connected_account_id: 'account_123',
+  tool: 'send_email',
+  parameters: {
+    to: 'recipient@example.com',
+    subject: 'Hello from Agent Connect',
+    body: 'This email was sent via Agent Connect'
+  }
+});
+
+console.log('Email sent:', result);
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+result = agent_connect.tools.execute(
+    connected_account_id='account_123',
+    tool='send_email',
+    parameters={
+        'to': 'recipient@example.com',
+        'subject': 'Hello from Agent Connect',
+        'body': 'This email was sent via Agent Connect'
+    }
+)
+
+print('Email sent:', result)
+```
+
+</TabItem>
+</Tabs>
+
+### Tool execution response
+
+Tool execution returns a standardized response format:
+
+```json
+{
+  "success": true,
+  "execution_id": "exec_456",
+  "tool": "send_email",
+  "connected_account_id": "account_123",
+  "provider": "gmail",
+  "result": {
+    "message_id": "msg_789",
+    "status": "sent",
+    "sent_at": "2024-01-15T10:30:00Z"
+  },
+  "metadata": {
+    "execution_time": 1.23,
+    "api_calls": 1,
+    "rate_limit_remaining": 99
+  }
+}
+```
+
+## Provider-specific examples
+
+### Gmail tools
+
+Common Gmail operations:
+
+<Tabs>
+<TabItem value="send_email" label="Send email">
+
+```javascript
+// Send an email
+const result = await agentConnect.tools.execute({
+  connected_account_id: 'gmail_account_123',
+  tool: 'send_email',
+  parameters: {
+    to: 'recipient@example.com',
+    subject: 'Project Update',
+    body: 'Here is the latest project update...',
+    attachments: [
+      {
+        filename: 'report.pdf',
+        content: base64EncodedContent,
+        mime_type: 'application/pdf'
+      }
+    ]
+  }
+});
+```
+
+</TabItem>
+<TabItem value="fetch_emails" label="Fetch emails">
+
+```javascript
+// Fetch recent emails
+const emails = await agentConnect.tools.execute({
+  connected_account_id: 'gmail_account_123',
+  tool: 'fetch_emails',
+  parameters: {
+    query: 'is:unread',
+    max_results: 10,
+    include_attachments: false
+  }
+});
+```
+
+</TabItem>
+<TabItem value="create_draft" label="Create draft">
+
+```javascript
+// Create email draft
+const draft = await agentConnect.tools.execute({
+  connected_account_id: 'gmail_account_123',
+  tool: 'create_draft',
+  parameters: {
+    to: 'recipient@example.com',
+    subject: 'Draft email',
+    body: 'This is a draft email...'
+  }
+});
+```
+
+</TabItem>
+</Tabs>
+
+### Google Calendar tools
+
+Calendar operations:
+
+<Tabs>
+<TabItem value="create_event" label="Create event">
+
+```javascript
+// Create calendar event
+const event = await agentConnect.tools.execute({
+  connected_account_id: 'calendar_account_123',
+  tool: 'create_event',
+  parameters: {
+    title: 'Team Meeting',
+    description: 'Weekly team sync',
+    start_time: '2024-01-15T14:00:00Z',
+    end_time: '2024-01-15T15:00:00Z',
+    attendees: ['team@example.com'],
+    location: 'Conference Room A'
+  }
+});
+```
+
+</TabItem>
+<TabItem value="fetch_events" label="Fetch events">
+
+```javascript
+// Fetch calendar events
+const events = await agentConnect.tools.execute({
+  connected_account_id: 'calendar_account_123',
+  tool: 'fetch_events',
+  parameters: {
+    start_date: '2024-01-15',
+    end_date: '2024-01-22',
+    max_results: 20
+  }
+});
+```
+
+</TabItem>
+</Tabs>
+
+### Slack tools
+
+Slack operations:
+
+<Tabs>
+<TabItem value="send_message" label="Send message">
+
+```javascript
+// Send Slack message
+const message = await agentConnect.tools.execute({
+  connected_account_id: 'slack_account_123',
+  tool: 'send_message',
+  parameters: {
+    channel: '#general',
+    text: 'Hello from Agent Connect!',
+    attachments: [
+      {
+        title: 'System Alert',
+        color: 'warning',
+        text: 'This is an automated message'
+      }
+    ]
+  }
+});
+```
+
+</TabItem>
+<TabItem value="fetch_messages" label="Fetch messages">
+
+```javascript
+// Fetch channel messages
+const messages = await agentConnect.tools.execute({
+  connected_account_id: 'slack_account_123',
+  tool: 'fetch_messages',
+  parameters: {
+    channel: '#general',
+    limit: 50,
+    oldest: '2024-01-15T00:00:00Z'
+  }
+});
+```
+
+</TabItem>
+</Tabs>
+
+### Jira tools
+
+Jira operations:
+
+<Tabs>
+<TabItem value="create_issue" label="Create issue">
+
+```javascript
+// Create Jira issue
+const issue = await agentConnect.tools.execute({
+  connected_account_id: 'jira_account_123',
+  tool: 'create_issue',
+  parameters: {
+    project: 'PROJ',
+    issue_type: 'Task',
+    summary: 'New feature request',
+    description: 'Implement user authentication',
+    priority: 'High',
+    assignee: 'john.doe@example.com'
+  }
+});
+```
+
+</TabItem>
+<TabItem value="fetch_issues" label="Fetch issues">
+
+```javascript
+// Fetch Jira issues
+const issues = await agentConnect.tools.execute({
+  connected_account_id: 'jira_account_123',
+  tool: 'fetch_issues',
+  parameters: {
+    jql: 'project = PROJ AND status = "In Progress"',
+    max_results: 25,
+    fields: ['summary', 'status', 'assignee']
+  }
+});
+```
+
+</TabItem>
+</Tabs>
+
+## Advanced tool execution
+
+### Batch execution
+
+Execute multiple tools in sequence or parallel:
+
+```javascript
+// Execute multiple tools in parallel
+const results = await agentConnect.tools.executeBatch([
+  {
+    connected_account_id: 'gmail_account_123',
+    tool: 'send_email',
+    parameters: {
+      to: 'user1@example.com',
+      subject: 'Update 1',
+      body: 'First update...'
+    }
+  },
+  {
+    connected_account_id: 'slack_account_123',
+    tool: 'send_message',
+    parameters: {
+      channel: '#notifications',
+      text: 'Email sent to user1'
+    }
+  }
+], {
+  execution_mode: 'parallel',
+  max_concurrency: 5
+});
+```
+
+### Conditional execution
+
+Execute tools based on conditions:
+
+```javascript
+// Execute tool with conditions
+const result = await agentConnect.tools.execute({
+  connected_account_id: 'gmail_account_123',
+  tool: 'send_email',
+  parameters: {
+    to: 'recipient@example.com',
+    subject: 'Conditional email',
+    body: 'This email was sent conditionally'
+  },
+  conditions: {
+    if_account_active: true,
+    if_rate_limit_available: true,
+    if_permissions_granted: ['gmail.send']
+  }
+});
+```
+
+### Scheduled execution
+
+Schedule tool execution for later:
+
+```javascript
+// Schedule tool execution
+const scheduled = await agentConnect.tools.schedule({
+  connected_account_id: 'calendar_account_123',
+  tool: 'create_event',
+  parameters: {
+    title: 'Scheduled Meeting',
+    start_time: '2024-01-20T14:00:00Z',
+    end_time: '2024-01-20T15:00:00Z'
+  },
+  schedule: {
+    execute_at: '2024-01-18T12:00:00Z',
+    timezone: 'UTC'
+  }
+});
+```
+
+## Error handling
+
+### Common error types
+
+Handle different types of errors that can occur during tool execution:
+
+```javascript
+try {
+  const result = await agentConnect.tools.execute({
+    connected_account_id: 'account_123',
+    tool: 'send_email',
+    parameters: {
+      to: 'invalid-email',
+      subject: 'Test',
+      body: 'Test message'
+    }
+  });
+} catch (error) {
+  switch (error.code) {
+    case 'INVALID_PARAMETERS':
+      console.error('Invalid parameters:', error.details);
+      break;
+    case 'ACCOUNT_NOT_AUTHENTICATED':
+      console.error('Account needs re-authentication');
+      break;
+    case 'INSUFFICIENT_PERMISSIONS':
+      console.error('Missing required permissions:', error.required_scopes);
+      break;
+    case 'RATE_LIMIT_EXCEEDED':
+      console.error('Rate limit exceeded, retry after:', error.retry_after);
+      break;
+    case 'PROVIDER_ERROR':
+      console.error('Provider API error:', error.provider_error);
+      break;
+    default:
+      console.error('Unknown error:', error);
+  }
+}
+```
+
+### Retry strategies
+
+Implement retry logic for transient failures:
+
+```javascript
+async function executeWithRetry(toolRequest, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await agentConnect.tools.execute(toolRequest);
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw error;
+      }
+      
+      // Retry for certain error types
+      if (error.code === 'RATE_LIMIT_EXCEEDED') {
+        await new Promise(resolve => 
+          setTimeout(resolve, error.retry_after * 1000)
+        );
+      } else if (error.code === 'TEMPORARY_FAILURE') {
+        await new Promise(resolve => 
+          setTimeout(resolve, attempt * 1000)
+        );
+      } else {
+        throw error; // Don't retry for other errors
+      }
+    }
+  }
+}
+```
+
+## Performance optimization
+
+### Caching results
+
+Cache tool execution results to improve performance:
+
+```javascript
+// Execute with caching
+const result = await agentConnect.tools.execute({
+  connected_account_id: 'account_123',
+  tool: 'fetch_user_profile',
+  parameters: {
+    user_id: 'user_456'
+  },
+  cache: {
+    enabled: true,
+    ttl: 300, // 5 minutes
+    key: 'user_profile_456'
+  }
+});
+```
+
+### Parallel execution
+
+Execute independent tools in parallel:
+
+```javascript
+// Execute tools in parallel
+const [emails, events, messages] = await Promise.all([
+  agentConnect.tools.execute({
+    connected_account_id: 'gmail_account',
+    tool: 'fetch_emails',
+    parameters: { max_results: 10 }
+  }),
+  agentConnect.tools.execute({
+    connected_account_id: 'calendar_account',
+    tool: 'fetch_events',
+    parameters: { days: 7 }
+  }),
+  agentConnect.tools.execute({
+    connected_account_id: 'slack_account',
+    tool: 'fetch_messages',
+    parameters: { channel: '#general', limit: 20 }
+  })
+]);
+```
+
+### Streaming responses
+
+Handle large responses with streaming:
+
+```javascript
+// Stream large datasets
+const stream = await agentConnect.tools.executeStream({
+  connected_account_id: 'account_123',
+  tool: 'fetch_large_dataset',
+  parameters: {
+    dataset_id: 'large_dataset_123',
+    chunk_size: 100
+  }
+});
+
+stream.on('data', (chunk) => {
+  console.log('Received chunk:', chunk);
+});
+
+stream.on('end', () => {
+  console.log('Stream completed');
+});
+```
+
+## Monitoring and logging
+
+### Execution tracking
+
+Track tool execution for monitoring and debugging:
+
+```javascript
+// Execute with tracking
+const result = await agentConnect.tools.execute({
+  connected_account_id: 'account_123',
+  tool: 'send_email',
+  parameters: {
+    to: 'recipient@example.com',
+    subject: 'Tracked email',
+    body: 'This execution is tracked'
+  },
+  tracking: {
+    trace_id: 'trace_123',
+    tags: ['email', 'notification'],
+    metadata: {
+      campaign_id: 'campaign_456',
+      user_segment: 'premium'
+    }
+  }
+});
+```
+
+### Execution history
+
+Retrieve execution history for analysis:
+
+```javascript
+// Get execution history
+const history = await agentConnect.tools.getExecutionHistory({
+  connected_account_id: 'account_123',
+  tool: 'send_email',
+  start_date: '2024-01-01',
+  end_date: '2024-01-31',
+  limit: 100
+});
+
+// Analyze execution patterns
+const analytics = await agentConnect.tools.getExecutionAnalytics({
+  connected_account_id: 'account_123',
+  period: '30d',
+  group_by: 'tool'
+});
+```
+
+## Security considerations
+
+### Parameter validation
+
+Validate tool parameters to prevent security issues:
+
+```javascript
+// Validate parameters before execution
+const validatedParams = await agentConnect.tools.validateParameters({
+  tool: 'send_email',
+  parameters: {
+    to: 'recipient@example.com',
+    subject: 'Test email',
+    body: 'Test message'
+  }
+});
+
+if (validatedParams.valid) {
+  const result = await agentConnect.tools.execute({
+    connected_account_id: 'account_123',
+    tool: 'send_email',
+    parameters: validatedParams.parameters
+  });
+}
+```
+
+### Access control
+
+Implement proper access control for tool execution:
+
+```javascript
+// Check permissions before execution
+const hasPermission = await agentConnect.tools.checkPermissions({
+  connected_account_id: 'account_123',
+  tool: 'send_email',
+  user_id: 'user_456'
+});
+
+if (hasPermission) {
+  const result = await agentConnect.tools.execute({
+    connected_account_id: 'account_123',
+    tool: 'send_email',
+    parameters: {
+      to: 'recipient@example.com',
+      subject: 'Authorized email',
+      body: 'This email was authorized'
+    }
+  });
+}
+```
+
+## Testing tool execution
+
+### Development testing
+
+Test tool execution in development environment:
+
+```javascript
+// Test mode execution
+const result = await agentConnect.tools.execute({
+  connected_account_id: 'test_account_123',
+  tool: 'send_email',
+  parameters: {
+    to: 'test@example.com',
+    subject: 'Test email',
+    body: 'This is a test email'
+  },
+  test_mode: true
+});
+```
+
+### Integration testing
+
+Test tool execution in CI/CD pipelines:
+
+<Steps>
+1. **Create test connections** with mock providers
+2. **Set up test accounts** with test credentials
+3. **Execute tools** with test parameters
+4. **Verify responses** match expected format
+5. **Test error scenarios** with invalid inputs
+6. **Clean up test data** after tests complete
+</Steps>
+
+## Best practices
+
+### Tool execution patterns
+
+Follow these patterns for reliable tool execution:
+
+- **Validate inputs**: Always validate parameters before execution
+- **Handle errors**: Implement comprehensive error handling
+- **Use retries**: Implement retry logic for transient failures
+- **Monitor performance**: Track execution times and success rates
+- **Log execution**: Maintain detailed execution logs
+
+### Resource management
+
+Optimize resource usage:
+
+- **Connection pooling**: Reuse connections efficiently
+- **Rate limiting**: Respect provider rate limits
+- **Caching**: Cache results when appropriate
+- **Parallel execution**: Execute independent tools in parallel
+- **Cleanup**: Clean up resources after execution
+
+### User experience
+
+Provide good user experience:
+
+- **Progress indicators**: Show execution progress for long-running tools
+- **Error messages**: Provide clear, actionable error messages
+- **Status updates**: Keep users informed of execution status
+- **Cancellation**: Allow users to cancel long-running executions
+- **History**: Provide access to execution history
