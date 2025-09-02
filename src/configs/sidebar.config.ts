@@ -337,18 +337,22 @@ export const sidebar = [
 export const topics = {
   exclude: [
     '/', // Exclude root path
-    '/index', // Exclude index by name
-    '/guides/**/*',
-    '/reference/**/*',
-    '/guides/integrations',
-    '/guides/integrations/index', // Exclude the integrations overview page from sidebar
+    '/index.astro', // Exclude index by name
+    '/reference/**/*', // Keep reference docs excluded
+    '/guides/integrations', // Exclude integrations overview from sidebar
+    '/guides/integrations/index',
     '/home/guides/**/*',
     '/home/guides/admin-portal',
     '/home/**/*',
   ],
-  apis: ['/apis/#**/*'],
-  'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
-  integrations: ['/guides/integrations/**/*'], // Associate all integration pages with the integrations topic
-  'full-stack-auth': ['/fsa/**/*'], // Associate all fsa pages with the full-stack-auth topic
-  connect: ['/connect/**/*'], // Associate all connect pages with the connect topic
+  // Associate unlisted pages with their respective topic sidebars
+  'full-stack-auth': ['/fsa/**/*'], // FSA pages not explicitly listed in sidebar
+  sso: ['/sso/**/*', '/social-logins/**/*'], // SSO and social login unlisted pages
+  directory: ['/directory/**/*'], // SCIM directory unlisted pages
+  passwordless: ['/passwordless/**/*'], // Passwordless auth unlisted pages
+  connect: ['/connect/**/*'], // Agent Connect unlisted pages
+  mcp: ['/guides/mcp/**/*'], // MCP Auth pages under guides
+  m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
+  'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Developer resources
+  integrations: ['/guides/integrations/**/*'], // Integration guide pages
 }
