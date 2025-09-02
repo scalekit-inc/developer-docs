@@ -9,6 +9,9 @@ export const redirects = {
   '/guides/sso/test-sso/': '/sso/guides/test-sso/',
   '/guides/sso/launch-checklist/': '/sso/guides/launch-checklist/',
 
+  // FSA
+  '/fsa/guides/automated-user-provisioning': '/fsa/guides/allowed-email-domains/',
+
   // SSO Guides
   '/sso/guides/setup-sso/implement-idp-initiated-sso': '/sso/guides/idp-init-sso/',
   '/sso/guides/setup-sso/handle-user-profile': '/sso/guides/sso-user-attributes/',
