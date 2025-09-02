@@ -60,72 +60,91 @@ const { dir, entry, lang, locale } = Astro.props
 </div>
 
 <style>
-  .header {
-    position: sticky;
-    top: 0;
-    z-index: var(--sl-z-index-navbar);
-    background-color: var(--sl-color-bg);
-  }
+  /* Layer declarations */
+  @layer header.layout, header.components, header.responsive;
 
-  .top-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: var(--sl-header-height-base);
-  }
-
-  .center-content {
-    display: flex;
-    align-items: center;
-    gap: 4rem;
-    flex: 1;
-    max-width: 800px;
-  }
-
-  .search-wrapper {
-    flex: 0 1 300px;
-    min-width: 250px;
-  }
-
-  .right-actions {
-    /* Hidden on mobile */
-    display: none;
-    gap: 0.5rem;
-    align-items: center;
-    font-weight: 500;
-  }
-
-  /* Show right actions at the medium breakpoint (≈48 rem / 768 px) and above */
-  @media (min-width: 48rem) {
-    .right-actions {
-      display: flex;
-    }
-  }
-
-  @media (max-width: 72rem) {
-    .center-content {
-      gap: 3rem;
-      margin: 0 2rem;
-    }
-  }
-
-  @media (max-width: 60rem) {
-    .center-content {
-      gap: 2rem;
-      margin: 0 1rem;
+  /* =============================================================================
+     LAYOUT LAYER - Container and structural styles
+     ============================================================================= */
+  @layer header.layout {
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: var(--sl-z-index-navbar);
+      background-color: var(--sl-color-bg);
     }
 
-    .search-wrapper {
-      flex: 0 1 250px;
-      min-width: 200px;
-    }
-  }
-
-  /* Mobile-specific styles */
-  @media (max-width: 47.9375rem) {
     .top-row {
-      height: auto;
-      min-height: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: var(--sl-header-height-base);
+    }
+
+    .center-content {
+      display: flex;
+      align-items: center;
+      gap: 4rem;
+      flex: 1;
+      max-width: 800px;
+    }
+  }
+
+  /* =============================================================================
+     COMPONENTS LAYER - Individual component styles
+     ============================================================================= */
+  @layer header.components {
+    .search-wrapper {
+      flex: 0 1 300px;
+      min-width: 250px;
+    }
+
+    .right-actions {
+      display: none;
+      gap: 0.5rem;
+      align-items: center;
+      font-weight: 500;
+    }
+  }
+
+  /* =============================================================================
+     RESPONSIVE LAYER - Breakpoint-specific adaptations
+     ============================================================================= */
+  @layer header.responsive {
+    /* Desktop: Show right actions at medium breakpoint and above */
+    @media (min-width: 48rem) {
+      .right-actions {
+        display: flex;
+      }
+    }
+
+    /* Large tablet adjustments */
+    @media (max-width: 72rem) {
+      .center-content {
+        gap: 3rem;
+        margin: 0 2rem;
+      }
+    }
+
+    /* Small tablet adjustments */
+    @media (max-width: 60rem) {
+      .center-content {
+        gap: 2rem;
+        margin: 0 1rem;
+      }
+
+      .search-wrapper {
+        flex: 0 1 250px;
+        min-width: 200px;
+      }
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 47.9375rem) {
+      .top-row {
+        height: auto;
+        min-height: auto;
+      }
     }
   }
 </style>
