@@ -89,6 +89,9 @@ You can also configure allowed email domains for an organization programmaticall
   - `domain` (string, required): The email domain to allow (e.g., "customerdomain.com")
   - `domain_type` (string, required): Must be "ALLOWED_EMAIL_DOMAIN"
 
+<Tabs>
+<TabItem label="cURL">
+
 ```sh title="Register an allowed email domain"
 curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains' \
   --request POST \
@@ -98,6 +101,20 @@ curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/d
   "domain_type": "ALLOWED_EMAIL_DOMAIN"
 }'
 ```
+
+</TabItem>
+<TabItem label="Nodejs">
+
+```js title="Add a new domain to an organization"
+// Add a new domain to an organization
+const response = await scalekit.createDomain("org-123", "example.com", {
+	// Domain type: controls user authentication and email validation
+	domainType: "ALLOWED_EMAIL_DOMAIN",
+});
+```
+
+</TabItem>
+</Tabs>
 
 
 
@@ -123,9 +140,29 @@ curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/d
 - **Path Parameters:**
   - `organization_id` (string, required): The ID of the organization
 
+<Tabs>
+<TabItem label="cURL">
+
 ```sh title="List all the registered allowed email domains"
-curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains
+curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains'
 ```
+
+</TabItem>
+<TabItem label="Nodejs">
+
+```js title="List all domains in an organization"
+// List all domains in an organization
+const response = await client.domain.listDomains(organizationId);
+
+// Domain object contains:
+// - id: Domain identifier
+// - domain: Domain name
+// - organizationId: Owning organization
+// - domainType: Configuration type
+```
+
+</TabItem>
+</Tabs>
 
 ```json title="Response"
 {
@@ -145,15 +182,76 @@ curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/d
 }
 ```
 
-### Delete email domain
+### Get email domain
 
-```sh title="Delete a allowed email domain"
-curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains/{id}' \
-  --request DELETE
+**Request Parameters:**
+
+- **Path Parameters:**
+  - `organization_id` (string, required): The ID of the organization
+  - `id` (string, required): The ID of the domain to retrieve
+
+<Tabs>
+<TabItem label="cURL">
+
+```sh title="Get details of a specific domain"
+curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains/{id}'
 ```
+
+</TabItem>
+<TabItem label="Nodejs">
+
+```js title="Fetch details of a specific domain"
+// Fetch details of a specific domain
+const response = await client.domain.getDomain(organizationId, domainId);
+
+// Domain object properties:
+// - id: Domain identifier
+// - domain: Domain name
+// - organizationId: Owning organization
+// - domainType: Domain configuration type
+```
+
+</TabItem>
+</Tabs>
+
+```json title="Response"
+{
+  "domain": {
+    "create_time": "2025-09-01T11:59:50.005Z",
+    "domain": "customerdomain.com",
+    "domain_type": "ALLOWED_EMAIL_DOMAIN",
+    "environment_id": "env_73947929838",
+    "id": "dom_883516432292250875",
+    "organization_id": "org_987654321",
+    "update_time": "2025-09-01T11:59:50.005Z"
+  }
+}
+```
+
+### Delete email domain
 
 **Request Parameters:**
 
 - **Path Parameters:**
   - `organization_id` (string, required): The ID of the organization
   - `id` (string, required): The ID of the domain to delete
+
+<Tabs>
+<TabItem label="cURL">
+
+```sh title="Delete a allowed email domain"
+curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains/{id}' \
+  --request DELETE
+```
+
+</TabItem>
+<TabItem label="Nodejs">
+
+```js title="Remove a domain from an organization"
+// Remove a domain from an organization
+// Caution: Deletion is permanent and may affect user access
+const response = await client.domain.deleteDomain(organizationId, domainId);
+```
+
+</TabItem>
+</Tabs>

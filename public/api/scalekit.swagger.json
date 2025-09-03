@@ -618,7 +618,14 @@
               "$ref": "#/definitions/domainsListDomainResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// List all domains in an organization\nconst response = await client.domain.listDomains(organizationId);\n\n// Domain object contains:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Configuration type"
+          }
+        ]
       },
       "post": {
         "description": "Creates a new domain and associates it with the specified organization. The domain can be configured as either an ALLOWED_EMAIL_DOMAIN for automatic organization suggestions during user sign-in/sign-up, or as an ORGANIZATION_DOMAIN for SSO connection identification.\n\nThe domain must be a valid, business email domain that you control. Public disposable domains (gmail.com, outlook.com, etc.) are automatically blocked for security.\n\n",
@@ -656,7 +663,14 @@
               "$ref": "#/definitions/errdetailsErrorInfo"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Add a new domain to an organization\nconst response = await scalekit.createDomain(\"org-123\", \"example.com\", {\n\t// Domain type: controls user authentication and email validation\n\tdomainType: \"ALLOWED_EMAIL_DOMAIN\",\n});"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/clients/{client_id}": {
@@ -970,7 +984,14 @@
               "$ref": "#/definitions/domainsGetDomainResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Fetch details of a specific domain\nconst response = await client.domain.getDomain(organizationId, domainId);\n\n// Domain object properties:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Domain configuration type"
+          }
+        ]
       },
       "delete": {
         "description": "Permanently removes an allowed email domain or organization domain from the organization configuration.\n\nUse this endpoint when you need to remove a domain that is no longer trusted or when consolidating multiple domains. Note that this action cannot be undone.\n\n",
@@ -998,7 +1019,14 @@
             "description": "Domain successfully deleted.",
             "schema": {}
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Remove a domain from an organization\n// Caution: Deletion is permanent and may affect user access\nconst response = await client.domain.deleteDomain(organizationId, domainId);"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
@@ -2574,12 +2602,17 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "const response = await scalekit.passwordless.\n  sendPasswordlessEmail(\n\t\"john.doe@example.com\",\n\t{\n\t\ttemplate: \"SIGNIN\",\n\t\texpiresIn: 100,\n\t\tmagiclinkAuthUri: \"https://www.google.com\",\n\t\ttemplateVariables: {\n\t\t\temployeeID: \"EMP523\",\n\t\t\tteamName: \"Alpha Team\",\n\t\t\tsupportEmail: \"support@yourcompany.com\",\n\t\t},\n\t}\n);"
+            "source": "const response = await scalekit.passwordless.sendPasswordlessEmail(\n\t\"john.doe@example.com\",\n\t{\n\t\ttemplate: \"SIGNIN\",\n\t\texpiresIn: 100,\n\t\tmagiclinkAuthUri: \"https://www.google.com\",\n\t\ttemplateVariables: {\n\t\t\temployeeID: \"EMP523\",\n\t\t\tteamName: \"Alpha Team\",\n\t\t \tsupportEmail: \"support@yourcompany.com\",\n\t\t},\n\t}\n);"
           },
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "templateType := scalekit.TemplateTypeSignin\nresponse, err := client.Passwordless().SendPasswordlessEmail(\n    ctx,\n    \"john.doe@example.com\",\n    &scalekit.SendPasswordlessOptions{\n        Template:         &templateType,\n        ExpiresIn:        100,\n        MagiclinkAuthUri: \"https://www.google.com\",\n        TemplateVariables: map[string]string{\n            \"employeeID\":    \"EMP523\",\n            \"teamName\":      \"Alpha Team\",\n            \"supportEmail\":  \"support@yourcompany.com\",\n        },\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\nauthRequestId := response.AuthRequestId"
+            "source": "templateType := scalekit.TemplateTypeSignin\nresponse, err := scalekitClient.Passwordless().SendPasswordlessEmail(\n    ctx,\n    \"john.doe@example.com\",\n    &scalekit.SendPasswordlessOptions{\n        Template:         &templateType,\n        ExpiresIn:        100,\n        MagiclinkAuthUri: \"https://www.google.com\",\n        TemplateVariables: map[string]string{\n            \"employeeID\":    \"EMP523\",\n            \"teamName\":      \"Alpha Team\",\n            \"supportEmail\":  \"support@yourcompany.com\",\n        },\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\nauthRequestId := response.AuthRequestId"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "TemplateType templateType = TemplateType.SIGNIN;\nMap<String, String> templateVariables = new HashMap<>();\ntemplateVariables.put(\"employeeID\", \"EMP523\");\ntemplateVariables.put(\"teamName\", \"Alpha Team\");\ntemplateVariables.put(\"supportEmail\", \"support@yourcompany.com\");\n\nSendPasswordlessOptions options = new SendPasswordlessOptions();\noptions.setTemplate(templateType);\noptions.setExpiresIn(100);\noptions.setMagiclinkAuthUri(\"https://www.example.com\");\noptions.setTemplateVariables(templateVariables);\n\nSendPasswordlessResponse response = passwordlessClient.sendPasswordlessEmail(\n    \"john.doe@example.com\",\n    options\n);\n\nString authRequestId = response.getAuthRequestId();"
           }
         ]
       }
@@ -2612,12 +2645,17 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "const { authRequestId } = sendResponse;\nconst resendResponse = await scalekit.passwordless\n.resendPasswordlessEmail(\n    authRequestId\n);"
+            "source": "const { authRequestId } = sendResponse;\nconst resendResponse = await scalekit.passwordless.resendPasswordlessEmail(\n\tauthRequestId\n);"
           },
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "resendResponse, err := client.Passwordless().ResendPasswordlessEmail(\n    ctx,\n    authRequestId,\n)\n\nif err != nil {\n    // Handle error\n    return\n}"
+            "source": "resendResponse, err := scalekitClient.Passwordless().ResendPasswordlessEmail(\n    ctx,\n    authRequestId,\n)\n\nif err != nil {\n    // Handle error\n    return\n}"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "SendPasswordlessResponse resendResponse = passwordlessClient.resendPasswordlessEmail(authRequestId);"
           }
         ]
       }
@@ -2650,12 +2688,17 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "const { authRequestId } = sendResponse;\nconst verifyResponse = await scalekit.passwordless.\n  verifyPasswordlessEmail(\n\t// Verification Code (OTP)\n\t{ code: \"123456\" },\n\t// Magic Link Token\n\t{ linkToken: link_token },\n\tauthRequestId\n);"
+            "source": "const { authRequestId } = sendResponse;\nconst verifyResponse = await scalekit.passwordless.verifyPasswordlessEmail(\n\t// Verification Code (OTP)\n\t{ code: \"123456\" },\n\t// Magic Link Token\n\t{ linkToken: link_token },\n\tauthRequestId\n);"
           },
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "// Verify with OTP code\nverifyResponse, err := client.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    &scalekit.VerifyPasswordlessOptions{\n        Code:          \"123456\", // OTP code\n        AuthRequestId: authRequestId,\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// Verify with magic link token\nverifyResponse, err := client.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    &scalekit.VerifyPasswordlessOptions{\n        LinkToken: linkToken, // Magic link token\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// User verified successfully\nuserEmail := verifyResponse.Email"
+            "source": "// Verify with OTP code\nverifyResponse, err := scalekitClient.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    &scalekit.VerifyPasswordlessOptions{\n        Code:          \"123456\", // OTP code\n        AuthRequestId: authRequestId,\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// Verify with magic link token\nverifyResponse, err := scalekitClient.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    &scalekit.VerifyPasswordlessOptions{\n        LinkToken: linkToken, // Magic link token\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// User verified successfully\nuserEmail := verifyResponse.Email"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// Verify with OTP code\nVerifyPasswordlessOptions verifyOptions = new VerifyPasswordlessOptions();\nverifyOptions.setCode(\"123456\"); // OTP code\nverifyOptions.setAuthRequestId(authRequestId);\n\nVerifyPasswordLessResponse verifyResponse = passwordlessClient.verifyPasswordlessEmail(verifyOptions);\n\n// User verified successfully\nString userEmail = verifyResponse.getEmail();\n\n// Verify with magic link token\nVerifyPasswordlessOptions verifyOptions = new VerifyPasswordlessOptions();\nverifyOptions.setLinkToken(linkToken); // Magic link token\n\nVerifyPasswordLessResponse verifyResponse = passwordlessClient.verifyPasswordlessEmail(verifyOptions);\n\n// User verified successfully\nString userEmail = verifyResponse.getEmail();"
           }
         ]
       }
