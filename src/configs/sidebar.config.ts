@@ -189,7 +189,7 @@ export const sidebar = [
           'm2m/quickstart',
           {
             label: 'Code examples',
-            link: 'https://github.com/scalekit-developers/gists/tree/main/m2m',
+            link: 'https://github.com/scalekit-inc/gists/tree/main/m2m',
             attrs: { target: '_blank', rel: 'noopener' },
           },
         ],
@@ -273,7 +273,7 @@ export const sidebar = [
           },
           {
             label: 'Code examples',
-            link: 'https://github.com/scalekit-developers/gists',
+            link: 'https://github.com/scalekit-inc/gists',
             attrs: { target: '_blank', rel: 'noopener' },
           },
         ],
