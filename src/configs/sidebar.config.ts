@@ -268,7 +268,7 @@ export const sidebar = [
           'dev-kit/resources/ai-assisted-setup',
           {
             label: 'Postman collections',
-            link: 'https://github.com/scalekit-developers/api-collections',
+            link: 'https://github.com/scalekit-inc/api-collections',
             attrs: { target: '_blank', rel: 'noopener' },
           },
           {
