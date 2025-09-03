@@ -114,7 +114,7 @@ onUnmounted(() => {
       </a>
       <nav>
         <a
-          href="https://github.com/scalekit-developers/api-collections"
+          href="https://github.com/scalekit-inc/api-collections"
           style="text-decoration: none"
           target="_blank"
           rel="noopener noreferrer"
