@@ -40,6 +40,7 @@ export const sidebar = [
           'fsa/reference/user-profile',
           'fsa/guides/app-roles',
           'guides/dashboard/redirects',
+          'fsa/guides/signup-restrictions',
           'fsa/guides/just-in-time-provisioning',
           'fsa/guides/allowed-email-domains',
           'fsa/guides/migration-guide',
