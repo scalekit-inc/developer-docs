@@ -20,7 +20,29 @@ Applications often include many capabilities. Not every user should be able to p
 
 Scalekit's Full Stack Auth (FSA) lets your users sign in to your app. Once integrated, Scalekit acts as access middleware: it verifies identity and shares the user's role and permissions with your application so you can allow or restrict actions.
 
-![](@/assets/docs/app-roles/1-roles-home.png)
+```d2
+direction: right
+
+vars: {
+  app-role-1: "Admin"
+  app-role-2: "Writer"
+  org-role-1: "Gate keeper"
+  permission-1: "doc:delete"
+  permission-2: "doc:create"
+  permission-3: "doc:read"
+  permission-4: "doc:update"
+  permission-5: "doc:read"
+}
+
+Roles.App Roles : ${app-role-1}
+Roles.Organization Roles
+
+Application -- Roles : ${app-role-1}, ${app-role-2}
+Roles <- Permissions : ${permission-1}, ${permission-2}
+Application -- Organization
+Organization -- Roles.Organization Roles
+```
+
 
 ## Understand roles and permissions
 
@@ -51,6 +73,8 @@ Design roles that reflect how your users work. For a project management app (sim
 Keep headers short and permissions focused. Expand this table to match your product.
 
 ## Manage roles and permissions
+
+![](@/assets/docs/app-roles/1-roles-home.png)
 
 You can register roles and permissions from the Scalekit dashboard:
 
