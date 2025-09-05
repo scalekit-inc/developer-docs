@@ -1,0 +1,315 @@
+---
+title: Tools Overview
+description: Learn about tools in Agent Connect - the standardized functions that enable you to perform actions across different third-party providers.
+---
+
+import { Card, CardGrid, Aside, Steps } from '@astrojs/starlight/components';
+
+LLMs today are very powerful reasoning and answering machines but their ability is restricted to data sets that they are trained upon and cannot natively interact with web services or saas applications. Tool Calling or Function Calling is how you extend the capabilities of these models to interact and take actions in third party applications on behalf of the users.
+
+For example, if you would like to build an email summarizer agent, there are a few challenges that you need to tackle:
+
+1. How to give agents access to gmail
+2. How to authorize these agents access to my gmail account
+3. What should be the appropriate input parameters to access gmail based on user context and query
+
+Agent Connect solves these problems by giving you simple abstractions using our SDK to help you give additional capabilities to the agents you are building regardless of the underlying model and agent framework in three simple steps.
+
+1. Use Scalekit SDK to fetch all the appropriate tools
+2. Complete user authorization handling in one single line of code
+3. Use Scalekit's optimized tool metadata and pass it to the underlying model for optimal tool selection and input parameters.
+
+## Tool Metadata
+
+Every tool in Agent Connect follows a consistent structure with a name, description and structured input and output schema. Agentic frameworks like Langchain can work with the underlying LLMs to select the right tool to solve the user's query based on the tool metadata.
+
+### Sample Tool definition
+
+```json
+{
+  "name": "gmail_send_email",
+  "display_name": "Send Email",
+  "description": "Send an email message to one or more recipients",
+  "provider": "gmail",
+  "category": "communication",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "to": {
+        "type": "array",
+        "items": {"type": "string", "format": "email"},
+        "description": "Email addresses of recipients"
+      },
+      "subject": {
+        "type": "string",
+        "description": "Email subject line"
+      },
+      "body": {
+        "type": "string",
+        "description": "Email body content"
+      }
+    },
+    "required": ["to", "subject", "body"]
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "message_id": {
+        "type": "string",
+        "description": "Unique identifier for the sent message"
+      },
+      "status": {
+        "type": "string",
+        "enum": ["sent", "queued", "failed"],
+        "description": "Status of the email sending operation"
+      }
+    }
+  }
+}
+```
+
+### Tool execution
+
+```javascript
+// Execute the tool with parameters
+const result = await agentConnect.tools.execute({
+  connected_account_id: 'account_123',
+  tool: 'send_email',
+  parameters: {
+    to: ['recipient@example.com'],
+    subject: 'Hello from Agent Connect',
+    body: 'This is a test email'
+  }
+});
+
+// Response follows the output schema
+console.log(result.message_id); // "msg_456"
+console.log(result.status);     // "sent"
+```
+
+## Fetching
+
+### List available tools
+
+Discover tools available for a provider:
+
+```javascript
+// Get all tools for Gmail
+const gmailTools = await agentConnect.tools.list({
+  provider: 'gmail'
+});
+
+// Get tools by category
+const communicationTools = await agentConnect.tools.list({
+  category: 'communication'
+});
+
+// Get tools for a specific connection
+const connectionTools = await agentConnect.tools.list({
+  connection_id: 'conn_123'
+});
+```
+
+### Tool documentation
+
+Get detailed information about a specific tool:
+
+```javascript
+// Get tool definition and documentation
+const toolInfo = await agentConnect.tools.get('send_email');
+
+console.log(toolInfo.description);
+console.log(toolInfo.input_schema);
+console.log(toolInfo.output_schema);
+console.log(toolInfo.examples);
+```
+
+## Tool execution patterns
+
+### Synchronous execution
+
+Most tools execute synchronously and return results immediately:
+
+```javascript
+const result = await agentConnect.tools.execute({
+  connected_account_id: 'account_123',
+  tool: 'send_email',
+  parameters: { /* ... */ }
+});
+// Result is available immediately
+```
+
+### Asynchronous execution
+
+Some long-running tools support asynchronous execution:
+
+```javascript
+const execution = await agentConnect.tools.executeAsync({
+  connected_account_id: 'account_123',
+  tool: 'bulk_import_contacts',
+  parameters: { /* ... */ }
+});
+
+// Poll for completion
+const result = await agentConnect.tools.getExecution(execution.id);
+```
+
+### Batch execution
+
+Execute multiple tools efficiently:
+
+```javascript
+const results = await agentConnect.tools.executeBatch([
+  {
+    connected_account_id: 'gmail_account',
+    tool: 'send_email',
+    parameters: { /* ... */ }
+  },
+  {
+    connected_account_id: 'slack_account',
+    tool: 'send_message',
+    parameters: { /* ... */ }
+  }
+]);
+```
+
+## Tool versioning and compatibility
+
+### Version management
+
+Tools are versioned to ensure compatibility:
+
+```javascript
+// Use specific tool version
+const result = await agentConnect.tools.execute({
+  connected_account_id: 'account_123',
+  tool: 'send_email',
+  version: '1.2.0',
+  parameters: { /* ... */ }
+});
+
+// Use latest version (default)
+const result = await agentConnect.tools.execute({
+  connected_account_id: 'account_123',
+  tool: 'send_email',
+  parameters: { /* ... */ }
+});
+```
+
+### Deprecation handling
+
+Agent Connect handles tool deprecation gracefully:
+
+```javascript
+// Deprecated tools show warnings
+const result = await agentConnect.tools.execute({
+  connected_account_id: 'account_123',
+  tool: 'legacy_send_email',
+  parameters: { /* ... */ }
+});
+
+// Check for deprecation warnings
+if (result.warnings) {
+  console.log('Tool is deprecated:', result.warnings);
+}
+```
+
+## Best practices
+
+### Parameter optimization
+
+- **Use appropriate types**: Follow schema definitions exactly
+- **Validate locally**: Pre-validate parameters before execution
+- **Handle optionals**: Use optional parameters to enhance functionality
+- **Batch operations**: Group related operations when possible
+
+### Error handling
+
+- **Implement retry logic**: Handle transient failures gracefully
+- **Check permissions**: Verify account permissions before execution
+- **Monitor rate limits**: Track usage to avoid limit exceeded errors
+- **Log errors**: Maintain detailed error logs for debugging
+
+### Performance optimization
+
+- **Cache results**: Cache frequently accessed data
+- **Use batch operations**: Reduce API calls through batching
+- **Optimize parameters**: Request only necessary data
+- **Monitor performance**: Track execution times and optimize
+
+## Tool development and customization
+
+### Custom tool definitions
+
+Create custom tools for specific use cases:
+
+```javascript
+// Define a custom tool
+const customTool = {
+  name: 'send_weekly_report',
+  provider: 'gmail',
+  category: 'communication',
+  description: 'Send weekly project report via email',
+  input_schema: {
+    type: 'object',
+    properties: {
+      project_id: { type: 'string' },
+      recipients: { type: 'array', items: { type: 'string' } }
+    },
+    required: ['project_id', 'recipients']
+  },
+  implementation: async (params, context) => {
+    // Custom tool logic
+    const report = await generateWeeklyReport(params.project_id);
+    return await context.tools.execute({
+      tool: 'send_email',
+      parameters: {
+        to: params.recipients,
+        subject: `Weekly Report - ${params.project_id}`,
+        body: report
+      }
+    });
+  }
+};
+```
+
+### Tool composition
+
+Combine multiple tools into workflows:
+
+```javascript
+// Compose tools for complex workflows
+const createProjectWorkflow = async (projectData) => {
+  // Create Jira project
+  const project = await agentConnect.tools.execute({
+    connected_account_id: 'jira_account',
+    tool: 'create_project',
+    parameters: projectData
+  });
+
+  // Create Slack channel
+  const channel = await agentConnect.tools.execute({
+    connected_account_id: 'slack_account',
+    tool: 'create_channel',
+    parameters: {
+      name: `${projectData.key.toLowerCase()}-team`,
+      topic: `Discussion for ${projectData.name}`
+    }
+  });
+
+  // Send notification email
+  await agentConnect.tools.execute({
+    connected_account_id: 'gmail_account',
+    tool: 'send_email',
+    parameters: {
+      to: projectData.team_members,
+      subject: `New project created: ${projectData.name}`,
+      body: `Project ${projectData.name} has been created. Join the discussion in ${channel.name}.`
+    }
+  });
+
+  return { project, channel };
+};
+```
+
+Tools are the foundation of Agent Connect's power and flexibility. By understanding how to use them effectively, you can build sophisticated integrations that seamlessly connect your application to the tools your users already love.

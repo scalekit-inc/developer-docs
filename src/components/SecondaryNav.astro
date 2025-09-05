@@ -1,0 +1,219 @@
+---
+import { Icon } from '@astrojs/starlight/components'
+
+function startsWithAny(mainString: string, patterns: string[]) {
+  if (!mainString || !patterns) {
+    return false
+  }
+  for (let i = 0; i < patterns.length; i++) {
+    if (mainString.startsWith(patterns[i])) {
+      return true // Found a match, return true immediately
+    }
+  }
+  return false // No match found after checking all patterns
+}
+---
+
+<nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
+  <div class="nav-items">
+    <a
+      href="/"
+      class={`nav-item ${Astro.url.pathname === '/' ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <!-- <Icon name="star" /> -->
+        <span class="nav-label">Home</span>
+      </div>
+    </a>
+    <a
+      href="/connect/quickstart"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/connect/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">Agent Connect</span>
+      </div>
+    </a>
+    <a
+      href="/mcp/overview"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/guides/mcp/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">MCP Auth</span>
+      </div>
+    </a>
+    <a
+      href="/fsa/quickstart"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/fsa/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">Full-stack Auth</span>
+      </div>
+    </a>
+    <a
+      href="/sso/quickstart"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/sso/', '/guides/sso/', '/social-logins/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">SSO</span>
+      </div>
+    </a>
+    <a
+      href="/passwordless/quickstart"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/passwordless/', '/guides/passwordless/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">Passwordless</span>
+      </div>
+    </a>
+    <a
+      href="/directory/scim/quickstart"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/directory/', '/guides/directory/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">SCIM</span>
+      </div>
+    </a>
+    <a
+      href="/m2m/quickstart"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/m2m/', '/guides/m2m/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">M2M</span>
+      </div>
+    </a>
+  </div>
+  <div class="nav-items">
+    <a
+      href="/apis/"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/apis']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">API Reference</span>
+      </div>
+    </a>
+    <a
+      href="/dev-kit/"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/dev-kit/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">Developer Resources</span>
+      </div>
+    </a>
+    <a
+      href="/guides/integrations/"
+      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/guides/integrations/']) ? 'current' : ''}`}
+      aria-current="page"
+    >
+      <div class="nav-item-content">
+        <span class="nav-label">Integrations</span>
+      </div>
+    </a>
+  </div>
+</nav>
+
+<style>
+  /* Hide the duplicate sidebar topics in the left sidebar on desktop */
+  :global(.starlight-sidebar-topics) {
+    display: none;
+  }
+
+  /* Show the sidebar topics on mobile */
+  @media (max-width: 50rem) {
+    :global(.starlight-sidebar-topics) {
+      display: block !important;
+    }
+  }
+
+  .secondary-nav {
+    position: sticky;
+    display: flex;
+    justify-content: space-between;
+    top: calc(var(--sl-header-height-base) - 1px); /* Reduced from var(--sl-header-height-base) */
+    z-index: var(--sl-z-index-navbar);
+    width: 100%;
+  }
+
+  .nav-items {
+    font-weight: 500;
+    display: flex;
+    gap: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: flex-start;
+  }
+
+  .nav-items::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 1rem 0.35rem 1rem; /* Increased padding for taller nav */
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 2.2px solid transparent;
+    position: relative;
+    line-height: 1;
+  }
+
+  .nav-item:hover {
+    color: var(--sl-color-white);
+  }
+
+  .nav-item.current {
+    color: var(--sl-color-white);
+    border-bottom-color: var(--sl-color-white);
+  }
+
+  .nav-item-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .nav-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .nav-label {
+    font-size: var(--sl-text-sm);
+    line-height: 1.5;
+    text-decoration: none;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 50rem) {
+    .secondary-nav {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 72rem) {
+    .nav-item {
+      padding: 0.6rem 0.75rem; /* Increased for taller nav */
+    }
+
+    .nav-label {
+      font-size: var(--sl-text-xs);
+    }
+  }
+</style>

@@ -1,0 +1,545 @@
+---
+title: OAuth App Verification
+description: Learn how to verify your OAuth applications with third-party providers for production use and enhanced security.
+sidebar:
+  order: 3
+  label: "Verification"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Direct API calls"
+  link: "/connect/authorization/direct-api-call"
+next:
+  label: "Bring your own auth"
+  link: "/connect/authorization/bring-your-own-auth"
+---
+
+import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+OAuth application verification is a crucial step for production deployments. Verified applications provide enhanced security, higher rate limits, and better user experience. This guide covers the verification process for major providers.
+
+## Why verify your OAuth applications?
+
+Verified OAuth applications offer significant advantages:
+
+### Enhanced security and trust
+- **Verified badge**: Users see verified checkmarks in consent screens
+- **Reduced warnings**: Fewer security warnings for users
+- **Brand visibility**: Your company logo and name appear prominently
+- **Trust indicators**: Clear identification of your organization
+
+### Improved functionality
+- **Higher rate limits**: Access to increased API quotas
+- **Advanced features**: Access to premium API features
+- **Priority support**: Better support from provider teams
+- **Stability**: More stable API access and fewer restrictions
+
+### Better user experience
+- **Streamlined consent**: Faster approval process for users
+- **Professional appearance**: Clean, branded consent screens
+- **Reduced friction**: Users more likely to grant permissions
+- **Clear communication**: Better explanation of requested permissions
+
+## Google OAuth verification
+
+### Verification requirements
+
+Google requires verification for applications that:
+- Request sensitive or restricted scopes
+- Have more than 100 users
+- Request broad access to user data
+- Are used in production environments
+
+### Verification process
+
+<Steps>
+1. **Prepare your application**
+   - Complete OAuth consent screen configuration
+   - Add privacy policy and terms of service URLs
+   - Configure authorized domains
+   - Set up proper branding (logo, application name)
+
+2. **Submit for verification**
+   - Go to Google Cloud Console
+   - Navigate to OAuth consent screen
+   - Click "Submit for verification"
+   - Provide required documentation
+
+3. **Provide required information**
+   - Application description and use case
+   - Privacy policy and terms of service
+   - Contact information
+   - Justification for requested scopes
+
+4. **Complete security assessment**
+   - Answer security questionnaire
+   - Provide architecture diagrams
+   - Demonstrate security measures
+   - Show compliance with Google's policies
+
+5. **Wait for review**
+   - Review typically takes 2-6 weeks
+   - Google may request additional information
+   - Be responsive to reviewer questions
+
+6. **Address feedback**
+   - Implement requested changes
+   - Provide additional documentation
+   - Resubmit if necessary
+</Steps>
+
+### Required documentation
+
+**Privacy policy must include:**
+- What data you collect and why
+- How you use the data
+- Who you share data with
+- How long you retain data
+- How users can control their data
+
+**Terms of service must include:**
+- Acceptable use policies
+- Service limitations
+- Liability terms
+- Dispute resolution
+- Contact information
+
+### Common verification issues
+
+**Scope justification:**
+```javascript
+// L Requesting too many scopes
+const scopes = [
+  'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/gmail.send',
+  'https://www.googleapis.com/auth/gmail.modify',
+  'https://www.googleapis.com/auth/drive',
+  'https://www.googleapis.com/auth/calendar'
+];
+
+//  Request only necessary scopes
+const scopes = [
+  'https://www.googleapis.com/auth/gmail.send', // Only what you need
+  'https://www.googleapis.com/auth/calendar.readonly'
+];
+```
+
+**Domain configuration:**
+```javascript
+//  Proper domain setup
+const authorizedDomains = [
+  'yourapp.com',
+  'api.yourapp.com',
+  'auth.yourapp.com'
+];
+
+//  Proper redirect URIs
+const redirectURIs = [
+  'https://yourapp.com/auth/callback',
+  'https://yourapp.com/auth/google/callback'
+];
+```
+
+## Microsoft app verification
+
+### Verification requirements
+
+Microsoft requires verification for applications that:
+- Request admin consent for organization-wide permissions
+- Access sensitive user data
+- Are used by external users
+- Need higher reliability and support
+
+### Publisher verification process
+
+<Steps>
+1. **Set up Microsoft Partner Center account**
+   - Create or use existing Partner Center account
+   - Complete identity verification
+   - Provide business information
+
+2. **Configure application registration**
+   - Complete application manifest
+   - Add branding information
+   - Configure API permissions
+   - Set up redirect URIs
+
+3. **Submit for publisher verification**
+   - Link Partner Center account to Azure AD
+   - Provide business verification documents
+   - Complete publisher verification form
+
+4. **Complete security assessment**
+   - Microsoft Security Response Center review
+   - Provide security documentation
+   - Demonstrate compliance measures
+
+5. **Await verification**
+   - Review typically takes 2-4 weeks
+   - Microsoft may request additional information
+   - Respond promptly to requests
+</Steps>
+
+### Required documentation
+
+**Business verification:**
+- Business license or registration
+- Tax identification documents
+- Contact information verification
+- Domain ownership verification
+
+**Security documentation:**
+- Data handling practices
+- Security incident response plan
+- Compliance certifications
+- Privacy policy and terms of service
+
+### Microsoft Graph permissions
+
+Configure appropriate permissions for your use case:
+
+```javascript
+// Application permissions (no user sign-in required)
+const applicationPermissions = [
+  'Mail.ReadWrite.All',      // Read/write all mailboxes
+  'Calendar.ReadWrite.All',  // Read/write all calendars
+  'Directory.Read.All'       // Read directory data
+];
+
+// Delegated permissions (require user sign-in)
+const delegatedPermissions = [
+  'Mail.ReadWrite',         // Read/write user's mail
+  'Calendar.ReadWrite',     // Read/write user's calendar
+  'User.ReadBasic.All'      // Read basic user info
+];
+```
+
+## Slack app verification
+
+### Verification requirements
+
+Slack requires verification for applications that:
+- Will be distributed publicly
+- Request sensitive permissions
+- Access workspace data
+- Are used by multiple organizations
+
+### App review process
+
+<Steps>
+1. **Prepare your Slack app**
+   - Complete app manifest
+   - Configure OAuth scopes
+   - Set up event subscriptions
+   - Add app description and branding
+
+2. **Submit to App Directory**
+   - Go to Slack App Directory submission
+   - Complete app listing information
+   - Provide screenshots and descriptions
+   - Submit for review
+
+3. **Complete security review**
+   - Slack security team review
+   - Provide security documentation
+   - Demonstrate compliance measures
+   - Answer security questionnaire
+
+4. **Address feedback**
+   - Implement requested changes
+   - Update documentation
+   - Resubmit if necessary
+
+5. **Publication**
+   - App approved for public distribution
+   - Listed in Slack App Directory
+   - Available for installation
+</Steps>
+
+### Required OAuth scopes
+
+Request only necessary scopes:
+
+```javascript
+//  Minimal scopes for basic functionality
+const basicScopes = [
+  'chat:write',           // Send messages
+  'channels:read',        // Read channel information
+  'users:read'            // Read user information
+];
+
+//  Additional scopes for advanced features
+const advancedScopes = [
+  'files:read',           // Read files
+  'files:write',          // Upload files
+  'channels:manage',      // Manage channels
+  'users:read.email'      // Read user emails
+];
+
+// L Avoid requesting unnecessary scopes
+const unnecessaryScopes = [
+  'admin',                // Admin privileges
+  'chat:write.customize', // Customize messages
+  'dnd:write'            // Manage do not disturb
+];
+```
+
+## GitHub app verification
+
+### Verification requirements
+
+GitHub requires verification for applications that:
+- Are used by organizations with security policies
+- Access sensitive repository data
+- Are distributed publicly
+- Need higher rate limits
+
+### GitHub App verification
+
+<Steps>
+1. **Create GitHub App**
+   - Configure app settings
+   - Set up webhook URLs
+   - Configure permissions
+   - Generate private key
+
+2. **Submit for verification**
+   - Complete verification form
+   - Provide business information
+   - Submit security documentation
+   - Pay verification fee (if applicable)
+
+3. **Security review**
+   - GitHub security team review
+   - Code review (if applicable)
+   - Security questionnaire
+   - Compliance verification
+
+4. **Complete verification**
+   - Address any feedback
+   - Implement requested changes
+   - Final approval
+</Steps>
+
+### GitHub App permissions
+
+Configure appropriate permissions:
+
+```javascript
+// Repository permissions
+const repositoryPermissions = {
+  'contents': 'read',           // Read repository contents
+  'issues': 'write',            // Create/update issues
+  'pull_requests': 'write',     // Create/update PRs
+  'metadata': 'read'            // Read repository metadata
+};
+
+// Organization permissions
+const organizationPermissions = {
+  'members': 'read',            // Read organization members
+  'projects': 'read'            // Read organization projects
+};
+```
+
+## Verification best practices
+
+### Documentation preparation
+
+**Privacy policy checklist:**
+- [ ] Data collection practices
+- [ ] Data usage purposes
+- [ ] Data sharing policies
+- [ ] Data retention periods
+- [ ] User rights and controls
+- [ ] Contact information
+- [ ] Policy update procedures
+
+**Terms of service checklist:**
+- [ ] Service description
+- [ ] Acceptable use policy
+- [ ] Service limitations
+- [ ] Liability limitations
+- [ ] Termination conditions
+- [ ] Dispute resolution
+- [ ] Governing law
+
+### Security documentation
+
+**Security measures to document:**
+- [ ] Data encryption (in transit and at rest)
+- [ ] Access controls and authentication
+- [ ] Audit logging and monitoring
+- [ ] Incident response procedures
+- [ ] Data backup and recovery
+- [ ] Compliance certifications
+- [ ] Security training programs
+
+### Application configuration
+
+**Proper scope configuration:**
+```javascript
+//  Good: Request specific, necessary scopes
+const scopes = [
+  'https://www.googleapis.com/auth/gmail.send',
+  'https://www.googleapis.com/auth/calendar.readonly'
+];
+
+// L Bad: Request broad, unnecessary scopes
+const scopes = [
+  'https://www.googleapis.com/auth/gmail.modify',
+  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/drive'
+];
+```
+
+**Domain and redirect URI setup:**
+```javascript
+//  Proper domain configuration
+const config = {
+  authorizedDomains: [
+    'yourapp.com',
+    'api.yourapp.com'
+  ],
+  redirectURIs: [
+    'https://yourapp.com/auth/callback',
+    'https://yourapp.com/auth/google/callback'
+  ]
+};
+```
+
+## Maintaining verification status
+
+### Ongoing requirements
+
+**Regular reviews:**
+- Annual security reviews
+- Policy updates
+- Compliance audits
+- Permission reviews
+
+**Monitoring and reporting:**
+- Usage monitoring
+- Security incident reporting
+- Policy violation handling
+- User feedback management
+
+### Handling verification issues
+
+**Common issues and solutions:**
+```javascript
+// Monitor verification status
+const checkVerificationStatus = async () => {
+  try {
+    const status = await provider.getVerificationStatus();
+    
+    if (status.status === 'expired') {
+      await initiateReverification();
+    } else if (status.status === 'warning') {
+      await addressWarnings(status.warnings);
+    }
+  } catch (error) {
+    console.error('Verification check failed:', error);
+  }
+};
+
+// Handle verification warnings
+const addressWarnings = async (warnings) => {
+  for (const warning of warnings) {
+    switch (warning.type) {
+      case 'SCOPE_OVERUSE':
+        await reviewAndReduceScopes();
+        break;
+      case 'POLICY_VIOLATION':
+        await updatePolicies();
+        break;
+      case 'SECURITY_CONCERN':
+        await enhanceSecurityMeasures();
+        break;
+    }
+  }
+};
+```
+
+## Testing verified applications
+
+### Pre-verification testing
+
+Test your application thoroughly before submitting:
+
+```javascript
+// Test OAuth flow
+const testOAuthFlow = async () => {
+  const testScopes = [
+    'https://www.googleapis.com/auth/gmail.send'
+  ];
+  
+  // Test with minimal scopes
+  const authUrl = await generateAuthUrl(testScopes);
+  console.log('Test auth URL:', authUrl);
+  
+  // Test token exchange
+  const tokens = await exchangeCodeForTokens(testCode);
+  console.log('Token exchange successful:', tokens);
+  
+  // Test API calls
+  const apiResult = await makeAuthenticatedAPICall(tokens);
+  console.log('API call successful:', apiResult);
+};
+```
+
+### Post-verification testing
+
+Verify that your application works correctly after verification:
+
+```javascript
+// Test verified application
+const testVerifiedApp = async () => {
+  // Test with verified status
+  const verificationStatus = await checkVerificationStatus();
+  console.log('Verification status:', verificationStatus);
+  
+  // Test enhanced features
+  const enhancedFeatures = await testEnhancedFeatures();
+  console.log('Enhanced features working:', enhancedFeatures);
+  
+  // Test rate limits
+  const rateLimits = await testRateLimits();
+  console.log('Rate limits:', rateLimits);
+};
+```
+
+## Troubleshooting verification
+
+### Common verification failures
+
+**Insufficient documentation:**
+- Missing privacy policy
+- Incomplete terms of service
+- Unclear scope justification
+- Missing security documentation
+
+**Configuration issues:**
+- Incorrect domain setup
+- Invalid redirect URIs
+- Overly broad scopes
+- Missing branding information
+
+**Security concerns:**
+- Insufficient data protection
+- Weak authentication
+- Missing audit logging
+- Inadequate incident response
+
+### Getting help
+
+**Provider support resources:**
+- [Google OAuth verification guide](https://support.google.com/cloud/answer/9110914)
+- [Microsoft app verification docs](https://docs.microsoft.com/en-us/azure/active-directory/develop/publisher-verification-overview)
+- [Slack app review process](https://api.slack.com/docs/slack-apps-review-process)
+- [GitHub app verification](https://docs.github.com/en/developers/apps/getting-started-with-apps/about-apps#about-github-apps)
+
+<Aside type="note">
+**Plan ahead**: OAuth verification can take several weeks. Start the process early in your development cycle and maintain proper documentation throughout development.
+</Aside>
+
+OAuth application verification is essential for production applications. By following these guidelines and maintaining proper documentation, you'll ensure your applications meet provider requirements and provide the best possible user experience.

@@ -1,0 +1,173 @@
+---
+title: Third-Party Icons Guide
+description: Learn how to use third-party icon sets in your Scalekit documentation with unplugin-icons
+---
+
+import ThirdPartyIconsExample from '@/components/examples/ThirdPartyIconsExample.astro'
+
+This guide shows you how to use over 200,000 icons from popular open-source icon sets in your Scalekit documentation using `unplugin-icons`.
+
+## Available Icon Sets
+
+You can use icons from any of these popular collections:
+
+- **Phosphor Icons** (`ph`) - Modern, clean icons
+- **Lucide Icons** (`lucide`) - Simple, beautiful icons
+- **Heroicons** (`heroicons`) - Tailwind's icon set
+- **Tabler Icons** (`tabler`) - Pixel-perfect icons
+- **Feather Icons** (`feather`) - Simply beautiful icons
+- **Material Design Icons** (`mdi`) - Google's design system icons
+- **Font Awesome** (`fa`, `fa6-solid`, `fa6-regular`, `fa6-brands`) - Popular web icons
+- **Bootstrap Icons** (`bi`) - Bootstrap's icon library
+- **Ant Design Icons** (`ant-design`) - Enterprise-friendly icons
+- **Carbon Icons** (`carbon`) - IBM's design system icons
+
+View all available icons at [Iconify Icon Sets](https://icon-sets.iconify.design/).
+
+## How to Use Icons
+
+### 1. Import the Icon
+
+Use the `~icons/{collection}/{name}` pattern to import icons:
+
+```astro
+---
+// Import icons from different collections
+import IconPhSparkle from '~icons/ph/sparkle'
+import IconLucideZap from '~icons/lucide/zap'
+import IconHeroiconsRocketLaunch from '~icons/heroicons/rocket-launch'
+---
+```
+
+### 2. Use the Icon in Your Template
+
+```astro
+<IconPhSparkle class="my-icon" color="#3b82f6" />
+<IconLucideZap aria-label="Lightning bolt" />
+<IconHeroiconsRocketLaunch color="var(--sl-color-accent)" font-size="2rem" />
+```
+
+### 3. Style Icons with CSS or Inline Styles
+
+```astro
+<!-- Using CSS classes -->
+<IconPhSparkle class="feature-icon" />
+
+<!-- Using inline styles -->
+<IconLucideZap color="goldenrod" font-size="3rem" />
+
+<!-- Using CSS variables -->
+<IconHeroiconsRocketLaunch color="var(--sl-color-accent)" />
+```
+
+## Examples
+
+<ThirdPartyIconsExample />
+
+## Practical Usage Examples
+
+### In Sidebar Configuration
+
+You can use third-party icons in your sidebar configuration:
+
+```ts title="src/configs/sidebar.config.ts"
+import IconPhDatabase from '~icons/ph/database'
+import IconLucideShield from '~icons/lucide/shield'
+
+export const sidebar = [
+  {
+    label: 'API Reference',
+    icon: IconPhDatabase, // Use imported icon component
+    items: [...]
+  },
+  {
+    label: 'Security',
+    icon: IconLucideShield,
+    items: [...]
+  }
+]
+```
+
+### In MDX Content
+
+```mdx title="example.mdx"
+---
+title: My Page
+---
+import IconTablerCheck from '~icons/tabler/check'
+import IconPhWarning from '~icons/ph/warning'
+
+## Features
+
+<IconTablerCheck color="green" /> Secure authentication
+<IconTablerCheck color="green" /> Easy integration
+
+## Important Notice
+
+<IconPhWarning color="orange" /> Make sure to configure your environment variables
+```
+
+### In Astro Components
+
+```astro title="src/components/FeatureCard.astro"
+---
+import IconLucideZap from '~icons/lucide/zap'
+const { title, description } = Astro.props
+---
+
+<div class="feature-card">
+  <IconLucideZap class="feature-icon" />
+  <h3>{title}</h3>
+  <p>{description}</p>
+</div>
+
+<style>
+  .feature-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    background: var(--sl-color-bg-card);
+  }
+  
+  :global(.feature-icon) {
+    font-size: 2.5rem;
+    color: var(--sl-color-accent);
+    margin-bottom: 1rem;
+  }
+</style>
+```
+
+## Accessibility
+
+Always include appropriate accessibility attributes for icons that convey meaning:
+
+```astro
+<!-- Decorative icon (hidden from screen readers) -->
+<IconPhSparkle aria-hidden="true" />
+
+<!-- Meaningful icon (include label) -->
+<IconLucideWarning aria-label="Warning" />
+
+<!-- Icon with text (redundant, can hide from screen readers) -->
+<IconTablerCheck aria-hidden="true" /> Success
+```
+
+## Performance Tips
+
+1. **Only import what you need** - Icons are tree-shaken automatically
+2. **Use consistent icon sets** - Stick to 1-2 icon families for design consistency
+3. **Consider file size** - Some icon collections are larger than others
+4. **Test build times** - Large icon collections may impact build performance
+
+## Finding Icons
+
+To find the right icon for your needs:
+
+1. Visit [Iconify Icon Sets](https://icon-sets.iconify.design/)
+2. Search for your desired icon
+3. Click on the icon to see usage examples
+4. Use the format `~icons/{collection}/{name}` in your imports
+
+The setup is complete and ready to use! You now have access to over 200,000 icons from popular open-source icon sets.

@@ -69,16 +69,7 @@ export const sidebar = [
       },
       {
         label: 'Social authentication',
-        items: [
-          'social-logins/quickstart',
-          {
-            label: 'connections',
-            collapsed: false,
-            autogenerate: {
-              directory: 'guides/integrations/social-connections',
-            },
-          },
-        ],
+        items: ['social-logins/quickstart'],
       },
       {
         label: 'Guides',
@@ -161,6 +152,59 @@ export const sidebar = [
     ],
   },
   {
+    label: 'Agent Connect',
+    link: '/connect/quickstart',
+    id: 'connect',
+    badge: {
+      text: 'New', // The text to display in the badge
+      variant: 'tip', // Optional: 'note', 'tip', 'caution', 'danger', 'success'
+    },
+    icon: 'rocket',
+    items: [
+      {
+        label: 'Getting started',
+        items: ['connect/quickstart', 'connect/agentic-quickstart'],
+      },
+      {
+        label: 'Authorization',
+        items: ['connect/authorization/overview', 'connect/authorization/bring-your-own-oauth'],
+      },
+      // {
+      //   label: 'Tools',
+      //   items: [
+      //     'connect/tools/overview',
+      //     'connect/tools/authorize',
+      //     'connect/tools/execute',
+      //     'connect/tools/custom-processors',
+      //     // 'connect/tools/custom-tools',
+      //     // 'connect/tools/proxy-tools',
+      //   ],
+      // },
+      // {
+      //   label: 'MCP',
+      //   items: ['connect/mcp/quickstart', 'connect/mcp/custom-mcp', 'connect/mcp/manage'],
+      // },
+      // {
+      //   label: 'AI Frameworks',
+      //   items: [
+      //     'connect/frameworks/langchain',
+      //     'connect/frameworks/google-adk',
+      //     'connect/frameworks/crewai',
+      //     'connect/frameworks/mastra',
+      //     'connect/frameworks/vercel-ai',
+      //     'connect/frameworks/openai',
+      //     'connect/frameworks/anthropic',
+      //     'connect/frameworks/google-genai',
+      //   ],
+      // },
+
+      // {
+      //   label: 'Concepts',
+      //   items: ['connect/providers', 'connect/connections', 'connect/connected-accounts'],
+      // },
+    ],
+  },
+  {
     label: 'MCP Auth',
     link: '/guides/mcp/overview',
     id: 'mcp',
@@ -169,8 +213,8 @@ export const sidebar = [
       {
         label: 'Getting started',
         items: [
-          'guides/mcp/overview',
-          'guides/mcp/oauth',
+          'mcp/overview',
+          'mcp/oauth',
           { label: 'Bring your own Auth', link: 'guides/mcp/custom-auth' },
         ],
       },
@@ -201,45 +245,14 @@ export const sidebar = [
     ],
   },
   {
-    label: 'SDKs & APIs',
+    label: 'Developer Resources',
     id: 'dev-kit',
     link: '/dev-kit/',
     icon: 'seti:powershell',
     items: [
       {
         label: 'SDKs',
-        items: [
-          {
-            label: 'Node.js SDK',
-            link: 'https://github.com/scalekit-inc/scalekit-sdk-node',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Python SDK',
-            link: 'https://github.com/scalekit-inc/scalekit-sdk-python',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Go SDK',
-            link: 'https://github.com/scalekit-inc/scalekit-sdk-go',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Java SDK',
-            link: 'https://github.com/scalekit-inc/scalekit-sdk-java',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Community',
-            items: [
-              {
-                label: 'PHP SDK',
-                link: 'https://github.com/pawan1793/scalekit-php-sdk',
-                attrs: { target: '_blank', rel: 'noopener' },
-              },
-            ],
-          },
-        ],
+        items: ['dev-kit/sdks/overview'],
       },
       {
         label: 'Webhooks',
@@ -252,20 +265,21 @@ export const sidebar = [
       {
         label: 'Reference',
         items: [
-          {
-            label: 'REST API reference',
-            link: '/apis',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          'reference/admin-portal/ui-events',
-          'reference/glossary',
+          'guides/setup-scalekit',
+          'dev-kit/resources/ai-assisted-setup',
+          'guides/dashboard/redirects',
+          'guides/dashboard/auth-logs',
+          'guides/external-ids-and-metadata',
         ],
+      },
+      {
+        label: 'Reference',
+        items: ['reference/admin-portal/ui-events', 'reference/glossary'],
       },
       {
         label: 'Development Tools',
         items: [
           'dev-kit/mcp',
-          'dev-kit/resources/ai-assisted-setup',
           {
             label: 'Postman collections',
             link: 'https://github.com/scalekit-inc/api-collections',
@@ -291,6 +305,7 @@ export const sidebar = [
             link: 'https://scalekit.statuspage.io/',
             attrs: { target: '_blank', rel: 'noopener' },
           },
+          'reference/glossary',
         ],
       },
     ],
@@ -309,6 +324,12 @@ export const sidebar = [
         label: 'SCIM integrations',
         autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
+      {
+        label: 'Social connections',
+        autogenerate: {
+          directory: 'guides/integrations/social-connections',
+        },
+      },
     ],
   },
 ]
@@ -316,17 +337,22 @@ export const sidebar = [
 export const topics = {
   exclude: [
     '/', // Exclude root path
-    '/index', // Exclude index by name
-    '/guides/integrations',
-    '/guides/integrations/index', // Exclude the integrations overview page from sidebar
+    '/index.astro', // Exclude index by name
+    '/reference/**/*', // Keep reference docs excluded
+    '/guides/integrations', // Exclude integrations overview from sidebar
+    '/guides/integrations/index',
     '/home/guides/**/*',
     '/home/guides/admin-portal',
     '/home/**/*',
-    '/guides/setup-scalekit',
-    '/guides/external-ids-and-metadata',
-    '/guides/mcp/additional-reading',
   ],
-  'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Include all dev-kit pages
-  integrations: ['/guides/integrations/**/*'], // Associate all integration pages with the integrations topic
-  'full-stack-auth': ['/fsa/**/*'], // Associate all fsa pages with the full-stack-auth topic
+  // Associate unlisted pages with their respective topic sidebars
+  'full-stack-auth': ['/fsa/**/*'], // FSA pages not explicitly listed in sidebar
+  sso: ['/sso/**/*', '/social-logins/**/*'], // SSO and social login unlisted pages
+  directory: ['/directory/**/*'], // SCIM directory unlisted pages
+  passwordless: ['/passwordless/**/*'], // Passwordless auth unlisted pages
+  connect: ['/connect/**/*'], // Agent Connect unlisted pages
+  mcp: ['/guides/mcp/**/*'], // MCP Auth pages under guides
+  m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
+  'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Developer resources
+  integrations: ['/guides/integrations/**/*'], // Integration guide pages
 }
