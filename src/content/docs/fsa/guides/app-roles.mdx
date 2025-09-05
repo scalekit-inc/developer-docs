@@ -14,7 +14,7 @@ head:
       }
 prev: false
 ---
-import { Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code, LinkButton } from '@astrojs/starlight/components';
 
 Applications often include many capabilities. Not every user should be able to perform every action (for example, only owners should manage billing or payments). Scalekit helps you restrict access cleanly with roles and permissions so users get only the access they need.
 
@@ -56,7 +56,7 @@ Scalekit automatically assigns default roles when setting up your organization:
 - **Organization creator**: The first user who creates your Scalekit organization gets the `creator` role automatically
 - **New members**: When you invite users to your organization, they're automatically assigned the `member` role
 
-These default roles provide a starting point for access control. You can customize what permissions these roles have and change the default role assignments at any time.
+These default roles provide a starting point for access control. You can customize what permissions these roles have and change the default role assignments at any time. Additionally, roles can be assigned to anyone who is invited to your organization, regardless of how they joined (email invitation, SSO, social login, etc.). This gives you full control over who gets which role and allows you to modify user roles at any time after they've joined.
 
 ## Model roles for your app
 
@@ -180,6 +180,33 @@ You can go ahead and create organization specific roles from the Scalekit dashbo
   - **Display name**: Human-readable name (e.g., "Project Owner")
   - **Name (key)**: Machine-friendly identifier (e.g., `project_owner`)
   - **Description**: Clear explanation of what users with this role can do
+
+<Tabs>
+  <TabItem label="cURL" value="curl">
+
+  ```sh showLineNumbers=true wrap title="Create organization role"
+  curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{org_id}/roles' \
+  --request POST \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "description": "Organization Viewer Role will be used only for viewing the objects",
+  "display_name": "Organization Viewer Role",
+  "extends": "admin_role",
+  "name": "org_viewer_role",
+  "permissions": [
+    "read:users",
+    "write:documents"
+    ]
+  }'
+  ```
+
+  </TabItem>
+</Tabs>
+
+<LinkButton href="https://docs.scalekit.com/apis" variant="minimal" icon='right-arrow'>
+  View full API reference
+</LinkButton>
+
 
 <Aside type='note' title='Do not send inherited permissions when creating roles'>
 
