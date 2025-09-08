@@ -1,11 +1,12 @@
 ---
-import { Icon } from '@astrojs/starlight/components'
+import IconHouse from '~icons/lucide/house'
 
 interface NavItem {
   href: string
   label: string
   patterns: string[]
   isExact?: boolean
+  iconComponent?: any
 }
 
 interface NavSection {
@@ -34,7 +35,7 @@ function isCurrentPage(pathname: string, item: NavItem): boolean {
 const navSections: NavSection[] = [
   {
     items: [
-      { href: '/', label: 'Home', patterns: ['/'], isExact: true },
+      { href: '/', label: '', patterns: ['/'], isExact: true, iconComponent: IconHouse },
       { href: '/agent-actions/quickstart', label: 'Agent Actions', patterns: ['/agent-actions/'] },
       { href: '/mcp/overview', label: 'MCP Auth', patterns: ['/mcp/'] },
       { href: '/fsa/quickstart', label: 'Full-stack Auth', patterns: ['/fsa/'] },
@@ -77,7 +78,8 @@ const navSections: NavSection[] = [
             aria-current="page"
           >
             <div class="nav-item-content">
-              <span class="nav-label">{item.label}</span>
+              {item.iconComponent && <item.iconComponent class="nav-icon" />}
+              {item.label && <span class="nav-label">{item.label}</span>}
             </div>
           </a>
         ))}

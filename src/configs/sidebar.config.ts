@@ -49,6 +49,10 @@ export const sidebar = [
         label: 'Customization',
         items: ['fsa/guides/login-page-branding', 'guides/email-providers'],
       },
+      {
+        label: 'Integrations',
+        link: '/guides/integrations/',
+      },
     ],
   },
   {
@@ -98,6 +102,10 @@ export const sidebar = [
           },
         ],
       },
+      {
+        label: 'Integrations',
+        link: '/guides/integrations/sso-integrations/',
+      },
     ],
   },
   {
@@ -125,6 +133,10 @@ export const sidebar = [
             items: ['directory/guides/user-provisioning-basics', 'directory/guides/scim-protocol'],
           },
         ],
+      },
+      {
+        label: 'Integrations',
+        link: '/guides/integrations/scim-integrations/',
       },
     ],
   },
