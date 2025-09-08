@@ -36,26 +36,73 @@ To customize your email templates:
 2. Customize the following fields:
    - **Subject**: The subject line of the email
    - **Body**: The body content of the email
-   - **Sender name**: The display name for the sender
-   - **Sender email**: The email address used as the sender
 
 Editing fields is available only when you select **Using custom template**.
 
 ### HTML and plain text bodies
 
-Provide both versions of your email body. Many clients render HTML; if a client does not render HTML, the plain text body is sent instead.
+Provide both versions of your email body. When both are present, Scalekit sends a multipart/alternative message: HTML is shown in capable clients, and the plain text part is used as a fallback where HTML is not supported.
+
+- Keep content equivalent: communicate the same message in both versions.
+- Include full URLs: put the raw link next to buttons in HTML and always include links in the plain text body.
+- Avoid image-only content: some clients block images; ensure text conveys the key action.
+- Improve deliverability: including a well-formed plain text body can reduce spam filtering and helps accessibility (screen readers, watches).
+- Test across clients: preview both bodies in the dashboard and spot-check common clients.
+
+<Aside type="tip">
+  If you include tracking pixels or richly styled buttons in HTML, also provide a clear call-to-action link in the plain text body.
+</Aside>
 
 Once saved, all subsequent emails will use your customized templates.
 
-## Use basic placeholders to personalize emails
+## Available template variables
 
-You can personalize emails using built-in placeholders. These placeholders are automatically replaced with user-specific information when the email is sent:
+Use these built-in variables in your templates. Values are injected at send time.
 
-- `{{user.name}}`: The user's name
-- `{{user.email}}`: The user's email address
-- `{{auth_request_id}}`: The authentication request ID
-- `{{otp}}`: The one-time passcode
-- `{{magic_link}}`: The magic link for authentication
+<Aside type="note">
+  The variables below apply to the OTP and magic link login template shown here. Other email templates may expose different variables.
+</Aside>
+
+### Application
+
+Use application variables to include app-level data (for example, name, logo, support email) that stays the same across all emails for your app.
+
+| Variable | Description |
+| --- | --- |
+| `{{app_name}}` | Your application name |
+| `{{app_logo_url}}` | Public URL to your application logo |
+| `{{app_support_email}}` | Support email address for your application |
+| `{{app_organization_meta_name}}` | Organization display name configured in Scalekit |
+
+### Contextual
+
+Contextual variables apply only to the current template or send. They change per template or send (for example, the OTP, magic link, or expiry).
+
+| Variable | Description |
+| --- | --- |
+| `{{link}}` | Authentication link (magic link) |
+| `{{otp}}` | One-time passcode for the current request |
+| `{{expiry_time_relative}}` | Human-readable time until expiration (for example, "10 minutes") |
+
+### Organization
+
+Organization variables describe the organization/tenant the user belongs to and are consistent across emails for that organization.
+
+| Variable | Description |
+| --- | --- |
+| `{{organization_name}}` | The organization name |
+
+### User
+
+User variables personalize the email for the recipient (for example, name and email).
+
+| Variable | Description |
+| --- | --- |
+| `{{user_name}}` | The recipient's name |
+| `{{user_email}}` | The recipient's email address |
+
+
+
 
 ## Add template variables for advanced customization
 
@@ -99,44 +146,6 @@ For more advanced personalization, you can use template variables to include cus
      Find your onboarding kit: https://acme.com/onboarding
      ```
 </Steps>
-
-## Available template variables
-
-Use these built-in variables in your templates. Values are injected at send time.
-
-<Aside type="note">
-  The variables below apply to the OTP and magic link login template shown here. Other email templates may expose different variables.
-</Aside>
-
-### Application
-
-| Variable | Description |
-| --- | --- |
-| `{{app_name}}` | Your application name |
-| `{{app_logo_url}}` | Public URL to your application logo |
-| `{{app_support_email}}` | Support email address for your application |
-| `{{app_organization_meta_name}}` | Organization display name configured in Scalekit |
-
-### Contextual
-
-| Variable | Description |
-| --- | --- |
-| `{{link}}` | Authentication link (magic link) |
-| `{{otp}}` | One-time passcode for the current request |
-| `{{expiry_time_relative}}` | Human-readable time until expiration (for example, "10 minutes") |
-
-### Organization
-
-| Variable | Description |
-| --- | --- |
-| `{{organization_name}}` | The organization name |
-
-### User
-
-| Variable | Description |
-| --- | --- |
-| `{{user_name}}` | The recipient's name |
-| `{{user_email}}` | The recipient's email address |
 
 <Aside type="caution">
   The API will return a 400 status code if your template references any variables that aren't provided in the request.
