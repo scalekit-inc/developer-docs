@@ -153,7 +153,7 @@ export const sidebar = [
   },
   {
     label: 'Agent Actions',
-    link: '/connect/quickstart',
+    link: '/agent-actions/quickstart',
     id: 'connect',
     badge: {
       text: 'New', // The text to display in the badge
@@ -163,11 +163,14 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['connect/quickstart', 'connect/agentic-quickstart'],
+        items: ['agent-actions/quickstart', 'agent-actions/agentic-quickstart'],
       },
       {
         label: 'Authorization',
-        items: ['connect/authorization/overview', 'connect/authorization/bring-your-own-oauth'],
+        items: [
+          'agent-actions/authorization/overview',
+          'agent-actions/authorization/bring-your-own-oauth',
+        ],
       },
       // {
       //   label: 'Tools',
@@ -350,7 +353,7 @@ export const topics = {
   sso: ['/sso/**/*', '/social-logins/**/*'], // SSO and social login unlisted pages
   directory: ['/directory/**/*'], // SCIM directory unlisted pages
   passwordless: ['/passwordless/**/*'], // Passwordless auth unlisted pages
-  connect: ['/connect/**/*'], // Agent Actions unlisted pages
+  connect: ['/agent-actions/**/*'], // Agent Actions unlisted pages
   mcp: ['/guides/mcp/**/*'], // MCP Auth pages under guides
   m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Developer resources
