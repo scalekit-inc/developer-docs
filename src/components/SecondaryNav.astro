@@ -1,11 +1,17 @@
 ---
 import { Icon } from '@astrojs/starlight/components'
 
+interface NavSubItem {
+  href: string
+  label: string
+}
+
 interface NavItem {
   href: string
   label: string
   patterns: string[]
   isExact?: boolean
+  subItems?: NavSubItem[]
 }
 
 interface NavSection {
@@ -39,21 +45,26 @@ const navSections: NavSection[] = [
       { href: '/mcp/overview', label: 'MCP Auth', patterns: ['/mcp/'] },
       { href: '/fsa/quickstart', label: 'Full-stack Auth', patterns: ['/fsa/'] },
       {
-        href: '/sso/quickstart',
-        label: 'SSO',
-        patterns: ['/sso/', '/guides/sso/', '/social-logins/'],
+        href: '#',
+        label: 'More',
+        patterns: [
+          '/sso/',
+          '/guides/sso/',
+          '/social-logins/',
+          '/passwordless/',
+          '/guides/passwordless/',
+          '/directory/',
+          '/guides/directory/',
+          '/m2m/',
+          '/guides/m2m/',
+        ],
+        subItems: [
+          { href: '/sso/quickstart', label: 'SSO' },
+          { href: '/passwordless/quickstart', label: 'Passwordless' },
+          { href: '/directory/scim/quickstart', label: 'SCIM' },
+          { href: '/m2m/quickstart', label: 'M2M' },
+        ],
       },
-      {
-        href: '/passwordless/quickstart',
-        label: 'Passwordless',
-        patterns: ['/passwordless/', '/guides/passwordless/'],
-      },
-      {
-        href: '/directory/scim/quickstart',
-        label: 'SCIM',
-        patterns: ['/directory/', '/guides/directory/'],
-      },
-      { href: '/m2m/quickstart', label: 'M2M', patterns: ['/m2m/', '/guides/m2m/'] },
     ],
   },
   {
@@ -71,20 +82,58 @@ const navSections: NavSection[] = [
     navSections.map((section) => (
       <div class="nav-items">
         {section.items.map((item) => (
-          <a
-            href={item.href}
-            class={`nav-item ${isCurrentPage(Astro.url.pathname, item) ? 'current' : ''}`}
-            aria-current="page"
-          >
-            <div class="nav-item-content">
-              <span class="nav-label">{item.label}</span>
-            </div>
-          </a>
+          <div class={`nav-item-wrapper ${item.subItems ? 'has-dropdown' : ''}`}>
+            <a
+              href={item.href}
+              class={`nav-item ${isCurrentPage(Astro.url.pathname, item) ? 'current' : ''}`}
+              aria-current="page"
+            >
+              <div class="nav-item-content">
+                <span class="nav-label">{item.label}</span>
+                {item.subItems && (
+                  <svg
+                    class="dropdown-icon"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="currentColor"
+                  >
+                    <path d="M6 8.5L2.5 5h7L6 8.5z" />
+                  </svg>
+                )}
+              </div>
+            </a>
+          </div>
         ))}
       </div>
     ))
   }
 </nav>
+
+<!-- Dropdown portal - renders outside nav component -->
+<div
+  id="dropdown-portal"
+  style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 999999;"
+>
+  {
+    navSections.map((section) =>
+      section.items.map(
+        (item) =>
+          item.subItems && (
+            <div class="dropdown-menu" data-dropdown data-nav-item={item.label}>
+              <div class="dropdown-content">
+                {item.subItems.map((subItem) => (
+                  <a href={subItem.href} class="dropdown-item">
+                    {subItem.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ),
+      ),
+    )
+  }
+</div>
 
 <style>
   /* Hide the duplicate sidebar topics in the left sidebar on desktop */
@@ -99,13 +148,25 @@ const navSections: NavSection[] = [
     }
   }
 
+  /* Force dropdown to appear above all content */
+  :global(.secondary-nav .dropdown-menu) {
+    z-index: 999999 !important;
+    position: absolute !important;
+  }
+
+  :global(.secondary-nav .dropdown-content) {
+    z-index: 999999 !important;
+    position: relative !important;
+  }
+
   .secondary-nav {
     position: sticky;
     display: flex;
     justify-content: space-between;
     top: calc(var(--sl-header-height-base) - 1px); /* Reduced from var(--sl-header-height-base) */
-    z-index: var(--sl-z-index-navbar);
+    z-index: 999 !important;
     width: 100%;
+    isolation: isolate;
   }
 
   .nav-items {
@@ -123,6 +184,12 @@ const navSections: NavSection[] = [
 
   .nav-items::-webkit-scrollbar {
     display: none;
+  }
+
+  .nav-item-wrapper {
+    position: relative;
+    display: flex;
+    isolation: isolate;
   }
 
   .nav-item {
@@ -151,6 +218,56 @@ const navSections: NavSection[] = [
     align-items: center;
     gap: 0.5rem;
     line-height: 1.2;
+  }
+
+  .dropdown-icon {
+    transition: transform 0.2s ease;
+    margin-left: 0.25rem;
+  }
+
+  .nav-item-wrapper.has-dropdown:hover .dropdown-icon {
+    transform: rotate(180deg);
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: all 0.2s ease;
+    z-index: 999999 !important;
+    pointer-events: none;
+    min-width: 200px;
+    isolation: isolate;
+  }
+
+  .dropdown-content {
+    background: var(--sl-color-bg) !important;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25) !important;
+    padding: 0.5rem 0;
+    backdrop-filter: blur(12px);
+    position: relative;
+    z-index: 100000 !important;
+    isolation: isolate;
+  }
+
+  .dropdown-item {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    font-size: var(--sl-text-sm);
+    line-height: 1.4;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+  }
+
+  .dropdown-item:hover {
+    color: var(--sl-color-white);
+    background: var(--sl-color-gray-6);
+    border-left-color: var(--sl-color-accent);
   }
 
   .nav-icon {
@@ -182,3 +299,126 @@ const navSections: NavSection[] = [
     }
   }
 </style>
+
+<script>
+  function positionDropdown(trigger: HTMLElement, dropdown: HTMLElement) {
+    const rect = trigger.getBoundingClientRect()
+    dropdown.style.top = `${rect.bottom + 2}px`
+    dropdown.style.left = `${rect.left}px`
+    dropdown.style.pointerEvents = 'all'
+  }
+
+  function hideDropdown(dropdown: HTMLElement) {
+    dropdown.style.pointerEvents = 'none'
+    // Move dropdown off-screen when hidden
+    dropdown.style.top = '-9999px'
+    dropdown.style.left = '-9999px'
+  }
+
+  function hideAllDropdowns() {
+    document.querySelectorAll('[data-dropdown]').forEach((d) => hideDropdown(d as HTMLElement))
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const dropdownTriggers = document.querySelectorAll('.nav-item-wrapper.has-dropdown')
+    let currentOpenDropdown: HTMLElement | null = null
+
+    dropdownTriggers.forEach((trigger) => {
+      const triggerLink = trigger.querySelector('.nav-item') as HTMLElement
+      const label = triggerLink?.querySelector('.nav-label')?.textContent?.trim()
+      if (!label) return
+
+      const dropdown = document.querySelector(`[data-nav-item="${label}"]`) as HTMLElement
+      if (!dropdown) return
+
+      // Initially hide all dropdowns
+      hideDropdown(dropdown)
+
+      // Click to toggle dropdown
+      trigger.addEventListener('click', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        if (currentOpenDropdown === dropdown && dropdown.style.pointerEvents === 'all') {
+          // Close if clicking the same trigger
+          hideDropdown(dropdown)
+          currentOpenDropdown = null
+        } else {
+          // Hide all others and show this one
+          hideAllDropdowns()
+          positionDropdown(trigger as HTMLElement, dropdown)
+          currentOpenDropdown = dropdown
+        }
+      })
+
+      // Hover behavior (optional - can be removed if you prefer click-only)
+      trigger.addEventListener('mouseenter', () => {
+        if (currentOpenDropdown === null) {
+          hideAllDropdowns()
+          positionDropdown(trigger as HTMLElement, dropdown)
+          currentOpenDropdown = dropdown
+        }
+      })
+
+      trigger.addEventListener('mouseleave', () => {
+        // Delay hiding to allow moving to dropdown
+        setTimeout(() => {
+          if (!dropdown.matches(':hover') && !trigger.matches(':hover')) {
+            if (currentOpenDropdown === dropdown) {
+              hideDropdown(dropdown)
+              currentOpenDropdown = null
+            }
+          }
+        }, 150)
+      })
+
+      dropdown.addEventListener('mouseleave', () => {
+        hideDropdown(dropdown)
+        currentOpenDropdown = null
+      })
+
+      // Hide dropdown when clicking on dropdown items
+      dropdown.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement
+        if (target.classList.contains('dropdown-item')) {
+          hideDropdown(dropdown)
+          currentOpenDropdown = null
+        }
+      })
+
+      // Re-position on scroll/resize only if dropdown is visible
+      let ticking = false
+      const updatePosition = () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            if (currentOpenDropdown === dropdown && dropdown.style.pointerEvents === 'all') {
+              positionDropdown(trigger as HTMLElement, dropdown)
+            }
+            ticking = false
+          })
+          ticking = true
+        }
+      }
+
+      window.addEventListener('scroll', updatePosition)
+      window.addEventListener('resize', updatePosition)
+    })
+
+    // Hide all dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('.nav-item-wrapper.has-dropdown') && !target.closest('[data-dropdown]')) {
+        hideAllDropdowns()
+        currentOpenDropdown = null
+      }
+    })
+
+    // Hide dropdowns on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        hideAllDropdowns()
+        currentOpenDropdown = null
+      }
+    })
+  })
+</script>
