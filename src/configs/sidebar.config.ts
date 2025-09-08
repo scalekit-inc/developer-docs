@@ -152,7 +152,7 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Agent Connect',
+    label: 'Agent Actions',
     link: '/connect/quickstart',
     id: 'connect',
     badge: {
@@ -350,7 +350,7 @@ export const topics = {
   sso: ['/sso/**/*', '/social-logins/**/*'], // SSO and social login unlisted pages
   directory: ['/directory/**/*'], // SCIM directory unlisted pages
   passwordless: ['/passwordless/**/*'], // Passwordless auth unlisted pages
-  connect: ['/connect/**/*'], // Agent Connect unlisted pages
+  connect: ['/connect/**/*'], // Agent Actions unlisted pages
   mcp: ['/guides/mcp/**/*'], // MCP Auth pages under guides
   m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Developer resources

@@ -1,15 +1,15 @@
 ---
 title: Tool Calling
-description: Learn how to execute tools in Agent Connect to interact with third-party applications using connected accounts.
+description: Learn how to execute tools in Agent Actions to interact with third-party applications using connected accounts.
 ---
 
 import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Tool execution is the core functionality of Agent Connect that allows you to perform actions on third-party applications using connected accounts. Tools abstract complex API operations into simple, consistent function calls.
+Tool execution is the core functionality of Agent Actions that allows you to perform actions on third-party applications using connected accounts. Tools abstract complex API operations into simple, consistent function calls.
 
 ## What is tool execution?
 
-Tool execution in Agent Connect enables you to:
+Tool execution in Agent Actions enables you to:
 
 - **Perform actions** on third-party applications via connected accounts
 - **Execute operations** like sending emails, creating calendar events, or fetching data
@@ -23,7 +23,7 @@ Tool execution in Agent Connect enables you to:
 1. **Identify the tool** you want to execute (e.g., `send_email`, `create_event`)
 2. **Select connected account** that has the required permissions
 3. **Prepare parameters** needed for the tool execution
-4. **Execute the tool** using the Agent Connect API
+4. **Execute the tool** using the Agent Actions API
 5. **Handle the response** and any errors that occur
 </Steps>
 
@@ -45,8 +45,8 @@ curl -X POST "https://api.scalekit.com/v1/connect/tools/execute" \
     "tool": "send_email",
     "parameters": {
       "to": "recipient@example.com",
-      "subject": "Hello from Agent Connect",
-      "body": "This email was sent via Agent Connect"
+      "subject": "Hello from Agent Actions",
+      "body": "This email was sent via Agent Actions"
     }
   }'
 ```
@@ -60,8 +60,8 @@ const result = await agentConnect.tools.execute({
   tool: 'send_email',
   parameters: {
     to: 'recipient@example.com',
-    subject: 'Hello from Agent Connect',
-    body: 'This email was sent via Agent Connect'
+    subject: 'Hello from Agent Actions',
+    body: 'This email was sent via Agent Actions'
   }
 });
 
@@ -77,8 +77,8 @@ result = agent_connect.tools.execute(
     tool='send_email',
     parameters={
         'to': 'recipient@example.com',
-        'subject': 'Hello from Agent Connect',
-        'body': 'This email was sent via Agent Connect'
+        'subject': 'Hello from Agent Actions',
+        'body': 'This email was sent via Agent Actions'
     }
 )
 
@@ -232,7 +232,7 @@ const message = await agentConnect.tools.execute({
   tool: 'send_message',
   parameters: {
     channel: '#general',
-    text: 'Hello from Agent Connect!',
+    text: 'Hello from Agent Actions!',
     attachments: [
       {
         title: 'System Alert',
@@ -433,14 +433,14 @@ async function executeWithRetry(toolRequest, maxRetries = 3) {
       if (attempt === maxRetries) {
         throw error;
       }
-      
+
       // Retry for certain error types
       if (error.code === 'RATE_LIMIT_EXCEEDED') {
-        await new Promise(resolve => 
+        await new Promise(resolve =>
           setTimeout(resolve, error.retry_after * 1000)
         );
       } else if (error.code === 'TEMPORARY_FAILURE') {
-        await new Promise(resolve => 
+        await new Promise(resolve =>
           setTimeout(resolve, attempt * 1000)
         );
       } else {

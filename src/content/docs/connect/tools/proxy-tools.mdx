@@ -1,6 +1,6 @@
 ---
 title: Proxy Tools
-description: Learn how to make direct API calls to providers using Agent Connect's proxy tools.
+description: Learn how to make direct API calls to providers using Agent Actions's proxy tools.
 
 ---
 
@@ -97,23 +97,23 @@ const sendWelcomeEmail = {
   },
   implementation: async (parameters, context) => {
     const { user_name, user_email, company_name } = parameters;
-    
+
     // Generate personalized email content
     const emailBody = `
       Welcome to ${company_name}, ${user_name}!
-      
+
       We're excited to have you join our team. Here are some next steps:
-      
+
       1. Complete your profile setup
       2. Join our Slack workspace
       3. Schedule a meeting with your manager
-      
+
       If you have any questions, don't hesitate to reach out!
-      
+
       Best regards,
       The ${company_name} Team
     `;
-    
+
     // Send email using standard email tool
     const result = await context.tools.execute({
       tool: 'send_email',
@@ -123,7 +123,7 @@ const sendWelcomeEmail = {
         body: emailBody
       }
     });
-    
+
     return {
       message_id: result.message_id,
       status: result.status === 'sent' ? 'sent' : 'failed'
@@ -176,7 +176,7 @@ const createProjectWorkflow = {
   },
   implementation: async (parameters, context) => {
     const { project_name, project_key, team_members, project_description } = parameters;
-    
+
     try {
       // Step 1: Create Jira project
       const jiraProject = await context.tools.execute({
@@ -188,7 +188,7 @@ const createProjectWorkflow = {
           project_type: 'software'
         }
       });
-      
+
       // Step 2: Create Slack channel
       const slackChannel = await context.tools.execute({
         tool: 'create_channel',
@@ -198,7 +198,7 @@ const createProjectWorkflow = {
           is_private: false
         }
       });
-      
+
       // Step 3: Send notifications to team members
       let notificationCount = 0;
       for (const member of team_members) {
@@ -210,10 +210,10 @@ const createProjectWorkflow = {
               subject: `New Project: ${project_name}`,
               body: `
                 You've been added to the new project "${project_name}".
-                
+
                 Jira Project: ${jiraProject.project_url}
                 Slack Channel: #${slackChannel.channel_name}
-                
+
                 Please join the Slack channel to start collaborating!
               `
             }
@@ -223,7 +223,7 @@ const createProjectWorkflow = {
           console.error(`Failed to send notification to ${member}:`, error);
         }
       }
-      
+
       // Step 4: Post welcome message to Slack channel
       await context.tools.execute({
         tool: 'send_message',
@@ -232,13 +232,13 @@ const createProjectWorkflow = {
           text: `<� Welcome to ${project_name}! This channel is for project discussion and updates.`
         }
       });
-      
+
       return {
         jira_project_id: jiraProject.project_id,
         slack_channel_id: slackChannel.channel_id,
         notifications_sent: notificationCount
       };
-      
+
     } catch (error) {
       throw new Error(`Project creation failed: ${error.message}`);
     }
@@ -293,7 +293,7 @@ const generateTeamReport = {
   },
   implementation: async (parameters, context) => {
     const { team_members, start_date, end_date, include_calendar } = parameters;
-    
+
     // Fetch Jira issues assigned to team members
     const jiraIssues = await context.tools.execute({
       tool: 'fetch_issues',
@@ -302,7 +302,7 @@ const generateTeamReport = {
         fields: ['summary', 'status', 'assignee', 'created', 'resolved']
       }
     });
-    
+
     // Fetch calendar events if requested
     let calendarData = null;
     if (include_calendar) {
@@ -315,7 +315,7 @@ const generateTeamReport = {
         }
       });
     }
-    
+
     // Process and analyze data
     const report = {
       period: { start_date, end_date },
@@ -330,7 +330,7 @@ const generateTeamReport = {
         hours: calendarData.events.reduce((acc, event) => acc + event.duration, 0)
       } : null
     };
-    
+
     // Generate HTML report
     const htmlReport = `
       <html>
@@ -346,10 +346,10 @@ const generateTeamReport = {
         </body>
       </html>
     `;
-    
+
     // Send report via email
     const emailResults = await Promise.all(
-      team_members.map(member => 
+      team_members.map(member =>
         context.tools.execute({
           tool: 'send_email',
           parameters: {
@@ -360,7 +360,7 @@ const generateTeamReport = {
         })
       )
     );
-    
+
     return {
       report_url: 'Generated and sent via email',
       summary: report,
@@ -374,7 +374,7 @@ const generateTeamReport = {
 
 ### Using the API
 
-Register your custom tools with Agent Connect:
+Register your custom tools with Agent Actions:
 
 <Tabs>
 <TabItem value="javascript" label="JavaScript">
@@ -426,7 +426,7 @@ curl -X POST "${SCALEKIT_BASE_URL}/v1/connect/tools/custom" \
 
 ### Using the dashboard
 
-1. Navigate to **Tools** in your Agent Connect dashboard
+1. Navigate to **Tools** in your Agent Actions dashboard
 2. Click **Create Custom Tool**
 3. Fill in the tool definition form
 4. Test the tool with sample parameters
@@ -438,7 +438,7 @@ The `context` object provides access to:
 
 ### Standard tools
 
-Execute any standard Agent Connect tool:
+Execute any standard Agent Actions tool:
 
 ```javascript
 // Execute standard tools
@@ -547,7 +547,7 @@ expect(mockContext.tools.execute).toHaveBeenCalledWith({
 
 ### Integration testing
 
-Test with real Agent Connect:
+Test with real Agent Actions:
 
 ```javascript
 // Test custom tool with real connections
@@ -618,16 +618,16 @@ const sendSlackNotification = {
   },
   implementation: async (parameters, context) => {
     const { channel, message, severity = 'info', mentions = [] } = parameters;
-    
+
     const colors = {
       info: 'good',
       warning: 'warning',
       error: 'danger'
     };
-    
-    const mentionText = mentions.length > 0 ? 
+
+    const mentionText = mentions.length > 0 ?
       `${mentions.map(m => `<@${m}>`).join(' ')} ` : '';
-    
+
     return await context.tools.execute({
       tool: 'send_message',
       parameters: {
@@ -676,7 +676,7 @@ const scheduleTeamMeeting = {
   },
   implementation: async (parameters, context) => {
     const { attendees, duration, preferred_times, meeting_title, meeting_description } = parameters;
-    
+
     // Find available time slots
     const availableSlots = await context.tools.execute({
       tool: 'find_available_slots',
@@ -686,11 +686,11 @@ const scheduleTeamMeeting = {
         preferred_times: preferred_times || []
       }
     });
-    
+
     if (availableSlots.length === 0) {
       throw new context.errors.BusinessLogicError('No available time slots found');
     }
-    
+
     // Schedule the meeting at the first available slot
     const selectedSlot = availableSlots[0];
     const event = await context.tools.execute({
@@ -703,7 +703,7 @@ const scheduleTeamMeeting = {
         attendees
       }
     });
-    
+
     return {
       event_id: event.event_id,
       scheduled_time: selectedSlot.start_time,
@@ -744,4 +744,4 @@ await agentConnect.tools.deprecate(originalTool.name, '1.0.0');
 **Ready to build?** Start with simple custom tools and gradually add complexity. Test thoroughly before deploying to production, and consider the impact on your users when making changes.
 </Aside>
 
-Custom tools unlock the full potential of Agent Connect by allowing you to create specialized workflows that perfectly match your business needs. With proper design, testing, and deployment practices, you can build powerful tools that enhance your team's productivity and streamline complex operations.
+Custom tools unlock the full potential of Agent Actions by allowing you to create specialized workflows that perfectly match your business needs. With proper design, testing, and deployment practices, you can build powerful tools that enhance your team's productivity and streamline complex operations.
