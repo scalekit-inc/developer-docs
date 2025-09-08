@@ -100,10 +100,49 @@ This quickstart guide walks you through the SSO implementation process. You will
 
     When initiating SSO authentication, you must specify which connection to use through one of these identifiers, listed in order of precedence:
 
+    <Tabs>
+    <TabItem value="nodejs" label="Node.js SDK">
+
+    - `organizationId` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
+    - `connectionId` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
+    - `domainHint` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither connectionId nor organizationId are provided.
+    - `loginHint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+
+    </TabItem>
+
+    <TabItem value="py" label="Python SDK">
+
+    - `organization_id` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
     - `connection_id` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
-    - `organization_id` (e.g., org_124234234): Directs users to a specific organization's SSO. Used when no valid connection_id is provided. If an organization has multiple SSO connections, the system selects the first active one.
-    - `domain` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither connection_id nor organization_id are provided.
+    - `domain_hint` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither connection_id nor organization_id are provided.
     - `login_hint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+
+    </TabItem>
+    <TabItem value="golang" label="Go SDK">
+
+    - `OrganizationId` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
+    - `ConnectionId` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
+    - `DomainHint` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither ConnectionId nor OrganizationId are provided.
+    - `LoginHint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+
+    </TabItem>
+     <TabItem value="java" label="Java SDK">
+
+    - `organizationId` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
+    - `connectionId` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
+    - `domainHint` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither connectionId nor organizationId are provided.
+    - `loginHint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+
+    </TabItem>
+    <TabItem value="direct" label="Direct URL (No SDK)">
+
+    - `organization_id` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
+    - `connection_id` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
+    - `domain_hint` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither connection_id nor organization_id are provided.
+    - `login_hint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+
+    </TabItem>
+    </Tabs>
 
     <Aside type="tip">
     For social login, use `provider=google` to bypass all enterprise SSO parameters and direct users straight to Google's login screen. See [Social Logins](/social-logins/quickstart/) for more information.
@@ -115,7 +154,7 @@ This quickstart guide walks you through the SSO implementation process. You will
     <TabItem value="nodejs" label="Node.js">
 
     ```javascript showLineNumbers wrap
-    import { ScalekitClient } from '@scalekit-sdk/node';
+    import { Scalekit } from '@scalekit-sdk/node';
     // Initialize the SDK client
     const scalekit = new ScalekitClient(
       '<SCALEKIT_ENVIRONMENT_URL>',
@@ -248,6 +287,45 @@ This quickstart guide walks you through the SSO implementation process. You will
     }
     // Redirect the user to this authorization URL
     ```
+
+    </TabItem>
+
+    <TabItem value="direct" label="Direct URL (No SDK)">
+
+    ```url title="Direct Authorization URL Construction"
+    https://your-scalekit-environment.scalekit.com/oauth/authorize?
+      response_type=code&
+      client_id=<SCALEKIT_CLIENT_ID>&
+      redirect_uri=<REDIRECT_URI>&
+      scope=openid profile email&
+      organization_id=org_15421144869927830&
+      connection_id=conn_15696105471768821&
+      login_hint=user@example.com
+    ```
+
+    **Example with actual values:**
+    ```url
+    https://tinotat-dev.scalekit.cloud/oauth/authorize?
+      response_type=code&
+      client_id=skc_88036702639096097&
+      redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fcallback&
+      scope=openid%20profile%20email&
+      organization_id=org_15421144869927830&
+      connection_id=conn_15696105471768821&
+      login_hint=user%40example.com
+    ```
+
+    **Required parameters:**
+    - `response_type=code` - OAuth2 authorization code flow
+    - `client_id` - Your Scalekit client ID
+    - `redirect_uri` - URL-encoded callback URL
+    - `scope=openid profile email` - Required OAuth2 scopes
+
+    **SSO connection parameters (choose one or more):**
+    - `organization_id` - Target organization
+    - `connection_id` - Specific SSO connection
+    - `domain_hint` - Domain for SSO lookup
+    - `login_hint` - User email for domain extraction
 
     </TabItem>
     </Tabs>
