@@ -1,6 +1,17 @@
 ---
 import { Icon } from '@astrojs/starlight/components'
 
+interface NavItem {
+  href: string
+  label: string
+  patterns: string[]
+  isExact?: boolean
+}
+
+interface NavSection {
+  items: NavItem[]
+}
+
 function startsWithAny(mainString: string, patterns: string[]) {
   if (!mainString || !patterns) {
     return false
@@ -12,113 +23,67 @@ function startsWithAny(mainString: string, patterns: string[]) {
   }
   return false // No match found after checking all patterns
 }
+
+function isCurrentPage(pathname: string, item: NavItem): boolean {
+  if (item.isExact) {
+    return pathname === item.href
+  }
+  return startsWithAny(pathname, item.patterns)
+}
+
+const navSections: NavSection[] = [
+  {
+    items: [
+      { href: '/', label: 'Home', patterns: ['/'], isExact: true },
+      { href: '/connect/quickstart', label: 'Agent Connect', patterns: ['/connect/'] },
+      { href: '/mcp/overview', label: 'MCP Auth', patterns: ['/mcp/'] },
+      { href: '/fsa/quickstart', label: 'Full-stack Auth', patterns: ['/fsa/'] },
+      {
+        href: '/sso/quickstart',
+        label: 'SSO',
+        patterns: ['/sso/', '/guides/sso/', '/social-logins/'],
+      },
+      {
+        href: '/passwordless/quickstart',
+        label: 'Passwordless',
+        patterns: ['/passwordless/', '/guides/passwordless/'],
+      },
+      {
+        href: '/directory/scim/quickstart',
+        label: 'SCIM',
+        patterns: ['/directory/', '/guides/directory/'],
+      },
+      { href: '/m2m/quickstart', label: 'M2M', patterns: ['/m2m/', '/guides/m2m/'] },
+    ],
+  },
+  {
+    items: [
+      { href: '/apis/', label: 'API Reference', patterns: ['/apis'] },
+      { href: '/dev-kit/', label: 'Developer Resources', patterns: ['/dev-kit/'] },
+      { href: '/guides/integrations/', label: 'Integrations', patterns: ['/guides/integrations/'] },
+    ],
+  },
+]
 ---
 
 <nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
-  <div class="nav-items">
-    <a
-      href="/"
-      class={`nav-item ${Astro.url.pathname === '/' ? 'current' : ''}`}
-      aria-current="page"
-    >
-      <div class="nav-item-content">
-        <!-- <Icon name="star" /> -->
-        <span class="nav-label">Home</span>
+  {
+    navSections.map((section) => (
+      <div class="nav-items">
+        {section.items.map((item) => (
+          <a
+            href={item.href}
+            class={`nav-item ${isCurrentPage(Astro.url.pathname, item) ? 'current' : ''}`}
+            aria-current="page"
+          >
+            <div class="nav-item-content">
+              <span class="nav-label">{item.label}</span>
+            </div>
+          </a>
+        ))}
       </div>
-    </a>
-    <a
-      href="/connect/quickstart"
-      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/connect/']) ? 'current' : ''}`}
-      aria-current="page"
-    >
-      <div class="nav-item-content">
-        <span class="nav-label">Agent Connect</span>
-      </div>
-    </a>
-    <a
-      href="/mcp/overview"
-      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/mcp/']) ? 'current' : ''}`}
-      aria-current="page"
-    >
-      <div class="nav-item-content">
-        <span class="nav-label">MCP Auth</span>
-      </div>
-    </a>
-    <a
-      href="/fsa/quickstart"
-      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/fsa/']) ? 'current' : ''}`}
-      aria-current="page"
-    >
-      <div class="nav-item-content">
-        <span class="nav-label">Full-stack Auth</span>
-      </div>
-    </a>
-    <a
-      href="/sso/quickstart"
-      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/sso/', '/guides/sso/', '/social-logins/']) ? 'current' : ''}`}
-      aria-current="page"
-    >
-      <div class="nav-item-content">
-        <span class="nav-label">SSO</span>
-      </div>
-    </a>
-    <a
-      href="/passwordless/quickstart"
-      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/passwordless/', '/guides/passwordless/']) ? 'current' : ''}`}
-      aria-current="page"
-    >
-      <div class="nav-item-content">
-        <span class="nav-label">Passwordless</span>
-      </div>
-    </a>
-    <a
-      href="/directory/scim/quickstart"
-      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/directory/', '/guides/directory/']) ? 'current' : ''}`}
-      aria-current="page"
-    >
-      <div class="nav-item-content">
-        <span class="nav-label">SCIM</span>
-      </div>
-    </a>
-    <a
-      href="/m2m/quickstart"
-      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/m2m/', '/guides/m2m/']) ? 'current' : ''}`}
-      aria-current="page"
-    >
-      <div class="nav-item-content">
-        <span class="nav-label">M2M</span>
-      </div>
-    </a>
-  </div>
-  <div class="nav-items">
-    <a
-      href="/apis/"
-      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/apis']) ? 'current' : ''}`}
-      aria-current="page"
-    >
-      <div class="nav-item-content">
-        <span class="nav-label">API Reference</span>
-      </div>
-    </a>
-    <a
-      href="/dev-kit/"
-      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/dev-kit/']) ? 'current' : ''}`}
-      aria-current="page"
-    >
-      <div class="nav-item-content">
-        <span class="nav-label">Developer Resources</span>
-      </div>
-    </a>
-    <a
-      href="/guides/integrations/"
-      class={`nav-item ${startsWithAny(Astro.url.pathname, ['/guides/integrations/']) ? 'current' : ''}`}
-      aria-current="page"
-    >
-      <div class="nav-item-content">
-        <span class="nav-label">Integrations</span>
-      </div>
-    </a>
-  </div>
+    ))
+  }
 </nav>
 
 <style>
