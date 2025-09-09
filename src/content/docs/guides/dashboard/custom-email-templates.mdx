@@ -26,33 +26,27 @@ Find these templates in **Emails** > **Templates**.
 
 ![Email templates list in dashboard](@/assets/docs/custom-email-templates/1-template-listpng.png)
 
-Choose between Scalekit's default templates or your own custom templates.
+Select one of the listed templates and choose between Scalekit's default templates or your own custom templates.
 
 ![Choose template source: Scalekit or custom](@/assets/docs/custom-email-templates/choose-template-src.png)
 
 Select how each email is generated:
 
 - **Use Scalekit template**: Preview subject and bodies; you cannot edit them. Emails use Scalekit's default content.
-- **Use custom template**: Edit the subject, HTML body, and plain text body. Your saved content is used for future sends.
+- **Use custom template**: Edit the subject, HTML body, and plain text body. Your saved content is used for future sends. Requires you to [bring your own email provider](/guides/passwordless/custom-email-provider/).
 
 
-## HTML and plain text bodies
+## Provide HTML and plain text versions
 
-Provide both versions of your email body. When both are present, Scalekit sends a multipart/alternative message: HTML is shown in capable clients, and the plain text part is used as a fallback where HTML is not supported.
-
-- Keep content equivalent: communicate the same message in both versions.
-- Include full URLs: put the raw link next to buttons in HTML and always include links in the plain text body.
-- Avoid image-only content: some clients block images; ensure text conveys the key action.
-- Improve deliverability: including a well-formed plain text body can reduce spam filtering and improves accessibility (screen readers, watches).
-- Test across clients: preview both bodies in the dashboard and spot-check common clients.
+Provide both versions of your email body in the template editor. When both are present, Scalekit sends a multipart/alternative message: HTML is shown in capable clients, and the plain text part is used as a fallback where HTML is not supported.
 
 <Aside type="tip">
-  If you include tracking pixels or richly styled buttons in HTML, also provide a clear call-to-action link in the plain text body.
+  Include a clear call-to-action link in the plain text body when using tracking pixels or richly styled buttons in HTML.
 </Aside>
 
 Once saved, all subsequent emails will use your customized templates.
 
-## Available template variables
+## Built-in template variables
 
 Use these built-in variables in your templates. Values are injected at send time. The variables below apply to the OTP and magic link login template shown here. Other email templates may expose different variables.
 
@@ -67,19 +61,10 @@ Use application variables to include app-level data (for example, name, logo, su
 | `{{app_support_email}}` | Support email address for your application |
 | `{{app_organization_meta_name}}` | Organization display name configured in Scalekit |
 
-#### Contextual
-
-Contextual variables apply only to the current template or send. They change per template or send (for example, OTP, magic link, or expiry).
-
-| Variable | Description |
-| --- | --- |
-| `{{link}}` | Authentication link (magic link) |
-| `{{otp}}` | One-time passcode for the current request |
-| `{{expiry_time_relative}}` | Human-readable time until expiration (for example, "10 minutes") |
 
 #### Organization
 
-Organization variables describe the organization/tenant the user belongs to and are consistent across emails for that organization.
+Organization variables describe the organization that the user belongs to and are consistent across emails for that organization.
 
 | Variable | Description |
 | --- | --- |
@@ -94,8 +79,18 @@ User variables personalize the email for the recipient (for example, name and em
 | `{{user_name}}` | The recipient's name |
 | `{{user_email}}` | The recipient's email address |
 
+#### Contextual
 
-## Add template variables at runtime <Badge variant="note" text="Passwordless" />
+Contextual variables apply only to the current template. They change per template or send (for example, OTP, magic link, or expiry). For example, `{{link}}` is maybe the same label in both sign up and log in scenarios using magic link.
+
+| Variable | Description |
+| --- | --- |
+| `{{link}}` | Authentication link (magic link or sign up) |
+| `{{otp}}` | One-time passcode for the current request |
+| `{{expiry_time_relative}}` | Human-readable time until expiration (for example, "10 minutes") |
+
+
+## Inject you own variabls at runtime <Badge variant="note" text="Passwordless" />
 
 For more advanced personalization, you can use template variables to include custom dynamic content in your emails.
 
