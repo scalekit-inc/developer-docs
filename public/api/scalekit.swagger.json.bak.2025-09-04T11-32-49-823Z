@@ -702,6 +702,190 @@
         ]
       }
     },
+    "/api/v1/organizations/{org_id}/roles": {
+      "get": {
+        "description": "Retrieves a comprehensive list of all roles available within the specified environment including organization roles. Use this endpoint to view all role definitions, including custom roles and their configurations. You can optionally include permission details for each role to understand their capabilities. This is useful for role management, auditing organization access controls, or understanding the available access levels within the organization.",
+        "tags": [
+          "Roles"
+        ],
+        "summary": "List organization roles",
+        "operationId": "RolesService_ListOrganizationRoles",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization",
+            "name": "org_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)",
+            "name": "include",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of organization roles. Returns all roles with their metadata and optionally their permissions.",
+            "schema": {
+              "$ref": "#/definitions/rolesListOrganizationRolesResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new role within the specified organization with basic configuration including name, display name, description, and permissions. Use this endpoint to define custom roles that can be assigned to users within the organization. You can create hierarchical roles by extending existing roles and assign specific permissions to control access levels. The role will be scoped to the organization and can be used for organization-specific access control.",
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Create organization role",
+        "operationId": "RolesService_CreateOrganizationRole",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization",
+            "name": "org_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "role",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Organization role details",
+              "$ref": "#/definitions/v1rolesCreateOrganizationRole"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Organization role created successfully. Returns the complete role object with system-generated ID and timestamps.",
+            "schema": {
+              "$ref": "#/definitions/rolesCreateOrganizationRoleResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{org_id}/roles/{role_name}": {
+      "get": {
+        "description": "Retrieves complete information for a specific organization role including metadata, inheritance details, and optionally permissions. Use this endpoint to audit role configuration and understand the role's place in the organization's role hierarchy. You can include permission details to see what capabilities the role provides. This operation is useful for role management, user assignment decisions, or understanding organization access controls.",
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Get organization role details",
+        "operationId": "RolesService_GetOrganizationRole",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization",
+            "name": "org_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique name of the role",
+            "name": "role_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Include additional data in the response. Valid values: 'permissions' (direct permissions only), 'permissions:all' (includes inherited permissions)",
+            "name": "include",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved organization role details. Returns the role object including metadata and inheritance details. Permissions are included only when requested via the include parameter.",
+            "schema": {
+              "$ref": "#/definitions/rolesGetOrganizationRoleResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Modifies an existing organization role's properties including display name, description, permissions, and inheritance settings. Use this endpoint to update role metadata, change permission assignments, or modify role hierarchy within the organization. Only the fields you specify will be updated, leaving other properties unchanged. When updating permissions, the new list replaces all existing permissions for the role.",
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Update organization role",
+        "operationId": "RolesService_UpdateOrganizationRole",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization",
+            "name": "org_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique name of the role",
+            "name": "role_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "role",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Organization role details",
+              "$ref": "#/definitions/v1rolesUpdateRole"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organization role updated successfully. Returns the modified role object with updated timestamps.",
+            "schema": {
+              "$ref": "#/definitions/rolesUpdateOrganizationRoleResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Permanently removes a role from the organization and optionally reassigns users who had that role to a different role. Use this endpoint when you need to clean up unused roles or restructure your organization's access control system. If users are assigned to the role being deleted, you can provide a reassign_role_name to move those users to a different role before deletion. This action cannot be undone, so ensure no critical users depend on the role before deletion.",
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Delete organization role",
+        "operationId": "RolesService_DeleteOrganizationRole",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization",
+            "name": "org_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique name of the role",
+            "name": "role_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Role name to reassign users to when deleting this role",
+            "name": "reassign_role_name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organization role successfully deleted and users reassigned if specified. No content returned.",
+            "schema": {}
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organization_id}/clients": {
       "get": {
         "description": "Retrieves a paginated list of API clients for a specific organization. Returns client details including metadata, scopes, and secret information (without exposing actual secret values).",
@@ -1617,7 +1801,14 @@
               "$ref": "#/definitions/domainsListDomainResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// List all domains in an organization\nconst response = await client.domain.listDomains(organizationId);\n\n// Domain object contains:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Configuration type"
+          }
+        ]
       },
       "post": {
         "description": "Creates a new domain and associates it with the specified organization. The domain can be configured as either an ALLOWED_EMAIL_DOMAIN for automatic organization suggestions during user sign-in/sign-up, or as an ORGANIZATION_DOMAIN for SSO connection identification.\n\nThe domain must be a valid, business email domain that you control. Public disposable domains (gmail.com, outlook.com, etc.) are automatically blocked for security.\n\n",
@@ -1657,7 +1848,14 @@
               "$ref": "#/definitions/errdetailsErrorInfo"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Add a new domain to an organization\nconst response = await scalekit.createDomain(\"org-123\", \"example.com\", {\n\t// Domain type: controls user authentication and email validation\n\tdomainType: \"ALLOWED_EMAIL_DOMAIN\",\n});"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/domains/{id}": {
@@ -1691,7 +1889,14 @@
               "$ref": "#/definitions/domainsGetDomainResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Fetch details of a specific domain\nconst response = await client.domain.getDomain(organizationId, domainId);\n\n// Domain object properties:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Domain configuration type"
+          }
+        ]
       },
       "delete": {
         "description": "Permanently removes an allowed email domain or organization domain from the organization configuration.\n\nUse this endpoint when you need to remove a domain that is no longer trusted or when consolidating multiple domains. Note that this action cannot be undone.\n\n",
@@ -1721,7 +1926,14 @@
             "description": "Domain successfully deleted.",
             "schema": {}
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Remove a domain from an organization\n// Caution: Deletion is permanent and may affect user access\nconst response = await client.domain.deleteDomain(organizationId, domainId);"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/users": {
@@ -1876,12 +2088,17 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "const { authRequestId } = sendResponse;\nconst resendResponse = await scalekit.passwordless\n.resendPasswordlessEmail(\n    authRequestId\n);"
+            "source": "const { authRequestId } = sendResponse;\nconst resendResponse = await scalekit.passwordless.resendPasswordlessEmail(\n\tauthRequestId\n);"
           },
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "resendResponse, err := client.Passwordless().ResendPasswordlessEmail(\n    ctx,\n    authRequestId,\n)\n\nif err != nil {\n    // Handle error\n    return\n}"
+            "source": "resendResponse, err := scalekitClient.Passwordless().ResendPasswordlessEmail(\n    ctx,\n    authRequestId,\n)\n\nif err != nil {\n    // Handle error\n    return\n}"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "SendPasswordlessResponse resendResponse = passwordlessClient.resendPasswordlessEmail(authRequestId);"
           }
         ]
       }
@@ -1916,12 +2133,17 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "const response = await scalekit.passwordless.\n  sendPasswordlessEmail(\n\t\"john.doe@example.com\",\n\t{\n\t\ttemplate: \"SIGNIN\",\n\t\texpiresIn: 100,\n\t\tmagiclinkAuthUri: \"https://www.google.com\",\n\t\ttemplateVariables: {\n\t\t\temployeeID: \"EMP523\",\n\t\t\tteamName: \"Alpha Team\",\n\t\t\tsupportEmail: \"support@yourcompany.com\",\n\t\t},\n\t}\n);"
+            "source": "const response = await scalekit.passwordless.sendPasswordlessEmail(\n\t\"john.doe@example.com\",\n\t{\n\t\ttemplate: \"SIGNIN\",\n\t\texpiresIn: 100,\n\t\tmagiclinkAuthUri: \"https://www.google.com\",\n\t\ttemplateVariables: {\n\t\t\temployeeID: \"EMP523\",\n\t\t\tteamName: \"Alpha Team\",\n\t\t \tsupportEmail: \"support@yourcompany.com\",\n\t\t},\n\t}\n);"
           },
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "templateType := scalekit.TemplateTypeSignin\nresponse, err := client.Passwordless().SendPasswordlessEmail(\n    ctx,\n    \"john.doe@example.com\",\n    \u0026scalekit.SendPasswordlessOptions{\n        Template:         \u0026templateType,\n        ExpiresIn:        100,\n        MagiclinkAuthUri: \"https://www.google.com\",\n        TemplateVariables: map[string]string{\n            \"employeeID\":    \"EMP523\",\n            \"teamName\":      \"Alpha Team\",\n            \"supportEmail\":  \"support@yourcompany.com\",\n        },\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\nauthRequestId := response.AuthRequestId"
+            "source": "templateType := scalekit.TemplateTypeSignin\nresponse, err := scalekitClient.Passwordless().SendPasswordlessEmail(\n    ctx,\n    \"john.doe@example.com\",\n    \u0026scalekit.SendPasswordlessOptions{\n        Template:         \u0026templateType,\n        ExpiresIn:        100,\n        MagiclinkAuthUri: \"https://www.google.com\",\n        TemplateVariables: map[string]string{\n            \"employeeID\":    \"EMP523\",\n            \"teamName\":      \"Alpha Team\",\n            \"supportEmail\":  \"support@yourcompany.com\",\n        },\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\nauthRequestId := response.AuthRequestId"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "TemplateType templateType = TemplateType.SIGNIN;\nMap\u003cString, String\u003e templateVariables = new HashMap\u003c\u003e();\ntemplateVariables.put(\"employeeID\", \"EMP523\");\ntemplateVariables.put(\"teamName\", \"Alpha Team\");\ntemplateVariables.put(\"supportEmail\", \"support@yourcompany.com\");\n\nSendPasswordlessOptions options = new SendPasswordlessOptions();\noptions.setTemplate(templateType);\noptions.setExpiresIn(100);\noptions.setMagiclinkAuthUri(\"https://www.example.com\");\noptions.setTemplateVariables(templateVariables);\n\nSendPasswordlessResponse response = passwordlessClient.sendPasswordlessEmail(\n    \"john.doe@example.com\",\n    options\n);\n\nString authRequestId = response.getAuthRequestId();"
           }
         ]
       }
@@ -1956,19 +2178,24 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "const { authRequestId } = sendResponse;\nconst verifyResponse = await scalekit.passwordless.\n  verifyPasswordlessEmail(\n\t// Verification Code (OTP)\n\t{ code: \"123456\" },\n\t// Magic Link Token\n\t{ linkToken: link_token },\n\tauthRequestId\n);"
+            "source": "const { authRequestId } = sendResponse;\nconst verifyResponse = await scalekit.passwordless.verifyPasswordlessEmail(\n\t// Verification Code (OTP)\n\t{ code: \"123456\" },\n\t// Magic Link Token\n\t{ linkToken: link_token },\n\tauthRequestId\n);"
           },
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "// Verify with OTP code\nverifyResponse, err := client.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    \u0026scalekit.VerifyPasswordlessOptions{\n        Code:          \"123456\", // OTP code\n        AuthRequestId: authRequestId,\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// Verify with magic link token\nverifyResponse, err := client.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    \u0026scalekit.VerifyPasswordlessOptions{\n        LinkToken: linkToken, // Magic link token\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// User verified successfully\nuserEmail := verifyResponse.Email"
+            "source": "// Verify with OTP code\nverifyResponse, err := scalekitClient.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    \u0026scalekit.VerifyPasswordlessOptions{\n        Code:          \"123456\", // OTP code\n        AuthRequestId: authRequestId,\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// Verify with magic link token\nverifyResponse, err := scalekitClient.Passwordless().VerifyPasswordlessEmail(\n    ctx,\n    \u0026scalekit.VerifyPasswordlessOptions{\n        LinkToken: linkToken, // Magic link token\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\n// User verified successfully\nuserEmail := verifyResponse.Email"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// Verify with OTP code\nVerifyPasswordlessOptions verifyOptions = new VerifyPasswordlessOptions();\nverifyOptions.setCode(\"123456\"); // OTP code\nverifyOptions.setAuthRequestId(authRequestId);\n\nVerifyPasswordLessResponse verifyResponse = passwordlessClient.verifyPasswordlessEmail(verifyOptions);\n\n// User verified successfully\nString userEmail = verifyResponse.getEmail();\n\n// Verify with magic link token\nVerifyPasswordlessOptions verifyOptions = new VerifyPasswordlessOptions();\nverifyOptions.setLinkToken(linkToken); // Magic link token\n\nVerifyPasswordLessResponse verifyResponse = passwordlessClient.verifyPasswordlessEmail(verifyOptions);\n\n// User verified successfully\nString userEmail = verifyResponse.getEmail();"
           }
         ]
       }
     },
     "/api/v1/permissions": {
       "get": {
-        "description": "Retrieves a paginated list of all permissions within the environment. Use the page_token from the response to access subsequent pages of results.",
+        "description": "Retrieves a comprehensive, paginated list of all permissions available within the environment. Use this endpoint to view all permission definitions for auditing, role management, or understanding the complete set of available access controls. The response includes pagination tokens to navigate through large sets of permissions efficiently. Each permission object contains the permission name, description, creation time, and last update time. This operation is useful for building permission selection interfaces, auditing permission usage, or understanding the scope of available access controls in your RBAC system.",
         "tags": [
           "Permissions"
         ],
@@ -1991,7 +2218,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved the list of permissions",
+            "description": "Successfully retrieved the list of permissions. Returns a paginated list of permission objects with metadata and pagination tokens for navigation.",
             "schema": {
               "$ref": "#/definitions/rolesListPermissionsResponse"
             }
@@ -1999,11 +2226,11 @@
         }
       },
       "post": {
-        "description": "Creates a permission that represents a specific action users can perform. Provide a unique name (for example, 'read:documents') and an optional description. Returns the created permission.",
+        "description": "Creates a new permission that represents a specific action users can perform within the environment. Use this endpoint to define granular access controls for your RBAC system. You can provide a unique permission name following the format 'action:resource' (for example, 'read:documents', 'write:users') and an optional description explaining the permission's purpose. The permission name must be unique across the environment and follows alphanumeric naming conventions with colons and underscores. Returns the created permission object including system-generated ID and timestamps.",
         "tags": [
           "Permissions"
         ],
-        "summary": "Create a new permission",
+        "summary": "Create new permission",
         "operationId": "RolesService_CreatePermission",
         "parameters": [
           {
@@ -2017,7 +2244,7 @@
         ],
         "responses": {
           "201": {
-            "description": "Permission created successfully",
+            "description": "Permission created successfully. Returns the complete permission object with system-generated ID, name, description, and timestamps.",
             "schema": {
               "$ref": "#/definitions/rolesCreatePermissionResponse"
             }
@@ -2027,11 +2254,11 @@
     },
     "/api/v1/permissions/{permission_name}": {
       "get": {
-        "description": "Fetch detailed information about a specific permission using its unique identifier.",
+        "description": "Retrieves complete information for a specific permission by its unique name identifier. Use this endpoint to view permission details including description, creation time, and last update time. Provide the permission name in the path parameter following the format 'action:resource' (for example, 'read:documents'). This operation is useful for auditing permission definitions, understanding permission purposes, or verifying permission existence before assignment. Returns the complete permission object with all metadata and system-generated timestamps.",
         "tags": [
           "Permissions"
         ],
-        "summary": "Retrieve permission",
+        "summary": "Retrieve permission details",
         "operationId": "RolesService_GetPermission",
         "parameters": [
           {
@@ -2044,7 +2271,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved permission details",
+            "description": "Successfully retrieved permission details. Returns the complete permission object including name, description, creation time, and update time.",
             "schema": {
               "$ref": "#/definitions/rolesGetPermissionResponse"
             }
@@ -2052,11 +2279,11 @@
         }
       },
       "put": {
-        "description": "Updates a permission's attributes such as description. The permission is identified by its name in the path. Returns the updated permission.",
+        "description": "Modifies an existing permission's attributes including description and metadata. Use this endpoint to update permission descriptions or clarify permission purposes after creation. The permission is identified by its unique name in the path parameter, and only the fields you specify in the request body will be updated. Note that the permission name itself cannot be changed as it serves as the immutable identifier. This operation is useful for maintaining clear documentation of permission purposes or updating descriptions to reflect changes in system functionality. Returns the updated permission object with modified timestamps.",
         "tags": [
           "Permissions"
         ],
-        "summary": "Update an existing permission",
+        "summary": "Update permission details",
         "operationId": "RolesService_UpdatePermission",
         "parameters": [
           {
@@ -2077,7 +2304,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Permission updated successfully",
+            "description": "Permission updated successfully. Returns the modified permission object with updated description and timestamps.",
             "schema": {
               "$ref": "#/definitions/rolesUpdatePermissionResponse"
             }
@@ -2085,11 +2312,11 @@
         }
       },
       "delete": {
-        "description": "Removes an existing permission using its unique identifier.",
+        "description": "Permanently removes a permission from the environment using its unique name identifier. Use this endpoint when you need to clean up unused permissions or remove access controls that are no longer relevant. The permission is identified by its name in the path parameter following the format 'action:resource'. This operation cannot be undone, so ensure no active roles depend on the permission before deletion. If the permission is currently assigned to any roles, you may need to remove those assignments first or update the roles to use alternative permissions. Returns no content on successful deletion.",
         "tags": [
           "Permissions"
         ],
-        "summary": "Delete a permission",
+        "summary": "Delete permission",
         "operationId": "RolesService_DeletePermission",
         "parameters": [
           {
@@ -2102,7 +2329,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Deleted successfully",
+            "description": "Permission successfully deleted. No content returned.",
             "schema": {}
           }
         }
@@ -2182,34 +2409,6 @@
             "source": "from scalekit.v1.roles.roles_pb2 import CreateRole\n\nrole = CreateRole(\n    name=\"viewer\",\n    display_name=\"Viewer\",\n    description=\"Read-only access\",\n)\ncreate_response = scalekit_client.roles.create_role(\n    role=role,\n)"
           }
         ]
-      }
-    },
-    "/api/v1/roles/default": {
-      "patch": {
-        "description": "Updates the default creator and member roles for the current environment. Use this endpoint to configure which roles are automatically assigned to new users when they join the environment. You can specify role names for both creator and member default roles. The system will validate that the specified roles exist and update the environment settings accordingly. Returns the updated default role objects including their complete role information and permissions.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Set default creator and member roles",
-        "operationId": "RolesService_UpdateDefaultRoles2",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateDefaultRolesRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Default roles updated successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateDefaultRolesResponse"
-            }
-          }
-        }
       }
     },
     "/api/v1/roles/{role_name}": {
@@ -2366,7 +2565,7 @@
     },
     "/api/v1/roles/{role_name}/dependents": {
       "get": {
-        "description": "Retrieves roles that directly extend the specified base role.",
+        "description": "Retrieves all roles that directly extend the specified base role through inheritance. Use this endpoint to understand the role hierarchy and identify which roles inherit permissions from a particular base role. Provide the base role name as a path parameter, and the response will include all dependent roles with their metadata and permission information. This operation is useful for auditing role inheritance relationships, understanding the impact of changes to base roles, or managing role hierarchies effectively. Returns a list of dependent role objects including their names, display names, descriptions, and permission details.",
         "tags": [
           "Roles"
         ],
@@ -2383,7 +2582,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved dependent roles",
+            "description": "Successfully retrieved dependent roles. Returns a list of all roles that extend the specified base role, including their metadata and permission information.",
             "schema": {
               "$ref": "#/definitions/rolesListDependentRolesResponse"
             }
@@ -2393,11 +2592,11 @@
     },
     "/api/v1/roles/{role_name}/permissions": {
       "get": {
-        "description": "Lists permissions directly assigned to the specified role. Inherited permissions from base roles are not included.",
+        "description": "Retrieves all permissions directly assigned to the specified role, excluding permissions inherited from base roles. Use this endpoint to view the explicit permission assignments for a role, which is useful for understanding direct role capabilities, auditing permission assignments, or managing role-permission relationships. Provide the role name as a path parameter, and the response will include only the permissions that are directly assigned to that role. This operation does not include inherited permissions from role hierarchies - use ListEffectiveRolePermissions to see the complete set of permissions including inheritance. Returns a list of permission objects with their names, descriptions, and assignment metadata.",
         "tags": [
           "Roles"
         ],
-        "summary": "List role permissions",
+        "summary": "List permissions for role",
         "operationId": "RolesService_ListRolePermissions",
         "parameters": [
           {
@@ -2410,7 +2609,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved role permissions",
+            "description": "Successfully retrieved role permissions. Returns a list of all permissions directly assigned to the specified role, excluding inherited permissions.",
             "schema": {
               "$ref": "#/definitions/rolesListRolePermissionsResponse"
             }
@@ -2418,7 +2617,7 @@
         }
       },
       "post": {
-        "description": "Adds one or more permissions to the specified role. Existing assignments are preserved.",
+        "description": "Adds one or more permissions to the specified role while preserving existing permission assignments. Use this endpoint to grant additional capabilities to a role without affecting its current permission set. Provide the role name as a path parameter and a list of permission names in the request body. The system will validate that all specified permissions exist in the environment and add them to the role. Existing permission assignments remain unchanged, making this operation safe for incremental permission management. This is useful for gradually expanding role capabilities or adding new permissions as your system evolves. Returns the updated list of all permissions now assigned to the role.",
         "tags": [
           "Roles"
         ],
@@ -2443,7 +2642,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Permissions added to role successfully",
+            "description": "Permissions added to role successfully. Returns the complete list of all permissions now assigned to the role, including both existing and newly added permissions.",
             "schema": {
               "$ref": "#/definitions/rolesAddPermissionsToRoleResponse"
             }
@@ -2453,7 +2652,7 @@
     },
     "/api/v1/roles/{role_name}/permissions/{permission_name}": {
       "delete": {
-        "description": "Remove a specific permission from a role",
+        "description": "Removes a specific permission from the specified role, revoking that capability from all users assigned to the role. Use this endpoint to restrict role capabilities or remove unnecessary permissions. Provide both the role name and permission name as path parameters. This operation only affects the direct permission assignment and does not impact permissions inherited from base roles. If the permission is inherited through role hierarchy, you may need to modify the base role instead. This is useful for fine-tuning role permissions, implementing least-privilege access controls, or removing deprecated permissions. Returns no content on successful removal.",
         "tags": [
           "Roles"
         ],
@@ -2477,7 +2676,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Permission removed from role successfully",
+            "description": "Permission removed from role successfully. No content returned.",
             "schema": {}
           }
         }
@@ -2485,7 +2684,7 @@
     },
     "/api/v1/roles/{role_name}/permissions:all": {
       "get": {
-        "description": "Retrieves all effective permissions assigned to a role, including permissions inherited from any base roles. Use this endpoint to view the complete set of permissions that apply to a role, accounting for both direct assignments and inherited permissions. Provide the role name as a path parameter. Returns a list of permission names representing the full set of effective permissions for the specified role.",
+        "description": "Retrieves the complete set of effective permissions for a role, including both directly assigned permissions and permissions inherited from base roles through the role hierarchy. Use this endpoint to understand the full scope of capabilities available to users assigned to a specific role. Provide the role name as a path parameter, and the response will include all permissions that apply to the role, accounting for inheritance relationships. This operation is essential for auditing role capabilities, understanding permission inheritance, or verifying the complete access scope before role assignment. Returns a comprehensive list of permission names representing the full set of effective permissions for the specified role.",
         "tags": [
           "Roles"
         ],
@@ -2502,7 +2701,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Returns the list of effective permissions for the role",
+            "description": "Successfully retrieved effective permissions. Returns the complete list of all permissions that apply to the role, including both direct assignments and inherited permissions from base roles.",
             "schema": {
               "$ref": "#/definitions/rolesListEffectiveRolePermissionsResponse"
             }
@@ -2512,7 +2711,7 @@
     },
     "/api/v1/roles/{role_name}/users:count": {
       "get": {
-        "description": "Retrieves the total number of users currently assigned to the specified role. Use this endpoint to monitor role usage or enforce limits based on user assignments. Provide the role's unique name as a path parameter. The response includes the user count for the requested role. This operation does not modify any data and has no side effects.",
+        "description": "Retrieves the total number of users currently assigned to the specified role within the environment. Use this endpoint to monitor role usage, enforce user limits, or understand the scope of role assignments. Provide the role's unique name as a path parameter, and the response will include the current user count for that role. This operation is read-only and does not modify any data or user assignments. The count reflects all users who have the role either directly assigned or inherited through organization membership. This information is useful for capacity planning, security auditing, or understanding the impact of role changes across your user base.",
         "tags": [
           "Roles"
         ],
@@ -2529,37 +2728,9 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved user count for the specified role",
+            "description": "Successfully retrieved user count for the specified role. Returns the total number of users currently assigned to the role, including both direct assignments and inherited assignments.",
             "schema": {
               "$ref": "#/definitions/rolesGetRoleUsersCountResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/roles:set_defaults": {
-      "patch": {
-        "description": "Updates the default creator and member roles for the current environment. Use this endpoint to configure which roles are automatically assigned to new users when they join the environment. You can specify role names for both creator and member default roles. The system will validate that the specified roles exist and update the environment settings accordingly. Returns the updated default role objects including their complete role information and permissions.",
-        "tags": [
-          "Roles"
-        ],
-        "summary": "Set default creator and member roles",
-        "operationId": "RolesService_UpdateDefaultRoles",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateDefaultRolesRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Default roles updated successfully",
-            "schema": {
-              "$ref": "#/definitions/rolesUpdateDefaultRolesResponse"
             }
           }
         }
@@ -4979,6 +5150,14 @@
         }
       }
     },
+    "rolesCreateOrganizationRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/v1rolesRole"
+        }
+      }
+    },
     "rolesCreatePermissionResponse": {
       "type": "object",
       "properties": {
@@ -4999,6 +5178,14 @@
             "id": "role_1234abcd5678efgh",
             "name": "content_editor"
           }
+        }
+      }
+    },
+    "rolesGetOrganizationRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/v1rolesRole"
         }
       }
     },
@@ -5063,6 +5250,19 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/rolesPermission"
+          }
+        }
+      }
+    },
+    "rolesListOrganizationRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "description": "List of roles objects",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1rolesRole"
           }
         }
       }
@@ -5184,76 +5384,11 @@
         }
       }
     },
-    "rolesUpdateDefaultRole": {
+    "rolesUpdateOrganizationRoleResponse": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique name of the role",
-          "type": "string",
-          "example": "creator"
-        }
-      }
-    },
-    "rolesUpdateDefaultRolesRequest": {
-      "type": "object",
-      "properties": {
-        "default_creator": {
-          "description": "Default creator role (deprecated - use default_creator_role field instead)",
-          "$ref": "#/definitions/rolesUpdateDefaultRole",
-          "example": {
-            "description": "Role for creating resources",
-            "display_name": "Creator Role",
-            "id": "role_1234567890",
-            "name": "creator"
-          }
-        },
-        "default_creator_role": {
-          "description": "Name of the role to set as the default creator role. This role will be automatically assigned to users who create new resources in the environment. Must be a valid role name that exists in the environment.",
-          "type": "string",
-          "example": "creator"
-        },
-        "default_member": {
-          "description": "Default member role (deprecated - use default_member_role field instead)",
-          "$ref": "#/definitions/rolesUpdateDefaultRole",
-          "example": {
-            "description": "Role for regular members",
-            "display_name": "Member Role",
-            "id": "role_0987654321",
-            "name": "member"
-          }
-        },
-        "default_member_role": {
-          "description": "Name of the role to set as the default member role. This role will be automatically assigned to new users when they join the environment. Must be a valid role name that exists in the environment.",
-          "type": "string",
-          "example": "member"
-        }
-      }
-    },
-    "rolesUpdateDefaultRolesResponse": {
-      "type": "object",
-      "properties": {
-        "default_creator": {
-          "description": "The role that is now set as the default creator role for the environment. Contains complete role information including permissions and metadata.",
-          "$ref": "#/definitions/v1rolesRole",
-          "example": {
-            "description": "Role for creating resources",
-            "display_name": "Creator Role",
-            "id": "role_1234567890",
-            "name": "creator"
-          }
-        },
-        "default_member": {
-          "description": "The role that is now set as the default member role for the environment. Contains complete role information including permissions and metadata.",
-          "$ref": "#/definitions/v1rolesRole",
-          "example": {
-            "description": "Role for regular members",
-            "display_name": "Member Role",
-            "id": "role_0987654321",
-            "name": "member"
-          }
+        "role": {
+          "$ref": "#/definitions/v1rolesRole"
         }
       }
     },
@@ -5690,6 +5825,42 @@
           "example": {
             "industry": "technology"
           }
+        }
+      }
+    },
+    "v1rolesCreateOrganizationRole": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Description of the organization's role",
+          "type": "string",
+          "example": "Organization Viewer Role will be used only for viewing the objects"
+        },
+        "display_name": {
+          "description": "Display name of the organization's role",
+          "type": "string",
+          "example": "Organization Viewer Role"
+        },
+        "extends": {
+          "description": "Base role name for hierarchical roles",
+          "type": "string",
+          "example": "admin_role"
+        },
+        "name": {
+          "description": "Unique name of the organization's role",
+          "type": "string",
+          "example": "org_viewer_role"
+        },
+        "permissions": {
+          "description": "List of permission names to assign to this role. Permissions must exist in the current environment.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "read:users",
+            "write:documents"
+          ]
         }
       }
     },
