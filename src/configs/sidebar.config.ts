@@ -270,6 +270,10 @@ export const sidebar = [
         items: ['dev-kit/sdks/overview'],
       },
       {
+        label: 'Code Samples',
+        link: '/dev-kit/code-samples',
+      },
+      {
         label: 'Webhooks',
         autogenerate: { directory: 'reference/webhooks' },
       },

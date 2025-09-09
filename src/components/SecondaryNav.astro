@@ -29,6 +29,12 @@ function isCurrentPage(pathname: string, item: NavItem): boolean {
   if (item.isExact) {
     return pathname === item.href
   }
+
+  // Special handling for Developer Resources - exclude code-samples path
+  if (item.href === '/dev-kit/' && pathname.startsWith('/dev-kit/code-samples')) {
+    return false
+  }
+
   return startsWithAny(pathname, item.patterns)
 }
 
@@ -59,6 +65,12 @@ const navSections: NavSection[] = [
   {
     items: [
       { href: '/apis/', label: 'API Reference', patterns: ['/apis'] },
+      {
+        href: '/dev-kit/code-samples',
+        label: 'Code Samples',
+        patterns: ['/dev-kit/code-samples'],
+        isExact: true,
+      },
       { href: '/dev-kit/', label: 'Developer Resources', patterns: ['/dev-kit/'] },
     ],
   },
