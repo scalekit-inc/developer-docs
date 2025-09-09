@@ -1,52 +1,49 @@
 ---
 title: Custom email templates
-description: Scalekit allows you to customize email templates with your branding and content
+description: Customize authentication email templates with your branding and content.
 topic: dev-kit
 sidebar:
   label: Custom email templates
 slug: "guides/dashboard/custom-email-templates"
 tableOfContents: true
 next: false
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
-import { Badge, LinkCard, CardGrid, Card, Aside, Steps } from '@astrojs/starlight/components';
+import { Badge, Aside, Steps } from '@astrojs/starlight/components';
 
-Scalekit uses default email templates to send authentication emails to your users. You can customize these templates with your own branding and content to provide a consistent experience for your users.
+Scalekit uses default templates to send authentication emails to your users. You can customize these templates with your own branding and content to provide a consistent experience.
 
+Find these templates in **Emails** > **Templates**.
 
+![Email templates list in dashboard](@/assets/docs/custom-email-templates/1-template-listpng.png)
 
-![](@/assets/docs/custom-email-templates/1-template-listpng.png)
+Choose between Scalekit's default templates or your own custom templates.
 
-<Aside type="caution">
-  Custom email templates are disabled until you connect your own email service provider. All emails sent will use the default Scalekit templates until you configure an external email provider.
-</Aside>
-
-## Choose a template source
+![Choose template source: Scalekit or custom](@/assets/docs/custom-email-templates/choose-template-src.png)
 
 Select how each email is generated:
 
-- **Using Scalekit template**: Preview the subject and bodies, but you cannot edit them. Emails use Scalekit's default content.
-- **Using custom template**: Edit the subject, HTML body, and plain text body. Your saved content is used for future sends.
+- **Use Scalekit template**: Preview subject and bodies; you cannot edit them. Emails use Scalekit's default content.
+- **Use custom template**: Edit the subject, HTML body, and plain text body. Your saved content is used for future sends.
 
-## Customize your email templates
 
-To customize your email templates:
-
-1. Navigate to _Emails > Templates_ in your Scalekit dashboard
-2. Customize the following fields:
-   - **Subject**: The subject line of the email
-   - **Body**: The body content of the email
-
-Editing fields is available only when you select **Using custom template**.
-
-### HTML and plain text bodies
+## HTML and plain text bodies
 
 Provide both versions of your email body. When both are present, Scalekit sends a multipart/alternative message: HTML is shown in capable clients, and the plain text part is used as a fallback where HTML is not supported.
 
 - Keep content equivalent: communicate the same message in both versions.
 - Include full URLs: put the raw link next to buttons in HTML and always include links in the plain text body.
 - Avoid image-only content: some clients block images; ensure text conveys the key action.
-- Improve deliverability: including a well-formed plain text body can reduce spam filtering and helps accessibility (screen readers, watches).
+- Improve deliverability: including a well-formed plain text body can reduce spam filtering and improves accessibility (screen readers, watches).
 - Test across clients: preview both bodies in the dashboard and spot-check common clients.
 
 <Aside type="tip">
@@ -57,13 +54,9 @@ Once saved, all subsequent emails will use your customized templates.
 
 ## Available template variables
 
-Use these built-in variables in your templates. Values are injected at send time.
+Use these built-in variables in your templates. Values are injected at send time. The variables below apply to the OTP and magic link login template shown here. Other email templates may expose different variables.
 
-<Aside type="note">
-  The variables below apply to the OTP and magic link login template shown here. Other email templates may expose different variables.
-</Aside>
-
-### Application
+#### Application
 
 Use application variables to include app-level data (for example, name, logo, support email) that stays the same across all emails for your app.
 
@@ -74,9 +67,9 @@ Use application variables to include app-level data (for example, name, logo, su
 | `{{app_support_email}}` | Support email address for your application |
 | `{{app_organization_meta_name}}` | Organization display name configured in Scalekit |
 
-### Contextual
+#### Contextual
 
-Contextual variables apply only to the current template or send. They change per template or send (for example, the OTP, magic link, or expiry).
+Contextual variables apply only to the current template or send. They change per template or send (for example, OTP, magic link, or expiry).
 
 | Variable | Description |
 | --- | --- |
@@ -84,7 +77,7 @@ Contextual variables apply only to the current template or send. They change per
 | `{{otp}}` | One-time passcode for the current request |
 | `{{expiry_time_relative}}` | Human-readable time until expiration (for example, "10 minutes") |
 
-### Organization
+#### Organization
 
 Organization variables describe the organization/tenant the user belongs to and are consistent across emails for that organization.
 
@@ -92,7 +85,7 @@ Organization variables describe the organization/tenant the user belongs to and 
 | --- | --- |
 | `{{organization_name}}` | The organization name |
 
-### User
+#### User
 
 User variables personalize the email for the recipient (for example, name and email).
 
@@ -102,20 +95,20 @@ User variables personalize the email for the recipient (for example, name and em
 | `{{user_email}}` | The recipient's email address |
 
 
-
-
-## Add template variables for advanced customization
+## Add template variables at runtime <Badge variant="note" text="Passwordless" />
 
 For more advanced personalization, you can use template variables to include custom dynamic content in your emails.
 
-### Template variable requirements
+- Each variable must be a key-value pair.
+- Maximum of 30 variables per template.
+- All template variables must have corresponding values in the request.
+- Avoid using reserved names: `otp`, `expiry_time_relative`, `link`, `expire_time`, `expiry_time`.
 
-- Each variable must be a key-value pair
-- Maximum of 30 variables per template
-- All template variables must have corresponding values in the request
-- Avoid using reserved names: `otp`, `expiry_time_relative`, `link`, `expire_time`, `expiry_time`
+<Aside type='caution' title='Passwordless Authentication'>
 
-### Implement template variables in three steps
+To substitute these variables at runtime, you must use the Passwordless Headless API to sign users in.
+
+</Aside>
 
 <Steps>
   1. Create your email template with variables:
@@ -126,7 +119,7 @@ For more advanced personalization, you can use template variables to include cus
      ```
 
   2. Include variable values in your authentication request:
-     ```js ins={3-8} showLineNumbers=false
+     ```js title="Authentication request" showLineNumbers=false
      const sendResponse = await scalekit.passwordless.sendPasswordlessEmail(
        "<john.doe@example.com>",
        {
@@ -145,8 +138,9 @@ For more advanced personalization, you can use template variables to include cus
      Welcome to Acme Corp.
      Find your onboarding kit: https://acme.com/onboarding
      ```
-</Steps>
 
-<Aside type="caution">
-  The API will return a 400 status code if your template references any variables that aren't provided in the request.
-</Aside>
+     <Aside type="caution">
+      The API will return a 400 status code if your template references any variables that aren't provided in the request.
+      </Aside>
+
+</Steps>
