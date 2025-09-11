@@ -230,7 +230,7 @@ export const sidebar = [
         items: [
           'mcp/overview',
           'mcp/oauth',
-          { label: 'Bring your own Auth', link: 'guides/mcp/custom-auth' },
+          { label: 'Bring your own Auth', link: 'mcp/guides/custom-auth' },
         ],
       },
     ],
