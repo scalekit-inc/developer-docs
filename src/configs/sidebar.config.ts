@@ -175,7 +175,19 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['agent-actions/quickstart', 'agent-actions/agentic-quickstart'],
+        items: ['agent-actions/quickstart'],
+      },
+      {
+        label: 'Tools',
+        items: [
+          'agent-actions/tools/overview',
+          'agent-actions/tools/execute',
+          'agent-actions/tools/authorize',
+
+          'agent-actions/tools/custom-processors',
+          // 'connect/tools/custom-tools',
+          // 'connect/tools/proxy-tools',
+        ],
       },
       {
         label: 'Authorization',
@@ -184,34 +196,21 @@ export const sidebar = [
           'agent-actions/authorization/bring-your-own-oauth',
         ],
       },
-      // {
-      //   label: 'Tools',
-      //   items: [
-      //     'connect/tools/overview',
-      //     'connect/tools/authorize',
-      //     'connect/tools/execute',
-      //     'connect/tools/custom-processors',
-      //     // 'connect/tools/custom-tools',
-      //     // 'connect/tools/proxy-tools',
-      //   ],
-      // },
+
       // {
       //   label: 'MCP',
       //   items: ['connect/mcp/quickstart', 'connect/mcp/custom-mcp', 'connect/mcp/manage'],
       // },
-      // {
-      //   label: 'AI Frameworks',
-      //   items: [
-      //     'connect/frameworks/langchain',
-      //     'connect/frameworks/google-adk',
-      //     'connect/frameworks/crewai',
-      //     'connect/frameworks/mastra',
-      //     'connect/frameworks/vercel-ai',
-      //     'connect/frameworks/openai',
-      //     'connect/frameworks/anthropic',
-      //     'connect/frameworks/google-genai',
-      //   ],
-      // },
+      {
+        label: 'AI Frameworks',
+        items: [
+          'agent-actions/frameworks/langchain',
+          'agent-actions/frameworks/google-adk',
+          'agent-actions/frameworks/agno',
+          'agent-actions/frameworks/openai',
+          'agent-actions/frameworks/anthropic',
+        ],
+      },
 
       // {
       //   label: 'Concepts',

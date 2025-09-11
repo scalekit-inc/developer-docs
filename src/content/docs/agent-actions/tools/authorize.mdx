@@ -1,5 +1,34 @@
 ---
-title: Authorize
+title: Authorize a user
 description: Learn how to authorize users for successful tool execution with Agent Actions.
-
 ---
+Scalekit provides a completely managed authentication platform to handle complex OAuth2.0, API Keys, Bearer Tokens and any other API authentication protocols required by third party applications to execute tool calls on behalf of users.
+
+This managed authentication handling enables you to build powerful agents without having to worry about handling user authentication and API authentication across different applications like Salesforce, Hubspot, GMail, Google Calendar etc.
+
+## Authorize a user
+
+If you are building an agent that needs to execute actions on behalf of a user, your agent needs to get authorization from user to give access to their application.
+
+The following code sample helps your agent complete user authorization required to make a successful authenticated tool call.
+
+```python
+link_response = connect.get_authorization_link(
+    connection_name="gmail", # connection name to which the user needs to grant access.
+    identifier="user_123" # unique user id
+)
+print(f"🔗click on the link to authorize gmail", link_response.link)
+input(f"⎆ Press Enter after authorizing gmail...")
+```
+
+## Check Authorization Status
+
+If you would like to check whether the user has completed authorization for a given application,
+
+```python
+connected_account = connect.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier="user_123"
+)
+print(f"AUthorization status of the connected account", connected_account.status)
+```
