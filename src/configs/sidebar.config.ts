@@ -208,7 +208,6 @@ export const sidebar = [
           'agent-actions/tools/overview',
           'agent-actions/tools/execute',
           'agent-actions/tools/authorize',
-
           'agent-actions/tools/custom-processors',
           // 'connect/tools/custom-tools',
           // 'connect/tools/proxy-tools',
