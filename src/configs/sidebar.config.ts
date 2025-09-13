@@ -178,7 +178,13 @@ export const sidebar = [
       },
       {
         label: 'Guides',
-        items: ['guides/dashboard/auth-logs'],
+        items: [
+          {
+            label: 'View auth logs',
+            link: 'guides/dashboard/auth-logs',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
       },
     ],
   },
