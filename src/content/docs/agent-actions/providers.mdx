@@ -1,0 +1,271 @@
+---
+title: Providers
+description: Learn about third-party application providers supported by Agent Actions and how they enable tool execution across different platforms.
+sidebar:
+  order: 2
+  label: "Providers"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Overview"
+  link: "/agent-actions/overview"
+next:
+  label: "Connections"
+  link: "/agent-actions/connections"
+---
+
+import { Card, CardGrid, Aside, Steps } from '@astrojs/starlight/components';
+
+Providers in Agent Actions represent third-party applications that your users can connect to and interact with through Scalekit's unified API. Each provider offers a set of tools and capabilities that can be executed on behalf of connected users.
+
+## What are providers?
+
+Providers are pre-configured integrations with popular third-party applications that enable your users to:
+
+- **Connect their accounts** using secure authentication methods
+- **Execute tools and actions** through a unified API interface
+- **Access data and functionality** from external applications
+- **Maintain secure connections** with proper authorization scopes
+
+## Supported providers
+
+Agent Actions supports a wide range of popular business applications:
+
+<CardGrid>
+  <Card title="Google Workspace" icon="google">
+    - Gmail (email management)
+    - Google Calendar (scheduling)
+    - Google Drive (file storage)
+    - Google Sheets (spreadsheets)
+  </Card>
+  <Card title="Microsoft 365" icon="microsoft">
+    - Outlook (email management)
+    - Microsoft Calendar (scheduling)
+    - OneDrive (file storage)
+    - Excel Online (spreadsheets)
+  </Card>
+  <Card title="Communication" icon="chat">
+    - Slack (team messaging)
+    - Microsoft Teams (collaboration)
+    - Discord (community chat)
+    - Zoom (video conferencing)
+  </Card>
+  <Card title="Project Management" icon="puzzle">
+    - Jira (issue tracking)
+    - Asana (task management)
+    - Trello (project boards)
+    - Monday.com (work management)
+  </Card>
+  <Card title="CRM & Sales" icon="star">
+    - Salesforce (customer relationship)
+    - HubSpot (marketing automation)
+    - Pipedrive (sales pipeline)
+    - Zendesk (customer support)
+  </Card>
+  <Card title="Development" icon="laptop">
+    - GitHub (code repository)
+    - GitLab (DevOps platform)
+    - Bitbucket (code collaboration)
+    - Linear (issue tracking)
+  </Card>
+</CardGrid>
+
+## Provider capabilities
+
+Each provider offers different capabilities based on their API and authentication model:
+
+### Authentication methods
+
+- **OAuth 2.0**: Most common authentication method for modern APIs
+- **API Keys**: Simple authentication using static keys
+- **JWT Tokens**: Token-based authentication with expiration
+- **Custom Auth**: Provider-specific authentication mechanisms
+
+### Available tools
+
+Providers expose various tools that can be executed through Agent Actions:
+
+<Aside type="note">
+Tool availability depends on the specific provider and the user's permissions within that application.
+</Aside>
+
+**Common tool categories:**
+
+- **Data retrieval**: Fetch emails, calendar events, files, or records
+- **Data creation**: Create new items, send messages, or schedule events
+- **Data modification**: Update existing records or settings
+- **File operations**: Upload, download, or manage files
+- **Communication**: Send notifications, messages, or alerts
+
+### Rate limits and quotas
+
+Each provider has different rate limits and quotas:
+
+- **API rate limits**: Requests per minute/hour limitations
+- **Data quotas**: Storage or transfer limitations
+- **Feature restrictions**: Premium features or enterprise-only capabilities
+- **Usage monitoring**: Track consumption against provider limits
+
+## Provider configuration
+
+### Adding a provider
+
+<Steps>
+1. **Navigate to providers** in your Agent Actions dashboard
+2. **Select provider** from the available options
+3. **Configure settings** such as scopes and permissions
+4. **Set up authentication** method (OAuth, API key, etc.)
+5. **Test connection** to verify provider setup
+</Steps>
+
+### Provider settings
+
+Each provider can be configured with:
+
+**Authentication settings:**
+- OAuth client credentials (if using custom OAuth apps)
+- API endpoint URLs
+- Supported scopes and permissions
+- Token refresh settings
+
+**Tool configuration:**
+- Available tools and their parameters
+- Default values for common operations
+- Custom tool definitions (if supported)
+- Error handling preferences
+
+**Rate limiting:**
+- Request throttling settings
+- Backoff strategies for rate limit errors
+- Priority queues for different tool types
+- Usage monitoring and alerting
+
+## Working with provider APIs
+
+### API integration
+
+Agent Actions abstracts provider-specific APIs into a unified interface:
+
+```javascript
+// Example: Execute a tool across different providers
+const result = await agentConnect.executeTools({
+  connectedAccountId: 'user_123',
+  provider: 'gmail',
+  tool: 'send_email',
+  parameters: {
+    to: 'recipient@example.com',
+    subject: 'Hello from Agent Actions',
+    body: 'This email was sent via Agent Actions'
+  }
+});
+```
+
+### Error handling
+
+Different providers may return different error formats. Agent Actions normalizes these into consistent error responses:
+
+```javascript
+// Consistent error structure across all providers
+{
+  error: {
+    code: 'RATE_LIMIT_EXCEEDED',
+    message: 'Provider rate limit exceeded',
+    provider: 'gmail',
+    details: {
+      retryAfter: 60,
+      limitType: 'requests_per_minute'
+    }
+  }
+}
+```
+
+## Provider-specific considerations
+
+### Google Workspace
+
+- **OAuth scopes**: Requires specific scopes for different Google services
+- **Rate limits**: Generous limits but varies by service
+- **Data access**: Supports both personal and organization data
+- **Security**: Supports domain-wide delegation for enterprise
+
+### Microsoft 365
+
+- **Authentication**: Supports both personal and work accounts
+- **Graph API**: Unified API for all Microsoft services
+- **Permissions**: Granular permission model
+- **Compliance**: Built-in compliance and audit features
+
+### Slack
+
+- **Workspace apps**: Requires installation in each workspace
+- **Bot tokens**: Different capabilities for bot vs user tokens
+- **Rate limits**: Tier-based limits depending on workspace size
+- **Channels**: Requires specific permissions for private channels
+
+### Jira
+
+- **Project access**: Permissions are project-specific
+- **Issue types**: Different issue types have different fields
+- **Workflows**: Custom workflows affect available actions
+- **Atlassian Connect**: Supports app installation model
+
+## Best practices
+
+### Provider selection
+
+- **Assess requirements**: Choose providers based on your users' needs
+- **Check limitations**: Understand rate limits and feature restrictions
+- **Consider maintenance**: Some providers require more ongoing maintenance
+- **Evaluate security**: Review provider security practices and compliance
+
+### Authentication setup
+
+- **Use OAuth when possible**: More secure than API keys
+- **Implement proper scopes**: Request only necessary permissions
+- **Handle token refresh**: Implement automatic token refresh logic
+- **Monitor auth status**: Track connected account authentication health
+
+### Tool execution
+
+- **Batch operations**: Group similar operations when possible
+- **Respect rate limits**: Implement proper throttling and backoff
+- **Cache results**: Cache frequently accessed data
+- **Error recovery**: Implement retry logic for transient failures
+
+## Monitoring and analytics
+
+### Provider health
+
+Monitor provider performance and availability:
+
+- **API uptime**: Track provider API availability
+- **Response times**: Monitor latency for different operations
+- **Error rates**: Track errors by provider and tool type
+- **Rate limit usage**: Monitor quota consumption
+
+### Usage analytics
+
+Track how your users interact with different providers:
+
+- **Popular providers**: Which providers are used most
+- **Tool usage**: Which tools are executed most frequently
+- **User adoption**: How many users connect to each provider
+- **Error patterns**: Common failure modes by provider
+
+## Getting help
+
+### Provider documentation
+
+- **Official docs**: Always refer to provider's official documentation
+- **API changes**: Stay updated on provider API changes
+- **Best practices**: Follow provider-specific best practices
+- **Community**: Join provider developer communities
+
+### Scalekit support
+
+- **Provider issues**: Contact support for provider-specific problems
+- **New providers**: Request support for additional providers
+- **Configuration help**: Get assistance with provider setup
+- **Troubleshooting**: Debug connection and tool execution issues
+
+Next, learn how to configure [Connections](/agent-actions/connections) for your chosen providers to enable user authentication and tool execution.
