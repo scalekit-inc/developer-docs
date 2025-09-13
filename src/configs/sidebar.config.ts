@@ -25,7 +25,11 @@ export const sidebar = [
           },
           'fsa/guides/manage-session',
           'fsa/guides/logout',
-          'guides/dashboard/auth-logs',
+          {
+            label: 'Auth logs',
+            link: 'guides/dashboard/auth-logs',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
         ],
       },
       {
@@ -39,7 +43,11 @@ export const sidebar = [
           'fsa/guides/merge-identities',
           'fsa/reference/user-profile',
           'fsa/guides/app-roles',
-          'guides/dashboard/redirects',
+          {
+            label: 'Redirects',
+            link: 'guides/dashboard/redirects',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
           'fsa/guides/just-in-time-provisioning',
           'fsa/guides/allowed-email-domains',
           'fsa/guides/migration-guide',
@@ -52,6 +60,7 @@ export const sidebar = [
       {
         label: 'Integrations',
         link: '/guides/integrations/',
+        attrs: { target: '_blank', rel: 'noopener' },
       },
     ],
   },
@@ -84,8 +93,16 @@ export const sidebar = [
           'sso/guides/okta-sso-test',
           'sso/guides/sso-user-attributes',
           'sso/reference/sso-integration-errors',
-          'guides/dashboard/redirects',
-          'guides/dashboard/auth-logs',
+          {
+            label: 'Redirects',
+            link: 'guides/dashboard/redirects',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+          {
+            label: 'Auth logs',
+            link: 'guides/dashboard/auth-logs',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
           'guides/sso/sso-migration-strategy',
           {
             label: 'Coexist with',
@@ -105,6 +122,7 @@ export const sidebar = [
       {
         label: 'Integrations',
         link: '/guides/integrations/sso-integrations/',
+        attrs: { target: '_blank', rel: 'noopener' },
       },
     ],
   },
@@ -136,7 +154,8 @@ export const sidebar = [
       },
       {
         label: 'Integrations',
-        link: '/guides/integrations/scim-integrations/',
+        link: '/guides/integrations',
+        attrs: { target: '_blank', rel: 'noopener' },
       },
     ],
   },
@@ -278,16 +297,12 @@ export const sidebar = [
       },
       {
         label: 'Guides',
-        items: ['guides/dashboard/redirects', 'guides/dashboard/auth-logs'],
-      },
-      {
-        label: 'Reference',
         items: [
           'guides/setup-scalekit',
           'dev-kit/resources/ai-assisted-setup',
+          'guides/external-ids-and-metadata',
           'guides/dashboard/redirects',
           'guides/dashboard/auth-logs',
-          'guides/external-ids-and-metadata',
         ],
       },
       {
@@ -303,11 +318,6 @@ export const sidebar = [
             link: 'https://github.com/scalekit-inc/api-collections',
             attrs: { target: '_blank', rel: 'noopener' },
           },
-          {
-            label: 'Code examples',
-            link: 'https://github.com/scalekit-inc/gists',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
         ],
       },
       {
@@ -317,13 +327,13 @@ export const sidebar = [
           {
             label: 'Release Notes',
             link: 'https://www.scalekit.com/product-updates',
+            attrs: { target: '_blank', rel: 'noopener' },
           },
           {
             label: 'Status',
             link: 'https://scalekit.statuspage.io/',
             attrs: { target: '_blank', rel: 'noopener' },
           },
-          'reference/glossary',
         ],
       },
     ],
