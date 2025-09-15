@@ -208,16 +208,28 @@ export const sidebar = [
           'agent-actions/tools/overview',
           'agent-actions/tools/execute',
           'agent-actions/tools/authorize',
-          'agent-actions/tools/custom-processors',
+          // 'agent-actions/tools/custom-processors',
           // 'connect/tools/custom-tools',
           // 'connect/tools/proxy-tools',
         ],
       },
       {
-        label: 'Authorization',
+        label: 'AI Frameworks',
         items: [
-          'agent-actions/authorization/overview',
-          'agent-actions/authorization/bring-your-own-oauth',
+          'agent-actions/frameworks/langchain',
+          'agent-actions/frameworks/google-adk',
+          'agent-actions/frameworks/agno',
+          // 'agent-actions/frameworks/openai',
+          // 'agent-actions/frameworks/anthropic',
+        ],
+      },
+      {
+        label: 'Advanced Guides',
+        items: [
+          'agent-actions/advanced/overview',
+          'agent-actions/advanced/bring-your-own-oauth',
+          'agent-actions/advanced/custom-domain',
+          'agent-actions/advanced/proxy-api-calls',
         ],
       },
 
@@ -225,16 +237,6 @@ export const sidebar = [
       //   label: 'MCP',
       //   items: ['connect/mcp/quickstart', 'connect/mcp/custom-mcp', 'connect/mcp/manage'],
       // },
-      {
-        label: 'AI Frameworks',
-        items: [
-          'agent-actions/frameworks/langchain',
-          'agent-actions/frameworks/google-adk',
-          'agent-actions/frameworks/agno',
-          'agent-actions/frameworks/openai',
-          'agent-actions/frameworks/anthropic',
-        ],
-      },
 
       // {
       //   label: 'Concepts',
