@@ -8,7 +8,7 @@ export interface Props {
 const { className } = Astro.props
 ---
 
-<StarlightCardGrid class:list={className}>
+<StarlightCardGrid class:list={[className]}>
   <slot />
 </StarlightCardGrid>
 
@@ -20,8 +20,25 @@ const { className } = Astro.props
     grid-template-columns: repeat(3, 1fr) !important;
   }
 
+  /* Feature cards grid - 2 columns for the fold2 section */
+  .feature-cards-grid {
+    display: grid !important;
+    gap: 1.5rem !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-auto-flow: row dense !important;
+    align-items: stretch !important;
+    justify-items: stretch !important;
+  }
+
+  /* Ensure children don’t accidentally stick to a specific column */
+  .feature-cards-grid > * {
+    grid-column: auto / span 1 !important;
+    width: 100% !important;
+  }
+
   @media (max-width: 1024px) {
-    .card-grid {
+    .card-grid,
+    .feature-cards-grid {
       grid-template-columns: 1fr !important;
       gap: 1rem !important;
     }

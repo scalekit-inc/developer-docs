@@ -3,37 +3,46 @@ export interface Props {
   title: string
   icon?: any
   href?: string
+  image?: string
+  imageAlt?: string
 }
 
-const { title, icon: Icon, href } = Astro.props
+const { title, icon: Icon, href, image, imageAlt } = Astro.props
 const isLink = !!href
 ---
 
-{
-  isLink ? (
-    <a href={href} class="custom-card card-link">
-      <article class="sl-card">
+<article class="custom-card sl-card">
+  {
+    isLink ? (
+      <a href={href} class="card-link">
+        {image && (
+          <div class="card-image">
+            <img src={image} alt={imageAlt || title} />
+          </div>
+        )}
         <div class="card-header">
           {Icon && <Icon class="card-icon" aria-hidden="true" />}
           <h3 class="card-title">{title}</h3>
         </div>
-        <div class="card-content">
-          <slot />
+      </a>
+    ) : (
+      <>
+        {image && (
+          <div class="card-image">
+            <img src={image} alt={imageAlt || title} />
+          </div>
+        )}
+        <div class="card-header">
+          {Icon && <Icon class="card-icon" aria-hidden="true" />}
+          <h3 class="card-title">{title}</h3>
         </div>
-      </article>
-    </a>
-  ) : (
-    <article class="custom-card sl-card">
-      <div class="card-header">
-        {Icon && <Icon class="card-icon" aria-hidden="true" />}
-        <h3 class="card-title">{title}</h3>
-      </div>
-      <div class="card-content">
-        <slot />
-      </div>
-    </article>
-  )
-}
+      </>
+    )
+  }
+  <div class="card-content">
+    <slot />
+  </div>
+</article>
 
 <style>
   .custom-card {
@@ -50,10 +59,24 @@ const isLink = !!href
     display: block;
   }
 
-  .card-link:hover .custom-card {
+  .custom-card:hover {
     border-color: var(--sl-color-accent);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px var(--sl-color-shadow);
+  }
+
+  .card-image {
+    margin: -1.5rem -1.5rem 1rem -1.5rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+    overflow: hidden;
+    background: var(--sl-color-gray-6);
+  }
+
+  .card-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 0.5rem 0.5rem 0 0;
   }
 
   .card-header {
