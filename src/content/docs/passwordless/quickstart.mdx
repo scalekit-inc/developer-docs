@@ -612,46 +612,6 @@ Before you begin, ensure you have:
              | `passwordlessType` | The type of passwordless authentication to use. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
            </details>
          </TabItem>
-         <TabItem label="Go">
-           ```go
-           // Inside your HTTP handler: capture link_token from query, then verify
-           linkToken := linkTokenFromQuery // e.g., r.URL.Query().Get("link_token")
-
-           verifyResp, err := client.Passwordless().VerifyPasswordlessEmail(
-             ctx, // context.Context
-             &scalekit.VerifyPasswordlessOptions{
-               LinkToken: linkToken, // Magic link token from the URL
-               // Optionally include AuthRequestId if same-origin is enforced
-               // AuthRequestId: authRequestId,
-             },
-           )
-
-           if err != nil {
-             // handle invalid/expired link or other errors
-             // ...
-           }
-
-           // verifyResp contains the verified user's info (email, state, template, passwordless type)
-           ```
-
-           <details>
-             <summary>Request parameters</summary>
-             | Parameters | Required | Description |
-             |-----------|----------|-------------|
-             | `options.LinkToken` | Yes | The link token received by the user <Badge variant="note" text="string" /> |
-             | `options.AuthRequestId` | No | The unique identifier for the authentication request that was sent earlier. Required if same-browser-origin enforcement is enabled <Badge variant="note" text="string" /> |
-           </details>
-
-           <details>
-             <summary>Response parameters</summary>
-             | Parameters | Description |
-             |-----------|-------------|
-             | `Email` | The email address of the user <Badge variant="note" text="string" /> |
-             | `State` | The state parameter that was passed in the original request <Badge variant="note" text="string" /> |
-             | `Template` | The template that was used (`SIGNIN` or `SIGNUP`) <Badge variant="note" text="string" /> |
-             | `PasswordlessType` | `OTP`, `LINK` or `LINK_OTP` <Badge variant="note" text="string" /> |
-           </details>
-         </TabItem>
        </Tabs>
      </TabItem>
    </Tabs>
