@@ -1,9 +1,11 @@
 /*
  * This file ensures StarlightThemeRapide styles take precedence
- * Import Tailwind and custom.css with lower specificity
+ * and centralizes Tailwind/Starlight base imports to avoid duplication.
  */
 
-/* First import Tailwind utilities */
+/* Use Nova's defaults; ensure Tailwind utilities are available but don't override Nova layout */
+@layer base, starlight, theme, components, utilities;
+@import '@astrojs/starlight-tailwind';
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities);
 
@@ -14,15 +16,14 @@
 /* This allows for iframe embedding when URL is passed with ?inproduct=true */
 @import './iframe.css';
 
-/*
- * Override or reset any conflicting styles from custom.css or tailwind
- * that might be overriding StarlightThemeRapide styles
- */
-
-/* Make sure root styles don't override StarlightThemeRapide's theme variables */
-:root:not([data-theme]) {
-  /* Don't add any variables here, let StarlightThemeRapide control them */
+/* Smoothen theme change on main content only (avoid global fades) */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme] main,
+  :root[data-theme] .content-panel,
+  :root[data-theme] .sl-markdown-content {
+    transition:
+      background-color 400ms ease,
+      color 400ms ease,
+      border-color 400ms ease;
+  }
 }
-
-/* If there are specific styles that absolutely need to be kept from custom.css,
-   they can be added here with high specificity but should be minimized */

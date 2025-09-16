@@ -1,0 +1,81 @@
+---
+title: Tools Overview
+description: Learn about tools in Agent Actions - the standardized functions that enable you to perform actions across different third-party providers.
+---
+
+import { Card, CardGrid, Aside, Steps } from '@astrojs/starlight/components';
+
+LLMs today are very powerful reasoning and answering machines but their ability is restricted to data sets that they are trained upon and cannot natively interact with web services or saas applications. Tool Calling or Function Calling is how you extend the capabilities of these models to interact and take actions in third party applications on behalf of the users.
+
+For example, if you would like to build an email summarizer agent, there are a few challenges that you need to tackle:
+
+1. How to give agents access to gmail
+2. How to authorize these agents access to my gmail account
+3. What should be the appropriate input parameters to access gmail based on user context and query
+
+Agent Actions product solves these problems by giving you simple abstractions using our SDK to help you give additional capabilities to the agents you are building regardless of the underlying model and agent framework in three simple steps.
+
+1. Use Scalekit SDK to fetch all the appropriate tools
+2. Complete user authorization handling in one single line of code
+3. Use Scalekit's optimized tool metadata and pass it to the underlying model for optimal tool selection and input parameters.
+
+## Tool Metadata
+
+Every tool in Agent Actions follows a consistent structure with a name, description and structured input and output schema. Agentic frameworks like Langchain can work with the underlying LLMs to select the right tool to solve the user's query based on the tool metadata.
+
+### Sample Tool definition
+
+```json
+{
+  "name": "gmail_send_email",
+  "display_name": "Send Email",
+  "description": "Send an email message to one or more recipients",
+  "provider": "gmail",
+  "category": "communication",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "to": {
+        "type": "array",
+        "items": {"type": "string", "format": "email"},
+        "description": "Email addresses of recipients"
+      },
+      "subject": {
+        "type": "string",
+        "description": "Email subject line"
+      },
+      "body": {
+        "type": "string",
+        "description": "Email body content"
+      }
+    },
+    "required": ["to", "subject", "body"]
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "message_id": {
+        "type": "string",
+        "description": "Unique identifier for the sent message"
+      },
+      "status": {
+        "type": "string",
+        "enum": ["sent", "queued", "failed"],
+        "description": "Status of the email sending operation"
+      }
+    }
+  }
+}
+```
+
+## Best practices
+
+1. **Tool Selection:** Even though tools provide additional capabilities to the agents, the real challenge in leveraging underlying LLMs capability to select the right tool to solve the job at hand. And LLMs do a poor job when you throw all the available tools you have at your disposal and ask LLMs to pick the right tool. So, be sure to limit the number of tools that you provide in the context to the LLM so that they do a good job in tool selection and filling in the appropriate input parameters to actually execute a certain action successfully.
+
+2. **Add deterministic overrides in undeterministic workflows:** Because LLMs are unpredictable super machines, do not trust them to reliably execute the same workflow every single time in the exact same manner. If your agent has some deterministic patterns or workflows, use the pre-execution modifiers to always set exact input parameters for a given tool. For example, if your agent always reads only unread emails, create a pre-execution modifier to add `is:unread` to the query input param while fetching emails using gmail_fetch_emails tool.
+
+3. **Context Window Awareness:** Similar to the point above, always be conscious of overloading context window of the underlying models. Don't send the entire tool execution response/output to the underlying model for processing the execution response. Use the post-execution modifiers to select only the required and necessary fields in the tool output response before sending the data to the LLMs.
+
+---
+
+Tools are the fundamental building blocks through which you can give real world capabilities for the agents you are building. By understanding how to use them effectively, you can build sophisticated agents that seamlessly connect your application to the tools your users already love.

@@ -1,0 +1,196 @@
+---
+import IconHouse from '~icons/lucide/house'
+
+interface NavItem {
+  href: string
+  label: string
+  patterns: string[]
+  isExact?: boolean
+  iconComponent?: any
+}
+
+interface NavSection {
+  items: NavItem[]
+}
+
+function startsWithAny(mainString: string, patterns: string[]) {
+  if (!mainString || !patterns) {
+    return false
+  }
+  for (let i = 0; i < patterns.length; i++) {
+    if (mainString.startsWith(patterns[i])) {
+      return true // Found a match, return true immediately
+    }
+  }
+  return false // No match found after checking all patterns
+}
+
+function isCurrentPage(pathname: string, item: NavItem): boolean {
+  if (item.isExact) {
+    return pathname === item.href
+  }
+
+  // Special handling for Developer Resources - exclude code-samples path
+  if (item.href === '/dev-kit/' && pathname.startsWith('/dev-kit/code-samples')) {
+    return false
+  }
+
+  return startsWithAny(pathname, item.patterns)
+}
+
+const navSections: NavSection[] = [
+  {
+    items: [
+      { href: '/', label: '', patterns: ['/'], isExact: true, iconComponent: IconHouse },
+      { href: '/agent-actions/quickstart', label: 'Agent Actions', patterns: ['/agent-actions/'] },
+      { href: '/mcp/overview', label: 'MCP Auth', patterns: ['/mcp/'] },
+      { href: '/fsa/quickstart', label: 'Full-Stack Auth', patterns: ['/fsa/'] },
+      {
+        href: '/sso/quickstart',
+        label: 'SSO',
+        patterns: ['/sso/', '/guides/sso/', '/social-logins/'],
+      },
+      {
+        href: '/passwordless/quickstart',
+        label: 'Passwordless',
+        patterns: ['/passwordless/', '/guides/passwordless/'],
+      },
+      {
+        href: '/directory/scim/quickstart',
+        label: 'SCIM',
+        patterns: ['/directory/', '/guides/directory/'],
+      },
+    ],
+  },
+  {
+    items: [
+      { href: '/apis/', label: 'API Reference', patterns: ['/apis'] },
+      {
+        href: '/dev-kit/code-samples',
+        label: 'Code Samples',
+        patterns: ['/dev-kit/code-samples'],
+        isExact: true,
+      },
+      { href: '/dev-kit/', label: 'Developer Resources', patterns: ['/dev-kit/'] },
+    ],
+  },
+]
+---
+
+<nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
+  {
+    navSections.map((section) => (
+      <div class="nav-items">
+        {section.items.map((item) => (
+          <a
+            href={item.href}
+            class={`nav-item ${isCurrentPage(Astro.url.pathname, item) ? 'current' : ''}`}
+            aria-current="page"
+          >
+            <div class="nav-item-content">
+              {item.iconComponent && <item.iconComponent class="nav-icon" />}
+              {item.label && <span class="nav-label">{item.label}</span>}
+            </div>
+          </a>
+        ))}
+      </div>
+    ))
+  }
+</nav>
+
+<style>
+  /* Hide the duplicate sidebar topics in the left sidebar on desktop */
+  :global(.starlight-sidebar-topics) {
+    display: none;
+  }
+
+  /* Show the sidebar topics on mobile */
+  @media (max-width: 50rem) {
+    :global(.starlight-sidebar-topics) {
+      display: block !important;
+    }
+  }
+
+  .secondary-nav {
+    position: sticky;
+    display: flex;
+    justify-content: space-between;
+    top: calc(var(--sl-header-height-base) - 1px); /* Reduced from var(--sl-header-height-base) */
+    z-index: var(--sl-z-index-navbar);
+    width: 100%;
+  }
+
+  .nav-items {
+    font-weight: 500;
+    display: flex;
+    gap: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: flex-start;
+  }
+
+  .nav-items::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 1rem 0.35rem 1rem; /* Increased padding for taller nav */
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 2.2px solid transparent;
+    position: relative;
+    line-height: 1;
+  }
+
+  .nav-item:hover {
+    color: var(--sl-color-white);
+  }
+
+  .nav-item.current {
+    color: var(--sl-color-white);
+    border-bottom-color: var(--sl-color-white);
+  }
+
+  .nav-item-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .nav-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .nav-label {
+    font-size: var(--sl-text-sm);
+    line-height: 1.5;
+    text-decoration: none;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 50rem) {
+    .secondary-nav {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 72rem) {
+    .nav-item {
+      padding: 0.6rem 0.75rem; /* Increased for taller nav */
+    }
+
+    .nav-label {
+      font-size: var(--sl-text-xs);
+    }
+  }
+</style>
