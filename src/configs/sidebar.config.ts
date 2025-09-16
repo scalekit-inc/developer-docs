@@ -217,8 +217,8 @@ export const sidebar = [
         label: 'AI Frameworks',
         items: [
           'agent-actions/frameworks/langchain',
-          'agent-actions/frameworks/google-adk',
-          'agent-actions/frameworks/agno',
+          // 'agent-actions/frameworks/google-adk',
+          // 'agent-actions/frameworks/agno',
           // 'agent-actions/frameworks/openai',
           // 'agent-actions/frameworks/anthropic',
         ],
