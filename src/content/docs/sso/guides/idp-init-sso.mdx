@@ -232,15 +232,20 @@ If your application uses a third-party service like [Firebase Authentication](/g
 
 This process has two stages: first, the IdP redirects the user to your app via Scalekit, and second, your app triggers a new sign-in flow with Firebase using the Authorization URL you just generated.
 
-```mermaid
-graph LR;
-    subgraph "Part 1: IdP-initiated"
-        User-->IdP-->Scalekit-->YourApp["Your App (Initiate login endpoint)"];
-    end
-    subgraph "Part 2: SP-initiated Hand-off"
-        YourApp -- "triggers sign-in" --> Firebase;
-        Firebase -- "uses Authorization URL from Step 3" --> Scalekit;
-    end
+```d2 layout=elk
+direction: right
+
+User: "User"
+IdP: "IdP"
+Scalekit: "Scalekit"
+YourApp: "Your App (Initiate login endpoint)"
+Firebase: "Firebase"
+
+User -> IdP
+IdP -> Scalekit
+Scalekit -> YourApp
+YourApp -> Firebase: "triggers sign-in"
+Firebase -> Scalekit: "uses Authorization URL from Step 3"
 ```
 
 The example below shows how to pass the Authorization URL to the Firebase Web SDK.

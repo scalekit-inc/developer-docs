@@ -1,0 +1,67 @@
+---
+title: Bring your own Credentials
+description: Learn how to use your own OAuth authentication credentials with Agent Actions for complete whitelabeling and control.
+---
+
+import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Bring Your Own Credentials (BYOC) allows you to use your own OAuth applications and authentication credentials with Agent Actions instead of Scalekit's shared credentials. This provides complete control over the authentication experience and enables full whitelabeling of your application.
+
+## Why bring your own authentication?
+
+### Complete whitelabeling
+
+When you use your own OAuth credentials, users see your application name and branding throughout the authentication flow instead of Scalekit's:
+
+- **OAuth consent screens** display your app name and logo
+- **Authorization URLs** use your domain and branding
+- **Email notifications** from providers reference your application
+- **User permissions** are granted directly to your application
+
+### Enhanced security and control
+
+- **Direct relationship**: Maintain direct OAuth relationships with providers
+- **Full audit trail**: Complete visibility into authentication flows and user consent
+- **Custom verification**: Complete OAuth app verification with your company details
+- **Compliance control**: Meet regulatory requirements for direct provider relationships
+
+### Production-grade capabilities
+
+- **Dedicated quotas**: Avoid sharing rate limits with other Scalekit customers
+- **Higher limits**: Access provider-specific quota increases for your application
+- **Priority support**: Direct support relationships with OAuth providers
+- **Custom integrations**: Build provider-specific customizations
+
+## How BYOC works
+
+### Architecture overview
+
+With BYOC, authentication flows work as follows:
+
+1. **Scalekit** handles the initial authentication request with your OAuth client-id details
+2. **Provider** authenticates the user and returns tokens to Scalekit
+3. **Agent Actions** uses your tokens to execute tools on behalf of users
+
+## Setting up BYOC
+
+Login to Scalekit Dashboard and Click on Edit Connection for the application you want to configure your own authentication credentials.
+
+Choose the option "Use your own credentials" and enter the Client ID and Client Secret obtained from the provider.
+
+Copy the Redirect URL you find in the Scalekit Dashboard and add it as one of the authorized redirect urls in the provider's console. That's it!
+
+![Bring your own Auth Credentials](@/assets/docs/agent-actions/byoc.png)
+
+## Migration from shared credentials
+
+If you're currently using Scalekit's shared credentials and want to migrate to BYOC:
+
+<Aside type="note">
+**Migration considerations:**
+- Users will need to re-authenticate with your OAuth applications
+- OAuth consent screens will change to show your branding
+- Rate limits and quotas will change to your application's limits
+- Some users may need to re-grant permissions
+</Aside>
+
+By implementing Bring Your Own Authentication, you gain complete control over your users' authentication experience while maintaining the power and flexibility of Agent Actions's unified API for tool execution.

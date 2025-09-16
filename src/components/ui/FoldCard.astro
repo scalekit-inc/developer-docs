@@ -1,0 +1,91 @@
+---
+import '../../styles/folds.css'
+
+export interface Props {
+  title: string
+  href?: string
+  icon?: any
+  cta?: string
+}
+
+import { LinkButton } from 'starlight-theme-nova/components'
+const { title, href, icon: Icon, cta = 'Know more →' } = Astro.props
+---
+
+<article class="fold-card sl-card">
+  <div class="card-header">
+    {Icon && <Icon class="card-icon" aria-hidden="true" />}
+    <h3 class="card-title">{title}</h3>
+  </div>
+  <div class="card-content">
+    <slot />
+    {
+      href && (
+        <LinkButton href={href} class="card-cta" variant="secondary">
+          {cta}
+        </LinkButton>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .fold-card {
+    background: var(--sl-color-bg-card);
+    border: 1px solid var(--sl-color-gray-6);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+  }
+
+  :root[data-theme='light'] .fold-card {
+    background: #fff;
+  }
+
+  :root[data-theme='dark'] .fold-card {
+    background: var(--sl-color-bg-card);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  :global(.card-icon) {
+    font-size: 1.5rem;
+    color: var(--sl-color-accent);
+    flex-shrink: 0;
+  }
+
+  .card-title {
+    margin: 0;
+    font-size: var(--sl-text-lg);
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+  }
+
+  .card-content {
+    color: var(--sl-color-text-muted);
+    line-height: 1.6;
+  }
+
+  .card-content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .card-cta {
+    display: inline-block;
+    margin-top: 1rem !important;
+
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    border-radius: 0.375rem;
+  }
+
+  .card-cta:hover {
+    color: var(--sl-color-text);
+  }
+</style>

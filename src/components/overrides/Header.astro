@@ -1,150 +1,154 @@
 ---
 import type { Props } from '@astrojs/starlight/props'
 import { Icon } from '@astrojs/starlight/components'
-import LanguageSelect from '@astrojs/starlight/components/LanguageSelect.astro'
+
 import Search from '@astrojs/starlight/components/Search.astro'
 import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro'
-import SocialIcons from '@astrojs/starlight/components/SocialIcons.astro'
-import ThemeSelect from 'starlight-theme-rapide/overrides/ThemeSelect.astro'
+
+import ThemeSelect from 'starlight-theme-nova/components/ThemeSelect.astro'
 import { LinkButton } from '@astrojs/starlight/components'
+import SecondaryNav from '../SecondaryNav.astro'
+import MobileMenuToggle from '@astrojs/starlight/components/MobileMenuToggle.astro'
 
 const { dir, entry, lang, locale } = Astro.props
 ---
 
 <div class="header">
-  <SiteTitle {locale} />
+  <div class="top-row">
+    <SiteTitle {locale} />
 
-  <div class="center-content">
-    <div class="search-wrapper">
-      <Search {locale} />
+    <div class="center-content">
+      <div class="search-wrapper">
+        <Search {locale} />
+        <MobileMenuToggle />
+      </div>
     </div>
-    <nav class="nav-links sl-hidden md:sl-flex">
-      <LinkButton href="/apis" variant="minimal" class="nav-link">API Reference</LinkButton>
-      <LinkButton href="/dev-kit" variant="minimal" class="nav-link">SDKs</LinkButton>
-      <LinkButton href="/guides/integrations" variant="minimal" class="nav-link"
-        >Integrations</LinkButton
+
+    <div class="right-actions sl-hidden md:sl-flex">
+      <LinkButton
+        href="https://schedule.scalekit.com/meet/ravi-madabhushi/demo-8b100203"
+        target="_blank"
+        variant="secondary"
+        iconPlacement="start"
+        class="sk-secondary"
       >
-    </nav>
+        Talk to an Engineer
+      </LinkButton>
+      <LinkButton
+        href="https://app.scalekit.com/"
+        target="_blank"
+        variant="primary"
+        icon="right-arrow"
+        iconPlacement="end"
+        class="sk-primary"
+      >
+        Dashboard
+      </LinkButton>
+      <div class="ml-4">
+        <ThemeSelect />
+      </div>
+    </div>
   </div>
 
-  <div class="right-actions sl-hidden md:sl-flex">
-    <LinkButton
-      href="https://app.scalekit.com"
-      target="_blank"
-      rel="noopener noreferrer"
-      variant="secondary"
-      class="dashboard-btn"
-      icon="right-arrow"
-    >
-      Go to Dashboard
-    </LinkButton>
-    <ThemeSelect />
-  </div>
+  <SecondaryNav />
 </div>
 
 <style>
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 100%;
-  }
+  /* Layer declarations */
+  @layer header.layout, header.components, header.responsive;
 
-  .center-content {
-    display: flex;
-    align-items: center;
-    gap: 4rem;
-    flex: 1;
-    max-width: 800px;
-    margin: 0 3rem;
-  }
+  /* =============================================================================
+     LAYOUT LAYER - Container and structural styles
+     ============================================================================= */
+  @layer header.layout {
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: var(--sl-z-index-navbar);
+      background-color: var(--sl-color-bg);
+    }
 
-  .search-wrapper {
-    flex: 0 1 300px;
-    min-width: 250px;
-  }
-
-  .nav-links {
-    /* Hidden by default (mobile) — `md:sl-flex` utility will add flex display from the medium breakpoint,
-       but we also reinforce it here to counteract this scoped style’s default specificity. */
-    display: none;
-    gap: 2rem;
-    margin-left: auto;
-  }
-
-  /* Show nav links at the medium breakpoint (≈48 rem / 768 px) and above */
-  @media (min-width: 48rem) {
-    .nav-links {
+    .top-row {
       display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: var(--sl-header-height-base);
     }
-  }
 
-  .nav-link {
-    font-size: var(--sl-text-sm);
-    white-space: nowrap;
-    color: var(--sl-color-gray-2);
-    transition: color 0.2s ease;
-  }
-
-  .nav-link:hover {
-    color: var(--sl-color-accent);
-  }
-
-  .right-actions {
-    /* Hidden on mobile */
-    display: none;
-    align-items: center;
-  }
-
-  /* Show right actions at the medium breakpoint (≈48 rem / 768 px) and above */
-  @media (min-width: 48rem) {
-    .right-actions {
+    .center-content {
       display: flex;
+      align-items: center;
+      gap: 4rem;
+      flex: 1;
+      max-width: 800px;
     }
   }
 
-  .dashboard-btn {
-    font-size: var(--sl-text-sm) !important;
-    padding: 0.4rem 1.2rem !important;
-    white-space: nowrap;
-  }
-
-  .divider {
-    width: 1px;
-    height: 1.5rem;
-    background-color: var(--sl-color-gray-4);
-    opacity: 0.6;
-  }
-
-  @media (max-width: 72rem) {
-    .center-content {
-      gap: 3rem;
-      margin: 0 2rem;
-    }
-
-    .nav-links {
-      gap: 1.5rem;
-    }
-
-    .dashboard-btn {
-      padding: 0.35rem 1rem !important;
-      font-size: var(--sl-text-xs) !important;
-    }
-  }
-
-  @media (max-width: 60rem) {
-    .center-content {
-      gap: 2rem;
-      margin: 0 1rem;
-    }
-
-    .nav-links {
-      gap: 1.2rem;
-    }
-
+  /* =============================================================================
+     COMPONENTS LAYER - Individual component styles
+     ============================================================================= */
+  @layer header.components {
     .search-wrapper {
-      flex: 0 1 250px;
-      min-width: 200px;
+      flex: 0 1 300px;
+      min-width: 250px;
+    }
+
+    .right-actions {
+      display: none;
+      gap: 0.5rem;
+      align-items: center;
+      font-weight: 500;
+    }
+
+    /* Custom padding for header LinkButtons only */
+    .right-actions :global(.sk-primary) {
+      padding: 0.3rem 1.5rem;
+    }
+
+    .right-actions :global(.sk-secondary),
+    .right-actions :global(.sk-minimal) {
+      padding: 0.5rem 1.5rem;
+    }
+  }
+
+  /* =============================================================================
+     RESPONSIVE LAYER - Breakpoint-specific adaptations
+     ============================================================================= */
+  @layer header.responsive {
+    /* Desktop: Show right actions at medium breakpoint and above */
+    @media (min-width: 48rem) {
+      .right-actions {
+        display: flex;
+      }
+    }
+
+    /* Large tablet adjustments */
+    @media (max-width: 72rem) {
+      .center-content {
+        gap: 3rem;
+        margin: 0 2rem;
+      }
+    }
+
+    /* Small tablet adjustments */
+    @media (max-width: 60rem) {
+      .center-content {
+        gap: 2rem;
+        margin: 0 1rem;
+      }
+
+      .search-wrapper {
+        flex: 0 1 250px;
+        min-width: 200px;
+      }
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 47.9375rem) {
+      .top-row {
+        height: auto;
+        min-height: auto;
+      }
     }
   }
 </style>
