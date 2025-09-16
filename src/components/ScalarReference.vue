@@ -88,10 +88,10 @@ const handleInitialLoad = () => {
   if (hash.value) {
     // Wait a bit for Scalar to fully render the DOM
     setTimeout(() => {
-      console.log('waited for 5000ms')
+      console.log('waited for 500ms')
       const cleanHash = getCleanHash()
       handleScrollToHash(cleanHash)
-    }, 2500)
+    }, 500)
   }
 }
 
