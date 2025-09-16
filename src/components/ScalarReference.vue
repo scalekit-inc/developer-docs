@@ -11,6 +11,9 @@ const colorMode = ref<string>('light')
 // Hash tracking
 const hash = ref('')
 
+// Loading state
+const isLoading = ref<boolean>(true)
+
 // Initialize theme synchronization
 let themeSyncInstance: ThemeSynchronizer | null = null
 
@@ -79,6 +82,9 @@ const handleScrollToHash = (href?: string) => {
 const handleInitialLoad = () => {
   console.log('Scalar loaded, checking for hash:', hash.value)
 
+  // Set loading to false when Scalar is loaded
+  isLoading.value = false
+
   if (hash.value) {
     // Wait a bit for Scalar to fully render the DOM
     setTimeout(() => {
@@ -101,6 +107,7 @@ const handleDeepLink = () => {
 
 <template>
   <div class="api-reference-wrapper" :class="colorMode + '-mode'">
+    <!-- API Reference content (always render; show overlay while loading) -->
     <div class="api-reference-container">
       <ApiReference
         :configuration="{
@@ -145,6 +152,14 @@ const handleDeepLink = () => {
         }"
       />
     </div>
+
+    <!-- Loading state overlay -->
+    <div v-if="isLoading" class="api-loading-container">
+      <div class="api-loading-content">
+        <div class="api-loading-spinner"></div>
+        <p class="api-loading-text">Loading API reference...</p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -156,5 +171,61 @@ const handleDeepLink = () => {
   right: 0;
   max-height: calc(100vh - var(--sl-nav-height));
   overflow: auto;
+}
+
+.api-loading-container {
+  position: sticky;
+  top: calc(var(--sl-header-height-base) + var(--secondary-nav-height));
+  left: 0;
+  right: 0;
+  max-height: calc(100vh - var(--sl-nav-height));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sl-color-bg);
+  z-index: 10;
+}
+
+.api-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.api-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--sl-color-gray-3);
+  border-top: 3px solid var(--sl-color-accent-low);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.api-loading-text {
+  color: var(--sl-color-text);
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Dark mode adjustments */
+.dark-mode .api-loading-spinner {
+  border-color: var(--sl-color-gray-6);
+  border-top-color: var(--sl-color-accent-low);
+}
+
+.dark-mode .api-loading-text {
+  color: var(--sl-color-text);
 }
 </style>
