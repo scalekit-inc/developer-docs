@@ -1696,6 +1696,54 @@
           }
         ]
       },
+      "patch": {
+        "description": "Updates a user's membership details within an organization by user ID or external ID. You can update roles and membership metadata.",
+        "tags": ["Users"],
+        "summary": "Update organization membership for user",
+        "operationId": "UserService_UpdateMembership",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization containing the membership. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "System-generated user ID. Must start with 'usr_' and be 19-25 characters long.",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "membership",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Membership fields to update. Only specified fields will be modified.",
+              "$ref": "#/definitions/v1usersUpdateMembership",
+              "example": {
+                "role": "admin"
+              }
+            }
+          },
+          {
+            "type": "string",
+            "description": "Your application's unique identifier for this user.",
+            "name": "external_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Membership updated successfully. Returns the updated user object.",
+            "schema": {
+              "$ref": "#/definitions/usersUpdateMembershipResponse"
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Removes a user from an organization by user ID or external ID. If the user has no memberships left and cascade is true, the user is also deleted. This action is irreversible and may also remove related group memberships.",
         "tags": ["Users"],
@@ -5413,6 +5461,14 @@
         }
       }
     },
+    "usersUpdateMembershipResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/usersUser"
+        }
+      }
+    },
     "usersUpdateUserProfile": {
       "type": "object",
       "properties": {
@@ -5780,6 +5836,35 @@
           "type": "string",
           "example": "john.doe@example.com"
         },
+        "metadata": {
+          "description": "Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "example": {
+            "department": "engineering",
+            "location": "nyc-office"
+          }
+        },
+        "roles": {
+          "description": "Role to assign to the user within the organization",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/commonsRole"
+          },
+          "example": [
+            {
+              "name": "admin"
+            }
+          ]
+        }
+      }
+    },
+    "v1usersUpdateMembership": {
+      "type": "object",
+      "properties": {
         "metadata": {
           "description": "Custom key-value pairs for storing additional user context. Keys (3-25 chars), values (1-256 chars).",
           "type": "object",
