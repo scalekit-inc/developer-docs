@@ -26,6 +26,7 @@ export default defineConfig({
       title: 'Scalekit Docs',
       titleDelimiter: '',
       routeMiddleware: './src/routeData.ts',
+      lastUpdated: true,
       tableOfContents: {
         minHeadingLevel: 2,
         maxHeadingLevel: 4,
