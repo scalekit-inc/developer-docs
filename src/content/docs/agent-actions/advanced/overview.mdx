@@ -25,7 +25,7 @@ Create a connected_account for a user and an application. In the example below -
 
 ```python
 # Create a connected account for user if it doesn't exist already
-connected_account = connect.get_or_create_connected_account(
+connected_account = actions.get_or_create_connected_account(
             connection_name="gmail",
             identifier="user_123"
         )
@@ -45,7 +45,7 @@ Depending on the application's authentication type, Scalekit presents the user w
 # If the user hasn't yet authorized the gmail connection or if the user's access token is expired, generate a link for them to authorize the connection
 if(connected_account.status != "ACTIVE"):
       print(f"gmail is not connected: {connected_account.status}")
-      link_response = connect.get_authorization_link(
+      link_response = actions.get_authorization_link(
           connection_name="gmail",
           identifier="user_123"
       )
@@ -62,7 +62,7 @@ Below is a small example to fetch user's unread emails using the same connected 
 
 ```python
 # Fetch recent emails
-emails = agent_connect.tools.execute(
+emails = actions.execute_tool(
     connected_account_id=connected_account.id,
     tool='gmail_fetch_mails',
     parameters={

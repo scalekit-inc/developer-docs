@@ -45,7 +45,7 @@ First, install the Scalekit Python SDK and initialize the client with your API c
       client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
       env_url=os.getenv("SCALEKIT_ENV_URL"),
   )
-  connect = scalekit.connect
+  actions = scalekit.actions
 
   ```
 </p>
@@ -57,7 +57,7 @@ Let's authorize a user to access their Gmail account by creating a connected acc
 
 ```python
 # Create a connected account for user if it doesn't exist already
-connected_account = connect.get_or_create_connected_account(
+connected_account = actions.get_or_create_connected_account(
     connection_name="gmail",
     identifier="user_123"
 )
@@ -74,7 +74,7 @@ If the user's access token is expired, Scalekit will automatically refresh the a
 # If the user hasn't yet authorized the gmail connection or if the user's access token is expired, generate a link for them to authorize the connection
 if(connected_account.status != "ACTIVE"):
       print(f"gmail is not connected: {connected_account.status}")
-      link_response = connect.get_authorization_link(
+      link_response = actions.get_authorization_link(
           connection_name="gmail",
           identifier="user_123"
       )
@@ -90,8 +90,9 @@ Now that the user has successfully authorized the gmail connection, you can exec
 
 ```python
 # Fetch recent emails
-emails = agent_connect.tools.execute(
-    connected_account_id=connected_account.id,
+emails = actions.execute_tool(
+    #connected_account_id= connected_account.id      if using multiple connectors
+    identifier="user_123",
     tool='gmail_fetch_mails',
     parameters={
         'query': 'is:unread',
