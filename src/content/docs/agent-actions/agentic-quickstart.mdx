@@ -87,19 +87,26 @@ Let's build a simple agent that can fetch the last 5 unread emails from the user
 2. Generate a summary of the emails.
 
 ```python
-from langchain_openai import ChatOpenAI
-from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain_core.prompts import SystemMessagePromptTemplate, MessagesPlaceholder, HumanMessagePromptTemplate,PromptTemplate, ChatPromptTemplate
 
 # use scalekit SDK to fetch all GMAIL tools in langchain format
-tools =  connect.langchain.get_tools(
+tools =  actions.langchain.get_tools(
     identifier=identifier,
-    filter = Filter(provider = "GMAIL") # all tools for provider used by default
+     providers = ["GMAIL"] # all tools for provider used by default
 )
+
+prompt = ChatPromptTemplate.from_messages([
+    SystemMessagePromptTemplate(prompt=PromptTemplate(input_variables=[], template="You are a helpful assistant. Use tools if needed")),
+    MessagesPlaceholder(variable_name="chat_history", optional=True),
+    HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=["input"], template="{input}")),
+    MessagesPlaceholder(variable_name="agent_scratchpad")
+])
 
 llm = ChatOpenAI(model="gpt-4o")
 agent = create_openai_tools_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(agent=agent, tools=tools,verbose=True)
 result = agent_executor.invoke({"input":"fetch my last 5 unread emails and summarize it"}
+)
 )
 ```
 
