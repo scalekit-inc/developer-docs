@@ -1,0 +1,747 @@
+---
+title: Proxy Tools
+description: Learn how to make direct API calls to providers using Agent Actions's proxy tools.
+
+---
+
+import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Custom tool definitions allow you to create specialized tools tailored to your specific business needs. You can combine multiple provider tools, add custom logic, and create reusable workflows that go beyond standard tool functionality.
+
+## What are custom tools?
+
+Custom tools are user-defined functions that:
+
+- **Extend existing tools**: Build on top of standard provider tools
+- **Combine multiple operations**: Create workflows that use multiple tools
+- **Add business logic**: Include custom validation, processing, and formatting
+- **Create reusable patterns**: Standardize common operations across your team
+- **Integrate with external systems**: Connect to your own APIs and services
+
+## Custom tool structure
+
+Every custom tool follows a standardized structure:
+
+```javascript
+{
+  name: 'custom_tool_name',
+  display_name: 'Custom Tool Display Name',
+  description: 'Description of what the tool does',
+  category: 'custom',
+  provider: 'custom',
+  input_schema: {
+    type: 'object',
+    properties: {
+      // Define input parameters
+    },
+    required: ['required_param']
+  },
+  output_schema: {
+    type: 'object',
+    properties: {
+      // Define output format
+    }
+  },
+  implementation: async (parameters, context) => {
+    // Custom tool logic
+    return result;
+  }
+}
+```
+
+## Creating custom tools
+
+### Basic custom tool
+
+Here's a simple custom tool that sends a welcome email:
+
+```javascript
+const sendWelcomeEmail = {
+  name: 'send_welcome_email',
+  display_name: 'Send Welcome Email',
+  description: 'Send a personalized welcome email to new users',
+  category: 'communication',
+  provider: 'custom',
+  input_schema: {
+    type: 'object',
+    properties: {
+      user_name: {
+        type: 'string',
+        description: 'Name of the new user'
+      },
+      user_email: {
+        type: 'string',
+        format: 'email',
+        description: 'Email address of the new user'
+      },
+      company_name: {
+        type: 'string',
+        description: 'Name of the company'
+      }
+    },
+    required: ['user_name', 'user_email', 'company_name']
+  },
+  output_schema: {
+    type: 'object',
+    properties: {
+      message_id: {
+        type: 'string',
+        description: 'ID of the sent email'
+      },
+      status: {
+        type: 'string',
+        enum: ['sent', 'failed'],
+        description: 'Status of the email'
+      }
+    }
+  },
+  implementation: async (parameters, context) => {
+    const { user_name, user_email, company_name } = parameters;
+
+    // Generate personalized email content
+    const emailBody = `
+      Welcome to ${company_name}, ${user_name}!
+
+      We're excited to have you join our team. Here are some next steps:
+
+      1. Complete your profile setup
+      2. Join our Slack workspace
+      3. Schedule a meeting with your manager
+
+      If you have any questions, don't hesitate to reach out!
+
+      Best regards,
+      The ${company_name} Team
+    `;
+
+    // Send email using standard email tool
+    const result = await context.tools.execute({
+      tool: 'send_email',
+      parameters: {
+        to: [user_email],
+        subject: `Welcome to ${company_name}!`,
+        body: emailBody
+      }
+    });
+
+    return {
+      message_id: result.message_id,
+      status: result.status === 'sent' ? 'sent' : 'failed'
+    };
+  }
+};
+```
+
+### Multi-step workflow tool
+
+Create a tool that combines multiple operations:
+
+```javascript
+const createProjectWorkflow = {
+  name: 'create_project_workflow',
+  display_name: 'Create Project Workflow',
+  description: 'Create a complete project setup with Jira project, Slack channel, and team notifications',
+  category: 'project_management',
+  provider: 'custom',
+  input_schema: {
+    type: 'object',
+    properties: {
+      project_name: {
+        type: 'string',
+        description: 'Name of the project'
+      },
+      project_key: {
+        type: 'string',
+        description: 'Project key for Jira'
+      },
+      team_members: {
+        type: 'array',
+        items: { type: 'string', format: 'email' },
+        description: 'Team member email addresses'
+      },
+      project_description: {
+        type: 'string',
+        description: 'Project description'
+      }
+    },
+    required: ['project_name', 'project_key', 'team_members']
+  },
+  output_schema: {
+    type: 'object',
+    properties: {
+      jira_project_id: { type: 'string' },
+      slack_channel_id: { type: 'string' },
+      notifications_sent: { type: 'number' }
+    }
+  },
+  implementation: async (parameters, context) => {
+    const { project_name, project_key, team_members, project_description } = parameters;
+
+    try {
+      // Step 1: Create Jira project
+      const jiraProject = await context.tools.execute({
+        tool: 'create_jira_project',
+        parameters: {
+          key: project_key,
+          name: project_name,
+          description: project_description,
+          project_type: 'software'
+        }
+      });
+
+      // Step 2: Create Slack channel
+      const slackChannel = await context.tools.execute({
+        tool: 'create_channel',
+        parameters: {
+          name: `${project_key.toLowerCase()}-team`,
+          topic: `Discussion for ${project_name}`,
+          is_private: false
+        }
+      });
+
+      // Step 3: Send notifications to team members
+      let notificationCount = 0;
+      for (const member of team_members) {
+        try {
+          await context.tools.execute({
+            tool: 'send_email',
+            parameters: {
+              to: [member],
+              subject: `New Project: ${project_name}`,
+              body: `
+                You've been added to the new project "${project_name}".
+
+                Jira Project: ${jiraProject.project_url}
+                Slack Channel: #${slackChannel.channel_name}
+
+                Please join the Slack channel to start collaborating!
+              `
+            }
+          });
+          notificationCount++;
+        } catch (error) {
+          console.error(`Failed to send notification to ${member}:`, error);
+        }
+      }
+
+      // Step 4: Post welcome message to Slack channel
+      await context.tools.execute({
+        tool: 'send_message',
+        parameters: {
+          channel: `#${slackChannel.channel_name}`,
+          text: `<� Welcome to ${project_name}! This channel is for project discussion and updates.`
+        }
+      });
+
+      return {
+        jira_project_id: jiraProject.project_id,
+        slack_channel_id: slackChannel.channel_id,
+        notifications_sent: notificationCount
+      };
+
+    } catch (error) {
+      throw new Error(`Project creation failed: ${error.message}`);
+    }
+  }
+};
+```
+
+### Data processing tool
+
+Create a tool that processes and analyzes data:
+
+```javascript
+const generateTeamReport = {
+  name: 'generate_team_report',
+  display_name: 'Generate Team Report',
+  description: 'Generate a comprehensive team performance report from multiple sources',
+  category: 'analytics',
+  provider: 'custom',
+  input_schema: {
+    type: 'object',
+    properties: {
+      team_members: {
+        type: 'array',
+        items: { type: 'string', format: 'email' },
+        description: 'Team member email addresses'
+      },
+      start_date: {
+        type: 'string',
+        format: 'date',
+        description: 'Report start date'
+      },
+      end_date: {
+        type: 'string',
+        format: 'date',
+        description: 'Report end date'
+      },
+      include_calendar: {
+        type: 'boolean',
+        default: true,
+        description: 'Include calendar analysis'
+      }
+    },
+    required: ['team_members', 'start_date', 'end_date']
+  },
+  output_schema: {
+    type: 'object',
+    properties: {
+      report_url: { type: 'string' },
+      summary: { type: 'object' },
+      sent_to: { type: 'array', items: { type: 'string' } }
+    }
+  },
+  implementation: async (parameters, context) => {
+    const { team_members, start_date, end_date, include_calendar } = parameters;
+
+    // Fetch Jira issues assigned to team members
+    const jiraIssues = await context.tools.execute({
+      tool: 'fetch_issues',
+      parameters: {
+        jql: `assignee in (${team_members.join(',')}) AND created >= ${start_date} AND created <= ${end_date}`,
+        fields: ['summary', 'status', 'assignee', 'created', 'resolved']
+      }
+    });
+
+    // Fetch calendar events if requested
+    let calendarData = null;
+    if (include_calendar) {
+      calendarData = await context.tools.execute({
+        tool: 'fetch_events',
+        parameters: {
+          start_date: start_date,
+          end_date: end_date,
+          attendees: team_members
+        }
+      });
+    }
+
+    // Process and analyze data
+    const report = {
+      period: { start_date, end_date },
+      team_size: team_members.length,
+      issues: {
+        total: jiraIssues.issues.length,
+        completed: jiraIssues.issues.filter(i => i.status === 'Done').length,
+        in_progress: jiraIssues.issues.filter(i => i.status === 'In Progress').length
+      },
+      meetings: calendarData ? {
+        total: calendarData.events.length,
+        hours: calendarData.events.reduce((acc, event) => acc + event.duration, 0)
+      } : null
+    };
+
+    // Generate HTML report
+    const htmlReport = `
+      <html>
+        <head><title>Team Report - ${start_date} to ${end_date}</title></head>
+        <body>
+          <h1>Team Performance Report</h1>
+          <h2>Summary</h2>
+          <p>Team Size: ${report.team_size}</p>
+          <p>Total Issues: ${report.issues.total}</p>
+          <p>Completed Issues: ${report.issues.completed}</p>
+          <p>In Progress: ${report.issues.in_progress}</p>
+          ${report.meetings ? `<p>Total Meetings: ${report.meetings.total}</p>` : ''}
+        </body>
+      </html>
+    `;
+
+    // Send report via email
+    const emailResults = await Promise.all(
+      team_members.map(member =>
+        context.tools.execute({
+          tool: 'send_email',
+          parameters: {
+            to: [member],
+            subject: `Team Report - ${start_date} to ${end_date}`,
+            html_body: htmlReport
+          }
+        })
+      )
+    );
+
+    return {
+      report_url: 'Generated and sent via email',
+      summary: report,
+      sent_to: team_members.filter((_, index) => emailResults[index].status === 'sent')
+    };
+  }
+};
+```
+
+## Registering custom tools
+
+### Using the API
+
+Register your custom tools with Agent Actions:
+
+<Tabs>
+<TabItem value="javascript" label="JavaScript">
+
+```javascript
+// Register a custom tool
+const registeredTool = await agentConnect.tools.register({
+  ...sendWelcomeEmail,
+  organization_id: 'your_org_id'
+});
+
+console.log('Tool registered:', registeredTool.id);
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+# Register a custom tool
+registered_tool = agent_connect.tools.register(
+    **send_welcome_email,
+    organization_id='your_org_id'
+)
+
+print(f'Tool registered: {registered_tool.id}')
+```
+
+</TabItem>
+<TabItem value="curl" label="cURL">
+
+```bash
+curl -X POST "${SCALEKIT_BASE_URL}/v1/connect/tools/custom" \
+  -H "Authorization: Bearer ${SCALEKIT_CLIENT_SECRET}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "send_welcome_email",
+    "display_name": "Send Welcome Email",
+    "description": "Send a personalized welcome email to new users",
+    "category": "communication",
+    "provider": "custom",
+    "input_schema": {...},
+    "output_schema": {...},
+    "implementation": "async (parameters, context) => {...}"
+  }'
+```
+
+</TabItem>
+</Tabs>
+
+### Using the dashboard
+
+1. Navigate to **Tools** in your Agent Actions dashboard
+2. Click **Create Custom Tool**
+3. Fill in the tool definition form
+4. Test the tool with sample parameters
+5. Save and activate the tool
+
+## Tool context and utilities
+
+The `context` object provides access to:
+
+### Standard tools
+
+Execute any standard Agent Actions tool:
+
+```javascript
+// Execute standard tools
+const result = await context.tools.execute({
+  tool: 'send_email',
+  parameters: { ... }
+});
+
+// Execute with specific connected account
+const result = await context.tools.execute({
+  connected_account_id: 'specific_account',
+  tool: 'send_email',
+  parameters: { ... }
+});
+```
+
+### Connected accounts
+
+Access connected account information:
+
+```javascript
+// Get connected account details
+const account = await context.accounts.get(accountId);
+
+// List accounts for a user
+const accounts = await context.accounts.list({
+  identifier: 'user_123',
+  provider: 'gmail'
+});
+```
+
+### Utilities
+
+Access utility functions:
+
+```javascript
+// Generate unique IDs
+const id = context.utils.generateId();
+
+// Format dates
+const formatted = context.utils.formatDate(date, 'YYYY-MM-DD');
+
+// Validate email
+const isValid = context.utils.isValidEmail(email);
+
+// HTTP requests
+const response = await context.utils.httpRequest({
+  url: 'https://api.example.com/data',
+  method: 'GET',
+  headers: { 'Authorization': 'Bearer token' }
+});
+```
+
+### Error handling
+
+Throw structured errors:
+
+```javascript
+// Throw validation error
+throw new context.errors.ValidationError('Invalid email format');
+
+// Throw business logic error
+throw new context.errors.BusinessLogicError('User not found');
+
+// Throw external API error
+throw new context.errors.ExternalAPIError('GitHub API returned 500');
+```
+
+## Testing custom tools
+
+### Unit testing
+
+Test custom tools in isolation:
+
+```javascript
+// Mock context for testing
+const mockContext = {
+  tools: {
+    execute: jest.fn().mockResolvedValue({
+      message_id: 'test_msg_123',
+      status: 'sent'
+    })
+  },
+  utils: {
+    generateId: () => 'test_id_123',
+    formatDate: (date, format) => '2024-01-15'
+  }
+};
+
+// Test custom tool
+const result = await sendWelcomeEmail.implementation({
+  user_name: 'John Doe',
+  user_email: 'john@example.com',
+  company_name: 'Acme Corp'
+}, mockContext);
+
+expect(result.status).toBe('sent');
+expect(mockContext.tools.execute).toHaveBeenCalledWith({
+  tool: 'send_email',
+  parameters: expect.objectContaining({
+    to: ['john@example.com'],
+    subject: 'Welcome to Acme Corp!'
+  })
+});
+```
+
+### Integration testing
+
+Test with real Agent Actions:
+
+```javascript
+// Test custom tool with real connections
+const testResult = await agentConnect.tools.execute({
+  connected_account_id: 'test_gmail_account',
+  tool: 'send_welcome_email',
+  parameters: {
+    user_name: 'Test User',
+    user_email: 'test@example.com',
+    company_name: 'Test Company'
+  }
+});
+
+console.log('Test result:', testResult);
+```
+
+## Best practices
+
+### Tool design
+
+- **Single responsibility**: Each tool should have a clear, single purpose
+- **Consistent naming**: Use descriptive, consistent naming conventions
+- **Clear documentation**: Provide detailed descriptions and examples
+- **Error handling**: Implement comprehensive error handling
+- **Input validation**: Validate all input parameters
+
+### Performance optimization
+
+- **Parallel execution**: Use Promise.all() for independent operations
+- **Caching**: Cache frequently accessed data
+- **Batch operations**: Group similar operations together
+- **Timeout handling**: Set appropriate timeouts for external calls
+
+### Security considerations
+
+- **Input sanitization**: Sanitize all user inputs
+- **Permission checks**: Verify user permissions before execution
+- **Sensitive data**: Handle sensitive data securely
+- **Rate limiting**: Implement rate limiting for resource-intensive operations
+
+## Custom tool examples
+
+### Slack notification tool
+
+```javascript
+const sendSlackNotification = {
+  name: 'send_slack_notification',
+  display_name: 'Send Slack Notification',
+  description: 'Send formatted notifications to Slack with optional mentions',
+  category: 'communication',
+  provider: 'custom',
+  input_schema: {
+    type: 'object',
+    properties: {
+      channel: { type: 'string' },
+      message: { type: 'string' },
+      severity: { type: 'string', enum: ['info', 'warning', 'error'] },
+      mentions: { type: 'array', items: { type: 'string' } }
+    },
+    required: ['channel', 'message']
+  },
+  output_schema: {
+    type: 'object',
+    properties: {
+      message_ts: { type: 'string' },
+      permalink: { type: 'string' }
+    }
+  },
+  implementation: async (parameters, context) => {
+    const { channel, message, severity = 'info', mentions = [] } = parameters;
+
+    const colors = {
+      info: 'good',
+      warning: 'warning',
+      error: 'danger'
+    };
+
+    const mentionText = mentions.length > 0 ?
+      `${mentions.map(m => `<@${m}>`).join(' ')} ` : '';
+
+    return await context.tools.execute({
+      tool: 'send_message',
+      parameters: {
+        channel,
+        text: `${mentionText}${message}`,
+        attachments: [
+          {
+            color: colors[severity],
+            text: message,
+            ts: Math.floor(Date.now() / 1000)
+          }
+        ]
+      }
+    });
+  }
+};
+```
+
+### Calendar scheduling tool
+
+```javascript
+const scheduleTeamMeeting = {
+  name: 'schedule_team_meeting',
+  display_name: 'Schedule Team Meeting',
+  description: 'Find available time slots and schedule team meetings',
+  category: 'scheduling',
+  provider: 'custom',
+  input_schema: {
+    type: 'object',
+    properties: {
+      attendees: { type: 'array', items: { type: 'string' } },
+      duration: { type: 'number', minimum: 15 },
+      preferred_times: { type: 'array', items: { type: 'string' } },
+      meeting_title: { type: 'string' },
+      meeting_description: { type: 'string' }
+    },
+    required: ['attendees', 'duration', 'meeting_title']
+  },
+  output_schema: {
+    type: 'object',
+    properties: {
+      event_id: { type: 'string' },
+      scheduled_time: { type: 'string' },
+      attendees_notified: { type: 'number' }
+    }
+  },
+  implementation: async (parameters, context) => {
+    const { attendees, duration, preferred_times, meeting_title, meeting_description } = parameters;
+
+    // Find available time slots
+    const availableSlots = await context.tools.execute({
+      tool: 'find_available_slots',
+      parameters: {
+        attendees,
+        duration,
+        preferred_times: preferred_times || []
+      }
+    });
+
+    if (availableSlots.length === 0) {
+      throw new context.errors.BusinessLogicError('No available time slots found');
+    }
+
+    // Schedule the meeting at the first available slot
+    const selectedSlot = availableSlots[0];
+    const event = await context.tools.execute({
+      tool: 'create_event',
+      parameters: {
+        title: meeting_title,
+        description: meeting_description,
+        start_time: selectedSlot.start_time,
+        end_time: selectedSlot.end_time,
+        attendees
+      }
+    });
+
+    return {
+      event_id: event.event_id,
+      scheduled_time: selectedSlot.start_time,
+      attendees_notified: attendees.length
+    };
+  }
+};
+```
+
+## Versioning and deployment
+
+### Version management
+
+Version your custom tools for backward compatibility:
+
+```javascript
+const toolV2 = {
+  ...originalTool,
+  version: '2.0.0',
+  // Updated implementation
+};
+
+// Deploy new version
+await agentConnect.tools.register(toolV2);
+
+// Deprecate old version
+await agentConnect.tools.deprecate(originalTool.name, '1.0.0');
+```
+
+### Deployment strategies
+
+- **Blue-green deployment**: Deploy new version alongside old version
+- **Canary deployment**: Gradually roll out to subset of users
+- **Feature flags**: Use feature flags to control tool availability
+- **Rollback strategy**: Plan for quick rollback if issues arise
+
+<Aside type="note">
+**Ready to build?** Start with simple custom tools and gradually add complexity. Test thoroughly before deploying to production, and consider the impact on your users when making changes.
+</Aside>
+
+Custom tools unlock the full potential of Agent Actions by allowing you to create specialized workflows that perfectly match your business needs. With proper design, testing, and deployment practices, you can build powerful tools that enhance your team's productivity and streamline complex operations.
