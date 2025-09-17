@@ -42,7 +42,7 @@ First, install the Scalekit Python SDK and initialize the client with your API c
       client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
       env_url=os.getenv("SCALEKIT_ENV_URL"),
   )
-  connect = scalekit.connect
+  actions = scalekit.actions
 
   ```
 </p>
@@ -52,7 +52,7 @@ Let's authorize a user to access their Gmail account by creating a connected acc
 
 ```python
 # Create a connected account for user if it doesn't exist already
-connected_account = connect.get_or_create_connected_account(
+connected_account = actions.get_or_create_connected_account(
             connection_name="gmail",
             identifier="user_123"
         )
@@ -70,7 +70,7 @@ If the user's access token is expired, Scalekit will automatically refresh the a
 # If the user hasn't yet authorized the gmail connection or if the user's access token is expired, 
 # generate a magic link and redirect the user to this link so that the user can complete authorization
 if(connected_account.status != "ACTIVE"):
-      link_response = connect.get_authorization_link(
+      link_response = actions.get_authorization_link(
           connection_name="gmail",
           identifier="user_123"
       )
@@ -90,12 +90,21 @@ Let's build a simple agent that can fetch the last 5 unread emails from the user
 ```python
 from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain_core.prompts import SystemMessagePromptTemplate, MessagesPlaceholder, HumanMessagePromptTemplate,PromptTemplate, ChatPromptTemplate
 
 # use scalekit SDK to fetch all GMAIL tools in langchain format
-tools =  connect.langchain.get_tools(
+tools =  actions.langchain.get_tools(
     identifier=identifier,
-    filter = Filter(provider = "GMAIL") # all tools for provider used by default
+     providers = ["GMAIL"], # all tools for provider used by default
+     page_size=100
 )
+
+prompt = ChatPromptTemplate.from_messages([
+    SystemMessagePromptTemplate(prompt=PromptTemplate(input_variables=[], template="You are a helpful assistant. Use tools if needed")),
+    MessagesPlaceholder(variable_name="chat_history", optional=True),
+    HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=["input"], template="{input}")),
+    MessagesPlaceholder(variable_name="agent_scratchpad")
+])
 
 llm = ChatOpenAI(model="gpt-4o")
 agent = create_openai_tools_agent(llm, tools, prompt)
