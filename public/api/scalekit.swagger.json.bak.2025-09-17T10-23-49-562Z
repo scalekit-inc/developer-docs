@@ -318,7 +318,29 @@
               "$ref": "#/definitions/usersUpdateMembershipResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const response = await scalekit.user.updateMembership(\n\t\"org-123\", // organizationId\n\t\"user-456\", // userId\n\t{\n\t\troles: [\"viewer\"], // roles to assign\n\t\tmetadata: {\n\t\t\t// optional metadata\n\t \t\tdepartment: \"Engineering\",\n\t\t\tlocation: \"San Francisco\",\n\t\t},\n\t}\n);"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "response = scalekit_client.users.update_membership(\n    organization_id=\"your_organization_id\",\n    user_id=\"your_user_id\",\n    membership=UpdateMembership(\n        roles=[ Role(name=\"editor\")]\n    )\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "response, err := ScalekitClient.User().UpdateMembership(\n    context.Background(),\n    \"org-123\", // organizationId\n    \"user-456\", // userId\n    \u0026users.UpdateMembership{\n        Roles: []*commons.Role{\n            {\n                Name: \"viewer\",\n            },\n        },\n        Metadata: map[string]string{\n            \"department\": \"Engineering\",\n            \"location\":   \"San Francisco\",\n        },\n    },\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "UpdateMembershipResponse response = scalekitClient.users().updateMembership(\n    \"org-123\",   // organizationId\n    \"user-456\",  // userId\n    UpdateMembershipRequest.newBuilder()\n        .setMembership(\n            UpdateMembership.newBuilder()\n                .addRoles(Role.newBuilder().setName(\"viewer\").build())\n                .putMetadata(\"department\", \"Engineering\")\n                .putMetadata(\"location\", \"San Francisco\")\n                .build()\n        )\n        .build()\n);"
+          }
+        ]
       }
     },
     "/api/v1/organizations": {
