@@ -479,17 +479,17 @@ Before you begin, ensure you have:
            <TabItem label="Go">
              ```go
              // Verify with OTP code
-             verifyResp, err := scalekitClient.Passwordless().VerifyPasswordlessEmail(
-               ctx, // context.Context
-               &scalekit.VerifyPasswordlessOptions{
-                 Code:          "123456",     // OTP code entered by the user
-                 AuthRequestId: authRequestId, // from send response
-               },
+             verifyResponse, err := scalekitClient.Passwordless().VerifyPasswordlessEmail(
+                 ctx,
+                 &scalekit.VerifyPasswordlessOptions{
+                     Code:          "123456", // OTP code
+                     AuthRequestId: authRequestId,
+                 },
              )
 
              if err != nil {
-               // handle invalid/expired code or other errors
-               // ...
+                 // Handle error
+                 return
              }
 
              // verifyResp contains the verified user's info
@@ -622,6 +622,24 @@ Before you begin, ensure you have:
              | `template` | The template that was used for the verification code <Badge variant="note" text="string" /> |
              | `passwordlessType` | The type of passwordless authentication to use. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
            </details>
+         </TabItem>
+         <TabItem label="Go">
+         ```go
+         verifyResponse, err := scalekitClient.Passwordless().VerifyPasswordlessEmail(
+             ctx,
+             &scalekit.VerifyPasswordlessOptions{
+                 LinkToken: linkToken, // Magic link token
+             },
+         )
+
+         if err != nil {
+             // Handle error
+             return
+         }
+
+         // User verified successfully
+         userEmail := verifyResponse.Email
+         ```
          </TabItem>
        </Tabs>
      </TabItem>
