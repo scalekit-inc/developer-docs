@@ -1,8 +1,8 @@
 ---
-title: Invite users
+title: "Invite users"
 description: "Learn how to build invite-only access for your application using Scalekit, with support for both dashboard-based and programmatic user invitations."
 sidebar:
-  label: Invite users
+  label: "Invite users"
 head:
   - tag: style
     content: |
@@ -11,6 +11,9 @@ head:
       }
       .sl-markdown-content h3 {
         font-size: var(--sl-text-lg);
+      }
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
       }
 prev: false
 next:
@@ -40,13 +43,13 @@ Common use cases include:
 - **Custom workflows**: Implement approval processes or conditional invitations based on business logic.
 - **Integration with existing systems**: Connect invitation flows with your CRM, HR systems, or user directories.
 
-## Inviting Users through the Scalekit Dashboard
+## Use the dashboard to invite users
 
 The quickest way to get started with user invitations is through the Scalekit Dashboard. Navigate to the Users section and click the "Add User" button to invite new members to your organization. You can specify their email address, assign roles, and customize the invitation settings directly from the UI.
 
 ![](@/assets/docs/fsa/user-management/3-ui-user-invite.png)
 
-## Programmatic Invitations with Scalekit SDK
+## Build custom invitation flows with the SDK
 
 For applications that require custom invitation flows or automated user management, Scalekit provides a comprehensive SDK. This allows you to programmatically invite users, manage invitations, and integrate with your existing systems.
 
@@ -126,9 +129,76 @@ For applications that require custom invitation flows or automated user manageme
       - `INVITE_EXPIRED`: Membership has been deactivated
     </Aside>
 
- 3. ### Handle user invitation acceptance
+ 3. ### Resend user invitation
 
-    When invited users click the invitation link in their email, Scalekit redirects them to your application's [registered initiate login endpoint](/fsa/reference/redirects/#understanding-redirect-types). Your application then completes the authentication flow.
+    Resend invitation emails to users who have pending or expired invitations. If the invitation has expired, a new one is automatically created and sent. If still valid, a reminder email is sent instead.
+
+    **When to resend invitations:**
+    - Users haven't responded to their initial invitation
+    - Original invitations have expired
+    - Users request a new invitation link
+    - Users can't find the original email
+
+    The invitation email includes a secure magic link that allows the user to complete their account setup and join the organization. Each resend operation increments the resend counter. The expiration time stamp is updated if a resend is requested upon the expiry, if not previous expiry timestamp remains.
+
+    <Tabs syncKey="tech-stack">
+      <TabItem value="curl" label="cURL">
+        ```bash title="Resend invitation"
+        curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/invites/organizations/{organization_id}/users/{id}/resend' \
+          --request PATCH \
+          --header 'Content-Type: application/json' \
+          --data 'null'
+        ```
+      </TabItem>
+      <TabItem value="node" label="Node.js">
+        ```javascript title="Express.js"
+        // Example Node.js implementation coming soon
+        ```
+      </TabItem>
+      <TabItem value="python" label="Python">
+        ```python title="Flask"
+        # Example Python implementation coming soon
+        ```
+      </TabItem>
+    </Tabs>
+
+    **Parameters:**
+
+    | Parameter | Description |
+    | --------- | ----------- |
+    | `organization_id` | Unique identifier of the organization (starts with 'org_') |
+    | `id` | System-generated user ID of the user with a pending invitation (starts with 'usr_') |
+
+    **Response:**
+    ```json title="200"
+    {
+      "invite": {
+        "created_at": "2025-07-10T08:00:00Z",
+        "expires_at": "2025-12-31T23:59:59Z",
+        "invited_by": "admin_998877",
+        "organization_id": "org_987654321",
+        "resent_at": "2025-07-15T09:30:00Z",
+        "resent_count": 2,
+        "status": "pending_invite",
+        "user_id": "usr_123456"
+      }
+    }
+    ```
+
+    <Aside type="note" title="Response status codes">
+      - **200**: Success - Invitation resent. New expiry timestamp is set only if previous invitation is expired.
+      - **400**: Bad Request - Invalid parameters, user already active, or invitation accepted
+      - **404**: Not Found - User, organization, or invitation not found. Verify all IDs are correct.
+      - **500**: Internal Server Error - Email service unavailable or system error
+    </Aside>
+
+    <Aside type="tip" title="Tracking resends">
+      Monitor the `resent_count` field to track how many times an invitation has been resent. Consider implementing rate limiting to prevent excessive resends.
+    </Aside>
+
+ 4. ### Handle user invitation acceptance
+
+    When invited users click the invitation link in their email, Scalekit redirects them to your application's [registered initiate login endpoint](/guides/dashboard/redirects/#redirect-endpoint-types). Your application then completes the authentication flow.
 
     **Set up the initiate login endpoint:**
 

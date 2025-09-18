@@ -1,0 +1,123 @@
+---
+title: "Redirects"
+topic: dev-kit
+description: "Learn how to configure and validate redirect URLs in Scalekit for secure authentication flows, including callback, login, logout, and back-channel logout endpoints."
+sidebar:
+  label: "Redirect configurations"
+head:
+  - tag: style
+    attrs:
+      type: text/css
+    content: |
+      table {
+        word-wrap: break-word;
+        table-layout: fixed;
+      }
+      td {
+        word-wrap: break-word;
+        vertical-align: top;
+        padding: 8px;
+      }
+      .icon-text {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        white-space: nowrap;
+      }
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import { Aside, Icon, CardGrid } from '@astrojs/starlight/components'
+
+Redirects are registered endpoints in Scalekit that control where users are directed during authentication flows. You must configure these endpoints in the Scalekit dashboard before they can be used.
+
+All redirect URIs must be registered under Authentication settings in your Scalekit dashboard. This is a security requirement to prevent unauthorized redirects.
+
+
+## Redirect endpoint types
+
+### Allowed callback URLs
+**Purpose**: Where users are sent after successful authentication to exchange authorization codes and retrieve profile information.
+
+**Example scenario**: A user completes sign-in and Scalekit redirects them to `https://yourapp.com/callback` where your application processes the authentication response.
+
+### Initiate login URL
+**Purpose**: When authentication does not initiate from your application, Scalekit redirects users back to your application's login initiation endpoint. This endpoint should point to a route in your application that ultimately redirects users to Scalekit's `/authorize` endpoint.
+
+**Example scenarios**:
+
+- **Bookmarked login page**: A user bookmarks your login page and visits it directly. Your application detects they're not authenticated and redirects them to Scalekit's authorization endpoint.
+
+- **Organization invitation flow**: A user clicks an invitation link to join an organization. Your application receives the invitation token and redirects the user to Scalekit's authorization endpoint to complete the sign-up process.
+
+- **IdP-initiated SSO**: An administrator initiates single sign-on from their identity provider dashboard. The IdP redirects users to your application, which then redirects them to Scalekit's authorization endpoint to complete authentication.
+
+- **Session expiration**: When a user's session expires or they access a protected resource, they're redirected to `https://yourapp.com/login` which then redirects to Scalekit's authentication endpoint.
+
+### Post logout URL
+**Purpose**: Where users are sent after successfully signing out of your application.
+
+**Example scenario**: After logging out, users are redirected to `https://yourapp.com/goodbye` to confirm their session has ended.
+
+### Back channel logout URL
+**Purpose**: A secure endpoint that receives notifications whenever a user is logged out from Scalekit, regardless of how the logout was initiated — admin triggered, user initiated, or due to session policies like idle timeout.
+
+**Example scenario**: When a user logs out from any application (user-initiated, admin-initiated, or due to session policies like idle timeout), Scalekit sends a logout notification to `https://yourapp.com/logout` to suggest termination of the user's session across all connected applications, ensuring coordinated logout for enhanced security.
+
+### Custom URI schemes
+
+Custom URI schemes allow for redirects, enabling deep linking and native app integrations. Some applications include:
+- **Desktop applications**: Use schemes like `{scheme}://` for native app integration
+- **Mobile apps**: Use schemes like `myapp://` for mobile app deep linking
+
+**Example custom schemes**:
+- `{scheme}://auth/callback` - For custom scheme authentication
+- `myapp://login/callback` - For mobile app authentication
+
+
+## URI validation requirements
+
+Your redirect URIs must meet specific requirements that vary between development and production environments:
+
+
+
+| Requirement | Development | Production |
+| ----------- | ----------- | ---------- |
+| Supported schemes | <span class="icon-text"><Icon name="approve-check" /> `http` <Icon name="approve-check" /> `https` <Icon name="approve-check" /> `{scheme}`</span> | <span class="icon-text"><Icon name="approve-check" /> `https` <Icon name="approve-check" /> `{scheme}`</span> |
+| Localhost support | <span class="icon-text"><Icon name="approve-check" /> Allowed</span> | <span class="icon-text"><Icon name="error" /> Not allowed</span> |
+| Wildcard domains | <span class="icon-text"><Icon name="approve-check" /> Allowed</span> | <span class="icon-text"><Icon name="error" /> Not allowed</span> |
+| URI length limit | 256 characters | 256 characters |
+| Query parameters | <span class="icon-text"><Icon name="error" /> Not allowed</span> | <span class="icon-text"><Icon name="error" /> Not allowed</span> |
+| URL fragments | <span class="icon-text"><Icon name="error" /> Not allowed</span> | <span class="icon-text"><Icon name="error" /> Not allowed</span> |
+
+
+
+### Wildcard usage patterns
+
+Wildcards can simplify testing in development environments, but they must follow specific patterns:
+
+| Validation rule                                                                     | Examples                                                                                                                                                                                                          |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Wildcards cannot be used as root-level domains                          | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> `https://*.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://*.acmecorp.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://auth-*.acmecorp.com`</div> |
+| Only one wildcard character is allowed per URI                                 | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> `https://*.*.acmecorp.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://*.acmecorp.com`</div>                                                                            |
+| Wildcards must be in the hostname component only     | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> `https://acmecorp.*.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://*.acmecorp.com`</div>                                                                  |
+| Wildcards must be in the outermost subdomain | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> `https://auth.*.acmecorp.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://*.auth.acmecorp.com`</div>                                                        |
+
+<Aside type="caution">
+According to the <a href="https://tools.ietf.org/html/rfc6749#section-3.1.2" target="_blank">OAuth 2.0 specification</a>, redirect URIs must be absolute URIs. For development convenience, Scalekit relaxes this restriction slightly by allowing wildcards in development environments.
+</Aside>
+
+## Configure redirect URIs
+
+![](@/assets/docs/redirects/screenshot.png)
+
+To configure your redirect URIs:
+
+1. Navigate to **Authentication settings** in your Scalekit dashboard
+2. Add your URIs following the validation rules above
+3. Save your configuration

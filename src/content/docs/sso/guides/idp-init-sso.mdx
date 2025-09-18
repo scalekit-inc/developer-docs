@@ -26,16 +26,21 @@ IdP-initiated SSO allows users to log into your application directly from their 
 Since the login is initiated from the identity provider's portal, this flow is called IdP-initiated SSO.
 
 To securely implement IdP-initiated SSO, follow these steps to convert incoming IdP-initiated requests to SP-initiated flows:
-
 <Steps>
 
-1. **Set up a default redirect endpoint**: When Scalekit receives an IdP-initiated SSO request, it sends a request to your configured default `redirect_uri` with an `idp_initiated_login` parameter.
+1. **Set up an initiate login endpoint**
 
-   ```sh showLineNumbers=false  "idp_initiated_login=<encoded_jwt_token>" wrap
-   https://{your-subdomain}.scalekit.dev/default-redirect-uri?idp_initiated_login=<encoded_jwt_token>
+   Create an endpoint in your application that starts the authentication process. When Scalekit receives an IdP-initiated SSO request, it redirects the user to this endpoint with an `idp_initiated_login` parameter.
+
+   ```sh showLineNumbers=false "idp_initiated_login=<encoded_jwt_token>" wrap
+   https://yourapp.com/login?idp_initiated_login=<encoded_jwt_token>
    ```
 
-2. **Extract information from the JWT token**: The `idp_initiated_login` parameter contains a signed JWT with organization, connection, and user details.
+   [Register this endpoint in Scalekit Dashboard](/guides/dashboard/redirects/#initiate-login-url)
+
+2. **Extract information from the JWT token**
+
+   The `idp_initiated_login` parameter contains a signed JWT with organization, connection, and user details.
 
    ```js showLineNumbers=false
    {
@@ -49,24 +54,23 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
    }
    ```
 
-3. **Convert to SP-initiated flow**: Use the extracted parameters to initiate a new SSO request. Here are implementation examples:
+3. **Convert to SP-initiated flow**
 
-   <div>
+   Use the extracted parameters to initiate a new SSO request. Here are implementation examples:
+
    <Tabs syncKey="tech-stack">
    <TabItem value="nodejs" label="Node.js">
 
    ```javascript showLineNumbers=false "idp_initiated_login"
-   // 1. Default redirect URL is callback with JWT
+   // 1. Your Initiate Login Endpoint receives a JWT
    const { code, error_description, idp_initiated_login } = req.query;
 
-     if (error_description) {
-       return res.status(400).json({ message: error_description });
-     }
-
+   if (error_description) {
+     return res.status(400).json({ message: error_description });
+   }
 
    // 2. Decode the JWT
    if (idp_initiated_login) {
-
      const {
        connection_id,
        organization_id,
@@ -76,29 +80,28 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
 
      let options = {};
      // Either ONE of the following properties
-       options["connectionId"] = connection_id
-       options["organizationId"] = organization_id
-       options["loginHint"] = login_hint
+     options["connectionId"] = connection_id
+     options["organizationId"] = organization_id
+     options["loginHint"] = login_hint
 
-       // 3. Generate Authorization URL
-       const url = scalekit.getAuthorizationUrl(
-         <redirect_uri>,
-         options
-       )
-       return res.redirect(url);
-     }
+     // 3. Generate Authorization URL
+     const url = scalekit.getAuthorizationUrl(
+       redirect_uri,
+       options
+     )
+     return res.redirect(url);
+   }
    ```
 
    </TabItem>
    <TabItem value="python" label="Python">
 
-   ```python showLineNumbers "idp_initiated_login"
-   # 1. Default redirect URL is callback with JWT
+   ```py showLineNumbers=false "idp_initiated_login"
+   # 1. Your Initiate Login Endpoint receives a JWT
    code = request.args.get('code')
    error_description = request.args.get('error_description')
    idp_initiated_login = request.args.get('idp_initiated_login')
    options = AuthorizationUrlOptions()
-
 
    if error_description:
        # Handle Error
@@ -125,8 +128,8 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
    </TabItem>
    <TabItem value="golang" label="Go">
 
-   ```go showLineNumbers "idp_initiated_login"
-   // 1. Default redirect URL is callback with JWT
+   ```go showLineNumbers=false "idp_initiated_login"
+   // 1. Your Initiate Login Endpoint receives a JWT
    code := r.URL.Query().Get("code")
    err_description := r.URL.Query().Get("error_description")
    if err_description != "" {
@@ -163,7 +166,7 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
    <TabItem value="java" label="Java">
 
    ```java showLineNumbers=false wrap "idp_initiated_login"
-   // 1. Default redirect URL is callback with JWT
+   // 1. Your Initiate Login Endpoint receives a JWT
    @GetMapping("/callback")
    public RedirectView callbackHandler(
        @RequestParam(required = false) String code,
@@ -210,9 +213,10 @@ To securely implement IdP-initiated SSO, follow these steps to convert incoming 
 
    </TabItem>
    </Tabs>
-   </div>
 
-4. **Handle errors**: If errors occur, the redirect URI will receive a callback with error information. See the <a href="/reference/errors/" target="_blank">error handling</a> guide for more details.
+4. **Handle errors**
+
+   If errors occur, the redirect URI will receive a callback with error information. See the <a href="/reference/errors/" target="_blank">error handling</a> guide for more details.
 
    ```sh showLineNumbers=false wrap
    https://{your-subdomain}.scalekit.dev/callback
@@ -228,15 +232,20 @@ If your application uses a third-party service like [Firebase Authentication](/g
 
 This process has two stages: first, the IdP redirects the user to your app via Scalekit, and second, your app triggers a new sign-in flow with Firebase using the Authorization URL you just generated.
 
-```mermaid
-graph LR;
-    subgraph "Part 1: IdP-initiated"
-        User-->IdP-->Scalekit-->YourApp["Your App (default endpoint)"];
-    end
-    subgraph "Part 2: SP-initiated Hand-off"
-        YourApp -- "triggers sign-in" --> Firebase;
-        Firebase -- "uses Authorization URL from Step 3" --> Scalekit;
-    end
+```d2 layout=elk
+direction: right
+
+User: "User"
+IdP: "IdP"
+Scalekit: "Scalekit"
+YourApp: "Your App (Initiate login endpoint)"
+Firebase: "Firebase"
+
+User -> IdP
+IdP -> Scalekit
+Scalekit -> YourApp
+YourApp -> Firebase: "triggers sign-in"
+Firebase -> Scalekit: "uses Authorization URL from Step 3"
 ```
 
 The example below shows how to pass the Authorization URL to the Firebase Web SDK.

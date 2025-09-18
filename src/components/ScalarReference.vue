@@ -1,153 +1,132 @@
 <script setup lang="ts">
 import { ApiReference } from '@scalar/api-reference'
-import '@scalar/api-reference/style.css'
 import '@fontsource-variable/inter'
 import '@/styles/api-reference.css'
-import { onMounted, onUnmounted, ref, computed } from 'vue'
-
-// Makes sure selected lanugage is propagated else where to all snippets
-import { createDropdownSynchronizer } from '../utils/dropdownSync'
-
-// Create dropdown synchronizer instance
-const dropdownSync = createDropdownSynchronizer()
+import { onMounted, onUnmounted, ref } from 'vue'
+import { initializeThemeSync, type ThemeSynchronizer } from '../utils/themeSync'
 
 // Reactive color mode tracking
 const colorMode = ref<string>('light')
 
-// Computed logo path based on color mode
-const logoPath = computed(() => {
-  return colorMode.value === 'dark'
-    ? '/assets/logos/scalekit-api-black.svg'
-    : '/assets/logos/scalekit-api-white.svg'
-})
+// Hash tracking
+const hash = ref('')
 
-// Function to update color mode from localStorage and system preference
-const updateColorMode = () => {
-  const savedColorMode = localStorage.getItem('colorMode')
+// Loading state
+const isLoading = ref<boolean>(true)
 
-  if (savedColorMode) {
-    colorMode.value = savedColorMode
-  } else {
-    // Check system preference or document theme
-    const isDarkMode =
-      window.matchMedia('(prefers-color-scheme: dark)').matches ||
-      document.documentElement.classList.contains('dark') ||
-      document.documentElement.getAttribute('data-color-mode') === 'dark'
+// Initialize theme synchronization
+let themeSyncInstance: ThemeSynchronizer | null = null
 
-    colorMode.value = isDarkMode ? 'dark' : 'light'
-  }
-}
+onMounted(async () => {
+  console.log('ScalarReference component mounted, initializing theme sync...')
 
-// Listen for storage changes (when color mode is changed)
-const handleStorageChange = (e: StorageEvent) => {
-  if (e.key === 'colorMode') {
-    colorMode.value = e.newValue || 'light'
-  }
-}
+  // Initialize theme synchronization
+  themeSyncInstance = initializeThemeSync({
+    onThemeChange: (theme: 'light' | 'dark') => {
+      colorMode.value = theme
+    },
+  })
 
-onMounted(() => {
-  // Initialize dropdown synchronization
-  dropdownSync.initialize()
+  // Set initial color mode from synchronized theme
+  const initialTheme = themeSyncInstance.getStarlightTheme()
+  colorMode.value = initialTheme
 
-  // Set initial color mode
-  updateColorMode()
+  // Set initial hash
+  hash.value = window.location.hash.substring(1)
 
-  // Listen for localStorage changes
-  window.addEventListener('storage', handleStorageChange)
+  // Listen for hash changes to handle deep links
+  window.addEventListener('hashchange', () => {
+    hash.value = window.location.hash.substring(1)
+    console.log('hash changed to:', hash.value)
 
-  // Also listen for direct localStorage updates within the same tab
-  // Create a MutationObserver to watch for DOM changes that might indicate color mode changes
-  const observer = new MutationObserver(() => {
-    const currentMode = localStorage.getItem('colorMode')
-    if (currentMode && currentMode !== colorMode.value) {
-      colorMode.value = currentMode
+    // If Scalar is already loaded, scroll immediately
+    // If not loaded yet, the onLoaded callback will handle it
+    if (document.querySelector('.api-reference-container')) {
+      handleDeepLink()
     }
   })
-
-  // Observe changes to the document body or html element classes/attributes
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['class', 'data-color-mode'],
-  })
-
-  // Store observer for cleanup
-  ;(window as any).__colorModeObserver = observer
-
-  // Periodically check localStorage as a fallback
-  const interval = setInterval(updateColorMode, 1000)
-  ;(window as any).__colorModeInterval = interval
 })
 
 onUnmounted(() => {
-  // Clean up dropdown synchronization
-  dropdownSync.destroy()
-
-  // Clean up event listeners
-  window.removeEventListener('storage', handleStorageChange)
-
-  // Clean up observer
-  if ((window as any).__colorModeObserver) {
-    ;(window as any).__colorModeObserver.disconnect()
-    delete (window as any).__colorModeObserver
-  }
-
-  // Clean up interval
-  if ((window as any).__colorModeInterval) {
-    clearInterval((window as any).__colorModeInterval)
-    delete (window as any).__colorModeInterval
+  // Clean up theme synchronization
+  if (themeSyncInstance) {
+    themeSyncInstance.stop()
+    themeSyncInstance = null
   }
 })
+
+// Function to get clean, decoded hash
+const getCleanHash = () => {
+  const rawHash = window.location.hash.substring(1)
+  // Decode any URL encoding
+  const decodedHash = decodeURIComponent(rawHash)
+  console.log('Raw hash:', rawHash)
+  console.log('Decoded hash:', decodedHash)
+  return decodedHash
+}
+
+// Function to handle scrolling to hash element
+const handleScrollToHash = (href?: string) => {
+  // Use provided href or fall back to current hash
+  const targetId = href || hash.value
+
+  if (targetId) {
+    console.log('scrolling to element with id:', targetId)
+    const element = document.getElementById(targetId)
+    console.log('scrolling to element', element)
+    element?.scrollIntoView({ behavior: 'smooth' })
+  }
+}
+
+// Function to handle initial hash navigation when Scalar loads
+const handleInitialLoad = () => {
+  console.log('Scalar loaded, checking for hash:', hash.value)
+
+  // Set loading to false when Scalar is loaded
+  isLoading.value = false
+
+  if (hash.value) {
+    // Wait a bit for Scalar to fully render the DOM
+    setTimeout(() => {
+      console.log('waited for 500ms')
+      const cleanHash = getCleanHash()
+      handleScrollToHash(cleanHash)
+    }, 500)
+  }
+}
+
+// Function to handle deep link navigation
+const handleDeepLink = () => {
+  if (hash.value) {
+    const cleanHash = getCleanHash()
+    console.log('handling deep link:', cleanHash)
+    handleScrollToHash(cleanHash)
+  }
+}
 </script>
 
 <template>
-  <div class="api-reference-wrapper">
-    <header class="custom-header scalar-app">
-      <!-- <a
-        href="https://docs.scalekit.com"
-        style="text-decoration: none"
-        target="_blank"
-        rel="noopener noreferrer"
-        >Scalekit API Reference</a
-      > -->
-      <a href="https://docs.scalekit.com">
-        <img :src="logoPath" alt="Scalekit API Reference" height="32" />
-      </a>
-      <nav>
-        <a
-          href="https://github.com/scalekit-developers/api-collections"
-          style="text-decoration: none"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Postman Collections</a
-        >
-        <a
-          href="https://docs.scalekit.com"
-          style="text-decoration: none"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Back to Docs</a
-        >
-      </nav>
-    </header>
+  <div class="api-reference-wrapper" :class="colorMode + '-mode'">
+    <!-- API Reference content (always render; show overlay while loading) -->
     <div class="api-reference-container">
       <ApiReference
         :configuration="{
           url: '/api/scalekit.swagger.json',
-          theme: 'saturn',
+          onLoaded: handleInitialLoad,
           hideTestRequestButton: true,
+          withDefaultFonts: false,
+          theme: 'default', // Changed from 'modern' to 'default' to match allowed values
           hideModels: true,
-          hideDarkModeToggle: false,
-          defaultOpenAllTags: true,
+          searchHotKey: 'p',
+          hideDarkModeToggle: true, // Hide Scalar's own toggle since we're using Starlight's
+          defaultOpenAllTags: false,
           hiddenClients: [
             'httpclient',
             'restsharp',
-            'native',
             'http1.1',
             'asynchttp',
             'okhttp',
-            'unirest',
             'jquery',
-            'native',
             'request',
             'unirest',
             'nsurlsession',
@@ -159,13 +138,11 @@ onUnmounted(() => {
             'http2',
             'restmethod',
             'httr',
-            'native',
             'httpie',
             'wget',
             'undici',
             'requests',
             'python3',
-            'axios',
             'xhr',
             'fetch',
           ],
@@ -175,5 +152,80 @@ onUnmounted(() => {
         }"
       />
     </div>
+
+    <!-- Loading state overlay -->
+    <div v-if="isLoading" class="api-loading-container">
+      <div class="api-loading-content">
+        <div class="api-loading-spinner"></div>
+        <p class="api-loading-text">Loading API reference...</p>
+      </div>
+    </div>
   </div>
 </template>
+
+<style>
+.api-reference-container {
+  position: sticky;
+  top: calc(var(--sl-header-height-base) + var(--secondary-nav-height));
+  left: 0;
+  right: 0;
+  max-height: calc(100vh - var(--sl-nav-height));
+  overflow: auto;
+}
+
+.api-loading-container {
+  position: sticky;
+  top: calc(var(--sl-header-height-base) + var(--secondary-nav-height));
+  left: 0;
+  right: 0;
+  max-height: calc(100vh - var(--sl-nav-height));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sl-color-bg);
+  z-index: 10;
+}
+
+.api-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.api-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--sl-color-gray-3);
+  border-top: 3px solid var(--sl-color-accent-low);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.api-loading-text {
+  color: var(--sl-color-text);
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Dark mode adjustments */
+.dark-mode .api-loading-spinner {
+  border-color: var(--sl-color-gray-6);
+  border-top-color: var(--sl-color-accent-low);
+}
+
+.dark-mode .api-loading-text {
+  color: var(--sl-color-text);
+}
+</style>

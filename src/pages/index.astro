@@ -1,0 +1,106 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import { Fold1, Fold2, Fold3, Fold4, Fold5 } from '../components/ui/landing'
+import '../styles/home.tokens.css'
+import '../styles/folds.css'
+import '@fontsource-variable/geist'
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'Scalekit documentation',
+    tableOfContents: false,
+    template: 'splash',
+    topic: 'dev-kit',
+    editUrl: false,
+    prev: false,
+    next: false,
+  }}
+  hasSidebar={true}
+>
+  <div class="homepage-content">
+    <!-- <Fold1 /> -->
+    <Fold2 />
+    <Fold3 />
+    <Fold4 />
+  </div>
+</StarlightPage>
+
+<style is:global>
+  /* Hide the first Starlight content panel only on the homepage */
+  main > .content-panel:first-of-type {
+    display: none !important;
+  }
+
+  /* Remove padding from content panels on the homepage */
+  .content-panel {
+    border: 0;
+    padding: 0;
+  }
+
+  /* Hide sidebar on tablet/desktop for homepage and collapse grid column */
+  @media (min-width: 50em) {
+    /* Collapse the layout grid to a single column */
+    :root {
+      --sl-sidebar-width: 0 !important;
+    }
+
+    .nova-page-frame {
+      grid-template-columns: 1fr !important;
+      display: block !important;
+    }
+
+    /* Hide the sidebar nav and its pane */
+    nav.sidebar,
+    #starlight__sidebar,
+    .nova-page-frame-sidebar-pane {
+      display: none !important;
+    }
+
+    /* Ensure main content spans full width */
+    .main-frame {
+      grid-column: 1 / -1 !important;
+    }
+  }
+
+  /* Override fonts to use Geist only on the homepage */
+  .homepage-content {
+    --sl-font-system:
+      'Geist Variable', 'Inter Variable', ui-sans-serif, system-ui, Roboto, Arial, sans-serif;
+    font-family: var(--sl-font-system);
+  }
+
+  /* Apply Geist font to homepage content elements */
+  .homepage-content .fold-title,
+  .homepage-content .fold-lead,
+  .homepage-content .card-desc,
+  .homepage-content .card-cta,
+  .homepage-content p,
+  .homepage-content h1,
+  .homepage-content h2,
+  .homepage-content h3,
+  .homepage-content h4,
+  .homepage-content h5,
+  .homepage-content h6 {
+    font-family:
+      'Geist Variable', 'Inter Variable', ui-sans-serif, system-ui, Roboto, Arial, sans-serif;
+  }
+
+  /* Smooth scrolling for anchor links */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Offset scroll for fixed header if present */
+  section[id] {
+    scroll-margin-top: 2rem;
+  }
+
+  footer .sl-flex {
+    display: none;
+  }
+
+  div .print:hidden .nova-pagination: {
+    display: none;
+  }
+</style>

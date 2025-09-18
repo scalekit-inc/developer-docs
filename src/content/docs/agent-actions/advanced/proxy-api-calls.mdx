@@ -1,0 +1,28 @@
+---
+title: Proxy API Calls
+description: Use Scalekit managed authentication and make direct HTTP calls to third party applications
+---
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+Even though Scalekit Agent Actions offers pre-built tools and actions out of the box for the supported applications, if you would like to make direct API calls to the third party applications for any custom behaviour, you can leverage proxy_api tool to directly invoke the third party application.
+
+Based on the connected account or user identifier details, Scalekit will automatically inject the user authorization tokens so that API calls to the third application will be successful.
+
+```python
+# Fetch recent emails
+emails = actions.tools.execute(
+    connected_account_id=connected_account.id,
+    tool='gmail_proxy_api',
+    parameters={
+        'path': '/api/v1/emails:fetch',
+        'method': 'GET',
+        'headers': [{'Content-Type': 'application/json'}],
+        'params': [{'max_results': '5'}],
+        'body': '' #actual JSON payload
+    }
+)
+
+print(f'Recent emails: {emails.result}')
+```
+
+As part of the above execution, Scalekit will automatically inject Bearer token in the request header before making the API call to GMAIL.

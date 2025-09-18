@@ -3,13 +3,19 @@ title: Getting started with SSO
 description: "Learn how to integrate Single Sign-On (SSO) into your B2B SaaS application with Scalekit, supporting both SAML and OIDC protocols."
 sidebar:
   order: 1
-  label: "Single Sign-On"
+  label: "Quickstart"
 head:
   - tag: style
     content: |
       table td:not(:last-child), table th:not(:last-child) {
         white-space: nowrap;
       }
+      .sl-markdown-content h2 {
+          font-size: var(--sl-text-xl);
+       }
+      .sl-markdown-content h3 {
+          font-size: var(--sl-text-lg);
+       }
 next:
   label: Test SSO
   link: /sso/guides/test-sso/
@@ -17,13 +23,17 @@ prev: false
 
 ---
 
-import { LinkButton, Aside, Steps, Tabs, TabItem, CardGrid, Card } from '@astrojs/starlight/components';
-
+import {
+  LinkButton, Aside, Steps, Tabs, TabItem, CardGrid, Card, Icon
+ } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 import SimpleCode from '@components/ui/SimpleCode.astro';
 import CopyPrompt from '@components/ui/CopyPrompt.astro';
+import { VideoPlayer } from 'starlight-videos/components'
 
 Integrate **Single Sign-On (SSO)** with Scalekit to enhance your B2B SaaS application's security. Scalekit provides seamless user experiences by abstracting the complexities of **SAML** and **OIDC** protocols. Using Scalekit's authentication platform, you can implement enterprise-grade SSO with minimal code. We offer [pre-built integrations](/guides/integrations/sso-integrations) with major identity providers including Okta, Microsoft Entra ID, JumpCloud, and OneLogin.
+
+<VideoPlayer link="https://youtu.be/I7SZyFhKg-s" />
 
 The following diagram illustrates the flow in a nutshell:
 
@@ -32,33 +42,35 @@ The following diagram illustrates the flow in a nutshell:
 This quickstart guide walks you through the SSO implementation process. You will learn how to deliver enterprise authentication features without managing complex protocol details.
 
 <Card title="Generate SSO Code with AI in Minutes" icon="seti:vite" style="background-color: white !important;">
-<div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem'}}>
-<div style={{flex: '3'}}>
-Input this prompt in your IDE to analyze your existing code base and generate SSO implementation code accordingly.
+  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem'}}>
+    <div style={{flex: '3'}}>
+      Input this prompt in your IDE to analyze your existing code base and generate SSO implementation code accordingly.
 
-<span style={{fontSize: '0.875rem', color: '#6b7280', fontStyle: 'italic'}}>Compatible with Cursor, Windsurf, VS Code, and any AI-powered IDE</span>
-</div>
-<div style={{flex: '1'}}>
-<CopyPrompt
+      <span style={{fontSize: '0.875rem', color: '#6b7280', fontStyle: 'italic'}}>
+        Compatible with Cursor, Windsurf, VS Code, and any AI-powered IDE
+      </span>
+    </div>
+    <div style={{flex: '1'}}>
+      <CopyPrompt
         promptType="ssoQuickstartPrompt"
-       label="Copy Prompt"
+        label="Copy Prompt"
         variant="secondary"
         title="Generate SSO integration code"
-/>
-</div>
-</div>
+      />
+    </div>
+  </div>
 </Card>
 
 <Steps>
 
-1. ### Environment Setup
+1. ## Environment Setup
 
     Before implementing SSO with Scalekit, prepare your development environment with the necessary credentials and SDK. Sign up and get API credentials from the Scalekit dashboard.
 
     <InstallSDK />
 
     Now you're ready to start integrating SSO into your app! Next, we'll cover how to use the SDK to authenticate users.
-2. ### Authorize users
+2. ## Authorize users
 
     To initiate Single Sign-On (SSO) authentication, redirect users to the Scalekit Authorization URL with the appropriate enterprise identity provider parameters.
 
@@ -70,18 +82,67 @@ Input this prompt in your IDE to analyze your existing code base and generate SS
     | `client_id` | Your unique Scalekit application identifier that specifies both your app and environment (staging, production). |
     | SSO Connection identifier | Choose the appropriate identifier based on your implementation (use one). |
 
-    <Aside type="caution" title="Check your redirect_uri is registered">
-    Make sure your `redirect_uri` matches one of the **Allowed Callback URLs** you configured in your Scalekit dashboard. Scalekit uses this URL to send the authorization code back to your app after successful authentication.
-    </Aside>
+    **Configure callback URLs**
+      <p>Before testing your SSO integration, ensure your [callback URL is properly configured](/guides/dashboard/redirects/#allowed-callback-urls):</p>
+
+      <ol>
+        <li><strong>Set your redirect URI:</strong> Use the same URL in your app's OAuth configuration</li>
+        <li><strong>Add to Scalekit Dashboard:</strong> Go to Authentication → Redirects → Allowed Callback URLs</li>
+        <li><strong>Match exactly:</strong> The URLs must be identical (including protocol, domain, and path)</li>
+      </ol>
+
+      <p><strong>Example:</strong> If your app uses <code>https://myapp.com/auth/callback</code>, add the exact same URL to Scalekit's allowed list.</p>
+
+      <p>Scalekit will redirect users to this URL with an authorization code after successful authentication.</p>
+
 
     **SSO connection identifiers**
 
     When initiating SSO authentication, you must specify which connection to use through one of these identifiers, listed in order of precedence:
 
+    <Tabs>
+    <TabItem value="nodejs" label="Node.js SDK">
+
+    - `organizationId` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
+    - `connectionId` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
+    - `domainHint` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither connectionId nor organizationId are provided.
+    - `loginHint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+
+    </TabItem>
+
+    <TabItem value="py" label="Python SDK">
+
+    - `organization_id` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
     - `connection_id` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
-    - `organization_id` (e.g., org_124234234): Directs users to a specific organization's SSO. Used when no valid connection_id is provided. If an organization has multiple SSO connections, the system selects the first active one.
+    - `domain_hint` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither connection_id nor organization_id are provided.
+    - `login_hint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+
+    </TabItem>
+    <TabItem value="golang" label="Go SDK">
+
+    - `OrganizationId` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
+    - `ConnectionId` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
+    - `DomainHint` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither ConnectionId nor OrganizationId are provided.
+    - `LoginHint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+
+    </TabItem>
+     <TabItem value="java" label="Java SDK">
+
+    - `organizationId` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
+    - `connectionId` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
+    - `domainHint` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither connectionId nor organizationId are provided.
+    - `loginHint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+
+    </TabItem>
+    <TabItem value="direct" label="Direct URL (No SDK)">
+
+    - `organization_id` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
+    - `connection_id` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
     - `domain` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither connection_id nor organization_id are provided.
     - `login_hint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+
+    </TabItem>
+    </Tabs>
 
     <Aside type="tip">
     For social login, use `provider=google` to bypass all enterprise SSO parameters and direct users straight to Google's login screen. See [Social Logins](/social-logins/quickstart/) for more information.
@@ -93,7 +154,7 @@ Input this prompt in your IDE to analyze your existing code base and generate SS
     <TabItem value="nodejs" label="Node.js">
 
     ```javascript showLineNumbers wrap
-    import { ScalekitClient } from '@scalekit-sdk/node';
+    import { Scalekit } from '@scalekit-sdk/node';
     // Initialize the SDK client
     const scalekit = new ScalekitClient(
       '<SCALEKIT_ENVIRONMENT_URL>',
@@ -153,7 +214,7 @@ Input this prompt in your IDE to analyze your existing code base and generate SS
 
     ```go showLineNumbers
     import (
-      "github.com/scalekit/scalekit-sdk-go"
+      "github.com/scalekit-inc/scalekit-sdk-go"
     )
 
     func main() {
@@ -228,6 +289,45 @@ Input this prompt in your IDE to analyze your existing code base and generate SS
     ```
 
     </TabItem>
+
+    <TabItem value="direct" label="Direct URL (No SDK)">
+
+    ```url title="Direct Authorization URL Construction"
+    https://your-scalekit-environment.scalekit.com/oauth/authorize?
+      response_type=code&
+      client_id=<SCALEKIT_CLIENT_ID>&
+      redirect_uri=<REDIRECT_URI>&
+      scope=openid profile email&
+      organization_id=org_15421144869927830&
+      connection_id=conn_15696105471768821&
+      login_hint=user@example.com
+    ```
+
+    **Example with actual values:**
+    ```url
+    https://tinotat-dev.scalekit.cloud/oauth/authorize?
+      response_type=code&
+      client_id=skc_88036702639096097&
+      redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fcallback&
+      scope=openid%20profile%20email&
+      organization_id=org_15421144869927830&
+      connection_id=conn_15696105471768821&
+      login_hint=user%40example.com
+    ```
+
+    **Required parameters:**
+    - `response_type=code` - OAuth2 authorization code flow
+    - `client_id` - Your Scalekit client ID
+    - `redirect_uri` - URL-encoded callback URL
+    - `scope=openid profile email` - Required OAuth2 scopes
+
+    **SSO connection parameters (choose one or more):**
+    - `organization_id` - Target organization
+    - `connection_id` - Specific SSO connection
+    - `domain_hint` - Domain for SSO lookup
+    - `login_hint` - User email for domain extraction
+
+    </TabItem>
     </Tabs>
 
     This redirect will send users to the Scalekit authentication flow, where they'll authenticate with their organization's identity provider before being returned to your application.
@@ -241,7 +341,7 @@ Input this prompt in your IDE to analyze your existing code base and generate SS
 
     After redirecting users to the Scalekit authorization endpoint, handle the callback at your `redirect_uri` to retrieve the user profile and complete the authentication process.
 
-3. ### Fetch user details
+3. ## Fetch user details
 
     After successful SSO authentication, Scalekit redirects users to your specified redirect_uri with a temporary authorization code parameter. This code must be exchanged for the user's profile information through a secure server-side request.
 
@@ -364,7 +464,6 @@ Input this prompt in your IDE to analyze your existing code base and generate SS
 
     The `result` object
 
-
     ```json title="Result object"
     {
       user: {
@@ -381,11 +480,3 @@ Input this prompt in your IDE to analyze your existing code base and generate SS
     ```
 
 </Steps>
-
-<Aside type="note" title="Scalekit does not store user profile information">
-
-- The `idToken` is a JWT containing user profile information, while the `accessToken` is used for API calls.
-
-- For security and compliance reasons, Scalekit does not store user profile information in persistent databases.
-
-</Aside>

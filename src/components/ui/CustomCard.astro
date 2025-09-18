@@ -1,0 +1,138 @@
+---
+export interface Props {
+  title: string
+  icon?: any
+  href?: string
+}
+
+const { title, icon: Icon, href } = Astro.props
+const isLink = !!href
+---
+
+{
+  isLink ? (
+    <a href={href} class="custom-card card-link">
+      <article class="sl-card">
+        <div class="card-header">
+          {Icon && <Icon class="card-icon" aria-hidden="true" />}
+          <h3 class="card-title">{title}</h3>
+        </div>
+        <div class="card-content">
+          <slot />
+        </div>
+      </article>
+    </a>
+  ) : (
+    <article class="custom-card sl-card">
+      <div class="card-header">
+        {Icon && <Icon class="card-icon" aria-hidden="true" />}
+        <h3 class="card-title">{title}</h3>
+      </div>
+      <div class="card-content">
+        <slot />
+      </div>
+    </article>
+  )
+}
+
+<style>
+  .custom-card {
+    background: var(--sl-color-bg-card);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .card-link:hover .custom-card {
+    border-color: var(--sl-color-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--sl-color-shadow);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .custom-card :global(.card-icon) {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    color: unset;
+  }
+
+  /* Better dark mode icon visibility */
+  [data-theme='dark'] .custom-card :global(.card-icon) {
+    opacity: 0.9;
+    filter: brightness(1.1) contrast(1.1);
+  }
+
+  .card-title {
+    margin: 0;
+    font-size: var(--sl-text-lg);
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+
+  .card-content {
+    color: var(--sl-color-gray-3);
+    line-height: 1.6;
+  }
+
+  .card-content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  /* Support for card content with buttons */
+  .card-content :global(.dk-card-cta) {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .card-content :global(.sl-link-button) {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  /* Better CTA button visibility in dark mode */
+  [data-theme='dark'] .card-content :global(.sl-link-button) {
+    background: var(--sl-color-gray-5);
+    color: var(--sl-color-white);
+    border: 1px solid var(--sl-color-gray-4);
+  }
+
+  [data-theme='dark'] .card-content :global(.sl-link-button:hover) {
+    background: var(--sl-color-gray-4);
+    border-color: var(--sl-color-accent-high);
+  }
+
+  /* Enhanced dark mode support with better readability */
+  [data-theme='dark'] .custom-card {
+    background: var(--sl-color-gray-6); /* #1f2937 */
+    border-color: var(--sl-color-gray-4); /* #4b5563 - lighter border for contrast */
+  }
+
+  [data-theme='dark'] .card-link:hover .custom-card {
+    background: var(--sl-color-gray-5); /* #374151 */
+    border-color: var(--sl-color-accent-high); /* Better contrast border */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  [data-theme='dark'] .card-title {
+    color: var(--sl-color-white); /* Pure white for better readability */
+  }
+
+  [data-theme='dark'] .card-content {
+    color: var(--sl-color-gray-2); /* #d1d5db - much lighter gray for better readability */
+  }
+</style>

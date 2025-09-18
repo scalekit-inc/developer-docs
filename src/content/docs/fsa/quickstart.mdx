@@ -16,8 +16,10 @@ head:
 ---
 
 import { Card, CardGrid, Steps, TabItem, Tabs, Aside } from '@astrojs/starlight/components';
+import CopyPrompt from '@components/ui/CopyPrompt.astro';
 import CheckItem from '@/components/ui/CheckItem.astro';
 import InstallSDK from '@components/templates/_installsdk.mdx'
+import { VideoPlayer } from 'starlight-videos/components'
 
 Get up and running with Scalekit's Full Stack Authentication in under 10 minutes. You'll build a complete authentication flow with hosted login and sign up pages, user session management, and secure logout - all optimized for B2B SaaS applications.
 
@@ -32,6 +34,8 @@ By the end of this guide, your application will have:
 - **Secure logout** - Complete session invalidation
 
 ## How it works
+
+<VideoPlayer link="https://www.youtube.com/watch?v=Gnz8FYhHKI8" />
 
 Scalekit handles the complex authentication flow while you focus on your core product:
 
@@ -54,6 +58,26 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 </Aside>
 
 Let's get started!
+
+<Card title="Generate FSA Code with AI in Minutes" icon="seti:vite" style="background-color: white !important;">
+  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem'}}>
+    <div style={{flex: '3'}}>
+      Input this prompt in your IDE to analyze your existing code base and generate FSA implementation code accordingly.
+
+      <span style={{fontSize: '0.875rem', color: '#6b7280', fontStyle: 'italic'}}>
+        Compatible with Cursor, Windsurf, VS Code, and any AI-powered IDE
+      </span>
+    </div>
+    <div style={{flex: '1'}}>
+      <CopyPrompt
+        promptType="fsaQuickstartPrompt"
+        label="Copy Prompt"
+        variant="secondary"
+        title="Generate FSA integration code"
+      />
+    </div>
+  </div>
+</Card>
 
 <Steps>
  1. ## Install the Scalekit SDK
@@ -125,7 +149,7 @@ Let's get started!
       </TabItem>
     </Tabs>
 2. ## Redirect users to hosted login page
-       Generate the authorization URL by passing a [registered callback URL](/fsa/reference/redirects) and scopes to the Scalekit SDK.
+       Generate the authorization URL by passing a [registered callback URL](/guides/dashboard/redirects/#allowed-callback-urls) and scopes to the Scalekit SDK.
         <Tabs syncKey="tech-stack">
         <TabItem value="curl" label="cURL">
             ```sh wrap
@@ -867,12 +891,12 @@ Let's get started!
              * Generates a Scalekit logout URL that will:
              * - Invalidate the user's session on Scalekit's servers
              * - Redirect the user to the specified post-logout URL
-             * @param {string} idToken - The user's ID token to invalidate
+             * @param {string} idTokenHint - The user's ID token to invalidate
              * @param {string} postLogoutRedirectUri - URL to redirect after logout
              * @returns {string} The complete logout URL
              */
             const logoutUrl = scalekit.getLogoutUrl(
-              idToken,
+              idTokenHint,
               postLogoutRedirectUri
             );
 
@@ -970,7 +994,7 @@ Let's get started!
           ```
         </TabItem>
       </Tabs>
-      The logout process completes when Scalekit invalidates the user's session and redirects them to your [specified post-logout URL](/fsa/reference/redirects).
+      The logout process completes when Scalekit invalidates the user's session and redirects them to your [specified post-logout URL](/guides/dashboard/redirects/#post-logout-url).
 
 </Steps>
 ## What you've accomplished

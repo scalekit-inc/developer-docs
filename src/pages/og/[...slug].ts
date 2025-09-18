@@ -17,11 +17,11 @@ export const { getStaticPaths, GET } = OGImageRoute({
   // matches the `[...slug].ts` filename
   param: 'slug',
   // Customize the look of the generated card using front-matter
-  getImageOptions: (_id, page: (typeof pages)[number]) => ({
+  getImageOptions: (_id: string, page: any) => ({
     // Show title & description pulled from front-matter
     title: page.data.title,
     description: page.data.description,
-    dir: 'ltr',
+    dir: 'ltr' as const,
     logo: {
       path: './src/assets/images/scalekit-logo-white.png',
     },
@@ -29,6 +29,9 @@ export const { getStaticPaths, GET } = OGImageRoute({
     bgGradient: [[18, 18, 18]], // Matches --sl-color-gray-7 from custom.css
     border: { color: [0, 255, 127], width: 16 }, // Scalekit brand green (#00FF7F)
     padding: 80,
+    bgImage: {
+      path: './src/assets/images/og/backdrop.png',
+    },
     font: {
       title: {
         families: ['Inter Variable'],
@@ -39,5 +42,10 @@ export const { getStaticPaths, GET } = OGImageRoute({
         weights: [400],
       },
     },
+    // Load fonts locally to avoid remote fetch timeouts during build
+    fonts: [
+      './node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
+      './node_modules/@fontsource-variable/inter/files/inter-latin-wght-italic.woff2',
+    ],
   }),
 })

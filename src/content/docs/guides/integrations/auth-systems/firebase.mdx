@@ -35,7 +35,7 @@ You also need:
 - Firebase project with Authentication enabled
 - Basic understanding of [Firebase Admin SDK](https://firebase.google.com/docs/reference/admin) (for Option 2)
 
-Checkout our [example app](https://github.com/scalekit-sdk/firebase-oidc-example) for a complete implementation.
+Checkout our [firebase-example app](https://github.com/scalekit-developers/nodejs-example-apps/) for a complete implementation.
 
 ## Option 1: Configure Scalekit as an OIDC Provider
 
@@ -45,14 +45,22 @@ Use this approach if you have **Firebase Authentication with Identity Platform**
 OpenID Connect providers are not available in Legacy Firebase Authentication. See the <a href="https://cloud.google.com/identity-platform/docs/product-comparison" target="_blank">Firebase product comparison</a> for details.
 </Aside>
 
-```mermaid wrap showLineNumbers=false title="How it works"
-graph LR
-    User --> FirebaseOIDC[Firebase OIDC]
-    FirebaseOIDC --> Scalekit
-    Scalekit --> IdentityProvider[Identity Provider]
-    IdentityProvider --> Scalekit
-    Scalekit --> FirebaseOIDC
-    FirebaseOIDC --> YourApp[Your App]
+
+```d2 layout=elk
+direction: right
+
+User: "User"
+FirebaseOIDC: "Firebase OIDC"
+Scalekit: "Scalekit"
+IdentityProvider: "Identity Provider"
+YourApp: "Your App"
+
+User -> FirebaseOIDC
+FirebaseOIDC -> Scalekit
+Scalekit -> IdentityProvider
+IdentityProvider -> Scalekit
+Scalekit -> FirebaseOIDC
+FirebaseOIDC -> YourApp
 ```
 
 Firebase handles the OAuth 2.0 flow automatically using its built-in OIDC provider support.
@@ -96,11 +104,25 @@ Firebase handles the OAuth 2.0 flow automatically using its built-in OIDC provid
 
    ![Firebase Callback URL](@/assets/docs/guides/auth-systems/firebase/4.png)
 
-   Add this URL as a **Redirect URI** in your Scalekit API Config.
+   Add this URL as a **Allowed Callback URI** in your Scalekit Authentication > Redirects section.
 
    ![Scalekit Redirect URI Configuration](@/assets/docs/guides/auth-systems/firebase/5.png)
 
-5. #### Add SSO login to your frontend code
+
+5. #### Configure allowed callback URIs in Scalekit
+
+   In your Scalekit Dashboard, navigate to **Authentication** > **Redirects** > **Allowed Callback URIs**.
+
+   Add your Firebase callback URL to the allowed callback URIs list:
+
+   - **For development**: `https://your-firebase-domain.com/__/auth/handler`
+   - **For production**: `https://your-domain.com/__/auth/handler`
+
+   <Aside type="note">
+   Firebase automatically generates the callback URL format. Make sure to use the exact URL provided by Firebase in your OIDC provider configuration.
+   </Aside>
+
+6. #### Add SSO login to your frontend code
 
    Use Firebase's standard OIDC authentication in your frontend:
 
@@ -141,32 +163,24 @@ Use this approach if you have **Legacy Firebase Authentication** or need full co
 <details>
 <summary>View authentication flow summary</summary>
 
-```mermaid wrap showLineNumbers=false title="How it works"
-1. User clicks "Sign In"
-   ↓
-2. Frontend calls backend → Backend generates Scalekit auth URL
-   ↓
-3. Frontend redirects to Scalekit auth URL
-   ↓
-4. Scalekit redirects to Identity Provider
-   ↓
-5. User authenticates with IdP
-   ↓
-6. IdP redirects back to Scalekit
-   ↓
-7. Scalekit redirects to your backend callback URL with code
-   ↓
-8. Backend exchanges code for user profile with Scalekit
-   ↓
-9. Backend creates custom Firebase token
-   ↓
-10. Backend returns custom token to frontend
-    ↓
-11. Frontend calls signInWithCustomToken(firebase, customToken)
-    ↓
-12. Firebase creates/updates user and returns Firebase user object
-    ↓
-13. User is authenticated and can access your app!
+```d2 layout=elk
+direction: down
+
+S1: "1. User clicks \"Sign In\""
+S2: "2. Frontend calls backend → Backend generates Scalekit auth URL"
+S3: "3. Frontend redirects to Scalekit auth URL"
+S4: "4. Scalekit redirects to Identity Provider"
+S5: "5. User authenticates with IdP"
+S6: "6. IdP redirects back to Scalekit"
+S7: "7. Scalekit redirects to your backend callback URL with code"
+S8: "8. Backend exchanges code for user profile with Scalekit"
+S9: "9. Backend creates custom Firebase token"
+S10: "10. Backend returns custom token to frontend"
+S11: "11. Frontend calls signInWithCustomToken(firebase, customToken)"
+S12: "12. Firebase creates/updates user and returns Firebase user object"
+S13: "13. User is authenticated and can access your app!"
+
+S1 -> S2 -> S3 -> S4 -> S5 -> S6 -> S7 -> S8 -> S9 -> S10 -> S11 -> S12 -> S13
 ```
 </details>
 

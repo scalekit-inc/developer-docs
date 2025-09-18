@@ -1,9 +1,26 @@
 :root {
-  --scalar-font-body: "Inter Variable", sans-serif;
-  --scalar-font-heading: "Inter Variable", sans-serif;
-  --scalar-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
-  --scalar-custom-header-height: 50px;
+  --scalar-font-body: 'Inter Variable', sans-serif;
+  --scalar-font-heading: 'Inter Variable', sans-serif;
+  --scalar-font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
+}
+
+/* Follow theme spacing for content panels; avoid forcing margins/padding */
+
+/* API Reference Wrapper - break out to full viewport width */
+.api-reference-wrapper {
+  width: 100vw;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  /* Align with panel spacing but remove side padding constraints */
+  margin-top: -1.5rem calc(-1 * var(--sl-content-pad-x));
+  background-color: var(--sl-color-bg);
+}
+
+/* Remove inner padding from the hosting panel */
+.content-panel:has(.api-reference-wrapper) {
+  padding: 0 !important;
 }
 
 /* Base Styles */
@@ -29,30 +46,6 @@ h4,
 h5,
 h6 {
   font-family: var(--scalar-font-heading);
-}
-
-/* Header Styles */
-.custom-header {
-  height: var(--scalar-custom-header-height);
-  background-color: var(--scalar-background-1);
-  box-shadow: inset 0 -1px 0 var(--scalar-border-color);
-  color: var(--scalar-color-1);
-  padding: 0 18px;
-  position: sticky;
-  justify-content: space-between;
-  top: 0;
-  z-index: 100;
-}
-
-.custom-header,
-.custom-header nav {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-.custom-header a:hover {
-  color: var(--scalar-color-2);
 }
 
 /* Light Theme */
@@ -221,7 +214,8 @@ h6 {
 
 .dark-mode .scalar-card .code-languages-background:hover,
 .scalar-card .show-api-client-button:hover:before {
-  box-shadow: inset 0 0 6px rgba(221, 214, 254, 0.2),
+  box-shadow:
+    inset 0 0 6px rgba(221, 214, 254, 0.2),
     0 0 0 1px rgb(255 255 255 / 0.25);
   background: transparent;
 }
@@ -261,4 +255,8 @@ h6 {
 :root .references-navigation .darklight-reference {
   margin-bottom: 0 !important;
   padding-bottom: 0 !important;
+}
+
+span.parameter-item-name {
+  word-wrap: break-word;
 }
