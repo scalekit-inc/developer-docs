@@ -1,0 +1,47 @@
+---
+import { CardGrid as StarlightCardGrid } from '@astrojs/starlight/components'
+
+export interface Props {
+  className?: string
+}
+
+const { className } = Astro.props
+---
+
+<StarlightCardGrid class:list={className}>
+  <slot />
+</StarlightCardGrid>
+
+<style>
+  /* Custom styling for homepage cards */
+  .card-grid {
+    display: grid !important;
+    gap: 0.718rem !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  @media (max-width: 1024px) {
+    .card-grid {
+      grid-template-columns: 1fr !important;
+      gap: 1rem !important;
+    }
+  }
+
+  .card-desc {
+    margin: 0 0 0.5rem;
+    color: var(--home-text-secondary);
+  }
+
+  .card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--sl-color-accent);
+  }
+
+  .card-cta:hover {
+    text-decoration: underline;
+  }
+</style>

@@ -113,6 +113,19 @@ function extractOperationKey(apiPath) {
   return parts[parts.length - 1] || ''
 }
 
+// Identify whether a given roles path is organization-scoped
+function isOrganizationRolePath(apiPath) {
+  // Matches: /api/v1/organizations/{org_id}/roles or deeper
+  return /\/organizations\/[^/]+\/roles(\/|$)/.test(apiPath)
+}
+
+// Provide a category rank for roles endpoints to keep org-role endpoints together
+// 0 -> environment-scoped roles endpoints
+// 1 -> organization-scoped roles endpoints
+function getRolesCategory(apiPath) {
+  return isOrganizationRolePath(apiPath) ? 1 : 0
+}
+
 // Compare two resources according to RESOURCE_PRIORITY, then alphabetical
 function compareResources(a, b) {
   const idxA = RESOURCE_PRIORITY.indexOf(a)
@@ -155,6 +168,13 @@ function comparePaths(pathA, pathB) {
 
   const resCmp = compareResources(resA, resB)
   if (resCmp !== 0) return resCmp
+
+  // Special grouping inside Roles: keep organization-scoped role endpoints together
+  if (resA === 'roles' && resB === 'roles') {
+    const catA = getRolesCategory(pathA)
+    const catB = getRolesCategory(pathB)
+    if (catA !== catB) return catA - catB
+  }
 
   // path depth (fewer segments first)
   const depthA = pathA.split('/').length
@@ -211,6 +231,13 @@ function reorderSwagger(swaggerJson) {
 
     const resCmp = compareResources(resA, resB)
     if (resCmp !== 0) return resCmp
+
+    // Special grouping inside Roles: keep organization-scoped role endpoints together
+    if (resA === 'roles' && resB === 'roles') {
+      const catA = getRolesCategory(pathA)
+      const catB = getRolesCategory(pathB)
+      if (catA !== catB) return catA - catB
+    }
 
     const depthA = pathA.split('/').length
     const depthB = pathB.split('/').length
