@@ -18,9 +18,9 @@ tableOfContents:
   maxHeadingLevel: 3
 ---
 
-import { Aside, Steps, Badge, Tabs, TabItem, LinkCard, Card } from '@astrojs/starlight/components';
+import { Aside, Badge, Card, LinkCard, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
 import CopyPrompt from '@components/ui/CopyPrompt.astro';
-import { VideoPlayer } from 'starlight-videos/components'
+import { VideoPlayer } from 'starlight-videos/components';
 
 This guide explains how you can implement passwordless authentication using Scalekit's APIs to send either verification codes or magic links to your user's email address and verify their identity.
 
@@ -156,7 +156,6 @@ Before you begin, ensure you have:
       | `passwordless_type` | The type of passwordless authentication to use. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
     </details>
 
-
     </TabItem>
     <TabItem label="Node.js">
     ```js wrap
@@ -212,6 +211,48 @@ Before you begin, ensure you have:
 
     </details>
     </TabItem>
+    <TabItem label="Go" value="golang">
+    ```go
+    // Send a passwordless email (assumes you have an initialized `client` and `ctx`)
+    templateType := scalekit.TemplateTypeSignin
+    resp, err := scalekitClient.Passwordless().SendPasswordlessEmail(
+      ctx,
+      "john.doe@example.com",
+      &scalekit.SendPasswordlessOptions{
+        Template:          &templateType,
+        State:             "jAy-state1-gM4fdZ...2nqm6Q",
+        ExpiresIn:         300,
+        MagiclinkAuthUri:  "https://yourapp.com/passwordless/verify", // required if Link or Link+OTP
+        TemplateVariables: map[string]string{
+          "employeeID": "EMP523",
+          "teamName": "Alpha Team",
+        },
+      },
+    )
+
+    // resp contains: AuthRequestId, ExpiresAt, ExpiresIn, PasswordlessType
+    ```
+    <details>
+      <summary>Request parameters</summary>
+      | Parameter | Required | Description |
+      |-----------|----------|-------------|
+      | `email` | Yes | The email address to send the passwordless link to <Badge variant="note" text="string" /> |
+      | `MagiclinkAuthUri` | No | Magic Link URI for authentication <Badge variant="note" text="string" /> |
+      | `State` | No | Optional state parameter <Badge variant="note" text="string" /> |
+      | `Template` | No | Email template type (`SIGNIN`/`SIGNUP`) <Badge variant="note" text="string" /> |
+      | `ExpiresIn` | No | Expiration time in seconds <Badge variant="note" text="number" /> |
+      | `TemplateVariables` | No | Key-value pairs for email template <Badge variant="note" text="object" /> |
+    </details>
+    <details>
+      <summary>Response parameters</summary>
+      | Parameters | Description |
+      |-----------|-------------|
+      | `AuthRequestId` | Unique identifier for the passwordless authentication request <Badge variant="note" text="string" /> |
+      | `ExpiresAt` | Expiration time in seconds since epoch <Badge variant="note" text="number" /> |
+      | `ExpiresIn` | Expiration time in seconds <Badge variant="note" text="number" /> |
+      | `PasswordlessType` | Type of passwordless authentication (`OTP`, `LINK` or `LINK_OTP`) <Badge variant="note" text="string" /> |
+    </details>
+   </TabItem>
    </Tabs>
 
 3. ### Resend a verification email
@@ -297,6 +338,49 @@ Before you begin, ensure you have:
       | `expiresAt` | Expiration time in seconds since epoch <Badge variant="note" text="number" /> |
       | `expiresIn` | Expiration time in seconds. Default is 300 seconds <Badge variant="note" text="number" /> |
       | `passwordlessType` | `OTP`, `LINK` or `LINK_OTP` <Badge variant="note" text="string" /> |
+
+    </details>
+    </TabItem>
+    <TabItem label="Go" value="go">
+    ```go
+    // Resend passwordless email for an existing auth request
+    resendResp, err := scalekitClient.Passwordless().ResendPasswordlessEmail(
+      ctx,            // context.Context (e.g., context.Background())
+      authRequestId,  // string: from the send email response
+    )
+
+    if err != nil {
+      // handle error (log, return HTTP 400/500, etc.)
+      // ...
+    }
+
+    // resendResp is a pointer to ResendPasswordlessResponse struct:
+    // type ResendPasswordlessResponse struct {
+    //   AuthRequestId    string // Unique ID for the passwordless request
+    //   ExpiresAt        int64  // Unix timestamp (seconds since epoch)
+    //   ExpiresIn        int    // Expiry duration in seconds
+    //   PasswordlessType string // "OTP", "LINK", or "LINK_OTP"
+    // }
+    ```
+
+    <details>
+      <summary>Request parameters</summary>
+
+      | Parameters | Required | Description |
+      |-----------|----------|-------------|
+      | `authRequestId` | Yes | The unique identifier for the authentication request that was sent earlier <Badge variant="note" text="string" /> |
+
+    </details>
+
+    <details>
+      <summary>Response parameters</summary>
+
+      | Parameters | Description |
+      |-----------|-------------|
+      | `AuthRequestId` | Unique identifier for the passwordless authentication request <Badge variant="note" text="string" /> |
+      | `ExpiresAt` | Expiration time in seconds since epoch <Badge variant="note" text="number" /> |
+      | `ExpiresIn` | Expiration time in seconds. Default is 300 seconds <Badge variant="note" text="number" /> |
+      | `PasswordlessType` | `OTP`, `LINK` or `LINK_OTP` <Badge variant="note" text="string" /> |
 
     </details>
     </TabItem>
@@ -392,6 +476,49 @@ Before you begin, ensure you have:
              | `passwordlessType` | The type of passwordless authentication to use. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
            </details>
          </TabItem>
+           <TabItem label="Go">
+             ```go
+             // Verify with OTP code
+             verifyResponse, err := scalekitClient.Passwordless().VerifyPasswordlessEmail(
+                 ctx,
+                 &scalekit.VerifyPasswordlessOptions{
+                     Code:          "123456", // OTP code
+                     AuthRequestId: authRequestId,
+                 },
+             )
+
+             if err != nil {
+                 // Handle error
+                 return
+             }
+
+             // verifyResp contains the verified user's info
+             // type VerifyPasswordLessResponse struct {
+             //   Email            string
+             //   State            string
+             //   Template         string // SIGNIN | SIGNUP
+             //   PasswordlessType string // OTP | LINK | LINK_OTP
+             // }
+             ```
+
+             <details>
+               <summary>Request parameters</summary>
+               | Parameters | Required | Description |
+               |-----------|----------|-------------|
+               | `options.Code` | Yes | The verification code received by the user <Badge variant="note" text="string" /> |
+               | `options.AuthRequestId` | Yes | The unique identifier for the authentication request that was sent earlier <Badge variant="note" text="string" /> |
+             </details>
+
+             <details>
+               <summary>Response parameters</summary>
+               | Parameters | Description |
+               |-----------|-------------|
+               | `Email` | The email address of the user <Badge variant="note" text="string" /> |
+               | `State` | The state parameter that was passed in the original request <Badge variant="note" text="string" /> |
+               | `Template` | The template that was used (`SIGNIN` or `SIGNUP`) <Badge variant="note" text="string" /> |
+               | `PasswordlessType` | `OTP`, `LINK` or `LINK_OTP` <Badge variant="note" text="string" /> |
+             </details>
+           </TabItem>
        </Tabs>
      </TabItem>
      <TabItem label="Magic Link Verification">
@@ -495,6 +622,24 @@ Before you begin, ensure you have:
              | `template` | The template that was used for the verification code <Badge variant="note" text="string" /> |
              | `passwordlessType` | The type of passwordless authentication to use. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
            </details>
+         </TabItem>
+         <TabItem label="Go">
+         ```go
+         verifyResponse, err := scalekitClient.Passwordless().VerifyPasswordlessEmail(
+             ctx,
+             &scalekit.VerifyPasswordlessOptions{
+                 LinkToken: linkToken, // Magic link token
+             },
+         )
+
+         if err != nil {
+             // Handle error
+             return
+         }
+
+         // User verified successfully
+         userEmail := verifyResponse.Email
+         ```
          </TabItem>
        </Tabs>
      </TabItem>
