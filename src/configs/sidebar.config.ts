@@ -58,7 +58,11 @@ export const sidebar = [
         items: [
           'fsa/guides/login-page-branding',
           'guides/email-providers',
-          'guides/dashboard/custom-email-templates',
+          {
+            label: 'Custom email templates',
+            link: 'guides/dashboard/custom-email-templates',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
         ],
       },
       {
@@ -177,7 +181,11 @@ export const sidebar = [
         label: 'Email customization',
         items: [
           'guides/passwordless/custom-email-provider',
-          'guides/dashboard/custom-email-templates',
+          {
+            label: 'Custom email templates',
+            link: 'guides/dashboard/custom-email-templates',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
         ],
       },
       {
