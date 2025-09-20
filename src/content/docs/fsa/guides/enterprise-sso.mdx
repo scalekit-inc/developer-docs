@@ -20,6 +20,7 @@ next:
   link: "/guides/sso/admin-portal/"
 ---
 import { Steps, Tabs, TabItem, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
+import { Quiz, QuizOption } from 'starlight-videos/components'
 import InstallSDK from '@components/templates/_installsdk.mdx';
 import CheckItem from '@/components/ui/CheckItem.astro';
 
@@ -71,14 +72,57 @@ Once they have configured their IdP, the connection will be active for their org
 
 ## Organization domain verification
 
-When you verify organization domains, users can sign in directly through their organization's identity provider from the sign-in page. Scalekit uses the domain part of their email address (for example, `@megacorp.org`) to automatically redirect them to the correct identity provider for authentication. Also called Home Realm Discovery.
+When organization admins verify organization domains, users can sign in directly through their organization's identity provider from the sign-in page. Scalekit uses the domain part of their email address (for example, `@megacorp.org`) to automatically redirect them to the correct identity provider for authentication. Also called Home Realm Discovery. You can add a verified domain manually on behalf of your customer from the Scalekit Dashboard -> Organizations -> Select an Organization -> Single Sign On
 
 **Organization admins** can verify domains through the [admin portal](/guides/sso/admin-portal/). Once verified, any user with an email address from that domain can use SSO.
 
 1. **DNS verification**: Add a DNS TXT record to prove domain ownership. The Admin Portal guides you through each step of adding the record. Once you add the record correctly, Scalekit automatically completes the verification. <Badge type="note" text="Coming soon" />
 2. **Manual verification**: Request domain verification through the Scalekit Dashboard. This method is suitable when you have already verified domain ownership through other means.
 
+#### Pre-check SSO by domain (when using discovery)
+
+If your login form uses discovery (`domain_hint` or `login_hint`), run a lightweight check to confirm the user’s email domain maps to an active SSO connection before redirecting. This prevents dead-end redirects and helps you present the right path (SSO vs non‑SSO).
+
+- Recommended when: You ask for email first or infer SSO from the domain.
+- Skip when: You already pass `organizationId` or `connectionId` explicitly.
+
+How to implement:
+1. Ask for email and extract the domain
+2. Query for connections by domain
+3. If found → redirect with `domain_hint` (or `connectionId`)
+4. If none → route to your non‑SSO flow
+
+```sh showLineNumbers=false
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/connections?domain=megacorp.org'
+```
+
+```js title="Example (pseudocode)" showLineNumbers=false
+const domain = email.split('@')[1].toLowerCase();
+const connections = await scalekit.connections.listConnectionsByDomain({ domain });
+
+if (connections.length > 0) {
+  // Proceed with SSO (domain_hint/login_hint or connectionId)
+} else {
+  // Fallback: passwordless, magic link, or other methods
+}
+```
+
+<Aside>
+This check returns results only when the customer has added their domains in Scalekit. See the [connections API reference](/apis/#tag/connections/get/api/v1/connections).
+</Aside>
+
+
+
 ## What's next?
+
+<div class="sk-quiz">
+<Quiz title="When should you run a domain-based SSO pre-check?" variant="minimal">
+  <QuizOption correct>When using discovery via domain_hint or login_hint</QuizOption>
+  <QuizOption>Always, even if passing organizationId or connectionId</QuizOption>
+  <QuizOption>Never; redirects should be attempted first</QuizOption>
+  <QuizOption>Only after receiving the OAuth callback</QuizOption>
+</Quiz>
+</div>
 
 - Learn more about the [Admin Portal](/guides/sso/admin-portal/) and its customization options.
 - [Customize the login page](/fsa/guides/login-page-branding/) to match your brand's design and style.
