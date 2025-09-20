@@ -92,6 +92,7 @@ export const redirects = {
   '/guides/passwordless/quickstart': '/passwordless/quickstart',
   '/guides/passwordless/oidc': '/passwordless/oidc',
   '/guides/passwordless/overview': '/passwordless/overview',
+  '/guides/passwordless/custom-email-templates': '/guides/dashboard/custom-email-templates',
 
   // =============================================================================
   // MCP AUTH REDIRECTS
