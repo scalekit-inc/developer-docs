@@ -2797,6 +2797,11 @@
             "source": "const response = await scalekit.passwordless.sendPasswordlessEmail(\n\t\"john.doe@example.com\",\n\t{\n\t\ttemplate: \"SIGNIN\",\n\t\texpiresIn: 100,\n\t\tmagiclinkAuthUri: \"https://www.google.com\",\n\t\ttemplateVariables: {\n\t\t\temployeeID: \"EMP523\",\n\t\t\tteamName: \"Alpha Team\",\n\t\t \tsupportEmail: \"support@yourcompany.com\",\n\t\t},\n\t}\n);"
           },
           {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "response = client.passwordless.send_passwordless_email(\n    email=\"john.doe@example.com\",\n    template=\"SIGNIN\",  # or \"SIGNUP\", \"UNSPECIFIED\"\n    expires_in=100,\n    magiclink_auth_uri=\"https://www.google.com\",\n    template_variables={\n        \"employeeID\": \"EMP523\",\n        \"teamName\": \"Alpha Team\",\n        \"supportEmail\": \"support@yourcompany.com\",\n    },\n)\n\n# Extract auth request ID from response\nauth_request_id = response[0].auth_request_id"
+          },
+          {
             "label": "Go SDK",
             "lang": "go",
             "source": "templateType := scalekit.TemplateTypeSignin\nresponse, err := scalekitClient.Passwordless().SendPasswordlessEmail(\n    ctx,\n    \"john.doe@example.com\",\n    &scalekit.SendPasswordlessOptions{\n        Template:         &templateType,\n        ExpiresIn:        100,\n        MagiclinkAuthUri: \"https://www.google.com\",\n        TemplateVariables: map[string]string{\n            \"employeeID\":    \"EMP523\",\n            \"teamName\":      \"Alpha Team\",\n            \"supportEmail\":  \"support@yourcompany.com\",\n        },\n    },\n)\n\nif err != nil {\n    // Handle error\n    return\n}\n\nauthRequestId := response.AuthRequestId"
@@ -2840,6 +2845,11 @@
             "source": "const { authRequestId } = sendResponse;\nconst resendResponse = await scalekit.passwordless.resendPasswordlessEmail(\n\tauthRequestId\n);"
           },
           {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "resend_response = client.passwordless.resend_passwordless_email(\n    auth_request_id=auth_request_id,\n)\n\n# New auth request ID from resend\nnew_auth_request_id = resend_response[0].auth_request_id"
+          },
+          {
             "label": "Go SDK",
             "lang": "go",
             "source": "resendResponse, err := scalekitClient.Passwordless().ResendPasswordlessEmail(\n    ctx,\n    authRequestId,\n)\n\nif err != nil {\n    // Handle error\n    return\n}"
@@ -2881,6 +2891,11 @@
             "label": "Node.js SDK",
             "lang": "javascript",
             "source": "const { authRequestId } = sendResponse;\nconst verifyResponse = await scalekit.passwordless.verifyPasswordlessEmail(\n\t// Verification Code (OTP)\n\t{ code: \"123456\" },\n\t// Magic Link Token\n\t{ linkToken: link_token },\n\tauthRequestId\n);"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# Verify with OTP code\nverify_response = client.passwordless.verify_passwordless_email(\n    code=\"123456\",  # OTP code received via email\n    auth_request_id=auth_request_id,\n)\n\n# Verify with magic link token\nverify_response = client.passwordless.verify_passwordless_email(\n    link_token=link_token,  # Magic link token from URL\n)\n\n# User verified successfully\nuser_email = verify_response[0].email"
           },
           {
             "label": "Go SDK",
