@@ -16,7 +16,20 @@ This document explains how to integrate your existing authentication system with
 
 When an MCP client initiates an authentication flow, Scalekit redirects to your login endpoint. You then provide user details to Scalekit via a secure backend call, and finally redirect back to Scalekit to complete the process.
 
-![MCP Federated Auth - Sequence Diagram](@/assets/docs/m2m/mcp/mcp_federated_auth_sequence.png)
+<br />
+
+```d2
+direction: right
+shape: sequence_diagram
+
+MCP Client -> Scalekit : "Initiate /oauth/authorize (dynamic client)"
+Scalekit -> Customer App: "Redirect to /login?login_request_id & state"
+Scalekit <- Customer App: "POST user details (machine to machine)"
+Scalekit -> Customer App: "200 Success Response"
+Scalekit <- Customer App: "Redirect to /partner:callback?state"
+MCP Client <-> Scalekit : "Continue consent, token exchange, etc"
+```
+
 
 ### 1. Initiate Authentication
 
@@ -45,9 +58,8 @@ Take the user through your regular authentication logic (e.g., username/password
 
 After successful authentication, make a machine-to-machine POST request to Scalekit with the user's details.
 
-**Example cURL Request:**
 
-```bash
+```bash title="Example cURL" showLineNumbers=false wrap
 curl --location '{{envurl}}/api/v1/connections/{{connection_id}}/auth-requests/{{login_request_id}}/user' \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer {{access_token}}' \
@@ -75,13 +87,13 @@ curl --location '{{envurl}}/api/v1/connections/{{connection_id}}/auth-requests/{
 :::
 ---
 
-### 3. Redirect Back to Scalekit
+### 3. Redirect back to Scalekit
 
 - Once you receive a successful response from Scalekit, redirect the user back to Scalekit using the provided `state` value to the below endpoint.
 
 **Example Redirect URL:**
 
-```
+```http title="Example Redirect URL" showLineNumbers=false wrap
 {{envurl}}/sso/v1/connections/{{connection_id}}/partner:callback?state={{state_value}}
 ```
 
