@@ -1,6 +1,16 @@
 ---
 import IconHouse from '~icons/lucide/house'
 import IconChevronDown from '~icons/lucide/chevron-down'
+import IconLucideUsers from '~icons/lucide/users'
+import IconLucideKeyRound from '~icons/lucide/key-round'
+import IconLucideMail from '~icons/lucide/mail'
+import IconLucideBot from '~icons/lucide/bot'
+import IconStreamlineUserSyncOnlineInPersonRemix from '~icons/streamline/user-sync-online-in-person-remix'
+import IconMcp from '~icons/codicon/mcp'
+import IconLucideShield from '~icons/lucide/shield'
+import IconLucideBookOpen from '~icons/lucide/book-open'
+import IconLucideCode from '~icons/lucide/code'
+import IconLucideWrench from '~icons/lucide/wrench'
 
 interface NavItem {
   href: string
@@ -53,6 +63,14 @@ function getDisplayLabel(pathname: string, item: NavItem): string {
   return item.label
 }
 
+function getDisplayIcon(pathname: string, item: NavItem): any {
+  if (item.children && item.children.length > 0) {
+    const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
+    if (activeChild && activeChild.iconComponent) return activeChild.iconComponent
+  }
+  return item.iconComponent
+}
+
 const navSections: NavSection[] = [
   {
     items: [
@@ -61,6 +79,7 @@ const navSections: NavSection[] = [
       {
         href: '/fsa/quickstart',
         label: 'Authenticate',
+        iconComponent: IconLucideShield,
         // Parent patterns include all child patterns so it highlights correctly
         patterns: [
           '/mcp/',
@@ -74,38 +93,42 @@ const navSections: NavSection[] = [
           '/guides/directory/',
         ],
         children: [
-          { href: '/mcp/overview', label: 'MCP Auth', patterns: ['/mcp/'] },
-          { href: '/fsa/quickstart', label: 'Full-Stack Auth', patterns: ['/fsa/'] },
+          { href: '/mcp/overview', label: 'MCP Auth', patterns: ['/mcp/'], iconComponent: IconMcp },
+          { href: '/fsa/quickstart', label: 'Full-Stack Auth', patterns: ['/fsa/'], iconComponent: IconLucideUsers },
           {
             href: '/sso/quickstart',
             label: 'SSO',
             patterns: ['/sso/', '/guides/sso/', '/social-logins/'],
+            iconComponent: IconLucideKeyRound,
           },
           {
             href: '/passwordless/quickstart',
             label: 'Passwordless',
             patterns: ['/passwordless/', '/guides/passwordless/'],
+            iconComponent: IconLucideMail,
           },
           {
             href: '/directory/scim/quickstart',
             label: 'SCIM',
             patterns: ['/directory/', '/guides/directory/'],
+            iconComponent: IconStreamlineUserSyncOnlineInPersonRemix,
           },
         ],
       },
-      { href: '/agent-actions/quickstart', label: 'Agent Actions', patterns: ['/agent-actions/'] },
+      { href: '/agent-actions/quickstart', label: 'Agent Actions', patterns: ['/agent-actions/'], iconComponent: IconLucideBot },
     ],
   },
   {
     items: [
-      { href: '/apis/', label: 'API Reference', patterns: ['/apis'] },
+      { href: '/apis/', label: 'API Reference', patterns: ['/apis'], iconComponent: IconLucideBookOpen },
       {
         href: '/dev-kit/code-samples',
         label: 'Code Samples',
         patterns: ['/dev-kit/code-samples'],
         isExact: true,
+        iconComponent: IconLucideCode,
       },
-      { href: '/dev-kit/', label: 'Developer Resources', patterns: ['/dev-kit/'] },
+      { href: '/dev-kit/', label: 'Developer Resources', patterns: ['/dev-kit/'], iconComponent: IconLucideWrench },
     ],
   },
 ]
@@ -124,19 +147,24 @@ const navSections: NavSection[] = [
               class={`nav-item ${isCurrentPage(Astro.url.pathname, item) ? 'current' : ''}`}
               aria-current="page"
             >
-              <div class="nav-item-content">
-                {item.iconComponent && <item.iconComponent class="nav-icon" />}
-                {item.label && (
-                  <span class="nav-label">
-                    {item.children && item.children.length > 0
-                      ? getDisplayLabel(Astro.url.pathname, item)
-                      : item.label}
-                  </span>
-                )}
-                {item.children && item.children.length > 0 && (
-                  <IconChevronDown class="dropdown-icon" />
-                )}
-              </div>
+               <div class="nav-item-content">
+                 {(function() {
+                   const IconComponent = item.children && item.children.length > 0
+                     ? getDisplayIcon(Astro.url.pathname, item)
+                     : item.iconComponent;
+                   return IconComponent && <IconComponent class="nav-icon" />;
+                 })()}
+                 {item.label && (
+                   <span class="nav-label">
+                     {item.children && item.children.length > 0
+                       ? getDisplayLabel(Astro.url.pathname, item)
+                       : item.label}
+                   </span>
+                 )}
+                 {item.children && item.children.length > 0 && (
+                   <IconChevronDown class="dropdown-icon" />
+                 )}
+               </div>
             </a>
           </div>
         ))}
@@ -161,7 +189,11 @@ const navSections: NavSection[] = [
                   href={child.href}
                   class={`dropdown-item ${isCurrentPage(Astro.url.pathname, child) ? 'current' : ''}`}
                 >
-                  {child.label}
+                  {(function() {
+                    const ChildIcon = child.iconComponent;
+                    return ChildIcon && <ChildIcon class="dropdown-item-icon" />;
+                  })()}
+                  <span>{child.label}</span>
                 </a>
               ))}
             </div>
@@ -242,6 +274,7 @@ const navSections: NavSection[] = [
   .nav-item-content {
     display: flex;
     align-items: center;
+    gap: 0.5rem;
     line-height: 1.2;
   }
 
@@ -307,7 +340,9 @@ const navSections: NavSection[] = [
   }
 
   .dropdown-item {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.5rem 1rem;
     color: var(--sl-color-gray-2);
     text-decoration: none;
@@ -316,6 +351,12 @@ const navSections: NavSection[] = [
     transition: all 0.2s ease;
     border-left: 3px solid transparent;
     white-space: nowrap;
+  }
+
+  .dropdown-item-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
   }
 
   .dropdown-item:hover,
