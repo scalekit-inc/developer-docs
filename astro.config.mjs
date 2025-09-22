@@ -163,6 +163,13 @@ export default defineConfig({
     plugins: [pluginCollapsibleSections(), tailwindcss(), Icons({ compiler: 'astro' })],
     build: {
       chunkSizeWarningLimit: 2000,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('@scalar')) return 'scalar'
+          },
+        },
+      },
     },
   },
 })
