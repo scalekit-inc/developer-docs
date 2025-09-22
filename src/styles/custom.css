@@ -7,6 +7,52 @@
 @layer nova, starlight, scalekit.tokens, scalekit.layout, scalekit.components, scalekit.overrides;
 
 /* =============================================================================
+   TOKENS - Design system tokens and theme variables (must not be layered)
+   ============================================================================= */
+/* Typography tokens */
+:root,
+::backdrop {
+  /* Text size and line height */
+  --sl-text-2xs: 0.75rem; /* 12px */
+  --sl-text-xs: 0.8125rem; /* 13px */
+  --sl-text-sm: 0.875rem; /* 14px */
+  --sl-text-base: 0.9rem; /* 16px */
+  --sl-text-lg: 1.125rem; /* 18px */
+  --sl-text-xl: 1.25rem; /* 20px */
+  --sl-text-2xl: 1.5rem; /* 24px */
+  --sl-text-3xl: 1.8125rem; /* 29px */
+  --sl-text-4xl: 2.1875rem; /* 35px */
+  --sl-text-5xl: 2.625rem; /* 42px */
+  --sl-text-6xl: 4rem; /* 64px */
+
+  --sl-text-body: var(--sl-text-base);
+  --sl-text-body-sm: var(--sl-text-xs);
+  --sl-text-code: var(--sl-text-sm);
+  --sl-text-code-sm: var(--sl-text-xs);
+  --sl-text-h1: var(--sl-text-3xl) !important;
+  --sl-text-h2: var(--sl-text-2xl) !important;
+  --sl-text-h3: var(--sl-text-xl) !important;
+  --sl-text-h4: var(--sl-text-lg) !important;
+  --sl-text-h5: var(--sl-text-base) !important;
+  --sl-line-height: 1.75;
+  --sl-line-height-headings: 1.2;
+
+  --sl-font-system: 'Inter Variable', ui-sans-serif, system-ui, Roboto, Arial, sans-serif;
+  --sl-font-system-mono: 'Inter Mono Variable', ui-monospace, monospace;
+  --__sl-font: var(--sl-font-system);
+  --__sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
+
+  /* Outline and accessibility tokens */
+  --sl-outline-offset-inside: -0.1875rem;
+
+  /* Z-index tokens */
+  --sl-z-index-toc: 4;
+  --sl-z-index-menu: 5;
+  --sl-z-index-navbar: 10;
+  --sl-z-index-skiplink: 20;
+}
+
+/* =============================================================================
    TOKENS LAYER - Design system tokens and theme variables
    ============================================================================= */
 @layer scalekit.tokens {
@@ -119,6 +165,15 @@
    OVERRIDES LAYER - Framework and third-party overrides
    ============================================================================= */
 @layer scalekit.overrides {
+  /* Ensure base line-height is consistent and inherited site-wide */
+  html {
+    line-height: var(--sl-line-height);
+  }
+
+  body {
+    line-height: inherit;
+  }
+
   /* Sidebar selected item background - less intrusive */
   #starlight__sidebar details ul li a[aria-current='page'],
   #starlight__sidebar details ul li a[data-current-parent] {
