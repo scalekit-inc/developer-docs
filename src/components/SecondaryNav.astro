@@ -45,6 +45,14 @@ function isCurrentPage(pathname: string, item: NavItem): boolean {
   return startsWithAny(pathname, item.patterns)
 }
 
+function getDisplayLabel(pathname: string, item: NavItem): string {
+  if (item.children && item.children.length > 0) {
+    const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
+    if (activeChild) return activeChild.label
+  }
+  return item.label
+}
+
 const navSections: NavSection[] = [
   {
     items: [
@@ -118,7 +126,13 @@ const navSections: NavSection[] = [
             >
               <div class="nav-item-content">
                 {item.iconComponent && <item.iconComponent class="nav-icon" />}
-                {item.label && <span class="nav-label">{item.label}</span>}
+                {item.label && (
+                  <span class="nav-label">
+                    {item.children && item.children.length > 0
+                      ? getDisplayLabel(Astro.url.pathname, item)
+                      : item.label}
+                  </span>
+                )}
                 {item.children && item.children.length > 0 && (
                   <IconChevronDown class="dropdown-icon" />
                 )}
@@ -140,7 +154,7 @@ const navSections: NavSection[] = [
     navSections.map((section) =>
       section.items.map((item) =>
         item.children && item.children.length > 0 ? (
-          <div class="dropdown-menu" data-dropdown data-nav-item={item.label}>
+          <div class="dropdown-menu" data-dropdown data-nav-key={item.href}>
             <div class="dropdown-content">
               {item.children.map((child) => (
                 <a
@@ -355,10 +369,10 @@ const navSections: NavSection[] = [
 
     dropdownTriggers.forEach((trigger) => {
       const triggerLink = trigger.querySelector('.nav-item')
-      const label = triggerLink?.querySelector('.nav-label')?.textContent?.trim()
-      if (!label) return
+      const href = triggerLink?.getAttribute('href')
+      if (!href) return
 
-      const dropdown = document.querySelector(`[data-nav-item="${label}"]`)
+      const dropdown = document.querySelector(`[data-nav-key="${href}"]`)
       if (!dropdown) return
 
       hideDropdown(dropdown)
