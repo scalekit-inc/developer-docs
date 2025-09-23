@@ -18,7 +18,7 @@ head:
       }
 ---
 
-import { Badge, Aside, Steps } from '@astrojs/starlight/components';
+import { Badge, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 import { Quiz, QuizOption } from 'starlight-videos/components'
 
 Scalekit uses default templates to send authentication emails to your users. You can customize these templates with your own branding and content to provide a consistent experience.
@@ -90,6 +90,40 @@ Contextual variables apply only to the current template. They change per templat
 | `{{otp}}` | One-time passcode for the current request |
 | `{{expiry_time_relative}}` | Human-readable time until expiration (for example, "10 minutes") |
 
+
+## JET template syntax
+
+Custom email templates use JET (Just Enough Templates) syntax for dynamic content. JET provides powerful templating features including conditionals, loops, and filters.
+
+Here are two common patterns you can use in your email templates:
+
+<Tabs>
+
+<TabItem label='Conditional welcome message'>
+
+```html showLineNumbers=false
+{{ if user_name }}
+  <p>Hello {{ user_name }},</p>
+{{ else }}
+  <p>Hello,</p>
+{{ end }}
+
+<p>Welcome to {{ app_name }}!</p>
+```
+
+</TabItem>
+
+<TabItem label='Formatted expiry time'>
+```html  showLineNumbers=false
+<p>Your verification code expires in {{ expiry_time_relative }}.</p>
+<p>This link is valid until {{ format_date(expire_time, "MMM d, yyyy 'at' h:mm a") }}.</p>
+```
+</TabItem>
+</Tabs>
+
+<Aside type="note" title='JET syntax reference'>
+  For complete JET syntax documentation including all available functions, filters, and control structures, see the [JET syntax reference](https://github.com/CloudyKit/jet/blob/master/docs/syntax.md).
+</Aside>
 
 ## Inject you own variables at runtime <Badge variant="note" text="Passwordless" />
 
