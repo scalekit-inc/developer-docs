@@ -75,7 +75,6 @@ export default defineConfig({
         '@fontsource-variable/geist',
         '@fontsource-variable/geist-mono',
         './src/styles/theme-priority.css',
-        './src/styles/custom.css',
       ],
       plugins: [
         starlightLinksValidator(),
@@ -163,6 +162,13 @@ export default defineConfig({
     plugins: [pluginCollapsibleSections(), tailwindcss(), Icons({ compiler: 'astro' })],
     build: {
       chunkSizeWarningLimit: 2000,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('@scalar')) return 'scalar'
+          },
+        },
+      },
     },
   },
 })
