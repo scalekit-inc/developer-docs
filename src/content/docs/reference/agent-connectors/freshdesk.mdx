@@ -11,15 +11,82 @@ head:
       table td:first-child, table th:first-child {
         white-space: nowrap;
       }
+      /* Heading copy functionality */
+      .sl-markdown-content h2,
+      .sl-markdown-content h3,
+      .sl-markdown-content h4 {
+        position: relative;
+        cursor: pointer;
+      }
+      .sl-markdown-content h2:hover::after,
+      .sl-markdown-content h3:hover::after,
+      .sl-markdown-content h4:hover::after {
+        content: " 📋 ";
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+  - tag: script
+    content: |
+      // Using a self-executing function to avoid global namespace pollution
+      (function() {
+        // Function to initialize the copy functionality
+        function initHeadingCopy() {
+          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
+
+          headings.forEach(heading => {
+            // Skip if already initialized
+            if (heading.hasAttribute('data-copy-initialized')) return;
+            heading.setAttribute('data-copy-initialized', 'true');
+
+            heading.addEventListener('click', async () => {
+              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
+
+              try {
+                await navigator.clipboard.writeText(headingText);
+
+                // Visual feedback
+                const originalText = heading.textContent;
+                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
+
+                setTimeout(() => {
+                  heading.textContent = originalText;
+                }, 2000);
+              } catch (err) {
+                console.error('Failed to copy heading:', err);
+              }
+            });
+          });
+        }
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initHeadingCopy);
+
+        // Also initialize now in case the DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          setTimeout(initHeadingCopy, 1);
+        }
+
+        // For Astro's client-side navigation
+        document.addEventListener('astro:page-load', initHeadingCopy);
+      })();
 ---
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
 
-Connect to Freshdesk. Manage tickets, contacts, companies, and customer support workflows
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Freshdesk. Manage tickets, contacts, companies, and customer support workflows
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/freshdesk.png" width="64" height="64" alt="Freshdesk logo" />
+ </div>
+</div>
 
 Supports authentication: <Badge text="Basic Auth" />
 
+
+## Tool list
 
 ## `freshdesk_agent_create`
 
@@ -79,85 +146,6 @@ Create a new contact in Freshdesk. Email and name are required. Supports custom 
 | `phone` | Phone number of the contact | string | null |
 | `tags` | Array of tags to associate with the contact | `array<string>` | null |
 | `time_zone` | Time zone of the contact | string | null |
-
-## `freshdesk_create_contact`
-
-Create a new contact in Freshdesk. Email and name are required. Supports custom fields, company assignment, and contact segmentation.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `address` | Address of the contact | string | null |
-| `company_id` | Company ID to associate with the contact | number | null |
-| `custom_fields` | Key-value pairs for custom field values | `object` | null |
-| `description` | Description about the contact | string | null |
-| `email` | Email address of the contact | string |
-| `job_title` | Job title of the contact | string | null |
-| `language` | Language preference of the contact | string | null |
-| `mobile` | Mobile number of the contact | string | null |
-| `name` | Full name of the contact | string |
-| `phone` | Phone number of the contact | string | null |
-| `tags` | Array of tags to associate with the contact | `array<string>` | null |
-| `time_zone` | Time zone of the contact | string | null |
-
-## `freshdesk_create_ticket`
-
-Create a new ticket in Freshdesk. Requires either requester_id, email, facebook_id, phone, twitter_id, or unique_external_id to identify the requester.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `cc_emails` | Array of email addresses to be added in CC | `array<string>` | null |
-| `custom_fields` | Key-value pairs containing custom field names and values | `object` | null |
-| `description` | HTML content of the ticket describing the issue | string | null |
-| `email` | Email address of the requester. If no contact exists, will be added as new contact. | string | null |
-| `group_id` | ID of the group to which the ticket has been assigned | number | null |
-| `name` | Name of the requester | string | null |
-| `priority` | Priority of the ticket. 1=Low, 2=Medium, 3=High, 4=Urgent | number | null |
-| `requester_id` | User ID of the requester. For existing contacts, can be passed instead of email. | number | null |
-| `responder_id` | ID of the agent to whom the ticket has been assigned | number | null |
-| `source` | Channel through which ticket was created. 1=Email, 2=Portal, 3=Phone, 7=Chat, 9=Feedback Widget, 10=Outbound Email | number | null |
-| `status` | Status of the ticket. 2=Open, 3=Pending, 4=Resolved, 5=Closed | number | null |
-| `subject` | Subject of the ticket | string | null |
-| `tags` | Array of tags to be associated with the ticket | `array<string>` | null |
-| `type` | Helps categorize the ticket according to different kinds of issues | string | null |
-
-## `freshdesk_get_ticket`
-
-Retrieve details of a specific ticket by ID. Includes ticket properties, conversations, and metadata.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `include` | Additional resources to include (stats, requester, company, conversations) | string | null |
-| `ticket_id` | ID of the ticket to retrieve | number |
-
-## `freshdesk_list_tickets`
-
-Retrieve a list of tickets with filtering and pagination. Supports filtering by status, priority, requester, and more. Returns 30 tickets per page by default.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `company_id` | Filter by company ID | number | null |
-| `email` | Filter by requester email | string | null |
-| `filter` | Filter name (new_and_my_open, watching, spam, deleted) | string | null |
-| `include` | Additional resources to include (description, requester, company, stats) | string | null |
-| `page` | Page number for pagination (starts from 1) | number | null |
-| `per_page` | Number of tickets per page (max 100) | number | null |
-| `priority` | Filter by priority (1=Low, 2=Medium, 3=High, 4=Urgent) | number | null |
-| `requester_id` | Filter by requester ID | number | null |
-| `status` | Filter by status (2=Open, 3=Pending, 4=Resolved, 5=Closed) | number | null |
-| `updated_since` | Filter tickets updated since this timestamp (ISO 8601) | string | null |
-
-## `freshdesk_reply_tickets`
-
-Add a public reply to a ticket conversation. The reply will be visible to the customer and will update the ticket status if specified.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `bcc_emails` | Array of email addresses to BCC on the reply | `array<string>` | null |
-| `body` | HTML content of the reply | string |
-| `cc_emails` | Array of email addresses to CC on the reply | `array<string>` | null |
-| `from_email` | Email address to send the reply from | string | null |
-| `ticket_id` | ID of the ticket to reply to | number |
-| `user_id` | ID of the agent sending the reply | number | null |
 
 ## `freshdesk_roles_list`
 
@@ -237,20 +225,3 @@ Add a public reply to a ticket conversation. The reply will be visible to the cu
 | `from_email` | Email address to send the reply from | string | null |
 | `ticket_id` | ID of the ticket to reply to | number |
 | `user_id` | ID of the agent sending the reply | number | null |
-
-## `freshdesk_update_tickets`
-
-Update an existing ticket in Freshdesk. Note: Subject and description of outbound tickets cannot be updated.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `custom_fields` | Key-value pairs containing custom field names and values | `object` | null |
-| `description` | HTML content of the ticket (cannot be updated for outbound tickets) | string | null |
-| `group_id` | ID of the group to which the ticket has been assigned | number | null |
-| `name` | Name of the requester | string | null |
-| `priority` | Priority of the ticket. 1=Low, 2=Medium, 3=High, 4=Urgent | number | null |
-| `responder_id` | ID of the agent to whom the ticket has been assigned | number | null |
-| `status` | Status of the ticket. 2=Open, 3=Pending, 4=Resolved, 5=Closed | number | null |
-| `subject` | Subject of the ticket (cannot be updated for outbound tickets) | string | null |
-| `tags` | Array of tags to be associated with the ticket | `array<string>` | null |
-| `ticket_id` | ID of the ticket to update | number |

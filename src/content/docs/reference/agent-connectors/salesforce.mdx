@@ -11,15 +11,82 @@ head:
       table td:first-child, table th:first-child {
         white-space: nowrap;
       }
+      /* Heading copy functionality */
+      .sl-markdown-content h2,
+      .sl-markdown-content h3,
+      .sl-markdown-content h4 {
+        position: relative;
+        cursor: pointer;
+      }
+      .sl-markdown-content h2:hover::after,
+      .sl-markdown-content h3:hover::after,
+      .sl-markdown-content h4:hover::after {
+        content: " 📋 ";
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+  - tag: script
+    content: |
+      // Using a self-executing function to avoid global namespace pollution
+      (function() {
+        // Function to initialize the copy functionality
+        function initHeadingCopy() {
+          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
+
+          headings.forEach(heading => {
+            // Skip if already initialized
+            if (heading.hasAttribute('data-copy-initialized')) return;
+            heading.setAttribute('data-copy-initialized', 'true');
+
+            heading.addEventListener('click', async () => {
+              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
+
+              try {
+                await navigator.clipboard.writeText(headingText);
+
+                // Visual feedback
+                const originalText = heading.textContent;
+                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
+
+                setTimeout(() => {
+                  heading.textContent = originalText;
+                }, 2000);
+              } catch (err) {
+                console.error('Failed to copy heading:', err);
+              }
+            });
+          });
+        }
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initHeadingCopy);
+
+        // Also initialize now in case the DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          setTimeout(initHeadingCopy, 1);
+        }
+
+        // For Astro's client-side navigation
+        document.addEventListener('astro:page-load', initHeadingCopy);
+      })();
 ---
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
 
-Connect to Salesforce CRM. Manage leads, opportunities, accounts, and customer relationships
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Salesforce CRM. Manage leads, opportunities, accounts, and customer relationships
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/sales_force.svg" width="64" height="64" alt="Salesforce logo" />
+ </div>
+</div>
 
 Supports authentication: <Badge text="OAuth 2.0" />
 
+
+## Tool list
 
 ## `salesforce_account_create`
 
@@ -99,81 +166,6 @@ Retrieve details of a specific contact from Salesforce by contact ID. Returns co
 | `contact_id` | ID of the contact to retrieve | string |
 | `fields` | Comma-separated list of fields to include in the response | string | null |
 
-## `salesforce_create_account`
-
-Create a new account in Salesforce. Allows setting account properties like name, billing information, industry, and other standard fields.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `account_data` | JSON string containing account fields to create | string |
-
-## `salesforce_create_contact`
-
-Create a new contact in Salesforce. Allows setting contact properties like name, email, phone, account association, and other standard fields.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `contact_data` | JSON string containing contact fields to create | string |
-
-## `salesforce_create_opportunity`
-
-Create a new opportunity in Salesforce. Allows setting opportunity properties like name, amount, stage, close date, and account association.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `opportunity_data` | JSON string containing opportunity fields to create | string |
-
-## `salesforce_describe_global`
-
-Retrieve metadata about all available SObjects in the Salesforce organization. Returns list of all objects with basic information.
-
-## `salesforce_describe_object`
-
-Retrieve detailed metadata about a specific SObject in Salesforce. Returns fields, relationships, and other object metadata.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `sobject` | SObject API name to describe | string |
-
-## `salesforce_execute_soql`
-
-Execute custom SOQL queries against Salesforce data. Supports complex queries with joins, filters, aggregations, and custom field selection.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `soql_query` | SOQL query string to execute | string |
-
-## `salesforce_get_account`
-
-Retrieve details of a specific account from Salesforce by account ID. Returns account properties and associated data.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `account_id` | ID of the account to retrieve | string |
-| `fields` | Comma-separated list of fields to include in the response | string | null |
-
-## `salesforce_get_contact`
-
-Retrieve details of a specific contact from Salesforce by contact ID. Returns contact properties and associated data.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `contact_id` | ID of the contact to retrieve | string |
-| `fields` | Comma-separated list of fields to include in the response | string | null |
-
-## `salesforce_get_limits`
-
-Retrieve organization limits information from Salesforce. Returns API usage limits, data storage limits, and other organizational constraints.
-
-## `salesforce_get_opportunity`
-
-Retrieve details of a specific opportunity from Salesforce by opportunity ID. Returns opportunity properties and associated data.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `fields` | Comma-separated list of fields to include in the response | string | null |
-| `opportunity_id` | ID of the opportunity to retrieve | string |
-
 ## `salesforce_global_describe`
 
 Retrieve metadata about all available SObjects in the Salesforce organization. Returns list of all objects with basic information.
@@ -181,22 +173,6 @@ Retrieve metadata about all available SObjects in the Salesforce organization. R
 ## `salesforce_limits_get`
 
 Retrieve organization limits information from Salesforce. Returns API usage limits, data storage limits, and other organizational constraints.
-
-## `salesforce_list_accounts`
-
-Retrieve a list of accounts from Salesforce using a pre-built SOQL query. Returns basic account information.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `limit` | Number of results to return per page | number | null |
-
-## `salesforce_list_opportunities`
-
-Retrieve a list of opportunities from Salesforce using a pre-built SOQL query. Returns basic opportunity information.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `limit` | Number of results to return per page | number | null |
 
 ## `salesforce_object_describe`
 
@@ -269,16 +245,6 @@ Update an existing opportunity in Salesforce by opportunity ID. Allows updating 
 | `Type` | Opportunity type | string | null |
 | `opportunity_id` | ID of the opportunity to update | string |
 
-## `salesforce_parameterized_search`
-
-Execute parameterized searches against Salesforce data. Provides simplified search interface with predefined parameters.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `fields` | Comma-separated list of fields to return | string | null |
-| `search_text` | Text to search for | string |
-| `sobject` | SObject type to search in | string |
-
 ## `salesforce_query_soql`
 
 Execute SOQL queries against Salesforce data. Supports complex queries with joins, filters, and aggregations.
@@ -312,28 +278,3 @@ Execute custom SOQL queries against Salesforce data. Supports complex queries wi
 | Properties | Description | Type |
 | --- | --- | --- |
 | `soql_query` | SOQL query string to execute | string |
-
-## `salesforce_soql_query`
-
-Execute SOQL queries against Salesforce data. Supports complex queries with joins, filters, and aggregations.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `query` | SOQL query string to execute | string |
-
-## `salesforce_sosl_search`
-
-Execute SOSL searches against Salesforce data. Performs full-text search across multiple objects and fields.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `search_query` | SOSL search query string to execute | string |
-
-## `salesforce_update_opportunity`
-
-Update an existing opportunity in Salesforce by opportunity ID. Allows updating opportunity properties like name, amount, stage, and close date.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `fields` | JSON string containing fields to update | string |
-| `opportunity_id` | ID of the opportunity to update | string |
