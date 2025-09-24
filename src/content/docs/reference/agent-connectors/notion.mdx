@@ -27,10 +27,10 @@ Create a comment in Notion. Provide a comment object with rich_text content and 
 
 | Properties | Description | Type |
 | --- | --- | --- |
-| `comment` | Comment object containing a rich_text array. Example: {"rich_text":[{"type":"text","text":{"content":"Hello"}}]} | object |
+| `comment` | Comment object containing a rich_text array. Example: `{"rich_text":[{"type":"text","text":{"content":"Hello"}}]}` | `object` |
 | `discussion_id` | Existing discussion thread ID to reply to. | string | null |
 | `notion_version` | Optional override for the Notion-Version header (e.g., 2022-06-28). | string | null |
-| `parent` | Parent object for a new top-level comment. Shape: {"page_id":"<uuid>"}. | object | null |
+| `parent` | Parent object for a new top-level comment. Shape: `{"page_id":"<uuid>"}`. | `object` | null |
 | `schema_version` | Internal override for schema version. | string | null |
 | `tool_version` | Internal override for tool implementation version. | string | null |
 
@@ -64,10 +64,10 @@ Create a comment in Notion. Provide a comment object with rich_text content and 
 
 | Properties | Description | Type |
 | --- | --- | --- |
-| `comment` | Comment object containing a rich_text array. Example: {"rich_text":[{"type":"text","text":{"content":"Hello"}}]} | object |
+| `comment` | Comment object containing a rich_text array. Example: `{"rich_text":[{"type":"text","text":{"content":"Hello"}}]}` | `object` |
 | `discussion_id` | Existing discussion thread ID to reply to. | string | null |
 | `notion_version` | Optional override for the Notion-Version header (e.g., 2022-06-28). | string | null |
-| `parent` | Parent object for a new top-level comment. Shape: {"page_id":"<uuid>"}. | object | null |
+| `parent` | Parent object for a new top-level comment. Shape: `{"page_id":"<uuid>"}`. | `object` | null |
 | `schema_version` | Internal override for schema version. | string | null |
 | `tool_version` | Internal override for tool implementation version. | string | null |
 
@@ -90,8 +90,8 @@ Create a new database in Notion under a parent page. Provide a parent object wit
 | Properties | Description | Type |
 | --- | --- | --- |
 | `notion_version` | Optional override for the Notion-Version header (e.g., 2022-06-28). | string | null |
-| `parent` | Parent object specifying the page under which the database is created. Example: {"page_id": "2561ab6c-418b-8072-beec-c4779fa811cf"} | object |
-| `properties` | Database schema object defining properties (columns). Example: {"Name": {"title": {}}, "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Doing"}, {"name": "Done"}]}}} | object |
+| `parent` | Parent object specifying the page under which the database is created. Example: `{"page_id": "2561ab6c-418b-8072-beec-c4779fa811cf"}` | `object` |
+| `properties` | Database schema object defining properties (columns). Example: `{"Name": {"title": {}}, "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Doing"}, {"name": "Done"}]}}}` | `object` |
 | `schema_version` | Internal override for schema version. | string | null |
 | `title` | Database title as a Notion rich_text array. | `array<object>` |
 | `tool_version` | Internal override for tool implementation version. | string | null |
@@ -109,27 +109,30 @@ Retrieve a Notion database’s full definition, including title, properties, and
 
 ## `notion_database_insert_row`
 
-Insert a new row (page) into a Notion database. Required: `database_id` (hyphenated UUID) and `properties` (object mapping database column names to Notion **property values**). Optional: `child_blocks` (content blocks), `icon` (page icon object), and `cover` (page cover object).
+Insert a new row (page) into a Notion database. Required: `database_id` (hyphenated UUID) and `properties` (object mapping database column names to Notion **property values). Optional: child_blocks` (content blocks), `icon` (page icon object), and `cover` (page cover object).
 
 LLM guidance:
 - `properties` must use **property values** (not schema). Example:
+
+```json
   {
     "title": { "title": [ { "text": { "content": "Task A" } } ] },
     "Status": { "select": { "name": "Todo" } },
     "Due": { "date": { "start": "2025-09-01" } }
   }
-- Use the **exact property key** as defined in the database (case‑sensitive), or the property **id`.
-- `icon` example (emoji): {"type":"emoji","emoji":"📝"}
-- `cover` example (external): {"type":"external","external":{"url":"https://example.com/image.jpg"}}
+```
+- Use the **exact property key** as defined in the database (case‑sensitive), or the property id.
+- `icon` example (emoji): `{"type":"emoji","emoji":"📝"}`
+- `cover` example (external): `{"type":"external","external":{"url":"https://example.com/image.jpg"}}`
 - Runtime note: the executor/host should synthesize `parent = {"database_id": database_id}` before sending to Notion.
 
 | Properties | Description | Type |
 | --- | --- | --- |
-| `_parent` | Computed by host: `{ "database_id": "<database_id>" }`. Do not supply manually. | object | null |
+| `_parent` | Computed by host: `{ "database_id": "<database_id>" }`. Do not supply manually. | `object` | null |
 | `child_blocks` | Optional array of Notion blocks to append as page content (paragraph, heading, to_do, etc.). | `array<unknown>` | null |
-| `cover` | Optional page cover object. Example external: {"type":"external","external":{"url":"https://example.com/cover.jpg"}}. | object | null |
+| `cover` | Optional page cover object. Example external: `{"type":"external","external":{"url":"https://example.com/cover.jpg"}}`. | `object` | null |
 | `database_id` | Target database ID (hyphenated UUID). | string |
-| `icon` | Optional page icon object. Examples: {"type":"emoji","emoji":"📝"} or {"type":"external","external":{"url":"https://..."}}. | object | null |
+| `icon` | Optional page icon object. Examples: `{"type":"emoji","emoji":"📝"}` or `{"type":"external","external":{"url":"https://..."}}`. | `object` | null |
 | `notion_version` | Optional Notion-Version header override (e.g., 2022-06-28). | string | null |
 | `properties` | Object mapping **column names (or property ids)** to **property values**.
 
@@ -144,11 +147,14 @@ LLM guidance:
 3. Match other property names exactly as shown in schema
 
 Example:
+
+```json
 {
   "title": { "title": [ { "text": { "content": "Task A" } } ] },
   "Status": { "select": { "name": "Todo" } },
   "Due": { "date": { "start": "2025-09-01" } }
-} | object |
+}
+``` | `object` |
 | `schema_version` | Optional schema version override. | string | null |
 | `tool_version` | Optional tool version override. | string | null |
 
@@ -188,11 +194,11 @@ Target rules:
 
 | Properties | Description | Type |
 | --- | --- | --- |
-| `_parent` | Computed by the executor: {"database_id": "..."} OR {"page_id": "..."} derived from database_id/parent_page_id. | object | null |
+| `_parent` | Computed by the executor: `{"database_id": "..."}` OR `{"page_id": "..."}` derived from database_id/parent_page_id. | `object` | null |
 | `child_blocks` | Optional blocks to add as page content (children). | `array<unknown>` | null |
-| `cover` | Optional page cover object. | object | null |
+| `cover` | Optional page cover object. | `object` | null |
 | `database_id` | Create a page as a new row in this database (hyphenated UUID). Extract from the database URL (last 32 chars → hyphenate 8-4-4-4-12). | string | null |
-| `icon` | Optional page icon object. | object | null |
+| `icon` | Optional page icon object. | `object` | null |
 | `notion_version` | Optional Notion-Version header override. | string | null |
 | `parent_page_id` | Create a child page under this page (hyphenated UUID). Extract from the parent page URL. | string | null |
 | `properties` | For database rows, supply property values keyed by property name (or id). For title properties, the key must be "title".
@@ -202,6 +208,6 @@ Example (database row):
   "title": { "title": [ { "text": { "content": "Task A" } } ] },
   "Status": { "select": { "name": "Todo" } },
   "Due": { "date": { "start": "2025-09-01" } }
-} | object | null |
+} | `object` | null |
 | `schema_version` | Optional schema version override. | string | null |
 | `tool_version` | Optional tool version override. | string | null |
