@@ -1,0 +1,157 @@
+---
+title: Github
+description: GitHub is a cloud-based Git repository hosting service that allows developers to store, manage, and track changes to their code.
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+GitHub is a cloud-based Git repository hosting service that allows developers to store, manage, and track changes to their code.
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+
+## `github_file_contents_get`
+
+Get the contents of a file or directory from a GitHub repository. Returns Base64 encoded content for files.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `owner` | The account owner of the repository | string |
+| `path` | The content path (file or directory path in the repository) | string |
+| `ref` | The name of the commit/branch/tag | string | null |
+| `repo` | The name of the repository | string |
+
+## `github_file_create_update`
+
+Create a new file or update an existing file in a GitHub repository. Content must be Base64 encoded. Requires SHA when updating existing files.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `author` | Author information object with name and email | object | null |
+| `branch` | The branch name | string | null |
+| `committer` | Committer information object with name and email | object | null |
+| `content` | The new file content (Base64 encoded) | string |
+| `message` | The commit message for this change | string |
+| `owner` | The account owner of the repository | string |
+| `path` | The file path in the repository | string |
+| `repo` | The name of the repository | string |
+| `sha` | The blob SHA of the file being replaced (required when updating existing files) | string | null |
+
+## `github_issue_create`
+
+Create a new issue in a repository. Requires push access to set assignees, milestones, and labels.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `assignees` | GitHub usernames to assign to the issue | `array<string>` | null |
+| `body` | The contents of the issue | string | null |
+| `labels` | Labels to associate with the issue | `array<string>` | null |
+| `milestone` | Milestone number to associate with the issue | number | null |
+| `owner` | The account owner of the repository | string |
+| `repo` | The name of the repository | string |
+| `title` | The title of the issue | string |
+| `type` | The name of the issue type | string | null |
+
+## `github_issues_list`
+
+List issues in a repository. Both issues and pull requests are returned as issues in the GitHub API.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `assignee` | Filter by assigned user | string | null |
+| `creator` | Filter by issue creator | string | null |
+| `direction` | Sort order | string | null |
+| `labels` | Filter by comma-separated list of label names | string | null |
+| `milestone` | Filter by milestone number or state | string | null |
+| `owner` | The account owner of the repository | string |
+| `page` | Page number of results to fetch | number | null |
+| `per_page` | Number of results per page (max 100) | number | null |
+| `repo` | The name of the repository | string |
+| `since` | Show issues updated after this timestamp (ISO 8601 format) | string | null |
+| `sort` | Property to sort issues by | string | null |
+| `state` | Filter by issue state | string | null |
+
+## `github_public_repos_list`
+
+List public repositories for a specified user. Does not require authentication.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `direction` | Sort order | string | null |
+| `page` | Page number of results to fetch | number | null |
+| `per_page` | Number of results per page (max 100) | number | null |
+| `sort` | Property to sort repositories by | string | null |
+| `type` | Filter repositories by type | string | null |
+| `username` | The GitHub username to list repositories for | string |
+
+## `github_pull_request_create`
+
+Create a new pull request in a repository. Requires write access to the head branch.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `base` | The name of the branch you want the changes pulled into | string |
+| `body` | The contents of the pull request description | string | null |
+| `draft` | Indicates whether the pull request is a draft | boolean | null |
+| `head` | The name of the branch where your changes are implemented (format: user:branch) | string |
+| `maintainer_can_modify` | Indicates whether maintainers can modify the pull request | boolean | null |
+| `owner` | The account owner of the repository | string |
+| `repo` | The name of the repository | string |
+| `title` | The title of the pull request | string | null |
+
+## `github_pull_requests_list`
+
+List pull requests in a repository with optional filtering by state, head, and base branches.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `base` | Filter by base branch name | string | null |
+| `direction` | Sort order | string | null |
+| `head` | Filter by head branch (format: user:ref-name) | string | null |
+| `owner` | The account owner of the repository | string |
+| `page` | Page number of results to fetch | number | null |
+| `per_page` | Number of results per page (max 100) | number | null |
+| `repo` | The name of the repository | string |
+| `sort` | Property to sort pull requests by | string | null |
+| `state` | Filter by pull request state | string | null |
+
+## `github_repo_get`
+
+Get detailed information about a GitHub repository including metadata, settings, and statistics.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `owner` | The account owner of the repository (case-insensitive) | string |
+| `repo` | The name of the repository without the .git extension (case-insensitive) | string |
+
+## `github_repo_star`
+
+Star a repository for the authenticated user. Requires authentication and starring permissions.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `owner` | The account owner of the repository | string |
+| `repo` | The name of the repository without the .git extension | string |
+
+## `github_user_repos_list`
+
+List repositories for the authenticated user. Requires authentication.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `direction` | Sort order | string | null |
+| `page` | Page number of results to fetch | number | null |
+| `per_page` | Number of results per page (max 100) | number | null |
+| `sort` | Property to sort repositories by | string | null |
+| `type` | Filter repositories by type | string | null |

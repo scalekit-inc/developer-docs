@@ -1,0 +1,96 @@
+---
+title: Gmail
+description: Gmail is Google's cloud based email service that allows you to access your messages from any computer or device with just a web browser.
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+Gmail is Google's cloud based email service that allows you to access your messages from any computer or device with just a web browser.
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+
+## `gmail_fetch_mails`
+
+Fetch emails from a connected Gmail account using search filters. Requires a valid Gmail OAuth2 connection.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `format` | Format of the returned message. | string | null |
+| `include_spam_trash` | Whether to fetch emails from spam and trash folders | boolean | null |
+| `label_ids` | Gmail label IDs to filter messages | `array<string>` | null |
+| `max_results` | Maximum number of emails to fetch | integer | null |
+| `page_token` | Page token for pagination | string | null |
+| `query` | Search query string using Gmail's search syntax (e.g., 'is:unread from:user@example.com') | string | null |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+
+## `gmail_get_attachment_by_id`
+
+Retrieve a specific attachment from a Gmail message using the message ID and attachment ID.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `attachment_id` | Unique Gmail attachment ID | string |
+| `file_name` | Preferred filename to use when saving/returning the attachment | string | null |
+| `message_id` | Unique Gmail message ID that contains the attachment | string |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+
+## `gmail_get_contacts`
+
+Fetch a list of contacts from the connected Gmail account. Supports pagination and field filtering.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `max_results` | Maximum number of contacts to fetch | integer | null |
+| `page_token` | Token to retrieve the next page of results | string | null |
+| `person_fields` | Fields to include for each person | `array<string>` | null |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+
+## `gmail_get_message_by_id`
+
+Retrieve a specific Gmail message using its message ID. Optionally control the format of the returned data.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `format` | Format of the returned message. | string | null |
+| `message_id` | Unique Gmail message ID | string |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+
+## `gmail_list_drafts`
+
+List draft emails from a connected Gmail account. Requires a valid Gmail OAuth2 connection.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `max_results` | Maximum number of drafts to fetch | integer | null |
+| `page_token` | Page token for pagination | string | null |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+
+## `gmail_search_people`
+
+Search people or contacts in the connected Google account using a query. Requires a valid Google OAuth2 connection with People API scopes.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `other_contacts` | Whether to include people not in the user's contacts (from 'Other Contacts'). | boolean | null |
+| `page_size` | Maximum number of people to return. | integer | null |
+| `person_fields` | Fields to retrieve for each person. | `array<string>` | null |
+| `query` | Text query to search people (e.g., name, email address). | string |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |

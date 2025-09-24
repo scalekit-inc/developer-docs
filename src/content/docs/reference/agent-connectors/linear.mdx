@@ -1,0 +1,259 @@
+---
+title: Linear
+description: Connect to Linear. Manage issues, projects, sprints, and development workflows
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+Connect to Linear. Manage issues, projects, sprints, and development workflows
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+
+## `linear_comment_create`
+
+Create a comment on an issue in Linear using the commentCreate mutation.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `body` | The comment text | string |
+| `issue_id` | ID of the issue to comment on | string |
+
+## `linear_comment_delete`
+
+Archive or delete a comment in Linear using the commentDelete mutation. This action is destructive and cannot be undone.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `comment_id` | ID of the comment to delete | string |
+
+## `linear_comment_read`
+
+Retrieve details of a specific comment by ID using the comment query.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `comment_id` | ID of the comment to retrieve | string |
+
+## `linear_comment_update`
+
+Update an existing comment in Linear using the commentUpdate mutation.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `body` | New comment text | string |
+| `comment_id` | ID of the comment to update | string |
+
+## `linear_comments_list`
+
+List comments in Linear using the comments query with filtering and pagination support.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `after` | Cursor for pagination (returns comments after this cursor) | string | null |
+| `first` | Number of comments to return (pagination) | number | null |
+| `issue_id` | Filter comments by issue ID | string | null |
+| `user_id` | Filter comments by user ID | string | null |
+
+## `linear_issue_create`
+
+Create a new issue in Linear using the issueCreate mutation. Requires a team ID and title at minimum.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `assignee_id` | ID of the user to assign the issue to | string | null |
+| `description` | Description of the issue | string | null |
+| `estimate` | Story point estimate for the issue | number | null |
+| `label_ids` | Array of label IDs to apply to the issue | `array<string>` | null |
+| `priority` | Priority level of the issue (1-4, where 1 is urgent) | number | null |
+| `state_id` | ID of the workflow state to set | string | null |
+| `team_id` | ID of the team to create the issue in | string |
+| `title` | Title of the issue | string |
+
+## `linear_issue_delete`
+
+Archive or delete an issue in Linear using the issueDelete mutation. This action is destructive and cannot be undone.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `issue_id` | ID of the issue to delete | string |
+
+## `linear_issue_read`
+
+Retrieve details of a specific issue by ID using the issue query.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `issue_id` | ID of the issue to retrieve | string |
+
+## `linear_issue_update`
+
+Update an existing issue in Linear using the issueUpdate mutation.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `assignee_id` | ID of the user to assign the issue to | string | null |
+| `description` | New description for the issue | string | null |
+| `estimate` | Story point estimate for the issue | number | null |
+| `issue_id` | ID of the issue to update | string |
+| `label_ids` | Array of label IDs to apply to the issue | `array<string>` | null |
+| `priority` | New priority level of the issue (1-4, where 1 is urgent) | number | null |
+| `state_id` | ID of the workflow state to set | string | null |
+| `title` | New title for the issue | string | null |
+
+## `linear_issues_list`
+
+List issues in Linear using the issues query with filtering and pagination support.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `after` | Cursor for pagination (returns issues after this cursor) | string | null |
+| `assignee_id` | Filter issues by assignee ID | string | null |
+| `first` | Number of issues to return (pagination) | number | null |
+| `priority` | Filter issues by priority level (1-4, where 1 is urgent) | number | null |
+| `search` | Search term to filter issues by title or description | string | null |
+| `state_id` | Filter issues by workflow state ID | string | null |
+| `team_id` | Filter issues by team ID | string | null |
+
+## `linear_label_create`
+
+Create a new issue label in Linear using the issueLabelCreate mutation.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `color` | Label color (hex code) | string | null |
+| `description` | Description of the label | string | null |
+| `name` | Name of the label | string |
+| `team_id` | ID of the team this label belongs to (optional for organization-wide labels) | string | null |
+
+## `linear_label_delete`
+
+Archive or delete an issue label in Linear using the issueLabelDelete mutation. This action is destructive and cannot be undone.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `label_id` | ID of the label to delete | string |
+
+## `linear_label_read`
+
+Retrieve details of a specific issue label by ID using the issueLabel query.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `label_id` | ID of the label to retrieve | string |
+
+## `linear_label_update`
+
+Update an existing issue label in Linear using the issueLabelUpdate mutation.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `color` | New label color (hex code) | string | null |
+| `description` | New description for the label | string | null |
+| `label_id` | ID of the label to update | string |
+| `name` | New name for the label | string | null |
+
+## `linear_labels_list`
+
+List issue labels in Linear using the issueLabels query with filtering and pagination support.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `after` | Cursor for pagination (returns labels after this cursor) | string | null |
+| `first` | Number of labels to return (pagination) | number | null |
+| `include_archived` | Whether to include archived labels | boolean | null |
+| `team_id` | Filter labels by team ID | string | null |
+
+## `linear_team_create`
+
+Create a new team in Linear using the teamCreate mutation.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `color` | Team color (hex code) | string | null |
+| `description` | Description of the team | string | null |
+| `icon` | Team icon emoji or identifier | string | null |
+| `key` | Team key/identifier (used for issue prefixes) | string |
+| `name` | Name of the team | string |
+| `private` | Whether the team is private | boolean | null |
+
+## `linear_team_delete`
+
+Archive or delete a team in Linear using the teamDelete mutation. This action is destructive and cannot be undone.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `team_id` | ID of the team to delete | string |
+
+## `linear_team_read`
+
+Retrieve details of a specific team by ID using the team query.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `team_id` | ID of the team to retrieve | string |
+| `team_name` | ID of the team to retrieve | string | null |
+
+## `linear_team_update`
+
+Update an existing team in Linear using the teamUpdate mutation.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `color` | New team color (hex code) | string | null |
+| `description` | New description for the team | string | null |
+| `icon` | New team icon emoji or identifier | string | null |
+| `key` | New team key/identifier (used for issue prefixes) | string | null |
+| `name` | New name for the team | string | null |
+| `private` | Whether the team should be private | boolean | null |
+| `team_id` | ID of the team to update | string |
+
+## `linear_teams_list`
+
+List teams in Linear using the teams query with filtering and pagination support.
+
+## `linear_user_read`
+
+Retrieve details of a specific user by ID using the user query.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `user_id` | ID of the user to retrieve | string |
+
+## `linear_user_update`
+
+Update an existing user in Linear using the userUpdate mutation. Note: Limited fields can be updated based on permissions.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `active` | Whether the user should be active | boolean | null |
+| `admin` | Whether the user should have admin privileges | boolean | null |
+| `avatar_url` | New avatar URL for the user | string | null |
+| `display_name` | New display name for the user | string | null |
+| `name` | New name for the user | string | null |
+| `timezone` | New timezone for the user | string | null |
+| `user_id` | ID of the user to update | string |
+
+## `linear_users_list`
+
+List users in Linear using the users query with filtering and pagination support.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `active` | Filter users by active status | boolean | null |
+| `admin` | Filter users by admin status | boolean | null |
+| `after` | Cursor for pagination (returns users after this cursor) | string | null |
+| `first` | Number of users to return (pagination) | number | null |
+| `include_disabled` | Whether to include disabled users | boolean | null |
+| `team_id` | Filter users by team membership | string | null |
