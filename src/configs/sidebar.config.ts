@@ -232,7 +232,12 @@ export const sidebar = [
           'agent-actions/advanced/proxy-api-calls',
         ],
       },
-
+      {
+        label: 'Connectors',
+        autogenerate: {
+          directory: 'reference/agent-connectors',
+        },
+      },
       // {
       //   label: 'MCP',
       //   items: ['connect/mcp/quickstart', 'connect/mcp/custom-mcp', 'connect/mcp/manage'],

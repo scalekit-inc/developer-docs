@@ -1,0 +1,294 @@
+---
+title: Salesforce
+description: Connect to Salesforce CRM. Manage leads, opportunities, accounts, and customer relationships
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+      /* Heading copy functionality */
+      .sl-markdown-content h2,
+      .sl-markdown-content h3,
+      .sl-markdown-content h4 {
+        position: relative;
+        cursor: pointer;
+      }
+      .sl-markdown-content h2:hover::after,
+      .sl-markdown-content h3:hover::after,
+      .sl-markdown-content h4:hover::after {
+        content: " 📋 ";
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+
+      /* Style for the copied state */
+      .sl-markdown-content h2.copied::after,
+      .sl-markdown-content h3.copied::after,
+      .sl-markdown-content h4.copied::after {
+        content: " ✓ " !important;
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+  - tag: script
+    content: |
+      // Using a self-executing function to avoid global namespace pollution
+      (function() {
+        // Function to initialize the copy functionality
+        function initHeadingCopy() {
+          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
+
+          headings.forEach(heading => {
+            // Skip if already initialized
+            if (heading.hasAttribute('data-copy-initialized')) return;
+            heading.setAttribute('data-copy-initialized', 'true');
+
+            heading.addEventListener('click', async () => {
+              // Store original HTML for restoration
+              const originalHTML = heading.innerHTML;
+
+              // Build plain text to copy (no backticks)
+              let textToCopy = heading.textContent.trim();
+              // Safety: remove clipboard icon if somehow included
+              textToCopy = textToCopy.replace(/\s📋$/, '');
+
+              try {
+                await navigator.clipboard.writeText(textToCopy);
+
+                // Visual feedback - add a class to change the ::after content
+                heading.classList.add('copied');
+
+                setTimeout(() => {
+                  heading.classList.remove('copied');
+                }, 2000);
+              } catch (err) {
+                console.error('Failed to copy heading:', err);
+              }
+            });
+          });
+        }
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initHeadingCopy);
+
+        // Also initialize now in case the DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          setTimeout(initHeadingCopy, 1);
+        }
+
+        // For Astro's client-side navigation
+        document.addEventListener('astro:page-load', initHeadingCopy);
+      })();
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Salesforce CRM. Manage leads, opportunities, accounts, and customer relationships
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/sales_force.svg" width="64" height="64" alt="Salesforce logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+
+## Tool list
+
+## `salesforce_account_create`
+
+Create a new Account in Salesforce. Supports standard fields
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `AccountNumber` | Account number for the organization | string | null |
+| `AnnualRevenue` | Annual revenue | number | null |
+| `BillingCity` | Billing city | string | null |
+| `BillingCountry` | Billing country | string | null |
+| `BillingPostalCode` | Billing postal code | string | null |
+| `BillingState` | Billing state/province | string | null |
+| `BillingStreet` | Billing street | string | null |
+| `Description` | Description | string | null |
+| `Industry` | Industry | string | null |
+| `Name` | Account Name | string |
+| `NumberOfEmployees` | Number of employees | integer | null |
+| `OwnerId` | Record owner (User/Queue Id) | string | null |
+| `Phone` | Main phone number | string | null |
+| `RecordTypeId` | Record Type Id | string | null |
+| `Website` | Website URL | string | null |
+
+## `salesforce_account_get`
+
+Retrieve details of a specific account from Salesforce by account ID. Returns account properties and associated data.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `account_id` | ID of the account to retrieve | string |
+| `fields` | Comma-separated list of fields to include in the response | string | null |
+
+## `salesforce_accounts_list`
+
+Retrieve a list of accounts from Salesforce using a pre-built SOQL query. Returns basic account information.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `limit` | Number of results to return per page | number | null |
+
+## `salesforce_composite`
+
+Execute multiple Salesforce REST API requests in a single call using the Composite API. Allows for efficient batch operations and related data retrieval.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `composite_request` | JSON string containing composite request with multiple sub-requests | string |
+
+## `salesforce_contact_create`
+
+Create a new contact in Salesforce. Allows setting contact properties like name, email, phone, account association, and other standard fields.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `AccountId` | Salesforce Account Id associated with this contact | string | null |
+| `Department` | Department of the contact | string | null |
+| `Description` | Free-form description | string | null |
+| `Email` | Email address of the contact | string | null |
+| `FirstName` | First name of the contact | string | null |
+| `LastName` | Last name of the contact (required) | string |
+| `LeadSource` | Lead source for the contact | string | null |
+| `MailingCity` | Mailing city | string | null |
+| `MailingCountry` | Mailing country | string | null |
+| `MailingPostalCode` | Mailing postal code | string | null |
+| `MailingState` | Mailing state/province | string | null |
+| `MailingStreet` | Mailing street | string | null |
+| `MobilePhone` | Mobile phone of the contact | string | null |
+| `Phone` | Phone number of the contact | string | null |
+| `Title` | Job title of the contact | string | null |
+
+## `salesforce_contact_get`
+
+Retrieve details of a specific contact from Salesforce by contact ID. Returns contact properties and associated data.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `contact_id` | ID of the contact to retrieve | string |
+| `fields` | Comma-separated list of fields to include in the response | string | null |
+
+## `salesforce_global_describe`
+
+Retrieve metadata about all available SObjects in the Salesforce organization. Returns list of all objects with basic information.
+
+## `salesforce_limits_get`
+
+Retrieve organization limits information from Salesforce. Returns API usage limits, data storage limits, and other organizational constraints.
+
+## `salesforce_object_describe`
+
+Retrieve detailed metadata about a specific SObject in Salesforce. Returns fields, relationships, and other object metadata.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `sobject` | SObject API name to describe | string |
+
+## `salesforce_opportunities_list`
+
+Retrieve a list of opportunities from Salesforce using a pre-built SOQL query. Returns basic opportunity information.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `limit` | Number of results to return per page | number | null |
+
+## `salesforce_opportunity_create`
+
+Create a new opportunity in Salesforce. Allows setting opportunity properties like name, amount, stage, close date, and account association.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `AccountId` | Associated Account Id | string | null |
+| `Amount` | Opportunity amount | number | null |
+| `CampaignId` | Related Campaign Id | string | null |
+| `CloseDate` | Expected close date (YYYY-MM-DD, required) | string |
+| `Custom_Field__c` | Example custom field (replace with your org’s custom field API name) | string | null |
+| `Description` | Opportunity description | string | null |
+| `ForecastCategoryName` | Forecast category name | string | null |
+| `LeadSource` | Lead source | string | null |
+| `Name` | Opportunity name (required) | string |
+| `NextStep` | Next step in the sales process | string | null |
+| `OwnerId` | Record owner (User/Queue Id) | string | null |
+| `PricebookId` | Associated Price Book Id | string | null |
+| `Probability` | Probability percentage (0–100) | number | null |
+| `RecordTypeId` | Record Type Id for Opportunity | string | null |
+| `StageName` | Current sales stage (required) | string |
+| `Type` | Opportunity type | string | null |
+
+## `salesforce_opportunity_get`
+
+Retrieve details of a specific opportunity from Salesforce by opportunity ID. Returns opportunity properties and associated data.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `fields` | Comma-separated list of fields to include in the response | string | null |
+| `opportunity_id` | ID of the opportunity to retrieve | string |
+
+## `salesforce_opportunity_update`
+
+Update an existing opportunity in Salesforce by opportunity ID. Allows updating opportunity properties like name, amount, stage, and close date.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `AccountId` | Associated Account Id | string | null |
+| `Amount` | Opportunity amount | number | null |
+| `CampaignId` | Related Campaign Id | string | null |
+| `CloseDate` | Expected close date (YYYY-MM-DD) | string | null |
+| `Description` | Opportunity description | string | null |
+| `ForecastCategoryName` | Forecast category name | string | null |
+| `LeadSource` | Lead source | string | null |
+| `Name` | Opportunity name | string | null |
+| `NextStep` | Next step in the sales process | string | null |
+| `OwnerId` | Record owner (User/Queue Id) | string | null |
+| `Pricebook2Id` | Associated Price Book Id | string | null |
+| `Probability` | Probability percentage (0–100) | number | null |
+| `RecordTypeId` | Record Type Id for Opportunity | string | null |
+| `StageName` | Current sales stage | string | null |
+| `Type` | Opportunity type | string | null |
+| `opportunity_id` | ID of the opportunity to update | string |
+
+## `salesforce_query_soql`
+
+Execute SOQL queries against Salesforce data. Supports complex queries with joins, filters, and aggregations.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `query` | SOQL query string to execute | string |
+
+## `salesforce_search_parameterized`
+
+Execute parameterized searches against Salesforce data. Provides simplified search interface with predefined parameters.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `fields` | Comma-separated list of fields to return | string | null |
+| `search_text` | Text to search for | string |
+| `sobject` | SObject type to search in | string |
+
+## `salesforce_search_sosl`
+
+Execute SOSL searches against Salesforce data. Performs full-text search across multiple objects and fields.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `search_query` | SOSL search query string to execute | string |
+
+## `salesforce_soql_execute`
+
+Execute custom SOQL queries against Salesforce data. Supports complex queries with joins, filters, aggregations, and custom field selection.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `soql_query` | SOQL query string to execute | string |

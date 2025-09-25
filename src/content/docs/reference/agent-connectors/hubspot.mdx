@@ -1,0 +1,235 @@
+---
+title: HubSpot
+description: Connect to HubSpot CRM. Manage contacts, deals, companies, and marketing automation
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+      /* Heading copy functionality */
+      .sl-markdown-content h2,
+      .sl-markdown-content h3,
+      .sl-markdown-content h4 {
+        position: relative;
+        cursor: pointer;
+      }
+      .sl-markdown-content h2:hover::after,
+      .sl-markdown-content h3:hover::after,
+      .sl-markdown-content h4:hover::after {
+        content: " 📋 ";
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+
+      /* Style for the copied state */
+      .sl-markdown-content h2.copied::after,
+      .sl-markdown-content h3.copied::after,
+      .sl-markdown-content h4.copied::after {
+        content: " ✓ " !important;
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+  - tag: script
+    content: |
+      // Using a self-executing function to avoid global namespace pollution
+      (function() {
+        // Function to initialize the copy functionality
+        function initHeadingCopy() {
+          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
+
+          headings.forEach(heading => {
+            // Skip if already initialized
+            if (heading.hasAttribute('data-copy-initialized')) return;
+            heading.setAttribute('data-copy-initialized', 'true');
+
+            heading.addEventListener('click', async () => {
+              // Store original HTML for restoration
+              const originalHTML = heading.innerHTML;
+
+              // Build plain text to copy (no backticks)
+              let textToCopy = heading.textContent.trim();
+              // Safety: remove clipboard icon if somehow included
+              textToCopy = textToCopy.replace(/\s📋$/, '');
+
+              try {
+                await navigator.clipboard.writeText(textToCopy);
+
+                // Visual feedback - add a class to change the ::after content
+                heading.classList.add('copied');
+
+                setTimeout(() => {
+                  heading.classList.remove('copied');
+                }, 2000);
+              } catch (err) {
+                console.error('Failed to copy heading:', err);
+              }
+            });
+          });
+        }
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initHeadingCopy);
+
+        // Also initialize now in case the DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          setTimeout(initHeadingCopy, 1);
+        }
+
+        // For Astro's client-side navigation
+        document.addEventListener('astro:page-load', initHeadingCopy);
+      })();
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to HubSpot CRM. Manage contacts, deals, companies, and marketing automation
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/hub_spot.svg" width="64" height="64" alt="HubSpot logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+
+## Tool list
+
+## `hubspot_companies_search`
+
+Search HubSpot companies using full-text search and pagination. Returns matching companies with specified properties.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `after` | Pagination offset to get results starting from a specific position | string | null |
+| `filterGroups` | JSON string containing filter groups for advanced filtering | string | null |
+| `limit` | Number of results to return per page (max 100) | number | null |
+| `properties` | Comma-separated list of properties to include in the response | string | null |
+| `query` | Search term for full-text search across company properties | string | null |
+
+## `hubspot_company_create`
+
+Create a new company in HubSpot CRM. Requires a company name as the unique identifier. Supports additional properties like domain, industry, phone, location, and revenue information.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `annualrevenue` | Annual revenue of the company | number | null |
+| `city` | Company city location | string | null |
+| `country` | Company country location | string | null |
+| `description` | Company description or overview | string | null |
+| `domain` | Company website domain | string | null |
+| `industry` | Industry type of the company | string | null |
+| `name` | Company name (required, serves as primary identifier) | string |
+| `numberofemployees` | Number of employees at the company | number | null |
+| `phone` | Company phone number | string | null |
+| `state` | Company state or region | string | null |
+
+## `hubspot_company_get`
+
+Retrieve details of a specific company from HubSpot by company ID. Returns company properties and associated data.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `company_id` | ID of the company to retrieve | string |
+| `properties` | Comma-separated list of properties to include in the response | string | null |
+
+## `hubspot_contact_create`
+
+Create a new contact in HubSpot CRM. Requires an email address as the unique identifier. Supports additional properties like name, company, phone, and lifecycle stage.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `company` | Company name where the contact works | string | null |
+| `email` | Primary email address for the contact (required, serves as unique identifier) | string |
+| `firstname` | First name of the contact | string | null |
+| `hs_lead_status` | Lead status of the contact | string | null |
+| `jobtitle` | Job title of the contact | string | null |
+| `lastname` | Last name of the contact | string | null |
+| `lifecyclestage` | Lifecycle stage of the contact | string | null |
+| `phone` | Phone number of the contact | string | null |
+| `website` | Personal or company website URL | string | null |
+
+## `hubspot_contact_get`
+
+Retrieve details of a specific contact from HubSpot by contact ID. Returns contact properties and associated data.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `contact_id` | ID of the contact to retrieve | string |
+| `properties` | Comma-separated list of properties to include in the response | string | null |
+
+## `hubspot_contact_update`
+
+Update an existing contact in HubSpot CRM by contact ID. Allows updating contact properties like name, email, company, phone, and lifecycle stage.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `contact_id` | ID of the contact to update | string |
+| `props` | Object containing properties like first name, last name, email, company, phone, and job title to update all these should be provided inside props as a JSON object, this is required | `object` | null |
+
+## `hubspot_contacts_list`
+
+Retrieve a list of contacts from HubSpot with filtering and pagination. Returns contact properties and supports pagination through cursor-based navigation.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `after` | Pagination cursor to get the next set of results | string | null |
+| `archived` | Whether to include archived contacts in the results | boolean | null |
+| `limit` | Number of results to return per page (max 100) | number | null |
+| `properties` | Comma-separated list of properties to include in the response | string | null |
+
+## `hubspot_contacts_search`
+
+Search HubSpot contacts using full-text search and pagination. Returns matching contacts with specified properties.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `after` | Pagination offset to get results starting from a specific position | string | null |
+| `filterGroups` | JSON string containing filter groups for advanced filtering | string | null |
+| `limit` | Number of results to return per page (max 100) | number | null |
+| `properties` | Comma-separated list of properties to include in the response | string | null |
+| `query` | Search term for full-text search across contact properties | string | null |
+
+## `hubspot_deal_create`
+
+Create a new deal in HubSpot CRM. Requires dealname, amount, and dealstage. Supports additional properties like pipeline, close date, and deal type.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `amount` | Deal amount/value (required) | number |
+| `closedate` | Expected close date (YYYY-MM-DD format) | string | null |
+| `dealname` | Name of the deal (required) | string |
+| `dealstage` | Current stage of the deal (required) | string |
+| `dealtype` | Type of deal | string | null |
+| `description` | Deal description | string | null |
+| `hs_priority` | Deal priority (HIGH, MEDIUM, LOW) | string | null |
+| `pipeline` | Deal pipeline | string | null |
+
+## `hubspot_deal_update`
+
+Update an existing deal in HubSpot CRM by deal ID. Allows updating deal properties like name, amount, stage, pipeline, close date, and priority.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `deal_id` | ID of the deal to update | string |
+| `good_deal` | Boolean flag indicating if this is a good deal | boolean | null |
+| `properties` | Object containing deal properties to update | `object` |
+
+## `hubspot_deals_search`
+
+Search HubSpot deals using full-text search and pagination. Returns matching deals with specified properties.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `after` | Pagination offset to get results starting from a specific position | string | null |
+| `filterGroups` | JSON string containing filter groups for advanced filtering | string | null |
+| `limit` | Number of results to return per page (max 100) | number | null |
+| `properties` | Comma-separated list of properties to include in the response | string | null |
+| `query` | Search term for full-text search across deal properties | string | null |
