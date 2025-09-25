@@ -44,6 +44,11 @@ export const sidebar = [
           'fsa/reference/user-profile',
           'fsa/guides/app-roles',
           {
+            label: 'Sign-up restrictions',
+            link: 'fsa/guides/signup-restrictions',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+          {
             label: 'Redirects',
             link: 'guides/dashboard/redirects',
             attrs: { target: '_blank', rel: 'noopener' },
