@@ -1,0 +1,105 @@
+---
+title: Trello
+description: Connect to Trello. Manage boards, cards, lists, and team collaboration workflows
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+      /* Heading copy functionality */
+      .sl-markdown-content h2,
+      .sl-markdown-content h3,
+      .sl-markdown-content h4 {
+        position: relative;
+        cursor: pointer;
+      }
+      .sl-markdown-content h2:hover::after,
+      .sl-markdown-content h3:hover::after,
+      .sl-markdown-content h4:hover::after {
+        content: " 📋 ";
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+
+      /* Style for the copied state */
+      .sl-markdown-content h2.copied::after,
+      .sl-markdown-content h3.copied::after,
+      .sl-markdown-content h4.copied::after {
+        content: " ✓ " !important;
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+  - tag: script
+    content: |
+      // Using a self-executing function to avoid global namespace pollution
+      (function() {
+        // Function to initialize the copy functionality
+        function initHeadingCopy() {
+          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
+
+          headings.forEach(heading => {
+            // Skip if already initialized
+            if (heading.hasAttribute('data-copy-initialized')) return;
+            heading.setAttribute('data-copy-initialized', 'true');
+
+            heading.addEventListener('click', async () => {
+              // Store original HTML for restoration
+              const originalHTML = heading.innerHTML;
+
+              // Build plain text to copy (no backticks)
+              let textToCopy = heading.textContent.trim();
+              // Safety: remove clipboard icon if somehow included
+              textToCopy = textToCopy.replace(/\s📋$/, '');
+
+              try {
+                await navigator.clipboard.writeText(textToCopy);
+
+                // Visual feedback - add a class to change the ::after content
+                heading.classList.add('copied');
+
+                setTimeout(() => {
+                  heading.classList.remove('copied');
+                }, 2000);
+              } catch (err) {
+                console.error('Failed to copy heading:', err);
+              }
+            });
+          });
+        }
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initHeadingCopy);
+
+        // Also initialize now in case the DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          setTimeout(initHeadingCopy, 1);
+        }
+
+        // For Astro's client-side navigation
+        document.addEventListener('astro:page-load', initHeadingCopy);
+      })();
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+<Aside title="Coming Soon" icon='seti:yml'>
+We're busy building more tools and connectors. Have a favorite you want to see next? Drop us a note on our <a href="/support/contact-us">contact page</a> and we'll bump it up the queue.
+</Aside>
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Trello. Manage boards, cards, lists, and team collaboration workflows
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/trello_n.svg" width="64" height="64" alt="Trello logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="OAuth 1.0a" />
+
