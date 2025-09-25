@@ -141,3 +141,21 @@ public ResponseEntity<Map<String, String>> loginHandler(@RequestBody LoginReques
 
 </TabItem>
 </Tabs>
+
+
+#### Pre-check SSO by domain (when using discovery)
+
+If your login form uses discovery (`domain_hint` or `login_hint`), run a lightweight check to confirm the user’s email domain maps to an active SSO connection before redirecting. This prevents dead-end redirects and helps you present the right path (SSO vs non‑SSO).
+
+- Recommended when: You ask for email first or infer SSO from the domain.
+- Skip when: You already pass `organizationId` or `connectionId` explicitly.
+
+How to implement:
+1. Ask for email and extract the domain
+2. Query for connections by domain
+3. If found → redirect with `domain_hint` (or `connectionId`)
+4. If none → route to your non‑SSO flow
+
+<Aside>
+This check returns results only when the customer has added their domains in Scalekit. See the <a href="https://docs.scalekit.com/apis/#tag/connections/get/api/v1/connections" target="_blank" rel="noopener">connections API reference</a>.
+</Aside>
