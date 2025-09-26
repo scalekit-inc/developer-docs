@@ -1,5 +1,16 @@
 ---
 import IconHouse from '~icons/lucide/house'
+import IconChevronDown from '~icons/lucide/chevron-down'
+import IconLucideUsers from '~icons/lucide/users'
+import IconLucideKeyRound from '~icons/lucide/key-round'
+import IconLucideMail from '~icons/lucide/mail'
+import IconLucideBot from '~icons/lucide/bot'
+import IconStreamlineUserSyncOnlineInPersonRemix from '~icons/streamline/user-sync-online-in-person-remix'
+import IconMcp from '~icons/codicon/mcp'
+import IconLucideShield from '~icons/lucide/shield'
+import IconLucideBookOpen from '~icons/lucide/book-open'
+import IconLucideCode from '~icons/lucide/code'
+import IconLucideWrench from '~icons/lucide/wrench'
 
 interface NavItem {
   href: string
@@ -7,6 +18,7 @@ interface NavItem {
   patterns: string[]
   isExact?: boolean
   iconComponent?: any
+  children?: NavItem[]
 }
 
 interface NavSection {
@@ -26,6 +38,11 @@ function startsWithAny(mainString: string, patterns: string[]) {
 }
 
 function isCurrentPage(pathname: string, item: NavItem): boolean {
+  // If this is a parent item with children, consider it current if any child is current
+  if (item.children && item.children.length > 0) {
+    return item.children.some((child) => isCurrentPage(pathname, child))
+  }
+
   if (item.isExact) {
     return pathname === item.href
   }
@@ -38,41 +55,100 @@ function isCurrentPage(pathname: string, item: NavItem): boolean {
   return startsWithAny(pathname, item.patterns)
 }
 
+function getDisplayLabel(pathname: string, item: NavItem): string {
+  if (item.children && item.children.length > 0) {
+    const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
+    if (activeChild) return activeChild.label
+  }
+  return item.label
+}
+
+function getDisplayIcon(pathname: string, item: NavItem): any {
+  if (item.children && item.children.length > 0) {
+    const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
+    if (activeChild && activeChild.iconComponent) return activeChild.iconComponent
+  }
+  return item.iconComponent
+}
+
 const navSections: NavSection[] = [
   {
     items: [
       { href: '/', label: '', patterns: ['/'], isExact: true, iconComponent: IconHouse },
 
-      { href: '/mcp/overview', label: 'MCP Auth', patterns: ['/mcp/'] },
-      { href: '/fsa/quickstart', label: 'Full-Stack Auth', patterns: ['/fsa/'] },
       {
-        href: '/sso/quickstart',
-        label: 'SSO',
-        patterns: ['/sso/', '/guides/sso/', '/social-logins/'],
+        href: '/fsa/quickstart',
+        label: 'Authenticate',
+        iconComponent: IconLucideShield,
+        // Parent patterns include all child patterns so it highlights correctly
+        patterns: [
+          '/mcp/',
+          '/fsa/',
+          '/sso/',
+          '/guides/sso/',
+          '/social-logins/',
+          '/passwordless/',
+          '/guides/passwordless/',
+          '/directory/',
+          '/guides/directory/',
+        ],
+        children: [
+          { href: '/mcp/overview', label: 'MCP Auth', patterns: ['/mcp/'], iconComponent: IconMcp },
+          {
+            href: '/fsa/quickstart',
+            label: 'Full-Stack Auth',
+            patterns: ['/fsa/'],
+            iconComponent: IconLucideUsers,
+          },
+          {
+            href: '/sso/quickstart',
+            label: 'Single Sign-on',
+            patterns: ['/sso/', '/guides/sso/', '/social-logins/'],
+            iconComponent: IconLucideKeyRound,
+          },
+          {
+            href: '/passwordless/quickstart',
+            label: 'Passwordless',
+            patterns: ['/passwordless/', '/guides/passwordless/'],
+            iconComponent: IconLucideMail,
+          },
+          {
+            href: '/directory/scim/quickstart',
+            label: 'SCIM Provisioning',
+            patterns: ['/directory/', '/guides/directory/'],
+            iconComponent: IconStreamlineUserSyncOnlineInPersonRemix,
+          },
+        ],
       },
       {
-        href: '/passwordless/quickstart',
-        label: 'Passwordless',
-        patterns: ['/passwordless/', '/guides/passwordless/'],
+        href: '/agent-actions/quickstart',
+        label: 'Agent Actions',
+        patterns: ['/agent-actions/'],
+        iconComponent: IconLucideBot,
       },
-      {
-        href: '/directory/scim/quickstart',
-        label: 'SCIM',
-        patterns: ['/directory/', '/guides/directory/'],
-      },
-      { href: '/agent-actions/quickstart', label: 'Agent Actions', patterns: ['/agent-actions/'] },
     ],
   },
   {
     items: [
-      { href: '/apis/', label: 'API Reference', patterns: ['/apis'] },
+      {
+        href: '/apis/',
+        label: 'API Reference',
+        patterns: ['/apis'],
+        iconComponent: IconLucideBookOpen,
+      },
       {
         href: '/dev-kit/code-samples',
         label: 'Code Samples',
         patterns: ['/dev-kit/code-samples'],
         isExact: true,
+        iconComponent: IconLucideCode,
       },
-      { href: '/dev-kit/', label: 'Developer Resources', patterns: ['/dev-kit/'] },
+      {
+        href: '/dev-kit/',
+        label: 'Developer Resources',
+        patterns: ['/dev-kit/'],
+        iconComponent: IconLucideWrench,
+      },
     ],
   },
 ]
@@ -83,21 +159,71 @@ const navSections: NavSection[] = [
     navSections.map((section) => (
       <div class="nav-items">
         {section.items.map((item) => (
-          <a
-            href={item.href}
-            class={`nav-item ${isCurrentPage(Astro.url.pathname, item) ? 'current' : ''}`}
-            aria-current="page"
+          <div
+            class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
           >
-            <div class="nav-item-content">
-              {item.iconComponent && <item.iconComponent class="nav-icon" />}
-              {item.label && <span class="nav-label">{item.label}</span>}
-            </div>
-          </a>
+            <a
+              href={item.href}
+              class={`nav-item ${isCurrentPage(Astro.url.pathname, item) ? 'current' : ''}`}
+              aria-current="page"
+            >
+              <div class="nav-item-content">
+                {(function () {
+                  const IconComponent =
+                    item.children && item.children.length > 0
+                      ? getDisplayIcon(Astro.url.pathname, item)
+                      : item.iconComponent
+                  return IconComponent && <IconComponent class="nav-icon" />
+                })()}
+                {item.label && (
+                  <span class="nav-label">
+                    {item.children && item.children.length > 0
+                      ? getDisplayLabel(Astro.url.pathname, item)
+                      : item.label}
+                  </span>
+                )}
+                {item.children && item.children.length > 0 && (
+                  <IconChevronDown class="dropdown-icon" />
+                )}
+              </div>
+            </a>
+          </div>
         ))}
       </div>
     ))
   }
 </nav>
+
+<!-- Dropdown portal to ensure menu overlays main content -->
+<div
+  id="dropdown-portal"
+  style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 999999;"
+>
+  {
+    navSections.map((section) =>
+      section.items.map((item) =>
+        item.children && item.children.length > 0 ? (
+          <div class="dropdown-menu" data-dropdown data-nav-key={item.href}>
+            <div class="dropdown-content">
+              {item.children.map((child) => (
+                <a
+                  href={child.href}
+                  class={`dropdown-item ${isCurrentPage(Astro.url.pathname, child) ? 'current' : ''}`}
+                >
+                  {(function () {
+                    const ChildIcon = child.iconComponent
+                    return ChildIcon && <ChildIcon class="dropdown-item-icon" />
+                  })()}
+                  <span>{child.label}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        ) : null,
+      ),
+    )
+  }
+</div>
 
 <style>
   /* Hide the duplicate sidebar topics in the left sidebar on desktop */
@@ -117,8 +243,9 @@ const navSections: NavSection[] = [
     display: flex;
     justify-content: space-between;
     top: calc(var(--sl-header-height-base) - 1px); /* Reduced from var(--sl-header-height-base) */
-    z-index: var(--sl-z-index-navbar);
+    z-index: 999 !important;
     width: 100%;
+    isolation: isolate;
   }
 
   .nav-items {
@@ -136,6 +263,12 @@ const navSections: NavSection[] = [
 
   .nav-items::-webkit-scrollbar {
     display: none;
+  }
+
+  .nav-item-wrapper {
+    position: relative;
+    display: flex;
+    isolation: isolate;
   }
 
   .nav-item {
@@ -178,6 +311,82 @@ const navSections: NavSection[] = [
     text-decoration: none;
   }
 
+  /* Dropdown styles via portal overlay */
+  .dropdown-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+    margin-left: 0.25rem;
+  }
+
+  .nav-item-wrapper.has-dropdown:hover .dropdown-icon {
+    transform: rotate(180deg);
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease,
+      visibility 0.15s ease;
+    z-index: 999999 !important;
+    pointer-events: none;
+    min-width: 200px;
+    isolation: isolate;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .dropdown-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  .dropdown-content {
+    background: var(--sl-color-bg) !important;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25) !important;
+    padding: 0.5rem 0;
+    backdrop-filter: blur(12px);
+    position: relative;
+    z-index: 100000 !important;
+    isolation: isolate;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    font-size: var(--sl-text-sm);
+    line-height: 1.4;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+    white-space: nowrap;
+  }
+
+  .dropdown-item-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .dropdown-item:hover,
+  .dropdown-item.current {
+    color: var(--sl-color-white);
+    background: var(--sl-color-gray-6);
+    border-left-color: var(--sl-color-accent);
+  }
+
   /* Responsive adjustments */
   @media (max-width: 50rem) {
     .secondary-nav {
@@ -195,3 +404,117 @@ const navSections: NavSection[] = [
     }
   }
 </style>
+
+<script>
+  function positionDropdown(trigger, dropdown) {
+    const rect = trigger.getBoundingClientRect()
+    // Place it first, then make it visible to avoid top-left flash
+    dropdown.style.top = `${rect.bottom + 2}px`
+    dropdown.style.left = `${rect.left}px`
+    dropdown.classList.add('open')
+  }
+
+  function hideDropdown(dropdown) {
+    dropdown.classList.remove('open')
+    dropdown.style.pointerEvents = 'none'
+    dropdown.style.top = '-9999px'
+    dropdown.style.left = '-9999px'
+  }
+
+  function hideAllDropdowns() {
+    document.querySelectorAll('[data-dropdown]').forEach((d) => hideDropdown(d))
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const dropdownTriggers = document.querySelectorAll('.nav-item-wrapper.has-dropdown')
+    let currentOpenDropdown = null
+
+    dropdownTriggers.forEach((trigger) => {
+      const triggerLink = trigger.querySelector('.nav-item')
+      const href = triggerLink?.getAttribute('href')
+      if (!href) return
+
+      const dropdown = document.querySelector(`[data-nav-key="${href}"]`)
+      if (!dropdown) return
+
+      hideDropdown(dropdown)
+
+      trigger.addEventListener('click', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        if (currentOpenDropdown === dropdown && dropdown.style.pointerEvents === 'all') {
+          hideDropdown(dropdown)
+          currentOpenDropdown = null
+        } else {
+          hideAllDropdowns()
+          positionDropdown(trigger, dropdown)
+          dropdown.style.pointerEvents = 'all'
+          currentOpenDropdown = dropdown
+        }
+      })
+
+      trigger.addEventListener('mouseenter', () => {
+        if (currentOpenDropdown === null) {
+          hideAllDropdowns()
+          positionDropdown(trigger, dropdown)
+          dropdown.style.pointerEvents = 'all'
+          currentOpenDropdown = dropdown
+        }
+      })
+
+      trigger.addEventListener('mouseleave', () => {
+        setTimeout(() => {
+          if (!dropdown.matches(':hover') && !trigger.matches(':hover')) {
+            if (currentOpenDropdown === dropdown) {
+              hideDropdown(dropdown)
+              currentOpenDropdown = null
+            }
+          }
+        }, 150)
+      })
+
+      dropdown.addEventListener('mouseleave', () => {
+        hideDropdown(dropdown)
+        currentOpenDropdown = null
+      })
+
+      dropdown.addEventListener('click', (e) => {
+        const target = e.target
+        if (target.classList.contains('dropdown-item')) {
+          hideDropdown(dropdown)
+          currentOpenDropdown = null
+        }
+      })
+
+      let ticking = false
+      const updatePosition = () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            if (currentOpenDropdown === dropdown && dropdown.style.pointerEvents === 'all') {
+              positionDropdown(trigger, dropdown)
+            }
+            ticking = false
+          })
+          ticking = true
+        }
+      }
+
+      window.addEventListener('scroll', updatePosition)
+      window.addEventListener('resize', updatePosition)
+    })
+
+    document.addEventListener('click', (e) => {
+      const target = e.target
+      if (!target.closest('.nav-item-wrapper.has-dropdown') && !target.closest('[data-dropdown]')) {
+        hideAllDropdowns()
+      }
+    })
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        hideAllDropdowns()
+      }
+    })
+  })
+</script>
