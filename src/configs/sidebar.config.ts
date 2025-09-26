@@ -206,6 +206,7 @@ export const sidebar = [
         label: 'Tools',
         items: [
           'agent-actions/tools/overview',
+          'agent-actions/tools/modifiers',
           'agent-actions/tools/execute',
           'agent-actions/tools/authorize',
           // 'agent-actions/tools/custom-processors',
