@@ -1,0 +1,100 @@
+---
+title: Tool Modifiers
+description: Learn how to use pre and post modifiers to customize tool behavior, enforce deterministic workflows, and optimize token usage in Agent Actions.
+---
+
+import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Tool modifiers intercept and modify tool inputs and outputs using decorators.
+
+## Types
+
+- **Pre-modifiers**: Modify tool inputs before execution
+- **Post-modifiers**: Modify tool outputs after execution
+
+<Aside type="tip">
+  **Common uses**:
+  - Reduce response size to prevent LLM context overloading
+  - Filter emails to unread only
+  - Add consistent parameters
+  - Transform data formats
+</Aside>
+
+## Pre-Modifiers
+
+Pre-modifiers modify tool inputs before execution.
+
+### Use Cases
+
+- Enforce consistent filters or constraints
+- Add security parameters or validate inputs
+- Override LLM decisions with required behavior
+- Set default configurations
+
+### Example: Gmail Unread Filter
+
+```python
+from scalekit.actions.models.tool_input_output import ToolInput
+
+# For example, we can modify the query to only fetch unread emails
+# regardless of what the user asks for or what the LLM determines.
+@actions.pre_modifier(tool_names=["gmail_fetch_mails"])
+def gmail_pre_modifier(tool_input: ToolInput):
+    tool_input['query'] = 'is:unread'
+    return tool_input
+```
+
+This modifier:
+- Intercepts all calls to `gmail_fetch_mails`
+- Forces the query to always search for unread emails only
+- Ensures consistent behavior regardless of user input or LLM interpretation
+
+### Multiple Tools Example
+
+```python
+@actions.pre_modifier(tool_names=["gmail_fetch_mails", "gmail_search_emails"])
+def email_security_modifier(tool_input: ToolInput):
+    # Add security constraints to all email operations
+    tool_input['include_spam'] = False
+    tool_input['max_results'] = min(tool_input.get('max_results', 10), 50)
+    return tool_input
+```
+
+## Post-Modifiers
+
+Post-modifiers modify tool outputs after execution.
+
+<Aside type="note">
+  **Response Format**: Post-modifiers must always return a dictionary with a `"response"` key: `{"response": your_data}`
+</Aside>
+
+### Use Cases
+
+- Reduce token usage by filtering large responses
+- Transform formats for LLM consumption
+- Extract specific data from responses
+- Standardize output structure
+
+### Example: Gmail Response Filtering
+
+```python
+from scalekit.actions.models.tool_input_output import ToolOutput
+
+# Sometimes, the tool output needs to be modified in a deterministic way after the tool is executed.
+# For example, we can modify the output to only return the first email snippet regardless of what the tool returns.
+# This is an effective way to reduce the amount of data that is returned to the LLM to save on tokens.
+@actions.post_modifier(tool_names=["gmail_fetch_mails"])
+def gmail_post_modifier(output: ToolOutput):
+    # Only return the first email snippet
+    # Should return a dict
+    # Response should be a dict with a key 'response'
+    for snippet in output['messages']:
+        print(f"Email snippet: {snippet['snippet']}")
+    return {"response": output['messages'][0]['snippet']}
+```
+
+This modifier:
+- Processes the response from `gmail_fetch_mails`
+- Extracts only the first email snippet instead of returning all emails
+- Reduces token usage by sending minimal data to the LLM
+
