@@ -1,12 +1,12 @@
 ---
 title: Agentic Tool Calling
-description: Learn how to authenticate a user to GMail and use LLMs to create an agentic tool calling workflow.
+description: Learn how to authenticate a user to GMail and use LLMs to create an agentic tool calling workflow using LangChain or Google ADK.
 ---
 
 import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-This quickstart guide will help you implement tool calling using LLMs to determine which tool to call with what parameters based on the user's input.
+This quickstart guide will help you implement tool calling using LLMs to determine which tool to call with what parameters based on the user's input. Choose from popular AI frameworks like LangChain or Google ADK.
 
 ## What you'll build
 
@@ -28,7 +28,7 @@ First, install the Scalekit Python SDK and initialize the client with your API c
 
 <p>
   ```sh showLineNumbers=false frame="none"
-  pip install scalekit-sdk-python
+  pip install scalekit-sdk-python langchain
   ```
 </p>
 <p>
@@ -51,10 +51,11 @@ Let's authorize a user to access their Gmail account by creating a connected acc
 
 ```python
 # Create a connected account for user if it doesn't exist already
-connected_account = actions.get_or_create_connected_account(
+response = actions.get_or_create_connected_account(
             connection_name="gmail",
             identifier="user_123"
         )
+connected_account = response.connected_account
 
 print(f'Connected account created: {connected_account.id}')
 ```
@@ -114,3 +115,14 @@ result = agent_executor.invoke({"input":"fetch my last 5 unread emails and summa
 ## Next steps
 
 Congratulations! You've successfully built a langchain agent and gave it access to gmail tools to execute tool calls on behalf of a user based on the user's query.
+
+For more detailed framework-specific implementations, explore our AI framework guides:
+
+<CardGrid>
+  <LinkCard title="LangChain Framework" icon="star" href="/agent-actions/frameworks/langchain">
+    Build agents using LangChain with advanced tool calling and workflow capabilities.
+  </LinkCard>
+  <LinkCard title="Google ADK Framework" icon="star" href="/agent-actions/frameworks/google-adk">
+    Create agents using Google ADK with Gemini models and native Google integration.
+  </LinkCard>
+</CardGrid>
