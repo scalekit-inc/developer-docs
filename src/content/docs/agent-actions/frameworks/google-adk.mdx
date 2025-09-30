@@ -1,11 +1,150 @@
 ---
 title: Google ADK
 description: Learn how to use Google ADK with Agent Actions.
-
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 ---
 
-# Google ADK
+import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
 
-Google ADK is a framework for building AI agents. It provides a set of tools and abstractions for building AI agents.
+Build agents using Google ADK Framework and add tool calling ability natively to the agent.
 
-## Usage
+
+Google ADK is a framework for building agents using Google's AI SDK. It provides a set of tools and utilities for building agents that can interact with Google's AI services. Visit the [Google ADK quickstart guide](https://google.github.io/adk-docs/get-started/quickstart/) to set up Google ADK
+
+## What you'll build
+
+In this quickstart, you'll build a Gmail-powered AI agent that can:
+
+- **Authenticate users with Gmail** using OAuth 2.0 to securely access their email accounts
+- **Fetch and analyze emails** by retrieving the last 5 unread messages from the user's inbox
+
+This integration demonstrates how to combine Scalekit's authentication capabilities with Google ADK's AI framework to create powerful, user-specific AI agents.
+
+## Prerequisites
+
+Before you start, ensure you have:
+
+- **Scalekit account and API credentials** - Get your Client ID and Client Secret from the [Scalekit dashboard](https://app.scalekit.com)
+- **Python 3.11 or later** - Required for running the Google ADK framework
+- **Google API Key** - Obtain from the [Google AI Studio](https://aistudio.google.com) for Google ADK
+- **Gmail account** - For testing the OAuth authentication flow
+
+Let's get started!
+
+<br />
+
+<Steps>
+
+1. ## Set up your environment
+
+    First, install the Scalekit Python SDK and Google ADK, then initialize the client with your API credentials:
+
+    <p>
+      ```sh showLineNumbers=false frame="none"
+      pip install scalekit-sdk-python google-adk
+      ```
+    </p>
+    <p>
+      ```python showLineNumbers=false frame="none"
+      import scalekit.client
+      import os
+
+      client = scalekit.client.ScalekitClient(
+          client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+          client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+          env_url=os.getenv("SCALEKIT_ENV_URL"),
+      )
+      actions = client.actions
+
+      ```
+    </p>
+
+2. ## Create a connected account
+
+    Let's authorize a user to access their Gmail account by creating a connected account. This represents the user's connection to their Gmail account:
+
+    ```python
+    # Create a connected account for user if it doesn't exist already
+    response = actions.get_or_create_connected_account(
+                connection_name="GMAIL",
+                identifier="user_123"
+            )
+    connected_account = response.connected_account
+
+    print(f'Connected account created: {connected_account.id}')
+    ```
+
+3. ## Authenticate the user
+
+    Inorder to execute any tools on behalf of the user, the user first needs to grant authorization to access their gmail account. Scalekit automatically handles the entire OAuth workflow with the Gmail provider, gets the access token, refreshes the access token periodically based on the refresh token etc.
+
+    If the user's access token is expired, Scalekit will automatically refresh the access token using the refresh token. At any time, you can check the authorization status of the connected account and determine if the user needs to re-authorize the connection.
+
+    ```python
+    # Check if the user needs to authorize their Gmail connection
+    # This handles both new users and cases where the access token has expired
+    if connected_account.status != "ACTIVE":
+        # Generate an authorization link for the user to complete OAuth flow
+        link_response = actions.get_authorization_link(
+            connection_name="GMAIL",
+            identifier="user_123"
+        )
+
+        # Display the authorization link to the user
+        print(f"🔗 Authorize Gmail access: {link_response.link}")
+        input("⎆ Press Enter after completing authorization...")
+
+    # In production, redirect users to the authorization URL instead of using input()
+    # The user will be redirected back to your app after successful authorization
+    ```
+
+4. ## Build a Google ADK Agent
+
+    Let's build a simple agent using Google ADK that can fetch the last 5 unread emails from the user's inbox and generate a summary of the emails.
+
+    1. Fetch the last 5 unread emails from the user's inbox
+    2. Generate a summary of the emails.
+
+    ```python
+    from google.adk.agents import Agent
+
+    # Get Gmail tools from Scalekit in Google ADK format
+    gmail_tools = actions.google.get_tools(
+        providers=["GMAIL"],
+        identifier="user_123",
+        page_size=100
+    )
+
+    # Create a Google ADK agent with Gmail tools
+    gmail_agent = Agent(
+        name="gmail_assistant",
+        model="gemini-2.5-flash",
+        description="Gmail assistant that can read and manage emails",
+        instruction=(
+            "You are a helpful Gmail assistant. You can read, send, and organize emails. "
+            "When asked to fetch emails, focus on unread messages and provide clear summaries. "
+            "Always be helpful and professional."
+        ),
+        tools=gmail_tools
+    )
+
+    # Use the agent to fetch and summarize unread emails
+    response = gmail_agent.process_request(
+        "fetch my last 5 unread emails and summarize them"
+    )
+    print(response)
+    ```
+
+</Steps>
+
+
+Congratulations! You've successfully built a Google ADK agent and gave it access to gmail tools to execute tool calls on behalf of a user based on the user's query.
