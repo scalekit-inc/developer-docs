@@ -228,50 +228,50 @@ The `permissions` claim contains the permission name (not the description). For 
 
 Here's an example of decoded tokens containing `roles` and `permissions` claims:
 
-<Tabs>
-<TabItem label="ID Token (decoded)" value="idToken">
-<Code
-  lang="json"
-  title="idToken.json"
-  code={`{
-  "amr": ["conn_123456789012345678"],
-  "aud": ["skc_987654321098765432"],
-  "azp": "skc_987654321098765432",
-  "client_id": "skc_987654321098765432",
-  "email": "john.doe@example.com",
-  "email_verified": true,
-  "exp": 1753441845,
-  "family_name": "Doe",
-  "given_name": "John",
-  "iat": 1750849845,
-  "iss": "http://example.localhost:8889",
-  "name": "John Doe",
-  "oid": "org_987654321098765432",
-  "roles": ["member"],
-  "sid": "ses_987654321098765432",
-  "sub": "usr_987654321098765432"
-}`} />
-</TabItem>
-<TabItem label="Access Token (decoded)" value="accessToken">
-<Code
-  lang="json"
-  title="accessToken.json"
-  code={`{
-  "aud": ["skc_987654321098765432"],
-  "client_id": "skc_987654321098765432",
-  "exp": 1750850145,
-  "iat": 1750849845,
-  "iss": "http://example.localhost:8889",
-  "jti": "tkn_987654321098765432",
-  "nbf": 1750849845,
-  "roles": ["member"],
-  "oid": "org_69615647365005430",
-  "permissions": ["emails:read", "inbox:read"],
-  "sid": "ses_987654321098765432",
-  "sub": "usr_987654321098765432",
-  "xuid": "john.doe"
-}`} />
-</TabItem>
+<Tabs syncKey="auth-result">
+        <TabItem value="idToken" label="ID token (decoded)">
+        ```json {18}
+        {
+          "amr": ["conn_123456789012345678"],
+          "aud": ["skc_987654321098765432"],
+          "azp": "skc_987654321098765432",
+          "client_id": "skc_987654321098765432",
+          "email": "john.doe@example.com",
+          "email_verified": true,
+          "exp": 1753441845,
+          "family_name": "Doe",
+          "given_name": "John",
+          "iat": 1750849845,
+          "iss": "http://example.localhost:8889",
+          "name": "John Doe",
+          "oid": "org_987654321098765432",
+          "roles": ["member"],
+          "sid": "ses_987654321098765432",
+          "sub": "usr_987654321098765432"
+        }
+        ```
+        </TabItem>
+        <TabItem value="accessToken" label="Access token (decoded)">
+        ```json {11}
+        {
+          "aud": ["skc_987654321098765432"],
+          "client_id": "skc_987654321098765432",
+          "exp": 1750850145,
+          "iat": 1750849845,
+          "iss": "http://example.localhost:8889",
+          "jti": "tkn_987654321098765432",
+          "nbf": 1750849845,
+          "roles": ["member"],
+          "oid": "org_69615647365005430",
+          "permissions": ["emails:read", "inbox:read"],
+          "sid": "ses_987654321098765432",
+          "sub": "usr_987654321098765432",
+          // External identifiers if updated on Scalekit
+          "xoid": "ext_org_123", // Organization ID
+          "xuid": "ext_usr_456", // User ID
+        }
+        ```
+        </TabItem>
 </Tabs>
 
 With roles and permissions available in tokens, enforce access in your backend and UI. Example checks:
