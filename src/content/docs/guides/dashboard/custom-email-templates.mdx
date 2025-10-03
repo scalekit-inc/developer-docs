@@ -20,6 +20,8 @@ head:
 
 import { Badge, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 import { Quiz, QuizOption } from 'starlight-videos/components'
+import IconLucideBookOpen from '~icons/lucide/book-open'
+import IconHugeiconsKnowledge01 from '~icons/hugeicons/knowledge-01'
 
 Scalekit uses default templates to send authentication emails to your users. You can customize these templates with your own branding and content to provide a consistent experience.
 
@@ -49,7 +51,7 @@ Once saved, all subsequent emails will use your customized templates.
 
 ## Built-in template variables
 
-Use these built-in variables in your templates. Values are injected at send time. The variables below apply to the OTP and magic link login template shown here. Other email templates may expose different variables.
+Use these built-in variables in your templates. Values are injected at send time. The variables below apply to all Scalekit templates.
 
 #### Application
 
@@ -88,7 +90,7 @@ Contextual variables apply only to the current template. They change per templat
 | --- | --- |
 | `{{link}}` | Authentication link (magic link or sign up) |
 | `{{otp}}` | One-time passcode for the current request |
-| `{{expiry_time_relative}}` | Human-readable time until expiration (for example, "10 minutes") |
+| `{{expiry_time_relative}}` | Human-readable relative date format (for example, "14 days, 6 hours, 50 min") |
 
 
 ## JET template syntax
@@ -119,6 +121,17 @@ Here are two common patterns you can use in your email templates:
 <p>This link is valid until {{ format_date(expire_time, "MMM d, yyyy 'at' h:mm a") }}.</p>
 ```
 </TabItem>
+
+<TabItem label='User invite with organization'>
+```html showLineNumbers=false
+{{ if organization_name }}
+  <p>You have been invited to join {{ organization_name }} organization in {{ app_name }}.</p>
+{{ else }}
+  <p>You have been invited to {{ app_name }}.</p>
+{{ end }}
+```
+</TabItem>
+
 </Tabs>
 
 <Aside type="note" title='JET syntax reference'>
@@ -169,6 +182,8 @@ For more advanced personalization, you can use template variables to include val
 
 </Steps>
 
+---
+<p class="flex items-center gap-2"><IconHugeiconsKnowledge01 /> **Test your knowledge with a quiz**</p>
 
 <Quiz title="Which choice requires using your own email provider?" variant="minimal">
   <QuizOption>Use Scalekit template</QuizOption>
@@ -176,3 +191,4 @@ For more advanced personalization, you can use template variables to include val
   <QuizOption correct>Use custom template</QuizOption>
   <QuizOption>Enable table of contents</QuizOption>
 </Quiz>
+
