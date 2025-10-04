@@ -1,0 +1,187 @@
+---
+title: Custom email templates
+description: Customize authentication email templates with your branding and content.
+topic: dev-kit
+sidebar:
+  label: Custom email templates
+slug: "guides/dashboard/custom-email-templates"
+tableOfContents: true
+next: false
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import { Badge, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Quiz, QuizOption } from 'starlight-videos/components'
+import IconLucideBookOpen from '~icons/lucide/book-open'
+import IconHugeiconsKnowledge01 from '~icons/hugeicons/knowledge-01'
+
+Scalekit uses default templates to send authentication emails to your users. You can customize these templates with your own branding and content to provide a consistent experience.
+
+Find these templates in **Emails** > **Templates**.
+
+![](@/assets/docs/custom-email-templates/custom-templates-list.png)
+
+Select one of the listed templates and choose between Scalekit's default templates or your own custom templates.
+
+![](@/assets/docs/custom-email-templates/sub-selection-custom-tempaltes.png)
+
+Select how each email is generated:
+
+- **Use Scalekit template**: Preview subject and bodies; you cannot edit them. Emails use Scalekit's default content.
+- **Use custom template**: Edit the subject, HTML body, and plain text body. Your saved content is used for future sends. Requires you to [bring your own email provider](/guides/passwordless/custom-email-provider/).
+
+
+## Provide HTML and plain text versions
+
+Provide both versions of your email body in the template editor. When both are present, Scalekit sends a multipart/alternative message: HTML is shown in capable clients, and the plain text part is used as a fallback where HTML is not supported.
+
+<Aside type="tip">
+  Include a clear call-to-action link in the plain text body when using tracking pixels or richly styled buttons in HTML.
+</Aside>
+
+Once saved, all subsequent emails will use your customized templates.
+
+## Built-in template variables
+
+Use these built-in variables in your templates. Values are injected at send time. The variables below apply to all Scalekit templates.
+
+#### Application
+
+Use application variables to include app-level data (for example, name, logo, support email) that stays the same across all emails for your app.
+
+| Variable | Description |
+| --- | --- |
+| `{{app_name}}` | Your application name |
+| `{{app_logo_url}}` | Public URL to your application logo |
+| `{{app_support_email}}` | Support email address for your application |
+| `{{app_organization_meta_name}}` | Organization display name configured in Scalekit |
+
+
+#### Organization
+
+Organization variables describe the organization that the user belongs to and are consistent across emails for that organization.
+
+| Variable | Description |
+| --- | --- |
+| `{{organization_name}}` | The organization name |
+
+#### User
+
+User variables personalize the email for the recipient (for example, name and email).
+
+| Variable | Description |
+| --- | --- |
+| `{{user_name}}` | The recipient's name |
+| `{{user_email}}` | The recipient's email address |
+
+#### Contextual
+
+Contextual variables apply only to the current template. They change per template or send (for example, OTP, magic link, or expiry). For example, `{{link}}` is maybe the same label in both sign up and log in scenarios using magic link.
+
+| Variable | Description |
+| --- | --- |
+| `{{link}}` | Authentication link (magic link or sign up) |
+| `{{otp}}` | One-time passcode for the current request |
+| `{{expiry_time_relative}}` | Human-readable relative date format (for example, "14 days, 6 hours, 50 min") |
+
+
+## JET template syntax
+
+Custom email templates use JET (Just Enough Templates) syntax for dynamic content. JET provides powerful templating features including conditionals, loops, and filters.
+
+Here are two common patterns you can use in your email templates:
+
+<Tabs>
+
+<TabItem label='Conditional welcome message'>
+
+```html showLineNumbers=false
+{{ if user_name }}
+  <p>Hello {{ user_name }},</p>
+{{ else }}
+  <p>Hello,</p>
+{{ end }}
+
+<p>Welcome to {{ app_name }}!</p>
+```
+
+</TabItem>
+
+<TabItem label='User invite with organization'>
+```html showLineNumbers=false
+{{ if organization_name }}
+  <p>You have been invited to join {{ organization_name }} organization in {{ app_name }}.</p>
+{{ else }}
+  <p>You have been invited to {{ app_name }}.</p>
+{{ end }}
+```
+</TabItem>
+
+</Tabs>
+
+<Aside type="note" title='JET syntax reference'>
+  For complete JET syntax documentation including all available functions, filters, and control structures, see the [JET syntax reference](https://github.com/CloudyKit/jet/blob/master/docs/syntax.md).
+</Aside>
+
+## Inject you own variables at runtime <Badge variant="note" text="Passwordless" />
+
+For more advanced personalization, you can use template variables to include values programatically in the emails. You must be using the Passwordless Headless API for authentication.
+
+- Each variable must be a key-value pair.
+- Maximum of 30 variables per template.
+- All template variables must have corresponding values in the request.
+- Avoid using reserved names: `otp`, `expiry_time_relative`, `link`, `expire_time`, `expiry_time`.
+
+<Steps>
+  1. Create your email template with variables:
+     ```html title="Example email template" showLineNumbers=false
+     <p>Hello {{ first_name }},</p>
+     <p>Welcome to {{ company_name }}.</p>
+     <p>Find your onboarding kit: {{ onboarding_resources }}</p>
+     ```
+
+  2. Include variable values in your authentication request:
+     ```js title="Authentication request" showLineNumbers=false
+     const sendResponse = await scalekit.passwordless.sendPasswordlessEmail(
+       "<john.doe@example.com>",
+       {
+         templateVariables: {
+           first_name: "John",
+           company_name: "Acme Corp",
+           onboarding_resources: "https://acme.com/onboarding"
+         }
+       }
+     );
+     ```
+
+  3. The sent email will include the replaced values:
+     ```html title="Example email preview" showLineNumbers=false
+     Hello John,
+     Welcome to Acme Corp.
+     Find your onboarding kit: https://acme.com/onboarding
+     ```
+
+     <Aside type="caution">
+      The API will return a 400 status code if your template references any variables that aren't provided in the request.
+      </Aside>
+
+</Steps>
+
+---
+<p class="flex items-center gap-2"><IconHugeiconsKnowledge01 /> **Test your knowledge with a quiz**</p>
+
+<Quiz title="Which choice requires using your own email provider?" variant="minimal">
+  <QuizOption>Use Scalekit template</QuizOption>
+  <QuizOption>Preview subject and bodies</QuizOption>
+  <QuizOption correct>Use custom template</QuizOption>
+  <QuizOption>Enable table of contents</QuizOption>
+</Quiz>
+
