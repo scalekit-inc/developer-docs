@@ -60,7 +60,15 @@ export const sidebar = [
       },
       {
         label: 'Customization',
-        items: ['fsa/guides/login-page-branding', 'guides/email-providers'],
+        items: [
+          'fsa/guides/login-page-branding',
+          'guides/email-providers',
+          {
+            label: 'Custom email templates',
+            link: 'guides/dashboard/custom-email-templates',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
       },
       {
         label: 'Integrations',
@@ -178,7 +186,11 @@ export const sidebar = [
         label: 'Email customization',
         items: [
           'guides/passwordless/custom-email-provider',
-          'guides/passwordless/custom-email-templates',
+          {
+            label: 'Custom email templates',
+            link: 'guides/dashboard/custom-email-templates',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
         ],
       },
       {
@@ -316,6 +328,7 @@ export const sidebar = [
       {
         label: 'Guides',
         items: [
+          'guides/dashboard/custom-email-templates',
           'guides/setup-scalekit',
           'dev-kit/resources/ai-assisted-setup',
           'guides/external-ids-and-metadata',
