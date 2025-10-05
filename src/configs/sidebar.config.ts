@@ -173,6 +173,14 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Concepts',
+        items: [
+          'agent-actions/providers',
+          'agent-actions/connections',
+          'agent-actions/connected-accounts',
+        ],
+      },
+      {
         label: 'Connectors',
         autogenerate: {
           directory: 'reference/agent-connectors',
@@ -181,11 +189,6 @@ export const sidebar = [
       // {
       //   label: 'MCP',
       //   items: ['connect/mcp/quickstart', 'connect/mcp/custom-mcp', 'connect/mcp/manage'],
-      // },
-
-      // {
-      //   label: 'Concepts',
-      //   items: ['connect/providers', 'connect/connections', 'connect/connected-accounts'],
       // },
     ],
   },
