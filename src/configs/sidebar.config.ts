@@ -139,7 +139,11 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['agent-actions/quickstart'],
+        items: [
+          'agent-actions/overview',
+          'agent-actions/quickstart',
+          'agent-actions/agentic-quickstart',
+        ],
       },
       {
         label: 'Tools',
