@@ -359,13 +359,13 @@ export const topics = {
     '/home/guides/admin-portal',
     '/home/**/*',
     // Exclude unpublished Agent Actions framework pages
-    '/agent-actions/frameworks/agno',
-    '/agent-actions/frameworks/anthropic',
-    '/agent-actions/frameworks/openai',
-    '/agent-actions/frameworks/google-genai',
-    '/agent-actions/frameworks/mastra',
-    '/agent-actions/frameworks/mcp',
-    '/agent-actions/frameworks/vercel-ai',
+    '/agent-actions/frameworks/agno/**/*',
+    '/agent-actions/frameworks/anthropic/**/*',
+    '/agent-actions/frameworks/openai/**/*',
+    '/agent-actions/frameworks/google-genai/**/*',
+    '/agent-actions/frameworks/mastra/**/*',
+    '/agent-actions/frameworks/mcp/**/*',
+    '/agent-actions/frameworks/vercel-ai/**/*',
   ],
   // Associate unlisted pages with their respective topic sidebars
   authenticate: [
