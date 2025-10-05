@@ -26,7 +26,8 @@ export const sidebar = [
         ],
       },
       {
-        label: 'User Authentication',
+        label: 'User authentication',
+        collapsed: true,
         items: [
           'fsa/guides/implement-signup',
           'fsa/guides/implement-login',
@@ -42,6 +43,7 @@ export const sidebar = [
       },
       {
         label: 'User management',
+        collapsed: true,
         items: [
           'fsa/reference/user-profile',
           'fsa/guides/just-in-time-provisioning',
@@ -54,6 +56,7 @@ export const sidebar = [
       },
       {
         label: 'Make it your own',
+        collapsed: true,
         items: [
           'guides/custom-domain',
           'fsa/guides/login-page-branding',
@@ -67,6 +70,7 @@ export const sidebar = [
       },
       {
         label: 'Auth for MCP servers',
+        collapsed: true,
         items: [
           'mcp/overview',
           {
@@ -77,6 +81,7 @@ export const sidebar = [
       },
       {
         label: 'Single Sign-on',
+        collapsed: true,
         items: [
           'sso/guides/sso-user-attributes',
           'sso/guides/user-profile-details',
@@ -96,6 +101,7 @@ export const sidebar = [
       },
       {
         label: 'Auth methods as modules',
+        collapsed: true,
         items: [
           {
             label: 'Setup social connections',
@@ -108,140 +114,13 @@ export const sidebar = [
       },
       {
         label: 'SCIM provisioning',
+        collapsed: true,
         items: [
           'guides/webhooks-best-practices',
           'directory/guides/group-based-role-assignment',
           {
             label: 'View SCIM integrations',
             link: '/guides/integrations/scim-integrations/',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-    ],
-  },
-  {
-    label: 'Single Sign-On',
-    link: '/sso/quickstart',
-    id: 'sso',
-    icon: 'seti:lock',
-    items: [
-      {
-        label: 'Getting started',
-        items: [
-          'sso/guides/sso-basics',
-          'sso/quickstart',
-          'sso/guides/test-sso',
-          'guides/sso/admin-portal',
-          'sso/guides/launch-checklist',
-        ],
-      },
-      {
-        label: 'Social authentication',
-        items: ['social-logins/quickstart'],
-      },
-      {
-        label: 'Guides',
-        items: [
-          'guides/custom-domain',
-          'sso/guides/add-login-ux-sso',
-          'sso/guides/idp-init-sso',
-          'sso/guides/okta-sso-test',
-          'sso/guides/sso-user-attributes',
-          'sso/reference/sso-integration-errors',
-          {
-            label: 'Redirects',
-            link: 'guides/dashboard/redirects',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Auth logs',
-            link: 'guides/dashboard/auth-logs',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          'guides/sso/sso-migration-strategy',
-          {
-            label: 'Coexist with',
-            autogenerate: { directory: 'guides/integrations/auth-systems' },
-          },
-          {
-            label: 'Concepts',
-            items: [
-              'sso/guides/authorization-url',
-              'guides/idtoken-claims',
-              'sso/guides/user-profile-details',
-              'guides/client-credentials-practices',
-            ],
-          },
-        ],
-      },
-      {
-        label: 'Integrations',
-        link: '/guides/integrations/sso-integrations/',
-        attrs: { target: '_blank', rel: 'noopener' },
-      },
-    ],
-  },
-  {
-    label: 'SCIM Provisioning',
-    link: '/directory/scim/quickstart',
-    icon: 'seti:folder',
-    id: 'directory',
-    items: [
-      {
-        label: 'Getting started',
-        items: [
-          'directory/scim/quickstart',
-          'directory/code-examples',
-          'directory/guides/admin-portal',
-          'directory/guides/launch-checklist',
-        ],
-      },
-      {
-        label: 'Guides',
-        items: [
-          'directory/guides/group-based-role-assignment',
-          'guides/webhooks-best-practices',
-          {
-            label: 'Concepts',
-            items: ['directory/guides/user-provisioning-basics', 'directory/guides/scim-protocol'],
-          },
-        ],
-      },
-      {
-        label: 'Integrations',
-        link: '/guides/integrations',
-        attrs: { target: '_blank', rel: 'noopener' },
-      },
-    ],
-  },
-  {
-    label: 'Passwordless Auth',
-    link: '/passwordless/quickstart',
-    icon: 'email',
-    id: 'passwordless',
-    items: [
-      {
-        label: 'Getting started',
-        items: ['passwordless/overview', 'passwordless/quickstart', 'passwordless/oidc'],
-      },
-      {
-        label: 'Email customization',
-        items: [
-          'guides/passwordless/custom-email-provider',
-          {
-            label: 'Custom email templates',
-            link: 'guides/dashboard/custom-email-templates',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-      {
-        label: 'Guides',
-        items: [
-          {
-            label: 'View auth logs',
-            link: 'guides/dashboard/auth-logs',
             attrs: { target: '_blank', rel: 'noopener' },
           },
         ],
@@ -308,46 +187,6 @@ export const sidebar = [
       //   label: 'Concepts',
       //   items: ['connect/providers', 'connect/connections', 'connect/connected-accounts'],
       // },
-    ],
-  },
-  {
-    label: 'MCP Auth',
-    link: '/guides/mcp/overview',
-    id: 'mcp',
-    icon: 'seti:puppet',
-    items: [
-      {
-        label: 'Getting started',
-        items: [
-          'mcp/overview',
-          'mcp/oauth',
-          { label: 'Bring your own Auth', link: 'mcp/guides/custom-auth' },
-        ],
-      },
-    ],
-  },
-  {
-    label: 'API Auth',
-    link: '/m2m/quickstart',
-    id: 'm2m',
-    icon: 'seti:crystal_embedded',
-    items: [
-      {
-        label: 'Getting started',
-        items: [
-          'guides/m2m/overview',
-          'm2m/quickstart',
-          {
-            label: 'Code examples',
-            link: 'https://github.com/scalekit-inc/gists/tree/main/m2m',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-      {
-        label: 'Guides',
-        items: ['guides/m2m/m2m-basics', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
-      },
     ],
   },
   {
@@ -461,6 +300,21 @@ export const sidebar = [
         label: 'Best practices',
         items: ['guides/client-credentials-practices', 'guides/webhooks-best-practices'],
       },
+      {
+        label: 'API Authentication (M2M)',
+        items: [
+          'guides/m2m/overview',
+          'm2m/quickstart',
+          'guides/m2m/m2m-basics',
+          'guides/m2m/scopes',
+          'guides/m2m/api-auth-m2m-clients',
+          {
+            label: 'Code examples',
+            link: 'https://github.com/scalekit-inc/gists/tree/main/m2m',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
     ],
   },
   {
@@ -510,8 +364,7 @@ export const topics = {
     '/guides/mcp/**/*',
   ], // All auth-related pages
   'agent-actions': ['/agent-actions/**/*'], // Agent Actions pages
-  'win-with-scalekit': ['/win-with-scalekit/**/*'], // Win with Scalekit pages
-  m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
+  'win-with-scalekit': ['/win-with-scalekit/**/*', '/m2m/**/*', '/guides/m2m/**/*'], // Win with Scalekit pages including M2M
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Developer resources
   integrations: ['/guides/integrations/**/*'], // Integration guide pages
 }
