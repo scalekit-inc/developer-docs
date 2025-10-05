@@ -358,14 +358,6 @@ export const topics = {
     '/home/guides/**/*',
     '/home/guides/admin-portal',
     '/home/**/*',
-    // Exclude unpublished Agent Actions framework pages
-    '/agent-actions/frameworks/agno/**/*',
-    '/agent-actions/frameworks/anthropic/**/*',
-    '/agent-actions/frameworks/openai/**/*',
-    '/agent-actions/frameworks/google-genai/**/*',
-    '/agent-actions/frameworks/mastra/**/*',
-    '/agent-actions/frameworks/mcp/**/*',
-    '/agent-actions/frameworks/vercel-ai/**/*',
   ],
   // Associate unlisted pages with their respective topic sidebars
   authenticate: [
@@ -377,8 +369,12 @@ export const topics = {
     '/directory/**/*',
     '/mcp/**/*',
     '/guides/mcp/**/*',
+    '/guides/sso/**/*',
+    '/guides/passwordless/**/*',
+    '/guides/directory/**/*',
+    '/guides/dashboard/**/*',
   ], // All auth-related pages
-  'agent-actions': ['/agent-actions/**/*'], // Agent Actions pages
+  connect: ['/agent-actions/**/*'], // Agent Actions pages
   'win-with-scalekit': ['/win-with-scalekit/**/*', '/m2m/**/*', '/guides/m2m/**/*'], // Win with Scalekit pages including M2M
   'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Developer resources
   integrations: ['/guides/integrations/**/*'], // Integration guide pages
