@@ -43,6 +43,7 @@ export const sidebar = [
           'fsa/guides/merge-identities',
           'fsa/reference/user-profile',
           'fsa/guides/app-roles',
+          'fsa/guides/auth-flow-interceptors',
           {
             label: 'Sign-up restrictions',
             link: 'fsa/guides/signup-restrictions',
