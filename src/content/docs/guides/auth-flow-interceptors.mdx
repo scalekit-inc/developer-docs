@@ -132,13 +132,13 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
 <Tabs>
 <TabItem label='Request body from Scalekit'>
 
-```json title="PRE_SIGNUP — request body" showLineNumbers=true wrap collapse={9-14,29-33}
+```json title="PRE_SIGNUP — request body" showLineNumbers=true collapse={9-14,29-33}
 {
   "display_name": "Block signup from spam emails",
   "trigger_point": "PRE_SIGNUP",
   "interceptor_context": {
     "environment_id": "env_92561807204567213",
-    "user_id": "usr_93418238346728951",  // Present if user already exists (other org)
+    "user_id": "usr_93418238346728951", // Only present when user exists in another organization
     "user_email": "john.doe@example.com",
     "connection_details": [
       {
@@ -177,10 +177,10 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
 
 ```json title="PRE_SIGNUP — response body" wrap showLineNumbers=true
 {
-  // Required
-  "decision": "ALLOW | DENY",
+  // Required: choose ALLOW or DENY
+  "decision": "DENY", // ALLOW | DENY
   // Optional (with DENY)
-  "error": { "message": "string" }
+  "error": { "message": "Email domain not allowed" }
 }
 ```
 
@@ -193,7 +193,7 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
 <Tabs>
 <TabItem label='Request body from Scalekit'>
 
-```json title="PRE_SESSION_CREATE — request body" wrap showLineNumbers=true collapse={11-16,35-39}
+```json title="PRE_SESSION_CREATION — request body" wrap showLineNumbers=true collapse={11-16,35-39}
 
 {
   "display_name": "Add custom claims to tokens",
@@ -240,27 +240,29 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
 ```
 </TabItem>
 
-</Tabs>
-
-<Tabs>
 <TabItem label='Response body (optional claims)'>
 
-```json title="PRE_SESSION_CREATE — response body" wrap showLineNumbers=true
+```json title="PRE_SESSION_CREATION — response body" wrap showLineNumbers=true
 {
-  // Required
-  "decision": "ALLOW | DENY",
+  // Required: choose ALLOW or DENY
+  "decision": "ALLOW", // ALLOW | DENY
   // Optional (with ALLOW)
-  "response": { "claims": { "claim1": "value1", "claim2": "value2" } },
-  // Optional (with DENY)
-  "error": { "message": "string" }
+  "response": {
+    "claims": {
+      "plan": "pro",
+      "region": "eu-west-1",
+      "entitlements": ["dashboards", "advanced-exports"]
+    }
+  }
 }
 ```
 </TabItem>
 
 </Tabs>
 
+
 <Aside type='note' title='Modify token claims in the response'>
- The `claims` field lets you include additional information in the issued tokens (access and ID tokens).
+ The `claims` field lets you add custom information that will be included in both access tokens and ID tokens issued by Scalekit.
 </Aside>
 
 #### `PRE_USER_INVITATION`
@@ -268,13 +270,13 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
 <Tabs>
 <TabItem label='Request body from Scalekit'>
 
-```json title="PRE_USER_INVITE — request body" wrap showLineNumbers=true collapse={12-15}
+```json title="PRE_USER_INVITATION — request body" wrap showLineNumbers=true collapse={12-15}
 {
   "display_name": "Prevent invites to spam emails",
   "trigger_point": "PRE_USER_INVITATION",
   "interceptor_context": {
     "environment_id": "env_92561807204567213",
-    "user_id": "usr_93418238346728951", // Present if user exists (other org)
+    "user_id": "usr_93418238346728951", // Only present when user exists in another organization
     "user_email": "john.doe@example.com",
     "organization_id": "org_93731871904672153",
     "triggered_at": "2025-10-08T15:03:22.486Z"
@@ -289,15 +291,14 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
 ```
 </TabItem>
 
-
 <TabItem label='Response body from your app'>
 
-```json title="PRE_USER_INVITE — response body" wrap showLineNumbers=true
+```json title="PRE_USER_INVITATION — response body" wrap showLineNumbers=true
 {
-  // Required
-  "decision": "ALLOW | DENY",
+  // Required: choose ALLOW or DENY
+  "decision": "DENY", // ALLOW | DENY
   // Optional (with DENY)
-  "error": { "message": "string" }
+  "error": { "message": "Invites to disposable email domains are blocked" }
 }
 ```
 </TabItem>
@@ -309,7 +310,7 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
 <Tabs>
 <TabItem label='Request body from Scalekit'>
 
-```json title="PRE_M2M_TOKEN_CREATE — request body" wrap showLineNumbers=true collapse={15-18,22-24}
+```json title="PRE_M2M_TOKEN_CREATION — request body" wrap showLineNumbers=true collapse={15-18,22-24}
 {
   "display_name": "Add custom claim",
   "trigger_point": "PRE_M2M_TOKEN_CREATION",
@@ -342,14 +343,17 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
 </TabItem>
 <TabItem label='Response body (optional claims)'>
 
-```json title="PRE_M2M_TOKEN_CREATE — response body" wrap showLineNumbers=true
+```json title="PRE_M2M_TOKEN_CREATION — response body" wrap showLineNumbers=true
 {
-  // Required
-  "decision": "ALLOW | DENY",
+  // Required: choose ALLOW or DENY
+  "decision": "ALLOW", // ALLOW | DENY
   // Optional (with ALLOW)
-  "response": { "claims": { "claim1": "value1", "claim2": "value2" } },
-  // Optional (with DENY)
-  "error": { "message": "string" }
+  "response": {
+    "claims": {
+      "scope": "deploy:applications read:deployments",
+      "aud": "https://api.example.com"
+    }
+  }
 }
 ```
 </TabItem>
@@ -366,9 +370,9 @@ Requests and responses generated by the "Test" button are not logged. This keeps
 
 ## Testing interceptors
 
-Open the Test tab on the Interceptors page. The left panel shows the request body sent to your endpoint, and the right panel shows your service’s response.
+Open the **Test** tab on the Interceptors page. The left panel shows the request body sent to your endpoint, and the right panel shows your application's response.
 
-Based on your application's response, you can decide to allow or deny the user auth flow to continue to sign up or log into your application.
+Based on your application's response, you can decide to allow or deny the user auth flow to continue to sign up or log into your application. This allows for you to test and take the interceptors live in production.
 
 ![Interceptors test tab example](@/assets/docs/auth-flow-interceptors/test-example.png)
 
