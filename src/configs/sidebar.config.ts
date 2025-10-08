@@ -43,7 +43,11 @@ export const sidebar = [
           'fsa/guides/merge-identities',
           'fsa/reference/user-profile',
           'fsa/guides/app-roles',
-          'fsa/guides/auth-flow-interceptors',
+          {
+            label: 'Interceptors',
+            link: '/guides/auth-flow-interceptors',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
           {
             label: 'Sign-up restrictions',
             link: 'fsa/guides/signup-restrictions',
@@ -304,7 +308,16 @@ export const sidebar = [
       },
       {
         label: 'Guides',
-        items: ['guides/m2m/m2m-basics', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
+        items: [
+          'guides/m2m/m2m-basics',
+          'guides/m2m/scopes',
+          'guides/m2m/api-auth-m2m-clients',
+          {
+            label: 'Interceptors',
+            link: '/guides/auth-flow-interceptors',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
       },
     ],
   },
@@ -323,8 +336,17 @@ export const sidebar = [
         link: '/dev-kit/code-samples',
       },
       {
-        label: 'Webhooks',
-        autogenerate: { directory: 'reference/webhooks' },
+        label: 'Webhooks & Interceptors',
+        items: [
+          {
+            label: 'Interceptors',
+            link: '/guides/auth-flow-interceptors',
+          },
+          {
+            label: 'Webhooks',
+            autogenerate: { directory: 'reference/webhooks' },
+          },
+        ],
       },
       {
         label: 'Guides',
@@ -413,6 +435,10 @@ export const topics = {
   connect: ['/agent-actions/**/*'], // Agent Actions unlisted pages
   mcp: ['/guides/mcp/**/*'], // MCP Auth pages under guides
   m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
-  'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Developer resources
+  'dev-kit': [
+    '/dev-kit/**/*',
+    '/guides/unlisted/passwordless-as-service',
+    '/guides/auth-flow-interceptors',
+  ], // Developer resources
   integrations: ['/guides/integrations/**/*'], // Integration guide pages
 }
