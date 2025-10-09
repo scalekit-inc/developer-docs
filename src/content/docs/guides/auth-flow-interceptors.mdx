@@ -140,13 +140,13 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
 <Tabs>
 <TabItem label='Request body from Scalekit'>
 
-```json title="PRE_SIGNUP — request body" showLineNumbers=true collapse={9-14,29-33}
+```json title="PRE_SIGNUP — request body" showLineNumbers=true collapse={9-14, 27-31,}
 {
-  "display_name": "Block signup from spam emails",
+  "display_name": "Pre-Signup",
   "trigger_point": "PRE_SIGNUP",
   "interceptor_context": {
-    "environment_id": "env_92561807204567213",
-    "user_id": "usr_93418238346728951", // Only present when user exists in another organization
+    "environment_id": "env_92561807201272162",
+    "user_id": "usr_93418238346728951",
     "user_email": "john.doe@example.com",
     "connection_details": [
       {
@@ -155,11 +155,15 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
         "provider": "GOOGLE"
       }
     ],
-    "triggered_at": "2025-10-08T15:12:15.325Z"
+    "device_type": "Desktop",
+    "ip_address": "203.0.113.24",
+    "region": "IN",
+    "city": "Bengaluru",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "triggered_at": "2025-10-09T09:48:02.875Z"
   },
   "data": {
-   // Only present when user exists in another organization, else empty object {}
-   "user": {
+    "user": {
       "id": "usr_93418238346728951",
       "name": "John Doe",
       "email": "john.doe@example.com",
@@ -278,23 +282,28 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
 <Tabs>
 <TabItem label='Request body from Scalekit'>
 
-```json title="PRE_USER_INVITATION — request body" wrap showLineNumbers=true collapse={12-15}
+```json title="PRE_USER_INVITATION — request body" wrap showLineNumbers=true
 {
-  "display_name": "Prevent invites to spam emails",
-  "trigger_point": "PRE_USER_INVITATION",
-  "interceptor_context": {
-    "environment_id": "env_92561807204567213",
-    "user_id": "usr_93418238346728951", // Only present when user exists in another organization
-    "user_email": "john.doe@example.com",
-    "organization_id": "org_93731871904672153",
-    "triggered_at": "2025-10-08T15:03:22.486Z"
-  },
-  "data": {
-    "organization": {
-      "id": "org_93731871904672153",
-      "name": "Acme Corp"
+    "display_name": "Block invites to suspicious emails",
+    "trigger_point": "PRE_USER_INVITATION",
+        "interceptor_context": {
+        "environment_id": "env_92561807201272162",
+        "user_id": "usr_93418238346728951",
+        "user_email": "john.doe@example.com",
+        "organization_id": "org_93731871904672153",
+        "city": "Bengaluru",
+        "device_type": "Desktop",
+        "ip_address": "182.156.5.2",
+        "region": "IN",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+        "triggered_at": "2025-10-09T12:50:41.803Z"
+    },
+    "data": {
+        "organization": {
+            "id": "org_93731871904672153",
+            "name": "Acme Corp"
+        }
     }
-  }
 }
 ```
 </TabItem>
@@ -367,6 +376,157 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
 </TabItem>
 
 </Tabs>
+
+## Verify interceptor payloads
+
+Scalekit sends POST requests to your registered interceptor endpoint. To ensure the request is coming from Scalekit and not a malicious actor, you should verify the request using the signing secret found in the Scalekit dashboard > Interceptors > _Any Endpoint_.
+
+Here's how to verify interceptor requests using the Scalekit SDK:
+
+<Tabs>
+<TabItem label="Node.js">
+
+```javascript
+app.post('/interceptor', async (req, res) => {
+  // Parse the JSON body of the request
+  const event = await req.json();
+
+  // Get headers from the request
+  const headers = req.headers;
+
+  // Secret from Scalekit dashboard > Interceptors
+  const secret = process.env.SCALEKIT_WEBHOOK_SECRET;
+
+  try {
+    // Verify the interceptor payload
+    await scalekit.verifyInterceptorPayload(secret, headers, event);
+  } catch (error) {
+    return res.status(400).json({
+      error: 'Invalid signature',
+    });
+  }
+});
+```
+</TabItem>
+
+<TabItem label="Python">
+
+```python
+from fastapi import FastAPI, Request
+
+app = FastAPI()
+
+@app.post("/interceptor")
+async def api_interceptor(request: Request):
+    # Get request data
+    body = await request.body()
+
+    # Extract webhook headers
+    headers = {
+        'interceptor-id': request.headers.get('interceptor-id'),
+        'interceptor-signature': request.headers.get('interceptor-signature'),
+        'interceptor-timestamp': request.headers.get('interceptor-timestamp')
+    }
+
+    # Verify interceptor signature
+    is_valid = scalekit.verify_interceptor_payload(
+        secret='<secret>',
+        headers=headers,
+        payload=body
+    )
+    print(is_valid)
+
+    return JSONResponse(
+        status_code=201,
+        content=''
+    )
+```
+</TabItem>
+
+<TabItem label="Go">
+
+```go
+mux.HandleFunc("POST /interceptor", func(w http.ResponseWriter, r *http.Request) {
+    interceptorSecret := os.Getenv("SCALEKIT_INTERCEPTOR_SECRET")
+
+    // Read request body
+    bodyBytes, err := io.ReadAll(r.Body)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    // Prepare headers for verification
+    headers := map[string]string{
+        "interceptor-id":        r.Header.Get("interceptor-id"),
+        "interceptor-signature": r.Header.Get("interceptor-signature"),
+        "interceptor-timestamp": r.Header.Get("interceptor-timestamp"),
+    }
+
+    // Verify interceptor signature
+    _, err = sc.VerifyInterceptorPayload(
+        interceptorSecret,
+        headers,
+        bodyBytes
+    )
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusUnauthorized)
+        return
+    }
+})
+```
+</TabItem>
+
+<TabItem label="Java">
+
+```java
+@PostMapping("/interceptor")
+public String interceptor(@RequestBody String body, @RequestHeader Map<String, String> headers) {
+  String secret = "<WEBHOOK SECRET>";
+
+  // Verify interceptor signature
+  boolean valid = scalekit.interceptor().verifyInterceptorPayload(secret, headers, body.getBytes());
+
+  if (!valid) {
+    return "error";
+  }
+
+  ObjectMapper mapper = new ObjectMapper();
+
+  try {
+    // Parse interceptor data
+    JsonNode node = mapper.readTree(body);
+    String interceptorType = node.get("type").asText();
+    JsonNode data = node.get("data");
+
+    // Handle different interceptor types
+    switch (interceptorType) {
+      case "PRE_SIGNUP":
+        handlePreSignup(data);
+        break;
+      case "PRE_SESSION_CREATION":
+        handlePreSessionCreation(data);
+        break;
+      case "PRE_USER_INVITATION":
+        handlePreUserInvitation(data);
+        break;
+      case "PRE_M2M_TOKEN_CREATION":
+        handlePreM2MTokenCreation(data);
+        break;
+      default:
+        System.out.println("Unhandled interceptor type: " + interceptorType);
+    }
+  } catch (IOException e) {
+    return "error";
+  }
+
+  return "ok";
+}
+```
+</TabItem>
+</Tabs>
+
+
 
 ## Audit logs
 
