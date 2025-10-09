@@ -1,78 +1,209 @@
 ---
 title: Installation
-description: Install and configure Scalekit in your application
+description: Start using Scalekit in your project
 tableOfContents: false
+sidebar:
+  label: Installation
+prev: false
 ---
 
-import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components'
+import { Card, CardGrid, LinkCard, LinkButton, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import InstallSDK from '@components/templates/_installsdk.mdx'
 
-## Prerequisites
 
-Before you begin, make sure you have:
 
-- A Scalekit account (sign up at [scalekit.com](https://scalekit.com))
-- Your application's development environment set up
-- Basic knowledge of your application's tech stack
+<Steps>
+1. #### Create a Scalekit account
 
-## Installation Steps
+   Scalekit provides dedicated development and production environments. Use them to manage your authentication services for each stage of your app.
 
-### 1. Set up your Scalekit account
+   <LinkButton href="https://app.scalekit.com/ws/signup" variant="minimal"  icon='right-arrow'>Create a Scalekit Account</LinkButton>
 
-Follow the [Setup Scalekit guide](/guides/setup-scalekit) to configure your account and obtain your API credentials.
+2. #### Set up your environments
 
-### 2. Install the Scalekit SDK
+   After creating your account, you will have two environments:
 
-Choose the SDK for your platform:
+   ```md showLineNumbers=false wrap title="Environment URLs"
+   https://{your-subdomain}.scalekit.dev  (Development)
+   https://{your-subdomain}.scalekit.com  (Production)
+   ```
 
-<CardGrid>
-  <LinkCard
-    title="Node.js SDK"
-    description="Install via npm or yarn"
-    href="/dev-kit/sdks/overview"
-  />
-  <LinkCard
-    title="Python SDK"
-    description="Install via pip"
-    href="/dev-kit/sdks/overview"
-  />
-  <LinkCard
-    title="Go SDK"
-    description="Install via go get"
-    href="/dev-kit/sdks/overview"
-  />
-  <LinkCard
-    title="Java SDK"
-    description="Install via Maven or Gradle"
-    href="/dev-kit/sdks/overview"
-  />
-</CardGrid>
+   Each environment is isolated. You can map a custom domain (for example, `auth.example.com`). See the [custom domain guide](/guides/custom-domain/).
 
-### 3. Configure your environment
+   View your environment URLs in **Dashboard > Developers > Settings**.
 
-Set up your environment variables with your Scalekit credentials:
+3. #### Get your API credentials
 
-```bash
-SCALEKIT_ENV_URL=https://your-env.scalekit.com
-SCALEKIT_CLIENT_ID=your_client_id
-SCALEKIT_CLIENT_SECRET=your_client_secret
-```
+   Scalekit uses the OAuth 2.0 client credentials flow for secure API authentication.
 
-### 4. AI-Assisted Setup
+   In **Developers > Settings > API config**, copy these values:
 
-For a faster setup experience, try our AI-assisted setup:
+   ```sh showLineNumbers=false wrap title="Environment variables"
+   SCALEKIT_ENVIRONMENT_URL=<your-environment-url>
+   # Example: https://acme.scalekit.dev or https://auth.acme.com
 
-<LinkCard
-  title="AI-Assisted Setup"
-  description="Get personalized setup instructions powered by AI"
-  href="/dev-kit/resources/ai-assisted-setup"
-/>
+   SCALEKIT_CLIENT_ID=<app-client-id>
+   # Example: skc_1234567890abcdef
 
-## Next Steps
+   SCALEKIT_CLIENT_SECRET=<app-client-secret>
+   # Example: test_abcdef1234567890
+   ```
 
-<CardGrid>
-  <LinkCard
-    title="Choose Your Auth Method"
-    description="Select the authentication approach that fits your needs"
-    href="/authenticate/welcome"
-  />
-</CardGrid>
+4. #### Install and initialize the SDK
+
+   <InstallSDK />
+
+    <Tabs syncKey="tech-stack">
+      <TabItem value="nodejs" label="Node.js">
+
+      ```js
+      import { ScalekitClient } from '@scalekit-sdk/node';
+
+      // Create the Scalekit client
+      const scalekit = new ScalekitClient(
+        process.env.SCALEKIT_ENVIRONMENT_URL,
+        process.env.SCALEKIT_CLIENT_ID,
+        process.env.SCALEKIT_CLIENT_SECRET
+      );
+      ```
+
+      </TabItem>
+      <TabItem value="py" label="Python">
+
+      ```python
+      from scalekit import ScalekitClient
+
+      # Create the Scalekit client
+      scalekit = ScalekitClient(
+        '<SCALEKIT_ENVIRONMENT_URL>',
+        '<SCALEKIT_CLIENT_ID>',
+        '<SCALEKIT_CLIENT_SECRET>'
+      )
+      ```
+
+      </TabItem>
+      <TabItem value="go" label="Go">
+
+      ```go
+      import (
+        "github.com/scalekit-inc/scalekit-sdk-go"
+      )
+
+      // Create the Scalekit client
+      scalekitClient := scalekit.NewScalekitClient(
+        os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+        os.Getenv("SCALEKIT_CLIENT_ID"),
+        os.Getenv("SCALEKIT_CLIENT_SECRET")
+      )
+      ```
+
+      </TabItem>
+      <TabItem value="java" label="Java">
+
+      ```java
+      import com.scalekit.ScalekitClient;
+
+      // Create the Scalekit client
+      ScalekitClient scalekitClient = new ScalekitClient(
+        System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+        System.getenv("SCALEKIT_CLIENT_ID"),
+        System.getenv("SCALEKIT_CLIENT_SECRET")
+      );
+      ```
+
+      </TabItem>
+    </Tabs>
+5. #### Verify your setup
+
+   Initialize the SDK, then list organizations to confirm your credentials work.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="curl" label="cURL">
+
+   ```bash
+   curl -L 'https://$ENV_URL/api/v1/organizations?page_size=5' \
+   -H 'Authorization: Bearer <ACCESS_TOKEN>'
+   ```
+
+   </TabItem>
+
+   <TabItem value="nodejs" label="Node.js">
+
+   ```javascript
+   import { ScalekitClient } from '@scalekit-sdk/node';
+
+   const scalekit = new ScalekitClient(
+     process.env.SCALEKIT_ENVIRONMENT_URL,
+     process.env.SCALEKIT_CLIENT_ID,
+     process.env.SCALEKIT_CLIENT_SECRET,
+   );
+
+   const { organizations } = await scalekit.organization.listOrganization({
+     pageSize: 5,
+   });
+
+   console.log(`Name of the first organization: ${organizations[0].display_name}`);
+   ```
+
+   </TabItem>
+
+   <TabItem value="python" label="Python">
+
+   ```python
+   from scalekit import ScalekitClient
+
+   # Initialize the SDK client
+   scalekit_client = ScalekitClient(
+     '<SCALEKIT_ENVIRONMENT_URL>',
+     '<SCALEKIT_CLIENT_ID>',
+     '<SCALEKIT_CLIENT_SECRET>'
+   )
+
+   org_list = scalekit_client.organization.list_organizations(page_size='100')
+
+   print(f'Organisation details: {org_list[0]}')
+   ```
+
+   </TabItem>
+
+   <TabItem value="go" label="Go">
+
+   ```go
+   sc := scalekit.NewScalekitClient(
+     <SCALEKIT_ENVIRONMENT_URL>,
+     <SCALEKIT_CLIENT_ID>,
+     <SCALEKIT_CLIENT_SECRET>
+   )
+
+   organization, err := sc.Organization.GetOrganization(
+     ctx,
+     organizationId
+   )
+   ```
+
+   </TabItem>
+
+   <TabItem value="java" label="Java">
+
+   ```java
+   import com.scalekit.ScalekitClient;
+
+   ScalekitClient scalekitClient = new ScalekitClient(
+     "<SCALEKIT_ENVIRONMENT_URL>",
+     "<SCALEKIT_CLIENT_ID>",
+     "<SCALEKIT_CLIENT_SECRET>"
+   );
+
+   ListOrganizationsResponse organizations = scalekitClient.organizations().listOrganizations(5, "");
+   ```
+
+
+   </TabItem>
+   </Tabs>
+   You're all set. [Continue to pick your auth challenge →](/authenticate/welcome#for-agent-developers)
+
+</Steps>
+
+<Aside type='tip' title="AI assisted setup">
+  Set up editors and assistants to read live Scalekit docs so answers are current and actionable, then ship faster. Read the [AI assisted setup guide ->](/dev-kit/resources/ai-assisted-setup)
+</Aside>

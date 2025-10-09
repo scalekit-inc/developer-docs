@@ -7,11 +7,7 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: [
-          'authenticate/welcome',
-          'authenticate/installation',
-          'authenticate/launch-checklist',
-        ],
+        items: ['authenticate/welcome', 'authenticate/installation'],
       },
       {
         label: 'Quickstarts',
@@ -124,6 +120,7 @@ export const sidebar = [
           },
         ],
       },
+      'authenticate/launch-checklist',
     ],
   },
   {
