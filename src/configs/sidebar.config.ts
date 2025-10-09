@@ -337,7 +337,7 @@ export const sidebar = [
       },
       {
         label: 'Interceptors',
-        items: ['guides/auth-flow-interceptors', 'guides/interceptor-use-cases'],
+        items: ['guides/auth-flow-interceptors', 'guides/interceptor-scenarios'],
       },
       {
         label: 'Webhooks',
