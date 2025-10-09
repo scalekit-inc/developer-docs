@@ -10,7 +10,6 @@ export const sidebar = [
         items: [
           'authenticate/welcome',
           'authenticate/installation',
-          'authenticate/first-project',
           'authenticate/launch-checklist',
         ],
       },
