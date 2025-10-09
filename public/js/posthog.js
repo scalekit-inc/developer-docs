@@ -50,7 +50,7 @@ if (!isLocalhost && !isNetlify) {
 
   // Initialize PostHog
   posthog.init('phc_85pLP8gwYvRCQdxgLQP24iqXHPRGaLgEw4S4dgZHJZ', {
-    api_host: 'https://us.i.posthog.com',
+    api_host: 'https://ph.scalekit.com',
     person_profiles: 'identified_only',
   })
 }
@@ -100,7 +100,7 @@ if (isNetlify) {
       (e.__SV = 1))
   })(document, window.posthog || [])
   posthog.init('phc_KUlqDD4PiELsO4iZiYdTI3syM4m9FfWcA9sTKgxfC0m', {
-    api_host: 'https://us.i.posthog.com',
+    api_host: 'https://ph.scalekit.com',
     defaults: '2025-05-24',
     person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
   })

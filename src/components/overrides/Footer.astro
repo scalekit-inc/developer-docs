@@ -19,18 +19,78 @@ import IconLucideFileText from '~icons/lucide/file-text'
     <div
       style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;"
     >
-      <SimpleList>
-        <CheckItem icon={IconLucideHelpCircle}
-          >Need help? <a href="/support/contact-us/">Contact support</a></CheckItem
-        >
-        <CheckItem icon={IconLucideActivity}
-          >Check out our <a href="https://scalekit.statuspage.io/">status page</a></CheckItem
-        >
-        <CheckItem icon={IconLucideShield}
-          >Visit <a href="https://www.scalekit.com/trust-center">Trust center</a></CheckItem
-        >
-        <CheckItem icon={IconLucideFileText}>LLM? <a href="/llms.txt">Read llms.txt</a></CheckItem>
-      </SimpleList>
+      <div
+        data-feedback-section
+        style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; flex: 1 1 240px; min-width: 220px;"
+      >
+        <span style="color: var(--sl-color-gray-1); font-weight: 600;">Was this page helpful?</span>
+        <div style="display: flex; gap: 0.5rem;">
+          <button
+            type="button"
+            data-feedback-value="yes"
+            style="padding: 0.35rem 0.9rem; border-radius: 999px; border: 1px solid var(--sl-color-gray-5); background: transparent; color: var(--sl-color-gray-1); cursor: pointer; transition: background 0.2s ease;"
+          >
+            Yes
+          </button>
+          <button
+            type="button"
+            data-feedback-value="no"
+            style="padding: 0.35rem 0.9rem; border-radius: 999px; border: 1px solid var(--sl-color-gray-5); background: transparent; color: var(--sl-color-gray-1); cursor: pointer; transition: background 0.2s ease;"
+          >
+            No
+          </button>
+        </div>
+        <p data-feedback-response style="display: none; margin: 0; color: var(--sl-color-gray-2);">
+          Thanks for helping us improve the docs.
+        </p>
+      </div>
     </div>
   </div>
 </footer>
+
+<script is:inline>
+  if (typeof window !== 'undefined') {
+    const section = document.querySelector('[data-feedback-section]')
+    if (section) {
+      const buttons = Array.from(section.querySelectorAll('[data-feedback-value]'))
+      const response = section.querySelector('[data-feedback-response]')
+
+      const disableButtons = () => {
+        buttons.forEach((button) => {
+          button.disabled = true
+          button.style.opacity = '0.6'
+          button.style.cursor = 'not-allowed'
+        })
+      }
+
+      const showResponse = (text) => {
+        if (!response) return
+        response.textContent = text
+        response.style.display = 'block'
+      }
+
+      const sendFeedback = (value) => {
+        disableButtons()
+        showResponse('Thanks for helping us improve the docs.')
+
+        if (typeof window.posthog?.capture === 'function') {
+          window.posthog.capture('docs_page_feedback', {
+            feedback: value,
+            pathname: window.location.pathname,
+          })
+        } else {
+          console.warn('PostHog is not available to capture feedback.')
+        }
+      }
+
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const value = button.getAttribute('data-feedback-value')
+          if (value) {
+            sendFeedback(value)
+          }
+        })
+      })
+    }
+  }
+</script>
