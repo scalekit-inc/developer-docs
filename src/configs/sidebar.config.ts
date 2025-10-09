@@ -336,12 +336,12 @@ export const sidebar = [
         link: '/dev-kit/code-samples',
       },
       {
-        label: 'Webhooks & Interceptors',
+        label: 'Interceptors',
+        items: ['guides/auth-flow-interceptors', 'guides/interceptor-use-cases'],
+      },
+      {
+        label: 'Webhooks',
         items: [
-          {
-            label: 'Interceptors',
-            link: '/guides/auth-flow-interceptors',
-          },
           {
             label: 'Webhooks',
             autogenerate: { directory: 'reference/webhooks' },
