@@ -55,7 +55,7 @@ if (!isLocalhost && !isNetlify) {
   })
 }
 
-if (isNetlify) {
+if (isNetlify || isLocalhost) {
   !(function (t, e) {
     var o, n, p, r
     e.__SV ||
