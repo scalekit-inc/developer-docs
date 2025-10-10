@@ -429,7 +429,7 @@ async def api_interceptor(request: Request):
     # Get request data
     body = await request.body()
 
-    # Extract webhook headers
+    # Extract interceptor headers
     headers = {
         'interceptor-id': request.headers.get('interceptor-id'),
         'interceptor-signature': request.headers.get('interceptor-signature'),
@@ -490,7 +490,7 @@ mux.HandleFunc("POST /auth/interceptors/pre-signup", func(w http.ResponseWriter,
 ```java
 @PostMapping("/auth/interceptors/pre-signup")
 public String interceptor(@RequestBody String body, @RequestHeader Map<String, String> headers) {
-  String secret = "<WEBHOOK SECRET>";
+  String secret = "<INTERCEPTOR SECRET>";
 
   // Verify interceptor signature
   boolean valid = scalekit.interceptor().verifyInterceptorPayload(secret, headers, body.getBytes());
