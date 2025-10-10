@@ -16,8 +16,8 @@
     /* Text size and line height */
     --sl-text-2xs: 0.75rem; /* 12px */
     --sl-text-xs: 0.8125rem; /* 13px */
-    --sl-text-sm: 0.875rem; /* 14px */
-    --sl-text-base: 0.9rem; /* 16px */
+    --sl-text-sm: 0.9rem; /* 14.4px - increased slightly */
+    --sl-text-base: 0.95rem; /* 15.2px - increased for better readability */
     --sl-text-lg: 1.125rem; /* 18px */
     --sl-text-xl: 1.25rem; /* 20px */
     --sl-text-2xl: 1.5rem; /* 24px */
@@ -35,11 +35,11 @@
     --sl-text-h3: var(--sl-text-xl) !important;
     --sl-text-h4: var(--sl-text-lg) !important;
     --sl-text-h5: var(--sl-text-base) !important;
-    --sl-line-height: 1.75;
-    --sl-line-height-headings: 1.2;
 
-    --sl-font-system: 'Inter Variable', ui-sans-serif, system-ui, Roboto, Arial, sans-serif;
-    --sl-font-system-mono: 'Inter Mono Variable', ui-monospace, monospace;
+    --sl-font-system:
+      ui-sans-serif, system-ui, Roboto, 'Atkinson Hyperlegible Next Variable',
+      'Inter Variable, Arial, sans-serif,';
+    --sl-font-system-mono: 'JetBrains Mono', 'Inter Variable', ui-monospace, monospace;
     --__sl-font: var(--sl-font-system);
     --__sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
 
@@ -140,11 +140,34 @@
   /* Ensure base line-height is consistent and inherited site-wide */
   html {
     line-height: var(--sl-line-height);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
+  /**
+   Ensure consistent font weight
+   Slight letter spacing for better readability
   body {
     line-height: inherit;
+    font-weight: 400;
+    letter-spacing: 0.01em;
   }
+  **/
+
+  /* Improve text rendering for Atkinson Hyperlegible Next */
+  .sl-markdown-content {
+    text-rendering: optimizeLegibility;
+    font-feature-settings:
+      'kern' 1,
+      'liga' 1;
+  }
+
+  /*
+  // Slightly increase font weight for better readability
+  .sl-markdown-content p,
+  .sl-markdown-content li {
+    font-weight: 425;
+  } */
 
   /* Starlight Videos <Quiz> submit button sizing to blend with Nova */
   .sl-markdown-content sl-videos-quiz button[type='submit'] {

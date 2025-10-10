@@ -68,14 +68,14 @@ export default defineConfig({
         themes: ['tokyo-night', 'light-plus'],
         styleOverrides: {
           codeFontFamily:
-            "'Geist Mono Variable','Inter Mono Variable', ui-monospace, 'Courier New', monospace",
+            "'JetBrains Mono', 'Inter Variable', ui-monospace, 'Courier New', monospace",
           borderRadius: '0.375rem',
         },
       },
       customCss: [
         '@fontsource-variable/inter',
-        '@fontsource-variable/geist',
-        '@fontsource-variable/geist-mono',
+        '@fontsource-variable/atkinson-hyperlegible-next',
+        '@fontsource/jetbrains-mono',
         './src/styles/theme-priority.css',
       ],
       plugins: [
