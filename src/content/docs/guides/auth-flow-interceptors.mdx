@@ -40,7 +40,7 @@ Scalekit -> User: Proceed or block sign-up
 
 | Trigger point | When it runs |
 |----------------|-------------|
-| Pre-signup | Before a user creates a new organization |
+| Pre-signup | Before a user creates (or joins) a new organization |
 | Pre-session creation | Before session tokens are issued for a user |
 | Pre-user invitation | Before sending an invitation to a user within an organization |
 | Pre-M2M token creation | Before issuing a machine-to-machine access token |
@@ -403,7 +403,7 @@ app.post('/auth/interceptors/pre-signup', async (req, res) => {
   const headers = req.headers;
 
   // Secret from Scalekit dashboard > Interceptors
-  const secret = process.env.SCALEKIT_WEBHOOK_SECRET;
+  const secret = process.env.SCALEKIT_INTERCEPTOR_SECRET;
 
   try {
     // Verify the interceptor payload
@@ -521,7 +521,6 @@ public String interceptor(@RequestBody String body, @RequestHeader Map<String, S
 </TabItem>
 </Tabs>
 
-
 ## Testing interceptors
 
 Open the **Test** tab on the Interceptors page. The left panel shows the request body sent to your endpoint, and the right panel shows your application's response.
@@ -529,5 +528,16 @@ Open the **Test** tab on the Interceptors page. The left panel shows the request
 Based on your application's response, you can decide to allow or deny the user auth flow to continue to sign up or log into your application. This allows for you to test and take the interceptors live in production.
 
 ![Interceptors test tab example](@/assets/docs/auth-flow-interceptors/test-example.png)
+
+<Aside type='note' title='Generic error messages'>
+  Scalekit shows a generic error to end users when:
+
+  - Your interceptor returns `DENY` without an `error.message`.
+  - The interceptor request fails or times out and the fail policy is set to "Fail closed".
+
+  Messages shown:
+  - "The request could not be completed due to a policy restriction. Please contact support for assistance."
+  - "The request could not be completed due to a policy restriction. Please contact support@yourapp.com for assistance." (when a support email is configured)
+</Aside>
 
 For quick testing without building or deploying an endpoint, use a request bin service like <a href="https://beeceptor.com/" target="_blank" rel="noopener">Beeceptor</a> or <a href="https://requestbin.com/" target="_blank" rel="noopener">RequestBin</a>. These services provide temporary endpoints that capture incoming requests and let you configure responses, making them ideal for interceptor development and validation.
