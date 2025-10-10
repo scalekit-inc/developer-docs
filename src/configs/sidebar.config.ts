@@ -7,16 +7,24 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['index', 'authenticate/installation'],
+        items: ['index', 'authenticate/installation', 'fsa/quickstart'],
       },
-
       {
-        label: 'User authentication',
+        label: 'MCP Auth',
         collapsed: true,
         items: [
-          'fsa/quickstart',
-          'fsa/guides/implement-signup',
-          'fsa/guides/implement-login',
+          'mcp/oauth',
+          'mcp/overview',
+          {
+            label: 'Co-exist with own auth systems',
+            link: 'mcp/guides/custom-auth',
+          },
+        ],
+      },
+      {
+        label: 'User authentication',
+        collapsed: false,
+        items: [
           'fsa/guides/auth-methods',
           'fsa/guides/manage-session',
           'fsa/guides/logout',
@@ -43,7 +51,6 @@ export const sidebar = [
       {
         label: 'Quickstarts',
         items: [
-          'mcp/oauth',
           'sso/quickstart',
           'social-logins/quickstart',
           'passwordless/quickstart',
@@ -61,17 +68,6 @@ export const sidebar = [
             label: 'Personalize email templates',
             link: 'guides/dashboard/custom-email-templates',
             attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-      {
-        label: 'MCP Auth',
-        collapsed: true,
-        items: [
-          'mcp/overview',
-          {
-            label: 'Co-exist with own auth systems',
-            link: 'mcp/guides/custom-auth',
           },
         ],
       },
@@ -261,6 +257,16 @@ export const sidebar = [
     link: '/win-with-scalekit',
     icon: 'rocket',
     items: [
+      {
+        label: 'User authentication',
+        collapsed: true,
+        items: [
+          'fsa/guides/implement-signup',
+          'fsa/guides/implement-login',
+          'fsa/guides/manage-session',
+          'fsa/guides/logout',
+        ],
+      },
       {
         label: 'How to…',
         items: [
