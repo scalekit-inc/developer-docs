@@ -7,7 +7,7 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['authenticate/welcome', 'authenticate/installation'],
+        items: ['index', 'authenticate/installation'],
       },
 
       {
