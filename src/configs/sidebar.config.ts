@@ -9,21 +9,12 @@ export const sidebar = [
         label: 'Getting started',
         items: ['authenticate/welcome', 'authenticate/installation'],
       },
-      {
-        label: 'Quickstarts',
-        items: [
-          'fsa/quickstart',
-          'mcp/oauth',
-          'sso/quickstart',
-          'social-logins/quickstart',
-          'passwordless/quickstart',
-          'directory/scim/quickstart',
-        ],
-      },
+
       {
         label: 'User authentication',
         collapsed: true,
         items: [
+          'fsa/quickstart',
           'fsa/guides/implement-signup',
           'fsa/guides/implement-login',
           'fsa/guides/auth-methods',
@@ -50,6 +41,16 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Quickstarts',
+        items: [
+          'mcp/oauth',
+          'sso/quickstart',
+          'social-logins/quickstart',
+          'passwordless/quickstart',
+          'directory/scim/quickstart',
+        ],
+      },
+      {
         label: 'Make it your own',
         collapsed: true,
         items: [
@@ -64,7 +65,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Auth for MCP servers',
+        label: 'MCP Auth',
         collapsed: true,
         items: [
           'mcp/overview',
