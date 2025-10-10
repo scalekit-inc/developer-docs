@@ -567,4 +567,106 @@ Expressive Code supports 200+ languages including:
 - Don't forget to escape special characters in code comments
 - Don't use outdated API methods or deprecated patterns
 
+## MDX File Structure and Indentation Rules
+
+### Critical: Steps Component Indentation
+The `<Steps>` component requires proper indentation to avoid parsing errors:
+
+#### Correct Structure:
+```mdx
+<Steps>
+1. ## First Step
+
+   Content for first step goes here with 3-space indentation.
+   
+   <Tabs syncKey="example">
+   <TabItem value="js" label="JavaScript">
+   ```javascript
+   // Code here
+   ```
+   </TabItem>
+   </Tabs>
+
+2. ## Second Step
+
+   Content for second step with consistent 3-space indentation.
+   
+   <Aside type="tip">
+   Note content also indented with 3 spaces.
+   </Aside>
+
+</Steps>
+```
+
+#### Common Indentation Errors to Avoid:
+```mdx
+<!-- ❌ WRONG: Using ## instead of numbered format -->
+<Steps>
+## First Step
+Content here will break the Steps component
+
+## Second Step  
+More content that breaks parsing
+</Steps>
+
+<!-- ❌ WRONG: Inconsistent indentation -->
+<Steps>
+1. ## First Step
+Content not indented properly
+    <Tabs>  <!-- Too much indentation -->
+  <TabItem>  <!-- Inconsistent -->
+</Steps>
+
+<!-- ❌ WRONG: Missing indentation -->
+<Steps>
+1. ## First Step
+<Tabs>
+<TabItem>
+```code```
+</TabItem>
+</Tabs>
+</Steps>
+```
+
+### Indentation Standards
+
+#### Component Nesting Rules:
+- **Steps content**: 3-space indentation from step number
+- **Tabs within Steps**: 3-space indentation from step content
+- **TabItem within Tabs**: Same level as parent Tabs
+- **Code blocks**: Same level as parent TabItem
+- **Aside components**: 3-space indentation within Steps
+
+#### Markdown Elements:
+- **Paragraphs**: 3-space indentation within Steps
+- **Lists**: 3-space base + 2 additional for sub-items  
+- **Code blocks**: Match parent component indentation
+- **Images**: 3-space indentation within Steps
+
+### Validation Checklist for MDX Files
+
+Before saving any MDX file with Steps:
+- [ ] Each step uses numbered format: `1. ## Title`
+- [ ] All step content indented with exactly 3 spaces
+- [ ] Tabs components indented 3 spaces from step
+- [ ] TabItem at same level as parent Tabs
+- [ ] Code blocks properly indented within TabItem
+- [ ] Aside components indented 3 spaces within Steps
+- [ ] No trailing whitespace on empty lines
+- [ ] Consistent indentation throughout entire file
+
+### Auto-Fix Command
+When encountering Steps indentation errors, run:
+```bash
+# Use a formatter that preserves MDX structure
+prettier --write src/content/docs/**/*.mdx
+```
+
+### Prevention Strategy
+1. **Use editor with MDX support** and visible whitespace
+2. **Copy indentation from working examples** rather than typing manually  
+3. **Test locally** before committing to catch parsing errors
+4. **Use consistent 3-space indentation** for all Steps content
+5. **Validate component nesting** structure before adding content
+
 This cursor rule ensures consistent, high-quality documentation that serves Scalekit's developer community effectively.
