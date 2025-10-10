@@ -22,17 +22,6 @@ const editUrl =
 
   {/* Extra actions below the table of contents */}
   <div class="page-sidebar-actions">
-    <copy-markdown-button data-markdown={routeEntry.body}>
-      <a
-        href="#"
-        class="sidebar-action-link copy-markdown-link"
-        style="font-size: var(--sl-text-xs);"
-      >
-        <Icon name="seti:markdown" size="var(--sl-text-xs)" />
-        Copy for LLM context
-      </a>
-    </copy-markdown-button>
-
     {
       editUrl && (
         <a href={editUrl} class="sidebar-action-link" style="font-size: var(--sl-text-xs);">
@@ -43,74 +32,6 @@ const editUrl =
     }
   </div>
 </div>
-
-<script>
-  // Register the custom element only once to avoid duplicate definition errors.
-  if (!customElements.get('copy-markdown-button')) {
-    customElements.define(
-      'copy-markdown-button',
-      class CopyMarkdownButton extends HTMLElement {
-        constructor() {
-          super()
-          const linkButton = this.querySelector('.copy-markdown-link')
-
-          linkButton?.addEventListener('click', async (e) => {
-            e.preventDefault() // Prevent navigation
-
-            const originalText = linkButton.textContent?.trim()
-            const originalIcon = linkButton.querySelector('svg')?.outerHTML
-
-            try {
-              let markdown = this.dataset.markdown
-              if (!markdown) throw new Error('No markdown content to copy')
-              // Remove all lines that start with 'import'
-              markdown = markdown.replace(/^[ \t]*import[^\n]*\n?/gm, '')
-              // Append reference link at the end
-              markdown = markdown + '\n\nAdditional context: https://docs.scalekit.com/llms.txt'
-
-              // Update to loading state
-              linkButton.innerHTML = `
-                <svg style="width: var(--sl-text-sm); height: var(--sl-text-sm);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin">
-                  <path d="M21 12a9 9 0 11-6.219-8.56" />
-                </svg>
-                Copying...
-              `
-
-              await navigator.clipboard.writeText(markdown)
-
-              // Update to success state
-              linkButton.innerHTML = `
-                <svg style="width: var(--sl-text-sm); height: var(--sl-text-sm);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20,6 9,17 4,12"></polyline>
-                </svg>
-                Copied!
-              `
-
-              setTimeout(() => {
-                linkButton.innerHTML = `${originalIcon}${originalText}`
-              }, 2000)
-            } catch (error) {
-              console.error('Failed to copy markdown:', error)
-
-              linkButton.innerHTML = `
-                <svg style="width: var(--sl-text-sm); height: var(--sl-text-sm);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="15" y1="9" x2="9" y2="15"></line>
-                  <line x1="9" y1="9" x2="15" y2="15"></line>
-                </svg>
-                Failed to copy
-              `
-
-              setTimeout(() => {
-                linkButton.innerHTML = `${originalIcon}${originalText}`
-              }, 3000)
-            }
-          })
-        }
-      },
-    )
-  }
-</script>
 
 <style>
   .page-sidebar-actions {
@@ -138,19 +59,6 @@ const editUrl =
 
   .sidebar-action-link svg {
     flex-shrink: 0;
-  }
-
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
   }
 
   /* Dark mode adjustments */

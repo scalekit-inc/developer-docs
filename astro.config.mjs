@@ -9,7 +9,7 @@ import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import starlightTocOverviewCustomizer from 'starlight-toc-overview-customizer'
-import { tocOverviewCustomizer } from 'starlight-toc-overview-customizer/schema'
+import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
@@ -89,6 +89,9 @@ export default defineConfig({
           overviewTitle: 'Overview',
         }),
         starlightVideos(),
+        starlightContextualMenu({
+          actions: ['copy', 'chatgpt', 'claude', 'lechat', 'grok'],
+        }),
       ],
       head: [
         {
