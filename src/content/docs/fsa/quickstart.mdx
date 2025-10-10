@@ -177,9 +177,9 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    Ensure the URL in your code matches what you configured in the Scalekit dashboard, including protocol (`https://`), domain, port, and path. Mismatched URLs are the most common cause of integration errors.
    </Aside>
 
-3. ## Handle authentication callback
+3. ## Handle the authentication callback
 
-   After users authenticate, Scalekit redirects them back to your registered callback URL with an authorization code. Exchange this code to get the user's profile and session tokens:
+   After successful authentication, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and session tokens.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="node" label="Node.js">
@@ -354,20 +354,14 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         </TabItem>
       </Tabs>
 
-      The `authenticateWithCode` method returns an object containing the user's profile information (`user` object) and session tokens including `idToken`, `accessToken` and `refreshToken`.
+      The `authenticateWithCode` method returns:
+
+      - `user` - Complete user profile with email, name, and verification status
+      - `idToken` - JWT containing verified user identity claims
+      - `accessToken` - Short-lived token for API authorization
+      - `refreshToken` - Long-lived token to obtain new access tokens
 
       <Tabs syncKey="auth-result">
-        <TabItem value="curl" label="cURL">
-        ```sh title="cURL response"
-        {
-        "access_token": "eyJhImtpZCI6InNu2NiIsInR5cCI6IkpXVCJ9...",
-        "token_type": "Bearer",
-        "expires_in": 86399,
-        "scope": "openid profile",
-        "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InNuIsInR5cCI6IkpXVCJ9..."
-        }
-        ```
-        </TabItem>
         <TabItem value="authResult" label="authResult">
         ```js showLineNumbers=false
         {
@@ -385,7 +379,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         }
         ```
         </TabItem>
-        <TabItem value="idToken" label="ID token">
+        <TabItem value="idToken" label="Decoded ID Token">
         ```json title="ID token decoded"
         {
           "at_hash": "ec_jU2ZKpFelCKLTRWiRsg",
@@ -409,7 +403,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         }
         ```
         </TabItem>
-        <TabItem value="accessToken" label="Access token">
+        <TabItem value="accessToken" label="Decoded Access Token">
             ```json title="Decoded access token"
             {
                 "aud": [
@@ -439,7 +433,15 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         </TabItem>
       </Tabs>
 
-      You can [decode the `idToken`](https://authplay.io/pg/token-explorer) to access user information like email, name, and profile verification status directly from the token claims.
+      <CheckItem>
+        Validate incoming requests by checking for errors before processing the authorization code
+      </CheckItem>
+      <CheckItem>
+        Store tokens securely and never expose them to frontend code or URLs
+      </CheckItem>
+      <CheckItem>
+        Use the [token explorer tool](https://authplay.io/pg/token-explorer) to inspect and debug token contents during development
+      </CheckItem>
 
 4. ## Create and manage user sessions
 
