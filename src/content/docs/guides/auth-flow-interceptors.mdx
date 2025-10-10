@@ -395,7 +395,7 @@ Here's how to verify interceptor requests using the Scalekit SDK:
 <TabItem label="Node.js">
 
 ```javascript
-app.post('/interceptor', async (req, res) => {
+app.post('/auth/interceptors/pre-signup', async (req, res) => {
   // Parse the JSON body of the request
   const event = await req.json();
 
@@ -424,7 +424,7 @@ from fastapi import FastAPI, Request
 
 app = FastAPI()
 
-@app.post("/interceptor")
+@app.post("/auth/interceptors/pre-signup")
 async def api_interceptor(request: Request):
     # Get request data
     body = await request.body()
@@ -454,7 +454,7 @@ async def api_interceptor(request: Request):
 <TabItem label="Go">
 
 ```go
-mux.HandleFunc("POST /interceptor", func(w http.ResponseWriter, r *http.Request) {
+mux.HandleFunc("POST /auth/interceptors/pre-signup", func(w http.ResponseWriter, r *http.Request) {
     interceptorSecret := os.Getenv("SCALEKIT_INTERCEPTOR_SECRET")
 
     // Read request body
@@ -488,7 +488,7 @@ mux.HandleFunc("POST /interceptor", func(w http.ResponseWriter, r *http.Request)
 <TabItem label="Java">
 
 ```java
-@PostMapping("/interceptor")
+@PostMapping("/auth/interceptors/pre-signup")
 public String interceptor(@RequestBody String body, @RequestHeader Map<String, String> headers) {
   String secret = "<WEBHOOK SECRET>";
 
@@ -507,22 +507,9 @@ public String interceptor(@RequestBody String body, @RequestHeader Map<String, S
     String interceptorType = node.get("type").asText();
     JsonNode data = node.get("data");
 
-    // Handle different interceptor types
-    switch (interceptorType) {
-      case "PRE_SIGNUP":
-        handlePreSignup(data);
-        break;
-      case "PRE_SESSION_CREATION":
-        handlePreSessionCreation(data);
-        break;
-      case "PRE_USER_INVITATION":
-        handlePreUserInvitation(data);
-        break;
-      case "PRE_M2M_TOKEN_CREATION":
-        handlePreM2MTokenCreation(data);
-        break;
-      default:
-        System.out.println("Unhandled interceptor type: " + interceptorType);
+    // Handle pre-signup interceptor
+    if ("PRE_SIGNUP".equals(interceptorType)) {
+      handlePreSignup(data);
     }
   } catch (IOException e) {
     return "error";
