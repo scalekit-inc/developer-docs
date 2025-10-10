@@ -1,6 +1,6 @@
 ---
 title: Quickstart
-description: "Add full‑stack auth now. Hosted auth pages, managed sessions, secure logout. Purpose built. Simple where it counts"
+description: "Add full stack auth now. Hosted auth pages, managed sessions, secure logout. Purpose built. Simple where it counts"
 sidebar:
   label: "Quickstart"
 tableOfContents: true
@@ -15,13 +15,15 @@ head:
       }
 ---
 
-import { Card, CardGrid, Steps, TabItem, Tabs, Aside } from '@astrojs/starlight/components';
+import { CardGrid, Steps, TabItem, Tabs, Aside } from '@astrojs/starlight/components';
+import Card from '@/components/ui/Card.astro';
 import CopyPrompt from '@components/ui/CopyPrompt.astro';
 import CheckItem from '@/components/ui/CheckItem.astro';
 import InstallSDK from '@components/templates/_installsdk.mdx'
 import { VideoPlayer } from 'starlight-videos/components'
 import IconLucidePlay from '~icons/lucide/play'
 import IconLucideWorkflow from '~icons/lucide/workflow'
+import IconRiAiGenerate2 from '~icons/ri/ai-generate-2'
 
 This guide shows you how to add authentication to your application. You'll implement sign-up, login, and logout flows with secure session management and user management included. The foundation you build here extends to B2B features like workspaces, enterprise SSO, MCP authentication, and SCIM provisioning.
 
@@ -48,19 +50,19 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 </details>
 
 
-<Card title="Generate FSA Code with AI in Minutes" icon="seti:vite" style="background-color: white !important;">
-  <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem'}}>
+<Card title="Get moving, instantly, with your go-to AI assistant" icon={IconRiAiGenerate2}>
+  <div style={{display: 'flex',  alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem'}}>
     <div style={{flex: '3'}}>
-      Input this prompt in your IDE to analyze your existing code base and generate FSA implementation code accordingly.
+      <p>Input this prompt in your IDE to analyze your existing code base and generate FSA implementation code accordingly.</p>
 
-      <span style={{fontSize: '0.875rem', color: '#6b7280', fontStyle: 'italic'}}>
-        Compatible with Cursor, Windsurf, VS Code, and any AI-powered IDE
+      <span style={{fontSize: '0.875rem', color: '#6b7280', fontStyle: 'italic', paddingTop: '0.05rem', }}>
+        *Compatible with Cursor, Windsurf, VS Code, and any AI-powered tools
       </span>
     </div>
     <div style={{flex: '1'}}>
       <CopyPrompt
         promptType="fsaQuickstartPrompt"
-            label="Copy Prompt"
+            label="Copy prompt"
         className="sk-secondary"
         variant="secondary"
         title="Generate FSA integration code"
@@ -70,153 +72,110 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 </Card>
 
 <Steps>
- 1. ## Install the Scalekit SDK
+1. ## Set up Scalekit and register a callback endpoint
 
-    <InstallSDK />
+    Follow the [installation guide](/authenticate/installation/) to configure Scalekit in your application.
 
-    Copy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.
-    ```bash
-    SCALEKIT_ENVIRONMENT_URL='<YOUR_ENVIRONMENT_URL>'
-    SCALEKIT_CLIENT_ID='<ENVIRONMENT_CLIENT_ID>'
-    SCALEKIT_CLIENT_SECRET='<ENVIRONMENT_CLIENT_SECRET>'
-    ```
+    Scalekit verifies user identities and creates sessions. After successful verification, Scalekit creates a user record and sends the user information to your callback endpoint.
 
-    Create a new Scalekit client instance after initializing the environment variables.
-    <Tabs syncKey="tech-stack">
-      <TabItem value="nodejs" label="Node.js">
-      ```javascript title="utils/auth.js"
-      import { Scalekit } from '@scalekit-sdk/node';
+    **Create a callback endpoint:**
 
-      export let scalekit = new Scalekit(
-        process.env.SCALEKIT_ENVIRONMENT_URL,
-        process.env.SCALEKIT_CLIENT_ID,
-        process.env.SCALEKIT_CLIENT_SECRET
-      );
+    1. Add a callback endpoint to your application (typically `https://your-app.com/auth/callback`)
+    2. Register this URL in your Scalekit dashboard
+
+    Learn more about [callback URL requirements](/guides/dashboard/redirects/#allowed-callback-urls).
+
+2. ## Redirect users to sign in
+
+   Create an authorization URL to redirect users to Scalekit's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and required scopes.
+
+   <Tabs syncKey="tech-stack">
+      <TabItem value="node" label="Node.js">
+      ```javascript wrap title="Express.js"
+      // Must match the callback URL you registered in step 1
+      const redirectUri = 'http://localhost:3000/api/callback';
+
+      // Request user profile data (openid, profile, email) and session tracking (offline_access)
+      // offline_access enables refresh tokens so users can stay logged in across sessions
+      const options = {
+        scopes: ['openid', 'profile', 'email', 'offline_access']
+      };
+
+      const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+      // Generated URL will look like:
+      // https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
+
+      res.redirect(authorizationUrl);
       ```
       </TabItem>
       <TabItem value="python" label="Python">
-      ```python title="utils/auth.py"
-      from scalekit import ScalekitClient
-      import os
+      ```python wrap title="Flask"
+      from scalekit import AuthorizationUrlOptions
 
-      scalekit = ScalekitClient(
-          os.environ.get('SCALEKIT_ENVIRONMENT_URL'),
-          os.environ.get('SCALEKIT_CLIENT_ID'),
-          os.environ.get('SCALEKIT_CLIENT_SECRET')
+      # Must match the callback URL you registered in step 1
+      redirect_uri = 'http://localhost:3000/api/callback'
+
+      # Request user profile data (openid, profile, email) and session tracking (offline_access)
+      # offline_access enables refresh tokens so users can stay logged in across sessions
+      options = AuthorizationUrlOptions(
+          scopes=['openid', 'profile', 'email', 'offline_access']
       )
+
+      authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+      # Generated URL will look like:
+      # https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
+
+      return redirect(authorization_url)
       ```
       </TabItem>
       <TabItem value="go" label="Go">
-      ```go title="utils/auth.go"
-      package main
+      ```go wrap title="Gin"
+      // Must match the callback URL you registered in step 1
+      redirectUri := "http://localhost:3000/api/callback"
 
-      import (
-          "os"
-          "github.com/scalekit-inc/scalekit-sdk-go"
-      )
+      // Request user profile data (openid, profile, email) and session tracking (offline_access)
+      // offline_access enables refresh tokens so users can stay logged in across sessions
+      options := scalekit.AuthorizationUrlOptions{
+          Scopes: []string{"openid", "profile", "email", "offline_access"}
+      }
 
-      scalekit := scalekit.NewScalekitClient(
-          os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
-          os.Getenv("SCALEKIT_CLIENT_ID"),
-          os.Getenv("SCALEKIT_CLIENT_SECRET"),
-      )
+      authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+      // Generated URL will look like:
+      // https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
+      if err != nil {
+          // Handle error based on your application's error handling strategy
+          panic(err)
+      }
+
+      c.Redirect(http.StatusFound, authorizationUrl.String())
       ```
       </TabItem>
       <TabItem value="java" label="Java">
-      ```java title="utils/Auth.java"
-      import com.scalekit.ScalekitClient;
+      ```java wrap title="Spring"
+      import com.scalekit.internal.http.AuthorizationUrlOptions;
+      import java.net.URL;
+      import java.util.Arrays;
 
-      public class Auth {
-          public ScalekitClient createScalekitClient() {
-              return new ScalekitClient(
-                  System.getenv("SCALEKIT_ENVIRONMENT_URL"),
-                  System.getenv("SCALEKIT_CLIENT_ID"),
-                  System.getenv("SCALEKIT_CLIENT_SECRET")
-              );
-          }
-      }
+      // Must match the callback URL you registered in step 1
+      String redirectUri = "http://localhost:3000/api/callback";
+
+      // Request user profile data (openid, profile, email) and session tracking (offline_access)
+      // offline_access enables refresh tokens so users can stay logged in across sessions
+      AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+      options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+
+      URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+      // Generated URL will look like:
+      // https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
       ```
       </TabItem>
-    </Tabs>
-2. ## Redirect users to hosted login page
-       Generate the authorization URL by passing a [registered callback URL](/guides/dashboard/redirects/#allowed-callback-urls) and scopes to the Scalekit SDK.
-        <Tabs syncKey="tech-stack">
-        <TabItem value="curl" label="cURL">
-            ```sh wrap
-            curl -G -v --location "<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize" \
-            --data-urlencode 'grant_type=authorization_code' \
-            --data-urlencode "organization_id={organization_id}" \
-            --data-urlencode "response_type=code" \
-            --data-urlencode "scope=openid profile" \
-            --data-urlencode 'redirect_uri=https://your-app.com/callback' \
-            --data-urlencode "client_id={client_id}" \
-            --data-urlencode "state=random_state_value"
-            ```
-        </TabItem>
-        <TabItem value="node" label="Node.js">
-        ```javascript title="Express.js"
-        const redirectUri = '<http://localhost:3000/api/callback>';
-        const options = {
-          scopes: ['openid', 'profile', 'email', 'offline_access']
-        };
+   </Tabs>
 
-        const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+   This redirects users to Scalekit's managed sign-in page where they can authenticate.
 
-        res.redirect(authorizationUrl);
-        ```
-        </TabItem>
-        <TabItem value="python" label="Python">
-        ```python title="Flask"
-        from scalekit import AuthorizationUrlOptions
-
-        redirect_uri = 'http://localhost:3000/api/callback'
-        options = AuthorizationUrlOptions(
-            scopes=['openid', 'profile', 'email', 'offline_access']
-        )
-
-        authorization_url = scalekit.get_authorization_url(redirect_uri, options)
-
-        # For web frameworks like Flask/Django:
-        # return redirect(authorization_url)
-        ```
-        </TabItem>
-        <TabItem value="go" label="Go">
-        ```go title="Gin"
-        redirectUri := "http://localhost:3000/api/callback"
-        options := scalekit.AuthorizationUrlOptions{
-            Scopes: []string{"openid", "profile", "email", "offline_access"}
-        }
-
-        authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
-        if err != nil {
-            // handle error appropriately
-            panic(err)
-        }
-
-        // For web frameworks like Gin:
-        // c.Redirect(http.StatusFound, authorizationUrl.String())
-        ```
-        </TabItem>
-        <TabItem value="java" label="Java">
-        ```java title="Spring"
-        import com.scalekit.internal.http.AuthorizationUrlOptions;
-        import java.net.URL;
-        import java.util.Arrays;
-
-        String redirectUri = "http://localhost:3000/api/callback";
-        AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-        options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
-
-        URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
-        ```
-        </TabItem>
-        </Tabs>
-
-     This will redirect the user to Scalekit's managed sign-in page.
-
-     <Aside type="tip" title='Match your redirect URLs exactly'>
-      Ensure the URL in your code matches what you configured in the Scalekit dashboard, including protocol (`https://`), domain, port, and path. Mismatched URLs are the most common cause of integration errors.
-    </Aside>
+   <Aside type="tip" title='Match your redirect URLs exactly'>
+     Ensure the URL in your code matches what you configured in the Scalekit dashboard, including protocol (`https://`), domain, port, and path. Mismatched URLs are the most common cause of integration errors.
+   </Aside>
 
 3. ## Handle authentication callback
 

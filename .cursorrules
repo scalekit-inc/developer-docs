@@ -60,11 +60,12 @@ This is the Scalekit developer documentation site built with Astro and Starlight
 - Include security considerations prominently
 - Provide actionable, specific guidance
 
-### Code Examples
-- Include relevant code snippets with proper syntax highlighting
+### Code Examples with Expressive Code
+- Include relevant code snippets with proper syntax highlighting using Expressive Code
 - Use tabs for multiple language examples when needed
 - Keep examples focused and minimal
 - Include comments to explain key concepts
+- Leverage Expressive Code features for enhanced documentation
 
 ## Visual & Interactive Elements
 
@@ -162,5 +163,408 @@ next: false/object
 - Update broken links immediately
 - Use relative paths for internal links
 - Include proper external link attributes (`target="_blank"`, `rel="noopener"`)
+
+## Expressive Code Usage Guidelines
+
+### Configuration Overview
+Expressive Code is configured in `astro.config.mjs` with the following settings:
+- **Themes**: `tokyo-night` (dark) and `light-plus` (light)
+- **Font**: JetBrains Mono with fallbacks
+- **Dark mode**: Integrated with Starlight's dark mode switch
+- **Border radius**: 0.375rem for consistent styling
+- **Plugin**: Collapsible sections plugin enabled
+
+### Complete Feature Set
+Expressive Code provides comprehensive text marking & annotation capabilities:
+
+#### Core Features
+- **Syntax Highlighting**: VS Code-powered syntax highlighting for 200+ languages
+- **Text Markers**: Line and inline annotations with mark, ins, del types
+- **Frames**: Editor/terminal window frames with titles
+- **Collapsible Sections**: Hide/show code sections
+- **Copy to Clipboard**: Built-in copy functionality
+- **Multi-theme Support**: Light/dark theme switching
+- **Zero Dependencies**: Works without React, Vue, or other frameworks
+- **Accessibility**: Automatic color contrast and screen reader support
+
+#### Marker Types
+- **mark**: Neutral highlighting (default)
+- **ins**: Insertion markers (green) - for added code
+- **del**: Deletion markers (red) - for removed code
+- **Custom**: Define your own marker types
+
+#### Annotation Methods
+- **Line Numbers**: `{1,3,5-7}` for line ranges
+- **Text Matching**: `"exact text"` for string matching  
+- **Regex Patterns**: `/pattern/` for complex matching
+- **Diff Syntax**: `+`/`-` prefixes for diff-style annotations
+
+### Basic Code Blocks
+
+#### Standard Syntax Highlighting
+```language
+// Your code here
+```
+
+#### With Title
+```javascript title="filename.js"
+// JavaScript code with file title
+```
+
+#### With Line Numbers
+```python showLineNumbers
+# Python code with line numbers starting from 1
+```
+
+#### Custom Line Number Start
+```go showLineNumbers=42
+// Go code with line numbers starting from 42
+```
+
+### Advanced Features
+
+#### Line Highlighting
+```javascript {2,4-6}
+// Line 1 - normal
+const highlighted = 'Line 2 - highlighted'
+// Line 3 - normal  
+const start = 'Line 4 - highlighted'
+const middle = 'Line 5 - highlighted'
+const end = 'Line 6 - highlighted'
+```
+
+#### Insertions and Deletions
+```javascript ins={2} del={4}
+// Line 1 - normal
+const added = 'Line 2 - marked as inserted'
+// Line 3 - normal
+const removed = 'Line 4 - marked as deleted'
+```
+
+#### Word-Level Highlighting
+```javascript "important" /pattern/
+const important = 'This word will be highlighted'
+const pattern = 'This matches the regex pattern'
+```
+
+#### Collapsible Sections
+```javascript collapse={1-5}
+// This section will be collapsed by default
+const setup = 'Configuration code'
+const config = { /* ... */ }
+const init = () => { /* ... */ }
+// End of collapsed section
+
+// This part remains visible
+const mainFunction = () => {
+  console.log('Main functionality')
+}
+```
+
+#### Code Wrapping
+```bash wrap
+curl -G -v --location "https://very-long-url-that-would-normally-overflow.example.com/api/endpoint" --data-urlencode 'param1=value1' --data-urlencode 'param2=value2'
+```
+
+#### Frame Types
+```javascript title="editor-frame.js" frame="code"
+// This shows an editor-style frame
+const code = 'example'
+```
+
+```bash title="Terminal" frame="terminal"
+# This shows a terminal-style frame
+npm install @scalekit-sdk/node
+```
+
+#### Diff-Style Syntax
+```diff
+// Using diff language
+- const old = 'remove this'
++ const new = 'add this'
+  const unchanged = 'stays the same'
+```
+
+```javascript lang="js" useDiffSyntax
+// Using diff syntax with JavaScript highlighting
+- const old = 'remove this'
++ const new = 'add this'
+  const unchanged = 'stays the same'
+```
+
+#### ANSI Color Support
+```ansi
+[31mError:[0m Something went wrong
+[32mSuccess:[0m Operation completed
+[33mWarning:[0m Check configuration
+```
+
+#### Meta String Options
+All options that can be combined in the meta string:
+```javascript title="filename.js" {1,3-5} ins={2} del={7} showLineNumbers=42 wrap collapse={8-12} frame="code" lang="js" useDiffSyntax
+// Meta string: title="filename.js" {1,3-5} ins={2} del={7} showLineNumbers=42 wrap collapse={8-12} frame="code" lang="js" useDiffSyntax
+const highlighted = 'line 1 highlighted'
+const inserted = 'line 2 marked as insertion'
+const highlighted2 = 'line 3 highlighted'
+const highlighted3 = 'line 4 highlighted'  
+const highlighted4 = 'line 5 highlighted'
+const normal = 'line 6 normal'
+const deleted = 'line 7 marked as deletion'
+// Start of collapsed section
+const setup1 = 'hidden by default'
+const setup2 = 'also hidden'
+const setup3 = 'collapsed content'
+// End of collapsed section
+const visible = 'this line is visible'
+```
+
+#### Combining Multiple Features
+```typescript title="auth.ts" {3,7} ins={2} del={5} showLineNumbers wrap
+// Authentication service implementation
+import { ScalekitClient } from '@scalekit-sdk/node' // Added import
+const client = new ScalekitClient(url, id, secret)
+
+const oldMethod = () => { /* deprecated */ } // Will be removed
+
+export const authenticate = async (code: string) => {
+  return await client.authenticateWithCode(code, redirectUri)
+}
+```
+
+### Multi-Language Code Examples
+
+#### Using Starlight Tabs with Expressive Code
+```mdx
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+  ```javascript title="auth.js"
+  import { Scalekit } from '@scalekit-sdk/node'
+  
+  const scalekit = new Scalekit(
+    process.env.SCALEKIT_ENVIRONMENT_URL,
+    process.env.SCALEKIT_CLIENT_ID,
+    process.env.SCALEKIT_CLIENT_SECRET
+  )
+  ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+  ```python title="auth.py"
+  from scalekit import ScalekitClient
+  
+  scalekit = ScalekitClient(
+      os.environ.get('SCALEKIT_ENVIRONMENT_URL'),
+      os.environ.get('SCALEKIT_CLIENT_ID'),
+      os.environ.get('SCALEKIT_CLIENT_SECRET')
+  )
+  ```
+  </TabItem>
+</Tabs>
+```
+
+### Best Practices for Code Documentation
+
+#### File Structure Examples
+```bash title="Project structure" showLineNumbers=false
+project/
+├── src/
+│   ├── auth/
+│   │   ├── scalekit.js      # Scalekit client setup
+│   │   └── middleware.js    # Authentication middleware
+│   └── routes/
+│       ├── login.js         # Login route
+│       └── callback.js      # OAuth callback
+└── package.json
+```
+
+#### Environment Configuration
+```bash title=".env" showLineNumbers=false
+SCALEKIT_ENVIRONMENT_URL='https://your-environment.scalekit.cloud'
+SCALEKIT_CLIENT_ID='skc_1234567890'
+SCALEKIT_CLIENT_SECRET='your_secret_here'
+```
+
+#### API Response Examples
+```json title="Authentication response" showLineNumbers=false
+{
+  "user": {
+    "id": "usr_1234567890",
+    "email": "user@example.com",
+    "name": "John Doe"
+  },
+  "idToken": "eyJhbGciOiJSUzI1NiIs...",
+  "accessToken": "eyJhbGciOiJSUzI1NiIs...",
+  "refreshToken": "rt_1234567890..."
+}
+```
+
+### Code Block Annotations
+
+#### Security Notes
+```javascript title="secure-session.js"
+// ⚠️ SECURITY: Always encrypt tokens before storing
+const encryptedToken = encrypt(accessToken, secretKey)
+
+// ✅ GOOD: Use HTTP-only cookies
+res.cookie('token', encryptedToken, {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'strict'
+})
+```
+
+#### Performance Considerations
+```javascript title="optimized-auth.js"
+// 🚀 PERFORMANCE: Cache client instance
+const scalekitClient = new Scalekit(/* config */)
+
+// ❌ AVOID: Creating new client for each request
+// const client = new Scalekit(/* config */) // Don't do this
+```
+
+### Common Patterns
+
+#### Error Handling Examples
+```javascript title="error-handling.js" {4-8}
+try {
+  const result = await scalekit.authenticateWithCode(code, redirectUri)
+  return result
+} catch (error) {
+  if (error.code === 'INVALID_CODE') {
+    return { error: 'Authentication failed' }
+  }
+  throw error // Re-throw unexpected errors
+}
+```
+
+#### Middleware Implementation
+```javascript title="middleware.js" collapse={1-3}
+// Import statements and configuration
+import { scalekit } from './auth-client.js'
+import { decrypt } from './crypto-utils.js'
+
+export const requireAuth = async (req, res, next) => {
+  const token = req.cookies.accessToken
+  
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' })
+  }
+  
+  try {
+    const decryptedToken = decrypt(token)
+    const isValid = await scalekit.validateAccessToken(decryptedToken)
+    
+    if (isValid) {
+      next()
+    } else {
+      res.status(401).json({ error: 'Invalid token' })
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Token validation failed' })
+  }
+}
+```
+
+### Quality Standards for Code Examples
+
+#### Advanced Configuration Options
+
+##### Theme Configuration
+```javascript
+// Multi-theme support
+themes: ['tokyo-night', 'light-plus']
+// or
+themes: [
+  'github-dark',
+  'github-light',
+  // VS Code themes, Shiki themes, or custom themes
+]
+```
+
+##### Style Overrides
+```javascript
+styleOverrides: {
+  codeFontFamily: "'JetBrains Mono', monospace",
+  borderRadius: '0.375rem',
+  // Text marker customization
+  textMarkers: {
+    markBackground: 'rgba(255, 255, 0, 0.3)',
+    insBackground: 'rgba(0, 255, 0, 0.3)',
+    delBackground: 'rgba(255, 0, 0, 0.3)',
+  }
+}
+```
+
+##### Plugin Configuration
+```javascript
+plugins: [
+  pluginCollapsibleSections({
+    collapsePreserveIndent: true,
+    collapseStyle: 'github'
+  }),
+  // Custom plugins can be added here
+]
+```
+
+##### Default Props
+```javascript
+defaultProps: {
+  showLineNumbers: true,
+  wrap: true,
+  preserveIndent: true
+}
+```
+
+#### Complete Meta String Reference
+
+Available meta string attributes:
+- **title**: `title="filename.js"` - File or block title
+- **showLineNumbers**: `showLineNumbers` or `showLineNumbers=42` - Show line numbers
+- **wrap**: `wrap` - Enable word wrapping for long lines
+- **lang**: `lang="javascript"` - Override syntax highlighting language
+- **frame**: `frame="code"` or `frame="terminal"` - Frame type
+- **useDiffSyntax**: `useDiffSyntax` - Enable +/- diff prefixes
+- **collapse**: `collapse={1-5}` - Collapse line ranges
+- **{numbers}**: `{1,3,5-7}` - Highlight lines (mark)
+- **ins**: `ins={2,4}` or `ins="text"` - Mark insertions
+- **del**: `del={3,6}` or `del="text"` - Mark deletions
+- **mark**: `mark={1}` or `mark="text"` - Neutral highlighting
+- **preserveIndent**: `preserveIndent=false` - Control indentation
+
+#### Language Support
+Expressive Code supports 200+ languages including:
+- **Web**: javascript, typescript, html, css, scss, json, yaml
+- **Backend**: python, java, go, rust, php, ruby, csharp
+- **Shell**: bash, powershell, fish, zsh
+- **Config**: dockerfile, nginx, apache, xml, toml
+- **Data**: sql, graphql, mongodb, redis
+- **Markup**: markdown, mdx, latex, restructuredtext
+- **Mobile**: swift, kotlin, dart, objective-c
+- **Functional**: haskell, clojure, elixir, erlang, fsharp
+- **Systems**: c, cpp, assembly, verilog, vhdl
+- **Other**: diff, ansi, regex, http, curl
+
+#### Code Example Checklist
+- [ ] Use appropriate syntax highlighting language from supported list
+- [ ] Include relevant file titles when showing file content  
+- [ ] Add line numbers for longer examples (>10 lines)
+- [ ] Highlight important lines that relate to the explanation
+- [ ] Use collapsible sections for setup/boilerplate code
+- [ ] Use appropriate frame type (code/terminal) for context
+- [ ] Enable word wrap for long lines (URLs, commands)
+- [ ] Use diff syntax for showing code changes
+- [ ] Include proper error handling where applicable
+- [ ] Add security annotations for auth-related code
+- [ ] Test all code examples before publishing
+- [ ] Use consistent variable names across examples
+- [ ] Include necessary import statements
+- [ ] Use ANSI colors for terminal output examples
+- [ ] Combine multiple features when it enhances understanding
+
+#### Avoiding Common Mistakes
+- Don't use generic variable names like `data` or `result` without context
+- Don't show incomplete code without indicating what's missing
+- Don't mix different coding styles within the same example
+- Don't forget to escape special characters in code comments
+- Don't use outdated API methods or deprecated patterns
 
 This cursor rule ensures consistent, high-quality documentation that serves Scalekit's developer community effectively.
