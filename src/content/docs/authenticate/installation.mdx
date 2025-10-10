@@ -1,25 +1,36 @@
 ---
-title: Installation
+title: Set up Scalekit
+overviewTitle: Overview of installation
 description: Start using Scalekit in your project
-tableOfContents: false
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 sidebar:
   label: Installation
 prev: false
+next:
+  link: '/authenticate/welcome#for-agent-developers'
+  label: 'Pick your auth challenge'
 ---
 
 import { Card, CardGrid, LinkCard, LinkButton, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import InstallSDK from '@components/templates/_installsdk.mdx'
 
-
-
 <Steps>
-1. #### Create a Scalekit account
+1. ## Create a Scalekit account
 
    Scalekit provides dedicated development and production environments. Use them to manage your authentication services for each stage of your app.
 
-   <LinkButton href="https://app.scalekit.com/ws/signup" variant="minimal"  icon='right-arrow'>Create a Scalekit Account</LinkButton>
+   <LinkButton href="https://app.scalekit.com/ws/signup" variant="secondary"  class='sk-secondary'  icon='right-arrow'>Create a Scalekit Account</LinkButton>
 
-2. #### Set up your environments
+2. ## Set up your environments
 
    After creating your account, you will have two environments:
 
@@ -32,7 +43,7 @@ import InstallSDK from '@components/templates/_installsdk.mdx'
 
    View your environment URLs in **Dashboard > Developers > Settings**.
 
-3. #### Get your API credentials
+3. ## Get your API credentials
 
    Scalekit uses the OAuth 2.0 client credentials flow for secure API authentication.
 
@@ -49,7 +60,7 @@ import InstallSDK from '@components/templates/_installsdk.mdx'
    # Example: test_abcdef1234567890
    ```
 
-4. #### Install and initialize the SDK
+4. ## Install and initialize the SDK
 
    <InstallSDK />
 
@@ -113,19 +124,42 @@ import InstallSDK from '@components/templates/_installsdk.mdx'
 
       </TabItem>
     </Tabs>
-5. #### Verify your setup
+5. ## Verify your setup
 
    Initialize the SDK, then list organizations to confirm your credentials work.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="curl" label="cURL">
 
-   ```bash
-   curl -L 'https://$ENV_URL/api/v1/organizations?page_size=5' \
-   -H 'Authorization: Bearer <ACCESS_TOKEN>'
-   ```
+    ```bash wrap showLineNumbers=false title="Authenticate with client credentials"
+    # Get an access token
+    curl https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token \
+      -X POST \
+      -H 'Content-Type: application/x-www-form-urlencoded' \
+      -d 'client_id=<SCALEKIT_CLIENT_ID>' \
+      -d 'client_secret=<SCALEKIT_CLIENT_SECRET>' \
+      -d 'grant_type=client_credentials'
+    ```
 
-   </TabItem>
+    This returns an access token:
+
+    ```json wrap showLineNumbers=false
+    {
+      "access_token": "eyJhbGciOiJSUzI1NiIsImInR5cCI6IkpXVCJ9...",
+      "token_type": "Bearer",
+      "expires_in": 86399,
+      "scope": "openid"
+    }
+    ```
+
+    **Step 2: Use the token to list organizations**
+
+    ```bash wrap showLineNumbers=false title="List organizations"
+    curl -L 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations?page_size=5' \
+      -H 'Authorization: Bearer <ACCESS_TOKEN>'
+    ```
+
+    </TabItem>
 
    <TabItem value="nodejs" label="Node.js">
 
@@ -200,7 +234,7 @@ import InstallSDK from '@components/templates/_installsdk.mdx'
 
    </TabItem>
    </Tabs>
-   You're all set. [Continue to pick your auth challenge →](/authenticate/welcome#for-agent-developers)
+   You're all set! 👏
 
 </Steps>
 
