@@ -93,7 +93,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    <TabItem value="node" label="Node.js">
    ```javascript wrap title="Express.js" {2,6-8,10,12}
    // Must match the callback URL you registered in step 1
-   const redirectUri = 'http://localhost:3000/api/callback';
+   const redirectUri = 'http://localhost:3000/auth/callback';
 
    // Request user profile data (openid, profile, email) and session tracking (offline_access)
    // offline_access enables refresh tokens so users can stay logged in across sessions
@@ -113,7 +113,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    from scalekit import AuthorizationUrlOptions
 
    # Must match the callback URL you registered in step 1
-   redirect_uri = 'http://localhost:3000/api/callback'
+   redirect_uri = 'http://localhost:3000/auth/callback'
 
    # Request user profile data (openid, profile, email) and session tracking (offline_access)
    # offline_access enables refresh tokens so users can stay logged in across sessions
@@ -123,7 +123,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
    authorization_url = scalekit.get_authorization_url(redirect_uri, options)
    # Generated URL will look like:
-   # https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
+   // https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
 
    return redirect(authorization_url)
    ```
@@ -131,7 +131,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    <TabItem value="go" label="Go">
    ```go wrap title="Gin" {2,6-8,10,13-15}
    // Must match the callback URL you registered in step 1
-   redirectUri := "http://localhost:3000/api/callback"
+   redirectUri := "http://localhost:3000/auth/callback"
 
    // Request user profile data (openid, profile, email) and session tracking (offline_access)
    // offline_access enables refresh tokens so users can stay logged in across sessions
@@ -157,7 +157,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    import java.util.Arrays;
 
    // Must match the callback URL you registered in step 1
-   String redirectUri = "http://localhost:3000/api/callback";
+   String redirectUri = "http://localhost:3000/auth/callback";
 
    // Request user profile data (openid, profile, email) and session tracking (offline_access)
    // offline_access enables refresh tokens so users can stay logged in across sessions
@@ -177,18 +177,18 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    Ensure the URL in your code matches what you configured in the Scalekit dashboard, including protocol (`https://`), domain, port, and path. Mismatched URLs are the most common cause of integration errors.
    </Aside>
 
-3. ## Handle the authentication callback
+3. ## Get user details from the callback
 
    After successful authentication, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and session tokens.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="node" label="Node.js">
-        ```javascript collapse={22-26}
+        ```javascript collapse={19-26, 6-11} "authenticateWithCode"
         import scalekit from '@/utils/auth.js'
-        const redirectUri = '<http://localhost:3000/api/callback>';
+        const redirectUri = '<http://localhost:3000/auth/callback>';
 
         // Get the authorization code from the scalekit initiated callback
-        app.get('/api/callback', async (req, res) => {
+        app.get('/auth/callback', async (req, res) => {
           const { code, error, error_description } = req.query;
 
           if (error) {
@@ -214,16 +214,16 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         ```
         </TabItem>
         <TabItem value="python" label="Python">
-        ```python collapse={1-6, 29-32}
+        ```python collapse={1-6, 29-32} "authenticate_with_code"
         from flask import Flask, request, redirect, jsonify
         from scalekit import ScalekitClient, CodeAuthenticationOptions
 
         app = Flask(__name__)
         # scalekit imported from your auth utils
 
-        redirect_uri = 'http://localhost:3000/api/callback'
+        redirect_uri = 'http://localhost:3000/auth/callback'
 
-        @app.route('/api/callback')
+        @app.route('/auth/callback')
         def callback():
             code = request.args.get('code')
             error = request.args.get('error')
@@ -250,7 +250,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         ```
         </TabItem>
         <TabItem value="go" label="Go">
-        ```go collapse={1-9}
+        ```go collapse={1-9} "AuthenticateWithCode"
         package main
 
         import (
@@ -268,7 +268,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
             os.Getenv("SCALEKIT_CLIENT_SECRET"),
         )
 
-        const redirectUri = "http://localhost:3000/api/callback"
+        const redirectUri = "http://localhost:3000/auth/callback"
 
         func callbackHandler(c *gin.Context) {
             code := c.Query("code")
@@ -306,7 +306,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         ```
         </TabItem>
         <TabItem value="java" label="Java">
-        ```java collapse={1-10, 40-47} wrap
+        ```java collapse={1-10, 40-47} wrap "authenticateWithCode"
         import com.scalekit.ScalekitClient;
         import com.scalekit.internal.http.AuthenticationOptions;
         import com.scalekit.internal.http.AuthenticationResponse;
@@ -320,9 +320,9 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         @RestController
         public class CallbackController {
 
-            private final String redirectUri = "http://localhost:3000/api/callback";
+            private final String redirectUri = "http://localhost:3000/auth/callback";
 
-            @GetMapping("/api/callback")
+            @GetMapping("/auth/callback")
             public Object callback(
                 @RequestParam(required = false) String code,
                 @RequestParam(required = false) String error,
@@ -356,14 +356,14 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
       The `authenticateWithCode` method returns:
 
-      - `user` - Complete user profile with email, name, and verification status
-      - `idToken` - JWT containing verified user identity claims
+      - `user` - Common user details with email, name, and verification status
+      - `idToken` - JWT containing verified full user identity claims
       - `accessToken` - Short-lived token for API authorization
       - `refreshToken` - Long-lived token to obtain new access tokens
 
       <Tabs syncKey="auth-result">
-        <TabItem value="authResult" label="authResult">
-        ```js showLineNumbers=false
+        <TabItem value="authResult" label="Auth Result">
+        ```js showLineNumbers=true {"session tokens": 10-12} { 9 }
         {
           user: {
             email: "john.doe@example.com",
@@ -372,14 +372,15 @@ Scalekit handles the complex authentication flow while you focus on your core pr
             name: "John Doe",
             id: "usr_74599896446906854"
           },
-          idToken: "eyJhbGciO..",
+          idToken: "eyJhbGciO..", // Decode for full user details
+
           accessToken: "eyJhbGciOi..",
           refreshToken: "rt_8f7d6e5c4b3a2d1e0f9g8h7i6j..",
-          expiresIn: 299
+          expiresIn: 299 // in seconds
         }
         ```
         </TabItem>
-        <TabItem value="idToken" label="Decoded ID Token">
+        <TabItem value="idToken" label="Decoded ID token">
         ```json title="ID token decoded"
         {
           "at_hash": "ec_jU2ZKpFelCKLTRWiRsg",
@@ -403,7 +404,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         }
         ```
         </TabItem>
-        <TabItem value="accessToken" label="Decoded Access Token">
+        <TabItem value="accessToken" label="Decoded access token">
             ```json title="Decoded access token"
             {
                 "aud": [
@@ -433,22 +434,18 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         </TabItem>
       </Tabs>
 
-      <CheckItem>
-        Validate incoming requests by checking for errors before processing the authorization code
-      </CheckItem>
-      <CheckItem>
-        Store tokens securely and never expose them to frontend code or URLs
-      </CheckItem>
-      <CheckItem>
-        Use the [token explorer tool](https://authplay.io/pg/token-explorer) to inspect and debug token contents during development
-      </CheckItem>
+      The user details are packaged in the form of JWT tokens. You can decode them to get the full user details.
+
 
 4. ## Create and manage user sessions
 
-      Now that you've the entire user's profile details including their email address, verification status, create a secure session by storing the session tokens. Use encrypted HTTP-only cookies for the access token and securely store the refresh token:
+      The access token is a JWT that contains the user's permissions and roles. It expires after a configured timeout period. When it expires, use the refresh token to obtain a new access token. The refresh token is long-lived and designed for this purpose.
+
+      The Scalekit SDK provides methods to refresh access tokens automatically. However, you must log the user out when the refresh token itself expires or becomes invalid.
+
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
-        ```javascript ins={1,3}
+        ```javascript collapse={1-4} { "1": 5-6 } { "2": 8-15 } { "3": 17}
         import cookieParser from 'cookie-parser';
         // Set cookie parser middleware
         app.use(cookieParser());
@@ -470,7 +467,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         </TabItem>
 
         <TabItem value="python" label="Python">
-        ```python
+        ```python collapse={1-10} { "1": 5-6 }  { 17-25 } {27}
         from flask import Flask, make_response
         from cryptography.fernet import Fernet
         import os
@@ -481,9 +478,11 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         # encrypt the accessToken using a secure encryption algorithm
         key = os.environ.get('ENCRYPTION_KEY')  # Store securely
         cipher_suite = Fernet(key)
-        encrypted_access_token = cipher_suite.encrypt(authResult['accessToken'].encode()).decode()
+        encrypted_access_token = cipher_suite.encrypt(
+          authResult['accessToken'].encode()
+          ).decode()
 
-        // setting up accessToken as HTTP-only cookie
+        # setting up accessToken as HTTP-only cookie
         response = make_response()
         response.set_cookie(
             'accessToken',
@@ -495,12 +494,12 @@ Scalekit handles the complex authentication flow while you focus on your core pr
             samesite='Strict'
         )
 
-        // Store the refreshToken in a secure place
+        # Store the refreshToken in a secure place
         ```
         </TabItem>
 
         <TabItem value="go" label="Go">
-        ```go
+        ```go collapse={1-6} { "1": 7-8 } { "2": 10-21 } { "3": 23}
         import (
             "crypto/aes"
             "crypto/cipher"
@@ -531,18 +530,15 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         </TabItem>
 
         <TabItem value="java" label="Java">
-        ```java
+        ```java collapse={1-5} { "1": 6-7 } { "2": 8-14 } { "3": 24}
         import javax.crypto.Cipher;
         import javax.crypto.SecretKey;
         import javax.servlet.http.Cookie;
         import javax.servlet.http.HttpServletResponse;
         import java.util.Base64;
 
-
-
-
         // setting up accessToken as HTTP-only cookie
-        String encryptedRefreshToken = encrypt(authResult.getAccessToken());
+        String encryptedAccessToken = encrypt(authResult.getAccessToken());
         Cookie accessTokenCookie = new Cookie("accessToken", encryptedAccessToken);
         accessTokenCookie.setMaxAge((authResult.getExpiresIn() - 60) * 1000);
         accessTokenCookie.setHttpOnly(true);
@@ -567,14 +563,12 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
-        ```javascript wrap ins={15,24}
+        ```javascript wrap collapse={8-11, 26-37} {5-6, 13, 22}
         // Middleware to verify and refresh tokens if needed
         const verifyToken = async (req, res, next) => {
           try {
-            // Get access token from cookie
+            // Get access token from cookie and decrypt it
             const accessToken = req.cookies.accessToken;
-
-            // Decrypt the accessToken using the same encryption algorithm
             const decryptedAccessToken = decrypt(accessToken);
 
             if (!accessToken) {
@@ -841,41 +835,27 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         </TabItem>
       </Tabs>
 
-      Successfully authenticated users can now access your dashboard.
+      Authenticated users can access your dashboard. The app enforces session policies using session tokens. To change session policies, go to Dashboard > Authentication > Session Policy in the Scalekit dashboard.
 
 5. ## Log out the user
 
-      To properly log out users, clear local session data and invalidate their session on Scalekit's servers:
+      Session persistence depends on the session policy configured in the Scalekit dashboard.
+      To log out a user, clear local session data and invalidate the user's session in Scalekit.
 
       <Tabs syncKey="tech-stack">
         <TabItem value="node" label="Node.js">
-          ```javascript
-          /**
-           * Handles user logout by:
-           * 1. Clearing local session data
-           * 2. Invalidating the Scalekit session
-           * 3. Redirecting to post-logout URL
-           */
+          ```javascript { 3}
           app.get('/logout', (req, res) => {
             // Clear all session data including cookies and local storage
             clearSessionData();
 
-            /**
-             * Generates a Scalekit logout URL that will:
-             * - Invalidate the user's session on Scalekit's servers
-             * - Redirect the user to the specified post-logout URL
-             * @param {string} idTokenHint - The user's ID token to invalidate
-             * @param {string} postLogoutRedirectUri - URL to redirect after logout
-             * @returns {string} The complete logout URL
-             */
             const logoutUrl = scalekit.getLogoutUrl(
-              idTokenHint,
-              postLogoutRedirectUri
+              idTokenHint, // ID token to invalidate
+              postLogoutRedirectUri // URL that scalekit redirects after session invalidation
             );
 
-            // Redirect to Scalekit's logout endpoint
-            // Note: This is a one-time use URL that becomes invalid after use
-            res.redirect(logoutUrl);
+            // Redirect the user to the Scalekit logout endpoint to begin invalidating the session.
+            res.redirect(logoutUrl); // This URL can only be used once and expires after logout.
           });
           ```
         </TabItem>
@@ -967,19 +947,10 @@ Scalekit handles the complex authentication flow while you focus on your core pr
           ```
         </TabItem>
       </Tabs>
-      The logout process completes when Scalekit invalidates the user's session and redirects them to your [specified post-logout URL](/guides/dashboard/redirects/#post-logout-url).
+      The logout process completes when Scalekit invalidates the user's session and redirects them to your [registered post-logout URL](/guides/dashboard/redirects/#post-logout-url).
 
 </Steps>
-## What you've accomplished
 
-🎉 **Congratulations!** You've successfully integrated Scalekit's Full Stack Authentication. Your application now has:
-
-- **Complete authentication flow** - Sign-in, sign-up, and logout
-- **Secure session management** - Encrypted tokens with automatic refresh
-- **Multi-tenant architecture** - Ready for B2B SaaS scaling
-- **Enterprise-ready foundation** - Built to handle SSO and advanced auth methods
-
-## What's next?
 
 You've completed the Scalekit quickstart and enabled secure authentication for your users and sign-in flow.
 
