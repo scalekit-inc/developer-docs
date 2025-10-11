@@ -1,0 +1,156 @@
+---
+import IconStreamlineBrowserCode from '~icons/streamline-plump/browser-code-1-solid'
+import IconLucideChevronDown from '~icons/lucide/chevron-down'
+import IconOcticonTabExternal from '~icons/octicon/tab-external-24'
+
+interface Props {
+  codeSamples?: {
+    items: Array<{
+      title: string
+      url: string
+    }>
+    expanded?: boolean
+    label?: string
+  }
+}
+
+const { codeSamples } = Astro.props
+---
+
+{
+  codeSamples && codeSamples.items && codeSamples.items.length > 0 && (
+    <div class="code-samples-section">
+      <details class="code-samples-details" open={codeSamples.expanded ?? true}>
+        <summary class="code-samples-header">
+          <div class="header-content">
+            <IconStreamlineBrowserCode class="code-samples-icon" />
+            {codeSamples.label ?? 'Code samples'}
+          </div>
+          <IconLucideChevronDown class="chevron-icon" />
+        </summary>
+        <div class="code-samples-list">
+          {codeSamples.items.map((sample) => (
+            <div class="code-sample-item">
+              <IconOcticonTabExternal class="item-icon" />
+              <a
+                href={sample.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="code-sample-link"
+              >
+                {sample.title}
+              </a>
+            </div>
+          ))}
+        </div>
+      </details>
+    </div>
+  )
+}
+
+<style>
+  .code-samples-section {
+    padding-top: 1rem;
+    border-top: 1px solid var(--sl-color-gray-5);
+  }
+
+  .code-samples-details {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .code-samples-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    list-style: none;
+    padding: 0;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s ease;
+    gap: 0.5rem;
+  }
+
+  .code-samples-header::-webkit-details-marker {
+    display: none;
+  }
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    color: var(--sl-color-gray-2);
+  }
+
+  .code-samples-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .chevron-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+    color: var(--sl-color-gray-3);
+  }
+
+  .code-samples-details[open] .chevron-icon {
+    transform: rotate(180deg);
+  }
+
+  .code-samples-list {
+    padding: 0;
+    margin: 0;
+  }
+
+  .code-sample-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .item-icon {
+    width: 1rem;
+    height: 1rem;
+    color: var(--sl-color-text-accent);
+    flex-shrink: 0;
+  }
+
+  .code-sample-link {
+    text-decoration: none;
+    font-weight: inherit;
+    border-bottom: 1px solid currentColor;
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-xs);
+    transition: all 0.2s ease;
+  }
+
+  .code-sample-link:hover {
+    text-decoration: none;
+    border-bottom: 2px solid currentColor;
+    color: var(--sl-color-white);
+  }
+
+  /* Dark mode adjustments */
+  :global([data-theme='dark']) .code-samples-section {
+    border-top-color: var(--sl-color-gray-6);
+  }
+
+  :global([data-theme='dark']) .header-content {
+    color: var(--sl-color-gray-3);
+  }
+
+  :global([data-theme='dark']) .code-sample-link {
+    color: var(--sl-color-gray-3);
+  }
+
+  :global([data-theme='dark']) .code-sample-link:hover {
+    color: var(--sl-color-gray-1);
+  }
+</style>

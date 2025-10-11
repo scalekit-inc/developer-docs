@@ -1,35 +1,22 @@
 ---
 import Default from '@astrojs/starlight/components/PageSidebar.astro'
-import { Icon } from '@astrojs/starlight/components'
+import CodeSamples from '@/components/ui/CodeSamples.astro'
 
 // Access route and props to reuse in child components
 const { entry: routeEntry } = Astro.locals.starlightRoute
 const { dir, entry, locale } = Astro.props
 
-// Get edit URL from Starlight's configuration
-// Check if editUrl is disabled in frontmatter, otherwise construct it from the entry id
-const editUrl =
-  entry?.data?.editUrl === false
-    ? null
-    : routeEntry?.id
-      ? `https://github.com/scalekit-inc/developer-docs/edit/main/src/content/docs/${routeEntry.id}.mdx`
-      : null
+// Get code samples from routeEntry data instead of entry data
+const codeSamples = routeEntry?.data?.codeSamples
 ---
 
 <div>
   {/* Render the default PageSidebar content (TOC and mobile TOC) */}
   <Default {dir} {entry} {locale} />
 
-  {/* Extra actions below the table of contents */}
+  {/* Code samples section */}
   <div class="page-sidebar-actions">
-    {
-      editUrl && (
-        <a href={editUrl} class="sidebar-action-link" style="font-size: var(--sl-text-xs);">
-          <Icon name="github" size="var(--sl-text-xs)" />
-          Edit page
-        </a>
-      )
-    }
+    <CodeSamples codeSamples={codeSamples} />
   </div>
 </div>
 
@@ -39,35 +26,6 @@ const editUrl =
     flex-direction: column;
     align-items: flex-start;
     padding: 0.1rem var(--sl-sidebar-pad-x);
-  }
-
-  .sidebar-action-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0;
-    color: var(--sl-color-gray-2);
-    text-decoration: none;
-    font-size: var(--sl-text-sm);
-    font-weight: 500;
-    transition: color 0.2s ease;
-  }
-
-  .sidebar-action-link:hover {
-    color: var(--sl-color-white);
-  }
-
-  .sidebar-action-link svg {
-    flex-shrink: 0;
-  }
-
-  /* Dark mode adjustments */
-  :global([data-theme='dark']) .sidebar-action-link {
-    color: var(--sl-color-gray-3);
-  }
-
-  :global([data-theme='dark']) .sidebar-action-link:hover {
-    color: var(--sl-color-gray-1);
   }
 
   @media (max-width: 72rem) {

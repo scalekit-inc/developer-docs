@@ -9,7 +9,25 @@ export const collections = {
   docs: defineCollection({
     loader: docsLoader(),
     schema: docsSchema({
-      extend: topicSchema.merge(tocOverviewCustomizer).merge(videosSchema),
+      extend: topicSchema
+        .merge(tocOverviewCustomizer)
+        .merge(videosSchema)
+        .merge(
+          z.object({
+            codeSamples: z
+              .object({
+                items: z.array(
+                  z.object({
+                    title: z.string(),
+                    url: z.string(),
+                  }),
+                ),
+                expanded: z.boolean().optional().default(true),
+                label: z.string().optional().default('Code samples'),
+              })
+              .optional(),
+          }),
+        ),
     }),
   }),
 }
