@@ -14,7 +14,7 @@ export const sidebar = [
         collapsed: false,
         items: [
           'passwordless/oidc',
-          'fsa/guides/auth-methods',
+          'social-logins/quickstart',
           'fsa/guides/manage-session',
           'fsa/guides/logout',
           {
@@ -51,12 +51,7 @@ export const sidebar = [
       },
       {
         label: 'Quickstarts',
-        items: [
-          'sso/quickstart',
-          'social-logins/quickstart',
-          'passwordless/quickstart',
-          'directory/scim/quickstart',
-        ],
+        items: ['sso/quickstart', 'passwordless/quickstart', 'directory/scim/quickstart'],
       },
       {
         label: 'Make it your own',
@@ -261,6 +256,7 @@ export const sidebar = [
         label: 'User authentication',
         collapsed: true,
         items: [
+          'fsa/guides/auth-methods',
           'fsa/guides/implement-signup',
           'fsa/guides/implement-login',
           'fsa/guides/manage-session',

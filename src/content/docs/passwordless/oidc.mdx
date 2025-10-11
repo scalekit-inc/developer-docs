@@ -1,10 +1,11 @@
 ---
 title: Passwordless quickstart
-description: Passwordless sign-in made easy—magic links and OTP, ready to go. (OIDC)
+description: Add passwordless sign-in with OTP or magic link via OIDC.
+overviewTitle: 'Passwordless overview'
 sidebar:
   label: 'Passwordless'
   badge:
-    text: 'OTP/Magiclink'
+    text: 'OTP/Magic link'
     variant: 'default'
 head:
   - tag: style
@@ -26,7 +27,7 @@ import CopyPrompt from '@components/ui/CopyPrompt.astro';
 import Card from '@/components/ui/Card.astro';
 
 
-This guide will walk you through implementing passwordless authentication via Scalekit's OIDC flow. Depending on your configuration, your users will be sent either a one time passcode (OTP) or a magic link to verify their identity.
+This guide shows you how to implement passwordless authentication with Scalekit using OIDC. Users verify with a one-time passcode (OTP) or a magic link.
 
 <Card title="Get moving, instantly, with your go-to AI assistant" icon={IconRiAiGenerate2}>
   <div style={{display: 'flex',  alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem'}}>
@@ -43,7 +44,7 @@ This guide will walk you through implementing passwordless authentication via Sc
             label="Copy prompt"
         className="sk-secondary"
         variant="secondary"
-        title="Generate OIDC Passwordless integration code"
+        title="Generate OIDC passwordless integration code"
       />
     </div>
   </div>
@@ -52,31 +53,38 @@ This guide will walk you through implementing passwordless authentication via Sc
 
 
 <Steps>
+1. ## Set up Scalekit and register a callback endpoint
 
-1. ## Configure settings
+   Follow the [installation guide](/authenticate/installation/) to configure Scalekit in your application.
 
-    Before implementing the code, ensure passwordless authentication is properly configured in your Scalekit dashboard.
+   Scalekit verifies user identities and creates sessions. After successful verification, Scalekit creates a user record and sends the user information to your callback endpoint.
 
-    1. Navigate to **Authentication > Auth Methods**.
-    2. In the **Passwordless** section, choose your preferred login method.
-    3. For enhanced security, you can also configure these settings:
-        - **Enforce same browser origin**: Requires users to complete magic link authentication in the same browser where they initiated the sign-in process. This helps prevent phishing attacks.
-        - **Enable new passwordless credentials on resend**: Generates a new verification code or magic link on each resend request, invalidating the previous one.
-    4. Click **Save**.
+   **Create a callback endpoint:**
+
+   1. Add a callback endpoint to your application (typically `https://your-app.com/auth/callback`)
+   2. Register this URL in your Scalekit dashboard
+
+   Learn more about [callback URL requirements](/guides/dashboard/redirects/#allowed-callback-urls).
+
+2. ## Configure passwordless settings
+
+   In the Scalekit dashboard, enable passwordless and choose your login method.
+
+   Optional security settings:
+   - **Enforce same-browser origin**: Users must complete magic-link auth in the same browser they started in.
+   - **Issue new credentials on resend**: Each resend generates a fresh code or link and invalidates the previous one.
 
     ![](@/assets/docs/unlisted/passwordless/1-v2.png)
 
-2. ## Initiate authorize request
+3. ## Redirect users to sign up (or) login
 
-   To initiate passwordless authentication, redirect users to the Scalekit authorization endpoint with the appropriate parameters.
+   Create an authorization URL and redirect users to Scalekit's sign-in page. Include:
 
-    Construct your authorization URL with the following parameters and redirect the user to the authorization URL.
-
-    | Parameter | Description |
-    |-----------|-------------|
-    | `redirect_uri` | Your application endpoint that will receive the authorization code after successful authentication. Example: `https://your-app.com/auth/callback` |
-    | `client_id` | Your unique Scalekit application identifier that specifies both your app and environment (staging, production). |
-    | `login_hint` | The email address of the user to send the verification email |
+   | Parameter | Description |
+   |-----------|-------------|
+   | `redirect_uri` | Your app's callback endpoint (for example, `https://your-app.com/auth/callback`). |
+   | `client_id` | Your Scalekit application identifier (scoped to the environment). |
+   | `login_hint` | The user's email address to receive the verification email. |
 
    **Example implementation**
 
@@ -96,7 +104,11 @@ This guide will walk you through implementing passwordless authentication via Sc
 
     options['loginHint'] = 'user@example.com';
 
-    const authorizationURL = scalekit.getAuthorizationUrl(redirectUrl, options);
+    const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+    // Generated URL will look like:
+    // https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
+
+    res.redirect(authorizationUrl);
     ```
 
     </TabItem>
@@ -117,12 +129,11 @@ This guide will walk you through implementing passwordless authentication via Sc
     # Authorization URL with login hint
     options.login_hint = 'user@example.com'
 
-    authorization_url = scalekit_client.get_authorization_url(
-      redirect_uri=<redirect_uri>,
-      options=options
-    )
+    authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+    # Generated URL will look like:
+    # https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
 
-    # Redirect the user to this authorization URL
+    return redirect(authorization_url)
     ```
 
     </TabItem>
@@ -189,11 +200,13 @@ This guide will walk you through implementing passwordless authentication via Sc
     }
     // Redirect the user to this authorization URL
     ```
-
     </TabItem>
     </Tabs>
 
-    This redirect will send users to the Scalekit authentication flow, where they'll authenticate with their email before being returned to your application.
+   This redirects users to Scalekit's authentication flow. After verification, they return to your application.
+
+    <details>
+    <summary>Example authorization URL</summary>
 
     ```sh title="Example authorization URL"
     <YOURAPP_SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
@@ -203,24 +216,21 @@ This guide will walk you through implementing passwordless authentication via Sc
       response_type=code&
       scope=openid%20profile%20email&
       state=jAy-state1-gM4fdZdV22nqm6Q_jAy-XwpYdYFh..2nqm6Q
-
     ```
+    </details>
 
-    After redirecting users to the Scalekit authorization endpoint, handle the callback at your `redirect_uri` to retrieve the user profile and complete the authentication process. Make sure this is registered as an Allowed Callback URI in your Scalekit dashboard.
+   At your `redirect_uri`, handle the callback to exchange the code for the user profile. Ensure this URL is registered as an Allowed Callback URI in the dashboard.
 
-3. ## Fetch user details
+4. ## Get user details from the callback
 
-   After successful user authentication via OTP, Scalekit redirects users to your specified `redirect_uri` with a temporary authorization code parameter. This code must be exchanged for the user's profile information through a secure server-side request.
+   Scalekit redirects to your `redirect_uri` with an authorization code. Exchange it server-side for the user's profile.
 
    <Aside type="caution" title="Validation attempt limits">
      To protect your application, Scalekit limits a user to **five** attempts to enter the correct OTP within a ten-minute window for each authentication request.
      If the user exceeds this limit, they must restart the authentication process.
    </Aside>
 
-    The authorization code exchange process should always be performed server-side to maintain security. This server-side request will:
-
-    1. Validate the authorization code
-    2. Return the authenticated user's profile details
+   Always perform the code exchange on the server to validate the code and return the authenticated user's profile.
 
     <Tabs syncKey="tech-stack">
     <TabItem value="nodejs" label="Node.js">
@@ -320,15 +330,15 @@ This guide will walk you through implementing passwordless authentication via Sc
         ```js showLineNumbers=false wrap
         {
           user: {
-            email: "john.doe@example.com"  // User's email address
+            email: "john.doe@example.com"  // Authenticated user's email address
           },
-          idToken: "<USER_PROFILE_JWT>",   // JWT containing user profile information
-          accessToken: "<API_CALL_JWT>",   // Temporary Access Token for accessing user's email
-          expiresIn: 899                    // Token expiration time in seconds
+          idToken: "<USER_PROFILE_JWT>",   // ID token (JWT) containing user profile claims
+          accessToken: "<API_CALL_JWT>",   // Access token (JWT) for calling backend APIs on behalf of the user
+          expiresIn: 899                   // Time in seconds
         }
         ```
       </TabItem>
-      <TabItem value="idToken" label="Decoded idToken">
+      <TabItem value="idToken" label="Decoded ID token">
         ```json showLineNumbers=false
         {
           "alg": "RS256",
@@ -371,11 +381,10 @@ This guide will walk you through implementing passwordless authentication via Sc
           "iat": 1751438269,
           "nbf": 1751438269,
           "client_id": "skc_794467724259497",
-          "xuid": "ext_usr_456",
-          "jti": "tkn_794754665320942"
+          "jti": "tkn_794754665320942",
           // External identifiers if updated on Scalekit
           "xoid": "ext_org_123", // Organization ID
-          "xuid": "ext_usr_456", // User ID
+          "xuid": "ext_usr_456"  // User ID
         }.[Signature]
         ```
       </TabItem>
@@ -383,10 +392,9 @@ This guide will walk you through implementing passwordless authentication via Sc
 
 </Steps>
 
-Congratulations! You've successfully implemented passwordless authentication in your application. Users can now sign in securely without passwords by entering a verification code or clicking a magic link sent to their email.
+ Congratulations! Your application now supports passwordless authentication. Users can sign in securely by:
 
-<LinkCard
-  title="Need more help?"
-  href="/support/contact-us"
-  description="Reach out to us for any questions or support"
-/>
+ - Entering a verification code sent to their email
+ - Clicking a magic link sent to their email
+
+ To complete the implementation, [create a session](/fsa/guides/manage-session/) for the user to allow access to protected resources.
