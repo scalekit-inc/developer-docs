@@ -1,6 +1,6 @@
 ---
-title: Getting started with social connections
-description: "Learn how to add social login to your B2B SaaS application using Scalekit, enabling users to authenticate with providers like Google, Microsoft, and GitHub."
+title: Add social login to your app
+description: "Implement authentication with Google, Microsoft, GitHub, and other social providers"
 sidebar:
   label: "Social logins"
   badge: "OAuth 2.0"
@@ -21,41 +21,68 @@ next:
   link: "/guides/integrations/social-connections/"
 ---
 
-import { LinkButton, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import {
+  LinkButton, Aside, Steps, Tabs, TabItem, Card, CardGrid, LinkCard,
+ } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-Single sign-on (SSO) enhances B2B SaaS application security and user experience by enabling secure authentication
-through an organization's identity provider (IdP). Some organizations use social identity providers like Google,
-Microsoft, GitHub, Salesforce etc.
+Single sign-on (SSO) lets users authenticate via their organization's identity provider (IdP). Many teams also use social IdPs such as Google, Microsoft, and GitHub.
 
-This guide shows you how to add social login functionality to your B2B SaaS application using Scalekit. You'll learn how to enable users to authenticate with popular identity providers like Google, Microsoft, GitHub, and more through OAuth 2.0.
+This guide shows you how to add social login to your B2B SaaS using Scalekit and OAuth 2.0.
 
   ![How Scalekit works](@/assets/docs/common/social-connections/0.png)
 
 <Steps>
 
-1. ### Set up your environment
+1. ## Set up Scalekit and register a callback endpoint
 
-    Before implementing social login, ensure you have the necessary tools and access:
+   Follow the [installation guide](/authenticate/installation/) to configure Scalekit in your application.
 
-    - Access to your [Scalekit account](https://app.scalekit.com/ws/login) and API credentials
-    - Your application's codebase for implementing and testing changes
+   Scalekit verifies user identities and creates sessions. After successful verification, Scalekit creates a user record and sends the user information to your callback endpoint.
 
-   <InstallSDK />
+   **Create a callback endpoint:**
 
-    You're now ready to integrate social connections into your application! The next step covers how to use the SDK to authenticate users.
+   1. Add a callback endpoint to your application (typically `https://your-app.com/auth/callback`)
+   2. Register this URL in your Scalekit dashboard
 
-2. ### Create authorization URL
+   Learn more about [callback URL requirements](/guides/dashboard/redirects/#allowed-callback-urls).
 
-    To start the social login process, your application must redirect users to Scalekit's authorization endpoint with the appropriate social provider details.
+2. ## Configure social login providers
 
-    Construct the authorization URL using these required parameters:
+
+
+    <CardGrid>
+      <LinkCard title="Google" href="/guides/integrations/social-connections/google">
+        Enable users to sign in with their Google accounts using OAuth 2.0
+      </LinkCard>
+      <LinkCard title="GitHub" href="/guides/integrations/social-connections/github">
+        Allow users to authenticate using their GitHub credentials
+      </LinkCard>
+      <LinkCard title="Microsoft" href="/guides/integrations/social-connections/microsoft">
+        Integrate Microsoft accounts for seamless user authentication
+      </LinkCard>
+      <LinkCard title="GitLab" href="/guides/integrations/social-connections/gitlab">
+        Enable GitLab-based authentication for your application
+      </LinkCard>
+      <LinkCard title="LinkedIn" href="/guides/integrations/social-connections/linkedin">
+        Let users sign in with their LinkedIn accounts using OAuth 2.0
+      </LinkCard>
+      <LinkCard title="Salesforce" href="/guides/integrations/social-connections/salesforce">
+        Enable Salesforce-based authentication for your application
+      </LinkCard>
+    </CardGrid>
+
+3. ## Create the authorization URL
+
+   Redirect users to Scalekit's authorization endpoint with the chosen social provider.
+
+   Required parameters:
 
     | Parameter | Description |
     | :-------- | :---------- |
-    | `redirect_uri` | The URL where Scalekit sends users after successful authentication. After users complete authentication with the social provider, Scalekit redirects them to this URI with a one-time authorization `code`. You'll use this code in the next step to fetch user details. |
-    | `client_id` | Your application's unique Scalekit identifier. This parameter is mandatory for all requests and uniquely identifies both your application and environment (staging, production). |
-    | `provider` | Specifies which social provider to use. Set this to the unique code of your chosen provider (e.g., `google`, `microsoft`). |
+    | `redirect_uri` | Your application's callback URL to receive the authorization `code`. |
+    | `client_id` | Your Scalekit application identifier (per environment). |
+    | `provider` | The provider code (for example, `google`, `microsoft`). |
 
     ```sh title="Example authorization URL"
     https://auth.scalekit.com/authorize?
@@ -63,8 +90,6 @@ This guide shows you how to add social login functionality to your B2B SaaS appl
       redirect_uri=https://yourapp.com/auth/callback&
       provider=google
     ```
-
-    Next, construct your authorization URL with these parameters and redirect users to this URL when they attempt to log in.
 
     <Tabs syncKey="tech-stack">
     <TabItem value="nodejs" label="Node.js">
@@ -166,28 +191,26 @@ This guide shows you how to add social login functionality to your B2B SaaS appl
     </TabItem>
     </Tabs>
 
-    After users complete authentication, Scalekit redirects them to your `redirect_uri` with an authorization code. Handle this callback to complete the authentication process.
+   After authentication, Scalekit redirects to your `redirect_uri` with an authorization code. Handle this callback to complete authentication.
 
-3. ### Retrieve user information
+3. ## Get user details from the callback
 
-    After successful social authentication, Scalekit redirects users to your `redirect_uri` with a unique authorization `code`. Exchange this code for user profile details on your server side.
-
-    Here's how to convert the authorization code into user data:
+   Exchange the authorization `code` at your server for the user's profile details.
 
     <Tabs syncKey="tech-stack">
     <TabItem value="nodejs" label="Node.js">
 
     ```javascript showLineNumbers
-    const { code, state } = req.query;
+    const { code, state, error, error_description } = req.query;
 
     if (error) {
-      // Handle errors
+      // Handle errors (use error_description if present)
     }
 
-    const res = await scalekit.authenticateWithCode(code, redirectUri);
+    const authResult = await scalekit.authenticateWithCode(code, redirectUri);
 
-    // res.user has the authenticated user's details
-    const userEmail = res.user.email;
+    // authResult.user has the authenticated user's details
+    const userEmail = authResult.user.email;
 
     // Next step: create a session for this user and allow access
     ```
@@ -226,7 +249,7 @@ This guide shows you how to add social login functionality to your B2B SaaS appl
       // Handle errors and exit
     }
 
-    res, err := sc.AuthenticateWithCode(code, redirectUrl)
+    res, err := scalekitClient.AuthenticateWithCode(code, redirectUrl)
     if err != nil {
       // Handle errors and exit
     }
@@ -266,14 +289,4 @@ This guide shows you how to add social login functionality to your B2B SaaS appl
 
 </Steps>
 
-## Next steps
 
-You've successfully implemented social login functionality in your application. Your users can now authenticate using their preferred social identity providers.
-
-<Aside type="note" title="Important notes about user data">
-
-- The `idToken` is a JWT containing user profile information, while the `accessToken` is used for API calls
-- For security and compliance reasons, Scalekit does not store user profile information in persistent databases
-- Always validate the authorization code on your server side before creating user sessions
-
-</Aside>
