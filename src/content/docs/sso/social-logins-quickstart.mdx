@@ -17,8 +17,8 @@ head:
         white-space: nowrap;
       }
 next:
-  label: "Configure Google, Microsoft and more"
-  link: "/guides/integrations/social-connections/"
+  label: "Continue to build session management"
+  link: "/fsa/guides/manage-session/"
 ---
 
 import {
@@ -48,9 +48,12 @@ This guide shows you how to add social login to your B2B SaaS using Scalekit and
    Learn more about [callback URL requirements](/guides/dashboard/redirects/#allowed-callback-urls).
 
 2. ## Configure social login providers
+   Google login is pre-configured in all development environments for simplified testing. You can integrate additional social login providers by setting up your own connection credentials with each provider.
 
+   Navigate to **Authentication** > **Auth Methods** > **Social logins** in your dashboard to configure these settings
 
-
+   <details>
+    <summary>Available social login providers</summary>
     <CardGrid>
       <LinkCard title="Google" href="/guides/integrations/social-connections/google">
         Enable users to sign in with their Google accounts using OAuth 2.0
@@ -71,56 +74,38 @@ This guide shows you how to add social login to your B2B SaaS using Scalekit and
         Enable Salesforce-based authentication for your application
       </LinkCard>
     </CardGrid>
+    </details>
 
-3. ## Create the authorization URL
+3. ## Redirect users to login
 
-   Redirect users to Scalekit's authorization endpoint with the chosen social provider.
+   Create an authorization URL to redirect users to social provider's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and provider identifier.
 
-   Required parameters:
-
-    | Parameter | Description |
-    | :-------- | :---------- |
-    | `redirect_uri` | Your application's callback URL to receive the authorization `code`. |
-    | `client_id` | Your Scalekit application identifier (per environment). |
-    | `provider` | The provider code (for example, `google`, `microsoft`). |
-
-    ```sh title="Example authorization URL"
-    https://auth.scalekit.com/authorize?
-      client_id=skc_122056050118122349527&
-      redirect_uri=https://yourapp.com/auth/callback&
-      provider=google
-    ```
+   Supported `provider` values: `google`, `microsoft`, `github`, `salesforce`, `linkedin`, `gitlab`
 
     <Tabs syncKey="tech-stack">
     <TabItem value="nodejs" label="Node.js">
 
-    ```javascript showLineNumbers
-    import { Scalekit } from '@scalekit-sdk/node';
+    ```javascript showLineNumbers { "Browser redirect to authorization endpoint": 7 } {"Create authorization URL": 1}
 
-    // Initialize the SDK client
-    const scalekit = new Scalekit('<SCALEKIT_ENVIRONMENT_URL>', '<SCALEKIT_CLIENT_ID>', '<SCALEKIT_CLIENT_SECRET>');
-
+    //
     const authorizationURL = scalekit.getAuthorizationUrl(redirectUri, {
       provider: 'google',
       state: state, // optional
     });
 
-    // Redirect the user to this authorizationURL
+    /*
+    https://auth.scalekit.com/authorize?
+      client_id=skc_122056050118122349527&
+      redirect_uri=https://yourapp.com/auth/callback&
+      provider=google
+    */
+
     ```
 
     </TabItem>
     <TabItem value="py" label="Python">
 
-    ```python showLineNumbers
-    from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
-
-    # Initialize the SDK client
-    scalekit_client = ScalekitClient(
-      '<SCALEKIT_ENVIRONMENT_URL>',
-      '<SCALEKIT_CLIENT_ID>',
-      '<SCALEKIT_CLIENT_SECRET>'
-    )
-
+    ```python showLineNumbers { "Browser redirect to authorization endpoint": 10 } { 3}
     options = AuthorizationUrlOptions()
 
     options.provider = 'google'
@@ -130,23 +115,13 @@ This guide shows you how to add social login to your B2B SaaS using Scalekit and
       options=options
     )
 
-    # Redirect the user to this authorization URL
+    #
     ```
 
     </TabItem>
     <TabItem value="golang" label="Go">
 
-    ```go showLineNumbers
-    import (
-      "github.com/scalekit-inc/scalekit-sdk-go"
-    )
-
-    func main() {
-      scalekitClient := scalekit.NewScalekitClient(
-        "<SCALEKIT_ENVIRONMENT_URL>",
-        "<SCALEKIT_CLIENT_ID>",
-        "<SCALEKIT_CLIENT_SECRET>"
-      )
+    ```go showLineNumbers  {3}
 
       options := scalekitClient.AuthorizationUrlOptions{}
       // Pass the social login provider details while constructing the authorization URL.
@@ -163,7 +138,7 @@ This guide shows you how to add social login to your B2B SaaS using Scalekit and
     </TabItem>
     <TabItem value="java" label="Java">
 
-    ```java showLineNumbers
+    ```java showLineNumbers { 14 }
     package com.scalekit;
 
     import com.scalekit.internal.http.AuthorizationUrlOptions;
@@ -191,16 +166,22 @@ This guide shows you how to add social login to your B2B SaaS using Scalekit and
     </TabItem>
     </Tabs>
 
-   After authentication, Scalekit redirects to your `redirect_uri` with an authorization code. Handle this callback to complete authentication.
+   After the user successfully authenticates with the selected social login provider, they will be redirected back to your application. Scalekit passes an authorization `code` to your registered callback endpoint, which you'll use in the next step to retrieve user information.
+
+   <Aside type="note" title="Specifying a provider bypasses the login selector">
+    Including a `provider` parameter in the authorization URL directs users straight to the specified social login provider's authentication page. This is useful when building a custom login interface.
+
+    Without this parameter, Scalekit displays its default login page showing all enabled authentication methods in your environment, including social connections and other options.
+   </Aside>
 
 3. ## Get user details from the callback
 
-   Exchange the authorization `code` at your server for the user's profile details.
+   After successful authentication, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and proceed to creating session and logging in the user.
 
     <Tabs syncKey="tech-stack">
     <TabItem value="nodejs" label="Node.js">
 
-    ```javascript showLineNumbers
+    ```javascript 'authResult' { 7 }
     const { code, state, error, error_description } = req.query;
 
     if (error) {
@@ -218,7 +199,7 @@ This guide shows you how to add social login to your B2B SaaS using Scalekit and
     </TabItem>
     <TabItem value="py" label="Python">
 
-    ```python showLineNumbers
+    ```python { 8-11 } 'auth_result'
     code = request.args.get('code')
     error = request.args.get('error')
     error_description = request.args.get('error_description')
@@ -226,13 +207,13 @@ This guide shows you how to add social login to your B2B SaaS using Scalekit and
     if error:
         raise Exception(error_description)
 
-    result = scalekit_client.authenticate_with_code(
+    auth_result = scalekit_client.authenticate_with_code(
       code,
       <redirect_uri>
     )
 
     # result.user has the authenticated user's details
-    user_email = result.user.email
+    user_email = auth_result.user.email
 
     # Next step: create a session for this user and allow access
     ```
@@ -240,7 +221,7 @@ This guide shows you how to add social login to your B2B SaaS using Scalekit and
     </TabItem>
     <TabItem value="golang" label="Go">
 
-    ```go showLineNumbers
+    ```go 'authResult' {9}
     code := r.URL.Query().Get("code")
     error := r.URL.Query().Get("error")
     errorDescription := r.URL.Query().Get("error_description")
@@ -249,13 +230,13 @@ This guide shows you how to add social login to your B2B SaaS using Scalekit and
       // Handle errors and exit
     }
 
-    res, err := scalekitClient.AuthenticateWithCode(code, redirectUrl)
+    authResult, err := scalekitClient.AuthenticateWithCode(code, redirectUrl)
     if err != nil {
       // Handle errors and exit
     }
 
-    // res.User has the authenticated user's details
-    userEmail := res.User.Email
+    // authResult.User has the authenticated user's details
+    userEmail := authResult.User.Email
 
     // Next step: create a session for this user and allow access
     ```
@@ -264,7 +245,7 @@ This guide shows you how to add social login to your B2B SaaS using Scalekit and
 
     <TabItem value="java" label="Java">
 
-    ```java showLineNumbers
+    ```java "res" { 9 }
     String code = request.getParameter("code");
     String error = request.getParameter("error");
     String errorDescription = request.getParameter("error_description");
@@ -287,6 +268,74 @@ This guide shows you how to add social login to your B2B SaaS using Scalekit and
     </TabItem>
     </Tabs>
 
+    The _auth result_ object
+
+    <Tabs>
+      <TabItem value="result" label="Auth Result">
+        ```js showLineNumbers=false wrap
+        {
+          user: {
+            email: "john.doe@example.com"  // User's email
+            // any additional common fields
+          },
+          idToken: "<USER_PROFILE_JWT>",   // JWT with user profile claims
+          accessToken: "<API_CALL_JWT>",   // JWT for API calls
+          expiresIn: 899                   // Seconds until expiration
+        }
+        ```
+      </TabItem>
+      <TabItem value="idToken" label="Decoded ID token (JWT)">
+        ```json showLineNumbers=false
+        {
+          "alg": "RS256",
+          "kid": "snk_82937465019283746",
+          "typ": "JWT"
+        }.{
+          "amr": [
+            "conn_92847563920187364"
+          ],
+          "at_hash": "j8kqPm3nRt5Kx2Vy9wL_Zp",
+          "aud": [
+            "skc_73645291837465928"
+          ],
+          "azp": "skc_73645291837465928",
+          "c_hash": "Hy4k2M9pWnX7vqR8_Jt3bg",
+          "client_id": "skc_73645291837465928",
+          "email": "alice.smith@example.com",
+          "email_verified": true,
+          "exp": 1751697469,
+          "iat": 1751438269,
+          "iss": "https://demo-company-dev.scalekit.cloud",
+          "sid": "ses_83746592018273645",
+          "sub": "conn_92847563920187364;alice.smith@example.com" // A scalekit user ID is sent if user management is enabled
+        }.[Signature]
+        ```
+      </TabItem>
+       <TabItem value="idToken" label="Decoded access token">
+        ```json showLineNumbers=false
+        {
+          "alg": "RS256",
+          "kid": "snk_794467716206433",
+          "typ": "JWT"
+        }.{
+          "iss": "https://acme-corp-dev.scalekit.cloud",
+          "sub": "conn_794467724427269;robert.wilson@acme.com",
+          "aud": [
+            "skc_794467724259497"
+          ],
+          "exp": 1751439169,
+          "iat": 1751438269,
+          "nbf": 1751438269,
+          "client_id": "skc_794467724259497",
+          "jti": "tkn_794754665320942",
+          // External identifiers if updated on Scalekit
+          "xoid": "ext_org_123", // Organization ID
+          "xuid": "ext_usr_456"  // User ID
+        }.[Signature]
+        ```
+      </TabItem>
+    </Tabs>
+
 </Steps>
 
-
+ Your application now supports social login authentication. Users can sign in securely using their preferred social identity providers like Google, GitHub, Microsoft, and more.
