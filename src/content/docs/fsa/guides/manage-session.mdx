@@ -1,6 +1,6 @@
 ---
 title: 'Manage user sessions'
-description: 'Learn how to manage user sessions, including storing tokens and refreshing them when they expire.'
+description: 'Store tokens safely, validate on every request, and refresh quietly so sessions stay seamless and secure'
 head:
   - tag: style
     content: |
@@ -29,24 +29,36 @@ import {
 } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 import CheckItem from '@/components/ui/CheckItem.astro';
+import IconTdesignSequence from '~icons/tdesign/sequence'
 
 User sessions determine how long users stay signed in to your application. After users successfully authenticate, you receive session tokens that manage their access. These tokens control session duration, multi-device access, and cross-product authentication within your company's ecosystem.
 
-Scalekit provides session management capabilities out of the box. Your application receives an `access_token` and `refresh_token` in the authentication response. This guide shows you how to store these tokens securely and refresh them before they expire.
+
+<details>
+<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the session management sequence</summary>
 
 ![User session management flow diagram showing how access tokens and refresh tokens work together](@/assets/docs/fsa/manage-session/1.png)
 
+</details>
 
-<Aside type='note'>
-  Include `offline_access` in the list of scopes sent during the authorization
-  request to Scalekit to receive a `refresh_token`. This token allows you to get
-  new access tokens without requiring users to sign in again.
-</Aside>
 
 <Steps>
-1. ### Store session tokens securely
+1. ### Verify user identity through auth methods
 
-   After [successful user authentication](/fsa/guides/implement-login/), your application receives session tokens in the response object.
+    Scalekit provides session management capabilities out of the box. Your application receives an `access_token` and `refresh_token` in the authentication response. This guide shows you how to store these tokens securely and refresh them before they expire.
+
+    Include `offline_access` in the list of scopes sent during the authorization
+      request to Scalekit to receive a `refresh_token`. This token allows you to get
+      new access tokens without requiring users to sign in again.
+
+
+2. ### Store session tokens securely (after authentication)
+
+    After successful user authentication using any of the auth methods (passwordless, social, enterprise SSO), your application receives session tokens in the response object.
+
+    <Aside type='note'>
+
+    </Aside>
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
