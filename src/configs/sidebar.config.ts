@@ -13,6 +13,7 @@ export const sidebar = [
         label: 'User authentication',
         collapsed: false,
         items: [
+          'passwordless/oidc',
           'fsa/guides/auth-methods',
           'fsa/guides/manage-session',
           'fsa/guides/logout',
@@ -100,7 +101,6 @@ export const sidebar = [
             link: '/guides/integrations/social-connections/',
             attrs: { target: '_blank', rel: 'noopener' },
           },
-          'passwordless/oidc',
           'authenticate/passkeys',
         ],
       },
