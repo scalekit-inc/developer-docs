@@ -250,7 +250,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         ```
         </TabItem>
         <TabItem value="go" label="Go">
-        ```go collapse={1-9} "AuthenticateWithCode"
+        ```go collapse={1-17, 24-32, 38-46} { 34-37 } "AuthenticateWithCode"
         package main
 
         import (
@@ -499,7 +499,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         </TabItem>
 
         <TabItem value="go" label="Go">
-        ```go collapse={1-6} { "1": 7-8 } { "2": 10-21 } { "3": 23}
+        ```go collapse={1-7}  {12, 15-23}
         import (
             "crypto/aes"
             "crypto/cipher"
@@ -604,7 +604,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         ```
         </TabItem>
         <TabItem value="python" label="Python">
-        ```python wrap
+        ```python wrap collapse={1-3, 11-14, 22-27, 51-67}
         from functools import wraps
         from flask import request, jsonify, make_response
 
@@ -675,62 +675,71 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         ```
         </TabItem>
         <TabItem value="go" label="Go">
-        ```go wrap
+        ```go wrap collapse={1-5,11-14, 21-25, 34-38, 42-46, 50-54, 58-62, 65-95}
         import (
             "context"
             "net/http"
         )
 
+        // verifyToken is a middleware that ensures a valid access token or refreshes it if expired.
         func verifyToken(next http.HandlerFunc) http.HandlerFunc {
             return func(w http.ResponseWriter, r *http.Request) {
-                // Get access token from cookie
+                // Retrieve the access token from the user's cookie
                 cookie, err := r.Cookie("accessToken")
                 if err != nil {
+                    // No access token cookie found; reject the request
                     http.Error(w, `{"message": "No access token provided"}`, http.StatusUnauthorized)
                     return
                 }
 
                 accessToken := cookie.Value
 
-                // Decrypt the accessToken
+                // Decrypt the access token before validation
                 decryptedAccessToken, err := decrypt(accessToken)
                 if err != nil {
+                    // Could not decrypt access token; treat as invalid
                     http.Error(w, `{"message": "Token decryption failed"}`, http.StatusUnauthorized)
                     return
                 }
 
-                // Use Scalekit SDK to validate the token
+                // Validate the access token using the Scalekit SDK
                 isValid, err := scalekit.ValidateAccessToken(decryptedAccessToken)
                 if err != nil || !isValid {
-                    // Get stored refresh token
+                    // Access token is invalid or expired
+
+                    // Attempt to retrieve the stored refresh token
                     refreshToken, err := getStoredRefreshToken(r)
                     if err != nil {
+                        // No refresh token is available; cannot continue
                         http.Error(w, `{"message": "No refresh token available"}`, http.StatusUnauthorized)
                         return
                     }
 
-                    // Use stored refreshToken to get a new access token
+                    // Use the refresh token to obtain a new access token from Scalekit
                     tokenResponse, err := scalekit.RefreshAccessToken(refreshToken)
                     if err != nil {
+                        // Refresh attempt failed; likely an expired or invalid refresh token
                         http.Error(w, `{"message": "Token refresh failed"}`, http.StatusUnauthorized)
                         return
                     }
 
-                    // Go SDK returns TokenResponse with AccessToken, RefreshToken, ExpiresIn
-                    // Store the new refresh token
+                    // Save the new refresh token so it can be reused for future requests
                     err = storeRefreshToken(tokenResponse.RefreshToken)
                     if err != nil {
+                        // Could not store the new refresh token
                         http.Error(w, `{"message": "Failed to store refresh token"}`, http.StatusInternalServerError)
                         return
                     }
 
-                    // Update the cookie with the new access token
+                    // Encrypt the new access token before setting it in the cookie
                     encryptedNewAccessToken, err := encrypt(tokenResponse.AccessToken)
                     if err != nil {
+                        // Could not encrypt new access token
                         http.Error(w, `{"message": "Token encryption failed"}`, http.StatusInternalServerError)
                         return
                     }
 
+                    // Issue a new accessToken cookie with updated credentials
                     newCookie := &http.Cookie{
                         Name:     "accessToken",
                         Value:    encryptedNewAccessToken,
@@ -741,16 +750,19 @@ Scalekit handles the complex authentication flow while you focus on your core pr
                     }
                     http.SetCookie(w, newCookie)
 
+                    // Mark the token as valid in the request context and proceed
                     r = r.WithContext(context.WithValue(r.Context(), "tokenValid", true))
                 } else {
+                    // The access token is valid; continue with marked context
                     r = r.WithContext(context.WithValue(r.Context(), "tokenValid", true))
                 }
 
+                // Pass the request along to the next handler in the chain
                 next(w, r)
             }
         }
 
-        // Example of using the middleware to protect routes
+        // dashboardHandler demonstrates a protected route that requires authentication.
         func dashboardHandler(w http.ResponseWriter, r *http.Request) {
             w.Header().Set("Content-Type", "application/json")
             w.Write([]byte(`{
@@ -759,7 +771,9 @@ Scalekit handles the complex authentication flow while you focus on your core pr
             }`))
         }
 
-        // Usage: http.HandleFunc("/dashboard", verifyToken(dashboardHandler))
+        // Usage example:
+        // Attach middleware to the /dashboard route:
+        // http.HandleFunc("/dashboard", verifyToken(dashboardHandler))
         ```
         </TabItem>
         <TabItem value="java" label="Java">
@@ -860,7 +874,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
           ```
         </TabItem>
         <TabItem value="python" label="Python">
-          ```python
+          ```python { 16, 13-14, 20 } collapse={1-5}
           from flask import Flask, redirect
           from scalekit import LogoutUrlOptions
 
@@ -952,8 +966,12 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 </Steps>
 
 
-You've completed the Scalekit quickstart and enabled secure authentication for your users and sign-in flow.
+Your application now provides secure authentication for users and a streamlined sign-in experience.
 
-- [Design your data model](/fsa/data-modelling/) to learn how to model your data to best work with Scalekit.
-- [Manage users](/fsa/reference/user-profile/) to create, update, and delete user accounts.
-- [Customize the login page](/fsa/guides/login-page-branding/) to match your brand's design and style.
+Next steps:
+
+- [Design your data model](/fsa/data-modelling/). Create a structure that works seamlessly with Scalekit.
+- [Manage users](/fsa/reference/user-profile/). Create, update, or delete user accounts.
+- [Customize the login page](/fsa/guides/login-page-branding/). Apply your brand’s design and style.
+
+Each guide helps you make the most of Scalekit’s features and adapt authentication to your application’s needs.
