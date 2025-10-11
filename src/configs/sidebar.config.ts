@@ -10,18 +10,6 @@ export const sidebar = [
         items: ['index', 'authenticate/installation', 'fsa/quickstart'],
       },
       {
-        label: 'MCP Auth',
-        collapsed: true,
-        items: [
-          'mcp/oauth',
-          'mcp/overview',
-          {
-            label: 'Co-exist with own auth systems',
-            link: 'mcp/guides/custom-auth',
-          },
-        ],
-      },
-      {
         label: 'User authentication',
         collapsed: false,
         items: [
@@ -32,6 +20,18 @@ export const sidebar = [
             label: 'View auth logs',
             link: 'guides/dashboard/auth-logs',
             attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+      {
+        label: 'MCP Auth',
+        collapsed: true,
+        items: [
+          'mcp/oauth',
+          'mcp/overview',
+          {
+            label: 'Co-exist with own auth systems',
+            link: 'mcp/guides/custom-auth',
           },
         ],
       },
