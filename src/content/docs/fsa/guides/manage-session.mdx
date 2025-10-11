@@ -48,17 +48,90 @@ User sessions determine how long users stay signed in to your application. After
     Scalekit provides session management capabilities out of the box. Your application receives an `access_token` and `refresh_token` in the authentication response. This guide shows you how to store these tokens securely and refresh them before they expire.
 
     Include `offline_access` in the list of scopes sent during the authorization
-      request to Scalekit to receive a `refresh_token`. This token allows you to get
-      new access tokens without requiring users to sign in again.
+    request to Scalekit to receive a `refresh_token`. This token allows you to get new access tokens without requiring users to sign in again.
+
+    **Create an authorization URL with offline_access scope:**
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="node" label="Node.js">
+    ```javascript wrap title="Express.js" {2,6-8,10} "offline_access"
+    // Must match the callback URL you registered in your Scalekit dashboard
+    const redirectUri = 'http://localhost:3000/auth/callback';
+
+    // Request user profile data (openid, profile, email) and session tracking (offline_access)
+    // offline_access enables refresh tokens so users can stay logged in across sessions
+    const options = {
+      scopes: ['openid', 'profile', 'email', 'offline_access']
+    };
+
+    const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+
+    res.redirect(authorizationUrl);
+    ```
+    </TabItem>
+    <TabItem value="python" label="Python">
+    ```python wrap title="Flask" {1,4,8-10,12} "offline_access"
+    from scalekit import AuthorizationUrlOptions
+
+    # Must match the callback URL you registered in your Scalekit dashboard
+    redirect_uri = 'http://localhost:3000/auth/callback'
+
+    # Request user profile data (openid, profile, email) and session tracking (offline_access)
+    # offline_access enables refresh tokens so users can stay logged in across sessions
+    options = AuthorizationUrlOptions(
+        scopes=['openid', 'profile', 'email', 'offline_access']
+    )
+
+    authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+
+    return redirect(authorization_url)
+    ```
+    </TabItem>
+    <TabItem value="go" label="Go">
+    ```go wrap title="Gin" {2,6-8,10} "offline_access"
+    // Must match the callback URL you registered in your Scalekit dashboard
+    redirectUri := "http://localhost:3000/auth/callback"
+
+    // Request user profile data (openid, profile, email) and session tracking (offline_access)
+    // offline_access enables refresh tokens so users can stay logged in across sessions
+    options := scalekit.AuthorizationUrlOptions{
+        Scopes: []string{"openid", "profile", "email", "offline_access"}
+    }
+
+    authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+    if err != nil {
+        // Handle error based on your application's error handling strategy
+        panic(err)
+    }
+
+    c.Redirect(http.StatusFound, authorizationUrl.String())
+    ```
+    </TabItem>
+    <TabItem value="java" label="Java">
+    ```java wrap title="Spring" {1-3,6,10-11,13} "offline_access"
+    import com.scalekit.internal.http.AuthorizationUrlOptions;
+    import java.net.URL;
+    import java.util.Arrays;
+
+    // Must match the callback URL you registered in your Scalekit dashboard
+    String redirectUri = "http://localhost:3000/auth/callback";
+
+    // Request user profile data (openid, profile, email) and session tracking (offline_access)
+    // offline_access enables refresh tokens so users can stay logged in across sessions
+    AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+    options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+
+    URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+    ```
+    </TabItem>
+    </Tabs>
+
+    This redirects users to Scalekit's managed sign-in page where they can authenticate. The `offline_access` scope ensures you receive a refresh token for seamless session management.
 
 
 2. ### Store session tokens securely (after authentication)
 
     After successful user authentication using any of the auth methods (passwordless, social, enterprise SSO), your application receives session tokens in the response object.
-
-    <Aside type='note'>
-
-    </Aside>
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
