@@ -20,6 +20,7 @@ export const collections = {
                   z.object({
                     title: z.string(),
                     url: z.string(),
+                    icon: z.string().optional(),
                   }),
                 ),
                 expanded: z.boolean().optional().default(true),

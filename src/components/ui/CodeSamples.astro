@@ -3,11 +3,42 @@ import IconStreamlineBrowserCode from '~icons/streamline-plump/browser-code-1-so
 import IconLucideChevronDown from '~icons/lucide/chevron-down'
 import IconOcticonTabExternal from '~icons/octicon/tab-external-24'
 
+// Import commonly used tech stack icons
+import IconNodejs from '~icons/simple-icons/nodedotjs'
+import IconJavascript from '~icons/simple-icons/javascript'
+import IconPython from '~icons/simple-icons/python'
+import IconGo from '~icons/simple-icons/go'
+import IconJava from '~icons/simple-icons/openjdk'
+import IconNextjs from '~icons/simple-icons/nextdotjs'
+import IconSpringboot from '~icons/simple-icons/springboot'
+import IconFlask from '~icons/simple-icons/flask'
+import IconDjango from '~icons/simple-icons/django'
+
+// Static icon mapping for supported technologies
+const iconMap = {
+  nodejs: IconNodejs,
+  node: IconNodejs,
+  javascript: IconJavascript,
+  js: IconJavascript,
+  python: IconPython,
+  py: IconPython,
+  golang: IconGo,
+  go: IconGo,
+  java: IconJava,
+  nextjs: IconNextjs,
+  next: IconNextjs,
+  springboot: IconSpringboot,
+  spring: IconSpringboot,
+  flask: IconFlask,
+  django: IconDjango,
+}
+
 interface Props {
   codeSamples?: {
     items: Array<{
       title: string
       url: string
+      icon?: string
     }>
     expanded?: boolean
     label?: string
@@ -29,19 +60,24 @@ const { codeSamples } = Astro.props
           <IconLucideChevronDown class="chevron-icon" />
         </summary>
         <div class="code-samples-list">
-          {codeSamples.items.map((sample) => (
-            <div class="code-sample-item">
-              <IconOcticonTabExternal class="item-icon" />
-              <a
-                href={sample.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="code-sample-link"
-              >
-                {sample.title}
-              </a>
-            </div>
-          ))}
+          {codeSamples.items.map((sample) => {
+            const iconName = sample.icon?.toLowerCase()
+            const IconComponent =
+              iconName && iconMap[iconName] ? iconMap[iconName] : IconOcticonTabExternal
+            return (
+              <div class="code-sample-item">
+                <IconComponent class="item-icon" />
+                <a
+                  href={sample.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="code-sample-link"
+                >
+                  {sample.title}
+                </a>
+              </div>
+            )
+          })}
         </div>
       </details>
     </div>
@@ -125,7 +161,7 @@ const { codeSamples } = Astro.props
   .code-sample-link {
     text-decoration: none;
     font-weight: inherit;
-    border-bottom: 1px solid currentColor;
+    border-bottom: 1px solid transparent;
     color: var(--sl-color-gray-2);
     font-size: var(--sl-text-xs);
     transition: all 0.2s ease;
