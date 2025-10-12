@@ -28,10 +28,13 @@ import {
   Card,
 } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
+import { AuthResultTabsSection } from '@components/templates';
 import CheckItem from '@/components/ui/CheckItem.astro';
 import IconTdesignSequence from '~icons/tdesign/sequence'
 
 User sessions determine how long users stay signed in to your application. After users successfully authenticate, you receive session tokens that manage their access. These tokens control session duration, multi-device access, and cross-product authentication within your company's ecosystem.
+
+This guide shows you how to store these tokens securely and refresh them before they expire.
 
 
 <details>
@@ -43,14 +46,14 @@ User sessions determine how long users stay signed in to your application. After
 
 
 <Steps>
-1. ### Verify user identity through auth methods
+1. ### Keep users signed in: include _offline_access_
 
-    Scalekit provides session management capabilities out of the box. Your application receives an `access_token` and `refresh_token` in the authentication response. This guide shows you how to store these tokens securely and refresh them before they expire.
+    Scalekit provides session management capabilities out of the box. Your application receives an `access_token` and `refresh_token` in the authentication response.
 
     Include `offline_access` in the list of scopes sent during the authorization
     request to Scalekit to receive a `refresh_token`. This token allows you to get new access tokens without requiring users to sign in again.
 
-    **Create an authorization URL with offline_access scope:**
+    Create an authorization URL with offline_access scope:
 
     <Tabs syncKey="tech-stack">
     <TabItem value="node" label="Node.js">
@@ -126,12 +129,12 @@ User sessions determine how long users stay signed in to your application. After
     </TabItem>
     </Tabs>
 
-    This redirects users to Scalekit's managed sign-in page where they can authenticate. The `offline_access` scope ensures you receive a refresh token for seamless session management.
+    This redirects users to Scalekit's managed sign-in page where they can authenticate. The `offline_access` scope ensures you receive a **refresh token**.
 
 
 2. ### Store session tokens securely (after authentication)
 
-    After successful user authentication using any of the auth methods (passwordless, social, enterprise SSO), your application receives session tokens in the response object.
+    After successful user authentication using any of the auth methods (passwordless, social, enterprise SSO), your application receives session tokens.
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
@@ -186,38 +189,10 @@ User sessions determine how long users stay signed in to your application. After
      ```
      </TabItem>
    </Tabs>
+   <AuthResultTabsSection />
 
    Store each token based on its security requirements:
    - **Access Token**: Store in a secure, HTTP-only cookie to prevent XSS attacks. This token has a short lifespan and provides access to protected resources.
-   <details>
-   <summary>View decoded access token</summary>
-   ```json title="Access Token (decoded JWT) example" showLineNumbers=false
-    {
-      "aud": [
-        "skc_987654321098765432"
-      ],
-      "client_id": "skc_987654321098765432",
-      "exp": 1750850145,
-      "iat": 1750849845,
-      "iss": "http://example.localhost:8889",
-      "jti": "tkn_987654321098765432",
-      "nbf": 1750849845,
-      "roles": [
-        "member"
-      ],
-      "sid": "ses_987654321098765432",
-      "sub": "usr_987654321098765432",
-      "permissions": [
-        "workspace_data:write",
-        "workspace_data:read"
-      ],
-      // External identifiers if updated on Scalekit
-      "xoid": "ext_org_123", // Organization ID
-      "xuid": "ext_usr_456", // User ID
-      }
-    }
-    ```
-   </details>
    - **Refresh Token**: Store in your backend database or secure server-side storage. This long-lived token generates new access tokens.
 
    Here's how to set secure cookies:
