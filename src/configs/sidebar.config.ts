@@ -17,11 +17,6 @@ export const sidebar = [
           'social-logins/quickstart',
           'fsa/guides/manage-session',
           'fsa/guides/logout',
-          {
-            label: 'View auth logs',
-            link: 'guides/dashboard/auth-logs',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
         ],
       },
       {
