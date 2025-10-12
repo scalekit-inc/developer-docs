@@ -12,9 +12,7 @@ head:
       }
 sidebar:
   label: 'Manage sessions'
-prev:
-  label: 'Implement sign-in'
-  link: '/fsa/guides/implement-login/'
+prev: null
 next:
   label: 'Logout'
   link: '/fsa/guides/logout/'
@@ -46,7 +44,7 @@ This guide shows you how to store these tokens securely and refresh them before 
 
 
 <Steps>
-1. ### Keep users signed in: include _offline_access_
+1. ## Keep users signed in: include _offline_access_
 
     Scalekit provides session management capabilities out of the box. Your application receives an `access_token` and `refresh_token` in the authentication response.
 
@@ -132,7 +130,7 @@ This guide shows you how to store these tokens securely and refresh them before 
     This redirects users to Scalekit's managed sign-in page where they can authenticate. The `offline_access` scope ensures you receive a **refresh token**.
 
 
-2. ### Store session tokens securely (after authentication)
+2. ## Store session tokens securely (after authentication)
 
     After successful user authentication using any of the auth methods (passwordless, social, enterprise SSO), your application receives session tokens.
 
@@ -312,7 +310,7 @@ This guide shows you how to store these tokens securely and refresh them before 
    Configure session settings from your [Scalekit dashboard's Session Configuration](/fsa/reference/user-management-settings) to control session lifetimes and security policies.
 
 
-3. ### Check the access token before handling requests
+3. ## Check the access token before handling requests
 
    Validate every request for a valid access token in your application. Create middleware to protect your application routes. This middleware validates the access token on every request to secured endpoints.
 
@@ -481,42 +479,50 @@ This guide shows you how to store these tokens securely and refresh them before 
       </TabItem>
    </Tabs>
 
-4. ### Maintain sessions by refreshing access tokens
+4. ## Maintain sessions by refreshing access tokens
 
    When access tokens expire, you can use the refresh token to obtain new ones without requiring users to sign in again. Store refresh tokens securely in a database, HTTP-only cookies, or another secure storage mechanism. This approach maintains seamless user sessions while ensuring security through the token refresh flow.
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
-     ```javascript title="middleware/auth.js" wrap showLineNumbers=true {10-20}
+     ```javascript title="middleware/auth.js" {3,10, 17, 25-30}
      async function handleTokenRefresh(req, res, next) {
-       // Get the user ID from the expired token or session storage
+       // Extract user ID from session or user object to identify the session
        const userId = req.session?.userId || req.user?.id;
        if (!userId) {
          return res.status(401).json({ error: 'Authentication required' });
        }
-       // Retrieve the stored refresh token from your database
+
+       // Fetch the refresh token from persistent storage
+       // This token will be used to request new access credentials
        const storedRefreshToken = await db.getRefreshToken(userId);
        if (!storedRefreshToken) {
          return res.status(401).json({ error: 'Session expired' });
        }
+
        try {
-         // Get new tokens using the refresh token
+         // Exchange refresh token for new credentials from Scalekit
          const authResult = await scalekit.refreshAccessToken(storedRefreshToken);
          const { accessToken, expiresIn, refreshToken: newRefreshToken } = authResult;
-         // Update the stored refresh token
+
+         // Persist the new refresh token for future token refreshes
          await db.saveRefreshToken(userId, newRefreshToken);
-         // Set the new access token as a cookie
+
+         // Set access token in HTTP-only cookie with security configurations
+         // Subtract 60 seconds to account for network latency and clock skew
          res.cookie('accessToken', accessToken, {
            maxAge: (expiresIn - 60) * 1000,
            httpOnly: true,
            secure: process.env.NODE_ENV === 'production',
            sameSite: 'strict'
          });
-         // Attach user information and continue
+
+         // Update request context with user data and continue to next middleware
          req.user = authResult.user;
          next();
        } catch (error) {
-         // Refresh failed - user must sign in again
+         // Authentication chain broken - user session cannot be recovered
+         // Clear any existing credentials and require re-authentication
          res.clearCookie('accessToken');
          return res.status(401).json({ error: 'Session expired. Please sign in again.' });
        }
@@ -524,26 +530,32 @@ This guide shows you how to store these tokens securely and refresh them before 
      ```
      </TabItem>
      <TabItem value="py" label="Python">
-     ```python title="middleware/auth.py" wrap showLineNumbers=true {11-26}
+     ```python title="middleware/auth.py" {4, 10,16, 27-34}
      from flask import request, jsonify, make_response
      def handle_token_refresh(f, *args, **kwargs):
-         # Get the user ID from the expired token or session storage
+         # Extract user ID from session or user object to identify the session
          user_id = request.session.get('userId') if hasattr(request, 'session') else getattr(request, 'user', {}).get('id')
          if not user_id:
              return jsonify({'error': 'Authentication required'}), 401
-         # Retrieve the stored refresh token from your database
+
+         # Fetch the refresh token from persistent storage
+         # This token will be used to request new access credentials
          stored_refresh_token = db.get_refresh_token(user_id)
          if not stored_refresh_token:
              return jsonify({'error': 'Session expired'}), 401
+
          try:
-             # Get new tokens using the refresh token
+             # Exchange refresh token for new credentials from Scalekit
              auth_result = scalekit.refresh_access_token(stored_refresh_token)
              access_token = auth_result.access_token
              expires_in = auth_result.expires_in
              new_refresh_token = auth_result.refresh_token
-             # Update the stored refresh token
+
+             # Persist the new refresh token for future token refreshes
              db.save_refresh_token(user_id, new_refresh_token)
-             # Set the new access token as a cookie
+
+             # Set access token in HTTP-only cookie with security configurations
+             # Subtract 60 seconds to account for network latency and clock skew
              response = make_response(f(*args, **kwargs))
              response.set_cookie(
                  'accessToken',
@@ -553,105 +565,114 @@ This guide shows you how to store these tokens securely and refresh them before 
                  secure=os.environ.get('FLASK_ENV') == 'production',
                  samesite='Strict'
              )
-             # Attach user information and continue
+
+             # Update request context with user data and continue to next middleware
              request.user = auth_result.user
              return response
          except Exception:
-             # Refresh failed - user must sign in again
+             # Authentication chain broken - user session cannot be recovered
+             # Clear any existing credentials and require re-authentication
              response = make_response(jsonify({'error': 'Session expired. Please sign in again.'}), 401)
              response.set_cookie('accessToken', '', expires=0)
              return response
      ```
      </TabItem>
      <TabItem value="go" label="Go">
-     ```go title="middleware/auth.go" wrap showLineNumbers=true {10-23}
+     ```go title="middleware/auth.go" {14, 33-41}
      import (
        "net/http"
        "github.com/gin-gonic/gin"
      )
      func handleTokenRefresh(c *gin.Context) {
-       // Get the user ID from the expired token or session storage
-       userID := getUserIDFromContext(c) // Helper function to get user ID
+       // Identify the user session from context to maintain authentication state
+       userID := getUserIDFromContext(c)
        if userID == "" {
          c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
          c.Abort()
          return
        }
-       // Retrieve the stored refresh token from your database
+       // Fetch the refresh token from persistent storage for token rotation
        storedRefreshToken, err := db.GetRefreshToken(userID)
        if err != nil || storedRefreshToken == "" {
          c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired"})
          c.Abort()
          return
        }
-       // Get new tokens using the refresh token
+       // Exchange refresh token for new credentials with Scalekit
        authResult, err := scalekit.RefreshAccessToken(storedRefreshToken)
        if err != nil {
-         // Refresh failed - user must sign in again
+         // Authentication chain broken - clear credentials and require re-authentication
          c.SetCookie("accessToken", "", -1, "/", "", false, true)
          c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired. Please sign in again."})
          c.Abort()
          return
        }
-       // Update the stored refresh token
+       // Persist the new refresh token for future token refreshes
        db.SaveRefreshToken(userID, authResult.RefreshToken)
-       // Set the new access token as a cookie
+       // Set access token in HTTP-only cookie with security configurations
+       // Subtract 60 seconds to account for network latency and clock skew
        c.SetCookie(
          "accessToken",
          authResult.AccessToken,
          (authResult.ExpiresIn-60)*1000,
          "/",
          "",
-         os.Getenv("GIN_MODE") == "release",
-         true,
+         os.Getenv("GIN_MODE") == "release", // Secure flag in production
+         true, // HTTP-only flag
        )
-       // Attach user information and continue
+       // Update request context with user data and continue to next middleware
        c.Set("user", authResult.User)
        c.Next()
      }
      ```
      </TabItem>
      <TabItem value="java" label="Java">
-     ```java title="middleware/AuthInterceptor.java" wrap showLineNumbers=true {11-23}
+     ```java title="middleware/AuthInterceptor.java" collapse={1-3} { 7, 15, 24}
      import javax.servlet.http.HttpServletRequest;
      import javax.servlet.http.HttpServletResponse;
      import javax.servlet.http.Cookie;
      private boolean handleTokenRefresh(HttpServletRequest request, HttpServletResponse response)
          throws Exception {
-       // Get the user ID from the expired token or session storage
-       String userId = getUserIdFromRequest(request); // Helper method to get user ID
+       // Identify the user session from context to maintain authentication state
+       String userId = getUserIdFromRequest(request);
        if (userId == null) {
          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
          response.getWriter().write("{\"error\": \"Authentication required\"}");
          return false;
        }
-       // Retrieve the stored refresh token from your database
+
+       // Fetch the refresh token from persistent storage for token rotation
        String storedRefreshToken = db.getRefreshToken(userId);
        if (storedRefreshToken == null) {
          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
          response.getWriter().write("{\"error\": \"Session expired\"}");
          return false;
        }
+
        try {
-         // Get new tokens using the refresh token
+         // Exchange refresh token for new credentials with Scalekit
          AuthResult authResult = scalekit.refreshToken(storedRefreshToken);
          String accessToken = authResult.getAccessToken();
          int expiresIn = authResult.getExpiresIn();
          String newRefreshToken = authResult.getRefreshToken();
-         // Update the stored refresh token
+
+         // Persist the new refresh token for future token refreshes
          db.saveRefreshToken(userId, newRefreshToken);
-         // Set the new access token as a cookie
+
+         // Set access token in HTTP-only cookie with security configurations
          Cookie cookie = new Cookie("accessToken", accessToken);
+         // Subtract 60 seconds to account for network latency and clock skew
          cookie.setMaxAge((expiresIn - 60) * 1000);
          cookie.setHttpOnly(true);
          cookie.setSecure("production".equals(env.getActiveProfiles()[0]));
          cookie.setPath("/");
          response.addCookie(cookie);
-         // Attach user information and continue
+
+         // Update request context with user data and continue to next middleware
          request.setAttribute("user", authResult.getUser());
          return true;
        } catch (Exception e) {
-         // Refresh failed - user must sign in again
+         // Authentication chain broken - clear credentials and require re-authentication
          Cookie expiredCookie = new Cookie("accessToken", "");
          expiredCookie.setMaxAge(0);
          response.addCookie(expiredCookie);
@@ -668,7 +689,7 @@ This guide shows you how to store these tokens securely and refresh them before 
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
-     ```javascript title="app.js"
+     ```javascript title="app.js" "verifyToken"
      // Protect routes that require authentication
      app.get('/dashboard', verifyToken, (req, res) => {
        res.json({ message: `Welcome ${req.user.name}!` });
@@ -679,7 +700,7 @@ This guide shows you how to store these tokens securely and refresh them before 
      ```
      </TabItem>
      <TabItem value="py" label="Python">
-     ```python title="app.py"
+     ```python title="app.py" "verify_token"
      # Protect routes that require authentication
      @app.route('/dashboard')
      @verify_token
@@ -692,7 +713,7 @@ This guide shows you how to store these tokens securely and refresh them before 
      ```
      </TabItem>
      <TabItem value="go" label="Go">
-     ```go title="main.go"
+     ```go title="main.go" "VerifyToken"
      // Protect routes that require authentication
      r.GET("/dashboard", VerifyToken(), func(c *gin.Context) {
        user, _ := c.Get("user")
@@ -707,7 +728,7 @@ This guide shows you how to store these tokens securely and refresh them before 
      ```
      </TabItem>
      <TabItem value="java" label="Java">
-     ```java title="Controller.java"
+     ```java title="Controller.java" "VerifyToken"
      // Protect routes that require authentication
      @GetMapping("/dashboard")
      public ResponseEntity<Map<String, String>> dashboard(HttpServletRequest request) {
@@ -726,7 +747,7 @@ This guide shows you how to store these tokens securely and refresh them before 
      ```
      </TabItem>
    </Tabs>
-5. ### Manage session security and duration
+5. ## Manage session security and duration
 
       Manage user session behavior directly from your Scalekit dashboard without modifying application code. Configure session durations and authentication frequency to balance security and user experience for your application.
 
@@ -747,9 +768,3 @@ This guide shows you how to store these tokens securely and refresh them before 
 <Aside type="tip" title="Organization-level session settings">
 Enable organization administrators to control session settings for their workspace. [Contact our support team](/support/contact-us/) to activate this feature for your account.
 </Aside>
-
-## What's next?
-
-- Learn how to [implement secure user logout](/fsa/guides/logout/) to properly end user sessions.
-- Explore [session configuration options](/fsa/reference/user-management-settings) to customize security policies.
-- Set up [organization-level authentication policies](/fsa/guides/manage-organization/#organization-specific-policies) for enterprise customers.
