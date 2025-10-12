@@ -195,98 +195,114 @@ This guide shows you how to store these tokens securely and refresh them before 
    - **Access Token**: Store in a secure, HTTP-only cookie to prevent XSS attacks. This token has a short lifespan and provides access to protected resources.
    - **Refresh Token**: Store in your backend database or secure server-side storage. This long-lived token generates new access tokens.
 
-   Here's how to set secure cookies:
-
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
-     ```javascript title="Express.js" wrap showLineNumbers=true {6-13}
+     ```javascript title="Express.js" showLineNumbers=true  collapse={1-4} { "1": 5-6 } { "2": 8-10 } { "3": 12-19 }
      import cookieParser from 'cookie-parser';
-     // Configure cookie parser middleware
+     // Enable parsing of cookies from request headers
      app.use(cookieParser());
-     // After receiving the authResult from scalekit.authenticateWithCode()
+
+     // Extract authentication data from the successful authentication response
      const { accessToken, expiresIn, refreshToken, user } = authResult;
-     // Store the refresh token in your database
+
+     // Persist refresh token in database for later token renewal
+     // This allows issuing new access tokens without requiring re-authentication
      await db.saveRefreshToken(user.id, refreshToken);
-     // Set the access token as a secure cookie
+
+     // Create secure HTTP-only cookie containing the access token
+     // The cookie expires shortly before the token itself to prevent edge cases
      res.cookie('accessToken', accessToken, {
-       maxAge: (expiresIn - 60) * 1000, // Convert to milliseconds, subtract 60s buffer
-       httpOnly: true,
-       secure: process.env.NODE_ENV === 'production',
-       sameSite: 'strict'
+       maxAge: (expiresIn - 60) * 1000, // Subtract 60s buffer for clock skew
+       httpOnly: true, // Prevents JavaScript access to mitigate XSS attacks
+       secure: process.env.NODE_ENV === 'production', // HTTPS-only in production
+       sameSite: 'strict' // Prevents CSRF attacks
      });
      ```
      </TabItem>
      <TabItem value="py" label="Python">
-     ```python title="Flask" wrap showLineNumbers=true {9-20}
+     ```python title="Flask" collapse={1-4} { "1": 5-9 } { "2": 12-13 } { "3": 15-24 }
      from flask import Flask, make_response
      import os
      app = Flask(__name__)
-     # After receiving the auth_result from scalekit.authenticate_with_code()
+
+     # Extract authentication data from the successful authentication response
      access_token = auth_result.access_token
      expires_in = auth_result.expires_in
      refresh_token = auth_result.refresh_token
      user = auth_result.user
-     # Store the refresh token in your database
+
+     # Persist refresh token in database for later token renewal
+     # This allows issuing new access tokens without requiring re-authentication
      db.save_refresh_token(user.id, refresh_token)
-     # Set the access token as a secure cookie
+
+     # Create secure HTTP-only cookie containing the access token
      response = make_response()
      response.set_cookie(
        'accessToken',
        access_token,
-       max_age=(expires_in - 60) * 1000,  # Convert to milliseconds, subtract 60s buffer
-       httponly=True,
-       secure=os.environ.get('FLASK_ENV') == 'production',
-       samesite='Strict'
+       max_age=(expires_in - 60) * 1000,  # Subtract 60s buffer for clock skew
+       httponly=True,                      # Prevents JavaScript access to mitigate XSS attacks
+       secure=os.environ.get('FLASK_ENV') == 'production',  # HTTPS-only in production
+       samesite='Strict'                   # Prevents CSRF attacks
      )
      ```
      </TabItem>
      <TabItem value="go" label="Go">
-     ```go title="Gin" wrap showLineNumbers=true {12-24}
+     ```go title="Gin" collapse={1-7}
      import (
        "net/http"
        "os"
        "time"
        "github.com/gin-gonic/gin"
      )
-     // After receiving the authResult from scalekit.AuthenticateWithCode()
+
+     // Extract authentication data from the successful authentication response
      accessToken := authResult.AccessToken
      expiresIn := authResult.ExpiresIn
      refreshToken := authResult.RefreshToken
      user := authResult.User
-     // Store the refresh token in your database
+
+     // Persist refresh token in database for later token renewal
+     // This allows issuing new access tokens without requiring re-authentication
      db.SaveRefreshToken(user.ID, refreshToken)
-     // Set the access token as a secure cookie
+
+     // Create secure HTTP-only cookie containing the access token
      c.SetCookie(
        "accessToken",
        accessToken,
-       (expiresIn-60)*1000, // Convert to milliseconds, subtract 60s buffer
+       (expiresIn-60)*1000, // Subtract 60s buffer for clock skew
        "/",
        "",
-       os.Getenv("GIN_MODE") == "release",
-       true, // httpOnly
+       os.Getenv("GIN_MODE") == "release", // HTTPS-only in production
+       true, // Prevents JavaScript access to mitigate XSS attacks
      )
+     // Prevents CSRF attacks
      c.SetSameSite(http.SameSiteStrictMode)
      ```
      </TabItem>
      <TabItem value="java" label="Java">
-     ```java title="Spring" wrap showLineNumbers=true {11-19}
+     ```java title="Spring" collapse={1-6}
      import javax.servlet.http.Cookie;
      import javax.servlet.http.HttpServletResponse;
      import org.springframework.core.env.Environment;
      @Autowired
      private Environment env;
-     // After receiving the authResult from scalekit.authenticateWithCode()
+
+     // Extract authentication data from the successful authentication response
      String accessToken = authResult.getAccessToken();
      int expiresIn = authResult.getExpiresIn();
      String refreshToken = authResult.getRefreshToken();
      User user = authResult.getUser();
-     // Store the refresh token in your database
+
+     // Persist refresh token in database for later token renewal
+     // This allows issuing new access tokens without requiring re-authentication
      db.saveRefreshToken(user.getId(), refreshToken);
-     // Set the access token as a secure cookie
+
+     // Create secure HTTP-only cookie containing the access token
      Cookie cookie = new Cookie("accessToken", accessToken);
-     cookie.setMaxAge((expiresIn - 60) * 1000); // Convert to milliseconds, subtract 60s buffer
-     cookie.setHttpOnly(true);
-     cookie.setSecure("production".equals(env.getActiveProfiles()[0]));
+     cookie.setMaxAge((expiresIn - 60) * 1000); // Subtract 60s buffer for clock skew
+     cookie.setHttpOnly(true); // Prevents JavaScript access to mitigate XSS attacks
+     cookie.setSecure("production".equals(env.getActiveProfiles()[0])); // HTTPS-only in production
      cookie.setPath("/");
      response.addCookie(cookie);
      ```
@@ -295,90 +311,118 @@ This guide shows you how to store these tokens securely and refresh them before 
 
    Configure session settings from your [Scalekit dashboard's Session Configuration](/fsa/reference/user-management-settings) to control session lifetimes and security policies.
 
-2. ### Verify the access token
 
-   Create middleware to protect your application routes. This middleware validates the access token on every request to secured endpoints.
+3. ### Check the access token before handling requests
+
+   Validate every request for a valid access token in your application. Create middleware to protect your application routes. This middleware validates the access token on every request to secured endpoints.
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
-     ```javascript title="middleware/auth.js" wrap showLineNumbers=true {2-4,8-12,15-16}
+     ```javascript title="middleware/auth.js"
      async function verifyToken(req, res, next) {
+       // Extract access token from request cookies
        const { accessToken } = req.cookies;
+
+       // Return 401 error if no token is present
        if (!accessToken) {
          return res.status(401).json({ error: 'Authentication required' });
        }
+
        try {
-         // Validate the token using Scalekit SDK (returns boolean)
+         // Verify token validity using Scalekit's validation method
          const isValid = await scalekit.validateAccessToken(accessToken);
+
          if (!isValid) {
-           // Token is expired or invalid - attempt to refresh
+           // If token validation fails (expired or invalid), attempt token refresh
            return handleTokenRefresh(req, res, next);
          }
+
+         // Token is valid, proceed to the next middleware or route handler
          next();
        } catch (error) {
-         // Validation failed - attempt to refresh
+         // If validation throws an exception, attempt token refresh as fallback
          return handleTokenRefresh(req, res, next);
        }
      }
      ```
      </TabItem>
      <TabItem value="py" label="Python">
-     ```python title="middleware/auth.py" wrap showLineNumbers=true {6-8,11-16,18-19}
+     ```python title="middleware/auth.py" wrap collapse={1-2}
      from flask import request, jsonify
      from functools import wraps
      def verify_token(f):
          @wraps(f)
          def decorated_function(*args, **kwargs):
+             # Extract access token from request cookies
              access_token = request.cookies.get('accessToken')
+
+             # Return 401 error if no token is present
              if not access_token:
                  return jsonify({'error': 'Authentication required'}), 401
+
              try:
-                  # Validate the token using Scalekit SDK (returns boolean)
+                 # Verify token validity using Scalekit's validation method
                  is_valid = scalekit.validate_access_token(access_token)
+
                  if not is_valid:
-                      # Token is expired or invalid - attempt to refresh
+                     # If token validation fails (expired or invalid), attempt token refresh
                      return handle_token_refresh(f, *args, **kwargs)
-                  # Token valid – proceed to view
+
+                 # Token is valid, proceed to the protected view function
                  return f(*args, **kwargs)
+
              except Exception:
-                  # Validation threw error – attempt to refresh
+                 # If validation throws an exception, attempt token refresh as fallback
                  return handle_token_refresh(f, *args, **kwargs)
+
          return decorated_function
      ```
      </TabItem>
      <TabItem value="go" label="Go">
-     ```go title="middleware/auth.go" wrap showLineNumbers=true {7-12,14-18,21}
+     ```go title="middleware/auth.go" collapse={1-4}
      import (
        "net/http"
        "github.com/gin-gonic/gin"
      )
      func VerifyToken() gin.HandlerFunc {
        return func(c *gin.Context) {
+         // Extract access token from the request cookies
          accessToken, err := c.Cookie("accessToken")
+
+         // Return 401 error if no token is present or cookie error occurs
          if err != nil || accessToken == "" {
            c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
            c.Abort()
            return
          }
-         // Validate the token using Scalekit SDK (returns bool)
+
+         // Verify token validity using Scalekit's validation method
          isValid, err := scalekit.ValidateAccessToken(accessToken)
+
+         // If token validation fails (expired or invalid), attempt token refresh
          if err != nil || !isValid {
-           // Token is expired or invalid - attempt to refresh
            handleTokenRefresh(c)
            return
          }
-         // Token valid – proceed
+
+         // Token is valid, proceed to the next handler in the chain
          c.Next()
        }
      }
      ```
      </TabItem>
      <TabItem value="java" label="Java">
-     ```java title="middleware/AuthInterceptor.java" wrap showLineNumbers=true {9-13,17-21,25}
+     ```java title="middleware/AuthInterceptor.java" collapse={1-5,22-28, 45-64}
      import javax.servlet.http.HttpServletRequest;
      import javax.servlet.http.HttpServletResponse;
      import javax.servlet.http.Cookie;
      import org.springframework.web.servlet.HandlerInterceptor;
+
+     /**
+      * Intercepts HTTP requests to verify authentication tokens.
+      * Implements Spring's HandlerInterceptor to check access tokens
+      * before request processing.
+      */
      @Component
      public class AuthInterceptor implements HandlerInterceptor {
        @Override
@@ -387,25 +431,40 @@ This guide shows you how to store these tokens securely and refresh them before 
          HttpServletResponse response,
          Object handler
        ) throws Exception {
+         // Extract access token from cookies
          String accessToken = getCookieValue(request, "accessToken");
+
+         // Return 401 if no token is present
          if (accessToken == null) {
            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
            response.getWriter().write("{\"error\": \"Authentication required\"}");
            return false;
          }
+
          try {
-           // Validate the token using Scalekit SDK (returns boolean)
+           // Verify token validity using Scalekit's validation method
            boolean isValid = scalekit.validateAccessToken(accessToken);
+
            if (!isValid) {
-             // Token is expired or invalid - attempt to refresh
+             // If token is expired or invalid, attempt to refresh it
              return handleTokenRefresh(request, response);
            }
+
+           // Token is valid, allow request to proceed
            return true;
          } catch (Exception e) {
-           // Validation threw error – attempt to refresh
+           // If validation throws an exception, attempt token refresh as fallback
            return handleTokenRefresh(request, response);
          }
        }
+
+       /**
+        * Helper method to extract a specific cookie value from the request.
+        *
+        * @param request The HTTP request containing cookies
+        * @param cookieName The name of the cookie to retrieve
+        * @return The cookie value or null if not found
+        */
        private String getCookieValue(HttpServletRequest request, String cookieName) {
          Cookie[] cookies = request.getCookies();
          if (cookies != null) {
@@ -422,9 +481,9 @@ This guide shows you how to store these tokens securely and refresh them before 
       </TabItem>
    </Tabs>
 
-3. ### Refresh expired access tokens
+4. ### Maintain sessions by refreshing access tokens
 
-   When access tokens expire, use the refresh token to get new ones. This maintains user sessions without requiring re-authentication.
+   When access tokens expire, you can use the refresh token to obtain new ones without requiring users to sign in again. Store refresh tokens securely in a database, HTTP-only cookies, or another secure storage mechanism. This approach maintains seamless user sessions while ensuring security through the token refresh flow.
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
@@ -667,23 +726,23 @@ This guide shows you how to store these tokens securely and refresh them before 
      ```
      </TabItem>
    </Tabs>
+5. ### Manage session security and duration
+
+      Manage user session behavior directly from your Scalekit dashboard without modifying application code. Configure session durations and authentication frequency to balance security and user experience for your application.
+
+      ![](@/assets/docs/manage-session/session-policies-dashboard.png)
+
+       In your Scalekit dashboard, the **Session settings** page lets you set these options:
+
+      - **Absolute session timeout**: This is the maximum time a user can stay signed in, no matter what. After this time, they must log in again. For example, if you set it to 30 minutes, users will be logged out after 30 minutes, even if they are still using your app.
+
+      - **Idle session timeout**: This is the time your app waits before logging out a user who is not active. If you turn this on, the session will end if the user does nothing for the set time. For example, if you set it to 10 minutes, and the user does not click or type for 10 minutes, they will be logged out.
+
+      - **Access token lifetime**: This is how long an access token is valid. When it expires, your app needs to get a new token (using the refresh token) so the user can keep using the app without logging in again. For example, if you set it to 5 minutes, your app will need to refresh the token every 5 minutes.
+
+      Shorter timeouts provide better security, while longer timeouts reduce authentication interruptions.
 </Steps>
 
-## Configure session settings
-
-Control user session behavior from your Scalekit dashboard without changing your application code.
-
-![Session Settings Dashboard](@/assets/docs/fsa/session-settings/1.png)
-
-You can control how long users stay signed in and how often they need to log in again. In your Scalekit dashboard, the **Session settings** page lets you set these options:
-
-- **Absolute session timeout**: This is the maximum time a user can stay signed in, no matter what. After this time, they must log in again. For example, if you set it to 30 minutes, users will be logged out after 30 minutes, even if they are still using your app.
-
-- **Idle session timeout**: This is the time your app waits before logging out a user who is not active. If you turn this on, the session will end if the user does nothing for the set time. For example, if you set it to 10 minutes, and the user does not click or type for 10 minutes, they will be logged out.
-
-- **Access token lifetime**: This is how long an access token is valid. When it expires, your app needs to get a new token (using the refresh token) so the user can keep using the app without logging in again. For example, if you set it to 5 minutes, your app will need to refresh the token every 5 minutes.
-
-Shorter timeouts provide better security, while longer timeouts reduce authentication interruptions.
 
 <Aside type="tip" title="Organization-level session settings">
 Enable organization administrators to control session settings for their workspace. [Contact our support team](/support/contact-us/) to activate this feature for your account.
