@@ -26,11 +26,9 @@ export const sidebar = [
         label: 'User management',
         collapsed: false,
         items: [
-          'fsa/reference/user-profile',
-          'fsa/guides/organization-switching',
+          'fsa/guides/manage-users',
           'fsa/guides/app-roles',
-          'fsa/guides/user-invitations',
-          'fsa/reference/user-management-settings',
+          'fsa/guides/organization-switching',
         ],
       },
       {
@@ -52,6 +50,11 @@ export const sidebar = [
           'directory/scim/quickstart',
           'guides/sso/admin-portal',
           'guides/integrations',
+          {
+            label: 'View all integrations',
+            link: 'guides/integrations',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
         ],
       },
       {
@@ -297,8 +300,10 @@ export const sidebar = [
       },
       {
         label: 'User management',
-        collapsed: true,
         items: [
+          'fsa/reference/user-profile',
+          'fsa/guides/user-invitations',
+          'fsa/reference/user-management-settings',
           'fsa/guides/signup-restrictions',
           'guides/dashboard/redirects',
           'fsa/guides/just-in-time-provisioning',
@@ -307,12 +312,12 @@ export const sidebar = [
       },
       {
         label: 'Single Sign-on',
-        collapsed: true,
         items: [
           'sso/guides/sso-user-attributes',
           'sso/guides/user-profile-details',
           'sso/guides/idp-init-sso',
           'sso/guides/test-sso',
+          'fsa/guides/enterprise-sso',
           {
             label: 'View SSO integrations',
             link: '/guides/integrations/sso-integrations/',

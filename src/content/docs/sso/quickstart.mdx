@@ -128,7 +128,9 @@ This quickstart guide walks you through the SSO implementation process. You will
 
 2. ## Redirect the users to their enterprise identity provider login page
 
-   Generate an authorization URL and redirect users to their identity provider's login page.
+   Create an authorization URL to redirect users to Scalekit's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and required scopes.
+
+   To receive a refresh token, include the `offline_access` scope in your authorization request. Note that refresh tokens are only available when "Full-Stack Auth" is enabled in your Scalekit dashboard.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="nodejs" label="Node.js">
@@ -302,10 +304,10 @@ This quickstart guide walks you through the SSO implementation process. You will
 
    ```sh title="OAuth2 authorization URL" showLineNumbers=false
    <SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
-     response_type=code&                         # OAuth2 authorization code flow
+     response_type=code&                        # OAuth2 authorization code flow
      client_id=<SCALEKIT_CLIENT_ID>&            # Your Scalekit client ID
      redirect_uri=<REDIRECT_URI>&               # URL-encoded callback URL
-     scope=openid profile email&                # Required OAuth2 scopes
+     scope=openid profile email&                # "offline_access" is required to receive a refresh token
      organization_id=org_15421144869927830&     # (Optional) Route by organization
      connection_id=conn_15696105471768821&      # (Optional) Specific SSO connection
      login_hint=user@example.com                # (Optional) Extract domain from email
@@ -333,7 +335,7 @@ This quickstart guide walks you through the SSO implementation process. You will
 
    For details on how Scalekit determines which SSO connection to use, refer to the [SSO identifier precedence rules](/sso/guides/authorization-url/#parameter-precedence).
 
-3. ## Handle IdP-initiated SSO <Badge type="tip" text="Optional" />
+3. ## Handle IdP-initiated SSO <Badge type="tip" text="Recommended" />
 
    When users start the login process from their identity provider's portal (rather than your application), this is called IdP-initiated SSO. Scalekit converts these requests to secure SP-initiated flows automatically.
 
@@ -541,7 +543,7 @@ This quickstart guide walks you through the SSO implementation process. You will
     </TabItem>
     <TabItem value="py" label="Python">
 
-    ```py showLineNumbers title="Fetch user profile"
+    ```py showLineNumbers title="Fetch user profile" "code"
     # Extract authentication parameters from the callback request
     code = request.args.get('code')
     error = request.args.get('error')
@@ -566,7 +568,7 @@ This quickstart guide walks you through the SSO implementation process. You will
     </TabItem>
     <TabItem value="golang" label="Go">
 
-    ```go showLineNumbers title="Fetch user profile"
+    ```go title="Fetch user profile" "code"
     // Extract authentication parameters from the callback request
     code := r.URL.Query().Get("code")
     error := r.URL.Query().Get("error")
@@ -597,7 +599,7 @@ This quickstart guide walks you through the SSO implementation process. You will
 
     <TabItem value="java" label="Java">
 
-    ```java showLineNumbers title="Fetch user profile" wrap
+    ```java showLineNumbers title="Fetch user profile" "code"
     // Extract authentication parameters from the callback request
     String code = request.getParameter("code");
     String error = request.getParameter("error");
@@ -690,87 +692,19 @@ This quickstart guide walks you through the SSO implementation process. You will
 
    Validate your implementation using the **IdP Simulator** and **Test Organization** included in your development environment. Test all three scenarios before deploying to production.
 
-   Your environment includes a pre-configured test organization (found in **Dashboard > Organizations**) with domains like `@example.com` for testing.
+   Your environment includes a pre-configured test organization (found in **Dashboard > Organizations**) with domains like `@example.com` and `@example.org` for testing.
 
-   **Test scenarios:**
+    Pass one of the following connection selectors in your authorization URL:
 
-   <Tabs syncKey="test-scenario">
-   <TabItem value="sp-initiated" label="SP-initiated SSO">
+    - Email address with `@example.com` or `@example.org` domain
+    - Test organization's connection ID
+    - Organization ID
 
-   Users start login from your application. Generate an authorization URL with the test organization ID:
+    This opens the SSO login page (IdP Simulator) that simulates your customer's identity provider login experience.
 
-   ```javascript showLineNumbers=false title="test-sp-initiated.js"
-   // Use your test organization ID from the dashboard
-   const options = {
-     organizationId: 'org_32656XXXXXX0438'  // Test Organization ID
-   };
+    ![IdP Simulator](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/2.1.png)
 
-   // Generate authorization URL and redirect to IdP Simulator
-   const authUrl = scalekit.getAuthorizationUrl(
-     'https://your-app.com/auth/callback',
-     options
-   );
-
-   // User will see the IdP Simulator where they can enter test credentials
-   res.redirect(authUrl);
-   ```
-
-   The IdP Simulator allows you to simulate user login with custom attributes and test the complete authentication flow.
-
-   </TabItem>
-
-   <TabItem value="idp-initiated" label="IdP-initiated SSO">
-
-   Users start login from their identity provider portal. Your initiate login endpoint receives the request:
-
-   ```javascript showLineNumbers=false title="test-idp-initiated.js"
-   // Your initiate login endpoint receives IdP-initiated login token
-   const { idp_initiated_login } = req.query;
-
-   if (idp_initiated_login) {
-     // Decode claims and convert to SP-initiated flow (see Step 3)
-     const claims = await scalekit.getIdpInitiatedLoginClaims(idp_initiated_login);
-
-     const options = {
-       connectionId: claims.connection_id
-     };
-
-     // Generate authorization URL to complete authentication
-     const authUrl = scalekit.getAuthorizationUrl(redirectUri, options);
-     return res.redirect(authUrl);
-   }
-   ```
-
-   In the IdP Simulator, select "IdP initiated SSO" from the dropdown to test this flow.
-
-   </TabItem>
-
-   <TabItem value="error-handling" label="Error handling">
-
-   Test how your application handles authentication errors:
-
-   ```javascript showLineNumbers=false title="test-error-handling.js"
-   // Extract error parameters from callback
-   const { error, error_description } = req.query;
-
-   if (error) {
-     // Log error details for debugging
-     console.error('SSO Error:', error, error_description);
-
-     // Display user-friendly error message
-     return res.status(400).json({
-       message: 'Authentication failed. Please try again or contact support.',
-       error: error_description
-     });
-   }
-   ```
-
-   In the IdP Simulator, select the "Error" scenario to simulate authentication failures and verify your error handling.
-
-   </TabItem>
-   </Tabs>
-
-   Learn more: [Complete SSO testing guide](/sso/guides/test-sso/)
+   For detailed testing instructions and scenarios, see our [Complete SSO testing guide](/sso/guides/test-sso/)
 
 6. ## Onboard enterprise customers
 
@@ -790,7 +724,7 @@ This quickstart guide walks you through the SSO implementation process. You will
    );
 
    // Share this link with your customer's IT admin via email or messaging
-   // Example: https://random-subdomain.scalekit.dev/magicLink/8930509d-68cf-4e2c-8c6d-94d2b5e2db43
+   // Example: '<SCALEKIT_ENVIRONMENT_URL>/magicLink/8930509d-68cf-4e2c-8c6d-94d2b5e2db43
    console.log('Admin Portal URL:', portalLink.url);
    ```
 
@@ -828,16 +762,18 @@ This quickstart guide walks you through the SSO implementation process. You will
    </TabItem>
    </Tabs>
 
-   **Enable domain verification** for seamless user experience. Once your customer verifies their domain (e.g., `@megacorp.org`), users can sign in without selecting their organization—Scalekit automatically routes them to the correct identity provider based on their email domain.
+   **Enable domain verification** for seamless user experience. Once your customer verifies their domain (e.g., `@megacorp.org`), users can sign in without selecting their organization. Scalekit automatically routes them to the correct identity provider based on their email domain.
 
    **Pre-check SSO availability** before redirecting users. This prevents failed redirects when a user's domain doesn't have SSO configured:
 
-   ```javascript showLineNumbers=false title="check-sso-availability.js" {1-2,7-14}
+   ```javascript showLineNumbers=true title="check-sso-availability.js" {5}
    // Extract domain from user's email address
    const domain = email.split('@')[1].toLowerCase();  // e.g., "megacorp.org"
 
    // Check if domain has an active SSO connection
-   const connections = await scalekit.connections.listConnectionsByDomain({ domain });
+   const connections = await scalekit.connections.listConnectionsByDomain({
+      domain
+    });
 
    if (connections.length > 0) {
      // Domain has SSO configured - redirect to identity provider
