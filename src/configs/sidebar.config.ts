@@ -46,8 +46,8 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Drop-in modules',
-        items: ['sso/quickstart', 'directory/scim/quickstart'],
+        label: 'Enterprise Auth',
+        items: ['sso/quickstart', 'directory/scim/quickstart', 'guides/sso/admin-portal'],
       },
       {
         label: 'Single Sign-on',
@@ -61,7 +61,6 @@ export const sidebar = [
             label: 'Bring own auth systems',
             autogenerate: { directory: 'guides/integrations/auth-systems' },
           },
-          'guides/sso/admin-portal',
           {
             label: 'View SSO integrations',
             link: '/guides/integrations/sso-integrations/',

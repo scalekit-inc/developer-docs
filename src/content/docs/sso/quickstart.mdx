@@ -70,6 +70,24 @@ The following diagram illustrates the flow in a nutshell:
 
 This quickstart guide walks you through the SSO implementation process. You will learn how to deliver enterprise authentication features without managing complex protocol details.
 
+   <Aside type="note" title="SSO standalone mode">
+    Standalone SSO enables direct integration with your customer's identity provider without creating or storing users in Scalekit.
+
+
+    <details>
+    <summary>Full details</summary>
+
+    - Post identity verficiation auth flows from the customer's identity provider directly to your application.
+    - No user records are created in Scalekit's database.
+    - Session management and user management features are not available
+    - Scalekit hosted auth pages are not available
+    </details>
+
+    To configure standalone SSO mode:
+    1. Go to **Dashboard** > **Authentication** > **General**
+    2. Under "Full-Stack Auth" section, click "Disable Full-Stack Auth"
+   </Aside>
+
 <Card title="Get moving, instantly, with your go-to AI assistant" icon={IconRiAiGenerate2}>
   <div style={{display: 'flex',  alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem'}}>
     <div style={{flex: '3'}}>
@@ -108,284 +126,216 @@ This quickstart guide walks you through the SSO implementation process. You will
    Learn more about [callback URL requirements](/guides/dashboard/redirects/#allowed-callback-urls).
 
 
-2. ## Redirect enterprise users to their identity provider
+2. ## Redirect the users to their enterprise identity provider login page
 
-    To initiate Single Sign-On (SSO) authentication, redirect users to the Scalekit Authorization URL with the appropriate enterprise identity provider parameters.
+   Generate an authorization URL and redirect users to their identity provider's login page.
 
-    Construct your authorization URL with these essential parameters:
+   <Tabs syncKey="tech-stack">
+   <TabItem value="nodejs" label="Node.js">
 
-    | Parameter | Description |
-    |-----------|-------------|
-    | `redirect_uri` | Your application endpoint that will receive the authorization code after successful authentication. Example: `https://your-app.com/auth/callback` |
-    | `client_id` | Your unique Scalekit application identifier that specifies both your app and environment (staging, production). |
-    | SSO Connection identifier | Choose the appropriate identifier based on your implementation (use one). |
+   ```javascript showLineNumbers wrap title="authorization-url.js" collapse={1-8} {"Generates URL to customer's identity provider for SSO login": 27-29}
+   import { Scalekit } from '@scalekit-sdk/node';
 
-    **Configure callback URLs**
-      <p>Before testing your SSO integration, ensure your [callback URL is properly configured](/guides/dashboard/redirects/#allowed-callback-urls):</p>
+   const scalekit = new ScalekitClient(
+     '<SCALEKIT_ENVIRONMENT_URL>',    // Your Scalekit environment URL
+     '<SCALEKIT_CLIENT_ID>',          // Unique identifier for your app
+     '<SCALEKIT_CLIENT_SECRET>',
+   );
 
-      <ol>
-        <li><strong>Set your redirect URI:</strong> Use the same URL in your app's OAuth configuration</li>
-        <li><strong>Add to Scalekit Dashboard:</strong> Go to Authentication → Redirects → Allowed Callback URLs</li>
-        <li><strong>Match exactly:</strong> The URLs must be identical (including protocol, domain, and path)</li>
-      </ol>
+   const options = {};
 
-      <p><strong>Example:</strong> If your app uses <code>https://myapp.com/auth/callback</code>, add the exact same URL to Scalekit's allowed list.</p>
+   // Specify which SSO connection to use (choose one based on your use case)
+   // These identifiers are evaluated in order of precedence:
 
-      <p>Scalekit will redirect users to this URL with an authorization code after successful authentication.</p>
+   // 1. connectionId (highest precedence) - Use when you know the exact SSO connection
+   options['connectionId'] = 'conn_15696105471768821';
 
+   // 2. organizationId - Routes to organization's SSO (useful for multi-tenant apps)
+   //    If org has multiple connections, the first active one is selected
+   options['organizationId'] = 'org_15421144869927830';
 
-    **SSO connection identifiers**
+   // 3. loginHint (lowest precedence) - Extracts domain from email to find connection
+   options['loginHint'] = 'user@example.com';
 
-    When initiating SSO authentication, you must specify which connection to use through one of these identifiers, listed in order of precedence:
+   // redirect_uri: Your callback endpoint that receives the authorization code
+   // Must match the URL registered in your Scalekit dashboard
+   const redirectUrl = 'https://your-app.com/auth/callback';
 
-    <Tabs>
-    <TabItem value="nodejs" label="Node.js SDK">
+   const authorizationURL = scalekit.getAuthorizationUrl(redirectUrl, options);
+   // Redirect user to this URL to begin SSO authentication
+   ```
 
-    - `organizationId` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
-    - `connectionId` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
-    - `domainHint` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither connectionId nor organizationId are provided.
-    - `loginHint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+   </TabItem>
+   <TabItem value="py" label="Python">
 
-    </TabItem>
+   ```python showLineNumbers wrap title="authorization_url.py" collapse={1-8} {"Generates URL to customer's identity provider for SSO login": 27-32}
+   from scalekit import ScalekitClient, AuthorizationUrlOptions
 
-    <TabItem value="py" label="Python SDK">
+   scalekit = ScalekitClient(
+     '<SCALEKIT_ENVIRONMENT_URL>',    # Your Scalekit environment URL
+     '<SCALEKIT_CLIENT_ID>',          # Unique identifier for your app
+     '<SCALEKIT_CLIENT_SECRET>'
+   )
 
-    - `organization_id` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
-    - `connection_id` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
-    - `domain_hint` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither connection_id nor organization_id are provided.
-    - `login_hint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+   options = AuthorizationUrlOptions()
 
-    </TabItem>
-    <TabItem value="golang" label="Go SDK">
+   # Specify which SSO connection to use (choose one based on your use case)
+   # These identifiers are evaluated in order of precedence:
 
-    - `OrganizationId` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
-    - `ConnectionId` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
-    - `DomainHint` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither ConnectionId nor OrganizationId are provided.
-    - `LoginHint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+   # 1. connection_id (highest precedence) - Use when you know the exact SSO connection
+   options.connection_id = 'conn_15696105471768821'
 
-    </TabItem>
-     <TabItem value="java" label="Java SDK">
+   # 2. organization_id - Routes to organization's SSO (useful for multi-tenant apps)
+   #    If org has multiple connections, the first active one is selected
+   options.organization_id = 'org_15421144869927830'
 
-    - `organizationId` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
-    - `connectionId` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
-    - `domainHint` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither connectionId nor organizationId are provided.
-    - `loginHint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+   # 3. login_hint (lowest precedence) - Extracts domain from email to find connection
+   options.login_hint = 'user@example.com'
 
-    </TabItem>
-    <TabItem value="direct" label="Direct URL (No SDK)">
+   # redirect_uri: Your callback endpoint that receives the authorization code
+   # Must match the URL registered in your Scalekit dashboard
+   redirect_uri = 'https://your-app.com/auth/callback'
 
-    - `organization_id` (e.g., org_124234234): Directs users to a specific organization's SSO. If an organization has multiple SSO connections, the system selects the first active one.
-    - `connection_id` (e.g., conn_124234234): Specifies a particular SSO connection with highest precedence. If valid, this connection will be used regardless of other parameters.
-    - `domain` (e.g., acmecorp.com): Uses the SSO connection configured for the specified domain. Applied when neither connection_id nor organization_id are provided.
-    - `login_hint` (e.g., john<span></span>@acmecorp.com): Lowest precedence. The system extracts the domain portion of the email address and uses the corresponding SSO connection.
+   authorization_url = scalekit_client.get_authorization_url(
+     redirect_uri=redirect_uri,
+     options=options
+   )
+   # Redirect user to this URL to begin SSO authentication
+   ```
 
-    </TabItem>
-    </Tabs>
+   </TabItem>
+   <TabItem value="golang" label="Go">
 
-    After selecting the appropriate parameters for your implementation needs, construct your complete authorization URL and implement a redirect to this URL when users initiate the login process.
+   ```go showLineNumbers title="authorization_url.go" collapse={1-11} {"Generates URL to customer's identity provider for SSO login": 30-36}
+   import (
+     "github.com/scalekit-inc/scalekit-sdk-go"
+   )
 
-    <Tabs syncKey="tech-stack">
-    <TabItem value="nodejs" label="Node.js">
+   func main() {
+     scalekitClient := scalekit.NewScalekitClient(
+       "<SCALEKIT_ENVIRONMENT_URL>",  // Your Scalekit environment URL
+       "<SCALEKIT_CLIENT_ID>",        // Unique identifier for your app
+       "<SCALEKIT_CLIENT_SECRET>"
+     )
 
-    ```javascript showLineNumbers wrap
-    import { Scalekit } from '@scalekit-sdk/node';
-    // Initialize the SDK client
-    const scalekit = new ScalekitClient(
-      '<SCALEKIT_ENVIRONMENT_URL>',
-      '<SCALEKIT_CLIENT_ID>',
-      '<SCALEKIT_CLIENT_SECRET>',
-    );
+     options := scalekitClient.AuthorizationUrlOptions{}
 
-    const options = {};
+     // Specify which SSO connection to use (choose one based on your use case)
+     // These identifiers are evaluated in order of precedence:
 
-    // Option 1: Authorization URL with the organization ID
-    options['organizationId'] = 'org_15421144869927830';
-
-    // Option 2: Authorization URL with login hint
-    options['connectionId'] = 'conn_15696105471768821';
-
-    // Option 3: Authorization URL with login hint
-    options['loginHint'] = 'user@example.com';
-
-    const authorizationURL = scalekit.getAuthorizationUrl(redirectUrl, options);
-    ```
-
-    </TabItem>
-    <TabItem value="py" label="Python">
-
-    ```python showLineNumbers wrap
-    from scalekit import ScalekitClient, AuthorizationUrlOptions, CodeAuthenticationOptions
-
-    # Initialize the SDK client
-    scalekit = ScalekitClient(
-      '<SCALEKIT_ENVIRONMENT_URL>',
-      '<SCALEKIT_CLIENT_ID>',
-      '<SCALEKIT_CLIENT_SECRET>'
-    )
-
-    options = AuthorizationUrlOptions()
-
-
-    # Option 1: Authorization URL with the organization ID
-    options.organization_id = 'org_15421144869927830'
-
-    # Option 2: Authorization URL with login hint
-    options.login_hint = 'user@example.com'
-
-    # Option 3: Authorization URL with the connection ID
-    options.connection_id = 'conn_15696105471768821'
-
-    authorization_url = scalekit_client.get_authorization_url(
-      redirect_uri=<redirect_uri>,
-      options=options
-    )
-
-    # Redirect the user to this authorization URL
-    ```
-
-    </TabItem>
-    <TabItem value="golang" label="Go">
-
-    ```go showLineNumbers
-    import (
-      "github.com/scalekit-inc/scalekit-sdk-go"
-    )
-
-    func main() {
-      // Initialize the SDK client
-      scalekitClient := scalekit.NewScalekitClient(
-        "<SCALEKIT_ENVIRONMENT_URL>",
-        "<SCALEKIT_CLIENT_ID>",
-        "<SCALEKIT_CLIENT_SECRET>"
-      )
-
-      options := scalekitClient.AuthorizationUrlOptions{}
-
-
-      // Option 1: Authorization URL with the organization ID
-      options.OrganizationId = "org_15421144869927830"
-
-      // Option 2: Authorization URL with the connection ID
-      options.ConnectionId = "conn_15696105471768821"
-
-      // Option 3: Authorization URL with Login Hint
-      // User's email domain detects the correct enterprise SSO connection.
-      options.LoginHint = "user@example.com"
-
-      authorizationURL := scalekitClient.GetAuthorizationUrl(
-        redirectUrl,
-        options,
-      )
-      // Next step is to redirect the user to this authorization URL
-    }
-
-    // Redirect the user to this authorization URL
-    ```
-
-    </TabItem>
-
-    <TabItem value="java" label="Java">
-
-    ```java showLineNumbers
-    package com.scalekit;
-
-    import com.scalekit.ScalekitClient;
-    import com.scalekit.internal.http.AuthorizationUrlOptions;
-
-    public class Main {
-
-      public static void main(String[] args) {
-        // Initialize the SDK client
-        ScalekitClient scalekitClient = new ScalekitClient(
-          "<SCALEKIT_ENVIRONMENT_URL>",
-          "<SCALEKIT_CLIENT_ID>",
-          "<SCALEKIT_CLIENT_SECRET>"
-        );
-        AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-        // Option 1: Authorization URL with the organization ID
-        options.setOrganizationId("org_13388706786312310");
-        // Option 2: Authorization URL with the connection ID
-        options.setConnectionId("con_13388706786312310");
-        // Option 3: Authorization URL with Login Hint
-        // User's email domain detects the correct enterprise SSO connection.
-        options.setLoginHint("user@example.com");
-        try {
-          String url = scalekitClient
-            .authentication()
-            .getAuthorizationUrl(redirectUrl, options)
-            .toString();
-        } catch (Exception e) {
-          System.out.println(e.getMessage());
-        }
-      }
-    }
-    // Redirect the user to this authorization URL
-    ```
-
-    </TabItem>
-
-    <TabItem value="direct" label="Direct URL (No SDK)">
-
-    ```txt title="Direct Authorization URL Construction"
-    https://your-scalekit-environment.scalekit.com/oauth/authorize?
-      response_type=code&
-      client_id=<SCALEKIT_CLIENT_ID>&
-      redirect_uri=<REDIRECT_URI>&
-      scope=openid profile email&
-      organization_id=org_15421144869927830&
-      connection_id=conn_15696105471768821&
-      login_hint=user@example.com
-    ```
-
-    **Example with actual values:**
-    ```txt
-    https://tinotat-dev.scalekit.cloud/oauth/authorize?
-      response_type=code&
-      client_id=skc_88036702639096097&
-      redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fcallback&
-      scope=openid%20profile%20email&
-      organization_id=org_15421144869927830&
-      connection_id=conn_15696105471768821&
-      login_hint=user%40example.com
-    ```
-
-    **Required parameters:**
-    - `response_type=code` - OAuth2 authorization code flow
-    - `client_id` - Your Scalekit client ID
-    - `redirect_uri` - URL-encoded callback URL
-    - `scope=openid profile email` - Required OAuth2 scopes
-
-    **SSO connection parameters (choose one or more):**
-    - `organization_id` - Target organization
-    - `connection_id` - Specific SSO connection
-    - `domain_hint` - Domain for SSO lookup
-    - `login_hint` - User email for domain extraction
-
-    </TabItem>
-    </Tabs>
-
-    This redirect will send users to the Scalekit authentication flow, where they'll authenticate with their organization's identity provider before being returned to your application.
-
-    ```sh title="Example Authorization URL"
-    https://auth.scalekit.com/authorize?
-      client_id=skc_122056050118122349527&
-      redirect_uri=https://yourapp.com/auth/callback&
-      organization_id=org_12434341
-    ```
-
-    After redirecting users to the Scalekit authorization endpoint, handle the callback at your `redirect_uri` to retrieve the user profile and complete the authentication process.
-
-3. ## Fetch user details
-
-    After successful SSO authentication, Scalekit redirects users to your specified redirect_uri with a temporary authorization code parameter. This code must be exchanged for the user's profile information through a secure server-side request.
-
-    The authorization code exchange process should always be performed server-side to maintain security. This server-side request will:
-
-    1. Validate the authorization code
-    2. Return the authenticated user's profile details
-    3. Establish the user's session in your application
-
-    The following section demonstrates how to implement this exchange process to retrieve comprehensive user information and complete the authentication flow.
+     // 1. ConnectionId (highest precedence) - Use when you know the exact SSO connection
+     options.ConnectionId = "conn_15696105471768821"
+
+     // 2. OrganizationId - Routes to organization's SSO (useful for multi-tenant apps)
+     //    If org has multiple connections, the first active one is selected
+     options.OrganizationId = "org_15421144869927830"
+
+     // 3. LoginHint (lowest precedence) - Extracts domain from email to find connection
+     options.LoginHint = "user@example.com"
+
+     // redirectUrl: Your callback endpoint that receives the authorization code
+     // Must match the URL registered in your Scalekit dashboard
+     redirectUrl := "https://your-app.com/auth/callback"
+
+     authorizationURL := scalekitClient.GetAuthorizationUrl(
+       redirectUrl,
+       options,
+     )
+     // Redirect user to this URL to begin SSO authentication
+   }
+   ```
+
+   </TabItem>
+
+   <TabItem value="java" label="Java">
+
+   ```java showLineNumbers title="AuthorizationUrl.java" {35-38}
+   package com.scalekit;
+
+   import com.scalekit.ScalekitClient;
+   import com.scalekit.internal.http.AuthorizationUrlOptions;
+
+   public class Main {
+
+     public static void main(String[] args) {
+       ScalekitClient scalekitClient = new ScalekitClient(
+         "<SCALEKIT_ENVIRONMENT_URL>",  // Your Scalekit environment URL
+         "<SCALEKIT_CLIENT_ID>",        // Unique identifier for your app
+         "<SCALEKIT_CLIENT_SECRET>"
+       );
+
+       AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+
+       // Specify which SSO connection to use (choose one based on your use case)
+       // These identifiers are evaluated in order of precedence:
+
+       // 1. connectionId (highest precedence) - Use when you know the exact SSO connection
+       options.setConnectionId("con_13388706786312310");
+
+       // 2. organizationId - Routes to organization's SSO (useful for multi-tenant apps)
+       //    If org has multiple connections, the first active one is selected
+       options.setOrganizationId("org_13388706786312310");
+
+       // 3. loginHint (lowest precedence) - Extracts domain from email to find connection
+       options.setLoginHint("user@example.com");
+
+       // redirectUrl: Your callback endpoint that receives the authorization code
+       // Must match the URL registered in your Scalekit dashboard
+       String redirectUrl = "https://your-app.com/auth/callback";
+
+       try {
+         String url = scalekitClient
+           .authentication()
+           .getAuthorizationUrl(redirectUrl, options)
+           .toString();
+         // Redirect user to this URL to begin SSO authentication
+       } catch (Exception e) {
+         System.out.println(e.getMessage());
+       }
+     }
+   }
+   ```
+
+   </TabItem>
+
+   <TabItem value="direct" label="Direct URL (No SDK)">
+
+   ```sh title="OAuth2 authorization URL" showLineNumbers=false
+   <SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
+     response_type=code&                         # OAuth2 authorization code flow
+     client_id=<SCALEKIT_CLIENT_ID>&            # Your Scalekit client ID
+     redirect_uri=<REDIRECT_URI>&               # URL-encoded callback URL
+     scope=openid profile email&                # Required OAuth2 scopes
+     organization_id=org_15421144869927830&     # (Optional) Route by organization
+     connection_id=conn_15696105471768821&      # (Optional) Specific SSO connection
+     login_hint=user@example.com                # (Optional) Extract domain from email
+   ```
+
+   **SSO identifiers** (choose one or more, evaluated in order of precedence):
+   - `connection_id` - Direct to specific SSO connection (highest precedence)
+   - `organization_id` - Route to organization's SSO
+   - `domain_hint` - Lookup connection by domain
+   - `login_hint` - Extract domain from email (lowest precedence)
+
+   ```http showLineNumbers=false title="Example with actual values"
+   https://tinotat-dev.scalekit.cloud/oauth/authorize?
+     response_type=code&
+     client_id=skc_88036702639096097&
+     redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fcallback&
+     scope=openid%20profile%20email&
+     organization_id=org_15421144869927830
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   Enterprise users see their identity provider's login page. Users verify their identity through the authentication policies set by their organization's administrator. Post successful verification, the user profile is [normalized](/sso/guides/user-profile-details/) and sent to your app.
+
+   For details on how Scalekit determines which SSO connection to use, refer to the [SSO identifier precedence rules](/sso/guides/authorization-url/#parameter-precedence).
+
+3. ## Get user details from the callback
+
+    After successful authentication, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and session tokens.
 
     <Tabs syncKey="tech-stack">
     <TabItem value="nodejs" label="Node.js">
