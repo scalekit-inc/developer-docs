@@ -27,21 +27,9 @@ export const sidebar = [
         items: [
           'fsa/reference/user-profile',
           'fsa/guides/app-roles',
-          {
-            label: 'Sign-up restrictions',
-            link: 'fsa/guides/signup-restrictions',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Redirects',
-            link: 'guides/dashboard/redirects',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          'fsa/guides/just-in-time-provisioning',
           'fsa/guides/user-invitations',
           'fsa/guides/allowed-email-domains',
           'fsa/guides/organization-switching',
-          'fsa/guides/app-roles',
           'fsa/reference/user-management-settings',
         ],
       },
@@ -332,6 +320,15 @@ export const sidebar = [
           'fsa/guides/implement-login',
           'fsa/guides/manage-session',
           'fsa/guides/logout',
+        ],
+      },
+      {
+        label: 'User management',
+        collapsed: true,
+        items: [
+          'fsa/guides/signup-restrictions',
+          'guides/dashboard/redirects',
+          'fsa/guides/just-in-time-provisioning',
         ],
       },
       {
