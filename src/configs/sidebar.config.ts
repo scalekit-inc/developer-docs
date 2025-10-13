@@ -33,7 +33,7 @@ export const sidebar = [
       {
         label: 'MCP Auth',
         collapsed: false,
-        items: ['mcp/oauth', 'mcp/overview', 'mcp/guides/custom-auth'],
+        items: ['mcp/overview', 'mcp/oauth', 'mcp/guides/custom-auth'],
       },
       {
         label: 'Enterprise Auth',
