@@ -16,7 +16,6 @@ export const sidebar = [
           'passwordless/oidc',
           'passwordless/quickstart',
           'social-logins/quickstart',
-          // TODO: FSA driven SSO perspective
           'fsa/guides/manage-session',
           'guides/auth-flow-interceptors',
           'fsa/guides/logout',
@@ -49,23 +48,9 @@ export const sidebar = [
           'sso/quickstart',
           'directory/scim/quickstart',
           'guides/sso/admin-portal',
-          'guides/integrations',
           {
             label: 'View all integrations',
             link: 'guides/integrations',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-      {
-        label: 'SCIM provisioning',
-        collapsed: true,
-        items: [
-          'guides/webhooks-best-practices',
-          'directory/guides/group-based-role-assignment',
-          {
-            label: 'View SCIM integrations',
-            link: '/guides/integrations/scim-integrations/',
             attrs: { target: '_blank', rel: 'noopener' },
           },
         ],
@@ -321,6 +306,19 @@ export const sidebar = [
           {
             label: 'View SSO integrations',
             link: '/guides/integrations/sso-integrations/',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+      {
+        label: 'SCIM provisioning',
+        collapsed: true,
+        items: [
+          'guides/webhooks-best-practices',
+          'directory/guides/group-based-role-assignment',
+          {
+            label: 'View SCIM integrations',
+            link: '/guides/integrations/scim-integrations/',
             attrs: { target: '_blank', rel: 'noopener' },
           },
         ],
