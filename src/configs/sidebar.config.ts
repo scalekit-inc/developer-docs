@@ -14,6 +14,7 @@ export const sidebar = [
         collapsed: true,
         items: [
           'passwordless/oidc',
+          'passwordless/quickstart',
           'social-logins/quickstart',
           // TODO: FSA driven SSO perspective
           'fsa/guides/manage-session',
@@ -46,7 +47,7 @@ export const sidebar = [
       },
       {
         label: 'Drop-in modules',
-        items: ['passwordless/quickstart', 'sso/quickstart', 'directory/scim/quickstart'],
+        items: ['sso/quickstart', 'directory/scim/quickstart'],
       },
       {
         label: 'Single Sign-on',
