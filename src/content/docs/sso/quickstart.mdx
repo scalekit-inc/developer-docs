@@ -30,6 +30,7 @@ import InstallSDK from '@components/templates/_installsdk.mdx';
 import SimpleCode from '@components/ui/SimpleCode.astro';
 import CopyPrompt from '@components/ui/CopyPrompt.astro';
 import { VideoPlayer } from 'starlight-videos/components'
+import { UserProfileSection } from '@components/templates';
 
 Integrate **Single Sign-On (SSO)** with Scalekit to enhance your B2B SaaS application's security. Scalekit provides seamless user experiences by abstracting the complexities of **SAML** and **OIDC** protocols. Using Scalekit's authentication platform, you can implement enterprise-grade SSO with minimal code. We offer [pre-built integrations](/guides/integrations/sso-integrations) with major identity providers including Okta, Microsoft Entra ID, JumpCloud, and OneLogin.
 
@@ -292,7 +293,7 @@ This quickstart guide walks you through the SSO implementation process. You will
 
     <TabItem value="direct" label="Direct URL (No SDK)">
 
-    ```url title="Direct Authorization URL Construction"
+    ```txt title="Direct Authorization URL Construction"
     https://your-scalekit-environment.scalekit.com/oauth/authorize?
       response_type=code&
       client_id=<SCALEKIT_CLIENT_ID>&
@@ -304,7 +305,7 @@ This quickstart guide walks you through the SSO implementation process. You will
     ```
 
     **Example with actual values:**
-    ```url
+    ```txt
     https://tinotat-dev.scalekit.cloud/oauth/authorize?
       response_type=code&
       client_id=skc_88036702639096097&
@@ -464,19 +465,61 @@ This quickstart guide walks you through the SSO implementation process. You will
 
     The `result` object
 
-    ```json title="Result object"
-    {
-      user: {
-        email: "john.doe@example.com",
-        familyName: "Doe",
-        givenName: "John",
-        username: "john.doe@example.com",
-        id: "conn_326735950921X7829;cc4aaef2-b395-4b40-81ae-b8183c1006e1"
-      },
-      idToken: "<USER_PROFILE_JWT>", // JWT containing user profile information
-      accessToken: "<API_CALL_JWT>", // Token for API calls
-      expiresIn: 899
-    }
-    ```
+    <Tabs syncKey="auth-result">
+        <TabItem value="authResult" label="authResult">
+        ```js
+        {
+          user: {
+            email: 'john@example.com',
+            familyName: 'Doe',
+            givenName: 'John',
+            username: 'john@example.com',
+            id: 'conn_70087756662964366;dcc62570-6a5a-4819-b11b-d33d110c7716'
+          },
+          idToken: 'eyJhbGciOiJSU..bcLQ',
+          accessToken: 'eyJhbGciO..',
+          expiresIn: 899
+        }
+        ```
+        </TabItem>
+        <TabItem value="idToken" label="ID token (decoded)">
+        ```json
+        {
+          amr: [ 'conn_70087756662964366' ],
+          at_hash: 'yMGIBg7BkmIGgD6_dZPEGQ',
+          aud: [ 'skc_70087756327420046' ],
+          azp: 'skc_70087756327420046',
+          c_hash: '4x7qsXnlRw6dRC6twnuENw',
+          client_id: 'skc_70087756327420046',
+          email: 'john@example.com',
+          exp: 1758952038,
+          family_name: 'Doe',
+          given_name: 'John',
+          iat: 1758692838,
+          iss: '<SCALEKIT_ENVIRONMENT_URL>',
+          oid: 'org_70087756646187150',
+          preferred_username: 'john@example.com',
+          sid: 'ses_91646612652163629',
+          sub: 'conn_70087756662964366;e964d135-35c7-4a13-a3b4-2579a1cdf4e6'
+        }
+        ```
+        </TabItem>
+        <TabItem value="accessToken" label="Access token (decoded)">
+        ```json
+         {
+          "iss": "<SCALEKIT_ENVIRONMENT_URL>",
+          "sub": "conn_70087756662964366;dcc62570-6a5a-4819-b11b-d33d110c7716",
+          "aud": [
+            "skc_70087756327420046"
+          ],
+          "exp": 1758693916,
+          "iat": 1758693016,
+          "nbf": 1758693016,
+          "client_id": "skc_70087756327420046",
+          "jti": "tkn_91646913048216109"
+        }
+        ```
+        </TabItem>
+      </Tabs>
 
 </Steps>

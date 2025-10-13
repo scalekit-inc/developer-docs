@@ -44,6 +44,16 @@ export const sidebar = [
           'fsa/reference/user-profile',
           'fsa/guides/app-roles',
           {
+            label: 'Interceptors',
+            link: '/guides/auth-flow-interceptors',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+          {
+            label: 'Sign-up restrictions',
+            link: 'fsa/guides/signup-restrictions',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+          {
             label: 'Redirects',
             link: 'guides/dashboard/redirects',
             attrs: { target: '_blank', rel: 'noopener' },
@@ -55,7 +65,15 @@ export const sidebar = [
       },
       {
         label: 'Customization',
-        items: ['fsa/guides/login-page-branding', 'guides/email-providers'],
+        items: [
+          'fsa/guides/login-page-branding',
+          'guides/email-providers',
+          {
+            label: 'Custom email templates',
+            link: 'guides/dashboard/custom-email-templates',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
       },
       {
         label: 'Integrations',
@@ -173,7 +191,11 @@ export const sidebar = [
         label: 'Email customization',
         items: [
           'guides/passwordless/custom-email-provider',
-          'guides/passwordless/custom-email-templates',
+          {
+            label: 'Custom email templates',
+            link: 'guides/dashboard/custom-email-templates',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
         ],
       },
       {
@@ -206,6 +228,7 @@ export const sidebar = [
         label: 'Tools',
         items: [
           'agent-actions/tools/overview',
+          'agent-actions/tools/modifiers',
           'agent-actions/tools/execute',
           'agent-actions/tools/authorize',
           // 'agent-actions/tools/custom-processors',
@@ -217,7 +240,7 @@ export const sidebar = [
         label: 'AI Frameworks',
         items: [
           'agent-actions/frameworks/langchain',
-          // 'agent-actions/frameworks/google-adk',
+          'agent-actions/frameworks/google-adk',
           // 'agent-actions/frameworks/agno',
           // 'agent-actions/frameworks/openai',
           // 'agent-actions/frameworks/anthropic',
@@ -232,7 +255,12 @@ export const sidebar = [
           'agent-actions/advanced/proxy-api-calls',
         ],
       },
-
+      {
+        label: 'Connectors',
+        autogenerate: {
+          directory: 'reference/agent-connectors',
+        },
+      },
       // {
       //   label: 'MCP',
       //   items: ['connect/mcp/quickstart', 'connect/mcp/custom-mcp', 'connect/mcp/manage'],
@@ -280,7 +308,16 @@ export const sidebar = [
       },
       {
         label: 'Guides',
-        items: ['guides/m2m/m2m-basics', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
+        items: [
+          'guides/m2m/m2m-basics',
+          'guides/m2m/scopes',
+          'guides/m2m/api-auth-m2m-clients',
+          {
+            label: 'Interceptors',
+            link: '/guides/auth-flow-interceptors',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
       },
     ],
   },
@@ -299,12 +336,22 @@ export const sidebar = [
         link: '/dev-kit/code-samples',
       },
       {
+        label: 'Interceptors',
+        items: ['guides/auth-flow-interceptors', 'guides/interceptor-scenarios'],
+      },
+      {
         label: 'Webhooks',
-        autogenerate: { directory: 'reference/webhooks' },
+        items: [
+          {
+            label: 'Webhooks',
+            autogenerate: { directory: 'reference/webhooks' },
+          },
+        ],
       },
       {
         label: 'Guides',
         items: [
+          'guides/dashboard/custom-email-templates',
           'guides/setup-scalekit',
           'dev-kit/resources/ai-assisted-setup',
           'guides/external-ids-and-metadata',
@@ -388,6 +435,10 @@ export const topics = {
   connect: ['/agent-actions/**/*'], // Agent Actions unlisted pages
   mcp: ['/guides/mcp/**/*'], // MCP Auth pages under guides
   m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
-  'dev-kit': ['/dev-kit/**/*', '/guides/unlisted/passwordless-as-service'], // Developer resources
+  'dev-kit': [
+    '/dev-kit/**/*',
+    '/guides/unlisted/passwordless-as-service',
+    '/guides/auth-flow-interceptors',
+  ], // Developer resources
   integrations: ['/guides/integrations/**/*'], // Integration guide pages
 }

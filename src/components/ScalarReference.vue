@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { ApiReference } from '@scalar/api-reference'
+import { defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue'
 import '@fontsource-variable/inter'
 import '@/styles/api-reference.css'
-import { onMounted, onUnmounted, ref } from 'vue'
 import { initializeThemeSync, type ThemeSynchronizer } from '../utils/themeSync'
+
+const AsyncApiReference = defineAsyncComponent(async () => {
+  const mod = await import('@scalar/api-reference')
+  return mod.ApiReference
+})
 
 // Reactive color mode tracking
 const colorMode = ref<string>('light')
@@ -109,7 +113,7 @@ const handleDeepLink = () => {
   <div class="api-reference-wrapper" :class="colorMode + '-mode'">
     <!-- API Reference content (always render; show overlay while loading) -->
     <div class="api-reference-container">
-      <ApiReference
+      <AsyncApiReference
         :configuration="{
           url: '/api/scalekit.swagger.json',
           onLoaded: handleInitialLoad,
@@ -149,6 +153,10 @@ const handleDeepLink = () => {
           favicon:
             'https://cdn.prod.website-files.com/65b87d98fa638289e10b8f61/67ab35acf2f180e0fe0a94a8_S%20Icon%20-%20Black%20-%2032x32.png',
           hideClientButton: true,
+          defaultHttpClient: {
+            targetKey: 'shell',
+            clientKey: 'curl',
+          },
         }"
       />
     </div>

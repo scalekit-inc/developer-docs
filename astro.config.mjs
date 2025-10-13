@@ -15,7 +15,7 @@ import starlightVideos from 'starlight-videos'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import tailwindcss from '@tailwindcss/vite'
-import d2 from 'astro-d2'
+import d2 from 'astro-d2' // https://astro-d2.vercel.app/configuration/
 import Icons from 'unplugin-icons/vite'
 
 // https://astro.build/config
@@ -65,7 +65,6 @@ export default defineConfig({
         '@fontsource-variable/geist',
         '@fontsource-variable/geist-mono',
         './src/styles/theme-priority.css',
-        './src/styles/custom.css',
       ],
       plugins: [
         starlightLinksValidator(),
@@ -158,6 +157,13 @@ export default defineConfig({
     plugins: [pluginCollapsibleSections(), tailwindcss(), Icons({ compiler: 'astro' })],
     build: {
       chunkSizeWarningLimit: 2000,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('@scalar')) return 'scalar'
+          },
+        },
+      },
     },
   },
 })

@@ -9,6 +9,10 @@ import InstallSDK from '@components/templates/_installsdk.mdx';
 
 This quickstart guide will help you build agents using Langchain Framework and add tool calling ability natively to the agent.
 
+<Aside >
+  Find the full code for this quickstart on [Github](https://github.com/scalekit-inc/sample-langchain-agent)
+</Aside>
+
 ## What you'll build
 
 In this quickstart, you'll build a simple integration that:
@@ -20,23 +24,29 @@ In this quickstart, you'll build a simple integration that:
 
 Before you start, make sure you have:
 
-- **Scalekit API credentials** (Client ID and Client Secret)
-- **Development environment** (Node.js, Python, or similar)
+- **Scalekit API credentials** Client ID and Client Secret environment from  [app.scalekit.com](https://app.scalekit.com)
+- **OpenAI API Key**: Get from [OpenAI Platform](https://platform.openai.com/api-keys)
 
 ## Step 1: Set up your environment
 
-First, install the Scalekit Python SDK and initialize the client with your API credentials:
+First, install the Scalekit Python SDK and initialize the client with your API credentials
+
+Get your Scalekit credentials from your dashboard at [app.scalekit.com](https://app.scalekit.com):
+
+Navigate to Developers -> Settings -> API Credentials
 
 <p>
   ```sh showLineNumbers=false frame="none"
-  pip install scalekit-sdk-python
+  pip install scalekit-sdk-python langchain
   ```
 </p>
 <p>
   ```python showLineNumbers=false frame="none"
   import scalekit.client
   import os
+  from dotenv import load_dotenv
 
+  load_dotenv()
   scalekit = scalekit.client.ScalekitClient(
       client_id=os.getenv("SCALEKIT_CLIENT_ID"),
       client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
@@ -52,10 +62,11 @@ Let's authorize a user to access their Gmail account by creating a connected acc
 
 ```python
 # Create a connected account for user if it doesn't exist already
-connected_account = actions.get_or_create_connected_account(
+response = actions.get_or_create_connected_account(
             connection_name="gmail",
             identifier="user_123"
         )
+connected_account = response.connected_account
 
 print(f'Connected account created: {connected_account.id}')
 ```
