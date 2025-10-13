@@ -26,10 +26,9 @@ export const sidebar = [
         collapsed: true,
         items: [
           'fsa/reference/user-profile',
+          'fsa/guides/organization-switching',
           'fsa/guides/app-roles',
           'fsa/guides/user-invitations',
-          'fsa/guides/allowed-email-domains',
-          'fsa/guides/organization-switching',
           'fsa/reference/user-management-settings',
         ],
       },
@@ -318,6 +317,7 @@ export const sidebar = [
           'fsa/guides/signup-restrictions',
           'guides/dashboard/redirects',
           'fsa/guides/just-in-time-provisioning',
+          'fsa/guides/allowed-email-domains',
         ],
       },
       {
