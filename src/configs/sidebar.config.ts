@@ -50,20 +50,6 @@ export const sidebar = [
         items: ['passwordless/quickstart', 'sso/quickstart', 'directory/scim/quickstart'],
       },
       {
-        label: 'Make it your own',
-        collapsed: true,
-        items: [
-          'guides/custom-domain',
-          'fsa/guides/login-page-branding',
-          'guides/email-providers',
-          {
-            label: 'Personalize email templates',
-            link: 'guides/dashboard/custom-email-templates',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-      {
         label: 'Single Sign-on',
         collapsed: true,
         items: [
@@ -84,18 +70,6 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Auth methods as modules',
-        collapsed: true,
-        items: [
-          {
-            label: 'Setup social connections',
-            link: '/guides/integrations/social-connections/',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          'authenticate/passkeys',
-        ],
-      },
-      {
         label: 'SCIM provisioning',
         collapsed: true,
         items: [
@@ -108,6 +82,21 @@ export const sidebar = [
           },
         ],
       },
+      {
+        label: 'Branding',
+        collapsed: true,
+        items: [
+          'guides/custom-domain',
+          'fsa/guides/login-page-branding',
+          'guides/email-providers',
+          {
+            label: 'Personalize email templates',
+            link: 'guides/dashboard/custom-email-templates',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+      'guides/integrations',
       'authenticate/launch-checklist',
     ],
   },
