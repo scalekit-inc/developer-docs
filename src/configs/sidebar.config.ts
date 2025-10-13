@@ -47,25 +47,11 @@ export const sidebar = [
       },
       {
         label: 'Enterprise Auth',
-        items: ['sso/quickstart', 'directory/scim/quickstart', 'guides/sso/admin-portal'],
-      },
-      {
-        label: 'Single Sign-on',
-        collapsed: true,
         items: [
-          'sso/guides/sso-user-attributes',
-          'sso/guides/user-profile-details',
-          'sso/guides/idp-init-sso',
-          'sso/guides/test-sso',
-          {
-            label: 'Bring own auth systems',
-            autogenerate: { directory: 'guides/integrations/auth-systems' },
-          },
-          {
-            label: 'View SSO integrations',
-            link: '/guides/integrations/sso-integrations/',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
+          'sso/quickstart',
+          'directory/scim/quickstart',
+          'guides/sso/admin-portal',
+          'guides/integrations',
         ],
       },
       {
@@ -95,7 +81,6 @@ export const sidebar = [
           },
         ],
       },
-      'guides/integrations',
       'authenticate/launch-checklist',
     ],
   },
@@ -319,6 +304,25 @@ export const sidebar = [
           'fsa/guides/just-in-time-provisioning',
           'fsa/guides/allowed-email-domains',
         ],
+      },
+      {
+        label: 'Single Sign-on',
+        collapsed: true,
+        items: [
+          'sso/guides/sso-user-attributes',
+          'sso/guides/user-profile-details',
+          'sso/guides/idp-init-sso',
+          'sso/guides/test-sso',
+          {
+            label: 'View SSO integrations',
+            link: '/guides/integrations/sso-integrations/',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+      {
+        label: 'SSO with own auth systems',
+        autogenerate: { directory: 'guides/integrations/auth-systems' },
       },
       {
         label: 'How to…',
