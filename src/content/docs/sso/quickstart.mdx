@@ -19,7 +19,7 @@ codeSamples:
   expanded: true
   label: "Next steps"
   items:
-    - title: "See OIDC and SAML integrations"
+    - title: "SSO provider setup guides"
       icon: "ripple"
       url: "/guides/integrations/"
     - title: "Explore SSO demo app"
@@ -339,12 +339,15 @@ This quickstart guide walks you through the SSO implementation process. You will
 
    Your initiate login endpoint receives an `idp_initiated_login` JWT parameter containing the user's organization and connection details. Decode this token and generate a new authorization URL to complete the authentication flow securely.
 
-   **Configure your initiate login endpoint** in [Dashboard > Authentication > Redirects](/guides/dashboard/redirects/#initiate-login-url)
+   ```sh showLineNumbers=false "idp_initiated_login=<encoded_jwt_token>" wrap
+   https://yourapp.com/login?idp_initiated_login=<encoded_jwt_token>
+   ```
+   Configure your initiate login endpoint in [Dashboard > Authentication > Redirects](/guides/dashboard/redirects/#initiate-login-url)
 
    <Tabs syncKey="tech-stack">
    <TabItem value="nodejs" label="Node.js">
 
-   ```javascript showLineNumbers wrap title="handle-idp-initiated.js" {7-8,19-23}
+   ```javascript wrap title="handle-idp-initiated.js" "idp_initiated_login" collapse={3-7} {9, 11}
    // Your initiate login endpoint receives the IdP-initiated login token
    const { idp_initiated_login, error, error_description } = req.query;
 
@@ -365,19 +368,19 @@ This quickstart guide walks you through the SSO implementation process. You will
      };
 
      // Generate authorization URL and redirect to complete authentication
-     const authUrl = scalekit.getAuthorizationUrl(
+     const authorizationURL = scalekit.getAuthorizationUrl(
        'https://your-app.com/auth/callback',
        options
      );
 
-     return res.redirect(authUrl);
+     return res.redirect(authorizationURL);
    }
    ```
 
    </TabItem>
    <TabItem value="py" label="Python">
 
-   ```python showLineNumbers wrap title="handle_idp_initiated.py" {7-8,19-23}
+   ```python title="handle_idp_initiated.py" "idp_initiated_login" {10} collapse={5-8}
    # Your initiate login endpoint receives the IdP-initiated login token
    idp_initiated_login = request.args.get('idp_initiated_login')
    error = request.args.get('error')
@@ -409,7 +412,7 @@ This quickstart guide walks you through the SSO implementation process. You will
    </TabItem>
    <TabItem value="golang" label="Go">
 
-   ```go showLineNumbers title="handle_idp_initiated.go" {9-10,20-28}
+   ```go title="handle_idp_initiated.go" "idp_initiated_login" {11} collapse={5-9,30-37}
    // Your initiate login endpoint receives the IdP-initiated login token
    idpInitiatedLogin := r.URL.Query().Get("idp_initiated_login")
    errorDesc := r.URL.Query().Get("error_description")
@@ -453,7 +456,7 @@ This quickstart guide walks you through the SSO implementation process. You will
 
    <TabItem value="java" label="Java">
 
-   ```java showLineNumbers title="HandleIdpInitiated.java" {11-12,27-35}
+   ```java title="HandleIdpInitiated.java" {15} "idp_initiated_login"
    // Your initiate login endpoint receives the IdP-initiated login token
    @GetMapping("/login")
    public RedirectView handleInitiateLogin(
@@ -766,11 +769,6 @@ This quickstart guide walks you through the SSO implementation process. You will
 
    </TabItem>
    </Tabs>
-
-   **Testing checklist:**
-   - ✅ SP-initiated SSO with test organization
-   - ✅ IdP-initiated SSO flow conversion
-   - ✅ Error scenarios and user feedback
 
    Learn more: [Complete SSO testing guide](/sso/guides/test-sso/)
 

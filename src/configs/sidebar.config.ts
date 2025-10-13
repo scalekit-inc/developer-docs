@@ -11,7 +11,7 @@ export const sidebar = [
       },
       {
         label: 'User authentication',
-        collapsed: true,
+        collapsed: false,
         items: [
           'passwordless/oidc',
           'passwordless/quickstart',
@@ -24,7 +24,7 @@ export const sidebar = [
       },
       {
         label: 'User management',
-        collapsed: true,
+        collapsed: false,
         items: [
           'fsa/reference/user-profile',
           'fsa/guides/organization-switching',
@@ -35,7 +35,7 @@ export const sidebar = [
       },
       {
         label: 'MCP Auth',
-        collapsed: true,
+        collapsed: false,
         items: [
           'mcp/oauth',
           'mcp/overview',
