@@ -26,6 +26,72 @@ Managing user accounts in B2B applications involves unique challenges around mul
 
 This guide shows you how to manage users programmatically across different scenarios that B2B applications commonly encounter.
 
+```d2
+
+User: {
+  shape: sql_table
+  id: string {constraint: PK}
+  email: string
+  external_id: string
+  create_time: timestamp
+  update_time: timestamp
+  metadata: object
+}
+
+UserProfile: {
+  shape: sql_table
+  id: string {constraint: PK}
+  user_id: string {constraint: FK}
+  first_name: string
+  last_name: string
+  name: string
+  email_verified: boolean
+  locale: string
+  phone_number: string
+  custom_attributes: object
+  metadata: object
+}
+
+Membership: {
+  shape: sql_table
+  id: string {constraint: PK}
+  user_id: string {constraint: FK}
+  organization_id: string
+  display_name: string
+  membership_status: enum
+  join_time: timestamp
+  created_at: timestamp
+  accepted_at: timestamp
+  expires_at: timestamp
+  inviter_email: string
+  metadata: object
+}
+
+Role: {
+  shape: sql_table
+  id: string {constraint: PK}
+  membership_id: string {constraint: FK}
+  name: string
+  display_name: string
+}
+
+# Relationships
+User.id -> UserProfile.user_id: {
+  label: "1:1"
+  tooltip: "Each user has one profile containing personal details"
+}
+
+User.id -> Membership.user_id: {
+  label: "1:N"
+  tooltip: "Users can belong to multiple organizations simultaneously"
+}
+
+Membership.id -> Role.membership_id: {
+  label: "1:N"
+  tooltip: "Users can have different roles in each organization"
+}
+```
+
 ## Understanding user management in B2B
 
 User management in B2B applications differs significantly from consumer apps. Consider these common scenarios:
