@@ -91,6 +91,7 @@ export default defineConfig({
         starlightVideos(),
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude', 'lechat', 'grok'],
+          hideMainActionLabel: true,
         }),
       ],
       head: [
