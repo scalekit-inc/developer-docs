@@ -33,14 +33,7 @@ export const sidebar = [
       {
         label: 'MCP Auth',
         collapsed: false,
-        items: [
-          'mcp/oauth',
-          'mcp/overview',
-          {
-            label: 'Co-exist with own auth systems',
-            link: 'mcp/guides/custom-auth',
-          },
-        ],
+        items: ['mcp/oauth', 'mcp/overview', 'mcp/guides/custom-auth'],
       },
       {
         label: 'Enterprise Auth',
@@ -62,11 +55,7 @@ export const sidebar = [
           'guides/custom-domain',
           'fsa/guides/login-page-branding',
           'guides/email-providers',
-          {
-            label: 'Personalize email templates',
-            link: 'guides/dashboard/custom-email-templates',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
+          'guides/dashboard/custom-email-templates',
         ],
       },
       'authenticate/launch-checklist',
