@@ -11,24 +11,14 @@ export const sidebar = [
       },
       {
         label: 'User authentication',
-        collapsed: false,
+        collapsed: true,
         items: [
           'passwordless/oidc',
           'social-logins/quickstart',
+          // TODO: FSA driven SSO perspective
           'fsa/guides/manage-session',
+          'guides/auth-flow-interceptors',
           'fsa/guides/logout',
-        ],
-      },
-      {
-        label: 'MCP Auth',
-        collapsed: true,
-        items: [
-          'mcp/oauth',
-          'mcp/overview',
-          {
-            label: 'Co-exist with own auth systems',
-            link: 'mcp/guides/custom-auth',
-          },
         ],
       },
       {
@@ -37,11 +27,6 @@ export const sidebar = [
         items: [
           'fsa/reference/user-profile',
           'fsa/guides/app-roles',
-          {
-            label: 'Interceptors',
-            link: '/guides/auth-flow-interceptors',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
           {
             label: 'Sign-up restrictions',
             link: 'fsa/guides/signup-restrictions',
@@ -61,8 +46,20 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Quickstarts',
-        items: ['sso/quickstart', 'passwordless/quickstart', 'directory/scim/quickstart'],
+        label: 'MCP Auth',
+        collapsed: true,
+        items: [
+          'mcp/oauth',
+          'mcp/overview',
+          {
+            label: 'Co-exist with own auth systems',
+            link: 'mcp/guides/custom-auth',
+          },
+        ],
+      },
+      {
+        label: 'Drop-in modules',
+        items: ['passwordless/quickstart', 'sso/quickstart', 'directory/scim/quickstart'],
       },
       {
         label: 'Make it your own',
