@@ -136,13 +136,12 @@ export default defineConfig({
     }),
     d2({
       theme: {
-        default: '0',
-        dark: '1', // choose at https://d2lang.com/tour/themes/
+        default: '1', // Light theme (Neutral default)
       },
       sketch: true,
-      layout: 'elk',
       appendix: true, // Enable interactive elements (tooltips/links)
       inline: true, // Embed SVG inline to make links clickable
+      layout: 'elk',
       pad: 3, // Add padding around the diagram (affects overall size)
     }),
   ],
