@@ -141,6 +141,8 @@ export default defineConfig({
       },
       sketch: true,
       layout: 'elk',
+      appendix: true, // Enable interactive elements (tooltips/links)
+      inline: true, // Embed SVG inline to make links clickable
     }),
   ],
   image: {
