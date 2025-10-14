@@ -46,7 +46,7 @@ export const sidebar = [
       },
       {
         label: 'Branding',
-        collapsed: true,
+        collapsed: false,
         items: [
           'guides/custom-domain',
           'fsa/guides/login-page-branding',
@@ -54,7 +54,10 @@ export const sidebar = [
           'guides/dashboard/custom-email-templates',
         ],
       },
-      'authenticate/launch-checklist',
+      {
+        label: 'Going to production',
+        items: ['guides/dashboard/auth-logs', 'authenticate/launch-checklist'],
+      },
     ],
   },
   {
@@ -296,11 +299,6 @@ export const sidebar = [
           'sso/guides/test-sso',
           'sso/guides/idp-init-sso',
           'sso/guides/authorization-url',
-          {
-            label: 'View SSO integrations',
-            link: '/guides/integrations/sso-integrations/',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
         ],
       },
       {
