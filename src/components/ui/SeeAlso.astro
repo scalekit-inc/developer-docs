@@ -1,16 +1,16 @@
 ---
-import IconStreamlineBrowserCode from '~icons/streamline-plump/browser-code-1-solid'
 import IconLucideChevronDown from '~icons/lucide/chevron-down'
 import IconOcticonTabExternal from '~icons/octicon/tab-external-24'
 import IconCarbonMigrate from '~icons/carbon/migrate'
+import IconGardenShapes26 from '~icons/garden/shapes-26'
+import IconProiconsJavascript from '~icons/proicons/javascript'
 
 // Import commonly used tech stack icons
 import IconNodejs from '~icons/simple-icons/nodedotjs'
-import IconJavascript from '~icons/simple-icons/javascript'
 import IconPython from '~icons/simple-icons/python'
 import IconGo from '~icons/simple-icons/go'
 import IconJava from '~icons/ri/java-line'
-import IconNextjs from '~icons/simple-icons/nextdotjs'
+import IconTeenyiconsNextjsOutline from '~icons/teenyicons/nextjs-outline'
 import IconSpringboot from '~icons/simple-icons/springboot'
 import IconFlask from '~icons/simple-icons/flask'
 import IconDjango from '~icons/simple-icons/django'
@@ -23,15 +23,15 @@ import IconProgress from '~icons/simple-icons/progress'
 const iconMap = {
   nodejs: IconNodejs,
   node: IconNodejs,
-  javascript: IconJavascript,
-  js: IconJavascript,
+  javascript: IconProiconsJavascript,
+  js: IconProiconsJavascript,
   python: IconPython,
   py: IconPython,
   golang: IconGo,
   go: IconGo,
   java: IconJava,
-  nextjs: IconNextjs,
-  next: IconNextjs,
+  nextjs: IconTeenyiconsNextjsOutline,
+  next: IconTeenyiconsNextjsOutline,
   springboot: IconSpringboot,
   spring: IconSpringboot,
   flask: IconFlask,
@@ -46,7 +46,7 @@ const iconMap = {
 }
 
 interface Props {
-  codeSamples?: {
+  seeAlso?: {
     items: Array<{
       title: string
       url: string
@@ -57,22 +57,22 @@ interface Props {
   }
 }
 
-const { codeSamples } = Astro.props
+const { seeAlso } = Astro.props
 ---
 
 {
-  codeSamples && codeSamples.items && codeSamples.items.length > 0 && (
+  seeAlso && seeAlso.items && seeAlso.items.length > 0 && (
     <div class="code-samples-section">
-      <details class="code-samples-details" open={codeSamples.expanded ?? true}>
+      <details class="code-samples-details" open={seeAlso.expanded ?? true}>
         <summary class="code-samples-header">
           <div class="header-content">
-            <IconStreamlineBrowserCode class="code-samples-icon" />
-            {codeSamples.label ?? 'See also'}
+            <IconGardenShapes26 class="code-samples-icon" />
+            {seeAlso.label ?? 'See also'}
           </div>
           <IconLucideChevronDown class="chevron-icon" />
         </summary>
         <div class="code-samples-list">
-          {codeSamples.items.map((sample) => {
+          {seeAlso.items.map((sample) => {
             const iconName = sample.icon?.toLowerCase()
             const IconComponent =
               iconName && iconMap[iconName] ? iconMap[iconName] : IconOcticonTabExternal

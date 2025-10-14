@@ -14,7 +14,7 @@ export const collections = {
         .merge(videosSchema)
         .merge(
           z.object({
-            codeSamples: z
+            seeAlso: z
               .object({
                 items: z.array(
                   z.object({
@@ -24,7 +24,7 @@ export const collections = {
                   }),
                 ),
                 expanded: z.boolean().optional().default(true),
-                label: z.string().optional().default('Code samples'),
+                label: z.string().optional().default('See also'),
               })
               .optional(),
           }),
