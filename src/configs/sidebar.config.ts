@@ -24,11 +24,7 @@ export const sidebar = [
       {
         label: 'User management',
         collapsed: false,
-        items: [
-          'fsa/guides/manage-users',
-          'fsa/guides/app-roles',
-          'fsa/guides/organization-switching',
-        ],
+        items: ['fsa/guides/manage-users', 'fsa/guides/app-roles'],
       },
       {
         label: 'MCP Auth',
@@ -281,6 +277,7 @@ export const sidebar = [
           'fsa/reference/user-profile',
           'fsa/guides/user-invitations',
           'fsa/guides/merge-identities',
+          'fsa/guides/organization-switching',
           'fsa/guides/signup-restrictions',
           'fsa/guides/allowed-email-domains',
           'fsa/reference/user-management-settings',
