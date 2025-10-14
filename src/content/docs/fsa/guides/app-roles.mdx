@@ -18,223 +18,41 @@ prev:
 ---
 import { Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code, LinkButton } from '@astrojs/starlight/components';
 
-Users, when they are created in Scalekit, when they sign up for your app, are assigned a default **Member**. Only organization creator is assigned the **Creator** role.
+import IconTdesignSequence from '~icons/tdesign/sequence'
+import IconJsonwebtokens from '~icons/simple-icons/jsonwebtokens'
 
-Applications often include many capabilities. Not every user should be able to perform every action (for example, only owners should manage billing or payments). Scalekit helps you restrict access cleanly with roles and permissions so users get only the access they need.
+When users sign up for the app, Scalekit automatically creates a new organization. Most applications refer to organizations as workspaces for consistency. The initial user is assigned the `admin` role. All subsequent users who join the same organization are automatically assigned the `member` role.
 
-Scalekit's Full Stack Auth (FSA) lets your users sign in to your app. Once integrated, Scalekit acts as access middleware: it verifies identity and shares the user's role and permissions with your application so you can allow or restrict actions.
+Information about the organization, user roles, and membership is present in both the access token and ID token received after user sign-up or login. These tokens serve as the source of truth for determining a user's access level at runtime within your app
+
+<details>
+<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Understand how access control flows</summary>
 
 ```d2
-direction: right
+shape: sequence_diagram
 
-vars: {
-  app-role-1: "Admin"
-  app-role-2: "Writer"
-  org-role-1: "Gate keeper"
-  permission-1: "doc:delete"
-  permission-2: "doc:create"
-  permission-3: "doc:read"
-  permission-4: "doc:update"
-  permission-5: "doc:read"
+User -> Scalekit: Initiate sign up or login
+Scalekit -> Access Token: Package authentication tokens
+Access Token -> Your App: App decodes access token
+Your App -> User: Grant runtime access based on the assigned roles and permissions
+
+Access Token: {
+  shape: sql_table
+  permissions: string {constraint: array}
+  roles: string {constraint: array}
+  "(fields omitted for brevity)"
 }
-
-Roles.App Roles : ${app-role-1}
-Roles.Organization Roles
-
-Application -- Roles : ${app-role-1}, ${app-role-2}
-Roles <- Permissions : ${permission-1}, ${permission-2}
-Application -- Organization
-Organization -- Roles.Organization Roles
 ```
+</details>
 
+<details>
+  <summary><IconJsonwebtokens style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Example token contents</summary>
 
-## Understand roles and permissions
-
-- **Role**: A convenient bundle of actions. Examples: Admin, Manager, Editor, Viewer. Roles state what a user can and cannot do.
-- **Permission**: A single allowed action in your system, typically rendered as `resource:action` (for example, `projects:create`, `tasks:read`). Use permissions when you need fine-grained control.
-
-### Default roles
-
-Scalekit automatically assigns default roles when setting up your organization:
-
-- **Organization creator**: The first user who creates your Scalekit organization gets the `creator` role automatically
-- **New members**: When you invite users to your organization, they're automatically assigned the `member` role
-
-These default roles provide a starting point for access control. You can customize what permissions these roles have and change the default role assignments at any time. Additionally, roles can be assigned to anyone who is invited to your organization, regardless of how they joined (email invitation, SSO, social login, etc.). This gives you full control over who gets which role and allows you to modify user roles at any time after they've joined.
-
-## Model roles for your app
-
-Design roles that reflect how your users work. For a project management app (similar to Linear), you might define:
-
-| Role | Permissions |
-|------|-------------|
-| Admin | `org:manage`, `billing:manage`, `projects:create`, `projects:write`, `projects:read`, `tasks:create`, `tasks:write`, `tasks:read`, `members:manage` |
-| Project owner | `projects:create`, `projects:write`, `projects:read`, `tasks:create`, `tasks:write`, `tasks:read` |
-| Editor | `projects:write`, `projects:read`, `tasks:create`, `tasks:write`, `tasks:read` |
-| Member | `projects:read`, `tasks:create`, `tasks:read` |
-| Viewer | `projects:read`, `tasks:read` |
-
-Keep headers short and permissions focused. Expand this table to match your product.
-
-## Manage roles and permissions
-
-![](@/assets/docs/app-roles/1-roles-home.png)
-
-You can register roles and permissions from the Scalekit dashboard:
-
-<Steps>
-
-1. ### Define permissions for your application
-
-   - Go to **User management → Permissions**
-   - Create granular permissions like `projects:create`, `tasks:read`, `billing:manage`
-   - Think about your app's resources and actions when defining permissions
-   - Use consistent naming patterns: `resource:action` (e.g., `projects:create`, `projects:read`, `projects:update`, `projects:delete`)
-
-   ![](@/assets/docs/app-roles/creating-permissions.png)
-
-2. ### Create roles
-
-   - Go to **Authorization → Roles**
-   - Click **+ Add role** and provide:
-     - **Display name**: Human-readable name (e.g., "Project Owner")
-     - **Name (key)**: Machine-friendly identifier (e.g., `project_owner`)
-     - **Description**: Clear explanation of what users with this role can do
-   - Use short, machine-friendly keys for the Name field
-
-   ![](@/assets/docs/app-roles/add-role.png)
-
-3. ### Understand role inheritance <Badge type="tip" text='Optional'/>
-
-   Role inheritance lets you build permission hierarchies by having one role inherit all permissions from another role, then adding or removing specific permissions. This approach reduces duplication and makes permission management more maintainable.
-
-   **How inheritance works:**
-   - A role automatically gets all permissions from its base role
-   - You can then add new permissions specific to the inheriting role
-   - You can also remove specific permissions if needed
-   - Changes to the base role automatically propagate to all inheriting roles
-
-   **Example hierarchy:**
-   ```
-   viewer (base role)
-   ├── projects:read
-   ├── tasks:read
-   └── comments:read
-
-   editor (inherits from viewer)
-   ├── [inherits all viewer permissions]
-   ├── projects:write
-   ├── tasks:create
-   └── tasks:write
-
-   project_owner (inherits from editor)
-   ├── [inherits all editor permissions]
-   ├── projects:create
-   └── members:invite
-
-   admin (inherits from project_owner)
-   ├── [inherits all project_owner permissions]
-   ├── org:manage
-   ├── billing:manage
-   └── members:manage
-   ```
-
-   **Benefits of inheritance:**
-   - **Easier maintenance**: Update permissions in one place and they automatically apply to all inheriting roles
-   - **Consistent access levels**: Ensures users with higher roles always have at least the same access as base roles
-   - **Reduced duplication**: No need to repeatedly assign the same permissions to multiple roles
-   - **Logical structure**: Clear progression from basic access to full administrative capabilities
-
-   ![](@/assets/docs/app-roles/inheritance.png)
-
-4. ### Map permissions to roles
-
-   - Assign the permissions you created to each role
-   - Consider using inheritance to build permission sets efficiently
-   - Test your permission model to ensure users have appropriate access levels
-   - Document your permission structure for your development team
-
-5. ### Set defaults
-
-   - Confirm default role for the environment creator is `creator`
-   - Confirm default role for new members is `member`
-   - You can change these defaults at any time in **Authorization → Roles**
-
-</Steps>
-
-
-
-<LinkCard
-  title="Integrate with Scalekit"
-  href="/fsa/quickstart/"
-  description="Follow our quickstart guide to integrate Scalekit into your application and start managing user roles."
-/>
-
-## Configure organization specific roles
-
-Organization specific roles allow your organization administrators to create roles that go beyond the roles your application can assign.
-
-For example, an organization administrator wants to create a role that allows users to create and manage projects. While this is covered by the `project_owner` role, the organization administrator may want to create a role that allows users to create and manage projects and also manage users.
-
-![](@/assets/docs/app-roles/organization-roles.png)
-
-You can go ahead and create organization specific roles from the Scalekit dashboard:
-- Go to **Organizations → Select an organization → Roles**
-- In **Custom Role** section, Click **+ Add role** and provide:
-  - **Display name**: Human-readable name (e.g., "Project Owner")
-  - **Name (key)**: Machine-friendly identifier (e.g., `project_owner`)
-  - **Description**: Clear explanation of what users with this role can do
-
-<Tabs>
-  <TabItem label="cURL" value="curl">
-
-  ```sh showLineNumbers=true wrap title="Create organization role"
-  curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{org_id}/roles' \
-  --request POST \
-  --header 'Content-Type: application/json' \
-  --data '{
-  "description": "Organization Viewer Role will be used only for viewing the objects",
-  "display_name": "Organization Viewer Role",
-  "extends": "admin_role",
-  "name": "org_viewer_role",
-  "permissions": [
-    "read:users",
-    "write:documents"
-    ]
-  }'
-  ```
-
-  </TabItem>
-</Tabs>
-
-<LinkButton href="https://docs.scalekit.com/apis" variant="minimal" icon='right-arrow'>
-  View full API reference
-</LinkButton>
-
-
-<Aside type='note' title='Do not send inherited permissions when creating roles'>
-
-When you **create** or **update** a role, Scalekit automatically handles inherited permissions from base roles. You only need to specify the direct permissions for the role - inherited permissions will be included automatically in tokens and API responses.
-
-</Aside>
-
-## Token contents and sessions
-
-When your app is integrated with Full Stack Auth and a user signs in, Scalekit issues an access token and a refresh token, and creates a session to track access duration.
-
-**Token claim availability:**
-- **Access token**: Contains both `roles` and `permissions` claims
-- **ID token**: Contains only the `roles` claim
-
-The `roles` claim contains the role name (not the display name). For example, if the role name is `editor` and the display name is "Content Editor," the token includes `"editor"`.
-
-The `permissions` claim contains the permission name (not the description). For example, if the permission name is `projects:create` and the description is "Create new projects," the token includes `"projects:create"`.
-
-Here's an example of decoded tokens containing `roles` and `permissions` claims:
+When your app is integrated with Scalekit and a user signs in, Scalekit issues an ID token and an access token, and creates a session to track access duration.
 
 <Tabs syncKey="auth-result">
-        <TabItem value="idToken" label="ID token (decoded)">
-        ```json {18}
+    <TabItem value="idToken" label="ID token (decoded)">
+        ```json {15}
         {
           "amr": ["conn_123456789012345678"],
           "aud": ["skc_987654321098765432"],
@@ -254,9 +72,9 @@ Here's an example of decoded tokens containing `roles` and `permissions` claims:
           "sub": "usr_987654321098765432"
         }
         ```
-        </TabItem>
-        <TabItem value="accessToken" label="Access token (decoded)">
-        ```json {11}
+    </TabItem>
+    <TabItem value="accessToken" label="Access token (decoded)">
+        ```json {9,11}
         {
           "aud": ["skc_987654321098765432"],
           "client_id": "skc_987654321098765432",
@@ -275,8 +93,105 @@ Here's an example of decoded tokens containing `roles` and `permissions` claims:
           "xuid": "ext_usr_456", // User ID
         }
         ```
-        </TabItem>
+    </TabItem>
 </Tabs>
+
+
+</details>
+
+- **Role**: A role is a collection of actions that defines a user's capabilities in the system. Examples include Admin, Manager, Editor, and Viewer. Assigning a role determines which tasks the user can perform and what access is restricted.
+- **Permission**: A permission represents a specific action that a user is authorized to execute, formatted as `resource:action` (such as `projects:create` or `tasks:read`). Assign permissions for precise, fine-grained access control when individual capabilities must be managed.
+
+
+
+## Manage roles and permissions in the Scalekit dashboard
+
+Users can be assigned default roles defined by your application. Scalekit also supports custom, organization-specific roles, enabling organization administrators to create roles beyond those your app provides.
+
+Manage app-level roles and permissions from the Scalekit dashboard by navigating to **Dashboard** > **Roles & Permissions**.
+
+- Create roles and permissions
+- Choose a **Name**. It's also a Machine-friendly identifier (e.g., project_owner)
+- Create roles that inherit permissions from other roles
+- Modify permissions assigned to roles
+- Choose different default roles for new users
+
+Create organization-specific roles on behalf of organization administrators by going to **Dashboard** > **Organizations** > **Select an organization** > **Roles**.
+
+
+Roles build on each other, with each higher role inheriting all the permissions of the one below.
+
+```d2
+direction: right
+
+title: "Role inheritance hierarchy and permission flow" {
+  near: top-center
+  shape: text
+  style: {
+    font-size: 30
+  }
+}
+
+viewer: {
+  shape: class
+  projects: read
+  tasks: read
+  comments: read
+}
+
+editor: {
+  shape: class
+  "(inherits viewer permissions)"
+  projects: write
+  tasks: create
+  tasks: write
+}
+
+project_owner: {
+  shape: class
+  "(inherits editor permissions)"
+  projects: create
+  members: invite
+}
+
+viewer -> editor: inherits
+editor -> project_owner: inherits
+```
+
+
+## Manage roles and permissions programmatically <Badge type="tip" text="API" />
+
+Most applications need to manage roles and permissions programmatically to integrate with existing systems. The examples below demonstrate common role and permission management operations.
+
+ <Tabs>
+<TabItem value="node" label="Node.js">
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+</TabItem>
+
+</Tabs>
+
+
+<LinkButton href="https://docs.scalekit.com/apis/#tag/roles" variant="secondary" icon='right-arrow' class='sk-secondary'>
+  View full API reference
+</LinkButton>
+
+
+<Aside type='note' title='Do not send inherited permissions when creating roles'>
+
+When you **create** or **update** a role, Scalekit automatically handles inherited permissions from base roles. You only need to specify the direct permissions for the role - inherited permissions will be included automatically in tokens and API responses.
+
+</Aside>
+
+## Token contents and sessions
 
 With roles and permissions available in tokens, enforce access in your backend and UI. Example checks:
 
@@ -287,7 +202,3 @@ const isProjectOwner = token.roles?.includes('project_owner');
 // Example: check permission
 const canCreateProject = token.permissions?.includes('projects:create');
 ```
-
-<Aside type="tip" title="Custom roles per workspace">
-  Building a multi-tenant app and need custom roles per workspace? [Contact us](/support/contact-us) and we'll help you design a model that fits your tenants while keeping management simple.
-</Aside>
