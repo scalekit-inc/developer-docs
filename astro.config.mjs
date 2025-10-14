@@ -143,6 +143,7 @@ export default defineConfig({
       layout: 'elk',
       appendix: true, // Enable interactive elements (tooltips/links)
       inline: true, // Embed SVG inline to make links clickable
+      pad: 3, // Add padding around the diagram (affects overall size)
     }),
   ],
   image: {
