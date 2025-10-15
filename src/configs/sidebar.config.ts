@@ -29,7 +29,7 @@ export const sidebar = [
       {
         label: 'MCP Auth',
         collapsed: false,
-        items: ['mcp/overview', 'mcp/oauth', 'mcp/guides/custom-auth'],
+        items: ['mcp/intro-to-mcp-auth', 'mcp/overview', 'mcp/oauth', 'mcp/guides/custom-auth'],
       },
       {
         label: 'Enterprise Auth',
@@ -262,6 +262,11 @@ export const sidebar = [
             label: 'Set up social logins',
             collapsed: true,
             autogenerate: { directory: 'guides/integrations/social-connections' },
+          },
+          {
+            label: 'MCP Auth',
+            collapsed: false,
+            items: ['mcp/overview', 'mcp/oauth', 'mcp/guides/custom-auth'],
           },
           'fsa/guides/migration-guide',
         ],
