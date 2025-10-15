@@ -13,9 +13,7 @@ export const sidebar = [
         label: 'User authentication',
         collapsed: false,
         items: [
-          'passwordless/oidc',
-          'passwordless/quickstart',
-          'social-logins/quickstart',
+          'fsa/choose-login-methods',
           'fsa/guides/manage-session',
           'guides/auth-flow-interceptors',
           'fsa/guides/logout',
@@ -256,7 +254,10 @@ export const sidebar = [
           'fsa/guides/auth-methods',
           'fsa/guides/implement-signup',
           'fsa/guides/implement-login',
-          'fsa/guides/manage-session',
+          'passwordless/oidc',
+          'passwordless/quickstart',
+          'social-logins/quickstart',
+          -'fsa/guides/manage-session',
           'fsa/guides/logout',
           {
             label: 'Set up social logins',
