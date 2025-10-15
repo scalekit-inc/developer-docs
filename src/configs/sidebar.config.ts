@@ -190,40 +190,17 @@ export const sidebar = [
     icon: 'seti:powershell',
     items: [
       {
-        label: 'SDKs',
+        label: 'SDKs & Installation',
         items: ['dev-kit/sdks/overview'],
       },
       {
-        label: 'Code Samples',
-        link: '/dev-kit/code-samples',
-      },
-      {
-        label: 'Interceptors',
-        items: ['guides/auth-flow-interceptors', 'guides/interceptor-scenarios'],
-      },
-      {
-        label: 'Webhooks',
+        label: 'API Documentation',
         items: [
           {
-            label: 'Webhooks',
-            autogenerate: { directory: 'reference/webhooks' },
+            label: 'Code Samples',
+            link: '/dev-kit/code-samples',
           },
         ],
-      },
-      {
-        label: 'Guides',
-        items: [
-          'guides/dashboard/custom-email-templates',
-          'guides/setup-scalekit',
-          'dev-kit/resources/ai-assisted-setup',
-          'guides/external-ids-and-metadata',
-          'guides/dashboard/redirects',
-          'guides/dashboard/auth-logs',
-        ],
-      },
-      {
-        label: 'Reference',
-        items: ['reference/admin-portal/ui-events', 'reference/glossary'],
       },
       {
         label: 'Development Tools',
@@ -234,10 +211,22 @@ export const sidebar = [
             link: 'https://github.com/scalekit-inc/api-collections',
             attrs: { target: '_blank', rel: 'noopener' },
           },
+          'dev-kit/resources/ai-assisted-setup',
         ],
       },
       {
-        label: 'Support',
+        label: 'Reference',
+        items: [
+          {
+            label: 'Webhooks',
+            autogenerate: { directory: 'reference/webhooks' },
+          },
+          'reference/admin-portal/ui-events',
+          'reference/glossary',
+        ],
+      },
+      {
+        label: 'Support & Resources',
         items: [
           'support/contact-us',
           {
@@ -261,21 +250,25 @@ export const sidebar = [
     icon: 'rocket',
     items: [
       {
-        label: 'Implement authentication',
-        collapsed: false,
+        label: 'Build core authentication',
+        collapsed: true,
         items: [
           'fsa/guides/auth-methods',
           'fsa/guides/implement-signup',
           'fsa/guides/implement-login',
-          'win-with-scalekit/passwordless-methods',
-          'win-with-scalekit/passwordless-auth-methods',
           'fsa/guides/manage-session',
           'fsa/guides/logout',
+          {
+            label: 'Set up social logins',
+            collapsed: true,
+            autogenerate: { directory: 'guides/integrations/social-connections' },
+          },
+          'fsa/guides/migration-guide',
         ],
       },
       {
-        label: 'Manage users and access',
-        collapsed: false,
+        label: 'Manage users & organizations',
+        collapsed: true,
         items: [
           'fsa/reference/user-profile',
           'fsa/guides/user-invitations',
@@ -284,37 +277,51 @@ export const sidebar = [
           'fsa/guides/signup-restrictions',
           'fsa/guides/allowed-email-domains',
           'fsa/reference/user-management-settings',
-          'guides/dashboard/redirects',
         ],
       },
       {
-        label: 'Set up enterprise SSO',
+        label: 'Add enterprise features',
         collapsed: true,
         items: [
-          'sso/guides/sso-basics',
-          'fsa/guides/enterprise-sso',
-          'sso/guides/add-login-ux-sso',
-          'win-with-scalekit/oauth-driven-sso',
-          'sso/guides/sso-user-attributes',
-          'sso/guides/test-sso',
-          'sso/guides/idp-init-sso',
-          'sso/guides/authorization-url',
-        ],
-      },
-      {
-        label: 'Automate user provisioning',
-        collapsed: true,
-        items: [
-          'directory/guides/user-provisioning-basics',
-          'directory/guides/scim-protocol',
-          'fsa/guides/just-in-time-provisioning',
-          'directory/guides/group-based-role-assignment',
-          'guides/webhooks-best-practices',
           {
-            label: 'View SCIM integrations',
-            link: '/guides/integrations/scim-integrations/',
-            attrs: { target: '_blank', rel: 'noopener' },
+            label: 'Set up SSO',
+            items: [
+              'sso/guides/sso-basics',
+              'fsa/guides/enterprise-sso',
+              'sso/guides/add-login-ux-sso',
+              'win-with-scalekit/oauth-driven-sso',
+              'sso/guides/sso-user-attributes',
+              'sso/guides/test-sso',
+              'sso/guides/idp-init-sso',
+            ],
           },
+          {
+            label: 'Enable user provisioning',
+            items: [
+              'directory/guides/user-provisioning-basics',
+              'directory/guides/scim-protocol',
+              'fsa/guides/just-in-time-provisioning',
+              'directory/guides/group-based-role-assignment',
+              {
+                label: 'View SCIM integrations',
+                link: '/guides/integrations/scim-integrations/',
+                attrs: { target: '_blank', rel: 'noopener' },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        label: 'Customize & extend',
+        collapsed: true,
+        items: [
+          'guides/auth-flow-interceptors',
+          'guides/interceptor-scenarios',
+          'guides/webhooks-best-practices',
+          'guides/dashboard/custom-email-templates',
+          'guides/custom-domain',
+          'fsa/guides/login-page-branding',
+          'guides/dashboard/redirects',
         ],
       },
       {
@@ -325,21 +332,25 @@ export const sidebar = [
             label: 'Co-exist with auth systems',
             autogenerate: { directory: 'guides/integrations/auth-systems' },
           },
-          {
-            label: 'Set up social logins',
-            autogenerate: { directory: 'guides/integrations/social-connections' },
-          },
         ],
       },
       {
-        label: 'Best practices and security',
+        label: 'Secure & launch',
         collapsed: true,
-        items: ['guides/client-credentials-practices', 'fsa/guides/migration-guide'],
+        items: [
+          'guides/client-credentials-practices',
+          'guides/dashboard/auth-logs',
+          'authenticate/launch-checklist',
+        ],
       },
       {
-        label: 'Understand concepts',
+        label: 'Understand key concepts',
         collapsed: true,
-        items: ['win-with-scalekit/scalekit-connections', 'guides/idtoken-claims'],
+        items: [
+          'guides/idtoken-claims',
+          'sso/guides/authorization-url',
+          'guides/external-ids-and-metadata',
+        ],
       },
     ],
   },
