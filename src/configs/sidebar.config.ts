@@ -257,7 +257,7 @@ export const sidebar = [
           'passwordless/oidc',
           'passwordless/quickstart',
           'social-logins/quickstart',
-          -'fsa/guides/manage-session',
+          'fsa/guides/manage-session',
           'fsa/guides/logout',
           {
             label: 'Set up social logins',
