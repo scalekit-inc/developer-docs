@@ -1,0 +1,267 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import { getCollection } from 'astro:content'
+import { externalResources } from '@/data/browse-central-external'
+import FilterBar from '@/components/ui/browse-central/FilterBar.astro'
+import ResourceCategory from '@/components/ui/browse-central/ResourceCategory.astro'
+import ResourceItem from '@/components/ui/browse-central/ResourceItem.astro'
+
+// Load internal docs with browseCentral metadata
+const docsCollection = await getCollection('docs')
+const browseCentralDocs = docsCollection
+  .filter((doc) => doc.data.browseCentral)
+  .map((doc) => ({
+    title: doc.data.browseCentral?.label || doc.data.title,
+    url: `/${doc.slug}/`,
+    filterType: doc.data.browseCentral?.filterType || [],
+    category: doc.data.browseCentral?.category || [],
+    icon: doc.data.browseCentral?.icon,
+    description: doc.data.description,
+  }))
+
+// Combine internal and external resources
+const allResources = [...browseCentralDocs, ...externalResources]
+
+// Organize resources by category
+const categoryMap = new Map<string, typeof allResources>()
+const categoryOrder = [
+  'Start Here',
+  'Core Authentication',
+  'User & Organization Management',
+  'Enterprise Features',
+  'Social & Integrations',
+  'Customization',
+  'SDKs & Development Tools',
+  'Best Practices & Concepts',
+]
+
+allResources.forEach((resource) => {
+  resource.category.forEach((cat) => {
+    if (!categoryMap.has(cat)) {
+      categoryMap.set(cat, [])
+    }
+    categoryMap.get(cat)!.push(resource)
+  })
+})
+
+// Discover all unique filter types
+const allFilterTypes = new Set<string>()
+allResources.forEach((resource) => {
+  resource.filterType.forEach((type) => allFilterTypes.add(type))
+})
+
+// Calculate counts for each filter type
+const filterCounts = new Map<string, number>()
+allResources.forEach((resource) => {
+  resource.filterType.forEach((type) => {
+    filterCounts.set(type, (filterCounts.get(type) || 0) + 1)
+  })
+})
+
+// Create filter data for FilterBar
+const filterLabels = {
+  'code-sample': 'Examples',
+  integration: 'Integrations',
+  tutorial: 'Tutorials',
+  reference: 'Reference',
+}
+
+const filters = Array.from(allFilterTypes)
+  .sort()
+  .map((type) => ({
+    type,
+    label: filterLabels[type] || type,
+    count: filterCounts.get(type) || 0,
+  }))
+
+// Get ordered categories
+const orderedCategories = categoryOrder.filter((cat) => categoryMap.has(cat))
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'Win with Scalekit',
+    description:
+      'Explore code samples, integrations, tutorials, and reference documentation to help you succeed with Scalekit',
+    template: 'splash',
+  }}
+  headings={[]}
+>
+  <div class="win-with-scalekit-content">
+    <p class="page-description">
+      A collection of walkthrough tutorials, examples, and guides to help you succeed with Scalekit.
+      Filter by type to find exactly what you need.
+    </p>
+
+    <FilterBar filters={filters} />
+
+    <div class="resources-container">
+      {
+        orderedCategories.map((categoryName) => {
+          const resources = categoryMap.get(categoryName) || []
+          return (
+            <ResourceCategory categoryName={categoryName}>
+              {resources.map((resource) => (
+                <ResourceItem
+                  title={resource.title}
+                  url={resource.url}
+                  icon={resource.icon}
+                  description={resource.description}
+                  filterTypes={resource.filterType}
+                  categories={resource.category}
+                />
+              ))}
+            </ResourceCategory>
+          )
+        })
+      }
+    </div>
+
+    <div class="empty-state" style="display: none;">
+      <p>No resources match your selected filters. Try adjusting your filter selection.</p>
+    </div>
+  </div>
+</StarlightPage>
+
+<style is:global>
+  /* Hide only the first content-panel with title and contextual menu */
+  .content-panel:first-of-type {
+    display: none !important;
+  }
+
+  .win-with-scalekit-content {
+    width: 100%;
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .win-with-scalekit-content .page-description {
+    font-size: var(--sl-text-base);
+    color: var(--sl-color-gray-3);
+    margin: 0 0 2rem 0;
+    line-height: 1.6;
+  }
+
+  .win-with-scalekit-content .resources-container {
+    margin-top: 2rem;
+    column-count: 3;
+    column-gap: 2.5rem;
+  }
+
+  .win-with-scalekit-content .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-base);
+  }
+
+  /* Dark mode adjustments */
+  [data-theme='dark'] .win-with-scalekit-content .page-description {
+    color: var(--sl-color-gray-4);
+  }
+
+  /* Responsive layout */
+  @media (max-width: 72rem) {
+    .win-with-scalekit-content .resources-container {
+      column-count: 2;
+      column-gap: 2rem;
+    }
+  }
+
+  @media (max-width: 50rem) {
+    .win-with-scalekit-content {
+      padding: 0 1rem;
+    }
+
+    .win-with-scalekit-content .resources-container {
+      column-count: 1;
+    }
+  }
+</style>
+
+<script>
+  // Client-side filtering logic
+  function initializeFiltering() {
+    const toggleCheckboxes = document.querySelectorAll('.toggle-checkbox')
+    const resourceItems = document.querySelectorAll('.resource-item')
+    const categorySections = document.querySelectorAll('[data-category-section]')
+    const emptyState = document.querySelector('.empty-state')
+    const resourcesContainer = document.querySelector('.resources-container')
+
+    // Track active filters (all active by default)
+    const activeFilters = new Set<string>()
+
+    // Initialize all filters as active
+    toggleCheckboxes.forEach((checkbox) => {
+      const filterType = checkbox.getAttribute('data-filter-type')
+      if (filterType && checkbox.checked) {
+        activeFilters.add(filterType)
+      }
+    })
+
+    // Toggle filter on checkbox change
+    toggleCheckboxes.forEach((checkbox) => {
+      checkbox.addEventListener('change', () => {
+        const filterType = checkbox.getAttribute('data-filter-type')
+        if (!filterType) return
+
+        if (checkbox.checked) {
+          activeFilters.add(filterType)
+        } else {
+          activeFilters.delete(filterType)
+        }
+
+        updateDisplay()
+      })
+    })
+
+    function updateDisplay() {
+      let visibleCount = 0
+
+      // Show/hide resource items based on active filters
+      resourceItems.forEach((item) => {
+        const filterTypesStr = item.getAttribute('data-filter-types')
+        if (!filterTypesStr) return
+
+        const itemFilterTypes = JSON.parse(filterTypesStr)
+        const hasMatch = itemFilterTypes.some((type: string) => activeFilters.has(type))
+
+        if (hasMatch || activeFilters.size === 0) {
+          ;(item as HTMLElement).style.display = 'block'
+          visibleCount++
+        } else {
+          ;(item as HTMLElement).style.display = 'none'
+        }
+      })
+
+      // Show/hide category sections based on visible items
+      categorySections.forEach((section) => {
+        const visibleItems = section.querySelectorAll(
+          '.resource-item:not([style*="display: none"])',
+        )
+        if (visibleItems.length > 0) {
+          ;(section as HTMLElement).style.display = 'block'
+        } else {
+          ;(section as HTMLElement).style.display = 'none'
+        }
+      })
+
+      // Show/hide empty state
+      if (visibleCount === 0 && emptyState && resourcesContainer) {
+        emptyState.style.display = 'block'
+        resourcesContainer.style.display = 'none'
+      } else if (emptyState && resourcesContainer) {
+        emptyState.style.display = 'none'
+        resourcesContainer.style.display = 'block'
+      }
+    }
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeFiltering)
+  } else {
+    initializeFiltering()
+  }
+</script>

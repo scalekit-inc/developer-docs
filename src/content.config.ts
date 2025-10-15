@@ -27,6 +27,16 @@ export const collections = {
                 label: z.string().optional().default('See also'),
               })
               .optional(),
+            browseCentral: z
+              .object({
+                label: z.string().optional(),
+                filterType: z.array(
+                  z.enum(['code-sample', 'integration', 'tutorial', 'reference']),
+                ),
+                category: z.array(z.string()),
+                icon: z.string().optional(),
+              })
+              .optional(),
           }),
         ),
     }),

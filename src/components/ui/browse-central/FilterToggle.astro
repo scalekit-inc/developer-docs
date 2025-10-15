@@ -1,0 +1,108 @@
+---
+interface Props {
+  filterType: string
+  label: string
+  count: number
+  isActive?: boolean
+  icon?: any
+}
+
+const { filterType, label, count, isActive = true, icon: IconComponent } = Astro.props
+---
+
+<label class="filter-toggle">
+  {IconComponent && <IconComponent class="filter-icon" />}
+  <span class="filter-label">{label}:</span>
+  <input
+    type="checkbox"
+    class="toggle-checkbox"
+    data-filter-type={filterType}
+    checked={isActive}
+    aria-label={`Toggle ${label} filter`}
+  />
+  <span class="toggle-switch"></span>
+</label>
+
+<style>
+  .filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    padding: 0.25rem 0;
+  }
+
+  .filter-icon {
+    width: 1rem;
+    height: 1rem;
+    color: var(--sl-color-gray-3);
+    flex-shrink: 0;
+  }
+
+  .filter-label {
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-2);
+    font-weight: 500;
+  }
+
+  .toggle-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 2.5rem;
+    height: 1.25rem;
+    background: var(--sl-color-gray-6);
+    border-radius: 1.25rem;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 0.125rem;
+    left: 0.125rem;
+    width: 1rem;
+    height: 1rem;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  .toggle-checkbox:checked + .toggle-switch {
+    background: var(--sl-color-blue);
+  }
+
+  .toggle-checkbox:checked + .toggle-switch::after {
+    transform: translateX(1.25rem);
+  }
+
+  .filter-toggle:hover .toggle-switch {
+    opacity: 0.9;
+  }
+
+  .toggle-checkbox:focus-visible + .toggle-switch {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Dark mode adjustments */
+  :global([data-theme='dark']) .filter-icon {
+    color: var(--sl-color-gray-4);
+  }
+
+  :global([data-theme='dark']) .filter-label {
+    color: var(--sl-color-gray-3);
+  }
+
+  :global([data-theme='dark']) .toggle-switch {
+    background: var(--sl-color-gray-5);
+  }
+</style>

@@ -1,0 +1,72 @@
+---
+import { getIconComponent } from '@/utils/icon-map'
+
+interface Props {
+  title: string
+  url: string
+  icon?: string
+  description?: string
+  filterTypes: string[]
+  categories: string[]
+}
+
+const { title, url, icon, description, filterTypes, categories } = Astro.props
+
+const IconComponent = getIconComponent(icon)
+const isExternal = url.startsWith('http')
+---
+
+<div
+  class="resource-item"
+  data-filter-types={JSON.stringify(filterTypes)}
+  data-categories={JSON.stringify(categories)}
+>
+  <a
+    href={url}
+    class="resource-link"
+    target={isExternal ? '_blank' : undefined}
+    rel={isExternal ? 'noopener noreferrer' : undefined}
+    title={description}
+  >
+    <IconComponent class="resource-icon" />
+    <span class="resource-title">{title}</span>
+  </a>
+</div>
+
+<style>
+  .resource-item {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .resource-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+    text-decoration: none;
+    color: var(--sl-color-text);
+    font-size: var(--sl-text-sm);
+    line-height: 1.6;
+    font-weight: inherit;
+    border-bottom: 1px solid transparent;
+    transition: border-bottom 0.15s ease;
+  }
+
+  .resource-link:hover {
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+  }
+
+  .resource-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    color: var(--sl-color-text-accent);
+  }
+
+  .resource-title {
+    flex: 1;
+    min-width: 0;
+  }
+</style>

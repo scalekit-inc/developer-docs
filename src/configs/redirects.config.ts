@@ -169,4 +169,11 @@ export const redirects = {
   '/manage-scalekit/glossary': '/reference/glossary/',
   '/contact-us': '/support/contact-us/',
   '/index-old': '/',
+
+  // =============================================================================
+  // WIN WITH SCALEKIT / EXAMPLES REDIRECTS
+  // =============================================================================
+  '/examples': '/win-with-scalekit',
+  '/dev-kit/code-samples': '/win-with-scalekit',
+  '/guides/integrations': '/win-with-scalekit',
 }

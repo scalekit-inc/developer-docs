@@ -1,0 +1,79 @@
+---
+import FilterToggle from './FilterToggle.astro'
+
+interface Filter {
+  type: string
+  label: string
+  count: number
+  icon?: any
+}
+
+interface Props {
+  filters: Filter[]
+}
+
+const { filters } = Astro.props
+---
+
+<div class="filter-bar">
+  <div class="filter-bar-content">
+    <span class="filter-label">Filter by type:</span>
+    <div class="filter-toggles">
+      {
+        filters.map((filter) => (
+          <FilterToggle
+            filterType={filter.type}
+            label={filter.label}
+            count={filter.count}
+            isActive={true}
+            icon={filter.icon}
+          />
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .filter-bar {
+    background: var(--sl-color-gray-7);
+    border-radius: 0.5rem;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .filter-bar-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-label {
+    font-size: var(--sl-text-sm);
+    font-weight: 500;
+    color: var(--sl-color-gray-2);
+    white-space: nowrap;
+  }
+
+  .filter-toggles {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  /* Dark mode adjustments */
+  :global([data-theme='dark']) .filter-bar {
+    background: var(--sl-color-gray-6);
+  }
+
+  :global([data-theme='dark']) .filter-label {
+    color: var(--sl-color-gray-3);
+  }
+
+  /* Light mode - lighter background */
+  :global([data-theme='light']) .filter-bar {
+    background: #f0f4f8;
+  }
+</style>
