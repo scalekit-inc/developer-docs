@@ -17,7 +17,7 @@ export const sidebar = [
           'fsa/guides/manage-session',
           'guides/auth-flow-interceptors',
           'fsa/guides/logout',
-          'fsa/guides/auth-logs',
+          'guides/dashboard/auth-logs',
         ],
       },
       {
@@ -61,7 +61,7 @@ export const sidebar = [
       },
       {
         label: 'Going to production',
-        items: ['guides/dashboard/auth-logs', 'authenticate/launch-checklist'],
+        items: ['authenticate/launch-checklist'],
       },
     ],
   },
@@ -345,11 +345,7 @@ export const sidebar = [
       {
         label: 'Secure & launch',
         collapsed: true,
-        items: [
-          'guides/client-credentials-practices',
-          'guides/dashboard/auth-logs',
-          'authenticate/launch-checklist',
-        ],
+        items: ['guides/client-credentials-practices', 'authenticate/launch-checklist'],
       },
       {
         label: 'Understand key concepts',

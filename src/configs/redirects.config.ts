@@ -8,7 +8,6 @@ export const redirects = {
   // FULL STACK AUTH (FSA) REDIRECTS
   // =============================================================================
   '/fsa/guides/automated-user-provisioning': '/fsa/guides/allowed-email-domains/',
-  '/fsa/guides/auth-logs': '/guides/dashboard/auth-logs/',
 
   // =============================================================================
   // SINGLE SIGN-ON (SSO) REDIRECTS
