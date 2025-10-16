@@ -354,6 +354,7 @@ export const topics = {
     '/home/guides/**/*',
     '/home/guides/admin-portal',
     '/home/**/*',
+    '/win-with-scalekit/**/*', // Exclude win-with-scalekit pages (content moved to dev-kit)
   ],
   // Associate unlisted pages with their respective topic sidebars
   authenticate: [
