@@ -44,6 +44,7 @@ export const sidebar = [
           'sso/quickstart',
           'sso/guides/sso-user-attributes',
           'directory/scim/quickstart',
+          'directory/guides/group-based-role-assignment',
           'guides/sso/admin-portal',
           {
             label: 'View all integrations',
@@ -250,7 +251,6 @@ export const sidebar = [
             items: [
               'directory/guides/user-provisioning-basics',
               'directory/guides/scim-protocol',
-              'directory/guides/group-based-role-assignment',
               {
                 label: 'View SCIM integrations',
                 link: '/guides/integrations/scim-integrations/',
