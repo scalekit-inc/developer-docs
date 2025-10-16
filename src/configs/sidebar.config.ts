@@ -17,12 +17,19 @@ export const sidebar = [
           'fsa/guides/manage-session',
           'guides/auth-flow-interceptors',
           'fsa/guides/logout',
+          'fsa/guides/auth-logs',
         ],
       },
       {
         label: 'User management',
         collapsed: false,
-        items: ['fsa/guides/manage-users', 'fsa/guides/app-roles'],
+        items: [
+          'fsa/guides/signup-restrictions',
+          'fsa/guides/user-invitations',
+          'fsa/guides/manage-users',
+          'fsa/guides/app-roles',
+          'fsa/guides/organization-switching',
+        ],
       },
       {
         label: 'MCP Auth',
@@ -257,8 +264,6 @@ export const sidebar = [
           'passwordless/oidc',
           'passwordless/quickstart',
           'social-logins/quickstart',
-          'fsa/guides/manage-session',
-          'fsa/guides/logout',
           {
             label: 'Set up social logins',
             collapsed: true,
@@ -277,10 +282,7 @@ export const sidebar = [
         collapsed: true,
         items: [
           'fsa/reference/user-profile',
-          'fsa/guides/user-invitations',
           'fsa/guides/merge-identities',
-          'fsa/guides/organization-switching',
-          'fsa/guides/signup-restrictions',
           'fsa/guides/allowed-email-domains',
           'fsa/reference/user-management-settings',
         ],

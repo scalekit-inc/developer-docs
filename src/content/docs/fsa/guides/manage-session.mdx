@@ -24,6 +24,7 @@ import {
   TabItem,
   Aside,
   Card,
+  Badge,
 } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 import { AuthResultTabsSection } from '@components/templates';
@@ -747,7 +748,251 @@ This guide shows you how to store these tokens securely and refresh them before 
      ```
      </TabItem>
    </Tabs>
-5. ## Manage session security and duration
+
+5. ## Handling post-login redirects​ <Badge text="Optional" />
+   When users visit specific routes like `/dashboard/analytics` without a valid session, your application detects the missing session and initiates the OAuth flow. After successful authentication, Scalekit redirects users to your callback URL, but they need to be redirected back to their original destination.
+
+   Implement the **post-login redirect pattern** using cookies to preserve the user's intended destination through the authentication flow. This approach is more secure than using the `state` parameter, which should be reserved for CSRF protection.
+
+   <Tabs syncKey="tech-stack">
+     <TabItem value="node" label="Node.js">
+     ```javascript title="middleware/auth.js"
+     async function verifyToken(req, res, next) {
+       const { accessToken } = req.cookies;
+
+       if (!accessToken) {
+         // Store current URL for post-login redirect
+         res.cookie('returnUrl', req.originalUrl, { /* secure cookie config */ });
+         const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+         return res.redirect(authorizationUrl);
+       }
+
+       try {
+         const isValid = await scalekit.validateAccessToken(accessToken);
+         if (!isValid) {
+           // Same redirect logic for invalid tokens
+           res.cookie('returnUrl', req.originalUrl, { /* secure cookie config */ });
+           const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+           return res.redirect(authorizationUrl);
+         }
+         next();
+       } catch (error) {
+         // Same redirect logic for validation errors
+         res.cookie('returnUrl', req.originalUrl, { /* secure cookie config */ });
+         const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+         return res.redirect(authorizationUrl);
+       }
+     }
+     ```
+     </TabItem>
+     <TabItem value="py" label="Python">
+     ```python title="middleware/auth.py"
+     def verify_token(f):
+         @wraps(f)
+         def decorated_function(*args, **kwargs):
+             access_token = request.cookies.get('accessToken')
+
+             if not access_token:
+                 # Store current URL for post-login redirect
+                 response.set_cookie('returnUrl', request.url, { /* secure cookie config */ })
+                 authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+                 return redirect(authorization_url)
+
+             try:
+                 is_valid = scalekit.validate_access_token(access_token)
+                 if not is_valid:
+                     # Same redirect logic for invalid tokens
+                     response.set_cookie('returnUrl', request.url, { /* secure cookie config */ })
+                     authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+                     return redirect(authorization_url)
+
+                 return f(*args, **kwargs)
+             except Exception:
+                 # Same redirect logic for validation errors
+                 response.set_cookie('returnUrl', request.url, { /* secure cookie config */ })
+                 authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+                 return redirect(authorization_url)
+         return decorated_function
+     ```
+     </TabItem>
+     <TabItem value="go" label="Go">
+     ```go title="middleware/auth.go"
+     func VerifyToken() gin.HandlerFunc {
+       return func(c *gin.Context) {
+         accessToken, err := c.Cookie("accessToken")
+
+         if err != nil || accessToken == "" {
+           // Store current URL for post-login redirect
+           c.SetCookie("returnUrl", c.Request.URL.String(), { /* secure cookie config */ })
+           authorizationUrl, _ := scalekit.GetAuthorizationUrl(redirectUri, options)
+           c.Redirect(http.StatusFound, authorizationUrl.String())
+           return
+         }
+
+         isValid, err := scalekit.ValidateAccessToken(accessToken)
+         if err != nil || !isValid {
+           // Same redirect logic for invalid tokens
+           c.SetCookie("returnUrl", c.Request.URL.String(), { /* secure cookie config */ })
+           authorizationUrl, _ := scalekit.GetAuthorizationUrl(redirectUri, options)
+           c.Redirect(http.StatusFound, authorizationUrl.String())
+           return
+         }
+
+         c.Next()
+       }
+     }
+     ```
+     </TabItem>
+     <TabItem value="java" label="Java">
+     ```java title="middleware/AuthInterceptor.java"
+     @Override
+     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+       String accessToken = getCookieValue(request, "accessToken");
+
+       if (accessToken == null) {
+         // Store current URL for post-login redirect
+         Cookie returnUrlCookie = new Cookie("returnUrl", request.getRequestURL().toString());
+         // ... secure cookie configuration
+         response.addCookie(returnUrlCookie);
+
+         URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+         response.sendRedirect(authorizationUrl.toString());
+         return false;
+       }
+
+       try {
+         boolean isValid = scalekit.validateAccessToken(accessToken);
+         if (!isValid) {
+           // Same redirect logic for invalid tokens
+           Cookie returnUrlCookie = new Cookie("returnUrl", request.getRequestURL().toString());
+           // ... secure cookie configuration
+           response.addCookie(returnUrlCookie);
+
+           URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+           response.sendRedirect(authorizationUrl.toString());
+           return false;
+         }
+         return true;
+       } catch (Exception e) {
+         // Same redirect logic for validation errors
+         Cookie returnUrlCookie = new Cookie("returnUrl", request.getRequestURL().toString());
+         // ... secure cookie configuration
+         response.addCookie(returnUrlCookie);
+
+         URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+         response.sendRedirect(authorizationUrl.toString());
+         return false;
+       }
+     }
+     ```
+     </TabItem>
+   </Tabs>
+
+   Handle the `returnUrl` cookie in your callback endpoint to redirect users back to their original destination:
+
+   <Tabs syncKey="tech-stack">
+     <TabItem value="node" label="Node.js">
+     ```javascript title="routes/auth.js" {3,7-9,11}
+     // Handle OAuth callback and redirect to original destination
+     app.get('/auth/callback', async (req, res) => {
+       const { code } = req.query;
+
+       try {
+         // Exchange authorization code for tokens
+         const authResult = await scalekit.authenticateWithCode(code, redirectUri);
+         // ... store tokens securely (same as step 2)
+
+         // Redirect to original destination or default page
+         const returnUrl = req.cookies.returnUrl || '/dashboard';
+         res.clearCookie('returnUrl'); // Clean up the cookie
+         res.redirect(returnUrl);
+       } catch (error) {
+         res.status(500).json({ error: 'Authentication failed' });
+       }
+     });
+     ```
+     </TabItem>
+     <TabItem value="py" label="Python">
+     ```python title="routes/auth.py" {3,7-9,11}
+     # Handle OAuth callback and redirect to original destination
+     @app.route('/auth/callback')
+     def callback():
+         code = request.args.get('code')
+
+         try:
+             # Exchange authorization code for tokens
+             auth_result = scalekit.authenticate_with_code(code=code, redirect_uri=redirect_uri)
+             # ... store tokens securely (same as step 2)
+
+             # Redirect to original destination or default page
+             return_url = request.cookies.get('returnUrl', '/dashboard')
+             response.set_cookie('returnUrl', '', expires=0)  # Clean up the cookie
+             response.headers['Location'] = return_url
+             return response, 302
+         except Exception:
+             return jsonify({'error': 'Authentication failed'}), 500
+     ```
+     </TabItem>
+     <TabItem value="go" label="Go">
+     ```go title="routes/auth.go" {3,7-9,11}
+     // Handle OAuth callback and redirect to original destination
+     r.GET("/auth/callback", func(c *gin.Context) {
+       code := c.Query("code")
+
+       // Exchange authorization code for tokens
+       authResult, err := scalekitClient.AuthenticateWithCode(code, redirectUri)
+       if err != nil {
+         c.JSON(http.StatusInternalServerError, gin.H{"error": "Authentication failed"})
+         return
+       }
+
+       // ... store tokens securely (same as step 2)
+
+       // Redirect to original destination or default page
+       returnUrl := "/dashboard"
+       if cookie, err := c.Cookie("returnUrl"); err == nil && cookie != "" {
+         returnUrl = cookie
+       }
+       c.SetCookie("returnUrl", "", -1, "/", "", false, true) // Clean up the cookie
+       c.Redirect(http.StatusFound, returnUrl)
+     })
+     ```
+     </TabItem>
+     <TabItem value="java" label="Java">
+     ```java title="AuthController.java" {3,7-9,11}
+     // Handle OAuth callback and redirect to original destination
+     @GetMapping("/auth/callback")
+     public String callback(@RequestParam String code, HttpServletRequest request, HttpServletResponse response) {
+         try {
+             // Exchange authorization code for tokens
+             AuthResult authResult = scalekitClient.authentication().authenticateWithCode(code, redirectUri);
+             // ... store tokens securely (same as step 2)
+
+             // Redirect to original destination or default page
+             String returnUrl = getCookieValue(request, "returnUrl");
+             if (returnUrl == null || returnUrl.isEmpty()) {
+                 returnUrl = "/dashboard";
+             }
+
+             // Clean up the returnUrl cookie
+             Cookie clearCookie = new Cookie("returnUrl", "");
+             clearCookie.setMaxAge(0);
+             response.addCookie(clearCookie);
+
+             return "redirect:" + returnUrl;
+         } catch (Exception e) {
+             return "redirect:/error?message=Authentication failed";
+         }
+     }
+     ```
+     </TabItem>
+   </Tabs>
+
+   <Aside type="tip" title="Post-login redirect pattern">
+   The `returnUrl` cookie preserves the user's intended destination through the OAuth flow. When users visit `/dashboard/analytics` without a session, they're redirected to Scalekit for authentication, then automatically returned to `/dashboard/analytics` after successful login. This approach is more secure than using the `state` parameter, which should be reserved for CSRF protection.
+   </Aside>
+
+6. ## Manage session security and duration
 
       Manage user session behavior directly from your Scalekit dashboard without modifying application code. Configure session durations and authentication frequency to balance security and user experience for your application.
 
@@ -767,4 +1012,94 @@ This guide shows you how to store these tokens securely and refresh them before 
 
 <Aside type="tip" title="Organization-level session settings">
 Enable organization administrators to control session settings for their workspace. [Contact our support team](/support/contact-us/) to activate this feature for your account.
+</Aside>
+
+## Handling indirect auth entry points
+
+Sometimes users access your application through indirect entry points rather than the standard authentication flow. These scenarios require your application to detect the lack of authentication and initiate the OAuth flow appropriately.
+
+<details>
+<summary>Example scenarios</summary>
+
+**Bookmarked login page**: A user bookmarks your login page and visits it directly. Your application detects they're not authenticated and redirects them to Scalekit's authorization endpoint.
+
+**Organization invitation flow**: A user clicks an invitation link to join an organization. Your application receives the invitation token and redirects the user to Scalekit's authorization endpoint to complete the sign-up process.
+
+**IdP-initiated SSO**: An administrator initiates single sign-on from their identity provider dashboard. The IdP redirects users to your application, which then redirects them to Scalekit's authorization endpoint to complete authentication.
+
+**Session expiration**: When a user's session expires or they access a protected resource, they're redirected to `https://yourapp.com/login` which then redirects to Scalekit's authentication endpoint.
+</details>
+
+### Implementation approach
+
+For these scenarios, implement a dedicated login endpoint that initiates the OAuth flow. This endpoint should be registered as one of the **initiate login redirects** in your Scalekit dashboard.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+  ```javascript title="routes/auth.js" {2,9}
+  // Handle indirect auth entry points
+  app.get('/login', (req, res) => {
+    const redirectUri = 'http://localhost:3000/auth/callback';
+    const options = {
+      scopes: ['openid', 'profile', 'email', 'offline_access']
+    };
+
+    const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+    res.redirect(authorizationUrl);
+  });
+  ```
+  </TabItem>
+  <TabItem value="py" label="Python">
+  ```python title="routes/auth.py" collapse={1-3} {5,13}
+  from flask import redirect
+  from scalekit import AuthorizationUrlOptions
+
+  # Handle indirect auth entry points
+  @app.route('/login')
+  def login():
+      redirect_uri = 'http://localhost:3000/auth/callback'
+      options = AuthorizationUrlOptions(
+          scopes=['openid', 'profile', 'email', 'offline_access']
+      )
+
+      authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+      return redirect(authorization_url)
+  ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+  ```go title="routes/auth.go" {2,9}
+  // Handle indirect auth entry points
+  r.GET("/login", func(c *gin.Context) {
+    redirectUri := "http://localhost:3000/auth/callback"
+    options := scalekit.AuthorizationUrlOptions{
+      Scopes: []string{"openid", "profile", "email", "offline_access"}
+    }
+
+    authorizationUrl, _ := scalekit.GetAuthorizationUrl(redirectUri, options)
+    c.Redirect(http.StatusFound, authorizationUrl.String())
+  })
+  ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+  ```java title="AuthController.java" {6,12-13} collapse={1-4}
+  import org.springframework.web.bind.annotation.GetMapping;
+  import org.springframework.web.bind.annotation.RestController;
+  import java.net.URL;
+
+  // Handle indirect auth entry points
+  @GetMapping("/login")
+  public String login() {
+      String redirectUri = "http://localhost:3000/auth/callback";
+      AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+      options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+
+      URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+      return "redirect:" + authorizationUrl.toString();
+  }
+  ```
+  </TabItem>
+</Tabs>
+
+<Aside type="note" title="Dashboard configuration">
+Register `https://www.yourapp.com/login` as one of the [initiate login redirects](/guides/dashboard/redirects/#initiate-login-url) in your Scalekit dashboard. This ensures Scalekit recognizes this endpoint as a valid entry point for authentication flows when users access it directly.
 </Aside>
