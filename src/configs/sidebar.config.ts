@@ -29,6 +29,7 @@ export const sidebar = [
           'fsa/guides/manage-users',
           'fsa/guides/app-roles',
           'fsa/guides/allowed-email-domains',
+          'fsa/guides/just-in-time-provisioning',
           'fsa/guides/organization-switching',
         ],
       },
@@ -41,6 +42,7 @@ export const sidebar = [
         label: 'Enterprise Auth',
         items: [
           'sso/quickstart',
+          'sso/guides/sso-user-attributes',
           'directory/scim/quickstart',
           'guides/sso/admin-portal',
           {
@@ -196,20 +198,81 @@ export const sidebar = [
     icon: 'seti:powershell',
     items: [
       {
-        label: 'SDKs & Installation',
+        label: 'Getting started',
         items: ['dev-kit/sdks/overview'],
       },
       {
-        label: 'API Documentation',
+        label: 'Authentication implementation',
+        collapsed: false,
+        items: [
+          'fsa/guides/auth-methods',
+          'fsa/guides/implement-signup',
+          'fsa/guides/implement-login',
+          'passwordless/oidc',
+          'passwordless/quickstart',
+          'social-logins/quickstart',
+          'guides/interceptor-scenarios',
+          'guides/dashboard/redirects',
+          {
+            label: 'MCP Auth',
+            collapsed: false,
+            items: ['mcp/overview', 'mcp/oauth', 'mcp/guides/custom-auth'],
+          },
+          'fsa/guides/migration-guide',
+        ],
+      },
+      {
+        label: 'User & organization management',
+        collapsed: false,
+        items: [
+          'fsa/data-modelling',
+          'fsa/guides/merge-identities',
+          'guides/external-ids-and-metadata',
+          'fsa/reference/user-management-settings',
+        ],
+      },
+      {
+        label: 'Enterprise features',
+        collapsed: false,
         items: [
           {
-            label: 'Code Samples',
-            link: '/dev-kit/code-samples',
+            label: 'Set up SSO',
+            items: [
+              'sso/guides/sso-basics',
+              'fsa/guides/enterprise-sso',
+              'sso/guides/add-login-ux-sso',
+              'sso/guides/test-sso',
+              'sso/guides/idp-init-sso',
+            ],
+          },
+          {
+            label: 'Enable user provisioning',
+            items: [
+              'directory/guides/user-provisioning-basics',
+              'directory/guides/scim-protocol',
+              'directory/guides/group-based-role-assignment',
+              {
+                label: 'View SCIM integrations',
+                link: '/guides/integrations/scim-integrations/',
+                attrs: { target: '_blank', rel: 'noopener' },
+              },
+            ],
           },
         ],
       },
       {
-        label: 'Development Tools',
+        label: 'Best practices',
+        collapsed: false,
+        items: [
+          'guides/client-credentials-practices',
+          'guides/webhooks-best-practices',
+          'authenticate/launch-checklist',
+          'guides/idtoken-claims',
+          'sso/guides/authorization-url',
+        ],
+      },
+      {
+        label: 'Development tools',
         items: [
           'dev-kit/mcp',
           {
@@ -218,6 +281,10 @@ export const sidebar = [
             attrs: { target: '_blank', rel: 'noopener' },
           },
           'dev-kit/resources/ai-assisted-setup',
+          {
+            label: 'Code samples',
+            link: '/dev-kit/code-samples',
+          },
         ],
       },
       {
@@ -232,11 +299,11 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Support & Resources',
+        label: 'Support & resources',
         items: [
           'support/contact-us',
           {
-            label: 'Release Notes',
+            label: 'Release notes',
             link: 'https://www.scalekit.com/product-updates',
             attrs: { target: '_blank', rel: 'noopener' },
           },
@@ -250,121 +317,21 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Win with Scalekit',
-    id: 'win-with-scalekit',
-    link: '/win-with-scalekit',
-    icon: 'rocket',
-    items: [
-      {
-        label: 'Build core authentication',
-        collapsed: true,
-        items: [
-          'fsa/guides/auth-methods',
-          'fsa/guides/implement-signup',
-          'fsa/guides/implement-login',
-          'passwordless/oidc',
-          'passwordless/quickstart',
-          'social-logins/quickstart',
-          {
-            label: 'Set up social logins',
-            collapsed: true,
-            autogenerate: { directory: 'guides/integrations/social-connections' },
-          },
-          {
-            label: 'MCP Auth',
-            collapsed: false,
-            items: ['mcp/overview', 'mcp/oauth', 'mcp/guides/custom-auth'],
-          },
-          'fsa/guides/migration-guide',
-        ],
-      },
-      {
-        label: 'Manage users & organizations',
-        collapsed: true,
-        items: [
-          'fsa/reference/user-profile',
-          'fsa/guides/merge-identities',
-          'fsa/guides/allowed-email-domains',
-          'fsa/reference/user-management-settings',
-        ],
-      },
-      {
-        label: 'Add enterprise features',
-        collapsed: true,
-        items: [
-          {
-            label: 'Set up SSO',
-            items: [
-              'sso/guides/sso-basics',
-              'fsa/guides/enterprise-sso',
-              'sso/guides/add-login-ux-sso',
-              'win-with-scalekit/oauth-driven-sso',
-              'sso/guides/sso-user-attributes',
-              'sso/guides/test-sso',
-              'sso/guides/idp-init-sso',
-            ],
-          },
-          {
-            label: 'Enable user provisioning',
-            items: [
-              'directory/guides/user-provisioning-basics',
-              'directory/guides/scim-protocol',
-              'fsa/guides/just-in-time-provisioning',
-              'directory/guides/group-based-role-assignment',
-              {
-                label: 'View SCIM integrations',
-                link: '/guides/integrations/scim-integrations/',
-                attrs: { target: '_blank', rel: 'noopener' },
-              },
-            ],
-          },
-        ],
-      },
-      {
-        label: 'Customize & extend',
-        collapsed: true,
-        items: [
-          'guides/auth-flow-interceptors',
-          'guides/interceptor-scenarios',
-          'guides/webhooks-best-practices',
-          'guides/dashboard/custom-email-templates',
-          'guides/custom-domain',
-          'fsa/guides/login-page-branding',
-          'guides/dashboard/redirects',
-        ],
-      },
-      {
-        label: 'Integrate with existing systems',
-        collapsed: true,
-        items: [
-          {
-            label: 'Co-exist with auth systems',
-            autogenerate: { directory: 'guides/integrations/auth-systems' },
-          },
-        ],
-      },
-      {
-        label: 'Secure & launch',
-        collapsed: true,
-        items: ['guides/client-credentials-practices', 'authenticate/launch-checklist'],
-      },
-      {
-        label: 'Understand key concepts',
-        collapsed: true,
-        items: [
-          'guides/idtoken-claims',
-          'sso/guides/authorization-url',
-          'guides/external-ids-and-metadata',
-        ],
-      },
-    ],
-  },
-  {
     label: 'Integrations',
     id: 'integrations',
     link: '/guides/integrations',
     icon: 'puzzle',
     items: [
+      {
+        label: 'Co-exist with auth systems',
+        autogenerate: { directory: 'guides/integrations/auth-systems' },
+      },
+      {
+        label: 'Social connections',
+        autogenerate: {
+          directory: 'guides/integrations/social-connections',
+        },
+      },
       {
         label: 'SSO integrations',
         autogenerate: { directory: 'guides/integrations/sso-integrations' },
@@ -372,12 +339,6 @@ export const sidebar = [
       {
         label: 'SCIM integrations',
         autogenerate: { directory: 'guides/integrations/scim-integrations' },
-      },
-      {
-        label: 'Social connections',
-        autogenerate: {
-          directory: 'guides/integrations/social-connections',
-        },
       },
     ],
   },
@@ -410,11 +371,36 @@ export const topics = {
   connect: ['/agent-actions/**/*'], // Agent Actions pages
   mcp: ['/mcp/**/*', '/guides/mcp/**/*'], // MCP Auth pages
   m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
-  'win-with-scalekit': ['/win-with-scalekit/**/*'], // Win with Scalekit pages
   'dev-kit': [
     '/dev-kit/**/*',
+    '/win-with-scalekit/**/*',
+    '/fsa/guides/auth-methods',
+    '/fsa/guides/implement-signup',
+    '/fsa/guides/implement-login',
+    '/fsa/data-modelling',
+    '/fsa/guides/merge-identities',
+    '/fsa/reference/user-management-settings',
+    '/fsa/guides/migration-guide',
+    '/fsa/guides/enterprise-sso',
+    '/passwordless/**/*',
+    '/social-logins/**/*',
+    '/sso/guides/sso-basics',
+    '/sso/guides/add-login-ux-sso',
+    '/sso/guides/test-sso',
+    '/sso/guides/idp-init-sso',
+    '/sso/guides/authorization-url',
+    '/directory/guides/user-provisioning-basics',
+    '/directory/guides/scim-protocol',
+    '/directory/guides/group-based-role-assignment',
+    '/guides/interceptor-scenarios',
+    '/guides/dashboard/redirects',
+    '/guides/external-ids-and-metadata',
+    '/guides/client-credentials-practices',
+    '/guides/webhooks-best-practices',
+    '/guides/idtoken-claims',
     '/guides/unlisted/passwordless-as-service',
     '/guides/auth-flow-interceptors',
+    '/authenticate/launch-checklist',
   ], // Developer resources
   integrations: ['/guides/integrations/**/*'], // Integration guide pages
 }
