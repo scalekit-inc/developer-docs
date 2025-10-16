@@ -1,6 +1,7 @@
 ---
 title: "New to MCP?"
 description: "Lock down MCP connections with OAuth 2.1 so agents get only the access they need"
+tableOfContents: false
 seeAlso:
   items:
     - title: "Review MCP architecture"
@@ -36,3 +37,156 @@ MCP incorporates OAuth 2.1 authorization mechanisms at the transport level. This
 | Security best practices | Incorporates improvements over OAuth 2.0, removing deprecated flows and enforcing security measures like PKCE |
 | Multiple grant types | Supports different use cases: **Authorization code** for human user scenarios and **Client credentials** for machine-to-machine integrations |
 | Ecosystem compatibility | Integrates with existing identity providers and authorization servers |
+
+<details>
+<summary> MCP authorization specification overview </summary>
+
+This authorization mechanism is based on established specifications listed below, but implements a selected subset of their features to ensure security and interoperability while maintaining simplicity:
+
+- OAuth 2.1
+- OAuth 2.0 Authorization Server Metadata (RFC8414)
+- OAuth 2.0 Dynamic Client Registration Protocol (RFC7591)
+- OAuth 2.0 Protected Resource Metadata (RFC9728)
+</details>
+
+<details>
+<summary>Quick reference: High-level flow</summary>
+
+This simplified diagram shows the key actors and main interactions. Use this for quick reference while scrolling through the detailed flow below.
+
+```d2 pad=10
+shape: sequence_diagram
+
+"MCP Client"
+"MCP Server"
+"Authorization Server"
+"User"
+
+"MCP Client" -> "MCP Server": Request resource (unauthorized)
+"MCP Server" -> "MCP Client": 401 + Auth server info
+"MCP Client" -> "Authorization Server": Discover capabilities
+"MCP Client" -> "Authorization Server": Register client
+"MCP Client" -> "User": Request authorization
+"User" -> "Authorization Server": Authenticate & consent
+"Authorization Server" -> "MCP Client": Access token
+"MCP Client" -> "MCP Server": Request with token
+"MCP Server" -> "MCP Client": Protected resource
+"MCP Client" -> "Authorization Server": Refresh token (when expired)
+```
+
+</details>
+
+## Complete MCP OAuth 2.1 flow
+
+Here's the complete end-to-end authorization flow showing all phases from discovery to token refresh in a single sequence diagram:
+
+```d2 pad=10
+shape: sequence_diagram
+
+# Predefine actors
+"MCP Client"
+"MCP Server"
+"Authorization Server"
+"User"
+
+Discovery phase: {
+  "MCP Client" -> "MCP Server": POST /mcp/tools/weather\n(No Authorization Header)
+  "MCP Server" -> "MCP Client": 401 Unauthorized\nWWW-Authenticate: resource_metadata="..."
+  "MCP Client" -> "MCP Server": GET /.well-known/oauth-protected-resource
+  "MCP Server" -> "MCP Client": Resource metadata with authorization_servers
+  "MCP Client" -> "Authorization Server": GET /.well-known/oauth-authorization-server
+  "Authorization Server" -> "MCP Client": Authorization server metadata\n(endpoints, supported flows, etc.)
+}
+
+Dynamic client registration: {
+  "MCP Client" -> "Authorization Server": POST /oauth2/register\n(client metadata)
+  "Authorization Server" -> "MCP Client": client_id, client_secret\n(if confidential client)
+}
+
+Authorization code flow: {
+  "MCP Client" -> "User": Redirect to authorization endpoint\nwith PKCE challenge
+  "User" -> "Authorization Server": GET /oauth2/authorize\n(user authenticates & grants consent)
+  "Authorization Server" -> "User": Redirect with authorization code
+  "User" -> "MCP Client": Authorization code returned
+  "MCP Client" -> "Authorization Server": POST /oauth2/token\n(code + PKCE verifier)
+  "Authorization Server" -> "MCP Client": access_token, refresh_token\nwith scopes (e.g., "mcp:tools:weather")
+}
+
+Access phase: {
+  "MCP Client" -> "MCP Server": POST /mcp/tools/weather\nAuthorization: Bearer <access_token>
+  "MCP Server" -> "MCP Server": Validate token and check scopes\n("mcp:tools:weather")
+  "MCP Server" -> "MCP Server": If token valid: Process weather request
+  "MCP Server" -> "MCP Client": 200 OK\nWeather data response
+  "MCP Server" -> "MCP Client": If invalid: 401/403 Error\nToken invalid or insufficient scope
+}
+
+Token refresh (when needed): {
+  "MCP Client" -> "Authorization Server": POST /oauth2/token\n(grant_type=refresh_token)
+  "Authorization Server" -> "MCP Client": New access_token, refresh_token
+}
+```
+
+### Understanding the MCP authorization flow
+
+<details open>
+<summary>Discovery phase</summary>
+
+1. MCP client attempts to access a protected resource without credentials
+2. MCP server responds with `401 Unauthorized` and includes authorization metadata in the `WWW-Authenticate` header
+3. Client retrieves resource metadata to identify authorization servers
+4. Client discovers authorization server capabilities through the metadata endpoint
+
+</details>
+
+<details>
+<summary>Dynamic client registration</summary>
+
+5. Client submits registration request with metadata (redirect URIs, application info)
+6. Authorization server validates the request and issues client credentials
+7. Client stores credentials securely for subsequent authorization requests
+
+</details>
+
+<details>
+<summary>Authorization code flow</summary>
+
+8. Client generates PKCE code verifier and challenge
+9. Client redirects user to authorization server with PKCE challenge
+10. User authenticates and grants consent for requested scopes
+11. Authorization server redirects back with authorization code
+12. Client exchanges code and PKCE verifier for access token
+13. Authorization server validates PKCE and issues tokens with granted scopes
+
+</details>
+
+<details>
+<summary>Access phase</summary>
+
+14. Client includes access token in the Authorization header
+15. MCP server validates the token signature and expiration
+16. Server checks if token scopes match the required permissions
+17. **If token is valid and scope is sufficient**: Server processes the request and returns 200 OK with the requested data
+18. **If token is invalid or scope is insufficient**: Server returns 401 Unauthorized or 403 Forbidden error
+
+</details>
+
+<details>
+<summary>Token refresh (when needed)</summary>
+
+19. Client detects token expiration (through 401 response or token expiry time)
+20. Client sends refresh token request to authorization server
+21. Authorization server validates refresh token and issues new access tokens
+22. Client updates stored tokens and retries the original request
+
+</details>
+
+MCP OAuth 2.1 provides secure, standardized authorization for AI agents accessing protected resources. The flow establishes trust, authenticates users, authorizes access, and maintains security throughout the session lifecycle by building each phase on the previous one.
+
+<details>
+<summary>Original diagram reference</summary>
+
+For reference, here's the complete flow diagram showing all phases and interactions in a traditional sequence diagram format:
+
+![MCP OAuth 2.1 Authorization Flow](@/assets/docs/guides/mcp/mcp-auth-flow.png)
+
+</details>
