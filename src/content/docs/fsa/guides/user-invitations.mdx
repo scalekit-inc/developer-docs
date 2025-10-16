@@ -37,20 +37,42 @@ For applications where you want to build custom invitation flows in your own UI,
 - **Integration with existing systems**: Connect invitation flows with your CRM, HR systems, or user directories.
 </details>
 
-## Use the dashboard to invite users
+## Invite users from the Scalekit dashboard
 
-The quickest way to get started with user invitations is through the Scalekit Dashboard. Navigate to the Users section and click the "Add User" button to invite new members to your organization. You can specify their email address, assign roles, and customize the invitation settings directly from the UI.
 
-![](@/assets/docs/fsa/user-management/3-ui-user-invite.png)
+The quickest way to get started with user invitations is through the Scalekit Dashboard.
 
-## Build custom invitation flows with the SDK
+Navigate to the Users section and click the "Add User" button to invite new members to your organization. You can specify their email address, assign roles, and customize the invitation settings directly from the UI.
+
+
+## Build user invitation flows <Badge type="tip" text="API" />
 
 For applications that require custom invitation flows or automated user management, Scalekit provides a comprehensive SDK. This allows you to programmatically invite users, manage invitations, and integrate with your existing systems.
+
+<details>
+
+<summary>Review the user invitation flow</summary>
+
+```d2 pad=10
+shape: sequence_diagram
+
+User -> App: Clicks invitation link
+App -> Scalekit: Redirects to initiate login endpoint
+App -> Scalekit: Creates auth URL, redirects to Scalekit’s login page
+User -> Scalekit: Completes authentication
+Scalekit -> App: Redirects to callback URL with auth code
+App -> Scalekit: Exchanges code for ID Token & user details
+App -> Dashboard: Redirects user
+App -> App: Decode ID Token for user details
+```
+</details>
 
 <Steps>
  1. ### Create user invitations
 
-    To invite a user to an organization, create a user membership with their email address and the target organization ID. Scalekit handles sending the invitation email and managing the invitation process.
+    To invite a user to an organization, create a user membership with their email address and the target organization ID.
+
+    Scalekit handles sending the invitation email and managing the invitation process.
 
     <CreateUserMembershipSection />
 
