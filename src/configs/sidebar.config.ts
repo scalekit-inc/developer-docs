@@ -28,6 +28,7 @@ export const sidebar = [
           'fsa/guides/user-invitations',
           'fsa/guides/manage-users',
           'fsa/guides/app-roles',
+          'fsa/guides/allowed-email-domains',
           'fsa/guides/organization-switching',
         ],
       },

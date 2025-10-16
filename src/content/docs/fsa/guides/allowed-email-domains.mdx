@@ -1,8 +1,8 @@
 ---
-title: Allowed email domains
-description: Define trusted email domains for an organization to allow user to directly join an org
+title: Allowed email domains for organization auto-join
+description: Define trusted email domains for an organization to allow user to directly join an workspace
 sidebar:
-  label: 'Allowed email domains'
+  label: 'Auto‑join by email domain'
 head:
   - tag: style
     content: |
@@ -25,13 +25,9 @@ import InstallSDK from '@components/templates/_installsdk.mdx';
 
 Allowed email domains lets organization admins define trusted domains for their organization. When a user signs in or signs up with a matching email domain, Scalekit suggests the user to join that organization in the **organization switcher** so the user can join the organization with one click. This feature is authentication-method agnostic: regardless of whether a user authenticates via SSO, social login, or passwordless authentication, organization options are suggested based on their email domain.
 
-## Introduction
-
-Allowed email domains can reduce the burden of manual invitation for organization admins, avoid duplicate organization creation, and streamline membership for end users by suggesting the right organization at sign-in/sign-up.
 
 ```d2
 direction: right
-
 
 domain_match: "Domain Match?"
 suggest_org: "Show option for the user to join organization"
@@ -39,218 +35,81 @@ join_create: "User joined the organization"
 
 domain_match -> suggest_org: "Yes"
 suggest_org -> join_create: "Join"
-
 ```
 
 
-When a user signs up or signs in, Scalekit can automatically:
+When a user signs up or signs in, Scalekit will automatically:
+
+<Steps>
 
 1. **Match email domains** - Check if the user's email domain matches configured allowed domains for any organization.
 2. **Suggest organization options** - Show the user available organizations they can join through an organization switcher.
 3. **Enable user choice** - Allow users to decide which of the suggested organizations they want to join.
 4. **Create organization membership** - Automatically add the user to their selected organization.
 
-## Security consideration
-
-- **Disposable and public email domains are blocked** and cannot be added to the allow-list (e.g., `gmail.com`, `outlook.com`). We maintain a blocklist to enforce this.
-
-## Enabling allowed email domains
-
-Allowed email domains can be configured for an organization through the Scalekit Dashboard or programmatically using the API.
-
-### Enable via Dashboard
-
-
-![](@/assets/docs/allowed-email-domains/ui.png)
-
-<Steps>
-
-1. Log in to your [Scalekit Dashboard](https://app.scalekit.com).
-2. Navigate to **Organizations** and **select an organization**.
-3. Open the **Roles** tab and find **Allowed Email Domains**.
-4. Add or edit allowed email domains for automatic suggestions/provisioning.
-
 </Steps>
 
-## Enable via API
+<Aside type="note" title="Security consideration">
+Disposable and public email domains are blocked and cannot be added to the allow-list (e.g., `gmail.com`, `outlook.com`). We maintain a blocklist to enforce this.
+</Aside>
 
-You can also configure allowed email domains for an organization programmatically using the Scalekit API:
+## Manage allowed email domains in Scalekit Dashboard
 
-<InstallSDK />
+Allowed email domains can be configured for an organization through the Scalekit Dashboard.
 
-
-
-### Register email domain
-
-**Path Parameters:**
-  - `organization_id` (string, required): The ID of the organization
-
-**Request Body:**
-  - `domain` (string, required): The email domain to allow (e.g., "customerdomain.com")
-  - `domain_type` (string, required): Must be "ALLOWED_EMAIL_DOMAIN"
+## Manage allowed email domains <Badge text='API'/>
+Configure allowed email domains for an organization programmatically through the Scalekit API. Before proceeding, complete the steps in the [installation guide](/authenticate/installation/).
 
 <Tabs>
 <TabItem label="cURL">
 
-```sh title="Register an allowed email domain"
-curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains' \
+```sh title="Register, list, get, and delete allowed email domains" frame="terminal" "ALLOWED_EMAIL_DOMAIN" showLineNumbers=false
+# 1. Register an allowed email domain
+# Use case: Restrict user registration to specific company domains for B2B applications
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/{organization_id}/domains' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
   "domain": "customerdomain.com",
   "domain_type": "ALLOWED_EMAIL_DOMAIN"
 }'
-```
 
-</TabItem>
-<TabItem label="Nodejs">
+# 2. List all registered allowed email domains
+# Use case: Display domain restrictions in admin dashboard or verify current settings
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/{organization_id}/domains'
 
-```js title="Add a new domain to an organization"
-// Add a new domain to an organization
-const response = await scalekit.createDomain("org-123", "example.com", {
-	// Domain type: controls user authentication and email validation
-	domainType: "ALLOWED_EMAIL_DOMAIN",
-});
-```
+# 3. Get details of a specific domain
+# Use case: Verify domain configuration or retrieve domain metadata
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/{organization_id}/domains/{domain_id}'
 
-</TabItem>
-</Tabs>
-
-
-
-```json title="Response"
-{
-    "domain": {
-        "id": "dom_88351643129225005",
-        "domain": "newdomain.com",
-        "environment_id": "env_58345499215790610",
-        "organization_id": "org_81667076086825451",
-        "create_time": "2025-09-01T12:14:43.100Z",
-        "update_time": "2025-09-01T12:14:43.110455169Z",
-        "domain_type": "ALLOWED_EMAIL_DOMAIN"
-    }
-}
-```
-
-
-### List email domains
-
-**Request Parameters:**
-
-- **Path Parameters:**
-  - `organization_id` (string, required): The ID of the organization
-
-<Tabs>
-<TabItem label="cURL">
-
-```sh title="List all the registered allowed email domains"
-curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains'
-```
-
-</TabItem>
-<TabItem label="Nodejs">
-
-```js title="List all domains in an organization"
-// List all domains in an organization
-const response = await client.domain.listDomains(organizationId);
-
-// Domain object contains:
-// - id: Domain identifier
-// - domain: Domain name
-// - organizationId: Owning organization
-// - domainType: Configuration type
-```
-
-</TabItem>
-</Tabs>
-
-```json title="Response"
-{
-  "domains": [
-    {
-      "create_time": "2025-09-01T11:59:50.005Z",
-      "domain": "customerdomain.com",
-      "domain_type": "ALLOWED_EMAIL_DOMAIN",
-      "environment_id": "env_73947929838",
-      "id": "dom_883516432292250875",
-      "organization_id": "org_987654321",
-      "update_time": "2025-09-01T11:59:50.005Z",
-    }
-  ],
-  "page_number": 1,
-  "page_size": 1
-}
-```
-
-### Get email domain
-
-**Request Parameters:**
-
-- **Path Parameters:**
-  - `organization_id` (string, required): The ID of the organization
-  - `id` (string, required): The ID of the domain to retrieve
-
-<Tabs>
-<TabItem label="cURL">
-
-```sh title="Get details of a specific domain"
-curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains/{id}'
-```
-
-</TabItem>
-<TabItem label="Nodejs">
-
-```js title="Fetch details of a specific domain"
-// Fetch details of a specific domain
-const response = await client.domain.getDomain(organizationId, domainId);
-
-// Domain object properties:
-// - id: Domain identifier
-// - domain: Domain name
-// - organizationId: Owning organization
-// - domainType: Domain configuration type
-```
-
-</TabItem>
-</Tabs>
-
-```json title="Response"
-{
-  "domain": {
-    "create_time": "2025-09-01T11:59:50.005Z",
-    "domain": "customerdomain.com",
-    "domain_type": "ALLOWED_EMAIL_DOMAIN",
-    "environment_id": "env_73947929838",
-    "id": "dom_883516432292250875",
-    "organization_id": "org_987654321",
-    "update_time": "2025-09-01T11:59:50.005Z"
-  }
-}
-```
-
-### Delete email domain
-
-**Request Parameters:**
-
-- **Path Parameters:**
-  - `organization_id` (string, required): The ID of the organization
-  - `id` (string, required): The ID of the domain to delete
-
-<Tabs>
-<TabItem label="cURL">
-
-```sh title="Delete a allowed email domain"
-curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains/{id}' \
+# 4. Delete an allowed email domain
+# Use case: Remove domain restrictions or clean up unused configurations
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/{organization_id}/domains/{domain_id}' \
   --request DELETE
 ```
 
 </TabItem>
 <TabItem label="Nodejs">
 
-```js title="Remove a domain from an organization"
-// Remove a domain from an organization
+```js title="Register, list, get, and delete allowed email domains" frame="terminal" wrap
+// 1. Register an allowed email domain
+// Use case: Restrict user registration to specific company domains for B2B applications
+const newDomain = await scalekit.createDomain("org-123", "customerdomain.com", {
+	domainType: "ALLOWED_EMAIL_DOMAIN",
+});
+
+// 2. List all registered allowed email domains
+// Use case: Display domain restrictions in admin dashboard or verify current settings
+const domains = await client.domain.listDomains(organizationId);
+
+// 3. Get details of a specific domain
+// Use case: Verify domain configuration or retrieve domain metadata
+const domain = await client.domain.getDomain(organizationId, domainId);
+
+// 4. Delete an allowed email domain
+// Use case: Remove domain restrictions or clean up unused configurations
 // Caution: Deletion is permanent and may affect user access
-const response = await client.domain.deleteDomain(organizationId, domainId);
+await client.domain.deleteDomain(organizationId, domainId);
 ```
 
 </TabItem>
