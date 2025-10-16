@@ -43,7 +43,6 @@ export const redirects = {
   '/sso/guides/key-concepts/manage-client-secrets': '/guides/client-credentials-practices/',
   '/sso/guides/key-concepts/user-profile': '/sso/guides/user-profile-details/',
   '/sso/guides/test-your-integration/using-okta': '/sso/guides/okta-sso-test/',
-  '/sso/guides/auth-logs': '/guides/dashboard/auth-logs/',
   '/sso/reference/redirects': '/guides/dashboard/redirects/',
 
   // SSO integrations with auth systems
