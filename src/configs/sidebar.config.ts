@@ -350,49 +350,31 @@ export const topics = {
     '/index.astro', // Exclude index by name
     '/reference/**/*', // Keep reference docs excluded
     '/guides/integrations', // Exclude integrations overview from sidebar
-    '/guides/integrations/index',
-    '/home/guides/**/*',
-    '/home/guides/admin-portal',
-    '/home/**/*',
   ],
   // Associate unlisted pages with their respective topic sidebars
   authenticate: [
     '/authenticate/**/*',
     '/fsa/**/*',
+    '/mcp/**/*',
     '/sso/**/*',
-    '/social-logins/**/*',
-    '/passwordless/**/*',
     '/directory/**/*',
+    '/guides/mcp/**/*',
     '/guides/sso/**/*',
-    '/guides/passwordless/**/*',
-    '/guides/directory/**/*',
     '/guides/dashboard/**/*',
-  ], // All auth-related pages
+    '/guides/custom-domain',
+    '/guides/email-providers',
+    '/guides/auth-flow-interceptors',
+  ], // Pages that appear in Authenticate sidebar
   connect: ['/agent-actions/**/*'], // Agent Actions pages
-  mcp: ['/mcp/**/*', '/guides/mcp/**/*'], // MCP Auth pages
+  mcp: [], // MCP pages are in authenticate sidebar, so they use authenticate topic
   m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
   'dev-kit': [
     '/dev-kit/**/*',
     '/win-with-scalekit',
     '/win-with-scalekit/**/*',
-    '/fsa/guides/auth-methods',
-    '/fsa/guides/implement-signup',
-    '/fsa/guides/implement-login',
-    '/fsa/data-modelling',
-    '/fsa/guides/merge-identities',
-    '/fsa/reference/user-management-settings',
-    '/fsa/guides/migration-guide',
-    '/fsa/guides/enterprise-sso',
     '/passwordless/**/*',
     '/social-logins/**/*',
-    '/sso/guides/sso-basics',
-    '/sso/guides/add-login-ux-sso',
-    '/sso/guides/test-sso',
-    '/sso/guides/idp-init-sso',
-    '/sso/guides/authorization-url',
-    '/directory/guides/user-provisioning-basics',
-    '/directory/guides/scim-protocol',
-    '/directory/guides/group-based-role-assignment',
+    '/guides/passwordless/**/*',
     '/guides/interceptor-scenarios',
     '/guides/dashboard/redirects',
     '/guides/external-ids-and-metadata',
@@ -400,8 +382,6 @@ export const topics = {
     '/guides/webhooks-best-practices',
     '/guides/idtoken-claims',
     '/guides/unlisted/passwordless-as-service',
-    '/guides/auth-flow-interceptors',
-    '/authenticate/launch-checklist',
-  ], // Developer resources
+  ], // Developer resources and implementation guides
   integrations: ['/guides/integrations/**/*'], // Integration guide pages
 }
