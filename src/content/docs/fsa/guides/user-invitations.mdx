@@ -1,6 +1,6 @@
 ---
-title: "Invite users to application workspaces"
-description: "Invite from UI or API. Scalekit sends, verifies, and creates accounts so orgs add users fast"
+title: "Invite users to organizations"
+description: "Invite from UI or API. Scalekit sends, verifies, and creates accounts so users join workspaces"
 sidebar:
   label: "Build user invite access"
 head:
@@ -15,10 +15,12 @@ head:
       table td:not(:last-child), table th:not(:last-child) {
         white-space: nowrap;
       }
-prev: false
+prev:
+  label: Implement login
+  link: /fsa/choose-login-methods/
 next:
-  label: User management API reference
-  link: https://docs.scalekit.com/apis
+  label: Proceed to managing user profiles
+  link: /fsa/guides/manage-users/
 
 ---
 import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, LinkButton, Badge } from '@astrojs/starlight/components';
@@ -74,24 +76,128 @@ App -> App: Decode ID Token for user details
 
     Scalekit handles sending the invitation email and managing the invitation process.
 
-    <CreateUserMembershipSection />
+    <Tabs syncKey="tech-stack">
+      <TabItem value="node" label="Node.js">
+        ```javascript { 13 }
+        const newUser = await scalekit.user.createUserAndMembership('org_xxxxxxxxxxxx',
+        {
+          email: "user@example.com",
+          externalId: "crm-user-87425",
+          userProfile: {
+            firstName: "John",
+            lastName: "Doe"
+          },
+          metadata: {
+            plan: "free",
+            department: "Engineering"
+          },
+          sendInvitationEmail: true
+        });
+        ```
+      </TabItem>
+      <TabItem value="python" label="Python">
+        ```python
+        # Create user object
+        user = CreateUser(
+            email="user@example.com",
+            external_id="crm-user-87425",
+            user_profile=CreateUserProfile(
+                first_name="John",
+                last_name="Doe"
+            ),
+            metadata={
+                "plan": "free",
+                "department": "Engineering"
+            }
+            send_invitation_email=True
+        )
 
-    **Key parameters:**
-    - `email`: The email address of the user to invite (required)
-    - `organization_id`: The ID of the organization they're joining (required)
-    - `sendActivationEmail`: Set to `true` to automatically send invitation emails (recommended)
-    - `roles`: Optional array of roles to assign to the invited user
-    - `metadata`: Optional custom data to associate with the membership
+        # Create the user
+        new_user = scalekit.users.create_user_and_membership(organization_id='org_xxxxxxxxxxxx', user=user)
+        ```
+      </TabItem>
+      <TabItem value="go" label="Go">
+        ```go {23} collapse={1-5}
+        import (
+            "context"
+            usersv1 "github.com/scalekit-inc/scalekit-sdk-go/pkg/grpc/scalekit/v1/users"
+        )
 
-    <Aside type="note" title="Customize invitation expiration">
-      Configure invitation link expiration periods in **Scalekit Dashboard** → **User Management** → **Settings**.
-    </Aside>
+        user := &usersv1.CreateUser{
+            Email: "user@example.com",
+            ExternalId: "crm-user-87425",
+            UserProfile: &usersv1.CreateUserProfile{
+                FirstName: "John",
+                LastName:  "Doe",
+            },
+            Metadata: map[string]string{
+                "plan": "free",
+                "department":       "Engineering",
+            },
+        }
+
+        newUser, err := scalekit.User().CreateUserAndMembership(
+            context.Background(),
+            "org_xxxxxxxxxxxx", // The ID of the organization the user belongs to
+            user,
+            true, // sendInvitationEmail
+        )
+        if err != nil {
+            // handle error appropriately
+            return err
+        }
+        ```
+      </TabItem>
+      <TabItem value="java" label="Java">
+        ```java
+        // Build the user profile object
+        CreateUserProfile profile = CreateUserProfile.newBuilder()
+            .setFirstName("John")
+            .setLastName("Doe")
+            .build();
+
+        // Build the user object
+        CreateUser createUser = CreateUser.newBuilder()
+            .setEmail("user@example.com")
+            .setExternalId("ext_12345a67b89c")
+            .putMetadata("department", "engineering")
+            .putMetadata("location", "nyc-office")
+            .setUserProfile(profile)
+            .build();
+
+        // Create request for user and membership, sending an invitation email
+        CreateUserAndMembershipRequest cuReq = CreateUserAndMembershipRequest.newBuilder()
+            .setUser(createUser)
+            .setSendInvitationEmail(true)
+            .build();
+
+        // Send the request
+        CreateUserAndMembershipResponse cuResp = users.createUserAndMembership("org_123", cuReq);
+
+        // Print the new user's ID
+        System.out.println(cuResp.getUser().getId());
+        ```
+      </TabItem>
+    </Tabs>
+
+    | Parameter | Description | Required |
+    | --- | --- | --- |
+    | `email` | The email address of the user to invite | Yes |
+    | `organization_id` | The ID of the organization they're joining | Yes |
+    | `sendActivationEmail` | Set to `true` to automatically send invitation emails | Recommended |
+    | `roles` | Array of roles to assign to the invited user | No |
+    | `metadata` | Custom data to associate with the membership | No |
 
  2. ### View invitation response
 
     When a user is successfully invited, Scalekit returns a user object with membership details. The membership status will be `PENDING_INVITE` until the user accepts the invitation.
 
-    ```json title="Example invitation response"
+    Monitor the `membershipStatus` field to track invitation progress:
+      - `PENDING_INVITE`: User has been invited but hasn't accepted yet
+      - `ACTIVE`: User has accepted the invitation and can access the organization
+      - `INVITE_EXPIRED`: Membership has been deactivated
+
+    ```json title="Example invitation response" "PENDING_INVITE" {13} collapse={15-18, 22-23, 31-36}
     {
       "user": {
         "id": "usr_01HTR0ABCXYZ",
@@ -104,7 +210,7 @@ App -> App: Decode ID Token for user details
           {
             "organizationId": "org_xxxxxxxxxxxx",
             "joinTime": "2025-06-19T15:41:22Z",
-            "membershipStatus": "ACTIVE",
+            "membershipStatus": "PENDING_INVITE",
             "roles": [
               {
                 "id": "role_admin",
@@ -137,13 +243,6 @@ App -> App: Decode ID Token for user details
       }
     }
     ```
-
-    <Aside type="note" title="Membership status tracking">
-      Monitor the `membershipStatus` field to track invitation progress:
-      - `PENDING_INVITE`: User has been invited but hasn't accepted yet
-      - `ACTIVE`: User has accepted the invitation and can access the organization
-      - `INVITE_EXPIRED`: Membership has been deactivated
-    </Aside>
 
  3. ### Resend user invitation
 
@@ -212,23 +311,22 @@ App -> App: Decode ID Token for user details
       Monitor the `resent_count` field to track how many times an invitation has been resent. Consider implementing rate limiting to prevent excessive resends.
     </Aside>
 
- 4. ### Handle user invitation acceptance
+ 4. ### Handle invitation acceptance
 
-    When invited users click the invitation link in their email, Scalekit redirects them to your application's [registered initiate login endpoint](/guides/dashboard/redirects/#redirect-endpoint-types). Your application then completes the authentication flow.
+    ![](@/assets/docs/fsa/user-management/2-email-invite.png)
 
-    **Set up the initiate login endpoint:**
+    When invited users click the invitation link in their email, Scalekit redirects them to your application's [registered initiate login endpoint](/guides/dashboard/redirects/#redirect-endpoint-types).
 
-    1. **Register your endpoint** in the Scalekit dashboard (for example, `https://your-app.com/auth/login/initiate`)
+    Your application completes the authentication flow using your [existing implementation](/fsa/quickstart).
 
-    2. **Handle the redirect** by [constructing an authorization URL](/fsa/quickstart) and redirecting the user to Scalekit's hosted login page
-
-    3. **Complete authentication** when the user returns to your callback URL
-
-    **Example endpoint implementation:**
+    Set up the initiate login endpoint
 
     <Tabs syncKey="tech-stack">
       <TabItem value="node" label="Node.js">
-        ```javascript title="Express.js"
+        ```javascript title="Express.js" frame="terminal"
+        // 1. Register your endpoint in the Scalekit dashboard (for example, https://your-app.com/auth/login/initiate)
+        // 2. Handle the redirect by constructing an authorization URL and redirecting the user to Scalekit's hosted login page
+        // 3. Complete authentication when the user returns to your callback URL
         app.get('/auth/login/initiate', (req, res) => {
           const redirectUri = 'http://localhost:3000/api/callback';
           const options = {
@@ -241,7 +339,10 @@ App -> App: Decode ID Token for user details
         ```
       </TabItem>
       <TabItem value="python" label="Python">
-        ```python title="Flask"
+        ```python title="Flask" frame="terminal"
+        # 1. Register your endpoint in the Scalekit dashboard (for example, https://your-app.com/auth/login/initiate)
+        # 2. Handle the redirect by constructing an authorization URL and redirecting the user to Scalekit's hosted login page
+        # 3. Complete authentication when the user returns to your callback URL
         @app.route('/auth/login/initiate')
         def initiate_login():
             redirect_uri = 'http://localhost:3000/api/callback'
@@ -253,7 +354,10 @@ App -> App: Decode ID Token for user details
         ```
       </TabItem>
       <TabItem value="go" label="Go">
-        ```go title="Gin"
+        ```go title="Gin" frame="terminal"
+        // 1. Register your endpoint in the Scalekit dashboard (for example, https://your-app.com/auth/login/initiate)
+        // 2. Handle the redirect by constructing an authorization URL and redirecting the user to Scalekit's hosted login page
+        // 3. Complete authentication when the user returns to your callback URL
         func initiateLogin(c *gin.Context) {
             redirectUri := "http://localhost:3000/api/callback"
             options := scalekit.AuthorizationUrlOptions{
@@ -271,7 +375,10 @@ App -> App: Decode ID Token for user details
         ```
       </TabItem>
       <TabItem value="java" label="Java">
-        ```java title="Spring"
+        ```java title="Spring" frame="terminal"
+        // 1. Register your endpoint in the Scalekit dashboard (for example, https://your-app.com/auth/login/initiate)
+        // 2. Handle the redirect by constructing an authorization URL and redirecting the user to Scalekit's hosted login page
+        // 3. Complete authentication when the user returns to your callback URL
         @GetMapping("/auth/login/initiate")
         public ResponseEntity<Void> initiateLogin() {
             String redirectUri = "http://localhost:3000/api/callback";
@@ -287,21 +394,4 @@ App -> App: Decode ID Token for user details
         ```
       </TabItem>
     </Tabs>
-
-    **Authentication flow:**
-
-    ![](@/assets/docs/fsa/user-management/2-email-invite.png)
-
-    When a user accepts an invitation, Scalekit handles the authentication process automatically:
-
-    1. **User clicks invitation link** → Scalekit redirects to your initiate login endpoint
-    2. **Your app redirects to Scalekit** → Your initiate login endpoint creates an authorization URL and redirects to Scalekit's login page
-    3. **User completes authentication** → Scalekit processes the login and redirects back to your callback URL with an authorization code
-    4. **Your app exchanges code for user details** → Your callback endpoint exchanges the authorization code for ID Token and redirects the user to your dashboard
-    5. **Decode ID Token for user profile** → Decode the JWT ID Token to access user information like email, name and verification status
-
-    <Aside type="note" title="Automatic email verification">
-      Scalekit automatically verifies the user's email address during this process. Experience of the user will be seamless and are logged in to your application instantly.
-    </Aside>
-
 </Steps>
