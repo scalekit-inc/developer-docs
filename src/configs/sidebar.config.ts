@@ -354,7 +354,6 @@ export const topics = {
     '/home/guides/**/*',
     '/home/guides/admin-portal',
     '/home/**/*',
-    '/win-with-scalekit/**/*', // Exclude win-with-scalekit pages (content moved to dev-kit)
   ],
   // Associate unlisted pages with their respective topic sidebars
   authenticate: [
@@ -374,6 +373,7 @@ export const topics = {
   m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
   'dev-kit': [
     '/dev-kit/**/*',
+    '/win-with-scalekit',
     '/win-with-scalekit/**/*',
     '/fsa/guides/auth-methods',
     '/fsa/guides/implement-signup',
