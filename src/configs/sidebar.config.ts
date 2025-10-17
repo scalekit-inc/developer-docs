@@ -183,8 +183,21 @@ export const sidebar = [
     icon: 'seti:powershell',
     items: [
       {
-        label: 'Getting started',
-        items: ['dev-kit/sdks/overview'],
+        label: 'Rapid development tools',
+        items: [
+          'dev-kit/mcp',
+          'dev-kit/resources/ai-assisted-setup',
+          'dev-kit/sdks/overview',
+          {
+            label: 'Code samples',
+            link: '/dev-kit/code-samples',
+          },
+          {
+            label: 'Postman collections',
+            link: 'https://github.com/scalekit-inc/api-collections',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
       },
       {
         label: 'Authentication implementation',
@@ -253,22 +266,6 @@ export const sidebar = [
           'authenticate/launch-checklist',
           'guides/idtoken-claims',
           'sso/guides/authorization-url',
-        ],
-      },
-      {
-        label: 'Development tools',
-        items: [
-          'dev-kit/mcp',
-          {
-            label: 'Postman collections',
-            link: 'https://github.com/scalekit-inc/api-collections',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          'dev-kit/resources/ai-assisted-setup',
-          {
-            label: 'Code samples',
-            link: '/dev-kit/code-samples',
-          },
         ],
       },
       {
