@@ -144,22 +144,6 @@ export const sidebar = [
     ],
   },
   {
-    label: 'MCP Auth',
-    link: '/guides/mcp/overview',
-    id: 'mcp',
-    icon: 'seti:puppet',
-    items: [
-      {
-        label: 'Getting started',
-        items: [
-          'mcp/overview',
-          'mcp/oauth',
-          { label: 'Bring your own Auth', link: 'mcp/guides/custom-auth' },
-        ],
-      },
-    ],
-  },
-  {
     label: 'API Auth',
     link: '/m2m/quickstart',
     id: 'm2m',
@@ -323,21 +307,21 @@ export const sidebar = [
     icon: 'puzzle',
     items: [
       {
-        label: 'Co-exist with auth systems',
-        autogenerate: { directory: 'guides/integrations/auth-systems' },
-      },
-      {
         label: 'Social connections',
         autogenerate: {
           directory: 'guides/integrations/social-connections',
         },
       },
       {
-        label: 'SSO integrations',
+        label: 'SSO with existing auth',
+        autogenerate: { directory: 'guides/integrations/auth-systems' },
+      },
+      {
+        label: 'SSO connections',
         autogenerate: { directory: 'guides/integrations/sso-integrations' },
       },
       {
-        label: 'SCIM integrations',
+        label: 'SCIM connections',
         autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
     ],
