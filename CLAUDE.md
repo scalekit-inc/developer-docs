@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is the Scalekit developer documentation site built with Astro and Starlight. It provides comprehensive documentation for Scalekit's authentication and user management platform, including Full Stack Auth (FSA), SSO, SCIM, and API references. Don't generate code samples in different languages unless explicitly asked for.
+This is the Scalekit developer documentation site built with Astro and Starlight. It provides comprehensive documentation for Scalekit's authentication and user management platform, including Full Stack Auth (FSA), SSO, SCIM, and API references.
 
 ## Development Commands
 
@@ -103,3 +103,158 @@ Custom Starlight components in `src/components/overrides/`:
 - Link validation and broken link detection
 - Search functionality with API reference integration
 - Custom branding and theme
+
+## Documentation Writing Style Guide
+
+### Content Structure
+
+**Frontmatter Standards:**
+
+- Always include `title` and `description`
+- Use `sidebar.label` for custom sidebar text
+- Set `tableOfContents: true` for longer guides
+- Include `seeAlso` section with related resources
+- Use `head` section for page-specific styling when needed
+- Add `prev` and `next` for navigation flow
+
+**Page Organization:**
+
+- Start with a clear introduction explaining what the guide covers
+- Use `<Steps>` component for sequential procedures
+- Include collapsible `<details>` sections for:
+  - Sequence diagrams (`<IconTdesignSequence>`)
+  - Data models (`<IconMaterialSymbolsArticlePersonRounded>`)
+  - JSON object examples (`<IconLucideFileJson>`)
+  - Video demonstrations (`<IconLucidePlay>`)
+
+### Code Examples
+
+**Multi-Language Support:**
+
+- **ALWAYS** provide code examples in all 4 languages: Node.js, Python, Go, Java
+- Use `<Tabs syncKey="tech-stack">` to keep language selection consistent across the page
+- Label tabs consistently: `"node"/"Node.js"`, `"python"/"Python"`, `"go"/"Go"`, `"java"/"Java"`
+
+**Code Block Formatting:**
+
+````markdown
+```javascript title="Express.js" wrap collapse={1-4} {5-6} "highlightTerm"
+// Comments explain what's happening
+// Use case: Explain the real-world scenario
+const example = 'code'
+```
+````
+
+```
+
+**Code Block Attributes:**
+- `title` - Describe the framework/context (e.g., "Express.js", "Flask", "Gin")
+- `wrap` - For long lines that should wrap
+- `collapse={lines}` - Hide boilerplate code (imports, setup)
+- `{lines}` - Highlight specific lines
+- `"term"` - Highlight specific terms
+- `showLineNumbers=false` - For simple examples or terminal output
+- `frame="terminal"` - For CLI commands
+
+**Code Comments:**
+- Explain the purpose of each section
+- Include use cases: `// Use case: HR system integration, bulk user imports...`
+- Provide context: `// This allows issuing new access tokens without requiring re-authentication`
+- Explain security implications: `// Prevents JavaScript access to mitigate XSS attacks`
+
+### Writing Tone and Voice
+
+**Core Principles:**
+- Use direct, instructional language ("This guide shows you how to...")
+- Write in second person ("your application", "you receive")
+- Keep sentences clear and concise
+- Explain the **why**, not just the **how**
+- Focus on developer experience and practical implementation
+
+**Language Patterns:**
+- Start sections with action verbs: "Create", "Configure", "Implement", "Manage"
+- Use present tense for descriptions: "Scalekit provides...", "The SDK returns..."
+- Use future tense for results: "This will redirect users...", "You'll receive..."
+- Avoid passive voice when possible
+
+### Technical Content Standards
+
+**Security Emphasis:**
+- Always explain security implications (XSS, CSRF, token storage)
+- Show proper encryption and secure storage patterns
+- Emphasize HTTPS requirements in production
+- Include security configuration comments in code
+
+**Complete Examples:**
+- Provide full, working code samples (not pseudo-code)
+- Include error handling in examples
+- Show both success and error paths
+- Include necessary imports and setup code (use `collapse` to minimize)
+
+**Real-World Context:**
+- Use actual Scalekit terminology: organizations, workspaces, memberships
+- Include practical use cases in comments
+- Reference dashboard settings and configuration
+- Link to API references and related guides
+
+### Components and UI Elements
+
+**Starlight Components:**
+- `<Steps>` - Sequential procedures (numbered)
+- `<Tabs>` / `<TabItem>` - Multi-language examples
+- `<Aside type="tip|note|caution">` - Callouts and warnings
+- `<Card>` / `<CardGrid>` - Feature highlights
+- `<LinkCard>` - Related documentation
+- `<Badge text="Optional|API">` - Content metadata
+
+**Custom Components:**
+- `<CheckItem>` - Checklist items
+- `<CopyPrompt>` - AI prompt copy buttons
+- `<VideoPlayer>` - Embedded demos
+- Icons from `~icons/` for visual context
+
+### Formatting Conventions
+
+**Text Formatting:**
+- **Bold** - Important terms on first mention, UI elements
+- `Code formatting` - Variables, functions, endpoints, file paths, code values
+- _Italics_ - Rarely used, prefer bold or code formatting
+
+**Lists and Bullets:**
+- Use bullets for features, capabilities, or unordered items
+- Use numbered lists only within `<Steps>` component
+- Keep list items parallel in structure
+
+**Code and Technical Terms:**
+- Format as code: `accessToken`, `offline_access`, `/auth/callback`
+- API endpoints: `https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize`
+- Environment variables: `SCALEKIT_CLIENT_ID`
+- Dashboard paths: **Dashboard > Authentication > Session Policy**
+
+### Data Models and Examples
+
+**Visual Representations:**
+- Use D2 diagrams for data models and relationships
+- Include tooltip explanations in diagrams
+- Show cardinality (1:1, 1:N) for relationships
+
+**JSON Examples:**
+- Provide complete object examples in collapsible sections
+- Use realistic example data
+- Include all relevant fields with type examples
+- Add comments or descriptions for complex fields
+
+### Content Quality Checklist
+
+Before publishing documentation:
+- [ ] All code examples include Node.js, Python, Go, and Java versions
+- [ ] Code blocks have appropriate attributes (title, wrap, collapse)
+- [ ] Security implications are explained
+- [ ] Error handling is included in examples
+- [ ] Use cases are documented in code comments
+- [ ] Links to related docs and API references are included
+- [ ] Frontmatter is complete (title, description, sidebar, seeAlso)
+- [ ] Visual aids (diagrams, screenshots) are included where helpful
+- [ ] Asides highlight important tips, notes, or warnings
+- [ ] "Next steps" or related resources are provided at the end
+```
