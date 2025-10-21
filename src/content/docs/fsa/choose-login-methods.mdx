@@ -1,31 +1,59 @@
 ---
-title: "Choose login methods"
-description: "Enable passwordless, social, or SSO. Decide how users pick a method and build the right authorization URL."
+title: "Configure authentication methods"
+description: "Set up passwordless, social, and enterprise SSO authentication options for your users. Learn when to use each method and how to configure them."
 sidebar:
-  label: "Choose login methods"
+  label: "Manage auth methods"
 head:
   - tag: style
     content: |
       .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
       .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+prev:
+  label: "Initiate login"
+  link: "/fsa/guides/implement-login/"
+next:
+  label: "Handle redirections"  
+  link: "/fsa/guides/handle-redirections/"
 seeAlso:
-  label: "See also"
-  expanded: false
+  label: "Configuration guides"
   items:
-    - title: "Block disposable and generic emails"
+    - title: "Social login integrations"
+      icon: "puzzle"
+      url: "/guides/integrations/social-connections/"
+    - title: "Enterprise SSO setup"
+      icon: "seti:lock"
+      url: "/sso/quickstart/"
+    - title: "Login page branding"
+      icon: "paintbrush"
+      url: "/fsa/guides/login-page-branding/"
+    - title: "Signup restrictions"
       icon: "shield"
       url: "/fsa/guides/signup-restrictions/"
-prev:
-  label: "Set up auth stack"
-  link: "/fsa/quickstart"
-next:
-  label: "Build session management"
-  link: "/fsa/guides/manage-session/"
 ---
 
 import { CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
 
-Scalekit offers different login methods that suit your users' preferences. You can offer passwordless (email verification code or magic link), social, or enterprise SSO. Configure these methods in the dashboard after completing our [quickstart](/fsa/quickstart/).
+Configure authentication methods to match your users' preferences and your organization's requirements. Scalekit supports passwordless, social, and enterprise SSO authentication options that can be used individually or combined.
+
+## Choose the right authentication methods
+
+Different authentication methods serve different user types and security requirements:
+
+| Method | Best for | User experience & Security |
+|--------|----------|---------------------------|
+| **Passwordless** | General users, quick onboarding | Frictionless, no passwords to remember. High security with email verification |
+| **Social login** | Consumer apps, familiar providers | One-click sign-in with existing accounts. Medium security (depends on provider) |
+| **Enterprise SSO** | B2B customers, organizations | Single sign-on with corporate identity. Highest security (organization-controlled) |
+
+### When to use multiple methods
+
+**Recommended combinations:**
+- **Passwordless + Social** - Consumer apps with broad appeal
+- **Passwordless + SSO** - B2B apps with both individual and enterprise users  
+- **All three methods** - Multi-tenant platforms serving diverse user bases
+
+**Organization-specific routing:**
+Enterprise users are automatically routed to their organization's configured SSO method, while individual users see passwordless and social options.
 
 ## Configure passwordless login
 
@@ -80,95 +108,63 @@ By default, Google is pre-configured in development environments for simplified 
 
 2. ### Direct users to specific social providers <Badge text="optional" variant="tip" />
 
-   Create an authorization URL to redirect users to social provider's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and provider identifier.
+   Route users directly to a specific social provider by including the provider parameter in your authorization URL.
 
-   Supported `provider` values: `google`, `microsoft`, `github`, `salesforce`, `linkedin`, `gitlab`
+   **Supported providers:** `google`, `microsoft`, `github`, `salesforce`, `linkedin`, `gitlab`
 
    <Tabs syncKey="tech-stack">
    <TabItem value="nodejs" label="Node.js">
-
-   ```javascript showLineNumbers { "Browser redirect to authorization endpoint": 7 } {"Create authorization URL": 1} "provider"
-
-   //
-   const authorizationURL = scalekit.getAuthorizationUrl(redirectUri, {
+   ```javascript title="Express.js" {3} "provider"
+   const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, {
+     scopes: ['openid', 'profile', 'email', 'offline_access'],
      provider: 'google',
-     state: state, // optional
+     state: 'random_csrf_token'
    });
 
-
-   // Next step is to redirect the user to this authorization URL
+   res.redirect(authorizationUrl);
    ```
-
    </TabItem>
    <TabItem value="py" label="Python">
-
-   ```python showLineNumbers { "Browser redirect to authorization endpoint": 10 } { 3} "provider"
-   options = AuthorizationUrlOptions()
-
-   options.provider = 'google'
-
-   authorization_url = scalekit_client.get_authorization_url(
-     redirect_uri=<redirect_uri>,
-     options=options
+   ```python title="Flask" {3} "provider" 
+   options = AuthorizationUrlOptions(
+     scopes=['openid', 'profile', 'email', 'offline_access'],
+     provider='google',
+     state='random_csrf_token'
    )
 
-   # Next step is to redirect the user to this authorization URL
+   authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+   return redirect(authorization_url)
    ```
-
    </TabItem>
    <TabItem value="golang" label="Go">
-
-   ```go showLineNumbers  {3} "provider"
-
-     options := scalekitClient.AuthorizationUrlOptions{}
-     // Pass the social login provider details while constructing the authorization URL.
-     options.Provider = "google"
-
-     authorizationURL := scalekitClient.GetAuthorizationUrl(
-       redirectUrl,
-       options,
-     )
-     // Next step is to redirect the user to this authorization URL
+   ```go title="Gin" {3} "Provider"
+   options := scalekit.AuthorizationUrlOptions{
+     Scopes: []string{"openid", "profile", "email", "offline_access"},
+     Provider: "google",
+     State: "random_csrf_token"
    }
-   ```
 
+   authorizationUrl, _ := scalekit.GetAuthorizationUrl(redirectUri, options)
+   c.Redirect(http.StatusFound, authorizationUrl.String())
+   ```
    </TabItem>
    <TabItem value="java" label="Java">
+   ```java title="Spring" {3} "setProvider"
+   AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+   options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+   options.setProvider("google");
+   options.setState("random_csrf_token");
 
-   ```java showLineNumbers { 14 } "provider" collapse={1-12}
-   package com.scalekit;
-
-   import com.scalekit.internal.http.AuthorizationUrlOptions;
-
-   public class Main {
-
-     public static void main(String[] args) {
-       ScalekitClient scalekitClient = new ScalekitClient(
-         "<SCALEKIT_ENVIRONMENT_URL>",
-         "<SCALEKIT_CLIENT_ID>",
-         "<SCALEKIT_CLIENT_SECRET>"
-       );
-       AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-       options.setProvider("google");
-       try {
-         // Pass the social login provider details while constructing the authorization URL.
-         String url = scalekitClient.authentication().getAuthorizationUrl(redirectUrl, options).toString();
-       } catch (Exception e) {
-         System.out.println(e.getMessage());
-       }
-     }
-   }
+   URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+   return new RedirectView(authorizationUrl.toString());
    ```
-
    </TabItem>
    </Tabs>
 
-   After the user successfully authenticates with the selected social login provider, they will be redirected back to your application. Scalekit passes an authorization `code` to your registered callback endpoint, which you'll use in the next step to retrieve user information.
+   <Aside type="note" title="Provider parameter bypasses method selection">
+    Including a `provider` parameter directs users straight to the specified social provider's login page. This is useful for custom login interfaces where you want to show separate buttons for each provider.
 
-   <Aside type="note" title="Specifying a provider bypasses the login selector">
-    Including a `provider` parameter in the authorization URL directs users straight to the specified social login provider's authentication page. This is useful when building a custom login interface.
-
-    Without this parameter, Scalekit displays its default login page showing all enabled authentication methods in your environment, including social connections and other options.
+    Without this parameter, users see Scalekit's hosted login page with all enabled authentication methods.
    </Aside>
 
 </Steps>
@@ -176,209 +172,213 @@ By default, Google is pre-configured in development environments for simplified 
 
 ## Configure enterprise SSO
 
-The same integration setup fully supports enterprise SSO, allowing enterprise users to sign in with their organization's identity provider.
+Enterprise SSO allows organizations to authenticate users through their corporate identity provider (Okta, Azure AD, etc.). Users are automatically routed to their organization's SSO based on their email domain or organization membership.
 
-Create an authorization URL to redirect users to Scalekit’s sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and required scopes.
+### Organization-aware authentication
+
+Route enterprise users to their organization's SSO connection:
 
 <Tabs syncKey="tech-stack">
-   <TabItem value="nodejs" label="Node.js">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Express.js" {3-4} "organizationId"
+const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, {
+  scopes: ['openid', 'profile', 'email', 'offline_access'],
+  organizationId: 'org_12345',        // Route to organization's SSO
+  loginHint: 'user@company.com',      // Domain-based routing
+});
 
-   ```javascript showLineNumbers wrap title="authorization-url.js" collapse={1-8} {"Generates URL to customer's identity provider for SSO login": 27-29}
-   import { Scalekit } from '@scalekit-sdk/node';
+res.redirect(authorizationUrl);
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Flask" {3-4} "organization_id"
+options = AuthorizationUrlOptions(
+  scopes=['openid', 'profile', 'email', 'offline_access'],
+  organization_id='org_12345',       # Route to organization's SSO
+  login_hint='user@company.com'      # Domain-based routing
+)
 
-   const scalekit = new ScalekitClient(
-     '<SCALEKIT_ENVIRONMENT_URL>',    // Your Scalekit environment URL
-     '<SCALEKIT_CLIENT_ID>',          // Unique identifier for your app
-     '<SCALEKIT_CLIENT_SECRET>',
-   );
+authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+return redirect(authorization_url)
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Gin" {3-4} "OrganizationId"
+options := scalekit.AuthorizationUrlOptions{
+  Scopes: []string{"openid", "profile", "email", "offline_access"},
+  OrganizationId: "org_12345",       // Route to organization's SSO
+  LoginHint: "user@company.com"      // Domain-based routing
+}
 
-   const options = {};
+authorizationUrl, _ := scalekit.GetAuthorizationUrl(redirectUri, options)
+c.Redirect(http.StatusFound, authorizationUrl.String())
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Spring" {3-4} "setOrganizationId"
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+options.setOrganizationId("org_12345");        // Route to organization's SSO
+options.setLoginHint("user@company.com");      // Domain-based routing
 
-   // Specify which SSO connection to use (choose one based on your use case)
-   // These identifiers are evaluated in order of precedence:
+URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+return new RedirectView(authorizationUrl.toString());
+```
+</TabItem>
+</Tabs>
 
-   // 1. connectionId (highest precedence) - Use when you know the exact SSO connection
-   options['connectionId'] = 'conn_15696105471768821';
-
-   // 2. organizationId - Routes to organization's SSO (useful for multi-tenant apps)
-   //    If org has multiple connections, the first active one is selected
-   options['organizationId'] = 'org_15421144869927830';
-
-   // 3. loginHint (lowest precedence) - Extracts domain from email to find connection
-   options['loginHint'] = 'user@example.com';
-
-   // redirect_uri: Your callback endpoint that receives the authorization code
-   // Must match the URL registered in your Scalekit dashboard
-   const redirectUrl = 'https://your-app.com/auth/callback';
-
-   const authorizationURL = scalekit.getAuthorizationUrl(redirectUrl, options);
-   // Redirect user to this URL to begin SSO authentication
-   ```
-
-   </TabItem>
-   <TabItem value="py" label="Python">
-
-   ```python showLineNumbers wrap title="authorization_url.py" collapse={1-8} {"Generates URL to customer's identity provider for SSO login": 27-32}
-   from scalekit import ScalekitClient, AuthorizationUrlOptions
-
-   scalekit = ScalekitClient(
-     '<SCALEKIT_ENVIRONMENT_URL>',    # Your Scalekit environment URL
-     '<SCALEKIT_CLIENT_ID>',          # Unique identifier for your app
-     '<SCALEKIT_CLIENT_SECRET>'
-   )
-
-   options = AuthorizationUrlOptions()
-
-   # Specify which SSO connection to use (choose one based on your use case)
-   # These identifiers are evaluated in order of precedence:
-
-   # 1. connection_id (highest precedence) - Use when you know the exact SSO connection
-   options.connection_id = 'conn_15696105471768821'
-
-   # 2. organization_id - Routes to organization's SSO (useful for multi-tenant apps)
-   #    If org has multiple connections, the first active one is selected
-   options.organization_id = 'org_15421144869927830'
-
-   # 3. login_hint (lowest precedence) - Extracts domain from email to find connection
-   options.login_hint = 'user@example.com'
-
-   # redirect_uri: Your callback endpoint that receives the authorization code
-   # Must match the URL registered in your Scalekit dashboard
-   redirect_uri = 'https://your-app.com/auth/callback'
-
-   authorization_url = scalekit_client.get_authorization_url(
-     redirect_uri=redirect_uri,
-     options=options
-   )
-   # Redirect user to this URL to begin SSO authentication
-   ```
-
-   </TabItem>
-   <TabItem value="golang" label="Go">
-
-   ```go showLineNumbers title="authorization_url.go" collapse={1-11} {"Generates URL to customer's identity provider for SSO login": 30-36}
-   import (
-     "github.com/scalekit-inc/scalekit-sdk-go"
-   )
-
-   func main() {
-     scalekitClient := scalekit.NewScalekitClient(
-       "<SCALEKIT_ENVIRONMENT_URL>",  // Your Scalekit environment URL
-       "<SCALEKIT_CLIENT_ID>",        // Unique identifier for your app
-       "<SCALEKIT_CLIENT_SECRET>"
-     )
-
-     options := scalekitClient.AuthorizationUrlOptions{}
-
-     // Specify which SSO connection to use (choose one based on your use case)
-     // These identifiers are evaluated in order of precedence:
-
-     // 1. ConnectionId (highest precedence) - Use when you know the exact SSO connection
-     options.ConnectionId = "conn_15696105471768821"
-
-     // 2. OrganizationId - Routes to organization's SSO (useful for multi-tenant apps)
-     //    If org has multiple connections, the first active one is selected
-     options.OrganizationId = "org_15421144869927830"
-
-     // 3. LoginHint (lowest precedence) - Extracts domain from email to find connection
-     options.LoginHint = "user@example.com"
-
-     // redirectUrl: Your callback endpoint that receives the authorization code
-     // Must match the URL registered in your Scalekit dashboard
-     redirectUrl := "https://your-app.com/auth/callback"
-
-     authorizationURL := scalekitClient.GetAuthorizationUrl(
-       redirectUrl,
-       options,
-     )
-     // Redirect user to this URL to begin SSO authentication
-   }
-   ```
-
-   </TabItem>
-
-   <TabItem value="java" label="Java">
-
-   ```java showLineNumbers title="AuthorizationUrl.java" {35-38}
-   package com.scalekit;
-
-   import com.scalekit.ScalekitClient;
-   import com.scalekit.internal.http.AuthorizationUrlOptions;
-
-   public class Main {
-
-     public static void main(String[] args) {
-       ScalekitClient scalekitClient = new ScalekitClient(
-         "<SCALEKIT_ENVIRONMENT_URL>",  // Your Scalekit environment URL
-         "<SCALEKIT_CLIENT_ID>",        // Unique identifier for your app
-         "<SCALEKIT_CLIENT_SECRET>"
-       );
-
-       AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-
-       // Specify which SSO connection to use (choose one based on your use case)
-       // These identifiers are evaluated in order of precedence:
-
-       // 1. connectionId (highest precedence) - Use when you know the exact SSO connection
-       options.setConnectionId("con_13388706786312310");
-
-       // 2. organizationId - Routes to organization's SSO (useful for multi-tenant apps)
-       //    If org has multiple connections, the first active one is selected
-       options.setOrganizationId("org_13388706786312310");
-
-       // 3. loginHint (lowest precedence) - Extracts domain from email to find connection
-       options.setLoginHint("user@example.com");
-
-       // redirectUrl: Your callback endpoint that receives the authorization code
-       // Must match the URL registered in your Scalekit dashboard
-       String redirectUrl = "https://your-app.com/auth/callback";
-
-       try {
-         String url = scalekitClient
-           .authentication()
-           .getAuthorizationUrl(redirectUrl, options)
-           .toString();
-         // Redirect user to this URL to begin SSO authentication
-       } catch (Exception e) {
-         System.out.println(e.getMessage());
-       }
-     }
-   }
-   ```
-
-   </TabItem>
-
-   <TabItem value="direct" label="Direct URL (No SDK)">
-
-   ```sh title="OAuth2 authorization URL" showLineNumbers=false
-   <SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
-     response_type=code&                        # OAuth2 authorization code flow
-     client_id=<SCALEKIT_CLIENT_ID>&            # Your Scalekit client ID
-     redirect_uri=<REDIRECT_URI>&               # URL-encoded callback URL
-     scope=openid profile email&                # "offline_access" is required to receive a refresh token
-     organization_id=org_15421144869927830&     # (Optional) Route by organization
-     connection_id=conn_15696105471768821&      # (Optional) Specific SSO connection
-     login_hint=user@example.com                # (Optional) Extract domain from email
-   ```
-
-   **SSO identifiers** (choose one or more, evaluated in order of precedence):
-   - `connection_id` - Direct to specific SSO connection (highest precedence)
-   - `organization_id` - Route to organization's SSO
-   - `domain_hint` - Lookup connection by domain
-   - `login_hint` - Extract domain from email (lowest precedence)
-
-   ```http showLineNumbers=false title="Example with actual values"
-   https://tinotat-dev.scalekit.cloud/oauth/authorize?
-     response_type=code&
-     client_id=skc_88036702639096097&
-     redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fcallback&
-     scope=openid%20profile%20email&
-     organization_id=org_15421144869927830
-   ```
-
-   </TabItem>
-   </Tabs>
-
-   Enterprise users see their identity provider's login page. Users verify their identity through the authentication policies set by their organization's administrator. After successful verification, the user profile is [normalized](/sso/guides/user-profile-details/) and sent to your app.
+Enterprise users see their identity provider's login page. Users verify their identity through the authentication policies set by their organization's administrator. After successful verification, the user profile is [normalized](/sso/guides/user-profile-details/) and sent to your app.
 
 The organization should be set up with a valid SSO connection. [See the full implementation guide for testing and onboarding enterprise customers](/sso/quickstart/).
+
+## Multi-tenant authentication patterns
+
+### Organization-first routing
+
+For B2B applications where users belong to specific organizations:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Organization routing" {2-3} "getOrganizationId"
+// Extract organization from subdomain, path, or user input
+const orgId = getOrganizationId(req);
+
+const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, {
+  scopes: ['openid', 'profile', 'email', 'offline_access'],
+  organizationId: orgId,
+});
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Organization routing" {2-3} "get_organization_id"
+# Extract organization from subdomain, path, or user input
+org_id = get_organization_id(request)
+
+options = AuthorizationUrlOptions(
+  scopes=['openid', 'profile', 'email', 'offline_access'],
+  organization_id=org_id
+)
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Organization routing" {2-3} "getOrganizationId"
+// Extract organization from subdomain, path, or user input
+orgId := getOrganizationId(c.Request)
+
+options := scalekit.AuthorizationUrlOptions{
+  Scopes: []string{"openid", "profile", "email", "offline_access"},
+  OrganizationId: orgId,
+}
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Organization routing" {2-3} "getOrganizationId"
+// Extract organization from subdomain, path, or user input
+String orgId = getOrganizationId(request);
+
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+options.setOrganizationId(orgId);
+```
+</TabItem>
+</Tabs>
+
+### Domain-based routing
+
+Let Scalekit automatically detect the organization from the user's email domain:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Domain-based routing" {3} "loginHint"
+const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, {
+  scopes: ['openid', 'profile', 'email', 'offline_access'],
+  loginHint: userEmail,  // Scalekit extracts domain and routes to org
+});
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Domain-based routing" {3} "login_hint"
+options = AuthorizationUrlOptions(
+  scopes=['openid', 'profile', 'email', 'offline_access'],
+  login_hint=user_email  # Scalekit extracts domain and routes to org
+)
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Domain-based routing" {3} "LoginHint"
+options := scalekit.AuthorizationUrlOptions{
+  Scopes: []string{"openid", "profile", "email", "offline_access"},
+  LoginHint: userEmail,  // Scalekit extracts domain and routes to org
+}
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Domain-based routing" {3} "setLoginHint"
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+options.setLoginHint(userEmail);  // Scalekit extracts domain and routes to org
+```
+</TabItem>
+</Tabs>
+
+## Security considerations
+
+### CSRF protection
+
+Always include the `state` parameter with a random value to prevent cross-site request forgery:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="CSRF protection" {2,4} "state"
+const state = generateRandomString(32);
+req.session.authState = state;
+
+const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, {
+  scopes: ['openid', 'profile', 'email', 'offline_access'],
+  state: state,
+});
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="CSRF protection" {2,4} "state"
+state = generate_random_string(32)
+session['auth_state'] = state
+
+options = AuthorizationUrlOptions(
+  scopes=['openid', 'profile', 'email', 'offline_access'],
+  state=state
+)
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="CSRF protection" {2,4} "State"
+state := generateRandomString(32)
+session.Set("auth_state", state)
+
+options := scalekit.AuthorizationUrlOptions{
+  Scopes: []string{"openid", "profile", "email", "offline_access"},
+  State: state,
+}
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="CSRF protection" {2,4} "setState"
+String state = generateRandomString(32);
+session.setAttribute("authState", state);
+
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+options.setState(state);
+```
+</TabItem>
+</Tabs>
+
+### Production requirements
+
+- **Use HTTPS** - Required in production for secure token transmission
+- **Store tokens securely** - Use HTTP-only cookies or secure server-side storage
+- **Validate redirects** - Configure allowed redirect URIs in your dashboard
+
+<Aside type="tip" title="Security best practices">
+For comprehensive security guidance including threat modeling, advanced patterns, and detailed security checklists, see our [Authentication Security Guide](/guides/security/authentication-security/).
+</Aside>

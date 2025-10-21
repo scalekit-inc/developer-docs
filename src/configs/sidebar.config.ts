@@ -13,12 +13,24 @@ export const sidebar = [
         label: 'User authentication',
         collapsed: false,
         items: [
+          'fsa/guides/implement-login',
           'fsa/choose-login-methods',
+          'fsa/guides/handle-redirections',
           'fsa/guides/manage-session',
-          'guides/auth-flow-interceptors',
           'fsa/guides/logout',
-          'guides/dashboard/auth-logs',
         ],
+      },
+      {
+        label: 'Customize workflows',
+        items: ['guides/auth-flow-interceptors'],
+      },
+      {
+        label: 'Observability',
+        items: ['guides/dashboard/auth-logs'],
+      },
+      {
+        label: 'Manage organizations',
+        items: ['fsa/data-modelling'],
       },
       {
         label: 'User management',
@@ -261,6 +273,7 @@ export const sidebar = [
         label: 'Best practices',
         collapsed: false,
         items: [
+          'guides/security/authentication-security',
           'guides/client-credentials-practices',
           'guides/webhooks-best-practices',
           'authenticate/launch-checklist',

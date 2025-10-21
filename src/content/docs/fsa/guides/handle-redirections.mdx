@@ -1,0 +1,353 @@
+---
+title: "Handle authentication redirections"
+description: "Process authentication callbacks and handle redirect flows after users authenticate with Scalekit's hosted login page."
+sidebar:
+  label: "Handle redirections"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+prev:
+  label: "Manage auth methods"
+  link: "/fsa/choose-login-methods/"
+next:
+  label: "Manage session"
+  link: "/fsa/guides/manage-session/"
+seeAlso:
+  label: "Related guides"
+  items:
+    - title: "Redirect configurations"
+      icon: "external"
+      url: "/guides/dashboard/redirects/"
+    - title: "Session management"
+      icon: "setting"
+      url: "/fsa/guides/manage-session/"
+    - title: "Authentication security"
+      icon: "seti:lock"
+      url: "/guides/security/authentication-security/"
+---
+
+import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
+
+After implementing the quickstart flow, users complete authentication on Scalekit's hosted login page and are redirected back to your callback URL. Your application needs to handle this redirection to exchange the authorization code for user data and manage the authentication result.
+
+This guide focuses on the essential callback handling you need immediately after the quickstart. For redirect URL configuration, see the [redirect configurations guide](/guides/dashboard/redirects/).
+
+## Process the authentication callback
+
+When users complete authentication, Scalekit redirects them to your registered callback URL with either an authorization code (success) or error parameters (failure).
+
+### Handle successful authentication
+
+Exchange the authorization code for user information:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Express.js callback handler" {4-6,16-19} "authenticateWithCode"
+app.get('/auth/callback', async (req, res) => {
+  const { code, error, error_description } = req.query;
+
+  // Handle errors first
+  if (error) {
+    console.error('Authentication error:', error);
+    return res.redirect('/login?error=auth_failed');
+  }
+
+  if (!code) {
+    return res.redirect('/login?error=missing_code');
+  }
+
+  try {
+    // Exchange code for user data
+    const authResult = await scalekit.authenticateWithCode(
+      code,
+      'https://yourapp.com/auth/callback'
+    );
+
+    const { user, accessToken, refreshToken } = authResult;
+
+    // TODO: Store user session (next guide covers this)
+    // req.session.user = user;
+
+    res.redirect('/dashboard');
+
+  } catch (error) {
+    console.error('Token exchange failed:', error);
+    res.redirect('/login?error=exchange_failed');
+  }
+});
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Flask callback handler" {4-6,12-16} "authenticate_with_code"
+@app.route('/auth/callback')
+def auth_callback():
+    code = request.args.get('code')
+    error = request.args.get('error')
+
+    # Handle errors first
+    if error:
+        print(f'Authentication error: {error}')
+        return redirect('/login?error=auth_failed')
+
+    if not code:
+        return redirect('/login?error=missing_code')
+
+    try:
+        # Exchange code for user data
+        options = CodeAuthenticationOptions()
+        auth_result = scalekit.authenticate_with_code(
+            code,
+            'https://yourapp.com/auth/callback',
+            options
+        )
+
+        user = auth_result.user
+        # access_token = auth_result.access_token
+        # refresh_token = auth_result.refresh_token
+
+        # TODO: Store user session (next guide covers this)
+        # session['user'] = user
+
+        return redirect('/dashboard')
+
+    except Exception as e:
+        print(f'Token exchange failed: {e}')
+        return redirect('/login?error=exchange_failed')
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Gin callback handler" {4-6,12-16} "AuthenticateWithCode"
+func authCallbackHandler(c *gin.Context) {
+    code := c.Query("code")
+    errorParam := c.Query("error")
+
+    // Handle errors first
+    if errorParam != "" {
+        log.Printf("Authentication error: %s", errorParam)
+        c.Redirect(http.StatusFound, "/login?error=auth_failed")
+        return
+    }
+
+    if code == "" {
+        c.Redirect(http.StatusFound, "/login?error=missing_code")
+        return
+    }
+
+    // Exchange code for user data
+    options := scalekit.AuthenticationOptions{}
+    authResult, err := scalekitClient.AuthenticateWithCode(
+        code,
+        "https://yourapp.com/auth/callback",
+        options,
+    )
+
+    if err != nil {
+        log.Printf("Token exchange failed: %v", err)
+        c.Redirect(http.StatusFound, "/login?error=exchange_failed")
+        return
+    }
+
+    user := authResult.User
+    // accessToken := authResult.AccessToken
+    // refreshToken := authResult.RefreshToken
+
+    // TODO: Store user session (next guide covers this)
+    // session.Set("user", user)
+
+    c.Redirect(http.StatusFound, "/dashboard")
+}
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Spring callback handler" {5-7,13-17} "authenticateWithCode"
+@GetMapping("/auth/callback")
+public Object authCallback(
+    @RequestParam(required = false) String code,
+    @RequestParam(required = false) String error
+) {
+    // Handle errors first
+    if (error != null) {
+        System.err.println("Authentication error: " + error);
+        return new RedirectView("/login?error=auth_failed");
+    }
+
+    if (code == null) {
+        return new RedirectView("/login?error=missing_code");
+    }
+
+    try {
+        // Exchange code for user data
+        AuthenticationOptions options = new AuthenticationOptions();
+        AuthenticationResponse authResult = scalekit
+            .authentication()
+            .authenticateWithCode(code, "https://yourapp.com/auth/callback", options);
+
+        var user = authResult.getIdTokenClaims();
+        // String accessToken = authResult.getAccessToken();
+        // String refreshToken = authResult.getRefreshToken();
+
+        // TODO: Store user session (next guide covers this)
+        // session.setAttribute("user", user);
+
+        return new RedirectView("/dashboard");
+
+    } catch (Exception e) {
+        System.err.println("Token exchange failed: " + e.getMessage());
+        return new RedirectView("/login?error=exchange_failed");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+## Handle authentication errors
+
+When authentication fails, show users a helpful message and let them try again:
+
+```html title="Login page with error handling" collapse={1-18, 38-40}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign In</title>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Sign In</h1>
+
+        <!-- Error message container -->
+        <div id="error-message" class="error-message" style="display: none;">
+            <!-- Error text will be inserted here -->
+        </div>
+
+        <a href="/auth/login" class="login-button">Continue with Authentication</a>
+    </div>
+
+    <script>
+        // Read error parameter from URL and display appropriate message
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const errorDiv = document.getElementById('error-message');
+
+        if (error) {
+            let message = 'Something went wrong. Please try again.';
+
+            if (error === 'auth_failed') {
+                message = 'Authentication failed. Please try again.';
+            } else if (error === 'exchange_failed') {
+                message = 'Unable to complete sign-in. Please try again.';
+            } else if (error === 'missing_code') {
+                message = 'Invalid authentication response. Please try again.';
+            }
+
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+```
+
+## Add CSRF protection <Badge text="Recommended" variant="tip" />
+
+Use the `state` parameter to prevent cross-site request forgery attacks:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="State validation" {3-4,8-11} "state"
+// When creating authorization URL
+const state = crypto.randomBytes(32).toString('hex');
+req.session.authState = state;
+
+const authUrl = scalekit.getAuthorizationUrl(redirectUri, {
+  scopes: ['openid', 'profile', 'email', 'offline_access'],
+  state: state
+});
+
+// In callback - validate state matches
+if (req.query.state !== req.session.authState) {
+  return res.status(400).json({ error: 'Invalid request' });
+}
+delete req.session.authState;
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="State validation" {3-4,8-11} "state"
+# When creating authorization URL
+state = secrets.token_urlsafe(32)
+session['auth_state'] = state
+
+options = AuthorizationUrlOptions(
+    scopes=['openid', 'profile', 'email', 'offline_access'],
+    state=state
+)
+
+# In callback - validate state matches
+if request.args.get('state') != session.get('auth_state'):
+    return jsonify({'error': 'Invalid request'}), 400
+session.pop('auth_state', None)
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="State validation" {3-4,8-11} "State"
+// When creating authorization URL
+state := generateRandomString(32)
+session.Set("authState", state)
+
+options := scalekit.AuthorizationUrlOptions{
+    Scopes: []string{"openid", "profile", "email", "offline_access"},
+    State:  state,
+}
+
+// In callback - validate state matches
+if c.Query("state") != session.Get("authState") {
+    c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+    return
+}
+session.Delete("authState")
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="State validation" {3-4,8-11} "setState"
+// When creating authorization URL
+String state = generateRandomString(32);
+session.setAttribute("authState", state);
+
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+options.setState(state);
+
+// In callback - validate state matches
+if (!Objects.equals(request.getParameter("state"), session.getAttribute("authState"))) {
+    return ResponseEntity.status(400).body(Map.of("error", "Invalid request"));
+}
+session.removeAttribute("authState");
+```
+</TabItem>
+</Tabs>
+
+## Preserve user intent
+
+Save where users were trying to go before authentication:
+
+```javascript title="Intent preservation"
+// Before login - save return URL
+const returnUrl = req.query.returnUrl || '/dashboard';
+req.session.returnUrl = returnUrl;
+
+// After callback - redirect to intended destination
+const redirectTo = req.session.returnUrl || '/dashboard';
+delete req.session.returnUrl;
+res.redirect(redirectTo);
+```
+
+## Other redirect scenarios
+
+As you expand your authentication system, you'll encounter:
+
+- **Logout redirects** - Redirect users after they sign out ([logout guide](/fsa/guides/logout/))
+- **IdP-initiated SSO** - Handle logins started from identity providers
+- **Back-channel logout** - Coordinate logout across multiple applications
+
+These require additional [redirect URL configurations](/guides/dashboard/redirects/) in your dashboard.
