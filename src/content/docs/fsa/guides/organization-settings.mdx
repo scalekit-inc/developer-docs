@@ -1,6 +1,6 @@
 ---
 title: "Organization settings"
-description: "Configure and manage organization properties, settings, and policies using Scalekit's management tools."
+description: "Configure organization properties, authentication policies, and enterprise features through the dashboard and API."
 sidebar:
   label: "Organization settings"
 prev:
@@ -27,23 +27,127 @@ seeAlso:
     - title: "User management"
       icon: "user"
       url: "/fsa/guides/manage-users/"
+    - title: "SSO integration guides"
+      icon: "setting"
+      url: "/guides/integrations/sso-integrations/"
+    - title: "Organizations API reference"
+      icon: "external"
+      url: "https://docs.scalekit.com/apis/#tag/organizations"
 ---
 
-import { Aside, Steps, Tabs, TabItem, Card } from '@astrojs/starlight/components';
+import { Aside, LinkCard, Steps, Badge } from '@astrojs/starlight/components';
 
-## Work in Progress
+Once you've created organizations, configure their settings to enable enterprise features and manage authentication policies. This guide shows you how to access settings, configure domains, and help enterprise customers set up SSO through the dashboard.
 
-This guide is currently being developed. It will cover:
+<details>
+<summary>Organization settings dashboard</summary>
 
-- Updating organization display names and basic information
-- Configuring organization-level authentication settings
-- Managing organization access policies and permissions
-- Setting up organization branding and customization
-- Configuring user roles and permissions within organizations
-- Organization security settings and compliance options
+![](@/assets/docs/organization-settings/settings-0.png)
 
-**Coming soon!** This content is being developed to provide comprehensive guidance on configuring and managing organization settings in your application.
+</details>
 
-<Aside type="tip">
-While this guide is in development, you can explore organization management through the [API documentation](https://docs.scalekit.com/apis#tag/organizations) or visit the [Organizations overview](/fsa/data-modelling/) to understand the core concepts.
+## Access organization settings
+
+Navigate to **Dashboard > Organizations** and select the organization you want to configure. Each organization has dedicated tabs for different configuration areas that control authentication routing and enterprise features.
+
+<Steps>
+
+1. ## Update organization details
+
+   In the **Overview** tab, configure basic organization information:
+
+   - **Display name** - Update the organization's name that appears to users
+   - **Metadata** - Store custom properties like subscription plans or billing details
+   - **Features** - Review enabled capabilities like Single Sign On and SCIM Provisioning
+
+2. ## Generate admin portal links
+
+   Use the **Admin Portal** section to create secure configuration links for enterprise customers:
+
+   1. Click **Generate Portal Link**
+   2. Set the expiration time (up to 24 hours)
+   3. Copy the link and send it to your customer's IT administrator
+   4. The customer can use this link to:
+      - Connect their identity provider (Okta, Azure AD, Google Workspace)
+      - Configure SAML or OIDC authentication
+      - Set up SCIM user provisioning
+      - Test their SSO connection
+
+   <Aside type="tip">
+   Portal links expire automatically for security. Generate new links when customers need to make configuration changes.
+   </Aside>
+
+3. ## Configure authentication domains
+
+   Set up domains in the **Domains** section to control authentication routing:
+
+   1. **Organization domains** - Add email domains that should route to this organization's SSO
+   2. **Verification** - Verify domain ownership through DNS records
+   3. **Primary domain** - Set the main domain for this organization
+
+   When users with these domains try to sign in, Scalekit automatically routes them to the organization's configured SSO provider.
+
+</Steps>
+
+## Manage security and access controls
+
+Configure authentication policies and access controls to meet enterprise security requirements.
+
+### Security policies
+
+Navigate to the **Security** tab to configure **Domain access controls**, which restricts sign-ups to verified domains.
+
+### Allowed email domains
+
+Under **Security > Domains**, configure which email domains can join this organization:
+
+1. Add trusted corporate domains (e.g., `@company.com`)
+2. Block disposable email providers
+3. Enable automatic organization suggestions for matching domains
+4. Set up domain verification requirements
+
+<Aside type="note">
+Organization domains (for SSO routing) appear in the main **Domains** section, while allowed email domains (for access control) are configured under **Security > Domains**.
 </Aside>
+
+## Enable enterprise features
+
+Configure SSO and user provisioning for enterprise customers who need centralized identity management.
+
+### Single Sign On setup
+
+Use the **Single Sign On** tab to connect identity providers:
+
+1. **Choose connection type** - SAML 2.0 or OIDC/OAuth
+2. **Configure provider settings** - Upload metadata or enter connection details
+3. **Map user attributes** - Ensure email, name, and role information flows correctly
+4. **Test the connection** - Verify authentication works before going live
+5. **Enable just-in-time provisioning** - Automatically create user accounts during first login <Badge type="note" text="Coming soon" />
+
+### SCIM provisioning configuration
+
+Enable automated user management in the **SCIM Provisioning** tab:
+
+1. **Generate SCIM endpoint** - Get the URL and bearer token for your identity provider
+2. **Configure user synchronization** - Set up automatic user creation, updates, and deletion
+3. **Enable group mapping** - Sync organizational units or teams from your directory
+4. **Test provisioning** - Verify users can be created and managed automatically
+
+## User and role management
+
+### Organization members
+
+The **Users** tab shows current organization members with:
+
+- User status (active, invited, suspended)
+- Provisioning source (manual, SSO, SCIM)
+- Last login and activity information
+- Role assignments and permissions
+
+### Custom roles
+
+Manage organization-specific roles and permissions:
+
+- **Built-in roles** - Admin and Member roles with predefined permissions
+- **Custom roles** - Create roles specific to your application's needs
+- **Role assignment** - Assign roles to users during invitation or after sign-up

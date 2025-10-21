@@ -31,6 +31,22 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Manage users',
+        collapsed: false,
+        items: [
+          'fsa/guides/manage-users',
+          'fsa/guides/custom-user-attributes',
+          'fsa/guides/allowed-email-domains',
+          'fsa/guides/just-in-time-provisioning',
+          'fsa/guides/organization-switching',
+        ],
+      },
+      {
+        label: 'Authorization',
+        collapsed: false,
+        items: ['fsa/guides/app-roles'],
+      },
+      {
         label: 'Customize workflows',
         items: ['guides/auth-flow-interceptors'],
       },
@@ -44,11 +60,8 @@ export const sidebar = [
         items: [
           'fsa/guides/signup-restrictions',
           'fsa/guides/user-invitations',
-          'fsa/guides/manage-users',
-          'fsa/guides/app-roles',
           'fsa/guides/allowed-email-domains',
           'fsa/guides/just-in-time-provisioning',
-          'fsa/guides/organization-switching',
         ],
       },
       {

@@ -1,0 +1,273 @@
+---
+title: "Custom user attributes"
+description: "Store additional user profile information beyond email and name to support business workflows and system integrations."
+sidebar:
+  label: "Custom user attributes"
+prev:
+  label: "Manage users"
+  link: "/fsa/guides/manage-users/"
+next:
+  label: "Allowed email domains"
+  link: "/fsa/guides/allowed-email-domains/"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+seeAlso:
+  label: "Related guides"
+  items:
+    - title: "Manage users"
+      icon: "user"
+      url: "/fsa/guides/manage-users/"
+    - title: "Data modelling"
+      icon: "information"
+      url: "/fsa/data-modelling/"
+    - title: "Organization settings"
+      icon: "setting"
+      url: "/fsa/guides/organization-settings/"
+    - title: "SSO user attributes"
+      icon: "external"
+      url: "/sso/guides/sso-user-attributes/"
+    - title: "Users API reference"
+      icon: "external"
+      url: "https://docs.scalekit.com/apis/#tag/users"
+---
+
+import { Aside, Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
+
+The [manage users guide](/fsa/guides/manage-users/) shows how to create and manage user profiles with standard properties like email, name, and metadata. Now extend those user profiles with custom attributes to store business-specific information such as employee IDs, departments, or access levels.
+
+## Review default user profile attributes
+
+Navigate to **Dashboard** > **User Attributes** to see the default user profile fields that Scalekit provides:
+
+- **Email** - User's email address (required)
+- **First name** - User's given name
+- **Last name** - User's family name
+- **Display name** - Full name for UI display
+- **Phone number** - Contact phone number
+- **Locale** - User's language and region preference
+- **Email verified** - Whether the email address has been confirmed
+
+These standard attributes handle typical authentication and profile scenarios. Add custom attributes when your application needs additional user information.
+
+## Create custom attributes
+
+Add custom attributes to store business-specific user information. Custom attributes appear in the `custom_attributes` field of each user profile and support workflows like access control, reporting, and system integration.
+
+### Configure custom attributes in the dashboard
+
+<Steps>
+
+1. **Open user attributes settings**
+
+   Navigate to **Dashboard** > **User Attributes** and click **Add Attribute**.
+
+2. **Define the custom attribute**
+
+   Configure the new attribute fields:
+   - **Display name** - Human-readable label shown in the dashboard (e.g., "Employee Number")
+   - **Attribute key** - Internal field name for API and SDK access (e.g., `employee_id`)
+   - **Data type** - Choose string, number, or boolean values
+
+3. **Save the attribute**
+
+   The new attribute becomes available for all users in your environment. Access these fields programmatically through the SDK or REST API.
+
+</Steps>
+
+Common custom attributes include employee IDs, department codes, access levels, or external system references.
+
+## Work with custom attributes using the API and SDK <Badge text="API" variant="tip" />
+
+Once configured, read and write custom attributes through your application code. Update existing users to add custom attributes that support your business workflows.
+
+### Update custom attributes for existing users
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Update user profile with custom attributes" wrap
+// Use case: Update department and security clearance when user changes roles
+await scalekit.user.updateUser("<userId>", {
+  userProfile: {
+    customAttributes: {
+      department: "engineering",
+      security_clearance: "level2"
+    },
+    firstName: "John",
+    lastName: "Doe",
+    locale: "en-US",
+    name: "John Michael Doe",
+    phoneNumber: "+14155552671",
+    metadata: {
+      account_status: "active",
+      signup_source: "mobile_app"
+    }
+  },
+  externalId: "ext_12345a67b89c",
+  metadata: {
+    department: "engineering",
+    location: "nyc-office"
+  }
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Update user profile with custom attributes" wrap
+# Use case: Update department and security clearance when user changes roles
+scalekit.user.update_user(
+    "<user_id>",
+    user_profile={
+        "custom_attributes": {
+            "department": "engineering",
+            "security_clearance": "level2"
+        },
+        "first_name": "John",
+        "last_name": "Doe",
+        "locale": "en-US",
+        "name": "John Michael Doe",
+        "phone_number": "+14155552671",
+        "metadata": {
+            "account_status": "active",
+            "signup_source": "mobile_app"
+        }
+    },
+    external_id="ext_12345a67b89c",
+    metadata={
+        "department": "engineering",
+        "location": "nyc-office"
+    }
+)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Update user profile with custom attributes" wrap
+// Use case: Update department and security clearance when user changes roles
+updateUser := &usersv1.UpdateUser{
+    UserProfile: &usersv1.UpdateUserProfile{
+        CustomAttributes: map[string]string{
+            "department":         "engineering",
+            "security_clearance": "level2",
+        },
+        FirstName:   "John",
+        LastName:    "Doe",
+        Locale:      "en-US",
+        Name:        "John Michael Doe",
+        PhoneNumber: "+14155552671",
+        Metadata: map[string]string{
+            "account_status": "active",
+            "signup_source":  "mobile_app",
+        },
+    },
+    ExternalId: "ext_12345a67b89c",
+    Metadata: map[string]string{
+        "department": "engineering",
+        "location":   "nyc-office",
+    },
+}
+
+updatedUser, err := scalekitClient.User().UpdateUser(ctx, "<userId>", updateUser)
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Update user profile with custom attributes" wrap
+// Use case: Update department and security clearance when user changes roles
+UpdateUser updateUser = UpdateUser.newBuilder()
+    .setUserProfile(
+        UpdateUserProfile.newBuilder()
+            .putCustomAttributes("department", "engineering")
+            .putCustomAttributes("security_clearance", "level2")
+            .setFirstName("John")
+            .setLastName("Doe")
+            .setLocale("en-US")
+            .setName("John Michael Doe")
+            .setPhoneNumber("+14155552671")
+            .putMetadata("account_status", "active")
+            .putMetadata("signup_source", "mobile_app")
+            .build())
+    .setExternalId("ext_12345a67b89c")
+    .putMetadata("department", "engineering")
+    .putMetadata("location", "nyc-office")
+    .build();
+
+UpdateUserRequest updateReq = UpdateUserRequest.newBuilder()
+    .setUser(updateUser)
+    .build();
+
+User updatedUser = scalekitClient.users().updateUser("<userId>", updateReq);
+```
+
+</TabItem>
+</Tabs>
+
+## Extend custom attributes to identity providers
+
+Custom attributes become more powerful when connected to enterprise identity providers. When organizations use SSO, automatically populate custom attributes from their corporate directory during authentication.
+
+### Configure identity provider mapping
+
+Enterprise customers can map their identity provider attributes to your custom Scalekit attributes:
+
+<Steps>
+
+1. **Create matching attributes in Scalekit**
+
+   First define the custom attributes in **Dashboard** > **User Attributes** that correspond to fields in the customer's identity provider.
+
+2. **Configure mapping in the identity provider**
+
+   The customer's IT team configures their SSO provider to send custom attributes:
+   
+   - **Okta**: Map custom user profile fields to SAML assertion attributes
+   - **Azure AD**: Configure custom claims in the enterprise application
+   - **Google Workspace**: Set up attribute mapping in the SAML app configuration
+
+3. **Test the connection**
+
+   Use **Dashboard** > **Organizations** > **SSO Connection** > **Test Connection** to verify that custom attributes flow correctly from the identity provider to Scalekit user profiles.
+
+</Steps>
+
+The [SSO user attributes guide](/sso/guides/sso-user-attributes/) provides detailed configuration steps for specific identity providers.
+
+### Automated attribute synchronization
+
+Once configured, custom attributes populate automatically during SSO authentication:
+
+- Users sign in through their corporate identity provider (Okta, Azure AD, etc.)
+- The identity provider includes custom attributes in the authentication response
+- Scalekit maps these attributes to the corresponding custom fields in the user profile
+- Your application receives the user with populated custom attributes
+
+This automation eliminates manual data entry and keeps user profiles synchronized with corporate directory changes.
+
+## Social connections limitation
+
+Social login connections (personal Google, Microsoft accounts) cannot provide custom business attributes. Identity providers like Gmail or personal Microsoft accounts don't contain corporate information such as employee IDs or department assignments.
+
+For users who authenticate through social connections:
+- Set custom attributes manually through your application using the update user API
+- Use the SDK to populate attributes after user creation
+- Prompt users to complete their profile with required business information
+
+<Aside type="note">
+Enterprise SSO providers (Google Workspace, Microsoft 365) support custom attribute mapping, while personal social accounts do not.
+</Aside>
+
+## Next steps
+
+After implementing custom user attributes:
+
+1. Configure [allowed email domains](/fsa/guides/allowed-email-domains/) to control organization access
+2. Set up [just-in-time provisioning](/fsa/guides/just-in-time-provisioning/) to automatically create users with mapped attributes
+3. Review [organization switching](/fsa/guides/organization-switching/) to understand how attributes affect multi-organization workflows
+4. Explore the [SSO user attributes guide](/sso/guides/sso-user-attributes/) for detailed identity provider configuration steps

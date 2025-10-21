@@ -1,8 +1,8 @@
 ---
-title: Manage user profiles
+title: Manage user profiles & memberships
 description: "How users join, switch, and leave organizations (a.k.a workspaces)"
 sidebar:
-  label: 'Manage user profiles'
+  label: 'Manage user memberships'
 head:
   - tag: style
     content: |
@@ -13,10 +13,20 @@ head:
         font-size: var(--sl-text-lg);
       }
 seeAlso:
+  label: "Related guides"
   items:
-   - title: "Design you data model"
-     icon: "migrate"
+   - title: "Design your data model"
+     icon: "information"
      url: "/fsa/data-modelling/"
+   - title: "User invitations"
+     icon: "add-circle"
+     url: "/fsa/guides/user-invitations/"
+   - title: "Organization switching"
+     icon: "switch"
+     url: "/fsa/guides/organization-switching/"
+   - title: "User API reference"
+     icon: "external"
+     url: "https://docs.scalekit.com/apis/#tag/users"
 prev:
   label: 'Manage user sessions'
   link: '/fsa/guides/manage-session/'
@@ -577,12 +587,140 @@ scalekitClient.users().deleteMembership("<organizationId>", "<userId>");
 
 ## Store custom data with metadata and external IDs
 
-Store additional information about users to integrate with your existing systems and business logic. Use metadata to track application-specific user attributes, and external IDs to maintain references to users in your other systems.
+Integrate Scalekit users with your existing systems using external IDs and metadata. External IDs maintain consistent user references across your infrastructure, while metadata stores application-specific attributes that enhance user profiles with business context.
+
+### When to use external IDs and metadata
+
+**External IDs** link Scalekit users to your existing systems:
+- Reference users in your database, CRM, or billing system
+- Maintain consistent user identification across multiple platforms
+- Enable easy data synchronization and lookups
+
+**Metadata** stores additional user attributes:
+- Organizational information (department, location, role level)
+- Business context (territory, quota, access permissions)
+- Integration data (external system IDs, custom properties)
+
+### Set external IDs and metadata during user creation
 
 <Tabs>
 <TabItem value="node" label="Node.js">
 
-```javascript title="Store metadata and external IDs" wrap frame="terminal" ins={3-11}
+```javascript title="Create user with external ID and metadata" wrap frame="terminal" ins={4-12}
+// Use case: Create user during system migration or bulk import with existing system references
+const { user } = await scalekit.user.createUserAndMembership("<organizationId>", {
+  email: "john.doe@company.com",
+  externalId: "SALESFORCE-003921",
+  metadata: {
+    department: "Sales",
+    employeeId: "EMP-002",
+    territory: "West Coast",
+    quota: 150000,
+    crmAccountId: "ACC-789",
+    hubspotContactId: "12345",
+  },
+  userProfile: {
+    firstName: "John",
+    lastName: "Doe",
+  },
+  sendInvitationEmail: true,
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Create user with external ID and metadata" wrap frame="terminal" ins={4-12}
+# Use case: Create user during system migration or bulk import with existing system references
+user_response = scalekit.user.create_user_and_membership(
+    "<organization_id>",
+    email="john.doe@company.com",
+    external_id="SALESFORCE-003921",
+    metadata={
+        "department": "Sales",
+        "employee_id": "EMP-002",
+        "territory": "West Coast",
+        "quota": 150000,
+        "crm_account_id": "ACC-789",
+        "hubspot_contact_id": "12345"
+    },
+    user_profile={
+        "first_name": "John",
+        "last_name": "Doe"
+    },
+    send_invitation_email=True
+)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Create user with external ID and metadata" wrap frame="terminal" ins={4-12}
+// Use case: Create user during system migration or bulk import with existing system references
+newUser := &usersv1.CreateUser{
+    Email: "john.doe@company.com",
+    ExternalId: "SALESFORCE-003921",
+    Metadata: map[string]string{
+        "department":          "Sales",
+        "employee_id":         "EMP-002",
+        "territory":           "West Coast",
+        "quota":               "150000",
+        "crm_account_id":      "ACC-789",
+        "hubspot_contact_id":  "12345",
+    },
+    UserProfile: &usersv1.CreateUserProfile{
+        FirstName: "John",
+        LastName:  "Doe",
+    },
+}
+userResp, err := scalekitClient.User().CreateUserAndMembership(
+    ctx,
+    "<organizationId>",
+    newUser,
+    true, // sendInvitationEmail
+)
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Create user with external ID and metadata" wrap frame="terminal" ins={4-12}
+// Use case: Create user during system migration or bulk import with existing system references
+CreateUser createUser = CreateUser.newBuilder()
+    .setEmail("john.doe@company.com")
+    .setExternalId("SALESFORCE-003921")
+    .putMetadata("department", "Sales")
+    .putMetadata("employee_id", "EMP-002")
+    .putMetadata("territory", "West Coast")
+    .putMetadata("quota", "150000")
+    .putMetadata("crm_account_id", "ACC-789")
+    .putMetadata("hubspot_contact_id", "12345")
+    .setUserProfile(
+        CreateUserProfile.newBuilder()
+            .setFirstName("John")
+            .setLastName("Doe")
+            .build())
+    .build();
+
+CreateUserAndMembershipRequest createUserReq = CreateUserAndMembershipRequest.newBuilder()
+    .setUser(createUser)
+    .setSendInvitationEmail(true)
+    .build();
+
+CreateUserAndMembershipResponse userResp = scalekitClient.users()
+    .createUserAndMembership("<organizationId>", createUserReq);
+```
+
+</TabItem>
+
+</Tabs>
+
+### Update external IDs and metadata for existing users
+
+<Tabs>
+<TabItem value="node" label="Node.js">
+
+```javascript title="Update user external ID and metadata" wrap frame="terminal" ins={3-11}
 // Use case: Link user with external systems (CRM, HR) and track custom attributes in a single call
 const updatedUser = await scalekit.user.updateUser("<userId>", {
   externalId: "SALESFORCE-003921",
@@ -600,7 +738,7 @@ const updatedUser = await scalekit.user.updateUser("<userId>", {
 </TabItem>
 <TabItem value="python" label="Python">
 
-```python title="Store metadata and external IDs" wrap frame="terminal" ins={3-11}
+```python title="Update user external ID and metadata" wrap frame="terminal" ins={3-11}
 # Use case: Link user with external systems (CRM, HR) and track custom attributes in a single call
 updated_user = scalekit.user.update_user(
     "<user_id>",
@@ -619,7 +757,7 @@ updated_user = scalekit.user.update_user(
 </TabItem>
 <TabItem value="go" label="Go">
 
-```go title="Store metadata and external IDs" frame="terminal"
+```go title="Update user external ID and metadata" frame="terminal"
 // Use case: Link user with external systems (CRM, HR) and track custom attributes in a single call
 updateUser := &usersv1.UpdateUser{
     ExternalId: "SALESFORCE-003921",
@@ -642,7 +780,7 @@ updatedUser, err := scalekitClient.User().UpdateUser(
 </TabItem>
 <TabItem value="java" label="Java">
 
-```java title="Store metadata and external IDs" frame="terminal" "setExternalId" "putMetadata"
+```java title="Update user external ID and metadata" frame="terminal" "setExternalId" "putMetadata"
 // Use case: Link user with external systems (CRM, HR) and track custom attributes in a single call
 UpdateUser updateUser = UpdateUser.newBuilder()
     .setExternalId("SALESFORCE-003921")
@@ -659,6 +797,63 @@ UpdateUserRequest updateReq = UpdateUserRequest.newBuilder()
     .build();
 
 User updatedUser = scalekitClient.users().updateUser("<userId>", updateReq);
+```
+
+</TabItem>
+
+</Tabs>
+
+### Find users by external ID
+
+<Tabs>
+<TabItem value="node" label="Node.js">
+
+```javascript title="Find user by external ID" wrap frame="terminal"
+// Use case: Look up Scalekit user when you have your system's user ID
+const user = await scalekit.user.getUserByExternalId("<organizationId>", "SALESFORCE-003921");
+console.log(`Found user: ${user.email} with ID: ${user.id}`);
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Find user by external ID" wrap frame="terminal"
+# Use case: Look up Scalekit user when you have your system's user ID
+user = scalekit.user.get_user_by_external_id("<organization_id>", "SALESFORCE-003921")
+print(f"Found user: {user['email']} with ID: {user['id']}")
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Find user by external ID" wrap frame="terminal"
+// Use case: Look up Scalekit user when you have your system's user ID
+user, err := scalekitClient.User().GetUserByExternalId(
+    ctx,
+    "<organizationId>",
+    "SALESFORCE-003921",
+)
+if err != nil {
+    log.Printf("User not found: %v", err)
+} else {
+    fmt.Printf("Found user: %s with ID: %s\n", user.Email, user.Id)
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Find user by external ID" wrap frame="terminal"
+// Use case: Look up Scalekit user when you have your system's user ID
+try {
+    GetUserByExternalIdResponse response = scalekitClient.users()
+        .getUserByExternalId("<organizationId>", "SALESFORCE-003921");
+
+    User user = response.getUser();
+    System.out.printf("Found user: %s with ID: %s%n", user.getEmail(), user.getId());
+} catch (Exception e) {
+    System.err.println("User not found: " + e.getMessage());
+}
 ```
 
 </TabItem>

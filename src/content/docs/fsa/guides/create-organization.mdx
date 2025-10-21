@@ -1,6 +1,6 @@
 ---
 title: "Create organizations"
-description: "Learn how to create and set up organizations in your application using Scalekit's SDK and API."
+description: "Create organizations from the dashboard, hosted signup, or SDK while controlling who can start new workspaces."
 sidebar:
   label: "Create organizations"
 prev:
@@ -21,28 +21,505 @@ seeAlso:
     - title: "Organizations overview"
       icon: "information"
       url: "/fsa/data-modelling/"
+    - title: "Manage users"
+      icon: "user"
+      url: "/fsa/guides/manage-users/"
+    - title: "Signup restrictions"
+      icon: "lock"
+      url: "/fsa/guides/signup-restrictions/"
     - title: "Organization settings"
       icon: "setting"
       url: "/fsa/guides/organization-settings/"
-    - title: "Organization identifiers"
+    - title: "Organizations API reference"
       icon: "external"
-      url: "/fsa/guides/organization-identifiers/"
+      url: "https://docs.scalekit.com/apis/#tag/organizations"
 ---
 
-import { Aside, Steps, Tabs, TabItem, Card } from '@astrojs/starlight/components';
+import { Aside, Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
 
-## Work in Progress
+Scalekit's quickstart shows how new tenants are created during sign-up. This guide extends that flow by covering every organization creation path after you finish the [installation guide](/authenticate/installation/), the [FSA quickstart](/fsa/quickstart/), and [manage user sessions](/fsa/guides/manage-session/).
 
-This guide is currently being developed. It will cover:
+You can create organizations in three ways:
 
-- Creating organizations programmatically using Scalekit's SDK
-- Setting up organization metadata and external IDs
-- Inviting users to newly created organizations
-- Managing organization onboarding flows
-- Best practices for organization creation
+- Use the Scalekit dashboard when operators need to create or seed organizations manually.
+- Let hosted signup create an organization the first time a new customer signs up.
+- Call the SDK or REST APIs from your application to create organizations programmatically.
 
-**Coming soon!** This content is being developed to provide comprehensive guidance on creating and managing organizations in your authenticated application.
+Sign-up restrictions decide who is allowed to start new organizations. Complete the [signup restrictions guide](/fsa/guides/signup-restrictions/) before rolling out self-service creation.
+
+## Control who can create organizations
+
+Sign-up restrictions block disposable addresses and enforce invitation-only flows. Configure these policies in the [signup restrictions guide](/fsa/guides/signup-restrictions/) before enabling self-service signup.
+
+### Understand restriction options
+
+Scalekit enforces three levels of control:
+
+- **Public domains** allow any user to create a new organization during hosted signup.
+- **Allowed corporate domains** restrict signup to trusted business domains you specify.
+- **Invitations only** block self-service signup and require admins to invite new members.
+
+These settings decide whether Scalekit automatically creates an organization when a new email arrives. Tightened rules stop sprawl and make sure every organization starts with a verified domain.
 
 <Aside type="tip">
-In the meantime, you can refer to the [Organizations overview](/fsa/data-modelling/) to understand Scalekit's organization model, or check out the [API documentation](https://docs.scalekit.com/apis#tag/organizations) for detailed API reference.
+Lock down organization creation for admin-managed tenants. This limits lateral movement if credentials leak and keeps invoices tied to verified companies.
 </Aside>
+
+## Create organizations in the Scalekit dashboard
+
+Use the dashboard when operators or support teams need to seed workspaces or help customers onboard.
+
+<Steps>
+
+ 1. ## Open the organization workspace
+
+    Sign in to the Scalekit dashboard and navigate to **Dashboard** > **Organizations**. Choose **Create organization**.
+
+ 2. ## Enter organization details
+
+    Provide the organization name, external identifier, and any tags you use for reporting or billing. You can edit these fields later in [organization settings](/fsa/guides/organization-settings/).
+
+ 3. ## Configure optional features
+
+    Enable optional integrations that your customer requested:
+
+    - **SSO**: Follow the [enterprise SSO guide](/fsa/guides/enterprise-sso/) to link an identity provider before inviting users.
+    - **SCIM provisioning**: Prepare automated user sync with the [just-in-time provisioning guide](/fsa/guides/just-in-time-provisioning/).
+    - **Metadata**: Store billing plan or CRM IDs in the metadata fields. Map them later through [organization settings](/fsa/guides/organization-settings/).
+
+ 4. ## Invite administrators
+
+    Add the first administrators or seed users. Invitations respect your signup restrictions and enforce trusted domains.
+
+</Steps>
+
+<Aside type="tip">
+Test organization creation in a sandbox environment before rolling out to production. Seed test tenants, validate SSO, and remove them once workflows pass QA.
+</Aside>
+
+## Automate organization creation with the SDK <Badge text="API" variant="tip" />
+
+Call the Scalekit SDK or REST API to create organizations during onboarding flows or migrations. Review the [Organizations API reference](https://docs.scalekit.com/apis/#tag/organizations) for a full parameter list.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+
+```javascript title="Create and manage organizations" wrap
+// ⚠️ SECURITY: Load credentials from environment variables or secret manager
+import { Scalekit } from '@scalekit-sdk/node'
+
+const client = new Scalekit({
+  environmentUrl: process.env.SCALEKIT_ENVIRONMENT_URL,
+  clientId: process.env.SCALEKIT_CLIENT_ID,
+  clientSecret: process.env.SCALEKIT_CLIENT_SECRET
+})
+
+// Use case: Provision a workspace after a sales-assisted onboarding
+const { organization } = await client.organization.createOrganization({
+  name: 'Orion Analytics',
+  externalId: 'crm-9342',
+  metadata: { billingTier: 'enterprise' }
+})
+
+// Use case: Update metadata when billing status changes
+await client.organization.updateOrganization(organization.id, {
+  metadata: { billingTier: 'enterprise', seatsPurchased: 120 }
+})
+
+// Use case: Sync organization profile to downstream systems
+const { organization: fetched } = await client.organization.getOrganization(organization.id)
+console.info('Fetched organization', fetched)
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+```python title="Create and manage organizations" wrap
+# ⚠️ SECURITY: Use environment variables or a secrets manager for credentials
+from scalekit import Scalekit
+import os
+
+client = Scalekit(
+    environment_url=os.environ["SCALEKIT_ENVIRONMENT_URL"],
+    client_id=os.environ["SCALEKIT_CLIENT_ID"],
+    client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+)
+
+# Use case: Provision a workspace after a sales-assisted onboarding
+organization = client.organization.create_organization(
+    name="Orion Analytics",
+    external_id="crm-9342",
+    metadata={"billingTier": "enterprise"},
+)["organization"]
+
+# Use case: Update metadata when billing status changes
+client.organization.update_organization(
+    organization["id"],
+    metadata={"billingTier": "enterprise", "seatsPurchased": 120},
+)
+
+# Use case: Sync organization profile to downstream systems
+fetched = client.organization.get_organization(organization["id"])
+print("Fetched organization", fetched)
+```
+
+  </TabItem>
+  <TabItem value="go" label="Go">
+
+```go title="Create and manage organizations" wrap
+// ⚠️ SECURITY: Load credentials from environment variables or secret manager
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+    "os"
+
+    scalekit "github.com/scalekit/scalekit-go"
+)
+
+func main() {
+    ctx := context.Background()
+    client, err := scalekit.NewClient(ctx, scalekit.Config{
+        EnvironmentURL: os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+        ClientID:       os.Getenv("SCALEKIT_CLIENT_ID"),
+        ClientSecret:   os.Getenv("SCALEKIT_CLIENT_SECRET"),
+    })
+    if err != nil {
+        log.Fatalf("failed to create client: %v", err)
+    }
+
+    // Use case: Provision a workspace after a sales-assisted onboarding
+    created, err := client.Organization.Create(ctx, scalekit.CreateOrganizationRequest{
+        Name:       "Orion Analytics",
+        ExternalID: scalekit.String("crm-9342"),
+        Metadata: map[string]string{
+            "billingTier":    "enterprise",
+            "seatsPurchased": "100",
+        },
+    })
+    if err != nil {
+        log.Fatalf("create organization: %v", err)
+    }
+
+    // Use case: Update metadata when billing status changes
+    if _, err = client.Organization.Update(ctx, created.Organization.Id, scalekit.UpdateOrganizationRequest{
+        Metadata: map[string]string{
+            "billingTier":    "enterprise",
+            "seatsPurchased": "120",
+        },
+    }); err != nil {
+        log.Fatalf("update organization: %v", err)
+    }
+
+    // Use case: Sync organization profile to downstream systems
+    fetched, err := client.Organization.Get(ctx, created.Organization.Id)
+    if err != nil {
+        log.Fatalf("get organization: %v", err)
+    }
+    fmt.Printf("Fetched organization: %+v\n", fetched.Organization)
+}
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+```java title="Create and manage organizations" wrap
+// ⚠️ SECURITY: Load credentials from environment variables or secrets vault
+import com.scalekit.ScalekitClient;
+import com.scalekit.models.Organization;
+import com.scalekit.requests.CreateOrganizationRequest;
+import com.scalekit.requests.UpdateOrganizationRequest;
+
+public class OrganizationExample {
+  public static void main(String[] args) {
+    ScalekitClient client = ScalekitClient.builder()
+        .environmentUrl(System.getenv("SCALEKIT_ENVIRONMENT_URL"))
+        .clientId(System.getenv("SCALEKIT_CLIENT_ID"))
+        .clientSecret(System.getenv("SCALEKIT_CLIENT_SECRET"))
+        .build();
+
+    // Use case: Provision a workspace after a sales-assisted onboarding
+    Organization organization = client.organization().create(
+        CreateOrganizationRequest.builder()
+            .name("Orion Analytics")
+            .externalId("crm-9342")
+            .putMetadata("billingTier", "enterprise")
+            .build()
+    ).organization();
+
+    // Use case: Update metadata when billing status changes
+    client.organization().update(
+        organization.id(),
+        UpdateOrganizationRequest.builder()
+            .putMetadata("billingTier", "enterprise")
+            .putMetadata("seatsPurchased", "120")
+            .build()
+    );
+
+    // Use case: Sync organization profile to downstream systems
+    Organization fetched = client.organization().get(organization.id()).organization();
+    System.out.printf("Fetched organization: %s%n", fetched);
+  }
+}
+```
+
+  </TabItem>
+</Tabs>
+
+Always handle API errors and timeouts. Add retry logic when provisioning organizations during high-volume imports or migrations.
+
+## Let hosted signup create organizations automatically
+
+The [FSA quickstart](/fsa/quickstart/) explains how hosted signup creates an organization for brand-new customers. When the first user signs up and your sign-up restrictions allow their email domain, Scalekit creates an organization and assigns the user as an administrator.
+
+Direct users to the hosted signup page using the same authorization URL pattern from the quickstart:
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+
+```javascript title="Redirect to hosted signup" wrap
+// Must match the callback URL you registered in step 1
+const redirectUri = 'http://localhost:3000/auth/callback';
+
+// Request user profile data (openid, profile, email) and session tracking (offline_access)
+// offline_access enables refresh tokens so users can stay logged in across sessions
+const options = {
+  scopes: ['openid', 'profile', 'email', 'offline_access']
+};
+
+const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+// Generated URL will look like:
+// https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
+
+res.redirect(authorizationUrl);
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+```python title="Redirect to hosted signup" wrap
+from scalekit import AuthorizationUrlOptions
+
+# Must match the callback URL you registered in step 1
+redirect_uri = 'http://localhost:3000/auth/callback'
+
+# Request user profile data (openid, profile, email) and session tracking (offline_access)
+# offline_access enables refresh tokens so users can stay logged in across sessions
+options = AuthorizationUrlOptions(
+    scopes=['openid', 'profile', 'email', 'offline_access']
+)
+
+authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+# Generated URL will look like:
+# https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
+
+return redirect(authorization_url)
+```
+
+  </TabItem>
+  <TabItem value="go" label="Go">
+
+```go title="Redirect to hosted signup" wrap
+// Must match the callback URL you registered in step 1
+redirectUri := "http://localhost:3000/auth/callback"
+
+// Request user profile data (openid, profile, email) and session tracking (offline_access)
+// offline_access enables refresh tokens so users can stay logged in across sessions
+options := scalekit.AuthorizationUrlOptions{
+    Scopes: []string{"openid", "profile", "email", "offline_access"}
+}
+
+authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+// Generated URL will look like:
+// https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
+if err != nil {
+    // Handle error based on your application's error handling strategy
+    panic(err)
+}
+
+c.Redirect(http.StatusFound, authorizationUrl.String())
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+```java title="Redirect to hosted signup" wrap
+import com.scalekit.internal.http.AuthorizationUrlOptions;
+import java.net.URL;
+import java.util.Arrays;
+
+// Must match the callback URL you registered in step 1
+String redirectUri = "http://localhost:3000/auth/callback";
+
+// Request user profile data (openid, profile, email) and session tracking (offline_access)
+// offline_access enables refresh tokens so users can stay logged in across sessions
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+
+URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+// Generated URL will look like:
+// https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
+```
+
+  </TabItem>
+</Tabs>
+
+The hosted signup page includes toggle options for users to switch between sign-in and sign-up. When new users sign up, Scalekit automatically creates an organization and assigns them as administrators based on your signup restrictions.
+
+## Allow authenticated users to start additional organizations
+
+Some customers expand into multiple workspaces. Provide clear entry points such as a **New workspace** button in your dashboard or a guided onboarding flow.
+
+Role-based access control (RBAC) decides who can launch additional organizations. Grant the capability to admins only and record every action for auditability. Consider adding rate limits to prevent automated abuse.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+
+```javascript title="Create new workspace for authenticated user" wrap
+export const createNewWorkspace = async (req, res) => {
+  const userId = req.session.userId
+
+  // Use case: Allow admins to spin up regional workspaces
+  const organization = await scalekit.organization.createOrganization(
+    `${req.body.workspaceName} Workspace`,
+    {
+      externalId: `workspace-${Date.now()}`,
+      metadata: {
+        parentOrganizationId: req.session.organizationId,
+        createdBy: userId,
+      }
+    }
+  )
+
+  // Add the creator as an admin of the new workspace
+  await scalekit.membership.createMembership({
+    organizationId: organization.id,
+    userId,
+    role: 'admin',
+    sendInvitationEmail: false,
+  })
+
+  audit.log('organization.created', { organizationId: organization.id, userId })
+  res.json({ organization })
+}
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+```python title="Create new workspace for authenticated user" wrap
+def create_new_workspace(request):
+    user_id = request.session["user_id"]
+
+    # Use case: Allow admins to spin up regional workspaces
+    organization = scalekit.organization.create_organization(
+        name=f"{request.body['workspace_name']} Workspace",
+        external_id=f"workspace-{int(time.time())}",
+        metadata={
+            "parentOrganizationId": request.session["organization_id"],
+            "createdBy": user_id,
+        },
+    )
+
+    # Add the creator as an admin of the new workspace
+    scalekit.membership.create_membership(
+        organization_id=organization["id"],
+        user_id=user_id,
+        role="admin",
+        send_invitation_email=False,
+    )
+
+    audit.log("organization.created", {"organizationId": organization["id"], "userId": user_id})
+    return {"organization": organization}
+```
+
+  </TabItem>
+  <TabItem value="go" label="Go">
+
+```go title="Create new workspace for authenticated user" wrap
+func createNewWorkspace(ctx context.Context, req CreateWorkspaceRequest) (*Organization, error) {
+    userID := req.Session.UserID
+
+    // Use case: Allow admins to spin up regional workspaces
+    created, err := scalekit.Organization.Create(ctx, scalekit.CreateOrganizationRequest{
+        Name: fmt.Sprintf("%s Workspace", req.Body.WorkspaceName),
+        ExternalID: scalekit.String(fmt.Sprintf("workspace-%d", time.Now().Unix())),
+        Metadata: map[string]string{
+            "parentOrganizationId": req.Session.OrganizationID,
+            "createdBy":           userID,
+        },
+    })
+    if err != nil {
+        return nil, err
+    }
+
+    // Add the creator as an admin of the new workspace
+    if _, err = scalekit.Membership.Create(ctx, scalekit.CreateMembershipRequest{
+        OrganizationID: created.Organization.Id,
+        UserID:         userID,
+        Role:           scalekit.String("admin"),
+        SendInvitationEmail: scalekit.Bool(false),
+    }); err != nil {
+        return nil, err
+    }
+
+    audit.Log("organization.created", map[string]string{
+        "organizationId": created.Organization.Id,
+        "userId":         userID,
+    })
+
+    return &created.Organization, nil
+}
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+```java title="Create new workspace for authenticated user" wrap
+public Organization createNewWorkspace(Session session, CreateWorkspaceRequest request) {
+  String userId = session.userId();
+
+  // Use case: Allow admins to spin up regional workspaces
+  Organization organization = scalekit.organization().create(
+      request.workspaceName() + " Workspace",
+      "workspace-" + System.currentTimeMillis(),
+      Map.of(
+          "parentOrganizationId", session.organizationId(),
+          "createdBy", userId
+      )
+  );
+
+  // Add the creator as an admin of the new workspace
+  scalekit.membership().create(
+      CreateMembershipRequest.builder()
+          .organizationId(organization.id())
+          .userId(userId)
+          .role("admin")
+          .sendInvitationEmail(false)
+          .build()
+  );
+
+  audit.log("organization.created", Map.of(
+      "organizationId", organization.id(),
+      "userId", userId
+  ));
+
+  return organization;
+}
+```
+
+  </TabItem>
+</Tabs>
+
+Automation should create invitations for additional teammates and enforce approval workflows before provisioning resources.
+
+## Wrap up and next steps
+
+- Use the dashboard when a support team seeds or reviews tenant data.
+- Use the SDK or API when onboarding via product-led flows or automations.
+- Let hosted signup create the first organization when you offer a self-serve trial.
+- Limit organization creation to trusted users with sign-up restrictions and RBAC.
+
+See also [organization settings](/fsa/guides/organization-settings/), [manage user profiles](/fsa/guides/manage-users/), and [signup restrictions](/fsa/guides/signup-restrictions/) for the configuration guides mentioned in this article.
