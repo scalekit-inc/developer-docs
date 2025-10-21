@@ -1,0 +1,536 @@
+---
+title: "Organization identifiers & metadata"
+description: "Learn how to use external IDs and custom metadata to integrate Scalekit organizations with your existing systems and store additional organization information."
+sidebar:
+  label: "Identifiers & metadata"
+prev:
+  label: "Organization settings"
+  link: "/fsa/guides/organization-settings/"
+next:
+  label: "User invitations"
+  link: "/fsa/guides/user-invitations/"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+seeAlso:
+  label: "Related guides"
+  items:
+    - title: "Create organizations"
+      icon: "add-circle"
+      url: "/fsa/guides/create-organization/"
+    - title: "Organization settings"
+      icon: "setting"
+      url: "/fsa/guides/organization-settings/"
+    - title: "Organizations overview"
+      icon: "information"
+      url: "/fsa/data-modelling/"
+---
+
+import { Aside, Steps, Tabs, TabItem, Card } from '@astrojs/starlight/components';
+
+After setting up authentication and creating organizations, you'll often need to connect them with your existing systems. This guide shows you how to use external IDs and metadata to integrate organizations with your billing platform, CRM, or other infrastructure while storing additional custom information.
+
+## When to use identifiers and metadata
+
+Use these features to:
+
+- **Link existing systems** - Connect organizations to customer records in your billing platform, CRM, or database
+- **Store custom data** - Add billing details, feature flags, plan information, or internal tracking data
+- **Maintain data consistency** - Keep your existing identifiers while leveraging Scalekit's organization features
+- **Simplify integration** - Avoid complex ID mapping between your systems and Scalekit
+
+## External IDs for system integration
+
+External IDs let you identify organizations using your own identifiers instead of Scalekit's generated IDs. This is essential when migrating from existing systems or integrating with multiple platforms.
+
+<Steps>
+1. ### Set external IDs during organization creation
+
+   Include your system's identifier when creating organizations to maintain consistent references across your infrastructure.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript title="Create organization with external ID" {3,9}
+   // During user signup or organization creation
+   const organization = await scalekit.organization.create({
+     display_name: 'Acme Corporation',
+     external_id: 'CUST-12345-ACME', // Your customer ID
+     metadata: {
+       plan_type: 'enterprise',
+       billing_customer_id: 'stripe_cus_abc123'
+     }
+   });
+
+   console.log('Organization created:', organization.id);
+   console.log('Your ID:', organization.external_id);
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```python title="Create organization with external ID" {3,9}
+   # During user signup or organization creation
+   organization = scalekit.organization.create({
+       'display_name': 'Acme Corporation',
+       'external_id': 'CUST-12345-ACME',  # Your customer ID
+       'metadata': {
+           'plan_type': 'enterprise',
+           'billing_customer_id': 'stripe_cus_abc123'
+       }
+   })
+
+   print(f'Organization created: {organization.id}')
+   print(f'Your ID: {organization.external_id}')
+   ```
+   </TabItem>
+   <TabItem value="go" label="Go">
+   ```go title="Create organization with external ID" {3,11}
+   // During user signup or organization creation
+   org, err := scalekit.Organization.Create(OrganizationCreateOptions{
+       DisplayName: "Acme Corporation",
+       ExternalId:  "CUST-12345-ACME", // Your customer ID
+       Metadata: map[string]interface{}{
+           "plan_type":             "enterprise",
+           "billing_customer_id":   "stripe_cus_abc123",
+       },
+   })
+
+   if err != nil {
+       log.Fatal(err)
+   }
+
+   fmt.Printf("Organization created: %s\n", org.Id)
+   fmt.Printf("Your ID: %s\n", org.ExternalId)
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="Create organization with external ID" {5,12}
+   // During user signup or organization creation
+   Map<String, Object> metadata = Map.of(
+       "plan_type", "enterprise",
+       "billing_customer_id", "stripe_cus_abc123"
+   );
+
+   Organization organization = scalekit.organization().create(
+       "Acme Corporation",
+       "CUST-12345-ACME", // Your customer ID
+       metadata
+   );
+
+   System.out.println("Organization created: " + organization.getId());
+   System.out.println("Your ID: " + organization.getExternalId());
+   ```
+   </TabItem>
+   </Tabs>
+
+2. ### Find organizations using your IDs
+
+   Use external IDs to quickly locate organizations when processing webhooks, handling customer support requests, or syncing data between systems.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript title="Find organization by external ID"
+   // When processing a billing webhook or customer update
+   const customerId = 'CUST-12345-ACME'; // From your webhook payload
+
+   const organization = await scalekit.organization.getByExternalId(customerId);
+
+   if (organization) {
+     console.log('Found organization:', organization.display_name);
+     // Update billing status, plan, etc.
+     await updateCustomerBilling(organization.metadata.billing_customer_id);
+   }
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```python title="Find organization by external ID"
+   # When processing a billing webhook or customer update
+   customer_id = 'CUST-12345-ACME'  # From your webhook payload
+
+   organization = scalekit.organization.get_by_external_id(customer_id)
+
+   if organization:
+       print(f'Found organization: {organization.display_name}')
+       # Update billing status, plan, etc.
+       await update_customer_billing(organization.metadata['billing_customer_id'])
+   ```
+   </TabItem>
+   <TabItem value="go" label="Go">
+   ```go title="Find organization by external ID"
+   // When processing a billing webhook or customer update
+   customerId := "CUST-12345-ACME" // From your webhook payload
+
+   org, err := scalekit.Organization.GetByExternalId(customerId)
+   if err != nil {
+       log.Printf("Error finding organization: %v", err)
+       return
+   }
+
+   if org != nil {
+       fmt.Printf("Found organization: %s\n", org.DisplayName)
+       // Update billing status, plan, etc.
+       billingId := org.Metadata["billing_customer_id"].(string)
+       updateCustomerBilling(billingId)
+   }
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="Find organization by external ID"
+   // When processing a billing webhook or customer update
+   String customerId = "CUST-12345-ACME"; // From your webhook payload
+
+   Organization organization = scalekit.organization().getByExternalId(customerId);
+
+   if (organization != null) {
+       System.out.println("Found organization: " + organization.getDisplayName());
+       // Update billing status, plan, etc.
+       String billingId = (String) organization.getMetadata().get("billing_customer_id");
+       updateCustomerBilling(billingId);
+   }
+   ```
+   </TabItem>
+   </Tabs>
+
+3. ### Update external IDs when needed
+
+   If your customer IDs change or you need to migrate identifier formats, you can update external IDs for existing organizations.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript title="Update external ID"
+   const updatedOrg = await scalekit.organization.update(organizationId, {
+     external_id: 'NEW-CUST-12345-ACME'
+   });
+
+   console.log('External ID updated:', updatedOrg.external_id);
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```python title="Update external ID"
+   updated_org = scalekit.organization.update(organization_id, {
+       'external_id': 'NEW-CUST-12345-ACME'
+   })
+
+   print(f'External ID updated: {updated_org.external_id}')
+   ```
+   </TabItem>
+   <TabItem value="go" label="Go">
+   ```go title="Update external ID"
+   updatedOrg, err := scalekit.Organization.Update(organizationId, OrganizationUpdateOptions{
+       ExternalId: "NEW-CUST-12345-ACME",
+   })
+
+   fmt.Printf("External ID updated: %s\n", updatedOrg.ExternalId)
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="Update external ID"
+   Organization updatedOrg = scalekit.organization().update(organizationId, Map.of(
+       "external_id", "NEW-CUST-12345-ACME"
+   ));
+
+   System.out.println("External ID updated: " + updatedOrg.getExternalId());
+   ```
+   </TabItem>
+   </Tabs>
+</Steps>
+
+## Custom metadata for business data
+
+Metadata lets you store application-specific information as key-value pairs. This data is included in JWT tokens, making it immediately available in your application without additional API calls.
+
+### Common metadata patterns
+
+Store information that helps your application make decisions about features, billing, or user experience:
+
+**Billing and subscription data:**
+```json
+{
+  "plan_type": "enterprise",
+  "billing_cycle": "annual", 
+  "max_users": 100,
+  "subscription_id": "sub_1234567890"
+}
+```
+
+**Feature configuration:**
+```json
+{
+  "features": {
+    "advanced_analytics": true,
+    "api_access": true,
+    "custom_branding": false
+  },
+  "storage_limit_gb": 500
+}
+```
+
+**Integration identifiers:**
+```json
+{
+  "salesforce_account_id": "0011234567890ABC",
+  "hubspot_company_id": "12345678",
+  "internal_tier": "premium"
+}
+```
+
+### Managing metadata throughout the organization lifecycle
+
+<Steps>
+1. ### Set initial metadata during creation
+
+   Include essential business data when organizations are first created.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript title="Organization with initial metadata" {4-9}
+   const organization = await scalekit.organization.create({
+     display_name: 'Acme Corporation',
+     external_id: 'CUST-12345-ACME',
+     metadata: {
+       plan_type: 'starter',
+       billing_cycle: 'monthly',
+       trial_end: '2024-03-01',
+       onboarding_step: 'setup_complete'
+     }
+   });
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```python title="Organization with initial metadata" {4-9}
+   organization = scalekit.organization.create({
+       'display_name': 'Acme Corporation',
+       'external_id': 'CUST-12345-ACME',
+       'metadata': {
+           'plan_type': 'starter',
+           'billing_cycle': 'monthly',
+           'trial_end': '2024-03-01',
+           'onboarding_step': 'setup_complete'
+       }
+   })
+   ```
+   </TabItem>
+   <TabItem value="go" label="Go">
+   ```go title="Organization with initial metadata" {4-9}
+   org, err := scalekit.Organization.Create(OrganizationCreateOptions{
+       DisplayName: "Acme Corporation",
+       ExternalId:  "CUST-12345-ACME",
+       Metadata: map[string]interface{}{
+           "plan_type":        "starter",
+           "billing_cycle":    "monthly",
+           "trial_end":        "2024-03-01",
+           "onboarding_step":  "setup_complete",
+       },
+   })
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="Organization with initial metadata" {2-7}
+   Map<String, Object> metadata = Map.of(
+       "plan_type", "starter",
+       "billing_cycle", "monthly",
+       "trial_end", "2024-03-01",
+       "onboarding_step", "setup_complete"
+   );
+
+   Organization organization = scalekit.organization().create(
+       "Acme Corporation", "CUST-12345-ACME", metadata
+   );
+   ```
+   </TabItem>
+   </Tabs>
+
+2. ### Update metadata as business needs change
+
+   Modify metadata when customers upgrade plans, change billing cycles, or reach new milestones.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript title="Update organization metadata" {2-8}
+   const updatedOrg = await scalekit.organization.update(organizationId, {
+     metadata: {
+       plan_type: 'enterprise',
+       billing_cycle: 'annual',
+       features: {
+         advanced_analytics: true,
+         api_access: true
+       },
+       last_upgraded: new Date().toISOString()
+     }
+   });
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```python title="Update organization metadata" {2-10}
+   updated_org = scalekit.organization.update(organization_id, {
+       'metadata': {
+           'plan_type': 'enterprise',
+           'billing_cycle': 'annual',
+           'features': {
+               'advanced_analytics': True,
+               'api_access': True
+           },
+           'last_upgraded': datetime.utcnow().isoformat()
+       }
+   })
+   ```
+   </TabItem>
+   <TabItem value="go" label="Go">
+   ```go title="Update organization metadata" {2-11}
+   updatedOrg, err := scalekit.Organization.Update(organizationId, OrganizationUpdateOptions{
+       Metadata: map[string]interface{}{
+           "plan_type": "enterprise",
+           "billing_cycle": "annual",
+           "features": map[string]interface{}{
+               "advanced_analytics": true,
+               "api_access":         true,
+           },
+           "last_upgraded": time.Now().Format(time.RFC3339),
+       },
+   })
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="Update organization metadata" {2-10}
+   Map<String, Object> features = Map.of(
+       "advanced_analytics", true,
+       "api_access", true
+   );
+
+   Map<String, Object> metadata = Map.of(
+       "plan_type", "enterprise",
+       "billing_cycle", "annual",
+       "features", features,
+       "last_upgraded", Instant.now().toString()
+   );
+
+   Organization updatedOrg = scalekit.organization().update(organizationId, metadata);
+   ```
+   </TabItem>
+   </Tabs>
+
+3. ### Access metadata in your application
+
+   Since metadata is included in JWT tokens, you can access it immediately when users authenticate without making additional API calls.
+
+   ```javascript title="Using metadata in your application"
+   // Metadata is available in the JWT token after authentication
+   const { user, idToken } = await scalekit.authenticateWithCode(code, redirectUri);
+
+   // Access organization metadata from the token
+   const orgMetadata = user.memberships[0].metadata;
+   
+   if (orgMetadata.plan_type === 'enterprise') {
+     // Enable enterprise features
+     enableAdvancedAnalytics();
+   }
+
+   if (orgMetadata.features?.api_access) {
+     // Show API documentation
+     showApiAccess();
+   }
+   ```
+</Steps>
+
+## Integration examples
+
+### Billing system integration
+
+Connect organizations with your billing platform to track subscriptions and handle payment events:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+```javascript title="Billing integration example"
+// When a customer subscribes via Stripe
+app.post('/stripe/webhook', async (req, res) => {
+  const event = req.body;
+  
+  if (event.type === 'customer.subscription.updated') {
+    const customerId = event.data.object.customer;
+    
+    // Find organization by external ID
+    const org = await scalekit.organization.getByExternalId(customerId);
+    
+    if (org) {
+      // Update subscription metadata
+      await scalekit.organization.update(org.id, {
+        metadata: {
+          ...org.metadata,
+          subscription_status: event.data.object.status,
+          plan_type: event.data.object.items.data[0].price.lookup_key,
+          last_billing_update: new Date().toISOString()
+        }
+      });
+    }
+  }
+});
+```
+</TabItem>
+<TabItem value="python" label="Python">
+```python title="Billing integration example"
+# When a customer subscribes via Stripe
+@app.route('/stripe/webhook', methods=['POST'])
+def stripe_webhook():
+    event = request.json
+    
+    if event['type'] == 'customer.subscription.updated':
+        customer_id = event['data']['object']['customer']
+        
+        # Find organization by external ID
+        org = scalekit.organization.get_by_external_id(customer_id)
+        
+        if org:
+            # Update subscription metadata
+            updated_metadata = {
+                **org.metadata,
+                'subscription_status': event['data']['object']['status'],
+                'plan_type': event['data']['object']['items']['data'][0]['price']['lookup_key'],
+                'last_billing_update': datetime.utcnow().isoformat()
+            }
+            
+            scalekit.organization.update(org.id, {'metadata': updated_metadata})
+```
+</TabItem>
+</Tabs>
+
+### CRM synchronization
+
+Keep organization data synchronized with your CRM system:
+
+```javascript title="CRM sync example"
+// Sync organization data with Salesforce
+async function syncWithCRM(organizationId, salesforceAccountId) {
+  const crmData = await salesforce.getAccount(salesforceAccountId);
+  
+  await scalekit.organization.update(organizationId, {
+    metadata: {
+      salesforce_account_id: salesforceAccountId,
+      industry: crmData.Industry,
+      annual_revenue: crmData.AnnualRevenue,
+      account_owner: crmData.Owner.Name,
+      last_crm_sync: new Date().toISOString()
+    }
+  });
+}
+```
+
+<Aside type="tip">
+Both external IDs and metadata are included in JWT tokens when users authenticate, making this information immediately available in your application without additional API calls.
+</Aside>
+
+## Best practices
+
+### External ID guidelines
+- **Use meaningful identifiers** that are recognizable across your systems
+- **Ensure uniqueness** - external IDs must be unique within your Scalekit environment  
+- **Keep them stable** - avoid changing external IDs once set, as they're used for integration
+- **Use consistent formats** - establish naming conventions (e.g., `CUST-{id}-{name}`)
+
+### Metadata management
+- **Structure your data** using nested objects for related information
+- **Keep it relevant** - store only data you'll actually use in your application
+- **Document your schema** - maintain clear documentation of your metadata structure
+- **Plan for growth** - design schemas that can evolve with your application
+
+This approach lets you maintain seamless integration between Scalekit and your existing systems while providing rich, contextual user experiences.

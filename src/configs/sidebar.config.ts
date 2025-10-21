@@ -21,16 +21,22 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Manage organizations',
+        collapsed: false,
+        items: [
+          'fsa/data-modelling',
+          'fsa/guides/create-organization',
+          'fsa/guides/organization-settings',
+          'fsa/guides/organization-identifiers',
+        ],
+      },
+      {
         label: 'Customize workflows',
         items: ['guides/auth-flow-interceptors'],
       },
       {
         label: 'Observability',
         items: ['guides/dashboard/auth-logs'],
-      },
-      {
-        label: 'Manage organizations',
-        items: ['fsa/data-modelling'],
       },
       {
         label: 'User management',
@@ -237,7 +243,6 @@ export const sidebar = [
         items: [
           'fsa/data-modelling',
           'fsa/guides/merge-identities',
-          'guides/external-ids-and-metadata',
           'fsa/reference/user-management-settings',
         ],
       },
