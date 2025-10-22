@@ -20,11 +20,15 @@ next:
   link: '/fsa/guides/app-roles/'
 ---
 
-import { Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code } from '@astrojs/starlight/components';
-
-**Work in Progress** - This guide is currently being developed. Check back soon for complete implementation details.
+import {
+  Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code, CardGrid
+} from '@astrojs/starlight/components';
 
 Permissions define specific actions users can perform in your application. Use permissions to control access to features, data, and operations with precision. This guide shows you how to create, manage, and implement permissions in your Scalekit-powered application.
+
+Every action in your application can be turned into a permission. By labeling permissions in a consistent way, you create a clear access control system that's easy to understand and manage. These permissions become available to users at runtime and can be inherited through roles.
+
+![](@/assets/docs/create-permissions/permissions-screenshot.png)
 
 ## Understanding permissions
 
@@ -41,57 +45,186 @@ This naming pattern makes permissions self-documenting and helps organize access
 
 Navigate to **Dashboard** > **Roles & Permissions** > **Permissions** to create and manage permissions through the Scalekit interface.
 
-*[Detailed dashboard steps to be added]*
+<Steps>
+
+1. **Access the permissions section**
+
+   In your Scalekit dashboard, go to **Roles & Permissions** > **Permissions**
+
+2. **Create a new permission**
+
+   Click **Create Permission** and provide:
+   - **Name** - Machine-friendly identifier (e.g., `projects:create`)
+   - **Display Name** - Human-readable label (e.g., "Create Projects")
+   - **Description** - Clear explanation of what this permission allows
+
+3. **Configure permission settings**
+
+   Set the permission scope and any additional constraints needed for your use case
+
+4. **Save and assign**
+
+   Save the permission and assign it to roles as needed
+
+</Steps>
+
+The dashboard provides a visual interface to manage all your application's permissions, making it easy to see which permissions exist and how they're organized.
 
 ## Creating permissions programmatically
 
-*[API examples in all 4 languages to be added]*
+Most applications need to manage permissions programmatically to integrate with existing systems. Use the Scalekit API to create, update, and delete permissions as part of your application's setup or administrative workflows.
 
 <Tabs syncKey="tech-stack">
+<TabItem value="curl" label="cURL">
+
+```bash title="Create permission" wrap frame="terminal"
+curl -X POST "https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/permissions" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "projects:create",
+    "display_name": "Create Projects",
+    "description": "Allows users to create new projects in the application"
+  }'
+```
+
+```bash title="Update permission" wrap frame="terminal"
+curl -X PUT "https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/permissions/{permission_id}" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "display_name": "Create and Manage Projects",
+    "description": "Allows users to create and manage projects in the application"
+  }'
+```
+
+```bash title="Delete permission" wrap frame="terminal"
+curl -X DELETE "https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/permissions/{permission_id}" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>"
+```
+
+</TabItem>
 <TabItem value="node" label="Node.js">
 
 ```javascript title="Create permission" wrap frame="terminal"
-// Work in progress - API examples coming soon
+// SDK support coming soon - use HTTP API for now
+// Use case: Automatically create permissions during application setup
+const permission = await fetch(`${SCALEKIT_ENVIRONMENT_URL}/api/v1/permissions`, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    name: 'projects:create',
+    display_name: 'Create Projects',
+    description: 'Allows users to create new projects in the application'
+  })
+});
 ```
 
 </TabItem>
 <TabItem value="python" label="Python">
 
 ```python title="Create permission" wrap frame="terminal"
-# Work in progress - API examples coming soon
+# SDK support coming soon - use HTTP API for now
+# Use case: Automatically create permissions during application setup
+import requests
+
+response = requests.post(
+    f"{SCALEKIT_ENVIRONMENT_URL}/api/v1/permissions",
+    headers={
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    },
+    json={
+        "name": "projects:create",
+        "display_name": "Create Projects",
+        "description": "Allows users to create new projects in the application"
+    }
+)
 ```
 
 </TabItem>
 <TabItem value="go" label="Go">
 
 ```go title="Create permission" wrap frame="terminal"
-// Work in progress - API examples coming soon
+// SDK support coming soon - use HTTP API for now
+// Use case: Automatically create permissions during application setup
+payload := map[string]string{
+    "name":         "projects:create",
+    "display_name": "Create Projects",
+    "description":  "Allows users to create new projects in the application",
+}
+
+jsonPayload, _ := json.Marshal(payload)
+req, _ := http.NewRequest("POST", scalekitURL+"/api/v1/permissions", bytes.NewBuffer(jsonPayload))
+req.Header.Set("Authorization", "Bearer "+accessToken)
+req.Header.Set("Content-Type", "application/json")
+
+client := &http.Client{}
+resp, err := client.Do(req)
 ```
 
 </TabItem>
 <TabItem value="java" label="Java">
 
 ```java title="Create permission" wrap frame="terminal"
-// Work in progress - API examples coming soon
+// SDK support coming soon - use HTTP API for now
+// Use case: Automatically create permissions during application setup
+String json = """
+{
+  "name": "projects:create",
+  "display_name": "Create Projects",
+  "description": "Allows users to create new projects in the application"
+}
+""";
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create(scalekitUrl + "/api/v1/permissions"))
+    .header("Authorization", "Bearer " + accessToken)
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(json))
+    .build();
+
+HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 ```
 
 </TabItem>
 </Tabs>
 
-## Permission best practices
+<Aside type="tip" title="SDK support coming soon">
+Full SDK support for permissions management is in development. For now, use the HTTP API directly as shown in the cURL examples above.
+</Aside>
 
-*[Best practices section to be added]*
 
-## Using permissions in your application
+## Role-based inheritance
 
-*[Runtime permission checking examples to be added]*
+Permissions can be inherited through roles, making it easier to manage access at scale. When you assign a role to a user, they automatically receive all permissions associated with that role.
+
+This inheritance model allows you to:
+- Group related permissions into logical roles
+- Assign multiple permissions to users with a single role assignment
+- Create role hierarchies where higher-level roles inherit lower-level permissions
+- Simplify permission management across your organization
+
+<Aside type="tip" title="Combine individual permissions with roles">
+You can assign both individual permissions and roles to users. This provides flexibility to grant specific permissions while maintaining role-based organization.
+</Aside>
 
 ## Next steps
 
-Once you have permissions defined, you'll want to group them into roles for easier user management. Continue to the roles guide to learn how to create role hierarchies and assign permissions to users.
+Once you have permissions defined, you'll want to group them into roles for easier user management and learn how to implement access control in your application.
 
-<LinkCard 
-  title="Set up roles and assign permissions" 
-  href="/fsa/guides/app-roles/" 
-  description="Create user roles, manage inheritance, and implement role-based access control"
-/>
+<CardGrid>
+  <LinkCard
+    title="Set up roles and assign permissions"
+    href="/fsa/guides/app-roles/"
+    description="Create user roles, manage inheritance, and implement role-based access control"
+  />
+  <LinkCard
+    title="Implement access control"
+    href="/authenticate/authz/implement-access-control/"
+    description="Check permissions and roles in your application code to control user access"
+  />
+</CardGrid>

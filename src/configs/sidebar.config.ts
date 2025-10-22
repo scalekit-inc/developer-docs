@@ -47,6 +47,7 @@ export const sidebar = [
           'authenticate/authz/overview',
           'authenticate/authz/create-permissions',
           'fsa/guides/app-roles',
+          'authenticate/authz/implement-access-control',
         ],
       },
       {
@@ -297,6 +298,7 @@ export const sidebar = [
         collapsed: false,
         items: [
           'guides/security/authentication-security',
+          'dev-kit/resources/authorization-best-practices',
           'guides/client-credentials-practices',
           'guides/webhooks-best-practices',
           'authenticate/launch-checklist',

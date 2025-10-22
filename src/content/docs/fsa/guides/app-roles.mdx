@@ -2,7 +2,7 @@
 title: "Manage user roles and permissions"
 description: "Let users work without worry by clearly managing their permissions and roles"
 sidebar:
-  label: "Set up roles & permissions"
+  label: "Create roles"
 head:
   - tag: style
     content: |
@@ -21,102 +21,50 @@ import { Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code, LinkButton } from '
 import IconTdesignSequence from '~icons/tdesign/sequence'
 import IconJsonwebtokens from '~icons/simple-icons/jsonwebtokens'
 
+Roles group related permissions together and make it easier to manage user access in your application. In simpler applications, roles are usually sufficient because each role represents a combination of specific permissions that work together.
+
 When users sign up for the app, Scalekit automatically creates a new organization. Most applications refer to organizations as workspaces for consistency. The initial user is assigned the `admin` role. All subsequent users who join the same organization are automatically assigned the `member` role.
 
-Information about the organization, user roles, and membership is present in both the access token and ID token received after user sign-up or login. These tokens serve as the source of truth for determining a user's access level at runtime within your app
+Information about the organization, user roles, and membership is present in both the access token and ID token received after user sign-up or login. These tokens serve as the source of truth for determining a user's access level at runtime within your app.
 
-<details>
-<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Understand how access control flows</summary>
-
-```d2
-shape: sequence_diagram
-
-User -> Scalekit: Initiate sign up or login
-Scalekit -> Access Token: Package authentication tokens
-Access Token -> Your App: App decodes access token
-Your App -> User: Grant runtime access based on the assigned roles and permissions
-
-Access Token: {
-  shape: sql_table
-  permissions: string {constraint: array}
-  roles: string {constraint: array}
-  "(fields omitted for brevity)"
-}
-```
-</details>
-
-<details>
-  <summary><IconJsonwebtokens style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Example token contents</summary>
-
-When your app is integrated with Scalekit and a user signs in, Scalekit issues an ID token and an access token, and creates a session to track access duration.
-
-<Tabs syncKey="auth-result">
-    <TabItem value="idToken" label="ID token (decoded)">
-        ```json {15}
-        {
-          "amr": ["conn_123456789012345678"],
-          "aud": ["skc_987654321098765432"],
-          "azp": "skc_987654321098765432",
-          "client_id": "skc_987654321098765432",
-          "email": "john.doe@example.com",
-          "email_verified": true,
-          "exp": 1753441845,
-          "family_name": "Doe",
-          "given_name": "John",
-          "iat": 1750849845,
-          "iss": "http://example.localhost:8889",
-          "name": "John Doe",
-          "oid": "org_987654321098765432",
-          "roles": ["member"],
-          "sid": "ses_987654321098765432",
-          "sub": "usr_987654321098765432"
-        }
-        ```
-    </TabItem>
-    <TabItem value="accessToken" label="Access token (decoded)">
-        ```json {9,11}
-        {
-          "aud": ["skc_987654321098765432"],
-          "client_id": "skc_987654321098765432",
-          "exp": 1750850145,
-          "iat": 1750849845,
-          "iss": "http://example.localhost:8889",
-          "jti": "tkn_987654321098765432",
-          "nbf": 1750849845,
-          "roles": ["member"],
-          "oid": "org_69615647365005430",
-          "permissions": ["emails:read", "inbox:read"],
-          "sid": "ses_987654321098765432",
-          "sub": "usr_987654321098765432",
-          // External identifiers if updated on Scalekit
-          "xoid": "ext_org_123", // Organization ID
-          "xuid": "ext_usr_456", // User ID
-        }
-        ```
-    </TabItem>
-</Tabs>
-
-
-</details>
+![](@/assets/docs/app-roles/app-roles-view.png)
 
 - **Role**: A role is a collection of actions that defines a user's capabilities in the system. Examples include Admin, Manager, Editor, and Viewer. Assigning a role determines which tasks the user can perform and what access is restricted.
 - **Permission**: A permission represents a specific action that a user is authorized to execute, formatted as `resource:action` (such as `projects:create` or `tasks:read`). Assign permissions for precise, fine-grained access control when individual capabilities must be managed.
 
 
 
+## Types of roles in Scalekit
+
+**Application-level roles** are defined by your application and available across all organizations. These are the standard roles that provide consistent access patterns for your product.
+
+**Organization-specific roles** are created by organization administrators for their specific workspace needs. This enables your customers to create roles beyond the standard set your application provides, tailoring access control to their unique organizational structure.
+
 ## Manage roles and permissions in the Scalekit dashboard
 
-Users can be assigned default roles defined by your application. Scalekit also supports custom, organization-specific roles, enabling organization administrators to create roles beyond those your app provides.
+<Steps>
 
-Manage app-level roles and permissions from the Scalekit dashboard by navigating to **Dashboard** > **Roles & Permissions**.
+1. **Create application-level roles**
 
-- Create roles and permissions
-- Choose a **Name**. It's also a Machine-friendly identifier (e.g., project_owner)
-- Create roles that inherit permissions from other roles
-- Modify permissions assigned to roles
-- Choose different default roles for new users
+   Navigate to **Dashboard** > **Roles & Permissions** > **Roles** to manage app-wide roles:
+   - Click **Create Role** and provide a name (machine-friendly identifier like `project_owner`)
+   - Add a display name and description
+   - Assign permissions to the role
+   - Configure role inheritance if needed
 
-Create organization-specific roles on behalf of organization administrators by going to **Dashboard** > **Organizations** > **Select an organization** > **Roles**.
+2. **Set default roles for new users**
+
+   Configure which role new users receive automatically when they join an organization
+
+3. **Create organization-specific roles**
+
+   Organization administrators can create custom roles by going to **Dashboard** > **Organizations** > **Select organization** > **Roles**
+
+4. **Manage role inheritance**
+
+   Set up role hierarchies where higher-level roles inherit permissions from lower-level roles
+
+</Steps>
 
 
 Roles build on each other, with each higher role inheriting all the permissions of the one below.
@@ -163,48 +111,197 @@ editor -> project_owner: inherits
 
 Most applications need to manage roles and permissions programmatically to integrate with existing systems. The examples below demonstrate common role and permission management operations.
 
- <Tabs>
+<Tabs>
+<TabItem value="curl" label="cURL">
+
+```bash title="Create role" wrap frame="terminal"
+curl -X POST "https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/roles" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "project_manager",
+    "display_name": "Project Manager",
+    "description": "Can manage projects and assign tasks to team members",
+    "permissions": ["projects:create", "projects:read", "projects:update", "tasks:assign"]
+  }'
+```
+
+```bash title="Assign role to user" wrap frame="terminal"
+curl -X POST "https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/{org_id}/users/{user_id}/roles" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "role_ids": ["role_project_manager"]
+  }'
+```
+
+```bash title="Create organization-specific role" wrap frame="terminal"
+curl -X POST "https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/{org_id}/roles" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "department_lead",
+    "display_name": "Department Lead",
+    "description": "Custom role for department leaders in this organization",
+    "permissions": ["projects:create", "users:invite", "reports:view"]
+  }'
+```
+
+</TabItem>
 <TabItem value="node" label="Node.js">
 
-```js {"1"} title="Work in progress" frame="terminal"
-
-// SDK Methods are a work in progress
+```javascript title="Create role" wrap frame="terminal"
+// SDK support coming soon - use HTTP API for now
+// Use case: Create roles during application setup or admin workflows
+const role = await fetch(`${SCALEKIT_ENVIRONMENT_URL}/api/v1/roles`, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    name: 'project_manager',
+    display_name: 'Project Manager',
+    description: 'Can manage projects and assign tasks to team members',
+    permissions: ['projects:create', 'projects:read', 'projects:update', 'tasks:assign']
+  })
+});
 ```
 
 </TabItem>
 <TabItem value="python" label="Python">
 
-```python {"1"} title="Work in progress" frame="terminal"
+```python title="Create role" wrap frame="terminal"
+# SDK support coming soon - use HTTP API for now
+# Use case: Create roles during application setup or admin workflows
+import requests
 
-# SDK Methods are a work in progress
+response = requests.post(
+    f"{SCALEKIT_ENVIRONMENT_URL}/api/v1/roles",
+    headers={
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    },
+    json={
+        "name": "project_manager",
+        "display_name": "Project Manager",
+        "description": "Can manage projects and assign tasks to team members",
+        "permissions": ["projects:create", "projects:read", "projects:update", "tasks:assign"]
+    }
+)
 ```
 
 </TabItem>
 <TabItem value="go" label="Go">
 
-```go {"1"} title="Work in progress" frame="terminal"
+```go title="Create role" wrap frame="terminal"
+// SDK support coming soon - use HTTP API for now
+// Use case: Create roles during application setup or admin workflows
+payload := map[string]interface{}{
+    "name":         "project_manager",
+    "display_name": "Project Manager",
+    "description":  "Can manage projects and assign tasks to team members",
+    "permissions":  []string{"projects:create", "projects:read", "projects:update", "tasks:assign"},
+}
 
-// SDK Methods are a work in progress
+jsonPayload, _ := json.Marshal(payload)
+req, _ := http.NewRequest("POST", scalekitURL+"/api/v1/roles", bytes.NewBuffer(jsonPayload))
+req.Header.Set("Authorization", "Bearer "+accessToken)
+req.Header.Set("Content-Type", "application/json")
+
+client := &http.Client{}
+resp, err := client.Do(req)
 ```
 
 </TabItem>
 <TabItem value="java" label="Java">
 
-```java {"1"} title="Work in progress" frame="terminal"
+```java title="Create role" wrap frame="terminal"
+// SDK support coming soon - use HTTP API for now
+// Use case: Create roles during application setup or admin workflows
+String json = """
+{
+  "name": "project_manager",
+  "display_name": "Project Manager",
+  "description": "Can manage projects and assign tasks to team members",
+  "permissions": ["projects:create", "projects:read", "projects:update", "tasks:assign"]
+}
+""";
 
-// SDK Methods are a work in progress
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create(scalekitUrl + "/api/v1/roles"))
+    .header("Authorization", "Bearer " + accessToken)
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(json))
+    .build();
+
+HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 ```
 
 </TabItem>
-
 </Tabs>
-
-For SDK support, [contact our team](/support/contact-us) to request implementations for your preferred language.
 
 <LinkButton href="https://docs.scalekit.com/apis/#tag/roles" variant="secondary" icon='right-arrow' class='sk-secondary'>
   View roles and permissions HTTP API reference
 </LinkButton>
 
+<Aside type="tip" title="SDK support coming soon">
+Full SDK support for roles management is in development. For now, use the HTTP API directly as shown in the cURL examples above.
+</Aside>
+
+
+## Roles and permissions in tokens
+
+After authentication, user roles and permissions are automatically included in both ID tokens and access tokens. This eliminates the need for additional database lookups when making authorization decisions in your application.
+
+<Tabs syncKey="token-type">
+<TabItem value="accessToken" label="Access token (decoded)">
+
+```json {9,11} title="Access token contains both roles and permissions"
+{
+  "aud": ["skc_987654321098765432"],
+  "client_id": "skc_987654321098765432",
+  "exp": 1750850145,
+  "iat": 1750849845,
+  "iss": "http://example.localhost:8889",
+  "jti": "tkn_987654321098765432",
+  "nbf": 1750849845,
+  "roles": ["project_manager", "member"],
+  "oid": "org_69615647365005430",
+  "permissions": ["projects:create", "projects:read", "projects:update", "tasks:assign", "emails:read"],
+  "sid": "ses_987654321098765432",
+  "sub": "usr_987654321098765432"
+}
+```
+
+</TabItem>
+<TabItem value="idToken" label="ID token (decoded)">
+
+```json {15} title="ID token contains user roles"
+{
+  "amr": ["conn_123456789012345678"],
+  "aud": ["skc_987654321098765432"],
+  "azp": "skc_987654321098765432",
+  "client_id": "skc_987654321098765432",
+  "email": "john.doe@example.com",
+  "email_verified": true,
+  "exp": 1753441845,
+  "family_name": "Doe",
+  "given_name": "John",
+  "iat": 1750849845,
+  "iss": "http://example.localhost:8889",
+  "name": "John Doe",
+  "oid": "org_987654321098765432",
+  "roles": ["project_manager", "member"],
+  "sid": "ses_987654321098765432",
+  "sub": "usr_987654321098765432"
+}
+```
+
+</TabItem>
+</Tabs>
+
+The `permissions` array contains all permissions available to the user, including those from assigned roles and any individual permissions. The `roles` array lists all roles assigned to the user in this organization.
 
 <Aside type='note' title='Only specify direct permissions for roles'>
 
