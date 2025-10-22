@@ -1,0 +1,929 @@
+---
+title: "Listen to webhooks"
+description: "Receive real-time notifications about authentication events in your application using Scalekit webhooks"
+sidebar:
+  label: "Listen to webhooks"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+seeAlso:
+  label: "Related guides"
+  items:
+    - title: "Auth flow interceptors"
+      icon: "setting"
+      url: "/guides/auth-flow-interceptors/"
+    - title: "Webhook reference"
+      icon: "external"
+      url: "/reference/webhooks/"
+    - title: "Webhooks best practices"
+      icon: "code"
+      url: "/guides/webhooks-best-practices/"
+---
+
+import { Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code, CardGrid } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence'
+import IconLucideFileJson from '~icons/lucide/file-json'
+
+Webhooks provide real-time notifications about authentication and user management events in your Scalekit environment. Instead of polling for changes, your application receives instant notifications when users sign up, log in, join organizations, or when other important events occur.
+
+This guide shows you how to set up webhook endpoints, configure event subscriptions, and securely process webhook payloads in your application.
+
+<details>
+<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the webhook flow</summary>
+
+```d2
+shape: sequence_diagram
+
+User -> Scalekit: Trigger event (login, signup, etc.)
+Scalekit -> Event Queue: Queue webhook event
+Event Queue -> Your App: POST webhook payload
+Your App -> Scalekit SDK: Verify webhook signature
+Scalekit SDK -> Your App: Signature validation result
+Your App -> Your App: Process event data
+Your App -> Event Queue: Return 200 OK response
+
+Event Queue: {
+  shape: class
+  Retry Logic: "3 retries with exponential backoff"
+  Timeout: "10 seconds per attempt"
+  Dead Letter: "Failed events stored for analysis"
+}
+```
+
+</details>
+
+<details>
+<summary><IconLucideFileJson style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Example webhook payload</summary>
+
+```json title="User signup webhook payload"
+{
+  "id": "evt_1234567890abcdef",
+  "type": "user.created",
+  "created_at": "2024-01-15T10:30:00Z",
+  "data": {
+    "user": {
+      "id": "usr_9876543210fedcba",
+      "email": "john.doe@example.com",
+      "first_name": "John",
+      "last_name": "Doe",
+      "email_verified": true,
+      "created_at": "2024-01-15T10:30:00Z"
+    },
+    "organization": {
+      "id": "org_abcdef1234567890",
+      "display_name": "Example Corp",
+      "external_id": "ext_corp_123"
+    }
+  },
+  "environment_id": "env_1a2b3c4d5e6f7g8h"
+}
+```
+
+</details>
+
+## Configure webhooks in the dashboard
+
+Set up webhook endpoints and select which events you want to receive through the Scalekit dashboard.
+
+<Steps>
+
+1. **Access webhook settings**
+   
+   In your Scalekit dashboard, navigate to **Settings** > **Webhooks**
+
+2. **Add webhook endpoint**
+   
+   Click **Add Endpoint** and provide:
+   - **Endpoint URL** - Your application's webhook handler URL (e.g., `https://yourapp.com/webhooks/scalekit`)
+   - **Description** - Optional description for this endpoint
+
+3. **Select events**
+   
+   Choose which events you want to receive from the dropdown:
+   - **User events** - `user.created`, `user.updated`, `user.deleted`
+   - **Organization events** - `organization.created`, `organization.updated`
+   - **Authentication events** - `session.created`, `session.expired`
+   - **Membership events** - `membership.created`, `membership.updated`, `membership.deleted`
+
+4. **Configure security**
+   
+   Copy the **Signing Secret** - you'll use this to verify webhook authenticity in your application
+
+5. **Test the endpoint**
+   
+   Use the **Send Test Event** button to verify your endpoint is working correctly
+
+</Steps>
+
+Your webhook endpoint must respond with a `200` status code within 10 seconds to be considered successful. Failed deliveries are retried up to 3 times with exponential backoff.
+
+## Implement webhook handlers
+
+Create secure webhook handlers in your application to process incoming events from Scalekit.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Express.js webhook handler" wrap collapse={1-3} {7-8,12-15,19-22,26-29}
+import express from 'express';
+import { Scalekit } from '@scalekit-sdk/node';
+
+const app = express();
+const scalekit = new Scalekit(/* your credentials */);
+
+// Use raw body parser for webhook signature verification
+app.use('/webhooks/scalekit', express.raw({ type: 'application/json' }));
+
+app.post('/webhooks/scalekit', async (req, res) => {
+  try {
+    // Get webhook signature from headers
+    const signature = req.headers['scalekit-signature'];
+    const rawBody = req.body;
+    
+    // Verify webhook signature using Scalekit SDK
+    const isValid = await scalekit.webhooks.verifySignature(
+      rawBody, 
+      signature, 
+      process.env.SCALEKIT_WEBHOOK_SECRET
+    );
+    
+    if (!isValid) {
+      console.error('Invalid webhook signature');
+      return res.status(401).json({ error: 'Invalid signature' });
+    }
+    
+    // Parse and process the webhook payload
+    const event = JSON.parse(rawBody.toString());
+    await processWebhookEvent(event);
+    
+    // Always respond with 200 to acknowledge receipt
+    res.status(200).json({ received: true });
+    
+  } catch (error) {
+    console.error('Webhook processing error:', error);
+    res.status(500).json({ error: 'Webhook processing failed' });
+  }
+});
+
+async function processWebhookEvent(event) {
+  console.log(`Processing event: ${event.type}`);
+  
+  switch (event.type) {
+    case 'user.created':
+      // Handle new user registration
+      await handleUserCreated(event.data.user, event.data.organization);
+      break;
+      
+    case 'user.updated':
+      // Handle user profile updates
+      await handleUserUpdated(event.data.user);
+      break;
+      
+    case 'organization.created':
+      // Handle new organization creation
+      await handleOrganizationCreated(event.data.organization);
+      break;
+      
+    case 'membership.created':
+      // Handle user joining organization
+      await handleMembershipCreated(event.data.membership);
+      break;
+      
+    default:
+      console.log(`Unhandled event type: ${event.type}`);
+  }
+}
+
+async function handleUserCreated(user, organization) {
+  // Use case: Sync new user to your database, send welcome email, set up user workspace
+  console.log(`New user created: ${user.email} in org: ${organization.display_name}`);
+  
+  // Sync to your database
+  await syncUserToDatabase(user, organization);
+  
+  // Send welcome email
+  await sendWelcomeEmail(user.email, user.first_name);
+  
+  // Set up user workspace or default settings
+  await setupUserDefaults(user.id, organization.id);
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Flask webhook handler" wrap collapse={1-4} {8-9,13-16,20-23,27-30}
+from flask import Flask, request, jsonify
+import json
+from scalekit import ScalekitClient
+
+app = Flask(__name__)
+scalekit_client = ScalekitClient(/* your credentials */)
+
+@app.route('/webhooks/scalekit', methods=['POST'])
+def handle_webhook():
+    try:
+        # Get webhook signature from headers
+        signature = request.headers.get('scalekit-signature')
+        raw_body = request.get_data()
+        
+        # Verify webhook signature using Scalekit SDK
+        is_valid = scalekit_client.webhooks.verify_signature(
+            raw_body, 
+            signature, 
+            os.environ.get('SCALEKIT_WEBHOOK_SECRET')
+        )
+        
+        if not is_valid:
+            print('Invalid webhook signature')
+            return jsonify({'error': 'Invalid signature'}), 401
+        
+        # Parse and process the webhook payload
+        event = json.loads(raw_body.decode('utf-8'))
+        process_webhook_event(event)
+        
+        # Always respond with 200 to acknowledge receipt
+        return jsonify({'received': True}), 200
+        
+    except Exception as error:
+        print(f'Webhook processing error: {error}')
+        return jsonify({'error': 'Webhook processing failed'}), 500
+
+def process_webhook_event(event):
+    print(f'Processing event: {event["type"]}')
+    
+    event_type = event['type']
+    event_data = event['data']
+    
+    if event_type == 'user.created':
+        # Handle new user registration
+        handle_user_created(event_data['user'], event_data['organization'])
+    elif event_type == 'user.updated':
+        # Handle user profile updates
+        handle_user_updated(event_data['user'])
+    elif event_type == 'organization.created':
+        # Handle new organization creation
+        handle_organization_created(event_data['organization'])
+    elif event_type == 'membership.created':
+        # Handle user joining organization
+        handle_membership_created(event_data['membership'])
+    else:
+        print(f'Unhandled event type: {event_type}')
+
+def handle_user_created(user, organization):
+    # Use case: Sync new user to your database, send welcome email, set up user workspace
+    print(f'New user created: {user["email"]} in org: {organization["display_name"]}')
+    
+    # Sync to your database
+    sync_user_to_database(user, organization)
+    
+    # Send welcome email
+    send_welcome_email(user['email'], user['first_name'])
+    
+    # Set up user workspace or default settings
+    setup_user_defaults(user['id'], organization['id'])
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Gin webhook handler" wrap collapse={1-8} {12-13,17-20,24-27,31-34}
+package main
+
+import (
+    "encoding/json"
+    "io"
+    "net/http"
+    "github.com/gin-gonic/gin"
+    "github.com/scalekit-inc/scalekit-sdk-go"
+)
+
+scalekitClient := scalekit.NewScalekitClient(/* your credentials */)
+
+func handleWebhook(c *gin.Context) {
+    // Get webhook signature from headers
+    signature := c.GetHeader("scalekit-signature")
+    
+    // Read raw body
+    rawBody, err := io.ReadAll(c.Request.Body)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read body"})
+        return
+    }
+    
+    // Verify webhook signature using Scalekit SDK
+    isValid, err := scalekitClient.Webhooks.VerifySignature(
+        rawBody, 
+        signature, 
+        os.Getenv("SCALEKIT_WEBHOOK_SECRET"),
+    )
+    
+    if err != nil || !isValid {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid signature"})
+        return
+    }
+    
+    // Parse and process the webhook payload
+    var event map[string]interface{}
+    if err := json.Unmarshal(rawBody, &event); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+        return
+    }
+    
+    processWebhookEvent(event)
+    
+    // Always respond with 200 to acknowledge receipt
+    c.JSON(http.StatusOK, gin.H{"received": true})
+}
+
+func processWebhookEvent(event map[string]interface{}) {
+    eventType := event["type"].(string)
+    eventData := event["data"].(map[string]interface{})
+    
+    fmt.Printf("Processing event: %s\n", eventType)
+    
+    switch eventType {
+    case "user.created":
+        // Handle new user registration
+        user := eventData["user"].(map[string]interface{})
+        organization := eventData["organization"].(map[string]interface{})
+        handleUserCreated(user, organization)
+        
+    case "user.updated":
+        // Handle user profile updates
+        user := eventData["user"].(map[string]interface{})
+        handleUserUpdated(user)
+        
+    case "organization.created":
+        // Handle new organization creation
+        organization := eventData["organization"].(map[string]interface{})
+        handleOrganizationCreated(organization)
+        
+    case "membership.created":
+        // Handle user joining organization
+        membership := eventData["membership"].(map[string]interface{})
+        handleMembershipCreated(membership)
+        
+    default:
+        fmt.Printf("Unhandled event type: %s\n", eventType)
+    }
+}
+
+func handleUserCreated(user, organization map[string]interface{}) {
+    // Use case: Sync new user to your database, send welcome email, set up user workspace
+    fmt.Printf("New user created: %s in org: %s\n", 
+        user["email"], organization["display_name"])
+    
+    // Sync to your database
+    syncUserToDatabase(user, organization)
+    
+    // Send welcome email
+    sendWelcomeEmail(user["email"].(string), user["first_name"].(string))
+    
+    // Set up user workspace or default settings
+    setupUserDefaults(user["id"].(string), organization["id"].(string))
+}
+
+func main() {
+    r := gin.Default()
+    r.POST("/webhooks/scalekit", handleWebhook)
+    r.Run(":8080")
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Spring webhook handler" wrap collapse={1-8} {12-15,19-22,26-29,33-36}
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import com.scalekit.ScalekitClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+
+@RestController
+public class WebhookController {
+    
+    private final ScalekitClient scalekitClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    
+    @PostMapping("/webhooks/scalekit")
+    public ResponseEntity<Map<String, Object>> handleWebhook(
+        HttpServletRequest request,
+        @RequestBody String rawBody
+    ) {
+        try {
+            // Get webhook signature from headers
+            String signature = request.getHeader("scalekit-signature");
+            
+            // Verify webhook signature using Scalekit SDK
+            boolean isValid = scalekitClient.webhooks().verifySignature(
+                rawBody.getBytes(), 
+                signature, 
+                System.getenv("SCALEKIT_WEBHOOK_SECRET")
+            );
+            
+            if (!isValid) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid signature"));
+            }
+            
+            // Parse and process the webhook payload
+            Map<String, Object> event = objectMapper.readValue(rawBody, Map.class);
+            processWebhookEvent(event);
+            
+            // Always respond with 200 to acknowledge receipt
+            return ResponseEntity.ok(Map.of("received", true));
+            
+        } catch (Exception error) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Webhook processing failed"));
+        }
+    }
+    
+    private void processWebhookEvent(Map<String, Object> event) {
+        String eventType = (String) event.get("type");
+        Map<String, Object> eventData = (Map<String, Object>) event.get("data");
+        
+        System.out.println("Processing event: " + eventType);
+        
+        switch (eventType) {
+            case "user.created":
+                // Handle new user registration
+                Map<String, Object> user = (Map<String, Object>) eventData.get("user");
+                Map<String, Object> organization = (Map<String, Object>) eventData.get("organization");
+                handleUserCreated(user, organization);
+                break;
+                
+            case "user.updated":
+                // Handle user profile updates
+                handleUserUpdated((Map<String, Object>) eventData.get("user"));
+                break;
+                
+            case "organization.created":
+                // Handle new organization creation
+                handleOrganizationCreated((Map<String, Object>) eventData.get("organization"));
+                break;
+                
+            case "membership.created":
+                // Handle user joining organization
+                handleMembershipCreated((Map<String, Object>) eventData.get("membership"));
+                break;
+                
+            default:
+                System.out.println("Unhandled event type: " + eventType);
+        }
+    }
+    
+    private void handleUserCreated(Map<String, Object> user, Map<String, Object> organization) {
+        // Use case: Sync new user to your database, send welcome email, set up user workspace
+        System.out.println("New user created: " + user.get("email") + 
+            " in org: " + organization.get("display_name"));
+        
+        // Sync to your database
+        syncUserToDatabase(user, organization);
+        
+        // Send welcome email
+        sendWelcomeEmail((String) user.get("email"), (String) user.get("first_name"));
+        
+        // Set up user workspace or default settings
+        setupUserDefaults((String) user.get("id"), (String) organization.get("id"));
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Common webhook use cases
+
+### User lifecycle management
+
+**Sync user data across systems**
+- Update your user database when users sign up or update their profiles
+- Provision accounts in downstream systems
+- Trigger onboarding workflows for new users
+
+```javascript title="User lifecycle webhook handlers"
+async function handleUserCreated(user, organization) {
+  // Sync to your user database
+  await db.users.create({
+    scalekit_id: user.id,
+    email: user.email,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    organization_id: organization.id,
+    created_at: new Date()
+  });
+  
+  // Trigger onboarding workflow
+  await onboardingService.startUserOnboarding(user.id);
+  
+  // Provision external accounts
+  await externalServices.createUserAccounts(user, organization);
+}
+
+async function handleUserUpdated(user) {
+  // Update user profile in your database
+  await db.users.update(
+    { scalekit_id: user.id },
+    {
+      email: user.email,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      updated_at: new Date()
+    }
+  );
+  
+  // Sync changes to external systems
+  await externalServices.updateUserProfile(user);
+}
+```
+
+### Organization and membership management
+
+**Track organization changes and user memberships**
+- Set up organization workspaces when new organizations are created
+- Update user access when they join or leave organizations
+- Provision organization-specific resources
+
+```javascript title="Organization management webhook handlers"
+async function handleOrganizationCreated(organization) {
+  // Create organization workspace
+  await workspaceService.createOrganizationWorkspace({
+    scalekit_org_id: organization.id,
+    name: organization.display_name,
+    external_id: organization.external_id
+  });
+  
+  // Set up organization defaults
+  await setupOrganizationDefaults(organization.id);
+  
+  // Notify admin team
+  await notificationService.notifyNewOrganization(organization);
+}
+
+async function handleMembershipCreated(membership) {
+  // Grant user access to organization workspace
+  await accessService.grantOrganizationAccess(
+    membership.user_id, 
+    membership.organization_id,
+    membership.roles
+  );
+  
+  // Send welcome-to-organization email
+  await emailService.sendOrganizationWelcome(membership);
+  
+  // Update billing if needed
+  await billingService.updateSeatCount(membership.organization_id);
+}
+
+async function handleMembershipDeleted(membership) {
+  // Revoke user access to organization workspace
+  await accessService.revokeOrganizationAccess(
+    membership.user_id, 
+    membership.organization_id
+  );
+  
+  // Archive user data if needed
+  await dataService.archiveUserOrganizationData(membership);
+  
+  // Update billing
+  await billingService.updateSeatCount(membership.organization_id);
+}
+```
+
+### Authentication monitoring
+
+**Track authentication events for security and analytics**
+- Monitor login patterns and detect anomalies
+- Update last-seen timestamps
+- Trigger security alerts for suspicious activity
+
+```javascript title="Authentication monitoring webhook handlers"
+async function handleSessionCreated(session) {
+  // Update user's last login timestamp
+  await db.users.update(
+    { scalekit_id: session.user_id },
+    { 
+      last_login_at: new Date(),
+      last_login_ip: session.ip_address 
+    }
+  );
+  
+  // Track login analytics
+  await analyticsService.trackUserLogin({
+    user_id: session.user_id,
+    organization_id: session.organization_id,
+    auth_method: session.auth_method,
+    location: session.location
+  });
+  
+  // Check for suspicious activity
+  await securityService.checkLoginAnomaly(session);
+}
+
+async function handleSessionExpired(session) {
+  // Log session expiration
+  await auditService.logSessionExpired({
+    user_id: session.user_id,
+    session_id: session.id,
+    expired_at: new Date()
+  });
+  
+  // Clean up session-specific resources
+  await cleanupSessionResources(session.id);
+}
+```
+
+## Secure webhook processing
+
+### Signature verification
+
+Always verify that webhooks come from Scalekit using the signature verification:
+
+```javascript title="Signature verification best practices"
+async function verifyWebhookSignature(rawBody, signature, secret) {
+  try {
+    // Use Scalekit SDK for verification (recommended)
+    const isValid = await scalekit.webhooks.verifySignature(rawBody, signature, secret);
+    return isValid;
+    
+  } catch (error) {
+    console.error('Signature verification failed:', error);
+    return false;
+  }
+}
+
+// Alternative manual verification (if SDK not available)
+function verifySignatureManually(rawBody, signature, secret) {
+  const crypto = require('crypto');
+  
+  // Extract timestamp and signature from header
+  const elements = signature.split(',');
+  const timestamp = elements.find(el => el.startsWith('t=')).substring(2);
+  const receivedSignature = elements.find(el => el.startsWith('v1=')).substring(3);
+  
+  // Create expected signature
+  const payload = `${timestamp}.${rawBody}`;
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(payload, 'utf8')
+    .digest('hex');
+  
+  // Compare signatures securely
+  return crypto.timingSafeEqual(
+    Buffer.from(receivedSignature, 'hex'),
+    Buffer.from(expectedSignature, 'hex')
+  );
+}
+```
+
+### Error handling and reliability
+
+Implement robust error handling to ensure reliable webhook processing:
+
+```javascript title="Robust webhook error handling"
+app.post('/webhooks/scalekit', async (req, res) => {
+  try {
+    // Verify signature first
+    const isValid = await verifyWebhookSignature(
+      req.body, 
+      req.headers['scalekit-signature'], 
+      process.env.SCALEKIT_WEBHOOK_SECRET
+    );
+    
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid signature' });
+    }
+    
+    const event = JSON.parse(req.body.toString());
+    
+    // Process webhook with timeout and retry logic
+    await Promise.race([
+      processWebhookWithRetry(event),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Processing timeout')), 8000)
+      )
+    ]);
+    
+    // Always respond quickly to prevent retries
+    res.status(200).json({ received: true });
+    
+  } catch (error) {
+    console.error('Webhook processing error:', error);
+    
+    // Log error for debugging but still return 200 if it's a business logic error
+    // Only return 500 for critical infrastructure errors
+    if (error.name === 'ValidationError' || error.name === 'BusinessLogicError') {
+      res.status(200).json({ received: true, warning: error.message });
+    } else {
+      res.status(500).json({ error: 'Critical processing error' });
+    }
+  }
+});
+
+async function processWebhookWithRetry(event, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await processWebhookEvent(event);
+      return; // Success, exit retry loop
+      
+    } catch (error) {
+      console.error(`Webhook processing attempt ${attempt} failed:`, error);
+      
+      if (attempt === maxRetries) {
+        // Final attempt failed - log to dead letter queue
+        await deadLetterQueue.add('failed_webhook', { event, error: error.message });
+        throw error;
+      }
+      
+      // Wait before retry (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+    }
+  }
+}
+```
+
+### Idempotency handling
+
+Ensure your webhook handlers are idempotent to handle duplicate deliveries:
+
+```javascript title="Idempotent webhook processing"
+async function processWebhookEvent(event) {
+  // Check if we've already processed this event
+  const existingEvent = await db.processed_webhooks.findOne({ 
+    event_id: event.id 
+  });
+  
+  if (existingEvent) {
+    console.log(`Event ${event.id} already processed, skipping`);
+    return;
+  }
+  
+  // Start a database transaction for atomic processing
+  const transaction = await db.beginTransaction();
+  
+  try {
+    // Record that we're processing this event
+    await db.processed_webhooks.create({ 
+      event_id: event.id,
+      event_type: event.type,
+      processed_at: new Date(),
+      status: 'processing'
+    }, { transaction });
+    
+    // Process the actual event
+    await handleSpecificEvent(event, transaction);
+    
+    // Mark as completed
+    await db.processed_webhooks.update(
+      { event_id: event.id },
+      { status: 'completed', completed_at: new Date() },
+      { transaction }
+    );
+    
+    await transaction.commit();
+    
+  } catch (error) {
+    await transaction.rollback();
+    
+    // Mark as failed
+    await db.processed_webhooks.update(
+      { event_id: event.id },
+      { status: 'failed', error_message: error.message }
+    );
+    
+    throw error;
+  }
+}
+```
+
+## Testing webhooks
+
+### Local development with ngrok
+
+Test webhooks locally using ngrok to expose your development server:
+
+```bash title="Set up local webhook testing"
+# Install ngrok
+npm install -g ngrok
+
+# Start your local server
+npm run dev
+
+# In another terminal, expose your local server
+ngrok http 3000
+
+# Use the ngrok URL in your Scalekit dashboard
+# Example: https://abc123.ngrok.io/webhooks/scalekit
+```
+
+### Webhook testing utilities
+
+Create utilities to test your webhook handlers:
+
+```javascript title="Webhook testing utilities"
+// Test webhook handler with sample events
+async function testWebhookHandler() {
+  const sampleUserCreatedEvent = {
+    id: 'evt_test_123',
+    type: 'user.created',
+    created_at: new Date().toISOString(),
+    data: {
+      user: {
+        id: 'usr_test_123',
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        email_verified: true
+      },
+      organization: {
+        id: 'org_test_123',
+        display_name: 'Test Organization'
+      }
+    }
+  };
+  
+  // Test your webhook processing
+  await processWebhookEvent(sampleUserCreatedEvent);
+  console.log('Test webhook processed successfully');
+}
+
+// Mock webhook signature for testing
+function createTestSignature(payload, secret) {
+  const crypto = require('crypto');
+  const timestamp = Math.floor(Date.now() / 1000);
+  const signature = crypto
+    .createHmac('sha256', secret)
+    .update(`${timestamp}.${payload}`)
+    .digest('hex');
+  
+  return `t=${timestamp},v1=${signature}`;
+}
+```
+
+## Monitoring and debugging
+
+### Webhook delivery monitoring
+
+Monitor webhook delivery success and failures:
+
+```javascript title="Webhook monitoring"
+// Track webhook processing metrics
+async function trackWebhookMetrics(event, processingTime, success) {
+  await metricsService.record('webhook_processed', {
+    event_type: event.type,
+    processing_time_ms: processingTime,
+    success: success,
+    organization_id: event.data.organization?.id
+  });
+}
+
+// Dashboard endpoint to view webhook statistics
+app.get('/admin/webhook-stats', async (req, res) => {
+  const stats = await db.query(`
+    SELECT 
+      event_type,
+      COUNT(*) as total_events,
+      SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as successful,
+      SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed,
+      AVG(processing_time_ms) as avg_processing_time
+    FROM processed_webhooks 
+    WHERE processed_at > NOW() - INTERVAL 24 HOUR
+    GROUP BY event_type
+  `);
+  
+  res.json(stats);
+});
+```
+
+## Next steps
+
+You now have a complete webhook implementation that can reliably process authentication events from Scalekit. Consider these additional improvements:
+
+<CardGrid>
+  <LinkCard 
+    title="Webhook reference" 
+    href="/reference/webhooks/" 
+    description="Complete reference of all available webhook events and payloads"
+  />
+  <LinkCard 
+    title="Webhooks best practices" 
+    href="/guides/webhooks-best-practices/" 
+    description="Advanced patterns for reliable webhook processing"
+  />
+  <LinkCard 
+    title="Auth flow interceptors" 
+    href="/guides/auth-flow-interceptors/" 
+    description="Customize authentication flows with interceptors"
+  />
+</CardGrid>

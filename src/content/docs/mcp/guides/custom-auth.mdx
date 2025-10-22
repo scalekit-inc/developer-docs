@@ -53,9 +53,11 @@ shape: sequence_diagram
 "Scalekit"
 "Your App"
 
-"MCP Client" -> "Scalekit": Initiate /oauth/authorize\n(dynamic client)
+"MCP Client" -> "Scalekit": Initiate /oauth/authorize
 "Scalekit" -> "Your App": Redirect to /login\n?login_request_id & state
-"Your App" -> "Scalekit": POST user details\n(machine-to-machine)
+"Existing Auth System" <- "Your App": provider/app login box
+"Your App" <- "Existing Auth System": Return user details
+"Your App" -> "Scalekit": POST user details to /auth-requests/login_request_id/user
 "Scalekit" -> "Your App": 200 Success response
 "Your App" -> "Scalekit": Redirect to /partner:callback\n?state
 "Scalekit" -> "MCP Client": Continue consent,\ntoken exchange, etc.

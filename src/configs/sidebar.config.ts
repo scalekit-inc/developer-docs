@@ -52,20 +52,9 @@ export const sidebar = [
       },
       {
         label: 'Customize workflows',
-        items: ['guides/auth-flow-interceptors'],
-      },
-      {
-        label: 'Observability',
-        items: ['guides/dashboard/auth-logs'],
-      },
-      {
-        label: 'User management',
-        collapsed: false,
         items: [
-          'fsa/guides/signup-restrictions',
-          'fsa/guides/user-invitations',
-          'fsa/guides/allowed-email-domains',
-          'fsa/guides/just-in-time-provisioning',
+          'guides/auth-flow-interceptors',
+          'authenticate/implement-workflows/listen-to-webhooks',
         ],
       },
       {
@@ -74,22 +63,7 @@ export const sidebar = [
         items: ['mcp/intro-to-mcp-auth', 'mcp/oauth', 'mcp/guides/custom-auth'],
       },
       {
-        label: 'Enterprise Auth',
-        items: [
-          'sso/quickstart',
-          'sso/guides/sso-user-attributes',
-          'directory/scim/quickstart',
-          'directory/guides/group-based-role-assignment',
-          'guides/sso/admin-portal',
-          {
-            label: 'View all integrations',
-            link: 'guides/integrations',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-      {
-        label: 'Branding',
+        label: 'Customize',
         collapsed: false,
         items: [
           'guides/custom-domain',
@@ -99,8 +73,12 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Going to production',
+        label: 'Deploy',
         items: ['authenticate/launch-checklist'],
+      },
+      {
+        label: 'Observability',
+        items: ['guides/dashboard/auth-logs'],
       },
     ],
   },
@@ -217,6 +195,31 @@ export const sidebar = [
     link: '/dev-kit/',
     icon: 'seti:powershell',
     items: [
+      {
+        label: 'Enterprise Auth',
+        items: [
+          'sso/quickstart',
+          'sso/guides/sso-user-attributes',
+          'directory/scim/quickstart',
+          'directory/guides/group-based-role-assignment',
+          'guides/sso/admin-portal',
+          {
+            label: 'View all integrations',
+            link: 'guides/integrations',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+      {
+        label: 'User management',
+        collapsed: false,
+        items: [
+          'fsa/guides/signup-restrictions',
+          'fsa/guides/user-invitations',
+          'fsa/guides/allowed-email-domains',
+          'fsa/guides/just-in-time-provisioning',
+        ],
+      },
       {
         label: 'Rapid development tools',
         items: [
