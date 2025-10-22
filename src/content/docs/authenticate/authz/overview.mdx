@@ -1,0 +1,42 @@
+---
+title: Authorization overview
+description: "Control what authenticated users can access in your application using roles and permissions"
+sidebar:
+  label: "Overview"
+prev: false
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Now that you have users authenticating and organizing into workspaces, you need to control what they can access within your application. Authorization determines what authenticated users are allowed to do based on their assigned roles and permissions.
+
+Scalekit provides a flexible authorization system that automatically packages user permissions and roles into JWT tokens. Your application receives this authorization data with every authenticated request, eliminating the need for additional database lookups during runtime access checks.
+
+## How authorization works in Scalekit
+
+When users sign up, Scalekit automatically assigns them roles within their organization. The first user becomes an `admin`, while subsequent users receive the `member` role by default. You can customize these defaults and create additional roles specific to your application's needs.
+
+Authorization information travels with users through access tokens and ID tokens. These tokens contain the user's roles and permissions, serving as the authoritative source for access control decisions in your application.
+
+## Core authorization concepts
+
+**Roles** group related permissions together and define what users can do in your system. Common examples include Admin, Manager, Editor, and Viewer. Roles can inherit permissions from other roles, creating hierarchical access levels.
+
+**Permissions** represent specific actions users can perform, formatted as `resource:action` patterns like `projects:create` or `tasks:read`. Use permissions for granular access control when you need precise control over individual capabilities.
+
+## Implementation approaches
+
+Scalekit supports both dashboard-based configuration for quick setup and programmatic management for integration with existing systems. Most applications use a combination of both approaches depending on their operational needs.
+
+<CardGrid>
+  <LinkCard 
+    title="Create and manage permissions" 
+    href="/authenticate/authz/create-permissions/" 
+    description="Set up fine-grained permissions for precise access control in your application"
+  />
+  <LinkCard 
+    title="Set up roles and assign permissions" 
+    href="/fsa/guides/app-roles/" 
+    description="Create user roles, manage inheritance, and implement role-based access control"
+  />
+</CardGrid>

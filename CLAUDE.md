@@ -145,7 +145,7 @@ const example = 'code'
 ```
 ````
 
-```
+````
 
 **Code Block Attributes:**
 - `title` - Describe the framework/context (e.g., "Express.js", "Flask", "Gin")
@@ -244,6 +244,26 @@ const example = 'code'
 - Include all relevant fields with type examples
 - Add comments or descriptions for complex fields
 
+### SDK Variable Naming Standards
+
+**Consistent Variable Names:**
+Always use these exact variable names for Scalekit SDK clients across all documentation:
+
+- **Node.js**: `scalekit`
+- **Python**: `scalekit_client`
+- **Go**: `scalekitClient`
+- **Java**: `scalekitClient`
+
+**Rationale:**
+- Node.js: Simple and follows JavaScript conventions
+- Python: Follows snake_case convention for variables
+- Go & Java: Uses camelCase, descriptive and clear
+
+**Implementation:**
+- All code examples must use these exact variable names
+- Reference the installation guide rather than re-instantiating clients
+- Maintain consistency within each language across all guides
+
 ### Content Quality Checklist
 
 Before publishing documentation:
@@ -257,4 +277,19 @@ Before publishing documentation:
 - [ ] Visual aids (diagrams, screenshots) are included where helpful
 - [ ] Asides highlight important tips, notes, or warnings
 - [ ] "Next steps" or related resources are provided at the end
-```
+- [ ] SDK variable names follow the established standards
+
+## Cursor Rules
+
+For consistent development and documentation:
+
+```typescript
+// Scalekit SDK variable naming standards
+const scalekit = new ScalekitClient(); // Node.js
+const scalekit_client = ScalekitClient(); // Python
+const scalekitClient = new ScalekitClient(); // Go & Java
+
+// Always reference installation guide for client setup
+// Avoid re-instantiating clients in code examples
+// Use established variable names consistently
+````

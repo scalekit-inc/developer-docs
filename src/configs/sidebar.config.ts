@@ -36,15 +36,18 @@ export const sidebar = [
         items: [
           'fsa/guides/manage-users',
           'fsa/guides/custom-user-attributes',
-          'fsa/guides/allowed-email-domains',
-          'fsa/guides/just-in-time-provisioning',
+          'authenticate/manage-organizations/add-users-to-organization',
           'fsa/guides/organization-switching',
         ],
       },
       {
         label: 'Authorization',
         collapsed: false,
-        items: ['fsa/guides/app-roles'],
+        items: [
+          'authenticate/authz/overview',
+          'authenticate/authz/create-permissions',
+          'fsa/guides/app-roles',
+        ],
       },
       {
         label: 'Customize workflows',
@@ -256,6 +259,8 @@ export const sidebar = [
         items: [
           'fsa/data-modelling',
           'fsa/guides/merge-identities',
+          'fsa/guides/allowed-email-domains',
+          'fsa/guides/just-in-time-provisioning',
           'fsa/reference/user-management-settings',
         ],
       },
