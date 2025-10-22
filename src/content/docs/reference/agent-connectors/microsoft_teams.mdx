@@ -2,6 +2,11 @@
 title: Microsoft Teams
 description: Connect to Microsoft Teams. Manage messages, channels, meetings, and team collaboration
 tableOfContents: true
+sidebar:
+  order: 11
+  badge:
+    text: Soon
+    variant: tip
 head:
   - tag: style
     content: |
@@ -25,15 +30,6 @@ head:
         font-size: 0.8em;
         opacity: 0.7;
       }
-
-      /* Style for the copied state */
-      .sl-markdown-content h2.copied::after,
-      .sl-markdown-content h3.copied::after,
-      .sl-markdown-content h4.copied::after {
-        content: " ✓ " !important;
-        font-size: 0.8em;
-        opacity: 0.7;
-      }
   - tag: script
     content: |
       // Using a self-executing function to avoid global namespace pollution
@@ -48,22 +44,17 @@ head:
             heading.setAttribute('data-copy-initialized', 'true');
 
             heading.addEventListener('click', async () => {
-              // Store original HTML for restoration
-              const originalHTML = heading.innerHTML;
-
-              // Build plain text to copy (no backticks)
-              let textToCopy = heading.textContent.trim();
-              // Safety: remove clipboard icon if somehow included
-              textToCopy = textToCopy.replace(/\s📋$/, '');
+              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
 
               try {
-                await navigator.clipboard.writeText(textToCopy);
+                await navigator.clipboard.writeText(headingText);
 
-                // Visual feedback - add a class to change the ::after content
-                heading.classList.add('copied');
+                // Visual feedback
+                const originalText = heading.textContent;
+                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
 
                 setTimeout(() => {
-                  heading.classList.remove('copied');
+                  heading.textContent = originalText;
                 }, 2000);
               } catch (err) {
                 console.error('Failed to copy heading:', err);
@@ -88,16 +79,12 @@ head:
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
 
-<Aside title="Coming Soon" icon='seti:yml'>
-We're busy building more tools and connectors. Have a favorite you want to see next? Drop us a note on our <a href="/support/contact-us">contact page</a> and we'll bump it up the queue.
-</Aside>
-
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
   Connect to Microsoft Teams. Manage messages, channels, meetings, and team collaboration
  </div>
  <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/microsoft-teams.svg" width="64" height="64" alt="Microsoft Teams logo" />
+  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/microsoft-teams.svg" width="64" height="64" alt="Microsoft Teams logo" />
  </div>
 </div>
 
