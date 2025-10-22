@@ -81,7 +81,7 @@ import { Accordion, AccordionItem } from 'accessible-astro-components'
   Connect to Slack workspace. Send Messages as Bots or on behalf of users
  </div>
  <div class="flex justify-center">
-  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/slack.svg" width="64" height="64" alt="Slack logo" />
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/slack.svg" width="64" height="64" alt="Slack logo" />
  </div>
 </div>
 
@@ -99,38 +99,6 @@ Add an emoji reaction to a message in Slack. Requires a valid Slack OAuth2 conne
 | `channel` | Channel ID or channel name where the message exists | string |
 | `name` | Emoji name to react with (without colons) | string |
 | `timestamp` | Timestamp of the message to add reaction to | string |
-
-## `slack_admin_conversations_create`
-
-Creates a public or private channel, or multi-party direct message on behalf of a user in the workspace. Requires admin.conversations:write scope and valid admin privileges.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `is_private` | Create a private channel instead of public | boolean | null |
-| `name` | Name of the conversation to create | string |
-| `team_id` | Encoded team ID to create conversation in (if using org tokens) | string | null |
-| `user_ids` | Comma-separated list of user IDs to add to the conversation | string | null |
-
-## `slack_conversations_invite`
-
-Invites users to a channel or group conversation. This is similar to invite users to channel but uses the conversations.invite API endpoint. Requires channels:write scope for public channels or groups:write for private channels.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `channel` | Channel ID to invite users to | string |
-| `force` | Force invite users even if they're already in the channel | boolean | null |
-| `users` | Comma-separated list of user IDs to invite to the channel | string |
-
-## `slack_conversations_invite_shared`
-
-Invites another workspace to a shared channel. This creates a shared channel invitation that needs to be accepted by the target workspace. Requires channels:manage scope and shared channel permissions.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `channel` | Channel ID to share with another workspace | string |
-| `emails` | Comma-separated list of email addresses to invite | string | null |
-| `external_limited` | Limit external workspace users to viewing the channel | boolean | null |
-| `user_ids` | Comma-separated list of user IDs to invite | string | null |
 
 ## `slack_create_channel`
 
@@ -307,16 +275,3 @@ Updates/edits a previously sent message in a Slack channel or direct message. Re
 | `channel` | Channel ID, channel name (#general), or user ID for DM where the message was sent | string |
 | `text` | New message text content | string | null |
 | `ts` | Timestamp of the message to update | string |
-
-## `slack_upload_file`
-
-Upload a file to Slack using the modern files.getUploadURLExternal and files.completeUploadExternal API methods. This replaces the deprecated files.upload method. Requires a valid Slack OAuth2 connection with files:write scope.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `channels` | Comma-separated list of channel IDs or names to share file to | string | null |
-| `file_data` | Base64 encoded file content or file path | string |
-| `filename` | Name of the file to upload | string |
-| `initial_comment` | Initial comment to add when sharing the file | string | null |
-| `length` | Size of the file in bytes | integer |
-| `thread_ts` | Timestamp of parent message to share file in thread | string | null |
