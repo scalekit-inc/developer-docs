@@ -28,6 +28,40 @@ import CheckItem from '@/components/ui/CheckItem.astro'
   }}
   hasSidebar={false}
 >
+  <div class="mb-8">
+    <label for="auth-filter" class="inline-flex cursor-pointer items-center gap-2">
+      <input type="checkbox" id="auth-filter" value="" class="peer sr-only" />
+      <div
+        class="peer relative h-4 w-7 rounded-full transition-colors"
+        style="background-color: var(--sl-color-gray-4);"
+      >
+        <div
+          class="absolute start-[2px] top-[2px] h-3 w-3 rounded-full transition-all"
+          style="background-color: var(--sl-color-white);"
+        >
+        </div>
+      </div>
+      <span class="text-sm" style="color: var(--sl-color-text);"
+        >Show only items containing 'a', 'u', 't', 'h'</span
+      >
+    </label>
+  </div>
+
+  <style>
+    #auth-filter:checked ~ div {
+      background-color: var(--sl-color-accent) !important;
+    }
+
+    #auth-filter:checked ~ div > div {
+      transform: translateX(100%);
+    }
+
+    #auth-filter:focus ~ div {
+      outline: 2px solid var(--sl-color-accent);
+      outline-offset: 2px;
+    }
+  </style>
+
   <CardGrid>
     <SimpleList>
       <CheckItem href="/authenticate/overview">Authenticate users with Scalekit</CheckItem>
@@ -53,4 +87,35 @@ import CheckItem from '@/components/ui/CheckItem.astro'
       <CheckItem href="/guides/auth-flow-interceptors">Auth flow interceptors</CheckItem>
     </SimpleList>
   </CardGrid>
+
+  <script>
+    const filterCheckbox = document.getElementById('auth-filter')
+    const checkItems = document.querySelectorAll('check-item')
+
+    function containsAuthLetters(text) {
+      const lowerText = text.toLowerCase()
+      return (
+        lowerText.includes('a') &&
+        lowerText.includes('u') &&
+        lowerText.includes('t') &&
+        lowerText.includes('h')
+      )
+    }
+
+    function filterItems() {
+      const isFiltered = filterCheckbox.checked
+
+      checkItems.forEach((item) => {
+        const text = item.textContent || ''
+        const shouldShow = isFiltered ? containsAuthLetters(text) : true
+
+        const listItem = item.closest('li')
+        if (listItem) {
+          listItem.style.display = shouldShow ? '' : 'none'
+        }
+      })
+    }
+
+    filterCheckbox.addEventListener('change', filterItems)
+  </script>
 </StarlightPage>
