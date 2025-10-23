@@ -4,30 +4,63 @@ import { Icon } from '@astrojs/starlight/components'
 interface Props {
   iconName?: string
   icon?: any
+  href?: string
 }
 
-const { iconName = 'approve-check', icon: IconComponent } = Astro.props
+const { iconName = 'approve-check', icon: IconComponent, href } = Astro.props
 ---
 
-<div style="display: flex; align-items: center; margin-bottom: 4px; margin-top: 0.5rem;">
+<div class="check-item-wrapper">
   {
     IconComponent ? (
-      <IconComponent style="width: 1rem; height: 1rem; color: var(--sl-color-text-accent);" />
+      <IconComponent class="check-item-icon" />
     ) : (
-      <Icon name={iconName} color="var(--sl-color-text-accent)" />
+      <Icon name={iconName} color="var(--sl-color-text-accent)" class="check-item-icon" />
     )
   }
-  <span style="margin-left: 8px;"><slot /></span>
+  {
+    href ? (
+      <a href={href} target="_blank" rel="noopener noreferrer" class="check-item-link">
+        <slot />
+      </a>
+    ) : (
+      <span class="check-item-text">
+        <slot />
+      </span>
+    )
+  }
 </div>
 
 <style>
-  .check-item {
+  .check-item-wrapper {
     display: flex;
-    align-items: left;
+    align-items: center;
+    margin-bottom: 4px;
     margin-top: 0.5rem;
   }
 
-  .check-item span {
-    margin-left: 4px;
+  .check-item-icon {
+    width: 1rem;
+    height: 1rem;
+    color: var(--sl-color-text-accent);
+    flex-shrink: 0;
+  }
+
+  .check-item-text {
+    margin-left: 8px;
+  }
+
+  .check-item-link {
+    margin-left: 8px;
+    text-decoration: none;
+    font-weight: inherit;
+    border-bottom: 1px solid transparent;
+    color: inherit;
+    transition: all 0.2s ease;
+  }
+
+  .check-item-link:hover {
+    text-decoration: none;
+    border-bottom: 2px solid currentColor;
   }
 </style>
