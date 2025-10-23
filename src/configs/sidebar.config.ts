@@ -294,14 +294,7 @@ export const sidebar = [
       },
       {
         label: 'Reference',
-        items: [
-          {
-            label: 'Webhooks',
-            autogenerate: { directory: 'reference/webhooks' },
-          },
-          'reference/admin-portal/ui-events',
-          'reference/glossary',
-        ],
+        items: ['reference/glossary'],
       },
       {
         label: 'Support & resources',
@@ -319,6 +312,19 @@ export const sidebar = [
           },
         ],
       },
+    ],
+  },
+  {
+    label: 'Events Reference',
+    id: 'events-reference',
+    link: '/reference/webhooks/event-object/',
+    icon: 'seti:event',
+    items: [
+      {
+        label: 'Webhooks',
+        autogenerate: { directory: 'reference/webhooks' },
+      },
+      'reference/admin-portal/ui-events',
     ],
   },
   {
@@ -389,4 +395,5 @@ export const topics = {
     '/guides/unlisted/passwordless-as-service',
   ], // Developer resources and implementation guides
   integrations: ['/guides/integrations/**/*'], // Integration guide pages
+  'events-reference': ['/reference/webhooks/**/*', '/reference/admin-portal/ui-events'], // Events reference pages
 }
