@@ -3,6 +3,167 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import CardGrid from '@/components/ui/CardGrid.astro'
 import SimpleList from '@/components/ui/SimpleList.astro'
 import CheckItem from '@/components/ui/CheckItem.astro'
+import { getCollection } from 'astro:content'
+
+// Load internal docs with browseCentral metadata
+const docsCollection = await getCollection('docs')
+const browseCentralDocs = docsCollection
+  .filter((doc) => doc.data.browseCentral)
+  .map((doc) => ({
+    title: doc.data.browseCentral?.label || doc.data.title,
+    url: `/${doc.slug}/`,
+    filterType: doc.data.browseCentral?.filterType || [],
+    category: doc.data.browseCentral?.category || [],
+    description: doc.data.description,
+  }))
+
+// Add some static items to supplement the collection
+const staticItems = [
+  {
+    title: 'Authenticate users with Scalekit',
+    url: '/authenticate/overview',
+    filterType: ['tutorial'],
+    category: ['Core Authentication'],
+  },
+  {
+    title: 'Full Stack Auth quickstart',
+    url: '/fsa/quickstart',
+    filterType: ['tutorial'],
+    category: ['Core Authentication'],
+  },
+  {
+    title: 'SSO integration',
+    url: '/sso/quickstart',
+    filterType: ['integration'],
+    category: ['Enterprise Features'],
+  },
+  {
+    title: 'SCIM provisioning',
+    url: '/directory/scim/quickstart',
+    filterType: ['integration'],
+    category: ['Enterprise Features'],
+  },
+  {
+    title: 'MCP authentication',
+    url: '/mcp/quickstart',
+    filterType: ['tutorial'],
+    category: ['Core Authentication'],
+  },
+  {
+    title: 'Integration guides',
+    url: '/guides/integrations',
+    filterType: ['tutorial'],
+    category: ['SDKs & Development Tools'],
+  },
+  {
+    title: 'Code samples',
+    url: '/dev-kit/code-samples',
+    filterType: ['code-sample'],
+    category: ['SDKs & Development Tools'],
+  },
+  {
+    title: 'Webhook reference',
+    url: '/reference/webhooks',
+    filterType: ['reference'],
+    category: ['API Reference'],
+  },
+  {
+    title: 'API reference',
+    url: '/reference/apis',
+    filterType: ['reference'],
+    category: ['API Reference'],
+  },
+  {
+    title: 'Contact support',
+    url: '/support/contact-us',
+    filterType: ['reference'],
+    category: ['Support'],
+  },
+  {
+    title: 'Installation guide',
+    url: '/authenticate/installation',
+    filterType: ['tutorial'],
+    category: ['Getting Started'],
+  },
+  {
+    title: 'Launch checklist',
+    url: '/authenticate/launch-checklist',
+    filterType: ['reference'],
+    category: ['Getting Started'],
+  },
+  {
+    title: 'Security best practices',
+    url: '/guides/security/authentication-security',
+    filterType: ['tutorial'],
+    category: ['Best Practices'],
+  },
+  {
+    title: 'Dashboard guides',
+    url: '/guides/dashboard',
+    filterType: ['tutorial'],
+    category: ['Best Practices'],
+  },
+  {
+    title: 'Auth flow interceptors',
+    url: '/guides/auth-flow-interceptors',
+    filterType: ['tutorial'],
+    category: ['Best Practices'],
+  },
+]
+
+// Combine all resources
+const allResources = [...browseCentralDocs, ...staticItems]
+
+// Organize resources by category
+const categoryMap = new Map<string, typeof allResources>()
+const categoryOrder = [
+  'Getting Started',
+  'Core Authentication',
+  'Enterprise Features',
+  'SDKs & Development Tools',
+  'API Reference',
+  'Best Practices',
+  'Support',
+]
+
+allResources.forEach((resource) => {
+  resource.category.forEach((cat) => {
+    if (!categoryMap.has(cat)) {
+      categoryMap.set(cat, [])
+    }
+    categoryMap.get(cat)!.push(resource)
+  })
+})
+
+// Discover all unique filter types and calculate counts
+const allFilterTypes = new Set<string>()
+const filterCounts = new Map<string, number>()
+
+allResources.forEach((resource) => {
+  resource.filterType.forEach((type) => {
+    allFilterTypes.add(type)
+    filterCounts.set(type, (filterCounts.get(type) || 0) + 1)
+  })
+})
+
+// Create filter data
+const filterLabels = {
+  'code-sample': 'Examples',
+  integration: 'Integrations',
+  tutorial: 'Tutorials',
+  reference: 'Reference',
+}
+
+const filters = Array.from(allFilterTypes)
+  .sort()
+  .map((type) => ({
+    type,
+    label: filterLabels[type as keyof typeof filterLabels] || type,
+    count: filterCounts.get(type) || 0,
+  }))
+
+// Get ordered categories
+const orderedCategories = categoryOrder.filter((cat) => categoryMap.has(cat))
 ---
 
 <StarlightPage
@@ -29,93 +190,271 @@ import CheckItem from '@/components/ui/CheckItem.astro'
   hasSidebar={false}
 >
   <div class="mb-8">
-    <label for="auth-filter" class="inline-flex cursor-pointer items-center gap-2">
-      <input type="checkbox" id="auth-filter" value="" class="peer sr-only" />
-      <div
-        class="peer relative h-4 w-7 rounded-full transition-colors"
-        style="background-color: var(--sl-color-gray-4);"
-      >
-        <div
-          class="absolute start-[2px] top-[2px] h-3 w-3 rounded-full transition-all"
-          style="background-color: var(--sl-color-white);"
-        >
-        </div>
+    <div class="filter-bar-content">
+      <div class="filter-toggles">
+        {
+          filters.map((filter) => (
+            <label class="filter-toggle" for={`filter-${filter.type}`}>
+              <span class="filter-label-text">
+                {filter.label} ({filter.count}):
+              </span>
+              <input
+                type="checkbox"
+                id={`filter-${filter.type}`}
+                class="toggle-checkbox"
+                data-filter-type={filter.type}
+                checked
+                aria-label={`Toggle ${filter.label} filter`}
+              />
+              <div class="toggle-switch">
+                <div class="toggle-handle" />
+              </div>
+            </label>
+          ))
+        }
       </div>
-      <span class="text-sm" style="color: var(--sl-color-text);"
-        >Show only items containing 'a', 'u', 't', 'h'</span
-      >
-    </label>
+    </div>
   </div>
 
   <style>
-    #auth-filter:checked ~ div {
-      background-color: var(--sl-color-accent) !important;
+    .filter-bar-content {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      border-radius: 0.5rem;
     }
 
-    #auth-filter:checked ~ div > div {
-      transform: translateX(100%);
+    .filter-label {
+      font-size: var(--sl-text-sm);
+      font-weight: 500;
+      color: var(--sl-color-gray-2);
+      white-space: nowrap;
     }
 
-    #auth-filter:focus ~ div {
-      outline: 2px solid var(--sl-color-accent);
-      outline-offset: 2px;
+    .filter-toggles {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .filter-label-text {
+      font-size: var(--sl-text-sm);
+      color: var(--sl-color-gray-2);
+      font-weight: 500;
+    }
+
+    .toggle-checkbox {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 2.5rem;
+      height: 1.25rem;
+      background: var(--sl-color-gray-6);
+      border-radius: 1.25rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .toggle-handle {
+      position: absolute;
+      top: 0.125rem;
+      left: 0.125rem;
+      width: 1rem;
+      height: 1rem;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+
+    .toggle-checkbox:checked + .toggle-switch {
+      background: var(--sl-color-accent);
+    }
+
+    .toggle-checkbox:checked + .toggle-switch .toggle-handle {
+      transform: translateX(1.25rem);
+    }
+
+    .category-title {
+      font-size: var(--sl-text-base);
+      color: var(--sl-color-gray-2);
+    }
+
+    .resources-container {
+      margin-top: 2rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--sl-color-gray-2);
+      font-style: italic;
+      margin-top: 3rem;
+    }
+
+    .resource-item {
+      margin: 0.5rem;
     }
   </style>
 
-  <CardGrid>
-    <SimpleList>
-      <CheckItem href="/authenticate/overview">Authenticate users with Scalekit</CheckItem>
-      <CheckItem href="/fsa/quickstart">Full Stack Auth quickstart</CheckItem>
-      <CheckItem href="/sso/quickstart">SSO integration</CheckItem>
-      <CheckItem href="/directory/scim/quickstart">SCIM provisioning</CheckItem>
-      <CheckItem href="/mcp/quickstart">MCP authentication</CheckItem>
-    </SimpleList>
+  <div class="resources-container">
+    <CardGrid>
+      {
+        (() => {
+          // Create arrays for each column
+          const columns = [[], [], []]
+          let currentColumn = 0
 
-    <SimpleList>
-      <CheckItem href="/guides/integrations">Integration guides</CheckItem>
-      <CheckItem href="/dev-kit/code-samples">Code samples</CheckItem>
-      <CheckItem href="/reference/webhooks">Webhook reference</CheckItem>
-      <CheckItem href="/reference/apis">API reference</CheckItem>
-      <CheckItem href="/support/contact-us">Contact support</CheckItem>
-    </SimpleList>
+          // Distribute categories and their items across columns
+          orderedCategories.forEach((categoryName) => {
+            const resources = categoryMap.get(categoryName) || []
 
-    <SimpleList>
-      <CheckItem href="/authenticate/installation">Installation guide</CheckItem>
-      <CheckItem href="/authenticate/launch-checklist">Launch checklist</CheckItem>
-      <CheckItem href="/guides/security/authentication-security">Security best practices</CheckItem>
-      <CheckItem href="/guides/dashboard">Dashboard guides</CheckItem>
-      <CheckItem href="/guides/auth-flow-interceptors">Auth flow interceptors</CheckItem>
-    </SimpleList>
-  </CardGrid>
+            // Add category title to current column
+            columns[currentColumn].push({
+              type: 'category',
+              categoryName,
+              resources,
+            })
+
+            // Add resources to current column
+            resources.forEach((resource) => {
+              columns[currentColumn].push({
+                type: 'resource',
+                resource,
+                categoryName,
+              })
+            })
+
+            // Move to next column for next category
+            currentColumn = (currentColumn + 1) % 3
+          })
+
+          return columns.map((column, columnIndex) => (
+            <SimpleList>
+              {column.map((item, itemIndex) => {
+                if (item.type === 'category') {
+                  return (
+                    <div class="category-section" data-category-section={item.categoryName}>
+                      <h6 class="category-title">{item.categoryName}</h6>
+                    </div>
+                  )
+                } else {
+                  return (
+                    <div
+                      class="resource-item"
+                      data-filter-types={JSON.stringify(item.resource.filterType)}
+                      data-categories={JSON.stringify(item.resource.category)}
+                    >
+                      <CheckItem href={item.resource.url}>{item.resource.title}</CheckItem>
+                    </div>
+                  )
+                }
+              })}
+            </SimpleList>
+          ))
+        })()
+      }
+    </CardGrid>
+  </div>
+
+  <div class="empty-state" style="display: none;">
+    <p>No resources match your selected filters.</p>
+  </div>
 
   <script>
-    const filterCheckbox = document.getElementById('auth-filter')
-    const checkItems = document.querySelectorAll('check-item')
+    // Client-side filtering logic
+    function initializeFiltering() {
+      const toggleCheckboxes = document.querySelectorAll('.toggle-checkbox')
+      const resourceItems = document.querySelectorAll('.resource-item')
+      const categorySections = document.querySelectorAll('[data-category-section]')
+      const emptyState = document.querySelector('.empty-state')
+      const resourcesContainer = document.querySelector('.resources-container')
 
-    function containsAuthLetters(text) {
-      const lowerText = text.toLowerCase()
-      return (
-        lowerText.includes('a') &&
-        lowerText.includes('u') &&
-        lowerText.includes('t') &&
-        lowerText.includes('h')
-      )
-    }
+      const activeFilters = new Set<string>()
 
-    function filterItems() {
-      const isFiltered = filterCheckbox.checked
-
-      checkItems.forEach((item) => {
-        const text = item.textContent || ''
-        const shouldShow = isFiltered ? containsAuthLetters(text) : true
-
-        const listItem = item.closest('li')
-        if (listItem) {
-          listItem.style.display = shouldShow ? '' : 'none'
+      // Initialize all filters as active
+      toggleCheckboxes.forEach((checkbox) => {
+        const filterType = checkbox.getAttribute('data-filter-type')
+        if (filterType && checkbox.checked) {
+          activeFilters.add(filterType)
         }
       })
+
+      // Toggle filter on checkbox change
+      toggleCheckboxes.forEach((checkbox) => {
+        checkbox.addEventListener('change', () => {
+          const filterType = checkbox.getAttribute('data-filter-type')
+          if (!filterType) return
+
+          if (checkbox.checked) {
+            activeFilters.add(filterType)
+          } else {
+            activeFilters.delete(filterType)
+          }
+
+          updateDisplay()
+        })
+      })
+
+      function updateDisplay() {
+        let visibleCount = 0
+
+        // Show/hide resource items based on active filters
+        resourceItems.forEach((item) => {
+          const filterTypesStr = item.getAttribute('data-filter-types')
+          if (!filterTypesStr) return
+
+          const itemFilterTypes = JSON.parse(filterTypesStr)
+          const hasMatch = itemFilterTypes.some((type) => activeFilters.has(type))
+
+          if (hasMatch || activeFilters.size === 0) {
+            item.style.display = 'block'
+            visibleCount++
+          } else {
+            item.style.display = 'none'
+          }
+        })
+
+        // Show/hide category sections based on visible items
+        categorySections.forEach((section) => {
+          const visibleItems = section.querySelectorAll(
+            '.resource-item:not([style*="display: none"])',
+          )
+          if (visibleItems.length > 0) {
+            section.style.display = 'block'
+          } else {
+            section.style.display = 'none'
+          }
+        })
+
+        // Show/hide empty state
+        if (visibleCount === 0 && emptyState && resourcesContainer) {
+          emptyState.style.display = 'block'
+          resourcesContainer.style.display = 'none'
+        } else if (emptyState && resourcesContainer) {
+          emptyState.style.display = 'none'
+          resourcesContainer.style.display = 'block'
+        }
+      }
     }
 
-    filterCheckbox.addEventListener('change', filterItems)
+    // Initialize on page load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeFiltering)
+    } else {
+      initializeFiltering()
+    }
   </script>
 </StarlightPage>
