@@ -1,102 +1,8 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
-import '@/styles/tailwind.css'
-
-const nodeAuthCode = `import { Scalekit } from '@scalekit-sdk/node'
-
-const scalekit = new Scalekit(
-  process.env.SCALEKIT_ENVIRONMENT_URL,
-  process.env.SCALEKIT_CLIENT_ID,
-  process.env.SCALEKIT_CLIENT_SECRET
-)
-
-export async function authenticateUser(code, redirectUri) {
-  const result = await scalekit.authenticateWithCode(code, redirectUri)
-  return {
-    user: result.user,
-    tokens: {
-      accessToken: result.accessToken,
-      idToken: result.idToken,
-      refreshToken: result.refreshToken
-    }
-  }
-}`
-
-const pythonAuthCode = `from scalekit import ScalekitClient
-import os
-
-scalekit_client = ScalekitClient(
-    os.environ.get('SCALEKIT_ENVIRONMENT_URL'),
-    os.environ.get('SCALEKIT_CLIENT_ID'),
-    os.environ.get('SCALEKIT_CLIENT_SECRET')
-)
-
-async def authenticate_user(code: str, redirect_uri: str):
-    result = await scalekit_client.authenticate_with_code(code, redirect_uri)
-    return {
-        'user': result.user,
-        'tokens': {
-            'access_token': result.access_token,
-            'id_token': result.id_token,
-            'refresh_token': result.refresh_token
-        }
-    }`
-
-const sessionCode = `import { Scalekit } from '@scalekit-sdk/node'
-
-const scalekit = new Scalekit(
-  process.env.SCALEKIT_ENVIRONMENT_URL,
-  process.env.SCALEKIT_CLIENT_ID,
-  process.env.SCALEKIT_CLIENT_SECRET
-)
-
-export async function refreshAccessToken(refreshToken) {
-  const result = await scalekit.refreshAccessToken(refreshToken)
-  return result.accessToken
-}
-
-export async function validateToken(accessToken) {
-  return await scalekit.validateAccessToken(accessToken)
-}`
-
-const webhookCode = `import express from 'express'
-import crypto from 'crypto'
-
-const app = express()
-app.use(express.json())
-
-const WEBHOOK_SECRET = process.env.SCALEKIT_WEBHOOK_SECRET
-
-function verifyWebhookSignature(payload, signature) {
-  const hmac = crypto.createHmac('sha256', WEBHOOK_SECRET)
-  const expectedSignature = hmac.update(payload).digest('hex')
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  )
-}
-
-app.post('/webhook', async (req, res) => {
-  const signature = req.headers['x-scalekit-signature']
-  const payload = JSON.stringify(req.body)
-
-  if (!verifyWebhookSignature(payload, signature)) {
-    return res.status(401).json({ error: 'Invalid signature' })
-  }
-
-  const event = req.body
-
-  switch (event.type) {
-    case 'user.created':
-      console.log('User created:', event.data)
-      break
-    case 'user.updated':
-      console.log('User updated:', event.data)
-      break
-  }
-
-  res.status(200).json({ received: true })
-})`
+import CardGrid from '@/components/ui/CardGrid.astro'
+import SimpleList from '@/components/ui/SimpleList.astro'
+import CheckItem from '@/components/ui/CheckItem.astro'
 ---
 
 <StarlightPage
@@ -121,4 +27,30 @@ app.post('/webhook', async (req, res) => {
     ],
   }}
   hasSidebar={false}
-/>
+>
+  <CardGrid>
+    <SimpleList>
+      <CheckItem><a href="/authenticate/overview">Authenticate users with Scalekit</a></CheckItem>
+      <CheckItem>example</CheckItem>
+      <CheckItem>example</CheckItem>
+      <CheckItem>example34</CheckItem>
+      <CheckItem>example5</CheckItem>
+    </SimpleList>
+
+    <SimpleList>
+      <CheckItem>example 1</CheckItem>
+      <CheckItem>example</CheckItem>
+      <CheckItem>example</CheckItem>
+      <CheckItem>example34</CheckItem>
+      <CheckItem>example5</CheckItem>
+    </SimpleList>
+
+    <SimpleList>
+      <CheckItem>example 1</CheckItem>
+      <CheckItem>example</CheckItem>
+      <CheckItem>example</CheckItem>
+      <CheckItem>example34</CheckItem>
+      <CheckItem>example5</CheckItem>
+    </SimpleList>
+  </CardGrid>
+</StarlightPage>
