@@ -31,7 +31,7 @@ Webhooks provide real-time notifications about authentication and user managemen
 
 This guide shows you how to set up webhook endpoints, configure event subscriptions, and securely process webhook payloads in your application.
 
-<details>
+<details open>
 <summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the webhook flow</summary>
 
 ```d2
@@ -40,17 +40,10 @@ shape: sequence_diagram
 User -> Scalekit: Trigger event (login, signup, etc.)
 Scalekit -> Event Queue: Queue webhook event
 Event Queue -> Your App: POST webhook payload
-Your App -> Scalekit SDK: Verify webhook signature
-Scalekit SDK -> Your App: Signature validation result
+Your App <> Scalekit SDK: Verify webhook signature
 Your App -> Your App: Process event data
-Your App -> Event Queue: Return 200 OK response
+Your App -> Event Queue: Return 201 OK response
 
-Event Queue: {
-  shape: class
-  Retry Logic: "3 retries with exponential backoff"
-  Timeout: "10 seconds per attempt"
-  Dead Letter: "Failed events stored for analysis"
-}
 ```
 
 </details>
