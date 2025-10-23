@@ -1,0 +1,162 @@
+---
+title: View webhook logs
+description: Monitor webhook delivery status, troubleshoot failed deliveries, and track webhook events sent to your application endpoints.
+sidebar:
+  label: View webhook logs
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+---
+
+import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components'
+
+Webhook logs provide a complete history of all webhook deliveries sent to your application endpoints. Use them to monitor delivery success rates, troubleshoot failed webhooks, investigate delivery delays, and ensure your webhook integration is functioning correctly.
+
+## What you can track
+
+Webhook logs help you answer critical questions about your webhook integration:
+
+- **Which** webhook events were sent to your application?
+- **When** were specific webhook events delivered?
+- **What** was the delivery status and response from your endpoint?
+- **Why** did certain webhook deliveries fail or retry?
+
+These records are essential for debugging webhook integrations, ensuring data synchronization, and maintaining reliable event processing.
+
+## Access webhook logs
+
+Navigate to **Dashboard > Webhooks** to view your webhook endpoints. Click on the specific webhook endpoint you want to monitor, then click the **"..."** (more options) button to access detailed delivery logs for that endpoint.
+
+
+TODO: Add screenshot showing webhook logs interface
+
+Each log entry displays the webhook event details, delivery status, timestamp, and response information from your application.
+
+## Webhook delivery statuses
+
+Webhook logs display four different statuses that indicate the delivery state of each webhook event:
+
+| Status | Description |
+|--------|-------------|
+| **Success** | Your application endpoint responded with a 2xx status code (typically 200 or 201), confirming successful receipt and processing of the webhook event. |
+| **Queued** | Due to high event volume or rate limiting, the webhook event is queued and waiting to be sent to your application endpoint. Events are processed in the order they were created. |
+| **Failed** | Your application endpoint did not respond, returned a non-2xx status code (typically 4xx or 5xx), or the request timed out. Failed deliveries trigger automatic retries. |
+| **Retrying** | Your application endpoint failed to acknowledge the webhook, and Scalekit is automatically retrying the delivery using exponential backoff. Retries continue up to 3 attempts. |
+
+<Aside type="caution" title="Handling failed webhooks">
+Failed webhooks can indicate issues with your endpoint availability, request validation, or processing logic. Review failed webhook logs to identify patterns and fix integration issues promptly.
+</Aside>
+
+## Filter webhook logs
+
+When troubleshooting webhook delivery issues or investigating specific events, use filters to narrow down log data and quickly identify problems.
+
+**Available filters:**
+
+- **Time range** - Filter logs from the last 5 minutes to the last 30 days to focus on recent deliveries or historical events
+- **Event type** - Filter by specific webhook event types (e.g., `organization.directory.user_created`, `organization.directory.user_updated`) to track particular events
+- **Delivery status** - Filter by Success, Queued, Failed, or Retrying to isolate problematic deliveries or verify successful processing
+
+Use multiple filters together to narrow your search. For example, filter by "Failed" status and a specific event type to investigate why certain events are not being processed successfully.
+
+## Webhook log details
+
+Click on any log entry to view detailed information about the webhook delivery:
+
+<CardGrid>
+
+<div>
+**Request details:**
+- Event ID and type
+- Timestamp when the event occurred
+- Request payload sent to your endpoint
+- Request headers including webhook signature
+</div>
+
+<div>
+**Response details:**
+- HTTP status code returned by your endpoint
+- Response body from your application
+- Response time and latency
+- Retry attempt number (if applicable)
+</div>
+</CardGrid>
+Use these details to debug webhook processing issues, verify signature validation, and ensure your endpoint is handling events correctly.
+
+## Common use cases
+
+- **Debugging integration issues**: When webhook events aren't reaching your application or being processed correctly, review webhook logs to identify delivery failures, check request payloads, and verify your endpoint responses.
+
+- **Monitoring delivery health**: Track webhook delivery success rates over time to ensure your integration remains healthy. Set up alerts for sustained high failure rates that might indicate endpoint downtime.
+
+- **Investigating data synchronization**: When data appears out of sync between Scalekit and your application, verify that all webhook events were delivered successfully. Check for missed or failed events that might explain discrepancies.
+
+- **Performance optimization**: Monitor webhook response times and processing duration. If your endpoint is slow to respond, events may queue up or time out, leading to delivery delays.
+
+- **Compliance and audit trails**: Maintain records of all directory sync events and user provisioning activities for compliance requirements. Webhook logs provide an immutable audit trail of all events.
+
+## Retry behavior
+
+When webhook deliveries fail, Scalekit automatically retries sending the event to your endpoint:
+
+**Retry schedule:**
+- **Attempt 1**: Immediate delivery
+- **Attempt 2**: After 1 minute
+- **Attempt 3**: After 5 minutes
+- **Attempt 4**: After 15 minutes
+
+After the final retry attempt fails, the webhook is marked as permanently failed. You can view these failed webhooks in the logs and manually replay them if needed.
+
+<Aside type="tip" title="Best practices for webhook reliability">
+Ensure your webhook endpoint responds quickly (within 10 seconds), returns appropriate 2xx status codes for successful processing, and implements idempotency to safely handle duplicate deliveries during retries.
+</Aside>
+
+## Troubleshooting failed webhooks
+
+**Endpoint unavailable (5xx errors)**
+Your application server is down, experiencing high load, or unreachable. Verify your endpoint is running and accessible from Scalekit's servers.
+
+**Request validation failures (4xx errors)**
+Your endpoint rejected the request due to signature verification failure, malformed payload, or business logic validation. Check your signature verification implementation and request handling logic.
+
+**Timeout errors**
+Your endpoint took longer than 10 seconds to respond. Optimize your webhook processing to respond quickly, then handle time-consuming operations asynchronously.
+
+**Network connectivity issues**
+Firewall rules, DNS resolution failures, or SSL certificate problems prevented delivery. Ensure your endpoint is publicly accessible and has valid SSL certificates.
+
+## Next steps
+
+Now that you understand webhook logs, explore these resources to build robust webhook integrations:
+
+<CardGrid>
+  <LinkCard
+    title="Implement webhooks"
+    href="/authenticate/implement-workflows/implement-webhooks/"
+    description="Set up webhook endpoints and verify signatures"
+  />
+  <LinkCard
+    title="Webhook integration patterns"
+    href="/dev-kit/guides/webhook-use-cases/"
+    description="Common patterns for user lifecycle and organization management"
+  />
+  <LinkCard
+    title="Webhooks best practices"
+    href="/guides/webhooks-best-practices/"
+    description="Advanced patterns for reliable webhook processing"
+  />
+  <LinkCard
+    title="Webhook events reference"
+    href="/reference/webhooks/directory-events/"
+    description="Complete reference for all webhook event types and payloads"
+  />
+</CardGrid>
+
+<Aside type="note" title="Need help with webhook issues?">
+If you're experiencing persistent webhook delivery failures or need assistance debugging your integration, please [contact our support team](/support/contact-us) for personalized help.
+</Aside>

@@ -1,0 +1,449 @@
+---
+title: "Webhook integration patterns"
+description: "Common patterns for processing webhook events including user lifecycle management, organization provisioning, and authentication monitoring"
+sidebar:
+  label: "Webhook patterns"
+prev: false
+next: false
+---
+
+import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+This guide provides practical examples of common webhook integration patterns. These patterns help you respond to directory sync events, manage user lifecycles, and track authentication activity in your application.
+
+## User lifecycle management
+
+**Sync user data across systems when users are provisioned via directory sync**
+
+When users are provisioned through SCIM or other directory sync protocols, Scalekit sends webhook events to notify your application. Use these events to synchronize user data across your systems, provision accounts in downstream services, and trigger onboarding workflows.
+
+```javascript title="User lifecycle webhook handlers"
+async function handleUserCreated(data) {
+  // Use case: Sync new user to your database when provisioned via SCIM
+  // Common scenarios: HR system integration, automated user provisioning
+  console.log(`New user provisioned: ${data.email} in org: ${data.organization_id}`);
+
+  // Sync to your user database
+  await db.users.create({
+    scalekit_id: data.id,
+    email: data.email,
+    given_name: data.given_name,
+    family_name: data.family_name,
+    organization_id: data.organization_id,
+    active: data.active,
+    roles: data.roles,
+    groups: data.groups,
+    created_at: new Date()
+  });
+
+  // Trigger onboarding workflow
+  await onboardingService.startUserOnboarding({
+    userId: data.id,
+    email: data.email,
+    organizationId: data.organization_id
+  });
+
+  // Provision external accounts (email, Slack, project management tools)
+  await externalServices.createUserAccounts(data);
+
+  // Send welcome email
+  await emailService.sendWelcomeEmail({
+    to: data.email,
+    name: data.given_name,
+    organizationName: data.organization_id
+  });
+}
+
+async function handleUserUpdated(data) {
+  // Use case: Keep user profiles synchronized across systems
+  // Common scenarios: Role changes, department transfers, profile updates
+  console.log(`User updated: ${data.email}`);
+
+  // Update user profile in your database
+  await db.users.update(
+    { scalekit_id: data.id },
+    {
+      email: data.email,
+      given_name: data.given_name,
+      family_name: data.family_name,
+      active: data.active,
+      roles: data.roles,
+      groups: data.groups,
+      updated_at: new Date()
+    }
+  );
+
+  // Update permissions based on new roles
+  if (data.roles) {
+    await permissionsService.updateUserRoles(data.id, data.roles);
+  }
+
+  // Update group memberships
+  if (data.groups) {
+    await groupService.syncUserGroups(data.id, data.groups);
+  }
+
+  // Sync changes to external systems
+  await externalServices.updateUserProfile(data);
+
+  // Notify user of profile changes
+  await notificationService.notifyProfileUpdate(data.email);
+}
+
+async function handleUserDeleted(data) {
+  // Use case: Deprovision user access when removed from directory
+  // Common scenarios: Employee offboarding, access revocation
+  console.log(`User deprovisioned: ${data.email}`);
+
+  // Revoke all active sessions
+  await sessionService.revokeUserSessions(data.id);
+
+  // Archive user data (maintain for audit/compliance)
+  await db.users.update(
+    { scalekit_id: data.id },
+    {
+      active: false,
+      deprovisioned_at: new Date(),
+      archived: true
+    }
+  );
+
+  // Revoke access to external systems
+  await externalServices.revokeUserAccess(data.id);
+
+  // Transfer ownership of user's resources
+  await resourceService.transferOwnership(data.id, data.organization_id);
+
+  // Log deprovisioning event for audit
+  await auditLog.record({
+    event: 'user.deprovisioned',
+    userId: data.id,
+    email: data.email,
+    timestamp: new Date()
+  });
+}
+```
+
+## Group and role management
+
+**Manage group memberships and role assignments from your identity provider**
+
+Directory sync includes group and role information that you can use to manage permissions and access control in your application.
+
+```javascript title="Group management webhook handlers"
+async function handleGroupCreated(data) {
+  // Use case: Create internal groups when new teams are created in IdP
+  // Common scenarios: Department creation, team provisioning
+  console.log(`New group created: ${data.display_name}`);
+
+  // Create group in your application
+  await db.groups.create({
+    scalekit_id: data.id,
+    display_name: data.display_name,
+    organization_id: data.organization_id,
+    external_id: data.external_id,
+    created_at: new Date()
+  });
+
+  // Set up default group permissions
+  await permissionsService.createGroupPermissions(data.id);
+
+  // Provision group resources (shared folders, channels, etc.)
+  await resourceService.provisionGroupResources(data);
+}
+
+async function handleGroupUpdated(data) {
+  // Use case: Synchronize group changes from IdP
+  // Common scenarios: Membership changes, name updates
+  console.log(`Group updated: ${data.display_name}`);
+
+  // Update group information
+  await db.groups.update(
+    { scalekit_id: data.id },
+    {
+      display_name: data.display_name,
+      external_id: data.external_id,
+      updated_at: new Date()
+    }
+  );
+
+  // Sync group members from directory
+  await groupService.syncGroupMembers(data.id);
+
+  // Update permissions if group roles changed
+  await permissionsService.updateGroupPermissions(data.id);
+}
+
+async function handleGroupDeleted(data) {
+  // Use case: Clean up resources when groups are deleted in IdP
+  // Common scenarios: Team dissolution, department restructuring
+  console.log(`Group deleted: ${data.display_name}`);
+
+  // Remove group from your database
+  await db.groups.update(
+    { scalekit_id: data.id },
+    {
+      deleted: true,
+      deleted_at: new Date()
+    }
+  );
+
+  // Revoke group-based permissions
+  await permissionsService.revokeGroupPermissions(data.id);
+
+  // Clean up group resources
+  await resourceService.cleanupGroupResources(data.id);
+
+  // Reassign group-owned resources
+  await resourceService.reassignGroupResources(data.id, data.organization_id);
+}
+```
+
+## Directory sync monitoring
+
+**Track directory synchronization status and respond to changes**
+
+Monitor directory sync activation and deactivation to maintain data consistency and handle configuration changes.
+
+```javascript title="Directory sync webhook handlers"
+async function handleDirectoryEnabled(data) {
+  // Use case: Initialize sync when directory is first connected
+  // Common scenarios: New customer onboarding, SSO setup
+  console.log(`Directory sync enabled for org: ${data.organization_id}`);
+
+  // Update organization settings
+  await db.organizations.update(
+    { scalekit_id: data.organization_id },
+    {
+      directory_sync_enabled: true,
+      directory_provider: data.provider,
+      directory_type: data.directory_type,
+      last_sync_enabled: new Date()
+    }
+  );
+
+  // Trigger initial full sync
+  await syncService.scheduleFullSync(data.organization_id);
+
+  // Notify organization admins
+  await notificationService.notifyDirectorySyncEnabled({
+    organizationId: data.organization_id,
+    provider: data.provider
+  });
+
+  // Set up sync monitoring
+  await monitoringService.enableSyncMonitoring(data.organization_id);
+}
+
+async function handleDirectoryDisabled(data) {
+  // Use case: Handle directory sync disconnection
+  // Common scenarios: Migration to different provider, sync issues
+  console.log(`Directory sync disabled for org: ${data.organization_id}`);
+
+  // Update organization settings
+  await db.organizations.update(
+    { scalekit_id: data.organization_id },
+    {
+      directory_sync_enabled: false,
+      last_sync_disabled: new Date()
+    }
+  );
+
+  // Pause automatic provisioning
+  await provisioningService.pauseAutoProvisioning(data.organization_id);
+
+  // Notify organization admins
+  await notificationService.notifyDirectorySyncDisabled({
+    organizationId: data.organization_id,
+    reason: 'Directory sync has been disabled'
+  });
+
+  // Keep existing users but flag for review
+  await userService.flagUsersForReview(data.organization_id);
+}
+```
+
+## Organization provisioning automation
+
+**Automate workspace setup when new organizations are created via directory sync**
+
+```javascript title="Organization provisioning handlers"
+async function handleOrganizationProvisioning(directoryEvent) {
+  // Use case: Automated tenant provisioning for enterprise customers
+  const organizationId = directoryEvent.organization_id;
+
+  // Set up organization workspace
+  await workspaceService.createOrganizationWorkspace({
+    organizationId: organizationId,
+    directoryProvider: directoryEvent.provider,
+    syncEnabled: true
+  });
+
+  // Configure default settings based on directory provider
+  await configService.applyDefaultSettings({
+    organizationId: organizationId,
+    provider: directoryEvent.provider,
+    settings: {
+      autoProvisioning: true,
+      deprovisioning: true,
+      groupSync: true
+    }
+  });
+
+  // Set up billing based on directory user count
+  const userCount = await directoryService.getUserCount(organizationId);
+  await billingService.initializeSubscription({
+    organizationId: organizationId,
+    seatCount: userCount,
+    plan: 'enterprise'
+  });
+
+  // Provision organization-specific resources
+  await resourceService.provisionOrganizationResources(organizationId);
+
+  // Enable audit logging for enterprise customers
+  await auditService.enableOrganizationAudit(organizationId);
+}
+```
+
+## Compliance and audit tracking
+
+**Maintain comprehensive audit logs for compliance requirements**
+
+```javascript title="Audit logging patterns"
+async function trackComplianceEvents(event) {
+  // Use case: Maintain audit trail for SOC2, GDPR, HIPAA compliance
+  // Log all user provisioning, deprovisioning, and access changes
+
+  const auditEntry = {
+    event_id: event.id,
+    event_type: event.type,
+    occurred_at: event.occurred_at,
+    organization_id: event.organization_id,
+    environment_id: event.environment_id,
+    object_type: event.object,
+    data: event.data,
+    processed_at: new Date()
+  };
+
+  // Store in compliance audit log
+  await db.audit_logs.create(auditEntry);
+
+  // For sensitive operations, create additional compliance records
+  if (isSensitiveOperation(event.type)) {
+    await complianceService.recordSensitiveOperation({
+      eventId: event.id,
+      eventType: event.type,
+      affectedUser: event.data.email,
+      organizationId: event.organization_id,
+      timestamp: event.occurred_at,
+      details: event.data
+    });
+  }
+
+  // Trigger compliance notifications for specific events
+  if (requiresComplianceNotification(event.type)) {
+    await complianceService.notifyComplianceTeam({
+      eventType: event.type,
+      organizationId: event.organization_id,
+      details: auditEntry
+    });
+  }
+}
+
+function isSensitiveOperation(eventType) {
+  const sensitiveOperations = [
+    'organization.directory.user_deleted',
+    'organization.directory_disabled'
+  ];
+  return sensitiveOperations.includes(eventType);
+}
+```
+
+## Integration with external systems
+
+**Synchronize user data with external tools and services**
+
+```javascript title="External system integration"
+async function syncToExternalSystems(userData) {
+  // Use case: Keep user data synchronized across multiple SaaS tools
+  // Common integrations: Slack, email providers, project management, CRM
+
+  try {
+    // Provision email account
+    await emailProvider.createAccount({
+      email: userData.email,
+      name: `${userData.given_name} ${userData.family_name}`,
+      organizationId: userData.organization_id
+    });
+
+    // Add to Slack workspace
+    await slackIntegration.inviteUser({
+      email: userData.email,
+      name: userData.given_name,
+      groups: userData.groups
+    });
+
+    // Sync to CRM
+    await crmIntegration.createContact({
+      email: userData.email,
+      firstName: userData.given_name,
+      lastName: userData.family_name,
+      company: userData.organization_id,
+      source: 'directory_sync'
+    });
+
+    // Add to project management tool
+    await projectManagementTool.addTeamMember({
+      email: userData.email,
+      name: `${userData.given_name} ${userData.family_name}`,
+      role: determineProjectRole(userData.roles)
+    });
+
+    // Log successful sync
+    await syncLog.record({
+      userId: userData.id,
+      systems: ['email', 'slack', 'crm', 'project_management'],
+      status: 'success',
+      timestamp: new Date()
+    });
+
+  } catch (error) {
+    // Handle partial sync failures
+    await handleSyncError(userData.id, error);
+  }
+}
+
+function determineProjectRole(userRoles) {
+  // Map directory roles to project management roles
+  if (userRoles.some(r => r.role_name.includes('admin'))) {
+    return 'admin';
+  }
+  if (userRoles.some(r => r.role_name.includes('manager'))) {
+    return 'manager';
+  }
+  return 'member';
+}
+```
+
+## Next steps
+
+Now that you understand common webhook patterns, explore these resources to build robust integrations:
+
+<CardGrid>
+  <LinkCard
+    title="Implement webhooks"
+    href="/authenticate/implement-workflows/implement-webhooks/"
+    description="Set up webhook endpoints and verify signatures"
+  />
+  <LinkCard
+    title="Webhooks best practices"
+    href="/guides/webhooks-best-practices/"
+    description="Advanced patterns for reliable webhook processing"
+  />
+  <LinkCard
+    title="Webhook events reference"
+    href="/reference/webhooks/directory-events/"
+    description="Complete reference for all webhook event types and payloads"
+  />
+</CardGrid>

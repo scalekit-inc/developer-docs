@@ -51,10 +51,10 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Customize workflows',
+        label: 'Build custom workflows',
         items: [
           'guides/auth-flow-interceptors',
-          'authenticate/implement-workflows/listen-to-webhooks',
+          'authenticate/implement-workflows/implement-webhooks',
         ],
       },
       {
@@ -78,7 +78,7 @@ export const sidebar = [
       },
       {
         label: 'Observability',
-        items: ['guides/dashboard/auth-logs'],
+        items: ['guides/dashboard/auth-logs', 'guides/view-webhook-logs'],
       },
     ],
   },
@@ -230,6 +230,7 @@ export const sidebar = [
             label: 'Code samples',
             link: '/dev-kit/code-samples',
           },
+          'dev-kit/guides/webhook-use-cases',
           {
             label: 'Postman collections',
             link: 'https://github.com/scalekit-inc/api-collections',
