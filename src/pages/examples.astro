@@ -9,13 +9,18 @@ import { getCollection } from 'astro:content'
 const docsCollection = await getCollection('docs')
 const browseCentralDocs = docsCollection
   .filter((doc) => doc.data.browseCentral)
-  .map((doc) => ({
-    title: doc.data.browseCentral?.label || doc.data.title,
-    url: `/${doc.slug}/`,
-    filterType: doc.data.browseCentral?.filterType || [],
-    category: doc.data.browseCentral?.category || [],
-    description: doc.data.description,
-  }))
+  .map((doc) => {
+    // Use custom slug from frontmatter if available, otherwise use the document id
+    const pageSlug = doc.data.slug || doc.id
+
+    return {
+      title: doc.data.browseCentral?.label || doc.data.title,
+      url: `/${pageSlug}/`,
+      filterType: doc.data.browseCentral?.filterType || [],
+      category: doc.data.browseCentral?.category || [],
+      description: doc.data.description,
+    }
+  })
 
 // Add some static items to supplement the collection
 const staticItems = [
