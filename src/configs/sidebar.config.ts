@@ -213,12 +213,7 @@ export const sidebar = [
       {
         label: 'User management',
         collapsed: false,
-        items: [
-          'fsa/guides/signup-restrictions',
-          'fsa/guides/user-invitations',
-          'fsa/guides/allowed-email-domains',
-          'fsa/guides/just-in-time-provisioning',
-        ],
+        items: ['fsa/guides/signup-restrictions', 'fsa/guides/user-invitations'],
       },
       {
         label: 'Rapid development tools',
@@ -244,30 +239,18 @@ export const sidebar = [
         items: [
           'fsa/guides/auth-methods',
           'fsa/guides/implement-signup',
-          'fsa/guides/implement-login',
           'passwordless/oidc',
           'passwordless/quickstart',
           'social-logins/quickstart',
           'guides/interceptor-scenarios',
           'guides/dashboard/redirects',
-          {
-            label: 'MCP Auth',
-            collapsed: false,
-            items: ['mcp/overview', 'mcp/oauth', 'mcp/guides/custom-auth'],
-          },
           'fsa/guides/migration-guide',
         ],
       },
       {
         label: 'User & organization management',
         collapsed: false,
-        items: [
-          'fsa/data-modelling',
-          'fsa/guides/merge-identities',
-          'fsa/guides/allowed-email-domains',
-          'fsa/guides/just-in-time-provisioning',
-          'fsa/reference/user-management-settings',
-        ],
+        items: ['fsa/guides/merge-identities', 'fsa/reference/user-management-settings'],
       },
       {
         label: 'Enterprise features',
@@ -305,7 +288,6 @@ export const sidebar = [
           'dev-kit/resources/authorization-best-practices',
           'guides/client-credentials-practices',
           'guides/webhooks-best-practices',
-          'authenticate/launch-checklist',
           'guides/idtoken-claims',
           'sso/guides/authorization-url',
         ],
