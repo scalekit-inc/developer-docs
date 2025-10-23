@@ -25,7 +25,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Scalekit Docs',
-      titleDelimiter: '',
+      titleDelimiter: '-',
       routeMiddleware: './src/routeData.ts',
       lastUpdated: true,
       tableOfContents: {

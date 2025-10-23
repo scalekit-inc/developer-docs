@@ -225,6 +225,10 @@ export const sidebar = [
             label: 'Code samples',
             link: '/dev-kit/code-samples',
           },
+          {
+            label: 'Examples',
+            link: '/examples',
+          },
           'dev-kit/guides/webhook-use-cases',
           {
             label: 'Postman collections',
@@ -381,6 +385,7 @@ export const topics = {
   m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
   'dev-kit': [
     '/dev-kit/**/*',
+    '/examples',
     '/win-with-scalekit',
     '/win-with-scalekit/**/*',
     '/passwordless/**/*',
