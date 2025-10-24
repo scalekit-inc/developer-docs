@@ -24,6 +24,7 @@ import IconStreamlineFreehandLearningProgrammingFlag from '~icons/streamline-fre
 import IconStreamlineFreehandLearningProgrammingBook from '~icons/streamline-freehand/learning-programming-book'
 import IconFluentLearningApp24Regular from '~icons/fluent/learning-app-24-regular'
 import IconMaterialSymbolsCodeRounded from '~icons/material-symbols/code-rounded'
+import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 
 // Static icon mapping for supported technologies
 export const iconMap = {
@@ -54,6 +55,8 @@ export const iconMap = {
   'code-sample': IconLucideSquareCode,
   github: IconLucideGithub,
   tutorial: IconFluentLearningApp24Regular,
+  library: IconStreamlineFreehandLearningProgrammingBook,
+  book: IconLucideBookOpenText,
 }
 
 export type IconKey = keyof typeof iconMap

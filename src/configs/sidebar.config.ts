@@ -196,7 +196,11 @@ export const sidebar = [
     icon: 'seti:powershell',
     items: [
       {
-        label: 'Enterprise Auth',
+        label: 'Basics',
+        items: ['dev-kit/resources/ai-assisted-setup'],
+      },
+      {
+        label: 'Enterprise authentication',
         items: [
           'sso/quickstart',
           'sso/guides/sso-user-attributes',
@@ -219,7 +223,6 @@ export const sidebar = [
         label: 'Rapid development tools',
         items: [
           'dev-kit/mcp',
-          'dev-kit/resources/ai-assisted-setup',
           'dev-kit/sdks/overview',
           {
             label: 'Code samples',
