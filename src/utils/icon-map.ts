@@ -16,7 +16,8 @@ import IconDjango from '~icons/simple-icons/django'
 import IconRipple from '~icons/simple-icons/ripple'
 import IconExpress from '~icons/simple-icons/express'
 import IconReaddotcv from '~icons/simple-icons/readdotcv'
-import IconProgress from '~icons/simple-icons/progress'
+import IconStreamlinePlumpBusinessProgressBar2 from '~icons/streamline-plump/business-progress-bar-2'
+
 import IconLucideFileVideoCamera from '~icons/lucide/file-video-camera'
 import IconLucideSquareCode from '~icons/lucide/square-code'
 import IconLucideGithub from '~icons/lucide/github'
@@ -26,6 +27,7 @@ import IconFluentLearningApp24Regular from '~icons/fluent/learning-app-24-regula
 import IconMaterialSymbolsCodeRounded from '~icons/material-symbols/code-rounded'
 import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 import IconHugeiconsTypescript01 from '~icons/hugeicons/typescript-01'
+import IconLucideMessageCircleQuestionMark from '~icons/lucide/message-circle-question-mark'
 
 // Import navigation icons
 import IconLucideShield from '~icons/lucide/shield'
@@ -57,7 +59,7 @@ export const iconMap = {
   expressjs: IconExpress,
   read: IconReaddotcv,
   blog: IconReaddotcv,
-  progress: IconProgress,
+  progress: IconStreamlinePlumpBusinessProgressBar2,
   migrate: IconCarbonMigrate,
   video: IconLucideFileVideoCamera,
   code: IconMaterialSymbolsCodeRounded,
@@ -83,6 +85,7 @@ export const iconMap = {
   'code-samples': IconLucideCode,
   'chevron-down': IconLucideChevronDown,
   typescript: IconHugeiconsTypescript01,
+  support: IconLucideMessageCircleQuestionMark,
 }
 
 export type IconKey = keyof typeof iconMap
