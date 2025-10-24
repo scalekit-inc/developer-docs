@@ -197,7 +197,10 @@ export const sidebar = [
     items: [
       {
         label: 'Basics',
-        items: ['dev-kit/resources/ai-assisted-setup'],
+        items: [
+          'dev-kit/resources/ai-assisted-setup',
+          'browse/code-samples/client-credentials-auth',
+        ],
       },
       {
         label: 'Enterprise authentication',

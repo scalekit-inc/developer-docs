@@ -8,6 +8,9 @@ interface Props {
 }
 
 const { iconName = 'approve-check', icon: IconComponent, href } = Astro.props
+
+// Check if href is external (starts with http:// or https://)
+const isExternal = href && (href.startsWith('http://') || href.startsWith('https://'))
 ---
 
 <div class="check-item-wrapper">
@@ -20,7 +23,11 @@ const { iconName = 'approve-check', icon: IconComponent, href } = Astro.props
   }
   {
     href ? (
-      <a href={href} target="_blank" rel="noopener noreferrer" class="check-item-link">
+      <a
+        href={href}
+        {...(isExternal && { target: '_blank', rel: 'noopener noreferrer' })}
+        class="check-item-link"
+      >
         <slot />
       </a>
     ) : (

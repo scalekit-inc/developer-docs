@@ -25,6 +25,7 @@ import IconStreamlineFreehandLearningProgrammingBook from '~icons/streamline-fre
 import IconFluentLearningApp24Regular from '~icons/fluent/learning-app-24-regular'
 import IconMaterialSymbolsCodeRounded from '~icons/material-symbols/code-rounded'
 import IconLucideBookOpenText from '~icons/lucide/book-open-text'
+import IconHugeiconsTypescript01 from '~icons/hugeicons/typescript-01'
 
 // Import navigation icons
 import IconLucideShield from '~icons/lucide/shield'
@@ -81,6 +82,7 @@ export const iconMap = {
   integrations: IconLucideWrench,
   'code-samples': IconLucideCode,
   'chevron-down': IconLucideChevronDown,
+  typescript: IconHugeiconsTypescript01,
 }
 
 export type IconKey = keyof typeof iconMap
