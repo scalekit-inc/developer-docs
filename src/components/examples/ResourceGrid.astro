@@ -1,0 +1,73 @@
+---
+import type { Column } from '@/utils/examples'
+import CardGrid from '@/components/ui/CardGrid.astro'
+import SimpleList from '@/components/ui/SimpleList.astro'
+import CheckItem from '@/components/ui/CheckItem.astro'
+
+export interface Props {
+  columns: Column[]
+}
+
+const { columns } = Astro.props
+---
+
+<div class="resources-container">
+  <CardGrid>
+    {
+      columns.map((column) => (
+        <SimpleList>
+          {column.items.map((item) => {
+            if (item.type === 'category') {
+              return (
+                <div class="category-section" data-category-section={item.categoryName}>
+                  <h3 class="category-title">{item.categoryName}</h3>
+                </div>
+              )
+            } else {
+              return (
+                <div
+                  class="resource-item"
+                  data-filter-types={JSON.stringify(item.resource?.filterType)}
+                  data-categories={JSON.stringify(item.resource?.category)}
+                >
+                  <CheckItem href={item.resource?.url || '#'}>{item.resource?.title}</CheckItem>
+                </div>
+              )
+            }
+          })}
+        </SimpleList>
+      ))
+    }
+  </CardGrid>
+</div>
+
+<div class="empty-state" style="display: none;">
+  <p>No resources match your selected filters.</p>
+</div>
+
+<style>
+  .resources-container {
+    margin-top: 1rem;
+  }
+
+  .category-section {
+    margin-bottom: 0.1rem;
+  }
+
+  .category-title {
+    font-size: var(--sl-text-base);
+    font-weight: 600;
+    color: var(--sl-color-gray-2);
+  }
+
+  .resource-item {
+    margin: 0.25rem 0;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--sl-color-gray-2);
+    font-style: italic;
+    margin-top: 2rem;
+  }
+</style>

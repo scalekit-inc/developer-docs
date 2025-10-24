@@ -1,0 +1,121 @@
+---
+import type { Filter } from '@/utils/examples'
+
+export interface Props {
+  filters: Filter[]
+}
+
+const { filters } = Astro.props
+---
+
+<div class="filter-bar-content">
+  <div class="filter-toggles">
+    {
+      filters.map((filter) => (
+        <label class="filter-toggle" for={`filter-${filter.type}`}>
+          <span class="filter-label-text">
+            {filter.label} ({filter.count})
+          </span>
+          <input
+            type="checkbox"
+            id={`filter-${filter.type}`}
+            class="toggle-checkbox"
+            data-filter-type={filter.type}
+            checked
+            aria-label={`Toggle ${filter.label} filter`}
+          />
+          <div class="toggle-switch">
+            <div class="toggle-handle" />
+          </div>
+        </label>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .filter-bar-content {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .filter-label {
+    font-size: var(--sl-text-sm);
+    font-weight: 500;
+    color: var(--sl-color-gray-2);
+    white-space: nowrap;
+  }
+
+  .filter-toggles {
+    display: flex;
+    align-items: baseline;
+    gap: 2rem;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .filter-label-text {
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-2);
+    font-weight: 500;
+  }
+
+  .toggle-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 1.75rem;
+    height: 0.875rem;
+    background: var(--sl-color-gray-6);
+    border-radius: 0.875rem;
+    transition: background-color 0.2s ease;
+  }
+
+  .toggle-handle {
+    position: absolute;
+    top: 0.0875rem;
+    left: 0.0875rem;
+    width: 0.7rem;
+    height: 0.7rem;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+  }
+
+  .toggle-checkbox:checked + .toggle-switch {
+    background: var(--sl-color-accent);
+  }
+
+  .toggle-checkbox:checked + .toggle-switch .toggle-handle {
+    transform: translateX(0.875rem);
+  }
+
+  @media (max-width: 768px) {
+    .filter-bar-content {
+      padding: 0.75rem 1rem;
+      gap: 1rem;
+    }
+
+    .filter-toggles {
+      gap: 1rem;
+    }
+  }
+</style>
