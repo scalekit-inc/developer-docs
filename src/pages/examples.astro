@@ -22,102 +22,8 @@ const browseCentralDocs = docsCollection
     }
   })
 
-// Add some static items to supplement the collection
-const staticItems = [
-  {
-    title: 'Authenticate users with Scalekit',
-    url: '/authenticate/overview',
-    filterType: ['tutorial'],
-    category: ['Core Authentication'],
-  },
-  {
-    title: 'Full Stack Auth quickstart',
-    url: '/fsa/quickstart',
-    filterType: ['tutorial'],
-    category: ['Core Authentication'],
-  },
-  {
-    title: 'SSO integration',
-    url: '/sso/quickstart',
-    filterType: ['integration'],
-    category: ['Enterprise Features'],
-  },
-  {
-    title: 'SCIM provisioning',
-    url: '/directory/scim/quickstart',
-    filterType: ['integration'],
-    category: ['Enterprise Features'],
-  },
-  {
-    title: 'MCP authentication',
-    url: '/mcp/quickstart',
-    filterType: ['tutorial'],
-    category: ['Core Authentication'],
-  },
-  {
-    title: 'Integration guides',
-    url: '/guides/integrations',
-    filterType: ['tutorial'],
-    category: ['SDKs & Development Tools'],
-  },
-  {
-    title: 'Code samples',
-    url: '/dev-kit/code-samples',
-    filterType: ['code-sample'],
-    category: ['SDKs & Development Tools'],
-  },
-  {
-    title: 'Webhook reference',
-    url: '/reference/webhooks',
-    filterType: ['reference'],
-    category: ['API Reference'],
-  },
-  {
-    title: 'API reference',
-    url: '/reference/apis',
-    filterType: ['reference'],
-    category: ['API Reference'],
-  },
-  {
-    title: 'Contact support',
-    url: '/support/contact-us',
-    filterType: ['reference'],
-    category: ['Support'],
-  },
-  {
-    title: 'Installation guide',
-    url: '/authenticate/installation',
-    filterType: ['tutorial'],
-    category: ['Getting Started'],
-  },
-  {
-    title: 'Launch checklist',
-    url: '/authenticate/launch-checklist',
-    filterType: ['reference'],
-    category: ['Getting Started'],
-  },
-  {
-    title: 'Security best practices',
-    url: '/guides/security/authentication-security',
-    filterType: ['tutorial'],
-    category: ['Best Practices'],
-  },
-  {
-    title: 'Dashboard guides',
-    url: '/guides/dashboard',
-    filterType: ['tutorial'],
-    category: ['Best Practices'],
-  },
-  {
-    title: 'Auth flow interceptors',
-    url: '/guides/auth-flow-interceptors',
-    filterType: ['tutorial'],
-    category: ['Best Practices'],
-  },
-]
-
-// Combine all resources
-const allResources = [...browseCentralDocs, ...staticItems]
+// Use only dynamic resources from browseCentral frontmatter
+const allResources = browseCentralDocs
 
 // Organize resources by category
 const categoryMap = new Map<string, typeof allResources>()
@@ -432,16 +338,10 @@ const orderedCategories = categoryOrder.filter((cat) => categoryMap.has(cat))
           }
         })
 
-        // Show/hide category sections based on visible items
+        // Keep all category sections visible, but handle empty categories gracefully
+        // Don't hide category sections - users should see all categories even if empty after filtering
         categorySections.forEach((section) => {
-          const visibleItems = section.querySelectorAll(
-            '.resource-item:not([style*="display: none"])',
-          )
-          if (visibleItems.length > 0) {
-            section.style.display = 'block'
-          } else {
-            section.style.display = 'none'
-          }
+          section.style.display = 'block'
         })
 
         // Show/hide empty state

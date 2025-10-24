@@ -68,7 +68,7 @@ Implementing secure and maintainable authorization requires careful planning and
 
 // ✅ Granular - precise control
 "users:create"
-"users:read" 
+"users:read"
 "users:update"
 "users:delete"
 "billing:read"
@@ -137,7 +137,7 @@ function hasPermission(user, permission) {
 // ✅ Secure with audit logging
 function hasPermission(user, permission, resource = null) {
   const granted = user?.permissions?.includes(permission) || false;
-  
+
   // Log all access attempts for security auditing
   auditLog({
     userId: user?.id,
@@ -147,7 +147,7 @@ function hasPermission(user, permission, resource = null) {
     timestamp: new Date().toISOString(),
     ipAddress: getCurrentRequestIP()
   });
-  
+
   return granted;
 }
 ```
@@ -165,11 +165,11 @@ class AuthorizationService {
   static hasPermission(user, permission) {
     return user?.permissions?.includes(permission) || false;
   }
-  
+
   static hasRole(user, role) {
     return user?.roles?.includes(role) || false;
   }
-  
+
   static canManageProject(user, project) {
     // Centralized business logic for project access
     return (
@@ -178,12 +178,12 @@ class AuthorizationService {
       (project.managers.includes(user.id) && this.hasPermission(user, 'projects:manage'))
     );
   }
-  
+
   static requirePermission(permission) {
     return (req, res, next) => {
       if (!this.hasPermission(req.user, permission)) {
-        return res.status(403).json({ 
-          error: `Access denied. Required permission: ${permission}` 
+        return res.status(403).json({
+          error: `Access denied. Required permission: ${permission}`
         });
       }
       next();
@@ -211,19 +211,19 @@ app.use('/api/admin/*', requireRole('admin'));
 app.get('/api/projects/:id', requirePermission('projects:read'), (req, res) => {
   // Layer 3: Business logic validation
   const project = getProject(req.params.id);
-  
+
   if (!canAccessProject(req.user, project)) {
     return res.status(403).json({ error: 'Access denied to this project' });
   }
-  
+
   res.json(project);
 });
 
 // Layer 4: Database-level security (where possible)
 async function getProjectsForUser(userId, organizationId) {
   return await db.query(`
-    SELECT p.* FROM projects p 
-    JOIN project_members pm ON p.id = pm.project_id 
+    SELECT p.* FROM projects p
+    JOIN project_members pm ON p.id = pm.project_id
     WHERE pm.user_id = ? AND p.organization_id = ?
   `, [userId, organizationId]);
 }
@@ -241,40 +241,40 @@ async function getProjectsForUser(userId, organizationId) {
 async function validateAndRefreshToken(req, res, next) {
   try {
     const accessToken = getTokenFromRequest(req);
-    
+
     // Try to validate current token
     if (await scalekit.validateAccessToken(accessToken)) {
       req.user = await scalekit.decodeAccessToken(accessToken);
       return next();
     }
-    
+
     // Token expired - attempt refresh
     const refreshToken = getRefreshTokenFromRequest(req);
     if (refreshToken) {
       try {
         const newTokens = await scalekit.refreshAccessToken(refreshToken);
-        
+
         // Update tokens in response
         setTokensInResponse(res, newTokens);
         req.user = await scalekit.decodeAccessToken(newTokens.accessToken);
         return next();
-        
+
       } catch (refreshError) {
         // Refresh failed - clear tokens and require re-authentication
         clearTokensFromResponse(res);
-        return res.status(401).json({ 
+        return res.status(401).json({
           error: 'Session expired. Please log in again.',
-          redirectToLogin: true 
+          redirectToLogin: true
         });
       }
     }
-    
+
     // No valid tokens available
-    return res.status(401).json({ 
+    return res.status(401).json({
       error: 'Authentication required',
-      redirectToLogin: true 
+      redirectToLogin: true
     });
-    
+
   } catch (error) {
     console.error('Token validation error:', error);
     return res.status(401).json({ error: 'Authentication failed' });
@@ -297,7 +297,7 @@ function storeTokensSecurely(tokens, res) {
   // Encrypt tokens before storing
   const encryptedAccessToken = encrypt(tokens.accessToken);
   const encryptedRefreshToken = encrypt(tokens.refreshToken);
-  
+
   // Store with secure cookie settings
   res.cookie('accessToken', encryptedAccessToken, {
     httpOnly: true,        // Prevents JavaScript access
@@ -305,7 +305,7 @@ function storeTokensSecurely(tokens, res) {
     sameSite: 'strict',    // CSRF protection
     maxAge: tokens.expiresIn * 1000
   });
-  
+
   res.cookie('refreshToken', encryptedRefreshToken, {
     httpOnly: true,
     secure: true,
@@ -340,10 +340,10 @@ function auditAuthorizationDecision(user, action, resource, granted, context = {
     userPermissions: user?.permissions || [],
     userRoles: user?.roles || []
   };
-  
+
   // Send to your security monitoring system
   securityLogger.log('authorization_decision', auditEntry);
-  
+
   // Alert on suspicious patterns
   if (!granted && isPrivilegedAction(action)) {
     securityAlerting.checkForSuspiciousActivity(auditEntry);
@@ -370,15 +370,15 @@ const roleHierarchyCache = new Map();
 
 function getUserEffectivePermissions(user) {
   const cacheKey = `${user.organizationId}:${user.roles.join(',')}`;
-  
+
   if (roleHierarchyCache.has(cacheKey)) {
     return roleHierarchyCache.get(cacheKey);
   }
-  
+
   // Calculate effective permissions from roles
   const effectivePermissions = calculateEffectivePermissions(user.roles);
   roleHierarchyCache.set(cacheKey, effectivePermissions);
-  
+
   return effectivePermissions;
 }
 ```
@@ -388,19 +388,19 @@ function getUserEffectivePermissions(user) {
 With these best practices in place, you'll have a robust, secure, and maintainable authorization system. Continue improving your implementation with these advanced topics:
 
 <CardGrid>
-  <LinkCard 
-    title="Authentication security guide" 
-    href="/guides/security/authentication-security/" 
+  <LinkCard
+    title="Authentication security guide"
+    href="/guides/security/authentication-security/"
     description="Comprehensive security practices for authentication systems"
   />
-  <LinkCard 
-    title="Session management" 
-    href="/fsa/guides/manage-session/" 
+  <LinkCard
+    title="Session management"
+    href="/fsa/guides/manage-session/"
     description="Best practices for secure session handling and token management"
   />
-  <LinkCard 
-    title="Launch checklist" 
-    href="/authenticate/launch-checklist/" 
+  <LinkCard
+    title="Launch checklist"
+    href="/authenticate/launch-checklist/"
     description="Pre-production security and performance checklist"
   />
 </CardGrid>
