@@ -6,6 +6,7 @@ export interface Resource {
   filterType: string[]
   category: string[]
   description?: string
+  icon?: string
 }
 
 export interface Filter {
@@ -58,6 +59,7 @@ export async function loadBrowserCentralDocs(): Promise<Resource[]> {
         filterType: doc.data.browseCentral?.filterType || [],
         category: doc.data.browseCentral?.category || [],
         description: doc.data.description,
+        icon: doc.data.browseCentral?.icon,
       }
     })
 }

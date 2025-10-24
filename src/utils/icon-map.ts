@@ -1,0 +1,63 @@
+import IconLucideChevronDown from '~icons/lucide/chevron-down'
+import IconOcticonTabExternal from '~icons/octicon/tab-external-24'
+import IconCarbonMigrate from '~icons/carbon/migrate'
+import IconGardenShapes26 from '~icons/garden/shapes-26'
+import IconProiconsJavascript from '~icons/proicons/javascript'
+
+// Import commonly used tech stack icons
+import IconNodejs from '~icons/simple-icons/nodedotjs'
+import IconPython from '~icons/simple-icons/python'
+import IconGo from '~icons/simple-icons/go'
+import IconJava from '~icons/ri/java-line'
+import IconTeenyiconsNextjsOutline from '~icons/teenyicons/nextjs-outline'
+import IconSpringboot from '~icons/simple-icons/springboot'
+import IconFlask from '~icons/simple-icons/flask'
+import IconDjango from '~icons/simple-icons/django'
+import IconRipple from '~icons/simple-icons/ripple'
+import IconExpress from '~icons/simple-icons/express'
+import IconReaddotcv from '~icons/simple-icons/readdotcv'
+import IconProgress from '~icons/simple-icons/progress'
+
+// Static icon mapping for supported technologies
+export const iconMap = {
+  nodejs: IconNodejs,
+  node: IconNodejs,
+  javascript: IconProiconsJavascript,
+  js: IconProiconsJavascript,
+  python: IconPython,
+  py: IconPython,
+  golang: IconGo,
+  go: IconGo,
+  java: IconJava,
+  nextjs: IconTeenyiconsNextjsOutline,
+  next: IconTeenyiconsNextjsOutline,
+  springboot: IconSpringboot,
+  spring: IconSpringboot,
+  flask: IconFlask,
+  django: IconDjango,
+  ripple: IconRipple,
+  express: IconExpress,
+  expressjs: IconExpress,
+  read: IconReaddotcv,
+  blog: IconReaddotcv,
+  progress: IconProgress,
+  migrate: IconCarbonMigrate,
+}
+
+export type IconKey = keyof typeof iconMap
+
+// Helper function to get icon component by key
+export function getIconComponent(key?: string) {
+  if (!key) return IconOcticonTabExternal
+  const iconKey = key.toLowerCase() as IconKey
+  return iconMap[iconKey] || IconOcticonTabExternal
+}
+
+// Export commonly used icons for other components
+export {
+  IconLucideChevronDown,
+  IconOcticonTabExternal,
+  IconCarbonMigrate,
+  IconGardenShapes26,
+  IconProiconsJavascript,
+}

@@ -3,6 +3,7 @@ import type { Column } from '@/utils/examples'
 import CardGrid from '@/components/ui/CardGrid.astro'
 import SimpleList from '@/components/ui/SimpleList.astro'
 import CheckItem from '@/components/ui/CheckItem.astro'
+import { getIconComponent } from '@/utils/icon-map'
 
 export interface Props {
   columns: Column[]
@@ -24,13 +25,18 @@ const { columns } = Astro.props
                 </div>
               )
             } else {
+              const IconComponent = item.resource?.icon
+                ? getIconComponent(item.resource.icon)
+                : undefined
               return (
                 <div
                   class="resource-item"
                   data-filter-types={JSON.stringify(item.resource?.filterType)}
                   data-categories={JSON.stringify(item.resource?.category)}
                 >
-                  <CheckItem href={item.resource?.url || '#'}>{item.resource?.title}</CheckItem>
+                  <CheckItem href={item.resource?.url || '#'} icon={IconComponent}>
+                    {item.resource?.title}
+                  </CheckItem>
                 </div>
               )
             }

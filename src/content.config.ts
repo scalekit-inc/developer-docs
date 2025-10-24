@@ -34,6 +34,7 @@ export const collections = {
                   z.enum(['code-sample', 'integration', 'tutorial', 'reference']),
                 ),
                 category: z.array(z.string()),
+                icon: z.string().optional(),
               })
               .optional(),
           }),
