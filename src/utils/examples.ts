@@ -39,7 +39,7 @@ const CATEGORY_ORDER = [
   'Core Authentication',
   'Enterprise Features',
   'SDKs & Development Tools',
-  'API Reference',
+  'Admin portal for customers',
   'Best Practices',
   'Support',
 ] as const
