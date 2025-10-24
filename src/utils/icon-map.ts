@@ -26,6 +26,14 @@ import IconFluentLearningApp24Regular from '~icons/fluent/learning-app-24-regula
 import IconMaterialSymbolsCodeRounded from '~icons/material-symbols/code-rounded'
 import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 
+// Import navigation icons
+import IconLucideShield from '~icons/lucide/shield'
+import IconLucideBot from '~icons/lucide/bot'
+import IconLucideBookOpen from '~icons/lucide/book-open'
+import IconLucideBell from '~icons/lucide/bell'
+import IconLucideCode from '~icons/lucide/code'
+import IconLucideWrench from '~icons/lucide/wrench'
+
 // Static icon mapping for supported technologies
 export const iconMap = {
   nodejs: IconNodejs,
@@ -57,6 +65,22 @@ export const iconMap = {
   tutorial: IconFluentLearningApp24Regular,
   library: IconStreamlineFreehandLearningProgrammingBook,
   book: IconLucideBookOpenText,
+  // Navigation icons
+  shield: IconLucideShield,
+  authenticate: IconLucideShield,
+  bot: IconLucideBot,
+  'agent-actions': IconLucideBot,
+  'book-open': IconLucideBookOpen,
+  'api-reference': IconLucideBookOpen,
+  'rest-apis': IconLucideBookOpen,
+  bell: IconLucideBell,
+  webhooks: IconLucideBell,
+  events: IconLucideBell,
+  wrench: IconLucideWrench,
+  'developer-resources': IconLucideWrench,
+  integrations: IconLucideWrench,
+  'code-samples': IconLucideCode,
+  'chevron-down': IconLucideChevronDown,
 }
 
 export type IconKey = keyof typeof iconMap
@@ -75,4 +99,11 @@ export {
   IconCarbonMigrate,
   IconGardenShapes26,
   IconProiconsJavascript,
+  // Navigation icons
+  IconLucideShield,
+  IconLucideBot,
+  IconLucideBookOpen,
+  IconLucideBell,
+  IconLucideCode,
+  IconLucideWrench,
 }
