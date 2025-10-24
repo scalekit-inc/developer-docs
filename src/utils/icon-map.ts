@@ -17,6 +17,13 @@ import IconRipple from '~icons/simple-icons/ripple'
 import IconExpress from '~icons/simple-icons/express'
 import IconReaddotcv from '~icons/simple-icons/readdotcv'
 import IconProgress from '~icons/simple-icons/progress'
+import IconLucideFileVideoCamera from '~icons/lucide/file-video-camera'
+import IconLucideSquareCode from '~icons/lucide/square-code'
+import IconLucideGithub from '~icons/lucide/github'
+import IconStreamlineFreehandLearningProgrammingFlag from '~icons/streamline-freehand/learning-programming-flag'
+import IconStreamlineFreehandLearningProgrammingBook from '~icons/streamline-freehand/learning-programming-book'
+import IconFluentLearningApp24Regular from '~icons/fluent/learning-app-24-regular'
+import IconMaterialSymbolsCodeRounded from '~icons/material-symbols/code-rounded'
 
 // Static icon mapping for supported technologies
 export const iconMap = {
@@ -42,6 +49,11 @@ export const iconMap = {
   blog: IconReaddotcv,
   progress: IconProgress,
   migrate: IconCarbonMigrate,
+  video: IconLucideFileVideoCamera,
+  code: IconMaterialSymbolsCodeRounded,
+  'code-sample': IconLucideSquareCode,
+  github: IconLucideGithub,
+  tutorial: IconFluentLearningApp24Regular,
 }
 
 export type IconKey = keyof typeof iconMap

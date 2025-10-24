@@ -1,5 +1,6 @@
 ---
 import type { Filter } from '@/utils/examples'
+import { getIconComponent } from '@/utils/icon-map'
 
 export interface Props {
   filters: Filter[]
@@ -11,24 +12,29 @@ const { filters } = Astro.props
 <div class="filter-bar-content">
   <div class="filter-toggles">
     {
-      filters.map((filter) => (
-        <label class="filter-toggle" for={`filter-${filter.type}`}>
-          <span class="filter-label-text">
-            {filter.label} ({filter.count})
-          </span>
-          <input
-            type="checkbox"
-            id={`filter-${filter.type}`}
-            class="toggle-checkbox"
-            data-filter-type={filter.type}
-            checked
-            aria-label={`Toggle ${filter.label} filter`}
-          />
-          <div class="toggle-switch">
-            <div class="toggle-handle" />
-          </div>
-        </label>
-      ))
+      filters.map((filter) => {
+        const IconComponent = getIconComponent(filter.type)
+        return (
+          <label class="filter-toggle" for={`filter-${filter.type}`}>
+            <span class="filter-label-text">
+              <IconComponent class="filter-icon" />
+              {filter.label}
+              {/* {filter.label} ({filter.count}) */}
+            </span>
+            <input
+              type="checkbox"
+              id={`filter-${filter.type}`}
+              class="toggle-checkbox"
+              data-filter-type={filter.type}
+              checked
+              aria-label={`Toggle ${filter.label} filter`}
+            />
+            <div class="toggle-switch">
+              <div class="toggle-handle" />
+            </div>
+          </label>
+        )
+      })
     }
   </div>
 </div>
@@ -68,9 +74,18 @@ const { filters } = Astro.props
   }
 
   .filter-label-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: var(--sl-text-sm);
     color: var(--sl-color-gray-2);
     font-weight: 500;
+  }
+
+  .filter-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
   }
 
   .toggle-checkbox {

@@ -30,9 +30,7 @@ export const collections = {
             browseCentral: z
               .object({
                 label: z.string().optional(),
-                filterType: z.array(
-                  z.enum(['code-sample', 'integration', 'tutorial', 'reference']),
-                ),
+                filterType: z.array(z.enum(['code-sample', 'tutorial', 'video'])),
                 category: z.array(z.string()),
                 icon: z.string().optional(),
               })
