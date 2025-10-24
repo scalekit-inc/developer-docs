@@ -37,7 +37,7 @@ Navigate to Developers -> Settings -> API Credentials
 
 <p>
   ```sh showLineNumbers=false frame="none"
-  pip install scalekit-sdk-python langchain
+  pip install scalekit-sdk-python langchain langchain-openai
   ```
 </p>
 <p>
@@ -64,7 +64,7 @@ Let's authorize a user to access their Gmail account by creating a connected acc
 # Create a connected account for user if it doesn't exist already
 response = actions.get_or_create_connected_account(
             connection_name="gmail",
-            identifier="user_123"
+            identifier="user_123" #unique identifier for your connected account. can be replaced with your system's user ID
         )
 connected_account = response.connected_account
 
@@ -105,7 +105,7 @@ from langchain_core.prompts import SystemMessagePromptTemplate, MessagesPlacehol
 
 # use scalekit SDK to fetch all GMAIL tools in langchain format
 tools =  actions.langchain.get_tools(
-    identifier=identifier,
+     identifier="user_123",
      providers = ["GMAIL"], # all tools for provider used by default
      page_size=100
 )
