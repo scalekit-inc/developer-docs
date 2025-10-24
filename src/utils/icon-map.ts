@@ -28,6 +28,7 @@ import IconMaterialSymbolsCodeRounded from '~icons/material-symbols/code-rounded
 import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 import IconHugeiconsTypescript01 from '~icons/hugeicons/typescript-01'
 import IconLucideMessageCircleQuestionMark from '~icons/lucide/message-circle-question-mark'
+import IconHugeiconsResourcesAdd from '~icons/hugeicons/resources-add'
 
 // Import navigation icons
 import IconLucideShield from '~icons/lucide/shield'
@@ -86,6 +87,7 @@ export const iconMap = {
   'chevron-down': IconLucideChevronDown,
   typescript: IconHugeiconsTypescript01,
   support: IconLucideMessageCircleQuestionMark,
+  resources: IconHugeiconsResourcesAdd,
 }
 
 export type IconKey = keyof typeof iconMap
@@ -97,7 +99,7 @@ export function getIconComponent(key?: string) {
   return iconMap[iconKey] || IconOcticonTabExternal
 }
 
-// Export commonly used icons for other components
+// Export commonly used icons for other components for SecondaryNav.astro
 export {
   IconLucideChevronDown,
   IconOcticonTabExternal,
@@ -111,4 +113,5 @@ export {
   IconLucideBell,
   IconLucideCode,
   IconLucideWrench,
+  IconHugeiconsResourcesAdd,
 }
