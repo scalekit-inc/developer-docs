@@ -200,7 +200,7 @@ export const sidebar = [
         items: [
           'sso/guides/authorization-url',
           'dev-kit/resources/ai-assisted-setup',
-          'browse/code-samples/client-credentials-auth',
+          'browse/code-samples/gists/client-credentials-auth',
         ],
       },
       {
@@ -301,6 +301,10 @@ export const sidebar = [
           'guides/webhooks-best-practices',
           'guides/idtoken-claims',
         ],
+      },
+      {
+        label: 'Code samples',
+        autogenerate: { directory: 'browse/code-samples' },
       },
       {
         label: 'Reference',
