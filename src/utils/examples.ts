@@ -35,9 +35,8 @@ const FILTER_LABELS = {
 
 const CATEGORY_ORDER = [
   'Basics',
-  'Getting Started',
-  'Core Authentication',
-  'Enterprise Features',
+  'User authentication',
+  'Enterprise authentication',
   'SDKs & Development Tools',
   'Admin portal for customers',
   'Best Practices',

@@ -204,6 +204,10 @@ export const sidebar = [
         ],
       },
       {
+        label: 'User authentication',
+        items: ['browse/vids/fsa-walkthrough', 'browse/vids/passwordless-walkthrough'],
+      },
+      {
         label: 'Enterprise authentication',
         items: [
           'sso/quickstart',
@@ -211,6 +215,9 @@ export const sidebar = [
           'directory/scim/quickstart',
           'directory/guides/group-based-role-assignment',
           'guides/sso/admin-portal',
+          'browse/vids/sso-walkthrough',
+          'browse/vids/scim-walkthrough',
+          'browse/vids/mcp-oauth-walkthrough',
           {
             label: 'View all integrations',
             link: 'guides/integrations',
