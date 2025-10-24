@@ -198,6 +198,7 @@ export const sidebar = [
       {
         label: 'Basics',
         items: [
+          'sso/guides/authorization-url',
           'dev-kit/resources/ai-assisted-setup',
           'browse/code-samples/client-credentials-auth',
         ],
@@ -299,7 +300,6 @@ export const sidebar = [
           'guides/client-credentials-practices',
           'guides/webhooks-best-practices',
           'guides/idtoken-claims',
-          'sso/guides/authorization-url',
         ],
       },
       {
