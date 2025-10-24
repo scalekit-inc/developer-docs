@@ -34,6 +34,7 @@ const FILTER_LABELS = {
 } as const
 
 const CATEGORY_ORDER = [
+  'Basics',
   'Getting Started',
   'Core Authentication',
   'Enterprise Features',
