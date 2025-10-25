@@ -20,10 +20,9 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Manage login methods',
+        label: 'Manage auth methods',
         items: [
-          'fsa/choose-login-methods',
-          'passwordless/oidc',
+          'authenticate/auth-methods/passwordless',
           'social-logins/quickstart',
           'sso/quickstart',
         ],
@@ -52,7 +51,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Build custom workflows',
+        label: 'Customize workflows',
         items: [
           'guides/auth-flow-interceptors',
           'authenticate/implement-workflows/implement-webhooks',
@@ -64,7 +63,7 @@ export const sidebar = [
         items: ['mcp/intro-to-mcp-auth', 'mcp/oauth', 'mcp/guides/custom-auth'],
       },
       {
-        label: 'Customize',
+        label: 'Customize branding',
         collapsed: false,
         items: [
           'guides/custom-domain',
