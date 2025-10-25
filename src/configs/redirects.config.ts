@@ -14,12 +14,13 @@ export const redirects = {
   // =============================================================================
 
   // SSO quickstart and admin portal
-  '/sso/quickstart-admin-portal': '/guides/sso/admin-portal',
+  '/sso/quickstart-admin-portal': '/guides/admin-portal',
   '/sso/overview': '/guides/sso/sso-basics/',
   '/sso/launch-checklist': '/guides/sso/launch-checklist/',
   '/sso/test-sso': '/guides/sso/test-sso/',
   '/sso/domain-and-theme-customization': '/guides/custom-domain/',
-  '/sso/bkp/quickstart-admin-portal': '/guides/sso/admin-portal/',
+  '/sso/bkp/quickstart-admin-portal': '/guides/admin-portal/',
+  '/guides/sso/admin-portal': '/guides/admin-portal/',
 
   // SSO legacy guides moved from /guides to /sso
   '/guides/sso/sso-basics/': '/sso/guides/sso-basics/',

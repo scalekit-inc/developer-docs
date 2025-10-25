@@ -1,0 +1,119 @@
+---
+title: Check SSO domain
+description: Verify if a domain has active SSO connections before redirecting users
+browseCentral:
+  label: "Verify if a domain has active SSO connections"
+  filterType: ["tutorial"]
+  category: ["Best practices"]
+  icon: book
+sidebar:
+  label: "Check SSO domain"
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Check if a user's email domain has active SSO connections before redirecting them. This prevents failed redirects when users enter email addresses from domains without configured SSO.
+
+Use this approach when you collect email addresses first, then determine the authentication method based on the domain.
+
+## Implementation
+
+Extract the domain from the user's email, then query the connections API:
+
+```bash title="Terminal" frame="terminal" showLineNumbers=false
+curl -sS 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/connections?domain=megacorp.org'
+```
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+
+```javascript title="Express.js" wrap
+const email = req.body.email;
+const domain = email.split('@')[1].toLowerCase();
+
+const connections = await scalekit.connections.listConnectionsByDomain({ domain });
+
+if (connections.length > 0) {
+  // Redirect to SSO
+  const authUrl = scalekit.getAuthorizationUrl(redirectUri, {
+    domain_hint: domain
+  });
+  res.redirect(authUrl);
+} else {
+  // Use alternative authentication
+  res.redirect('/auth/password');
+}
+```
+
+</TabItem>
+<TabItem label="Python">
+
+```python title="Flask" wrap
+email = request.form.get('email')
+domain = email.split('@')[1].lower()
+
+connections = scalekit_client.connections.list_connections_by_domain(domain=domain)
+
+if len(connections) > 0:
+    # Redirect to SSO
+    auth_url = scalekit_client.get_authorization_url(
+        redirect_uri=redirect_uri,
+        domain_hint=domain
+    )
+    return redirect(auth_url)
+else:
+    # Use alternative authentication
+    return redirect('/auth/password')
+```
+
+</TabItem>
+<TabItem label="Go">
+
+```go title="Gin" wrap
+email := c.PostForm("email")
+domain := strings.ToLower(strings.Split(email, "@")[1])
+
+connections, err := scalekitClient.Connections().ListConnectionsByDomain(domain)
+if err != nil {
+    c.Redirect(http.StatusFound, "/auth/password")
+    return
+}
+
+if len(connections) > 0 {
+    // Redirect to SSO
+    authURL, _ := scalekitClient.GetAuthorizationURL(redirectURI, &AuthorizationURLOptions{
+        DomainHint: &domain,
+    })
+    c.Redirect(http.StatusFound, authURL)
+} else {
+    // Use alternative authentication
+    c.Redirect(http.StatusFound, "/auth/password")
+}
+```
+
+</TabItem>
+<TabItem label="Java">
+
+```java title="Spring Boot" wrap
+String email = request.getParameter("email");
+String domain = email.split("@")[1].toLowerCase();
+
+List<Connection> connections = scalekitClient.connections().listConnectionsByDomain(domain);
+
+if (!connections.isEmpty()) {
+    // Redirect to SSO
+    String authUrl = scalekitClient.getAuthorizationUrl(redirectUri,
+        AuthorizationUrlOptions.builder().domainHint(domain).build());
+    response.sendRedirect(authUrl);
+} else {
+    // Use alternative authentication
+    response.sendRedirect("/auth/password");
+}
+```
+
+</TabItem>
+</Tabs>
+
+<Aside>
+The API returns results only for domains configured with active SSO connections. Skip this check when you already have the `organizationId` or `connectionId`.
+</Aside>

@@ -3,10 +3,96 @@ title: "Implement enterprise SSO"
 description: How to implement enterprise SSO for your application
 sidebar:
   label: "Enterprise SSO"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+seeAlso:
+  expanded: true
+  label: "Next steps"
+  items:
+    - title: "Browse supported SSO integrations"
+      icon: "puzzle"
+      url: "/guides/integrations/sso-integrations"
 prev: false
 next:
-  label: "Admin Portal"
-  link: "/guides/sso/admin-portal/"
+  label: "Explore users & orgs"
+  link: "/fsa/data-modelling/"
 ---
 
-Enterprise SSO allows users to sign in to your application using their organization's identity provider (IdP), such as Okta, Azure AD, or Google Workspace. This provides a secure and seamless authentication experience for your enterprise customers.
+import {
+  LinkButton, Aside, Steps, Tabs, TabItem, Card, CardGrid,
+ } from '@astrojs/starlight/components';
+
+
+Enterprise single sign‑on (SSO) lets users sign in with their organization's identity provider (IdP) such as Okta, Azure AD, or Google Workspace. Use this guide after the quickstart to enable SSO for an organization, onboard admins through the portal, enforce SSO at login, and test your setup.
+
+<Steps>
+
+1. ## Set up Scalekit auth integration
+
+   Follow the [quickstart guide](/fsa/quickstart/) to integrate Scalekit in your application.
+
+   Scalekit verifies user identities and creates sessions. After successful verification, Scalekit creates a user record, associates the user with an organization, and sends the user information to your callback endpoint.
+
+2. ## Enable SSO for the organization
+
+    Typically, the first user (the organization creator) is assigned the admin role automatically. They sign up with a work email address, and the organization is created automatically.
+
+    Provide a way in your application to enable the SSO feature for that organization (or workspace).
+
+    Use the following SDK method to enable SSO for that organization:
+
+    ```javascript title="Enable SSO" showLineNumbers=false
+    const settings = {
+      features: [
+        {
+          name: 'sso',
+          enabled: true,
+        }
+      ],
+    };
+
+    await scalekit.organization.updateOrganizationSettings(
+      '<organization_id>', // Get this from the idToken or accessToken
+      settings
+    );
+    ```
+    You can also enable this from the [organization settings](/fsa/guides/organization-settings/) in the Scalekit dashboard.
+
+3. ## Onboard enterprise customers through the admin portal
+
+    Once enabled by the admin, your app should provide a way to configure the organization's identity provider. With Scalekit:
+    - Generate a link to the admin portal from the Scalekit dashboard and share it with organization admins via your usual channels.
+    - Or embed the admin portal in your application in an inline frame so administrators can configure their IdP without leaving your app.
+
+    <LinkButton href="/fsa/guides/onboard-enterprise-customers/" target="_blank" variant='secondary' class='sk-secondary' icon='right-arrow'>See how to onboard enterprise customers</LinkButton>
+
+
+
+4. ## Identify and enforce SSO for organization users
+
+    Keep a single login page for all users, but adapt the authentication flow based on the user's organization. There are multiple ways to implement this—choose based on your [app's UX preferences](/sso/guides/add-login-ux-sso/).
+
+    A common approach is for admins to register organization‑owned domains in the admin portal. When a user signs in with an email address from a registered domain, the user is redirected to the organization's IdP for authentication.
+
+    Scalekit can also identify an SSO connection using any of [these parameters](/sso/guides/authorization-url/#parameter-precedence) via the authorization endpoint (for example, `domain_hint`, `login_hint`, `organizationId`, or `connectionId`).
+
+    <Aside>
+    If you use discovery (for example, `domain_hint`), consider a lightweight pre‑check to avoid dead‑end redirects. See [Pre‑check SSO by domain](/fsa/guides/onboard-enterprise-customers/#pre-check-sso-by-domain-when-using-discovery).
+    </Aside>
+
+5. ## Test your SSO integration
+
+    Scalekit provides a "Test Organization" so you can validate the SSO flow without creating test accounts with your customers' IdPs.
+
+    The simplest way is to enter an email address with the domain `@example.com` or `@example.org` and confirm the user is redirected to the IdP simulator (the test organization's identity provider) for authentication.
+
+    For a full walkthrough, try the [Test SSO with Okta as IdP](/sso/guides/okta-sso-test/) guide.
+
+</Steps>
