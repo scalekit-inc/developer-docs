@@ -37,6 +37,7 @@ const CATEGORY_ORDER = [
   'Basics',
   'Setup dev environment',
   'User authentication',
+  'Organizations & users',
   'Enterprise authentication',
   'Customize workflows',
   'Auth modules',

@@ -66,6 +66,7 @@ import IconHugeiconsMicrosoft from '~icons/hugeicons/microsoft'
 import IconHugeiconsGitlab from '~icons/hugeicons/gitlab'
 import IconHugeiconsGithub from '~icons/hugeicons/github'
 import IconHugeiconsSalesforce from '~icons/fa7-brands/salesforce'
+import IconHugeiconsPhp from '~icons/hugeicons/php'
 
 // Static icon mapping for supported technologies
 export const iconMap = {
@@ -144,6 +145,7 @@ export const iconMap = {
   postman: IconPostman,
   'mcp-server': IconTablerServerSpark,
   server: IconTablerServerSpark,
+  php: IconHugeiconsPhp,
 }
 
 export type IconKey = keyof typeof iconMap

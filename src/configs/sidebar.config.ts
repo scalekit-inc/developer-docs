@@ -24,7 +24,7 @@ export const sidebar = [
         items: [
           'authenticate/auth-methods/passwordless',
           'social-logins/quickstart',
-          'sso/quickstart',
+          'authenticate/auth-methods/enterprise-sso',
         ],
       },
       {
@@ -211,6 +211,7 @@ export const sidebar = [
         label: 'Basics',
         items: [
           'sso/guides/authorization-url',
+          'sso/guides/sso-user-attributes',
           'dev-kit/resources/ai-assisted-setup',
           'guides/dashboard/allowed-callback-url',
           'browse/code-samples/gists/client-credentials-auth',
@@ -232,9 +233,20 @@ export const sidebar = [
         ],
       },
       {
+        label: 'User management',
+        collapsed: false,
+        items: [
+          'fsa/guides/signup-restrictions',
+          'fsa/guides/user-invitations',
+          'fsa/guides/migration-guide',
+          'fsa/guides/merge-identities',
+          'fsa/reference/user-management-settings',
+        ],
+      },
+      {
         label: 'Enterprise authentication',
         items: [
-          'sso/guides/sso-user-attributes',
+          'sso/quickstart',
           'directory/scim/quickstart',
           'directory/guides/group-based-role-assignment',
           'guides/sso/admin-portal',
@@ -246,30 +258,6 @@ export const sidebar = [
             link: 'guides/integrations',
             attrs: { target: '_blank', rel: 'noopener' },
           },
-        ],
-      },
-      {
-        label: 'Rapid development tools',
-        items: [
-          {
-            label: 'Code samples',
-            link: '/dev-kit/code-samples',
-          },
-          {
-            label: 'Examples',
-            link: '/examples',
-          },
-        ],
-      },
-      {
-        label: 'Organizations & users',
-        collapsed: false,
-        items: [
-          'fsa/guides/signup-restrictions',
-          'fsa/guides/user-invitations',
-          'fsa/guides/migration-guide',
-          'fsa/guides/merge-identities',
-          'fsa/reference/user-management-settings',
         ],
       },
       {
