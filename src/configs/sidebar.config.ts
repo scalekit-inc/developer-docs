@@ -227,6 +227,7 @@ export const sidebar = [
           'fsa/guides/implement-signup',
           'passwordless/quickstart',
           'guides/idtoken-claims',
+          'guides/dashboard/intitate-login-endpoint',
           'guides/dashboard/redirects',
           'browse/vids/fsa-walkthrough',
           'browse/vids/passwordless-walkthrough',
