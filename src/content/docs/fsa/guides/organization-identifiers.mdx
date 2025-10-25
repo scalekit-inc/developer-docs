@@ -1,8 +1,10 @@
 ---
-title: "Organization identifiers & metadata"
-description: "Learn how to use external IDs and custom metadata to integrate Scalekit organizations with your existing systems and store additional organization information."
+title: "External identifiers & metadata"
+description: "Learn how to use external IDs and custom metadata to integrate Scalekit organizations and users with your existing systems and store additional business information."
+tableOfContents:
+  maxHeadingLevel: 2
 sidebar:
-  label: "Identifiers & metadata"
+  label: "External identifiers & metadata"
 prev:
   label: "Organization settings"
   link: "/fsa/guides/organization-settings/"
@@ -15,34 +17,31 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 seeAlso:
   label: "Related guides"
   items:
-    - title: "Create organizations"
-      icon: "add-circle"
-      url: "/fsa/guides/create-organization/"
-    - title: "Organization settings"
-      icon: "setting"
-      url: "/fsa/guides/organization-settings/"
-    - title: "Organizations overview"
-      icon: "information"
-      url: "/fsa/data-modelling/"
+    - title: "External identifiers in practice"
+      icon: "book"
+      url: "/guides/user-auth/external-id-system-integration/"
+
 ---
 
-import { Aside, Steps, Tabs, TabItem, Card } from '@astrojs/starlight/components';
+import { Aside, Steps, Tabs, TabItem, Card, CardGrid
+ } from '@astrojs/starlight/components';
 
-After setting up authentication and creating organizations, you'll often need to connect them with your existing systems. This guide shows you how to use external IDs and metadata to integrate organizations with your billing platform, CRM, or other infrastructure while storing additional custom information.
-
-## When to use identifiers and metadata
+After setting up authentication and creating organizations and users, you'll often need to connect them with your existing systems. This guide shows you how to use external IDs and metadata to integrate both organizations and users with your billing platform, CRM, HR systems, or other infrastructure while storing additional custom information.
 
 Use these features to:
 
-- **Link existing systems** - Connect organizations to customer records in your billing platform, CRM, or database
-- **Store custom data** - Add billing details, feature flags, plan information, or internal tracking data
-- **Maintain data consistency** - Keep your existing identifiers while leveraging Scalekit's organization features
+- **Link existing systems** - Connect organizations and users to customer records in your billing platform, CRM, HR systems, or database
+- **Store custom data** - Add billing details, feature flags, plan information, user attributes, or internal tracking data
+- **Maintain data consistency** - Keep your existing identifiers while leveraging Scalekit's organization and user features
 - **Simplify integration** - Avoid complex ID mapping between your systems and Scalekit
 
-## External IDs for system integration
+## Organization external IDs for system integration
 
 External IDs let you identify organizations using your own identifiers instead of Scalekit's generated IDs. This is essential when migrating from existing systems or integrating with multiple platforms.
 
@@ -236,301 +235,294 @@ External IDs let you identify organizations using your own identifiers instead o
    </Tabs>
 </Steps>
 
-## Custom metadata for business data
 
-Metadata lets you store application-specific information as key-value pairs. This data is included in JWT tokens, making it immediately available in your application without additional API calls.
+## User external IDs and metadata
 
-### Common metadata patterns
+Just as organizations need external identifiers, users often require integration with existing systems. User external IDs and metadata work similarly to organization identifiers, enabling you to link Scalekit users with your CRM, HR systems, and other business applications.
 
-Store information that helps your application make decisions about features, billing, or user experience:
+### When to use user external IDs and metadata
 
-**Billing and subscription data:**
-```json
-{
-  "plan_type": "enterprise",
-  "billing_cycle": "annual", 
-  "max_users": 100,
-  "subscription_id": "sub_1234567890"
-}
-```
+<CardGrid>
 
-**Feature configuration:**
-```json
-{
-  "features": {
-    "advanced_analytics": true,
-    "api_access": true,
-    "custom_branding": false
-  },
-  "storage_limit_gb": 500
-}
-```
+<div>
+**External IDs** link Scalekit users to your existing systems:
+- Reference users in your database, CRM, or billing system
+- Maintain consistent user identification across multiple platforms
+- Enable easy data synchronization and lookups
+</div>
 
-**Integration identifiers:**
-```json
-{
-  "salesforce_account_id": "0011234567890ABC",
-  "hubspot_company_id": "12345678",
-  "internal_tier": "premium"
-}
-```
+<div>
+**Metadata** stores additional user attributes:
+- Organizational information (department, location, role level)
+- Business context (territory, quota, access permissions)
+- Integration data (external system IDs, custom properties)
+</div>
 
-### Managing metadata throughout the organization lifecycle
 
-<Steps>
-1. ### Set initial metadata during creation
 
-   Include essential business data when organizations are first created.
+</CardGrid>
 
-   <Tabs syncKey="tech-stack">
-   <TabItem value="node" label="Node.js">
-   ```javascript title="Organization with initial metadata" {4-9}
-   const organization = await scalekit.organization.create({
-     display_name: 'Acme Corporation',
-     external_id: 'CUST-12345-ACME',
-     metadata: {
-       plan_type: 'starter',
-       billing_cycle: 'monthly',
-       trial_end: '2024-03-01',
-       onboarding_step: 'setup_complete'
-     }
-   });
-   ```
-   </TabItem>
-   <TabItem value="python" label="Python">
-   ```python title="Organization with initial metadata" {4-9}
-   organization = scalekit.organization.create({
-       'display_name': 'Acme Corporation',
-       'external_id': 'CUST-12345-ACME',
-       'metadata': {
-           'plan_type': 'starter',
-           'billing_cycle': 'monthly',
-           'trial_end': '2024-03-01',
-           'onboarding_step': 'setup_complete'
-       }
-   })
-   ```
-   </TabItem>
-   <TabItem value="go" label="Go">
-   ```go title="Organization with initial metadata" {4-9}
-   org, err := scalekit.Organization.Create(OrganizationCreateOptions{
-       DisplayName: "Acme Corporation",
-       ExternalId:  "CUST-12345-ACME",
-       Metadata: map[string]interface{}{
-           "plan_type":        "starter",
-           "billing_cycle":    "monthly",
-           "trial_end":        "2024-03-01",
-           "onboarding_step":  "setup_complete",
-       },
-   })
-   ```
-   </TabItem>
-   <TabItem value="java" label="Java">
-   ```java title="Organization with initial metadata" {2-7}
-   Map<String, Object> metadata = Map.of(
-       "plan_type", "starter",
-       "billing_cycle", "monthly",
-       "trial_end", "2024-03-01",
-       "onboarding_step", "setup_complete"
-   );
-
-   Organization organization = scalekit.organization().create(
-       "Acme Corporation", "CUST-12345-ACME", metadata
-   );
-   ```
-   </TabItem>
-   </Tabs>
-
-2. ### Update metadata as business needs change
-
-   Modify metadata when customers upgrade plans, change billing cycles, or reach new milestones.
-
-   <Tabs syncKey="tech-stack">
-   <TabItem value="node" label="Node.js">
-   ```javascript title="Update organization metadata" {2-8}
-   const updatedOrg = await scalekit.organization.update(organizationId, {
-     metadata: {
-       plan_type: 'enterprise',
-       billing_cycle: 'annual',
-       features: {
-         advanced_analytics: true,
-         api_access: true
-       },
-       last_upgraded: new Date().toISOString()
-     }
-   });
-   ```
-   </TabItem>
-   <TabItem value="python" label="Python">
-   ```python title="Update organization metadata" {2-10}
-   updated_org = scalekit.organization.update(organization_id, {
-       'metadata': {
-           'plan_type': 'enterprise',
-           'billing_cycle': 'annual',
-           'features': {
-               'advanced_analytics': True,
-               'api_access': True
-           },
-           'last_upgraded': datetime.utcnow().isoformat()
-       }
-   })
-   ```
-   </TabItem>
-   <TabItem value="go" label="Go">
-   ```go title="Update organization metadata" {2-11}
-   updatedOrg, err := scalekit.Organization.Update(organizationId, OrganizationUpdateOptions{
-       Metadata: map[string]interface{}{
-           "plan_type": "enterprise",
-           "billing_cycle": "annual",
-           "features": map[string]interface{}{
-               "advanced_analytics": true,
-               "api_access":         true,
-           },
-           "last_upgraded": time.Now().Format(time.RFC3339),
-       },
-   })
-   ```
-   </TabItem>
-   <TabItem value="java" label="Java">
-   ```java title="Update organization metadata" {2-10}
-   Map<String, Object> features = Map.of(
-       "advanced_analytics", true,
-       "api_access", true
-   );
-
-   Map<String, Object> metadata = Map.of(
-       "plan_type", "enterprise",
-       "billing_cycle", "annual",
-       "features", features,
-       "last_upgraded", Instant.now().toString()
-   );
-
-   Organization updatedOrg = scalekit.organization().update(organizationId, metadata);
-   ```
-   </TabItem>
-   </Tabs>
-
-3. ### Access metadata in your application
-
-   Since metadata is included in JWT tokens, you can access it immediately when users authenticate without making additional API calls.
-
-   ```javascript title="Using metadata in your application"
-   // Metadata is available in the JWT token after authentication
-   const { user, idToken } = await scalekit.authenticateWithCode(code, redirectUri);
-
-   // Access organization metadata from the token
-   const orgMetadata = user.memberships[0].metadata;
-   
-   if (orgMetadata.plan_type === 'enterprise') {
-     // Enable enterprise features
-     enableAdvancedAnalytics();
-   }
-
-   if (orgMetadata.features?.api_access) {
-     // Show API documentation
-     showApiAccess();
-   }
-   ```
-</Steps>
-
-## Integration examples
-
-### Billing system integration
-
-Connect organizations with your billing platform to track subscriptions and handle payment events:
+### Set user external IDs and metadata during user creation
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
-```javascript title="Billing integration example"
-// When a customer subscribes via Stripe
-app.post('/stripe/webhook', async (req, res) => {
-  const event = req.body;
-  
-  if (event.type === 'customer.subscription.updated') {
-    const customerId = event.data.object.customer;
-    
-    // Find organization by external ID
-    const org = await scalekit.organization.getByExternalId(customerId);
-    
-    if (org) {
-      // Update subscription metadata
-      await scalekit.organization.update(org.id, {
-        metadata: {
-          ...org.metadata,
-          subscription_status: event.data.object.status,
-          plan_type: event.data.object.items.data[0].price.lookup_key,
-          last_billing_update: new Date().toISOString()
-        }
-      });
-    }
-  }
+
+```javascript title="Create user with external ID and metadata" wrap frame="terminal" ins={4-12}
+// Use case: Create user during system migration or bulk import with existing system references
+const { user } = await scalekit.user.createUserAndMembership("<organizationId>", {
+  email: "john.doe@company.com",
+  externalId: "SALESFORCE-003921",
+  metadata: {
+    department: "Sales",
+    employeeId: "EMP-002",
+    territory: "West Coast",
+    quota: 150000,
+    crmAccountId: "ACC-789",
+    hubspotContactId: "12345",
+  },
+  userProfile: {
+    firstName: "John",
+    lastName: "Doe",
+  },
+  sendInvitationEmail: true,
 });
 ```
+
 </TabItem>
 <TabItem value="python" label="Python">
-```python title="Billing integration example"
-# When a customer subscribes via Stripe
-@app.route('/stripe/webhook', methods=['POST'])
-def stripe_webhook():
-    event = request.json
-    
-    if event['type'] == 'customer.subscription.updated':
-        customer_id = event['data']['object']['customer']
-        
-        # Find organization by external ID
-        org = scalekit.organization.get_by_external_id(customer_id)
-        
-        if org:
-            # Update subscription metadata
-            updated_metadata = {
-                **org.metadata,
-                'subscription_status': event['data']['object']['status'],
-                'plan_type': event['data']['object']['items']['data'][0]['price']['lookup_key'],
-                'last_billing_update': datetime.utcnow().isoformat()
-            }
-            
-            scalekit.organization.update(org.id, {'metadata': updated_metadata})
+
+```python title="Create user with external ID and metadata" wrap frame="terminal" ins={4-12}
+# Use case: Create user during system migration or bulk import with existing system references
+user_response = scalekit.user.create_user_and_membership(
+    "<organization_id>",
+    email="john.doe@company.com",
+    external_id="SALESFORCE-003921",
+    metadata={
+        "department": "Sales",
+        "employee_id": "EMP-002",
+        "territory": "West Coast",
+        "quota": 150000,
+        "crm_account_id": "ACC-789",
+        "hubspot_contact_id": "12345"
+    },
+    user_profile={
+        "first_name": "John",
+        "last_name": "Doe"
+    },
+    send_invitation_email=True
+)
 ```
+
 </TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Create user with external ID and metadata" wrap frame="terminal" ins={4-12}
+// Use case: Create user during system migration or bulk import with existing system references
+newUser := &usersv1.CreateUser{
+    Email: "john.doe@company.com",
+    ExternalId: "SALESFORCE-003921",
+    Metadata: map[string]string{
+        "department":          "Sales",
+        "employee_id":         "EMP-002",
+        "territory":           "West Coast",
+        "quota":               "150000",
+        "crm_account_id":      "ACC-789",
+        "hubspot_contact_id":  "12345",
+    },
+    UserProfile: &usersv1.CreateUserProfile{
+        FirstName: "John",
+        LastName:  "Doe",
+    },
+}
+userResp, err := scalekitClient.User().CreateUserAndMembership(
+    ctx,
+    "<organizationId>",
+    newUser,
+    true, // sendInvitationEmail
+)
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Create user with external ID and metadata" wrap frame="terminal" ins={4-12}
+// Use case: Create user during system migration or bulk import with existing system references
+CreateUser createUser = CreateUser.newBuilder()
+    .setEmail("john.doe@company.com")
+    .setExternalId("SALESFORCE-003921")
+    .putMetadata("department", "Sales")
+    .putMetadata("employee_id", "EMP-002")
+    .putMetadata("territory", "West Coast")
+    .putMetadata("quota", "150000")
+    .putMetadata("crm_account_id", "ACC-789")
+    .putMetadata("hubspot_contact_id", "12345")
+    .setUserProfile(
+        CreateUserProfile.newBuilder()
+            .setFirstName("John")
+            .setLastName("Doe")
+            .build())
+    .build();
+
+CreateUserAndMembershipRequest createUserReq = CreateUserAndMembershipRequest.newBuilder()
+    .setUser(createUser)
+    .setSendInvitationEmail(true)
+    .build();
+
+CreateUserAndMembershipResponse userResp = scalekitClient.users()
+    .createUserAndMembership("<organizationId>", createUserReq);
+```
+
+</TabItem>
+
 </Tabs>
 
-### CRM synchronization
+### Update user external IDs and metadata for existing users
 
-Keep organization data synchronized with your CRM system:
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
 
-```javascript title="CRM sync example"
-// Sync organization data with Salesforce
-async function syncWithCRM(organizationId, salesforceAccountId) {
-  const crmData = await salesforce.getAccount(salesforceAccountId);
-  
-  await scalekit.organization.update(organizationId, {
-    metadata: {
-      salesforce_account_id: salesforceAccountId,
-      industry: crmData.Industry,
-      annual_revenue: crmData.AnnualRevenue,
-      account_owner: crmData.Owner.Name,
-      last_crm_sync: new Date().toISOString()
+```javascript title="Update user external ID and metadata" wrap frame="terminal" ins={3-11}
+// Use case: Link user with external systems (CRM, HR) and track custom attributes in a single call
+const updatedUser = await scalekit.user.updateUser("<userId>", {
+  externalId: "SALESFORCE-003921",
+  metadata: {
+    department: "Sales",
+    employeeId: "EMP-002",
+    territory: "West Coast",
+    quota: 150000,
+    crmAccountId: "ACC-789",
+    hubspotContactId: "12345",
+  },
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Update user external ID and metadata" wrap frame="terminal" ins={3-11}
+# Use case: Link user with external systems (CRM, HR) and track custom attributes in a single call
+updated_user = scalekit.user.update_user(
+    "<user_id>",
+    external_id="SALESFORCE-003921",
+    metadata={
+        "department": "Sales",
+        "employee_id": "EMP-002",
+        "territory": "West Coast",
+        "quota": 150000,
+        "crm_account_id": "ACC-789",
+        "hubspot_contact_id": "12345"
     }
-  });
+)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Update user external ID and metadata" frame="terminal"
+// Use case: Link user with external systems (CRM, HR) and track custom attributes in a single call
+updateUser := &usersv1.UpdateUser{
+    ExternalId: "SALESFORCE-003921",
+    Metadata: map[string]string{
+        "department":          "Sales",
+        "employee_id":         "EMP-002",
+        "territory":           "West Coast",
+        "quota":               "150000",
+        "crm_account_id":      "ACC-789",
+        "hubspot_contact_id":  "12345",
+    },
+}
+updatedUser, err := scalekitClient.User().UpdateUser(
+    ctx,
+    "<userId>",
+    updateUser,
+)
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Update user external ID and metadata" frame="terminal" "setExternalId" "putMetadata"
+// Use case: Link user with external systems (CRM, HR) and track custom attributes in a single call
+UpdateUser updateUser = UpdateUser.newBuilder()
+    .setExternalId("SALESFORCE-003921")
+    .putMetadata("department", "Sales")
+    .putMetadata("employee_id", "EMP-002")
+    .putMetadata("territory", "West Coast")
+    .putMetadata("quota", "150000")
+    .putMetadata("crm_account_id", "ACC-789")
+    .putMetadata("hubspot_contact_id", "12345")
+    .build();
+
+UpdateUserRequest updateReq = UpdateUserRequest.newBuilder()
+    .setUser(updateUser)
+    .build();
+
+User updatedUser = scalekitClient.users().updateUser("<userId>", updateReq);
+```
+
+</TabItem>
+
+</Tabs>
+
+### Find users by external ID
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Find user by external ID" wrap frame="terminal"
+// Use case: Look up Scalekit user when you have your system's user ID
+const user = await scalekit.user.getUserByExternalId("<organizationId>", "SALESFORCE-003921");
+console.log(`Found user: ${user.email} with ID: ${user.id}`);
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Find user by external ID" wrap frame="terminal"
+# Use case: Look up Scalekit user when you have your system's user ID
+user = scalekit.user.get_user_by_external_id("<organization_id>", "SALESFORCE-003921")
+print(f"Found user: {user['email']} with ID: {user['id']}")
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Find user by external ID" wrap frame="terminal"
+// Use case: Look up Scalekit user when you have your system's user ID
+user, err := scalekitClient.User().GetUserByExternalId(
+    ctx,
+    "<organizationId>",
+    "SALESFORCE-003921",
+)
+if err != nil {
+    log.Printf("User not found: %v", err)
+} else {
+    fmt.Printf("Found user: %s with ID: %s\n", user.Email, user.Id)
 }
 ```
 
-<Aside type="tip">
-Both external IDs and metadata are included in JWT tokens when users authenticate, making this information immediately available in your application without additional API calls.
-</Aside>
+</TabItem>
+<TabItem value="java" label="Java">
 
-## Best practices
+```java title="Find user by external ID" wrap frame="terminal"
+// Use case: Look up Scalekit user when you have your system's user ID
+try {
+    GetUserByExternalIdResponse response = scalekitClient.users()
+        .getUserByExternalId("<organizationId>", "SALESFORCE-003921");
 
-### External ID guidelines
-- **Use meaningful identifiers** that are recognizable across your systems
-- **Ensure uniqueness** - external IDs must be unique within your Scalekit environment  
-- **Keep them stable** - avoid changing external IDs once set, as they're used for integration
-- **Use consistent formats** - establish naming conventions (e.g., `CUST-{id}-{name}`)
+    User user = response.getUser();
+    System.out.printf("Found user: %s with ID: %s%n", user.getEmail(), user.getId());
+} catch (Exception e) {
+    System.err.println("User not found: " + e.getMessage());
+}
+```
 
-### Metadata management
-- **Structure your data** using nested objects for related information
-- **Keep it relevant** - store only data you'll actually use in your application
-- **Document your schema** - maintain clear documentation of your metadata structure
-- **Plan for growth** - design schemas that can evolve with your application
+</TabItem>
 
-This approach lets you maintain seamless integration between Scalekit and your existing systems while providing rich, contextual user experiences.
+</Tabs>
+
+This integration approach maintains consistent user identity across your system architecture while letting you choose the source of truth for authentication and authorization. Both user and organization external IDs work together to provide complete system integration capabilities.
+
+## Summary
+
+This approach lets you maintain seamless integration between Scalekit and your existing systems while providing rich, contextual user experiences. By consolidating both organization and user external identifiers in your integration strategy, you can:

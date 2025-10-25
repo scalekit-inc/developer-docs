@@ -68,9 +68,32 @@ import IconHugeiconsGithub from '~icons/hugeicons/github'
 import IconHugeiconsSalesforce from '~icons/fa7-brands/salesforce'
 import IconHugeiconsPhp from '~icons/hugeicons/php'
 
+// logos for integrations
+
+import IconLogosOkta from '~icons/logos/okta-icon'
+import IconStreamlineLogosMicrosoftAzureLogoSolid from '~icons/streamline-logos/microsoft-azure-logo-solid'
+import IconCibOpenId from '~icons/cib/open-id'
+import IconHugeiconsXml02SAML from '~icons/hugeicons/xml-02'
+import IconMaterialSymbolsFolderSupervisedOutlineSharpDirectory from '~icons/material-symbols/folder-supervised-outline-sharp'
+import IconArcticonsPingid from '~icons/arcticons/pingid'
+import IconArcticonsFolderMicrosoftADFS from '~icons/arcticons/folder-microsoft'
+import IconTeenyiconsFirebaseOutline from '~icons/teenyicons/firebase-outline'
+import IconSimpleIconsAmazoncognito from '~icons/simple-icons/amazoncognito'
+import IconLogosAuth0 from '~icons/logos/auth0-icon'
+
 // Static icon mapping for supported technologies
 export const iconMap = {
+  auth0: IconLogosAuth0,
+  amazoncognito: IconSimpleIconsAmazoncognito,
+  firebase: IconTeenyiconsFirebaseOutline,
+  okta: IconLogosOkta,
+  'microsoft-azure': IconStreamlineLogosMicrosoftAzureLogoSolid,
+  'open-id': IconCibOpenId,
+  saml: IconHugeiconsXml02SAML,
+  directory: IconMaterialSymbolsFolderSupervisedOutlineSharpDirectory,
+  pingid: IconArcticonsPingid,
   google: IconHugeiconsGoogle,
+  'microsoft-adfs': IconArcticonsFolderMicrosoftADFS,
   microsoft: IconHugeiconsMicrosoft,
   linkedin: IconHugeiconsLinkedin,
   gitlab: IconHugeiconsGitlab,

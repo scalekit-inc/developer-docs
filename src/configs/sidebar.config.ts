@@ -283,6 +283,7 @@ export const sidebar = [
           'guides/client-credentials-practices',
           'guides/webhooks-best-practices',
           'guides/user-auth/preserve-intended-destination',
+          'guides/user-auth/external-id-system-integration',
         ],
       },
       {
