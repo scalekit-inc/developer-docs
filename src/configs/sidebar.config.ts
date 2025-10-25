@@ -14,30 +14,31 @@ export const sidebar = [
         collapsed: false,
         items: [
           'fsa/guides/implement-login',
-          'fsa/choose-login-methods',
           'fsa/guides/handle-redirections',
           'fsa/guides/manage-session',
           'fsa/guides/logout',
         ],
       },
       {
-        label: 'Manage organizations',
+        label: 'Manage login methods',
+        items: [
+          'fsa/choose-login-methods',
+          'passwordless/oidc',
+          'social-logins/quickstart',
+          'sso/quickstart',
+        ],
+      },
+      {
+        label: 'Manage users & orgs',
         collapsed: false,
         items: [
           'fsa/data-modelling',
           'fsa/guides/create-organization',
           'fsa/guides/organization-settings',
-          'fsa/guides/organization-identifiers',
-        ],
-      },
-      {
-        label: 'Manage users',
-        collapsed: false,
-        items: [
           'fsa/guides/manage-users',
           'fsa/guides/custom-user-attributes',
           'authenticate/manage-organizations/add-users-to-organization',
-          'fsa/guides/organization-switching',
+          'fsa/guides/organization-identifiers',
         ],
       },
       {
@@ -210,7 +211,6 @@ export const sidebar = [
       {
         label: 'Enterprise authentication',
         items: [
-          'sso/quickstart',
           'sso/guides/sso-user-attributes',
           'directory/scim/quickstart',
           'directory/guides/group-based-role-assignment',
@@ -257,9 +257,7 @@ export const sidebar = [
         items: [
           'fsa/guides/auth-methods',
           'fsa/guides/implement-signup',
-          'passwordless/oidc',
           'passwordless/quickstart',
-          'social-logins/quickstart',
           'guides/interceptor-scenarios',
           'guides/dashboard/redirects',
           'fsa/guides/migration-guide',
