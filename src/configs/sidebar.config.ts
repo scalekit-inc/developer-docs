@@ -222,7 +222,6 @@ export const sidebar = [
         items: [
           'guides/user-auth/login-scenarios',
           'guides/user-auth/standalone-social-logins',
-          'fsa/guides/auth-methods',
           'fsa/guides/implement-signup',
           'passwordless/quickstart',
           'guides/idtoken-claims',
