@@ -16,19 +16,17 @@ head:
         white-space: nowrap;
       }
 next:
-  label: "Continue to build session management"
-  link: "/fsa/guides/manage-session/"
+  label: "Explore orgs & users"
+  link: "/fsa/data-modelling/"
 ---
 
 import {
-  LinkButton, Aside, Steps, Tabs, TabItem, Card, CardGrid, LinkCard,
+  LinkButton, Aside, Steps, Tabs, TabItem, Card, CardGrid,
  } from '@astrojs/starlight/components';
+import FoldCard from '@/components/ui/FoldCard.astro';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
 Social login enables authentication through existing accounts from providers like Google, Microsoft, and GitHub. Users don't need to create or remember new credentials, making the sign-in process faster and more convenient. This guide explains how to implement social login in your application with Scalekit's OAuth 2.0 integration.
-
-
-![How Scalekit works](@/assets/docs/common/social-connections/0.png)
 
 <Steps>
 
@@ -50,290 +48,43 @@ Social login enables authentication through existing accounts from providers lik
 
    Navigate to **Authentication** > **Auth Methods** > **Social logins** in your dashboard to configure these settings
 
-   <details>
-    <summary>Available social login providers</summary>
     <CardGrid>
-      <LinkCard title="Google" href="/guides/integrations/social-connections/google">
+      <FoldCard title="Google" iconKey="google" href="/guides/integrations/social-connections/google" cta="Setup →">
         Enable users to sign in with their Google accounts using OAuth 2.0
-      </LinkCard>
-      <LinkCard title="GitHub" href="/guides/integrations/social-connections/github">
+      </FoldCard>
+      <FoldCard title="GitHub" iconKey="github" href="/guides/integrations/social-connections/github" cta="Setup →">
         Allow users to authenticate using their GitHub credentials
-      </LinkCard>
-      <LinkCard title="Microsoft" href="/guides/integrations/social-connections/microsoft">
+      </FoldCard>
+      <FoldCard title="Microsoft" iconKey="microsoft" href="/guides/integrations/social-connections/microsoft" cta="Setup →">
         Integrate Microsoft accounts for seamless user authentication
-      </LinkCard>
-      <LinkCard title="GitLab" href="/guides/integrations/social-connections/gitlab">
+      </FoldCard>
+      <FoldCard title="GitLab" iconKey="gitlab" href="/guides/integrations/social-connections/gitlab" cta="Setup →">
         Enable GitLab-based authentication for your application
-      </LinkCard>
-      <LinkCard title="LinkedIn" href="/guides/integrations/social-connections/linkedin">
+      </FoldCard>
+      <FoldCard title="LinkedIn" iconKey="linkedin" href="/guides/integrations/social-connections/linkedin" cta="Setup →">
         Let users sign in with their LinkedIn accounts using OAuth 2.0
-      </LinkCard>
-      <LinkCard title="Salesforce" href="/guides/integrations/social-connections/salesforce">
+      </FoldCard>
+      <FoldCard title="Salesforce" iconKey="salesforce" href="/guides/integrations/social-connections/salesforce" cta="Setup →">
         Enable Salesforce-based authentication for your application
-      </LinkCard>
+      </FoldCard>
     </CardGrid>
-    </details>
 
-3. ## Redirect users to login
+3. ## Test the social connection
 
-   Create an authorization URL to redirect users to social provider's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and provider identifier.
+    After configuration, test the social connection by clicking on "Test Connection" in the dashboard. You will be redirected to the provider's consent screen to authorize access. A summary table will show the information that will be sent to your app.
 
-   Supported `provider` values: `google`, `microsoft`, `github`, `salesforce`, `linkedin`, `gitlab`
+    ![](@/assets/docs/social-logins-quickstart/test-connection.png)
 
-    <Tabs syncKey="tech-stack">
-    <TabItem value="nodejs" label="Node.js">
 
-    ```javascript showLineNumbers { "Browser redirect to authorization endpoint": 7 } {"Create authorization URL": 1}
+4. ## The login page now lists the social logins
 
-    //
-    const authorizationURL = scalekit.getAuthorizationUrl(redirectUri, {
-      provider: 'google',
-      state: state, // optional
-    });
+    Social login is now enabled in your application. Users can sign in with providers such as Google, GitHub, Microsoft, and others.
 
-    /*
-    https://auth.scalekit.com/authorize?
-      client_id=skc_122056050118122349527&
-      redirect_uri=https://yourapp.com/auth/callback&
-      provider=google
-    */
-
+    ```sh wrap title="Try login (or) signup" showLineNumbers=false
+    <SCALEKIT_ENVIRONMENT_URL>/a/auth/login
+    <SCALEKIT_ENVIRONMENT_URL>/a/auth/signup
     ```
 
-    </TabItem>
-    <TabItem value="py" label="Python">
-
-    ```python showLineNumbers { "Browser redirect to authorization endpoint": 10 } { 3}
-    options = AuthorizationUrlOptions()
-
-    options.provider = 'google'
-
-    authorization_url = scalekit_client.get_authorization_url(
-      redirect_uri=<redirect_uri>,
-      options=options
-    )
-
-    #
-    ```
-
-    </TabItem>
-    <TabItem value="golang" label="Go">
-
-    ```go showLineNumbers  {3}
-
-      options := scalekitClient.AuthorizationUrlOptions{}
-      // Pass the social login provider details while constructing the authorization URL.
-      options.Provider = "google"
-
-      authorizationURL := scalekitClient.GetAuthorizationUrl(
-        redirectUrl,
-        options,
-      )
-      // Next step is to redirect the user to this authorization URL
-    }
-    ```
-
-    </TabItem>
-    <TabItem value="java" label="Java">
-
-    ```java showLineNumbers { 14 }
-    package com.scalekit;
-
-    import com.scalekit.internal.http.AuthorizationUrlOptions;
-
-    public class Main {
-
-      public static void main(String[] args) {
-        ScalekitClient scalekitClient = new ScalekitClient(
-          "<SCALEKIT_ENVIRONMENT_URL>",
-          "<SCALEKIT_CLIENT_ID>",
-          "<SCALEKIT_CLIENT_SECRET>"
-        );
-        AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-        options.setProvider("google");
-        try {
-          // Pass the social login provider details while constructing the authorization URL.
-          String url = scalekitClient.authentication().getAuthorizationUrl(redirectUrl, options).toString();
-        } catch (Exception e) {
-          System.out.println(e.getMessage());
-        }
-      }
-    }
-    ```
-
-    </TabItem>
-    </Tabs>
-
-   After the user successfully authenticates with the selected social login provider, they will be redirected back to your application. Scalekit passes an authorization `code` to your registered callback endpoint, which you'll use in the next step to retrieve user information.
-
-   <Aside type="note" title="Specifying a provider bypasses the login selector">
-    Including a `provider` parameter in the authorization URL directs users straight to the specified social login provider's authentication page. This is useful when building a custom login interface.
-
-    Without this parameter, Scalekit displays its default login page showing all enabled authentication methods in your environment, including social connections and other options.
-   </Aside>
-
-3. ## Get user details from the callback
-
-   After successful authentication, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and proceed to creating session and logging in the user.
-
-    <Tabs syncKey="tech-stack">
-    <TabItem value="nodejs" label="Node.js">
-
-    ```javascript 'authResult' { 7 }
-    const { code, state, error, error_description } = req.query;
-
-    if (error) {
-      // Handle errors (use error_description if present)
-    }
-
-    const authResult = await scalekit.authenticateWithCode(code, redirectUri);
-
-    // authResult.user has the authenticated user's details
-    const userEmail = authResult.user.email;
-
-    // Next step: create a session for this user and allow access
-    ```
-
-    </TabItem>
-    <TabItem value="py" label="Python">
-
-    ```python { 8-11 } 'auth_result'
-    code = request.args.get('code')
-    error = request.args.get('error')
-    error_description = request.args.get('error_description')
-
-    if error:
-        raise Exception(error_description)
-
-    auth_result = scalekit_client.authenticate_with_code(
-      code,
-      <redirect_uri>
-    )
-
-    # result.user has the authenticated user's details
-    user_email = auth_result.user.email
-
-    # Next step: create a session for this user and allow access
-    ```
-
-    </TabItem>
-    <TabItem value="golang" label="Go">
-
-    ```go 'authResult' {9}
-    code := r.URL.Query().Get("code")
-    error := r.URL.Query().Get("error")
-    errorDescription := r.URL.Query().Get("error_description")
-
-    if error != "" {
-      // Handle errors and exit
-    }
-
-    authResult, err := scalekitClient.AuthenticateWithCode(code, redirectUrl)
-    if err != nil {
-      // Handle errors and exit
-    }
-
-    // authResult.User has the authenticated user's details
-    userEmail := authResult.User.Email
-
-    // Next step: create a session for this user and allow access
-    ```
-
-    </TabItem>
-
-    <TabItem value="java" label="Java">
-
-    ```java "res" { 9 }
-    String code = request.getParameter("code");
-    String error = request.getParameter("error");
-    String errorDescription = request.getParameter("error_description");
-    if (error != null && !error.isEmpty()) {
-      // Handle errors
-      return;
-    }
-    try {
-      AuthenticationResponse res = scalekitClient.authentication().authenticateWithCode(code, redirectUrl);
-      // res.getIdTokenClaims() has the authenticated user's details
-      String userEmail = res.getIdTokenClaims().getEmail();
-
-    } catch (Exception e) {
-      // Handle errors
-    }
-
-    // Next step: create a session for this user and allow access
-    ```
-
-    </TabItem>
-    </Tabs>
-
-    The _auth result_ object
-
-    <Tabs>
-      <TabItem value="result" label="Auth Result">
-        ```js showLineNumbers=false wrap
-        {
-          user: {
-            email: "john.doe@example.com"  // User's email
-            // any additional common fields
-          },
-          idToken: "<USER_PROFILE_JWT>",   // JWT with user profile claims
-          accessToken: "<API_CALL_JWT>",   // JWT for API calls
-          expiresIn: 899                   // Seconds until expiration
-        }
-        ```
-      </TabItem>
-      <TabItem value="idToken" label="Decoded ID token (JWT)">
-        ```json showLineNumbers=false
-        {
-          "alg": "RS256",
-          "kid": "snk_82937465019283746",
-          "typ": "JWT"
-        }.{
-          "amr": [
-            "conn_92847563920187364"
-          ],
-          "at_hash": "j8kqPm3nRt5Kx2Vy9wL_Zp",
-          "aud": [
-            "skc_73645291837465928"
-          ],
-          "azp": "skc_73645291837465928",
-          "c_hash": "Hy4k2M9pWnX7vqR8_Jt3bg",
-          "client_id": "skc_73645291837465928",
-          "email": "alice.smith@example.com",
-          "email_verified": true,
-          "exp": 1751697469,
-          "iat": 1751438269,
-          "iss": "https://demo-company-dev.scalekit.cloud",
-          "sid": "ses_83746592018273645",
-          "sub": "conn_92847563920187364;alice.smith@example.com" // A scalekit user ID is sent if user management is enabled
-        }.[Signature]
-        ```
-      </TabItem>
-       <TabItem value="idToken" label="Decoded access token">
-        ```json showLineNumbers=false
-        {
-          "alg": "RS256",
-          "kid": "snk_794467716206433",
-          "typ": "JWT"
-        }.{
-          "iss": "https://acme-corp-dev.scalekit.cloud",
-          "sub": "conn_794467724427269;robert.wilson@acme.com",
-          "aud": [
-            "skc_794467724259497"
-          ],
-          "exp": 1751439169,
-          "iat": 1751438269,
-          "nbf": 1751438269,
-          "client_id": "skc_794467724259497",
-          "jti": "tkn_794754665320942",
-          // External identifiers if updated on Scalekit
-          "xoid": "ext_org_123", // Organization ID
-          "xuid": "ext_usr_456"  // User ID
-        }.[Signature]
-        ```
-      </TabItem>
-    </Tabs>
+    No additional configuration is required since you followed the [quickstart](/fsa/quickstart/) guide.
 
 </Steps>
-
- Your application now supports social login authentication. Users can sign in securely using their preferred social identity providers like Google, GitHub, Microsoft, and more.

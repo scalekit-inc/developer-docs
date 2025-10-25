@@ -64,17 +64,17 @@ Implement organization-specific security policies:
 // Apply organization-specific security requirements
 async function createAuthorizationUrl(orgId, userEmail) {
   const redirectUri = 'https://yourapp.com/auth/callback';
-  
+
   // Fetch organization security policy
   const securityPolicy = await getSecurityPolicy(orgId);
-  
+
   // Apply conditional authentication requirements
   const options = {
     scopes: ['openid', 'profile', 'email', 'offline_access'],
     organizationId: orgId,
     loginHint: userEmail,
     state: generateSecureState(),
-    
+
     // Force re-authentication for high-security orgs
     prompt: securityPolicy.requireReauth ? 'login' : undefined,
     maxAge: securityPolicy.maxSessionAge || 3600,
@@ -90,17 +90,17 @@ async function createAuthorizationUrl(orgId, userEmail) {
 # Apply organization-specific security requirements
 async def create_authorization_url(org_id, user_email):
     redirect_uri = 'https://yourapp.com/auth/callback'
-    
+
     # Fetch organization security policy
     security_policy = await get_security_policy(org_id)
-    
+
     # Apply conditional authentication requirements
     options = AuthorizationUrlOptions(
         scopes=['openid', 'profile', 'email', 'offline_access'],
         organization_id=org_id,
         login_hint=user_email,
         state=generate_secure_state(),
-        
+
         # Force re-authentication for high-security orgs
         prompt='login' if security_policy.require_reauth else None,
         max_age=security_policy.max_session_age or 3600,
@@ -115,20 +115,20 @@ async def create_authorization_url(org_id, user_email):
 // Apply organization-specific security requirements
 func createAuthorizationUrl(orgId, userEmail string) (string, error) {
 	redirectUri := "https://yourapp.com/auth/callback"
-	
+
 	// Fetch organization security policy
 	securityPolicy, err := getSecurityPolicy(orgId)
 	if err != nil {
 		return "", err
 	}
-	
+
 	// Apply conditional authentication requirements
 	options := scalekit.AuthorizationUrlOptions{
 		Scopes: []string{"openid", "profile", "email", "offline_access"},
 		OrganizationId: orgId,
 		LoginHint: userEmail,
 		State: generateSecureState(),
-		
+
 		// Force re-authentication for high-security orgs
 		Prompt: conditionalPrompt(securityPolicy.RequireReauth),
 		MaxAge: securityPolicy.MaxSessionAge,
@@ -145,17 +145,17 @@ func createAuthorizationUrl(orgId, userEmail string) (string, error) {
 // Apply organization-specific security requirements
 public String createAuthorizationUrl(String orgId, String userEmail) {
     String redirectUri = "https://yourapp.com/auth/callback";
-    
+
     // Fetch organization security policy
     SecurityPolicy securityPolicy = getSecurityPolicy(orgId);
-    
+
     // Apply conditional authentication requirements
     AuthorizationUrlOptions options = new AuthorizationUrlOptions();
     options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
     options.setOrganizationId(orgId);
     options.setLoginHint(userEmail);
     options.setState(generateSecureState());
-    
+
     // Force re-authentication for high-security orgs
     if (securityPolicy.isRequireReauth()) {
         options.setPrompt("login");
@@ -183,7 +183,7 @@ const crypto = require('crypto');
 function signRequest(payload, secret) {
   const timestamp = Date.now().toString();
   const nonce = crypto.randomBytes(16).toString('hex');
-  
+
   // Create signature payload
   const signaturePayload = `${timestamp}.${nonce}.${JSON.stringify(payload)}`;
   const signature = crypto
@@ -202,26 +202,26 @@ function signRequest(payload, secret) {
 // Verify request signatures
 function verifyRequest(receivedPayload, receivedSignature, secret, maxAge = 300) {
   const [timestamp, nonce, payload] = receivedPayload.split('.');
-  
+
   // Check timestamp to prevent replay attacks
   if (Date.now() - parseInt(timestamp) > maxAge * 1000) {
     throw new Error('Request timestamp too old');
   }
-  
+
   // Verify signature
   const expectedPayload = `${timestamp}.${nonce}.${payload}`;
   const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(expectedPayload)
     .digest('hex');
-    
+
   if (!crypto.timingSafeEqual(
     Buffer.from(receivedSignature, 'hex'),
     Buffer.from(`sha256=${expectedSignature}`, 'hex')
   )) {
     throw new Error('Invalid signature');
   }
-  
+
   return JSON.parse(payload);
 }
 ```
@@ -238,7 +238,7 @@ import secrets
 def sign_request(payload, secret):
     timestamp = str(int(time.time() * 1000))
     nonce = secrets.token_hex(16)
-    
+
     # Create signature payload
     signature_payload = f"{timestamp}.{nonce}.{json.dumps(payload)}"
     signature = hmac.new(
@@ -257,11 +257,11 @@ def sign_request(payload, secret):
 # Verify request signatures
 def verify_request(received_payload, received_signature, secret, max_age=300):
     timestamp, nonce, payload = received_payload.split('.')
-    
+
     # Check timestamp to prevent replay attacks
     if time.time() * 1000 - int(timestamp) > max_age * 1000:
         raise ValueError('Request timestamp too old')
-    
+
     # Verify signature
     expected_payload = f"{timestamp}.{nonce}.{payload}"
     expected_signature = hmac.new(
@@ -269,13 +269,13 @@ def verify_request(received_payload, received_signature, secret, max_age=300):
         expected_payload.encode(),
         hashlib.sha256
     ).hexdigest()
-    
+
     if not hmac.compare_digest(
         received_signature,
         f"sha256={expected_signature}"
     ):
         raise ValueError('Invalid signature')
-    
+
     return json.loads(payload)
 ```
 </TabItem>
@@ -294,15 +294,15 @@ import (
 // Sign sensitive requests with HMAC
 func signRequest(payload interface{}, secret string) (map[string]interface{}, error) {
 	timestamp := fmt.Sprintf("%d", time.Now().UnixMilli())
-	
+
 	nonceBytes := make([]byte, 16)
 	rand.Read(nonceBytes)
 	nonce := hex.EncodeToString(nonceBytes)
-	
+
 	// Create signature payload
 	payloadJSON, _ := json.Marshal(payload)
 	signaturePayload := fmt.Sprintf("%s.%s.%s", timestamp, nonce, payloadJSON)
-	
+
 	h := hmac.New(sha256.New, []byte(secret))
 	h.Write([]byte(signaturePayload))
 	signature := hex.EncodeToString(h.Sum(nil))
@@ -322,32 +322,32 @@ func verifyRequest(receivedPayload, receivedSignature, secret string, maxAge int
 	if len(parts) != 3 {
 		return nil, fmt.Errorf("invalid payload format")
 	}
-	
+
 	timestamp, err := strconv.ParseInt(parts[0], 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("invalid timestamp")
 	}
-	
+
 	// Check timestamp to prevent replay attacks
 	if time.Now().UnixMilli()-timestamp > maxAge*1000 {
 		return nil, fmt.Errorf("request timestamp too old")
 	}
-	
+
 	// Verify signature
 	expectedPayload := receivedPayload
 	h := hmac.New(sha256.New, []byte(secret))
 	h.Write([]byte(expectedPayload))
 	expectedSignature := fmt.Sprintf("sha256=%s", hex.EncodeToString(h.Sum(nil)))
-	
+
 	if !hmac.Equal([]byte(receivedSignature), []byte(expectedSignature)) {
 		return nil, fmt.Errorf("invalid signature")
 	}
-	
+
 	var payload interface{}
 	if err := json.Unmarshal([]byte(parts[2]), &payload); err != nil {
 		return nil, fmt.Errorf("invalid payload JSON")
 	}
-	
+
 	return payload, nil
 }
 ```
@@ -364,16 +364,16 @@ import java.util.Map;
 // Sign sensitive requests with HMAC
 public Map<String, Object> signRequest(Object payload, String secret) throws Exception {
     String timestamp = String.valueOf(System.currentTimeMillis());
-    
+
     SecureRandom random = new SecureRandom();
     byte[] nonceBytes = new byte[16];
     random.nextBytes(nonceBytes);
     String nonce = bytesToHex(nonceBytes);
-    
+
     // Create signature payload
     String payloadJson = objectMapper.writeValueAsString(payload);
     String signaturePayload = timestamp + "." + nonce + "." + payloadJson;
-    
+
     Mac mac = Mac.getInstance("HmacSHA256");
     SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
     mac.init(secretKey);
@@ -385,39 +385,39 @@ public Map<String, Object> signRequest(Object payload, String secret) throws Exc
     result.put("timestamp", timestamp);
     result.put("nonce", nonce);
     result.put("signature", signature);
-    
+
     return result;
 }
 
 // Verify request signatures
-public Object verifyRequest(String receivedPayload, String receivedSignature, 
+public Object verifyRequest(String receivedPayload, String receivedSignature,
                            String secret, long maxAge) throws Exception {
     String[] parts = receivedPayload.split("\\.");
     if (parts.length != 3) {
         throw new SecurityException("Invalid payload format");
     }
-    
+
     long timestamp = Long.parseLong(parts[0]);
-    
+
     // Check timestamp to prevent replay attacks
     if (System.currentTimeMillis() - timestamp > maxAge * 1000) {
         throw new SecurityException("Request timestamp too old");
     }
-    
+
     // Verify signature
     Mac mac = Mac.getInstance("HmacSHA256");
     SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
     mac.init(secretKey);
     byte[] expectedSignatureBytes = mac.doFinal(receivedPayload.getBytes(StandardCharsets.UTF_8));
     String expectedSignature = "sha256=" + bytesToHex(expectedSignatureBytes);
-    
+
     if (!MessageDigest.isEqual(
         receivedSignature.getBytes(StandardCharsets.UTF_8),
         expectedSignature.getBytes(StandardCharsets.UTF_8)
     )) {
         throw new SecurityException("Invalid signature");
     }
-    
+
     return objectMapper.readValue(parts[2], Object.class);
 }
 ```
@@ -452,7 +452,7 @@ async function refreshAccessToken(refreshToken, userId) {
       refresh_token: refreshToken,
       grant_type: 'refresh_token'
     });
-    
+
     // Store new tokens securely
     const newTokens = {
       accessToken: tokenResponse.access_token,
@@ -460,15 +460,15 @@ async function refreshAccessToken(refreshToken, userId) {
       expiresAt: Date.now() + (tokenResponse.expires_in * 1000),
       refreshExpiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days
     };
-    
+
     // Update token storage atomically
     await updateUserTokens(userId, newTokens);
-    
+
     // Invalidate old refresh token
     await invalidateRefreshToken(refreshToken);
-    
+
     return newTokens;
-    
+
   } catch (error) {
     // Handle refresh failure
     if (error.code === 'invalid_grant') {
@@ -476,14 +476,14 @@ async function refreshAccessToken(refreshToken, userId) {
       await logoutUser(userId);
       throw new Error('Session expired, please login again');
     }
-    
+
     // Log security event
     await logSecurityEvent('token_refresh_failed', {
       userId,
       error: error.message,
       timestamp: new Date().toISOString()
     });
-    
+
     throw error;
   }
 }
@@ -491,7 +491,7 @@ async function refreshAccessToken(refreshToken, userId) {
 // Automatic token refresh middleware
 function autoRefreshMiddleware(req, res, next) {
   const { accessToken, refreshToken, expiresAt } = req.session.tokens || {};
-  
+
   // Check if token expires within 5 minutes
   if (accessToken && Date.now() + (5 * 60 * 1000) >= expiresAt) {
     refreshAccessToken(refreshToken, req.session.userId)
@@ -523,7 +523,7 @@ async def refresh_access_token(refresh_token, user_id):
             'refresh_token': refresh_token,
             'grant_type': 'refresh_token'
         })
-        
+
         # Store new tokens securely
         new_tokens = {
             'access_token': token_response['access_token'],
@@ -531,29 +531,29 @@ async def refresh_access_token(refresh_token, user_id):
             'expires_at': datetime.now() + timedelta(seconds=token_response['expires_in']),
             'refresh_expires_at': datetime.now() + timedelta(days=30)
         }
-        
+
         # Update token storage atomically
         await update_user_tokens(user_id, new_tokens)
-        
+
         # Invalidate old refresh token
         await invalidate_refresh_token(refresh_token)
-        
+
         return new_tokens
-        
+
     except Exception as error:
         # Handle refresh failure
         if hasattr(error, 'code') and error.code == 'invalid_grant':
             # Refresh token expired or revoked
             await logout_user(user_id)
             raise Exception('Session expired, please login again')
-        
+
         # Log security event
         await log_security_event('token_refresh_failed', {
             'user_id': user_id,
             'error': str(error),
             'timestamp': datetime.now().isoformat()
         })
-        
+
         raise error
 
 # Automatic token refresh decorator
@@ -561,11 +561,11 @@ def auto_refresh_tokens(func):
     async def wrapper(*args, **kwargs):
         request = kwargs.get('request') or args[0]
         tokens = getattr(request.session, 'tokens', {})
-        
+
         access_token = tokens.get('access_token')
         refresh_token = tokens.get('refresh_token')
         expires_at = tokens.get('expires_at')
-        
+
         # Check if token expires within 5 minutes
         if access_token and expires_at and datetime.now() + timedelta(minutes=5) >= expires_at:
             try:
@@ -575,7 +575,7 @@ def auto_refresh_tokens(func):
                 # Clear session on refresh failure
                 request.session.clear()
                 raise AuthenticationError('Authentication required')
-        
+
         return await func(*args, **kwargs)
     return wrapper
 ```
@@ -605,7 +605,7 @@ func refreshAccessToken(ctx context.Context, refreshToken, userID string) (*Toke
 	if err != nil {
 		return nil, fmt.Errorf("token exchange failed: %w", err)
 	}
-	
+
 	// Store new tokens securely
 	newTokens := &TokenSet{
 		AccessToken:      tokenResponse.AccessToken,
@@ -613,12 +613,12 @@ func refreshAccessToken(ctx context.Context, refreshToken, userID string) (*Toke
 		ExpiresAt:        time.Now().Add(time.Duration(tokenResponse.ExpiresIn) * time.Second),
 		RefreshExpiresAt: time.Now().Add(30 * 24 * time.Hour), // 30 days
 	}
-	
+
 	// Update token storage atomically
 	if err := updateUserTokens(ctx, userID, newTokens); err != nil {
 		return nil, fmt.Errorf("failed to update tokens: %w", err)
 	}
-	
+
 	// Invalidate old refresh token
 	if err := invalidateRefreshToken(ctx, refreshToken); err != nil {
 		// Log but don't fail the operation
@@ -627,7 +627,7 @@ func refreshAccessToken(ctx context.Context, refreshToken, userID string) (*Toke
 			"error":   err.Error(),
 		})
 	}
-	
+
 	return newTokens, nil
 }
 
@@ -636,7 +636,7 @@ func autoRefreshMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		session := getSession(r)
 		tokens := session.Tokens
-		
+
 		// Check if token expires within 5 minutes
 		if tokens != nil && time.Until(tokens.ExpiresAt) <= 5*time.Minute {
 			newTokens, err := refreshAccessToken(r.Context(), tokens.RefreshToken, session.UserID)
@@ -646,11 +646,11 @@ func autoRefreshMiddleware(next http.Handler) http.Handler {
 				http.Error(w, "Authentication required", http.StatusUnauthorized)
 				return
 			}
-			
+
 			session.Tokens = newTokens
 			saveSession(w, r, session)
 		}
-		
+
 		next.ServeHTTP(w, r)
 	})
 }
@@ -667,7 +667,7 @@ public class TokenSet {
     private String refreshToken;
     private Instant expiresAt;
     private Instant refreshExpiresAt;
-    
+
     // constructors, getters, setters...
 }
 
@@ -681,22 +681,22 @@ public CompletableFuture<TokenSet> refreshAccessToken(String refreshToken, Strin
                     .refreshToken(refreshToken)
                     .grantType("refresh_token")
                     .build());
-            
+
             // Store new tokens securely
             TokenSet newTokens = new TokenSet();
             newTokens.setAccessToken(tokenResponse.getAccessToken());
             newTokens.setRefreshToken(tokenResponse.getRefreshToken()); // New refresh token
             newTokens.setExpiresAt(Instant.now().plusSeconds(tokenResponse.getExpiresIn()));
             newTokens.setRefreshExpiresAt(Instant.now().plus(30, ChronoUnit.DAYS));
-            
+
             // Update token storage atomically
             updateUserTokens(userId, newTokens);
-            
+
             // Invalidate old refresh token
             invalidateRefreshToken(refreshToken);
-            
+
             return newTokens;
-            
+
         } catch (Exception e) {
             // Handle refresh failure
             if (e instanceof InvalidGrantException) {
@@ -704,14 +704,14 @@ public CompletableFuture<TokenSet> refreshAccessToken(String refreshToken, Strin
                 logoutUser(userId);
                 throw new AuthenticationException("Session expired, please login again");
             }
-            
+
             // Log security event
             logSecurityEvent("token_refresh_failed", Map.of(
                 "user_id", userId,
                 "error", e.getMessage(),
                 "timestamp", Instant.now().toString()
             ));
-            
+
             throw new RuntimeException(e);
         }
     });
@@ -720,16 +720,16 @@ public CompletableFuture<TokenSet> refreshAccessToken(String refreshToken, Strin
 // Automatic token refresh interceptor
 @Component
 public class AutoRefreshInterceptor implements HandlerInterceptor {
-    
+
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, 
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
                            Object handler) throws Exception {
         HttpSession session = request.getSession(false);
         if (session == null) return true;
-        
+
         TokenSet tokens = (TokenSet) session.getAttribute("tokens");
         if (tokens == null) return true;
-        
+
         // Check if token expires within 5 minutes
         if (tokens.getExpiresAt().minus(5, ChronoUnit.MINUTES).isBefore(Instant.now())) {
             try {
@@ -744,7 +744,7 @@ public class AutoRefreshInterceptor implements HandlerInterceptor {
                 return false;
             }
         }
-        
+
         return true;
     }
 }
@@ -782,10 +782,10 @@ async function logSecurityEvent(eventType, details) {
       sessionId: details.sessionId
     }
   };
-  
+
   // Store in security log
   await securityLogger.log(event);
-  
+
   // Trigger alerts for high-severity events
   if (event.severity === 'HIGH' || event.severity === 'CRITICAL') {
     await triggerSecurityAlert(event);
@@ -795,25 +795,25 @@ async function logSecurityEvent(eventType, details) {
 // Anomaly detection
 async function detectAnomalies(userId, loginEvent) {
   const recentLogins = await getRecentLogins(userId, '24h');
-  
+
   // Check for unusual patterns
   const anomalies = [];
-  
+
   // Geographic anomaly
   if (isUnusualLocation(loginEvent.location, recentLogins)) {
     anomalies.push('unusual_location');
   }
-  
+
   // Time-based anomaly
   if (isUnusualTime(loginEvent.timestamp, recentLogins)) {
     anomalies.push('unusual_time');
   }
-  
+
   // Device anomaly
   if (isUnusualDevice(loginEvent.device, recentLogins)) {
     anomalies.push('unusual_device');
   }
-  
+
   if (anomalies.length > 0) {
     await logSecurityEvent(SECURITY_EVENTS.SUSPICIOUS_ACTIVITY, {
       userId,
@@ -821,7 +821,7 @@ async function detectAnomalies(userId, loginEvent) {
       loginEvent
     });
   }
-  
+
   return anomalies;
 }
 ```
@@ -840,42 +840,42 @@ class SecurityRateLimiter {
       // Per-IP limits
       login_attempts: { window: 900, max: 10 }, // 10 attempts per 15 min
       token_requests: { window: 3600, max: 100 }, // 100 requests per hour
-      
+
       // Per-user limits
       user_login_attempts: { window: 3600, max: 5 }, // 5 attempts per hour
       user_token_refresh: { window: 3600, max: 50 }, // 50 refreshes per hour
-      
+
       // Global limits
       total_requests: { window: 60, max: 10000 } // 10k requests per minute
     };
   }
-  
+
   async checkLimit(type, identifier, customLimit = null) {
     const limit = customLimit || this.limits[type];
     if (!limit) return { allowed: true };
-    
+
     const key = `${type}:${identifier}`;
     const current = await redis.get(key) || 0;
-    
+
     if (current >= limit.max) {
       await this.logRateLimitExceeded(type, identifier, current);
-      return { 
-        allowed: false, 
+      return {
+        allowed: false,
         retryAfter: await redis.ttl(key),
         current: current,
         max: limit.max
       };
     }
-    
+
     // Increment counter with expiration
     await redis.multi()
       .incr(key)
       .expire(key, limit.window)
       .exec();
-    
+
     return { allowed: true, current: current + 1, max: limit.max };
   }
-  
+
   // Dynamic rate limiting based on risk
   async getDynamicLimit(type, riskScore) {
     const baseLimit = this.limits[type];
@@ -893,7 +893,7 @@ async function rateLimitMiddleware(req, res, next) {
   const limiter = new SecurityRateLimiter();
   const clientIP = req.ip;
   const userId = req.session?.userId;
-  
+
   // Check IP-based limits
   const ipLimit = await limiter.checkLimit('login_attempts', clientIP);
   if (!ipLimit.allowed) {
@@ -902,7 +902,7 @@ async function rateLimitMiddleware(req, res, next) {
       retryAfter: ipLimit.retryAfter
     });
   }
-  
+
   // Check user-based limits if authenticated
   if (userId) {
     const userLimit = await limiter.checkLimit('user_login_attempts', userId);
@@ -913,7 +913,7 @@ async function rateLimitMiddleware(req, res, next) {
       });
     }
   }
-  
+
   next();
 }
 ```
@@ -930,24 +930,24 @@ class SecurityRateLimiter:
             # Per-IP limits
             'login_attempts': {'window': 900, 'max': 10},  # 10 attempts per 15 min
             'token_requests': {'window': 3600, 'max': 100},  # 100 requests per hour
-            
+
             # Per-user limits
             'user_login_attempts': {'window': 3600, 'max': 5},  # 5 attempts per hour
             'user_token_refresh': {'window': 3600, 'max': 50},  # 50 refreshes per hour
-            
+
             # Global limits
             'total_requests': {'window': 60, 'max': 10000}  # 10k requests per minute
         }
-    
+
     async def check_limit(self, limit_type: str, identifier: str, custom_limit: Optional[Dict] = None):
         limit = custom_limit or self.limits.get(limit_type)
         if not limit:
             return {'allowed': True}
-        
+
         key = f"{limit_type}:{identifier}"
         current = await redis.get(key) or 0
         current = int(current)
-        
+
         if current >= limit['max']:
             await self.log_rate_limit_exceeded(limit_type, identifier, current)
             ttl = await redis.ttl(key)
@@ -957,15 +957,15 @@ class SecurityRateLimiter:
                 'current': current,
                 'max': limit['max']
             }
-        
+
         # Increment counter with expiration
         pipeline = redis.pipeline()
         pipeline.incr(key)
         pipeline.expire(key, limit['window'])
         await pipeline.execute()
-        
+
         return {'allowed': True, 'current': current + 1, 'max': limit['max']}
-    
+
     # Dynamic rate limiting based on risk
     async def get_dynamic_limit(self, limit_type: str, risk_score: float):
         base_limit = self.limits[limit_type].copy()
@@ -983,7 +983,7 @@ def rate_limit(limit_type: str):
             limiter = SecurityRateLimiter()
             client_ip = request.client.host
             user_id = getattr(request.session, 'user_id', None)
-            
+
             # Check IP-based limits
             ip_limit = await limiter.check_limit(limit_type, client_ip)
             if not ip_limit['allowed']:
@@ -994,7 +994,7 @@ def rate_limit(limit_type: str):
                         'retry_after': ip_limit['retry_after']
                     }
                 )
-            
+
             # Check user-based limits if authenticated
             if user_id:
                 user_limit = await limiter.check_limit(f'user_{limit_type}', user_id)
@@ -1006,7 +1006,7 @@ def rate_limit(limit_type: str):
                             'retry_after': user_limit['retry_after']
                         }
                     )
-            
+
             return await func(*args, **kwargs)
         return wrapper
     return decorator
@@ -1037,11 +1037,11 @@ func NewSecurityRateLimiter(redis RedisClient) *SecurityRateLimiter {
 			// Per-IP limits
 			"login_attempts":  {Window: 15 * time.Minute, Max: 10},
 			"token_requests":  {Window: time.Hour, Max: 100},
-			
+
 			// Per-user limits
 			"user_login_attempts": {Window: time.Hour, Max: 5},
 			"user_token_refresh":  {Window: time.Hour, Max: 50},
-			
+
 			// Global limits
 			"total_requests": {Window: time.Minute, Max: 10000},
 		},
@@ -1064,13 +1064,13 @@ func (rl *SecurityRateLimiter) CheckLimit(ctx context.Context, limitType, identi
 		}
 		limit = &l
 	}
-	
+
 	key := fmt.Sprintf("%s:%s", limitType, identifier)
 	current, err := rl.redis.Get(ctx, key).Int()
 	if err != nil && err != redis.Nil {
 		return nil, err
 	}
-	
+
 	if current >= limit.Max {
 		ttl, _ := rl.redis.TTL(ctx, key).Result()
 		await rl.logRateLimitExceeded(limitType, identifier, current)
@@ -1081,7 +1081,7 @@ func (rl *SecurityRateLimiter) CheckLimit(ctx context.Context, limitType, identi
 			Max:        limit.Max,
 		}, nil
 	}
-	
+
 	// Increment counter with expiration
 	pipe := rl.redis.Pipeline()
 	pipe.Incr(ctx, key)
@@ -1090,7 +1090,7 @@ func (rl *SecurityRateLimiter) CheckLimit(ctx context.Context, limitType, identi
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &LimitResult{
 		Allowed: true,
 		Current: current + 1,
@@ -1104,7 +1104,7 @@ func (rl *SecurityRateLimiter) GetDynamicLimit(limitType string, riskScore float
 	if !exists {
 		return nil
 	}
-	
+
 	if riskScore > 0.8 {
 		return &RateLimit{
 			Window: baseLimit.Window,
@@ -1116,7 +1116,7 @@ func (rl *SecurityRateLimiter) GetDynamicLimit(limitType string, riskScore float
 			Max:    int(float64(baseLimit.Max) * 0.5),
 		}
 	}
-	
+
 	return &baseLimit
 }
 
@@ -1125,7 +1125,7 @@ func (rl *SecurityRateLimiter) RateLimitMiddleware(limitType string) gin.Handler
 	return func(c *gin.Context) {
 		clientIP := c.ClientIP()
 		userID, _ := c.Get("userID")
-		
+
 		// Check IP-based limits
 		ipLimit, err := rl.CheckLimit(c.Request.Context(), limitType, clientIP, nil)
 		if err != nil {
@@ -1133,7 +1133,7 @@ func (rl *SecurityRateLimiter) RateLimitMiddleware(limitType string) gin.Handler
 			c.Abort()
 			return
 		}
-		
+
 		if !ipLimit.Allowed {
 			c.JSON(429, gin.H{
 				"error":      "Too many requests",
@@ -1142,7 +1142,7 @@ func (rl *SecurityRateLimiter) RateLimitMiddleware(limitType string) gin.Handler
 			c.Abort()
 			return
 		}
-		
+
 		// Check user-based limits if authenticated
 		if userID != nil {
 			userLimit, err := rl.CheckLimit(c.Request.Context(), "user_"+limitType, userID.(string), nil)
@@ -1151,7 +1151,7 @@ func (rl *SecurityRateLimiter) RateLimitMiddleware(limitType string) gin.Handler
 				c.Abort()
 				return
 			}
-			
+
 			if !userLimit.Allowed {
 				c.JSON(429, gin.H{
 					"error":       "Too many attempts",
@@ -1161,7 +1161,7 @@ func (rl *SecurityRateLimiter) RateLimitMiddleware(limitType string) gin.Handler
 				return
 			}
 		}
-		
+
 		c.Next()
 	}
 }
@@ -1178,7 +1178,7 @@ import java.util.concurrent.CompletableFuture;
 public class RateLimit {
     private final Duration window;
     private final int max;
-    
+
     // constructors, getters...
 }
 
@@ -1186,68 +1186,68 @@ public class RateLimit {
 public class SecurityRateLimiter {
     private final Map<String, RateLimit> limits;
     private final RedisTemplate<String, String> redisTemplate;
-    
+
     public SecurityRateLimiter(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
         this.limits = Map.of(
             // Per-IP limits
             "login_attempts", new RateLimit(Duration.ofMinutes(15), 10),
             "token_requests", new RateLimit(Duration.ofHours(1), 100),
-            
+
             // Per-user limits
             "user_login_attempts", new RateLimit(Duration.ofHours(1), 5),
             "user_token_refresh", new RateLimit(Duration.ofHours(1), 50),
-            
+
             // Global limits
             "total_requests", new RateLimit(Duration.ofMinutes(1), 10000)
         );
     }
-    
+
     public static class LimitResult {
         private final boolean allowed;
         private final long retryAfter;
         private final int current;
         private final int max;
-        
+
         // constructors, getters...
     }
-    
+
     public CompletableFuture<LimitResult> checkLimit(String limitType, String identifier, RateLimit customLimit) {
         return CompletableFuture.supplyAsync(() -> {
             RateLimit limit = customLimit != null ? customLimit : limits.get(limitType);
             if (limit == null) {
                 return new LimitResult(true, 0, 0, 0);
             }
-            
+
             String key = limitType + ":" + identifier;
             String currentStr = redisTemplate.opsForValue().get(key);
             int current = currentStr != null ? Integer.parseInt(currentStr) : 0;
-            
+
             if (current >= limit.getMax()) {
                 Long ttl = redisTemplate.getExpire(key);
                 logRateLimitExceeded(limitType, identifier, current);
                 return new LimitResult(false, ttl, current, limit.getMax());
             }
-            
+
             // Increment counter with expiration
             redisTemplate.opsForValue().increment(key);
             redisTemplate.expire(key, limit.getWindow());
-            
+
             return new LimitResult(true, 0, current + 1, limit.getMax());
         });
     }
-    
+
     // Dynamic rate limiting based on risk
     public RateLimit getDynamicLimit(String limitType, double riskScore) {
         RateLimit baseLimit = limits.get(limitType);
         if (baseLimit == null) return null;
-        
+
         if (riskScore > 0.8) {
             return new RateLimit(baseLimit.getWindow(), (int) (baseLimit.getMax() * 0.2));
         } else if (riskScore > 0.6) {
             return new RateLimit(baseLimit.getWindow(), (int) (baseLimit.getMax() * 0.5));
         }
-        
+
         return baseLimit;
     }
 }
@@ -1255,46 +1255,46 @@ public class SecurityRateLimiter {
 // Rate limiting interceptor
 @Component
 public class RateLimitInterceptor implements HandlerInterceptor {
-    
+
     private final SecurityRateLimiter rateLimiter;
-    
+
     public RateLimitInterceptor(SecurityRateLimiter rateLimiter) {
         this.rateLimiter = rateLimiter;
     }
-    
+
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, 
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
                            Object handler) throws Exception {
         String clientIP = getClientIP(request);
         String userID = getUserID(request);
-        
+
         // Check IP-based limits
         LimitResult ipLimit = rateLimiter.checkLimit("login_attempts", clientIP, null).get();
         if (!ipLimit.isAllowed()) {
             response.setStatus(429);
             response.getWriter().write(String.format(
-                "{\"error\":\"Too many requests\",\"retry_after\":%d}", 
+                "{\"error\":\"Too many requests\",\"retry_after\":%d}",
                 ipLimit.getRetryAfter()
             ));
             return false;
         }
-        
+
         // Check user-based limits if authenticated
         if (userID != null) {
             LimitResult userLimit = rateLimiter.checkLimit("user_login_attempts", userID, null).get();
             if (!userLimit.isAllowed()) {
                 response.setStatus(429);
                 response.getWriter().write(String.format(
-                    "{\"error\":\"Too many attempts\",\"retry_after\":%d}", 
+                    "{\"error\":\"Too many attempts\",\"retry_after\":%d}",
                     userLimit.getRetryAfter()
                 ));
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     private String getClientIP(HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
@@ -1302,7 +1302,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         }
         return request.getRemoteAddr();
     }
-    
+
     private String getUserID(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         return session != null ? (String) session.getAttribute("userID") : null;
@@ -1384,5 +1384,11 @@ Establish clear procedures for security incidents:
 <Aside type="caution" title="Security is an ongoing process">
 Security implementation doesn't end at deployment. Regularly review and update your security measures, monitor for new threats, and maintain incident response capabilities.
 </Aside>
+
+### Production requirements
+
+- **Use HTTPS** - Required in production for secure token transmission
+- **Store tokens securely** - Use HTTP-only cookies or secure server-side storage
+- **Validate redirects** - Configure allowed redirect URIs in your dashboard
 
 This guide provides the foundation for implementing robust authentication security. Combine these patterns with regular security assessments and stay updated on emerging threats to maintain a strong security posture.

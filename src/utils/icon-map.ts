@@ -41,8 +41,40 @@ import IconLucideBell from '~icons/lucide/bell'
 import IconLucideCode from '~icons/lucide/code'
 import IconLucideWrench from '~icons/lucide/wrench'
 
+// Import FoldCard icons
+import IconLucideSlack from '~icons/lucide/slack'
+import IconFluentPeopleCommunity16Regular from '~icons/fluent/people-community-16-regular'
+import IconLucideBlocks from '~icons/lucide/blocks'
+import IconLucidePuzzle from '~icons/lucide/puzzle'
+import IconLucideDownload from '~icons/lucide/download'
+import IconTablerWebhook from '~icons/tabler/webhook'
+import IconPhSparkle from '~icons/ph/sparkle'
+import IconMdiRobot from '~icons/mdi/robot'
+import IconMcp from '~icons/codicon/mcp'
+import IconLucideUsers from '~icons/lucide/users'
+import IconLucideKeyRound from '~icons/lucide/key-round'
+import IconStreamlineUserSyncOnlineInPersonRemix from '~icons/streamline/user-sync-online-in-person-remix'
+import IconLucideMail from '~icons/lucide/mail'
+import IconApi from '~icons/material-symbols/api'
+import IconSdk from '~icons/material-symbols/sdk'
+import IconPostman from '~icons/lineicons/postman'
+import IconOui from '~icons/oui/integration-general'
+import IconTablerServerSpark from '~icons/tabler/server-spark'
+import IconHugeiconsGoogle from '~icons/hugeicons/google'
+import IconHugeiconsLinkedin from '~icons/hugeicons/linkedin-01'
+import IconHugeiconsMicrosoft from '~icons/hugeicons/microsoft'
+import IconHugeiconsGitlab from '~icons/hugeicons/gitlab'
+import IconHugeiconsGithub from '~icons/hugeicons/github'
+import IconHugeiconsSalesforce from '~icons/fa7-brands/salesforce'
+
 // Static icon mapping for supported technologies
 export const iconMap = {
+  google: IconHugeiconsGoogle,
+  microsoft: IconHugeiconsMicrosoft,
+  linkedin: IconHugeiconsLinkedin,
+  gitlab: IconHugeiconsGitlab,
+  github: IconHugeiconsGithub,
+  salesforce: IconHugeiconsSalesforce,
   nodejs: IconNodejs,
   node: IconNodejs,
   javascript: IconProiconsJavascript,
@@ -91,6 +123,28 @@ export const iconMap = {
   typescript: IconHugeiconsTypescript01,
   support: IconLucideMessageCircleQuestionMark,
   resources: IconHugeiconsResourcesAdd,
+  // FoldCard icons
+  slack: IconLucideSlack,
+  community: IconFluentPeopleCommunity16Regular,
+  blocks: IconLucideBlocks,
+  sdk: IconSdk,
+  puzzle: IconLucidePuzzle,
+  download: IconLucideDownload,
+  sparkle: IconPhSparkle,
+  ai: IconPhSparkle,
+  mcp: IconMcp,
+  users: IconLucideUsers,
+  fsa: IconLucideUsers,
+  key: IconLucideKeyRound,
+  sso: IconLucideKeyRound,
+  sync: IconStreamlineUserSyncOnlineInPersonRemix,
+  scim: IconStreamlineUserSyncOnlineInPersonRemix,
+  mail: IconLucideMail,
+  passwordless: IconLucideMail,
+  api: IconApi,
+  postman: IconPostman,
+  'mcp-server': IconTablerServerSpark,
+  server: IconTablerServerSpark,
 }
 
 export type IconKey = keyof typeof iconMap

@@ -197,6 +197,18 @@ export const sidebar = [
     icon: 'seti:powershell',
     items: [
       {
+        label: 'Setup dev environment',
+        items: [
+          'dev-kit/sdks/overview',
+          'dev-kit/mcp',
+          {
+            label: 'Postman collections',
+            link: 'https://github.com/scalekit-inc/api-collections',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+      {
         label: 'Basics',
         items: [
           'sso/guides/authorization-url',
@@ -207,7 +219,16 @@ export const sidebar = [
       },
       {
         label: 'User authentication',
-        items: ['browse/vids/fsa-walkthrough', 'browse/vids/passwordless-walkthrough'],
+        items: [
+          'guides/user-auth/login-scenarios',
+          'guides/user-auth/standalone-social-logins',
+          'fsa/guides/auth-methods',
+          'fsa/guides/implement-signup',
+          'passwordless/quickstart',
+          'guides/dashboard/redirects',
+          'browse/vids/fsa-walkthrough',
+          'browse/vids/passwordless-walkthrough',
+        ],
       },
       {
         label: 'Enterprise authentication',
@@ -227,15 +248,8 @@ export const sidebar = [
         ],
       },
       {
-        label: 'User management',
-        collapsed: false,
-        items: ['fsa/guides/signup-restrictions', 'fsa/guides/user-invitations'],
-      },
-      {
         label: 'Rapid development tools',
         items: [
-          'dev-kit/mcp',
-          'dev-kit/sdks/overview',
           {
             label: 'Code samples',
             link: '/dev-kit/code-samples',
@@ -244,30 +258,22 @@ export const sidebar = [
             label: 'Examples',
             link: '/examples',
           },
-          'dev-kit/guides/webhook-use-cases',
-          {
-            label: 'Postman collections',
-            link: 'https://github.com/scalekit-inc/api-collections',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
         ],
       },
       {
-        label: 'Authentication implementation',
+        label: 'Organizations & users',
         collapsed: false,
         items: [
-          'fsa/guides/auth-methods',
-          'fsa/guides/implement-signup',
-          'passwordless/quickstart',
-          'guides/interceptor-scenarios',
-          'guides/dashboard/redirects',
+          'fsa/guides/signup-restrictions',
+          'fsa/guides/user-invitations',
           'fsa/guides/migration-guide',
+          'fsa/guides/merge-identities',
+          'fsa/reference/user-management-settings',
         ],
       },
       {
-        label: 'User & organization management',
-        collapsed: false,
-        items: ['fsa/guides/merge-identities', 'fsa/reference/user-management-settings'],
+        label: 'Customize workflows',
+        items: ['guides/interceptor-scenarios'],
       },
       {
         label: 'Enterprise features',
@@ -312,7 +318,6 @@ export const sidebar = [
         label: 'Code samples',
         autogenerate: { directory: 'browse/code-samples' },
       },
-
       {
         label: 'Support & resources',
         items: [
@@ -403,8 +408,6 @@ export const topics = {
   'dev-kit': [
     '/dev-kit/**/*',
     '/examples',
-    '/win-with-scalekit',
-    '/win-with-scalekit/**/*',
     '/passwordless/**/*',
     '/social-logins/**/*',
     '/guides/passwordless/**/*',

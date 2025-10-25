@@ -35,9 +35,11 @@ const FILTER_LABELS = {
 
 const CATEGORY_ORDER = [
   'Basics',
+  'Setup dev environment',
   'User authentication',
   'Enterprise authentication',
   'Customize workflows',
+  'Auth modules',
   'SDKs & Development Tools',
   'Admin portal for customers',
   'Best Practices',

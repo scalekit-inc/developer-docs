@@ -1,0 +1,55 @@
+---
+title: Login re-authentication and routing
+description: Learn how to handle different login re-authentication and routing scenarios with Scalekit
+browseCentral:
+  label: Login re-authentication and routing
+  filterType: ["tutorial"]
+  category: ["User authentication"]
+  icon: book
+sidebar:
+  label: Login scenarios
+prev: false
+next: false
+---
+
+import { CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+
+Login scenarios are the different ways a user can login to your application.
+
+
+### Multi-tenant applications
+Route users to their organization's authentication method:
+
+```javascript title="Tenant-specific routing"
+// Extract organization from subdomain or user input
+const orgId = getOrganizationFromRequest(req);
+
+const options = {
+  scopes: ['openid', 'profile', 'email', 'offline_access'],
+  organizationId: orgId,
+};
+```
+
+### Email-based routing
+Let Scalekit determine the authentication method from the user's email domain:
+
+```javascript title="Domain-based routing"
+const options = {
+  scopes: ['openid', 'profile', 'email', 'offline_access'],
+  loginHint: userEmail,  // Scalekit extracts domain and routes accordingly
+};
+```
+
+### Force re-authentication
+Require users to authenticate even if they have an active session:
+
+```javascript title="Force login"
+const options = {
+  scopes: ['openid', 'profile', 'email', 'offline_access'],
+  prompt: 'login',  // Forces authentication flow
+};
+```
+
+<Aside type="caution" title="Security considerations">
+Always include the `state` parameter with a random, unguessable value to prevent CSRF attacks. Validate this value when processing the callback.
+</Aside>
