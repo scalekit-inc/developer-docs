@@ -1,39 +1,10 @@
+// Core UI icons
 import IconLucideChevronDown from '~icons/lucide/chevron-down'
 import IconOcticonTabExternal from '~icons/octicon/tab-external-24'
 import IconCarbonMigrate from '~icons/carbon/migrate'
 import IconGardenShapes26 from '~icons/garden/shapes-26'
-import IconProiconsJavascript from '~icons/proicons/javascript'
 
-// Import commonly used tech stack icons
-import IconNodejs from '~icons/simple-icons/nodedotjs'
-import IconPython from '~icons/simple-icons/python'
-import IconGo from '~icons/simple-icons/go'
-import IconJava from '~icons/ri/java-line'
-import IconTeenyiconsNextjsOutline from '~icons/teenyicons/nextjs-outline'
-import IconSpringboot from '~icons/simple-icons/springboot'
-import IconFlask from '~icons/simple-icons/flask'
-import IconDjango from '~icons/simple-icons/django'
-import IconRipple from '~icons/simple-icons/ripple'
-import IconExpress from '~icons/simple-icons/express'
-import IconReaddotcv from '~icons/simple-icons/readdotcv'
-import IconStreamlinePlumpBusinessProgressBar2 from '~icons/streamline-plump/business-progress-bar-2'
-
-import IconLucideFileVideoCamera from '~icons/lucide/file-video-camera'
-import IconLucideSquareCode from '~icons/lucide/square-code'
-import IconLucideGithub from '~icons/lucide/github'
-import IconStreamlineFreehandLearningProgrammingFlag from '~icons/streamline-freehand/learning-programming-flag'
-import IconStreamlineFreehandLearningProgrammingBook from '~icons/streamline-freehand/learning-programming-book'
-import IconFluentLearningApp24Regular from '~icons/fluent/learning-app-24-regular'
-import IconMaterialSymbolsCodeRounded from '~icons/material-symbols/code-rounded'
-import IconLucideBookOpenText from '~icons/lucide/book-open-text'
-import IconHugeiconsTypescript01 from '~icons/hugeicons/typescript-01'
-import IconLucideMessageCircleQuestionMark from '~icons/lucide/message-circle-question-mark'
-import IconHugeiconsResourcesAdd from '~icons/hugeicons/resources-add'
-import IconArcticonsEmojiEightSpokedAsterisk from '~icons/arcticons/emoji-eight-spoked-asterisk'
-import IconLucideOutlineWebhook from '~icons/ic/outline-webhook'
-import IconMaterialSymbolsMotionSensorAlertRounded from '~icons/material-symbols/motion-sensor-alert-rounded'
-
-// Import navigation icons
+// Navigation icons
 import IconLucideShield from '~icons/lucide/shield'
 import IconLucideBot from '~icons/lucide/bot'
 import IconLucideBookOpen from '~icons/lucide/book-open'
@@ -41,92 +12,80 @@ import IconLucideBell from '~icons/lucide/bell'
 import IconLucideCode from '~icons/lucide/code'
 import IconLucideWrench from '~icons/lucide/wrench'
 
-// Import FoldCard icons
+// Content type icons
+import IconLucideFileVideoCamera from '~icons/lucide/file-video-camera'
+import IconLucideSquareCode from '~icons/lucide/square-code'
+import IconLucideBookOpenText from '~icons/lucide/book-open-text'
+import IconMaterialSymbolsCodeRounded from '~icons/material-symbols/code-rounded'
+import IconFluentLearningApp24Regular from '~icons/fluent/learning-app-24-regular'
+import IconStreamlineFreehandLearningProgrammingBook from '~icons/streamline-freehand/learning-programming-book'
+import IconLucideMessageCircleQuestionMark from '~icons/lucide/message-circle-question-mark'
+import IconHugeiconsResourcesAdd from '~icons/hugeicons/resources-add'
+import IconLucideOutlineWebhook from '~icons/ic/outline-webhook'
+import IconMaterialSymbolsMotionSensorAlertRounded from '~icons/material-symbols/motion-sensor-alert-rounded'
+
+// Programming languages and frameworks
+import IconProiconsJavascript from '~icons/proicons/javascript'
+import IconHugeiconsTypescript01 from '~icons/hugeicons/typescript-01'
+import IconNodejs from '~icons/simple-icons/nodedotjs'
+import IconPython from '~icons/simple-icons/python'
+import IconGo from '~icons/simple-icons/go'
+import IconJava from '~icons/ri/java-line'
+import IconHugeiconsPhp from '~icons/hugeicons/php'
+import IconTeenyiconsNextjsOutline from '~icons/teenyicons/nextjs-outline'
+import IconSpringboot from '~icons/simple-icons/springboot'
+import IconFlask from '~icons/simple-icons/flask'
+import IconDjango from '~icons/simple-icons/django'
+import IconExpress from '~icons/simple-icons/express'
+
+// Tool and service icons
 import IconLucideSlack from '~icons/lucide/slack'
-import IconFluentPeopleCommunity16Regular from '~icons/fluent/people-community-16-regular'
 import IconLucideBlocks from '~icons/lucide/blocks'
 import IconLucidePuzzle from '~icons/lucide/puzzle'
 import IconLucideDownload from '~icons/lucide/download'
-import IconTablerWebhook from '~icons/tabler/webhook'
 import IconPhSparkle from '~icons/ph/sparkle'
-import IconMdiRobot from '~icons/mdi/robot'
 import IconMcp from '~icons/codicon/mcp'
 import IconLucideUsers from '~icons/lucide/users'
 import IconLucideKeyRound from '~icons/lucide/key-round'
-import IconStreamlineUserSyncOnlineInPersonRemix from '~icons/streamline/user-sync-online-in-person-remix'
 import IconLucideMail from '~icons/lucide/mail'
 import IconApi from '~icons/material-symbols/api'
 import IconSdk from '~icons/material-symbols/sdk'
 import IconPostman from '~icons/lineicons/postman'
-import IconOui from '~icons/oui/integration-general'
 import IconTablerServerSpark from '~icons/tabler/server-spark'
-import IconHugeiconsGoogle from '~icons/hugeicons/google'
-import IconHugeiconsLinkedin from '~icons/hugeicons/linkedin-01'
-import IconHugeiconsMicrosoft from '~icons/hugeicons/microsoft'
-import IconHugeiconsGitlab from '~icons/hugeicons/gitlab'
-import IconHugeiconsGithub from '~icons/hugeicons/github'
-import IconHugeiconsSalesforce from '~icons/fa7-brands/salesforce'
-import IconHugeiconsPhp from '~icons/hugeicons/php'
+import IconStreamlineUserSyncOnlineInPersonRemix from '~icons/streamline/user-sync-online-in-person-remix'
+import IconFluentPeopleCommunity16Regular from '~icons/fluent/people-community-16-regular'
 
-// logos for integrations
+// Miscellaneous
+import IconRipple from '~icons/simple-icons/ripple'
+import IconReaddotcv from '~icons/simple-icons/readdotcv'
+import IconStreamlinePlumpBusinessProgressBar2 from '~icons/streamline-plump/business-progress-bar-2'
 
+// Auth provider and integration logos
+import IconLogosAuth0 from '~icons/logos/auth0-icon'
 import IconLogosOkta from '~icons/logos/okta-icon'
+import IconSimpleIconsAmazoncognito from '~icons/simple-icons/amazoncognito'
+import IconTeenyiconsFirebaseOutline from '~icons/teenyicons/firebase-outline'
 import IconStreamlineLogosMicrosoftAzureLogoSolid from '~icons/streamline-logos/microsoft-azure-logo-solid'
 import IconCibOpenId from '~icons/cib/open-id'
 import IconHugeiconsXml02SAML from '~icons/hugeicons/xml-02'
 import IconMaterialSymbolsFolderSupervisedOutlineSharpDirectory from '~icons/material-symbols/folder-supervised-outline-sharp'
 import IconArcticonsPingid from '~icons/arcticons/pingid'
 import IconArcticonsFolderMicrosoftADFS from '~icons/arcticons/folder-microsoft'
-import IconTeenyiconsFirebaseOutline from '~icons/teenyicons/firebase-outline'
-import IconSimpleIconsAmazoncognito from '~icons/simple-icons/amazoncognito'
-import IconLogosAuth0 from '~icons/logos/auth0-icon'
 
-// Static icon mapping for supported technologies
+// Company and platform logos
+import IconHugeiconsGoogle from '~icons/hugeicons/google'
+import IconHugeiconsLinkedin from '~icons/hugeicons/linkedin-01'
+import IconHugeiconsMicrosoft from '~icons/hugeicons/microsoft'
+import IconHugeiconsGitlab from '~icons/hugeicons/gitlab'
+import IconHugeiconsGithub from '~icons/hugeicons/github'
+import IconHugeiconsSalesforce from '~icons/fa7-brands/salesforce'
+
+// Static icon mapping organized by categories
 export const iconMap = {
-  auth0: IconLogosAuth0,
-  amazoncognito: IconSimpleIconsAmazoncognito,
-  firebase: IconTeenyiconsFirebaseOutline,
-  okta: IconLogosOkta,
-  'microsoft-azure': IconStreamlineLogosMicrosoftAzureLogoSolid,
-  'open-id': IconCibOpenId,
-  saml: IconHugeiconsXml02SAML,
-  directory: IconMaterialSymbolsFolderSupervisedOutlineSharpDirectory,
-  pingid: IconArcticonsPingid,
-  google: IconHugeiconsGoogle,
-  'microsoft-adfs': IconArcticonsFolderMicrosoftADFS,
-  microsoft: IconHugeiconsMicrosoft,
-  linkedin: IconHugeiconsLinkedin,
-  gitlab: IconHugeiconsGitlab,
-  github: IconHugeiconsGithub,
-  salesforce: IconHugeiconsSalesforce,
-  nodejs: IconNodejs,
-  node: IconNodejs,
-  javascript: IconProiconsJavascript,
-  js: IconProiconsJavascript,
-  python: IconPython,
-  py: IconPython,
-  golang: IconGo,
-  go: IconGo,
-  java: IconJava,
-  nextjs: IconTeenyiconsNextjsOutline,
-  next: IconTeenyiconsNextjsOutline,
-  springboot: IconSpringboot,
-  spring: IconSpringboot,
-  flask: IconFlask,
-  django: IconDjango,
-  ripple: IconRipple,
-  express: IconExpress,
-  expressjs: IconExpress,
-  read: IconReaddotcv,
-  blog: IconReaddotcv,
-  progress: IconStreamlinePlumpBusinessProgressBar2,
+  // Core UI icons
+  'chevron-down': IconLucideChevronDown,
   migrate: IconCarbonMigrate,
-  video: IconLucideFileVideoCamera,
-  code: IconMaterialSymbolsCodeRounded,
-  'code-sample': IconLucideSquareCode,
-  tutorial: IconFluentLearningApp24Regular,
-  library: IconStreamlineFreehandLearningProgrammingBook,
-  book: IconLucideBookOpenText,
+
   // Navigation icons
   shield: IconLucideShield,
   authenticate: IconLucideShield,
@@ -136,21 +95,47 @@ export const iconMap = {
   'api-reference': IconLucideBookOpen,
   'rest-apis': IconLucideBookOpen,
   bell: IconLucideBell,
-  webhooks: IconLucideOutlineWebhook,
-  events: IconMaterialSymbolsMotionSensorAlertRounded,
+  'code-samples': IconLucideCode,
   wrench: IconLucideWrench,
   'developer-resources': IconLucideWrench,
   integrations: IconLucideWrench,
-  'code-samples': IconLucideCode,
-  'chevron-down': IconLucideChevronDown,
-  typescript: IconHugeiconsTypescript01,
+
+  // Content type icons
+  video: IconLucideFileVideoCamera,
+  'code-sample': IconLucideSquareCode,
+  book: IconLucideBookOpenText,
+  code: IconMaterialSymbolsCodeRounded,
+  tutorial: IconFluentLearningApp24Regular,
+  library: IconStreamlineFreehandLearningProgrammingBook,
   support: IconLucideMessageCircleQuestionMark,
   resources: IconHugeiconsResourcesAdd,
-  // FoldCard icons
+  webhooks: IconLucideOutlineWebhook,
+  events: IconMaterialSymbolsMotionSensorAlertRounded,
+
+  // Programming languages and frameworks
+  javascript: IconProiconsJavascript,
+  js: IconProiconsJavascript,
+  typescript: IconHugeiconsTypescript01,
+  nodejs: IconNodejs,
+  node: IconNodejs,
+  python: IconPython,
+  py: IconPython,
+  golang: IconGo,
+  go: IconGo,
+  java: IconJava,
+  php: IconHugeiconsPhp,
+  nextjs: IconTeenyiconsNextjsOutline,
+  next: IconTeenyiconsNextjsOutline,
+  springboot: IconSpringboot,
+  spring: IconSpringboot,
+  flask: IconFlask,
+  django: IconDjango,
+  express: IconExpress,
+  expressjs: IconExpress,
+
+  // Tool and service icons
   slack: IconLucideSlack,
-  community: IconFluentPeopleCommunity16Regular,
   blocks: IconLucideBlocks,
-  sdk: IconSdk,
   puzzle: IconLucidePuzzle,
   download: IconLucideDownload,
   sparkle: IconPhSparkle,
@@ -160,15 +145,42 @@ export const iconMap = {
   fsa: IconLucideUsers,
   key: IconLucideKeyRound,
   sso: IconLucideKeyRound,
-  sync: IconStreamlineUserSyncOnlineInPersonRemix,
-  scim: IconStreamlineUserSyncOnlineInPersonRemix,
   mail: IconLucideMail,
   passwordless: IconLucideMail,
   api: IconApi,
+  sdk: IconSdk,
   postman: IconPostman,
   'mcp-server': IconTablerServerSpark,
   server: IconTablerServerSpark,
-  php: IconHugeiconsPhp,
+  sync: IconStreamlineUserSyncOnlineInPersonRemix,
+  scim: IconStreamlineUserSyncOnlineInPersonRemix,
+  community: IconFluentPeopleCommunity16Regular,
+
+  // Miscellaneous
+  ripple: IconRipple,
+  read: IconReaddotcv,
+  blog: IconReaddotcv,
+  progress: IconStreamlinePlumpBusinessProgressBar2,
+
+  // Auth provider and integration logos
+  auth0: IconLogosAuth0,
+  okta: IconLogosOkta,
+  amazoncognito: IconSimpleIconsAmazoncognito,
+  firebase: IconTeenyiconsFirebaseOutline,
+  'microsoft-azure': IconStreamlineLogosMicrosoftAzureLogoSolid,
+  'open-id': IconCibOpenId,
+  saml: IconHugeiconsXml02SAML,
+  directory: IconMaterialSymbolsFolderSupervisedOutlineSharpDirectory,
+  pingid: IconArcticonsPingid,
+  'microsoft-adfs': IconArcticonsFolderMicrosoftADFS,
+
+  // Company and platform logos
+  google: IconHugeiconsGoogle,
+  linkedin: IconHugeiconsLinkedin,
+  microsoft: IconHugeiconsMicrosoft,
+  gitlab: IconHugeiconsGitlab,
+  github: IconHugeiconsGithub,
+  salesforce: IconHugeiconsSalesforce,
 }
 
 export type IconKey = keyof typeof iconMap
@@ -180,13 +192,14 @@ export function getIconComponent(key?: string) {
   return iconMap[iconKey] || IconOcticonTabExternal
 }
 
-// Export commonly used icons for other components for SecondaryNav.astro
+// Export commonly used icons organized by category
 export {
+  // Core UI icons
   IconLucideChevronDown,
   IconOcticonTabExternal,
   IconCarbonMigrate,
   IconGardenShapes26,
-  IconProiconsJavascript,
+
   // Navigation icons
   IconLucideShield,
   IconLucideBot,
@@ -194,6 +207,11 @@ export {
   IconLucideBell,
   IconLucideCode,
   IconLucideWrench,
+
+  // Content type icons
   IconHugeiconsResourcesAdd,
   IconLucideOutlineWebhook,
+
+  // Programming languages
+  IconProiconsJavascript,
 }

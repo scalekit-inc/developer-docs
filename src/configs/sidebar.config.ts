@@ -157,39 +157,6 @@ export const sidebar = [
     ],
   },
   {
-    label: 'API Auth',
-    link: '/m2m/quickstart',
-    id: 'm2m',
-    icon: 'seti:crystal_embedded',
-    items: [
-      {
-        label: 'Getting started',
-        items: [
-          'guides/m2m/overview',
-          'm2m/quickstart',
-          {
-            label: 'Code examples',
-            link: 'https://github.com/scalekit-inc/gists/tree/main/m2m',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-      {
-        label: 'Guides',
-        items: [
-          'guides/m2m/m2m-basics',
-          'guides/m2m/scopes',
-          'guides/m2m/api-auth-m2m-clients',
-          {
-            label: 'Interceptors',
-            link: '/guides/auth-flow-interceptors',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-    ],
-  },
-  {
     label: 'Developer Resources',
     id: 'dev-kit',
     link: '/dev-kit/',
@@ -204,6 +171,14 @@ export const sidebar = [
             label: 'Postman collections',
             link: 'https://github.com/scalekit-inc/api-collections',
             attrs: { target: '_blank', rel: 'noopener' },
+          },
+          {
+            label: 'Code snippets',
+            link: '/browse/code-samples/github/code-gists-collection',
+          },
+          {
+            label: 'API testing collections',
+            link: '/browse/code-samples/github/api-collections',
           },
         ],
       },
@@ -229,6 +204,38 @@ export const sidebar = [
           'guides/dashboard/redirects',
           'browse/vids/fsa-walkthrough',
           'browse/vids/passwordless-walkthrough',
+          {
+            label: 'Build with Next.js',
+            link: '/browse/code-samples/github/nextjs-full-stack-auth',
+          },
+          {
+            label: 'Next.js demo app',
+            link: '/browse/code-samples/github/nextjs-demo-application',
+          },
+          {
+            label: 'Build with Express.js',
+            link: '/browse/code-samples/github/expressjs-example',
+          },
+          {
+            label: 'Build with Spring Boot',
+            link: '/browse/code-samples/github/spring-boot-example',
+          },
+          {
+            label: 'Build with FastAPI',
+            link: '/browse/code-samples/github/fastapi-example',
+          },
+          {
+            label: 'Build with Go',
+            link: '/browse/code-samples/github/go-example-application',
+          },
+          {
+            label: 'Express.js login box',
+            link: '/browse/code-samples/github/expressjs-login-box',
+          },
+          {
+            label: 'Managed login demo',
+            link: '/browse/code-samples/github/managed-login-box-demo',
+          },
         ],
       },
       {
@@ -258,10 +265,53 @@ export const sidebar = [
           'directory/guides/scim-protocol',
           'browse/vids/mcp-oauth-walkthrough',
           {
+            label: 'Express.js SSO demo',
+            link: '/browse/code-samples/github/expressjs-sso-demo',
+          },
+          {
+            label: 'SSO migration guide',
+            link: '/browse/code-samples/github/sso-migrations-example',
+          },
+          {
+            label: 'OIDC & SAML examples',
+            link: '/browse/code-samples/github/oidc-saml-scim-examples',
+          },
+          {
+            label: 'Build with .NET Core',
+            link: '/browse/code-samples/github/dotnet-core-examples',
+          },
+          {
+            label: 'Embed admin portal',
+            link: '/browse/code-samples/github/admin-portal-embedding',
+          },
+          {
+            label: 'Handle webhook events',
+            link: '/browse/code-samples/github/webhook-events',
+          },
+          {
             label: 'View all integrations',
             link: 'guides/integrations',
             attrs: { target: '_blank', rel: 'noopener' },
           },
+        ],
+      },
+      {
+        label: 'API Auth',
+        items: [
+          'guides/m2m/overview',
+          'm2m/quickstart',
+          {
+            label: 'Build M2M code samples',
+            link: '/browse/code-samples/github/m2m-code-samples',
+          },
+          {
+            label: 'M2M code examples',
+            link: 'https://github.com/scalekit-inc/gists/tree/main/m2m',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+          'guides/m2m/m2m-basics',
+          'guides/m2m/scopes',
+          'guides/m2m/api-auth-m2m-clients',
         ],
       },
       {
@@ -287,8 +337,67 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Code samples',
-        autogenerate: { directory: 'browse/code-samples' },
+        label: 'Framework integrations',
+        items: [
+          {
+            label: 'Firebase integration',
+            link: '/browse/code-samples/github/firebase-integration',
+          },
+          {
+            label: 'Firebase with Node.js',
+            link: '/browse/code-samples/github/firebase-node-example',
+          },
+          {
+            label: 'AWS Cognito integration',
+            link: '/browse/code-samples/github/aws-cognito-integration',
+          },
+          {
+            label: 'Cognito with Next.js',
+            link: '/browse/code-samples/github/cognito-nextjs',
+          },
+        ],
+      },
+      {
+        label: 'Agent & AI examples',
+        items: [
+          {
+            label: 'LangChain integration',
+            link: '/browse/code-samples/github/langchain-integration',
+          },
+          {
+            label: 'Google ADK integration',
+            link: '/browse/code-samples/github/google-adk-integration',
+          },
+          {
+            label: 'Direct agent integration',
+            link: '/browse/code-samples/github/direct-integration',
+          },
+          {
+            label: 'MCP authentication',
+            link: '/browse/code-samples/github/mcp-auth-demos',
+          },
+        ],
+      },
+      {
+        label: 'SDK examples',
+        items: [
+          {
+            label: 'Node.js SDK examples',
+            link: '/browse/code-samples/github/nodejs-sdk',
+          },
+          {
+            label: 'Python SDK examples',
+            link: '/browse/code-samples/github/python-sdk',
+          },
+          {
+            label: 'Java SDK examples',
+            link: '/browse/code-samples/github/java-sdk',
+          },
+          {
+            label: 'Go SDK examples',
+            link: '/browse/code-samples/github/go-sdk',
+          },
+        ],
       },
       {
         label: 'Support & resources',
