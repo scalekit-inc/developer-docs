@@ -1,0 +1,228 @@
+---
+title: Admin portal
+description: "Use Scalekit's admin portal to let customers set up SSO and SCIM via a shareable link or embedded iframe."
+browseCentral:
+  label: "Self-serve admin portal"
+  filterType: ["tutorial"]
+  category: ["Enterprise authentication"]
+  icon: book
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+sidebar:
+  label: "Using the admin portal"
+prev: false
+
+---
+
+import { LinkButton, Aside, Steps, Tabs, TabItem, CardGrid } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+import { LinkCard } from '@astrojs/starlight/components';
+
+The admin portal lets your customers configure single sign-on (SSO) and directory sync (SCIM) without back‑and‑forth. Scalekit hosts the portal and offers two integration options: a shareable no‑code link or an embedded iframe.
+
+## No-code admin portal
+
+Share a link so customers can configure SSO. The portal includes all settings needed to connect to their identity provider (IdP).
+
+To create and share a link:
+
+<Steps>
+1. Log in to the [Scalekit dashboard](https://app.scalekit.com)
+2. Go to the "Organizations" tab
+3. Select the organization
+4. Click "Generate link" to create a shareable admin portal link
+</Steps>
+
+```http title="Magic link example" wrap showLineNumbers=false
+https://your-app.scalekit.dev/magicLink/2cbe56de-eec4-41d2-abed-90a5b82286c4_p
+```
+
+The link expires in 7 days and can be revoked from the dashboard at any time. Share it over email, Slack, or any channel you prefer.
+
+
+<Aside type="caution">
+Anyone with the link can view and update the organization's connection settings.
+</Aside>
+
+### Customize the admin portal
+
+Match the portal to your brand:
+
+- **Logo**: Upload and display your company logo.
+- **Colors**: Adjust the accent color to harmonize with your brand palette.
+- **Favicon**: Set a favicon that represents your brand identity.
+
+These options make the admin portal feel integrated with your application.
+
+
+## Embed the admin portal
+
+Let users complete setup inside your app by embedding the Scalekit‑hosted admin portal in an inline frame (iframe). This improves discoverability and avoids switching contexts.
+
+Generate the embeddable portal link on each page load and set the `<iframe>` `src` at runtime. This ensures secure, programmatic access.
+
+<InstallSDK />
+
+Use the `Generate portal link` API to create a unique, embeddable admin portal link for an organization.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+
+    ```javascript title="server.js" {9-12}
+    import { Scalekit } from '@scalekit-sdk/node';
+
+    const scalekit = new Scalekit(
+      process.env.ENVIRONMENT_URL,
+      process.env.CLIENT_ID,
+      process.env.CLIENT_SECRET,
+    );
+
+    async function generatePortalLink(orgID) {
+      const link = await scalekit.organization.generatePortalLink(orgID);
+      console.log(JSON.stringify(link, null, 2));
+    }
+    ```
+
+  </TabItem>
+
+  <TabItem value="python" label="Python">
+
+    ```python title="generate_link.py" {8-10}
+    from scalekit import Scalekit
+
+    scalekit_client = Scalekit(
+        environment_url=os.environ.get("ENVIRONMENT_URL"),
+        client_id=os.environ.get("CLIENT_ID"),
+        client_secret=os.environ.get("CLIENT_SECRET")
+    )
+
+    def generate_portal_link(org_id):
+        link = scalekit_client.organization.generate_portal_link(org_id)
+        print(json.dumps(link, indent=2))
+    ```
+
+  </TabItem>
+
+  <TabItem value="go" label="Go">
+
+    ```go title="main.go" {14-17,21-27}
+    import (
+        "context"
+        "encoding/json"
+        "fmt"
+        "os"
+
+        "github.com/scalekit/sdk-go"
+    )
+
+    func generatePortalLink(orgID string) {
+        scalekitClient := scalekit.New(
+            os.Getenv("ENVIRONMENT_URL"),
+            os.Getenv("CLIENT_ID"),
+            os.Getenv("CLIENT_SECRET"),
+        )
+
+        ctx := context.Background()
+        link, err := scalekitClient.Organization.GeneratePortalLink(ctx, orgID)
+        if err != nil {
+            panic(err)
+        }
+
+        jsonData, _ := json.MarshalIndent(link, "", "  ")
+        fmt.Println(string(jsonData))
+    }
+    ```
+
+  </TabItem>
+
+  <TabItem value="java" label="Java">
+
+    ```java title="PortalLinkGenerator.java" {11-17,21-26}
+    import com.scalekit.client.Scalekit;
+    import com.scalekit.client.models.Link;
+    import com.scalekit.client.models.Feature;
+
+    import java.util.Arrays;
+
+    public class PortalLinkGenerator {
+        public static void main(String[] args) {
+            Scalekit scalekitClient = new Scalekit(
+                System.getenv("ENVIRONMENT_URL"),
+                System.getenv("CLIENT_ID"),
+                System.getenv("CLIENT_SECRET")
+            );
+
+            Link portalLink = scalekitClient
+                .organizations()
+                .generatePortalLink(
+                    "org_12345",
+                    Arrays.asList(Feature.sso, Feature.dir_sync)
+                );
+
+            System.out.println(portalLink.getLocation());
+        }
+    }
+    ```
+
+  </TabItem>
+</Tabs>
+
+The API returns a JSON object containing the `location` property, which is the admin portal URL.
+
+```json title="Generate portal link (response)" {3}
+{
+  "id": "8930509d-68cf-4e2c-8c6d-94d2b5e2db43",
+  "location": "https://random-subdomain.scalekit.dev/magicLink/8930509d-68cf-4e2c-8c6d-94d2b5e2db43",
+  "expireTime": "2024-10-03T13:35:50.563013Z"
+}
+```
+
+Read `location` and set it as the `<iframe>` `src` at runtime. Ensure your domain is listed as a Redirect URI in **Scalekit dashboard > API config**.
+
+```html title="Render admin portal in iframe (example)" {4-10} wrap
+<body>
+  <h1>Admin Portal (Embed)</h1>
+  <iframe
+    src="https://random-subdomain.scalekit.dev/magicLink/8930509d-68cf-4e2c-8c6d-94d2b5e2db43"
+    width="100%"
+    height="600px"
+    frameborder="0"
+    allow="clipboard-write"
+  >
+  </iframe>
+</body>
+```
+
+For example, a "Settings" page can let users configure their IdP without leaving your app.
+
+{/* ![Integrate via API](@/assets/docs/common/admin-portal-3.png) */}
+
+<Aside type="note">
+1. The programmatically generated link is single‑use and expires after 1 minute. Once loaded in an iframe, the admin can configure SSO during the active session.
+2. The embedded portal session times out after 6 hours.
+</Aside>
+
+You can customize the admin portal to match your brand. See [Customize the admin portal](/guides/custom-domain/).
+
+<CardGrid>
+
+<LinkCard
+  title="SSO integrations"
+  description="Administrator guides to set up SSO integrations"
+  href="/guides/integrations/sso-integrations/"
+/>
+
+<LinkCard
+  title="Portal events"
+  description="Listen to the browser events emitted from the embedded admin portal"
+  href="/reference/admin-portal/ui-events/"
+/>
+
+</CardGrid>

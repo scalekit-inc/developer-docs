@@ -1,0 +1,42 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import FilterBar from '@/components/examples/FilterBar.astro'
+import ResourceGrid from '@/components/examples/ResourceGrid.astro'
+import { processExamplesData } from '@/utils/examples'
+
+// Load and process all examples data
+const { filters, columns } = await processExamplesData()
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'Examples',
+    description:
+      'A collection of walkthrough tutorials, examples, videos and guides to teach you about the Scalekit and how to use it with your favorite tools',
+    template: 'doc',
+    sidebar: {
+      label: 'Examples',
+    },
+    prev: false,
+    next: false,
+    editUrl: false,
+    lastUpdated: false,
+    tableOfContents: false,
+    head: [
+      {
+        tag: 'style',
+        content:
+          'footer { display: none !important; } .content-panel { padding-top: 0.5rem !important; }',
+      },
+    ],
+  }}
+  hasSidebar={false}
+>
+  <div class="examples-container">
+    <FilterBar filters={filters} />
+    <ResourceGrid columns={columns} />
+  </div>
+</StarlightPage>
+
+<style src="../styles/examples.css"></style>
+<script src="../scripts/examples-filter.ts"></script>

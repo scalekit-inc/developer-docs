@@ -1,21 +1,26 @@
 export const redirects = {
   // =============================================================================
+  // HOMEPAGE REDIRECT
+  // =============================================================================
+  // '/': '/authenticate/welcome',
+
+  // =============================================================================
   // FULL STACK AUTH (FSA) REDIRECTS
   // =============================================================================
   '/fsa/guides/automated-user-provisioning': '/fsa/guides/allowed-email-domains/',
-  '/fsa/guides/auth-logs': '/guides/dashboard/auth-logs/',
 
   // =============================================================================
   // SINGLE SIGN-ON (SSO) REDIRECTS
   // =============================================================================
 
   // SSO quickstart and admin portal
-  '/sso/quickstart-admin-portal': '/guides/sso/admin-portal',
+  '/sso/quickstart-admin-portal': '/guides/admin-portal',
   '/sso/overview': '/guides/sso/sso-basics/',
   '/sso/launch-checklist': '/guides/sso/launch-checklist/',
   '/sso/test-sso': '/guides/sso/test-sso/',
   '/sso/domain-and-theme-customization': '/guides/custom-domain/',
-  '/sso/bkp/quickstart-admin-portal': '/guides/sso/admin-portal/',
+  '/sso/bkp/quickstart-admin-portal': '/guides/admin-portal/',
+  '/guides/sso/admin-portal': '/guides/admin-portal/',
 
   // SSO legacy guides moved from /guides to /sso
   '/guides/sso/sso-basics/': '/sso/guides/sso-basics/',
@@ -39,7 +44,6 @@ export const redirects = {
   '/sso/guides/key-concepts/manage-client-secrets': '/guides/client-credentials-practices/',
   '/sso/guides/key-concepts/user-profile': '/sso/guides/user-profile-details/',
   '/sso/guides/test-your-integration/using-okta': '/sso/guides/okta-sso-test/',
-  '/sso/guides/auth-logs': '/guides/dashboard/auth-logs/',
   '/sso/reference/redirects': '/guides/dashboard/redirects/',
 
   // SSO integrations with auth systems

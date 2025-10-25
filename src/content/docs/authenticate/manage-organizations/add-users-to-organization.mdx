@@ -1,0 +1,805 @@
+---
+title: "Add users to organizations"
+description: "Add users to organizations through dashboard management, admin invitations, domain-based joining, and automated provisioning."
+sidebar:
+  label: "Add users to organizations"
+prev:
+  label: "Custom user attributes"
+  link: "/fsa/guides/custom-user-attributes/"
+next:
+  label: "Organization switching"
+  link: "/fsa/guides/organization-switching/"
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+seeAlso:
+  label: "Related guides"
+  items:
+    - title: "Manage users"
+      icon: "user"
+      url: "/fsa/guides/manage-users/"
+    - title: "Create organizations"
+      icon: "setting"
+      url: "/fsa/guides/create-organization/"
+    - title: "Organization settings"
+      icon: "setting"
+      url: "/fsa/guides/organization-settings/"
+    - title: "Allowed email domains"
+      icon: "lock"
+      url: "/fsa/guides/allowed-email-domains/"
+    - title: "Users API reference"
+      icon: "external"
+      url: "https://docs.scalekit.com/apis/#tag/users"
+---
+
+import { Aside, Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
+
+Organizations need users to function. Whether you're onboarding a new enterprise customer or expanding an existing team, you need efficient ways to add users to organizations. This guide covers the four main pathways for user addition, each designed for different scenarios and scales.
+
+<details>
+<summary>User addition pathways overview</summary>
+
+```d2
+direction: right
+
+Dashboard: {
+  shape: rectangle
+  label: "Dashboard Management"
+  style.fill: "#e3f2fd"
+  
+  manual: "Manual admin invitations"
+  support: "Support team operations" 
+  seed: "Seed initial members"
+}
+
+SDK_API: {
+  shape: rectangle
+  label: "SDK/API Invitations"
+  style.fill: "#f3e5f5"
+  
+  programmatic: "Programmatic user creation"
+  admin_dash: "Admin dashboards"
+  bulk: "Bulk operations"
+}
+
+Domain: {
+  shape: rectangle
+  label: "Domain-based Discovery"
+  style.fill: "#e8f5e8"
+  
+  auto_suggest: "Automatic org suggestions"
+  trusted: "Trusted email domains"
+  self_service: "Self-service joining"
+}
+
+JIT: {
+  shape: rectangle
+  label: "JIT Provisioning"
+  style.fill: "#fff3e0"
+  
+  sso: "SSO automation"
+  scim: "SCIM synchronization"
+  enterprise: "Identity provider integration"
+}
+
+# Flow connections
+Dashboard -> SDK_API: "Scale up"
+SDK_API -> Domain: "Automate"
+Domain -> JIT: "Enterprise"
+```
+
+</details>
+
+You can add users to organizations through:
+
+- **Dashboard management** - Manual user addition through the Scalekit admin interface
+- **Admin invitations** - Programmatic user invitations through your application using SDK/API
+- **Domain-based joining** - Automated organization discovery for users with trusted email domains
+- **Just-in-time provisioning** - Enterprise automation through SSO and SCIM integration
+
+## Prerequisites
+
+Before adding users to organizations, ensure you have:
+
+1. **Scalekit SDK configured** - Follow the [installation guide](/authenticate/installation/) to set up your development environment
+2. **Organizations created** - Review the [create organizations guide](/fsa/guides/create-organization/) to establish your organizational structure
+3. **User management basics** - Understand the [manage users guide](/fsa/guides/manage-users/) for user profile fundamentals
+
+<Steps>
+
+1. ## Add users through the Scalekit dashboard
+
+   Use the dashboard for manual user addition when support teams help customers onboard or when you need to seed initial organization members.
+
+   Navigate to **Dashboard** > **Organizations**, select your target organization, and click the **Users** tab.
+
+   **Invite new users:**
+
+   1. Click **Invite User** to open the invitation form
+   2. Enter the user's **email address** (must match organization's allowed domains)
+   3. Select their **role** (Admin, Member, or custom organizational roles)
+   4. Add optional **personal information** (first name, last name, display name)
+   5. Click **Send Invitation**
+
+   The user receives an email invitation with a secure link. When they accept:
+   - Scalekit creates their user account (if they're new to your system)
+   - Adds them to the organization with the specified role
+   - Redirects them to your application's callback URL for session creation
+
+   <Aside type="tip">
+   Dashboard invitations automatically respect your organization's allowed email domains and signup restrictions configured in [organization settings](/fsa/guides/organization-settings/).
+   </Aside>
+
+2. ## Enable admin invitations through your application
+
+   Build invitation capabilities into your application so organization administrators can invite team members without accessing the Scalekit dashboard. This approach gives you full control over the user experience while leveraging Scalekit's invitation infrastructure.
+
+   These examples use the Scalekit client you configured in the [installation guide](/authenticate/installation/).
+
+   **Create users with invitations:**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem value="node" label="Node.js">
+
+   ```javascript title="Express.js invitation API" wrap collapse={1-2}
+   // POST /api/organizations/:orgId/invite
+   app.post('/api/organizations/:orgId/invite', async (req, res) => {
+     const { orgId } = req.params
+     const { email, role, firstName, lastName } = req.body
+
+     try {
+       // Use case: Organization admin invites new team member through your app
+       const { user } = await scalekit.user.createUserAndMembership(orgId, {
+         email,
+         sendInvitationEmail: true, // Scalekit sends the invitation email
+         userProfile: {
+           firstName,
+           lastName,
+           name: `${firstName} ${lastName}`,
+         },
+         metadata: {
+           role: role || 'member', // Default to member if no role specified
+           invitedBy: req.session.userId,
+           invitedAt: new Date().toISOString(),
+         }
+       })
+
+       res.json({ 
+         message: 'Invitation sent successfully',
+         userId: user.id,
+         email: user.email
+       })
+     } catch (error) {
+       res.status(400).json({ error: error.message })
+     }
+   })
+   ```
+
+     </TabItem>
+     <TabItem value="python" label="Python">
+
+   ```python title="Django invitation API" wrap collapse={1-2}
+   # POST /api/organizations/{org_id}/invite
+   @api_view(['POST'])
+   def invite_user_to_organization(request, org_id):
+       email = request.data.get('email')
+       role = request.data.get('role', 'member')  # Default to member
+       first_name = request.data.get('firstName')
+       last_name = request.data.get('lastName')
+       
+       try:
+           # Use case: Organization admin invites new team member through your app
+           user_response = scalekit_client.user.create_user_and_membership(org_id, {
+               'email': email,
+               'send_invitation_email': True,  # Scalekit sends the invitation email
+               'user_profile': {
+                   'first_name': first_name,
+                   'last_name': last_name,
+                   'name': f'{first_name} {last_name}',
+               },
+               'metadata': {
+                   'role': role,
+                   'invited_by': request.session['user_id'],
+                   'invited_at': datetime.now().isoformat(),
+               }
+           })
+           
+           return JsonResponse({
+               'message': 'Invitation sent successfully',
+               'user_id': user_response['user']['id'],
+               'email': user_response['user']['email']
+           })
+       except Exception as error:
+           return JsonResponse({'error': str(error)}, status=400)
+   ```
+
+     </TabItem>
+     <TabItem value="go" label="Go">
+
+   ```go title="Gin invitation API" wrap collapse={1-2,8-16}
+   // POST /api/organizations/:orgId/invite
+   func inviteUserToOrganization(c *gin.Context) {
+       orgID := c.Param("orgId")
+       
+       var req struct {
+           Email     string `json:"email"`
+           Role      string `json:"role"`
+           FirstName string `json:"firstName"`
+           LastName  string `json:"lastName"`
+       }
+       
+       if err := c.ShouldBindJSON(&req); err != nil {
+           c.JSON(400, gin.H{"error": err.Error()})
+           return
+       }
+       
+       // Default role to member if not specified
+       if req.Role == "" {
+           req.Role = "member"
+       }
+       
+       // Use case: Organization admin invites new team member through your app
+       userResp, err := scalekitClient.User.CreateUserAndMembership(ctx, orgID, scalekit.CreateUserAndMembershipRequest{
+           Email: req.Email,
+           SendInvitationEmail: scalekit.Bool(true), // Scalekit sends the invitation email
+           UserProfile: &scalekit.UserProfile{
+               FirstName: scalekit.String(req.FirstName),
+               LastName:  scalekit.String(req.LastName),
+               Name:      scalekit.String(req.FirstName + " " + req.LastName),
+           },
+           Metadata: map[string]string{
+               "role":       req.Role,
+               "invited_by": getUserID(c), // Get from session
+               "invited_at": time.Now().Format(time.RFC3339),
+           },
+       })
+       
+       if err != nil {
+           c.JSON(400, gin.H{"error": err.Error()})
+           return
+       }
+       
+       c.JSON(200, gin.H{
+           "message": "Invitation sent successfully",
+           "user_id": userResp.User.Id,
+           "email":   userResp.User.Email,
+       })
+   }
+   ```
+
+     </TabItem>
+     <TabItem value="java" label="Java">
+
+   ```java title="Spring Boot invitation API" wrap collapse={1-2}
+   // POST /api/organizations/{orgId}/invite
+   @PostMapping("/api/organizations/{orgId}/invite")
+   public ResponseEntity<Map<String, Object>> inviteUserToOrganization(
+       @PathVariable String orgId,
+       @RequestBody InviteRequest request,
+       HttpSession session
+   ) {
+       try {
+           // Use case: Organization admin invites new team member through your app
+           CreateUser createUser = CreateUser.newBuilder()
+               .setEmail(request.email())
+               .setSendInvitationEmail(true) // Scalekit sends the invitation email
+               .setUserProfile(
+                   CreateUserProfile.newBuilder()
+                       .setFirstName(request.firstName())
+                       .setLastName(request.lastName())
+                       .setName(request.firstName() + " " + request.lastName())
+                       .build()
+               )
+               .putMetadata("role", request.role() != null ? request.role() : "member")
+               .putMetadata("invited_by", (String) session.getAttribute("userId"))
+               .putMetadata("invited_at", Instant.now().toString())
+               .build();
+           
+           CreateUserAndMembershipResponse response = scalekitClient.users()
+               .createUserAndMembership(orgId, createUser);
+           
+           return ResponseEntity.ok(Map.of(
+               "message", "Invitation sent successfully",
+               "user_id", response.getUser().getId(),
+               "email", response.getUser().getEmail()
+           ));
+       } catch (Exception error) {
+           return ResponseEntity.badRequest().body(
+               Map.of("error", error.getMessage())
+           );
+       }
+   }
+   ```
+
+     </TabItem>
+   </Tabs>
+
+   **Add existing users to organizations:**
+
+   When users already exist in your system, add them directly to organizations without sending invitation emails:
+
+   <Tabs syncKey="tech-stack">
+     <TabItem value="node" label="Node.js">
+
+   ```javascript title="Add existing user to organization" wrap
+   // Use case: Admin adds existing user to their organization
+   const membership = await scalekit.user.createMembership(orgId, userId)
+
+   // Update user metadata to track organization association
+   await scalekit.user.updateUser(userId, {
+     metadata: {
+       primaryOrganizationId: orgId,
+       addedBy: req.session.userId,
+       addedAt: new Date().toISOString(),
+     }
+   })
+   ```
+
+     </TabItem>
+     <TabItem value="python" label="Python">
+
+   ```python title="Add existing user to organization" wrap
+   # Use case: Admin adds existing user to their organization
+   membership = scalekit_client.user.create_membership(org_id, user_id)
+
+   # Update user metadata to track organization association
+   scalekit_client.user.update_user(user_id, {
+       'metadata': {
+           'primary_organization_id': org_id,
+           'added_by': request.session['user_id'],
+           'added_at': datetime.now().isoformat(),
+       }
+   })
+   ```
+
+     </TabItem>
+     <TabItem value="go" label="Go">
+
+   ```go title="Add existing user to organization" wrap
+   // Use case: Admin adds existing user to their organization
+   membership, err := scalekitClient.User.CreateMembership(ctx, orgID, userID)
+   if err != nil {
+       return err
+   }
+
+   // Update user metadata to track organization association
+   _, err = scalekitClient.User.UpdateUser(ctx, userID, scalekit.UpdateUserRequest{
+       Metadata: map[string]string{
+           "primaryOrganizationId": orgID,
+           "addedBy":              adminUserID,
+           "addedAt":              time.Now().Format(time.RFC3339),
+       },
+   })
+   ```
+
+     </TabItem>
+     <TabItem value="java" label="Java">
+
+   ```java title="Add existing user to organization" wrap
+   // Use case: Admin adds existing user to their organization
+   CreateMembership createMembership = CreateMembership.newBuilder().build();
+   Membership membership = scalekitClient.users()
+       .createMembership(orgId, userId, createMembership);
+
+   // Update user metadata to track organization association
+   UpdateUser updateUser = UpdateUser.newBuilder()
+       .putMetadata("primaryOrganizationId", orgId)
+       .putMetadata("addedBy", adminUserId)
+       .putMetadata("addedAt", Instant.now().toString())
+       .build();
+   
+   scalekitClient.users().updateUser(userId, updateUser);
+   ```
+
+     </TabItem>
+   </Tabs>
+
+   Always validate that the requesting user has admin permissions for the target organization before processing invitations or membership additions.
+
+3. ## Enable domain-based organization discovery
+
+   Configure organizations to automatically suggest membership to users with trusted email domains. This approach reduces friction for corporate teams while maintaining security through domain verification.
+
+   **Configure allowed domains:**
+
+   Set up trusted email domains in [organization settings](/fsa/guides/organization-settings/) to enable automatic discovery:
+
+   1. Navigate to **Dashboard** > **Organizations** > **Security** > **Domains**
+   2. Add corporate domains (e.g., `@company.com`, `@subsidiary.co.uk`)
+   3. Enable **automatic organization suggestions** for matching domains
+   4. Choose approval requirements (automatic joining vs. admin approval)
+
+   **User experience for domain matching:**
+
+   When users sign up with emails matching allowed domains:
+
+   1. **Domain recognition** - Scalekit detects the corporate email domain during signup
+   2. **Organization discovery** - Users see a list of organizations they can join based on their domain
+   3. **Self-service joining** - Users select their organization and gain access according to your approval settings
+   4. **Admin notifications** - Organization admins receive notifications about new members (configurable)
+
+   **Implement domain-based routing:**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem value="node" label="Node.js">
+
+   ```javascript title="Check domain availability" wrap collapse={1-2}
+   // Use case: Route users to appropriate authentication method based on email domain
+   app.post('/auth/check-domain', async (req, res) => {
+     const { email } = req.body
+     const domain = email.split('@')[1].toLowerCase()
+
+     try {
+       // Check if domain has active SSO connections
+       const connections = await scalekit.connections.listConnectionsByDomain({
+         domain
+       })
+
+       if (connections.length > 0) {
+         // Domain has SSO configured - redirect to identity provider
+         const authUrl = scalekit.getAuthorizationUrl(redirectUri, {
+           domainHint: domain  // Automatically routes to correct IdP
+         })
+         return res.json({ authUrl, method: 'sso' })
+       } else {
+         // Check for organizations accepting this domain
+         const { organizations } = await scalekit.organization.listOrganization({
+           allowedDomain: domain
+         })
+
+         if (organizations.length > 0) {
+           return res.json({ 
+             organizations, 
+             method: 'domain-join',
+             message: 'Organizations available for your domain'
+           })
+         } else {
+           // No organization for this domain - show standard signup
+           return res.json({ method: 'standard-signup' })
+         }
+       }
+     } catch (error) {
+       res.status(400).json({ error: error.message })
+     }
+   })
+   ```
+
+     </TabItem>
+     <TabItem value="python" label="Python">
+
+   ```python title="Check domain availability" wrap collapse={1-2}
+   # Use case: Route users to appropriate authentication method based on email domain
+   @api_view(['POST'])
+   def check_domain_availability(request):
+       email = request.data.get('email')
+       domain = email.split('@')[1].lower()
+       
+       try:
+           # Check if domain has active SSO connections
+           connections = scalekit_client.connections.list_connections_by_domain(
+               domain=domain
+           )
+           
+           if len(connections) > 0:
+               # Domain has SSO configured - redirect to identity provider
+               auth_url = scalekit_client.get_authorization_url(
+                   redirect_uri=redirect_uri,
+                   options={'domain_hint': domain}  # Automatically routes to correct IdP
+               )
+               return JsonResponse({'auth_url': auth_url, 'method': 'sso'})
+           else:
+               # Check for organizations accepting this domain
+               org_list = scalekit_client.organization.list_organizations(
+                   allowed_domain=domain
+               )
+               
+               if len(org_list['organizations']) > 0:
+                   return JsonResponse({
+                       'organizations': org_list['organizations'],
+                       'method': 'domain-join',
+                       'message': 'Organizations available for your domain'
+                   })
+               else:
+                   # No organization for this domain - show standard signup
+                   return JsonResponse({'method': 'standard-signup'})
+       except Exception as error:
+           return JsonResponse({'error': str(error)}, status=400)
+   ```
+
+     </TabItem>
+     <TabItem value="go" label="Go">
+
+   ```go title="Check domain availability" wrap collapse={1-2,8-15}
+   // Use case: Route users to appropriate authentication method based on email domain
+   func checkDomainAvailability(c *gin.Context) {
+       var req struct {
+           Email string `json:"email"`
+       }
+       
+       if err := c.ShouldBindJSON(&req); err != nil {
+           c.JSON(400, gin.H{"error": err.Error()})
+           return
+       }
+       
+       parts := strings.Split(req.Email, "@")
+       if len(parts) != 2 {
+           c.JSON(400, gin.H{"error": "Invalid email format"})
+           return
+       }
+       domain := strings.ToLower(parts[1])
+       
+       // Check if domain has active SSO connections
+       connections, err := scalekitClient.Connections.ListByDomain(ctx, scalekit.ListConnectionsByDomainRequest{
+           Domain: domain,
+       })
+       
+       if err == nil && len(connections) > 0 {
+           // Domain has SSO configured - redirect to identity provider
+           authUrl, _ := scalekitClient.GetAuthorizationUrl(redirectUri, scalekit.AuthorizationUrlOptions{
+               DomainHint: domain, // Automatically routes to correct IdP
+           })
+           c.JSON(200, gin.H{"auth_url": authUrl.String(), "method": "sso"})
+           return
+       }
+       
+       // Check for organizations accepting this domain
+       organizations, err := scalekitClient.Organization.List(ctx, scalekit.ListOrganizationsRequest{
+           AllowedDomain: domain,
+       })
+       
+       if err == nil && len(organizations.Organizations) > 0 {
+           c.JSON(200, gin.H{
+               "organizations": organizations.Organizations,
+               "method":        "domain-join",
+               "message":       "Organizations available for your domain",
+           })
+       } else {
+           // No organization for this domain - show standard signup
+           c.JSON(200, gin.H{"method": "standard-signup"})
+       }
+   }
+   ```
+
+     </TabItem>
+     <TabItem value="java" label="Java">
+
+   ```java title="Check domain availability" wrap collapse={1-2}
+   // Use case: Route users to appropriate authentication method based on email domain
+   @PostMapping("/auth/check-domain")
+   public ResponseEntity<Map<String, Object>> checkDomainAvailability(
+       @RequestBody Map<String, String> request
+   ) {
+       String email = request.get("email");
+       String domain = email.split("@")[1].toLowerCase();
+       
+       try {
+           // Check if domain has active SSO connections
+           List<Connection> connections = scalekitClient.connections()
+               .listConnectionsByDomain(domain);
+           
+           if (!connections.isEmpty()) {
+               // Domain has SSO configured - redirect to identity provider
+               String authUrl = scalekitClient.authentication()
+                   .getAuthorizationUrl(redirectUri, 
+                       AuthorizationUrlOptions.builder()
+                           .domainHint(domain) // Automatically routes to correct IdP
+                           .build())
+                   .toString();
+               return ResponseEntity.ok(Map.of(
+                   "auth_url", authUrl, 
+                   "method", "sso"
+               ));
+           } else {
+               // Check for organizations accepting this domain
+               ListOrganizationsResponse orgResponse = scalekitClient.organizations()
+                   .listOrganizations(ListOrganizationsRequest.builder()
+                       .allowedDomain(domain)
+                       .build());
+               
+               if (!orgResponse.getOrganizationsList().isEmpty()) {
+                   return ResponseEntity.ok(Map.of(
+                       "organizations", orgResponse.getOrganizationsList(),
+                       "method", "domain-join",
+                       "message", "Organizations available for your domain"
+                   ));
+               } else {
+                   // No organization for this domain - show standard signup
+                   return ResponseEntity.ok(Map.of("method", "standard-signup"));
+               }
+           }
+       } catch (Exception error) {
+           return ResponseEntity.badRequest().body(Map.of("error", error.getMessage()));
+       }
+   }
+   ```
+
+     </TabItem>
+   </Tabs>
+
+   The [allowed email domains guide](/fsa/guides/allowed-email-domains/) provides detailed configuration steps for domain verification and approval workflows.
+
+4. ## Set up automated provisioning
+
+   Configure just-in-time (JIT) user provisioning through enterprise identity providers to eliminate manual user management for large organizations.
+
+   **Just-in-time provisioning via SSO** <Badge text="Coming soon" variant="note" />
+
+   When organizations connect their SSO provider (Okta, Azure AD, Google Workspace), enable automatic user creation:
+
+   - **First-time authentication** - New users authenticate through their corporate identity provider
+   - **Automatic account creation** - Scalekit creates user accounts with SSO profile data  
+   - **Organization assignment** - Users join organizations based on identity provider claims
+   - **Role mapping** - SSO attributes determine initial roles and permissions
+
+   **Just-in-time provisioning via SCIM** <Badge text="Coming soon" variant="note" />
+
+   SCIM (System for Cross-domain Identity Management) provides real-time user synchronization:
+
+   - **Automated synchronization** - Identity providers push user changes to Scalekit automatically
+   - **Lifecycle management** - Handle user creation, updates, deactivation, and deletion
+   - **Group mapping** - Sync organizational units and teams from corporate directories
+   - **Bulk operations** - Efficiently manage large user populations without manual intervention
+
+   Both SSO and SCIM provisioning configurations are managed through [organization settings](/fsa/guides/organization-settings/) and require enterprise identity provider setup by your customers.
+
+5. ## Test your user addition workflows
+
+   Validate each user addition method in your development environment before deploying to production.
+
+   **Test dashboard invitations:**
+
+   1. Create a test organization in **Dashboard** > **Organizations**
+   2. Invite a test user through the dashboard interface
+   3. Check email delivery and invitation link functionality
+   4. Verify user creation and organization assignment after acceptance
+
+   **Test programmatic invitations:**
+
+   <Tabs syncKey="tech-stack">
+     <TabItem value="node" label="Node.js">
+
+   ```javascript title="Test invitation API endpoint" wrap
+   // Use case: Validate invitation flow in development
+   const testInvitation = async () => {
+     const response = await fetch('/api/organizations/org_test123/invite', {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({
+         email: 'testuser@example.com',
+         role: 'member',
+         firstName: 'Test',
+         lastName: 'User'
+       })
+     })
+     
+     const result = await response.json()
+     console.log('Invitation result:', result)
+   }
+   ```
+
+     </TabItem>
+     <TabItem value="python" label="Python">
+
+   ```python title="Test invitation API endpoint" wrap
+   # Use case: Validate invitation flow in development
+   import requests
+
+   def test_invitation():
+       response = requests.post('/api/organizations/org_test123/invite', json={
+           'email': 'testuser@example.com',
+           'role': 'member',
+           'firstName': 'Test',
+           'lastName': 'User'
+       })
+       
+       result = response.json()
+       print('Invitation result:', result)
+   ```
+
+     </TabItem>
+     <TabItem value="go" label="Go">
+
+   ```go title="Test invitation API endpoint" wrap
+   // Use case: Validate invitation flow in development
+   func testInvitation() {
+       reqBody := map[string]string{
+           "email":     "testuser@example.com",
+           "role":      "member",
+           "firstName": "Test",
+           "lastName":  "User",
+       }
+       
+       jsonBody, _ := json.Marshal(reqBody)
+       resp, err := http.Post("/api/organizations/org_test123/invite", 
+           "application/json", bytes.NewBuffer(jsonBody))
+       
+       if err != nil {
+           log.Printf("Test invitation error: %v", err)
+           return
+       }
+       
+       // Process response
+       defer resp.Body.Close()
+   }
+   ```
+
+     </TabItem>
+     <TabItem value="java" label="Java">
+
+   ```java title="Test invitation API endpoint" wrap
+   // Use case: Validate invitation flow in development
+   public void testInvitation() {
+       RestTemplate restTemplate = new RestTemplate();
+       
+       Map<String, String> request = Map.of(
+           "email", "testuser@example.com",
+           "role", "member",
+           "firstName", "Test",
+           "lastName", "User"
+       );
+       
+       ResponseEntity<Map> response = restTemplate.postForEntity(
+           "/api/organizations/org_test123/invite", 
+           request, 
+           Map.class
+       );
+       
+       System.out.println("Invitation result: " + response.getBody());
+   }
+   ```
+
+     </TabItem>
+   </Tabs>
+
+   **Test domain-based discovery:**
+
+   1. Configure test domains (`@example.com`, `@test.org`) in your development organization
+   2. Sign up with email addresses matching these domains
+   3. Verify organization suggestions appear during the signup flow
+   4. Test approval workflows for different domain configurations
+
+</Steps>
+
+## Security and access controls
+
+Implement security measures across all user addition methods to prevent unauthorized access and maintain data integrity.
+
+**Recommended security practices:**
+
+- **Email verification** - Always verify email addresses before granting organization access
+- **Domain verification** - Confirm organizational ownership of email domains through DNS records
+- **Role-based permissions** - Validate that requesting users have admin rights before processing invitations
+- **Rate limiting** - Prevent abuse of invitation and signup endpoints
+- **Audit logging** - Track all user addition activities for compliance and security monitoring
+
+**Access control patterns:**
+
+```javascript title="Example: Role-based invitation validation" showLineNumbers=false
+// Verify admin permissions before allowing invitations
+const hasInvitePermission = await scalekit.user.checkUserPermission(
+  req.session.userId, 
+  orgId, 
+  'invite-users'
+)
+
+if (!hasInvitePermission) {
+  return res.status(403).json({ error: 'Insufficient permissions' })
+}
+```
+
+Review the [signup restrictions guide](/fsa/guides/signup-restrictions/) for additional security controls and the [organization settings guide](/fsa/guides/organization-settings/) for enterprise configuration options.
+
+## Wrap up and next steps
+
+You now have four distinct pathways for adding users to organizations:
+
+- **Dashboard** - For manual administration and customer support scenarios
+- **SDK/API** - For programmatic control through your application interface
+- **Domain-based** - For automated discovery and self-service corporate onboarding  
+- **JIT provisioning** - For enterprise automation through identity provider integration
+
+Next, explore [organization switching](/fsa/guides/organization-switching/) to let users navigate between multiple workspaces seamlessly.

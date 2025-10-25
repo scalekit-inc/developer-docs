@@ -9,6 +9,7 @@ import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import starlightTocOverviewCustomizer from 'starlight-toc-overview-customizer'
+import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
@@ -24,7 +25,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Scalekit Docs',
-      titleDelimiter: '',
+      titleDelimiter: '-',
       routeMiddleware: './src/routeData.ts',
       lastUpdated: true,
       tableOfContents: {
@@ -39,6 +40,7 @@ export default defineConfig({
         Header: './src/components/overrides/Header.astro',
         Footer: './src/components/overrides/Footer.astro',
         PageSidebar: './src/components/overrides/PageSidebar.astro',
+        PageTitle: './src/components/overrides/PageTitle.astro',
       },
       logo: {
         dark: '/src/assets/images/logos-v4/sk-docs-dark.svg',
@@ -66,14 +68,14 @@ export default defineConfig({
         themes: ['tokyo-night', 'light-plus'],
         styleOverrides: {
           codeFontFamily:
-            "'Geist Mono Variable','Inter Mono Variable', ui-monospace, 'Courier New', monospace",
+            "'JetBrains Mono', 'Inter Variable', ui-monospace, 'Courier New', monospace",
           borderRadius: '0.375rem',
         },
       },
       customCss: [
         '@fontsource-variable/inter',
-        '@fontsource-variable/geist',
-        '@fontsource-variable/geist-mono',
+        '@fontsource-variable/atkinson-hyperlegible-next',
+        '@fontsource/jetbrains-mono',
         './src/styles/theme-priority.css',
       ],
       plugins: [
@@ -87,6 +89,10 @@ export default defineConfig({
           overviewTitle: 'Overview',
         }),
         starlightVideos(),
+        starlightContextualMenu({
+          actions: ['copy', 'chatgpt', 'claude', 'lechat', 'grok'],
+          hideMainActionLabel: true,
+        }),
       ],
       head: [
         {
@@ -130,11 +136,13 @@ export default defineConfig({
     }),
     d2({
       theme: {
-        default: '0',
-        dark: '1', // choose at https://d2lang.com/tour/themes/
+        default: '1', // Light theme (Neutral default)
       },
       sketch: true,
+      appendix: true, // Enable interactive elements (tooltips/links)
+      inline: true, // Embed SVG inline to make links clickable
       layout: 'elk',
+      pad: 3, // Add padding around the diagram (affects overall size)
     }),
   ],
   image: {

@@ -1,24 +1,16 @@
 ---
 title: UI events from the embedded admin portal
 description: "Learn how to listen for and handle UI events from the embedded admin portal, such as SSO connection status and session expiration."
-tableOfContents: false
 sidebar:
-  label: Admin portal events
+  label: UI events
   order: 2
+tableOfContents: true
 slug: reference/admin-portal/ui-events
 ---
 
 import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
 Listen to the browser events emitted from the embedded admin portal to perform actions on your app. For example, showing a notification when the Single sign-on connection is enabled.
-
-| Event Type       | Description      |
-|----------------|----------------|
-| [`ORGANIZATION_SSO_ENABLED`](#organization_sso_enabled)  | Triggered when the Single sign-on connection is enabled |
-| [`ORGANIZATION_SSO_DISABLED`](#organization_sso_disabled)  | Triggered when the Single sign-on connection is disabled |
-| [`PORTAL_SESSION_EXPIRY`](#portal_session_expiry)  | Triggered when the admin portal session expires |
-| [`ORGANIZATION_DIRECTORY_ENABLED`](#organization_directory_enabled)  | Triggered when the SCIM Provisioning is enabled |
-| [`ORGANIZATION_DIRECTORY_DISABLED`](#organization_directory_disabled)  | Triggered when the SCIM Provisioning is disabled |
 
 To listen to these events:
 
@@ -40,13 +32,15 @@ window.onmessage = event => {
 
 The domain of your parent window must be listed in the Scalekit Dashboard > API Config > Redirect URIs for security purpose. Always <u>validate the `event.origin` </u> to ensure events are coming from a trusted source.
 
-**Event types**
+----
 
-The following event types are emitted by the embedded admin portal. Each event includes specific data that you can use to update your application's UI or trigger other actions.
+## SSO Events
 
-<h3 id="organization_sso_enabled">`ORGANIZATION_SSO_ENABLED`</h3>
+### `ORGANIZATION_SSO_ENABLED`
 
-```json
+This event is triggered when the Single sign-on connection is enabled. The event type is `ORGANIZATION_SSO_ENABLED`
+
+```json title="ORGANIZATION_SSO_ENABLED"
 {
   "event_type":"ORGANIZATION_SSO_ENABLED",
   "object":"connection",
@@ -62,9 +56,23 @@ The following event types are emitted by the embedded admin portal. Each event i
 }
 ```
 
-<h3 id="organization_sso_disabled">`ORGANIZATION_SSO_DISABLED`</h3>
+| Field | Type | Description |
+|-------|------|-------------|
+| `event_type` | string | The type of event being triggered |
+| `object` | string | The object type associated with the event |
+| `organization_id` | string | Unique identifier for the organization |
+| `message` | string | Human-readable message describing the event |
+| `data.connection_type` | string | Type of connection (SSO) |
+| `data.id` | string | Unique identifier for the connection |
+| `data.type` | string | Protocol type (e.g., OIDC, SAML) |
+| `data.provider` | string | Identity provider name |
+| `data.enabled` | boolean | Indicates if the connection is enabled |
 
-```json
+### `ORGANIZATION_SSO_DISABLED`
+
+This event is triggered when the Single sign-on connection is disabled. The event type is `ORGANIZATION_SSO_DISABLED`
+
+```json title="ORGANIZATION_SSO_DISABLED"
 {
    "event_type":"ORGANIZATION_SSO_DISABLED",
    "object":"connection",
@@ -80,9 +88,25 @@ The following event types are emitted by the embedded admin portal. Each event i
 }
 ```
 
-<h3 id="portal_session_warning">`PORTAL_SESSION_WARNING`</h3>
+| Field | Type | Description |
+|-------|------|-------------|
+| `event_type` | string | The type of event being triggered |
+| `object` | string | The object type associated with the event |
+| `organization_id` | string | Unique identifier for the organization |
+| `message` | string | Human-readable message describing the event |
+| `data.connection_type` | string | Type of connection (SSO) |
+| `data.id` | string | Unique identifier for the connection |
+| `data.type` | string | Protocol type (e.g., OIDC, SAML) |
+| `data.provider` | string | Identity provider name |
+| `data.enabled` | boolean | Indicates if the connection is enabled |
 
-```json
+## Session Events
+
+### `PORTAL_SESSION_WARNING`
+
+This event is triggered when the admin portal session is about to expire. The event type is `PORTAL_SESSION_WARNING`
+
+```json title="PORTAL_SESSION_WARNING"
 {
   "event_type": "PORTAL_SESSION_WARNING",
   "object": "session",
@@ -94,9 +118,19 @@ The following event types are emitted by the embedded admin portal. Each event i
 }
 ```
 
-<h3 id="portal_session_expiry">`PORTAL_SESSION_EXPIRY`</h3>
+| Field | Type | Description |
+|-------|------|-------------|
+| `event_type` | string | The type of event being triggered |
+| `object` | string | The object type associated with the event |
+| `organization_id` | string | Unique identifier for the organization |
+| `message` | string | Human-readable message describing the event |
+| `data.expiry` | string | ISO 8601 timestamp indicating when the session will expire |
 
-```json
+### `PORTAL_SESSION_EXPIRY`
+
+This event is triggered when the admin portal session has expired. The event type is `PORTAL_SESSION_EXPIRY`
+
+```json title="PORTAL_SESSION_EXPIRY"
 {
   "event_type": "PORTAL_SESSION_EXPIRY",
   "object": "session",
@@ -108,9 +142,21 @@ The following event types are emitted by the embedded admin portal. Each event i
 }
 ```
 
-<h3 id="organization_directory_enabled">`ORGANIZATION_DIRECTORY_ENABLED`</h3>
+| Field | Type | Description |
+|-------|------|-------------|
+| `event_type` | string | The type of event being triggered |
+| `object` | string | The object type associated with the event |
+| `organization_id` | string | Unique identifier for the organization |
+| `message` | string | Human-readable message describing the event |
+| `data.expiry` | string | ISO 8601 timestamp indicating when the session expired |
 
-```json
+## Directory Events
+
+### `ORGANIZATION_DIRECTORY_ENABLED`
+
+This event is triggered when SCIM Provisioning is enabled. The event type is `ORGANIZATION_DIRECTORY_ENABLED`
+
+```json title="ORGANIZATION_DIRECTORY_ENABLED"
 {
     "event_type": "ORGANIZATION_DIRECTORY_ENABLED",
     "object": "directory",
@@ -125,9 +171,22 @@ The following event types are emitted by the embedded admin portal. Each event i
 }
 ```
 
-<h3 id="organization_directory_disabled">`ORGANIZATION_DIRECTORY_DISABLED`</h3>
+| Field | Type | Description |
+|-------|------|-------------|
+| `event_type` | string | The type of event being triggered |
+| `object` | string | The object type associated with the event |
+| `organization_id` | string | Unique identifier for the organization |
+| `message` | string | Human-readable message describing the event |
+| `data.directory_type` | string | Type of directory synchronization (SCIM) |
+| `data.id` | string | Unique identifier for the directory connection |
+| `data.provider` | string | Identity provider name |
+| `data.enabled` | boolean | Indicates if the directory sync is enabled |
 
-```json
+### `ORGANIZATION_DIRECTORY_DISABLED`
+
+This event is triggered when SCIM Provisioning is disabled. The event type is `ORGANIZATION_DIRECTORY_DISABLED`
+
+```json title="ORGANIZATION_DIRECTORY_DISABLED"
 {
     "event_type": "ORGANIZATION_DIRECTORY_DISABLED",
     "object": "directory",
@@ -141,6 +200,17 @@ The following event types are emitted by the embedded admin portal. Each event i
     }
 }
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `event_type` | string | The type of event being triggered |
+| `object` | string | The object type associated with the event |
+| `organization_id` | string | Unique identifier for the organization |
+| `message` | string | Human-readable message describing the event |
+| `data.directory_type` | string | Type of directory synchronization (SCIM) |
+| `data.id` | string | Unique identifier for the directory connection |
+| `data.provider` | string | Identity provider name |
+| `data.enabled` | boolean | Indicates if the directory sync is enabled |
 
 <Aside type="caution" title="Considerations">
 1. The domain of your parent window must be listed in the Scalekit Dashboard > API Config > Redirect URIs for security purpose
