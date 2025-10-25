@@ -2,7 +2,7 @@
 title: "Initiate user login"
 description: "Create authorization URLs and redirect users to Scalekit's hosted login page with proper parameters and organization routing."
 sidebar:
-  label: "Initiate login"
+  label: "Initiate user login"
 head:
   - tag: style
     content: |
@@ -13,26 +13,17 @@ head:
         font-size: var(--sl-text-lg);
       }
 prev:
-  label: "FSA Quickstart"
+  label: "Try quickstart"
   link: "/fsa/quickstart/"
 next:
-  label: "Manage auth methods"
-  link: "/fsa/choose-login-methods/"
+  label: "Verify identity and get user profile"
+  link: "/fsa/guides/exchange-code-for-users/"
 seeAlso:
   label: "Related guides"
   items:
     - title: "Configure authentication methods"
       icon: "setting"
       url: "/fsa/choose-login-methods/"
-    - title: "Handle redirections"
-      icon: "forward"
-      url: "/fsa/guides/handle-redirections/"
-    - title: "Redirect configurations"
-      icon: "external"
-      url: "/guides/dashboard/redirects/"
-    - title: "Customize login page"
-      icon: "paintbrush"
-      url: "/fsa/guides/login-page-branding/"
 ---
 import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard } from '@astrojs/starlight/components';
 
@@ -83,7 +74,7 @@ Use the Scalekit SDK to generate properly formatted authorization URLs. The SDK 
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
-```javascript title="Express.js" collapse={1-2} {5-7,9,12} "getAuthorizationUrl"
+```javascript title="Express.js" collapse={1-2} {11} "getAuthorizationUrl"
 import { Scalekit } from '@scalekit-sdk/node';
 
 const scalekit = new Scalekit(/* your credentials */);
@@ -101,7 +92,7 @@ res.redirect(authorizationUrl);
 ```
 </TabItem>
 <TabItem value="python" label="Python">
-```python title="Flask" collapse={1-3} {6-8,10,12} "get_authorization_url"
+```python title="Flask" collapse={1-3} {11} "get_authorization_url"
 from scalekit import ScalekitClient, AuthorizationUrlOptions
 
 scalekit = ScalekitClient(/* your credentials */)
@@ -119,7 +110,7 @@ return redirect(authorization_url)
 ```
 </TabItem>
 <TabItem value="go" label="Go">
-```go title="Gin" collapse={1-4} {7-9,11,13} "GetAuthorizationUrl"
+```go title="Gin" collapse={1-4} {11} "GetAuthorizationUrl"
 import "github.com/scalekit-inc/scalekit-sdk-go"
 
 scalekit := scalekit.NewScalekitClient(/* your credentials */)
@@ -137,7 +128,7 @@ c.Redirect(http.StatusFound, authorizationUrl.String())
 ```
 </TabItem>
 <TabItem value="java" label="Java">
-```java title="Spring" collapse={1-4} {7-9,11,13} "getAuthorizationUrl"
+```java title="Spring" collapse={1-4} {11} "getAuthorizationUrl"
 import com.scalekit.ScalekitClient;
 import com.scalekit.internal.http.AuthorizationUrlOptions;
 
@@ -156,50 +147,4 @@ return new RedirectView(authorizationUrl.toString());
 </TabItem>
 </Tabs>
 
-### Organization-specific login
-
-Route users to their organization's authentication method by including organization parameters:
-
-<Tabs syncKey="tech-stack">
-<TabItem value="node" label="Node.js">
-```javascript title="Organization routing" {3-5} "organizationId"
-const options = {
-  scopes: ['openid', 'profile', 'email', 'offline_access'],
-  organizationId: 'org_12345',        // Route to org's auth method
-  loginHint: 'user@company.com',      // User context for domain routing
-  state: 'random_csrf_token'          // CSRF protection
-};
-
-const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
-```
-</TabItem>
-<TabItem value="python" label="Python">
-```python title="Organization routing" {3-5} "organization_id"
-options = AuthorizationUrlOptions(
-    scopes=['openid', 'profile', 'email', 'offline_access'],
-    organization_id='org_12345',       # Route to org's auth method
-    login_hint='user@company.com',     # User context for domain routing
-    state='random_csrf_token'          # CSRF protection
-)
-```
-</TabItem>
-<TabItem value="go" label="Go">
-```go title="Organization routing" {3-5} "OrganizationId"
-options := scalekit.AuthorizationUrlOptions{
-    Scopes: []string{"openid", "profile", "email", "offline_access"},
-    OrganizationId: "org_12345",       // Route to org's auth method
-    LoginHint: "user@company.com",     // User context for domain routing
-    State: "random_csrf_token"         // CSRF protection
-}
-```
-</TabItem>
-<TabItem value="java" label="Java">
-```java title="Organization routing" {3-5} "setOrganizationId"
-AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
-options.setOrganizationId("org_12345");        // Route to org's auth method
-options.setLoginHint("user@company.com");      // User context for domain routing
-options.setState("random_csrf_token");         // CSRF protection
-```
-</TabItem>
-</Tabs>
+The authorization endpoint connects to the authentication server configured for your environment. It redirects users to Scalekit's hosted login page, where they can sign in / sign up, to verify their identity.

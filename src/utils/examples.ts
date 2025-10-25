@@ -42,7 +42,7 @@ const CATEGORY_ORDER = [
   'Auth modules',
   'SDKs & Development Tools',
   'Admin portal for customers',
-  'Best Practices',
+  'Best practices',
   'Support',
 ] as const
 

@@ -14,7 +14,7 @@ export const sidebar = [
         collapsed: false,
         items: [
           'fsa/guides/implement-login',
-          'fsa/guides/handle-redirections',
+          'fsa/guides/exchange-code-for-users',
           'fsa/guides/manage-session',
           'fsa/guides/logout',
         ],
@@ -213,6 +213,7 @@ export const sidebar = [
         items: [
           'sso/guides/authorization-url',
           'dev-kit/resources/ai-assisted-setup',
+          'guides/dashboard/allowed-callback-url',
           'browse/code-samples/gists/client-credentials-auth',
           'browse/code-samples/gists/auth-code-exchange-scalekit-sdk',
         ],
@@ -308,10 +309,12 @@ export const sidebar = [
         collapsed: false,
         items: [
           'guides/security/authentication-security',
+          'guides/security/csrf-protection',
           'dev-kit/resources/authorization-best-practices',
           'guides/client-credentials-practices',
           'guides/webhooks-best-practices',
           'guides/idtoken-claims',
+          'guides/user-auth/preserve-intended-destination',
         ],
       },
       {

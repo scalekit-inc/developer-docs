@@ -12,44 +12,259 @@ prev: false
 next: false
 ---
 
-import { CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-Login scenarios are the different ways a user can login to your application.
+This page continues from the quickstart and implement login guides. It shows common login routing and re-authentication patterns and the exact options to pass when generating the authorization URL.
 
+<Aside type="note" title="Routing precedence">
+Scalekit applies connection selection in this order: `connection_id` → `organizationId` → `loginHint` (domain extraction). Prefer the highest confidence signal you have.
+</Aside>
 
 ### Multi-tenant applications
-Route users to their organization's authentication method:
+Route users to their organization's authentication method using `organizationId`.
 
-```javascript title="Tenant-specific routing"
-// Extract organization from subdomain or user input
-const orgId = getOrganizationFromRequest(req);
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+  ```javascript title="Express.js" {5-7}
+  const orgId = getOrganizationFromRequest(req)
+  const redirectUri = 'https://your-app.com/auth/callback'
+  const options = {
+    scopes: ['openid','profile','email','offline_access'],
+    organizationId: orgId,
+  }
+  const url = scalekit.getAuthorizationUrl(redirectUri, options)
+  return res.redirect(url)
+  ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+  ```python title="Flask" {6-9}
+  from scalekit import AuthorizationUrlOptions
 
-const options = {
-  scopes: ['openid', 'profile', 'email', 'offline_access'],
-  organizationId: orgId,
-};
-```
+  org_id = get_org_from_request(request)
+  redirect_uri = 'https://your-app.com/auth/callback'
+  options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], organization_id=org_id)
+  url = scalekit_client.get_authorization_url(redirect_uri, options)
+  return redirect(url)
+  ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+  ```go title="Gin" {6-10}
+  orgID := getOrgFromRequest(c)
+  redirectUri := "https://your-app.com/auth/callback"
+  options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, OrganizationId: orgID}
+  url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+  c.Redirect(http.StatusFound, url.String())
+  ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+  ```java title="Spring" {7-11}
+  String orgId = getOrgFromRequest(request);
+  String redirectUri = "https://your-app.com/auth/callback";
+  AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+  options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+  options.setOrganizationId(orgId);
+  URL url = scalekitClient.authentication().getAuthorizationUrl(redirectUri, options);
+  return new RedirectView(url.toString());
+  ```
+  </TabItem>
+</Tabs>
 
 ### Email-based routing
-Let Scalekit determine the authentication method from the user's email domain:
+Let Scalekit determine the authentication method from the user's email domain with `loginHint`.
 
-```javascript title="Domain-based routing"
-const options = {
-  scopes: ['openid', 'profile', 'email', 'offline_access'],
-  loginHint: userEmail,  // Scalekit extracts domain and routes accordingly
-};
-```
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+  ```javascript title="Express.js" {5-7}
+  const redirectUri = 'https://your-app.com/auth/callback'
+  const options = { scopes: ['openid','profile','email','offline_access'], loginHint: userEmail }
+  const url = scalekit.getAuthorizationUrl(redirectUri, options)
+  return res.redirect(url)
+  ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+  ```python title="Flask" {5-8}
+  redirect_uri = 'https://your-app.com/auth/callback'
+  options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], login_hint=user_email)
+  url = scalekit_client.get_authorization_url(redirect_uri, options)
+  return redirect(url)
+  ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+  ```go title="Gin" {6-10}
+  redirectUri := "https://your-app.com/auth/callback"
+  options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, LoginHint: userEmail}
+  url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+  c.Redirect(http.StatusFound, url.String())
+  ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+  ```java title="Spring" {7-11}
+  String redirectUri = "https://your-app.com/auth/callback";
+  AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+  options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+  options.setLoginHint(userEmail);
+  URL url = scalekitClient.authentication().getAuthorizationUrl(redirectUri, options);
+  return new RedirectView(url.toString());
+  ```
+  </TabItem>
+</Tabs>
+
+### Direct a specific SSO connection
+When you know the exact enterprise connection, pass `connectionId` (or `connection_id` depending on SDK) for highest routing precision.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+  ```javascript title="Express.js" {5-8}
+  const redirectUri = 'https://your-app.com/auth/callback'
+  const options = { scopes: ['openid','profile','email','offline_access'], connectionId: 'conn_123...' }
+  const url = scalekit.getAuthorizationUrl(redirectUri, options)
+  return res.redirect(url)
+  ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+  ```python title="Flask" {5-9}
+  redirect_uri = 'https://your-app.com/auth/callback'
+  options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], connection_id='conn_123...')
+  url = scalekit_client.get_authorization_url(redirect_uri, options)
+  return redirect(url)
+  ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+  ```go title="Gin" {6-11}
+  redirectUri := "https://your-app.com/auth/callback"
+  options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, ConnectionId: "conn_123..."}
+  url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+  c.Redirect(http.StatusFound, url.String())
+  ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+  ```java title="Spring" {7-12}
+  String redirectUri = "https://your-app.com/auth/callback";
+  AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+  options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+  options.setConnectionId("conn_123...");
+  URL url = scalekitClient.authentication().getAuthorizationUrl(redirectUri, options);
+  return new RedirectView(url.toString());
+  ```
+  </TabItem>
+</Tabs>
 
 ### Force re-authentication
-Require users to authenticate even if they have an active session:
+Require users to authenticate even if they have an active session using `prompt: 'login'`.
 
-```javascript title="Force login"
-const options = {
-  scopes: ['openid', 'profile', 'email', 'offline_access'],
-  prompt: 'login',  // Forces authentication flow
-};
-```
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+  ```javascript title="Express.js" {5-7}
+  const redirectUri = 'https://your-app.com/auth/callback'
+  const options = { scopes: ['openid','profile','email','offline_access'], prompt: 'login' }
+  return res.redirect(scalekit.getAuthorizationUrl(redirectUri, options))
+  ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+  ```python title="Flask" {5-8}
+  redirect_uri = 'https://your-app.com/auth/callback'
+  options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], prompt='login')
+  return redirect(scalekit_client.get_authorization_url(redirect_uri, options))
+  ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+  ```go title="Gin" {6-10}
+  redirectUri := "https://your-app.com/auth/callback"
+  options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, Prompt: "login"}
+  url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+  c.Redirect(http.StatusFound, url.String())
+  ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+  ```java title="Spring" {7-11}
+  String redirectUri = "https://your-app.com/auth/callback";
+  AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+  options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+  options.setPrompt("login");
+  return new RedirectView(scalekitClient.authentication().getAuthorizationUrl(redirectUri, options).toString());
+  ```
+  </TabItem>
+</Tabs>
 
-<Aside type="caution" title="Security considerations">
-Always include the `state` parameter with a random, unguessable value to prevent CSRF attacks. Validate this value when processing the callback.
+### Let users choose an account or organization
+Show the organization/account chooser using `prompt: 'select_account'`. See organization switching for advanced flows.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+  ```javascript title="Express.js" {5-7}
+  const redirectUri = 'https://your-app.com/auth/callback'
+  const options = { scopes: ['openid','profile','email','offline_access'], prompt: 'select_account' }
+  return res.redirect(scalekit.getAuthorizationUrl(redirectUri, options))
+  ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+  ```python title="Flask" {5-8}
+  redirect_uri = 'https://your-app.com/auth/callback'
+  options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], prompt='select_account')
+  return redirect(scalekit_client.get_authorization_url(redirect_uri, options))
+  ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+  ```go title="Gin" {6-10}
+  redirectUri := "https://your-app.com/auth/callback"
+  options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, Prompt: "select_account"}
+  url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+  c.Redirect(http.StatusFound, url.String())
+  ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+  ```java title="Spring" {7-11}
+  String redirectUri = "https://your-app.com/auth/callback";
+  AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+  options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+  options.setPrompt("select_account");
+  return new RedirectView(scalekitClient.authentication().getAuthorizationUrl(redirectUri, options).toString());
+  ```
+  </TabItem>
+</Tabs>
+
+### Start at sign up
+Send users directly to the signup path using `prompt: 'create'`.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+  ```javascript title="Express.js" {5-7}
+  const redirectUri = 'https://your-app.com/auth/callback'
+  const options = { scopes: ['openid','profile','email','offline_access'], prompt: 'create' }
+  return res.redirect(scalekit.getAuthorizationUrl(redirectUri, options))
+  ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+  ```python title="Flask" {5-8}
+  redirect_uri = 'https://your-app.com/auth/callback'
+  options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], prompt='create')
+  return redirect(scalekit_client.get_authorization_url(redirect_uri, options))
+  ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+  ```go title="Gin" {6-10}
+  redirectUri := "https://your-app.com/auth/callback"
+  options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, Prompt: "create"}
+  url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+  c.Redirect(http.StatusFound, url.String())
+  ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+  ```java title="Spring" {7-11}
+  String redirectUri = "https://your-app.com/auth/callback";
+  AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+  options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+  options.setPrompt("create");
+  return new RedirectView(scalekitClient.authentication().getAuthorizationUrl(redirectUri, options).toString());
+  ```
+  </TabItem>
+</Tabs>
+
+### Related guides
+- Preserve intended destination: /guides/user-auth/preserve-intended-destination
+- Add CSRF protection with state: /guides/security/csrf-protection
+- Implement login: /fsa/guides/implement-login
+
+<Aside type="caution" title="Always send state">
+Include a cryptographically strong `state` and validate it on callback to prevent CSRF and mix-up attacks.
 </Aside>

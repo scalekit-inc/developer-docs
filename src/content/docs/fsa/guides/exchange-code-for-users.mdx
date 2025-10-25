@@ -1,0 +1,209 @@
+---
+title: "Exchange code for user data"
+description: "Process authentication callbacks and handle redirect flows after users authenticate with Scalekit's hosted login page."
+sidebar:
+  label: "Exchange code for user data"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+prev:
+  label: "Initiate user login"
+  link: "/fsa/guides/implement-login/"
+next:
+  label: "Manage session"
+  link: "/fsa/guides/manage-session/"
+seeAlso:
+  label: "Related guides"
+  items:
+    - title: "Redirect configurations"
+      icon: "external"
+      url: "/guides/dashboard/redirects/"
+    - title: "Session management"
+      icon: "setting"
+      url: "/fsa/guides/manage-session/"
+    - title: "Authentication security"
+      icon: "seti:lock"
+      url: "/guides/security/authentication-security/"
+---
+
+import { AuthResultTabsSection } from '@components/templates'
+import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
+
+After constructing the authorization endpoint, users verify their identity on Scalekit's hosted login page. Scalekit then calls back your [registered callback URL](/guides/dashboard/allowed-callback-url/) with an authorization code. Your application needs to exchange the authorization code for user profile data and manage the authentication result.
+
+
+When users complete verifying their identity based on their selected login method, Scalekit redirects to your registered callback URL with either an authorization code (success) or error parameters (failure). Your endpoint needs to exchange the authorization code for user profile data and manage the authentication result.
+
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Express.js callback handler" "authenticateWithCode" "code"
+app.get('/auth/callback', async (req, res) => {
+  const { code, error, error_description } = req.query;
+
+  // Handle errors first
+  if (error) {
+    console.error('Authentication error:', error);
+    return res.redirect('/login?error=auth_failed');
+  }
+
+  if (!code) {
+    return res.redirect('/login?error=missing_code');
+  }
+
+  try {
+    // Exchange code for user data
+    const authResult = await scalekit.authenticateWithCode(
+      code,
+      'https://yourapp.com/auth/callback'
+    );
+
+    const { user, accessToken, refreshToken } = authResult;
+
+    // TODO: Store user session (next guide covers this)
+    // req.session.user = user;
+
+    res.redirect('/dashboard');
+
+  } catch (error) {
+    console.error('Token exchange failed:', error);
+    res.redirect('/login?error=exchange_failed');
+  }
+});
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Flask callback handler" {4-6,12-16} "authenticate_with_code"
+@app.route('/auth/callback')
+def auth_callback():
+    code = request.args.get('code')
+    error = request.args.get('error')
+
+    # Handle errors first
+    if error:
+        print(f'Authentication error: {error}')
+        return redirect('/login?error=auth_failed')
+
+    if not code:
+        return redirect('/login?error=missing_code')
+
+    try:
+        # Exchange code for user data
+        options = CodeAuthenticationOptions()
+        auth_result = scalekit.authenticate_with_code(
+            code,
+            'https://yourapp.com/auth/callback',
+            options
+        )
+
+        user = auth_result.user
+        # access_token = auth_result.access_token
+        # refresh_token = auth_result.refresh_token
+
+        # TODO: Store user session (next guide covers this)
+        # session['user'] = user
+
+        return redirect('/dashboard')
+
+    except Exception as e:
+        print(f'Token exchange failed: {e}')
+        return redirect('/login?error=exchange_failed')
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Gin callback handler" {4-6,12-16} "AuthenticateWithCode"
+func authCallbackHandler(c *gin.Context) {
+    code := c.Query("code")
+    errorParam := c.Query("error")
+
+    // Handle errors first
+    if errorParam != "" {
+        log.Printf("Authentication error: %s", errorParam)
+        c.Redirect(http.StatusFound, "/login?error=auth_failed")
+        return
+    }
+
+    if code == "" {
+        c.Redirect(http.StatusFound, "/login?error=missing_code")
+        return
+    }
+
+    // Exchange code for user data
+    options := scalekit.AuthenticationOptions{}
+    authResult, err := scalekitClient.AuthenticateWithCode(
+        code,
+        "https://yourapp.com/auth/callback",
+        options,
+    )
+
+    if err != nil {
+        log.Printf("Token exchange failed: %v", err)
+        c.Redirect(http.StatusFound, "/login?error=exchange_failed")
+        return
+    }
+
+    user := authResult.User
+    // accessToken := authResult.AccessToken
+    // refreshToken := authResult.RefreshToken
+
+    // TODO: Store user session (next guide covers this)
+    // session.Set("user", user)
+
+    c.Redirect(http.StatusFound, "/dashboard")
+}
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Spring callback handler" {5-7,13-17} "authenticateWithCode"
+@GetMapping("/auth/callback")
+public Object authCallback(
+    @RequestParam(required = false) String code,
+    @RequestParam(required = false) String error
+) {
+    // Handle errors first
+    if (error != null) {
+        System.err.println("Authentication error: " + error);
+        return new RedirectView("/login?error=auth_failed");
+    }
+
+    if (code == null) {
+        return new RedirectView("/login?error=missing_code");
+    }
+
+    try {
+        // Exchange code for user data
+        AuthenticationOptions options = new AuthenticationOptions();
+        AuthenticationResponse authResult = scalekit
+            .authentication()
+            .authenticateWithCode(code, "https://yourapp.com/auth/callback", options);
+
+        var user = authResult.getIdTokenClaims();
+        // String accessToken = authResult.getAccessToken();
+        // String refreshToken = authResult.getRefreshToken();
+
+        // TODO: Store user session (next guide covers this)
+        // session.setAttribute("user", user);
+
+        return new RedirectView("/dashboard");
+
+    } catch (Exception e) {
+        System.err.println("Token exchange failed: " + e.getMessage());
+        return new RedirectView("/login?error=exchange_failed");
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+The `authResult` object returned contains:
+
+- `user` - Common user details with email, name, and verification status
+- `idToken` - JWT containing verified full user identity claims
+- `accessToken` - Short-lived token for API authorization
+- `refreshToken` - Long-lived token to obtain new access tokens
+
+<AuthResultTabsSection />
+
+The user details are packaged in the form of JWT tokens. You can decode them to get the full user details.

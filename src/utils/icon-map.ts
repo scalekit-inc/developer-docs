@@ -100,7 +100,6 @@ export const iconMap = {
   video: IconLucideFileVideoCamera,
   code: IconMaterialSymbolsCodeRounded,
   'code-sample': IconLucideSquareCode,
-  github: IconLucideGithub,
   tutorial: IconFluentLearningApp24Regular,
   library: IconStreamlineFreehandLearningProgrammingBook,
   book: IconLucideBookOpenText,

@@ -1,13 +1,10 @@
 ---
-title: "Redirects"
-description: "Learn how to configure and validate redirect URLs in Scalekit for secure authentication flows, including callback, login, logout, and back-channel logout endpoints."
-browseCentral:
-  label: Set up auth redirects
-  filterType: ["tutorial"]
-  category: ["Setup dev environment"]
-  icon: book
+title: "How to register a callback endpoint"
+topic: dev-kit
+description: ""
+tableOfContents: false
 sidebar:
-  label: "Redirect configurations"
+  label: "Register a callback endpoint"
 head:
   - tag: style
     attrs:
@@ -36,57 +33,17 @@ head:
       }
 ---
 
-import { Aside, Icon, CardGrid } from '@astrojs/starlight/components'
+import { Aside, Icon } from '@astrojs/starlight/components'
 
-Redirects are registered endpoints in Scalekit that control where users are directed during authentication flows. You must configure these endpoints in the Scalekit dashboard before they can be used.
+In the authentication flow for a user, a callback endpoint is the endpoint that Scalekit remembers about your application, trusts it, and sends a authentication grant (code). It further expects your application to exchange the code for a user token and user profile.
 
-All redirect URIs must be registered under Authentication settings in your Scalekit dashboard. This is a security requirement to prevent unauthorized redirects.
+This needs to be pre-registered in the Scalekit dashboard.
 
+Go to **Dashboard** > **Authentication** > **Redirect URLS** > **Allowed Callback URLs** and add the callback endpoint.
 
-## Redirect endpoint types
-
-### Allowed callback URLs
-**Purpose**: Where users are sent after successful authentication to exchange authorization codes and retrieve profile information.
-
-**Example scenario**: A user completes sign-in and Scalekit redirects them to `https://yourapp.com/callback` where your application processes the authentication response.
-
-To add or remove an redirect URL, go to Dashboard > Authentication > Redirects > Allowed Callback URLs.
-
-### Initiate login URL
-**Purpose**: When authentication does not initiate from your application, Scalekit redirects users back to your application's login initiation endpoint. This endpoint should point to a route in your application that ultimately redirects users to Scalekit's `/authorize` endpoint.
-
-**Example scenarios**:
-
-- **Bookmarked login page**: A user bookmarks your login page and visits it directly. Your application detects they're not authenticated and redirects them to Scalekit's authorization endpoint.
-
-- **Organization invitation flow**: A user clicks an invitation link to join an organization. Your application receives the invitation token and redirects the user to Scalekit's authorization endpoint to complete the sign-up process.
-
-- **IdP-initiated SSO**: An administrator initiates single sign-on from their identity provider dashboard. The IdP redirects users to your application, which then redirects them to Scalekit's authorization endpoint to complete authentication.
-
-- **Session expiration**: When a user's session expires or they access a protected resource, they're redirected to `https://yourapp.com/login` which then redirects to Scalekit's authentication endpoint.
-
-### Post logout URL
-**Purpose**: Where users are sent after successfully signing out of your application.
-
-**Example scenario**: After logging out, users are redirected to `https://yourapp.com/goodbye` to confirm their session has ended.
-
-### Back channel logout URL
-**Purpose**: A secure endpoint that receives notifications whenever a user is logged out from Scalekit, regardless of how the logout was initiated — admin triggered, user initiated, or due to session policies like idle timeout.
-
-**Example scenario**: When a user logs out from any application (user-initiated, admin-initiated, or due to session policies like idle timeout), Scalekit sends a logout notification to `https://yourapp.com/logout` to suggest termination of the user's session across all connected applications, ensuring coordinated logout for enhanced security.
-
-### Custom URI schemes
-
-Custom URI schemes allow for redirects, enabling deep linking and native app integrations. Some applications include:
-- **Desktop applications**: Use schemes like `{scheme}://` for native app integration
-- **Mobile apps**: Use schemes like `myapp://` for mobile app deep linking
-
-**Example custom schemes**:
-- `{scheme}://auth/callback` - For custom scheme authentication
-- `myapp://login/callback` - For mobile app authentication
+![](@/assets/docs/allowed-callback-url/allowed-callback-url.png)
 
 
-## URI validation requirements
 
 Your redirect URIs must meet specific requirements that vary between development and production environments:
 
@@ -99,9 +56,6 @@ Your redirect URIs must meet specific requirements that vary between development
 | Query parameters | <span class="icon-text"><Icon name="error" /> Not allowed</span> | <span class="icon-text"><Icon name="error" /> Not allowed</span> |
 | URL fragments | <span class="icon-text"><Icon name="error" /> Not allowed</span> | <span class="icon-text"><Icon name="error" /> Not allowed</span> |
 
-
-
-### Wildcard usage patterns
 
 Wildcards can simplify testing in development environments, but they must follow specific patterns:
 

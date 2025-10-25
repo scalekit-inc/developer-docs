@@ -1,0 +1,279 @@
+---
+title: Preserve the user's intended destination
+description: Redirect users back to the page they asked for after authentication using a signed return URL.
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+sidebar:
+  label: "Preserve intended destination"
+browseCentral:
+  label: Preserve intended destination
+  filterType: ["tutorial"]
+  category: ["Best practices"]
+  icon: book
+seeAlso:
+  items:
+    - title: "Quickstart"
+      url: "/fsa/quickstart"
+---
+
+import { Steps, Tabs, TabItem, Aside, Badge } from '@astrojs/starlight/components';
+
+Users may bookmark specific pages of your app, but their session might be expired. They need to be redirected to the page they asked for after authentication. That means your app needs to preserve the user's original destination.
+
+You will capture the user's original destination, carry it through the OAuth flow safely, and redirect back after login. You will prevent open-redirect attacks by validating and signing the return URL.
+
+<Aside type="tip" title="Two safe patterns">
+Use either `state` embedding (short paths only) or a signed `return_to` cookie. Avoid passing raw URLs in query strings without validation.
+</Aside>
+
+<Steps>
+1. ## Capture the intended destination
+
+   When an unauthenticated user requests a protected route, capture its path.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript title="Express.js"
+   app.get('/login', (req, res) => {
+     const nextPath = typeof req.query.next === 'string' ? req.query.next : '/'
+     // Only allow internal paths
+     const safe = nextPath.startsWith('/') && !nextPath.startsWith('//') ? nextPath : '/'
+     res.cookie('sk_return_to', safe, { httpOnly: true, secure: true, sameSite: 'lax', path: '/' })
+     // build authorization URL next
+   })
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```python title="Flask"
+   @app.route('/login')
+   def login():
+       next_path = request.args.get('next', '/')
+       safe = next_path if next_path.startswith('/') and not next_path.startswith('//') else '/'
+       resp = make_response()
+       resp.set_cookie('sk_return_to', safe, httponly=True, secure=True, samesite='Lax', path='/')
+       return resp
+   ```
+   </TabItem>
+   <TabItem value="go" label="Go">
+   ```go title="Gin"
+   func login(c *gin.Context) {
+     nextPath := c.Query("next")
+     if nextPath == "" || !strings.HasPrefix(nextPath, "/") || strings.HasPrefix(nextPath, "//") {
+       nextPath = "/"
+     }
+     cookie := &http.Cookie{Name: "sk_return_to", Value: nextPath, HttpOnly: true, Secure: true, Path: "/"}
+     http.SetCookie(c.Writer, cookie)
+   }
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="Spring"
+   @GetMapping("/login")
+   public void login(HttpServletRequest request, HttpServletResponse response) {
+     String nextPath = Optional.ofNullable(request.getParameter("next")).orElse("/");
+     boolean safe = nextPath.startsWith("/") && !nextPath.startsWith("//");
+     Cookie cookie = new Cookie("sk_return_to", safe ? nextPath : "/");
+     cookie.setHttpOnly(true); cookie.setSecure(true); cookie.setPath("/");
+     response.addCookie(cookie);
+   }
+   ```
+   </TabItem>
+   </Tabs>
+
+   <Aside type="tip" title="Reading cookies in Express">
+   If you access `req.cookies` in Node.js, enable cookie parsing middleware (for example, `cookie-parser`) early in your server setup.
+   </Aside>
+
+2. ## Build the authorization URL
+
+   Generate the authorization URL as in the quickstart. Optionally include a short hint in `state` like `"n=/billing"` after signing or encoding.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript title="Express.js" {5-10}
+   const redirectUri = 'https://your-app.com/auth/callback'
+   const options = { scopes: ['openid','profile','email','offline_access'] }
+   const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options)
+   res.redirect(authorizationUrl)
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```python title="Flask"
+   redirect_uri = 'https://your-app.com/auth/callback'
+   options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'])
+   authorization_url = scalekit_client.get_authorization_url(redirect_uri, options)
+   return redirect(authorization_url)
+   ```
+   </TabItem>
+   <TabItem value="go" label="Go">
+   ```go title="Gin" {6-10}
+   redirectUri := "https://your-app.com/auth/callback"
+   options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}}
+   authorizationURL, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+   c.Redirect(http.StatusFound, authorizationURL.String())
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="Spring" {6-9}
+   String redirectUri = "https://your-app.com/auth/callback";
+   AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+   options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+   URL authorizationUrl = scalekitClient.authentication().getAuthorizationUrl(redirectUri, options);
+   return new RedirectView(authorizationUrl.toString());
+   ```
+   </TabItem>
+   </Tabs>
+
+3. ## After callback, redirect safely
+
+   After exchanging the code and creating a session, read `sk_return_to`. Validate and normalize the path. Default to `/dashboard` or `/`.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript title="Express.js" {8-15}
+   app.get('/auth/callback', async (req, res) => {
+     // ... exchange code ...
+     const raw = req.cookies.sk_return_to || '/'
+     const safe = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/'
+     res.clearCookie('sk_return_to', { path: '/' })
+     res.redirect(safe || '/dashboard')
+   })
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```python title="Flask" {8-13}
+   def callback():
+       # ... exchange code ...
+       raw = request.cookies.get('sk_return_to', '/')
+       safe = raw if raw.startswith('/') and not raw.startswith('//') else '/'
+       resp = redirect(safe or '/dashboard')
+       resp.delete_cookie('sk_return_to', path='/')
+       return resp
+   ```
+   </TabItem>
+   <TabItem value="go" label="Go">
+   ```go title="Gin" {9-15}
+   func callback(c *gin.Context) {
+     // ... exchange code ...
+     raw, _ := c.Cookie("sk_return_to")
+     if raw == "" || !strings.HasPrefix(raw, "/") || strings.HasPrefix(raw, "//") {
+       raw = "/"
+     }
+     http.SetCookie(c.Writer, &http.Cookie{Name: "sk_return_to", Value: "", MaxAge: -1, Path: "/"})
+     c.Redirect(http.StatusFound, raw)
+   }
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="Spring" {9-15}
+   public RedirectView callback(HttpServletRequest request, HttpServletResponse response) {
+     // ... exchange code ...
+     String raw = getCookie(request, "sk_return_to").orElse("/");
+     boolean ok = raw.startsWith("/") && !raw.startsWith("//");
+     Cookie clear = new Cookie("sk_return_to", ""); clear.setPath("/"); clear.setMaxAge(0);
+     response.addCookie(clear);
+     return new RedirectView(ok ? raw : "/dashboard");
+   }
+   ```
+   </TabItem>
+   </Tabs>
+
+4. ## Sign return_to values <Badge type="tip" text="Optional" />
+
+   If you pass `return_to` via query string or store longer values, compute an HMAC and verify it before redirecting. Reject unsigned or invalid pairs.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript title="HMAC signing" {5-11}
+   import crypto from 'crypto'
+   function sign(value, secret) {
+     const mac = crypto.createHmac('sha256', secret).update(value).digest('base64url')
+     return `${value}|${mac}`
+   }
+   function verify(signed, secret) {
+     const [v, mac] = signed.split('|')
+     const good = crypto.timingSafeEqual(Buffer.from(mac), Buffer.from(sign(v, secret).split('|')[1]))
+     return good ? v : null
+   }
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```python title="HMAC signing" {5-11}
+   import hmac, hashlib, base64
+   def sign(value: str, secret: bytes) -> str:
+       mac = hmac.new(secret, value.encode(), hashlib.sha256).digest()
+       return f"{value}|{base64.urlsafe_b64encode(mac).decode().rstrip('=')}"
+   def verify(signed: str, secret: bytes) -> str | None:
+       try:
+           value, mac = signed.split('|', 1)
+           expected = sign(value, secret).split('|', 1)[1]
+           if hmac.compare_digest(mac, expected):
+               return value
+       except Exception:
+           pass
+       return None
+   ```
+   </TabItem>
+   <TabItem value="go" label="Go">
+   ```go title="HMAC signing" {6-14}
+   import (
+     "crypto/hmac"
+     "crypto/sha256"
+     "encoding/base64"
+   )
+   func sign(value string, secret []byte) string {
+     mac := hmac.New(sha256.New, secret)
+     mac.Write([]byte(value))
+     sum := mac.Sum(nil)
+     return value + "|" + base64.RawURLEncoding.EncodeToString(sum)
+   }
+   func verify(signed string, secret []byte) *string {
+     parts := strings.SplitN(signed, "|", 2)
+     if len(parts) != 2 { return nil }
+     expected := strings.SplitN(sign(parts[0], secret), "|", 2)[1]
+     if hmac.Equal([]byte(parts[1]), []byte(expected)) {
+       return &parts[0]
+     }
+     return nil
+   }
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="HMAC signing" {7-16}
+   import javax.crypto.Mac;
+   import javax.crypto.spec.SecretKeySpec;
+   import java.util.Base64;
+   String sign(String value, byte[] secret) throws Exception {
+     Mac mac = Mac.getInstance("HmacSHA256");
+     mac.init(new SecretKeySpec(secret, "HmacSHA256"));
+     byte[] raw = mac.doFinal(value.getBytes(StandardCharsets.UTF_8));
+     String b64 = Base64.getUrlEncoder().withoutPadding().encodeToString(raw);
+     return value + "|" + b64;
+   }
+   String verify(String signed, byte[] secret) throws Exception {
+     String[] parts = signed.split("\\|", 2);
+     if (parts.length != 2) return null;
+     String expected = sign(parts[0], secret).split("\\|", 2)[1];
+     return MessageDigest.isEqual(parts[1].getBytes(StandardCharsets.UTF_8), expected.getBytes(StandardCharsets.UTF_8)) ? parts[0] : null;
+   }
+   ```
+   </TabItem>
+   </Tabs>
+
+   <Aside type="caution" title="Limit scope and length">
+   Allowlist a small set of internal prefixes (for example, `/app`, `/billing`) and cap `return_to` length (for example, 512 chars). Reject anything else.
+   </Aside>
+
+</Steps>
+
+<Aside type="caution" title="Never redirect to external origins">
+Allow only same-origin paths (e.g., `/billing`). Do not accept absolute URLs or protocol-relative URLs. This blocks open redirects.
+</Aside>

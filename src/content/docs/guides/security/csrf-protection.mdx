@@ -1,0 +1,244 @@
+---
+title: Implement CSRF protection
+topic: dev-kit
+description: Prevent cross-site request forgery in your auth flow using the OAuth state parameter and secure cookies.
+tableOfContents: true
+sidebar:
+  label: "Add CSRF protection"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+browseCentral:
+  label: Add CSRF protection
+  filterType: ["tutorial"]
+  category: ["Best practices"]
+  icon: book
+seeAlso:
+  items:
+    - title: "Quickstart"
+      url: "/fsa/quickstart"
+    - title: "Authentication security"
+      url: "/guides/security/authentication-security"
+    - title: "Allowed callback URLs"
+      url: "/guides/dashboard/redirects/#allowed-callback-urls"
+---
+
+import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+You will add robust CSRF protection to your login flow by using the OAuth `state` parameter and secure cookies. This prevents cross-site request forgery and open-redirect attacks during authentication.
+
+**What goes wrong without CSRF protection**
+
+- You are signed in to your app and visit an attacker’s site.
+- The site auto-submits your browser to your OAuth callback using the attacker’s authorization code.
+- Your app exchanges the code and sets a session — in your browser — for the attacker’s account.
+
+Result: login CSRF (account mix-up). You appear signed in, but as the attacker.
+
+```html title="Attacker page (auto-submits your callback)" frame="code" showLineNumbers=false
+<form action="https://your-app.com/auth/callback" method="GET" id="f">
+  <input type="hidden" name="code" value="C_attacker" />
+  <!-- No valid state included -->
+</form>
+<script>document.getElementById('f').submit()</script>
+```
+
+With proper state validation, your callback rejects this request (401) because the `state` is missing or mismatched. The steps below show how to implement that protection.
+
+<Steps>
+1. ## Generate a cryptographically strong state
+
+   Create a random, unguessable `state` value and persist it server-side (session) or in a signed, HTTP-only cookie. Use at least 256 bits of entropy.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript title="Express.js" {4-9,18-20} wrap
+   import crypto from 'crypto'
+
+   // Generate and persist state
+   const state = crypto.randomBytes(32).toString('hex')
+   // Recommended: store in a server session. If you use a cookie, make it signed & HTTP-only.
+   res.cookie('sk_auth_state', state, {
+     httpOnly: true,
+     secure: true,
+     sameSite: 'lax', // Lax allows the cookie to be sent on the OAuth GET redirect
+     path: '/',
+   })
+   ```
+
+   <Aside type="tip" title="Reading cookies in Express">
+   If you access `req.cookies` in Node.js, enable cookie parsing middleware (for example, `cookie-parser`) early in your server setup.
+   </Aside>
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```python title="Flask" {4-7}
+   import secrets
+   from flask import session
+
+   state = secrets.token_urlsafe(32)
+   session['sk_auth_state'] = state
+   ```
+   </TabItem>
+   <TabItem value="go" label="Go">
+   ```go title="Gin" {6-10}
+   import (
+     "crypto/rand"
+     "encoding/base64"
+   )
+
+   func newState() string {
+     b := make([]byte, 32)
+     rand.Read(b)
+     return base64.RawURLEncoding.EncodeToString(b)
+   }
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="Spring" {4-9}
+   import java.security.SecureRandom;
+   import java.util.Base64;
+
+   SecureRandom sr = new SecureRandom();
+   byte[] bytes = new byte[32];
+   sr.nextBytes(bytes);
+   String state = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+   request.getSession().setAttribute("sk_auth_state", state);
+   ```
+   </TabItem>
+   </Tabs>
+
+2. ## Include state in the authorization URL
+
+   Pass the `state` when you build the authorization URL.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript title="Express.js" {6-10} "state"
+   const redirectUri = 'https://your-app.com/auth/callback'
+   const options = {
+     scopes: ['openid', 'profile', 'email', 'offline_access'],
+     state,
+   }
+   const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options)
+   res.redirect(authorizationUrl)
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```python title="Flask" "state"
+   from scalekit import AuthorizationUrlOptions
+
+   redirect_uri = 'https://your-app.com/auth/callback'
+   options = AuthorizationUrlOptions(
+       scopes=['openid','profile','email','offline_access'],
+       state=state
+   )
+   authorization_url = scalekit_client.get_authorization_url(redirect_uri, options)
+   return redirect(authorization_url)
+   ```
+   </TabItem>
+   <TabItem value="go" label="Go">
+   ```go title="Gin" "state"
+   redirectUri := "https://your-app.com/auth/callback"
+   options := scalekitClient.AuthorizationUrlOptions{
+     Scopes: []string{"openid","profile","email","offline_access"},
+     State:  state,
+   }
+   authorizationURL, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+   c.Redirect(http.StatusFound, authorizationURL.String())
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="Spring" "state"
+   import com.scalekit.internal.http.AuthorizationUrlOptions;
+
+   String redirectUri = "https://your-app.com/auth/callback";
+   AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+   options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+   options.setState(state);
+   URL authorizationUrl = scalekitClient.authentication().getAuthorizationUrl(redirectUri, options);
+   return new RedirectView(authorizationUrl.toString());
+   ```
+   </TabItem>
+   </Tabs>
+
+3. ## Validate state on the callback
+
+   Compare the `state` in the callback with what you stored. Reject on mismatch.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript title="Express.js" {6-12}
+   app.get('/auth/callback', (req, res) => {
+     const returned = req.query.state
+     const expected = req.cookies.sk_auth_state // or session store
+     if (!returned || returned !== expected) {
+       return res.status(401).send('Invalid state')
+     }
+     // Clear one-time state after successful validation
+     res.clearCookie('sk_auth_state', { path: '/' })
+     // Proceed to exchange the code
+   })
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```python title="Flask" {6-12}
+   @app.route('/auth/callback')
+   def callback():
+       returned = request.args.get('state')
+       expected = session.get('sk_auth_state')
+       if not returned or returned != expected:
+           return jsonify({'error': 'Invalid state'}), 401
+       # Clear one-time state after successful validation
+       session.pop('sk_auth_state', None)
+       # Proceed to exchange the code
+   ```
+   </TabItem>
+   <TabItem value="go" label="Go">
+   ```go title="Gin" {6-13}
+   func callback(c *gin.Context) {
+     returned := c.Query("state")
+     expected := sessionGet(c, "sk_auth_state")
+     if returned == "" || returned != expected {
+       c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid state"})
+       return
+     }
+     // Clear one-time state after successful validation
+     sessionDelete(c, "sk_auth_state")
+     // Proceed to exchange the code
+   }
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="Spring" {7-13}
+   @GetMapping("/auth/callback")
+   public Object callback(HttpServletRequest request) {
+     String returned = request.getParameter("state");
+     String expected = (String) request.getSession().getAttribute("sk_auth_state");
+     if (returned == null || !returned.equals(expected)) {
+       return ResponseEntity.status(401).body("Invalid state");
+     }
+     // Clear one-time state after successful validation
+     request.getSession().removeAttribute("sk_auth_state");
+     // Proceed to exchange the code
+   }
+   ```
+   </TabItem>
+   </Tabs>
+
+4. ## Harden cookies and non-OAuth forms
+
+   - Use `HttpOnly`, `Secure`, and `SameSite=Lax` on session cookies used in the OAuth redirect.
+   - Set a short TTL for `sk_auth_state` and delete it after use.
+   - For HTML forms in your app, use framework-native anti-CSRF tokens (separate from OAuth state).
+
+</Steps>
+
+<Aside type="caution" title="Do not echo unvalidated URLs">
+Never redirect to a URL from request parameters without allowlisting and normalization. This prevents open redirects chained with CSRF attempts.
+</Aside>
