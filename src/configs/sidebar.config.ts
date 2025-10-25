@@ -312,13 +312,11 @@ export const sidebar = [
         label: 'Code samples',
         autogenerate: { directory: 'browse/code-samples' },
       },
-      {
-        label: 'Reference',
-        items: ['reference/glossary'],
-      },
+
       {
         label: 'Support & resources',
         items: [
+          'reference/glossary',
           'support/contact-us',
           {
             label: 'Release notes',
@@ -344,7 +342,10 @@ export const sidebar = [
         label: 'Webhooks',
         autogenerate: { directory: 'reference/webhooks' },
       },
-      'reference/admin-portal/ui-events',
+      {
+        label: 'Admin portal',
+        items: ['reference/admin-portal/ui-events'],
+      },
     ],
   },
   {
