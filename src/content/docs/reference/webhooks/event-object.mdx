@@ -1,17 +1,20 @@
 ---
-title: Webhook event object
+title: Understand webhook event objects
 description: "Understand the structure of Scalekit's webhook event objects, including standardized fields and event-specific data payloads."
 tableOfContents: false
-sidebar:
-  label: Event object
-  order: 1
-prev: false
 head:
   - tag: style
     content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
       table td:not(:last-child), table th:not(:last-child) {
         white-space: nowrap;
       }
+sidebar:
+  label: Webhook event object
+  order: 2
+prev: false
 next:
   label: Directory webhook events
   link: /reference/webhooks/directory-events/
@@ -21,14 +24,9 @@ import { Aside, CardGrid } from '@astrojs/starlight/components';
 import WideLayout from '@components/ui/WideLayout.astro';
 import SideBySide from '@components/ui/SideBySide.astro';
 
-A webhook (also called a web callback or HTTP push API) is a way for Scalekit to provide your applications with real-time information. A webhook delivers data to your applications as it happens, meaning you get data immediately, unlike typical APIs where you would need to poll for data very frequently to get it in real-time. Events represent specific actions or changes, while webhooks are the mechanism used to deliver these event notifications to your specified endpoint.
+Scalekit sends webhooks to deliver real-time notifications about system changes. Webhook event objects contain standardized metadata fields and event-specific data in the `data` field.
 
-By leveraging webhooks, you can build responsive and dynamic integrations that react immediately to changes in Scalekit System, enabling you to keep your systems in sync and automate user lifecycle management and other related use cases.
-
-
-The webhook event object contains standardized fields that provide context about the event, along with event-specific data in the `data` field.
-
-```json title="Sample Event Payload"
+```json title="User created event payload"
 {
   "spec_version": "1",
   "id": "evt_123456789",
@@ -38,7 +36,9 @@ The webhook event object contains standardized fields that provide context about
   "organization_id": "org_123456789",
   "type": "organization.directory.user_created",
   "data": {
-    // Event Data
+    "user_id": "usr_123456789",
+    "email": "user@example.com",
+    "name": "John Doe"
   }
 }
 ```

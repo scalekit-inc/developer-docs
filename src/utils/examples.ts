@@ -37,6 +37,7 @@ const CATEGORY_ORDER = [
   'Basics',
   'User authentication',
   'Enterprise authentication',
+  'Customize workflows',
   'SDKs & Development Tools',
   'Admin portal for customers',
   'Best Practices',

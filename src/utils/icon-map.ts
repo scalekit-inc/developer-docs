@@ -29,6 +29,9 @@ import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 import IconHugeiconsTypescript01 from '~icons/hugeicons/typescript-01'
 import IconLucideMessageCircleQuestionMark from '~icons/lucide/message-circle-question-mark'
 import IconHugeiconsResourcesAdd from '~icons/hugeicons/resources-add'
+import IconArcticonsEmojiEightSpokedAsterisk from '~icons/arcticons/emoji-eight-spoked-asterisk'
+import IconLucideOutlineWebhook from '~icons/ic/outline-webhook'
+import IconMaterialSymbolsMotionSensorAlertRounded from '~icons/material-symbols/motion-sensor-alert-rounded'
 
 // Import navigation icons
 import IconLucideShield from '~icons/lucide/shield'
@@ -78,8 +81,8 @@ export const iconMap = {
   'api-reference': IconLucideBookOpen,
   'rest-apis': IconLucideBookOpen,
   bell: IconLucideBell,
-  webhooks: IconLucideBell,
-  events: IconLucideBell,
+  webhooks: IconLucideOutlineWebhook,
+  events: IconMaterialSymbolsMotionSensorAlertRounded,
   wrench: IconLucideWrench,
   'developer-resources': IconLucideWrench,
   integrations: IconLucideWrench,
@@ -114,4 +117,5 @@ export {
   IconLucideCode,
   IconLucideWrench,
   IconHugeiconsResourcesAdd,
+  IconLucideOutlineWebhook,
 }

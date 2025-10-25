@@ -202,6 +202,7 @@ export const sidebar = [
           'sso/guides/authorization-url',
           'dev-kit/resources/ai-assisted-setup',
           'browse/code-samples/gists/client-credentials-auth',
+          'browse/code-samples/gists/auth-code-exchange-scalekit-sdk',
         ],
       },
       {
