@@ -246,12 +246,18 @@ export const sidebar = [
       {
         label: 'Enterprise authentication',
         items: [
+          'sso/guides/sso-basics',
           'sso/quickstart',
-          'directory/scim/quickstart',
-          'directory/guides/group-based-role-assignment',
-          'guides/sso/admin-portal',
+          'fsa/guides/enterprise-sso',
           'browse/vids/sso-walkthrough',
+          'sso/guides/add-login-ux-sso',
+          'sso/guides/idp-init-sso',
+          'sso/guides/test-sso',
+          'directory/scim/quickstart',
+          'guides/sso/admin-portal',
           'browse/vids/scim-walkthrough',
+          'directory/guides/user-provisioning-basics',
+          'directory/guides/scim-protocol',
           'browse/vids/mcp-oauth-walkthrough',
           {
             label: 'View all integrations',
@@ -262,41 +268,13 @@ export const sidebar = [
       },
       {
         label: 'Customize workflows',
-        items: ['guides/interceptor-scenarios'],
-      },
-      {
-        label: 'Enterprise features',
-        collapsed: false,
-        items: [
-          {
-            label: 'Set up SSO',
-            items: [
-              'sso/guides/sso-basics',
-              'fsa/guides/enterprise-sso',
-              'sso/guides/add-login-ux-sso',
-              'sso/guides/test-sso',
-              'sso/guides/idp-init-sso',
-            ],
-          },
-          {
-            label: 'Enable user provisioning',
-            items: [
-              'directory/guides/user-provisioning-basics',
-              'directory/guides/scim-protocol',
-              {
-                label: 'View SCIM integrations',
-                link: '/guides/integrations/scim-integrations/',
-                attrs: { target: '_blank', rel: 'noopener' },
-              },
-            ],
-          },
-        ],
+        items: ['guides/interceptor-scenarios', 'directory/guides/group-based-role-assignment'],
       },
       {
         label: 'Best practices',
         collapsed: false,
         items: [
-          'guides/security/authentication-security',
+          'guides/security/authentication-best-practices',
           'guides/security/csrf-protection',
           'dev-kit/resources/authorization-best-practices',
           'guides/client-credentials-practices',

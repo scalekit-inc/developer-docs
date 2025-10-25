@@ -1,131 +1,159 @@
 ---
-title: "Add SSO to login page"
-description: "Explore strategies to incorporate single sign-on into your application's login page using Scalekit, improving user experience and authentication efficiency."
+title: "Ways to implement SSO logins"
+description: "Implement single sign-on on your login page using three UX strategies: identifier-driven, SSO button, or organization-specific pages."
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+browseCentral:
+  label: "Ways to implement SSO login"
+  filterType: ["tutorial"]
+  category: ["Enterprise authentication"]
+  icon: book
 sidebar:
-  label: "Add SSO to login page"
+  label: "Ways to implement SSO login"
 prev: false
 next: false
 ---
 
-import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside, Badge } from '@astrojs/starlight/components';
 
-**Login page UX strategies to implement single sign-on**
-
-Using our [quickstart guide](/sso/quickstart), you may already have implemented single sign-on (SSO) between your application and your customer's identity provider. In this article, we'll explore different UX strategies to incorporate SSO into your application's login page. Assuming your users can log in via email and password or through social providers like Google and GitHub, you can adopt one of the following three strategies to implement SSO on your login page:
+Add single sign-on to your login page using one of three UX strategies. Choose based on your users' needs and your application's architecture.
 
 
 ![Login page with password and social auth methods](@/assets/docs/sso/ux-strategies/simple_login_page.png)
 
 ## Strategy 1: Identifier-driven single sign-on
 
-In this strategy, you first collect the user's identifier—the most popular identifier is the email address. Based on the email address, you determine whether to navigate the user to SSO login experience or password-based authentication. The organization can be discovered using either (i) the domain of the user's email address or (ii) an organization identifier shared by the user.
+Collect the user's email address first. Use the email domain or organization identifier to determine whether to route to SSO or password-based authentication.
 
 ![Identifier-driven login](@/assets/docs/sso/ux-strategies/identifier_first_login.png)
 
-The benefit with this approach is that users don't have to choose the authentication method, thus reducing their cognitive load and making the experience smoother. This is especially useful when users initially log in with passwords, and their admin later mandates SSO. Users don't need to change their behavior; your application can handle it. Popular products like [Google](https://accounts.google.com), [Microsoft](https://login.microsoftonline.com), and [AWS](https://console.aws.amazon.com/console/) use this strategy in their login pages.
+Users don't choose the authentication method. This reduces cognitive load and works well when admins mandate SSO after users have already logged in with passwords. Popular products like [Google](https://accounts.google.com), [Microsoft](https://login.microsoftonline.com), and [AWS](https://console.aws.amazon.com/console/) use this strategy.
 
 ## Strategy 2: Login with single sign-on button
 
-In this strategy, you add a "Login with SSO" button on your login page, prompting users to choose this option explicitly. The advantage is that it presents all available authentication options, allowing users to decide how they want to log in.
+Add a "Login with SSO" button to your login page. This presents all authentication options and lets users choose their preferred method.
 
 ![Explicit option for login with SSO](@/assets/docs/sso/ux-strategies/sso_button_login.png)
 
-If a user tries to log in with a password, but their admin mandates SSO, you would force SSO-based authentication instead of showing an error message. Popular products like [Cal.com](https://app.cal.com/auth/login) and [Notion](https://www.notion.so/login) use this strategy in their login pages.
+If a user attempts password login but their admin mandates SSO, force SSO-based authentication instead of showing an error. Popular products like [Cal.com](https://app.cal.com/auth/login) and [Notion](https://www.notion.so/login) use this strategy.
 
 <Aside type="tip">
-In either of the above strategies, if a user chooses an authentication method (like social login), you need to verify their identity and the appropriate authentication method. If the user is meant to be authenticated through SSO-based login, make sure your application prompts them to re-authenticate through SSO.
+If a user chooses an authentication method like social login, verify their identity and the appropriate authentication method. If the user must authenticate through SSO, prompt them to re-authenticate through SSO.
 </Aside>
 
-## Strategy 3: Tenant specific login page
+## Strategy 3: organization-specific login page
 
-In this strategy, instead of a single login page at `https://app.b2b-app.com/login`, you serve different login pages for each tenant. For example, `https://customer1.b2b-app.com/login`, `https://customer2.b2b-app.com/login`. Depending on the tenant URL, you would show only the respective authentication methods applicable to that tenant, thus optimizing the user experience further.
+Serve different login pages for each organization instead of a single login page. For example, `https://customer1.b2b-app.com/login` and `https://customer2.b2b-app.com/login`. Show only the authentication methods applicable to that organization based on the URL.
 
-Popular products like [Zendesk](https://www.zendesk.com/in/login/) and [Slack](https://scalekit.slack.com/) use this strategy in their login pages. However, the big drawback with this approach is that users need to remember their tenant URL to access the login page.
+Popular products like [Zendesk](https://www.zendesk.com/in/login/) and [Slack](https://scalekit.slack.com/) use this strategy. The drawback is that users must remember their organization URL to access the login page.
 
 ---
 
-## Initiating single sign-on from your login page
+## Initiate single sign-on from your login page
 
-Once you've chosen a UX strategy for your application's login, let's move to the login implementation of SSO through Scalekit. Regardless of the strategy you implemented, you can construct the `authorization_url` using Scalekit SDK and redirect the user to this URL. Refer to the code samples below:
+Construct the authorization URL using the Scalekit SDK and redirect the user to it. Use one of these options:
 
-<Tabs>
-<TabItem label="Node.js">
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
 
-```javascript
+```javascript title="login.js"
 import { Scalekit } from '@scalekit-sdk/node';
-// Initialize the SDK client
+
 const scalekit = new Scalekit('', '', '');
 const options = {};
-// Option 1: Authorization URL with the organization ID
+
+// Option 1: Use organization ID
 options['organizationId'] = 'org_15421144869927830';
-// Option 2: Authorization URL with login hint
+
+// Option 2: Use login hint
 options['loginHint'] = 'user@example.com';
+
 const authorizationURL = scalekit.getAuthorizationUrl(
   redirect_uri,
   options,
 );
-// Next step is to redirect the user to this authorization URL
+
+// Redirect user to authorizationURL
 ```
 
 </TabItem>
-<TabItem label="Python">
+<TabItem value="python" label="Python">
 
-```python
+```python title="login.py"
 from scalekit import ScalekitClient, AuthorizationUrlOptions
-# Initialize the SDK client
+
 scalekit_client = ScalekitClient('', '', '')
 options = AuthorizationUrlOptions()
-# Option 1: Authorization URL with the organization ID
+
+# Option 1: Use organization ID
 options.organization_id = "org_15421144869927830"
-# Option 2: Authorization URL with login hint
+
+# Option 2: Use login hint
 options.login_hint = "user@example.com"
+
 authorization_url = scalekit_client.get_authorization_url(
   redirect_uri=redirect_uri,
   options=options
 )
-# Next step is to redirect the user to this authorization_url
+
+# Redirect user to authorization_url
 ```
 
 </TabItem>
-<TabItem label="Go">
+<TabItem value="go" label="Go">
 
-```go
+```go title="login.go"
 import (
   "github.com/scalekit-inc/scalekit-sdk-go"
 )
+
 func main() {
-  // Initialize the SDK client
   scalekitClient := scalekit.NewScalekitClient("", "", "")
   options := scalekit.AuthorizationUrlOptions{}
-  // Option 1: Authorization URL with the organization ID
+
+  // Option 1: Use organization ID
   options.OrganizationId = "org_15421144869927830"
-  // Option 2: Authorization URL with login hint
+
+  // Option 2: Use login hint
   options.LoginHint = "user@example.com"
+
   authorizationURL := scalekitClient.GetAuthorizationUrl(
     redirectUrl,
     options,
   )
-  // Next step is to redirect the user to this authorizationURL
+
+  // Redirect user to authorizationURL
 }
 ```
 
 </TabItem>
-<TabItem label="Java">
+<TabItem value="java" label="Java">
 
-```java
+```java title="LoginController.java"
 import com.scalekit.ScalekitClient;
 import com.scalekit.internal.http.AuthorizationUrlOptions;
+
 @PostMapping(path = "/login")
 public ResponseEntity<Map<String, String>> loginHandler(@RequestBody LoginRequest body) {
   AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-  // Option 1: Authorization URL with the organization ID
+
+  // Option 1: Use organization ID
   if (body.getOrganizationId() != null) {
     options.setOrganizationId(body.getOrganizationId());
   }
-  // Option 2: Authorization URL with login hint
+
+  // Option 2: Use login hint
   if (body.getEmail() != null) {
     options.setLoginHint(body.getEmail());
   }
+
   try {
     String url = scalekit
       .authentication()
@@ -133,24 +161,25 @@ public ResponseEntity<Map<String, String>> loginHandler(@RequestBody LoginReques
       .toString();
     return ResponseEntity.ok(Collections.singletonMap("url", url));
   } catch (Exception e) {
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", e.getMessage()));
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .body(Collections.singletonMap("error", e.getMessage()));
   }
 }
-// Redirect the user to this authorization URL
 ```
 
 </TabItem>
 </Tabs>
 
 
-#### Pre-check SSO by domain (when using discovery)
+#### Pre-check SSO by domain
 
-If your login form uses discovery (`domain_hint` or `login_hint`), run a lightweight check to confirm the user’s email domain maps to an active SSO connection before redirecting. This prevents dead-end redirects and helps you present the right path (SSO vs non‑SSO).
+When using discovery (`domain_hint` or `login_hint`), check if the user's email domain maps to an active SSO connection before redirecting. This prevents dead-end redirects and routes users to the correct authentication path.
 
-- Recommended when: You ask for email first or infer SSO from the domain.
-- Skip when: You already pass `organizationId` or `connectionId` explicitly.
+**When to use:**
+- You ask for email first or infer SSO from the domain
+- Skip when you already pass `organizationId` or `connectionId` explicitly
 
-How to implement:
+**Implementation steps:**
 1. Ask for email and extract the domain
 2. Query for connections by domain
 3. If found → redirect with `domain_hint` (or `connectionId`)
