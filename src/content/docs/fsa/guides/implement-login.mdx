@@ -12,6 +12,11 @@ head:
       .sl-markdown-content h3 {
         font-size: var(--sl-text-lg);
       }
+seeAlso:
+  items:
+    - title: "Login routing & re-authentication"
+      icon: "book"
+      url: "/guides/user-auth/login-scenarios/"
 prev:
   label: "Try quickstart"
   link: "/fsa/quickstart/"
@@ -23,32 +28,24 @@ import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard } from '@astrojs/
 
 Login initiation is the first step in your authentication flow. You redirect users to Scalekit's hosted login page by creating an authorization URL with the appropriate parameters for your use case.
 
-## Authorization URL structure
-
 The authorization URL contains several parameters that control the authentication behavior:
 
-```sh title="Authorization URL format" showLineNumbers=false
-https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
-  response_type=code&
-  client_id=<SCALEKIT_CLIENT_ID>&
-  redirect_uri=<CALLBACK_URL>&
-  scope=openid+profile+email+offline_access&
+```sh title="Authorization URL format" showLineNumbers=true { "specify ANY identifier for authentication": 6-9}
+<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
+  response_type=code& # always `code` for authorization code flow
+  client_id=<SCALEKIT_CLIENT_ID>& # Dashboard > Developers > API credentials > Client ID
+  redirect_uri=<CALLBACK_URL>& # registered as allowed callback URL
+  scope=openid+profile+email+offline_access& # Permissions requested. Include `offline_access` for refresh tokens
+
   organization_id=<ORG_ID>&
   connection_id=<CONNECTION_ID>&
   login_hint=<USER_EMAIL>&
+  # prevent CSRF attacks
   state=<RANDOM_STATE>
 ```
 
-### Required parameters
 
-| Parameter | Description |
-|-----------|-------------|
-| `response_type` | Always `code` for authorization code flow |
-| `client_id` | Your Scalekit client ID |
-| `redirect_uri` | Your callback URL where users return after authentication |
-| `scope` | Permissions requested. Include `offline_access` for refresh tokens |
-
-### Organization routing parameters
+## Organization routing parameters
 
 Use these parameters to direct users to specific authentication methods:
 
@@ -62,13 +59,13 @@ Use these parameters to direct users to specific authentication methods:
 Scalekit evaluates routing in this order: `connection_id` → `organization_id` → `login_hint` domain extraction.
 </Aside>
 
-## Create authorization URLs using Scalekit SDKs
+## Create authorization URL
 
 Use the Scalekit SDK to generate properly formatted authorization URLs. The SDK handles parameter encoding and validation automatically.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
-```javascript title="Express.js" collapse={1-2} {11} "getAuthorizationUrl"
+```javascript title="Express.js" collapse={1-4} {11} "getAuthorizationUrl"
 import { Scalekit } from '@scalekit-sdk/node';
 
 const scalekit = new Scalekit(/* your credentials */);
@@ -140,5 +137,4 @@ return new RedirectView(authorizationUrl.toString());
 ```
 </TabItem>
 </Tabs>
-
-The authorization endpoint connects to the authentication server configured for your environment. It redirects users to Scalekit's hosted login page, where they can sign in / sign up, to verify their identity.
+The authorization endpoint establishes a connection with the authentication server specific to your environment. It directs users to Scalekit's hosted login page, enabling them to authenticate or create a new account and verify their identity.

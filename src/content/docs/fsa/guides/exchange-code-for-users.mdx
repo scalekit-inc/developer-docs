@@ -17,29 +17,23 @@ next:
 seeAlso:
   label: "Related guides"
   items:
-    - title: "Redirect configurations"
-      icon: "external"
-      url: "/guides/dashboard/redirects/"
-    - title: "Session management"
-      icon: "setting"
-      url: "/fsa/guides/manage-session/"
-    - title: "Authentication security"
-      icon: "seti:lock"
-      url: "/guides/security/authentication-best-practices/"
+    - title: "Auth code exchange"
+      icon: "javascript"
+      url: "https://github.com/scalekit-inc/gists/blob/main/auth-code-exchange-scalekit-sdk.js"
 ---
 
 import { AuthResultTabsSection } from '@components/templates'
 import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
 
-After constructing the authorization endpoint, users verify their identity on Scalekit's hosted login page. Scalekit then calls back your [registered callback URL](/guides/dashboard/allowed-callback-url/) with an authorization code. Your application needs to exchange the authorization code for user profile data and manage the authentication result.
 
+When users complete verifying their identity based on their selected login method, Scalekit redirects to your registered callback URL with either an authorization code (success) or error parameters (failure).
 
-When users complete verifying their identity based on their selected login method, Scalekit redirects to your registered callback URL with either an authorization code (success) or error parameters (failure). Your endpoint needs to exchange the authorization code for user profile data and manage the authentication result.
+Your endpoint needs to exchange the authorization code for user profile data  and manage the next authentication steps.
 
 
 <Tabs syncKey="tech-stack">
 <TabItem value="nodejs" label="Node.js">
-```javascript title="Express.js callback handler" "authenticateWithCode" "code"
+```javascript title="Express.js callback handler" "authenticateWithCode" "code" collapse={ 3-13, 25-32 }
 app.get('/auth/callback', async (req, res) => {
   const { code, error, error_description } = req.query;
 
@@ -75,7 +69,7 @@ app.get('/auth/callback', async (req, res) => {
 ```
 </TabItem>
 <TabItem value="py" label="Python">
-```python title="Flask callback handler" {4-6,12-16} "authenticate_with_code"
+```python title="Flask callback handler"  "authenticate_with_code" collapse={5-13, 29-34}
 @app.route('/auth/callback')
 def auth_callback():
     code = request.args.get('code')
@@ -113,7 +107,7 @@ def auth_callback():
 ```
 </TabItem>
 <TabItem value="golang" label="Go">
-```go title="Gin callback handler" {4-6,12-16} "AuthenticateWithCode"
+```go title="Gin callback handler" collapse={4-16, 24-30} "AuthenticateWithCode"
 func authCallbackHandler(c *gin.Context) {
     code := c.Query("code")
     errorParam := c.Query("error")
@@ -156,7 +150,7 @@ func authCallbackHandler(c *gin.Context) {
 ```
 </TabItem>
 <TabItem value="java" label="Java">
-```java title="Spring callback handler" {5-7,13-17} "authenticateWithCode"
+```java title="Spring callback handler" collapse={6-15, 31-36} "authenticateWithCode"
 @GetMapping("/auth/callback")
 public Object authCallback(
     @RequestParam(required = false) String code,
@@ -206,4 +200,4 @@ The `authResult` object returned contains:
 
 <AuthResultTabsSection />
 
-The user details are packaged in the form of JWT tokens. You can decode them to get the full user details.
+The authentication response contains user details encoded in JWT tokens. These tokens can be decoded to retrieve comprehensive user information. Additionally, Scalekit automatically stores user details in your environment, enabling easy access at any time.
