@@ -137,12 +137,13 @@ export default defineConfig({
     d2({
       theme: {
         default: '1', // Light theme (Neutral default)
+        dark: '200', // Dark theme for dark mode
       },
-      sketch: true,
+      sketch: true, // Clean, professional diagrams instead of hand-drawn
       appendix: true, // Enable interactive elements (tooltips/links)
       inline: true, // Embed SVG inline to make links clickable
-      layout: 'elk',
-      pad: 3, // Add padding around the diagram (affects overall size)
+      layout: 'elk', // ELK layout engine for better positioning
+      pad: 5,
     }),
   ],
   image: {
