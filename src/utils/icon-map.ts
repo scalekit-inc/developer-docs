@@ -54,6 +54,7 @@ import IconPostman from '~icons/lineicons/postman'
 import IconTablerServerSpark from '~icons/tabler/server-spark'
 import IconStreamlineUserSyncOnlineInPersonRemix from '~icons/streamline/user-sync-online-in-person-remix'
 import IconFluentPeopleCommunity16Regular from '~icons/fluent/people-community-16-regular'
+import IconStreamlinePlumpPaintPalette from '~icons/streamline-plump/paint-palette'
 
 // Miscellaneous
 import IconRipple from '~icons/simple-icons/ripple'
@@ -155,6 +156,7 @@ export const iconMap = {
   sync: IconStreamlineUserSyncOnlineInPersonRemix,
   scim: IconStreamlineUserSyncOnlineInPersonRemix,
   community: IconFluentPeopleCommunity16Regular,
+  theme: IconStreamlinePlumpPaintPalette,
 
   // Miscellaneous
   ripple: IconRipple,
