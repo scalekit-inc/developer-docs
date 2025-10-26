@@ -29,88 +29,137 @@ Authentication isn’t why you started building your app. Whether it’s for hum
 ```d2 inline=true
 direction: right;
 
-a: "Manage Users & Orgs" {
-  link: "/fsa/guides/manage-users"
+# Core authentication flow
+Authenticate {
+  link: "/fsa/quickstart"
+  style.font-size: 35
 }
 
+# User authentication components
 Authenticate.Login {
-  link: "/#for-agent-developers"
+  link: "/fsa/guides/implement-login"
+  style.font-size: 24
+}
+
+Authenticate.Sessions {
+  link: "/fsa/guides/manage-session"
   style.font-size: 24
 }
 
 Authenticate.Logout {
-  link: "/fsa/guides/logout/"
+  link: "/fsa/guides/logout"
   style.font-size: 24
 }
 
-Authenticate.Sessions:{
-  link: "/fsa/guides/manage-session/"
+# Auth methods
+AuthMethods: "Auth Methods" {
+  link: "/authenticate/auth-methods/passwordless"
+  style.font-size: 28
+}
+
+AuthMethods.Passwordless {
+  link: "/authenticate/auth-methods/passwordless"
   style.font-size: 24
 }
 
-Authenticate.Auth Methods: {
-  link: "/#for-app-developers"
+AuthMethods."Social Logins" {
+  link: "/social-logins/quickstart"
   style.font-size: 24
 }
 
-Authenticate {
-  link: "/fsa/quickstart/"
-  style.font-size: 35
+AuthMethods."Enterprise SSO" {
+  link: "/authenticate/auth-methods/enterprise-sso"
+  style.font-size: 24
 }
 
+# User & org management
+UserMgmt: "Manage Users & Orgs" {
+  link: "/fsa/guides/manage-users"
+  style.font-size: 28
+}
 
+UserMgmt."Create Organizations" {
+  link: "/fsa/guides/create-organization"
+  style.font-size: 24
+}
 
-Authenticate -> a
+UserMgmt."Manage Users" {
+  link: "/fsa/guides/manage-users"
+  style.font-size: 24
+}
 
-a."User invitations" {
+UserMgmt."User Invitations" {
   link: "/fsa/guides/user-invitations"
   style.font-size: 24
 }
-a."Provisioning & Deprovisioning" {
-  link: "/directory/scim/quickstart"
-  style.font-size: 24
-}
-a."JIT provisioning" {
-  link: "/fsa/guides/just-in-time-provisioning"
-  style.font-size: 24
-}
 
-Authenticate <> Authorization
+# Authorization
+Authorization {
+  link: "/authenticate/authz/overview"
+  style.font-size: 28
+}
 
 Authorization."Roles & Permissions" {
   link: "/fsa/guides/app-roles"
   style.font-size: 24
 }
 
-Customize."Branding & Themeing" {
+Authorization."Access Control" {
+  link: "/authenticate/authz/implement-access-control"
+  style.font-size: 24
+}
+
+# Customization
+Customize {
+  link: "/guides/auth-flow-interceptors"
+  style.font-size: 28
+}
+
+Customize."Branding & Theming" {
   link: "/fsa/guides/login-page-branding"
   style.font-size: 24
 }
-Customize.Webhooks {
-  link: "/reference/webhooks/directory-events/"
-  style.font-size: 24
-}
+
 Customize.Interceptors {
   link: "/guides/auth-flow-interceptors"
   style.font-size: 24
 }
 
-a <> Customize
-Authorization -> Customize
+Customize.Webhooks {
+  link: "/authenticate/implement-workflows/implement-webhooks"
+  style.font-size: 24
+}
+
+# Deploy & observability
+Deploy {
+  link: "/authenticate/launch-checklist"
+  style.font-size: 28
+}
 
 Deploy."Launch Checklist" {
   link: "/authenticate/launch-checklist"
   style.font-size: 24
 }
 
-Customize -> Deploy
+Observability {
+  link: "/guides/dashboard/auth-logs"
+  style.font-size: 28
+}
 
-Troubleshoot."Auth Logs" {
+Observability."Auth Logs" {
   link: "/guides/dashboard/auth-logs"
   style.font-size: 24
 }
 
-Deploy -> Troubleshoot
+# Flow connections
+Authenticate -> AuthMethods
+Authenticate -> UserMgmt
+UserMgmt -> Authorization
+AuthMethods -> Authorization
+Authorization -> Customize
+Customize -> Deploy
+Customize -> Observability
+
 
 ```
 
