@@ -9,6 +9,8 @@ export interface Props {
   cta?: string
   variant?: 'primary' | 'secondary' | 'minimal'
   showCta?: boolean
+  target?: string
+  rel?: string
 }
 
 import { LinkButton } from 'starlight-theme-nova/components'
@@ -19,6 +21,8 @@ const {
   cta = 'Know more →',
   variant = 'secondary',
   showCta = true,
+  target,
+  rel,
 } = Astro.props
 const Icon = getIconComponent(iconKey)
 ---
@@ -32,7 +36,13 @@ const Icon = getIconComponent(iconKey)
     <slot />
     {
       href && showCta && (
-        <LinkButton href={href} class={`card-cta sk-${variant}`} variant={variant}>
+        <LinkButton
+          href={href}
+          class={`card-cta sk-${variant}`}
+          variant={variant}
+          {...(target && { target })}
+          {...(rel && { rel })}
+        >
           {cta}
         </LinkButton>
       )
