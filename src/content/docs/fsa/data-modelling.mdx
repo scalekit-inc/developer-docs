@@ -1,26 +1,12 @@
 ---
-title: "Organizations overview"
-description: "Understand how to organize users and data in your authenticated application using Scalekit's Organizations and Users model."
+title: "Users, organizations & memberships"
+description: "Learn how Scalekit's data model helps you structure users and organizations in your B2B application, enabling flexible multi-tenant access management"
 sidebar:
   label: "Overview"
-prev:
-  label: "Logout a user"
-  link: "/fsa/guides/logout/"
+prev: false
 next:
-  label: "Create organizations"
+  label: "Learn the ways to create organizations"
   link: "/fsa/guides/create-organization/"
-seeAlso:
-  label: "Related guides"
-  items:
-    - title: "Create organizations"
-      icon: "add-circle"
-      url: "/fsa/guides/create-organization/"
-    - title: "Organization settings"
-      icon: "setting"
-      url: "/fsa/guides/organization-settings/"
-    - title: "Manage users"
-      icon: "user"
-      url: "/fsa/guides/manage-users/"
 head:
   - tag: style
     content: |
@@ -36,11 +22,7 @@ import IconTdesignSequence from '~icons/tdesign/sequence'
 
 Now that you have authentication working, you'll want to organize your users into groups and manage access to your application's features. This guide explains how Scalekit's Organizations and Users model helps you structure your authenticated application for B2B use cases.
 
-Scalekit's B2B data model centers on two first-class API entities: Organizations and Users. Understanding this model will help you decide how to create and manage organizations for your application's users.
-
-## Scalekit's core concepts
-
-Scalekit organizes your application's data into two main components:
+Scalekit's B2B data model centers on two first-class API entities: Organizations and Users.
 
 - **Organizations** represent your application's tenants or workspaces. They are the core of Scalekit's multi-tenant architecture. Each organization can contain multiple users who work together.
 
@@ -68,7 +50,7 @@ Understanding how organizations work will help you decide when and how to create
 Organizations in your application typically manage:
 
 - **User grouping** - Group users who work together and manage team access to features
-- **Data ownership** - Isolate customer data by organization and maintain clear boundaries  
+- **Data ownership** - Isolate customer data by organization and maintain clear boundaries
 - **Billing & subscriptions** - Associate payments with organizations and track usage
 - **Security policies** - Define authentication requirements and control access
 
@@ -76,145 +58,21 @@ Organizations in your application typically manage:
 
 You can customize this meta label to _team_, _workspace_, or _account_ to match your product's terminology. Navigate to Scalekit Dashboard > User management > Settings and update the "Organization" meta name.
 
+For instance, Notion calls these "Notion Workspaces" - collaborative spaces where team members share data, communicate, and work together.
 
-## Connecting organizations to your systems
+## Linking Scalekit IDs to your own systems
 
 Organizations support custom metadata and external IDs to integrate with your existing infrastructure. This lets you store additional information and link organizations to your billing, CRM, or other systems.
 
-### Custom metadata
+- **Custom metadata** stores additional information like subscription plans, billing details, or feature flags. This metadata is included in JWT tokens, making it available throughout your application without additional API calls.
 
-Store additional information like subscription plans, billing details, or feature flags. This metadata is included in JWT tokens, making it available throughout your application without additional API calls.
+- **External IDs** let you identify organizations using your own identifiers instead of Scalekit's generated IDs. This maintains consistent identification across your infrastructure and simplifies integration with billing platforms, CRMs, or customer databases.
 
-<Tabs syncKey="tech-stack">
-<TabItem value="node" label="Node.js">
-```javascript title="Create organization with metadata" {3-6}
-const organization = await scalekit.organization.create({
-  display_name: 'Megasoft Inc',
-  metadata: {
-    invoice_email: 'invoices@megasoft.com',
-    plan_type: 'enterprise',
-    billing_cycle: 'annual'
-  }
-});
+For implementation details and code examples, see the [External identifiers & metadata](/fsa/guides/organization-identifiers/) guide.
 
-console.log('Organization created:', organization.id);
-```
-</TabItem>
-<TabItem value="python" label="Python">
-```python title="Create organization with metadata" {3-7}
-organization = scalekit.organization.create({
-    'display_name': 'Megasoft Inc',
-    'metadata': {
-        'invoice_email': 'invoices@megasoft.com',
-        'plan_type': 'enterprise',
-        'billing_cycle': 'annual'
-    }
-})
 
-print(f'Organization created: {organization.id}')
-```
-</TabItem>
-<TabItem value="go" label="Go">
-```go title="Create organization with metadata" {3-7}
-org, err := scalekit.Organization.Create(OrganizationCreateOptions{
-    DisplayName: "Megasoft Inc",
-    Metadata: map[string]interface{}{
-        "invoice_email":  "invoices@megasoft.com",
-        "plan_type":      "enterprise",
-        "billing_cycle":  "annual",
-    },
-})
 
-fmt.Printf("Organization created: %s\n", org.Id)
-```
-</TabItem>
-<TabItem value="java" label="Java">
-```java title="Create organization with metadata" {2-6}
-Map<String, Object> metadata = Map.of(
-    "invoice_email", "invoices@megasoft.com",
-    "plan_type", "enterprise",
-    "billing_cycle", "annual"
-);
-
-Organization organization = scalekit.organization().create(
-    "Megasoft Inc", null, metadata
-);
-
-System.out.println("Organization created: " + organization.getId());
-```
-</TabItem>
-</Tabs>
-
-### External IDs
-
-Link organizations to your existing systems using external IDs. This maintains consistent identification across your infrastructure and simplifies integration with billing platforms, CRMs, or customer databases.
-
-<Tabs syncKey="tech-stack">
-<TabItem value="node" label="Node.js">
-```javascript title="Create organization with external ID" {3}
-const organization = await scalekit.organization.create({
-  display_name: 'Megasoft Inc',
-  external_id: 'CUST-12345-MGSFT',
-  metadata: {
-    billing_customer_id: 'stripe_cus_abc123'
-  }
-});
-
-// Later, find organization by your ID
-const foundOrg = await scalekit.organization.getByExternalId('CUST-12345-MGSFT');
-```
-</TabItem>
-<TabItem value="python" label="Python">
-```python title="Create organization with external ID" {3}
-organization = scalekit.organization.create({
-    'display_name': 'Megasoft Inc',
-    'external_id': 'CUST-12345-MGSFT',
-    'metadata': {
-        'billing_customer_id': 'stripe_cus_abc123'
-    }
-})
-
-# Later, find organization by your ID
-found_org = scalekit.organization.get_by_external_id('CUST-12345-MGSFT')
-```
-</TabItem>
-<TabItem value="go" label="Go">
-```go title="Create organization with external ID" {3}
-org, err := scalekit.Organization.Create(OrganizationCreateOptions{
-    DisplayName: "Megasoft Inc",
-    ExternalId:  "CUST-12345-MGSFT",
-    Metadata: map[string]interface{}{
-        "billing_customer_id": "stripe_cus_abc123",
-    },
-})
-
-// Later, find organization by your ID
-foundOrg, err := scalekit.Organization.GetByExternalId("CUST-12345-MGSFT")
-```
-</TabItem>
-<TabItem value="java" label="Java">
-```java title="Create organization with external ID" {6}
-Map<String, Object> metadata = Map.of(
-    "billing_customer_id", "stripe_cus_abc123"
-);
-
-Organization organization = scalekit.organization().create(
-    "Megasoft Inc", "CUST-12345-MGSFT", metadata
-);
-
-// Later, find organization by your ID
-Organization foundOrg = scalekit.organization().getByExternalId("CUST-12345-MGSFT");
-```
-</TabItem>
-</Tabs>
-
-## Map users to Scalekit identities
-
-In Scalekit, a **User** is a unified profile that can belong to multiple Organizations. While the core user profile is shared, each Organization membership maintains distinct details like roles, status, and metadata. This allows a user to have different roles and permissions in each Organization they are a part of, while maintaining a single identity.
-
-Your approach to mapping users will depend on your current data model.
-
-### Organization memberships
+## Organization memberships
 
 Scalekit tracks how users belong to organizations through a `memberships` property on each User object. This property contains an array of membership objects that define the user's relationship to each organization they belong to.
 
@@ -293,15 +151,3 @@ Scalekit uses the email address as the unique identifier for a User within an En
 - Scalekit automatically consolidates accounts. If a user logs in with an email and password and later uses Google OAuth with the same email, both authentication methods will be linked to the same User record.
 
 Because of this, you may need to merge duplicate user accounts in your system before migrating to Scalekit. Attempting to create two Users with the same email in the same organization or environment will result in an error.
-
-## Linking Scalekit IDs
-
-You should continue to maintain your own user and group tables and link them to Scalekit by storing the `organization_id` and `user_id` in your database. You can also store your internal identifiers as `external_id` or additional `metadata` fields on the corresponding user objects for a two-way reference.
-
-<CardGrid>
-
-<LinkCard title="Refer to User API" href="https://docs.scalekit.com/apis#tag/users/POST/api/v1/memberships/organizations/{organization_id}/users/{id}" description='Add an existing user to an organization and assign them specific roles and permissions.' />
-
-<LinkCard title="Work with user profiles" href="/fsa/guides/manage-users/" description='Learn about user profile attributes and how to manage user information in Scalekit.' />
-
-</CardGrid>
