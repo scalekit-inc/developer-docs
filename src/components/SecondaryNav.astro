@@ -52,6 +52,16 @@ function isCurrentPage(pathname: string, item: NavItem): boolean {
     return false
   }
 
+  // Special handling for root path '/' - only match exact root, not paths starting with '/'
+  if (item.patterns.includes('/') && pathname !== '/') {
+    // Check if pathname matches any other pattern (excluding '/')
+    const otherPatterns = item.patterns.filter((p) => p !== '/')
+    if (otherPatterns.length > 0) {
+      return startsWithAny(pathname, otherPatterns)
+    }
+    return false
+  }
+
   return startsWithAny(pathname, item.patterns)
 }
 
@@ -105,8 +115,25 @@ const navSections: NavSection[] = [
       {
         href: '/examples',
         label: 'Examples',
-        patterns: ['/examples'],
-        isExact: true,
+        patterns: [
+          '/examples',
+          '/dev-kit/',
+          '/passwordless/',
+          '/social-logins/',
+          '/guides/passwordless/',
+          '/guides/interceptor-scenarios',
+          '/guides/dashboard/redirects',
+          '/guides/external-ids-and-metadata',
+          '/guides/client-credentials-practices',
+          '/guides/webhooks-best-practices',
+          '/guides/idtoken-claims',
+          '/guides/unlisted/passwordless-as-service',
+          '/browse/',
+          '/guides/user-auth/',
+          '/guides/security/',
+          '/guides/m2m/',
+          '/sso/guides/',
+        ],
         iconComponent: IconHugeiconsResourcesAdd,
       },
       {
