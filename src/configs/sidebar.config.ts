@@ -337,7 +337,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Framework integrations',
+        label: 'Integrations',
         items: [
           {
             label: 'Firebase integration',

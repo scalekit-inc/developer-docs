@@ -42,7 +42,7 @@ const CATEGORY_ORDER = [
   'API Auth',
   'Auth modules',
   'Customize workflows',
-  'Framework integrations',
+  'Integrations',
   'Agent & AI examples',
   'SDK examples',
   'Admin portal',
