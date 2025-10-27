@@ -55,7 +55,7 @@ shape: sequence_diagram
 
 "MCP Client" -> "Scalekit": GET /oauth/authorize
 "Scalekit" -> "Your App": 302 to /login\n?login_request_id=<reqid>\n&state=<state>
-"Your App" <> "Your App": Auth user with \n existing auth system
+"Your App" -> "Your App": Auth user with \n existing auth system
 "Your App" -> "Scalekit": POST /auth-requests/<login_request_id>/user
 "Scalekit" -> "Your App": 200 OK
 "Your App" -> "Scalekit": 302 to /partner:callback\n?state=<state>
@@ -77,9 +77,6 @@ shape: sequence_diagram
    https://<SCALEKIT_ENVIRONMENT_URL>/login?login_request_id=<reqid>&state=<state>
    ```
 
-   <Aside type="caution" title="Security requirement">
-     Always validate the `login_request_id` before processing the authentication request. This prevents unauthorized authentication attempts and ensures the request originates from Scalekit.
-   </Aside>
 
 2. ## Authenticate the user in your system
 
@@ -151,7 +148,7 @@ shape: sequence_diagram
    The `state_value` must match the `state` parameter you received in step 1. This ensures the authentication flow's integrity and prevents CSRF attacks.
 
    <Aside type="caution" title="State validation">
-     Always verify that the `state` value you send back matches exactly what you received initially. Mismatched state values indicate a potential security issue and should be rejected.
+     Always verify that the `state` value you send back matches exactly what you received initially. Mismatched state values should be rejected.
    </Aside>
 
 4. ## Complete the OAuth flow
