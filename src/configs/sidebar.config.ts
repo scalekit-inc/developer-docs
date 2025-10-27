@@ -33,7 +33,6 @@ export const sidebar = [
         items: [
           'fsa/data-modelling',
           'fsa/guides/create-organization',
-          'fsa/guides/organization-settings',
           'fsa/guides/manage-users',
           'fsa/guides/custom-user-attributes',
           'authenticate/manage-organizations/add-users-to-organization',
