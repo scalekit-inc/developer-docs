@@ -19,6 +19,9 @@ seeAlso:
     - title: "Browse supported SSO integrations"
       icon: "puzzle"
       url: "/guides/integrations/sso-integrations"
+    - title: "Implementation strategies for SSO login"
+      icon: "book"
+      url: "/sso/guides/add-login-ux-sso/"
 prev: false
 next:
   label: "Explore users & orgs"
@@ -36,11 +39,9 @@ Enterprise single sign-on (SSO) enables users to authenticate using their organi
 
 1. ## Enable SSO for the organization
 
-    When a user creates an organization, they are typically assigned the admin role automatically. This happens when the user signs up using their email address.
+    When a user signs up for your application, Scalekit automatically creates an organization and assigns an admin role to the user. Provide an option in your user interface to enable SSO for the organization or workspace.
 
-    Implement a method in your application to enable SSO for the organization or workspace.
-
-    Use the following SDK method to activate SSO for the organization:
+    Here's how you can do that with Scalekit. Use the following SDK method to activate SSO for the organization:
 
     <Tabs syncKey="tech-stack">
     <TabItem value="node" label="Node.js">
@@ -109,7 +110,7 @@ Enterprise single sign-on (SSO) enables users to authenticate using their organi
 
 3. ## Enable admin portal for enterprise customer onboarding
 
-    After an admin enables SSO, provide a method for configuring the organization's identity provider.
+    After an admin enables SSO, provide a method for configuring a SSO connection with the organization's identity provider.
 
     Scalekit offers two primary approaches:
     - Generate a link to the admin portal from the Scalekit dashboard and share it with organization admins via your usual channels.
@@ -121,14 +122,12 @@ Enterprise single sign-on (SSO) enables users to authenticate using their organi
 
 4. ## Identify and enforce SSO for organization users
 
-    Maintain a unified login experience that dynamically routes users based on their organizational context. [Multiple implementation strategies exist](/sso/guides/add-login-ux-sso/), allowing you to align the authentication flow with your application's user experience design.
-
     Administrators typically register organization-owned domains through the admin portal. When a user attempts to sign in with an email address matching a registered domain, they are automatically redirected to their organization's designated identity provider for authentication.
 
     The Scalekit authorization endpoint supports multiple methods for identifying the appropriate SSO connection, including flexible parameters such as `domain_hint`, `login_hint`, `organizationId`, or `connectionId`. These options provide granular control over the authentication routing process at runtime.
 
     <Aside>
-    When implementing domain-based discovery mechanisms like `domain_hint`, implement a lightweight validation step to prevent unnecessary redirect loops. Refer to the [onboard enterprise customers guide](/fsa/guides/onboard-enterprise-customers/) for comprehensive implementation strategies.
+    When implementing domain-based discovery mechanisms like `domain_hint`, [implement a lightweight validation step](/guides/user-auth/check-sso-domain/) to prevent unnecessary redirect loops.
     </Aside>
 
 5. ## Test your SSO integration
