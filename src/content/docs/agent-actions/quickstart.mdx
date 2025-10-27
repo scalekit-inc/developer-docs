@@ -8,7 +8,7 @@ sidebar:
 
 import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Agent Actions will help enable your AI Agents to take actions in real world applications on behalf of your users. Scalekit automatically handles authorizing your users to grant access to third party applications like Gmail, Calendar, Slack, Notion etc and using our pre-built connectors and tool, lets your AU Agent execute actions like fetching emails, creating calendar events, updating notion pages, sending alerts via Slack etc.
+Agent Actions will help enable your AI Agents to take actions in real world applications on behalf of your users. Scalekit automatically handles authorizing your users to grant access to third party applications like Gmail, Calendar, Slack, Notion etc and using our pre-built connectors and tool, lets your AI Agent execute actions like fetching emails, creating calendar events, updating notion pages, sending alerts via Slack etc.
 
 This quickstart guide will show you how to get started with Agent Actions in just a few minutes. You'll learn how to set up connections, authenticate users, and run your first tools.
 
@@ -29,7 +29,8 @@ Before you start, make sure you have:
 ## Step 1: Set up your environment
 
 First, install the Scalekit Python SDK and initialize the client with your API credentials:
-
+Get Your credentials from  Scalekit dashboard at [app.scalekit.com](https://app.scalekit.com)
+Developers-> Settings -> API Credentials
 <p>
   ```sh showLineNumbers=false frame="none"
   pip install scalekit-sdk-python
@@ -61,7 +62,7 @@ Let's authorize a user to access their Gmail account by creating a connected acc
 # Create a connected account for user if it doesn't exist already
 response = actions.get_or_create_connected_account(
     connection_name="gmail",
-    identifier="user_123"
+    identifier="user_123" #unique identifier for your connected account. can be replaced with your system's user ID
 )
 connected_account = response.connected_account
 print(f'Connected account created: {connected_account.id}')
@@ -97,7 +98,7 @@ emails = actions.execute_tool(
     #connected_account_id= connected_account.id      if using multiple connectors
     identifier="user_123",
     tool='gmail_fetch_mails',
-    parameters={
+    tool_input={
         'query': 'is:unread',
         'max_results': 5
     }
