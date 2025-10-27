@@ -60,6 +60,8 @@ import IconStreamlinePlumpPaintPalette from '~icons/streamline-plump/paint-palet
 import IconRipple from '~icons/simple-icons/ripple'
 import IconReaddotcv from '~icons/simple-icons/readdotcv'
 import IconStreamlinePlumpBusinessProgressBar2 from '~icons/streamline-plump/business-progress-bar-2'
+import IconCarbonEnterprise from '~icons/carbon/enterprise'
+import IconGardenPlatform26 from '~icons/garden/platform-26'
 
 // Auth provider and integration logos
 import IconLogosAuth0 from '~icons/logos/auth0-icon'
@@ -163,6 +165,9 @@ export const iconMap = {
   read: IconReaddotcv,
   blog: IconReaddotcv,
   progress: IconStreamlinePlumpBusinessProgressBar2,
+  enterprise: IconCarbonEnterprise,
+  company: IconCarbonEnterprise,
+  platform: IconGardenPlatform26,
 
   // Auth provider and integration logos
   auth0: IconLogosAuth0,
