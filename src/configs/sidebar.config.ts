@@ -20,6 +20,7 @@ export const sidebar = [
               'fsa/guides/auth-methods',
               'fsa/guides/passwordless',
               'fsa/guides/social-logins',
+              'authenticate/auth-methods/passkeys',
               'fsa/guides/enterprise-sso',
             ],
           },

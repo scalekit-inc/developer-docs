@@ -1,0 +1,61 @@
+---
+title: Add passkeys login method
+description: Enable passkey authentication for your users
+slug: 'authenticate/auth-methods/passkeys'
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+sidebar:
+  label: "Passkeys"
+  text: "New"
+---
+
+import { Card, Badge, Steps, Aside } from '@astrojs/starlight/components'
+
+
+Passkeys replace passwords with biometric authentication (fingerprint, face recognition) or device PINs.
+
+Your [existing integration](/fsa/quickstart/) works with passkeys without code changes. Built on FIDO® standards (WebAuthn and CTAP), passkeys offer superior security by eliminating phishing vulnerabilities while improving user experience. Unlike traditional authentication methods, passkeys sync across devices, removing the need for multiple enrollments and providing better recovery options when devices are lost.
+
+To use passkeys, users must signed up using one of the existing authentication methods such as [verification codes, magic links](/authenticate/auth-methods/passwordless/) or [social logins](/social-logins/quickstart/).
+
+
+## Enable users to register passkeys
+
+<Steps>
+1. Go to Scalekit Dashboard > Authentication > Auth methods > Passkeys and click "Enable"
+
+    ![](@/assets/docs/passkeys/enable-btn.png "Enable Passkeys button")
+
+2. To enable users to register and manage their passkeys, redirect them to the Scalekit passkey registration page.
+
+    ```js title="Passkey Registration URL" showLineNumbers=false
+    <SCALEKIT_ENVIRONMENT_URL>/ui/profile/passkeys
+    ```
+    The `SCALEKIT_ENVIRONMENT_URL` is your Scalekit tenant URL.
+
+    This opens a page where users can:
+    - Register new passkeys
+    - Remove existing passkeys
+    - View their registered passkeys
+
+    ![](@/assets/docs/passkeys/registration-page.png "Passkey registration page in Scalekit UI")
+
+</Steps>
+
+## Users can login with passkeys
+
+Users who have registered passkeys can login with them.
+
+This time when login page shows, users can select "Passkey" as the authentication method.
+
+![](@/assets/docs/passkeys/passkey-login.png)
+
+<Aside>
+
+Scalekit authenticates users through the browser's native passkey API. This API prompts users to authenticate with device-supported passkeys — such as fingerprint, PIN, or password managers.
+
+</Aside>
