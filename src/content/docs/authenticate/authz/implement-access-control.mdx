@@ -91,19 +91,19 @@ Before checking permissions, you need to validate and decode the access token to
 <Steps>
 
 1. **Extract the access token from the request**
-   
+
    Get the access token from cookies, headers, or wherever your application stores it
 
 2. **Validate the token**
-   
+
    Use the Scalekit SDK to verify the token's signature and expiration
 
 3. **Decode the token**
-   
+
    Extract the roles and permissions from the validated token
 
 4. **Check authorization**
-   
+
    Use the roles and permissions to make access control decisions
 
 </Steps>
@@ -121,17 +121,17 @@ const validateAndExtractAuth = async (req, res, next) => {
   try {
     // Extract access token from cookie (decrypt if needed)
     const accessToken = decrypt(req.cookies.accessToken);
-    
+
     // Validate the token using Scalekit SDK
     const isValid = await scalekit.validateAccessToken(accessToken);
-    
+
     if (!isValid) {
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
-    
+
     // Decode token to get roles and permissions
     const tokenData = await scalekit.decodeAccessToken(accessToken);
-    
+
     // Make authorization data available to route handlers
     req.user = {
       id: tokenData.sub,
@@ -139,7 +139,7 @@ const validateAndExtractAuth = async (req, res, next) => {
       roles: tokenData.roles || [],
       permissions: tokenData.permissions || []
     };
-    
+
     next();
   } catch (error) {
     return res.status(401).json({ error: 'Authentication failed' });
@@ -163,16 +163,16 @@ def validate_and_extract_auth(f):
         try:
             # Extract access token from cookie (decrypt if needed)
             access_token = decrypt(request.cookies.get('accessToken'))
-            
+
             # Validate the token using Scalekit SDK
             is_valid = scalekit_client.validate_access_token(access_token)
-            
+
             if not is_valid:
                 return jsonify({'error': 'Invalid or expired token'}), 401
-            
+
             # Decode token to get roles and permissions
             token_data = scalekit_client.decode_access_token(access_token)
-            
+
             # Make authorization data available to route handlers
             request.user = {
                 'id': token_data.get('sub'),
@@ -180,11 +180,11 @@ def validate_and_extract_auth(f):
                 'roles': token_data.get('roles', []),
                 'permissions': token_data.get('permissions', [])
             }
-            
+
             return f(*args, **kwargs)
         except Exception as e:
             return jsonify({'error': 'Authentication failed'}), 401
-    
+
     return decorated_function
 ```
 
@@ -209,27 +209,27 @@ func validateAndExtractAuth(next http.HandlerFunc) http.HandlerFunc {
             http.Error(w, `{"error": "No access token provided"}`, http.StatusUnauthorized)
             return
         }
-        
+
         accessToken, err := decrypt(cookie.Value)
         if err != nil {
             http.Error(w, `{"error": "Token decryption failed"}`, http.StatusUnauthorized)
             return
         }
-        
+
         // Validate the token using Scalekit SDK
         isValid, err := scalekitClient.ValidateAccessToken(accessToken)
         if err != nil || !isValid {
             http.Error(w, `{"error": "Invalid or expired token"}`, http.StatusUnauthorized)
             return
         }
-        
+
         // Decode token to get roles and permissions
         tokenData, err := scalekitClient.DecodeAccessToken(accessToken)
         if err != nil {
             http.Error(w, `{"error": "Token decode failed"}`, http.StatusUnauthorized)
             return
         }
-        
+
         // Add authorization data to request context
         user := map[string]interface{}{
             "id":             tokenData["sub"],
@@ -237,7 +237,7 @@ func validateAndExtractAuth(next http.HandlerFunc) http.HandlerFunc {
             "roles":          tokenData["roles"],
             "permissions":    tokenData["permissions"],
         }
-        
+
         ctx := context.WithValue(r.Context(), "user", user)
         next(w, r.WithContext(ctx))
     }
@@ -258,7 +258,7 @@ import java.util.HashMap;
 @Component
 public class AuthorizationInterceptor implements HandlerInterceptor {
     private final ScalekitClient scalekit;
-    
+
     @Override
     public boolean preHandle(
         HttpServletRequest request,
@@ -269,29 +269,29 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
             // Extract access token from cookie (decrypt if needed)
             String accessToken = getCookieValue(request, "accessToken");
             String decryptedToken = decrypt(accessToken);
-            
+
             // Validate the token using Scalekit SDK
             boolean isValid = scalekit.authentication().validateAccessToken(decryptedToken);
-            
+
             if (!isValid) {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
                 return false;
             }
-            
+
             // Decode token to get roles and permissions
             Map<String, Object> tokenData = scalekit.authentication().decodeAccessToken(decryptedToken);
-            
+
             // Make authorization data available to controllers
             Map<String, Object> user = new HashMap<>();
             user.put("id", tokenData.get("sub"));
             user.put("organizationId", tokenData.get("oid"));
             user.put("roles", tokenData.get("roles"));
             user.put("permissions", tokenData.get("permissions"));
-            
+
             request.setAttribute("user", user);
             return true;
-            
+
         } catch (Exception e) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.getWriter().write("{\"error\": \"Authentication failed\"}");
@@ -321,8 +321,8 @@ function hasPermission(user, requiredPermission) {
 function requirePermission(permission) {
   return (req, res, next) => {
     if (!hasPermission(req.user, permission)) {
-      return res.status(403).json({ 
-        error: `Access denied. Required permission: ${permission}` 
+      return res.status(403).json({
+        error: `Access denied. Required permission: ${permission}`
       });
     }
     next();
@@ -344,12 +344,12 @@ app.post('/api/projects', validateAndExtractAuth, requirePermission('projects:cr
 // Multiple permission check
 app.delete('/api/projects/:id', validateAndExtractAuth, (req, res) => {
   const user = req.user;
-  
+
   // Check if user has either admin role or specific delete permission
   if (!hasPermission(user, 'projects:delete') && !user.roles.includes('admin')) {
     return res.status(403).json({ error: 'Cannot delete projects' });
   }
-  
+
   deleteProject(req.params.id, user.organizationId);
   res.json({ success: true });
 });
@@ -397,11 +397,11 @@ def create_project():
 @validate_and_extract_auth
 def delete_project(project_id):
     user = request.user
-    
+
     # Check if user has either admin role or specific delete permission
     if not has_permission(user, 'projects:delete') and 'admin' not in user.get('roles', []):
         return jsonify({'error': 'Cannot delete projects'}), 403
-    
+
     delete_project_from_org(project_id, user['organization_id'])
     return jsonify({'success': True})
 ```
@@ -416,7 +416,7 @@ func hasPermission(user map[string]interface{}, requiredPermission string) bool 
     if !ok {
         return false
     }
-    
+
     for _, perm := range permissions {
         if permStr, ok := perm.(string); ok && permStr == requiredPermission {
             return true
@@ -430,12 +430,12 @@ func requirePermission(permission string) func(http.HandlerFunc) http.HandlerFun
     return func(next http.HandlerFunc) http.HandlerFunc {
         return func(w http.ResponseWriter, r *http.Request) {
             user := r.Context().Value("user").(map[string]interface{})
-            
+
             if !hasPermission(user, permission) {
                 http.Error(w, fmt.Sprintf(`{"error": "Access denied. Required permission: %s"}`, permission), http.StatusForbidden)
                 return
             }
-            
+
             next(w, r)
         }
     }
@@ -445,7 +445,7 @@ func requirePermission(permission string) func(http.HandlerFunc) http.HandlerFun
 func getProjectsHandler(w http.ResponseWriter, r *http.Request) {
     user := r.Context().Value("user").(map[string]interface{})
     orgId := user["organization_id"].(string)
-    
+
     // User has projects:read permission - allow access
     projects := getProjectsForOrg(orgId)
     json.NewEncoder(w).Encode(projects)
@@ -454,11 +454,11 @@ func getProjectsHandler(w http.ResponseWriter, r *http.Request) {
 func createProjectHandler(w http.ResponseWriter, r *http.Request) {
     user := r.Context().Value("user").(map[string]interface{})
     orgId := user["organization_id"].(string)
-    
+
     // User has projects:create permission - allow creation
     var projectData map[string]interface{}
     json.NewDecoder(r.Body).Decode(&projectData)
-    
+
     newProject := createProjectForOrg(projectData, orgId)
     json.NewEncoder(w).Encode(newProject)
 }
@@ -474,43 +474,43 @@ http.HandleFunc("/api/projects/create", validateAndExtractAuth(requirePermission
 ```java title="Permission-based access control" wrap {3-8,11-20,24-27,31-34}
 @RestController
 public class ProjectController {
-    
+
     // Helper method to check permissions
     private boolean hasPermission(Map<String, Object> user, String requiredPermission) {
         List<String> permissions = (List<String>) user.get("permissions");
         return permissions != null && permissions.contains(requiredPermission);
     }
-    
+
     // Annotation-based permission checking
     @GetMapping("/api/projects")
     @PreAuthorize("hasPermission('projects:read')")
     public ResponseEntity<List<Project>> getProjects(HttpServletRequest request) {
         Map<String, Object> user = (Map<String, Object>) request.getAttribute("user");
         String orgId = (String) user.get("organizationId");
-        
+
         // User has projects:read permission - allow access
         List<Project> projects = projectService.getProjectsForOrg(orgId);
         return ResponseEntity.ok(projects);
     }
-    
+
     @PostMapping("/api/projects")
     public ResponseEntity<Project> createProject(
         @RequestBody CreateProjectRequest request,
         HttpServletRequest httpRequest
     ) {
         Map<String, Object> user = (Map<String, Object>) httpRequest.getAttribute("user");
-        
+
         // Check permission manually
         if (!hasPermission(user, "projects:create")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(null);
         }
-        
+
         String orgId = (String) user.get("organizationId");
         Project newProject = projectService.createProject(request, orgId);
         return ResponseEntity.ok(newProject);
     }
-    
+
     @DeleteMapping("/api/projects/{projectId}")
     public ResponseEntity<Map<String, Boolean>> deleteProject(
         @PathVariable String projectId,
@@ -518,13 +518,13 @@ public class ProjectController {
     ) {
         Map<String, Object> user = (Map<String, Object>) request.getAttribute("user");
         List<String> roles = (List<String>) user.get("roles");
-        
+
         // Check if user has either admin role or specific delete permission
         if (!hasPermission(user, "projects:delete") && !roles.contains("admin")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(Map.of("error", true));
         }
-        
+
         String orgId = (String) user.get("organizationId");
         projectService.deleteProject(projectId, orgId);
         return ResponseEntity.ok(Map.of("success", true));
@@ -552,8 +552,8 @@ function hasRole(user, requiredRole) {
 function requireRole(role) {
   return (req, res, next) => {
     if (!hasRole(req.user, role)) {
-      return res.status(403).json({ 
-        error: `Access denied. Required role: ${role}` 
+      return res.status(403).json({
+        error: `Access denied. Required role: ${role}`
       });
     }
     next();
@@ -569,12 +569,12 @@ app.get('/api/admin/users', validateAndExtractAuth, requireRole('admin'), (req, 
 // Multiple role check
 app.post('/api/admin/invite-user', validateAndExtractAuth, (req, res) => {
   const user = req.user;
-  
+
   // Allow admins or managers to invite users
   if (!hasRole(user, 'admin') && !hasRole(user, 'manager')) {
     return res.status(403).json({ error: 'Only admins and managers can invite users' });
   }
-  
+
   const invitation = createUserInvitation(req.body, user.organizationId);
   res.json(invitation);
 });
@@ -614,11 +614,11 @@ def get_all_users():
 @validate_and_extract_auth
 def invite_user():
     user = request.user
-    
+
     # Allow admins or managers to invite users
     if not has_role(user, 'admin') and not has_role(user, 'manager'):
         return jsonify({'error': 'Only admins and managers can invite users'}), 403
-    
+
     invitation = create_user_invitation(request.json, user['organization_id'])
     return jsonify(invitation)
 ```
@@ -633,7 +633,7 @@ func hasRole(user map[string]interface{}, requiredRole string) bool {
     if !ok {
         return false
     }
-    
+
     for _, role := range roles {
         if roleStr, ok := role.(string); ok && roleStr == requiredRole {
             return true
@@ -647,12 +647,12 @@ func requireRole(role string) func(http.HandlerFunc) http.HandlerFunc {
     return func(next http.HandlerFunc) http.HandlerFunc {
         return func(w http.ResponseWriter, r *http.Request) {
             user := r.Context().Value("user").(map[string]interface{})
-            
+
             if !hasRole(user, role) {
                 http.Error(w, fmt.Sprintf(`{"error": "Access denied. Required role: %s"}`, role), http.StatusForbidden)
                 return
             }
-            
+
             next(w, r)
         }
     }
@@ -662,7 +662,7 @@ func requireRole(role string) func(http.HandlerFunc) http.HandlerFunc {
 func getAllUsersHandler(w http.ResponseWriter, r *http.Request) {
     user := r.Context().Value("user").(map[string]interface{})
     orgId := user["organization_id"].(string)
-    
+
     // Only admin users can access this endpoint
     users := getAllUsersForOrg(orgId)
     json.NewEncoder(w).Encode(users)
@@ -678,40 +678,40 @@ http.HandleFunc("/api/admin/users", validateAndExtractAuth(requireRole("admin")(
 ```java title="Role-based access control" wrap {3-8,11-20}
 @RestController
 public class AdminController {
-    
+
     // Helper method to check roles
     private boolean hasRole(Map<String, Object> user, String requiredRole) {
         List<String> roles = (List<String>) user.get("roles");
         return roles != null && roles.contains(requiredRole);
     }
-    
+
     // Admin-only endpoint
     @GetMapping("/api/admin/users")
     public ResponseEntity<List<User>> getAllUsers(HttpServletRequest request) {
         Map<String, Object> user = (Map<String, Object>) request.getAttribute("user");
-        
+
         // Check for admin role
         if (!hasRole(user, "admin")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        
+
         String orgId = (String) user.get("organizationId");
         List<User> users = userService.getAllUsersForOrg(orgId);
         return ResponseEntity.ok(users);
     }
-    
+
     @PostMapping("/api/admin/invite-user")
     public ResponseEntity<Invitation> inviteUser(
         @RequestBody InviteUserRequest request,
         HttpServletRequest httpRequest
     ) {
         Map<String, Object> user = (Map<String, Object>) httpRequest.getAttribute("user");
-        
+
         // Allow admins or managers to invite users
         if (!hasRole(user, "admin") && !hasRole(user, "manager")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        
+
         String orgId = (String) user.get("organizationId");
         Invitation invitation = userService.createInvitation(request, orgId);
         return ResponseEntity.ok(invitation);
@@ -736,17 +736,17 @@ function canManageProjects(user) {
   if (hasRole(user, 'admin')) {
     return true;
   }
-  
+
   // Project managers with specific permission can manage
   if (hasRole(user, 'project_manager') && hasPermission(user, 'projects:manage')) {
     return true;
   }
-  
+
   // Users with explicit project management permission
   if (hasPermission(user, 'projects:create') && hasPermission(user, 'projects:update')) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -754,17 +754,17 @@ function canManageProjects(user) {
 function canAccessProject(user, projectId) {
   // Get project details to check ownership/membership
   const project = getProject(projectId);
-  
+
   // Project owner or admin can always access
   if (project.ownerId === user.id || hasRole(user, 'admin')) {
     return true;
   }
-  
+
   // Team members with read permission can access
   if (project.teamMembers.includes(user.id) && hasPermission(user, 'projects:read')) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -774,7 +774,7 @@ function canInviteUsers(user, organizationSettings) {
   if (!organizationSettings.allowUserInvitations) {
     return false;
   }
-  
+
   // Check user permissions
   return hasPermission(user, 'users:invite') || hasRole(user, 'admin') || hasRole(user, 'manager');
 }
@@ -783,11 +783,11 @@ function canInviteUsers(user, organizationSettings) {
 app.get('/api/projects/:id', validateAndExtractAuth, (req, res) => {
   const user = req.user;
   const projectId = req.params.id;
-  
+
   if (!canAccessProject(user, projectId)) {
     return res.status(403).json({ error: 'Access denied to this project' });
   }
-  
+
   const project = getProject(projectId);
   res.json(project);
 });
@@ -802,30 +802,30 @@ def can_manage_projects(user):
     # Admins can always manage projects
     if has_role(user, 'admin'):
         return True
-    
+
     # Project managers with specific permission can manage
     if has_role(user, 'project_manager') and has_permission(user, 'projects:manage'):
         return True
-    
+
     # Users with explicit project management permission
     if has_permission(user, 'projects:create') and has_permission(user, 'projects:update'):
         return True
-    
+
     return False
 
 # Resource-specific access control
 def can_access_project(user, project_id):
     # Get project details to check ownership/membership
     project = get_project(project_id)
-    
+
     # Project owner or admin can always access
     if project['owner_id'] == user['id'] or has_role(user, 'admin'):
         return True
-    
+
     # Team members with read permission can access
     if user['id'] in project['team_members'] and has_permission(user, 'projects:read'):
         return True
-    
+
     return False
 
 # Conditional access based on organization settings
@@ -833,10 +833,10 @@ def can_invite_users(user, organization_settings):
     # Check organization-level restrictions
     if not organization_settings.get('allow_user_invitations', False):
         return False
-    
+
     # Check user permissions
-    return (has_permission(user, 'users:invite') or 
-            has_role(user, 'admin') or 
+    return (has_permission(user, 'users:invite') or
+            has_role(user, 'admin') or
             has_role(user, 'manager'))
 
 # Route with advanced access control
@@ -844,10 +844,10 @@ def can_invite_users(user, organization_settings):
 @validate_and_extract_auth
 def get_project(project_id):
     user = request.user
-    
+
     if not can_access_project(user, project_id):
         return jsonify({'error': 'Access denied to this project'}), 403
-    
+
     project = get_project_data(project_id)
     return jsonify(project)
 ```
@@ -862,17 +862,17 @@ func canManageProjects(user map[string]interface{}) bool {
     if hasRole(user, "admin") {
         return true
     }
-    
+
     // Project managers with specific permission can manage
     if hasRole(user, "project_manager") && hasPermission(user, "projects:manage") {
         return true
     }
-    
+
     // Users with explicit project management permission
     if hasPermission(user, "projects:create") && hasPermission(user, "projects:update") {
         return true
     }
-    
+
     return false
 }
 
@@ -880,12 +880,12 @@ func canManageProjects(user map[string]interface{}) bool {
 func canAccessProject(user map[string]interface{}, projectID string) bool {
     // Get project details to check ownership/membership
     project := getProject(projectID)
-    
+
     // Project owner or admin can always access
     if project.OwnerID == user["id"] || hasRole(user, "admin") {
         return true
     }
-    
+
     // Team members with read permission can access
     userID := user["id"].(string)
     for _, memberID := range project.TeamMembers {
@@ -893,7 +893,7 @@ func canAccessProject(user map[string]interface{}, projectID string) bool {
             return true
         }
     }
-    
+
     return false
 }
 
@@ -901,12 +901,12 @@ func canAccessProject(user map[string]interface{}, projectID string) bool {
 func getProjectHandler(w http.ResponseWriter, r *http.Request) {
     user := r.Context().Value("user").(map[string]interface{})
     projectID := mux.Vars(r)["id"]
-    
+
     if !canAccessProject(user, projectID) {
         http.Error(w, `{"error": "Access denied to this project"}`, http.StatusForbidden)
         return
     }
-    
+
     project := getProject(projectID)
     json.NewEncoder(w).Encode(project)
 }
@@ -918,66 +918,66 @@ func getProjectHandler(w http.ResponseWriter, r *http.Request) {
 ```java title="Advanced access control patterns" wrap {3-18,21-30,33-42}
 @Service
 public class AccessControlService {
-    
+
     // Combined role and permission checking
     public boolean canManageProjects(Map<String, Object> user) {
         // Admins can always manage projects
         if (hasRole(user, "admin")) {
             return true;
         }
-        
+
         // Project managers with specific permission can manage
         if (hasRole(user, "project_manager") && hasPermission(user, "projects:manage")) {
             return true;
         }
-        
+
         // Users with explicit project management permission
         return hasPermission(user, "projects:create") && hasPermission(user, "projects:update");
     }
-    
+
     // Resource-specific access control
     public boolean canAccessProject(Map<String, Object> user, String projectId) {
         // Get project details to check ownership/membership
         Project project = projectService.getProject(projectId);
-        
+
         // Project owner or admin can always access
         if (project.getOwnerId().equals(user.get("id")) || hasRole(user, "admin")) {
             return true;
         }
-        
+
         // Team members with read permission can access
         String userId = (String) user.get("id");
         return project.getTeamMembers().contains(userId) && hasPermission(user, "projects:read");
     }
-    
+
     // Conditional access based on organization settings
     public boolean canInviteUsers(Map<String, Object> user, OrganizationSettings settings) {
         // Check organization-level restrictions
         if (!settings.isAllowUserInvitations()) {
             return false;
         }
-        
+
         // Check user permissions
-        return hasPermission(user, "users:invite") || 
-               hasRole(user, "admin") || 
+        return hasPermission(user, "users:invite") ||
+               hasRole(user, "admin") ||
                hasRole(user, "manager");
     }
 }
 
 @RestController
 public class ProjectController {
-    
+
     @GetMapping("/api/projects/{projectId}")
     public ResponseEntity<Project> getProject(
         @PathVariable String projectId,
         HttpServletRequest request
     ) {
         Map<String, Object> user = (Map<String, Object>) request.getAttribute("user");
-        
+
         if (!accessControlService.canAccessProject(user, projectId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        
+
         Project project = projectService.getProject(projectId);
         return ResponseEntity.ok(project);
     }
@@ -986,12 +986,3 @@ public class ProjectController {
 
 </TabItem>
 </Tabs>
-
-
-## Next steps
-
-You now have a complete authorization system with permissions, roles, and runtime access control. Consider these additional security and user experience improvements:
-
-- [Session management best practices](/fsa/guides/manage-session/) - Optimize token handling and refresh strategies
-- [Custom user attributes](/fsa/guides/custom-user-attributes/) - Store additional authorization context
-- [Organization settings](/fsa/guides/organization-settings/) - Configure organization-specific access rules
