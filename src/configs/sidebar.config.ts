@@ -243,6 +243,7 @@ export const sidebar = [
         items: [
           'fsa/guides/signup-restrictions',
           'fsa/guides/user-invitations',
+          'guides/user-management/manage-org-memberships',
           'fsa/guides/migration-guide',
           'fsa/guides/merge-identities',
           'fsa/reference/user-management-settings',
