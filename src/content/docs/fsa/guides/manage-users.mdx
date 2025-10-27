@@ -1,5 +1,5 @@
 ---
-title: Overview of user profiles in Scalekit
+title: Manage user profiles
 description: "How users join, switch, and leave organizations (a.k.a workspaces)"
 sidebar:
   label: 'Manage user profiles'
@@ -16,22 +16,13 @@ seeAlso:
   label: "Related guides"
   items:
    - title: "Design your data model"
-     icon: "information"
+     icon: "book"
      url: "/fsa/data-modelling/"
-   - title: "Custom user attributes"
-     icon: "setting"
-     url: "/fsa/guides/custom-user-attributes/"
    - title: "External identifiers & metadata"
-     icon: "external"
+     icon: "book"
      url: "/fsa/guides/organization-identifiers/"
-   - title: "External ID system integration"
-     icon: "rocket"
-     url: "/guides/user-auth/external-id-system-integration/"
-   - title: "Organization switching"
-     icon: "switch"
-     url: "/fsa/guides/organization-switching/"
    - title: "User API reference"
-     icon: "external"
+     icon: "api"
      url: "https://docs.scalekit.com/apis/#tag/users"
 prev:
   label: 'Manage user sessions'
@@ -48,11 +39,11 @@ import IconMaterialSymbolsArticlePersonRounded from '~icons/material-symbols/art
 import IconLucideFileJson from '~icons/lucide/file-json';
 
 
+When a user signs up for your application, Scalekit automatically generates a user profile and associated organization.
 
-Scalekit automatically creates a user profile and organization when someone signs up for your app. Users can belong to multiple organizations (also called workspaces) with different roles and permissions in each one. Each user needs appropriate access controls based on their organization and role.
+Users can be members of multiple organizations, with distinct roles and permissions for each. Access controls are dynamically assigned based on the user's organizational context and specific role.
 
-<details open>
-<summary><IconMaterialSymbolsArticlePersonRounded style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Show me the User data model</summary>
+Explore the following example of Scalekit's user data model:
 
 ```d2
 direction: right;
@@ -121,8 +112,6 @@ Membership.id -> Role.membership_id: {
 }
 ```
 
-</details>
-
 
 
 <details>
@@ -189,7 +178,9 @@ Membership.id -> Role.membership_id: {
 
 ## Manage users and memberships in the Scalekit dashboard
 
-Manage users through the Scalekit dashboard at **Dashboard** > **Users**. The dashboard provides these user management capabilities:
+The Scalekit dashboard provides a fast, centralized way to manage users across organizations. Quickly view user lists, edit profile details, and update access controls—all from a single interface.
+
+Go to **Dashboard** > **Users**
 
 - Create users directly
 - Invite users to join an organization
@@ -198,26 +189,199 @@ Manage users through the Scalekit dashboard at **Dashboard** > **Users**. The da
 - Update user information and role assignments
 - View active and inactive users
 
-To add custom fields to user profiles, navigate to **Dashboard** > **User Attributes**. Create new fields to store additional user information. Access these fields programmatically in your application. Map them to identity provider attributes to automatically populate user profiles in Scalekit.
+If the default fields for a user object are not sufficient, you can even add custom fields to user profiles, navigate to **Dashboard** > **User Attributes** or refer to the [custom user attributes](/fsa/guides/custom-user-attributes/).
 
-For comprehensive guidance on custom attributes, see the [custom user attributes guide](/fsa/guides/custom-user-attributes/).
+## Manage users and memberships <Badge text="API" variant="tip" />
 
+While the dashboard is useful for manual operations, most applications need to manage users programmatically to integrate with existing systems. The examples below demonstrate common user management operations.
 
-## Common user management workflows
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
 
-Most applications need to manage users programmatically to integrate with existing systems and provide seamless user experiences. Scalekit provides several approaches for different user management scenarios:
+```javascript title="List, create, invite, update, and delete users programmatically" frame="terminal"
+// 1. Install the Scalekit SDK
 
-- **Adding users to organizations** - Create and invite users through dashboard, SDK/API, domain-based discovery, or automated provisioning
-- **Managing user profiles** - Update personal information, custom attributes, and system integration data
-- **Managing memberships** - Control user access to organizations, assign roles, and handle permissions
-- **External system integration** - Sync users with CRM, HR systems, and other business applications
+// 2. Create an organization
+// Use case: When a new company signs up for your B2B application
+const {
+  organization: {
+    id: organizationId
+  }
+} = await scalekit.organization.createOrganization("Megasoft");
 
-For detailed implementation guides, see:
+// 3. Create a user and send invitation email
+// Use case: HR system integration, bulk user imports, or admin-initiated account creation
+const { user } = await scalekit.user.createUserAndMembership("<organizationId>", {
+  email: "user@example.com",
+  userProfile: {
+    firstName: "John",
+    lastName: "Doe",
+  },
+  sendInvitationEmail: true
+});
 
-<LinkCard title="Add users to organizations" href="/authenticate/manage-organizations/add-users-to-organization/" description="Complete guide covering dashboard, API, domain-based, and automated user addition methods" />
+// 4. List users in an organization
+// Use case: Display user directory, security audits, billing calculations, or compliance reporting
+const { users } = await scalekit.user.listOrganizationUsers("<organizationId>");
 
-<LinkCard title="User API reference" href="https://docs.scalekit.com/apis/#tag/users" description="Complete API documentation for user management operations" />
+// 5. Update user profile
+// Use case: Sync changes from external systems, or when users update their profile information
+await scalekit.user.updateUser("<users[0].id>", {
+  userProfile: {
+    firstName: "John",
+    lastName: "Smith", // Updated last name
+  },
+});
 
-<LinkCard title="Custom user attributes" href="/fsa/guides/custom-user-attributes/" description="Store additional business information in user profiles" />
+// 6. Delete user permanently
+// Use case: User account closure, GDPR deletion requests, or cleaning up test accounts
+await scalekit.user.deleteUser("<users[0].id>");
+```
 
-For system integration requirements like external IDs and metadata for users, see the [organization identifiers guide](/fsa/guides/organization-identifiers/) which covers both organization and user external identifier patterns.
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="List, create, invite, update, and delete users programmatically" frame="terminal"
+organization = scalekit.organization.create_organization("Megasoft")
+organization_id = organization.id
+user_response = scalekit.user.create_user_and_membership(
+    "<organization_id>",
+    email="user@example.com",
+    user_profile={
+        "first_name": "John",
+        "last_name": "Doe"
+    },
+    send_invitation_email=True
+)
+users_response = scalekit.user.list_organization_users("<organization_id>")
+scalekit.user.update_user(
+    "<users_response.users[0].id>",
+    user_profile={
+        "first_name": "John",
+        "last_name": "Smith"  # Updated last name
+    }
+)
+scalekit.user.delete_user("<users_response.users[0].id>")
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="List, create, invite, update, and delete users programmatically" frame="terminal"
+// 1. Install the Scalekit SDK
+
+// 2. Create an organization
+// Use case: When a new company signs up for your B2B application
+organization, err := scalekitClient.Organization.CreateOrganization(
+    ctx,
+    "Megasoft",
+    scalekit.CreateOrganizationOptions{},
+)
+
+// 3. Create a user and send invitation email
+// Use case: HR system integration, bulk user imports, or admin-initiated account creation
+newUser := &usersv1.CreateUser{
+    Email: "user@example.com",
+    UserProfile: &usersv1.CreateUserProfile{
+        FirstName: "John",
+        LastName:  "Doe",
+    },
+}
+userResp, err := scalekitClient.User().CreateUserAndMembership(
+    ctx,
+    "<organization.Id>",
+    newUser,
+    true, // sendInvitationEmail
+)
+
+// 4. List users in an organization
+// Use case: Display user directory, security audits, billing calculations, or compliance reporting
+users, err := scalekitClient.User().ListOrganizationUsers(
+    ctx,
+    "<organization.Id>",
+    &scalekit.ListUsersOptions{},
+)
+
+// 5. Update user profile
+// Use case: Sync changes from external systems, or when users update their profile information
+updateUser := &usersv1.UpdateUser{
+    UserProfile: &usersv1.UpdateUserProfile{
+        FirstName: "John",
+        LastName:  "Smith", // Updated last name
+    },
+}
+scalekitClient.User().UpdateUser(ctx, "<users.Users[0].Id>", updateUser)
+
+// 6. Delete user permanently
+// Use case: User account closure, GDPR deletion requests, or cleaning up test accounts
+err = scalekitClient.User().DeleteUser(ctx, "<users.Users[0].Id>")
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="List, create, invite, update, and delete users programmatically" frame="terminal"
+// 1. Install the Scalekit SDK
+
+// 2. Create an organization
+// Use case: When a new company signs up for your B2B application
+CreateOrganization createOrganization = CreateOrganization.newBuilder()
+    .setDisplayName("Megasoft")
+    .build();
+
+Organization organization = scalekitClient.organizations().create(createOrganization);
+
+// 3. Create a user and send invitation email
+// Use case: HR system integration, bulk user imports, or admin-initiated account creation
+CreateUser createUser = CreateUser.newBuilder()
+    .setEmail("user@example.com")
+    .setUserProfile(
+        CreateUserProfile.newBuilder()
+            .setFirstName("John")
+            .setLastName("Doe")
+            .build())
+    .build();
+
+CreateUserAndMembershipRequest createUserReq = CreateUserAndMembershipRequest.newBuilder()
+    .setUser(createUser)
+    .setSendInvitationEmail(true)
+    .build();
+
+CreateUserAndMembershipResponse userResp = scalekitClient.users()
+    .createUserAndMembership("<organization.getId()>", createUserReq);
+
+// 4. List users in an organization
+// Use case: Display user directory, security audits, billing calculations, or compliance reporting
+ListOrganizationUsersRequest listReq = ListOrganizationUsersRequest.newBuilder()
+    .build();
+
+ListOrganizationUsersResponse users = scalekitClient.users()
+    .listOrganizationUsers("<organization.getId()>", listReq);
+
+// 5. Update user profile
+// Use case: Sync changes from external systems, or when users update their profile information
+UpdateUser updateUser = UpdateUser.newBuilder()
+    .setUserProfile(
+        UpdateUserProfile.newBuilder()
+            .setFirstName("John")
+            .setLastName("Smith") // Updated last name
+            .build())
+    .build();
+
+UpdateUserRequest updateReq = UpdateUserRequest.newBuilder()
+    .setUser(updateUser)
+    .build();
+
+scalekitClient.users().updateUser("<users.getUsers(0).getId()>", updateReq);
+
+// 6. Delete user permanently
+// Use case: User account closure, GDPR deletion requests, or cleaning up test accounts
+scalekitClient.users().deleteUser("<users.getUsers(0).getId()>");
+```
+
+</TabItem>
+</Tabs>
+
+<Aside title="Mark inactive status over permanent user deletion">
+Instead of permanently deleting users, consider updating their status to inactive. This preserves audit trails, maintains data integrity, and allows you to reactivate accounts if needed. Permanent deletion should only be used for GDPR compliance or similar legal requirements.
+</Aside>
