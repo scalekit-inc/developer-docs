@@ -24,6 +24,7 @@ export const sidebar = [
         items: [
           'authenticate/auth-methods/passwordless',
           'social-logins/quickstart',
+          'authenticate/auth-methods/passkeys',
           'authenticate/auth-methods/enterprise-sso',
         ],
       },
