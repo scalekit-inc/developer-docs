@@ -123,6 +123,12 @@ export default defineConfig({
             src: '/js/iframe-detection.js',
           },
         },
+        {
+          tag: 'script',
+          attrs: {
+            src: '/js/sidebar-scroll.js',
+          },
+        },
       ],
     }),
     react(),
