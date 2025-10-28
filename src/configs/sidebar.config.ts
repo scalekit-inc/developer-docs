@@ -47,6 +47,7 @@ export const sidebar = [
           'authenticate/authz/overview',
           'authenticate/authz/create-permissions',
           'fsa/guides/app-roles',
+          'authenticate/authz/assign-roles',
           'authenticate/authz/implement-access-control',
         ],
       },
