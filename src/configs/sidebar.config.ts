@@ -35,10 +35,8 @@ export const sidebar = [
           'fsa/data-modelling',
           'fsa/guides/create-organization',
           'authenticate/manage-organizations/add-users-to-organization',
-          'guides/user-management/scim-provisioning',
           'fsa/guides/manage-users',
           'fsa/guides/custom-user-attributes',
-          'fsa/guides/organization-identifiers',
         ],
       },
       {
@@ -54,6 +52,8 @@ export const sidebar = [
       {
         label: 'Customize workflows',
         items: [
+          'fsa/guides/organization-identifiers',
+          'guides/user-management/scim-provisioning',
           'guides/auth-flow-interceptors',
           'authenticate/implement-workflows/implement-webhooks',
         ],
