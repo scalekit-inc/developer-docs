@@ -25,7 +25,7 @@ By configuring their directory provider with your app via the Scalekit admin por
 
 <Steps>
 
-1. ## Enable SSO for the organization
+1. ## Enable SCIM provisioning for the organization
 
     The SCIM provisioning feature should be enabled for that particular organization. You can manually do this via the Scalekit dashboard > organization > overview. The other way, is to provide an option in your app so that organization admins (customers) can enable it within your app.
 
@@ -96,7 +96,7 @@ By configuring their directory provider with your app via the Scalekit admin por
 
     You can also enable this from the [organization settings](/fsa/guides/organization-settings/) in the Scalekit dashboard.
 
-3. ## Enable admin portal for enterprise customer onboarding
+2. ## Enable admin portal for enterprise customer onboarding
 
     After SCIM provisioning is enabled for that organization, provide a method for configuring a SCIM connection with the organization's identity provider.
 
@@ -106,88 +106,89 @@ By configuring their directory provider with your app via the Scalekit admin por
 
     <LinkButton href="/fsa/guides/onboard-enterprise-customers/" target="_blank" variant='secondary' class='sk-secondary' icon='right-arrow'>See how to onboard enterprise customers</LinkButton>
 
-</Steps>
+3. ## Test your SCIM integration
 
-## Test your SCIM integration
+    To verify that SCIM provisioning is working correctly, create a new user in the directory provider and confirm that it is automatically created in the Scalekit organization's user list.
 
-One of the easiest ways to see if SCIM setup for a organization is working successfully is to create a new user in the directory provider and see if it is automatically created in the Scalekit organization > users.
+    To programmatically list the connected directories in your app, use the following SDK methods:
 
-Often, you'd want to list the connected directories in your app.
+    <Tabs syncKey="tech-stack">
+    <TabItem value="node" label="Node.js">
+    ```javascript title="List connected directories" showLineNumbers=false
+    const { directories } = await scalekit.directory.listDirectories('<organization_id>');
+    ```
+    </TabItem>
+    <TabItem value="python" label="Python">
+    ```python title="List connected directories" showLineNumbers=false
+    directories = scalekit_client.directory.list_directories(organization_id='<organization_id>')
+    ```
+    </TabItem>
+    <TabItem value="java" label="Java">
+    ```java title="List connected directories" showLineNumbers=false
+    ListDirectoriesResponse response = scalekitClient.directories().listDirectories(organizationId);
+    ```
+    </TabItem>
+    <TabItem value="go" label="Go">
+    ```go title="List connected directories" showLineNumbers=false
+    directories, err := sc.Directory().ListDirectories(ctx, organizationId)
+    ```
+    </TabItem>
+    </Tabs>
 
-<Tabs syncKey="tech-stack">
-<TabItem value="node" label="Node.js">
-```javascript title="List connected directories" showLineNumbers=false
-const { directories } = await scalekit.directory.listDirectories('<organization_id>');
-```
-</TabItem>
-<TabItem value="python" label="Python">
-```python title="List connected directories" showLineNumbers=false
-directories = scalekit_client.directory.list_directories(organization_id='<organization_id>')
-```
-</TabItem>
-<TabItem value="java" label="Java">
-```java title="List connected directories" showLineNumbers=false
-ListDirectoriesResponse response = scalekitClient.directories().listDirectories(organizationId);
-```
-</TabItem>
-<TabItem value="go" label="Go">
-```go title="List connected directories" showLineNumbers=false
-directories, err := sc.Directory().ListDirectories(ctx, organizationId)
-```
-</TabItem>
-<TabItem value="java" label="Java">
-```java title="List connected directories" showLineNumbers=false
-ListDirectoriesResponse response = scalekitClient.directories().listDirectories(organizationId);
-```
-</TabItem>
-</Tabs>
+    The response will be a list of connected directories, similar to the following:
 
-```json title="List connected directories response" showLineNumbers=false frame="terminal" collapse={26-34, 37-40, 19-22}
-{
-  "directories": [
+    ```json title="List connected directories response" showLineNumbers=false frame="terminal"
     {
-      "attribute_mappings": {
-        "attributes": []
-      },
-      "directory_endpoint": "https://yourapp.scalekit.com/api/v1/directoies/dir_123212312/scim/v2",
-      "directory_provider": "OKTA",
-      "directory_type": "SCIM",
-      "email": "john.doe@scalekit.cloud",
-      "enabled": true,
-      "groups_tracked": "ALL",
-      "id": "dir_121312434123312",
-      "last_synced_at": "2024-10-01T00:00:00Z",
-      "name": "Azure AD",
-      "organization_id": "org_121312434123312",
-      "role_assignments": {
-        "assignments": [
-          {
-            "group_id": "dirgroup_121312434123",
-            "role_name": "string"
-          }
-        ]
-      },
-      "secrets": [
+      "directories": [
         {
-          "create_time": "2024-10-01T00:00:00Z",
-          "directory_id": "dir_12362474900684814",
-          "expire_time": "2025-10-01T00:00:00Z",
-          "id": "string",
-          "last_used_time": "2024-10-01T00:00:00Z",
-          "secret_suffix": "Nzg5",
-          "status": "INACTIVE"
+          "attribute_mappings": {
+            "attributes": []
+          },
+          "directory_endpoint": "https://yourapp.scalekit.com/api/v1/directoies/dir_123212312/scim/v2",
+          "directory_provider": "OKTA",
+          "directory_type": "SCIM",
+          "email": "john.doe@scalekit.cloud",
+          "enabled": true,
+          "groups_tracked": "ALL",
+          "id": "dir_121312434123312",
+          "last_synced_at": "2024-10-01T00:00:00Z",
+          "name": "Azure AD",
+          "organization_id": "org_121312434123312",
+          "role_assignments": {
+            "assignments": [
+              {
+                "group_id": "dirgroup_121312434123",
+                "role_name": "string"
+              }
+            ]
+          },
+          "secrets": [
+            {
+              "create_time": "2024-10-01T00:00:00Z",
+              "directory_id": "dir_12362474900684814",
+              "expire_time": "2025-10-01T00:00:00Z",
+              "id": "string",
+              "last_used_time": "2024-10-01T00:00:00Z",
+              "secret_suffix": "Nzg5",
+              "status": "INACTIVE"
+            }
+          ],
+          "stats": {
+            "group_updated_at": "2024-10-01T00:00:00Z",
+            "total_groups": 10,
+            "total_users": 10,
+            "user_updated_at": "2024-10-01T00:00:00Z"
+          },
+          "status": "IN_PROGRESS",
+          "total_groups": 10,
+          "total_users": 10
         }
-      ],
-      "stats": {
-        "group_updated_at": "2024-10-01T00:00:00Z",
-        "total_groups": 10,
-        "total_users": 10,
-        "user_updated_at": "2024-10-01T00:00:00Z"
-      },
-      "status": "IN_PROGRESS",
-      "total_groups": 10,
-      "total_users": 10
+      ]
     }
-  ]
-}
-```
+    ```
+4. ## Enterprise users are now automatically provisioned your app
+
+   Scalekit automatically provisions and synchronizes users from the directory provider to your application. The organization administrator configures the synchronization frequency within their directory provider console.
+
+   To retrieve a list of all provisioned users, use the [Users API](https://docs.scalekit.com/apis/#tag/users/get/api/v1/organizations/{organization_id}/users).
+</Steps>
