@@ -1,0 +1,141 @@
+---
+title: "Remove users from organizations"
+description: "Remove users from organizations through dashboard management and API while maintaining security and compliance."
+sidebar:
+  label: "Remove users from organizations"
+prev:
+  label: "Add users to organizations"
+  link: "/authenticate/manage-organizations/add-users-to-organization/"
+next: false
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+
+---
+
+import { Aside, Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
+
+Removing users from organizations is a critical function that ensures proper access control and compliance. User removal typically occurs when employees leave the company, change roles, or when administrators need to revoke access for security reasons.
+
+You can remove users from organizations in three ways:
+
+- **Remove via dashboard**: Manually remove users using the Scalekit admin dashboard, ideal for administrative control and compliance workflows.
+- **Programmatic API**: Remove users directly through the Scalekit SDK or REST APIs from your application's backend, enabling automated workflows and integration with HR systems.
+- **Directory sync**: Automatically remove users when they're deprovisioned from enterprise directory providers like Active Directory or Okta through SCIM.
+
+<details>
+
+<summary> View the membership object relationships </summary>
+
+```d2  pad=100
+direction: right;
+
+membership: {
+  shape: sql_table
+  id: text {constraint: primary_key}
+  user_id: text {constraint: foreign_key}
+  organization_id: text {constraint: foreign_key}
+  membership_status: text
+  inviter_email: text
+  "(fields omitted for brevity)"
+}
+
+user
+
+organization
+
+# Relationships
+membership.user_id -> user
+membership.organization_id -> organization
+
+```
+
+</details>
+
+## Remove users with the SDK <Badge text="API" variant="tip" />
+
+Applications often need to remove users programmatically during offboarding processes, role changes, or security incidents. Use the Scalekit SDK or REST API to remove user memberships while maintaining audit trails and ensuring proper access revocation.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+
+```javascript title="Remove users from organizations" wrap
+// Use case: Remove user during employee offboarding
+await scalekit.users.deleteMembership({
+  organizationId: 'org_12345',
+  userId: 'usr_67890'
+})
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+```python title="Remove users from organizations" wrap
+# Use case: Remove user during employee offboarding
+scalekit_client.users.delete_membership(
+    organization_id="org_12345",
+    user_id="usr_67890"
+)
+```
+
+  </TabItem>
+  <TabItem value="go" label="Go">
+
+```go title="Remove users from organizations" wrap
+// Use case: Remove user during employee offboarding
+err := scalekitClient.Users.DeleteMembership(ctx, scalekit.DeleteMembershipRequest{
+    OrganizationID: "org_12345",
+    UserID:        "usr_67890",
+})
+if err != nil {
+    log.Fatalf("delete membership: %v", err)
+}
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+```java title="Remove users from organizations" wrap
+// Use case: Remove user during employee offboarding
+scalekitClient.users().deleteMembership(
+    DeleteMembershipRequest.builder()
+        .organizationId("org_12345")
+        .userId("usr_67890")
+        .build()
+);
+```
+
+  </TabItem>
+</Tabs>
+
+<Aside type="caution">
+Implement proper error handling when removing users during bulk operations to avoid partial failures in critical offboarding workflows.
+</Aside>
+
+## Remove users in the Scalekit dashboard
+
+Use the dashboard when administrators need to manually remove users for compliance, security, or administrative purposes.
+
+<Steps>
+
+1. Sign in to the Scalekit dashboard and navigate to **Organizations**. Select the organization from which you want to remove users.
+
+2. Click on the **Users** tab to view all organization members. Locate the user you want to remove from the user list.
+
+3. Click the **Actions** menu (three dots) next to the user's name and select **Remove from organization**.
+
+4. Confirm the removal by clicking **Remove user**. The user will immediately lose access to the organization and its resources.
+
+
+</Steps>
+
+<Aside type="tip">
+Consider notifying the user about their access removal through your application's communication channels to maintain transparency.
+</Aside>
+
+## Directory sync user removal
+
+When organizations use enterprise directory providers with SCIM provisioning, users are automatically removed from Scalekit organizations when they're deprovisioned in the source directory. This ensures consistent access control across all systems.
