@@ -247,6 +247,10 @@ export const sidebar = [
         ],
       },
       {
+        label: 'MCP',
+        items: ['agent-actions/mcp/quickstart'],
+      },
+      {
         label: 'Advanced Guides',
         items: [
           'agent-actions/advanced/overview',
