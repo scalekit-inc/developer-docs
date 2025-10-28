@@ -34,10 +34,11 @@ export const sidebar = [
         items: [
           'fsa/data-modelling',
           'fsa/guides/create-organization',
+          'authenticate/manage-organizations/add-users-to-organization',
           'fsa/guides/manage-users',
           'fsa/guides/custom-user-attributes',
-          'authenticate/manage-organizations/add-users-to-organization',
           'fsa/guides/organization-identifiers',
+          'guides/user-management/scim-provisioning',
         ],
       },
       {
@@ -58,9 +59,14 @@ export const sidebar = [
         ],
       },
       {
-        label: 'MCP Auth',
-        collapsed: false,
-        items: ['mcp/intro-to-mcp-auth', 'mcp/oauth', 'mcp/guides/custom-auth'],
+        label: 'Auth modules',
+        items: [
+          'mcp/oauth',
+          'passwordless/quickstart',
+          'guides/user-auth/standalone-social-logins',
+          'sso/quickstart',
+          'directory/scim/quickstart',
+        ],
       },
       {
         label: 'Customize branding',
@@ -73,12 +79,12 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Deploy',
-        items: ['authenticate/launch-checklist'],
-      },
-      {
-        label: 'Observability',
-        items: ['guides/dashboard/auth-logs', 'guides/view-webhook-logs'],
+        label: 'Go Live',
+        items: [
+          'authenticate/launch-checklist',
+          'guides/dashboard/auth-logs',
+          'guides/view-webhook-logs',
+        ],
       },
     ],
   },
@@ -316,10 +322,6 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Auth modules',
-        items: ['passwordless/quickstart', 'sso/quickstart', 'directory/scim/quickstart'],
-      },
-      {
         label: 'Customize workflows',
         items: ['guides/interceptor-scenarios', 'directory/guides/group-based-role-assignment'],
       },
@@ -357,6 +359,11 @@ export const sidebar = [
             link: '/browse/code-samples/github/cognito-nextjs',
           },
         ],
+      },
+      {
+        label: 'MCP Auth',
+        collapsed: false,
+        items: ['mcp/intro-to-mcp-auth', 'mcp/guides/custom-auth'],
       },
       {
         label: 'Agent & AI examples',
