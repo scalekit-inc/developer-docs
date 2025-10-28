@@ -38,9 +38,11 @@ To add users to organizations, use any of these methods:
 - Automate user management through SSO and SCIM integration
 
 
-## Enable admin invitations through your application
+## Enable user invitations through your app
 
-Build invitation capabilities into your application so organization administrators can invite team members without accessing the Scalekit dashboard. This approach gives you full control over the user experience while leveraging Scalekit's invitation service.
+Build invitation capabilities into your application so users can invite members to their organization.
+
+Use the Scalekit SDK to send invitations from your application. Scalekit handles email delivery, verification, and automatically adds users to the organization when they accept.
 
 <Tabs syncKey="tech-stack">
   <TabItem value="node" label="Node.js">
@@ -219,29 +221,37 @@ public ResponseEntity<Map<String, Object>> inviteUserToOrganization(
 </Tabs>
 
 
-## Set up automated provisioning
+## Support automated user provisioning
 
-Configure just-in-time (JIT) user provisioning through enterprise identity providers to eliminate manual user management for large organizations.
+Users can join organizations in your application through methods beyond direct signup or peer invitations.
 
-**Just-in-time provisioning via SSO** <Badge text="Coming soon" variant="note" />
+Your [integration](/fsa/quickstart) with Scalekit enables two additional user provisioning methods:
+- Single sign-on (SSO) allows enterprise users to authenticate using their organization's identity provider. Scalekit can create user accounts and add them to same organization just in time. This is Just In Time (JIT) provisioning.
+- **SCIM provisioning** lets enterprises automatically grant access to your application for their users. Typically organization admins connect their user directory provider (eg. Azure AD) to your app through Scalekit.
 
-When organizations connect their SSO provider (Okta, Azure AD, Google Workspace), enable automatic user creation:
+Both methods add users to organizations automatically without requiring manual invitations or identity verification. The steps below explain how to enable JIT and SCIM provisioning for organizations.
 
-- **First-time authentication** - New users authenticate through their corporate identity provider
-- **Automatic account creation** - Scalekit creates user accounts with SSO profile data
-- **Organization assignment** - Users join organizations based on identity provider claims
-- **Role mapping** - SSO attributes determine initial roles and permissions
+### JIT provisioning <Badge text="Coming soon" variant="note" />
 
-**Just-in-time provisioning via SCIM** <Badge text="Coming soon" variant="note" />
+<Steps>
+ 1. Go to the Scalekit dashboard > Organizations > Select the organization > Security > JIT Provisioning
+ 2. Toggle the setting to enable JIT provisioning for this organization.
+ 3. Click **Save**
+</Steps>
 
-SCIM (System for Cross-domain Identity Management) provides real-time user synchronization:
+### SCIM provisioning <Badge text="Coming soon" variant="note" />
 
-- **Automated synchronization** - Identity providers push user changes to Scalekit automatically
-- **Lifecycle management** - Handle user creation, updates, deactivation, and deletion
-- **Group mapping** - Sync organizational units and teams from corporate directories
-- **Bulk operations** - Efficiently manage large user populations without manual intervention
+<Steps>
+1. Go to the Scalekit dashboard > Organizations > Select the organization > Settings > SCIM Provisioning
+2. Toggle the setting to enable SCIM provisioning for this organization.
+3. Click **Save**
+</Steps>
 
-Both SSO and SCIM provisioning configurations are managed through [organization settings](/fsa/guides/organization-settings/) and require enterprise identity provider setup by your customers.
+ For implementation details on adding SCIM provisioning to your application, refer to the SCIM provisioning implementation guide.
+
+<Aside type="note" title="Beta">
+JIT and SCIM provisioning features are currently in beta. Contact us to enable these features in your Scalekit environment.
+</Aside>
 
 ## Add users through the Scalekit dashboard
 
