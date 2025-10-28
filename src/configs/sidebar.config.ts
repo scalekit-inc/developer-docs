@@ -247,6 +247,17 @@ export const sidebar = [
         ],
       },
       {
+        label: 'MCP',
+        items: [
+          'agent-actions/mcp/quickstart',
+          {
+            label: 'Code examples',
+            link: 'https://github.com/scalekit-inc/gists/tree/main/m2m',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+      {
         label: 'Advanced Guides',
         items: [
           'agent-actions/advanced/overview',
