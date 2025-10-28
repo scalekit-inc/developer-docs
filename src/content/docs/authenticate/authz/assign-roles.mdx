@@ -12,26 +12,28 @@ sidebar:
 ---
 
 import { Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
 
-After registering the necessary roles and permissions for your application, Scalekit provides flexible role assignment options. By default, the organization creator receives an `admin` role, while subsequent users joining the organization are assigned a `member` role.
+After you register roles and permissions for your app, Scalekit provides flexible ways to assign roles to users. By default, the organization creator receives the `admin` role. Users who join later receive the `member` role.
 
-You can assign roles to users through three primary methods:
+For apps like a CRM, you may want to prevent accidental edits from new users. Set the default role for new members to a read-only option such as `viewer`.
 
-- **Dashboard Management**: Update user roles directly in the Scalekit dashboard. While convenient for initial setup, this approach can become challenging to scale as your organization grows.
+Scalekit supports several role-assignment methods:
+
+- **Dashboard management**: Update user roles directly in the Scalekit dashboard. This is quick for initial setup and manual changes.
+
+- **Default role configuration**: Configure default roles in the dashboard so creators and members automatically receive the right access on join.
+
+- **Directory group-based assignment (SCIM)**: Map directory groups to app roles so users automatically receive roles based on the groups they belong to.
+
+- **SDK-powered role changes**: Use the SDK to build in-app role management for authorized administrators. See API reference for [roles](https://docs.scalekit.com/apis/#tag/roles/get/api/v1/roles).
+
+## Assign a role in the Scalekit dashboard
+
+![Change a user's role in the Scalekit dashboard](@/assets/docs/assign-roles/change-role.png)
 
 
-- **Default role configuration**: Customize default roles in the Scalekit dashboard, ensuring that new workspace creators or members automatically receive predefined roles upon joining.
-
-- **SDK-powered role management**: Leverage the Scalekit SDK to build custom role modification features within your application. This approach allows authorized users to manage roles programmatically. For example, in a payroll application, HR administrators could change an employee's role directly through your app's interface.
-
-
-
-## Assign user a role from the Scalekit dashboard
-
-![](@/assets/docs/assign-roles/change-role.png)
-
-
-This is how you can **change the role for an user** in any organization from the Scalekit dashboard.
+Use these steps to change a user's role from the dashboard.
 
 <Steps>
 1. Navigate to **Dashboard** > **Organizations** > **Select organization**
@@ -41,12 +43,22 @@ This is how you can **change the role for an user** in any organization from the
 </Steps>
 
 
-In case you want to **change the default role assignments** for new users who join the organization:
+To change the default role assignments for new members who join the organization:
 
-![](@/assets/docs/assign-roles/change-default-roles.png)
+![Configure default roles for creators and members](@/assets/docs/assign-roles/change-default-roles.png)
 
 <Steps>
 1. Go to **Dashboard** > **Roles & Permissions** > **Roles** tab
 2. Click on the role
 3. Select the roles available and choose defaults for organization creator and member.
 </Steps>
+
+<Aside type="tip">
+Default roles help you set safe, least-privilege access for new members while keeping creators fully empowered to configure the workspace.
+</Aside>
+
+## Automate role assignment with directory groups (SCIM)
+
+Use SCIM provisioning to map directory provider groups to your app roles. When administrators add users to groups in their directory, Scalekit sends events so your app can update roles automatically. This reduces manual changes and keeps access aligned with enterprise policies.
+
+See the full guide at [Group-based role assignment](/directory/guides/group-based-role-assignment/).
