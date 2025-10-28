@@ -1,8 +1,8 @@
 ---
-title: "Create and manage permissions"
-description: "Set up fine-grained permissions for precise access control in your application"
+title: "Add and manage permissions"
+description: "Set up  permissions to determine access control in your application for users"
 sidebar:
-  label: "Create permissions"
+  label: "Add permissions"
 head:
   - tag: style
     content: |
@@ -20,7 +20,12 @@ import {
 
 Permissions define specific actions users can perform in your application. Use permissions to control access to features, data, and operations with precision. This guide shows you how to create, manage, and implement permissions in your Scalekit-powered application.
 
+<details>
+<summary>View the permissions dashboard screenshot</summary>
+
 ![](@/assets/docs/create-permissions/permissions-screenshot.png)
+
+</details>
 
 Every action in your application can be turned into a permission. By labeling permissions in a consistent way, you create a clear access control system that's easy to understand and manage. These permissions become available to users at runtime and can be inherited through roles.
 
@@ -30,24 +35,16 @@ Navigate to **Dashboard** > **Roles & Permissions** > **Permissions** to create 
 
 <Steps>
 
-1. **Access the permissions section**
+1. In your Scalekit dashboard, go to **Roles & Permissions** > **Permissions**
 
-   In your Scalekit dashboard, go to **Roles & Permissions** > **Permissions**
-
-2. **Create a new permission**
-
-   Click **Create Permission** and provide:
+2. Click **Create Permission** and provide:
    - **Name** - Machine-friendly identifier (e.g., `projects:create`)
    - **Display Name** - Human-readable label (e.g., "Create Projects")
    - **Description** - Clear explanation of what this permission allows
 
-3. **Configure permission settings**
+3. Set the permission scope and any additional constraints needed for your use case
 
-   Set the permission scope and any additional constraints needed for your use case
-
-4. **Save and assign**
-
-   Save the permission and assign it to roles as needed
+4. Save the permission and assign it to roles as needed
 
 </Steps>
 
@@ -55,9 +52,9 @@ The dashboard provides a visual interface to manage all your application's permi
 
 ## Creating permissions programmatically
 
-Most applications need to manage permissions programmatically to integrate with existing systems. Use the Scalekit API to create, update, and delete permissions as part of your application's setup or administrative workflows.
+Many applications require programmatic management of permissions to support integration with existing systems or custom workflows. For instance, in a project management application, you may need to ensure only project members can delete task lists.
 
-This way the necessary checks to prevent unauthorized access can be implemented in at the runtime.
+Use the Scalekit API to create, update, and delete permissions as part of your application's setup or administration processes.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="curl" label="cURL">
@@ -182,9 +179,14 @@ HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.o
 Full SDK support for permissions management is in development. For now, use the HTTP API directly as shown in the cURL examples above.
 </Aside>
 
-## Understanding permissions
 
-Permissions typically follow the `resource:action` format, which clearly identifies what actions users can perform on specific resources. For example:
+
+Permissions typically follow the `resource:action` format, which clearly identifies what actions users can perform on specific resources. This naming pattern makes permissions self-documenting and helps organize access control around your application's core entities.
+
+<details open>
+<summary>
+ Example
+</summary>
 
 | Permission | Description |
 | --- | --- |
@@ -193,21 +195,7 @@ Permissions typically follow the `resource:action` format, which clearly identif
 | `users:invite` | Invite new users |
 | `billing:manage` | Manage billing settings |
 
-This naming pattern makes permissions self-documenting and helps organize access control around your application's core entities.
-
-## Role-based inheritance
-
-Permissions can be inherited through roles, making it easier to manage access at scale. When you assign a role to a user, they automatically receive all permissions associated with that role.
-
-This inheritance model allows you to:
-- Group related permissions into logical roles
-- Assign multiple permissions to users with a single role assignment
-- Create role hierarchies where higher-level roles inherit lower-level permissions
-- Simplify permission management across your organization
-
-<Aside type="tip" title="Combine individual permissions with roles">
-You can assign both individual permissions and roles to users. This provides flexibility to grant specific permissions while maintaining role-based organization.
-</Aside>
+</details>
 
 
-Once you have permissions defined, you'll want to group them into roles for easier user management and learn how to implement access control in your application.
+Once you have permissions defined, you'll want to group them into roles for easier user management and learn how to implement access control in your application. However, you can proceed to determine the access control without needing to define permissions, and just go with the roles.
