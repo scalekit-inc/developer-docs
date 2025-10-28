@@ -1,6 +1,6 @@
 ---
 title: Role based access control (RBAC)
-description: "Control what authenticated users can access in your application using roles and permissions"
+description: "Control what authenticated users can access in your application based on their roles and permissions"
 head:
   - tag: style
     content: |
@@ -17,17 +17,19 @@ prev: false
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-Now that you have users authenticating and organizing into workspaces, you need to control what they can access within your application. Authorization determines what authenticated users are allowed to do based on their assigned roles and permissions.
+Now that you have users authenticating and organizing into workspaces, you may want to control what they can access within your application.
 
-By default, Scalekit assigns the first user in an organization the `admin` role, and subsequent users receive the `member` role. You can customize these defaults and create additional roles specific to your application's needs through the dashboard.
+By default, Scalekit assigns the `admin` role to the first user in an organization and the `member` role to subsequent users. Your application makes the final access control decisions based on role and permission information that Scalekit provides at runtime.
 
+Here is an overview of the authorization sequence
 ```d2 pad=50
 shape: sequence_diagram
 
-User -> Scalekit: Initiate sign up or login
+User -> Scalekit: Initiate sign up \n or login
 Scalekit -> Access Token: Package authentication tokens
 Access Token -> Your App: App decodes access token
-Your App -> User: Grant runtime access based on the assigned roles and permissions
+Your App -> Your App: Determine the \nrole & permissions
+Your App -> User: Allow/Deny
 
 Access Token: {
   shape: sql_table
