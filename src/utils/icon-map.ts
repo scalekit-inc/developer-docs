@@ -83,6 +83,11 @@ import IconHugeiconsGitlab from '~icons/hugeicons/gitlab'
 import IconHugeiconsGithub from '~icons/hugeicons/github'
 import IconHugeiconsSalesforce from '~icons/fa7-brands/salesforce'
 
+// products - new icons if any
+import IconClarityBlocksGroupLine from '~icons/clarity/blocks-group-line'
+import IconAntDesignUserSwitchOutlined from '~icons/ant-design/user-switch-outlined'
+import IconMingcuteUserSecurityLine from '~icons/mingcute/user-security-line'
+
 // Static icon mapping organized by categories
 export const iconMap = {
   // Core UI icons
@@ -188,6 +193,7 @@ export const iconMap = {
   gitlab: IconHugeiconsGitlab,
   github: IconHugeiconsGithub,
   salesforce: IconHugeiconsSalesforce,
+  social: IconClarityBlocksGroupLine,
 }
 
 export type IconKey = keyof typeof iconMap
@@ -221,4 +227,12 @@ export {
 
   // Programming languages
   IconProiconsJavascript,
+
+  // Products
+  IconMcp, // MCP Auth
+  IconLucideUsers, // FSA
+  IconLucideMail, // Passwordless
+  IconClarityBlocksGroupLine, // Social logins
+  IconMingcuteUserSecurityLine, // Enterprise SSO
+  IconAntDesignUserSwitchOutlined, // SCIM provisioning
 }

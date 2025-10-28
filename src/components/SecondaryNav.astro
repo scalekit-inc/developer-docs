@@ -1,6 +1,9 @@
 ---
 import {
   IconLucideShield,
+  IconMcp,
+  IconLucideUsers,
+  IconLucideMail,
   IconLucideBot,
   IconLucideBookOpen,
   IconLucideBell,
@@ -8,7 +11,9 @@ import {
   IconLucideOutlineWebhook,
   IconLucideWrench,
   IconHugeiconsResourcesAdd,
-  IconArcticonsEmojiEightSpokedAsterisk,
+  IconClarityBlocksGroupLine,
+  IconMingcuteUserSecurityLine,
+  IconAntDesignUserSwitchOutlined,
   IconLucideChevronDown as IconChevronDown,
 } from '../utils/icon-map'
 
@@ -19,6 +24,7 @@ interface NavItem {
   isExact?: boolean
   iconComponent?: any
   children?: NavItem[]
+  keepParentLabel?: boolean // Keep parent label even when child is active
 }
 
 interface NavSection {
@@ -66,7 +72,7 @@ function isCurrentPage(pathname: string, item: NavItem): boolean {
 }
 
 function getDisplayLabel(pathname: string, item: NavItem): string {
-  if (item.children && item.children.length > 0) {
+  if (item.children && item.children.length > 0 && !item.keepParentLabel) {
     const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
     if (activeChild) return activeChild.label
   }
@@ -88,6 +94,7 @@ const navSections: NavSection[] = [
         href: '/',
         label: 'Authenticate',
         iconComponent: IconLucideShield,
+        keepParentLabel: true, // Keep "Authenticate" label regardless of active child
         patterns: [
           '/',
           '/authenticate',
@@ -100,6 +107,44 @@ const navSections: NavSection[] = [
           '/guides/passwordless/',
           '/directory/',
           '/guides/directory/',
+        ],
+        children: [
+          {
+            href: '/fsa/quickstart',
+            label: 'Full-stack Auth',
+            patterns: ['/fsa/'],
+            iconComponent: IconLucideShield,
+          },
+          {
+            href: '/mcp/oauth/',
+            label: 'MCP Auth',
+            patterns: ['/mcp/'],
+            iconComponent: IconMcp,
+          },
+          {
+            href: '/passwordless/quickstart/',
+            label: 'Passwordless Auth',
+            patterns: ['/passwordless/', '/guides/passwordless/'],
+            iconComponent: IconLucideMail,
+          },
+          {
+            href: '/guides/user-auth/standalone-social-logins/',
+            label: 'Social logins',
+            patterns: ['/social-logins/', '/guides/user-auth/'],
+            iconComponent: IconClarityBlocksGroupLine,
+          },
+          {
+            href: '/sso/quickstart/',
+            label: 'Enterprise SSO',
+            patterns: ['/sso/', '/guides/sso/'],
+            iconComponent: IconMingcuteUserSecurityLine,
+          },
+          {
+            href: '/directory/scim/quickstart/',
+            label: 'SCIM provisioning',
+            patterns: ['/directory/', '/guides/directory/'],
+            iconComponent: IconAntDesignUserSwitchOutlined,
+          },
         ],
       },
       {
@@ -476,18 +521,23 @@ const navSections: NavSection[] = [
       hideDropdown(dropdown)
 
       trigger.addEventListener('click', (e) => {
-        e.preventDefault()
-        e.stopPropagation()
+        // Only prevent default navigation if href is '#' (like API Reference)
+        // For other links (like Authenticate with href='/'), allow navigation
+        if (href === '#') {
+          e.preventDefault()
+          e.stopPropagation()
 
-        if (currentOpenDropdown === dropdown && dropdown.style.pointerEvents === 'all') {
-          hideDropdown(dropdown)
-          currentOpenDropdown = null
-        } else {
-          hideAllDropdowns()
-          positionDropdown(trigger, dropdown)
-          dropdown.style.pointerEvents = 'all'
-          currentOpenDropdown = dropdown
+          if (currentOpenDropdown === dropdown && dropdown.style.pointerEvents === 'all') {
+            hideDropdown(dropdown)
+            currentOpenDropdown = null
+          } else {
+            hideAllDropdowns()
+            positionDropdown(trigger, dropdown)
+            dropdown.style.pointerEvents = 'all'
+            currentOpenDropdown = dropdown
+          }
         }
+        // If href is not '#', navigation will happen naturally
       })
 
       trigger.addEventListener('mouseenter', () => {

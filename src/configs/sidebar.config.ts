@@ -36,9 +36,9 @@ export const sidebar = [
           'fsa/guides/create-organization',
           'authenticate/manage-organizations/add-users-to-organization',
           'fsa/guides/manage-users',
+          'guides/user-management/scim-provisioning',
           'fsa/guides/custom-user-attributes',
           'fsa/guides/organization-identifiers',
-          'guides/user-management/scim-provisioning',
         ],
       },
       {
