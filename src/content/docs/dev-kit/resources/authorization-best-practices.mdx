@@ -246,7 +246,7 @@ async function validateAndRefreshToken(req, res, next) {
 
     // Try to validate current token
     if (await scalekit.validateAccessToken(accessToken)) {
-      req.user = await scalekit.decodeAccessToken(accessToken);
+      req.user = await decodeAccessToken(accessToken);
       return next();
     }
 
@@ -258,7 +258,7 @@ async function validateAndRefreshToken(req, res, next) {
 
         // Update tokens in response
         setTokensInResponse(res, newTokens);
-        req.user = await scalekit.decodeAccessToken(newTokens.accessToken);
+        req.user = await decodeAccessToken(newTokens.accessToken);
         return next();
 
       } catch (refreshError) {

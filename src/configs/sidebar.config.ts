@@ -7,14 +7,14 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['index', 'authenticate/installation', 'fsa/quickstart'],
+        items: ['index', 'fsa/quickstart'],
       },
       {
         label: 'User authentication',
         collapsed: false,
         items: [
           'fsa/guides/implement-login',
-          'fsa/guides/exchange-code-for-users',
+          'authenticate/fsa/complete-login',
           'fsa/guides/manage-session',
           'fsa/guides/logout',
         ],
@@ -194,6 +194,7 @@ export const sidebar = [
       {
         label: 'Basics',
         items: [
+          'authenticate/installation',
           'sso/guides/authorization-url',
           'sso/guides/sso-user-attributes',
           'dev-kit/resources/ai-assisted-setup',
