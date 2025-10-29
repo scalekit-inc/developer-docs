@@ -7,16 +7,16 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['index', 'fsa/quickstart'],
+        items: ['index', 'authenticate/fsa/quickstart'],
       },
       {
         label: 'User authentication',
         collapsed: false,
         items: [
-          'fsa/guides/implement-login',
+          'authenticate/fsa/implement-login',
           'authenticate/fsa/complete-login',
-          'fsa/guides/manage-session',
-          'fsa/guides/logout',
+          'authenticate/fsa/manage-session',
+          'authenticate/fsa/logout',
         ],
       },
       {

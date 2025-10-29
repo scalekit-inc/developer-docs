@@ -7,6 +7,13 @@ export const redirects = {
   // =============================================================================
   // FULL STACK AUTH (FSA) REDIRECTS
   // =============================================================================
+
+  // User authentication flow pages moved to /authenticate/*
+  '/fsa/quickstart': '/authenticate/fsa/quickstart/',
+  '/fsa/guides/implement-login': '/authenticate/fsa/implement-login/',
+  '/fsa/guides/manage-session': '/authenticate/fsa/manage-session/',
+  '/fsa/guides/logout': '/authenticate/fsa/logout/',
+
   '/fsa/guides/automated-user-provisioning': '/fsa/guides/allowed-email-domains/',
 
   // =============================================================================
