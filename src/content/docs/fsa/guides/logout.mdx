@@ -27,145 +27,58 @@ import { Aside, Badge, Steps, Tabs, TabItem, Card } from '@astrojs/starlight/com
 
 When implementing logout functionality, you need to consider three session layers where user authentication state is maintained:
 
-1. **Application session layer**: Your application stores session tokens (access tokens, refresh tokens) in browser cookies and your backend database. You control this layer completely.
+1. **Application session layer**: Your application stores session tokens (access tokens, refresh tokens, ID tokens) in browser cookies. You control this layer completely.
 
 2. **Scalekit session layer**: Scalekit maintains a session for the user and stores their information. When users return to Scalekit's authentication page, their information is remembered for a smoother experience.
 
-3. **Identity provider session layer**: When users authenticate with external providers (like Google or Facebook), those providers maintain their own sessions. Users won't be prompted to sign in again if they're already signed into the provider.
+3. **Identity provider session layer**: When users authenticate with external providers (for example, Okta through enterprise SSO), those providers maintain their own sessions. Users won't be prompted to sign in again if they're already signed into the provider.
 
-This guide focuses on clearing the application session layer and invalidating the Scalekit session layer. You can optionally log users out of identity providers, but it's typically not necessary.
-
-
-## Implement logout
-
-When a user clicks logout in your application, you need to clear their session data and invalidate their Scalekit session.
+This guide shows you how to clear the application session layer and invalidate the Scalekit session layer in a single logout endpoint.
 
 ![](@/assets/docs/fsa/logout/1.png)
 
 <Steps>
-1. #### Create a logout endpoint
-   Create an endpoint in your application (typically `/logout`) that handles the logout process.
 
-2. #### Clear the application session
-   Remove all session data from your application. This includes clearing the `accessToken` from browser cookies and removing the `refreshToken` from your database.
+1. ## Create a logout endpoint
 
-    <Tabs syncKey="tech-stack">
-      <TabItem label="Node.js">
-        ```javascript title="Express.js"
-        // Function to clear session data
-        async function clearSessionData(res, userId) {
-          // Clear the access token cookie
-          res.clearCookie('accessToken');
-
-          // Clear the ID token cookie
-          res.clearCookie('idToken');
-
-          // Remove the refresh token from your database
-          await db.deleteRefreshToken(userId);
-        }
-        ```
-      </TabItem>
-      <TabItem label="Python">
-        ```python title="Flask"
-        def clear_session_data(response, user_id):
-            # Clear the access token cookie
-            response.set_cookie('accessToken', '', max_age=0)
-
-            # Clear the ID token cookie
-            response.set_cookie('idToken', '', max_age=0)
-
-            # Remove the refresh token from your database
-            db.delete_refresh_token(user_id)
-        ```
-      </TabItem>
-      <TabItem label="Go">
-        ```go title="Gin"
-        func clearSessionData(c *gin.Context, userID string) error {
-            // Clear the access token cookie
-            c.SetCookie("accessToken", "", -1, "/", "", true, true)
-
-            // Clear the ID token cookie
-            c.SetCookie("idToken", "", -1, "/", "", true, true)
-
-            // Remove the refresh token from your database
-            return db.DeleteRefreshToken(userID)
-        }
-        ```
-      </TabItem>
-      <TabItem label="Java">
-        ```java title="Spring Boot"
-        private void clearSessionData(HttpServletResponse response, String userId) {
-            // Clear the access token cookie
-            Cookie accessTokenCookie = new Cookie("accessToken", null);
-            accessTokenCookie.setMaxAge(0);
-            accessTokenCookie.setPath("/");
-            response.addCookie(accessTokenCookie);
-
-            // Clear the ID token cookie
-            Cookie idTokenCookie = new Cookie("idToken", null);
-            idTokenCookie.setMaxAge(0);
-            idTokenCookie.setPath("/");
-            response.addCookie(idTokenCookie);
-
-            // Remove the refresh token from your database
-            db.deleteRefreshToken(userId);
-        }
-        ```
-      </TabItem>
-    </Tabs>
-
-3. #### Invalidate the Scalekit session layer
-   After clearing your application session, redirect the user to Scalekit's logout endpoint. Scalekit invalidates the user's session on its servers and redirects them back to your application.
-
-   The Scalekit logout endpoint is:
-
-   ```sh showLineNumbers=false "id_token_hint" "post_logout_redirect_uri"
-   {SCALEKIT_ENV_URL}/oidc/logout?id_token_hint={idToken}&post_logout_redirect_uri={postLogoutRedirectUri}
-   ```
-
-   Parameters:
-   - `{SCALEKIT_ENV_URL}` - Your Scalekit environment URL (e.g., `https://yourapp.scalekit.com`)
-   - `{idToken}` - The user's ID token from their current session
-   - `{postLogoutRedirectUri}` - Where to redirect after logout (must be registered in your Scalekit dashboard)
+   Create a `/logout` endpoint in your application that handles the complete logout flow: extracting the ID token, generating the Scalekit logout URL, clearing session cookies, and redirecting to Scalekit.
 
     <Tabs syncKey="tech-stack">
       <TabItem label="Node.js">
         ```javascript title="Express.js"
         app.get('/logout', (req, res) => {
-          const userId = req.user.id;
+          // Step 1: Extract the ID token (needed for Scalekit logout)
           const idTokenHint = req.cookies.idToken;
           const postLogoutRedirectUri = 'http://localhost:3000/login';
 
-          // Clear local session data
-          clearSessionData(res, userId);
-
-          // Generate the Scalekit logout URL
+          // Step 2: Generate the Scalekit logout URL
           const logoutUrl = scalekit.getLogoutUrl({
             idTokenHint,
             postLogoutRedirectUri
           });
 
-          // Redirect to Scalekit to complete the logout
+          // Step 3: Clear all session cookies with matching Path attributes
+          res.clearCookie('accessToken', { path: '/api' });
+          res.clearCookie('refreshToken', { path: '/auth/refresh' });
+          res.clearCookie('idToken'); // Clear AFTER using it for logout URL
+
+          // Step 4: Redirect to Scalekit to invalidate the session
           res.redirect(logoutUrl);
         });
         ```
       </TabItem>
       <TabItem label="Python">
         ```python title="Flask"
-        from flask import session, request, redirect, make_response
+        from flask import request, redirect, make_response
         from scalekit import LogoutUrlOptions
 
         @app.route('/logout')
         def logout():
-            user_id = session.get('user_id')
+            # Step 1: Extract the ID token (needed for Scalekit logout)
             id_token = request.cookies.get('idToken')
             post_logout_redirect_uri = 'http://localhost:3000/login'
 
-            # Clear local session data
-            response = make_response()
-            clear_session_data(response, user_id)
-
-            # Generate the Scalekit logout URL
+            # Step 2: Generate the Scalekit logout URL
             logout_url = scalekit.get_logout_url(
                 LogoutUrlOptions(
                     id_token_hint=id_token,
@@ -173,24 +86,24 @@ When a user clicks logout in your application, you need to clear their session d
                 )
             )
 
-            # Redirect to Scalekit to complete the logout
-            return redirect(logout_url)
+            # Step 3: Create response and clear all session cookies with matching Path attributes
+            response = make_response(redirect(logout_url))
+            response.set_cookie('accessToken', '', max_age=0, path='/api')
+            response.set_cookie('refreshToken', '', max_age=0, path='/auth/refresh')
+            response.set_cookie('idToken', '', max_age=0)  # Clear AFTER using it for logout URL
+
+            # Step 4: Return response that redirects to Scalekit
+            return response
         ```
       </TabItem>
       <TabItem label="Go">
         ```go title="Gin"
         func logoutHandler(c *gin.Context) {
-            userID := c.GetString("user_id")
+            // Step 1: Extract the ID token (needed for Scalekit logout)
             idToken, _ := c.Cookie("idToken")
             postLogoutRedirectURI := "http://localhost:3000/login"
 
-            // Clear local session data
-            if err := clearSessionData(c, userID); err != nil {
-                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-                return
-            }
-
-            // Generate the Scalekit logout URL
+            // Step 2: Generate the Scalekit logout URL
             logoutURL, err := scalekit.GetLogoutUrl(LogoutUrlOptions{
                 IdTokenHint: idToken,
                 PostLogoutRedirectUri: postLogoutRedirectURI,
@@ -200,7 +113,12 @@ When a user clicks logout in your application, you need to clear their session d
                 return
             }
 
-            // Redirect to Scalekit to complete the logout
+            // Step 3: Clear all session cookies with matching Path attributes
+            c.SetCookie("accessToken", "", -1, "/api", "", true, true)
+            c.SetCookie("refreshToken", "", -1, "/auth/refresh", "", true, true)
+            c.SetCookie("idToken", "", -1, "/", "", true, true)  // Clear AFTER using it for logout URL
+
+            // Step 4: Redirect to Scalekit to invalidate the session
             c.Redirect(http.StatusFound, logoutURL.String())
         }
         ```
@@ -209,7 +127,7 @@ When a user clicks logout in your application, you need to clear their session d
         ```java title="Spring Boot"
         @GetMapping("/logout")
         public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-            String userId = (String) request.getSession().getAttribute("user_id");
+            // Step 1: Extract the ID token (needed for Scalekit logout)
             String idToken = Arrays.stream(request.getCookies())
                 .filter(c -> c.getName().equals("idToken"))
                 .findFirst()
@@ -217,34 +135,49 @@ When a user clicks logout in your application, you need to clear their session d
                 .orElse(null);
             String postLogoutRedirectUri = "http://localhost:3000/login";
 
-            // Clear local session data
-            clearSessionData(response, userId);
-
-            // Generate the Scalekit logout URL
+            // Step 2: Generate the Scalekit logout URL
             LogoutUrlOptions options = new LogoutUrlOptions();
             options.setIdTokenHint(idToken);
             options.setPostLogoutRedirectUri(postLogoutRedirectUri);
-            // options.setState(state);  // optional
-
             URL logoutUrl = scalekit.authentication().getLogoutUrl(options);
 
-            // Redirect to Scalekit to complete the logout
+            // Step 3: Clear all session cookies with matching Path attributes
+            Cookie accessTokenCookie = new Cookie("accessToken", null);
+            accessTokenCookie.setMaxAge(0);
+            accessTokenCookie.setPath("/api");
+            response.addCookie(accessTokenCookie);
+
+            Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+            refreshTokenCookie.setMaxAge(0);
+            refreshTokenCookie.setPath("/auth/refresh");
+            response.addCookie(refreshTokenCookie);
+
+            Cookie idTokenCookie = new Cookie("idToken", null);
+            idTokenCookie.setMaxAge(0);
+            idTokenCookie.setPath("/");
+            response.addCookie(idTokenCookie);  // Clear AFTER using it for logout URL
+
+            // Step 4: Redirect to Scalekit to invalidate the session
             response.sendRedirect(logoutUrl.toString());
         }
         ```
       </TabItem>
     </Tabs>
 
-    The post-logout redirect URI determines where users go after Scalekit invalidates their session. Common destinations include your login page or homepage.
+    **Important**: The logout flow clears cookies AFTER extracting the ID token and generating the logout URL. This ensures the ID token is available for Scalekit's logout endpoint.
 
-4.  #### Redirect users after logout
+2.  ## Configure post-logout redirect URL
 
     After users log out, Scalekit redirects them to the URL you specify in the `post_logout_redirect_uri` parameter. This URL must be registered in your Scalekit dashboard under **Dashboard > Authentication > Redirects > Post Logout URL**.
 
     Scalekit only redirects to URLs from your allow list. This prevents unauthorized redirects and protects your users. If you need different redirect URLs for different applications, you can register multiple post-logout URLs in your dashboard.
 
-    <Aside type="tip">
-    Register your post-logout URL before implementing logout. Scalekit will reject logout requests with unregistered redirect URIs.
-    </Aside>
-
 </Steps>
+
+<Aside type="tip">
+**Logout security checklist**:
+- Extract the ID token BEFORE clearing cookies (needed for Scalekit logout)
+- Clear cookies with matching `Path` attributes: `/api` for `accessToken`, `/auth/refresh` for `refreshToken`
+- Redirect to Scalekit's logout endpoint to invalidate the session server-side
+- Ensure your post-logout redirect URI is registered in the Scalekit dashboard
+</Aside>

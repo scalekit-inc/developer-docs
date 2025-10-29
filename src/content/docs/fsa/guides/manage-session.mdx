@@ -12,10 +12,6 @@ head:
       }
 sidebar:
   label: 'Manage user sessions'
-prev: false
-next:
-  label: 'End the session and invalidate tokens'
-  link: '/fsa/guides/logout/'
 ---
 
 import {
@@ -632,8 +628,6 @@ This guide shows you how to store these tokens securely with proper cookie attri
       - **Access token lifetime**: This is how long an access token is valid. When it expires, your app needs to get a new token (using the refresh token) so the user can keep using the app without logging in again. For example, if you set it to 5 minutes, your app will need to refresh the token every 5 minutes.
 
       Shorter timeouts provide better security, while longer timeouts reduce authentication interruptions.
-
-   <Aside type="note">
-   **Logout security**: When implementing logout, clear both the `accessToken` and `refreshToken` cookies with the same `Path` attributes used when setting them (`/api` and `/auth/refresh` respectively). Additionally, revoke the refresh token with Scalekit and invalidate any server-side sessions to ensure complete logout.
-   </Aside>
 </Steps>
+
+Your application continuously validates the access token for each incoming request. When the token is valid, the user's session remains active. If the access token expires, your app attempts to refresh it using the stored refresh token. However, if token refresh fails, the user is automatically logged out, effectively terminating their session.
