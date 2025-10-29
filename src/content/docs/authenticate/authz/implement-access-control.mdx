@@ -1,6 +1,6 @@
 ---
 title: "Implement access control"
-description: "Check permissions and roles in your application code to control user access"
+description: "Verify permissions and roles in your application code to control user access"
 sidebar:
   label: "Implement access control"
 head:
@@ -18,9 +18,6 @@ prev:
 seeAlso:
   label: "Related guides"
   items:
-    - title: "Create permissions"
-      icon: "setting"
-      url: "/authenticate/authz/create-permissions/"
     - title: "Manage sessions"
       icon: "lock"
       url: "/fsa/guides/manage-session/"
@@ -29,43 +26,41 @@ seeAlso:
       url: "/fsa/quickstart/#create-and-manage-user-sessions"
 ---
 
+import { AuthResultTabsSection } from '@components/templates'
 import { Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code } from '@astrojs/starlight/components';
 import IconTdesignSequence from '~icons/tdesign/sequence'
 import IconJsonwebtokens from '~icons/simple-icons/jsonwebtokens'
 
-Now that you have permissions and roles configured, you need to implement access control in your application code. This guide shows you how to validate access tokens and check user permissions and roles at runtime to control what users can access.
+After configuring permissions and roles, the next critical step is implementing access control directly within your application code. This is achieved by carefully examining the roles and permissions embedded in the user's access token.
 
-Access control enforcement happens in your application by examining the roles and permissions in the user's access token. Since these tokens are packaged by Scalekit during authentication, you have all the authorization data you need without additional API calls.
+Scalekit conveniently packages these authorization details during the authentication process, providing you with a comprehensive set of data to make precise access control decisions.
 
 <details>
 <summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the authorization flow</summary>
 
-```d2
+```d2 pad=100
 shape: sequence_diagram
 
 User -> Your App: Request protected resource
-Your App -> Access Token: Decode and validate token
-Access Token -> Your App: Extract roles and permissions
-Your App -> Access Control: Check required permission/role
-Access Control -> Your App: Allow or deny access
+Your App -> Your App: Decode and validate access token
+Your App -> Your App: Extract and verify \n required permission/role
 Your App -> User: Return resource or error
 
-Access Control: {
-  shape: class
-  hasPermission(): boolean
-  hasRole(): boolean
-  requirePermission(): void
-}
 ```
 
 </details>
 
-<details>
-<summary><IconJsonwebtokens style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Access token structure</summary>
+This section focuses on implementing access control, which naturally follows user authentication. We recommend completing the authentication [quickstart](/fsa/quickstart) before diving into these access control implementation details.
 
-The access token contains both roles and permissions in an easy-to-use format:
+## Start by inspecting the access token
 
-```json title="Decoded access token" {9,11}
+When you [exchange the code for a user profile](/fsa/guides/exchange-code-for-users/), Scalekit also adds additional information that help your app determine the access control decisions.
+
+<AuthResultTabsSection />
+
+Let's closely look at the access token:
+
+```json title="Decoded access token" {9,11} wrap showLineNumbers=false
 {
   "aud": ["skc_987654321098765432"],
   "client_id": "skc_987654321098765432",
@@ -82,39 +77,13 @@ The access token contains both roles and permissions in an easy-to-use format:
 }
 ```
 
-</details>
+The `roles` and `permissions` values provide runtime insights into the user's access constraints directly within the access token, eliminating the need for additional API requests. Crucially, always validate the token's integrity before relying on the embedded authorization details.
 
-## Validate and decode access tokens
-
-Before checking permissions, you need to validate and decode the access token to extract the user's authorization data. This step ensures the token is valid and hasn't been tampered with.
-
-<Steps>
-
-1. **Extract the access token from the request**
-
-   Get the access token from cookies, headers, or wherever your application stores it
-
-2. **Validate the token**
-
-   Use the Scalekit SDK to verify the token's signature and expiration
-
-3. **Decode the token**
-
-   Extract the roles and permissions from the validated token
-
-4. **Check authorization**
-
-   Use the roles and permissions to make access control decisions
-
-</Steps>
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
 
-```javascript title="Validate and decode access token" wrap collapse={1-3} {7-8,11,14-18,22-24}
-import { Scalekit } from '@scalekit-sdk/node';
-
-const scalekit = new Scalekit(/* your credentials */);
+```javascript title="Validate and decode access token in middleware" wrap
 
 // Middleware to validate tokens and extract authorization data
 const validateAndExtractAuth = async (req, res, next) => {
@@ -304,14 +273,204 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
 </TabItem>
 </Tabs>
 
-## Check permissions in your application
+This allows for user's roles and permsisions are visible you different routes of your application.
 
-Once you have the user's permissions from the access token, you can implement permission-based access control throughout your application. Check for specific permissions before allowing users to perform actions.
+## Verify user's role to allow access to protected resource
+
+Since roles are simpler way to control access since your app does not have to run through all the possible permissions to determine if the user can perform certain action or not, instead it can just check if the user has the required role.
+
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
 
-```javascript title="Permission-based access control" wrap {3-6,10-13,17-20,24-27}
+```javascript title="Role-based access control" wrap collapse={1-17}
+// Helper function to check roles
+function hasRole(user, requiredRole) {
+  return user.roles && user.roles.includes(requiredRole);
+}
+
+// Middleware to require specific roles
+function requireRole(role) {
+  return (req, res, next) => {
+    if (!hasRole(req.user, role)) {
+      return res.status(403).json({
+        error: `Access denied. Required role: ${role}`
+      });
+    }
+    next();
+  };
+}
+
+// Admin-only routes
+app.get('/api/admin/users', validateAndExtractAuth, requireRole('admin'), (req, res) => {
+  // Only admin users can access this endpoint
+  res.json(getAllUsers(req.user.organizationId));
+});
+
+// Multiple role check
+app.post('/api/admin/invite-user', validateAndExtractAuth, (req, res) => {
+  const user = req.user;
+
+  // Allow admins or managers to invite users
+  if (!hasRole(user, 'admin') && !hasRole(user, 'manager')) {
+    return res.status(403).json({ error: 'Only admins and managers can invite users' });
+  }
+
+  const invitation = createUserInvitation(req.body, user.organizationId);
+  res.json(invitation);
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Role-based access control" wrap collapse={1-17}
+# Helper function to check roles
+def has_role(user, required_role):
+    roles = user.get('roles', [])
+    return required_role in roles
+
+# Decorator to require specific roles
+def require_role(role):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            user = getattr(request, 'user', {})
+            if not has_role(user, role):
+                return jsonify({'error': f'Access denied. Required role: {role}'}), 403
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+# Admin-only routes
+@app.route('/api/admin/users')
+@validate_and_extract_auth
+@require_role('admin')
+def get_all_users():
+    # Only admin users can access this endpoint
+    return jsonify(get_all_users_for_org(request.user['organization_id']))
+
+# Multiple role check
+@app.route('/api/admin/invite-user', methods=['POST'])
+@validate_and_extract_auth
+def invite_user():
+    user = request.user
+
+    # Allow admins or managers to invite users
+    if not has_role(user, 'admin') and not has_role(user, 'manager'):
+        return jsonify({'error': 'Only admins and managers can invite users'}), 403
+
+    invitation = create_user_invitation(request.json, user['organization_id'])
+    return jsonify(invitation)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Role-based access control" collapse={1-31}
+// Helper function to check roles
+func hasRole(user map[string]interface{}, requiredRole string) bool {
+    roles, ok := user["roles"].([]interface{})
+    if !ok {
+        return false
+    }
+
+    for _, role := range roles {
+        if roleStr, ok := role.(string); ok && roleStr == requiredRole {
+            return true
+        }
+    }
+    return false
+}
+
+// Middleware to require specific roles
+func requireRole(role string) func(http.HandlerFunc) http.HandlerFunc {
+    return func(next http.HandlerFunc) http.HandlerFunc {
+        return func(w http.ResponseWriter, r *http.Request) {
+            user := r.Context().Value("user").(map[string]interface{})
+
+            if !hasRole(user, role) {
+                http.Error(w, fmt.Sprintf(`{"error": "Access denied. Required role: %s"}`, role), http.StatusForbidden)
+                return
+            }
+
+            next(w, r)
+        }
+    }
+}
+
+// Admin-only routes
+func getAllUsersHandler(w http.ResponseWriter, r *http.Request) {
+    user := r.Context().Value("user").(map[string]interface{})
+    orgId := user["organization_id"].(string)
+
+    // Only admin users can access this endpoint
+    users := getAllUsersForOrg(orgId)
+    json.NewEncoder(w).Encode(users)
+}
+
+// Route setup with role middleware
+http.HandleFunc("/api/admin/users", validateAndExtractAuth(requireRole("admin")(getAllUsersHandler)))
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Role-based access control"  collapse={3-9}
+@RestController
+public class AdminController {
+
+    // Helper method to check roles
+    private boolean hasRole(Map<String, Object> user, String requiredRole) {
+        List<String> roles = (List<String>) user.get("roles");
+        return roles != null && roles.contains(requiredRole);
+    }
+
+    // Admin-only endpoint
+    @GetMapping("/api/admin/users")
+    public ResponseEntity<List<User>> getAllUsers(HttpServletRequest request) {
+        Map<String, Object> user = (Map<String, Object>) request.getAttribute("user");
+
+        // Check for admin role
+        if (!hasRole(user, "admin")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        String orgId = (String) user.get("organizationId");
+        List<User> users = userService.getAllUsersForOrg(orgId);
+        return ResponseEntity.ok(users);
+    }
+
+    @PostMapping("/api/admin/invite-user")
+    public ResponseEntity<Invitation> inviteUser(
+        @RequestBody InviteUserRequest request,
+        HttpServletRequest httpRequest
+    ) {
+        Map<String, Object> user = (Map<String, Object>) httpRequest.getAttribute("user");
+
+        // Allow admins or managers to invite users
+        if (!hasRole(user, "admin") && !hasRole(user, "manager")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        String orgId = (String) user.get("organizationId");
+        Invitation invitation = userService.createInvitation(request, orgId);
+        return ResponseEntity.ok(invitation);
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+
+## Verify user's permissions to allow necessary actions
+
+Permissions are more granular than roles, providing greater control over specific actions and resources. While roles offer broad access control, permissions allow you to define exactly what users can do within your application.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+```javascript title="Permission-based access control" collapse={1-17}
 // Helper function to check permissions
 function hasPermission(user, requiredPermission) {
   return user.permissions && user.permissions.includes(requiredPermission);
@@ -358,7 +517,7 @@ app.delete('/api/projects/:id', validateAndExtractAuth, (req, res) => {
 </TabItem>
 <TabItem value="python" label="Python">
 
-```python title="Permission-based access control" wrap {2-5,8-15,19-22,26-29}
+```python title="Permission-based access control" collapse={1-17}
 # Helper function to check permissions
 def has_permission(user, required_permission):
     permissions = user.get('permissions', [])
@@ -409,7 +568,7 @@ def delete_project(project_id):
 </TabItem>
 <TabItem value="go" label="Go">
 
-```go title="Permission-based access control" wrap {2-7,10-21,25-28,32-35}
+```go title="Permission-based access control"
 // Helper function to check permissions
 func hasPermission(user map[string]interface{}, requiredPermission string) bool {
     permissions, ok := user["permissions"].([]interface{})
@@ -471,7 +630,7 @@ http.HandleFunc("/api/projects/create", validateAndExtractAuth(requirePermission
 </TabItem>
 <TabItem value="java" label="Java">
 
-```java title="Permission-based access control" wrap {3-8,11-20,24-27,31-34}
+```java title="Permission-based access control"
 @RestController
 public class ProjectController {
 
@@ -535,454 +694,4 @@ public class ProjectController {
 </TabItem>
 </Tabs>
 
-## Check roles for broader access control
-
-For broader access control patterns, you can check user roles instead of specific permissions. This is useful for administrative functions or when you want to grant access based on general authority levels.
-
-<Tabs syncKey="tech-stack">
-<TabItem value="node" label="Node.js">
-
-```javascript title="Role-based access control" wrap {2-5,8-15,19-22}
-// Helper function to check roles
-function hasRole(user, requiredRole) {
-  return user.roles && user.roles.includes(requiredRole);
-}
-
-// Middleware to require specific roles
-function requireRole(role) {
-  return (req, res, next) => {
-    if (!hasRole(req.user, role)) {
-      return res.status(403).json({
-        error: `Access denied. Required role: ${role}`
-      });
-    }
-    next();
-  };
-}
-
-// Admin-only routes
-app.get('/api/admin/users', validateAndExtractAuth, requireRole('admin'), (req, res) => {
-  // Only admin users can access this endpoint
-  res.json(getAllUsers(req.user.organizationId));
-});
-
-// Multiple role check
-app.post('/api/admin/invite-user', validateAndExtractAuth, (req, res) => {
-  const user = req.user;
-
-  // Allow admins or managers to invite users
-  if (!hasRole(user, 'admin') && !hasRole(user, 'manager')) {
-    return res.status(403).json({ error: 'Only admins and managers can invite users' });
-  }
-
-  const invitation = createUserInvitation(req.body, user.organizationId);
-  res.json(invitation);
-});
-```
-
-</TabItem>
-<TabItem value="python" label="Python">
-
-```python title="Role-based access control" wrap {2-5,8-15,19-22}
-# Helper function to check roles
-def has_role(user, required_role):
-    roles = user.get('roles', [])
-    return required_role in roles
-
-# Decorator to require specific roles
-def require_role(role):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            user = getattr(request, 'user', {})
-            if not has_role(user, role):
-                return jsonify({'error': f'Access denied. Required role: {role}'}), 403
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
-
-# Admin-only routes
-@app.route('/api/admin/users')
-@validate_and_extract_auth
-@require_role('admin')
-def get_all_users():
-    # Only admin users can access this endpoint
-    return jsonify(get_all_users_for_org(request.user['organization_id']))
-
-# Multiple role check
-@app.route('/api/admin/invite-user', methods=['POST'])
-@validate_and_extract_auth
-def invite_user():
-    user = request.user
-
-    # Allow admins or managers to invite users
-    if not has_role(user, 'admin') and not has_role(user, 'manager'):
-        return jsonify({'error': 'Only admins and managers can invite users'}), 403
-
-    invitation = create_user_invitation(request.json, user['organization_id'])
-    return jsonify(invitation)
-```
-
-</TabItem>
-<TabItem value="go" label="Go">
-
-```go title="Role-based access control" wrap {2-7,10-21,25-28}
-// Helper function to check roles
-func hasRole(user map[string]interface{}, requiredRole string) bool {
-    roles, ok := user["roles"].([]interface{})
-    if !ok {
-        return false
-    }
-
-    for _, role := range roles {
-        if roleStr, ok := role.(string); ok && roleStr == requiredRole {
-            return true
-        }
-    }
-    return false
-}
-
-// Middleware to require specific roles
-func requireRole(role string) func(http.HandlerFunc) http.HandlerFunc {
-    return func(next http.HandlerFunc) http.HandlerFunc {
-        return func(w http.ResponseWriter, r *http.Request) {
-            user := r.Context().Value("user").(map[string]interface{})
-
-            if !hasRole(user, role) {
-                http.Error(w, fmt.Sprintf(`{"error": "Access denied. Required role: %s"}`, role), http.StatusForbidden)
-                return
-            }
-
-            next(w, r)
-        }
-    }
-}
-
-// Admin-only routes
-func getAllUsersHandler(w http.ResponseWriter, r *http.Request) {
-    user := r.Context().Value("user").(map[string]interface{})
-    orgId := user["organization_id"].(string)
-
-    // Only admin users can access this endpoint
-    users := getAllUsersForOrg(orgId)
-    json.NewEncoder(w).Encode(users)
-}
-
-// Route setup with role middleware
-http.HandleFunc("/api/admin/users", validateAndExtractAuth(requireRole("admin")(getAllUsersHandler)))
-```
-
-</TabItem>
-<TabItem value="java" label="Java">
-
-```java title="Role-based access control" wrap {3-8,11-20}
-@RestController
-public class AdminController {
-
-    // Helper method to check roles
-    private boolean hasRole(Map<String, Object> user, String requiredRole) {
-        List<String> roles = (List<String>) user.get("roles");
-        return roles != null && roles.contains(requiredRole);
-    }
-
-    // Admin-only endpoint
-    @GetMapping("/api/admin/users")
-    public ResponseEntity<List<User>> getAllUsers(HttpServletRequest request) {
-        Map<String, Object> user = (Map<String, Object>) request.getAttribute("user");
-
-        // Check for admin role
-        if (!hasRole(user, "admin")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        String orgId = (String) user.get("organizationId");
-        List<User> users = userService.getAllUsersForOrg(orgId);
-        return ResponseEntity.ok(users);
-    }
-
-    @PostMapping("/api/admin/invite-user")
-    public ResponseEntity<Invitation> inviteUser(
-        @RequestBody InviteUserRequest request,
-        HttpServletRequest httpRequest
-    ) {
-        Map<String, Object> user = (Map<String, Object>) httpRequest.getAttribute("user");
-
-        // Allow admins or managers to invite users
-        if (!hasRole(user, "admin") && !hasRole(user, "manager")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        String orgId = (String) user.get("organizationId");
-        Invitation invitation = userService.createInvitation(request, orgId);
-        return ResponseEntity.ok(invitation);
-    }
-}
-```
-
-</TabItem>
-</Tabs>
-
-## Advanced access control patterns
-
-For more complex scenarios, you can combine role and permission checks, implement hierarchical permissions, or create custom authorization logic.
-
-<Tabs syncKey="tech-stack">
-<TabItem value="node" label="Node.js">
-
-```javascript title="Advanced access control patterns" wrap {2-17,20-29,32-41}
-// Combined role and permission checking
-function canManageProjects(user) {
-  // Admins can always manage projects
-  if (hasRole(user, 'admin')) {
-    return true;
-  }
-
-  // Project managers with specific permission can manage
-  if (hasRole(user, 'project_manager') && hasPermission(user, 'projects:manage')) {
-    return true;
-  }
-
-  // Users with explicit project management permission
-  if (hasPermission(user, 'projects:create') && hasPermission(user, 'projects:update')) {
-    return true;
-  }
-
-  return false;
-}
-
-// Resource-specific access control
-function canAccessProject(user, projectId) {
-  // Get project details to check ownership/membership
-  const project = getProject(projectId);
-
-  // Project owner or admin can always access
-  if (project.ownerId === user.id || hasRole(user, 'admin')) {
-    return true;
-  }
-
-  // Team members with read permission can access
-  if (project.teamMembers.includes(user.id) && hasPermission(user, 'projects:read')) {
-    return true;
-  }
-
-  return false;
-}
-
-// Conditional access based on organization settings
-function canInviteUsers(user, organizationSettings) {
-  // Check organization-level restrictions
-  if (!organizationSettings.allowUserInvitations) {
-    return false;
-  }
-
-  // Check user permissions
-  return hasPermission(user, 'users:invite') || hasRole(user, 'admin') || hasRole(user, 'manager');
-}
-
-// Route with advanced access control
-app.get('/api/projects/:id', validateAndExtractAuth, (req, res) => {
-  const user = req.user;
-  const projectId = req.params.id;
-
-  if (!canAccessProject(user, projectId)) {
-    return res.status(403).json({ error: 'Access denied to this project' });
-  }
-
-  const project = getProject(projectId);
-  res.json(project);
-});
-```
-
-</TabItem>
-<TabItem value="python" label="Python">
-
-```python title="Advanced access control patterns" wrap {2-17,20-29,32-41}
-# Combined role and permission checking
-def can_manage_projects(user):
-    # Admins can always manage projects
-    if has_role(user, 'admin'):
-        return True
-
-    # Project managers with specific permission can manage
-    if has_role(user, 'project_manager') and has_permission(user, 'projects:manage'):
-        return True
-
-    # Users with explicit project management permission
-    if has_permission(user, 'projects:create') and has_permission(user, 'projects:update'):
-        return True
-
-    return False
-
-# Resource-specific access control
-def can_access_project(user, project_id):
-    # Get project details to check ownership/membership
-    project = get_project(project_id)
-
-    # Project owner or admin can always access
-    if project['owner_id'] == user['id'] or has_role(user, 'admin'):
-        return True
-
-    # Team members with read permission can access
-    if user['id'] in project['team_members'] and has_permission(user, 'projects:read'):
-        return True
-
-    return False
-
-# Conditional access based on organization settings
-def can_invite_users(user, organization_settings):
-    # Check organization-level restrictions
-    if not organization_settings.get('allow_user_invitations', False):
-        return False
-
-    # Check user permissions
-    return (has_permission(user, 'users:invite') or
-            has_role(user, 'admin') or
-            has_role(user, 'manager'))
-
-# Route with advanced access control
-@app.route('/api/projects/<project_id>')
-@validate_and_extract_auth
-def get_project(project_id):
-    user = request.user
-
-    if not can_access_project(user, project_id):
-        return jsonify({'error': 'Access denied to this project'}), 403
-
-    project = get_project_data(project_id)
-    return jsonify(project)
-```
-
-</TabItem>
-<TabItem value="go" label="Go">
-
-```go title="Advanced access control patterns" wrap {2-17,20-29,32-41}
-// Combined role and permission checking
-func canManageProjects(user map[string]interface{}) bool {
-    // Admins can always manage projects
-    if hasRole(user, "admin") {
-        return true
-    }
-
-    // Project managers with specific permission can manage
-    if hasRole(user, "project_manager") && hasPermission(user, "projects:manage") {
-        return true
-    }
-
-    // Users with explicit project management permission
-    if hasPermission(user, "projects:create") && hasPermission(user, "projects:update") {
-        return true
-    }
-
-    return false
-}
-
-// Resource-specific access control
-func canAccessProject(user map[string]interface{}, projectID string) bool {
-    // Get project details to check ownership/membership
-    project := getProject(projectID)
-
-    // Project owner or admin can always access
-    if project.OwnerID == user["id"] || hasRole(user, "admin") {
-        return true
-    }
-
-    // Team members with read permission can access
-    userID := user["id"].(string)
-    for _, memberID := range project.TeamMembers {
-        if memberID == userID && hasPermission(user, "projects:read") {
-            return true
-        }
-    }
-
-    return false
-}
-
-// Route with advanced access control
-func getProjectHandler(w http.ResponseWriter, r *http.Request) {
-    user := r.Context().Value("user").(map[string]interface{})
-    projectID := mux.Vars(r)["id"]
-
-    if !canAccessProject(user, projectID) {
-        http.Error(w, `{"error": "Access denied to this project"}`, http.StatusForbidden)
-        return
-    }
-
-    project := getProject(projectID)
-    json.NewEncoder(w).Encode(project)
-}
-```
-
-</TabItem>
-<TabItem value="java" label="Java">
-
-```java title="Advanced access control patterns" wrap {3-18,21-30,33-42}
-@Service
-public class AccessControlService {
-
-    // Combined role and permission checking
-    public boolean canManageProjects(Map<String, Object> user) {
-        // Admins can always manage projects
-        if (hasRole(user, "admin")) {
-            return true;
-        }
-
-        // Project managers with specific permission can manage
-        if (hasRole(user, "project_manager") && hasPermission(user, "projects:manage")) {
-            return true;
-        }
-
-        // Users with explicit project management permission
-        return hasPermission(user, "projects:create") && hasPermission(user, "projects:update");
-    }
-
-    // Resource-specific access control
-    public boolean canAccessProject(Map<String, Object> user, String projectId) {
-        // Get project details to check ownership/membership
-        Project project = projectService.getProject(projectId);
-
-        // Project owner or admin can always access
-        if (project.getOwnerId().equals(user.get("id")) || hasRole(user, "admin")) {
-            return true;
-        }
-
-        // Team members with read permission can access
-        String userId = (String) user.get("id");
-        return project.getTeamMembers().contains(userId) && hasPermission(user, "projects:read");
-    }
-
-    // Conditional access based on organization settings
-    public boolean canInviteUsers(Map<String, Object> user, OrganizationSettings settings) {
-        // Check organization-level restrictions
-        if (!settings.isAllowUserInvitations()) {
-            return false;
-        }
-
-        // Check user permissions
-        return hasPermission(user, "users:invite") ||
-               hasRole(user, "admin") ||
-               hasRole(user, "manager");
-    }
-}
-
-@RestController
-public class ProjectController {
-
-    @GetMapping("/api/projects/{projectId}")
-    public ResponseEntity<Project> getProject(
-        @PathVariable String projectId,
-        HttpServletRequest request
-    ) {
-        Map<String, Object> user = (Map<String, Object>) request.getAttribute("user");
-
-        if (!accessControlService.canAccessProject(user, projectId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        Project project = projectService.getProject(projectId);
-        return ResponseEntity.ok(project);
-    }
-}
-```
-
-</TabItem>
-</Tabs>
+This way your applications has enforced access control for both roles and permissions for different routes of your application. You can also combine both roles and permissions to further fine-tune access control.
