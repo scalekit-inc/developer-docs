@@ -55,6 +55,7 @@ import IconTablerServerSpark from '~icons/tabler/server-spark'
 import IconStreamlineUserSyncOnlineInPersonRemix from '~icons/streamline/user-sync-online-in-person-remix'
 import IconFluentPeopleCommunity16Regular from '~icons/fluent/people-community-16-regular'
 import IconStreamlinePlumpPaintPalette from '~icons/streamline-plump/paint-palette'
+import IconSolarServerPathOutline from '~icons/solar/server-path-outline'
 
 // Miscellaneous
 import IconRipple from '~icons/simple-icons/ripple'
@@ -185,6 +186,7 @@ export const iconMap = {
   directory: IconMaterialSymbolsFolderSupervisedOutlineSharpDirectory,
   pingid: IconArcticonsPingid,
   'microsoft-adfs': IconArcticonsFolderMicrosoftADFS,
+  m2m: IconSolarServerPathOutline,
 
   // Company and platform logos
   google: IconHugeiconsGoogle,

@@ -61,13 +61,14 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Auth modules',
+        label: 'Standalone auth modules',
         items: [
           'mcp/oauth',
           'passwordless/quickstart',
           'guides/user-auth/standalone-social-logins',
           'sso/quickstart',
           'directory/scim/quickstart',
+          'authenticate/m2m/api-auth-quickstart',
         ],
       },
       {
@@ -309,15 +310,6 @@ export const sidebar = [
         items: [
           'guides/m2m/overview',
           'm2m/quickstart',
-          {
-            label: 'Build M2M code samples',
-            link: '/browse/code-samples/github/m2m-code-samples',
-          },
-          {
-            label: 'M2M code examples',
-            link: 'https://github.com/scalekit-inc/gists/tree/main/m2m',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
           'guides/m2m/m2m-basics',
           'guides/m2m/scopes',
           'guides/m2m/api-auth-m2m-clients',

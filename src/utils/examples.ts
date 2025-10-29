@@ -29,7 +29,7 @@ export interface Column {
 
 const FILTER_LABELS = {
   'code-sample': 'Code samples',
-  tutorial: 'Tutorials',
+  tutorial: 'How-to',
   video: 'Videos',
 } as const
 
@@ -39,7 +39,7 @@ const CATEGORY_ORDER = [
   'User authentication',
   'User management',
   'Enterprise authentication',
-  'API Auth',
+  'Machine to Machine',
   'Auth modules',
   'Customize workflows',
   'Integrations',
