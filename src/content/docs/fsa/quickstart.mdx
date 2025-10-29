@@ -392,111 +392,113 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         // Set cookie parser middleware
         app.use(cookieParser());
 
-        // encrypt the accessToken using a secure encryption algorithm
-        const encryptedAccessToken = encrypt(authResult.accessToken);
-
-        // setting up accessToken as HTTP-only cookie
-        res.cookie('accessToken', encryptedAccessToken, {
+        // Store access token in HttpOnly cookie with Path scoping to API routes
+        res.cookie('accessToken', authResult.accessToken, {
           maxAge: (authResult.expiresIn - 60) * 1000,
           httpOnly: true,
           secure: true,
-          path: '/',
+          path: '/api',
           sameSite: 'strict'
         });
 
-        // Store the refreshToken in a secure place
+        // Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
+        res.cookie('refreshToken', authResult.refreshToken, {
+          httpOnly: true,
+          secure: true,
+          path: '/auth/refresh',
+          sameSite: 'strict'
+        });
         ```
         </TabItem>
 
         <TabItem value="python" label="Python">
         ```python collapse={1-10} { "1": 5-6 }  { 17-25 } {27}
         from flask import Flask, make_response
-        from cryptography.fernet import Fernet
         import os
 
         # Cookie parsing is built-in with Flask's request object
         app = Flask(__name__)
 
-        # encrypt the accessToken using a secure encryption algorithm
-        key = os.environ.get('ENCRYPTION_KEY')  # Store securely
-        cipher_suite = Fernet(key)
-        encrypted_access_token = cipher_suite.encrypt(
-          authResult['accessToken'].encode()
-          ).decode()
-
-        # setting up accessToken as HTTP-only cookie
         response = make_response()
+
+        # Store access token in HttpOnly cookie with Path scoping to API routes
         response.set_cookie(
             'accessToken',
-            encrypted_access_token,
-            max_age=(authResult['expiresIn'] - 60) * 1000,
+            auth_result.access_token,
+            max_age=auth_result.expires_in - 60,  # seconds in Flask
             httponly=True,
             secure=True,
-            path='/',
+            path='/api',
             samesite='Strict'
         )
 
-        # Store the refreshToken in a secure place
+        # Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
+        response.set_cookie(
+            'refreshToken',
+            auth_result.refresh_token,
+            httponly=True,
+            secure=True,
+            path='/auth/refresh',
+            samesite='Strict'
+        )
         ```
         </TabItem>
 
         <TabItem value="go" label="Go">
         ```go collapse={1-7}  {12, 15-23}
         import (
-            "crypto/aes"
-            "crypto/cipher"
             "net/http"
             "os"
         )
 
-        // encrypt the accessToken using a secure encryption algorithm
-        key := []byte(os.Getenv("ENCRYPTION_KEY"))
-        block, _ := aes.NewCipher(key)
-        gcm, _ := cipher.NewGCM(block)
-        encryptedAccessToken, _ := encrypt(authResult.AccessToken)
+        // Set SameSite mode for CSRF protection
+        c.SetSameSite(http.SameSiteStrictMode)
 
-        // setting up accessToken as HTTP-only cookie
-        cookie := &http.Cookie{
-            Name:     "accessToken",
-            Value:    encryptedAccessToken,
-            MaxAge:   (authResult.ExpiresIn - 60) * 1000,
-            HttpOnly: true,
-            Secure:   true,
-            Path:     "/",
-            SameSite: http.SameSiteStrictMode,
-        }
-        http.SetCookie(w, cookie)
+        // Store access token in HttpOnly cookie with Path scoping to API routes
+        c.SetCookie(
+            "accessToken",
+            authResult.AccessToken,
+            authResult.ExpiresIn-60, // seconds in Gin
+            "/api",
+            "",
+            os.Getenv("GIN_MODE") == "release",
+            true,
+        )
 
-        // Store the refreshToken in a secure place
+        // Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
+        c.SetCookie(
+            "refreshToken",
+            authResult.RefreshToken,
+            0, // No expiry for refresh token cookie
+            "/auth/refresh",
+            "",
+            os.Getenv("GIN_MODE") == "release",
+            true,
+        )
         ```
         </TabItem>
 
         <TabItem value="java" label="Java">
         ```java collapse={1-6} {"setting up accessToken as HTTP-only cookie": 7} {"setting up refreshToken as HTTP-only cookie": 16}
-        import javax.crypto.Cipher;
-        import javax.crypto.SecretKey;
         import javax.servlet.http.Cookie;
         import javax.servlet.http.HttpServletResponse;
-        import java.util.Base64;
 
-
-        String encryptedAccessToken = encrypt(authResult.getAccessToken());
-        Cookie accessTokenCookie = new Cookie("accessToken", encryptedAccessToken);
-        accessTokenCookie.setMaxAge((authResult.getExpiresIn() - 60) * 1000);
+        // Store access token in HttpOnly cookie with Path scoping to API routes
+        Cookie accessTokenCookie = new Cookie("accessToken", authResult.getAccessToken());
+        accessTokenCookie.setMaxAge(authResult.getExpiresIn() - 60); // seconds in Spring
         accessTokenCookie.setHttpOnly(true);
         accessTokenCookie.setSecure(true);
-        accessTokenCookie.setPath("/");
+        accessTokenCookie.setPath("/api");
         response.addCookie(accessTokenCookie);
 
-
-        String encryptedRefreshToken = encrypt(authResult.getRefreshToken());
-        Cookie refreshTokenCookie = new Cookie("refreshToken", encryptedRefreshToken);
+        // Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
+        Cookie refreshTokenCookie = new Cookie("refreshToken", authResult.getRefreshToken());
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setPath("/auth/refresh");
         response.addCookie(refreshTokenCookie);
-
-        //Or, Store the refreshToken in a secure place
+        response.setHeader("Set-Cookie",
+          response.getHeader("Set-Cookie") + "; SameSite=Strict");
         ```
         </TabItem>
       </Tabs>
