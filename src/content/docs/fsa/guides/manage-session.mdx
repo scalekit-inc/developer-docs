@@ -1,6 +1,6 @@
 ---
 title: 'Manage user sessions'
-description: 'Store tokens safely, validate on every request, and refresh quietly so sessions stay seamless and secure'
+description: 'Store tokens safely with proper cookie security, validate on every request, and refresh with rotation to keep sessions secure'
 head:
   - tag: style
     content: |
@@ -33,7 +33,7 @@ import IconTdesignSequence from '~icons/tdesign/sequence'
 
 User sessions determine how long users stay signed in to your application. After users successfully authenticate, you receive session tokens that manage their access. These tokens control session duration, multi-device access, and cross-product authentication within your company's ecosystem.
 
-This guide shows you how to store these tokens securely and refresh them before they expire.
+This guide shows you how to store these tokens securely with proper cookie attributes, validate them on every request, and refresh them with rotation to prevent token replay attacks.
 
 
 <details>
@@ -51,9 +51,9 @@ This guide shows you how to store these tokens securely and refresh them before 
 
    <AuthResultTabsSection />
 
-   Store each token based on its security requirements:
-   - **Access Token**: Store in a secure, HTTP-only cookie to prevent XSS attacks. This token has a short lifespan and provides access to protected resources.
-   - **Refresh Token**: Store in your backend database or secure server-side storage. This long-lived token generates new access tokens.
+   Store each token based on its security requirements. For SPAs and mobile apps, consider storing access tokens in memory and sending via `Authorization: Bearer` headers to minimize CSRF exposure. For traditional web apps, use the cookie-based approach below:
+   - **Access Token**: Store in a secure, HttpOnly cookie with proper `Path` scoping (e.g., `/api`) to prevent XSS attacks. This token has a short lifespan and provides access to protected resources.
+   - **Refresh Token**: Store in your backend database or secure server-side storage with rotation on each use. This long-lived token generates new access tokens and should be bound to the client session.
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
@@ -65,23 +65,27 @@ This guide shows you how to store these tokens securely and refresh them before 
      // Extract authentication data from the successful authentication response
      const { accessToken, expiresIn, refreshToken, user } = authResult;
 
-     // Persist refresh token in database for later token renewal
-     // This allows issuing new access tokens without requiring re-authentication
-     await db.saveRefreshToken(user.id, refreshToken);
+     // Persist refresh token in database for token rotation on each refresh
+     // Store with session binding (user-agent, IP) to detect token theft
+     await db.saveRefreshToken(user.id, refreshToken, {
+       userAgent: req.headers['user-agent'],
+       ip: req.ip
+     });
 
-     // Create secure HTTP-only cookie containing the access token
-     // The cookie expires shortly before the token itself to prevent edge cases
+     // Create secure HttpOnly cookie containing the access token
+     // Path scoping limits where browser sends this cookie (least privilege)
      res.cookie('accessToken', accessToken, {
-       maxAge: (expiresIn - 60) * 1000, // Subtract 60s buffer for clock skew
+       maxAge: (expiresIn - 60) * 1000, // Subtract 60s buffer for clock skew (milliseconds)
        httpOnly: true, // Prevents JavaScript access to mitigate XSS attacks
        secure: process.env.NODE_ENV === 'production', // HTTPS-only in production
-       sameSite: 'strict' // Prevents CSRF attacks
+       sameSite: 'strict', // Prevents CSRF attacks; use 'lax' if top-level navigation needed
+       path: '/api' // Restrict cookie to API routes only
      });
      ```
      </TabItem>
      <TabItem value="py" label="Python">
      ```python title="Flask" collapse={1-4} "access_token" "refresh_token"
-     from flask import Flask, make_response
+     from flask import Flask, make_response, request
      import os
      app = Flask(__name__)
 
@@ -91,19 +95,24 @@ This guide shows you how to store these tokens securely and refresh them before 
      refresh_token = auth_result.refresh_token
      user = auth_result.user
 
-     # Persist refresh token in database for later token renewal
-     # This allows issuing new access tokens without requiring re-authentication
-     db.save_refresh_token(user.id, refresh_token)
+     # Persist refresh token in database for token rotation on each refresh
+     # Store with session binding (user-agent, IP) to detect token theft
+     db.save_refresh_token(user.id, refresh_token, {
+       'user_agent': request.headers.get('User-Agent'),
+       'ip': request.remote_addr
+     })
 
-     # Create secure HTTP-only cookie containing the access token
+     # Create secure HttpOnly cookie containing the access token
+     # Path scoping limits where browser sends this cookie (least privilege)
      response = make_response()
      response.set_cookie(
        'accessToken',
        access_token,
-       max_age=(expires_in - 60) * 1000,  # Subtract 60s buffer for clock skew
-       httponly=True,                      # Prevents JavaScript access to mitigate XSS attacks
+       max_age=expires_in - 60,  # Subtract 60s buffer for clock skew (seconds in Flask)
+       httponly=True,             # Prevents JavaScript access to mitigate XSS attacks
        secure=os.environ.get('FLASK_ENV') == 'production',  # HTTPS-only in production
-       samesite='Strict'                   # Prevents CSRF attacks
+       samesite='Strict',         # Prevents CSRF attacks; use 'Lax' if top-level navigation needed
+       path='/api'                # Restrict cookie to API routes only
      )
      ```
      </TabItem>
@@ -122,22 +131,25 @@ This guide shows you how to store these tokens securely and refresh them before 
      refreshToken := authResult.RefreshToken
      user := authResult.User
 
-     // Persist refresh token in database for later token renewal
-     // This allows issuing new access tokens without requiring re-authentication
-     db.SaveRefreshToken(user.ID, refreshToken)
+     // Persist refresh token in database for token rotation on each refresh
+     // Store with session binding (user-agent, IP) to detect token theft
+     db.SaveRefreshToken(user.ID, refreshToken, map[string]string{
+       "userAgent": c.Request.UserAgent(),
+       "ip":        c.ClientIP(),
+     })
 
-     // Create secure HTTP-only cookie containing the access token
+     // Create secure HttpOnly cookie containing the access token
+     // Path scoping limits where browser sends this cookie (least privilege)
+     c.SetSameSite(http.SameSiteStrictMode) // Prevents CSRF; use Lax if top-level navigation needed
      c.SetCookie(
        "accessToken",
        accessToken,
-       (expiresIn-60)*1000, // Subtract 60s buffer for clock skew
-       "/",
+       expiresIn-60, // Subtract 60s buffer for clock skew (seconds in Gin)
+       "/api",       // Restrict cookie to API routes only
        "",
        os.Getenv("GIN_MODE") == "release", // HTTPS-only in production
        true, // Prevents JavaScript access to mitigate XSS attacks
      )
-     // Prevents CSRF attacks
-     c.SetSameSite(http.SameSiteStrictMode)
      ```
      </TabItem>
      <TabItem value="java" label="Java">
@@ -154,27 +166,37 @@ This guide shows you how to store these tokens securely and refresh them before 
      String refreshToken = authResult.getRefreshToken();
      User user = authResult.getUser();
 
-     // Persist refresh token in database for later token renewal
-     // This allows issuing new access tokens without requiring re-authentication
-     db.saveRefreshToken(user.getId(), refreshToken);
+     // Persist refresh token in database for token rotation on each refresh
+     // Store with session binding (user-agent, IP) to detect token theft
+     Map<String, String> binding = new HashMap<>();
+     binding.put("userAgent", request.getHeader("User-Agent"));
+     binding.put("ip", request.getRemoteAddr());
+     db.saveRefreshToken(user.getId(), refreshToken, binding);
 
-     // Create secure HTTP-only cookie containing the access token
+     // Create secure HttpOnly cookie containing the access token
+     // Path scoping limits where browser sends this cookie (least privilege)
      Cookie cookie = new Cookie("accessToken", accessToken);
-     cookie.setMaxAge((expiresIn - 60) * 1000); // Subtract 60s buffer for clock skew
+     cookie.setMaxAge(expiresIn - 60); // Subtract 60s buffer for clock skew (seconds in Spring)
      cookie.setHttpOnly(true); // Prevents JavaScript access to mitigate XSS attacks
      cookie.setSecure("production".equals(env.getActiveProfiles()[0])); // HTTPS-only in production
-     cookie.setPath("/");
+     cookie.setPath("/api"); // Restrict cookie to API routes only
      response.addCookie(cookie);
+     response.setHeader("Set-Cookie",
+       response.getHeader("Set-Cookie") + "; SameSite=Strict"); // Prevents CSRF attacks
      ```
      </TabItem>
    </Tabs>
 
-   Configure session settings from your [Scalekit dashboard's Session Configuration](/fsa/reference/user-management-settings) to control session lifetimes and security policies.
+   Configure session policy from your Dashboard > Authentication > Session Policy
+
+   <Aside type="tip">
+   When using cookie-based authentication, implement CSRF protection for state-changing operations (POST, PUT, PATCH, DELETE). Use synchronizer tokens or signed double-submit cookies alongside `SameSite` attributes for defense in depth.
+   </Aside>
 
 
 3. ## Check the access token before handling requests
 
-   Validate every request for a valid access token in your application. Create middleware to protect your application routes. This middleware validates the access token on every request to secured endpoints.
+   Validate every request for a valid access token in your application. Create middleware to protect your application routes. This middleware validates the access token on every request to secured endpoints. For APIs, consider reading from `Authorization: Bearer` headers instead of cookies to minimize CSRF risk.
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
@@ -343,7 +365,7 @@ This guide shows you how to store these tokens securely and refresh them before 
 
 4. ## Maintain sessions by refreshing access tokens
 
-   When access tokens expire, you can use the refresh token to obtain new ones without requiring users to sign in again. Store refresh tokens securely in a database, HTTP-only cookies, or another secure storage mechanism. This approach maintains seamless user sessions while ensuring security through the token refresh flow.
+   When access tokens expire, you can use the refresh token to obtain new ones without requiring users to sign in again. Implement refresh token rotation by replacing the old refresh token with a new one on each refresh and invalidating the old token server-side. This limits the window for token replay attacks and enables detection of token theft. Optionally, verify that session binding attributes (user-agent, IP) haven't changed significantly to detect suspicious activity.
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
@@ -355,37 +377,47 @@ This guide shows you how to store these tokens securely and refresh them before 
          return res.status(401).json({ error: 'Authentication required' });
        }
 
-       // Fetch the refresh token from persistent storage
-       // This token will be used to request new access credentials
-       const storedRefreshToken = await db.getRefreshToken(userId);
-       if (!storedRefreshToken) {
+       // Fetch the refresh token and binding metadata from persistent storage
+       const tokenData = await db.getRefreshToken(userId);
+       if (!tokenData || !tokenData.token) {
          return res.status(401).json({ error: 'Session expired' });
        }
 
+       // Optional: Verify session binding to detect token theft
+       // Allow some tolerance for legitimate changes (e.g., IP changes on mobile)
+       if (tokenData.userAgent && tokenData.userAgent !== req.headers['user-agent']) {
+         await db.revokeRefreshToken(userId); // Potential token theft detected
+         return res.status(401).json({ error: 'Session security violation. Please sign in again.' });
+       }
+
        try {
-         // Exchange refresh token for new credentials from Scalekit
-         const authResult = await scalekit.refreshAccessToken(storedRefreshToken);
+         // Exchange refresh token for new credentials with token rotation
+         const authResult = await scalekit.refreshAccessToken(tokenData.token);
          const { accessToken, expiresIn, refreshToken: newRefreshToken } = authResult;
 
-         // Persist the new refresh token for future token refreshes
-         await db.saveRefreshToken(userId, newRefreshToken);
+         // Rotate: Invalidate old token and persist new refresh token with binding
+         await db.revokeRefreshToken(userId, tokenData.token); // Invalidate old token
+         await db.saveRefreshToken(userId, newRefreshToken, {
+           userAgent: req.headers['user-agent'],
+           ip: req.ip
+         });
 
-         // Set access token in HTTP-only cookie with security configurations
-         // Subtract 60 seconds to account for network latency and clock skew
+         // Set access token in HttpOnly cookie with security configurations and Path scoping
          res.cookie('accessToken', accessToken, {
-           maxAge: (expiresIn - 60) * 1000,
+           maxAge: (expiresIn - 60) * 1000, // Subtract 60s buffer for clock skew (milliseconds)
            httpOnly: true,
            secure: process.env.NODE_ENV === 'production',
-           sameSite: 'strict'
+           sameSite: 'strict',
+           path: '/api' // Restrict cookie to API routes only
          });
 
          // Update request context with user data and continue to next middleware
          req.user = authResult.user;
          next();
        } catch (error) {
-         // Authentication chain broken - user session cannot be recovered
-         // Clear any existing credentials and require re-authentication
-         res.clearCookie('accessToken');
+         // Refresh failed - invalidate token family to prevent replay attacks
+         await db.revokeAllRefreshTokens(userId);
+         res.clearCookie('accessToken', { path: '/api' }); // Match Path when clearing
          return res.status(401).json({ error: 'Session expired. Please sign in again.' });
        }
      }
@@ -394,48 +426,57 @@ This guide shows you how to store these tokens securely and refresh them before 
      <TabItem value="py" label="Python">
      ```python title="middleware/auth.py" {4, 10,16, 27-34}
      from flask import request, jsonify, make_response
+     import os
      def handle_token_refresh(f, *args, **kwargs):
          # Extract user ID from session or user object to identify the session
          user_id = request.session.get('userId') if hasattr(request, 'session') else getattr(request, 'user', {}).get('id')
          if not user_id:
              return jsonify({'error': 'Authentication required'}), 401
 
-         # Fetch the refresh token from persistent storage
-         # This token will be used to request new access credentials
-         stored_refresh_token = db.get_refresh_token(user_id)
-         if not stored_refresh_token:
+         # Fetch the refresh token and binding metadata from persistent storage
+         token_data = db.get_refresh_token(user_id)
+         if not token_data or not token_data.get('token'):
              return jsonify({'error': 'Session expired'}), 401
 
+         # Optional: Verify session binding to detect token theft
+         if token_data.get('user_agent') and token_data['user_agent'] != request.headers.get('User-Agent'):
+             db.revoke_refresh_token(user_id)  # Potential token theft detected
+             return jsonify({'error': 'Session security violation. Please sign in again.'}), 401
+
          try:
-             # Exchange refresh token for new credentials from Scalekit
-             auth_result = scalekit.refresh_access_token(stored_refresh_token)
+             # Exchange refresh token for new credentials with token rotation
+             auth_result = scalekit.refresh_access_token(token_data['token'])
              access_token = auth_result.access_token
              expires_in = auth_result.expires_in
              new_refresh_token = auth_result.refresh_token
 
-             # Persist the new refresh token for future token refreshes
-             db.save_refresh_token(user_id, new_refresh_token)
+             # Rotate: Invalidate old token and persist new refresh token with binding
+             db.revoke_refresh_token(user_id, token_data['token'])  # Invalidate old token
+             db.save_refresh_token(user_id, new_refresh_token, {
+                 'user_agent': request.headers.get('User-Agent'),
+                 'ip': request.remote_addr
+             })
 
-             # Set access token in HTTP-only cookie with security configurations
-             # Subtract 60 seconds to account for network latency and clock skew
+             # Set access token in HttpOnly cookie with security configurations and Path scoping
              response = make_response(f(*args, **kwargs))
              response.set_cookie(
                  'accessToken',
                  access_token,
-                 max_age=(expires_in - 60) * 1000,
+                 max_age=expires_in - 60,  # Subtract 60s buffer for clock skew (seconds in Flask)
                  httponly=True,
                  secure=os.environ.get('FLASK_ENV') == 'production',
-                 samesite='Strict'
+                 samesite='Strict',
+                 path='/api'  # Restrict cookie to API routes only
              )
 
              # Update request context with user data and continue to next middleware
              request.user = auth_result.user
              return response
          except Exception:
-             # Authentication chain broken - user session cannot be recovered
-             # Clear any existing credentials and require re-authentication
+             # Refresh failed - invalidate token family to prevent replay attacks
+             db.revoke_all_refresh_tokens(user_id)
              response = make_response(jsonify({'error': 'Session expired. Please sign in again.'}), 401)
-             response.set_cookie('accessToken', '', expires=0)
+             response.set_cookie('accessToken', '', expires=0, path='/api')  # Match Path when clearing
              return response
      ```
      </TabItem>
@@ -443,6 +484,7 @@ This guide shows you how to store these tokens securely and refresh them before 
      ```go title="middleware/auth.go" {14, 33-41}
      import (
        "net/http"
+       "os"
        "github.com/gin-gonic/gin"
      )
      func handleTokenRefresh(c *gin.Context) {
@@ -453,34 +495,46 @@ This guide shows you how to store these tokens securely and refresh them before 
          c.Abort()
          return
        }
-       // Fetch the refresh token from persistent storage for token rotation
-       storedRefreshToken, err := db.GetRefreshToken(userID)
-       if err != nil || storedRefreshToken == "" {
+       // Fetch the refresh token and binding metadata from persistent storage
+       tokenData, err := db.GetRefreshToken(userID)
+       if err != nil || tokenData.Token == "" {
          c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired"})
          c.Abort()
          return
        }
-       // Exchange refresh token for new credentials with Scalekit
-       authResult, err := scalekit.RefreshAccessToken(storedRefreshToken)
+       // Optional: Verify session binding to detect token theft
+       if tokenData.UserAgent != "" && tokenData.UserAgent != c.Request.UserAgent() {
+         db.RevokeRefreshToken(userID) // Potential token theft detected
+         c.JSON(http.StatusUnauthorized, gin.H{"error": "Session security violation. Please sign in again."})
+         c.Abort()
+         return
+       }
+       // Exchange refresh token for new credentials with token rotation
+       authResult, err := scalekit.RefreshAccessToken(tokenData.Token)
        if err != nil {
-         // Authentication chain broken - clear credentials and require re-authentication
-         c.SetCookie("accessToken", "", -1, "/", "", false, true)
+         // Refresh failed - invalidate token family to prevent replay attacks
+         db.RevokeAllRefreshTokens(userID)
+         c.SetCookie("accessToken", "", -1, "/api", "", false, true) // Match Path when clearing
          c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired. Please sign in again."})
          c.Abort()
          return
        }
-       // Persist the new refresh token for future token refreshes
-       db.SaveRefreshToken(userID, authResult.RefreshToken)
-       // Set access token in HTTP-only cookie with security configurations
-       // Subtract 60 seconds to account for network latency and clock skew
+       // Rotate: Invalidate old token and persist new refresh token with binding
+       db.RevokeRefreshToken(userID, tokenData.Token) // Invalidate old token
+       db.SaveRefreshToken(userID, authResult.RefreshToken, map[string]string{
+         "userAgent": c.Request.UserAgent(),
+         "ip":        c.ClientIP(),
+       })
+       // Set access token in HttpOnly cookie with security configurations and Path scoping
+       c.SetSameSite(http.SameSiteStrictMode)
        c.SetCookie(
          "accessToken",
          authResult.AccessToken,
-         (authResult.ExpiresIn-60)*1000,
-         "/",
+         authResult.ExpiresIn-60, // Subtract 60s buffer for clock skew (seconds in Gin)
+         "/api",                  // Restrict cookie to API routes only
          "",
          os.Getenv("GIN_MODE") == "release", // Secure flag in production
-         true, // HTTP-only flag
+         true, // HttpOnly flag
        )
        // Update request context with user data and continue to next middleware
        c.Set("user", authResult.User)
@@ -493,6 +547,8 @@ This guide shows you how to store these tokens securely and refresh them before 
      import javax.servlet.http.HttpServletRequest;
      import javax.servlet.http.HttpServletResponse;
      import javax.servlet.http.Cookie;
+     import java.util.Map;
+     import java.util.HashMap;
      private boolean handleTokenRefresh(HttpServletRequest request, HttpServletResponse response)
          throws Exception {
        // Identify the user session from context to maintain authentication state
@@ -503,40 +559,56 @@ This guide shows you how to store these tokens securely and refresh them before 
          return false;
        }
 
-       // Fetch the refresh token from persistent storage for token rotation
-       String storedRefreshToken = db.getRefreshToken(userId);
-       if (storedRefreshToken == null) {
+       // Fetch the refresh token and binding metadata from persistent storage
+       TokenData tokenData = db.getRefreshToken(userId);
+       if (tokenData == null || tokenData.getToken() == null) {
          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
          response.getWriter().write("{\"error\": \"Session expired\"}");
          return false;
        }
 
+       // Optional: Verify session binding to detect token theft
+       if (tokenData.getUserAgent() != null &&
+           !tokenData.getUserAgent().equals(request.getHeader("User-Agent"))) {
+         db.revokeRefreshToken(userId); // Potential token theft detected
+         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+         response.getWriter().write("{\"error\": \"Session security violation. Please sign in again.\"}");
+         return false;
+       }
+
        try {
-         // Exchange refresh token for new credentials with Scalekit
-         AuthResult authResult = scalekit.refreshToken(storedRefreshToken);
+         // Exchange refresh token for new credentials with token rotation
+         AuthResult authResult = scalekit.refreshToken(tokenData.getToken());
          String accessToken = authResult.getAccessToken();
          int expiresIn = authResult.getExpiresIn();
          String newRefreshToken = authResult.getRefreshToken();
 
-         // Persist the new refresh token for future token refreshes
-         db.saveRefreshToken(userId, newRefreshToken);
+         // Rotate: Invalidate old token and persist new refresh token with binding
+         db.revokeRefreshToken(userId, tokenData.getToken()); // Invalidate old token
+         Map<String, String> binding = new HashMap<>();
+         binding.put("userAgent", request.getHeader("User-Agent"));
+         binding.put("ip", request.getRemoteAddr());
+         db.saveRefreshToken(userId, newRefreshToken, binding);
 
-         // Set access token in HTTP-only cookie with security configurations
+         // Set access token in HttpOnly cookie with security configurations and Path scoping
          Cookie cookie = new Cookie("accessToken", accessToken);
-         // Subtract 60 seconds to account for network latency and clock skew
-         cookie.setMaxAge((expiresIn - 60) * 1000);
+         cookie.setMaxAge(expiresIn - 60); // Subtract 60s buffer for clock skew (seconds in Spring)
          cookie.setHttpOnly(true);
          cookie.setSecure("production".equals(env.getActiveProfiles()[0]));
-         cookie.setPath("/");
+         cookie.setPath("/api"); // Restrict cookie to API routes only
          response.addCookie(cookie);
+         response.setHeader("Set-Cookie",
+           response.getHeader("Set-Cookie") + "; SameSite=Strict"); // Prevents CSRF attacks
 
          // Update request context with user data and continue to next middleware
          request.setAttribute("user", authResult.getUser());
          return true;
        } catch (Exception e) {
-         // Authentication chain broken - clear credentials and require re-authentication
+         // Refresh failed - invalidate token family to prevent replay attacks
+         db.revokeAllRefreshTokens(userId);
          Cookie expiredCookie = new Cookie("accessToken", "");
          expiredCookie.setMaxAge(0);
+         expiredCookie.setPath("/api"); // Match Path when clearing
          response.addCookie(expiredCookie);
          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
          response.getWriter().write("{\"error\": \"Session expired. Please sign in again.\"}");
@@ -625,4 +697,8 @@ This guide shows you how to store these tokens securely and refresh them before 
       - **Access token lifetime**: This is how long an access token is valid. When it expires, your app needs to get a new token (using the refresh token) so the user can keep using the app without logging in again. For example, if you set it to 5 minutes, your app will need to refresh the token every 5 minutes.
 
       Shorter timeouts provide better security, while longer timeouts reduce authentication interruptions.
+
+   <Aside type="note">
+   **Logout security**: When implementing logout, ensure you clear cookies with the same attributes used when setting them (especially `Path` and `Domain`). Revoke the refresh token server-side and invalidate any server sessions. For enhanced security, consider revoking all refresh tokens for the user to force logout across all devices.
+   </Aside>
 </Steps>
