@@ -1,44 +1,91 @@
 ---
-title: API authentication quickstart
-description: "Learn how to add secure authentication to your APIs in minutes with Scalekit, including client registration, OAuth 2.0, and token validation."
+title: Build authentication into your APIs
+description: "Secure your APIs in minutes with OAuth 2.0 client credentials, scoped access, and JWT validation using Scalekit"
+browseCentral:
+  label: Build authentication into your APIs
+  filterType: ["tutorial"]
+  category: ["Auth modules"]
+  icon: book
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+seeAlso:
+  items:
+    - title: "Trade client creds for bearer token"
+      icon: "code"
+      url: "https://github.com/scalekit-inc/gists/blob/main/scalekit-api-basics/client-credentials-oauth-2-0-flow-with-curl.md"
+    - title: "Validate a client's API request"
+      icon: "js"
+      url: "https://github.com/scalekit-inc/gists/blob/main/m2m/validate-m2m-client-request.ts"
 sidebar:
-  label: "API auth quickstart"
+  label: "Add auth to your APIs"
 ---
 
 import { LinkButton, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-> Add secure authentication to your APIs
+APIs are a fundamental mechanism for systems to communicate and exchange data. By exposing API endpoints, applications enable customers, partners, and external systems to interact seamlessly, creating deeper integrations and increasing the _stickiness_ to your app and it's usecases.
 
-Learn how to add authentication to your APIs in minutes. This guide shows you how to:
+Exposing APIs without any authentication is like leaving your door wide open for anyone to walk in. Anyone can access your API endpoints, potentially causing security breaches, data leaks, and unauthorized usage.
 
-- Register API clients that need to access your services
-- Set up OAuth 2.0 authentication using client credentials
-- Validate access tokens to ensure only authorized clients can call your APIs
+In this guide let's take a look at how your can add OAuth2.0 based client credentials authentication to your APIs to ensure only authorized clients can consume your APIs.
 
-**Who is this for?** This guide is for developers who want to secure their APIs and control which external systems can access them.
+<details>
+<summary>Review the authentication flow</summary>
+```d2
+shape: sequence_diagram
 
-**Prerequisites:**
-- A Scalekit account ([sign up here](https://app.scalekit.com/ws/signup) if you don't have one)
-- Basic understanding of REST APIs
-- Familiarity with OAuth 2.0 (optional)
+API Client
+User
 
-<InstallSDK />
+User -> Your App: Request to register \n an API client \n with necessary scopes
+Your App -> Scalekit: Creates an API client \n in your Scalekit environment
+Scalekit -> Your App: Gives you a client_id \n and client_secret
+Your App -> User: Show the client credentials
+User -> API Client: Saves the API credetials
+API Client -> Your App: Requests access to \n protected resource
+Your App <> Scalekit: Validates the access tokens
+Your App -> API Client: Returns the protected resource
+
+```
+</details>
+
+
 
 <Steps>
 
-1. ## Register an API client
+1. ## Installation
 
-   Before an application can access your API, you need to register it as a client. This creates secure credentials that the app developers will use to authenticate its API requests.
+   Scalekit becomes the authorization server for your APIs. Using Scalekit provides necessary methods to register and authenticate API clients.
 
-   When you register a client, you'll receive a unique client ID and secret — similar to a username and password for applications. Present it to your API client developers to use in their code.
+   ```sh showLineNumbers=false
+   pip install scalekit-sdk-python
+   ```
+   Alternatively, you can use the [REST APIs directly](https://docs.scalekit.com/apis/#tag/api-auth).
+
+   <Aside>
+   Currently Scalekit supports Python SDKs, <a href="/support/contact-us" target="_blank">contact us</a> if you need support for your tech stack.
+   </Aside>
+
+
+1. ## Enable API client registration for your customers
+
+   To enable secure API access, you must first register an application as an API client. This process generates unique credentials that will authenticate the client when interacting with your API.
+
+   Upon registration, your app obtains a client ID and secret — essentially an application-level authentication mechanism. These credentials should be securely shared with your API client developers for integration (usually via view-once UI).
 
    <Tabs syncKey="tech-stack">
    <TabItem value="curl" label="cURL">
 
-   ```sh wrap {2, 4} title="POST /organizations/{organization_id}/clients"
+   ```bash {2, 4} title="POST /organizations/{organization_id}/clients"
    # For authentication details, see: http://docs.scalekit.com/apis#description/authentication
-   curl -L 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<ORGANIZATION_ID>/clients' \
+   curl -L '<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<ORGANIZATION_ID>/clients' \
    -H 'Content-Type: application/json' \
    -H 'Authorization: Bearer <SCALEKIT_ACCESS_TOKEN>' \
    -d '{
@@ -65,58 +112,7 @@ Learn how to add authentication to your APIs in minutes. This guide shows you ho
    }'
    ```
 
-   </TabItem>
-   <TabItem value="python" label="Python">
-
-   ```python wrap {23}
-   from scalekit.v1.clients.clients_pb2 import OrganizationClient
-
-   org_id = "<SCALEKIT_ORGANIZATION_ID>"
-
-   api_client = OrganizationClient(
-       name="GitHub Actions Deployment Service",
-       description="Service account for GitHub Actions to deploy applications to production",
-       custom_claims=[
-           {
-               "key": "github_repository",
-               "value": "acmecorp/inventory-service"
-           },
-           {
-               "key": "environment",
-               "value": "production_us"
-           }
-       ],
-       scopes=["deploy:applications", "read:deployments"],
-       audience=["deployment-api.acmecorp.com"],
-       expiry=3600
-   )
-
-   response = scalekit_client.m2m_client.create_organization_client(
-       organization_id=org_id,
-       m2m_client=api_client
-   )
-   ```
-
-   </TabItem>
-   </Tabs>
-
-   <details>
-   <summary>API client registration parameters</summary>
-
-   | Parameter | Type | Description |
-   |-----------|------|-------------|
-   | <pre>name</pre> | <pre>string</pre> | A descriptive name for the API client (e.g., "GitHub Actions Deployment Service") |
-   | <pre>description</pre> | <pre>string</pre> | A detailed explanation of the client's purpose and usage |
-   | <pre>custom_claims</pre> | <pre>array</pre> | Key-value pairs that provide additional context about the client. Each claim must have a `key` and `value` field |
-   | <pre>scopes</pre> | <pre>array</pre> | List of permissions the client needs (e.g., ["deploy:applications", "read:deployments"]) |
-   | <pre>audience</pre> | <pre>array</pre> | List of API endpoints this client will access (e.g., ["deployment-api.acmecorp.com"]) |
-   | <pre>expiry</pre> | <pre>number</pre> | Token expiration time in seconds. Defaults to 3600 (1 hour) |
-
-   </details>
-
-   The API response contains the client details, including the `client_id` and `client_secret`.
-
-   ```json title="Register an API client API response" wrap
+   ```json title="Sample response" wrap {2,6}
    {
        "client": {
            "client_id": "m2morg_68315758685323697",
@@ -157,13 +153,108 @@ Learn how to add authentication to your APIs in minutes. This guide shows you ho
    }
    ```
 
+   Before registering an API client, you must first authenticate with Scalekit by obtaining a bearer token using your environment's API credentials.
+   </TabItem>
+   <TabItem value="python" label="Python">
+
+   ```python wrap collapse={1-4}
+   from scalekit.v1.clients.clients_pb2 import OrganizationClient
+
+   org_id = "<SCALEKIT_ORGANIZATION_ID>"
+
+   api_client = OrganizationClient(
+       name="GitHub Actions Deployment Service",
+       description="Service account for GitHub Actions to deploy applications to production",
+       custom_claims=[
+           {
+               "key": "github_repository",
+               "value": "acmecorp/inventory-service"
+           },
+           {
+               "key": "environment",
+               "value": "production_us"
+           }
+       ],
+       scopes=["deploy:applications", "read:deployments"],
+       audience=["deployment-api.acmecorp.com"],
+       expiry=3600
+   )
+
+   response = scalekit_client.m2m_client.create_organization_client(
+       organization_id=org_id,
+       m2m_client=api_client
+   )
+
+   # Persist the generated credentials securely in your application
+   client_id = response.client.client_id
+   plain_secret = response.plain_secret
+   ```
+
+   ```json title="Sample response" wrap {2,6}
+   {
+       "client": {
+           "client_id": "m2morg_68315758685323697",
+           "secrets": [
+               {
+                   "id": "sks_68315758802764209",
+                   "create_time": "2025-04-16T06:56:05.360Z",
+                   "update_time": "2025-04-16T06:56:05.367190455Z",
+                   "secret_suffix": "UZ0X",
+                   "status": "ACTIVE",
+                   "last_used_time": "2025-04-16T06:56:05.360Z"
+               }
+           ],
+           "name": "GitHub Actions Deployment Service",
+           "description": "Service account for GitHub Actions to deploy applications to production",
+           "organization_id": "org_59615193906282635",
+           "create_time": "2025-04-16T06:56:05.290Z",
+           "update_time": "2025-04-16T06:56:05.292145150Z",
+           "scopes": [
+               "deploy:applications",
+               "read:deployments"
+           ],
+           "audience": [
+               "deployment-api.acmecorp.com"
+           ],
+           "custom_claims": [
+               {
+                   "key": "github_repository",
+                   "value": "acmecorp/inventory-service"
+               },
+               {
+                   "key": "environment",
+                   "value": "production_us"
+               }
+           ]
+       },
+       "plain_secret": "test_ly8G57h0ErRJSObJI6dShkoaq6bigo11Dxcfa6reKG1kKNVbqBKW4H5Ctmb5UZ0X"
+   }
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   <details>
+   <summary>API client registration parameters</summary>
+
+   | Parameter | Type | Description |
+   |-----------|------|-------------|
+   | <pre>name</pre> | <pre>string</pre> | A descriptive name for the API client (e.g., "GitHub Actions Deployment Service") |
+   | <pre>description</pre> | <pre>string</pre> | A detailed explanation of the client's purpose and usage |
+   | <pre>custom_claims</pre> | <pre>array</pre> | Key-value pairs that provide additional context about the client. Each claim must have a `key` and `value` field |
+   | <pre>scopes</pre> | <pre>array</pre> | List of permissions the client needs (e.g., ["deploy:applications", "read:deployments"]) |
+   | <pre>audience</pre> | <pre>array</pre> | List of API endpoints this client will access (e.g., ["deployment-api.acmecorp.com"]) |
+   | <pre>expiry</pre> | <pre>number</pre> | Token expiration time in seconds. Defaults to 3600 (1 hour) |
+
+   </details>
+
    <Aside type="note">
      Scalekit only returns the `plain_secret` once during client creation and does not store it. Instruct your API client developers to store the `plain_secret` securely.
    </Aside>
 
-2. ## Authenticate the API client
+2. ## Access token (type: Bearer) issued using client credentials
 
-   After registration, the API client authenticates with your Scalekit environment using its `client_id` and `client_secret` (the `plain_secret` obtained earlier) to request an access token. This process uses the OAuth 2.0 client credentials grant type.
+   After registration, the API client uses them with your Scalekit environment using its `client_id` and `client_secret` (the `plain_secret` obtained earlier) to request an access token.
 
    The client sends a POST request to the `/oauth/token` endpoint:
 
@@ -197,7 +288,7 @@ Learn how to add authentication to your APIs in minutes. This guide shows you ho
 
    Upon successful authentication, Scalekit issues a JWT access token.
 
-   ```json title="Access token response" wrap {2,6}
+   ```json title="Access token response"
    {
      "access_token":"<API_CLIENT_JWT_ACCESS_TOKEN>",
      "token_type":"Bearer",
@@ -209,7 +300,7 @@ Learn how to add authentication to your APIs in minutes. This guide shows you ho
 
    The client includes this access token in the `Authorization` header of subsequent requests to your API server.
 
-3. ## Validate access tokens in your API server
+3. ## Validate and authenticate API client's access tokens
 
    Your API server must validate the incoming JWT access token to ensure the request originates from a trusted API client and that the token is legitimate.
 
@@ -222,7 +313,7 @@ Learn how to add authentication to your APIs in minutes. This guide shows you ho
       <Tabs syncKey="tech-stack">
       <TabItem value="javascript" label="Node.js">
 
-      ```js showLineNumbers
+      ```js showLineNumbers=false
       import jwksClient from 'jwks-rsa';
 
       const client = jwksClient({
@@ -243,7 +334,7 @@ Learn how to add authentication to your APIs in minutes. This guide shows you ho
       </TabItem>
       <TabItem value="python" label="Python">
 
-      ```py showLineNumbers
+      ```py showLineNumbers=false
       # This is automatically handled by Scalekit SDK
       token = token_response["<API_CLIENT_JWT_ACCESS_TOKEN>"]
 
@@ -260,7 +351,7 @@ Learn how to add authentication to your APIs in minutes. This guide shows you ho
       <Tabs syncKey="tech-stack">
       <TabItem value="javascript" label="Node.js">
 
-      ```js showLineNumbers
+      ```js showLineNumbers=false
       import jwt from 'jsonwebtoken';
 
       async function verifyToken(token: string, publicKey: string) {
@@ -280,7 +371,7 @@ Learn how to add authentication to your APIs in minutes. This guide shows you ho
       </TabItem>
       <TabItem value="python" label="Python">
 
-      ```py showLineNumbers
+      ```py showLineNumbers=false
       # Token from the incoming API request's authorization header
       token = token_response["<API_CLIENT_JWT_ACCESS_TOKEN>"]
 
@@ -293,8 +384,6 @@ Learn how to add authentication to your APIs in minutes. This guide shows you ho
       </Tabs>
    </Steps>
 
-   Find complete code examples in the <a href="https://github.com/scalekit-inc/gists/tree/main/m2m" target="_blank" rel="noopener">Scalekit M2M Gists repository</a>.
-
-   If the token verification succeeds, your API server can trust the request's authenticity and proceed with processing it based on the permissions (scopes) encoded within the token.
+   Upon successful token verification, your API server gains confidence in the request's legitimacy and can proceed to process the request, leveraging the authorization scopes embedded within the token.
 
 </Steps>
