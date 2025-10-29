@@ -1,0 +1,246 @@
+---
+title: Set up Scalekit
+overviewTitle: Overview of installation
+description: Start using Scalekit in your project
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+sidebar:
+  label: Installation
+seeAlso:
+  items:
+    - title: "AI assisted development"
+      icon: "ai"
+      url: "/dev-kit/resources/ai-assisted-setup"
+  expanded: true
+prev: false
+next:
+  link: '/fsa/quickstart/'
+  label: 'Try quickstart'
+---
+
+import { Card, CardGrid, LinkCard, LinkButton, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import InstallSDK from '@components/templates/_installsdk.mdx'
+
+<Steps>
+1. ## Create a Scalekit account
+
+   Scalekit provides dedicated development and production auth environments. Use them to manage your authentication services for each stage of your app.
+
+   <LinkButton href="https://app.scalekit.com/ws/signup" variant="secondary"  class='sk-secondary'  icon='right-arrow'>Create a Scalekit account</LinkButton>
+
+2. ## Set up your environments
+
+   After creating your account, a scalekit workspace is set up for you. You will have two environments:
+
+   ```md showLineNumbers=false wrap title="Environment URLs"
+   https://{your-subdomain}.scalekit.dev  (Development)
+   https://{your-subdomain}.scalekit.com  (Production)
+   ```
+
+   Each environment is isolated.
+
+   View your environment URLs in **Dashboard > Developers > Settings**.
+
+3. ## Get your API credentials
+
+   Scalekit uses the OAuth 2.0 client credentials flow for secure API authentication.
+
+   In **Developers > Settings > API credentials**, copy these values:
+
+   ```sh showLineNumbers=false
+   <!-- .development.env -->
+   SCALEKIT_ENVIRONMENT_URL=<your-environment-url>
+   # Example: https://acme.scalekit.dev or https://auth.acme.com (if custom domain is set)
+
+   SCALEKIT_CLIENT_ID=<app-client-id>
+   # Example: skc_1234567890abcdef
+
+   SCALEKIT_CLIENT_SECRET=<app-client-secret>
+   # Example: test_abcdef1234567890
+   ```
+
+4. ## Install and initialize the SDK
+
+   <InstallSDK />
+
+    <Tabs syncKey="tech-stack">
+      <TabItem value="nodejs" label="Node.js">
+
+      ```js
+      import { ScalekitClient } from '@scalekit-sdk/node';
+
+      // Create the Scalekit client
+      const scalekit = new ScalekitClient(
+        process.env.SCALEKIT_ENVIRONMENT_URL,
+        process.env.SCALEKIT_CLIENT_ID,
+        process.env.SCALEKIT_CLIENT_SECRET
+      );
+      ```
+
+      </TabItem>
+      <TabItem value="py" label="Python">
+
+      ```python
+      from scalekit import ScalekitClient
+
+      # Create the Scalekit client
+      scalekit_client = ScalekitClient(
+        '<SCALEKIT_ENVIRONMENT_URL>',
+        '<SCALEKIT_CLIENT_ID>',
+        '<SCALEKIT_CLIENT_SECRET>'
+      )
+      ```
+
+      </TabItem>
+      <TabItem value="go" label="Go">
+
+      ```go
+      import (
+        "github.com/scalekit-inc/scalekit-sdk-go"
+      )
+
+      // Create the Scalekit client
+      scalekitClient := scalekit.NewScalekitClient(
+        os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+        os.Getenv("SCALEKIT_CLIENT_ID"),
+        os.Getenv("SCALEKIT_CLIENT_SECRET")
+      )
+      ```
+
+      </TabItem>
+      <TabItem value="java" label="Java">
+
+      ```java
+      import com.scalekit.ScalekitClient;
+
+      // Create the Scalekit client
+      ScalekitClient scalekitClient = new ScalekitClient(
+        System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+        System.getenv("SCALEKIT_CLIENT_ID"),
+        System.getenv("SCALEKIT_CLIENT_SECRET")
+      );
+      ```
+
+      </TabItem>
+    </Tabs>
+5. ## Verify your setup
+
+   Initialize the SDK, then list organizations to confirm your credentials work.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="curl" label="cURL">
+
+    ```bash wrap showLineNumbers=false title="Authenticate with client credentials"
+    # Get an access token
+    curl https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token \
+      -X POST \
+      -H 'Content-Type: application/x-www-form-urlencoded' \
+      -d 'client_id=<SCALEKIT_CLIENT_ID>' \
+      -d 'client_secret=<SCALEKIT_CLIENT_SECRET>' \
+      -d 'grant_type=client_credentials'
+    ```
+
+    This returns an access token:
+
+    ```json wrap showLineNumbers=false
+    {
+      "access_token": "eyJhbGciOiJSUzI1NiIsImInR5cCI6IkpXVCJ9...",
+      "token_type": "Bearer",
+      "expires_in": 86399,
+      "scope": "openid"
+    }
+    ```
+
+    **Step 2: Use the token to list organizations**
+
+    ```sh wrap showLineNumbers=false title="List organizations"
+    curl -L '<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations?page_size=5' \
+      -H 'Authorization: Bearer <ACCESS_TOKEN>'
+    ```
+
+    </TabItem>
+
+   <TabItem value="nodejs" label="Node.js">
+
+   ```javascript collapse={1-8} wrap showLineNumbers=false
+   import { ScalekitClient } from '@scalekit-sdk/node';
+
+   const scalekit = new ScalekitClient(
+     process.env.SCALEKIT_ENVIRONMENT_URL,
+     process.env.SCALEKIT_CLIENT_ID,
+     process.env.SCALEKIT_CLIENT_SECRET,
+   );
+
+   const { organizations } = await scalekit.organization.listOrganization({
+     pageSize: 5,
+   });
+
+   console.log(`Name of the first organization: ${organizations[0].display_name}`);
+   ```
+
+   </TabItem>
+
+   <TabItem value="python" label="Python">
+
+   ```python collapse={1-9} wrap showLineNumbers=false
+   from scalekit import ScalekitClient
+
+   # Initialize the SDK client
+   scalekit_client = ScalekitClient(
+     '<SCALEKIT_ENVIRONMENT_URL>',
+     '<SCALEKIT_CLIENT_ID>',
+     '<SCALEKIT_CLIENT_SECRET>'
+   )
+
+   org_list = scalekit_client.organization.list_organizations(page_size='100')
+
+   print(f'Organisation details: {org_list[0]}')
+   ```
+
+   </TabItem>
+
+   <TabItem value="go" label="Go">
+
+   ```go collapse={1-5} wrap showLineNumbers=false
+   scalekitClient := scalekit.NewScalekitClient(
+     <SCALEKIT_ENVIRONMENT_URL>,
+     <SCALEKIT_CLIENT_ID>,
+     <SCALEKIT_CLIENT_SECRET>
+   )
+
+   organization, err := scalekitClient.Organization.GetOrganization(
+     ctx,
+     organizationId
+   )
+   ```
+
+   </TabItem>
+
+   <TabItem value="java" label="Java">
+
+   ```java collapse={1-7} wrap showLineNumbers=false
+   import com.scalekit.ScalekitClient;
+
+   ScalekitClient scalekitClient = new ScalekitClient(
+     "<SCALEKIT_ENVIRONMENT_URL>",
+     "<SCALEKIT_CLIENT_ID>",
+     "<SCALEKIT_CLIENT_SECRET>"
+   );
+
+   ListOrganizationsResponse organizations = scalekitClient.organizations().listOrganizations(5, "");
+   ```
+
+
+   </TabItem>
+   </Tabs>
+   You're all set! 👏
+
+</Steps>

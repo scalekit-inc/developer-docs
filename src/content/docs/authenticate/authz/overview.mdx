@@ -1,0 +1,68 @@
+---
+title: Role based access control (RBAC)
+description: "Control what authenticated users can access in your application based on their roles and permissions"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+sidebar:
+  label: "Overview"
+prev: false
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Now that you have users authenticating and organizing into workspaces, you may want to control what they can access within your application.
+
+By default, Scalekit assigns the `admin` role to the first user in an organization and the `member` role to subsequent users. Your application makes the final access control decisions based on role and permission information that Scalekit provides at runtime.
+
+Here is an overview of the authorization sequence
+```d2 pad=50
+shape: sequence_diagram
+
+User -> Scalekit: Initiate sign up \n or login
+Scalekit -> Access Token: Package authentication tokens
+Access Token -> Your App: App decodes access token
+Your App -> Your App: Determine the \nrole & permissions
+Your App -> User: Allow/Deny
+
+Access Token: {
+  shape: sql_table
+  permissions: string {constraint: array}
+  roles: string {constraint: array}
+  "(fields omitted for brevity)"
+}
+```
+
+Authorization information travels with users through access tokens and ID tokens. These tokens contain the user's roles and permissions, serving as the authoritative source for access control decisions in your application at runtime.
+
+## Core authorization concepts
+
+**Roles** group related permissions together and define what users can do in your system. Common examples include Admin, Manager, Editor, and Viewer. Roles can inherit permissions from other roles, creating hierarchical access levels.
+
+**Permissions** represent specific actions users can perform, formatted as `resource:action` patterns like `projects:create` or `tasks:read`. Use permissions for granular access control when you need precise control over individual capabilities.
+
+## Implementation approaches
+
+Scalekit supports both dashboard-based configuration for quick setup and programmatic management for integration with existing systems. Most applications use a combination of both approaches depending on their operational needs.
+
+<CardGrid>
+
+<LinkCard
+    title="Set up roles"
+    href="/fsa/guides/app-roles/"
+    description="Create user roles, manage inheritance, and implement role-based access control"
+  />
+
+  <LinkCard
+    title="Create and manage permissions"
+    href="/authenticate/authz/create-permissions/"
+    description="Set up fine-grained permissions for precise access control in your application"
+  />
+
+</CardGrid>

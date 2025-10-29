@@ -1,0 +1,207 @@
+---
+title: "Manage organization memberships"
+description: "Add, update, and remove a user's membership in an organization"
+sidebar:
+  label: 'Manage organization memberships'
+browseCentral:
+  label: "Manage organization memberships"
+  filterType: ["tutorial"]
+  category: ["User management"]
+  icon: book
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+tableOfContents: false
+---
+
+import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Manage how users belong to organizations. After completing the quickstart and reviewing manage user profiles, use this guide to add members, update roles, and remove access cleanly. For domain-based auto-join, see allowed email domains.
+
+
+## Use the dashboard for common changes
+
+   Go to Dashboard > Organizations > Users.
+
+   - Add members by email (sends invitation)
+   - Change a member's role
+   - Remove a member from the organization
+
+   <Aside type="tip" title="Keep roles minimal">
+   Start with a small set of roles (for example, admin and member). Expand only when needed.
+   </Aside>
+
+
+## Manage memberships with the API
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+
+```javascript title="Node.js" wrap
+// 1. Create membership for existing user (when user ID is known)
+// Use case: Provide an option to admin to add a consultant or contractor to a new client's organization
+const membership = await scalekit.user.createMembership("<organizationId>", "<userId>");
+
+// 2. Create membership for existing user (when user ID is not known)
+// Use case: Provide an option to admin to invite a user by email to join an existing organization
+const { user } = await scalekit.user.createUserAndMembership("<organizationId>", {
+  email: "user@example.com",
+  userProfile: {
+    firstName: "John",
+    lastName: "Doe",
+  },
+  sendInvitationEmail: true
+});
+
+// 3. Update user's membership roles
+// Use case: Provide an option to admin to promote a user from viewer to editor role, or updating workspace assignments
+await scalekit.user.updateMembership(
+  "<organizationId>",
+  "<userId>",
+  {
+    roles: ["editor"],
+  }
+);
+
+// 4. Remove user from organization
+// Use case: Provide an option to admin to remove a user from an organization
+await scalekit.user.deleteMembership("<organizationId>", "<userId>");
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+```python title="Python" wrap
+membership = scalekit.user.create_membership("<organization_id>", "<user_id>")
+user_response = scalekit.user.create_user_and_membership(
+    "<organization_id>",
+    email="user@example.com",
+    user_profile={
+        "first_name": "John",
+        "last_name": "Doe"
+    },
+    send_invitation_email=True
+)
+scalekit.user.update_membership(
+    "<organization_id>",
+    "<user_id>",
+    roles=["editor"],
+    metadata={
+        "team": "Platform",
+        "access_level": "elevated"
+    }
+)
+scalekit.user.delete_membership("<organization_id>", "<user_id>")
+```
+
+  </TabItem>
+  <TabItem value="go" label="Go">
+
+```go title="Go" wrap
+// 1. Create membership for existing user (when user ID is known)
+// Use case: Provide an option to admin to add a consultant or contractor to a new client's organization
+membership, err := scalekitClient.User().CreateMembership(
+    ctx,
+    "<organizationId>",
+    "<userId>",
+    &usersv1.CreateMembership{},
+)
+
+// 2. Create membership for existing user (when user ID is not known)
+// Use case: Provide an option to admin to invite a user by email to join an existing organization
+newUser := &usersv1.CreateUser{
+    Email: "user@example.com",
+    UserProfile: &usersv1.CreateUserProfile{
+        FirstName: "John",
+        LastName:  "Doe",
+    },
+}
+userResp, err := scalekitClient.User().CreateUserAndMembership(
+    ctx,
+    "<organizationId>",
+    newUser,
+    true, // sendInvitationEmail
+)
+
+// 3. Update user's membership roles and metadata
+// Use case: Provide an option to admin to promote a user from viewer to editor role, or updating workspace assignments
+updateMembership := &usersv1.UpdateMembership{
+    Roles: []*commonsv1.Role{
+        {Name: "editor"},
+    },
+    Metadata: map[string]string{
+        "team":         "Platform",
+        "access_level": "elevated",
+    },
+}
+scalekitClient.User().UpdateMembership(
+    ctx,
+    "<organizationId>",
+    "<userId>",
+    updateMembership,
+)
+
+// 4. Remove user from organization
+// Use case: Provide an option to admin to remove a user from an organization
+err = scalekitClient.User().DeleteMembership(ctx, "<organizationId>", "<userId>")
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+```java title="Java" wrap
+// 1. Create membership for existing user (when user ID is known)
+// Use case: Provide an option to admin to add a consultant or contractor to a new client's organization
+CreateMembership createMembership = CreateMembership.newBuilder().build();
+
+CreateMembershipResponse membership = scalekitClient.users()
+    .createMembership("<organizationId>", "<userId>", createMembership);
+
+// 2. Create membership for existing user (when user ID is not known)
+// Use case: Provide an option to admin to invite a user by email to join an existing organization
+CreateUser createUser = CreateUser.newBuilder()
+    .setEmail("user@example.com")
+    .setUserProfile(
+        CreateUserProfile.newBuilder()
+            .setFirstName("John")
+            .setLastName("Doe")
+            .build())
+    .build();
+
+CreateUserAndMembershipRequest createUserReq = CreateUserAndMembershipRequest.newBuilder()
+    .setUser(createUser)
+    .setSendInvitationEmail(true)
+    .build();
+
+CreateUserAndMembershipResponse userResp = scalekitClient.users()
+    .createUserAndMembership("<organizationId>", createUserReq);
+
+// 3. Update user's membership roles and metadata
+// Use case: Provide an option to admin to promote a user from viewer to editor role, or updating workspace assignments
+UpdateMembership updateMembership = UpdateMembership.newBuilder()
+    .addRoles(Role.newBuilder().setName("editor").build())
+    .putMetadata("team", "Platform")
+    .putMetadata("access_level", "elevated")
+    .build();
+
+UpdateMembershipRequest updateReq = UpdateMembershipRequest.newBuilder()
+    .setMembership(updateMembership)
+    .build();
+
+scalekitClient.users().updateMembership("<organizationId>", "<userId>", updateReq);
+
+// 4. Remove user from organization
+// Use case: Provide an option to admin to remove a user from an organization
+scalekitClient.users().deleteMembership("<organizationId>", "<userId>");
+```
+
+  </TabItem>
+</Tabs>

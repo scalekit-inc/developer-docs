@@ -1,0 +1,221 @@
+---
+title: "Customize user profiles"
+description: "Store additional user profile information beyond email and name to support business workflows and system integrations."
+sidebar:
+  label: "Customize user profile"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+seeAlso:
+  label: "Related guides"
+  items:
+    - title: "Manage users"
+      icon: "users"
+      url: "/fsa/guides/manage-users/"
+    - title: "Users API reference"
+      icon: "api"
+      url: "https://docs.scalekit.com/apis/#tag/users"
+---
+
+import { Aside, Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
+
+The [manage users guide](/fsa/guides/manage-users/) shows how to create and manage user profiles with standard properties like email, name, and metadata. Now extend those user profiles with custom attributes to store business-specific information such as employee IDs, departments, or access levels.
+
+## Review default user profile attributes
+
+Navigate to **Dashboard** > **User Attributes** to see the default user profile fields that Scalekit provides:
+
+- **Email** - User's email address (required)
+- **First name** - User's given name
+- **Last name** - User's family name
+- **Display name** - Full name for UI display
+- **Phone number** - Contact phone number
+- **Locale** - User's language and region preference
+- **Email verified** - Whether the email address has been confirmed
+
+These standard attributes handle typical authentication and profile scenarios. Add custom attributes when your application needs additional user information.
+
+## Create custom attributes
+
+Add custom attributes to store business-specific user information. Custom attributes appear in the `custom_attributes` field of each user profile and support workflows like access control, reporting, and system integration.
+
+<Steps>
+
+1. Navigate to **Dashboard** > **User Attributes** and click **Add Attribute**.
+
+2. Configure the new attribute fields:
+   - **Display name** - Human-readable label shown in the dashboard (e.g., "Employee Number")
+   - **Attribute key** - Internal field name for API and SDK access (e.g., `employee_id`)
+   - **Data type** - Choose string, number, or boolean values
+
+3. The new attribute becomes available for all users in your environment. Access these fields programmatically through the SDK or REST API.
+
+</Steps>
+
+Common custom attributes include employee IDs, department codes, access levels, or external system references.
+
+## Create custom attributes programmatically <Badge text="API" variant="tip" />
+Update existing users to add custom attributes that support your business workflows. User profiles automatically include these attributes when you add them.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="cURL" label="cURL">
+```sh
+curl -L -X PATCH '<SCALEKIT_ENVIRONMENT_URL>/api/v1/users/<USER_ID>' \
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer ...2QA' \
+-d '{
+  "firstName": "John",
+  "lastName": "Doe",
+  "external_id": "hitman",
+  "custom_attributes":{
+     department: "engineering",
+     security_clearance: "level2"
+  }
+}'
+```
+</TabItem>
+
+<TabItem value="node" label="Node.js">
+
+```javascript title="Update user profile with custom attributes" wrap
+// Use case: Update department and security clearance when user changes roles
+await scalekit.user.updateUser("<userId>", {
+  userProfile: {
+    customAttributes: {
+      department: "engineering",
+      security_clearance: "level2"
+    },
+    firstName: "John",
+    lastName: "Doe",
+    locale: "en-US",
+    name: "John Michael Doe",
+    phoneNumber: "+14155552671",
+    metadata: {
+      account_status: "active",
+      signup_source: "mobile_app"
+    }
+  },
+  externalId: "ext_12345a67b89c",
+  metadata: {
+    department: "engineering",
+    location: "nyc-office"
+  }
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Update user profile with custom attributes" wrap
+# Use case: Update department and security clearance when user changes roles
+scalekit.user.update_user(
+    "<user_id>",
+    user_profile={
+        "custom_attributes": {
+            "department": "engineering",
+            "security_clearance": "level2"
+        },
+        "first_name": "John",
+        "last_name": "Doe",
+        "locale": "en-US",
+        "name": "John Michael Doe",
+        "phone_number": "+14155552671",
+        "metadata": {
+            "account_status": "active",
+            "signup_source": "mobile_app"
+        }
+    },
+    external_id="ext_12345a67b89c",
+    metadata={
+        "department": "engineering",
+        "location": "nyc-office"
+    }
+)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Update user profile with custom attributes" wrap
+// Use case: Update department and security clearance when user changes roles
+updateUser := &usersv1.UpdateUser{
+    UserProfile: &usersv1.UpdateUserProfile{
+        CustomAttributes: map[string]string{
+            "department":         "engineering",
+            "security_clearance": "level2",
+        },
+        FirstName:   "John",
+        LastName:    "Doe",
+        Locale:      "en-US",
+        Name:        "John Michael Doe",
+        PhoneNumber: "+14155552671",
+        Metadata: map[string]string{
+            "account_status": "active",
+            "signup_source":  "mobile_app",
+        },
+    },
+    ExternalId: "ext_12345a67b89c",
+    Metadata: map[string]string{
+        "department": "engineering",
+        "location":   "nyc-office",
+    },
+}
+
+updatedUser, err := scalekitClient.User().UpdateUser(ctx, "<userId>", updateUser)
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Update user profile with custom attributes" wrap
+// Use case: Update department and security clearance when user changes roles
+UpdateUser updateUser = UpdateUser.newBuilder()
+    .setUserProfile(
+        UpdateUserProfile.newBuilder()
+            .putCustomAttributes("department", "engineering")
+            .putCustomAttributes("security_clearance", "level2")
+            .setFirstName("John")
+            .setLastName("Doe")
+            .setLocale("en-US")
+            .setName("John Michael Doe")
+            .setPhoneNumber("+14155552671")
+            .putMetadata("account_status", "active")
+            .putMetadata("signup_source", "mobile_app")
+            .build())
+    .setExternalId("ext_12345a67b89c")
+    .putMetadata("department", "engineering")
+    .putMetadata("location", "nyc-office")
+    .build();
+
+UpdateUserRequest updateReq = UpdateUserRequest.newBuilder()
+    .setUser(updateUser)
+    .build();
+
+User updatedUser = scalekitClient.users().updateUser("<userId>", updateReq);
+```
+
+</TabItem>
+</Tabs>
+
+## Extend custom attributes to identity providers
+
+Custom attributes become more powerful when connected to enterprise identity providers. When organizations use SSO, automatically populate custom attributes from their corporate directory during authentication. See [SSO user attributes guide](/sso/guides/sso-user-attributes/).
+
+Once configured, custom attributes populate automatically during SSO authentication:
+
+- Users sign in through their corporate identity provider (Okta, Azure AD, etc.)
+- The identity provider includes custom attributes in the authentication response
+- Scalekit maps these attributes to the corresponding custom fields in the user profile
+- Your application receives the user with populated custom attributes
+
+This automation eliminates manual data entry and keeps user profiles synchronized with corporate directory changes.
+
+<Aside type="note" title="Social provider do not map custom attributes">
+For users who authenticate through social connections:
+- Set custom attributes manually through your application using the update user API
+- Use the SDK to populate attributes after user creation
+- Prompt users to complete their profile with required business information
+</Aside>

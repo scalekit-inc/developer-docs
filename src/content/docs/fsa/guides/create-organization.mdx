@@ -1,0 +1,141 @@
+---
+title: "Create organizations"
+description: "Create organizations from the dashboard, hosted signup, or SDK while controlling who can start new workspaces."
+sidebar:
+  label: "Create organizations"
+prev:
+  label: "Organizations overview"
+  link: "/fsa/data-modelling/"
+next:
+  label: "Manage user profiles"
+  link: "/fsa/guides/manage-users/"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+seeAlso:
+  label: "Related guides"
+  items:
+    - title: "Signup restrictions"
+      icon: "book"
+      url: "/fsa/guides/signup-restrictions/"
+    - title: "Organization settings"
+      icon: "book"
+      url: "/fsa/guides/organization-settings/"
+---
+
+import { Aside, Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
+
+Scalekit's quickstart shows how new organizations are created during sign-up by default.
+
+You can create organizations in three ways:
+
+- **Create via dashboard**: Manually create organizations using the Scalekit admin dashboard, ideal for assisted onboarding.
+- **Create via Signups**: Automatically generate an organization when a new user completes their initial sign-up process.
+- **Programmatic API**: Create organizations directly through the Scalekit SDK or REST APIs from your application's backend. Ideal for implementing self-service organization creation user journeys.
+
+## Let hosted signup create organizations automatically
+
+The [quickstart](/fsa/quickstart/) details how Scalekit's hosted signup automatically creates an organization for first-time customers. During initial sign-up, the platform generates an organization and designates the first user as an _administrator_ and rest of them as _members_.
+
+Business-to-business (B2B) applications like _Jira_ typically create a workspace and enable users to invite team members. Scalekit's default data model inherently supports this collaborative organization-first scenarios.
+
+## Organization creation with the SDK <Badge text="API" variant="tip" />
+
+Applications often require users to create their own workspaces. You can use the Scalekit SDK or REST API to enable organization creation during user onboarding or system migrations right from your app. When a user belongs to multiple workspaces, subsequent login flows automatically present a workspace selection interface, allowing users to choose their desired workspace.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+
+```javascript title="Create and manage organizations" wrap
+// Use case: Provision a workspace after a sales-assisted onboarding
+const { organization } = await scalekit.organization.createOrganization({
+  name: 'Orion Analytics',
+  externalId: 'crm-9342',
+  metadata: { billingTier: 'enterprise' }
+})
+
+// Use case: Sync organization profile to downstream systems
+const { organization: fetched } = await scalekit.organization.getOrganization(organization.id)
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+```python title="Create and manage organizations" wrap
+# Use case: Provision a workspace after a sales-assisted onboarding
+organization = scalekit_client.organization.create_organization(
+    name="Orion Analytics",
+    external_id="crm-9342",
+    metadata={"billingTier": "enterprise"},
+)["organization"]
+
+# Use case: Sync organization profile to downstream systems
+fetched = scalekit_client.organization.get_organization(organization["id"])
+```
+
+  </TabItem>
+  <TabItem value="go" label="Go">
+
+```go title="Create and manage organizations" wrap
+// Use case: Provision a workspace after a sales-assisted onboarding
+created, err := scalekitClient.Organization.Create(ctx, scalekit.CreateOrganizationRequest{
+    Name:       "Orion Analytics",
+    ExternalID: scalekit.String("crm-9342"),
+    Metadata: map[string]string{
+        "billingTier":    "enterprise",
+        "seatsPurchased": "100",
+    },
+})
+if err != nil {
+    log.Fatalf("create organization: %v", err)
+}
+
+// Use case: Sync organization profile to downstream systems
+fetched, err := scalekitClient.Organization.Get(ctx, created.Organization.Id)
+if err != nil {
+    log.Fatalf("get organization: %v", err)
+}
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+```java title="Create and manage organizations" wrap
+// Use case: Provision a workspace after a sales-assisted onboarding
+Organization organization = scalekitClient.organization().create(
+    CreateOrganizationRequest.builder()
+        .name("Orion Analytics")
+        .externalId("crm-9342")
+        .putMetadata("billingTier", "enterprise")
+        .build()
+).organization();
+
+
+// Use case: Sync organization profile to downstream systems
+Organization fetched = scalekitClient.organization().get(organization.id()).organization();
+```
+
+  </TabItem>
+</Tabs>
+
+ Add retry logic when provisioning organizations during high-volume imports or migrations.
+
+
+## Create organizations in the Scalekit dashboard
+
+Use the dashboard when support teams need to help customers onboard.
+
+<Steps>
+
+ 1. Sign in to the Scalekit dashboard and navigate to **Dashboard** > **Organizations**. Choose **Create organization**.
+
+ 2. Provide the organization name, external identifier, and any tags you use for reporting or billing. You can edit these fields later in [organization settings](/fsa/guides/organization-settings/).
+
+ 3. Enable organization features such as SSO or SCIM provisioning based on customer requirements.
+
+ 4. Add the users you want to invite to the organization from Dashboard > Organizations > Select the organization > Users > Create User
+
+</Steps>
