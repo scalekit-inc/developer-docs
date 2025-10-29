@@ -237,4 +237,5 @@ export {
   IconClarityBlocksGroupLine, // Social logins
   IconMingcuteUserSecurityLine, // Enterprise SSO
   IconAntDesignUserSwitchOutlined, // SCIM provisioning
+  IconSolarServerPathOutline, // API Auth
 }
