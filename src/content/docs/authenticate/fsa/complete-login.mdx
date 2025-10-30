@@ -300,7 +300,7 @@ Once users have successfully verified their identity using their chosen login me
 
 3. ## Decoding token claims
 
-      The `idToken` and `accessToken` are JSON Web Tokens (JWT) that contain user claims. These tokens can be decoded to retrieve comprehensive user information.
+      The `idToken` and `accessToken` are JSON Web Tokens (JWT) that contain user claims. These tokens can be decoded to retrieve comprehensive user and access information.
 
       <Tabs syncKey="tech-stack">
       <TabItem value="nodejs" label="Node.js">
@@ -382,24 +382,24 @@ Once users have successfully verified their identity using their chosen login me
       <TabItem value="idToken" label="Decoded ID token">
         ```json title="ID token decoded"
         {
-          "at_hash": "ec_jU2ZKpFelCKLTRWiRsg",
+          "at_hash": "ec_jU2ZKpFelCKLTRWiRsg", // Access token hash for validation
           "aud": [
-            "skc_58327482062864390"
+            "skc_58327482062864390" // Audience (your client ID)
           ],
-          "azp": "skc_58327482062864390",
-          "c_hash": "6wMreK9kWQQY6O5R0CiiYg",
-          "client_id": "skc_58327482062864390",
-          "email": "john.doe@example.com",
-          "email_verified": true,
-          "exp": 1742975822,
-          "family_name": "Doe",
-          "given_name": "John",
-          "iat": 1742974022,
-          "iss": "https://scalekit-z44iroqaaada-dev.scalekit.cloud",
-          "name": "John Doe",
-          "oid": "org_59615193906282635",
-          "sid": "ses_65274187031249433",
-          "sub": "usr_63261014140912135"
+          "azp": "skc_58327482062864390", // Authorized party (your client ID)
+          "c_hash": "6wMreK9kWQQY6O5R0CiiYg", // Authorization code hash
+          "client_id": "skc_58327482062864390", // Your application's client ID
+          "email": "john.doe@example.com", // User's email address
+          "email_verified": true, // Whether the user's email is verified
+          "exp": 1742975822, // Expiration time (Unix timestamp)
+          "family_name": "Doe", // User's last name
+          "given_name": "John", // User's first name
+          "iat": 1742974022, // Issued at time (Unix timestamp)
+          "iss": "https://scalekit-z44iroqaaada-dev.scalekit.cloud", // Issuer (Scalekit environment URL)
+          "name": "John Doe", // User's full name
+          "oid": "org_59615193906282635", // Organization ID
+          "sid": "ses_65274187031249433", // Session ID
+          "sub": "usr_63261014140912135" // Subject (user's unique ID)
         }
         ```
         </TabItem>
@@ -407,27 +407,27 @@ Once users have successfully verified their identity using their chosen login me
             ```json title="Decoded access token"
             {
                 "aud": [
-                  "prd_skc_7848964512134X699"
+                  "prd_skc_7848964512134X699" // Audience (API or resource server)
                 ],
-                "client_id": "prd_skc_7848964512134X699",
-                "exp": 1758265247,
-                "iat": 1758264947,
-                "iss": "https://login.devramp.ai",
-                "jti": "tkn_90928731115292X63",
-                "nbf": 1758264947,
-                "oid": "org_89678001X21929734",
-                "permissions": [
+                "client_id": "prd_skc_7848964512134X699", // Your application's client ID
+                "exp": 1758265247, // Expiration time (Unix timestamp)
+                "iat": 1758264947, // Issued at time (Unix timestamp)
+                "iss": "https://login.devramp.ai", // Issuer (Scalekit environment URL)
+                "jti": "tkn_90928731115292X63", // JWT ID (unique token identifier)
+                "nbf": 1758264947, // Not before time (Unix timestamp)
+                "oid": "org_89678001X21929734", // Organization ID
+                "permissions": [ // Scopes or permissions granted
                   "workspace_data:write",
                   "workspace_data:read"
                 ],
-                "roles": [
+                "roles": [ // User roles within the organization
                   "admin"
                 ],
-                "sid": "ses_90928729571723X24",
-                "sub": "usr_8967800122X995270",
+                "sid": "ses_90928729571723X24", // Session ID
+                "sub": "usr_8967800122X995270", // Subject (user's unique ID)
                 // External identifiers if updated on Scalekit
-                "xoid": "ext_org_123", // Organization ID
-                "xuid": "ext_usr_456", // User ID
+                "xoid": "ext_org_123", // External organization ID
+                "xuid": "ext_usr_456" // External user ID
             }
           ```
         </TabItem>
