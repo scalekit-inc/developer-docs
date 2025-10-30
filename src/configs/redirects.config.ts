@@ -58,10 +58,11 @@ export const redirects = {
     '/guides/integrations/auth-systems/firebase/',
   '/sso/guides/integrate-with-your-auth-system/auth0': '/guides/integrations/auth-systems/auth0/',
 
-  // SSO social logins
-  '/sso/social-login': '/social-logins/quickstart/',
-  '/sso/social-logins-quickstart': '/social-logins/quickstart/',
-  '/social-logins': '/social-logins/quickstart/',
+  // SSO social logins - moved to authenticate/auth-methods/social-logins
+  '/sso/social-login': '/authenticate/auth-methods/social-logins/',
+  '/sso/social-logins-quickstart': '/authenticate/auth-methods/social-logins/',
+  '/social-logins': '/authenticate/auth-methods/social-logins/',
+  '/social-logins/quickstart': '/authenticate/auth-methods/social-logins/',
 
   // SSO reference and errors
   '/reference/errors': '/sso/reference/sso-integration-errors/',

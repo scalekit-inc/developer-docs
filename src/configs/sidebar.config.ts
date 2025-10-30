@@ -23,7 +23,7 @@ export const sidebar = [
         label: 'Manage auth methods',
         items: [
           'authenticate/auth-methods/passwordless',
-          'social-logins/quickstart',
+          'authenticate/auth-methods/social-logins',
           'authenticate/auth-methods/passkeys',
           'authenticate/auth-methods/enterprise-sso',
         ],
