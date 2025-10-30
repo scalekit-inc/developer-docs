@@ -3,8 +3,6 @@ title: "Initiate user login"
 description: "Create authorization URLs and redirect users to Scalekit's hosted login page with proper parameters"
 sidebar:
   label: "Initiate user login"
-tableOfContents:
-  maxHeadingLevel: 2
 head:
   - tag: style
     content: |
@@ -13,7 +11,7 @@ head:
       }
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
-      }
+      }in
       .sl-markdown-content h3 {
         font-size: var(--sl-text-lg);
       }
@@ -22,13 +20,12 @@ prev:
   link: "/authenticate/fsa/quickstart/"
 
 ---
-import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard } from '@astrojs/starlight/components';
+import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
 
-Login initiation begins your authentication flow. You redirect users to Scalekit's hosted login page by creating an authorization URL with appropriate parameters. When users visit this URL, Scalekit's authorization server validates the request, displays the login interface, and handles authentication through your configured connection methods (SSO, social providers, or passwordless).
+Login initiation begins your authentication flow. You redirect users to Scalekit's hosted login page by creating an authorization URL with appropriate parameters.
 
-## Authorization URL format
+When users visit this URL, Scalekit's authorization server validates the request, displays the login interface, and handles authentication through your configured connection methods (SSO, social providers, or passwordless).
 
-The authorization URL directs users to Scalekit's login page with all necessary request parameters:
 
 ```sh title="Authorization URL format" showLineNumbers=true
 <SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
@@ -45,7 +42,7 @@ The authorization request includes several parameters that control authenticatio
 - **Optional parameters** enable organization routing and pre-populate fields
 - **Security parameters** prevent unauthorized access attempts
 
-## Request parameters
+## Query parameters
 
 Understand each parameter and how it controls the authorization flow:
 
@@ -61,106 +58,158 @@ Understand each parameter and how it controls the authorization flow:
 | `connection_id` | Optional | Skip organization selection and direct user to specific SSO connection. |
 | `login_hint` | Optional | Pre-populate the email field with a hint. Useful for domain-based routing when combined with `organization_id`. |
 
-### Security: the state parameter
+## Set up login flow
 
-Always generate a cryptographically secure random string for the `state` parameter. Your application must validate that the state value returned in the callback matches the original value you sent. This prevents **CSRF (Cross-Site Request Forgery)** attacks where an attacker tricks users into approving unauthorized authentication requests.
+<Steps>
 
-```javascript
-// Generate secure random state
-const state = require('crypto').randomBytes(32).toString('hex');
-// Store it temporarily (session, cache, etc)
-session.oauthState = state;
-// Include in authorization URL
-const authUrl = scalekit.getAuthorizationUrl(redirectUri, { state });
-```
+1. #### Add `state` parameter <Badge text="recommended" />
 
-<Aside type="caution" title="Always validate state on callback">
-Never skip state validation. An attacker could craft an authorization request and trick your users into visiting it. By validating the state parameter, you ensure the callback response matches a request your application initiated.
-</Aside>
+   Always generate a cryptographically secure random string for the `state` parameter and store it temporarily (session, local storage, cache, etc).
 
-## Create authorization URL
+    This can be used  to validate that the state value returned in the callback matches the original value you sent. This prevents **CSRF (Cross-Site Request Forgery)** attacks where an attacker tricks users into approving unauthorized authentication requests.
 
-Use the Scalekit SDK to generate properly formatted authorization URLs. The SDK handles parameter encoding, validation, and generates secure random state values automatically.
 
-<Tabs syncKey="tech-stack">
-<TabItem value="node" label="Node.js">
-```javascript title="Express.js" collapse={1-4} {11} "getAuthorizationUrl"
-import { Scalekit } from '@scalekit-sdk/node';
+    <Tabs syncKey="tech-stack">
+    <TabItem value="node" label="Node.js">
+    ```javascript title="Generate and store state"
+    // Generate secure random state
+    const state = require('crypto').randomBytes(32).toString('hex');
+    // Store it temporarily (session, local storage, cache, etc)
+    sessionStorage.oauthState = state;
+    ```
+    </TabItem>
+    <TabItem value="python" label="Python">
+    ```python title="Generate and store state"
+    import os
+    import secrets
 
-const scalekit = new Scalekit(/* your credentials */);
+    # Generate secure random state
+    state = secrets.token_hex(32)
+    # Store it temporarily (session, local storage, cache, etc)
+    session['oauth_state'] = state
+    ```
+    </TabItem>
+    <TabItem value="go" label="Go">
+    ```go title="Generate and store state"
+    import (
+        "crypto/rand"
+        "encoding/hex"
+    )
 
-// Basic authorization URL for general login
-const redirectUri = 'https://yourapp.com/auth/callback';
-const options = {
-  scopes: ['openid', 'profile', 'email', 'offline_access'],
-};
+    // Generate secure random state
+    b := make([]byte, 32)
+    rand.Read(b)
+    state := hex.EncodeToString(b)
+    // Store it temporarily (session, local storage, cache, etc)
+    // Example for Go: use a storage library
+    // session.Set("oauth_state", state)
+    ```
+    </TabItem>
+    <TabItem value="java" label="Java">
+    ```java title="Generate and store state"
+    import java.security.SecureRandom;
+    import java.util.Base64;
 
-const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+    // Generate secure random state
+    SecureRandom sr = new SecureRandom();
+    byte[] randomBytes = new byte[32];
+    sr.nextBytes(randomBytes);
+    String state = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+    // Store it temporarily (session, local storage, cache, etc)
+    // Example for Java: use any storage library
+    // session.setAttribute("oauth_state", state);
+    ```
+    </TabItem>
+    </Tabs>
 
-// Redirect user to Scalekit's hosted login page
-res.redirect(authorizationUrl);
-```
-</TabItem>
-<TabItem value="python" label="Python">
-```python title="Flask" collapse={1-3} {11} "get_authorization_url"
-from scalekit import ScalekitClient, AuthorizationUrlOptions
+2. #### Redirect to the authorization URL
 
-scalekit = ScalekitClient(/* your credentials */)
+    Use the Scalekit SDK to generate the authorization URL. The SDK handles parameter encoding, validation, and generates secure random state values automatically.
 
-# Basic authorization URL for general login
-redirect_uri = 'https://yourapp.com/auth/callback'
-options = AuthorizationUrlOptions(
-    scopes=['openid', 'profile', 'email', 'offline_access']
-)
+    <Tabs syncKey="tech-stack">
+    <TabItem value="node" label="Node.js">
+    ```javascript title="Express.js" collapse={1-4} {12} ins={9} "getAuthorizationUrl"
+    import { Scalekit } from '@scalekit-sdk/node';
 
-authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+    const scalekit = new Scalekit(/* your credentials */);
 
-# Redirect user to Scalekit's hosted login page
-return redirect(authorization_url)
-```
-</TabItem>
-<TabItem value="go" label="Go">
-```go title="Gin" collapse={1-4} {11} "GetAuthorizationUrl"
-import "github.com/scalekit-inc/scalekit-sdk-go"
+    // Basic authorization URL for general login
+    const redirectUri = 'https://yourapp.com/auth/callback';
+    const options = {
+      scopes: ['openid', 'profile', 'email', 'offline_access'],
+      state: sessionStorage.oauthState,
+    };
 
-scalekit := scalekit.NewScalekitClient(/* your credentials */)
+    const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
 
-// Basic authorization URL for general login
-redirectUri := "https://yourapp.com/auth/callback"
-options := scalekit.AuthorizationUrlOptions{
-    Scopes: []string{"openid", "profile", "email", "offline_access"},
-}
+    // Redirect user to Scalekit's hosted login page
+    res.redirect(authorizationUrl);
+    ```
+    </TabItem>
+    <TabItem value="python" label="Python">
+    ```python title="Flask" collapse={1-3} {11} "get_authorization_url"
+    from scalekit import ScalekitClient, AuthorizationUrlOptions
 
-authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+    scalekit = ScalekitClient(/* your credentials */)
 
-// Redirect user to Scalekit's hosted login page
-c.Redirect(http.StatusFound, authorizationUrl.String())
-```
-</TabItem>
-<TabItem value="java" label="Java">
-```java title="Spring" collapse={1-4} {11} "getAuthorizationUrl"
-import com.scalekit.ScalekitClient;
-import com.scalekit.internal.http.AuthorizationUrlOptions;
+    # Basic authorization URL for general login
+    redirect_uri = 'https://yourapp.com/auth/callback'
+    options = AuthorizationUrlOptions(
+        scopes=['openid', 'profile', 'email', 'offline_access'],
+        state=session['oauth_state'] # Add this line
+    )
 
-ScalekitClient scalekit = new ScalekitClient(/* your credentials */);
+    authorization_url = scalekit.get_authorization_url(redirect_uri, options)
 
-// Basic authorization URL for general login
-String redirectUri = "https://yourapp.com/auth/callback";
-AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+    # Redirect user to Scalekit's hosted login page
+    return redirect(authorization_url)
+    ```
+    </TabItem>
+    <TabItem value="go" label="Go">
+    ```go title="Gin" collapse={1-4} {11} "GetAuthorizationUrl"
+    import "github.com/scalekit-inc/scalekit-sdk-go"
 
-URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+    scalekit := scalekit.NewScalekitClient(/* your credentials */)
 
-// Redirect user to Scalekit's hosted login page
-return new RedirectView(authorizationUrl.toString());
-```
-</TabItem>
-</Tabs>
+    // Basic authorization URL for general login
+    redirectUri := "https://yourapp.com/auth/callback"
+    options := scalekit.AuthorizationUrlOptions{
+        Scopes: []string{"openid", "profile", "email", "offline_access"},
+        State: "your_generated_state", // Add this line
+    }
 
+    authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+
+    // Redirect user to Scalekit's hosted login page
+    c.Redirect(http.StatusFound, authorizationUrl.String())
+    ```
+    </TabItem>
+    <TabItem value="java" label="Java">
+    ```java title="Spring" collapse={1-4} {11} "getAuthorizationUrl"
+    import com.scalekit.ScalekitClient;
+    import com.scalekit.internal.http.AuthorizationUrlOptions;
+
+    ScalekitClient scalekit = new ScalekitClient(/* your credentials */);
+
+    // Basic authorization URL for general login
+    String redirectUri = "https://yourapp.com/auth/callback";
+    AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+    options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+    options.setState("your_generated_state"); // Add this line
+
+    URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+
+    // Redirect user to Scalekit's hosted login page
+    return new RedirectView(authorizationUrl.toString());
+    ```
+    </TabItem>
+    </Tabs>
+
+</Steps>
 
 After the user authenticates:
 1. Scalekit generates an authorization code
-2. The user's browser is redirected to your registered allowed callback URL with the `code` parameter
+2. Makes a callback to your registered allowed callback URL
 3. Your backend exchanges the code for tokens by making a server-to-server request
 
 This approach keeps sensitive operations server-side and protects your application's credentials.
