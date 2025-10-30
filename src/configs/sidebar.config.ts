@@ -501,7 +501,124 @@ export const topics = {
     '/guides/webhooks-best-practices',
     '/guides/idtoken-claims',
     '/guides/unlisted/passwordless-as-service',
+    '/browse/**/*', // Code samples and videos
+    '/guides/user-auth/**/*', // User auth guides and examples
+    '/guides/security/**/*', // Security best practices
+    // Specific FSA implementation guides that appear in dev-kit sidebar
+    '/fsa/guides/implement-signup',
+    '/fsa/guides/login-page-branding',
+    '/fsa/guides/signup-restrictions',
+    '/fsa/guides/user-invitations',
+    '/fsa/guides/custom-user-attributes',
+    '/fsa/guides/app-roles',
+    '/fsa/guides/create-organization',
+    '/fsa/guides/migration-guide',
+    '/fsa/guides/merge-identities',
+    '/fsa/guides/onboard-enterprise-customers',
+    '/fsa/guides/organization-identifiers',
+    '/fsa/reference/user-management-settings',
+    // SSO guides that appear in dev-kit sidebar
+    '/sso/guides/authorization-url',
+    '/sso/guides/sso-user-attributes',
+    '/sso/guides/add-login-ux-sso',
+    '/sso/guides/idp-init-sso',
+    '/sso/guides/test-sso',
+    '/sso/guides/okta-sso-test',
+    '/sso/guides/sso-basics',
+    '/sso/guides/sso-migration-strategy',
+    // Directory/SCIM guides
+    '/directory/guides/user-provisioning-basics',
+    '/directory/guides/scim-protocol',
+    '/directory/guides/group-based-role-assignment',
+    // MCP guides that appear in dev-kit
+    '/mcp/guides/custom-auth',
   ], // Developer resources and implementation guides
   integrations: ['/guides/integrations/**/*'], // Integration guide pages
   'events-reference': ['/reference/webhooks/**/*', '/reference/admin-portal/ui-events'], // Events reference pages
+}
+
+/**
+ * Secondary navigation mapping for top navigation bar
+ * Maps sidebar topics to their corresponding secondary nav items
+ *
+ * This mapping determines which secondary nav item should be highlighted
+ * based on which sidebar topic is active for the current page.
+ */
+export const topicToSecondaryNav: Record<string, string> = {
+  authenticate: 'authenticate',
+  connect: 'agent-actions',
+  'dev-kit': 'examples', // Dev-kit pages show "Examples" in secondary nav
+  integrations: 'examples', // Integration pages also show "Examples"
+  'events-reference': 'api-reference', // Events show "API Reference"
+  // Note: Some topics may not have a secondary nav item (they won't highlight anything)
+}
+
+/**
+ * Secondary navigation mapping with explicit patterns for direct URL matching
+ * This is used as a fallback when a page doesn't match any topic
+ *
+ * Priority levels (higher number = higher priority):
+ * - 100: Most specific paths (Agent Actions)
+ * - 80: API Reference and Events
+ * - 60: Examples and Dev Resources
+ * - 40: Authenticate (catch-all, lowest priority)
+ */
+export const secondaryNavMapping = {
+  authenticate: {
+    id: 'authenticate',
+    priority: 40,
+    patterns: [
+      '/', // Root path
+      '/authenticate',
+      '/mcp',
+      '/fsa',
+      '/sso',
+      '/guides/sso',
+      '/social-logins',
+      '/passwordless',
+      '/guides/passwordless',
+      '/directory',
+      '/guides/directory',
+      '/guides/custom-domain',
+      '/guides/email-providers',
+      '/guides/auth-flow-interceptors',
+      '/guides/dashboard',
+      '/guides/user-auth',
+      '/guides/security',
+      '/guides/user-management',
+      '/m2m',
+      '/guides/m2m',
+    ],
+  },
+  'agent-actions': {
+    id: 'agent-actions',
+    priority: 100,
+    patterns: ['/agent-actions'],
+  },
+  examples: {
+    id: 'examples',
+    priority: 60,
+    patterns: [
+      '/examples',
+      '/browse',
+      '/dev-kit',
+      '/guides/interceptor-scenarios',
+      '/guides/dashboard/redirects',
+      '/guides/external-ids-and-metadata',
+      '/guides/client-credentials-practices',
+      '/guides/webhooks-best-practices',
+      '/guides/idtoken-claims',
+      '/guides/integrations',
+    ],
+  },
+  'api-reference': {
+    id: 'api-reference',
+    priority: 80,
+    patterns: [
+      '/apis',
+      '/reference/webhooks',
+      '/reference/admin-portal/ui-events',
+      '/reference/agent-connectors',
+    ],
+  },
 }

@@ -17,8 +17,16 @@ import {
   IconSolarServerPathOutline,
   IconLucideChevronDown as IconChevronDown,
 } from '../utils/icon-map'
+import { secondaryNavMapping, topicToSecondaryNav, topics } from '../configs/sidebar.config'
+import {
+  findBestMatch,
+  isHashOnly,
+  getTopicForPath,
+  type SecondaryNavItem,
+} from '../utils/path-matching'
 
 interface NavItem {
+  id: string // Unique identifier that maps to secondaryNavMapping
   href: string
   label: string
   patterns: string[]
@@ -32,44 +40,48 @@ interface NavSection {
   items: NavItem[]
 }
 
-function startsWithAny(mainString: string, patterns: string[]) {
-  if (!mainString || !patterns) {
-    return false
+/**
+ * Determines which secondary nav item should be active for the current pathname
+ * Uses a two-tier approach:
+ * 1. First, check which sidebar topic the page belongs to and map to secondary nav
+ * 2. If no topic match, fall back to pattern-based matching
+ */
+function getActiveSecondaryNavId(pathname: string): string | null {
+  // First, try to determine the sidebar topic for this page
+  const topic = getTopicForPath(pathname, topics)
+
+  if (topic && topicToSecondaryNav[topic]) {
+    // Map the topic to its secondary nav item
+    return topicToSecondaryNav[topic]
   }
-  for (let i = 0; i < patterns.length; i++) {
-    if (mainString.startsWith(patterns[i])) {
-      return true // Found a match, return true immediately
-    }
-  }
-  return false // No match found after checking all patterns
+
+  // Fallback: Use pattern-based matching
+  const allNavItems: SecondaryNavItem[] = Object.values(secondaryNavMapping).map((mapping) => ({
+    id: mapping.id,
+    patterns: mapping.patterns,
+    priority: mapping.priority,
+  }))
+
+  return findBestMatch(pathname, allNavItems)
 }
 
+/**
+ * Determines if a nav item should be marked as current based on the pathname
+ */
 function isCurrentPage(pathname: string, item: NavItem): boolean {
+  // Hash-only links (dropdown triggers) are never current
+  if (isHashOnly(item.href)) {
+    return false
+  }
+
   // If this is a parent item with children, consider it current if any child is current
   if (item.children && item.children.length > 0) {
     return item.children.some((child) => isCurrentPage(pathname, child))
   }
 
-  if (item.isExact) {
-    return pathname === item.href
-  }
-
-  // Special handling for Developer Resources - exclude code-samples path
-  if (item.href === '/dev-kit/' && pathname.startsWith('/dev-kit/code-samples')) {
-    return false
-  }
-
-  // Special handling for root path '/' - only match exact root, not paths starting with '/'
-  if (item.patterns.includes('/') && pathname !== '/') {
-    // Check if pathname matches any other pattern (excluding '/')
-    const otherPatterns = item.patterns.filter((p) => p !== '/')
-    if (otherPatterns.length > 0) {
-      return startsWithAny(pathname, otherPatterns)
-    }
-    return false
-  }
-
-  return startsWithAny(pathname, item.patterns)
+  // Get the active secondary nav ID and compare
+  const activeId = getActiveSecondaryNavId(pathname)
+  return activeId === item.id
 }
 
 function getDisplayLabel(pathname: string, item: NavItem): string {
@@ -88,32 +100,23 @@ function getDisplayIcon(pathname: string, item: NavItem): any {
   return item.iconComponent
 }
 
+// Build nav sections using secondaryNavMapping as source of truth
 const navSections: NavSection[] = [
   {
     items: [
       {
+        id: secondaryNavMapping.authenticate.id,
         href: '/',
         label: 'Authenticate',
         iconComponent: IconLucideShield,
         keepParentLabel: true, // Keep "Authenticate" label regardless of active child
-        patterns: [
-          '/',
-          '/authenticate',
-          '/mcp/',
-          '/fsa/',
-          '/sso/',
-          '/guides/sso/',
-          '/social-logins/',
-          '/passwordless/',
-          '/guides/passwordless/',
-          '/directory/',
-          '/guides/directory/',
-        ],
+        patterns: secondaryNavMapping.authenticate.patterns,
       },
       {
+        id: secondaryNavMapping['agent-actions'].id,
         href: '/agent-actions/quickstart',
         label: 'Agent Actions',
-        patterns: ['/agent-actions/'],
+        patterns: secondaryNavMapping['agent-actions'].patterns,
         iconComponent: IconLucideBot,
       },
     ],
@@ -121,58 +124,45 @@ const navSections: NavSection[] = [
   {
     items: [
       {
+        id: secondaryNavMapping.examples.id,
         href: '/examples',
         label: 'Examples',
-        patterns: [
-          '/examples',
-          '/guides/integrations',
-          '/dev-kit/',
-          '/passwordless/',
-          '/social-logins/',
-          '/guides/passwordless/',
-          '/guides/interceptor-scenarios',
-          '/guides/dashboard/redirects',
-          '/guides/external-ids-and-metadata',
-          '/guides/client-credentials-practices',
-          '/guides/webhooks-best-practices',
-          '/guides/idtoken-claims',
-          '/guides/unlisted/passwordless-as-service',
-          '/browse/',
-          '/guides/user-auth/',
-          '/guides/security/',
-          '/guides/m2m/',
-          '/sso/guides/',
-        ],
+        patterns: secondaryNavMapping.examples.patterns,
         iconComponent: IconHugeiconsResourcesAdd,
       },
       {
+        id: secondaryNavMapping['api-reference'].id,
         href: '#',
         label: 'API Reference',
-        patterns: ['/apis', '/reference/webhooks/', '/reference/admin-portal/ui-events'],
+        patterns: secondaryNavMapping['api-reference'].patterns,
         iconComponent: IconLucideBookOpen,
         children: [
           {
+            id: 'rest-apis', // Child items still need unique IDs but won't be used in matching
             href: '/apis/',
             label: 'REST APIs',
             patterns: ['/apis'],
             iconComponent: IconLucideBookOpen,
           },
           {
+            id: 'webhooks-events',
             href: '/reference/webhooks/overview/',
             label: 'Webhooks & Events',
-            patterns: ['/reference/webhooks/', '/reference/admin-portal/ui-events'],
+            patterns: ['/reference/webhooks', '/reference/admin-portal/ui-events'],
             iconComponent: IconLucideOutlineWebhook,
           },
         ],
       },
       // Temporarily hidden - Developer Resources dropdown
       // {
+      //   id: 'dev-kit',
       //   href: '/dev-kit/',
       //   label: 'Developer Resources',
       //   patterns: ['/dev-kit/', '/guides/integrations'],
       //   iconComponent: IconLucideWrench,
       //   children: [
       //     {
+      //       id: 'dev-kit-overview',
       //       href: '/dev-kit/sdks/overview',
       //       label: 'Developer Resources',
       //       patterns: ['/dev-kit/'],
@@ -180,6 +170,7 @@ const navSections: NavSection[] = [
       //       iconComponent: IconLucideWrench,
       //     },
       //     {
+      //       id: 'integrations',
       //       href: '/guides/integrations',
       //       label: 'Integrations',
       //       patterns: ['/guides/integrations'],
