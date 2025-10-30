@@ -29,7 +29,7 @@ import IconTdesignSequence from '~icons/tdesign/sequence'
 
 User sessions determine how long users stay signed in to your application. After users successfully authenticate, you receive session tokens that manage their access. These tokens control session duration, multi-device access, and cross-product authentication within your company's ecosystem.
 
-This guide shows you how to store these tokens securely with proper cookie attributes, validate them on every request, and refresh them with rotation to prevent token replay attacks.
+This guide shows you how to store these tokens securely with encryption and proper cookie attributes, validate them on every request, and refresh them transparently in middleware to maintain seamless user sessions.
 
 
 <details>
@@ -63,23 +63,23 @@ This guide shows you how to store these tokens securely with proper cookie attri
      // Extract authentication data from the successful authentication response
      const { accessToken, expiresIn, refreshToken, user } = authResult;
 
-     // Store access token in HttpOnly cookie with Path scoping to API routes
-     // Path scoping limits where browser sends this cookie (least privilege)
-     res.cookie('accessToken', accessToken, {
+     // Encrypt tokens before storing to add an additional security layer
+     const encryptedAccessToken = encrypt(accessToken);
+     const encryptedRefreshToken = encrypt(refreshToken);
+
+     // Store encrypted access token in HttpOnly cookie
+     res.cookie('accessToken', encryptedAccessToken, {
        maxAge: (expiresIn - 60) * 1000, // Subtract 60s buffer for clock skew (milliseconds)
        httpOnly: true, // Prevents JavaScript access to mitigate XSS attacks
        secure: process.env.NODE_ENV === 'production', // HTTPS-only in production
-       sameSite: 'strict', // Prevents CSRF attacks; use 'lax' if top-level navigation needed
-       path: '/api' // Restrict cookie to API routes only
+       sameSite: 'strict' // Prevents CSRF attacks
      });
 
-     // Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
-     // This ensures refresh token is only sent to the refresh endpoint, minimizing exposure
-     res.cookie('refreshToken', refreshToken, {
+     // Store encrypted refresh token in separate HttpOnly cookie
+     res.cookie('refreshToken', encryptedRefreshToken, {
        httpOnly: true, // Prevents JavaScript access to mitigate XSS attacks
        secure: process.env.NODE_ENV === 'production', // HTTPS-only in production
-       sameSite: 'strict', // Prevents CSRF attacks
-       path: '/auth/refresh' // Only sent to refresh endpoint (least privilege)
+       sameSite: 'strict' // Prevents CSRF attacks
      });
      ```
      </TabItem>
@@ -95,34 +95,34 @@ This guide shows you how to store these tokens securely with proper cookie attri
      refresh_token = auth_result.refresh_token
      user = auth_result.user
 
+     # Encrypt tokens before storing to add an additional security layer
+     encrypted_access_token = encrypt(access_token)
+     encrypted_refresh_token = encrypt(refresh_token)
+
      response = make_response()
 
-     # Store access token in HttpOnly cookie with Path scoping to API routes
-     # Path scoping limits where browser sends this cookie (least privilege)
+     # Store encrypted access token in HttpOnly cookie
      response.set_cookie(
        'accessToken',
-       access_token,
+       encrypted_access_token,
        max_age=expires_in - 60,  # Subtract 60s buffer for clock skew (seconds in Flask)
        httponly=True,             # Prevents JavaScript access to mitigate XSS attacks
        secure=os.environ.get('FLASK_ENV') == 'production',  # HTTPS-only in production
-       samesite='Strict',         # Prevents CSRF attacks; use 'Lax' if top-level navigation needed
-       path='/api'                # Restrict cookie to API routes only
+       samesite='Strict'          # Prevents CSRF attacks
      )
 
-     # Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
-     # This ensures refresh token is only sent to the refresh endpoint, minimizing exposure
+     # Store encrypted refresh token in separate HttpOnly cookie
      response.set_cookie(
        'refreshToken',
-       refresh_token,
+       encrypted_refresh_token,
        httponly=True,             # Prevents JavaScript access to mitigate XSS attacks
        secure=os.environ.get('FLASK_ENV') == 'production',  # HTTPS-only in production
-       samesite='Strict',         # Prevents CSRF attacks
-       path='/auth/refresh'       # Only sent to refresh endpoint (least privilege)
+       samesite='Strict'          # Prevents CSRF attacks
      )
      ```
      </TabItem>
      <TabItem value="go" label="Go">
-     ```go title="Gin" collapse={1-7} "accessToken" "refreshToken"
+     ```go title="Gin" collapse={1-7} "encrypt" "accessToken" "refreshToken"
      import (
        "net/http"
        "os"
@@ -136,28 +136,30 @@ This guide shows you how to store these tokens securely with proper cookie attri
      refreshToken := authResult.RefreshToken
      user := authResult.User
 
-     // Set SameSite mode for CSRF protection
-     c.SetSameSite(http.SameSiteStrictMode) // Prevents CSRF; use Lax if top-level navigation needed
+     // Encrypt tokens before storing to add an additional security layer
+     encryptedAccessToken := encrypt(accessToken)
+     encryptedRefreshToken := encrypt(refreshToken)
 
-     // Store access token in HttpOnly cookie with Path scoping to API routes
-     // Path scoping limits where browser sends this cookie (least privilege)
+     // Set SameSite mode for CSRF protection
+     c.SetSameSite(http.SameSiteStrictMode) // Prevents CSRF attacks
+
+     // Store encrypted access token in HttpOnly cookie
      c.SetCookie(
        "accessToken",
-       accessToken,
+       encryptedAccessToken,
        expiresIn-60, // Subtract 60s buffer for clock skew (seconds in Gin)
-       "/api",       // Restrict cookie to API routes only
+       "/",          // Available on all routes
        "",
        os.Getenv("GIN_MODE") == "release", // HTTPS-only in production
        true, // Prevents JavaScript access to mitigate XSS attacks
      )
 
-     // Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
-     // This ensures refresh token is only sent to the refresh endpoint, minimizing exposure
+     // Store encrypted refresh token in separate HttpOnly cookie
      c.SetCookie(
        "refreshToken",
-       refreshToken,
-       0,            // No expiry for refresh token cookie (session lifetime controlled server-side)
-       "/auth/refresh", // Only sent to refresh endpoint (least privilege)
+       encryptedRefreshToken,
+       0,    // No expiry for refresh token cookie (session lifetime controlled server-side)
+       "/",  // Available on all routes
        "",
        os.Getenv("GIN_MODE") == "release", // HTTPS-only in production
        true, // Prevents JavaScript access to mitigate XSS attacks
@@ -178,23 +180,25 @@ This guide shows you how to store these tokens securely with proper cookie attri
      String refreshToken = authResult.getRefreshToken();
      User user = authResult.getUser();
 
-     // Store access token in HttpOnly cookie with Path scoping to API routes
-     // Path scoping limits where browser sends this cookie (least privilege)
-     Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+     // Encrypt tokens before storing to add an additional security layer
+     String encryptedAccessToken = encrypt(accessToken);
+     String encryptedRefreshToken = encrypt(refreshToken);
+
+     // Store encrypted access token in HttpOnly cookie
+     Cookie accessTokenCookie = new Cookie("accessToken", encryptedAccessToken);
      accessTokenCookie.setMaxAge(expiresIn - 60); // Subtract 60s buffer for clock skew (seconds in Spring)
      accessTokenCookie.setHttpOnly(true); // Prevents JavaScript access to mitigate XSS attacks
      accessTokenCookie.setSecure("production".equals(env.getActiveProfiles()[0])); // HTTPS-only in production
-     accessTokenCookie.setPath("/api"); // Restrict cookie to API routes only
+     accessTokenCookie.setPath("/"); // Available on all routes
      response.addCookie(accessTokenCookie);
      response.setHeader("Set-Cookie",
        response.getHeader("Set-Cookie") + "; SameSite=Strict"); // Prevents CSRF attacks
 
-     // Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
-     // This ensures refresh token is only sent to the refresh endpoint, minimizing exposure
-     Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+     // Store encrypted refresh token in separate HttpOnly cookie
+     Cookie refreshTokenCookie = new Cookie("refreshToken", encryptedRefreshToken);
      refreshTokenCookie.setHttpOnly(true); // Prevents JavaScript access to mitigate XSS attacks
      refreshTokenCookie.setSecure("production".equals(env.getActiveProfiles()[0])); // HTTPS-only in production
-     refreshTokenCookie.setPath("/auth/refresh"); // Only sent to refresh endpoint (least privilege)
+     refreshTokenCookie.setPath("/"); // Available on all routes
      response.addCookie(refreshTokenCookie);
      ```
      </TabItem>
@@ -205,34 +209,56 @@ This guide shows you how to store these tokens securely with proper cookie attri
    Validate every request for a valid access token in your application. Create middleware to protect your application routes. This middleware validates the access token on every request to secured endpoints. For APIs, consider reading from `Authorization: Bearer` headers instead of cookies to minimize CSRF risk.
 
 
-   Here's an example middle ware method validating access toekn and refreshing the token if it's expired for every request.
+   Here's an example middle ware method validating access token and refreshing the token if it's expired for every request.
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
      ```javascript title="middleware/auth.js" "validateAccessToken"
      async function verifyToken(req, res, next) {
-       // Extract access token from request cookies
-       const { accessToken } = req.cookies;
+       // Extract encrypted tokens from request cookies
+       const { accessToken, refreshToken } = req.cookies;
 
-       // Return 401 error if no token is present
        if (!accessToken) {
          return res.status(401).json({ error: 'Authentication required' });
        }
 
        try {
+         // Decrypt the access token before validation
+         const decryptedAccessToken = decrypt(accessToken);
+
          // Verify token validity using Scalekit's validation method
-         const isValid = await scalekit.validateAccessToken(accessToken);
+         const isValid = await scalekit.validateAccessToken(decryptedAccessToken);
+
+         if (!isValid && refreshToken) {
+           // Token expired - refresh it transparently
+           const decryptedRefreshToken = decrypt(refreshToken);
+           const authResult = await scalekit.refreshAccessToken(decryptedRefreshToken);
+
+           // Encrypt and store new tokens
+           res.cookie('accessToken', encrypt(authResult.accessToken), {
+             maxAge: (authResult.expiresIn - 60) * 1000,
+             httpOnly: true,
+             secure: process.env.NODE_ENV === 'production',
+             sameSite: 'strict'
+           });
+
+           res.cookie('refreshToken', encrypt(authResult.refreshToken), {
+             httpOnly: true,
+             secure: process.env.NODE_ENV === 'production',
+             sameSite: 'strict'
+           });
+
+           return next();
+         }
 
          if (!isValid) {
-           // If token validation fails (expired or invalid), attempt token refresh
-           return handleTokenRefresh(req, res, next);
+           return res.status(401).json({ error: 'Session expired. Please sign in again.' });
          }
 
          // Token is valid, proceed to the next middleware or route handler
          next();
        } catch (error) {
-         // If validation throws an exception, attempt token refresh as fallback
-         return handleTokenRefresh(req, res, next);
+         return res.status(401).json({ error: 'Authentication failed' });
        }
      }
      ```
@@ -244,55 +270,114 @@ This guide shows you how to store these tokens securely with proper cookie attri
      def verify_token(f):
          @wraps(f)
          def decorated_function(*args, **kwargs):
-             # Extract access token from request cookies
+             # Extract encrypted tokens from request cookies
              access_token = request.cookies.get('accessToken')
+             refresh_token = request.cookies.get('refreshToken')
 
-             # Return 401 error if no token is present
              if not access_token:
                  return jsonify({'error': 'Authentication required'}), 401
 
              try:
+                 # Decrypt the access token before validation
+                 decrypted_access_token = decrypt(access_token)
+
                  # Verify token validity using Scalekit's validation method
-                 is_valid = scalekit.validate_access_token(access_token)
+                 is_valid = scalekit_client.validate_access_token(decrypted_access_token)
+
+                 if not is_valid and refresh_token:
+                     # Token expired - refresh it transparently
+                     decrypted_refresh_token = decrypt(refresh_token)
+                     auth_result = scalekit_client.refresh_access_token(decrypted_refresh_token)
+
+                     # Encrypt and store new tokens
+                     response = make_response(f(*args, **kwargs))
+                     response.set_cookie(
+                         'accessToken',
+                         encrypt(auth_result.access_token),
+                         max_age=auth_result.expires_in - 60,
+                         httponly=True,
+                         secure=os.environ.get('FLASK_ENV') == 'production',
+                         samesite='Strict'
+                     )
+                     response.set_cookie(
+                         'refreshToken',
+                         encrypt(auth_result.refresh_token),
+                         httponly=True,
+                         secure=os.environ.get('FLASK_ENV') == 'production',
+                         samesite='Strict'
+                     )
+                     return response
 
                  if not is_valid:
-                     # If token validation fails (expired or invalid), attempt token refresh
-                     return handle_token_refresh(f, *args, **kwargs)
+                     return jsonify({'error': 'Session expired. Please sign in again.'}), 401
 
                  # Token is valid, proceed to the protected view function
                  return f(*args, **kwargs)
 
              except Exception:
-                 # If validation throws an exception, attempt token refresh as fallback
-                 return handle_token_refresh(f, *args, **kwargs)
+                 return jsonify({'error': 'Authentication failed'}), 401
 
          return decorated_function
      ```
      </TabItem>
      <TabItem value="go" label="Go">
-     ```go title="middleware/auth.go" collapse={1-4}
+     ```go title="middleware/auth.go" collapse={1-5} "decrypt" "ValidateAccessToken" "RefreshAccessToken"
      import (
        "net/http"
+       "os"
        "github.com/gin-gonic/gin"
      )
      func VerifyToken() gin.HandlerFunc {
        return func(c *gin.Context) {
-         // Extract access token from the request cookies
+         // Extract encrypted tokens from request cookies
          accessToken, err := c.Cookie("accessToken")
-
-         // Return 401 error if no token is present or cookie error occurs
          if err != nil || accessToken == "" {
            c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
            c.Abort()
            return
          }
 
-         // Verify token validity using Scalekit's validation method
-         isValid, err := scalekit.ValidateAccessToken(accessToken)
+         // Decrypt the access token before validation
+         decryptedAccessToken := decrypt(accessToken)
 
-         // If token validation fails (expired or invalid), attempt token refresh
-         if err != nil || !isValid {
-           handleTokenRefresh(c)
+         // Verify token validity using Scalekit's validation method
+         isValid, err := scalekitClient.ValidateAccessToken(decryptedAccessToken)
+
+         if (err != nil || !isValid) {
+           // Token expired - attempt transparent refresh
+           refreshToken, err := c.Cookie("refreshToken")
+           if err == nil && refreshToken != "" {
+             decryptedRefreshToken := decrypt(refreshToken)
+             authResult, err := scalekitClient.RefreshAccessToken(decryptedRefreshToken)
+
+             if err == nil {
+               // Encrypt and store new tokens
+               c.SetSameSite(http.SameSiteStrictMode)
+               c.SetCookie(
+                 "accessToken",
+                 encrypt(authResult.AccessToken),
+                 authResult.ExpiresIn-60,
+                 "/",
+                 "",
+                 os.Getenv("GIN_MODE") == "release",
+                 true,
+               )
+               c.SetCookie(
+                 "refreshToken",
+                 encrypt(authResult.RefreshToken),
+                 0,
+                 "/",
+                 "",
+                 os.Getenv("GIN_MODE") == "release",
+                 true,
+               )
+               c.Next()
+               return
+             }
+           }
+
+           c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired. Please sign in again."})
+           c.Abort()
            return
          }
 
@@ -308,24 +393,27 @@ This guide shows you how to store these tokens securely with proper cookie attri
      import javax.servlet.http.HttpServletResponse;
      import javax.servlet.http.Cookie;
      import org.springframework.web.servlet.HandlerInterceptor;
+     import org.springframework.core.env.Environment;
 
      /**
       * Intercepts HTTP requests to verify authentication tokens.
-      * Implements Spring's HandlerInterceptor to check access tokens
-      * before request processing.
+      * Transparently refreshes expired tokens to maintain user sessions.
       */
      @Component
      public class AuthInterceptor implements HandlerInterceptor {
+       @Autowired
+       private Environment env;
+
        @Override
        public boolean preHandle(
          HttpServletRequest request,
          HttpServletResponse response,
          Object handler
        ) throws Exception {
-         // Extract access token from cookies
+         // Extract encrypted tokens from cookies
          String accessToken = getCookieValue(request, "accessToken");
+         String refreshToken = getCookieValue(request, "refreshToken");
 
-         // Return 401 if no token is present
          if (accessToken == null) {
            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
            response.getWriter().write("{\"error\": \"Authentication required\"}");
@@ -333,260 +421,47 @@ This guide shows you how to store these tokens securely with proper cookie attri
          }
 
          try {
+           // Decrypt the access token before validation
+           String decryptedAccessToken = decrypt(accessToken);
+
            // Verify token validity using Scalekit's validation method
-           boolean isValid = scalekit.validateAccessToken(accessToken);
+           boolean isValid = scalekitClient.validateAccessToken(decryptedAccessToken);
+
+           if (!isValid && refreshToken != null) {
+             // Token expired - refresh it transparently
+             String decryptedRefreshToken = decrypt(refreshToken);
+             AuthResult authResult = scalekitClient.authentication().refreshToken(decryptedRefreshToken);
+
+             // Encrypt and store new tokens
+             Cookie accessTokenCookie = new Cookie("accessToken", encrypt(authResult.getAccessToken()));
+             accessTokenCookie.setMaxAge(authResult.getExpiresIn() - 60);
+             accessTokenCookie.setHttpOnly(true);
+             accessTokenCookie.setSecure("production".equals(env.getActiveProfiles()[0]));
+             accessTokenCookie.setPath("/");
+             response.addCookie(accessTokenCookie);
+
+             Cookie refreshTokenCookie = new Cookie("refreshToken", encrypt(authResult.getRefreshToken()));
+             refreshTokenCookie.setHttpOnly(true);
+             refreshTokenCookie.setSecure("production".equals(env.getActiveProfiles()[0]));
+             refreshTokenCookie.setPath("/");
+             response.addCookie(refreshTokenCookie);
+             response.setHeader("Set-Cookie", response.getHeader("Set-Cookie") + "; SameSite=Strict");
+
+             return true;
+           }
 
            if (!isValid) {
-             // If token is expired or invalid, attempt to refresh it
-             return handleTokenRefresh(request, response);
+             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+             response.getWriter().write("{\"error\": \"Session expired. Please sign in again.\"}");
+             return false;
            }
 
            // Token is valid, allow request to proceed
            return true;
          } catch (Exception e) {
-           // If validation throws an exception, attempt token refresh as fallback
-           return handleTokenRefresh(request, response);
-         }
-       }
-
-       /**
-        * Helper method to extract a specific cookie value from the request.
-        *
-        * @param request The HTTP request containing cookies
-        * @param cookieName The name of the cookie to retrieve
-        * @return The cookie value or null if not found
-        */
-       private String getCookieValue(HttpServletRequest request, String cookieName) {
-         Cookie[] cookies = request.getCookies();
-         if (cookies != null) {
-           for (Cookie cookie : cookies) {
-             if (cookieName.equals(cookie.getName())) {
-               return cookie.getValue();
-             }
-           }
-         }
-         return null;
-       }
-      }
-      ```
-      </TabItem>
-   </Tabs>
-
-4. ## Maintain sessions by refreshing access tokens
-
-   When access tokens expire, you can use the refresh token to obtain new ones without requiring users to sign in again. The refresh token is stored in a separate cookie that's only sent to your `/auth/refresh` endpoint. Implement refresh token rotation by replacing the old cookie with a new one on each refresh. This limits the window for token replay attacks.
-
-   <Tabs syncKey="tech-stack">
-     <TabItem value="node" label="Node.js">
-     ```javascript title="/auth/refresh endpoint" {5, 12, 18-21, 24-29}
-     app.post('/auth/refresh', async (req, res) => {
-       // Extract refresh token from cookie
-       // Browser only sends this cookie to /auth/refresh due to Path scoping
-       const { refreshToken } = req.cookies;
-
-       if (!refreshToken) {
-         return res.status(401).json({ error: 'No refresh token provided' });
-       }
-
-       try {
-         // Exchange refresh token for new credentials with token rotation
-         const authResult = await scalekit.refreshAccessToken(refreshToken);
-         const { accessToken, expiresIn, refreshToken: newRefreshToken } = authResult;
-
-         // Rotate: Replace old access token cookie with new one
-         res.cookie('accessToken', accessToken, {
-           maxAge: (expiresIn - 60) * 1000, // Subtract 60s buffer for clock skew (milliseconds)
-           httpOnly: true,
-           secure: process.env.NODE_ENV === 'production',
-           sameSite: 'strict',
-           path: '/api' // Restrict cookie to API routes only
-         });
-
-         // Rotate: Replace old refresh token cookie with new one
-         res.cookie('refreshToken', newRefreshToken, {
-           httpOnly: true,
-           secure: process.env.NODE_ENV === 'production',
-           sameSite: 'strict',
-           path: '/auth/refresh' // Only sent to refresh endpoint (least privilege)
-         });
-
-         // Return success
-         res.json({ success: true });
-       } catch (error) {
-         // Refresh failed - clear both cookies
-         res.clearCookie('accessToken', { path: '/api' }); // Match Path when clearing
-         res.clearCookie('refreshToken', { path: '/auth/refresh' });
-         return res.status(401).json({ error: 'Session expired. Please sign in again.' });
-       }
-     });
-     ```
-     </TabItem>
-     <TabItem value="py" label="Python">
-     ```python title="/auth/refresh endpoint" {5, 11, 16-22, 25-31}
-     from flask import request, jsonify, make_response
-     import os
-
-     @app.route('/auth/refresh', methods=['POST'])
-     def refresh_token():
-         # Extract refresh token from cookie
-         # Browser only sends this cookie to /auth/refresh due to Path scoping
-         refresh_token = request.cookies.get('refreshToken')
-
-         if not refresh_token:
-             return jsonify({'error': 'No refresh token provided'}), 401
-
-         try:
-             # Exchange refresh token for new credentials with token rotation
-             auth_result = scalekit_client.refresh_access_token(refresh_token)
-             access_token = auth_result.access_token
-             expires_in = auth_result.expires_in
-             new_refresh_token = auth_result.refresh_token
-
-             response = make_response(jsonify({'success': True}))
-
-             # Rotate: Replace old access token cookie with new one
-             response.set_cookie(
-                 'accessToken',
-                 access_token,
-                 max_age=expires_in - 60,  # Subtract 60s buffer for clock skew (seconds in Flask)
-                 httponly=True,
-                 secure=os.environ.get('FLASK_ENV') == 'production',
-                 samesite='Strict',
-                 path='/api'  # Restrict cookie to API routes only
-             )
-
-             # Rotate: Replace old refresh token cookie with new one
-             response.set_cookie(
-                 'refreshToken',
-                 new_refresh_token,
-                 httponly=True,
-                 secure=os.environ.get('FLASK_ENV') == 'production',
-                 samesite='Strict',
-                 path='/auth/refresh'  # Only sent to refresh endpoint (least privilege)
-             )
-
-             return response
-         except Exception:
-             # Refresh failed - clear both cookies
-             response = make_response(jsonify({'error': 'Session expired. Please sign in again.'}), 401)
-             response.set_cookie('accessToken', '', expires=0, path='/api')  # Match Path when clearing
-             response.set_cookie('refreshToken', '', expires=0, path='/auth/refresh')
-             return response
-     ```
-     </TabItem>
-     <TabItem value="go" label="Go">
-     ```go title="/auth/refresh endpoint" {5, 12, 19-26, 29-36}
-     import (
-       "net/http"
-       "os"
-       "github.com/gin-gonic/gin"
-     )
-     func refreshTokenHandler(c *gin.Context) {
-       // Extract refresh token from cookie
-       // Browser only sends this cookie to /auth/refresh due to Path scoping
-       refreshToken, err := c.Cookie("refreshToken")
-       if err != nil || refreshToken == "" {
-         c.JSON(http.StatusUnauthorized, gin.H{"error": "No refresh token provided"})
-         return
-       }
-
-       // Exchange refresh token for new credentials with token rotation
-       authResult, err := scalekitClient.RefreshAccessToken(refreshToken)
-       if err != nil {
-         // Refresh failed - clear both cookies
-         c.SetCookie("accessToken", "", -1, "/api", "", false, true) // Match Path when clearing
-         c.SetCookie("refreshToken", "", -1, "/auth/refresh", "", false, true)
-         c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired. Please sign in again."})
-         return
-       }
-
-       // Set SameSite mode for CSRF protection
-       c.SetSameSite(http.SameSiteStrictMode)
-
-       // Rotate: Replace old access token cookie with new one
-       c.SetCookie(
-         "accessToken",
-         authResult.AccessToken,
-         authResult.ExpiresIn-60, // Subtract 60s buffer for clock skew (seconds in Gin)
-         "/api",                  // Restrict cookie to API routes only
-         "",
-         os.Getenv("GIN_MODE") == "release", // Secure flag in production
-         true, // HttpOnly flag
-       )
-
-       // Rotate: Replace old refresh token cookie with new one
-       c.SetCookie(
-         "refreshToken",
-         authResult.RefreshToken,
-         0,                       // No expiry for refresh token cookie
-         "/auth/refresh",         // Only sent to refresh endpoint (least privilege)
-         "",
-         os.Getenv("GIN_MODE") == "release", // Secure flag in production
-         true, // HttpOnly flag
-       )
-
-       c.JSON(http.StatusOK, gin.H{"success": true})
-     }
-     ```
-     </TabItem>
-     <TabItem value="java" label="Java">
-     ```java title="/auth/refresh endpoint" collapse={1-5} {11, 19, 26-32, 35-40}
-     import javax.servlet.http.HttpServletRequest;
-     import javax.servlet.http.HttpServletResponse;
-     import javax.servlet.http.Cookie;
-     import org.springframework.core.env.Environment;
-     import org.springframework.web.bind.annotation.*;
-
-     @RestController
-     public class RefreshController {
-       @PostMapping("/auth/refresh")
-       public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
-         // Extract refresh token from cookie
-         // Browser only sends this cookie to /auth/refresh due to Path scoping
-         String refreshToken = getCookieValue(request, "refreshToken");
-
-         if (refreshToken == null) {
-           return ResponseEntity.status(401).body(Map.of("error", "No refresh token provided"));
-         }
-
-         try {
-           // Exchange refresh token for new credentials with token rotation
-           AuthResult authResult = scalekit.authentication().refreshToken(refreshToken);
-           String accessToken = authResult.getAccessToken();
-           int expiresIn = authResult.getExpiresIn();
-           String newRefreshToken = authResult.getRefreshToken();
-
-           // Rotate: Replace old access token cookie with new one
-           Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
-           accessTokenCookie.setMaxAge(expiresIn - 60); // Subtract 60s buffer (seconds in Spring)
-           accessTokenCookie.setHttpOnly(true);
-           accessTokenCookie.setSecure("production".equals(env.getActiveProfiles()[0]));
-           accessTokenCookie.setPath("/api"); // Restrict cookie to API routes only
-           response.addCookie(accessTokenCookie);
-
-           // Rotate: Replace old refresh token cookie with new one
-           Cookie refreshTokenCookie = new Cookie("refreshToken", newRefreshToken);
-           refreshTokenCookie.setHttpOnly(true);
-           refreshTokenCookie.setSecure("production".equals(env.getActiveProfiles()[0]));
-           refreshTokenCookie.setPath("/auth/refresh"); // Only sent to refresh endpoint
-           response.addCookie(refreshTokenCookie);
-           response.setHeader("Set-Cookie",
-             response.getHeader("Set-Cookie") + "; SameSite=Strict"); // Prevents CSRF attacks
-
-           return ResponseEntity.ok(Map.of("success", true));
-         } catch (Exception e) {
-           // Refresh failed - clear both cookies
-           Cookie accessCookie = new Cookie("accessToken", "");
-           accessCookie.setMaxAge(0);
-           accessCookie.setPath("/api"); // Match Path when clearing
-           response.addCookie(accessCookie);
-
-           Cookie refreshCookie = new Cookie("refreshToken", "");
-           refreshCookie.setMaxAge(0);
-           refreshCookie.setPath("/auth/refresh");
-           response.addCookie(refreshCookie);
-
-           return ResponseEntity.status(401).body(Map.of("error", "Session expired. Please sign in again."));
+           response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+           response.getWriter().write("{\"error\": \"Authentication failed\"}");
+           return false;
          }
        }
 
@@ -606,9 +481,7 @@ This guide shows you how to store these tokens securely with proper cookie attri
       </TabItem>
    </Tabs>
 
-   When a client receives a 401 error from your API (indicating an expired access token), call your `/auth/refresh` endpoint to obtain new tokens. The browser automatically includes the refresh token cookie due to Path scoping.
-
-6. ## Manage session security and duration
+4. ## Manage session security and duration
 
       Manage user session behavior directly from your Scalekit dashboard without modifying application code. Configure session durations and authentication frequency to balance security and user experience for your application.
 
@@ -625,4 +498,4 @@ This guide shows you how to store these tokens securely with proper cookie attri
       Shorter timeouts provide better security, while longer timeouts reduce authentication interruptions.
 </Steps>
 
-Your application continuously validates the access token for each incoming request. When the token is valid, the user's session remains active. If the access token expires, your app attempts to refresh it using the stored refresh token. However, if token refresh fails, the user is automatically logged out, effectively terminating their session.
+Your application continuously validates the access token for each incoming request. When the token is valid, the user's session remains active. If the access token expires, your middleware transparently refreshes it using the stored refresh token—users never notice this happening. If the refresh token itself expires or becomes invalid, users are prompted to sign in again.
