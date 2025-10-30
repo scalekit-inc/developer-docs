@@ -50,6 +50,8 @@ This guide shows you how to store these tokens securely with proper cookie attri
    Store each token based on its security requirements. For SPAs and mobile apps, consider storing access tokens in memory and sending via `Authorization: Bearer` headers to minimize CSRF exposure. For traditional web apps, use the cookie-based approach below:
    - **Access Token**: Store in a secure, HttpOnly cookie with proper `Path` scoping (e.g., `/api`) to prevent XSS attacks. This token has a short lifespan and provides access to protected resources.
    - **Refresh Token**: Store in a separate HttpOnly, Secure cookie with `Path=/auth/refresh` scoping. This limits the refresh token to only be sent to your refresh endpoint, reducing exposure. Rotate the token on each use to detect theft.
+   - **ID Token**: Ensure it is stored in local storage or a cookie so that it remains accessible at runtime, which is necessary for logging the user out successfully.
+
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
@@ -197,13 +199,6 @@ This guide shows you how to store these tokens securely with proper cookie attri
      ```
      </TabItem>
    </Tabs>
-
-   Configure session policy from your Dashboard > Authentication > Session Policy
-
-   <Aside type="tip">
-   When using cookie-based authentication, implement CSRF protection for state-changing operations (POST, PUT, PATCH, DELETE). Use synchronizer tokens or signed double-submit cookies alongside `SameSite` attributes for defense in depth.
-   </Aside>
-
 
 3. ## Check the access token before handling requests
 
