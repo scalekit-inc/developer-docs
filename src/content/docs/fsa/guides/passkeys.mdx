@@ -22,187 +22,188 @@ Passkeys replace passwords with biometric authentication (fingerprint, face reco
 Your [existing Scalekit integration](/fsa/quickstart/) already supports passkeys. To implement, enable passkeys in the Scalekit dashboard and leverage Scalekit's built-in user passkey registration functionality.
 
 
-## Redirect users to use Scalekit’s hosted passkey management
-
 <Steps>
-1. Go to Scalekit Dashboard > Authentication > Auth methods > Passkeys and click "Enable"
+1. ## Enable passkeys in the Scalekit dashboard
+
+    Go to Scalekit Dashboard > Authentication > Auth methods > Passkeys and click "Enable"
 
     ![](@/assets/docs/passkeys/better-registration-page.png)
 
-2. To enable users to register and manage their passkeys, redirect them to the Scalekit passkey registration page.
+2. ## Manage passkey registration
+
+    Let users manage passkeys just by redirecting them to the Scalekit from your app (usually through a button in your app that says "Manage passkeys"), or building your own UI.
+
+    #### Using Scalekit UI
+
+    To enable users to register and manage their passkeys, redirect them to the Scalekit passkey registration page.
+
+    ![](@/assets/docs/passkeys/registration-page.png "Passkey registration page in Scalekit UI")
+
+    Construct the URL by appending `/ui/profile/passkeys` to your Scalekit environment URL
 
     ```js title="Passkey Registration URL" showLineNumbers=false
     <SCALEKIT_ENVIRONMENT_URL>/ui/profile/passkeys
     ```
-    The `SCALEKIT_ENVIRONMENT_URL` is your Scalekit tenant URL.
 
     This opens a page where users can:
     - Register new passkeys
     - Remove existing passkeys
     - View their registered passkeys
 
-    ![](@/assets/docs/passkeys/registration-page.png "Passkey registration page in Scalekit UI")
+    <Aside>
+    Scalekit registers & authenticates user's passkeys through the browser's native passkey API. This API prompts users to authenticate with device-supported passkeys — such as fingerprint, PIN, or password managers.
+    </Aside>
 
+    #### In your own UI
+
+    If you prefer to create a custom user interface for passkey management, Scalekit offers comprehensive APIs that enable you to build a personalized experience. These APIs allow you to list registered passkeys, rename them, and remove them entirely. However registeration of passkeys is only supported through the Scalekit UI.
+
+    <Tabs>
+    <TabItem label="Node.js">
+    ```js title="List user's passkeys" showLineNumbers=false
+    // <USER_ID>: fetch from Access Token or ID Token after identity verification
+    const res = await fetch(
+      '<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials?user_id=<USER_ID>',
+      { headers: { Authorization: 'Bearer <ACCESS_TOKEN>' } }
+    );
+    const data = await res.json();
+    console.log(data);
+    ```
+
+    ```js title="Rename a passkey" showLineNumbers=false
+    // <CREDENTIAL_ID>: obtained from list response (id of each passkey)
+    await fetch('<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer <ACCESS_TOKEN>'
+      },
+      body: JSON.stringify({ display_name: '<NEW_DISPLAY_NAME>' })
+    });
+    ```
+
+    ```js title="Remove a passkey" showLineNumbers=false
+    // <CREDENTIAL_ID>: obtained from list response (id of each passkey)
+    await fetch('<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>', {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer <ACCESS_TOKEN>' }
+    });
+    ```
+    </TabItem>
+
+    <TabItem label="Python">
+    ```python title="List user's passkeys" showLineNumbers=false
+    import requests
+    # <USER_ID>: fetch from access token or ID token after identity verification
+    r = requests.get(
+      '<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials',
+      params={'user_id': '<USER_ID>'},
+      headers={'Authorization': 'Bearer <ACCESS_TOKEN>'}
+    )
+    print(r.json())
+    ```
+
+    ```python title="Rename a passkey" showLineNumbers=false
+    import requests
+    # <CREDENTIAL_ID>: obtained from list response (id of each passkey)
+    requests.patch(
+        '<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>',
+        json={'display_name': '<NEW_DISPLAY_NAME>'},
+        headers={'Authorization': 'Bearer <ACCESS_TOKEN>'}
+    )
+    ```
+
+    ```python title="Remove a passkey" showLineNumbers=false
+    import requests
+    # <CREDENTIAL_ID>: obtained from list response (id of each passkey)
+    requests.delete(
+      '<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>',
+      headers={'Authorization': 'Bearer <ACCESS_TOKEN>'}
+    )
+    ```
+    </TabItem>
+
+    <TabItem label="Java">
+    ```java title="List user's passkeys" showLineNumbers=false
+    var client = java.net.http.HttpClient.newHttpClient();
+    // <USER_ID>: fetch from Access Token or ID Token after identity verification
+    var req = java.net.http.HttpRequest.newBuilder(
+      java.net.URI.create("<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials?user_id=<USER_ID>")
+    )
+    .header("Authorization", "Bearer <ACCESS_TOKEN>")
+    .GET().build();
+    var res = client.send(req, java.net.http.HttpResponse.BodyHandlers.ofString());
+    System.out.println(res.body());
+    ```
+
+    ```java title="Rename a passkey" showLineNumbers=false
+    var client = java.net.http.HttpClient.newHttpClient();
+    var body = "{\"display_name\":\"<NEW_DISPLAY_NAME>\"}";
+    // <CREDENTIAL_ID>: obtained from list response (id of each passkey)
+    var req = java.net.http.HttpRequest.newBuilder(
+      java.net.URI.create("<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>")
+    )
+    .header("Authorization", "Bearer <ACCESS_TOKEN>")
+    .header("Content-Type","application/json")
+    .method("PATCH", java.net.http.HttpRequest.BodyPublishers.ofString(body))
+    .build();
+    client.send(req, java.net.http.HttpResponse.BodyHandlers.discarding());
+    ```
+
+    ```java title="Remove a passkey" showLineNumbers=false
+    var client = java.net.http.HttpClient.newHttpClient();
+    // <CREDENTIAL_ID>: obtained from list response (id of each passkey)
+    var req = java.net.http.HttpRequest.newBuilder(
+      java.net.URI.create("<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>")
+    )
+    .header("Authorization", "Bearer <ACCESS_TOKEN>")
+    .DELETE().build();
+    client.send(req, java.net.http.HttpResponse.BodyHandlers.discarding());
+    ```
+    </TabItem>
+
+    <TabItem label="Go">
+    ```go title="List user's passkeys" showLineNumbers=false
+    // imports: net/http, io, fmt
+    // <USER_ID>: fetch from access token or ID token after identity verification
+    req, _ := http.NewRequest("GET", "<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials?user_id=<USER_ID>", nil)
+    req.Header.Set("Authorization", "Bearer <ACCESS_TOKEN>")
+    resp, _ := http.DefaultClient.Do(req)
+    defer resp.Body.Close()
+    b, _ := io.ReadAll(resp.Body)
+    fmt.Println(string(b))
+    ```
+
+    ```go title="Rename a passkey" showLineNumbers=false
+    // imports: net/http, bytes
+    payload := bytes.NewBufferString(`{"display_name":"<NEW_DISPLAY_NAME>"}`)
+    // <CREDENTIAL_ID>: obtained from list response (id of each passkey)
+    req, _ := http.NewRequest("PATCH", "<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>", payload)
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("Authorization", "Bearer <ACCESS_TOKEN>")
+    http.DefaultClient.Do(req)
+    ```
+
+    ```go title="Remove a passkey" showLineNumbers=false
+    // imports: net/http
+    // <CREDENTIAL_ID>: obtained from list response (id of each passkey)
+    req, _ := http.NewRequest("DELETE", "<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>", nil)
+    req.Header.Set("Authorization", "Bearer <ACCESS_TOKEN>")
+    http.DefaultClient.Do(req)
+    ```
+    </TabItem>
+    </Tabs>
+
+    <Aside type="note">
+    All API requests require an access token obtained via the OAuth 2.0 client credentials flow. Follow <a href="/guides/authenticate-scalekit-api">Authenticate with the Scalekit API</a>, then replace `<ACCESS_TOKEN>` in the examples below.
+    </Aside>
+3. ## Users can login with passkeys
+
+    Users who have registered passkeys can login with them.
+
+    This time when login page shows, users can select "Passkey" as the authentication method.
+
+    ![](@/assets/docs/passkeys/login-with-passkey.png)
+
+    During sign-up, you'll continue to use established authentication methods like [verification codes, magic links](/fsa/guides/passwordless/) or [social logins](/social-logins/quickstart/). Once a user is registered, they can then add passkeys as an additional, convenient login option.
 </Steps>
-
-## Users can login with passkeys
-
-Users who have registered passkeys can login with them.
-
-This time when login page shows, users can select "Passkey" as the authentication method.
-
-![](@/assets/docs/passkeys/login-with-passkey.png)
-
- During sign-up, you'll continue to use established authentication methods like [verification codes, magic links](/fsa/guides/passwordless/) or [social logins](/social-logins/quickstart/). Once a user is registered, they can then add passkeys as an additional, convenient login option.
-
-<Aside>
-
-Scalekit authenticates users through the browser's native passkey API. This API prompts users to authenticate with device-supported passkeys — such as fingerprint, PIN, or password managers.
-
-</Aside>
-
-## Manage passkeys in your own UI
-
-If you prefer to create a custom user interface for passkey management, Scalekit offers comprehensive APIs that enable you to build a personalized experience. These APIs allow you to list registered passkeys, rename them, and remove them entirely.
-
-
-
-<Tabs>
-<TabItem label="Node.js">
-```js title="List user's passkeys" showLineNumbers=false
-// <USER_ID>: fetch from Access Token or ID Token after identity verification
-const res = await fetch(
-  '<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials?user_id=<USER_ID>',
-  { headers: { Authorization: 'Bearer <ACCESS_TOKEN>' } }
-);
-const data = await res.json();
-console.log(data);
-```
-
-```js title="Rename a passkey" showLineNumbers=false
-// <CREDENTIAL_ID>: obtained from list response (id of each passkey)
-await fetch('<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>', {
-  method: 'PATCH',
-  headers: {
-    'Content-Type': 'application/json',
-    Authorization: 'Bearer <ACCESS_TOKEN>'
-  },
-  body: JSON.stringify({ display_name: '<NEW_DISPLAY_NAME>' })
-});
-```
-
-```js title="Remove a passkey" showLineNumbers=false
-// <CREDENTIAL_ID>: obtained from list response (id of each passkey)
-await fetch('<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>', {
-  method: 'DELETE',
-  headers: { Authorization: 'Bearer <ACCESS_TOKEN>' }
-});
-```
-</TabItem>
-
-<TabItem label="Python">
-```python title="List user's passkeys" showLineNumbers=false
-import requests
-# <USER_ID>: fetch from access token or ID token after identity verification
-r = requests.get(
-  '<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials',
-  params={'user_id': '<USER_ID>'},
-  headers={'Authorization': 'Bearer <ACCESS_TOKEN>'}
-)
-print(r.json())
-```
-
-```python title="Rename a passkey" showLineNumbers=false
-import requests
-# <CREDENTIAL_ID>: obtained from list response (id of each passkey)
-requests.patch(
-    '<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>',
-    json={'display_name': '<NEW_DISPLAY_NAME>'},
-    headers={'Authorization': 'Bearer <ACCESS_TOKEN>'}
-)
-```
-
-```python title="Remove a passkey" showLineNumbers=false
-import requests
-# <CREDENTIAL_ID>: obtained from list response (id of each passkey)
-requests.delete(
-  '<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>',
-  headers={'Authorization': 'Bearer <ACCESS_TOKEN>'}
-)
-```
-</TabItem>
-
-<TabItem label="Java">
-```java title="List user's passkeys" showLineNumbers=false
-var client = java.net.http.HttpClient.newHttpClient();
-// <USER_ID>: fetch from Access Token or ID Token after identity verification
-var req = java.net.http.HttpRequest.newBuilder(
-  java.net.URI.create("<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials?user_id=<USER_ID>")
-)
-.header("Authorization", "Bearer <ACCESS_TOKEN>")
-.GET().build();
-var res = client.send(req, java.net.http.HttpResponse.BodyHandlers.ofString());
-System.out.println(res.body());
-```
-
-```java title="Rename a passkey" showLineNumbers=false
-var client = java.net.http.HttpClient.newHttpClient();
-var body = "{\"display_name\":\"<NEW_DISPLAY_NAME>\"}";
-// <CREDENTIAL_ID>: obtained from list response (id of each passkey)
-var req = java.net.http.HttpRequest.newBuilder(
-  java.net.URI.create("<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>")
-)
-.header("Authorization", "Bearer <ACCESS_TOKEN>")
-.header("Content-Type","application/json")
-.method("PATCH", java.net.http.HttpRequest.BodyPublishers.ofString(body))
-.build();
-client.send(req, java.net.http.HttpResponse.BodyHandlers.discarding());
-```
-
-```java title="Remove a passkey" showLineNumbers=false
-var client = java.net.http.HttpClient.newHttpClient();
-// <CREDENTIAL_ID>: obtained from list response (id of each passkey)
-var req = java.net.http.HttpRequest.newBuilder(
-  java.net.URI.create("<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>")
-)
-.header("Authorization", "Bearer <ACCESS_TOKEN>")
-.DELETE().build();
-client.send(req, java.net.http.HttpResponse.BodyHandlers.discarding());
-```
-</TabItem>
-
-<TabItem label="Go">
-```go title="List user's passkeys" showLineNumbers=false
-// imports: net/http, io, fmt
-// <USER_ID>: fetch from access token or ID token after identity verification
-req, _ := http.NewRequest("GET", "<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials?user_id=<USER_ID>", nil)
-req.Header.Set("Authorization", "Bearer <ACCESS_TOKEN>")
-resp, _ := http.DefaultClient.Do(req)
-defer resp.Body.Close()
-b, _ := io.ReadAll(resp.Body)
-fmt.Println(string(b))
-```
-
-```go title="Rename a passkey" showLineNumbers=false
-// imports: net/http, bytes
-payload := bytes.NewBufferString(`{"display_name":"<NEW_DISPLAY_NAME>"}`)
-// <CREDENTIAL_ID>: obtained from list response (id of each passkey)
-req, _ := http.NewRequest("PATCH", "<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>", payload)
-req.Header.Set("Content-Type", "application/json")
-req.Header.Set("Authorization", "Bearer <ACCESS_TOKEN>")
-http.DefaultClient.Do(req)
-```
-
-```go title="Remove a passkey" showLineNumbers=false
-// imports: net/http
-// <CREDENTIAL_ID>: obtained from list response (id of each passkey)
-req, _ := http.NewRequest("DELETE", "<SCALEKIT_ENVIRONMENT_URL>/api/v1/webauthn/credentials/<CREDENTIAL_ID>", nil)
-req.Header.Set("Authorization", "Bearer <ACCESS_TOKEN>")
-http.DefaultClient.Do(req)
-```
-</TabItem>
-</Tabs>
-
-<Aside type="note">
-All API requests require an access token obtained via the OAuth 2.0 client credentials flow. Follow <a href="/guides/authenticate-scalekit-api">Authenticate with the Scalekit API</a>, then replace `<ACCESS_TOKEN>` in the examples below.
-</Aside>
