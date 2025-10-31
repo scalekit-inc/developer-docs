@@ -162,10 +162,16 @@ If your application allows a single user to be part of multiple organizations, t
 
 If you already have a membership table that links users and organizations, you can add the Scalekit `user_id` to that table. When you update a user's profile, the changes will apply across all their organization memberships.
 
-<Aside type="tip" label="Replace the default organization meta label">
+| Aspect | 1-to-1  | 1-to-many |
+|--------|-------------|---------------------------|
+| **User belongs to** | One organization | Multiple organizations |
+| **Email address** | Tied to one org | Unique across environment |
+| **Authentication** | Per-organization | Across all orgs |
+| **Example apps** | Adobe Creative, QuickBooks | Slack, GitHub, Figma |
+| **Scalekit use** | Simpler setup, less flexibility | Full multi-tenancy capabilities |
 
-You can customize this meta label to _team_, _workspace_, or _account_ to match your product's terminology. Navigate to Scalekit Dashboard > Developers > Settings > Application details and update the "Organization" meta name.
-
-For instance, Notion calls these "Notion Workspaces" - collaborative spaces where team members share data, communicate, and work together.
-
+<Aside type="note" title="How this all connects">
+Every user has a `memberships` array. Each membership record represents that user's relationship
+to a specific organization—their roles, status, and metadata in that context. This structure
+enables the flexible 1-to-many model that powers modern B2B applications.
 </Aside>
