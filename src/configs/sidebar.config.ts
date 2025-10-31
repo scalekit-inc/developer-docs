@@ -40,7 +40,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Authorization',
+        label: 'Authorization (RBAC)',
         collapsed: false,
         items: [
           'authenticate/authz/overview',
