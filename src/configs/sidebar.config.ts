@@ -37,6 +37,7 @@ export const sidebar = [
           'authenticate/manage-organizations/add-users-to-organization',
           'fsa/guides/custom-user-attributes',
           'authenticate/manage-organizations/remove-users-from-organization',
+          'authenticate/manage-users-orgs/delete-users-orgs',
         ],
       },
       {
