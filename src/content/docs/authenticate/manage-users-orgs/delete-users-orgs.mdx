@@ -1,8 +1,148 @@
 ---
 title: "Delete users and organizations"
-description: "Delete users and organizations from your account"
+description: "Trigger deletions and let Scalekit handle sessions, memberships, and cleanup automatically"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
 sidebar:
   label: "Delete users and organizations"
 ---
 
-delte
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Properly deleting users and organizations is essential for ensuring your application's security and regulatory compliance. Whether a user departs or an entire organization must be removed, it's important to have reliable deletion processes in place.
+
+## Enable delete users feature in your app
+
+Before proceeding with permanent deletion, confirm this is the intended action from the admin user. If you only need to revoke access to organization while preserving the user account, consider [removing](/authenticate/manage-organizations/remove-users-from-organization/) the user from the organization instead.
+
+1. Create a custom user interface that allows users to delete their account. This typically involves implementing a button that triggers a call to the Scalekit API for user deletion.
+2. To enhance user experience, we recommend including a confirmation dialog before executing the deletion.
+
+Here's how to implement the deletion API call in your application:
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+
+```javascript title="Delete user permanently" wrap
+// Use case: User account closure, GDPR deletion requests, or cleaning up test accounts
+await scalekit.user.deleteUser("usr_123");
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+```python title="Delete user permanently" wrap
+# Use case: User account closure, GDPR deletion requests, or cleaning up test accounts
+scalekit_client.users.delete_user(
+    user_id="usr_123"
+)
+```
+
+  </TabItem>
+  <TabItem value="go" label="Go">
+
+```go title="Delete user permanently" wrap
+// Use case: User account closure, GDPR deletion requests, or cleaning up test accounts
+if err := scalekitClient.User().DeleteUser(ctx, "usr_123"); err != nil {
+    panic(err)
+}
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+```java title="Delete user permanently" wrap
+// Use case: User account closure, GDPR deletion requests, or cleaning up test accounts
+scalekitClient.users().deleteUser("usr_123");
+```
+
+  </TabItem>
+</Tabs>
+
+This is what happens after deletion:
+
+- Scalekit immediately terminates the user's active session
+- If the user belongs to multiple organizations, only the membership with the deleted organization is removed
+- If the user has no other organization memberships, their account is permanently deleted
+- Maintain any required audit records in your system
+
+<Aside type="caution" title="Important">
+Permanent deletion cannot be undone. Ensure you have appropriate backups and audit trails before proceeding.
+</Aside>
+
+## Enable delete organizations feature in your app
+
+To implement organization deletion in your application:
+
+1. **Create a delete button** in your admin interface that calls the Scalekit API
+2. **Add a confirmation dialog** to prevent accidental organization deletions
+
+Here's how to implement the organization deletion API call:
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+
+```javascript title="Delete organization permanently" wrap
+// Use case: Company closure, account restructuring, or removing test organizations
+await scalekit.organization.deleteOrganization(organizationId);
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+```python title="Delete organization permanently" wrap
+# Use case: Company closure, account restructuring, or removing test organizations
+scalekit_client.organization.delete_organization(organization_id)
+```
+
+  </TabItem>
+  <TabItem value="go" label="Go">
+
+```go title="Delete organization permanently" wrap
+// Use case: Company closure, account restructuring, or removing test organizations
+err := scalekitClient.Organization.DeleteOrganization(
+  ctx,
+  organizationId
+)
+if err != nil {
+    panic(err)
+}
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+```java title="Delete organization permanently" wrap
+// Use case: Company closure, account restructuring, or removing test organizations
+ScalekitClient scalekitClient = new ScalekitClient(
+  "<SCALEKIT_ENVIRONMENT_URL>",
+  "<SCALEKIT_CLIENT_ID>",
+  "<SCALEKIT_CLIENT_SECRET>"
+);
+
+scalekitClient.organizations().deleteById(organizationId);
+```
+
+  </TabItem>
+</Tabs>
+
+What happens after organization deletion
+
+- Scalekit automatically handles session termination for all organization members
+- All user memberships within the organization are removed
+- **Cascading deletion**: If the organization has multiple users who do not have memberships with other organizations, those user accounts are also permanently deleted
+- Users with memberships in other organizations retain their accounts and access to those organizations
+- Organization data and settings are permanently removed
+- Maintain any required audit records and compliance documentation in your system
+
+<Aside type="tip" title="Recommended: Schedule deletion">
+If your organization has data retention policies or compliance requirements, consider scheduling organization deletion for a future date (30-60 days) to allow for proper data backup and user notifications.
+</Aside>
+
+<Aside type="caution" title="Critical">
+Organization deletion permanently removes all data and cannot be undone. Ensure you have appropriate backups and have notified all affected users before proceeding.
+</Aside>
