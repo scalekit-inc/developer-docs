@@ -1,12 +1,9 @@
 ---
-title: "Users, organizations & memberships"
-description: "Learn how Scalekit's data model helps you structure users and organizations in your B2B application, enabling flexible multi-tenant access management"
+title: "Overview of modelling users and organizations"
+description: "Put together a data model for your app's users and organizations"
 sidebar:
   label: "Overview"
 prev: false
-next:
-  label: "Learn the ways to create organizations"
-  link: "/fsa/guides/create-organization/"
 head:
   - tag: style
     content: |
@@ -20,49 +17,78 @@ import {
 } from '@astrojs/starlight/components'
 import IconTdesignSequence from '~icons/tdesign/sequence'
 
-Now that you have authentication working, you'll want to organize your users into groups and manage access to your application's features. This guide explains how Scalekit's Organizations and Users model helps you structure your authenticated application for B2B use cases.
+Authenticated users now have access to your app.
 
-Scalekit's B2B data model centers on two first-class API entities: Organizations and Users.
+Now is the time to consider how you'll structure your data model for users and organizations. This foundational model will serve you well as you implement features such as workspaces, user invitations, role-based access control, and more—ultimately enabling your application to fully support B2B use cases.
 
-- **Organizations** represent your application's tenants or workspaces. They are the core of Scalekit's multi-tenant architecture. Each organization can contain multiple users who work together.
+Organizations and Users are the two first-class entities in Scalekit
 
-- **Users** are the people who access your application. Each user:
-  - Has a unique email address within the Scalekit environment.
-  - Can belong to multiple organizations.
-  - Is automatically linked across organizations when using the same email address.
-  - Can have different roles in each organization they belong to.
+- An **Organization** serves as a dedicated tenant within the application, representing a distinct entity like a company or project.
+A **User** is an individual account granted access to interact with the application. Typically belong to organization(s).
 
-This structure lets you manage access across different teams while keeping user identities consistent.
-
-<details open>
-<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the organization data model</summary>
+This is a simplified view of the relationship between these two entities
 
 ![](@/assets/docs/fsa/model-your-data/1-k.png)
 
-</details>
+## Flexible user sign-in options for organizations
 
+Configure your application to support multiple authentication methods, allowing users to select their preferred sign-in option. This flexibility is crucial for enabling organization administrators to set and enforce specific authentication policies for their users.
 
-#### Organization meta label
+```d2
+direction: right
 
-Althou
+# Define entities
+User 1: "john.doe@gmail.com"
+User 2: "mary.jane@company.com"
+Your App.Scalekit: "Scalekit"
+Organization 1: "Customer Org 1"
+Organization 2: "Customer Org 2 \n (Enforces SSO)"
 
-You can customize this meta label to _team_, _workspace_, or _account_ to match your product's terminology. Navigate to Scalekit Dashboard > Developers > Settings > Application details and update the "Organization" meta name.
+# Define authentication flows
+User 1 -> Your App.Scalekit: "Email Magic Link"
+User 2 -> Your App.Scalekit: "SAML/OIDC SSO"
 
-For instance, Notion calls these "Notion Workspaces" - collaborative spaces where team members share data, communicate, and work together.
+# Define login actions
+Your App.Scalekit -- Organization 1: "Authenticates to"
+Your App.Scalekit -- Organization 2: "Authenticates to"
 
-## Linking Scalekit IDs to your own systems
+# Add annotations
+# Authentication Methods:
+# Magic Link:
+```
 
-Organizations support custom metadata and external IDs to integrate with your existing infrastructure. This lets you store additional information and link organizations to your billing, CRM, or other systems.
+A primary use case is implementing enterprise Single Sign-On (SSO). This allows your customers to authenticate their users through their organization's existing Identity Provider (IdP), such as Okta, Google, or Microsoft Entra ID. In this flow, the IdP verifies the user's identity, granting them secure access to your application.
 
-- **Custom metadata** stores additional information like subscription plans, billing details, or feature flags. This metadata is included in JWT tokens, making it available throughout your application without additional API calls.
+With Scalekit as your authentication platform, administrators can easily enforce authentication policies for their organization's users. Scalekit handles this enforcement automatically, either applying organization-specific policies or defaulting to your application's preferred authentication methods on the login page. Configuring these settings is straightforward—simply toggle the desired options in your Scalekit environment through the dashboard or API.
 
-- **External IDs** let you identify organizations using your own identifiers instead of Scalekit's generated IDs. This maintains consistent identification across your infrastructure and simplifies integration with billing platforms, CRMs, or customer databases.
+#### User records deduplication
 
-For implementation details and code examples, see the [External identifiers & metadata](/fsa/guides/organization-identifiers/) guide.
+Regardless of which authentication methods your users choose, Scalekit automatically recognizes users with identical email addresses as the same individual. This eliminates the need for your application to manage multiple user records for the same person and ensures consistent identity recognition across different authentication flows.
 
+- Two different Users cannot have the same email address within the same Environment.
+- Scalekit automatically consolidates accounts. If a user logs in with an email and password and later uses Google OAuth with the same email, both authentication methods will be linked to the same User record.
 
+## On how users join and leave organizations
 
-## Organization memberships
+Control how users join and are provisioned into organizations. Scalekit provides a flexible user provisioning engine to manage the entire user lifecycle.
+
+This includes:
+- Sending and managing user invitations.
+- Allowing users to discover and join organizations based on their email domain.
+- Enabling membership in multiple organizations.
+- Securely de-provisioning users when they leave an organization.
+
+These capabilities are built-in, allowing you to deliver a secure and seamless user management experience from day one.
+
+## Enforce user roles and permissions
+
+While your product may offer a wide range of features, not all users should have identical access or capabilities. For example, in a project management tool, you might allow some users to create projects, while others may have permission only to view them.
+
+Managing user permissions can be complex. Scalekit simplifies this by providing the necessary roles and permissions your application needs to make authorization decisions at runtime.
+
+When a user [completes the login flow](/authenticate/fsa/complete-login/#decoding-token-claims), the access token issued by Scalekit contains their assigned roles. Your application can inspect this token to control access to different features. By default, Scalekit assigns an `admin` role to the organization creator and a `member` role to all other users, providing a solid foundation for your authorization logic.
+
+## Modify user memberships
 
 Scalekit tracks how users belong to organizations through a `memberships` property on each User object. This property contains an array of membership objects that define the user's relationship to each organization they belong to.
 
@@ -118,26 +144,28 @@ The memberships property enables users to belong to multiple organizations while
 ```
 </details>
 
-### Migrating from a 1-to-1 model
+#### Migrating from a 1-to-1 model
 
 In a 1-to-1 data model, each user is associated with a single organization. The user's identity is tied to that specific organization, and they cannot belong to multiple organizations with the same identity. This model is common in applications that were not originally built with multi-tenancy in mind, or where each customer's data and user base are kept entirely separate.
 
 For example, many traditional enterprise software applications like **Slack**, **QuickBooks**, or **Adobe Creative Suite** use this model - each customer purchases their own license and has their own separate user accounts that cannot be shared across different customer organizations.
 
 <Aside type="note" title="Need help with migration?">
+
 If your application uses a 1-to-1 model and you're looking to migrate, please [contact us](/support/contact-us) for guidance on the best approach for your use case.
+
 </Aside>
 
-### Migrating from a 1-to-many model
+#### Migrating from a 1-to-many model
 
 If your application allows a single user to be part of multiple organizations, their profile in Scalekit will also be shared across those organizations. While the user's core profile is consistent, each organization membership stores distinct information like roles, status, and metadata.
 
 If you already have a membership table that links users and organizations, you can add the Scalekit `user_id` to that table. When you update a user's profile, the changes will apply across all their organization memberships.
 
-## User deduplication
+<Aside type="tip" label="Replace the default organization meta label">
 
-Scalekit uses the email address as the unique identifier for a User within an Environment. This means:
-- Two different Users cannot have the same email address within the same Environment.
-- Scalekit automatically consolidates accounts. If a user logs in with an email and password and later uses Google OAuth with the same email, both authentication methods will be linked to the same User record.
+You can customize this meta label to _team_, _workspace_, or _account_ to match your product's terminology. Navigate to Scalekit Dashboard > Developers > Settings > Application details and update the "Organization" meta name.
 
-Because of this, you may need to merge duplicate user accounts in your system before migrating to Scalekit. Attempting to create two Users with the same email in the same organization or environment will result in an error.
+For instance, Notion calls these "Notion Workspaces" - collaborative spaces where team members share data, communicate, and work together.
+
+</Aside>
