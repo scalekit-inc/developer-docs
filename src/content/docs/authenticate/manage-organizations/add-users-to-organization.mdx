@@ -19,258 +19,269 @@ seeAlso:
     - title: "Restrict generic & disposable signups"
       icon: "book"
       url: "/fsa/guides/signup-restrictions/"
-    - title: "Implement organization switcher"
-      icon: "book"
-      url: "/fsa/guides/organization-switching/"
 ---
 
 import { Aside, Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
 
-Each organization in your app will have multiple users. Many times it's the collaboration between users maybe the most important part of your project. For instance, if Slack is your app, you can have multiple users in an organization and they can communicate with each other.
+The journey of a user into your application begins with how they join an organization. A smooth onboarding experience sets the tone for their entire interaction with your product, while administrators need flexible options to manage team members efficiently.
 
-Users in most B2B applications belong to organizations that structure collaboration and access.
-
-Applications like Slack organize users into workspaces, while JIRA groups users into project teams. Regardless of your application's specific organizational model, Scalekit provides built-in support for this structure. The first step towards this direction is to start adding users to organizations.
-
-To add users to organizations, use any of these methods:
-
-- Add users manually through the Scalekit dashboard
-- Send programmatic invitations through your application using Scalekit API
-- Enable users with trusted email domains to discover organizations automatically
-- Automate user management through SSO and SCIM integration
+Scalekit supports a variety of ways for users to join organizations. This guide covers methods ranging from manual additions in the dashboard to fully automated provisioning— enabling your app to deliver the best experience for both organization admins and users.
 
 
 ## Enable user invitations through your app
 
-Build invitation capabilities into your application so users can invite members to their organization.
+Scalekit lets you add user invitation features to your app, allowing users to invite others to join their organization.
 
-Use the Scalekit SDK to send invitations from your application. Scalekit handles email delivery, verification, and automatically adds users to the organization when they accept.
+<Steps>
 
-<Tabs syncKey="tech-stack">
-  <TabItem value="node" label="Node.js">
+1. #### Begin the invite flow
 
-```javascript title="Express.js invitation API" wrap collapse={1-2, 16-31} { 10 }
-// POST /api/organizations/:orgId/invite
-app.post('/api/organizations/:orgId/invite', async (req, res) => {
-  const { orgId } = req.params
-  const { email, role, firstName, lastName } = req.body
+    The user (inviter) clicks an invite button in your app. Your retrieves the `organization_id` from the inviter's ID token (or current app's context) and call the Scalekit SDK with the invitee's email address to send an invitation.
 
-  try {
-    // Use case: Organization admin invites new team member through your app
-    const { user } = await scalekit.user.createUserAndMembership(orgId, {
-      email,
-      sendInvitationEmail: true, // Scalekit sends the invitation email
-      userProfile: {
-        firstName,
-        lastName,
-        name: `${firstName} ${lastName}`,
-      },
-      metadata: {
-        role: role || 'member', // Default to member if no role specified
-        invitedBy: req.session.userId,
-        invitedAt: new Date().toISOString(),
+    <Tabs syncKey="tech-stack">
+      <TabItem value="node" label="Node.js">
+
+    ```javascript title="Express.js invitation API"
+    // POST /api/organizations/:orgId/invite
+    app.post('/api/organizations/:orgId/invite', async (req, res) => {
+      const { orgId } = req.params
+      const { email } = req.body
+
+      try {
+        // Create user and add to organization with invitation
+        const { user } = await scalekit.user.createUserAndMembership(orgId, {
+          email,
+          sendInvitationEmail: true, // Scalekit sends the invitation email
+        })
+
+        res.json({
+          message: 'Invitation sent successfully',
+          userId: user.id,
+          email: user.email
+        })
+      } catch (error) {
+        res.status(400).json({ error: error.message })
       }
     })
+    ```
 
-    res.json({
-      message: 'Invitation sent successfully',
-      userId: user.id,
-      email: user.email
-    })
-  } catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-})
-```
+      </TabItem>
+      <TabItem value="python" label="Python">
 
-  </TabItem>
-  <TabItem value="python" label="Python">
+    ```python title="Django invitation API" wrap collapse={1-9, 19-32} { 13 }
+    # Python - Django invitation API
+    @api_view(['POST'])
+    def invite_user_to_organization(request, org_id):
+        email = request.data.get('email')
 
-```python title="Django invitation API" wrap collapse={1-9, 19-32} { 13 }
-# POST /api/organizations/{org_id}/invite
-@api_view(['POST'])
-def invite_user_to_organization(request, org_id):
-    email = request.data.get('email')
-    role = request.data.get('role', 'member')  # Default to member
-    first_name = request.data.get('firstName')
-    last_name = request.data.get('lastName')
+        try:
+            # Create user and add to organization with invitation
+            user_response = scalekit_client.user.create_user_and_membership(org_id, {
+                'email': email,
+                'send_invitation_email': True,  # Scalekit sends the invitation email
+            })
 
-    try:
-        # Use case: Organization admin invites new team member through your app
-        user_response = scalekit_client.user.create_user_and_membership(org_id, {
-            'email': email,
-            'send_invitation_email': True,  # Scalekit sends the invitation email
-            'user_profile': {
-                'first_name': first_name,
-                'last_name': last_name,
-                'name': f'{first_name} {last_name}',
-            },
-            'metadata': {
-                'role': role,
-                'invited_by': request.session['user_id'],
-                'invited_at': datetime.now().isoformat(),
-            }
+            return JsonResponse({
+                'message': 'Invitation sent successfully',
+                'user_id': user_response['user']['id'],
+                'email': user_response['user']['email']
+            })
+        except Exception as error:
+            return JsonResponse({'error': str(error)}, status=400)
+    ```
+
+      </TabItem>
+      <TabItem value="go" label="Go">
+
+    ```go title="Gin invitation API" wrap collapse={1-21, 37-48} {25}
+    // Go - Gin invitation API
+    func inviteUserToOrganization(c *gin.Context) {
+        orgID := c.Param("orgId")
+
+        var req struct {
+            Email string `json:"email"`
+        }
+
+        if err := c.ShouldBindJSON(&req); err != nil {
+            c.JSON(400, gin.H{"error": err.Error()})
+            return
+        }
+
+        // Create user and add to organization with invitation
+        userResp, err := scalekitClient.User.CreateUserAndMembership(ctx, orgID, scalekit.CreateUserAndMembershipRequest{
+            Email: req.Email,
+            SendInvitationEmail: scalekit.Bool(true), // Scalekit sends the invitation email
         })
 
-        return JsonResponse({
-            'message': 'Invitation sent successfully',
-            'user_id': user_response['user']['id'],
-            'email': user_response['user']['email']
+        if err != nil {
+            c.JSON(400, gin.H{"error": err.Error()})
+            return
+        }
+
+        c.JSON(200, gin.H{
+            "message": "Invitation sent successfully",
+            "user_id": userResp.User.Id,
+            "email":   userResp.User.Email,
         })
-    except Exception as error:
-        return JsonResponse({'error': str(error)}, status=400)
-```
-
-  </TabItem>
-  <TabItem value="go" label="Go">
-
-```go title="Gin invitation API" wrap collapse={1-21, 37-48} {25}
-// POST /api/organizations/:orgId/invite
-func inviteUserToOrganization(c *gin.Context) {
-    orgID := c.Param("orgId")
-
-    var req struct {
-        Email     string `json:"email"`
-        Role      string `json:"role"`
-        FirstName string `json:"firstName"`
-        LastName  string `json:"lastName"`
     }
+    ```
 
-    if err := c.ShouldBindJSON(&req); err != nil {
-        c.JSON(400, gin.H{"error": err.Error()})
-        return
+      </TabItem>
+      <TabItem value="java" label="Java">
+
+    ```java title="Spring Boot invitation API" wrap collapse={1-7, 33-38} {12}
+    // Java - Spring Boot invitation API
+    @PostMapping("/api/organizations/{orgId}/invite")
+    public ResponseEntity<Map<String, Object>> inviteUserToOrganization(
+        @PathVariable String orgId,
+        @RequestBody InviteRequest request,
+        HttpSession session
+    ) {
+        try {
+            // Create user and add to organization with invitation
+            CreateUser createUser = CreateUser.newBuilder()
+                .setEmail(request.email())
+                .setSendInvitationEmail(true) // Scalekit sends the invitation email
+                .build();
+
+            CreateUserAndMembershipResponse response = scalekitClient.users()
+                .createUserAndMembership(orgId, createUser);
+
+            return ResponseEntity.ok(Map.of(
+                "message", "Invitation sent successfully",
+                "user_id", response.getUser().getId(),
+                "email", response.getUser().getEmail()
+            ));
+        } catch (Exception error) {
+            return ResponseEntity.badRequest().body(
+                Map.of("error", error.getMessage())
+            );
+        }
     }
+    ```
 
-    // Default role to member if not specified
-    if req.Role == "" {
-        req.Role = "member"
-    }
+      </TabItem>
+    </Tabs>
 
-    // Use case: Organization admin invites new team member through your app
-    userResp, err := scalekitClient.User.CreateUserAndMembership(ctx, orgID, scalekit.CreateUserAndMembershipRequest{
-        Email: req.Email,
-        SendInvitationEmail: scalekit.Bool(true), // Scalekit sends the invitation email
-        UserProfile: &scalekit.UserProfile{
-            FirstName: scalekit.String(req.FirstName),
-            LastName:  scalekit.String(req.LastName),
-            Name:      scalekit.String(req.FirstName + " " + req.LastName),
-        },
-        Metadata: map[string]string{
-            "role":       req.Role,
-            "invited_by": getUserID(c), // Get from session
-            "invited_at": time.Now().Format(time.RFC3339),
-        },
-    })
+    This sends a email invitation to invitee to join the organization.
 
-    if err != nil {
-        c.JSON(400, gin.H{"error": err.Error()})
-        return
-    }
+2. #### Set up initiate login endpoint
 
-    c.JSON(200, gin.H{
-        "message": "Invitation sent successfully",
-        "user_id": userResp.User.Id,
-        "email":   userResp.User.Email,
-    })
-}
-```
+    After the invitee clicks the invitation link they receive via email, Scalekit will handle verifying their identity in the background through the unique link embedded.
 
-  </TabItem>
-  <TabItem value="java" label="Java">
+    Once verified, Scalekit automatically tries to log the invitee into your application by redirecting them to your app's [configured initiate login endpoint](/guides/dashboard/intitate-login-endpoint/).
 
-```java title="Spring Boot invitation API" wrap collapse={1-7, 33-38} {12}
-// POST /api/organizations/{orgId}/invite
-@PostMapping("/api/organizations/{orgId}/invite")
-public ResponseEntity<Map<String, Object>> inviteUserToOrganization(
-    @PathVariable String orgId,
-    @RequestBody InviteRequest request,
-    HttpSession session
-) {
-    try {
-        // Use case: Organization admin invites new team member through your app
-        CreateUser createUser = CreateUser.newBuilder()
-            .setEmail(request.email())
-            .setSendInvitationEmail(true) // Scalekit sends the invitation email
-            .setUserProfile(
-                CreateUserProfile.newBuilder()
-                    .setFirstName(request.firstName())
-                    .setLastName(request.lastName())
-                    .setName(request.firstName() + " " + request.lastName())
-                    .build()
-            )
-            .putMetadata("role", request.role() != null ? request.role() : "member")
-            .putMetadata("invited_by", (String) session.getAttribute("userId"))
-            .putMetadata("invited_at", Instant.now().toString())
-            .build();
+    Let's go ahead and implement this endpoint.
 
-        CreateUserAndMembershipResponse response = scalekitClient.users()
-            .createUserAndMembership(orgId, createUser);
+    <Tabs syncKey="tech-stack">
+      <TabItem value="node" label="Node.js">
+      ```javascript title="routes/auth.js"
+      // Handle indirect auth entry points
+      app.get('/login', (req, res) => {
+        const redirectUri = 'http://localhost:3000/auth/callback';
+        const options = {
+          scopes: ['openid', 'profile', 'email', 'offline_access']
+        };
 
-        return ResponseEntity.ok(Map.of(
-            "message", "Invitation sent successfully",
-            "user_id", response.getUser().getId(),
-            "email", response.getUser().getEmail()
-        ));
-    } catch (Exception error) {
-        return ResponseEntity.badRequest().body(
-            Map.of("error", error.getMessage())
-        );
-    }
-}
-```
+        const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+        res.redirect(authorizationUrl);
+      });
+      ```
+      </TabItem>
+      <TabItem value="py" label="Python">
+      ```python title="routes/auth.py"
+      from flask import redirect
+      from scalekit import AuthorizationUrlOptions
 
-  </TabItem>
-</Tabs>
+      # Handle indirect auth entry points
+      @app.route('/login')
+      def login():
+          redirect_uri = 'http://localhost:3000/auth/callback'
+          options = AuthorizationUrlOptions(
+              scopes=['openid', 'profile', 'email', 'offline_access']
+          )
 
+          authorization_url = scalekit_client.get_authorization_url(redirect_uri, options)
+          return redirect(authorization_url)
+      ```
+      </TabItem>
+      <TabItem value="go" label="Go">
+      ```go title="routes/auth.go"
+      // Handle indirect auth entry points
+      r.GET("/login", func(c *gin.Context) {
+        redirectUri := "http://localhost:3000/auth/callback"
+        options := scalekitClient.AuthorizationUrlOptions{
+          Scopes: []string{"openid", "profile", "email", "offline_access"}
+        }
 
-## Support automated user provisioning
+        authorizationUrl, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+        c.Redirect(http.StatusFound, authorizationUrl.String())
+      })
+      ```
+      </TabItem>
+      <TabItem value="java" label="Java">
+      ```java title="AuthController.java"
+      import org.springframework.web.bind.annotation.GetMapping;
+      import org.springframework.web.bind.annotation.RestController;
+      import java.net.URL;
 
-Users can join organizations in your application through methods beyond direct signup or peer invitations.
+      // Handle indirect auth entry points
+      @GetMapping("/login")
+      public String login() {
+          String redirectUri = "http://localhost:3000/auth/callback";
+          AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+          options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
 
-Your [integration](/authenticate/fsa/quickstart) with Scalekit enables two additional user provisioning methods:
-- Single sign-on (SSO) allows enterprise users to authenticate using their organization's identity provider. Scalekit can create user accounts and add them to same organization just in time. This is Just In Time (JIT) provisioning.
-- **SCIM provisioning** lets enterprises automatically grant access to your application for their users. Typically organization admins connect their user directory provider (eg. Azure AD) to your app through Scalekit.
+          URL authorizationUrl = scalekitClient.authentication().getAuthorizationUrl(redirectUri, options);
+          return "redirect:" + authorizationUrl.toString();
+      }
+      ```
+      </TabItem>
+    </Tabs>
 
-Both methods add users to organizations automatically without requiring manual invitations or identity verification. The steps below explain how to enable JIT and SCIM provisioning for organizations.
+    This redirection ensures that the invitee is logged into your application after they accept the invitation. User won't see a login page along the way since the identity is already verified through the unique link embedded in the invitation email.
 
-### JIT provisioning <Badge text="Coming soon" variant="note" />
-
-<Steps>
- 1. Go to the Scalekit dashboard > Organizations > Select the organization > Security > JIT Provisioning
- 2. Toggle the setting to enable JIT provisioning for this organization.
- 3. Click **Save**
 </Steps>
 
-### SCIM provisioning <Badge text="Coming soon" variant="note" />
+The user will get an invitation email from Scalekit to accept the invitation.
 
-<Steps>
-1. Go to the Scalekit dashboard > Organizations > Select the organization > Settings > SCIM Provisioning
-2. Toggle the setting to enable SCIM provisioning for this organization.
-3. Click **Save**
-</Steps>
 
- For implementation details on adding SCIM provisioning to your application, refer to the SCIM provisioning implementation guide.
+## Enable Just In Time (JIT) provisioning <Badge text="Coming soon" variant="default" />
 
-<Aside type="note" title="Beta">
-JIT and SCIM provisioning features are currently in beta. Contact us to enable these features in your Scalekit environment.
+Organization administrators, especially at enterprises pefer to have the users using your app verify their identity through their preferred identity provider (such as Okta, Micrsoft Entra ID, etc.). This is particularly useful for enterprises who have a large number of users and want to ensure that only the users who are part of the organization can access the application.
+
+Scalekit will provision the user accounts in your app automatically when they sign in through SSO for the first time and map the user to the same organization.
+
+This requires the organization to have a [SSO connection setup](/authenticate/auth-methods/enterprise-sso/).
+
+
+## Enable SCIM provisioning <Badge text="Coming soon" variant="default" />
+
+Enterprises often rely on user directory providers (such as Okta, Microsoft Entra ID, etc.) to handle user management. This enables their organization administrators to control and manage access for organization members efficiently.
+
+Scalekit supports SCIM provisioning, allowing your app to connect with these user directory providers so that user accounts are automatically created or removed in your app when users join or leave the organization. This automation is especially valuable for enterprise customers who want to ensure their licenses or seats are allocated efficiently, with organization admins managing access based on user groups.
+
+Organization admins should [set up SCIM connection](/guides/user-management/scim-provisioning/) with their user directory.
+
+<Aside type="note" title="Early access">
+If you’d like to enable any of these features in your Scalekit environment, [reach out to us](/support/contact-us) for early access.
 </Aside>
 
-## Add users through the Scalekit dashboard
+## Add users through dashboard
 
-Use the dashboard for manual user addition when support teams help customers onboard or when you need to seed initial organization members.
+Easily manage your team by inviting new members directly through the Scalekit dashboard. Before you start, ensure you have completed the following:
 
-Navigate to **Dashboard** > **Organizations**, select your target organization, and click the **Users** tab.
+- Implemented the Scalekit integration.
+- Set up and registered your application's login endpoints.
 
-1. Click **Invite User** to open the invitation form
-2. Enter the user's **email address** (must match organization's allowed domains)
-3. Select their **role** (Admin, Member, or custom organizational roles)
-4. Add optional **personal information** (first name, last name, display name)
-5. Click **Send Invitation**
+Invitation Steps
+1.  In the Scalekit dashboard, navigate to Dashboard > Organizations.
+2.  Select the organization you want to add a user to.
+3.  Go to the **Users** tab and click Invite User.
+4.  Fill out the invitation form:
+  - Email Address: The user's email, which must match an allowed domain for your organization.
+    - Role: Assign a role from the dropdown (e.g., Admin, Member, or a custom organizational role).
+    - Personal Information (Optional): Add the user's first name, last name, and display name.
+5.  Click Send Invitation.
 
-The user receives an email invitation with a secure link. When they accept:
-- Scalekit creates their user account (if they're new to your system)
-- Adds them to the organization with the specified default role. This is later useful as you build access control into your app.
-
-<Aside type="note" title="Prerequisite: Initiate login endpoint">
-You must first implement and register the [initiate login endpoint](/guides/dashboard/intitate-login-endpoint/) in your application and Scalekit dashboard.
-</Aside>
+The user will receive an email with a link to accept the invitation and join your organization. Once they accept, their status will update in the Users tab.
