@@ -74,6 +74,16 @@ export const redirects = {
   '/best-practices/manage-client-secrets': '/guides/client-credentials-practices/',
 
   // =============================================================================
+  // MANAGE USERS & ORGANIZATIONS REDIRECTS
+  // =============================================================================
+
+  // User and organization management files reorganized
+  '/fsa/guides/create-organization': '/authenticate/manage-users-orgs/create-organization/',
+  '/fsa/guides/custom-user-attributes': '/authenticate/manage-users-orgs/custom-user-attributes/',
+  '/authenticate/manage-users-orgs/delete-users-orgs':
+    '/authenticate/manage-users-orgs/delete-users-and-organizations/',
+
+  // =============================================================================
   // SCIM / DIRECTORY PROVISIONING REDIRECTS
   // =============================================================================
 
