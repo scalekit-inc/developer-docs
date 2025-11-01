@@ -13,7 +13,6 @@ export const redirects = {
   '/fsa/guides/implement-login': '/authenticate/fsa/implement-login/',
   '/fsa/guides/manage-session': '/authenticate/fsa/manage-session/',
   '/fsa/guides/logout': '/authenticate/fsa/logout/',
-
   '/fsa/guides/automated-user-provisioning': '/fsa/guides/allowed-email-domains/',
 
   // =============================================================================
@@ -82,6 +81,7 @@ export const redirects = {
   '/fsa/guides/custom-user-attributes': '/authenticate/manage-users-orgs/custom-user-attributes/',
   '/authenticate/manage-users-orgs/delete-users-orgs':
     '/authenticate/manage-users-orgs/delete-users-and-organizations/',
+  'fsa/guides/app-roles': '/authenticate/authz/create-roles-permissions/',
 
   // =============================================================================
   // SCIM / DIRECTORY PROVISIONING REDIRECTS
