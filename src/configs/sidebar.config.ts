@@ -41,11 +41,11 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Authorization (RBAC)',
+        label: 'Authorization',
         collapsed: false,
         items: [
           'authenticate/authz/overview',
-          'authenticate/authz/create-permissions',
+          'authenticate/authz/create-roles-permissions',
           'fsa/guides/app-roles',
           'authenticate/authz/assign-roles',
           'authenticate/authz/implement-access-control',

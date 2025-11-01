@@ -17,52 +17,41 @@ prev: false
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-Now that you have users authenticating and organizing into workspaces, you may want to control what they can access within your application.
+When users access features in your application, you need to control what actions they can perform. These permissions might be set by your application or by organization administrators. For example, in a project management application, you can allow some users to create projects while restricting others to only view existing projects. Role-based access control (RBAC) provides the framework to implement these permissions systematically.
 
-By default, Scalekit assigns the `admin` role to the first user in an organization and the `member` role to subsequent users. Your application makes the final access control decisions based on role and permission information that Scalekit provides at runtime.
+After users authenticate through Scalekit, your application receives an access token containing their roles and permissions. Use this token to make authorization decisions and control access to features and resources.
 
-Here is an overview of the authorization sequence
 ```d2 pad=50
 shape: sequence_diagram
 
 User -> Scalekit: Initiate sign up \n or login
-Scalekit -> Access Token: Package authentication tokens
-Access Token -> Your App: App decodes access token
-Your App -> Your App: Determine the \nrole & permissions
+Scalekit -> Your App: Package access contents \n in access tokens
+Your App -> Your App: Determine the \nrole & permissions from access token
 Your App -> User: Allow/Deny
-
-Access Token: {
-  shape: sql_table
-  permissions: string {constraint: array}
-  roles: string {constraint: array}
-  "(fields omitted for brevity)"
-}
 ```
 
-Authorization information travels with users through access tokens and ID tokens. These tokens contain the user's roles and permissions, serving as the authoritative source for access control decisions in your application at runtime.
-
-## Core authorization concepts
+Access tokens contain two key components for authorization:
 
 **Roles** group related permissions together and define what users can do in your system. Common examples include Admin, Manager, Editor, and Viewer. Roles can inherit permissions from other roles, creating hierarchical access levels.
 
 **Permissions** represent specific actions users can perform, formatted as `resource:action` patterns like `projects:create` or `tasks:read`. Use permissions for granular access control when you need precise control over individual capabilities.
 
-## Implementation approaches
+```json title="Access token contents" {9,11} wrap showLineNumbers=false
+{
+  "aud": ["skc_987654321098765432"],
+  "client_id": "skc_987654321098765432",
+  "exp": 1750850145,
+  "iat": 1750849845,
+  "iss": "http://example.localhost:8889",
+  "jti": "tkn_987654321098765432",
+  "nbf": 1750849845,
+  "roles": ["project_manager", "member"],
+  "oid": "org_69615647365005430",
+  "permissions": ["projects:create", "projects:read", "tasks:assign"],
+  "sid": "ses_987654321098765432",
+  "sub": "usr_987654321098765432"
+}
+```
+Scalekit automatically assigns the `admin` role to the first user in each organization and the `member` role to subsequent users. Your application uses the role and permission information from Scalekit to make final authorization decisions at runtime.
 
-Scalekit supports both dashboard-based configuration for quick setup and programmatic management for integration with existing systems. Most applications use a combination of both approaches depending on their operational needs.
-
-<CardGrid>
-
-<LinkCard
-    title="Set up roles"
-    href="/fsa/guides/app-roles/"
-    description="Create user roles, manage inheritance, and implement role-based access control"
-  />
-
-  <LinkCard
-    title="Create and manage permissions"
-    href="/authenticate/authz/create-permissions/"
-    description="Set up fine-grained permissions for precise access control in your application"
-  />
-
-</CardGrid>
+Start by defining the roles and permissions your application needs. 
