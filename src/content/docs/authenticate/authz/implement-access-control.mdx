@@ -23,9 +23,9 @@ import { Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code } from '@astrojs/sta
 import IconTdesignSequence from '~icons/tdesign/sequence'
 import IconJsonwebtokens from '~icons/simple-icons/jsonwebtokens'
 
-After configuring permissions and roles, the next critical step is implementing access control directly within your application code. This is achieved by carefully examining the roles and permissions embedded in the user's access token.
+After configuring permissions and roles, the next critical step is implementing access control directly within your application code. This is achieved by carefully examining the roles and permissions embedded in the user's access token to make authorization decisions.
 
-Scalekit conveniently packages these authorization details during the authentication process, providing you with a comprehensive set of data to make precise access control decisions.
+Scalekit conveniently packages these authorization details during the authentication process, providing you with a comprehensive set of data to make precise access control decisions without requiring additional API calls.
 
 <details>
 <summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the authorization flow</summary>
@@ -265,11 +265,15 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
 </TabItem>
 </Tabs>
 
-This allows for user's roles and permsisions are visible you different routes of your application.
+This approach makes user roles and permissions available throughout different routes of your application, enabling consistent and secure access control across all endpoints.
 
-## Verify user's role to allow access to protected resource
+## Verify user's role to allow access to protected resources
 
-Since roles are simpler way to control access since your app does not have to run through all the possible permissions to determine if the user can perform certain action or not, instead it can just check if the user has the required role.
+Role-based access control (RBAC) provides a straightforward way to manage permissions by grouping them into logical roles. Instead of checking individual permissions for every action, your application can simply verify if the user has the required role, making access control decisions more efficient and easier to maintain.
+
+<Aside type="tip">
+Use roles for broad access control patterns like admin access, management privileges, or user tiers. Reserve permissions for fine-grained control over specific actions and resources.
+</Aside>
 
 
 <Tabs syncKey="tech-stack">
@@ -456,9 +460,13 @@ public class AdminController {
 </Tabs>
 
 
-## Verify user's permissions to allow necessary actions
+## Verify user's permissions to allow specific actions
 
-Permissions are more granular than roles, providing greater control over specific actions and resources. While roles offer broad access control, permissions allow you to define exactly what users can do within your application.
+Permission-based access control provides granular control over specific actions and resources within your application. While roles offer broad access patterns, permissions allow you to define exactly what operations users can perform, enabling precise security controls and the principle of least privilege.
+
+<Aside type="note">
+Permissions are typically formatted as `resource:action` (e.g., `projects:create`, `users:read`, `reports:delete`) to provide clear, consistent naming conventions that make your access control logic more readable and maintainable.
+</Aside>
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
@@ -686,4 +694,14 @@ public class ProjectController {
 </TabItem>
 </Tabs>
 
-This way your applications has enforced access control for both roles and permissions for different routes of your application. You can also combine both roles and permissions to further fine-tune access control.
+By implementing both role-based and permission-based access control, your application now has a comprehensive security framework that protects different routes and endpoints. You can combine both approaches to create fine-grained access control that matches your application's specific requirements.
+
+**Admin bypass pattern**: Allow users with `admin` role to bypass certain permission checks while maintaining granular control for other users
+
+**Resource ownership pattern**: Combine role/permission checks with resource ownership verification (e.g., users can only edit their own projects unless they have admin role)
+
+**Time-based access pattern**: Consider implementing time-based restrictions for sensitive operations, especially for roles with elevated permissions
+
+<Aside type="caution">
+Never implement authorization logic solely on the client side. Always perform server-side validation of roles and permissions, as client-side checks can be bypassed by malicious users.
+</Aside>

@@ -53,8 +53,6 @@ export const sidebar = [
       {
         label: 'Customize workflows',
         items: [
-          'fsa/guides/organization-identifiers',
-          'guides/user-management/scim-provisioning',
           'guides/auth-flow-interceptors',
           'authenticate/implement-workflows/implement-webhooks',
         ],
@@ -251,10 +249,12 @@ export const sidebar = [
         label: 'User management',
         collapsed: false,
         items: [
+          'guides/user-management/scim-provisioning',
           'fsa/guides/signup-restrictions',
           'fsa/guides/user-invitations',
           'guides/user-management/manage-org-memberships',
           'fsa/guides/migration-guide',
+          'fsa/guides/organization-identifiers',
           'fsa/guides/merge-identities',
           'fsa/reference/user-management-settings',
         ],
