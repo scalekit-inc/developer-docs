@@ -194,4 +194,7 @@ export const redirects = {
   '/manage-scalekit/glossary': '/reference/glossary/',
   '/contact-us': '/support/contact-us/',
   '/index-old': '/',
+
+  // Logs pages - webhook logs merged into auth logs
+  '/guides/view-webhook-logs/': '/guides/dashboard/auth-logs/',
 }

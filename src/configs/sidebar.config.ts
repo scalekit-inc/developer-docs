@@ -80,11 +80,7 @@ export const sidebar = [
       },
       {
         label: 'Go Live',
-        items: [
-          'authenticate/launch-checklist',
-          'guides/dashboard/auth-logs',
-          'guides/view-webhook-logs',
-        ],
+        items: ['guides/dashboard/auth-logs', 'authenticate/launch-checklist'],
       },
     ],
   },
