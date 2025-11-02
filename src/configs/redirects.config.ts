@@ -109,6 +109,14 @@ export const redirects = {
   '/guides/directory/scim-protocol': '/directory/guides/scim-protocol',
 
   // =============================================================================
+  // AUTH FLOW INTERCEPTORS REDIRECTS
+  // =============================================================================
+
+  // Auth flow interceptors moved to /authenticate/interceptors/
+  '/guides/auth-flow-interceptors': '/authenticate/interceptors/auth-flow-interceptors/',
+  '/guides/interceptor-scenarios': '/authenticate/interceptors/interceptor-scenarios/',
+
+  // =============================================================================
   // PASSWORDLESS AUTH REDIRECTS
   // =============================================================================
   '/guides/passwordless/quickstart': '/passwordless/quickstart',

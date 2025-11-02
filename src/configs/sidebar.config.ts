@@ -53,7 +53,7 @@ export const sidebar = [
       {
         label: 'Customize workflows',
         items: [
-          'guides/auth-flow-interceptors',
+          'authenticate/interceptors/auth-flow-interceptors',
           'authenticate/implement-workflows/implement-webhooks',
         ],
       },
@@ -317,7 +317,10 @@ export const sidebar = [
       },
       {
         label: 'Customize workflows',
-        items: ['guides/interceptor-scenarios', 'directory/guides/group-based-role-assignment'],
+        items: [
+          'authenticate/interceptors/interceptor-scenarios',
+          'directory/guides/group-based-role-assignment',
+        ],
       },
       {
         label: 'Best practices',
@@ -483,7 +486,7 @@ export const topics = {
     '/guides/dashboard/**/*',
     '/guides/custom-domain',
     '/guides/email-providers',
-    '/guides/auth-flow-interceptors',
+    '/authenticate/interceptors/**/*',
   ], // Pages that appear in Authenticate sidebar
   connect: ['/agent-actions/**/*'], // Agent Actions pages
   mcp: [], // MCP pages are in authenticate sidebar, so they use authenticate topic
@@ -494,7 +497,7 @@ export const topics = {
     '/passwordless/**/*',
     '/social-logins/**/*',
     '/guides/passwordless/**/*',
-    '/guides/interceptor-scenarios',
+    '/authenticate/interceptors/interceptor-scenarios',
     '/guides/dashboard/redirects',
     '/guides/external-ids-and-metadata',
     '/guides/client-credentials-practices',
@@ -587,7 +590,7 @@ export const secondaryNavMapping = {
       '/guides/directory',
       '/guides/custom-domain',
       '/guides/email-providers',
-      '/guides/auth-flow-interceptors',
+      '/authenticate/interceptors/**/*',
       '/guides/dashboard',
       '/guides/user-auth',
       '/guides/security',
@@ -608,7 +611,7 @@ export const secondaryNavMapping = {
       '/examples',
       '/browse',
       '/dev-kit',
-      '/guides/interceptor-scenarios',
+      '/authenticate/interceptors/interceptor-scenarios',
       '/guides/dashboard/redirects',
       '/guides/external-ids-and-metadata',
       '/guides/client-credentials-practices',
