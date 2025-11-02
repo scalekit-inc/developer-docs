@@ -60,7 +60,7 @@ export const sidebar = [
       {
         label: 'Standalone auth modules',
         items: [
-          'mcp/oauth',
+          'mcp/quickstart',
           'passwordless/quickstart',
           'guides/user-auth/standalone-social-logins',
           'sso/quickstart',
