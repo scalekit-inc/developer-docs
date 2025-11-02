@@ -22,50 +22,214 @@ This is the Scalekit developer documentation site built with Astro and Starlight
 
 ## Writing Style & Tone
 
-### Clarity & Conciseness
-- Write clear, concise descriptions that avoid unnecessary jargon
-- Use bullet points for listing items to improve clarity
-- Provide context when explaining features or functions
-- Keep explanations focused and to the point
+### Core Writing Principles
+- **Direct instruction**: "This guide shows you how to...", "Create an authorization URL to..."
+- **Second person**: "your application", "you receive", "you must"
+- **Concise sentences**: Aim for under 25 words per sentence
+- **Explain the why**: "This prevents CSRF attacks by...", "Use this to validate that..."
+- **Developer-focused**: Emphasize practical implementation over theory
 
-### User-Focused Approach
-- Start with user problems and scenarios
-- Explain "why" before "how" - provide context for features
-- Use concrete examples and real-world scenarios
-- Address common use cases and pain points
+### Language Patterns
 
-### Technical Accuracy
-- Ensure all technical details are accurate and up-to-date
-- Use precise terminology consistently
-- Include relevant code examples when appropriate
-- Reference official specifications and standards correctly
+**Section Headings** (use action verbs):
+- "Store session tokens securely"
+- "Validate the state parameter"
+- "Exchange authorization code for tokens"
+- "Create and manage user sessions"
+
+**Present Tense** (for descriptions):
+- "Scalekit handles the complex authentication flow"
+- "The SDK provides methods to refresh tokens"
+- "Your application receives an access token"
+
+**Future Tense** (for results):
+- "This will redirect users to..."
+- "You'll receive a JWT containing..."
+- "Scalekit returns an authorization code"
+
+**Transition Phrases** (between sections):
+- "After the user authenticates..."
+- "Once the state is validated..."
+- "Let's take a look at how to..."
+- "Now that you have created..."
+- "The next step is to..."
+
+### Opening Paragraph Patterns
+
+Write 1-3 opening paragraphs that:
+- Explain what users will accomplish in this guide
+- Provide context about when/why they need this
+- Preview the key concepts or workflow
+- Use direct, instructional language
+
+**Examples:**
+- "Login initiation begins your authentication flow. You redirect users to Scalekit's hosted login page by creating an authorization URL with appropriate parameters."
+- "User sessions determine how long users stay signed in to your application. After users successfully authenticate, you receive session tokens that manage their access."
+- "When users access features in your application, you need to control what actions they can perform."
 
 ## Content Patterns
 
 ### Introduction Sections
-- Begin with a clear value proposition
-- Explain the problem being solved
+- Begin with a clear statement of what the guide covers
+- Explain the problem being solved or feature being implemented
 - Provide context about when to use the feature
-- Use analogies to explain complex concepts (e.g., "Think of MCP like a USB-C port for AI applications")
+- Include collapsible sections for:
+  - Sequence diagrams: `<IconTdesignSequence>`
+  - Video demonstrations: `<IconLucidePlay>`
+  - Data models: `<IconMaterialSymbolsArticlePersonRounded>`
+  - JSON examples: `<IconLucideFileJson>`
 
-### Step-by-Step Guides
-- Use the `<Steps>` component for sequential instructions
-- Break complex processes into manageable steps
-- Include prerequisites clearly
-- Provide verification steps to confirm success
+### Step-by-Step Guides with Steps Component
 
-### Best Practices
-- Use `<CheckItem>` components for best practices lists
-- Organize practices by importance or logical flow
-- Include security considerations prominently
-- Provide actionable, specific guidance
+**Structure:**
+```mdx
+<Steps>
+1. ## Step title with action verb
 
-### Code Examples with Expressive Code
-- Include relevant code snippets with proper syntax highlighting using Expressive Code
-- Use tabs for multiple language examples when needed
-- Keep examples focused and minimal
-- Include comments to explain key concepts
-- Leverage Expressive Code features for enhanced documentation
+   Explanation of what this step accomplishes and why.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript title="Express.js"
+   // Code example
+   ```
+   </TabItem>
+   </Tabs>
+
+   Additional context after code.
+
+   <Aside type="tip" title="Helpful tip">
+   Additional guidance.
+   </Aside>
+
+2. ## Next step title
+
+   Continue pattern...
+
+</Steps>
+```
+
+**Rules:**
+- Use numbered format within Steps: `1. ## Title`
+- All step content must be indented with 3 spaces
+- Action-oriented headings
+- Include code examples in all 4 languages
+- Add context before and after code blocks
+- Use Badges for optional/recommended steps
+
+### Badge Usage Patterns
+
+- `<Badge text="recommended" />` - Recommended practices
+- `<Badge text="API" variant="tip" />` - API-based features
+- `<Badge text="New" variant="tip" />` - New features
+- `<Badge text="Optional" />` - Optional parameters
+
+Place inline with headers:
+```mdx
+1. #### Add `state` parameter <Badge text="recommended" />
+```
+
+### Code Comment Patterns
+
+**1. Security Comments** (always for security code):
+```javascript
+// Security: ALWAYS verify requests are from Scalekit before processing
+// This prevents unauthorized parties from triggering your interceptor logic
+
+// Prevents JavaScript access to mitigate XSS attacks
+// Prevents CSRF attacks
+// HTTPS-only in production
+```
+
+**2. Use Case Comments** (explain scenarios):
+```javascript
+// Use case: Provision a workspace after a sales-assisted onboarding
+// Use case: HR system integration, bulk user imports, automated provisioning
+// Use case: Apply custom validation rules before allowing authentication
+```
+
+**3. Context Comments** (explain what's happening):
+```javascript
+// Extract encrypted tokens from request cookies
+// Decrypt the access token before validation
+// Exchange the authorization code for user data
+// This allows issuing new access tokens without requiring re-authentication
+```
+
+**4. Todo/Next Step Comments**:
+```javascript
+// TODO: Store user session (next guide covers this)
+// Next step: Create a session and log in the user
+// Your application's roles are now registered with Scalekit
+```
+
+**5. Configuration Comments**:
+```javascript
+// Get the signing secret from Scalekit dashboard > Interceptors tab
+// Store this securely in environment variables
+// Must match the callback URL you registered in step 1
+```
+
+### SDK Variable Naming (Always Consistent)
+
+**Node.js**: `scalekit`
+```javascript
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENVIRONMENT_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
+```
+
+**Python**: `scalekit_client`
+```python
+scalekit_client = ScalekitClient(
+    env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET")
+)
+```
+
+**Go**: `scalekitClient`
+```go
+scalekitClient := scalekit.NewScalekitClient(
+    os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+    os.Getenv("SCALEKIT_CLIENT_ID"),
+    os.Getenv("SCALEKIT_CLIENT_SECRET"),
+)
+```
+
+**Java**: `scalekitClient`
+```java
+ScalekitClient scalekitClient = new ScalekitClient(
+    System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+    System.getenv("SCALEKIT_CLIENT_ID"),
+    System.getenv("SCALEKIT_CLIENT_SECRET")
+);
+```
+
+### Multi-Language Code Examples
+
+**CRITICAL**: ALWAYS provide code in all 4 languages: Node.js, Python, Go, Java
+
+Use `<Tabs syncKey="tech-stack">` to synchronize selection across page.
+
+**Tab Labels** (consistent):
+- `<TabItem value="node" label="Node.js">`
+- `<TabItem value="python" label="Python">` or `<TabItem value="py" label="Python">`
+- `<TabItem value="go" label="Go">` or `<TabItem value="golang" label="Go">`
+- `<TabItem value="java" label="Java">`
+
+### Code Block Best Practices
+
+- **title**: Show framework - "Express.js", "Flask", "Gin", "Spring Boot"
+- **wrap**: For long URLs or comments
+- **collapse={lines}**: Hide imports, setup, boilerplate
+- **{lines}**: Highlight important logic lines
+- **"term"**: Highlight method names like "authenticateWithCode"
+- **showLineNumbers=false**: For JSON, simple examples
+- **Always include error handling**
+- **Show both success and error paths**
 
 ## Visual & Interactive Elements
 
