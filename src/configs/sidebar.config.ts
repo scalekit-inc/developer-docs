@@ -431,8 +431,8 @@ export const sidebar = [
         autogenerate: { directory: 'reference/webhooks' },
       },
       {
-        label: 'Admin portal',
-        items: ['reference/admin-portal/ui-events'],
+        label: 'Events',
+        items: ['reference/admin-portal/ui-events', 'reference/interceptors/triggers'],
       },
     ],
   },

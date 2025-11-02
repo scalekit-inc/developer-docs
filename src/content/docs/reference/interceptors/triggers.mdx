@@ -1,0 +1,313 @@
+---
+title: "Interceptor triggers"
+sidebar:
+  label: Interceptors
+---
+
+
+## Trigger points
+{/*
+#### `POST_USER_AUTHENTICATION`
+
+<Tabs>
+<TabItem label='Request body from Scalekit'>
+
+```json title="POST_USER_AUTHENTICATION — request body" showLineNumbers=true collapse={9-14,24-31}
+{
+    "display_name": "Block suspicious IPs",
+    "trigger_point": "POST_USER_AUTHENTICATION",
+    "interceptor_context": {
+        "environment_id": "env_12345",
+        "user_id": "usr_9f8c7d6e5a",
+        "user_email": "alice@example.com",
+        "connection_details": [
+            {
+                "id": "conn_2f71c0",
+                "type": "PASSWORDLESS",
+                "provider": "SCALEKIT"
+            }
+        ],
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "device_type": "desktop",
+        "triggered_at": "2025-10-08T11:19:22.423Z"
+    },
+    "data": {
+        "user": {
+            "id": "usr_9f8c7d6e5a",
+            "email": "alice@example.com",
+            "email_verified": true,
+            "memberships": [
+                {
+                    "organization_id": "org_a1b2c3",
+                    "status": "ACTIVE"
+                }
+            ],
+            "custom_attributes": {},
+            "raw_attributes": {}
+        }
+    }
+}
+```
+
+</TabItem>
+
+<TabItem label='Response body from your app'>
+
+```json title="POST_USER_AUTHENTICATION — response body" showLineNumbers=true
+{
+    "decision": "ALLOW | DENY",
+    // When decision is DENY, include an error message.
+    "error": {
+        "message": "Sign-in blocked by policy"
+    }
+}
+```
+
+</TabItem>
+
+</Tabs> */}
+
+
+
+#### `PRE_SIGNUP`
+
+
+<Tabs>
+<TabItem label='Request body from Scalekit'>
+
+```json title="PRE_SIGNUP — request body" showLineNumbers=true collapse={9-14, 27-31,}
+{
+  "display_name": "Pre-Signup",
+  "trigger_point": "PRE_SIGNUP",
+  "interceptor_context": {
+    "environment_id": "env_92561807201272162",
+    "user_id": "usr_93418238346728951", // Present when the user already exists (for example, member of another organization)
+    "user_email": "john.doe@example.com",
+    "connection_details": [
+      {
+        "id": "conn_92561808744978132",
+        "type": "OAUTH",
+        "provider": "GOOGLE"
+      }
+    ],
+    "device_type": "Desktop",
+    "ip_address": "203.0.113.24",
+    "region": "IN",
+    "city": "Bengaluru",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "triggered_at": "2025-10-09T09:48:02.875Z"
+  },
+  "data": {
+    // Present when the user already exists (for example, member of another organization)
+    "user": {
+      "id": "usr_93418238346728951",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "email_verified": true,
+      "created_at": "2025-10-06T11:06:49.120Z",
+      "updated_at": "2025-10-06T13:33:06.479Z",
+      "first_name": "John",
+      "last_name": "Doe",
+      "memberships": [
+        {
+          "organization_id": "org_93418204671239864",
+          "status": "ACTIVE"
+        }
+      ]
+    }
+  }
+}
+```
+
+</TabItem>
+
+<TabItem label='Response body from your app'>
+
+```json title="PRE_SIGNUP — response body" wrap showLineNumbers=true
+{
+  // Required: choose ALLOW or DENY
+  "decision": "DENY", // ALLOW | DENY
+  // Optional (with DENY)
+  "error": { "message": "Email domain not allowed" }
+}
+```
+
+</TabItem>
+
+</Tabs>
+
+#### `PRE_SESSION_CREATION`
+
+<Tabs>
+<TabItem label='Request body from Scalekit'>
+
+```json title="PRE_SESSION_CREATION — request body" wrap showLineNumbers=true collapse={11-16,35-39}
+
+{
+  "display_name": "Add custom claims to tokens",
+  "trigger_point": "PRE_SESSION_CREATION",
+  "interceptor_context": {
+    "environment_id": "env_92561807204567213",
+    "user_id": "usr_93418238346728951",
+    "user_email": "john.doe@example.com",
+    "organization_id": "org_93418204671239864",
+    "connection_details": [
+      {
+        "id": "conn_92561808744978132",
+        "type": "OAUTH",
+        "provider": "GOOGLE"
+      }
+    ],
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "device_type": "Desktop",
+    "ip_address": "203.0.113.24",
+    "region": "US",
+    "city": "San Francisco",
+    "triggered_at": "2025-10-08T15:22:42.381Z"
+  },
+  "data": {
+    "user": {
+      "id": "usr_93418238346728951",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "email_verified": true,
+      "created_at": "2025-10-06T11:06:49.120Z",
+      "updated_at": "2025-10-06T13:33:06.479Z",
+      "first_name": "John",
+      "last_name": "Doe",
+      "memberships": [
+        {
+          "organization_id": "org_93418204671239864",
+          "status": "ACTIVE"
+        }
+      ]
+    }
+  }
+}
+
+```
+</TabItem>
+
+<TabItem label='Response body (optional claims)'>
+
+```json title="PRE_SESSION_CREATION — response body" wrap showLineNumbers=true
+{
+  // Required: choose ALLOW or DENY
+  "decision": "ALLOW", // ALLOW | DENY
+  // Optional (with ALLOW)
+  "response": {
+    "claims": {
+      "plan": "pro",
+      "region": "eu-west-1",
+      "entitlements": ["dashboards", "advanced-exports"]
+    }
+  }
+}
+```
+</TabItem>
+
+</Tabs>
+
+
+<Aside type='note' title='Modify token claims in the response'>
+ The `claims` field lets you add custom information that will be included in both access tokens and ID tokens issued by Scalekit.
+</Aside>
+
+#### `PRE_USER_INVITATION`
+
+<Tabs>
+<TabItem label='Request body from Scalekit'>
+
+```json title="PRE_USER_INVITATION — request body" wrap showLineNumbers=true
+{
+    "display_name": "Block invites to suspicious emails",
+    "trigger_point": "PRE_USER_INVITATION",
+        "interceptor_context": {
+        "environment_id": "env_92561807201272162",
+        "user_id": "usr_93418238346728951", // Present when the invited user already exists (for example, member of another organization)
+        "user_email": "john.doe@example.com",
+        "organization_id": "org_93731871904672153",
+        "city": "Bengaluru",
+        "device_type": "Desktop",
+        "ip_address": "182.156.5.2",
+        "region": "IN",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+        "triggered_at": "2025-10-09T12:50:41.803Z"
+    },
+    "data": {
+        "organization": {
+            "id": "org_93731871904672153",
+            "name": "Acme Corp"
+        }
+    }
+}
+```
+</TabItem>
+
+<TabItem label='Response body from your app'>
+
+```json title="PRE_USER_INVITATION — response body" wrap showLineNumbers=true
+{
+  // Required: choose ALLOW or DENY
+  "decision": "DENY", // ALLOW | DENY
+  // Optional (with DENY)
+  "error": { "message": "Invites to disposable email domains are blocked" }
+}
+```
+</TabItem>
+
+</Tabs>
+
+#### `PRE_M2M_TOKEN_CREATION`
+
+<Tabs>
+<TabItem label='Request body from Scalekit'>
+
+```json title="PRE_M2M_TOKEN_CREATION — request body" wrap showLineNumbers=true collapse={15-18,22-24}
+{
+  "display_name": "Add custom claim",
+  "trigger_point": "PRE_M2M_TOKEN_CREATION",
+  "interceptor_context": {
+    "environment_id": "env_17002334043308132",
+    "client_id": "m2morg_93710427703245914",
+    "user_agent": "PostmanRuntime/7.48.0",
+    "device_type": "Unknown",
+    "triggered_at": "2025-10-08T21:22:20.173Z"
+  },
+  "data": {
+    "m2m_token_claims": {
+      "client_id": "m2morg_93710427703245914",
+      "claims": {
+        "custom_claims": {
+          "c1": "v1",
+          "c2": "v2"
+        },
+        "oid": "org_89669394174574792",
+        "scope": "deploy:applications read:deployments",
+        "scopes": [
+          "deploy:applications",
+          "read:deployments"
+        ]
+      }
+    }
+  }
+}
+```
+</TabItem>
+<TabItem label='Response body (optional claims)'>
+
+```json title="PRE_M2M_TOKEN_CREATION — response body" wrap showLineNumbers=true
+{
+  // Required: choose ALLOW or DENY
+  "decision": "ALLOW", // ALLOW | DENY
+  // Optional (with ALLOW)
+  "response": {
+    "claims": {
+      "scope": "deploy:applications read:deployments",
+      "aud": "https://api.example.com"
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
