@@ -432,7 +432,7 @@ export const sidebar = [
       },
       {
         label: 'Events',
-        items: ['reference/ui-events', 'reference/interceptors/triggers'],
+        items: ['reference/admin-portal/ui-events', 'reference/interceptors/triggers'],
       },
     ],
   },
@@ -536,7 +536,7 @@ export const topics = {
   integrations: ['/guides/integrations/**/*'], // Integration guide pages
   'events-reference': [
     '/reference/webhooks/**/*',
-    '/reference/ui-events',
+    '/reference/admin-portal/ui-events',
     '/reference/interceptors/triggers',
   ], // Events reference pages
   'rest-apis': ['/apis/**/*'], // REST API reference pages
@@ -623,7 +623,7 @@ export const secondaryNavMapping = {
     patterns: [
       '/apis',
       '/reference/webhooks',
-      '/reference/ui-events',
+      '/reference/admin-portal/ui-events',
       '/reference/interceptors',
       '/reference/agent-connectors',
     ],
