@@ -22,10 +22,360 @@ seeAlso:
 import { Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
 import { Aside } from '@astrojs/starlight/components';
 
-After registering roles and permissions for your application, Scalekit provides multiple ways to assign roles to users. This guide shows you how to manage role assignments using different approaches based on your use case.
+After registering roles and permissions for your application, Scalekit provides multiple ways to assign roles to users. These roles allow your app to make the access control decisions as scalekit sends them to your app in the access token.
 
-By default, the organization creator automatically receives the `admin` role, while users who join later receive the `member` role. You can customize these defaults to match your application's security requirements.
-For instance, in a CRM system, you may want to set the default role for new members to a read-only role like `viewer` to prevent accidental data modifications.
+## Auto assign roles as users join organizations
+
+By default, the organization creator automatically receives the `admin` role, while users who join later receive the `member` role. You can customize these defaults to match your application's security requirements. For instance, in a CRM system, you may want to set the default role for new members to a read-only role like `viewer` to prevent accidental data modifications.
+
+1. Go to **Dashboard** > **Roles & Permissions** > **Roles** tab
+2. Select the roles available and choose defaults for organization creator and member
+
+![](@/assets/docs/assign-roles/full-page-highlighth-defaults.png)
+
+This automatically assigns these roles to every users who joins any organization in your Scalekit environment.
+
+## Let users assign roles to others
+
+
+
+
+-----
+
+## Assign roles using the SDK
+
+For applications that need to manage roles programmatically, use the Scalekit SDK to assign, update, or remove user roles. This is useful for building custom admin interfaces or automated workflows.
+
+<Aside type="caution">
+Always verify that the current user has authorization to manage roles before performing role assignments. Implement proper access controls to prevent privilege escalation attacks.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Assign role to user" wrap collapse={1-9}
+// Initialize Scalekit client
+import { ScalekitClient } from "@scalekit-sdk/node";
+
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENVIRONMENT_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
+
+// Use case: Promote a team member to project manager
+async function assignRoleToUser(userId, organizationId, roles) {
+  try {
+    const result = await scalekit.membership.updateMembership({
+      user_id: userId,
+      organization_id: organizationId,
+      roles: roles // Array of role names
+    });
+
+    console.log(`Role assigned successfully:`, result);
+    return result;
+  } catch (error) {
+    console.error(`Failed to assign role: ${error.message}`);
+    throw error;
+  }
+}
+
+// Example usage
+await assignRoleToUser("user_abc123", "org_1234567890", ["project_manager"]);
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Assign role to user" wrap collapse={1-12}
+# Initialize Scalekit client
+import os
+from scalekit import ScalekitClient
+from scalekit.v1.memberships.memberships_pb2 import UpdateMembershipRequest
+
+scalekit_client = ScalekitClient(
+    env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET")
+)
+
+# Use case: Grant admin access to trusted user
+def assign_role_to_user(user_id: str, organization_id: str, roles: list):
+    """Assign roles to a user within an organization"""
+    try:
+        request = UpdateMembershipRequest(
+            user_id=user_id,
+            organization_id=organization_id,
+            roles=roles
+        )
+
+        result = scalekit_client.memberships.update_membership(request=request)
+        print(f"Role assigned successfully: {result}")
+        return result
+    except Exception as error:
+        print(f"Failed to assign role: {error}")
+        raise
+
+# Example usage
+assign_role_to_user("user_abc123", "org_1234567890", ["admin"])
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Assign role to user" wrap collapse={1-17}
+// Initialize Scalekit client
+package main
+
+import (
+    "context"
+    "log"
+    "os"
+    "github.com/scalekit-inc/scalekit-sdk-go"
+)
+
+func main() {
+    sc := scalekit.NewScalekitClient(
+        os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+        os.Getenv("SCALEKIT_CLIENT_ID"),
+        os.Getenv("SCALEKIT_CLIENT_SECRET"),
+    )
+
+    // Use case: Assign viewer role to new team member
+    ctx := context.Background()
+    userId := "user_abc123"
+    organizationId := "org_1234567890"
+    roles := []string{"viewer"}
+
+    result, err := sc.Membership().UpdateMembership(ctx, &scalekit.UpdateMembershipRequest{
+        UserId:         userId,
+        OrganizationId: organizationId,
+        Roles:          roles,
+    })
+
+    if err != nil {
+        log.Printf("Failed to assign role: %v", err)
+        return
+    }
+
+    log.Printf("Role assigned successfully: %+v", result)
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Assign role to user" wrap collapse={1-11}
+// Initialize Scalekit client
+import com.scalekit.ScalekitClient;
+import com.scalekit.grpc.scalekit.v1.memberships.*;
+import java.util.Arrays;
+import java.util.List;
+
+ScalekitClient scalekitClient = new ScalekitClient(
+    System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+    System.getenv("SCALEKIT_CLIENT_ID"),
+    System.getenv("SCALEKIT_CLIENT_SECRET")
+);
+
+// Use case: Update user role during performance review
+public void assignRoleToUser(String userId, String organizationId, List<String> roles) {
+    try {
+        UpdateMembershipRequest request = UpdateMembershipRequest.newBuilder()
+            .setUserId(userId)
+            .setOrganizationId(organizationId)
+            .addAllRoles(roles)
+            .build();
+
+        UpdateMembershipResponse response = scalekitClient.memberships().updateMembership(request);
+        System.out.println("Role assigned successfully: " + response);
+
+    } catch (Exception e) {
+        System.err.println("Failed to assign role: " + e.getMessage());
+        throw new RuntimeException("Role assignment failed", e);
+    }
+}
+
+// Example usage
+assignRoleToUser("user_abc123", "org_1234567890", Arrays.asList("team_member"));
+```
+
+</TabItem>
+</Tabs>
+
+### Remove roles from users
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Remove role from user" wrap
+// Use case: Remove admin access when user leaves leadership position
+async function removeRoleFromUser(userId, organizationId, rolesToRemove) {
+  try {
+    // Get current membership to see existing roles
+    const currentMembership = await scalekit.membership.getMembership({
+      user_id: userId,
+      organization_id: organizationId
+    });
+
+    // Filter out the roles to remove
+    const updatedRoles = currentMembership.roles.filter(
+      role => !rolesToRemove.includes(role)
+    );
+
+    // Update membership with remaining roles
+    const result = await scalekit.membership.updateMembership({
+      user_id: userId,
+      organization_id: organizationId,
+      roles: updatedRoles
+    });
+
+    console.log(`Role removed successfully from user: ${userId}`);
+    return result;
+  } catch (error) {
+    console.error(`Failed to remove role: ${error.message}`);
+    throw error;
+  }
+}
+
+// Example usage
+await removeRoleFromUser("user_abc123", "org_1234567890", ["admin"]);
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Remove role from user" wrap
+# Use case: Revoke temporary project access after completion
+from scalekit.v1.memberships.memberships_pb2 import GetMembershipRequest, UpdateMembershipRequest
+
+def remove_role_from_user(user_id: str, organization_id: str, roles_to_remove: list):
+    """Remove specific roles from a user within an organization"""
+    try:
+        # Get current membership to see existing roles
+        get_request = GetMembershipRequest(
+            user_id=user_id,
+            organization_id=organization_id
+        )
+        current_membership = scalekit_client.memberships.get_membership(request=get_request)
+
+        # Filter out the roles to remove
+        updated_roles = [role for role in current_membership.roles if role not in roles_to_remove]
+
+        # Update membership with remaining roles
+        update_request = UpdateMembershipRequest(
+            user_id=user_id,
+            organization_id=organization_id,
+            roles=updated_roles
+        )
+
+        result = scalekit_client.memberships.update_membership(request=update_request)
+        print(f"Role removed successfully from user: {user_id}")
+        return result
+    except Exception as error:
+        print(f"Failed to remove role: {error}")
+        raise
+
+# Example usage
+remove_role_from_user("user_abc123", "org_1234567890", ["temp_access"])
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Remove role from user" wrap
+// Use case: Clean up roles when user changes departments
+func removeRoleFromUser(ctx context.Context, userId, organizationId string, rolesToRemove []string) error {
+    // Get current membership to see existing roles
+    currentMembership, err := sc.Membership().GetMembership(ctx, &scalekit.GetMembershipRequest{
+        UserId:         userId,
+        OrganizationId: organizationId,
+    })
+
+    if err != nil {
+        log.Printf("Failed to get current membership: %v", err)
+        return err
+    }
+
+    // Filter out the roles to remove
+    var updatedRoles []string
+    for _, role := range currentMembership.Roles {
+        shouldKeep := true
+        for _, removeRole := range rolesToRemove {
+            if role == removeRole {
+                shouldKeep = false
+                break
+            }
+        }
+        if shouldKeep {
+            updatedRoles = append(updatedRoles, role)
+        }
+    }
+
+    // Update membership with remaining roles
+    _, err = sc.Membership().UpdateMembership(ctx, &scalekit.UpdateMembershipRequest{
+        UserId:         userId,
+        OrganizationId: organizationId,
+        Roles:          updatedRoles,
+    })
+
+    if err != nil {
+        log.Printf("Failed to remove role: %v", err)
+        return err
+    }
+
+    log.Printf("Role removed successfully from user: %s", userId)
+    return nil
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Remove role from user" wrap
+// Initialize additional imports
+import java.util.stream.Collectors;
+
+// Use case: Revoke access when employee terminates employment
+public void removeRoleFromUser(String userId, String organizationId, List<String> rolesToRemove) {
+    try {
+        // Get current membership to see existing roles
+        GetMembershipRequest getRequest = GetMembershipRequest.newBuilder()
+            .setUserId(userId)
+            .setOrganizationId(organizationId)
+            .build();
+
+        Membership currentMembership = scalekitClient.memberships().getMembership(getRequest);
+
+        // Filter out the roles to remove
+        List<String> updatedRoles = currentMembership.getRolesList().stream()
+            .filter(role -> !rolesToRemove.contains(role))
+            .collect(Collectors.toList());
+
+        // Update membership with remaining roles
+        UpdateMembershipRequest updateRequest = UpdateMembershipRequest.newBuilder()
+            .setUserId(userId)
+            .setOrganizationId(organizationId)
+            .addAllRoles(updatedRoles)
+            .build();
+
+        UpdateMembershipResponse response = scalekitClient.memberships().updateMembership(updateRequest);
+        System.out.println("Role removed successfully from user: " + userId);
+
+    } catch (Exception e) {
+        System.err.println("Failed to remove role: " + e.getMessage());
+        throw new RuntimeException("Role removal failed", e);
+    }
+}
+
+// Example usage
+removeRoleFromUser("user_abc123", "org_1234567890", Arrays.asList("temp_access"));
+```
+
+</TabItem>
+</Tabs>
+
+
 
 ## Role assignment methods
 
