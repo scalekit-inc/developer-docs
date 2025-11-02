@@ -69,14 +69,15 @@ function getActiveSecondaryNavId(pathname: string): string | null {
  * Determines if a nav item should be marked as current based on the pathname
  */
 function isCurrentPage(pathname: string, item: NavItem): boolean {
-  // Hash-only links (dropdown triggers) are never current
-  if (isHashOnly(item.href)) {
-    return false
-  }
-
   // If this is a parent item with children, consider it current if any child is current
+  // (Check this FIRST, before hash-only check, so parent dropdowns can be highlighted)
   if (item.children && item.children.length > 0) {
     return item.children.some((child) => isCurrentPage(pathname, child))
+  }
+
+  // Hash-only links (dropdown triggers) are never current on their own
+  if (isHashOnly(item.href)) {
+    return false
   }
 
   // Get the active secondary nav ID and compare

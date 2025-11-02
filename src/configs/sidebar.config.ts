@@ -432,7 +432,7 @@ export const sidebar = [
       },
       {
         label: 'Events',
-        items: ['reference/admin-portal/ui-events', 'reference/interceptors/triggers'],
+        items: ['reference/ui-events', 'reference/interceptors/triggers'],
       },
     ],
   },
@@ -534,7 +534,12 @@ export const topics = {
     '/mcp/guides/custom-auth',
   ], // Developer resources and implementation guides
   integrations: ['/guides/integrations/**/*'], // Integration guide pages
-  'events-reference': ['/reference/webhooks/**/*', '/reference/admin-portal/ui-events'], // Events reference pages
+  'events-reference': [
+    '/reference/webhooks/**/*',
+    '/reference/ui-events',
+    '/reference/interceptors/triggers',
+  ], // Events reference pages
+  'rest-apis': ['/apis/**/*'], // REST API reference pages
 }
 
 /**
@@ -549,7 +554,8 @@ export const topicToSecondaryNav: Record<string, string> = {
   connect: 'agent-actions',
   'dev-kit': 'examples', // Dev-kit pages show "Examples" in secondary nav
   integrations: 'examples', // Integration pages also show "Examples"
-  'events-reference': 'api-reference', // Events show "API Reference"
+  'events-reference': 'webhooks-events', // Events pages map to Events child
+  'rest-apis': 'rest-apis', // REST API pages map to REST APIs child
   // Note: Some topics may not have a secondary nav item (they won't highlight anything)
 }
 
@@ -617,7 +623,8 @@ export const secondaryNavMapping = {
     patterns: [
       '/apis',
       '/reference/webhooks',
-      '/reference/admin-portal/ui-events',
+      '/reference/ui-events',
+      '/reference/interceptors',
       '/reference/agent-connectors',
     ],
   },
