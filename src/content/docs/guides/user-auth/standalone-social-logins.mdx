@@ -7,7 +7,7 @@ browseCentral:
   category: ["Auth modules"]
   icon: book
 sidebar:
-  label: Building standalone social logins
+  label: Build standalone social logins
 head:
   - tag: style
     content: |
@@ -33,16 +33,16 @@ Social login enables authentication through existing accounts from providers lik
 
 <Steps>
 
-1. ## Set up Scalekit and register a callback endpoint
+1. ## Set up Scalekit
 
-   Follow the [installation guide](/authenticate/installation/) to configure Scalekit in your application. Go to Dashboard > Authentication > General to turn off the Full-Stack Auth since you'd use the standalone social logins module. This disables user management and session management features and let's to only use social login authentication.
+    Use the following instructions to install the SDK for your technology stack.
 
-   **Create a callback endpoint:**
+   <InstallSDK />
 
-   1. Add a callback endpoint to your application (typically `https://your-app.com/auth/callback`)
-   2. Register this URL in your Scalekit dashboard
+   Follow the [installation guide](/authenticate/installation/) to configure Scalekit in your application.
 
-   Learn more about [callback URL requirements](/guides/dashboard/redirects/#allowed-callback-urls).
+   Go to Dashboard > Authentication > General to **turn off the Full-Stack Auth** since you'd use the standalone social logins module. This disables user management and session management features and let's to only use social login authentication.
+
 
 2. ## Configure social login providers
    Google login is pre-configured in all development environments for simplified testing. You can integrate additional social login providers by setting up your own connection credentials with each provider.
@@ -72,6 +72,7 @@ Social login enables authentication through existing accounts from providers lik
       </LinkCard>
     </CardGrid>
     </details>
+    After configuration, Scalekit can interact with these providers to authenticate users and verify their identities.
 
 3. ## From your application, redirect users to provider's OAuth pages
 
@@ -87,7 +88,7 @@ Social login enables authentication through existing accounts from providers lik
     //
     const authorizationURL = scalekit.getAuthorizationUrl(redirectUri, {
       provider: 'google',
-      state: state, // optional
+      state: state, // recommended
     });
 
     /*
@@ -112,7 +113,6 @@ Social login enables authentication through existing accounts from providers lik
       options=options
     )
 
-    #
     ```
 
     </TabItem>
@@ -167,7 +167,12 @@ Social login enables authentication through existing accounts from providers lik
 
 3. ## Get user details from the callback
 
-   After successful authentication, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and proceed to creating session and logging in the user.
+    After successful authentication, Scalekit creates a user record and sends the user information to your callback endpoint.
+
+   1. Add a callback endpoint in your application (typically `https://your-app.com/auth/callback`)
+   2. [Register](/guides/dashboard/allowed-callback-url/) it in your Scalekit dashboard > Authentication > Redirect URLS > Allowed Callback URLs
+
+   In authentication flow, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and proceed to creating session and logging in the user.
 
     <Tabs syncKey="tech-stack">
     <TabItem value="nodejs" label="Node.js">
