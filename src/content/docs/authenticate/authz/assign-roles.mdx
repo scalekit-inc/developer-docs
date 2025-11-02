@@ -1,6 +1,7 @@
 ---
 title: "Assign roles to users"
-description: "Assign roles to users in your application"
+description: "Learn how to assign roles to users in your application using the dashboard, SDK, or automated provisioning"
+tableOfContents: true
 head:
   - tag: style
     content: |
@@ -8,25 +9,32 @@ head:
         font-size: var(--sl-text-xl);
       }
 sidebar:
-  label: "Assign roles"
+  label: "Assign roles to users"
+seeAlso:
+  - text: "Create and manage roles and permissions"
+    href: "/authenticate/authz/create-roles-permissions/"
+  - text: "Group-based role assignment"
+    href: "/directory/guides/group-based-role-assignment/"
+  - text: "Roles API reference"
+    href: "https://docs.scalekit.com/apis/#tag/roles/get/api/v1/roles"
 ---
 
 import { Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
 import { Aside } from '@astrojs/starlight/components';
 
-After you register roles and permissions for your app, Scalekit provides flexible ways to assign roles to users. By default, the organization creator receives the `admin` role. Users who join later receive the `member` role.
+After registering roles and permissions for your application, Scalekit provides multiple ways to assign roles to users. This guide shows you how to manage role assignments using different approaches based on your use case.
 
-For apps like a CRM, you may want to prevent accidental edits from new users. Set the default role for new members to a read-only option such as `viewer`.
+By default, the organization creator automatically receives the `admin` role, while users who join later receive the `member` role. You can customize these defaults to match your application's security requirements.
+For instance, in a CRM system, you may want to set the default role for new members to a read-only role like `viewer` to prevent accidental data modifications.
 
-Scalekit supports several role-assignment methods:
+## Role assignment methods
 
-- **Dashboard management**: Update user roles directly in the Scalekit dashboard. This is quick for initial setup and manual changes.
+Scalekit supports several approaches to role assignment:
 
-- **Default role configuration**: Configure default roles in the dashboard so creators and members automatically receive the right access on join.
-
-- **Directory group-based assignment (SCIM)**: Map directory groups to app roles so users automatically receive roles based on the groups they belong to.
-
-- **SDK-powered role changes**: Use the SDK to build in-app role management for authorized administrators. See API reference for [roles](https://docs.scalekit.com/apis/#tag/roles/get/api/v1/roles).
+- **Dashboard management**: Update user roles directly in the Scalekit dashboard for quick changes and initial setup
+- **Default role configuration**: Set automatic role assignments for new organization members
+- **Directory group-based assignment (SCIM)**: Map directory groups to application roles for automated provisioning
+- **SDK-powered role changes**: Build in-app role management for authorized administrators
 
 ## Assign a role in the Scalekit dashboard
 
@@ -57,8 +65,277 @@ To change the default role assignments for new members who join the organization
 Default roles help you set safe, least-privilege access for new members while keeping creators fully empowered to configure the workspace.
 </Aside>
 
+## Assign roles using the SDK
+
+For applications that need to manage roles programmatically, use the Scalekit SDK to assign, update, or remove user roles. This is useful for building custom admin interfaces or automated workflows.
+
+<Aside type="caution">
+Always verify that the current user has authorization to manage roles before performing role assignments. Implement proper access controls to prevent privilege escalation attacks.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Assign role to user" wrap collapse={1-9}
+// Initialize Scalekit client
+import { ScalekitClient } from "@scalekit-sdk/node";
+
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENVIRONMENT_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
+
+// Use case: Promote a team member to project manager
+async function assignRoleToUser(userId, roleId) {
+  try {
+    const result = await scalekit.role.assignRole({
+      user_id: userId,
+      role_id: roleId,
+      organization_id: "org_1234567890" // Optional: scope to specific organization
+    });
+
+    console.log(`Role assigned successfully:`, result);
+    return result;
+  } catch (error) {
+    console.error(`Failed to assign role: ${error.message}`);
+    throw error;
+  }
+}
+
+// Example usage
+await assignRoleToUser("user_abc123", "role_project_manager");
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Assign role to user" wrap collapse={1-12}
+# Initialize Scalekit client
+from scalekit import ScalekitClient
+from scalekit.v1.roles.roles_pb2 import AssignRoleRequest
+
+scalekit_client = ScalekitClient(
+    env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET")
+)
+
+# Use case: Grant admin access to trusted user
+def assign_role_to_user(user_id: str, role_id: str, organization_id: str = None):
+    """Assign a role to a user within an organization"""
+    try:
+        request = AssignRoleRequest(
+            user_id=user_id,
+            role_id=role_id,
+            organization_id=organization_id
+        )
+
+        result = scalekit_client.roles.assign_role(request=request)
+        print(f"Role assigned successfully: {result}")
+        return result
+    except Exception as error:
+        print(f"Failed to assign role: {error}")
+        raise
+
+# Example usage
+assign_role_to_user("user_abc123", "role_admin", "org_1234567890")
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Assign role to user" wrap collapse={1-17}
+// Initialize Scalekit client
+package main
+
+import (
+    "context"
+    "log"
+    "github.com/scalekit-inc/scalekit-sdk-go"
+)
+
+func main() {
+    sc := scalekit.NewScalekitClient(
+        os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+        os.Getenv("SCALEKIT_CLIENT_ID"),
+        os.Getenv("SCALEKIT_CLIENT_SECRET"),
+    )
+
+    // Use case: Assign viewer role to new team member
+    ctx := context.Background()
+    userId := "user_abc123"
+    roleId := "role_viewer"
+    organizationId := "org_1234567890"
+
+    result, err := sc.Role().AssignRole(ctx, &scalekit.AssignRoleRequest{
+        UserId:         userId,
+        RoleId:         roleId,
+        OrganizationId: organizationId,
+    })
+
+    if err != nil {
+        log.Printf("Failed to assign role: %v", err)
+        return
+    }
+
+    log.Printf("Role assigned successfully: %+v", result)
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Assign role to user" wrap collapse={1-11}
+// Initialize Scalekit client
+import com.scalekit.ScalekitClient;
+import com.scalekit.grpc.scalekit.v1.roles.*;
+
+ScalekitClient scalekitClient = new ScalekitClient(
+    System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+    System.getenv("SCALEKIT_CLIENT_ID"),
+    System.getenv("SCALEKIT_CLIENT_SECRET")
+);
+
+// Use case: Update user role during performance review
+public void assignRoleToUser(String userId, String roleId, String organizationId) {
+    try {
+        AssignRoleRequest request = AssignRoleRequest.newBuilder()
+            .setUserId(userId)
+            .setRoleId(roleId)
+            .setOrganizationId(organizationId)
+            .build();
+
+        AssignRoleResponse response = scalekitClient.roles().assignRole(request);
+        System.out.println("Role assigned successfully: " + response);
+
+    } catch (Exception e) {
+        System.err.println("Failed to assign role: " + e.getMessage());
+        throw new RuntimeException("Role assignment failed", e);
+    }
+}
+
+// Example usage
+assignRoleToUser("user_abc123", "role_team_member", "org_1234567890");
+```
+
+</TabItem>
+</Tabs>
+
+### Remove roles from users
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Remove role from user" wrap
+// Use case: Remove admin access when user leaves leadership position
+async function removeRoleFromUser(userId, roleId, organizationId) {
+  try {
+    await scalekit.role.removeRole({
+      user_id: userId,
+      role_id: roleId,
+      organization_id: organizationId
+    });
+
+    console.log(`Role removed successfully from user: ${userId}`);
+  } catch (error) {
+    console.error(`Failed to remove role: ${error.message}`);
+    throw error;
+  }
+}
+
+// Example usage
+await removeRoleFromUser("user_abc123", "role_admin", "org_1234567890");
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Remove role from user" wrap
+# Use case: Revoke temporary project access after completion
+from scalekit.v1.roles.roles_pb2 import RemoveRoleRequest
+
+def remove_role_from_user(user_id: str, role_id: str, organization_id: str):
+    """Remove a role from a user within an organization"""
+    try:
+        request = RemoveRoleRequest(
+            user_id=user_id,
+            role_id=role_id,
+            organization_id=organization_id
+        )
+
+        scalekit_client.roles.remove_role(request=request)
+        print(f"Role removed successfully from user: {user_id}")
+    except Exception as error:
+        print(f"Failed to remove role: {error}")
+        raise
+
+# Example usage
+remove_role_from_user("user_abc123", "role_temp_access", "org_1234567890")
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Remove role from user" wrap
+// Use case: Clean up roles when user changes departments
+func removeRoleFromUser(ctx context.Context, userId, roleId, organizationId string) error {
+    _, err := sc.Role().RemoveRole(ctx, &scalekit.RemoveRoleRequest{
+        UserId:         userId,
+        RoleId:         roleId,
+        OrganizationId: organizationId,
+    })
+
+    if err != nil {
+        log.Printf("Failed to remove role: %v", err)
+        return err
+    }
+
+    log.Printf("Role removed successfully from user: %s", userId)
+    return nil
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Remove role from user" wrap
+// Use case: Revoke access when employee terminates employment
+public void removeRoleFromUser(String userId, String roleId, String organizationId) {
+    try {
+        RemoveRoleRequest request = RemoveRoleRequest.newBuilder()
+            .setUserId(userId)
+            .setRoleId(roleId)
+            .setOrganizationId(organizationId)
+            .build();
+
+        scalekitClient.roles().removeRole(request);
+        System.out.println("Role removed successfully from user: " + userId);
+
+    } catch (Exception e) {
+        System.err.println("Failed to remove role: " + e.getMessage());
+        throw new RuntimeException("Role removal failed", e);
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
 ## Automate role assignment with directory groups (SCIM)
 
 Use SCIM provisioning to map directory provider groups to your app roles. When administrators add users to groups in their directory, Scalekit sends events so your app can update roles automatically. This reduces manual changes and keeps access aligned with enterprise policies.
 
 See the full guide at [Group-based role assignment](/directory/guides/group-based-role-assignment/).
+
+## Best practices for role management
+
+- **Principle of least privilege**: Assign users only the minimum roles they need to perform their job functions
+- **Regular audits**: Periodically review user roles and remove unnecessary access
+- **Document role purposes**: Clearly define what each role allows users to do
+- **Use default roles**: Configure appropriate default roles for new members to maintain security hygiene
+- **Monitor role changes**: Log and review role assignment changes for security compliance
+
+<Aside type="tip">
+Consider implementing role assignment workflows that require approval for sensitive roles like `admin` or `owner` to maintain proper access controls.
+</Aside>
