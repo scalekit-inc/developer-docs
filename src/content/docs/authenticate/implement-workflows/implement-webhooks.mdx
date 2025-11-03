@@ -45,13 +45,12 @@ title: "Example of directory user created webhook" {
 
 shape: sequence_diagram
 
-IdP -> Scalekit: Provision user via SCIM
-Scalekit -> Event Queue: Queue webhook event
-Webhook Handler: {
-Event Queue -> Your App: POST /webhooks/manage-users
+IdP -> Scalekit: Provision user via SCIMt
+Your App: {
+Scalekit -> Your App: POST /webhooks/manage-users
 Your App -> Your App: Verify signature with signing secret
 Your App -> Your App: Process event: sync user to DB
-Your App -> Event Queue: Return 201 Created
+Your App -> Scalekit: Return 201 Created
 }
 ```
 
