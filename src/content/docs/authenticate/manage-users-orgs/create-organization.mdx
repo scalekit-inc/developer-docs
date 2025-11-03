@@ -29,7 +29,7 @@ Scalekit supports two main approaches to organization creation:
 
 ## Sign up creates organizations automatically
 
-[Scalekit integration](/authenticate/fsa/quickstart/) that's set up to autheticate users and complete login flow automatically creates an organization for them. Both the ID token and access token will contain the organization ID that the user belongs to.
+Existing [Scalekit integration](/authenticate/fsa/quickstart/) to authenticate users and handle the login flow automatically generates an organization for each user. The organization ID associated with the user will be included in both the ID token and access token.
 
 <Tabs>
       <TabItem value="idToken" label="Decoded ID token">
@@ -85,15 +85,13 @@ Scalekit supports two main approaches to organization creation:
 
 ## User creates organizations themselves <Badge text="API" variant="tip" />
 
-Applications often provide options for users to create their own organizations. For example, show an option for users such "Create new workspace" within their app.
-
-You can use the Scalekit SDK to power such options in the app's UI.
+Applications often provide options for users to create their own organizations. For example, show an option for users such "Create new workspace" within their app. Use the Scalekit SDK to power such options:
 
 <Tabs syncKey="tech-stack">
   <TabItem value="node" label="Node.js">
 
 ```javascript title="Create and manage organizations" wrap
-// Use case: Provision a workspace after a sales-assisted onboarding
+
 const { organization } = await scalekit.organization.createOrganization({
   name: 'Orion Analytics',
   externalId: 'crm-9342',
@@ -108,7 +106,6 @@ const { organization: fetched } = await scalekit.organization.getOrganization(or
   <TabItem value="python" label="Python">
 
 ```python title="Create and manage organizations" wrap
-# Use case: Provision a workspace after a sales-assisted onboarding
 organization = scalekit_client.organization.create_organization(
     name="Orion Analytics",
     external_id="crm-9342",
@@ -123,7 +120,6 @@ fetched = scalekit_client.organization.get_organization(organization["id"])
   <TabItem value="go" label="Go">
 
 ```go title="Create and manage organizations" wrap
-// Use case: Provision a workspace after a sales-assisted onboarding
 created, err := scalekitClient.Organization.Create(ctx, scalekit.CreateOrganizationRequest{
     Name:       "Orion Analytics",
     ExternalID: scalekit.String("crm-9342"),
@@ -166,8 +162,8 @@ Organization fetched = scalekitClient.organization().get(organization.id()).orga
 
 Next, let's look at how users can be added to organizations.
 
-<Aside type='tip'>
+<Aside type='note' title='Users in multiple organizations'>
 
-When a user belongs to multiple organizations, subsequent login flows automatically present a organization selection interface, allowing users to choose their desired organization.
+Users belonging to multiple organizations will see an organization selection interface in subsequent login flows, allowing them to choose their desired organization.
 
 </Aside>

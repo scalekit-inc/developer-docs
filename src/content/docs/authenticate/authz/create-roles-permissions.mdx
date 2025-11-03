@@ -35,397 +35,395 @@ Your application's use cases will determine the answers. Here are a few common p
 Scalekit provides the flexibility to build authorization for any of these use cases. Once you have a clear plan, you can start creating your permissions and roles.
 
 
+Define the permissions your application needs by registering them with Scalekit. Use the `resource:action` format for clear, self-documenting permission names. You can skip this step, in case permissions may not fit your app's authorization model.
+
 <Steps>
+1. ## Define the actions your users can perform as permissions
 
-1. ## Define the actions your users as permissions
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
 
-    Define the permissions your application needs by registering them with Scalekit. Use the `resource:action` format for clear, self-documenting permission names. You can skip this step, in case permissions may not fit your app's authorization model.
+   ```javascript title="Create permissions" wrap collapse={1-9}
+   // Initialize Scalekit client
+   // Use case: Register all available actions in your project management app
+   import { ScalekitClient } from "@scalekit-sdk/node";
 
-    <Tabs syncKey="tech-stack">
-    <TabItem value="node" label="Node.js">
+   const scalekit = new ScalekitClient(
+     process.env.SCALEKIT_ENVIRONMENT_URL,
+     process.env.SCALEKIT_CLIENT_ID,
+     process.env.SCALEKIT_CLIENT_SECRET
+   );
 
-    ```javascript title="Create permissions" wrap collapse={1-9}
-    // Initialize Scalekit client
-    // Use case: Register all available actions in your project management app
-    import { ScalekitClient } from "@scalekit-sdk/node";
+   // Define your application's permissions
+   const permissions = [
+     {
+       name: "projects:create",
+       description: "Allows users to create new projects"
+     },
+     {
+       name: "projects:read",
+       description: "Allows users to view project details"
+     },
+     {
+       name: "projects:update",
+       description: "Allows users to modify existing projects"
+     },
+     {
+       name: "projects:delete",
+       description: "Allows users to remove projects"
+     },
+     {
+       name: "tasks:assign",
+       description: "Allows users to assign tasks to team members"
+     }
+   ];
 
-    const scalekit = new ScalekitClient(
-      process.env.SCALEKIT_ENVIRONMENT_URL,
-      process.env.SCALEKIT_CLIENT_ID,
-      process.env.SCALEKIT_CLIENT_SECRET
-    );
+   // Register each permission with Scalekit
+   for (const permission of permissions) {
+     await scalekit.permission.createPermission(permission);
+     console.log(`Created permission: ${permission.name}`);
+   }
 
-    // Define your application's permissions
-    const permissions = [
-      {
-        name: "projects:create",
-        description: "Allows users to create new projects"
-      },
-      {
-        name: "projects:read",
-        description: "Allows users to view project details"
-      },
-      {
-        name: "projects:update",
-        description: "Allows users to modify existing projects"
-      },
-      {
-        name: "projects:delete",
-        description: "Allows users to remove projects"
-      },
-      {
-        name: "tasks:assign",
-        description: "Allows users to assign tasks to team members"
-      }
-    ];
+   // Your application's permissions are now registered with Scalekit
+   ```
 
-    // Register each permission with Scalekit
-    for (const permission of permissions) {
-      await scalekit.permission.createPermission(permission);
-      console.log(`Created permission: ${permission.name}`);
-    }
+   </TabItem>
+   <TabItem value="python" label="Python">
 
-    // Your application's permissions are now registered with Scalekit
-    ```
+   ```python title="Create permissions" wrap collapse={1-12}
+   # Initialize Scalekit client
+   # Use case: Register all available actions in your project management app
+   from scalekit import ScalekitClient
 
-    </TabItem>
-    <TabItem value="python" label="Python">
+   scalekit_client = ScalekitClient(
+       env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+       client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+       client_secret=os.getenv("SCALEKIT_CLIENT_SECRET")
+   )
 
-    ```python title="Create permissions" wrap collapse={1-12}
-    # Initialize Scalekit client
-    # Use case: Register all available actions in your project management app
-    from scalekit import ScalekitClient
+   # Define your application's permissions
+   from scalekit.v1.roles.roles_pb2 import CreatePermission
 
-    scalekit_client = ScalekitClient(
-        env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
-        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET")
-    )
+   permissions = [
+       CreatePermission(
+           name="projects:create",
+           description="Allows users to create new projects"
+       ),
+       CreatePermission(
+           name="projects:read",
+           description="Allows users to view project details"
+       ),
+       CreatePermission(
+           name="projects:update",
+           description="Allows users to modify existing projects"
+       ),
+       CreatePermission(
+           name="projects:delete",
+           description="Allows users to remove projects"
+       ),
+       CreatePermission(
+           name="tasks:assign",
+           description="Allows users to assign tasks to team members"
+       )
+   ]
 
-    # Define your application's permissions
-    from scalekit.v1.roles.roles_pb2 import CreatePermission
+   # Register each permission with Scalekit
+   for permission in permissions:
+       scalekit_client.permissions.create_permission(permission=permission)
+       print(f"Created permission: {permission.name}")
 
-    permissions = [
-        CreatePermission(
-            name="projects:create",
-            description="Allows users to create new projects"
-        ),
-        CreatePermission(
-            name="projects:read",
-            description="Allows users to view project details"
-        ),
-        CreatePermission(
-            name="projects:update",
-            description="Allows users to modify existing projects"
-        ),
-        CreatePermission(
-            name="projects:delete",
-            description="Allows users to remove projects"
-        ),
-        CreatePermission(
-            name="tasks:assign",
-            description="Allows users to assign tasks to team members"
-        )
-    ]
+   # Your application's permissions are now registered with Scalekit
+   ```
 
-    # Register each permission with Scalekit
-    for permission in permissions:
-        scalekit_client.permissions.create_permission(permission=permission)
-        print(f"Created permission: {permission.name}")
+   </TabItem>
+   <TabItem value="go" label="Go">
 
-    # Your application's permissions are now registered with Scalekit
-    ```
+   ```go title="Create permissions" wrap collapse={1-17}
+   // Initialize Scalekit client
+   // Use case: Register all available actions in your project management app
+   package main
 
-    </TabItem>
-    <TabItem value="go" label="Go">
+   import (
+       "context"
+       "log"
+       "github.com/scalekit-inc/scalekit-sdk-go"
+   )
 
-    ```go title="Create permissions" wrap collapse={1-17}
-    // Initialize Scalekit client
-    // Use case: Register all available actions in your project management app
-    package main
+   func main() {
+       sc := scalekit.NewScalekitClient(
+           os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+           os.Getenv("SCALEKIT_CLIENT_ID"),
+           os.Getenv("SCALEKIT_CLIENT_SECRET"),
+       )
 
-    import (
-        "context"
-        "log"
-        "github.com/scalekit-inc/scalekit-sdk-go"
-    )
+       // Define your application's permissions
+       permissions := []*scalekit.CreatePermission{
+           {
+               Name:        "projects:create",
+               Description: "Allows users to create new projects",
+           },
+           {
+               Name:        "projects:read",
+               Description: "Allows users to view project details",
+           },
+           {
+               Name:        "projects:update",
+               Description: "Allows users to modify existing projects",
+           },
+           {
+               Name:        "projects:delete",
+               Description: "Allows users to remove projects",
+           },
+           {
+               Name:        "tasks:assign",
+               Description: "Allows users to assign tasks to team members",
+           },
+       }
 
-    func main() {
-        sc := scalekit.NewScalekitClient(
-            os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
-            os.Getenv("SCALEKIT_CLIENT_ID"),
-            os.Getenv("SCALEKIT_CLIENT_SECRET"),
-        )
+       // Register each permission with Scalekit
+       for _, permission := range permissions {
+           _, err := sc.Permission().CreatePermission(ctx, permission)
+           if err != nil {
+               log.Printf("Failed to create permission: %s", permission.Name)
+               continue
+           }
+           fmt.Printf("Created permission: %s\n", permission.Name)
+       }
 
-        // Define your application's permissions
-        permissions := []*scalekit.CreatePermission{
-            {
-                Name:        "projects:create",
-                Description: "Allows users to create new projects",
-            },
-            {
-                Name:        "projects:read",
-                Description: "Allows users to view project details",
-            },
-            {
-                Name:        "projects:update",
-                Description: "Allows users to modify existing projects",
-            },
-            {
-                Name:        "projects:delete",
-                Description: "Allows users to remove projects",
-            },
-            {
-                Name:        "tasks:assign",
-                Description: "Allows users to assign tasks to team members",
-            },
-        }
+       // Your application's permissions are now registered with Scalekit
+   }
+   ```
 
-        // Register each permission with Scalekit
-        for _, permission := range permissions {
-            _, err := sc.Permission().CreatePermission(ctx, permission)
-            if err != nil {
-                log.Printf("Failed to create permission: %s", permission.Name)
-                continue
-            }
-            fmt.Printf("Created permission: %s\n", permission.Name)
-        }
+   </TabItem>
+   <TabItem value="java" label="Java">
 
-        // Your application's permissions are now registered with Scalekit
-    }
-    ```
+   ```java title="Create permissions" wrap collapse={1-11}
+   // Initialize Scalekit client
+   // Use case: Register all available actions in your project management app
+   import com.scalekit.ScalekitClient;
+   import com.scalekit.grpc.scalekit.v1.roles.*;
 
-    </TabItem>
-    <TabItem value="java" label="Java">
+   ScalekitClient scalekitClient = new ScalekitClient(
+       System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+       System.getenv("SCALEKIT_CLIENT_ID"),
+       System.getenv("SCALEKIT_CLIENT_SECRET")
+   );
 
-    ```java title="Create permissions" wrap collapse={1-11}
-    // Initialize Scalekit client
-    // Use case: Register all available actions in your project management app
-    import com.scalekit.ScalekitClient;
-    import com.scalekit.grpc.scalekit.v1.roles.*;
+   // Define your application's permissions
+   List<CreatePermission> permissions = Arrays.asList(
+       CreatePermission.newBuilder()
+           .setName("projects:create")
+           .setDescription("Allows users to create new projects")
+           .build(),
+       CreatePermission.newBuilder()
+           .setName("projects:read")
+           .setDescription("Allows users to view project details")
+           .build(),
+       CreatePermission.newBuilder()
+           .setName("projects:update")
+           .setDescription("Allows users to modify existing projects")
+           .build(),
+       CreatePermission.newBuilder()
+           .setName("projects:delete")
+           .setDescription("Allows users to remove projects")
+           .build(),
+       CreatePermission.newBuilder()
+           .setName("tasks:assign")
+           .setDescription("Allows users to assign tasks to team members")
+           .build()
+   );
 
-    ScalekitClient scalekitClient = new ScalekitClient(
-        System.getenv("SCALEKIT_ENVIRONMENT_URL"),
-        System.getenv("SCALEKIT_CLIENT_ID"),
-        System.getenv("SCALEKIT_CLIENT_SECRET")
-    );
+   // Register each permission with Scalekit
+   for (CreatePermission permission : permissions) {
+       try {
+           CreatePermissionRequest request = CreatePermissionRequest.newBuilder()
+               .setPermission(permission)
+               .build();
 
-    // Define your application's permissions
-    List<CreatePermission> permissions = Arrays.asList(
-        CreatePermission.newBuilder()
-            .setName("projects:create")
-            .setDescription("Allows users to create new projects")
-            .build(),
-        CreatePermission.newBuilder()
-            .setName("projects:read")
-            .setDescription("Allows users to view project details")
-            .build(),
-        CreatePermission.newBuilder()
-            .setName("projects:update")
-            .setDescription("Allows users to modify existing projects")
-            .build(),
-        CreatePermission.newBuilder()
-            .setName("projects:delete")
-            .setDescription("Allows users to remove projects")
-            .build(),
-        CreatePermission.newBuilder()
-            .setName("tasks:assign")
-            .setDescription("Allows users to assign tasks to team members")
-            .build()
-    );
+           scalekitClient.permissions().createPermission(request);
+           System.out.println("Created permission: " + permission.getName());
+       } catch (Exception e) {
+           System.err.println("Error creating permission: " + e.getMessage());
+       }
+   }
 
-    // Register each permission with Scalekit
-    for (CreatePermission permission : permissions) {
-        try {
-            CreatePermissionRequest request = CreatePermissionRequest.newBuilder()
-                .setPermission(permission)
-                .build();
+   // Your application's permissions are now registered with Scalekit
+   ```
 
-            scalekitClient.permissions().createPermission(request);
-            System.out.println("Created permission: " + permission.getName());
-        } catch (Exception e) {
-            System.err.println("Error creating permission: " + e.getMessage());
-        }
-    }
+   </TabItem>
+   </Tabs>
 
-    // Your application's permissions are now registered with Scalekit
-    ```
+2. ## Register roles your applications will use
 
-    </TabItem>
-    </Tabs>
+   Once you have defined permissions, group them into roles that match your application's access patterns.
 
-2. ## Register roles your apps will use
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
 
-    Once you have defined permissions, group them into roles that match your application's access patterns.
+   ```javascript title="Create roles with permissions" wrap
+   // Define roles with their associated permissions
+   // Use case: Create standard roles for your project management application
+   const roles = [
+     {
+       name: 'project_admin',
+       display_name: 'Project Administrator',
+       description: 'Full access to manage projects and team members',
+       permissions: [
+         'projects:create', 'projects:read', 'projects:update', 'projects:delete',
+         'tasks:assign'
+       ]
+     },
+     {
+       name: 'project_manager',
+       display_name: 'Project Manager',
+       description: 'Can manage projects and assign tasks',
+       permissions: [
+         'projects:create', 'projects:read', 'projects:update',
+         'tasks:assign'
+       ]
+     },
+     {
+       name: 'team_member',
+       display_name: 'Team Member',
+       description: 'Can view projects and participate in tasks',
+       permissions: [
+         'projects:read'
+       ]
+     }
+   ];
 
-    <Tabs syncKey="tech-stack">
-    <TabItem value="node" label="Node.js">
+   // Register each role with Scalekit
+   for (const role of roles) {
+     await scalekit.role.createRole(role);
+     console.log(`Created role: ${role.name}`);
+   }
 
-    ```javascript title="Create roles with permissions" wrap
-    // Define roles with their associated permissions
-    // Use case: Create standard roles for your project management application
-    const roles = [
-      {
-        name: 'project_admin',
-        display_name: 'Project Administrator',
-        description: 'Full access to manage projects and team members',
-        permissions: [
-          'projects:create', 'projects:read', 'projects:update', 'projects:delete',
-          'tasks:assign'
-        ]
-      },
-      {
-        name: 'project_manager',
-        display_name: 'Project Manager',
-        description: 'Can manage projects and assign tasks',
-        permissions: [
-          'projects:create', 'projects:read', 'projects:update',
-          'tasks:assign'
-        ]
-      },
-      {
-        name: 'team_member',
-        display_name: 'Team Member',
-        description: 'Can view projects and participate in tasks',
-        permissions: [
-          'projects:read'
-        ]
-      }
-    ];
+   // Your application's roles are now registered with Scalekit
+   ```
 
-    // Register each role with Scalekit
-    for (const role of roles) {
-      await scalekit.role.createRole(role);
-      console.log(`Created role: ${role.name}`);
-    }
+   </TabItem>
+   <TabItem value="python" label="Python">
 
-    // Your application's roles are now registered with Scalekit
-    ```
+   ```python title="Create roles with permissions" wrap
+   # Define roles with their associated permissions
+   # Use case: Create standard roles for your project management application
+   from scalekit.v1.roles.roles_pb2 import CreateRole
 
-    </TabItem>
-    <TabItem value="python" label="Python">
+   roles = [
+       CreateRole(
+           name="project_admin",
+           display_name="Project Administrator",
+           description="Full access to manage projects and team members",
+           permissions=["projects:create", "projects:read", "projects:update", "projects:delete", "tasks:assign"]
+       ),
+       CreateRole(
+           name="project_manager",
+           display_name="Project Manager",
+           description="Can manage projects and assign tasks",
+           permissions=["projects:create", "projects:read", "projects:update", "tasks:assign"]
+       ),
+       CreateRole(
+           name="team_member",
+           display_name="Team Member",
+           description="Can view projects and participate in tasks",
+           permissions=["projects:read"]
+       )
+   ]
 
-    ```python title="Create roles with permissions" wrap
-    # Define roles with their associated permissions
-    # Use case: Create standard roles for your project management application
-    from scalekit.v1.roles.roles_pb2 import CreateRole
+   # Register each role with Scalekit
+   for role in roles:
+       scalekit_client.roles.create_role(role=role)
+       print(f"Created role: {role.name}")
 
-    roles = [
-        CreateRole(
-            name="project_admin",
-            display_name="Project Administrator",
-            description="Full access to manage projects and team members",
-            permissions=["projects:create", "projects:read", "projects:update", "projects:delete", "tasks:assign"]
-        ),
-        CreateRole(
-            name="project_manager",
-            display_name="Project Manager",
-            description="Can manage projects and assign tasks",
-            permissions=["projects:create", "projects:read", "projects:update", "tasks:assign"]
-        ),
-        CreateRole(
-            name="team_member",
-            display_name="Team Member",
-            description="Can view projects and participate in tasks",
-            permissions=["projects:read"]
-        )
-    ]
+   # Your application's roles are now registered with Scalekit
+   ```
 
-    # Register each role with Scalekit
-    for role in roles:
-        scalekit_client.roles.create_role(role=role)
-        print(f"Created role: {role.name}")
+   </TabItem>
+   <TabItem value="go" label="Go">
 
-    # Your application's roles are now registered with Scalekit
-    ```
+   ```go title="Create roles with permissions" wrap
+   // Define roles with their associated permissions
+   // Use case: Create standard roles for your project management application
+   roles := []*scalekit.CreateRole{
+       {
+           Name:        "project_admin",
+           DisplayName: "Project Administrator",
+           Description: "Full access to manage projects and team members",
+           Permissions: []string{"projects:create", "projects:read", "projects:update", "projects:delete", "tasks:assign"},
+       },
+       {
+           Name:        "project_manager",
+           DisplayName: "Project Manager",
+           Description: "Can manage projects and assign tasks",
+           Permissions: []string{"projects:create", "projects:read", "projects:update", "tasks:assign"},
+       },
+       {
+           Name:        "team_member",
+           DisplayName: "Team Member",
+           Description: "Can view projects and participate in tasks",
+           Permissions: []string{"projects:read"},
+       },
+   }
 
-    </TabItem>
-    <TabItem value="go" label="Go">
+   // Register each role with Scalekit
+   for _, role := range roles {
+       _, err := sc.Role().CreateRole(ctx, role)
+       if err != nil {
+           log.Printf("Failed to create role: %s", role.Name)
+           continue
+       }
+       fmt.Printf("Created role: %s\n", role.Name)
+   }
 
-    ```go title="Create roles with permissions" wrap
-    // Define roles with their associated permissions
-    // Use case: Create standard roles for your project management application
-    roles := []*scalekit.CreateRole{
-        {
-            Name:        "project_admin",
-            DisplayName: "Project Administrator",
-            Description: "Full access to manage projects and team members",
-            Permissions: []string{"projects:create", "projects:read", "projects:update", "projects:delete", "tasks:assign"},
-        },
-        {
-            Name:        "project_manager",
-            DisplayName: "Project Manager",
-            Description: "Can manage projects and assign tasks",
-            Permissions: []string{"projects:create", "projects:read", "projects:update", "tasks:assign"},
-        },
-        {
-            Name:        "team_member",
-            DisplayName: "Team Member",
-            Description: "Can view projects and participate in tasks",
-            Permissions: []string{"projects:read"},
-        },
-    }
+   // Your application's roles are now registered with Scalekit
+   ```
 
-    // Register each role with Scalekit
-    for _, role := range roles {
-        _, err := sc.Role().CreateRole(ctx, role)
-        if err != nil {
-            log.Printf("Failed to create role: %s", role.Name)
-            continue
-        }
-        fmt.Printf("Created role: %s\n", role.Name)
-    }
+   </TabItem>
+   <TabItem value="java" label="Java">
 
-    // Your application's roles are now registered with Scalekit
-    ```
+   ```java title="Create roles with permissions" wrap
+   // Define roles with their associated permissions
+   // Use case: Create standard roles for your project management application
+   List<CreateRole> roles = Arrays.asList(
+       CreateRole.newBuilder()
+           .setName("project_admin")
+           .setDisplayName("Project Administrator")
+           .setDescription("Full access to manage projects and team members")
+           .addAllPermissions(Arrays.asList("projects:create", "projects:read", "projects:update", "projects:delete", "tasks:assign"))
+           .build(),
+       CreateRole.newBuilder()
+           .setName("project_manager")
+           .setDisplayName("Project Manager")
+           .setDescription("Can manage projects and assign tasks")
+           .addAllPermissions(Arrays.asList("projects:create", "projects:read", "projects:update", "tasks:assign"))
+           .build(),
+       CreateRole.newBuilder()
+           .setName("team_member")
+           .setDisplayName("Team Member")
+           .setDescription("Can view projects and participate in tasks")
+           .addPermissions("projects:read")
+           .build()
+   );
 
-    </TabItem>
-    <TabItem value="java" label="Java">
+   // Register each role with Scalekit
+   for (CreateRole role : roles) {
+       try {
+           CreateRoleRequest request = CreateRoleRequest.newBuilder()
+               .setRole(role)
+               .build();
 
-    ```java title="Create roles with permissions" wrap
-    // Define roles with their associated permissions
-    // Use case: Create standard roles for your project management application
-    List<CreateRole> roles = Arrays.asList(
-        CreateRole.newBuilder()
-            .setName("project_admin")
-            .setDisplayName("Project Administrator")
-            .setDescription("Full access to manage projects and team members")
-            .addAllPermissions(Arrays.asList("projects:create", "projects:read", "projects:update", "projects:delete", "tasks:assign"))
-            .build(),
-        CreateRole.newBuilder()
-            .setName("project_manager")
-            .setDisplayName("Project Manager")
-            .setDescription("Can manage projects and assign tasks")
-            .addAllPermissions(Arrays.asList("projects:create", "projects:read", "projects:update", "tasks:assign"))
-            .build(),
-        CreateRole.newBuilder()
-            .setName("team_member")
-            .setDisplayName("Team Member")
-            .setDescription("Can view projects and participate in tasks")
-            .addPermissions("projects:read")
-            .build()
-    );
+           scalekitClient.roles().createRole(request);
+           System.out.println("Created role: " + role.getName());
+       } catch (Exception e) {
+           System.err.println("Error creating role: " + e.getMessage());
+       }
+   }
 
-    // Register each role with Scalekit
-    for (CreateRole role : roles) {
-        try {
-            CreateRoleRequest request = CreateRoleRequest.newBuilder()
-                .setRole(role)
-                .build();
+   // Your application's roles are now registered with Scalekit
+   ```
 
-            scalekitClient.roles().createRole(request);
-            System.out.println("Created role: " + role.getName());
-        } catch (Exception e) {
-            System.err.println("Error creating role: " + e.getMessage());
-        }
-    }
-
-    // Your application's roles are now registered with Scalekit
-    ```
-
-    </TabItem>
-    </Tabs>
-
+   </TabItem>
+   </Tabs>
 </Steps>
 
 
