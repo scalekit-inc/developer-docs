@@ -163,6 +163,7 @@ export const sidebar = [
         items: [
           'dev-kit/sdks/overview',
           'dev-kit/mcp',
+          'dev-kit/resources/ai-assisted-setup',
           {
             label: 'Postman collections',
             link: 'https://github.com/scalekit-inc/api-collections',
@@ -179,15 +180,12 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Basics',
+        label: 'Authentication fundamentals',
         items: [
           'authenticate/installation',
           'sso/guides/authorization-url',
           'sso/guides/sso-user-attributes',
-          'dev-kit/resources/ai-assisted-setup',
           'guides/dashboard/allowed-callback-url',
-          'browse/code-samples/gists/client-credentials-auth',
-          'browse/code-samples/gists/auth-code-exchange-scalekit-sdk',
         ],
       },
       {
@@ -201,6 +199,8 @@ export const sidebar = [
           'guides/dashboard/redirects',
           'browse/vids/fsa-walkthrough',
           'browse/vids/passwordless-walkthrough',
+          'browse/code-samples/gists/client-credentials-auth',
+          'browse/code-samples/gists/auth-code-exchange-scalekit-sdk',
           {
             label: 'Build with Next.js',
             link: '/browse/code-samples/github/nextjs-full-stack-auth',
@@ -236,17 +236,13 @@ export const sidebar = [
         ],
       },
       {
-        label: 'User management',
-        collapsed: false,
+        label: 'API authentication',
         items: [
-          'guides/user-management/scim-provisioning',
-          'fsa/guides/signup-restrictions',
-          'fsa/guides/user-invitations',
-          'guides/user-management/manage-org-memberships',
-          'fsa/guides/migration-guide',
-          'fsa/guides/organization-identifiers',
-          'fsa/guides/merge-identities',
-          'fsa/reference/user-management-settings',
+          'guides/m2m/overview',
+          'm2m/quickstart',
+          'guides/m2m/m2m-basics',
+          'guides/m2m/scopes',
+          'guides/m2m/api-auth-m2m-clients',
         ],
       },
       {
@@ -264,6 +260,7 @@ export const sidebar = [
           'directory/guides/user-provisioning-basics',
           'directory/guides/scim-protocol',
           'browse/vids/mcp-oauth-walkthrough',
+          'guides/user-auth/check-sso-domain',
           {
             label: 'Express.js SSO demo',
             link: '/browse/code-samples/github/expressjs-sso-demo',
@@ -296,38 +293,32 @@ export const sidebar = [
         ],
       },
       {
-        label: 'API Auth',
+        label: 'User & organization management',
+        collapsed: false,
         items: [
-          'guides/m2m/overview',
-          'm2m/quickstart',
-          'guides/m2m/m2m-basics',
-          'guides/m2m/scopes',
-          'guides/m2m/api-auth-m2m-clients',
+          'guides/user-management/scim-provisioning',
+          'fsa/guides/signup-restrictions',
+          'fsa/guides/user-invitations',
+          'guides/user-management/manage-org-memberships',
+          'fsa/guides/migration-guide',
+          'fsa/guides/organization-identifiers',
+          'fsa/guides/merge-identities',
+          'fsa/reference/user-management-settings',
         ],
       },
       {
-        label: 'Customize workflows',
+        label: 'Authorization',
         items: [
-          'authenticate/interceptors/interceptor-scenarios',
+          'dev-kit/resources/authorization-best-practices',
           'directory/guides/group-based-role-assignment',
         ],
       },
       {
-        label: 'Best practices',
-        collapsed: false,
-        items: [
-          'guides/user-auth/check-sso-domain',
-          'guides/security/authentication-best-practices',
-          'guides/security/csrf-protection',
-          'dev-kit/resources/authorization-best-practices',
-          'guides/client-credentials-practices',
-          'guides/webhooks-best-practices',
-          'guides/user-auth/preserve-intended-destination',
-          'guides/user-auth/external-id-system-integration',
-        ],
+        label: 'Authentication workflows',
+        items: ['authenticate/interceptors/interceptor-scenarios'],
       },
       {
-        label: 'Integrations',
+        label: 'Third-party integrations',
         items: [
           {
             label: 'Firebase integration',
@@ -348,13 +339,10 @@ export const sidebar = [
         ],
       },
       {
-        label: 'MCP Auth',
-        collapsed: false,
-        items: ['mcp/intro-to-mcp-auth', 'mcp/guides/custom-auth'],
-      },
-      {
-        label: 'Agent & AI examples',
+        label: 'AI & agent authentication',
         items: [
+          'mcp/intro-to-mcp-auth',
+          'mcp/guides/custom-auth',
           {
             label: 'LangChain integration',
             link: '/browse/code-samples/github/langchain-integration',
@@ -374,24 +362,15 @@ export const sidebar = [
         ],
       },
       {
-        label: 'SDK examples',
+        label: 'Best practices',
+        collapsed: false,
         items: [
-          {
-            label: 'Node.js SDK examples',
-            link: '/browse/code-samples/github/nodejs-sdk',
-          },
-          {
-            label: 'Python SDK examples',
-            link: '/browse/code-samples/github/python-sdk',
-          },
-          {
-            label: 'Java SDK examples',
-            link: '/browse/code-samples/github/java-sdk',
-          },
-          {
-            label: 'Go SDK examples',
-            link: '/browse/code-samples/github/go-sdk',
-          },
+          'guides/security/authentication-best-practices',
+          'guides/security/csrf-protection',
+          'guides/client-credentials-practices',
+          'guides/webhooks-best-practices',
+          'guides/user-auth/preserve-intended-destination',
+          'guides/user-auth/external-id-system-integration',
         ],
       },
       {
@@ -490,13 +469,12 @@ export const topics = {
     '/authenticate/interceptors/interceptor-scenarios',
     '/guides/dashboard/redirects',
     '/guides/external-ids-and-metadata',
-    '/guides/client-credentials-practices',
-    '/guides/webhooks-best-practices',
     '/guides/idtoken-claims',
     '/guides/unlisted/passwordless-as-service',
     '/browse/**/*', // Code samples and videos
     '/guides/user-auth/**/*', // User auth guides and examples
     '/guides/security/**/*', // Security best practices
+    '/guides/m2m/**/*', // M2M authentication guides
     // Specific FSA implementation guides that appear in dev-kit sidebar
     '/fsa/guides/implement-signup',
     '/fsa/guides/login-page-branding',
@@ -524,7 +502,13 @@ export const topics = {
     '/directory/guides/scim-protocol',
     '/directory/guides/group-based-role-assignment',
     // MCP guides that appear in dev-kit
-    '/mcp/guides/custom-auth',
+    '/mcp/**/*',
+    // User management guides
+    '/guides/user-management/**/*',
+    // Authorization and best practices guides
+    '/dev-kit/resources/**',
+    '/guides/client-credentials-practices',
+    '/guides/webhooks-best-practices',
   ], // Developer resources and implementation guides
   integrations: ['/guides/integrations/**/*'], // Integration guide pages
   'events-reference': [
