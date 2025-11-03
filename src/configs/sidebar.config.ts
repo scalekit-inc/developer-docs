@@ -34,7 +34,6 @@ export const sidebar = [
         items: [
           'fsa/data-modelling',
           'authenticate/manage-users-orgs/create-organization',
-          'authenticate/manage-users-orgs/custom-user-attributes',
           'authenticate/manage-organizations/add-users-to-organization',
           'authenticate/manage-organizations/remove-users-from-organization',
           'authenticate/manage-users-orgs/delete-users-and-organizations',
@@ -51,8 +50,13 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Customize workflows',
+        label: 'Customize',
         items: [
+          'guides/custom-domain',
+          'fsa/guides/login-page-branding',
+          'guides/email-providers',
+          'guides/dashboard/custom-email-templates',
+          'authenticate/manage-users-orgs/custom-user-attributes',
           'authenticate/interceptors/auth-flow-interceptors',
           'authenticate/implement-workflows/implement-webhooks',
         ],
@@ -69,18 +73,8 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Customize branding',
-        collapsed: false,
-        items: [
-          'guides/custom-domain',
-          'fsa/guides/login-page-branding',
-          'guides/email-providers',
-          'guides/dashboard/custom-email-templates',
-        ],
-      },
-      {
         label: 'Go Live',
-        items: ['guides/dashboard/auth-logs', 'authenticate/launch-checklist'],
+        items: ['authenticate/launch-checklist', 'guides/dashboard/auth-logs'],
       },
     ],
   },
