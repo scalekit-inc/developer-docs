@@ -14,6 +14,7 @@ import IconLucideWrench from '~icons/lucide/wrench'
 
 // Content type icons
 import IconLucideFileVideoCamera from '~icons/lucide/file-video-camera'
+import IconLucideVideo from '~icons/lucide/video'
 import IconLucideSquareCode from '~icons/lucide/square-code'
 import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 import IconMaterialSymbolsCodeRounded from '~icons/material-symbols/code-rounded'
@@ -110,7 +111,7 @@ export const iconMap = {
   integrations: IconLucideWrench,
 
   // Content type icons
-  video: IconLucideFileVideoCamera,
+  video: IconLucideVideo,
   'code-sample': IconLucideSquareCode,
   book: IconLucideBookOpenText,
   code: IconMaterialSymbolsCodeRounded,
