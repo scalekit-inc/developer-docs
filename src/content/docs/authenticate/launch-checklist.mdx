@@ -1,104 +1,121 @@
 ---
 title: Launch checklist
-description: Ensure your authentication system is production-ready
-tableOfContents: false
+description: A focused checklist for delivering a production-ready authentication system that’s secure, reliable, and compliant
+tableOfContents: true
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+      /* Hide bullets on checkbox lists */
+      .sl-markdown-content ul:has(input[type="checkbox"]) {
+        list-style: none;
+        padding-left: 0;
+      }
+      .sl-markdown-content ul:has(input[type="checkbox"]) li {
+        list-style: none;
+      }
 ---
 
-import { Card, Steps } from '@astrojs/starlight/components'
+import { Card, Steps, Aside, Badge } from '@astrojs/starlight/components'
 
-## Production Readiness Checklist
+Before launching your authentication system to production, you need to ensure that every aspect of your implementation is secure, tested, and ready for real users. This comprehensive checklist covers security configuration, authentication flows, user management, monitoring, and compliance requirements.
 
-Use this checklist to ensure your authentication implementation is ready for production deployment.
+Use this checklist systematically to verify that your authentication implementation meets production standards. Each section addresses critical aspects of a production-ready authentication system, from security hardening to user experience testing.
 
-<Steps>
+<Aside type="tip" title="Track your progress">
+  Copy this checklist to your project management tool or create a spreadsheet to track completion status and assign owners for each item.
+</Aside>
 
-1. **Security Configuration**
+## Common security practices
 
-   - [ ] Enable HTTPS for all authentication endpoints
-   - [ ] Configure proper CORS settings
-   - [ ] Set up secure session management
-   - [ ] Implement CSRF protection
-   - [ ] Review and rotate API credentials
-   - [ ] Configure rate limiting
+Ensure your authentication system is hardened against common security threats.
 
-2. **Authentication Flow**
+- [ ] Enable HTTPS for all authentication endpoints (prevents token interception)
+- [ ] Configure proper CORS settings (restrict allowed origins to your domains)
+- [ ] Set up secure session management with `httpOnly`, `secure`, and `sameSite` flags
+- [ ] Review and rotate API credentials (store in environment variables, never commit to code)
+- [ ] Configure rate limiting to prevent brute force attacks
+- [ ] Validate redirect URLs match your configured callback URLs exactly
 
-   - [ ] Test all sign-up flows
-   - [ ] Test all login methods
-   - [ ] Verify logout functionality
-   - [ ] Test session timeout and refresh
-   - [ ] Verify redirect URLs are correct
-   - [ ] Test error handling and edge cases
+## Authentication flows
 
-3. **User Management**
+Verify all authentication paths work correctly from initiation to completion.
 
-   - [ ] Configure user profile fields
-   - [ ] Set up organization management
-   - [ ] Configure role-based access control
-   - [ ] Set allowed email domains
-   - [ ] Configure user invitation flow
-   - [ ] Review [user management settings](/fsa/reference/user-management-settings)
+- [ ] Test all sign-up flows (email/password, social login, magic links)
+- [ ] Test all login methods with valid and invalid credentials
+- [ ] Verify logout functionality clears sessions completely
+- [ ] Test session timeout and automatic token refresh
+- [ ] Verify redirect URLs match your dashboard configuration exactly
+- [ ] Test error handling for expired tokens, invalid codes, and network failures
+- [ ] Validate `state` parameter in callbacks to prevent CSRF attacks
+- [ ] Test the complete flow end-to-end in a staging environment
 
-4. **Branding & Customization**
+## User management
 
-   - [ ] Brand your login page
-   - [ ] Customize email templates
-   - [ ] Configure custom domain (if applicable)
-   - [ ] Set up email provider
-   - [ ] Review [branding guide](/fsa/guides/login-page-branding)
+Configure how users and organizations are managed in your application.
 
-5. **SSO Configuration** (if applicable)
+- [ ] Configure user profile fields you need to collect during sign-up
+- [ ] Set up organization management (workspaces, teams, tenants)
+- [ ] Configure role-based access control (RBAC) and assign default roles
+- [ ] Set allowed email domains for organization sign-ups (if applicable)
+- [ ] Configure user invitation flow and email templates
+- [ ] Test user profile updates and data synchronization
+- [ ] Verify organization switching works for users in multiple organizations
+- [ ] Review [user management settings](/fsa/reference/user-management-settings) in your dashboard
 
-   - [ ] Test SSO integrations
-   - [ ] Configure SSO user attributes
-   - [ ] Set up admin portal for customers
-   - [ ] Test IdP-initiated SSO
-   - [ ] Review [SSO launch checklist](/sso/guides/launch-checklist)
+## Branding & customization
 
-6. **SCIM Provisioning** (if applicable)
+Ensure your authentication experience matches your brand identity.
 
-   - [ ] Configure webhook endpoints
-   - [ ] Test user provisioning flow
-   - [ ] Test user deprovisioning flow
-   - [ ] Set up group-based role assignment
-   - [ ] Review [directory sync guide](/guides/admin-portal)
+- [ ] Brand your login page with your logo, colors, and styling
+- [ ] Customize email templates for sign-up, password reset, and invitations
+- [ ] Configure custom domain for authentication pages (if applicable)
+- [ ] Set up your preferred email provider in **Dashboard > Customization > Emails**
+- [ ] Test email deliverability and check spam folders
 
-7. **Monitoring & Logs**
+## SSO flows
 
-   - [ ] Set up authentication logs monitoring
-   - [ ] Configure alerts for failed login attempts
-   - [ ] Set up webhook event monitoring
-   - [ ] Review [auth logs](/guides/dashboard/auth-logs)
-   - [ ] Configure [webhook best practices](/guides/webhooks-best-practices)
+If you're enabling enterprise SSO for your customers, verify these items.
 
-8. **Testing & Validation**
+- [ ] Test SSO integrations with your target identity providers (Okta, Azure AD, Google Workspace)
+- [ ] Configure SSO user attribute mapping (email, name, groups)
+- [ ] Set up admin portal for enterprise customers to configure their SSO
+- [ ] Test both SP-initiated and IdP-initiated SSO flows
+- [ ] Verify SSO error handling for misconfigured connections
+- [ ] Test SSO with different user scenarios (new users, existing users, deactivated users)
 
-   - [ ] Perform end-to-end testing
-   - [ ] Test with different user types
-   - [ ] Validate mobile responsiveness
-   - [ ] Test across different browsers
-   - [ ] Verify accessibility standards
-   - [ ] Load test authentication endpoints
+## SCIM provisioning
 
-9. **Documentation & Training**
+If you're enabling directory sync and automated user provisioning for enterprise customers.
 
-   - [ ] Document authentication flow for your team
-   - [ ] Prepare user guides for end users
-   - [ ] Train support team on common auth issues
-   - [ ] Document API integration points
+- [ ] Configure webhook endpoints to receive SCIM events
+- [ ] Verify webhook security with signature validation
+- [ ] Test user provisioning flow (create users automatically)
+- [ ] Test user deprovisioning flow (deactivate/delete users automatically)
+- [ ] Test user updates (profile changes, role updates)
+- [ ] Set up group-based role assignment and synchronization
+- [ ] Test error scenarios (duplicate users, invalid data)
 
-10. **Compliance & Legal**
+## Monitoring continuously
 
-    - [ ] Review privacy policy
-    - [ ] Configure data retention policies
-    - [ ] Ensure GDPR compliance (if applicable)
-    - [ ] Review terms of service
-    - [ ] Set up data export capabilities
+Set up monitoring to track authentication activity and troubleshoot issues quickly.
 
-</Steps>
-
-After launching, continue to:
-
-- Monitor [authentication logs](/guides/dashboard/auth-logs/)
-- Stay updated with [release notes](https://www.scalekit.com/product-updates)
-- Gather user feedback on the auth experience
+- [ ] Set up authentication logs monitoring in **Dashboard > Auth Logs**
+- [ ] Configure alerts for suspicious activity (multiple failed login attempts, unusual locations)
+- [ ] Set up webhook event monitoring and logging
+- [ ] Create dashboards for key metrics (sign-ups, logins, failures, session durations)
+- [ ] Set up error tracking for authentication failures
+- [ ] Configure log retention policies
+- [ ] Test webhook delivery and retry mechanisms
+- [ ] Review [auth logs](/guides/dashboard/auth-logs) documentation
+- [ ] Configure [webhook best practices](/guides/webhooks-best-practices) for reliable event handling
