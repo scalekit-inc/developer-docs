@@ -7,50 +7,70 @@ tableOfContents: true
 slug: reference/admin-portal/ui-events
 ---
 
-import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import { Aside, Badge } from '@astrojs/starlight/components';
 
-Listen to the browser events emitted from the embedded admin portal to perform actions on your app. For example, showing a notification when the Single sign-on connection is enabled.
+The embedded admin portal emits browser events that allow your application to respond to configuration changes made by organization admins. Use these events to provide real-time feedback, update your UI, sync configuration state, or trigger workflows in your application.
 
-To listen to these events:
+Common use cases include displaying success notifications when SSO is configured, refreshing authentication settings after directory sync is enabled, or prompting users to re-authenticate when their admin portal session expires.
 
-1. Add a listener to the parent window.
-2. Check the event origin and type to determine the action to take.
-3. Handle the event data as needed.
+## Listening to admin portal events
 
-```js {3,5} title="Listening to events from the embedded admin portal"
-window.onmessage = event => {
-  if (
-    event.origin === '<SCALEKIT_ENVIRONMENT_URL>' &&
-    event.data &&
-    event.data.event_type === '<EVENT_TYPE>'
-  ) {
-    console.log(event.data); // Handle the event data
+Add an event listener to your parent window to receive events from the embedded admin portal iframe:
+
+```js
+window.addEventListener('message', (event) => {
+  // Security: Always validate the event origin matches your Scalekit environment
+  if (event.origin !== 'https://your-env.scalekit.com') {
+    return; // Ignore events from untrusted sources
   }
-};
+
+  // Check if this is a valid admin portal event
+  if (event.data && event.data.event_type) {
+    const { event_type, organization_id, data } = event.data;
+
+    // Handle specific event types
+    switch (event_type) {
+      case 'ORGANIZATION_SSO_ENABLED':
+        // Show success notification, refresh SSO settings, etc.
+        showNotification('SSO enabled successfully');
+        break;
+
+      case 'PORTAL_SESSION_EXPIRY':
+        // Prompt user to refresh the admin portal
+        promptSessionRefresh();
+        break;
+
+      default:
+        console.log('Received event:', event.data);
+    }
+  }
+});
 ```
 
-The domain of your parent window must be listed in the Scalekit Dashboard > API Config > Redirect URIs for security purpose. Always <u>validate the `event.origin` </u> to ensure events are coming from a trusted source.
+<Aside type="caution" title="Security requirement">
+The domain of your parent window must be listed in **Dashboard > API Config > Redirect URIs** for the admin portal to emit events. Always validate `event.origin` to ensure events come from your trusted Scalekit environment URL.
+</Aside>
 
 ----
 
-## SSO Events
+## SSO events
 
 ### `ORGANIZATION_SSO_ENABLED`
 
-This event is triggered when the Single sign-on connection is enabled. The event type is `ORGANIZATION_SSO_ENABLED`
+Fires when an organization admin successfully enables a Single Sign-On connection in the admin portal.
 
 ```json title="ORGANIZATION_SSO_ENABLED"
 {
-  "event_type":"ORGANIZATION_SSO_ENABLED",
-  "object":"connection",
-  "organization_id":"org_4010340X34236531",
+  "event_type": "ORGANIZATION_SSO_ENABLED",
+  "object": "connection",
+  "organization_id": "org_4010340X34236531", // Organization that enabled SSO
   "message": "Single sign-on connection enabled successfully",
-  "data":{
-      "connection_type":"SSO",
-      "id":"conn_4256075523X312",
-      "type":"OIDC",
-      "provider":"OKTA",
-      "enabled":true
+  "data": {
+      "connection_type": "SSO",
+      "id": "conn_4256075523X312", // Connection ID for API calls
+      "type": "OIDC", // Protocol: OIDC or SAML
+      "provider": "OKTA", // Identity provider configured
+      "enabled": true
   }
 }
 ```
@@ -69,19 +89,19 @@ This event is triggered when the Single sign-on connection is enabled. The event
 
 ### `ORGANIZATION_SSO_DISABLED`
 
-This event is triggered when the Single sign-on connection is disabled. The event type is `ORGANIZATION_SSO_DISABLED`
+Fires when an organization admin disables their Single Sign-On connection in the admin portal.
 
 ```json title="ORGANIZATION_SSO_DISABLED"
 {
-   "event_type":"ORGANIZATION_SSO_DISABLED",
-   "object":"connection",
-   "organization_id":"org_4010340X34236531",
+   "event_type": "ORGANIZATION_SSO_DISABLED",
+   "object": "connection",
+   "organization_id": "org_4010340X34236531", // Organization that disabled SSO
    "message": "Single sign-on connection disabled successfully",
-   "data":{
-      "connection_type":"SSO",
-      "id":"conn_4256075523X312",
-      "type":"OIDC",
-      "provider":"OKTA",
+   "data": {
+      "connection_type": "SSO",
+      "id": "conn_4256075523X312", // Connection ID that was disabled
+      "type": "OIDC", // Protocol: OIDC or SAML
+      "provider": "OKTA", // Identity provider that was configured
       "enabled": false
    }
 }
@@ -99,11 +119,11 @@ This event is triggered when the Single sign-on connection is disabled. The even
 | `data.provider` | string | Identity provider name |
 | `data.enabled` | boolean | Indicates if the connection is enabled |
 
-## Session Events
+## Session events
 
 ### `PORTAL_SESSION_WARNING`
 
-This event is triggered when the admin portal session is about to expire. The event type is `PORTAL_SESSION_WARNING`
+Fires when the admin portal session is about to expire (typically 5 minutes before expiration). Use this to prompt users to save their work or refresh their session.
 
 ```json title="PORTAL_SESSION_WARNING"
 {
@@ -112,7 +132,7 @@ This event is triggered when the admin portal session is about to expire. The ev
   "message": "The admin portal session will expire in 5 minutes",
   "organization_id": "org_43982563588440584",
   "data": {
-    "expiry": "2025-02-28T12:40:35.911Z"
+    "expiry": "2025-02-28T12:40:35.911Z" // ISO 8601 timestamp when session expires
   }
 }
 ```
@@ -127,7 +147,7 @@ This event is triggered when the admin portal session is about to expire. The ev
 
 ### `PORTAL_SESSION_EXPIRY`
 
-This event is triggered when the admin portal session has expired. The event type is `PORTAL_SESSION_EXPIRY`
+Fires when the admin portal session has expired. Use this to hide the admin portal iframe and prompt users to re-authenticate.
 
 ```json title="PORTAL_SESSION_EXPIRY"
 {
@@ -136,7 +156,7 @@ This event is triggered when the admin portal session has expired. The event typ
   "message": "The admin portal session has expired",
   "organization_id": "org_43982563588440584",
   "data": {
-    "expiry": "2025-02-28T12:40:35.911Z"
+    "expiry": "2025-02-28T12:40:35.911Z" // ISO 8601 timestamp when session expired
   }
 }
 ```
@@ -149,22 +169,22 @@ This event is triggered when the admin portal session has expired. The event typ
 | `message` | string | Human-readable message describing the event |
 | `data.expiry` | string | ISO 8601 timestamp indicating when the session expired |
 
-## Directory Events
+## Directory events
 
 ### `ORGANIZATION_DIRECTORY_ENABLED`
 
-This event is triggered when SCIM Provisioning is enabled. The event type is `ORGANIZATION_DIRECTORY_ENABLED`
+Fires when an organization admin successfully configures and enables SCIM directory provisioning in the admin portal.
 
 ```json title="ORGANIZATION_DIRECTORY_ENABLED"
 {
     "event_type": "ORGANIZATION_DIRECTORY_ENABLED",
     "object": "directory",
-    "organization_id": "org_45716217859670289",
+    "organization_id": "org_45716217859670289", // Organization that enabled directory sync
     "message": "SCIM Provisioning enabled successfully",
     "data": {
-        "directory_type": "SCIM",
-        "id": "dir_45716228982964495",
-        "provider": "MICROSOFT_AD",
+        "directory_type": "SCIM", // Directory protocol type
+        "id": "dir_45716228982964495", // Directory connection ID for API calls
+        "provider": "MICROSOFT_AD", // Identity provider: OKTA, AZURE_AD, GOOGLE, etc.
         "enabled": true
     }
 }
@@ -183,18 +203,18 @@ This event is triggered when SCIM Provisioning is enabled. The event type is `OR
 
 ### `ORGANIZATION_DIRECTORY_DISABLED`
 
-This event is triggered when SCIM Provisioning is disabled. The event type is `ORGANIZATION_DIRECTORY_DISABLED`
+Fires when an organization admin disables SCIM directory provisioning in the admin portal.
 
 ```json title="ORGANIZATION_DIRECTORY_DISABLED"
 {
     "event_type": "ORGANIZATION_DIRECTORY_DISABLED",
     "object": "directory",
-    "organization_id": "org_45716217859670289",
+    "organization_id": "org_45716217859670289", // Organization that disabled directory sync
     "message": "SCIM Provisioning disabled successfully",
     "data": {
-        "directory_type": "SCIM",
-        "id": "dir_45716228982964495",
-        "provider": "MICROSOFT_AD",
+        "directory_type": "SCIM", // Directory protocol type
+        "id": "dir_45716228982964495", // Directory connection ID that was disabled
+        "provider": "MICROSOFT_AD", // Identity provider that was configured
         "enabled": false
     }
 }
@@ -211,7 +231,105 @@ This event is triggered when SCIM Provisioning is disabled. The event type is `O
 | `data.provider` | string | Identity provider name |
 | `data.enabled` | boolean | Indicates if the directory sync is enabled |
 
-<Aside type="caution" title="Considerations">
-1. The domain of your parent window must be listed in the Scalekit Dashboard > API Config > Redirect URIs for security purpose
-2. Always validate the `event.origin` to ensure events are coming from a trusted source.
-</Aside>
+
+
+## Complete event handler <Badge type="default" text="Example" />
+
+Here's a complete example showing how to handle all admin portal events in a production application:
+
+```js title="Complete admin portal event handler"
+// Initialize event handling for the admin portal
+function initAdminPortalEventHandling(scalekitEnvironmentUrl) {
+  window.addEventListener('message', (event) => {
+    // Security: Validate event origin
+    if (event.origin !== scalekitEnvironmentUrl) {
+      return;
+    }
+
+    if (!event.data || !event.data.event_type) {
+      return;
+    }
+
+    const { event_type, organization_id, data, message } = event.data;
+
+    // Log all events for debugging
+    console.log('[Admin Portal Event]', { event_type, organization_id, data });
+
+    switch (event_type) {
+      case 'ORGANIZATION_SSO_ENABLED':
+        handleSSOEnabled(organization_id, data);
+        break;
+
+      case 'ORGANIZATION_SSO_DISABLED':
+        handleSSODisabled(organization_id, data);
+        break;
+
+      case 'ORGANIZATION_DIRECTORY_ENABLED':
+        handleDirectoryEnabled(organization_id, data);
+        break;
+
+      case 'ORGANIZATION_DIRECTORY_DISABLED':
+        handleDirectoryDisabled(organization_id, data);
+        break;
+
+      case 'PORTAL_SESSION_WARNING':
+        handleSessionWarning(data.expiry);
+        break;
+
+      case 'PORTAL_SESSION_EXPIRY':
+        handleSessionExpiry();
+        break;
+
+      default:
+        console.warn('Unknown event type:', event_type);
+    }
+  });
+}
+
+function handleSSOEnabled(orgId, data) {
+  // Show success notification
+  showToast('success', `SSO enabled successfully with ${data.provider}`);
+
+  // Sync configuration to your backend
+  fetch('/api/organizations/${orgId}/sync-sso', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ connectionId: data.id, provider: data.provider })
+  });
+
+  // Update UI to reflect SSO is active
+  updateOrganizationUI(orgId, { ssoEnabled: true });
+}
+
+function handleSessionWarning(expiryTime) {
+  const expiryDate = new Date(expiryTime);
+  const minutesLeft = Math.round((expiryDate - new Date()) / 60000);
+
+  showNotification({
+    type: 'warning',
+    message: `Your admin session will expire in ${minutesLeft} minutes`,
+    action: {
+      label: 'Refresh Session',
+      onClick: () => window.location.reload()
+    }
+  });
+}
+
+function handleSessionExpiry() {
+  // Hide the admin portal iframe
+  document.getElementById('admin-portal-iframe').style.display = 'none';
+
+  // Show message to user
+  showModal({
+    title: 'Session Expired',
+    message: 'Your admin portal session has expired. Please refresh to continue.',
+    action: {
+      label: 'Refresh Page',
+      onClick: () => window.location.reload()
+    }
+  });
+}
+
+// Initialize when your app loads
+initAdminPortalEventHandling('https://your-env.scalekit.com');
+```

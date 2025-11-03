@@ -18,8 +18,8 @@ tableOfContents:
   maxHeadingLevel: 3
 prev: false
 next:
-  label: Event object
-  link: /reference/webhooks/event-object/
+  label: Directory webhook events
+  link: /reference/webhooks/directory-events/
 ---
 
 import { Aside, CardGrid, Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
@@ -53,12 +53,11 @@ Key benefits include:
 - **Event-driven architecture**: Build responsive workflows that react to user actions
 - **Reliable delivery**: Scalekit ensures webhook delivery with automatic retries
 
-<details>
-<summary><IconLucideFileJson style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Webhook payload structure</summary>
+## Webhook event object
 
-All webhook payloads follow a standardized structure with metadata and event-specific data:
+All webhook payloads follow a standardized structure with metadata and event-specific data in the `data` field.
 
-```json title="Webhook event structure"
+```json title="User created event payload"
 {
   "spec_version": "1",
   "id": "evt_123456789",
@@ -68,14 +67,23 @@ All webhook payloads follow a standardized structure with metadata and event-spe
   "organization_id": "org_123456789",
   "type": "organization.directory.user_created",
   "data": {
-    // Event-specific payload
+    "user_id": "usr_123456789",
+    "email": "user@example.com",
+    "name": "John Doe"
   }
 }
 ```
 
-See the [Event object reference](/reference/webhooks/event-object/) for complete field documentation.
-
-</details>
+| Property | Description |
+|----------|-------------|
+| `spec_version` | The version of the event specification format. Currently "1". |
+| `id` | A unique identifier for the event (e.g., `evt_123456789`). |
+| `object` | The type of object that triggered the event (e.g., "DirectoryUser", "Directory", "Connection"). |
+| `environment_id` | The ID of the environment where the event occurred. |
+| `occurred_at` | ISO 8601 timestamp indicating when the event occurred. |
+| `organization_id` | The ID of the organization associated with the event. |
+| `type` | The specific event type (e.g., "organization.directory.user_created"). |
+| `data` | Event-specific payload containing details relevant to the event type. |
 
 ## Register webhook endpoints
 

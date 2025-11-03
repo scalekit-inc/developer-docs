@@ -422,7 +422,7 @@ export const sidebar = [
   {
     label: 'Events Reference',
     id: 'events-reference',
-    link: '/reference/webhooks/event-object/',
+    link: '/reference/webhooks/overview/',
     icon: 'seti:event',
     items: [
       {

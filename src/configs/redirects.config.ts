@@ -190,7 +190,8 @@ export const redirects = {
   // GENERAL / OTHER REDIRECTS
   // =============================================================================
   '/sdks': '/dev-kit/',
-  '/dev-kit/webhooks/event-object/': '/dev-kit',
+  '/dev-kit/webhooks/event-object/': '/reference/webhooks/overview/',
+  '/reference/webhooks/event-object/': '/reference/webhooks/overview/',
   '/api/webhook-events': '/reference/webhooks/directory-events/',
   '/manage-scalekit/glossary': '/reference/glossary/',
   '/contact-us': '/support/contact-us/',

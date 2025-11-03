@@ -1,115 +1,125 @@
 ---
 title: "Interceptor triggers"
+description: The points in the authentication flow where Scalekit calls your interceptor endpoint
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 sidebar:
   label: Interceptors
 ---
 
-import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
 
-## Trigger points
 {/*
-#### `POST_USER_AUTHENTICATION`
+## `POST_USER_AUTHENTICATION`
 
-<Tabs>
-<TabItem label='Request body from Scalekit'>
+Fires after a user successfully authenticates but before completing the login flow. Use this to apply post-authentication checks, validate IP addresses, or enforce conditional access policies.
 
-```json title="POST_USER_AUTHENTICATION — request body" showLineNumbers=true collapse={9-14,24-31}
+### Request body from Scalekit
+
+```json title="POST_USER_AUTHENTICATION — request body" showLineNumbers=true
 {
-    "display_name": "Block suspicious IPs",
+    "display_name": "Apply conditional access policies",
     "trigger_point": "POST_USER_AUTHENTICATION",
     "interceptor_context": {
         "environment_id": "env_12345",
         "user_id": "usr_9f8c7d6e5a",
-        "user_email": "alice@example.com",
+        "user_email": "alice@acmecorp.com",
         "connection_details": [
             {
                 "id": "conn_2f71c0",
-                "type": "PASSWORDLESS",
-                "provider": "SCALEKIT"
+                "type": "PASSWORDLESS", // Authentication method that was used
+                "provider": "SCALEKIT" // Provider for passwordless authentication
             }
         ],
-        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "device_type": "desktop",
-        "triggered_at": "2025-10-08T11:19:22.423Z"
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/537.36...",
+        "device_type": "Desktop", // Desktop, Mobile, Tablet, or Unknown
+        "ip_address": "203.0.113.45", // IP address to check against threat databases
+        "region": "US", // Two-letter country code
+        "triggered_at": "2025-10-08T11:19:22.423Z" // ISO 8601 timestamp
     },
     "data": {
-        "user": {
+        "user": { // User who just authenticated
             "id": "usr_9f8c7d6e5a",
-            "email": "alice@example.com",
+            "email": "alice@acmecorp.com",
             "email_verified": true,
-            "memberships": [
+            "memberships": [ // Organizations this user belongs to
                 {
                     "organization_id": "org_a1b2c3",
                     "status": "ACTIVE"
                 }
             ],
-            "custom_attributes": {},
-            "raw_attributes": {}
+            "custom_attributes": {}, // Custom attributes set on the user
+            "raw_attributes": {} // Raw attributes from identity provider
         }
     }
 }
 ```
 
-</TabItem>
-
-<TabItem label='Response body from your app'>
+### Response format to return
 
 ```json title="POST_USER_AUTHENTICATION — response body" showLineNumbers=true
 {
-    "decision": "ALLOW | DENY",
-    // When decision is DENY, include an error message.
+    "decision": "DENY", // Required: ALLOW to complete login, DENY to block
     "error": {
-        "message": "Sign-in blocked by policy"
+        "message": "Login blocked: Suspicious activity detected from your location" // Shown to user when DENY
     }
 }
 ```
 
-</TabItem>
-
-</Tabs> */}
+*/}
 
 
 
-#### `PRE_SIGNUP`
+## `PRE_SIGNUP`
 
+Fires before a user creates a new organization. Use this to validate email domains, check against blocklists, or enforce custom signup policies.
 
-<Tabs>
-<TabItem label='Request body from Scalekit'>
+### Request body from Scalekit
 
-```json title="PRE_SIGNUP — request body" showLineNumbers=true collapse={9-14, 27-31,}
+```json title="PRE_SIGNUP — request body" showLineNumbers=true
 {
-  "display_name": "Pre-Signup",
+  "display_name": "Validate email domain",
   "trigger_point": "PRE_SIGNUP",
   "interceptor_context": {
     "environment_id": "env_92561807201272162",
-    "user_id": "usr_93418238346728951", // Present when the user already exists (for example, member of another organization)
-    "user_email": "john.doe@example.com",
+    "user_id": "usr_93418238346728951", // Present only if user exists in another organization
+    "user_email": "john.doe@acmecorp.com", // Email attempting to sign up
     "connection_details": [
       {
         "id": "conn_92561808744978132",
-        "type": "OAUTH",
-        "provider": "GOOGLE"
+        "type": "OAUTH", // OAUTH, SAML, OIDC, or PASSWORDLESS
+        "provider": "GOOGLE" // Identity provider used for authentication
       }
     ],
-    "device_type": "Desktop",
-    "ip_address": "203.0.113.24",
-    "region": "IN",
+    "device_type": "Desktop", // Desktop, Mobile, Tablet, or Unknown
+    "ip_address": "203.0.113.24", // Client's IP address for geolocation or blocklist checks
+    "region": "IN", // Two-letter country code
     "city": "Bengaluru",
-    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
-    "triggered_at": "2025-10-09T09:48:02.875Z"
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36...",
+    "triggered_at": "2025-10-09T09:48:02.875Z" // ISO 8601 timestamp
   },
   "data": {
-    // Present when the user already exists (for example, member of another organization)
+    // User object present only when user already exists in another organization
     "user": {
       "id": "usr_93418238346728951",
       "name": "John Doe",
-      "email": "john.doe@example.com",
+      "email": "john.doe@acmecorp.com",
       "email_verified": true,
       "created_at": "2025-10-06T11:06:49.120Z",
       "updated_at": "2025-10-06T13:33:06.479Z",
       "first_name": "John",
       "last_name": "Doe",
-      "memberships": [
+      "memberships": [ // Existing organization memberships
         {
           "organization_id": "org_93418204671239864",
           "status": "ACTIVE"
@@ -120,63 +130,57 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 }
 ```
 
-</TabItem>
-
-<TabItem label='Response body from your app'>
+### Response format to return
 
 ```json title="PRE_SIGNUP — response body" wrap showLineNumbers=true
 {
-  // Required: choose ALLOW or DENY
-  "decision": "DENY", // ALLOW | DENY
-  // Optional (with DENY)
-  "error": { "message": "Email domain not allowed" }
+  "decision": "DENY", // Required: ALLOW to proceed with signup, DENY to block
+  "error": {
+    "message": "Only @acmecorp.com email addresses are allowed to sign up" // Shown to user when DENY
+  }
 }
 ```
 
-</TabItem>
+## `PRE_SESSION_CREATION`
 
-</Tabs>
+Fires before session tokens are issued for a user. Use this to add custom claims to tokens, apply conditional access policies, or integrate with external authorization systems.
 
-#### `PRE_SESSION_CREATION`
+### Request body from Scalekit
 
-<Tabs>
-<TabItem label='Request body from Scalekit'>
-
-```json title="PRE_SESSION_CREATION — request body" wrap showLineNumbers=true collapse={11-16,35-39}
-
+```json title="PRE_SESSION_CREATION — request body" wrap showLineNumbers=true
 {
   "display_name": "Add custom claims to tokens",
   "trigger_point": "PRE_SESSION_CREATION",
   "interceptor_context": {
     "environment_id": "env_92561807204567213",
     "user_id": "usr_93418238346728951",
-    "user_email": "john.doe@example.com",
-    "organization_id": "org_93418204671239864",
+    "user_email": "john.doe@acmecorp.com",
+    "organization_id": "org_93418204671239864", // Organization user is logging into
     "connection_details": [
       {
         "id": "conn_92561808744978132",
-        "type": "OAUTH",
+        "type": "OAUTH", // Authentication method used
         "provider": "GOOGLE"
       }
     ],
-    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
-    "device_type": "Desktop",
-    "ip_address": "203.0.113.24",
-    "region": "US",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36...",
+    "device_type": "Desktop", // Desktop, Mobile, Tablet, or Unknown
+    "ip_address": "203.0.113.24", // Use for conditional access based on location
+    "region": "US", // Two-letter country code
     "city": "San Francisco",
-    "triggered_at": "2025-10-08T15:22:42.381Z"
+    "triggered_at": "2025-10-08T15:22:42.381Z" // ISO 8601 timestamp
   },
   "data": {
     "user": {
       "id": "usr_93418238346728951",
       "name": "John Doe",
-      "email": "john.doe@example.com",
+      "email": "john.doe@acmecorp.com",
       "email_verified": true,
       "created_at": "2025-10-06T11:06:49.120Z",
       "updated_at": "2025-10-06T13:33:06.479Z",
       "first_name": "John",
       "last_name": "Doe",
-      "memberships": [
+      "memberships": [ // All organizations this user belongs to
         {
           "organization_id": "org_93418204671239864",
           "status": "ACTIVE"
@@ -185,130 +189,120 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
     }
   }
 }
-
 ```
-</TabItem>
 
-<TabItem label='Response body (optional claims)'>
+### Response format to return
 
 ```json title="PRE_SESSION_CREATION — response body" wrap showLineNumbers=true
 {
-  // Required: choose ALLOW or DENY
-  "decision": "ALLOW", // ALLOW | DENY
-  // Optional (with ALLOW)
+  "decision": "ALLOW", // Required: ALLOW to issue tokens, DENY to block login
   "response": {
-    "claims": {
-      "plan": "pro",
-      "region": "eu-west-1",
-      "entitlements": ["dashboards", "advanced-exports"]
+    "claims": { // Optional: Custom claims added to both access and ID tokens
+      "subscription_tier": "enterprise",
+      "data_region": "us-west-2",
+      "feature_flags": ["analytics_dashboard", "api_access", "custom_branding"],
+      "account_manager": "jane.smith@acmecorp.com"
     }
   }
 }
 ```
-</TabItem>
-
-</Tabs>
-
 
 <Aside type='note' title='Modify token claims in the response'>
  The `claims` field lets you add custom information that will be included in both access tokens and ID tokens issued by Scalekit.
 </Aside>
 
-#### `PRE_USER_INVITATION`
+## `PRE_USER_INVITATION`
 
-<Tabs>
-<TabItem label='Request body from Scalekit'>
+Fires before an invitation is created or sent for a new organization member. Use this to validate invitee email addresses, enforce invitation policies, or check user limits.
+
+### Request body from Scalekit
 
 ```json title="PRE_USER_INVITATION — request body" wrap showLineNumbers=true
 {
-    "display_name": "Block invites to suspicious emails",
+    "display_name": "Validate invitation policy",
     "trigger_point": "PRE_USER_INVITATION",
-        "interceptor_context": {
+    "interceptor_context": {
         "environment_id": "env_92561807201272162",
-        "user_id": "usr_93418238346728951", // Present when the invited user already exists (for example, member of another organization)
-        "user_email": "john.doe@example.com",
-        "organization_id": "org_93731871904672153",
+        "user_id": "usr_93418238346728951", // Present only if invitee already exists in another org
+        "user_email": "sarah.johnson@contractor.com", // Email address being invited
+        "organization_id": "org_93731871904672153", // Organization sending the invitation
         "city": "Bengaluru",
-        "device_type": "Desktop",
-        "ip_address": "182.156.5.2",
-        "region": "IN",
-        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
-        "triggered_at": "2025-10-09T12:50:41.803Z"
+        "device_type": "Desktop", // Device of the person sending the invitation
+        "ip_address": "182.156.5.2", // IP of the person sending the invitation
+        "region": "IN", // Two-letter country code
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36...",
+        "triggered_at": "2025-10-09T12:50:41.803Z" // ISO 8601 timestamp
     },
     "data": {
-        "organization": {
+        "organization": { // Organization details for context
             "id": "org_93731871904672153",
             "name": "Acme Corp"
         }
     }
 }
 ```
-</TabItem>
 
-<TabItem label='Response body from your app'>
+### Response format to return
 
 ```json title="PRE_USER_INVITATION — response body" wrap showLineNumbers=true
 {
-  // Required: choose ALLOW or DENY
-  "decision": "DENY", // ALLOW | DENY
-  // Optional (with DENY)
-  "error": { "message": "Invites to disposable email domains are blocked" }
+  "decision": "DENY", // Required: ALLOW to send invitation, DENY to block
+  "error": {
+    "message": "Cannot invite users from external domains. Please use @acmecorp.com email addresses." // Shown when DENY
+  }
 }
 ```
-</TabItem>
 
-</Tabs>
+## `PRE_M2M_TOKEN_CREATION`
 
-#### `PRE_M2M_TOKEN_CREATION`
+Fires before issuing a machine-to-machine access token. Use this to add custom claims, modify scopes dynamically, or apply conditional access rules for service-to-service authentication.
 
-<Tabs>
-<TabItem label='Request body from Scalekit'>
+### Request body from Scalekit
 
-```json title="PRE_M2M_TOKEN_CREATION — request body" wrap showLineNumbers=true collapse={15-18,22-24}
+```json title="PRE_M2M_TOKEN_CREATION — request body" wrap showLineNumbers=true
 {
-  "display_name": "Add custom claim",
+  "display_name": "Validate M2M client permissions",
   "trigger_point": "PRE_M2M_TOKEN_CREATION",
   "interceptor_context": {
     "environment_id": "env_17002334043308132",
-    "client_id": "m2morg_93710427703245914",
-    "user_agent": "PostmanRuntime/7.48.0",
+    "client_id": "m2morg_93710427703245914", // M2M client requesting the token
+    "user_agent": "deployment-service/2.1.0", // Service making the request
     "device_type": "Unknown",
-    "triggered_at": "2025-10-08T21:22:20.173Z"
+    "triggered_at": "2025-10-08T21:22:20.173Z" // ISO 8601 timestamp
   },
   "data": {
-    "m2m_token_claims": {
+    "m2m_token_claims": { // Claims that will be included in the token
       "client_id": "m2morg_93710427703245914",
       "claims": {
-        "custom_claims": {
-          "c1": "v1",
-          "c2": "v2"
+        "custom_claims": { // Existing custom claims from client configuration
+          "service_name": "deployment-automation",
+          "deployment_environment": "production"
         },
-        "oid": "org_89669394174574792",
-        "scope": "deploy:applications read:deployments",
-        "scopes": [
+        "oid": "org_89669394174574792", // Organization ID for this M2M client
+        "scope": "deploy:applications read:deployments write:logs", // Space-separated scopes
+        "scopes": [ // Array of individual scopes requested
           "deploy:applications",
-          "read:deployments"
+          "read:deployments",
+          "write:logs"
         ]
       }
     }
   }
 }
 ```
-</TabItem>
-<TabItem label='Response body (optional claims)'>
+
+### Response format to return
 
 ```json title="PRE_M2M_TOKEN_CREATION — response body" wrap showLineNumbers=true
 {
-  // Required: choose ALLOW or DENY
-  "decision": "ALLOW", // ALLOW | DENY
-  // Optional (with ALLOW)
+  "decision": "ALLOW", // Required: ALLOW to issue token, DENY to block
   "response": {
-    "claims": {
-      "scope": "deploy:applications read:deployments",
-      "aud": "https://api.example.com"
+    "claims": { // Optional: Add or modify claims in the M2M token
+      "scope": "deploy:applications read:deployments", // Can modify scopes dynamically
+      "aud": "https://api.acmecorp.com", // Target audience for the token
+      "rate_limit": "1000", // Custom claim for rate limiting
+      "environment": "production" // Custom claim for environment context
     }
   }
 }
 ```
-</TabItem>
-</Tabs>
