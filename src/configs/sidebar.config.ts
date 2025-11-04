@@ -195,16 +195,23 @@ export const sidebar = [
       {
         label: 'Enterprise authentication',
         items: [
-          'sso/guides/sso-basics',
-          'sso/guides/sso-user-attributes',
-          'sso/guides/add-login-ux-sso',
-          'sso/guides/idp-init-sso',
-          'sso/guides/test-sso',
-          'sso/guides/okta-sso-test',
+          {
+            label: 'SSO',
+            items: [
+              'sso/guides/sso-basics',
+              'sso/guides/sso-user-attributes',
+              'sso/guides/add-login-ux-sso',
+              'sso/guides/idp-init-sso',
+              'sso/guides/test-sso',
+              'sso/guides/okta-sso-test',
+              'guides/user-auth/check-sso-domain',
+            ],
+          },
+          {
+            label: 'SCIM',
+            items: ['directory/guides/user-provisioning-basics', 'directory/guides/scim-protocol'],
+          },
           'guides/admin-portal',
-          'directory/guides/user-provisioning-basics',
-          'directory/guides/scim-protocol',
-          'guides/user-auth/check-sso-domain',
           {
             label: 'View all integrations',
             link: 'guides/integrations',
