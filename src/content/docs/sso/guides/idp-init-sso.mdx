@@ -1,5 +1,5 @@
 ---
-title: "Handle Identity Provider initiated SSO"
+title: "Handle identity provider initiated SSO"
 description: "Learn how to securely implement IdP-initiated Single Sign-On for your application"
 sidebar:
   label: "Handling IdP-initiated SSO"
@@ -29,7 +29,7 @@ import IconMaterialSymbolsArticlePersonRounded from '~icons/material-symbols/art
 This guide shows you how to securely implement Identity Provider (IdP)-initiated Single Sign-On for your application. When users log into your application directly from their identity provider's portal, Scalekit converts the IdP-initiated request to a Service Provider (SP)-initiated flow for enhanced security.
 
 <Aside type="note" title="Standalone SSO requirement">
-IdP-initiated SSO is only available when using standalone SSO. To enable this, disable Full Stack Auth in **Dashboard > Authentication > General**. With Full Stack Auth enabled, Scalekit handles all authentication flows automatically.
+With Full Stack Auth enabled, Scalekit handles all authentication flows automatically. IdP-initiated SSO needs to be handled manually when using standalone SSO. Enable/Disable Full Stack Auth in **Dashboard > Authentication > General**
 </Aside>
 
 <details>
@@ -65,23 +65,17 @@ The workflow converts the traditional IdP-initiated flow to a secure SP-initiate
 3. Scalekit redirects to your initiate login endpoint with a JWT token
 4. Your application validates the JWT and generates a new SP-initiated authorization URL
 
-<figure>
-  ![Scalekit's recommended workflow for IdP initiated SSO](@/assets/docs/common/idp-init-sso.png)
-</figure>
 
 To securely implement IdP-initiated SSO, follow these steps to convert incoming IdP-initiated requests to SP-initiated flows:
 
-<Steps>
+
 1. Set up an initiate login endpoint and register it in **Dashboard > Developers > Redirect URLs > Initiate Login URL**
-
 2. Extract information from the JWT token containing organization, connection, and user details
-
 3. Convert to SP-initiated flow using the extracted parameters to generate a new authorization URL
-
 4. Handle errors with proper callback processing and error handling best practices
-</Steps>
 
-## Implementation Examples
+
+## Implementation examples
 
 Use the extracted parameters to initiate a new SSO request. This converts the IdP-initiated flow to a secure SP-initiated flow. Here are implementation examples:
 
@@ -339,9 +333,9 @@ public class AuthController {
 </TabItem>
 </Tabs>
 
-## Implementation Details
+## Implementation details
 
-### Endpoint Setup
+### Endpoint setup
 
 Your initiate login endpoint will receive requests with the following format:
 
@@ -349,7 +343,7 @@ Your initiate login endpoint will receive requests with the following format:
 https://yourapp.com/login?idp_initiated_login=<encoded_jwt_token>
 ```
 
-### JWT Token Structure
+### JWT token structure
 
 The `idp_initiated_login` parameter contains a signed JWT with organization, connection, and user details.
 
@@ -370,7 +364,7 @@ The `idp_initiated_login` parameter contains a signed JWT with organization, con
 
 </details>
 
-### Error Callback Format
+### Error callback format
 
 If errors occur, the redirect URI will receive a callback with this format:
 
@@ -382,7 +376,7 @@ https://{your-subdomain}.scalekit.dev/callback
 
 After completing the SP-initiated flow, users are redirected back to your callback URL where you can complete the authentication process. Next, let's look at how to test your IdP-initiated SSO implementation.
 
-## Integrating with a Downstream Auth Provider
+## Integrating with a downstream auth provider
 
 If your application uses a third-party service like [Firebase Authentication](/guides/integrations/auth-systems/firebase/) to manage user sessions, you must initiate its sign-in flow after completing **Step&nbsp;3**.
 
@@ -444,7 +438,7 @@ signInWithRedirect(auth, scalekitProvider);
 This pattern applies to other OIDC-compatible providers like Auth0 or AWS Cognito. Simply supply the Authorization URL from **Step&nbsp;3** to start the provider's standard sign-in flow.
 </Aside>
 
-## Security Considerations
+## Security considerations
 
 While IdP-initiated SSO offers convenience, it comes with significant security risks. Scalekit's approach converts the flow to SP-initiated to mitigate these vulnerabilities.
 
@@ -470,20 +464,10 @@ Attackers can steal SAML assertions through various methods:
 
 The chief problem with stolen assertions is that everything appears legitimate to the service provider (your application). The message and assertion are valid, issued by the expected identity provider, and signed with the expected key. However, the service provider cannot verify whether the assertions are stolen or not.
 
-## Benefits of Scalekit's approach
-
-The advantages of using Scalekit's conversion approach are:
-
-- **Enhanced security**: Converts risky IdP-initiated flows to secure SP-initiated flows
-- **Seamless experience**: The additional redirect is almost instantaneous, providing a smooth user experience
-- **Consistent handling**: Your application uses the same authentication flow for both SP and IdP-initiated requests
-- **Better error handling**: Standard SP-initiated flow provides clearer error messages and debugging
 
 <Aside type="tip" title="Performance note">
 The conversion from IdP-initiated to SP-initiated flow adds minimal latency (typically under 100ms) while significantly improving security.
 </Aside>
-
-## Troubleshooting
 
 If you encounter issues implementing IdP-initiated SSO:
 
