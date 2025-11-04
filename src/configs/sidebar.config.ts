@@ -161,42 +161,94 @@ export const sidebar = [
       {
         label: 'Setup dev environment',
         items: [
-          'dev-kit/sdks/overview',
+          'authenticate/installation',
           'dev-kit/mcp',
           'dev-kit/resources/ai-assisted-setup',
-          {
-            label: 'Postman collections',
-            link: 'https://github.com/scalekit-inc/api-collections',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Code snippets',
-            link: '/browse/code-samples/github/code-gists-collection',
-          },
-          {
-            label: 'API testing collections',
-            link: '/browse/code-samples/github/api-collections',
-          },
+          'browse/code-samples/github/api-collections',
         ],
       },
       {
-        label: 'Authentication fundamentals',
+        label: 'Basics',
         items: [
-          'authenticate/installation',
           'sso/guides/authorization-url',
-          'sso/guides/sso-user-attributes',
           'guides/dashboard/allowed-callback-url',
+          'fsa/guides/onboard-enterprise-customers',
+          {
+            label: 'Claims',
+            items: ['guides/idtoken-claims', 'guides/accesstoken-claims'],
+          },
         ],
       },
       {
         label: 'User authentication',
         items: [
-          'guides/user-auth/login-scenarios',
-          'guides/user-auth/standalone-social-logins',
           'fsa/guides/implement-signup',
-          'guides/idtoken-claims',
           'guides/dashboard/intitate-login-endpoint',
+          'guides/user-auth/login-scenarios',
           'guides/dashboard/redirects',
+        ],
+      },
+      {
+        label: 'API authentication',
+        items: ['guides/m2m/overview', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
+      },
+      {
+        label: 'Enterprise authentication',
+        items: [
+          'sso/guides/sso-basics',
+          'sso/guides/sso-user-attributes',
+          'sso/guides/add-login-ux-sso',
+          'sso/guides/idp-init-sso',
+          'sso/guides/test-sso',
+          'sso/guides/okta-sso-test',
+          'guides/admin-portal',
+          'directory/guides/user-provisioning-basics',
+          'directory/guides/scim-protocol',
+          'guides/user-auth/check-sso-domain',
+          {
+            label: 'View all integrations',
+            link: 'guides/integrations',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+      {
+        label: 'User & organization management',
+        collapsed: false,
+        items: [
+          'guides/user-management/scim-provisioning',
+          'fsa/guides/signup-restrictions',
+          'fsa/guides/user-invitations',
+          'guides/user-management/manage-org-memberships',
+          'fsa/guides/migration-guide',
+          'fsa/guides/organization-identifiers',
+          'fsa/guides/merge-identities',
+          'fsa/reference/user-management-settings',
+        ],
+      },
+      {
+        label: 'Authorization',
+        items: [
+          'dev-kit/resources/authorization-best-practices',
+          'directory/guides/group-based-role-assignment',
+        ],
+      },
+      {
+        label: 'Authentication workflows',
+        items: ['authenticate/interceptors/interceptor-scenarios'],
+      },
+      {
+        label: 'Third-party integrations',
+        items: [],
+      },
+      {
+        label: 'AI & agent authentication',
+        items: ['mcp/intro-to-mcp-auth', 'mcp/guides/custom-auth'],
+      },
+      {
+        label: 'Code Samples & Demos',
+        items: [
+          'browse/code-samples/github/api-collections',
           'browse/vids/fsa-walkthrough',
           'browse/vids/passwordless-walkthrough',
           'browse/code-samples/gists/client-credentials-auth',
@@ -233,34 +285,13 @@ export const sidebar = [
             label: 'Managed login demo',
             link: '/browse/code-samples/github/managed-login-box-demo',
           },
-        ],
-      },
-      {
-        label: 'API authentication',
-        items: [
-          'guides/m2m/overview',
-          'm2m/quickstart',
-          'guides/m2m/m2m-basics',
-          'guides/m2m/scopes',
-          'guides/m2m/api-auth-m2m-clients',
-        ],
-      },
-      {
-        label: 'Enterprise authentication',
-        items: [
-          'sso/guides/sso-basics',
-          'fsa/guides/onboard-enterprise-customers',
+          {
+            label: 'Code snippets',
+            link: '/browse/code-samples/github/code-gists-collection',
+          },
           'browse/vids/sso-walkthrough',
-          'sso/guides/add-login-ux-sso',
-          'sso/guides/idp-init-sso',
-          'sso/guides/test-sso',
-          'sso/guides/okta-sso-test',
-          'guides/admin-portal',
           'browse/vids/scim-walkthrough',
-          'directory/guides/user-provisioning-basics',
-          'directory/guides/scim-protocol',
           'browse/vids/mcp-oauth-walkthrough',
-          'guides/user-auth/check-sso-domain',
           {
             label: 'Express.js SSO demo',
             link: '/browse/code-samples/github/expressjs-sso-demo',
@@ -286,41 +317,6 @@ export const sidebar = [
             link: '/browse/code-samples/github/webhook-events',
           },
           {
-            label: 'View all integrations',
-            link: 'guides/integrations',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-      {
-        label: 'User & organization management',
-        collapsed: false,
-        items: [
-          'guides/user-management/scim-provisioning',
-          'fsa/guides/signup-restrictions',
-          'fsa/guides/user-invitations',
-          'guides/user-management/manage-org-memberships',
-          'fsa/guides/migration-guide',
-          'fsa/guides/organization-identifiers',
-          'fsa/guides/merge-identities',
-          'fsa/reference/user-management-settings',
-        ],
-      },
-      {
-        label: 'Authorization',
-        items: [
-          'dev-kit/resources/authorization-best-practices',
-          'directory/guides/group-based-role-assignment',
-        ],
-      },
-      {
-        label: 'Authentication workflows',
-        items: ['authenticate/interceptors/interceptor-scenarios'],
-      },
-      {
-        label: 'Third-party integrations',
-        items: [
-          {
             label: 'Firebase integration',
             link: '/browse/code-samples/github/firebase-integration',
           },
@@ -336,13 +332,6 @@ export const sidebar = [
             label: 'Cognito with Next.js',
             link: '/browse/code-samples/github/cognito-nextjs',
           },
-        ],
-      },
-      {
-        label: 'AI & agent authentication',
-        items: [
-          'mcp/intro-to-mcp-auth',
-          'mcp/guides/custom-auth',
           {
             label: 'LangChain integration',
             link: '/browse/code-samples/github/langchain-integration',
@@ -456,6 +445,7 @@ export const topics = {
     '/guides/custom-domain',
     '/guides/email-providers',
     '/authenticate/interceptors/**/*',
+    '/guides/user-auth/standalone-social-logins', // Standalone social logins appears in Authenticate sidebar
   ], // Pages that appear in Authenticate sidebar
   connect: ['/agent-actions/**/*'], // Agent Actions pages
   mcp: [], // MCP pages are in authenticate sidebar, so they use authenticate topic
@@ -470,6 +460,7 @@ export const topics = {
     '/guides/dashboard/redirects',
     '/guides/external-ids-and-metadata',
     '/guides/idtoken-claims',
+    '/guides/accesstoken-claims',
     '/guides/unlisted/passwordless-as-service',
     '/browse/**/*', // Code samples and videos
     '/guides/user-auth/**/*', // User auth guides and examples
@@ -591,6 +582,7 @@ export const secondaryNavMapping = {
       '/guides/client-credentials-practices',
       '/guides/webhooks-best-practices',
       '/guides/idtoken-claims',
+      '/guides/accesstoken-claims',
       '/guides/integrations',
     ],
   },

@@ -1,96 +1,550 @@
 ---
-title: Define API client scopes
-description: Learn how to define and validate permissions for M2M client applications
+title: Define and validate API client scopes
+description: Learn how to define permissions for API client applications using scopes and validate them in your API server.
 browseCentral:
   label: Define API client scopes
-  filterType: ["tutorial"]
-  category: ["Machine to Machine"]
+  filterType: ['tutorial']
+  category: ['Machine to Machine']
   icon: book
 sidebar:
-  label: API client scopes
+  label: Define & validate API client scopes
 prev:
   label: M2M quickstart
-  link: /m2m/quickstart/
+  link: /authenticate/m2m/api-auth-quickstart/
 next: false
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Scopes define the permissions an application possesses. Within Scalekit, scopes allow your API server (acting as an M2M server) to determine the permissions granted to an M2M client application.
+Scopes define which permissions an API client application can request when accessing your APIs. When you register an API client for your customers, you assign scopes that determine what actions the client app can perform. Scalekit includes these scopes in the access token when the client app authenticates.
 
-When creating an M2M client via the API, your application specifies the required scopes. Scalekit includes this scope information in the access token that the M2M client uses for subsequent API requests.
+This guide shows you how to register API clients with specific scopes for your customers and how to validate those scopes in your API server.
 
-<Tabs>
-<TabItem value="curl" label="cURL">
+<Steps>
+1. ## Register an API client with scopes
 
-```bash title="Register an M2M client with specific scopes"
-curl -L 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<ORGANIZATION_ID>/clients' \
--H 'Content-Type: application/json' \
--H 'Authorization: Bearer <SCALEKIT_ACCESS_TOKEN>' \
--d '{
-    "name": "GitHub Actions Deployment Service",
-    "description": "Service account for GitHub Actions to deploy applications to production",
-    "scopes": [
-        "deploy:applications",
-        "read:deployments"
-    ],
-    "expiry": 3600 # Token expiry time in seconds
-}'
-```
+   When you enable API client registration for your customers, you define the scopes that their applications can request. For example, you might create an API client for a customer's deployment service with scopes like `deploy:applications` and `read:deployments`.
 
-</TabItem>
-<TabItem value="python" label="Python">
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
 
-```python title="Register an M2M client with specific scopes"
-from scalekit.v1.clients.clients_pb2 import OrganizationClient
-# Import and initialize the Scalekit client as sc
+   ```javascript title="Register an API client with specific scopes"
+   // Use case: Your customer requests API access for their deployment automation.
+   // You register an API client app with the appropriate scopes.
+   import { ScalekitClient } from '@scalekit-sdk/node';
 
-m2m_client = OrganizationClient(
-    name="GitHub Actions Deployment Service",
-    description="Service account for GitHub Actions to deploy to production",
-    custom_claims=[
-        {"key": "github_repository", "value": "acmecorp/inventory-service"},
-        {"key": "environment", "value": "production_us"}
-    ],
-    scopes=["deploy:applications", "read:deployments"],
-    audience=["deployment-api.acmecorp.com"],
-    expiry=3600
-)
+   // Initialize Scalekit client (see installation guide for setup)
+   const scalekit = new ScalekitClient(
+     process.env.SCALEKIT_ENVIRONMENT_URL,
+     process.env.SCALEKIT_CLIENT_ID,
+     process.env.SCALEKIT_CLIENT_SECRET
+   );
 
-response = sc.m2m_client.create_organization_client(
-    organization_id="SCALEKIT_ORGANIZATION_ID",
-    m2m_client=m2m_client
-)
-```
+   async function createAPIClient() {
+     try {
+       // Define API client details with scopes your customer's app needs
+       const clientDetails = {
+         name: 'GitHub Actions Deployment Service',
+         description: 'Service account for GitHub Actions to deploy applications to production',
+         scopes: ['deploy:applications', 'read:deployments'],
+         expiry: 3600, // Token expiry in seconds
+       };
 
-</TabItem>
-</Tabs>
+       // API call to register the client
+       const response = await scalekit.m2m.createClient({
+         organizationId: process.env.SCALEKIT_ORGANIZATION_ID,
+         client: clientDetails,
+       });
 
-The API returns a JSON object [containing comprehensive information](/m2m/quickstart/#register-an-api-client) about the newly created M2M client. Your application (acting as the M2M server) should securely provide only the `client_id` and `client_secret` from the response to the M2M client application that needs to authenticate.
+       // Response contains client details and the plain_secret (only returned once)
+       const clientId = response.client.client_id;
+       const plainSecret = response.plain_secret;
 
-The M2M client then uses its client ID and client secret to [authenticate with your API server](/guides/m2m/api-auth-m2m-clients). Successful authentication grants the M2M client an access token, which it includes as a Bearer token in the `Authorization` header for future API requests.
+       // Provide these credentials to your customer securely
+       console.log('Created API client:', clientId);
+     } catch (error) {
+       console.error('Error creating API client:', error);
+     }
+   }
 
-## Validating M2M client scopes
+   createAPIClient();
+   ```
 
-When your API server receives a request from an M2M client, it must validate the scopes present in the access token provided in the `Authorization` header. The access token is a JSON Web Token (JWT).
+   </TabItem>
+   <TabItem value="python" label="Python">
 
-```json title="Example Decoded Access Token JWT Payload"
-{
-  "client_id": "m2morg_69038819013296423", // The unique ID of the M2M client
-  "exp": 1745305340, // Expiration timestamp
-  "iat": 1745218940, // Issued at timestamp
-  "iss": "<SCALEKIT_ENVIRONMENT_URL>", // Issuer (Scalekit environment URL)
-  "jti": "tkn_69041163914445100", // JWT unique identifier
-  "nbf": 1745218940, // Not before timestamp
-  "oid": "org_59615193906282635", // Organization ID the client belongs to
-  "scopes": [ // Array of permissions granted to this client
-    "deploy:applications",
-    "read:deployments"
-  ],
-  "sub": "m2morg_69038819013296423" // Subject (usually the client_id for M2M)
-}
-```
+   ```python title="Register an API client with specific scopes"
+   # Use case: Your customer requests API access for their deployment automation.
+   # You register an API client app with the appropriate scopes.
+   import os
+   from scalekit import ScalekitClient
 
-Scalekit encodes the granted permissions in the `scopes` field within the JWT payload. The `oid` field identifies the specific organization (customer/tenant) associated with this M2M client.
+   # Initialize Scalekit client (see installation guide for setup)
+   scalekit_client = ScalekitClient(
+       env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+       client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+       client_secret=os.getenv("SCALEKIT_CLIENT_SECRET")
+   )
 
-Your API server should inspect the `scopes` array in the received token payload. Use this information to authorize the requested operation, ensuring the client possesses the necessary permissions before processing the API request.
+   try:
+       # Define API client details with scopes your customer's app needs
+       from scalekit.v1.clients.clients_pb2 import OrganizationClient
+
+       client_details = OrganizationClient(
+           name="GitHub Actions Deployment Service",
+           description="Service account for GitHub Actions to deploy applications to production",
+           scopes=["deploy:applications", "read:deployments"],
+           expiry=3600  # Token expiry in seconds
+       )
+
+       # API call to register the client
+       response = scalekit_client.m2m_client.create_organization_client(
+           organization_id=os.getenv("SCALEKIT_ORGANIZATION_ID"),
+           m2m_client=client_details
+       )
+
+       # Response contains client details and the plain_secret (only returned once)
+       client_id = response.client.client_id
+       plain_secret = response.plain_secret
+
+       # Provide these credentials to your customer securely
+       print("Created API client:", client_id)
+
+   except Exception as e:
+       print("Error creating API client:", e)
+   ```
+
+   </TabItem>
+   <TabItem value="go" label="Go">
+
+   ```go title="Register an API client with specific scopes"
+   // Use case: Your customer requests API access for their deployment automation.
+   // You register an API client app with the appropriate scopes.
+   package main
+
+   import (
+   	"context"
+   	"fmt"
+   	"os"
+   	"time"
+
+   	"github.com/scalekit-inc/scalekit-sdk-go"
+   	"github.com/scalekit-inc/scalekit-sdk-go/pkg/grpc/organizations"
+   )
+
+   func main() {
+   	// Initialize Scalekit client (see installation guide for setup)
+   	scalekitClient := scalekit.NewScalekitClient(
+   		os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+   		os.Getenv("SCALEKIT_CLIENT_ID"),
+   		os.Getenv("SCALEKIT_CLIENT_SECRET"),
+   	)
+
+   	ctx := context.Background()
+
+   	// Define API client details with scopes your customer's app needs
+   	clientDetails := &organizations.OrganizationClient{
+   		Name:        "GitHub Actions Deployment Service",
+   		Description: "Service account for GitHub Actions to deploy applications to production",
+   		Scopes:      []string{"deploy:applications", "read:deployments"},
+   		Expiry:      int64(time.Hour.Seconds()), // Token expiry in seconds
+   	}
+
+   	// API call to register the client
+   	response, err := scalekitClient.Organization.CreateOrganizationClient(
+   		ctx,
+   		os.Getenv("SCALEKIT_ORGANIZATION_ID"),
+   		clientDetails,
+   	)
+   	if err != nil {
+   		fmt.Println("Error creating API client:", err)
+   		return
+   	}
+
+   	// Response contains client details and the plain_secret (only returned once)
+   	clientID := response.Client.ClientId
+   	plainSecret := response.PlainSecret
+
+   	// Provide these credentials to your customer securely
+   	fmt.Println("Created API client:", clientID)
+   }
+   ```
+
+   </TabItem>
+   <TabItem value="java" label="Java">
+
+   ```java title="Register an API client with specific scopes"
+   // Use case: Your customer requests API access for their deployment automation.
+   // You register an API client app with the appropriate scopes.
+   import com.scalekit.ScalekitClient;
+   import com.scalekit.grpc.scalekit.v1.organizations.OrganizationClient;
+   import com.scalekit.grpc.scalekit.v1.organizations.CreateOrganizationClientResponse;
+   import java.util.Arrays;
+
+   public class CreateAPIClient {
+       public static void main(String[] args) {
+           // Initialize Scalekit client (see installation guide for setup)
+           ScalekitClient scalekitClient = new ScalekitClient(
+               System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+               System.getenv("SCALEKIT_CLIENT_ID"),
+               System.getenv("SCALEKIT_CLIENT_SECRET")
+           );
+
+           try {
+               // Define API client details with scopes your customer's app needs
+               OrganizationClient clientDetails = OrganizationClient.newBuilder()
+                   .setName("GitHub Actions Deployment Service")
+                   .setDescription("Service account for GitHub Actions to deploy applications to production")
+                   .addAllScopes(Arrays.asList("deploy:applications", "read:deployments"))
+                   .setExpiry(3600L) // Token expiry in seconds
+                   .build();
+
+               // API call to register the client
+               CreateOrganizationClientResponse response = scalekitClient
+                   .organizations()
+                   .createOrganizationClient(
+                       System.getenv("SCALEKIT_ORGANIZATION_ID"),
+                       clientDetails
+                   );
+
+               // Response contains client details and the plain_secret (only returned once)
+               String clientId = response.getClient().getClientId();
+               String plainSecret = response.getPlainSecret();
+
+               // Provide these credentials to your customer securely
+               System.out.println("Created API client: " + clientId);
+
+           } catch (Exception e) {
+               System.err.println("Error creating API client: " + e.getMessage());
+           }
+       }
+   }
+   ```
+
+   </TabItem>
+   <TabItem value="curl" label="cURL">
+
+   ```bash title="Register an API client with specific scopes" wrap
+   curl -L 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/<ORGANIZATION_ID>/clients' \
+   -H 'Content-Type: application/json' \
+   -H 'Authorization: Bearer <SCALEKIT_ACCESS_TOKEN>' \
+   -d '{
+       "name": "GitHub Actions Deployment Service",
+       "description": "Service account for GitHub Actions to deploy applications to production",
+       "scopes": [
+           "deploy:applications",
+           "read:deployments"
+       ],
+       "expiry": 3600
+   }'
+   ```
+
+   ```json title="Sample response" wrap {2,22}
+   {
+       "client": {
+           "client_id": "m2morg_68315758685323697",
+           "secrets": [
+               {
+                   "id": "sks_68315758802764209",
+                   "create_time": "2025-04-16T06:56:05.360Z",
+                   "update_time": "2025-04-16T06:56:05.367190455Z",
+                   "secret_suffix": "UZ0X",
+                   "status": "ACTIVE",
+                   "last_used_time": "2025-04-16T06:56:05.360Z"
+               }
+           ],
+           "name": "GitHub Actions Deployment Service",
+           "description": "Service account for GitHub Actions to deploy applications to production",
+           "organization_id": "org_59615193906282635",
+           "create_time": "2025-04-16T06:56:05.290Z",
+           "update_time": "2025-04-16T06:56:05.292145150Z",
+           "scopes": [
+               "deploy:applications",
+               "read:deployments"
+           ]
+       },
+       "plain_secret": "test_ly8G57h0ErRJSObJI6dShkoaq6bigo11Dxcfa6reKG1kKNVbqBKW4H5Ctmb5UZ0X"
+   }
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   <Aside type="note" title="Important: Securely share credentials">
+   The API returns a JSON object with two key parts:
+   - `client.client_id` - The client identifier
+   - `plain_secret` - The client secret (only returned once, never stored by Scalekit)
+
+   Provide both values to your customer securely. Your customer will use these credentials in their application to authenticate with your API. The `plain_secret` is never shown again after creation.
+   </Aside>
+
+   <Aside type="tip" title="Additional parameters">
+   You can also include `custom_claims` (key-value metadata) and `audience` (target API endpoints) when registering API clients. See the [M2M quickstart guide](/authenticate/m2m/api-auth-quickstart) for examples.
+   </Aside>
+
+2. ## Validate API client scopes
+
+   When your API server receives a request from an API client app, you must validate the scopes present in the access token provided in the `Authorization` header. The access token is a JSON Web Token (JWT).
+
+   First, let's look at the claims inside a decoded JWT payload. Scalekit encodes the granted scopes in the `scopes` field.
+
+   ```json title="Example decoded access token" showLineNumbers=false
+   {
+     "client_id": "m2morg_69038819013296423",
+     "exp": 1745305340,
+     "iat": 1745218940,
+     "iss": "<SCALEKIT_ENVIRONMENT_URL>",
+     "jti": "tkn_69041163914445100",
+     "nbf": 1745218940,
+     "oid": "org_59615193906282635",
+     "scopes": [
+       "deploy:applications",
+       "read:deployments"
+     ],
+     "sub": "m2morg_69038819013296423"
+   }
+   ```
+
+   <Aside type="tip" title="Scope Naming Conventions">
+   Structure your scopes using the `resource:action` pattern, for example `deployments:read` or `applications:create`. This makes permissions clear and manageable for your customers.
+   </Aside>
+
+   Your API server should inspect the `scopes` array in the token payload to authorize the requested operation. Here's how you validate the token and check for a specific scope in your API server.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+
+   ```javascript title="Example Express.js middleware for scope validation"
+   // Security: ALWAYS validate the access token on your server before trusting its claims.
+   // This prevents token forgery and ensures the token has not expired.
+   import { ScalekitClient } from '@scalekit-sdk/node';
+   import jwt from 'jsonwebtoken';
+   import jwksClient from 'jwks-rsa';
+
+   const scalekit = new ScalekitClient(
+     process.env.SCALEKIT_ENVIRONMENT_URL,
+     process.env.SCALEKIT_CLIENT_ID,
+     process.env.SCALEKIT_CLIENT_SECRET
+   );
+
+   // Setup JWKS client for token verification
+   const client = jwksClient({
+     jwksUri: `${process.env.SCALEKIT_ENVIRONMENT_URL}/.well-known/jwks.json`,
+     cache: true
+   });
+
+   async function getPublicKey(header) {
+     return new Promise((resolve, reject) => {
+       client.getSigningKey(header.kid, (err, key) => {
+         if (err) reject(err);
+         else resolve(key.getPublicKey());
+       });
+     });
+   }
+
+   async function checkPermissions(req, res, next) {
+     const authHeader = req.headers.authorization;
+     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+       return res.status(401).send('Unauthorized: Missing token');
+     }
+     const token = authHeader.split(' ')[1];
+
+     try {
+       // Decode to get the header with kid
+       const decoded = jwt.decode(token, { complete: true });
+       const publicKey = await getPublicKey(decoded.header);
+
+       // Verify the token signature and claims
+       const verified = jwt.verify(token, publicKey, {
+         algorithms: ['RS256'],
+         complete: true
+       });
+
+       const decodedToken = verified.payload;
+
+       // Check if the API client app has the required scope
+       const requiredScope = 'deploy:applications';
+       if (decodedToken.scopes && decodedToken.scopes.includes(requiredScope)) {
+         // API client app has the required scope, proceed with the request
+         next();
+       } else {
+         // API client app does not have the required scope
+         res.status(403).send('Forbidden: Insufficient permissions');
+       }
+     } catch (error) {
+       // Token is invalid or expired
+       res.status(401).send('Unauthorized: Invalid token');
+     }
+   }
+   ```
+
+   </TabItem>
+   <TabItem value="python" label="Python">
+
+   ```python title="Example Flask decorator for scope validation"
+   # Security: ALWAYS validate the access token on your server before trusting its claims.
+   # This prevents token forgery and ensures the token has not expired.
+   import os
+   import functools
+   from scalekit import ScalekitClient
+   from flask import request, jsonify
+
+   # Initialize Scalekit client
+   scalekit_client = ScalekitClient(
+       env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+       client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+       client_secret=os.getenv("SCALEKIT_CLIENT_SECRET")
+   )
+
+   def check_permissions(required_scope):
+       def decorator(f):
+           @functools.wraps(f)
+           def decorated_function(*args, **kwargs):
+               auth_header = request.headers.get('Authorization')
+               if not auth_header or not auth_header.startswith('Bearer '):
+                   return jsonify({"error": "Unauthorized: Missing token"}), 401
+
+               token = auth_header.split(' ')[1]
+
+               try:
+                   # Validate the token using the Scalekit SDK
+                   claims = scalekit_client.validate_access_token_and_get_claims(token=token)
+
+                   # Check if the API client app has the required scope
+                   if required_scope in claims.get('scopes', []):
+                       # API client app has the required scope
+                       return f(*args, **kwargs)
+                   else:
+                       # API client app does not have the required scope
+                       return jsonify({"error": "Forbidden: Insufficient permissions"}), 403
+               except Exception as e:
+                   # Token is invalid or expired
+                   return jsonify({"error": "Unauthorized: Invalid token"}), 401
+           return decorated_function
+       return decorator
+
+   # Example usage in a Flask route
+   # @app.route('/deploy', methods=['POST'])
+   # @check_permissions('deploy:applications')
+   # def deploy_application():
+   #     return jsonify({"message": "Deployment successful"})
+   ```
+
+   </TabItem>
+   <TabItem value="go" label="Go">
+
+   ```go title="Example Go middleware for scope validation"
+   // Security: ALWAYS validate the access token on your server before trusting its claims.
+   // This prevents token forgery and ensures the token has not expired.
+   package main
+
+   import (
+   	"context"
+   	"net/http"
+   	"os"
+   	"strings"
+
+   	"github.com/scalekit-inc/scalekit-sdk-go"
+   )
+
+   func CheckPermissions(next http.Handler, requiredScope string) http.Handler {
+   	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+   		authHeader := r.Header.Get("Authorization")
+   		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+   			http.Error(w, "Unauthorized: Missing token", http.StatusUnauthorized)
+   			return
+   		}
+   		token := strings.TrimPrefix(authHeader, "Bearer ")
+
+   		// Initialize Scalekit client (should be a singleton in a real app)
+   		scalekitClient := scalekit.NewScalekitClient(
+   			os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+   			os.Getenv("SCALEKIT_CLIENT_ID"),
+   			os.Getenv("SCALEKIT_CLIENT_SECRET"),
+   		)
+
+   		// Validate the token using the Scalekit SDK
+   		decodedToken, err := scalekitClient.Token.VerifyToken(context.Background(), token, nil)
+   		if err != nil {
+   			http.Error(w, "Unauthorized: Invalid token", http.StatusUnauthorized)
+   			return
+   		}
+
+   		// Check if the API client app has the required scope
+   		hasScope := false
+   		for _, scope := range decodedToken.Claims.Scopes {
+   			if scope == requiredScope {
+   				hasScope = true
+   				break
+   			}
+   		}
+
+   		if hasScope {
+   			// API client app has the required scope
+   			next.ServeHTTP(w, r)
+   		} else {
+   			// API client app does not have the required scope
+   			http.Error(w, "Forbidden: Insufficient permissions", http.StatusForbidden)
+   		}
+   	})
+   }
+   ```
+
+   </TabItem>
+   <TabItem value="java" label="Java">
+
+   ```java title="Example Spring Boot interceptor for scope validation"
+   // Security: ALWAYS validate the access token on your server before trusting its claims.
+   // This prevents token forgery and ensures the token has not expired.
+   import com.scalekit.ScalekitClient;
+   import com.scalekit.internal.http.TokenClaims;
+   import org.springframework.stereotype.Component;
+   import org.springframework.web.servlet.HandlerInterceptor;
+   import javax.servlet.http.HttpServletRequest;
+   import javax.servlet.http.HttpServletResponse;
+
+   @Component
+   public class PermissionInterceptor implements HandlerInterceptor {
+
+       private final ScalekitClient scalekitClient;
+
+       public PermissionInterceptor(ScalekitClient scalekitClient) {
+           this.scalekitClient = scalekitClient;
+       }
+
+       @Override
+       public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+           String authHeader = request.getHeader("Authorization");
+           if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+               response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: Missing token");
+               return false;
+           }
+           String token = authHeader.substring(7);
+
+           try {
+               // Validate the token using the Scalekit SDK
+               TokenClaims claims = scalekitClient.token().verifyToken(token, null);
+
+               // Check if the API client app has the required scope
+               String requiredScope = "deploy:applications";
+               if (claims.getScopes() != null && claims.getScopes().contains(requiredScope)) {
+                   // API client app has the required scope
+                   return true;
+               } else {
+                   // API client app does not have the required scope
+                   response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden: Insufficient permissions");
+                   return false;
+               }
+           } catch (Exception e) {
+               // Token is invalid or expired
+               response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: Invalid token");
+               return false;
+           }
+       }
+   }
+   ```
+
+   </TabItem>
+   </Tabs>
+
+</Steps>

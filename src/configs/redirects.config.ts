@@ -136,8 +136,10 @@ export const redirects = {
   // =============================================================================
   // API AUTH (M2M) REDIRECTS
   // =============================================================================
+  '/m2m/quickstart': '/authenticate/m2m/api-auth-quickstart/',
   '/m2m/overview': '/guides/m2m/overview/',
-  '/m2m/m2m-basics': '/guides/m2m/m2m-basics/',
+  '/m2m/m2m-basics': '/guides/m2m/overview/',
+  '/guides/m2m/m2m-basics': '/guides/m2m/overview/',
   '/m2m/authenticate-scalekit-api': '/guides/authenticate-scalekit-api/',
   '/m2m/api-auth-for-m2m-clients': '/guides/m2m/api-auth-m2m-clients/',
   '/m2m/external-ids-and-metadata': '/guides/external-ids-and-metadata/',
@@ -190,6 +192,7 @@ export const redirects = {
   // GENERAL / OTHER REDIRECTS
   // =============================================================================
   '/sdks': '/dev-kit/',
+  '/dev-kit/sdks/overview': '/authenticate/installation/',
   '/dev-kit/webhooks/event-object/': '/reference/webhooks/overview/',
   '/reference/webhooks/event-object/': '/reference/webhooks/overview/',
   '/api/webhook-events': '/reference/webhooks/directory-events/',

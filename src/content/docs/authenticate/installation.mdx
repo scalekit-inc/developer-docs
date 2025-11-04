@@ -1,7 +1,7 @@
 ---
 title: Set up Scalekit
 overviewTitle: Overview of installation
-description: Start using Scalekit in your project
+description: Create your account, install the SDK, and verify your setup to start building with Scalekit
 tableOfContents: true
 head:
   - tag: style
@@ -19,6 +19,9 @@ seeAlso:
     - title: "AI assisted development"
       icon: "ai"
       url: "/dev-kit/resources/ai-assisted-setup"
+    - title: "API testing collections"
+      icon: "document"
+      url: "/browse/code-samples/github/api-collections"
   expanded: true
 prev: false
 next:
@@ -28,6 +31,11 @@ next:
 
 import { Card, CardGrid, LinkCard, LinkButton, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components'
 import InstallSDK from '@components/templates/_installsdk.mdx'
+import FoldCard from '@components/ui/FoldCard.astro'
+
+This guide shows you how to set up Scalekit in your development environment. You'll create an account, configure your workspace, get API credentials, install the SDK, and verify everything works correctly.
+
+Scalekit provides official SDKs for Node.js, Python, Go, and Java with production-ready auth helpers, automatic retries, and typed models to help you integrate faster.
 
 <Steps>
 1. ## Create a Scalekit account
@@ -53,10 +61,9 @@ import InstallSDK from '@components/templates/_installsdk.mdx'
 
    Scalekit uses the OAuth 2.0 client credentials flow for secure API authentication.
 
-   In **Developers > Settings > API credentials**, copy these values:
+   Navigate to **Dashboard > Developers > Settings > API credentials** and copy these values:
 
-   ```sh showLineNumbers=false
-   <!-- .development.env -->
+   ```sh showLineNumbers=false wrap title=".env"
    SCALEKIT_ENVIRONMENT_URL=<your-environment-url>
    # Example: https://acme.scalekit.dev or https://auth.acme.com (if custom domain is set)
 
@@ -67,17 +74,25 @@ import InstallSDK from '@components/templates/_installsdk.mdx'
    # Example: test_abcdef1234567890
    ```
 
+   <Aside type="caution" title="Keep credentials secure">
+   Store your `SCALEKIT_CLIENT_SECRET` securely using environment variables or a secrets manager. Never commit secrets to version control or expose them in client-side code.
+   </Aside>
+
 4. ## Install and initialize the SDK
 
+   Choose your preferred language and install the Scalekit SDK:
+
    <InstallSDK />
+
+   After installation, initialize the SDK with your credentials:
 
     <Tabs syncKey="tech-stack">
       <TabItem value="nodejs" label="Node.js">
 
-      ```js
+      ```js title="Initialize SDK"
       import { ScalekitClient } from '@scalekit-sdk/node';
 
-      // Create the Scalekit client
+      // Initialize the Scalekit client with your credentials
       const scalekit = new ScalekitClient(
         process.env.SCALEKIT_ENVIRONMENT_URL,
         process.env.SCALEKIT_CLIENT_ID,
@@ -88,40 +103,42 @@ import InstallSDK from '@components/templates/_installsdk.mdx'
       </TabItem>
       <TabItem value="py" label="Python">
 
-      ```python
+      ```python title="Initialize SDK"
       from scalekit import ScalekitClient
+      import os
 
-      # Create the Scalekit client
+      # Initialize the Scalekit client with your credentials
       scalekit_client = ScalekitClient(
-        '<SCALEKIT_ENVIRONMENT_URL>',
-        '<SCALEKIT_CLIENT_ID>',
-        '<SCALEKIT_CLIENT_SECRET>'
+        env_url=os.getenv('SCALEKIT_ENVIRONMENT_URL'),
+        client_id=os.getenv('SCALEKIT_CLIENT_ID'),
+        client_secret=os.getenv('SCALEKIT_CLIENT_SECRET')
       )
       ```
 
       </TabItem>
       <TabItem value="go" label="Go">
 
-      ```go
+      ```go title="Initialize SDK"
       import (
+        "os"
         "github.com/scalekit-inc/scalekit-sdk-go"
       )
 
-      // Create the Scalekit client
+      // Initialize the Scalekit client with your credentials
       scalekitClient := scalekit.NewScalekitClient(
         os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
         os.Getenv("SCALEKIT_CLIENT_ID"),
-        os.Getenv("SCALEKIT_CLIENT_SECRET")
+        os.Getenv("SCALEKIT_CLIENT_SECRET"),
       )
       ```
 
       </TabItem>
       <TabItem value="java" label="Java">
 
-      ```java
+      ```java title="Initialize SDK"
       import com.scalekit.ScalekitClient;
 
-      // Create the Scalekit client
+      // Initialize the Scalekit client with your credentials
       ScalekitClient scalekitClient = new ScalekitClient(
         System.getenv("SCALEKIT_ENVIRONMENT_URL"),
         System.getenv("SCALEKIT_CLIENT_ID"),
@@ -131,9 +148,14 @@ import InstallSDK from '@components/templates/_installsdk.mdx'
 
       </TabItem>
     </Tabs>
+
+   <Aside type="tip" title="SDK features">
+   All official SDKs include automatic retries, error handling, typed models, and auth helper methods to simplify your integration.
+   </Aside>
+
 5. ## Verify your setup
 
-   Initialize the SDK, then list organizations to confirm your credentials work.
+   Test your configuration by listing organizations in your workspace. This confirms your credentials work correctly.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="curl" label="cURL">
@@ -241,6 +263,56 @@ import InstallSDK from '@components/templates/_installsdk.mdx'
 
    </TabItem>
    </Tabs>
-   You're all set! 👏
+
+   If you see organization data, your setup is complete! You're now ready to implement authentication in your application.
 
 </Steps>
+
+## GitHub repositories
+
+Explore the available SDKs with detailed release notes, version information, and direct access to GitHub repositories.
+
+### Official SDKs
+
+<CardGrid>
+  <FoldCard title="Node.js SDK" iconKey="node">
+    <a href="https://github.com/scalekit-inc/scalekit-sdk-node/releases" target="_blank" rel="noopener" class="sdk-badge">
+      <img alt="Node SDK version" loading="lazy" decoding="async" src="https://img.shields.io/github/v/tag/scalekit-inc/scalekit-sdk-node.svg?sort=semver&label=version&style=flat-square&color=brightgreen&labelColor=2f2f2f&cacheSeconds=3600" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block'" />
+    </a>
+    Server and edge compatible (Node 18+). Typed models, auth helpers, and robust error handling.
+    <p class="sdk-links"><a href="https://github.com/scalekit-inc/scalekit-sdk-node" target="_blank" rel="noopener">GitHub repository</a> <span class="sdk-dot">·</span> <a href="https://github.com/scalekit-inc/scalekit-sdk-node/releases" target="_blank" rel="noopener">Releases</a></p>
+  </FoldCard>
+  <FoldCard title="Python SDK" iconKey="python">
+    <a href="https://github.com/scalekit-inc/scalekit-sdk-python/releases" target="_blank" rel="noopener" class="sdk-badge">
+      <img alt="Python SDK version" loading="lazy" decoding="async" src="https://img.shields.io/github/v/tag/scalekit-inc/scalekit-sdk-python.svg?sort=semver&label=version&style=flat-square&color=brightgreen&labelColor=2f2f2f&cacheSeconds=3600" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block'" />
+    </a>
+    Pythonic client with simple auth utilities and retries out of the box.
+    <p class="sdk-links"><a href="https://github.com/scalekit-inc/scalekit-sdk-python" target="_blank" rel="noopener">GitHub repository</a> <span class="sdk-dot">·</span> <a href="https://github.com/scalekit-inc/scalekit-sdk-python/releases" target="_blank" rel="noopener">Releases</a></p>
+  </FoldCard>
+  <FoldCard title="Go SDK" iconKey="go">
+    <a href="https://github.com/scalekit-inc/scalekit-sdk-go/releases" target="_blank" rel="noopener" class="sdk-badge">
+      <img alt="Go SDK version" loading="lazy" decoding="async" src="https://img.shields.io/github/v/tag/scalekit-inc/scalekit-sdk-go.svg?sort=semver&label=version&style=flat-square&color=brightgreen&labelColor=2f2f2f&cacheSeconds=3600" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block'" />
+    </a>
+    Lightweight, idiomatic Go client designed for services and CLIs.
+    <p class="sdk-links"><a href="https://github.com/scalekit-inc/scalekit-sdk-go" target="_blank" rel="noopener">GitHub repository</a> <span class="sdk-dot">·</span> <a href="https://github.com/scalekit-inc/scalekit-sdk-go/releases" target="_blank" rel="noopener">Releases</a></p>
+  </FoldCard>
+  <FoldCard title="Java SDK" iconKey="java">
+    <a href="https://github.com/scalekit-inc/scalekit-sdk-java/releases" target="_blank" rel="noopener" class="sdk-badge">
+      <img alt="Java SDK version" loading="lazy" decoding="async" src="https://img.shields.io/github/v/tag/scalekit-inc/scalekit-sdk-java.svg?sort=semver&label=version&style=flat-square&color=brightgreen&labelColor=2f2f2f&cacheSeconds=3600" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block'" />
+    </a>
+    JVM-first client for Spring and other Java stacks with clear types and retries.
+    <p class="sdk-links"><a href="https://github.com/scalekit-inc/scalekit-sdk-java" target="_blank" rel="noopener">GitHub repository</a> <span class="sdk-dot">·</span> <a href="https://github.com/scalekit-inc/scalekit-sdk-java/releases" target="_blank" rel="noopener">Releases</a></p>
+  </FoldCard>
+</CardGrid>
+
+### Community SDKs
+
+<CardGrid>
+  <FoldCard title="PHP SDK" iconKey="php">
+    <a href="https://github.com/pawan1793/scalekit-php-sdk/releases" target="_blank" rel="noopener" class="sdk-badge">
+      <img alt="PHP SDK version" loading="lazy" decoding="async" src="https://img.shields.io/github/v/tag/pawan1793/scalekit-php-sdk.svg?sort=semver&label=version&style=flat-square&color=brightgreen&labelColor=2f2f2f&cacheSeconds=3600" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block'" />
+    </a>
+    Community-maintained PHP client. Review repository and README for usage and support status.
+    <p class="sdk-links"><a href="https://github.com/pawan1793/scalekit-php-sdk" target="_blank" rel="noopener">GitHub repository</a> <span class="sdk-dot">·</span> <a href="https://github.com/pawan1793/scalekit-php-sdk/releases" target="_blank" rel="noopener">Releases</a></p>
+  </FoldCard>
+</CardGrid>
