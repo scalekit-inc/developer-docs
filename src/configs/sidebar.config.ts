@@ -288,6 +288,10 @@ export const sidebar = [
           { label: 'Bring your own Auth', link: 'mcp/guides/custom-auth' },
         ],
       },
+      {
+        label: 'Integrations',
+        items: [{ label: 'FastMCP', link: 'mcp/integrations/fastmcp' }],
+      },
     ],
   },
   {
