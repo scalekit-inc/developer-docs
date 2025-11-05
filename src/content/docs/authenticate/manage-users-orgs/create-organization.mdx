@@ -83,9 +83,11 @@ Existing [Scalekit integration](/authenticate/fsa/quickstart/) to authenticate u
         </TabItem>
       </Tabs>
 
-## User creates organizations themselves <Badge text="API" variant="tip" />
+## Allow users to create organizations  <Badge text="API" />
 
-Applications often provide options for users to create their own organizations. For example, show an option for users such "Create new workspace" within their app. Use the Scalekit SDK to power such options:
+Applications often provide options for users to create their own organizations.
+
+For example, show an option for users such "Create new workspace" within their app. Use the Scalekit SDK to power such options:
 
 <Tabs syncKey="tech-stack">
   <TabItem value="node" label="Node.js">
@@ -93,9 +95,7 @@ Applications often provide options for users to create their own organizations. 
 ```javascript title="Create and manage organizations" wrap
 
 const { organization } = await scalekit.organization.createOrganization({
-  name: 'Orion Analytics',
-  externalId: 'crm-9342',
-  metadata: { billingTier: 'enterprise' }
+  name: 'Orion Analytics'
 })
 
 // Use case: Sync organization profile to downstream systems
@@ -107,9 +107,7 @@ const { organization: fetched } = await scalekit.organization.getOrganization(or
 
 ```python title="Create and manage organizations" wrap
 organization = scalekit_client.organization.create_organization(
-    name="Orion Analytics",
-    external_id="crm-9342",
-    metadata={"billingTier": "enterprise"},
+    name="Orion Analytics"
 )["organization"]
 
 # Use case: Sync organization profile to downstream systems
@@ -121,12 +119,7 @@ fetched = scalekit_client.organization.get_organization(organization["id"])
 
 ```go title="Create and manage organizations" wrap
 created, err := scalekitClient.Organization.Create(ctx, scalekit.CreateOrganizationRequest{
-    Name:       "Orion Analytics",
-    ExternalID: scalekit.String("crm-9342"),
-    Metadata: map[string]string{
-        "billingTier":    "enterprise",
-        "seatsPurchased": "100",
-    },
+    Name: "Orion Analytics",
 })
 if err != nil {
     log.Fatalf("create organization: %v", err)
@@ -147,8 +140,6 @@ if err != nil {
 Organization organization = scalekitClient.organization().create(
     CreateOrganizationRequest.builder()
         .name("Orion Analytics")
-        .externalId("crm-9342")
-        .putMetadata("billingTier", "enterprise")
         .build()
 ).organization();
 
