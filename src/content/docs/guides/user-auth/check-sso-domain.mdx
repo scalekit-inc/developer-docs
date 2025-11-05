@@ -1,120 +1,243 @@
 ---
-title: Check SSO domain
+title: Pre-check SSO by domain
 topic: dev-kit
-description: Verify if a domain has active SSO connections before redirecting users
+description: Validate that a user's email domain has an active SSO connection before redirecting to prevent dead-end redirects and improve user experience.
 browseCentral:
-  label: "Pre check active SSO connections"
+  label: "Pre-check SSO by domain"
   filterType: ["tutorial"]
   category: ["Best practices"]
   icon: book
 sidebar:
-  label: "Pre check active SSO connections"
+  label: "Pre-check SSO by domain"
 ---
 
-import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside, Badge, Steps } from '@astrojs/starlight/components';
 
-Check if a user's email domain has active SSO connections before redirecting them. This prevents failed redirects when users enter email addresses from domains without configured SSO.
+When using discovery through `loginHint`, validate that the user's email domain has an active SSO connection before redirecting. This prevents dead-end redirects and improves user experience by routing users to the correct authentication path.
 
-Use this approach when you collect email addresses first, then determine the authentication method based on the domain.
+## When to use domain pre-checking
 
-## Implementation
+Use domain pre-checking when:
+- You implement identifier-driven or SSO button flows that collect email first
+- You infer SSO availability from the user's email domain
+- You want to show helpful error messages for domains without SSO
 
-Extract the domain from the user's email, then query the connections API:
+Skip this check when:
+- You already pass `organizationId` explicitly (you know the organization)
+- You implement organization-specific pages where SSO is always available
 
-```bash title="Terminal" frame="terminal" showLineNumbers=false
-curl -sS 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/connections?domain=megacorp.org'
-```
+## Implementation workflow
 
-<Tabs syncKey="tech-stack">
-<TabItem label="Node.js">
+<Steps>
 
-```javascript title="Express.js" wrap
-const email = req.body.email;
-const domain = email.split('@')[1].toLowerCase();
+1. ## Capture the user's email and extract the domain
 
-const connections = await scalekit.connections.listConnectionsByDomain({ domain });
+   First, collect the user's email address through your login form.
 
-if (connections.length > 0) {
-  // Redirect to SSO
-  const authUrl = scalekit.getAuthorizationUrl(redirectUri, {
-    domain_hint: domain
-  });
-  res.redirect(authUrl);
-} else {
-  // Use alternative authentication
-  res.redirect('/auth/password');
-}
-```
+   ```javascript title="Login form handler"
+   // Extract domain from user's email
+   const email = req.body.email;
+   const domain = email.split('@')[1]; // e.g., "acmecorp.com"
+   ```
 
-</TabItem>
-<TabItem label="Python">
+2. ## Query for SSO connections by domain
 
-```python title="Flask" wrap
-email = request.form.get('email')
-domain = email.split('@')[1].lower()
+   Use the Scalekit API to check if the domain has an active SSO connection configured.
 
-connections = scalekit_client.connections.list_connections_by_domain(domain=domain)
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
 
-if len(connections) > 0:
-    # Redirect to SSO
-    auth_url = scalekit_client.get_authorization_url(
-        redirect_uri=redirect_uri,
-        domain_hint=domain
-    )
-    return redirect(auth_url)
-else:
-    # Use alternative authentication
-    return redirect('/auth/password')
-```
+   ```javascript title="Express.js"
+   // Use case: Check if user's domain has SSO before redirecting
+   app.post('/auth/check-sso', async (req, res) => {
+     const { email } = req.body;
+     const domain = email.split('@')[1];
 
-</TabItem>
-<TabItem label="Go">
+     try {
+       // Query Scalekit for connections matching this domain
+       const connections = await scalekit.connection.listConnections({
+         domain: domain
+       });
 
-```go title="Gin" wrap
-email := c.PostForm("email")
-domain := strings.ToLower(strings.Split(email, "@")[1])
+       if (connections.length > 0) {
+         // Domain has active SSO - redirect to SSO login
+         const authorizationURL = scalekit.getAuthorizationUrl(
+           process.env.REDIRECT_URI,
+           { loginHint: email }
+         );
+         res.json({ ssoAvailable: true, redirectUrl: authorizationURL });
+       } else {
+         // No SSO configured - route to password or social login
+         res.json({ ssoAvailable: false, message: 'Please use password login' });
+       }
+     } catch (error) {
+       console.error('Failed to check SSO availability:', error);
+       res.status(500).json({ error: 'sso_check_failed' });
+     }
+   });
+   ```
 
-connections, err := scalekitClient.Connections().ListConnectionsByDomain(domain)
-if err != nil {
-    c.Redirect(http.StatusFound, "/auth/password")
-    return
-}
+   </TabItem>
+   <TabItem value="python" label="Python">
 
-if len(connections) > 0 {
-    // Redirect to SSO
-    authURL, _ := scalekitClient.GetAuthorizationURL(redirectURI, &AuthorizationURLOptions{
-        DomainHint: &domain,
-    })
-    c.Redirect(http.StatusFound, authURL)
-} else {
-    // Use alternative authentication
-    c.Redirect(http.StatusFound, "/auth/password")
-}
-```
+   ```python title="Flask"
+   # Use case: Check if user's domain has SSO before redirecting
+   @app.route('/auth/check-sso', methods=['POST'])
+   def check_sso():
+       data = request.get_json()
+       email = data.get('email')
+       domain = email.split('@')[1]
 
-</TabItem>
-<TabItem label="Java">
+       try:
+           # Query Scalekit for connections matching this domain
+           connections = scalekit_client.connection.list_connections(
+               domain=domain
+           )
 
-```java title="Spring Boot" wrap
-String email = request.getParameter("email");
-String domain = email.split("@")[1].toLowerCase();
+           if len(connections) > 0:
+               # Domain has active SSO - redirect to SSO login
+               authorization_url = scalekit_client.get_authorization_url(
+                   redirect_uri=os.getenv("REDIRECT_URI"),
+                   options=AuthorizationUrlOptions(login_hint=email)
+               )
+               return jsonify({
+                   'ssoAvailable': True,
+                   'redirectUrl': authorization_url
+               })
+           else:
+               # No SSO configured - route to password or social login
+               return jsonify({
+                   'ssoAvailable': False,
+                   'message': 'Please use password login'
+               })
+       except Exception as error:
+           print(f"Failed to check SSO availability: {error}")
+           return jsonify({'error': 'sso_check_failed'}), 500
+   ```
 
-List<Connection> connections = scalekitClient.connections().listConnectionsByDomain(domain);
+   </TabItem>
+   <TabItem value="go" label="Go">
 
-if (!connections.isEmpty()) {
-    // Redirect to SSO
-    String authUrl = scalekitClient.getAuthorizationUrl(redirectUri,
-        AuthorizationUrlOptions.builder().domainHint(domain).build());
-    response.sendRedirect(authUrl);
-} else {
-    // Use alternative authentication
-    response.sendRedirect("/auth/password");
-}
-```
+   ```go title="Gin"
+   // Use case: Check if user's domain has SSO before redirecting
+   func checkSSOHandler(c *gin.Context) {
+       var body struct {
+           Email string `json:"email"`
+       }
+       c.BindJSON(&body)
 
-</TabItem>
-</Tabs>
+       domain := strings.Split(body.Email, "@")[1]
 
-<Aside>
-The API returns results only for domains configured with active SSO connections. Skip this check when you already have the `organizationId` or `connectionId`.
+       // Query Scalekit for connections matching this domain
+       connections, err := scalekitClient.Connection.ListConnections(
+           &scalekit.ListConnectionsOptions{
+               Domain: domain,
+           },
+       )
+
+       if err != nil {
+           log.Printf("Failed to check SSO availability: %v", err)
+           c.JSON(http.StatusInternalServerError, gin.H{"error": "sso_check_failed"})
+           return
+       }
+
+       if len(connections) > 0 {
+           // Domain has active SSO - redirect to SSO login
+           authorizationURL, _ := scalekitClient.GetAuthorizationUrl(
+               os.Getenv("REDIRECT_URI"),
+               scalekit.AuthorizationUrlOptions{
+                   LoginHint: body.Email,
+               },
+           )
+           c.JSON(http.StatusOK, gin.H{
+               "ssoAvailable": true,
+               "redirectUrl":  authorizationURL,
+           })
+       } else {
+           // No SSO configured - route to password or social login
+           c.JSON(http.StatusOK, gin.H{
+               "ssoAvailable": false,
+               "message":      "Please use password login",
+           })
+       }
+   }
+   ```
+
+   </TabItem>
+   <TabItem value="java" label="Java">
+
+   ```java title="Spring Boot"
+   // Use case: Check if user's domain has SSO before redirecting
+   @PostMapping(path = "/auth/check-sso")
+   public ResponseEntity<Map<String, Object>> checkSSOHandler(@RequestBody CheckSSORequest body) {
+       String email = body.getEmail();
+       String domain = email.split("@")[1];
+
+       try {
+           // Query Scalekit for connections matching this domain
+           ListConnectionsResponse connections = scalekitClient
+               .connection()
+               .listConnections(
+                   new ListConnectionsOptions().setDomain(domain)
+               );
+
+           if (!connections.getConnections().isEmpty()) {
+               // Domain has active SSO - redirect to SSO login
+               String authorizationURL = scalekitClient
+                   .authentication()
+                   .getAuthorizationUrl(
+                       System.getenv("REDIRECT_URI"),
+                       new AuthorizationUrlOptions().setLoginHint(email)
+                   )
+                   .toString();
+
+               Map<String, Object> response = new HashMap<>();
+               response.put("ssoAvailable", true);
+               response.put("redirectUrl", authorizationURL);
+               return ResponseEntity.ok(response);
+           } else {
+               // No SSO configured - route to password or social login
+               Map<String, Object> response = new HashMap<>();
+               response.put("ssoAvailable", false);
+               response.put("message", "Please use password login");
+               return ResponseEntity.ok(response);
+           }
+       } catch (Exception error) {
+           System.err.println("Failed to check SSO availability: " + error.getMessage());
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+               .body(Collections.singletonMap("error", "sso_check_failed"));
+       }
+   }
+   ```
+
+   </TabItem>
+   </Tabs>
+
+3. ## Route users based on SSO availability
+
+   Based on the API response, either redirect to SSO or show alternative authentication options.
+
+   ```javascript title="Client-side routing"
+   // Handle the response from your backend
+   const response = await fetch('/auth/check-sso', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({ email: userEmail })
+   });
+
+   const data = await response.json();
+
+   if (data.ssoAvailable) {
+     // Redirect to SSO login
+     window.location.href = data.redirectUrl;
+   } else {
+     // Show password login or social authentication options
+     showPasswordLoginForm();
+   }
+   ```
+
+</Steps>
+
+<Aside type="note">
+This API returns results only when organizations have configured their domains in Scalekit through **Dashboard > Organizations > [Organization] > Domains**. See the <a href="https://docs.scalekit.com/apis/#tag/connections/get/api/v1/connections" target="_blank" rel="noopener">connections API reference</a> for complete details.
 </Aside>

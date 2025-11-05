@@ -21,12 +21,20 @@ prev: false
 next: false
 ---
 
-import { Tabs, TabItem, Aside, Badge } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside, Badge, Steps } from '@astrojs/starlight/components';
 
-Add single sign-on to your login page using one of three UX strategies. Choose based on your users' needs and your application's architecture.
+Single sign-on (SSO) login requires careful UX design to balance enterprise authentication requirements with user experience. Your login page must accommodate both SSO users (who authenticate through their organization's identity provider) and non-SSO users (who use passwords or social authentication).
 
+This guide presents three proven UX strategies for adding SSO to your login page. Each strategy offers different trade-offs between user experience, implementation complexity, and administrative control. Choose the approach that best fits your users' needs and your application's architecture.
+
+The right strategy depends on your user base: identifier-driven flows work best when admins control authentication methods, explicit SSO buttons give users choice, and organization-specific login pages simplify enterprise deployments.
+
+<br />
+<div style="max-width: 500px; margin: 0 auto;">
 
 ![Login page with password and social auth methods](@/assets/docs/sso/ux-strategies/simple_login_page.png)
+
+</div>
 
 ## Strategy 1: Identifier-driven single sign-on
 
@@ -40,7 +48,12 @@ Users don't choose the authentication method. This reduces cognitive load and wo
 
 Add a "Login with SSO" button to your login page. This presents all authentication options and lets users choose their preferred method.
 
+<br />
+<div style="max-width: 500px; margin: 0 auto;">
+
 ![Explicit option for login with SSO](@/assets/docs/sso/ux-strategies/sso_button_login.png)
+
+</div>
 
 If a user attempts password login but their admin mandates SSO, force SSO-based authentication instead of showing an error. Popular products like [Cal.com](https://app.cal.com/auth/login) and [Notion](https://www.notion.so/login) use this strategy.
 
@@ -56,135 +69,11 @@ Popular products like [Zendesk](https://www.zendesk.com/in/login/) and [Slack](h
 
 ---
 
-## Initiate single sign-on from your login page
+## Next steps
 
-Construct the authorization URL using the Scalekit SDK and redirect the user to it. Use one of these options:
+After implementing your chosen SSO login strategy:
 
-<Tabs syncKey="tech-stack">
-<TabItem value="node" label="Node.js">
-
-```javascript title="login.js"
-import { Scalekit } from '@scalekit-sdk/node';
-
-const scalekit = new Scalekit('', '', '');
-const options = {};
-
-// Option 1: Use organization ID
-options['organizationId'] = 'org_15421144869927830';
-
-// Option 2: Use login hint
-options['loginHint'] = 'user@example.com';
-
-const authorizationURL = scalekit.getAuthorizationUrl(
-  redirect_uri,
-  options,
-);
-
-// Redirect user to authorizationURL
-```
-
-</TabItem>
-<TabItem value="python" label="Python">
-
-```python title="login.py"
-from scalekit import ScalekitClient, AuthorizationUrlOptions
-
-scalekit_client = ScalekitClient('', '', '')
-options = AuthorizationUrlOptions()
-
-# Option 1: Use organization ID
-options.organization_id = "org_15421144869927830"
-
-# Option 2: Use login hint
-options.login_hint = "user@example.com"
-
-authorization_url = scalekit_client.get_authorization_url(
-  redirect_uri=redirect_uri,
-  options=options
-)
-
-# Redirect user to authorization_url
-```
-
-</TabItem>
-<TabItem value="go" label="Go">
-
-```go title="login.go"
-import (
-  "github.com/scalekit-inc/scalekit-sdk-go"
-)
-
-func main() {
-  scalekitClient := scalekit.NewScalekitClient("", "", "")
-  options := scalekit.AuthorizationUrlOptions{}
-
-  // Option 1: Use organization ID
-  options.OrganizationId = "org_15421144869927830"
-
-  // Option 2: Use login hint
-  options.LoginHint = "user@example.com"
-
-  authorizationURL := scalekitClient.GetAuthorizationUrl(
-    redirectUrl,
-    options,
-  )
-
-  // Redirect user to authorizationURL
-}
-```
-
-</TabItem>
-<TabItem value="java" label="Java">
-
-```java title="LoginController.java"
-import com.scalekit.ScalekitClient;
-import com.scalekit.internal.http.AuthorizationUrlOptions;
-
-@PostMapping(path = "/login")
-public ResponseEntity<Map<String, String>> loginHandler(@RequestBody LoginRequest body) {
-  AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-
-  // Option 1: Use organization ID
-  if (body.getOrganizationId() != null) {
-    options.setOrganizationId(body.getOrganizationId());
-  }
-
-  // Option 2: Use login hint
-  if (body.getEmail() != null) {
-    options.setLoginHint(body.getEmail());
-  }
-
-  try {
-    String url = scalekit
-      .authentication()
-      .getAuthorizationUrl(redirectUrl, options)
-      .toString();
-    return ResponseEntity.ok(Collections.singletonMap("url", url));
-  } catch (Exception e) {
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .body(Collections.singletonMap("error", e.getMessage()));
-  }
-}
-```
-
-</TabItem>
-</Tabs>
-
-
-#### Pre-check SSO by domain
-
-When using discovery (`domain_hint` or `login_hint`), check if the user's email domain maps to an active SSO connection before redirecting. This prevents dead-end redirects and routes users to the correct authentication path.
-
-**When to use:**
-- You ask for email first or infer SSO from the domain
-- Skip when you already pass `organizationId` or `connectionId` explicitly
-
-**Implementation steps:**
-1. Ask for email and extract the domain
-2. Query for connections by domain
-3. If found → redirect with `domain_hint` (or `connectionId`)
-4. If none → route to your non‑SSO flow
-
-<Aside>
-This check returns results only when the customer has added their domains in Scalekit. See the <a href="https://docs.scalekit.com/apis/#tag/connections/get/api/v1/connections" target="_blank" rel="noopener">connections API reference</a>.
-</Aside>
+- [Pre-check SSO by domain](/guides/user-auth/check-sso-domain/) - Validate email domains have active SSO before redirecting
+- [Handle authentication callback](/sso/guides/handle-callback/) - Exchange authorization codes for user data and tokens
+- [Manage user sessions](/sso/guides/manage-session/) - Store and validate session tokens securely
+- [Configure session policies](/sso/guides/session-policy/) - Control token lifetimes and refresh behavior
