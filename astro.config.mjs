@@ -123,7 +123,7 @@ export default defineConfig({
             id: 'hs-script-loader',
             async: true,
             defer: true,
-            src: '//js-na2.hs-scripts.com/44204598.js',
+            src: '/js-na2.hs-scripts.com/44204598.js',
           },
         },
       ],
