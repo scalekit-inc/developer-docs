@@ -1,0 +1,51 @@
+---
+title: Secure MCP with Google Login
+description: "Use Scalekit's out-of-the-box Google connection to authenticate your MCP server from the first request."
+sidebar:
+  order: 2
+  label: "Google"
+tableOfContents:
+  maxHeadingLevel: 3
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+      .sl-markdown-content h2 {
+          font-size: var(--sl-text-xl);
+       }
+      .sl-markdown-content h3 {
+          font-size: var(--sl-text-lg);
+       }
+next:
+  label: "Microsoft"
+  link: /guides/integrations/social-connections/microsoft
+---
+
+import { getEntry, render } from 'astro:content'
+
+export default async function Page(props) {
+  const googleGuide = await getEntry('docs', 'guides/integrations/social-connections/google')
+  const { Content } = await render(googleGuide)
+
+  if (import.meta.env.DEV) {
+    const fieldsToCheck = ['title', 'description', 'sidebar', 'tableOfContents', 'prev', 'next']
+    const mismatches = fieldsToCheck.filter((field) => {
+      const ourValue = structuredClone(frontmatter[field])
+      const theirValue = structuredClone(googleGuide.data[field])
+      return JSON.stringify(ourValue) !== JSON.stringify(theirValue)
+    })
+    if (mismatches.length) {
+      console.warn(
+        `mcp/auth-methods/google frontmatter differs from guides/integrations/social-connections/google: ${mismatches.join(', ')}`,
+      )
+    }
+  }
+
+  return (
+    <>
+    <Content {...props} />
+    </>
+  )
+}
