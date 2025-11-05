@@ -289,10 +289,12 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Integrations',
+        items: [{ label: 'FastMCP', link: 'mcp/integrations/fastmcp' }],
+      },
+      {
         label: 'Authenticate with Social',
         autogenerate: { directory: 'mcp/social-connections' },
-        // autogenerate: { directory: 'reference/webhooks' },
-        // { label: 'Google', link: 'mcp/social-connections/google' },
       },
     ],
   },
