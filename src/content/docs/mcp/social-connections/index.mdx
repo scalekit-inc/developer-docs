@@ -293,15 +293,9 @@ const server = new McpServer({ name: 'Greeting MCP', version: '1.0.0' });
 
 server.tool(
   'greet_user',
+  'Greets the user with a personalized message.',
   {
-    description: 'Greets the user with a personalized message.',
-    parameters: {
-      type: 'object',
-      properties: {
-        name: { type: 'string', description: 'Name of the user to greet' }
-      },
-      required: ['name']
-    }
+    name: z.string().min(1, 'Name is required'),
   },
   async ({ name }: { name: string }) => ({
     content: [{ type: 'text', text: `Hi ${name}, welcome to Scalekit!` }]
