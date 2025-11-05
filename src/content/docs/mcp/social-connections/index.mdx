@@ -1,0 +1,428 @@
+---
+title: Secure MCP with Social Login
+description: Use Scalekit's out-of-the-box social connections to authenticate your MCP server from the first request.
+tableOfContents:
+  maxHeadingLevel: 3
+sidebar:
+  order: 1
+  label: Overview
+---
+import Subtitle from '@/components/ui/Subtitle.astro'
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+<Subtitle>Authenticate your MCP server with Social Connections in minutes.</Subtitle>
+
+Scalekit supports a variety of social connections out-of-the-box, such as Google, Microsoft, GitHub, GitLab, LinkedIn, Salesforce. In this section, we will use Google authentication because the moment you sign up, your workspace already knows how to mint access tokens for users who authenticate with Google, and every MCP server you register can rely on that identity. This article walks through the end-to-end flow using the FastMCP + FastAPI reference implementation as the primary example, with an optional Node.js alternative.
+
+## Before you start
+
+- A Scalekit workspace (https://app.scalekit.com).
+- Python or node installed
+- MCP Inspector installed locally to test the connection.
+
+## Verify your Google connection is enabled
+
+In the Scalekit dashboard, open **[Dashboard](https://app.scalekit.com) -> Settings -> Authentication -> Auth Methods -> Social Login**. You should see **Google** listed as `Enabled`.
+
+![Google Auth Method](@/assets/docs/guides/mcp/google-auth-methods.png)
+
+## Create your MCP server entry
+
+1. Navigate to **[Dashboard](https://app.scalekit.com)** -> **MCP Servers** and click **Add MCP Server**.
+2. Give your server a friendly name (for example, `Greeting MCP`).
+3. Set the resource identifier to the URL your server will use (for local tests this is `http://localhost:3002/`).
+
+![Greeting MCP Register](@/assets/docs/guides/mcp/greeting-mcp-register.png)
+
+When you save, Scalekit shows the OAuth-protected resource metadata. Copy the endpoint and metadata json as is required by for implementations below.
+
+![Greeting MCP Register](@/assets/docs/guides/mcp/greeting-protected-json.png)
+
+## Build your MCP server
+
+<Tabs>
+  <TabItem value="python" label="Python">
+
+Follow these steps to assemble a Google-authenticated MCP server from scratch.
+
+```bash
+mkdir google-mcp-python
+cd google-mcp-python
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Create `requirements.txt`:
+
+```bash
+cat <<'REQ' > requirements.txt
+mcp>=1.0.0
+fastapi>=0.104.0
+fastmcp>=0.8.0
+uvicorn>=0.24.0
+pydantic>=2.5.0
+python-dotenv>=1.0.0
+httpx>=0.25.0
+python-jose[cryptography]>=3.3.0
+cryptography>=41.0.0
+scalekit-sdk-python>=2.4.0
+starlette>=0.27.0
+REQ
+pip install -r requirements.txt
+```
+
+Create `.env` with the values from your Scalekit workspace (replace the placeholders):
+
+```bash
+cat <<'ENV' > .env
+PORT=3002
+SK_ENV_URL=https://<your-env>.scalekit.com
+SK_CLIENT_ID=<your-client-id>
+SK_CLIENT_SECRET=<your-client-secret>
+MCP_SERVER_ID=<mcp-server-id-from-dashboard>
+PROTECTED_RESOURCE_METADATA='<resource-metadata-json>'
+EXPECTED_AUDIENCE=http://localhost:3002/
+ENV
+open .env
+```
+
+Create `main.py` and paste the complete server implementation:
+
+```python title="main.py"
+import json
+import os
+from fastapi import FastAPI, Request, Response
+from fastmcp import FastMCP, Context
+from scalekit import ScalekitClient
+from scalekit.common.scalekit import TokenValidationOptions
+from starlette.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+
+load_dotenv()
+
+PORT = int(os.getenv("PORT", "3002"))
+SK_ENV_URL = os.getenv("SK_ENV_URL", "")
+SK_CLIENT_ID = os.getenv("SK_CLIENT_ID", "")
+SK_CLIENT_SECRET = os.getenv("SK_CLIENT_SECRET", "")
+EXPECTED_AUDIENCE = os.getenv("EXPECTED_AUDIENCE", "")
+PROTECTED_RESOURCE_METADATA = os.getenv("PROTECTED_RESOURCE_METADATA", "")
+
+RESOURCE_METADATA_URL = f"http://localhost:{PORT}/.well-known/oauth-protected-resource"
+WWW_HEADER = {"WWW-Authenticate": f'Bearer realm="OAuth", resource_metadata="{RESOURCE_METADATA_URL}"'}
+
+scalekit_client = ScalekitClient(
+    env_url=SK_ENV_URL,
+    client_id=SK_CLIENT_ID,
+    client_secret=SK_CLIENT_SECRET,
+)
+
+mcp = FastMCP("Greeting MCP", stateless_http=True)
+
+@mcp.tool(name="greet_user", description="Greets the user with a personalized message.")
+async def greet_user(name: str, ctx: Context | None = None) -> dict:
+    return {"content": [{"type": "text", "text": f"Hi {name}, welcome to Scalekit!"}]}
+
+mcp_app = mcp.http_app(path="/")
+app = FastAPI(lifespan=mcp_app.lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"]
+)
+
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    if request.url.path in {"/health", "/.well-known/oauth-protected-resource"}:
+        return await call_next(request)
+
+    auth_header = request.headers.get("authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return Response("{\"error\": \"Missing Bearer token\"}", 401, WWW_HEADER, media_type="application/json")
+
+    token = auth_header.split("Bearer ", 1)[1].strip()
+    options = TokenValidationOptions(issuer=SK_ENV_URL, audience=[EXPECTED_AUDIENCE])
+    try:
+        is_valid = scalekit_client.validate_access_token(token, options=options)
+        if not is_valid:
+            raise ValueError("Invalid token")
+    except Exception:
+        return Response("{\"error\": \"Token validation failed\"}", 401, WWW_HEADER, media_type="application/json")
+
+    return await call_next(request)
+
+@app.get("/.well-known/oauth-protected-resource")
+async def oauth_metadata():
+    if not PROTECTED_RESOURCE_METADATA:
+        return Response("{\"error\": \"PROTECTED_RESOURCE_METADATA config missing\"}", 500, media_type="application/json")
+    metadata = json.loads(PROTECTED_RESOURCE_METADATA)
+    return Response(json.dumps(metadata, indent=2), media_type="application/json")
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+
+app.mount("/", mcp_app)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
+```
+
+Start the server:
+
+```bash
+python main.py
+```
+
+The MCP endpoint now runs at `http://localhost:3002/` and accepts only Google-authenticated requests issued by Scalekit.
+  </TabItem>
+  <TabItem value="node" label="Node.js">
+
+Build a TypeScript + Express server that mirrors the Python implementation.
+
+```bash
+mkdir google-mcp-node
+cd google-mcp-node
+```
+
+Scaffold `package.json` with scripts and dependencies:
+
+```bash
+cat <<'PKG' > package.json
+{
+  "name": "google-mcp-node",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.0",
+    "@scalekit-sdk/node": "^2.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.19",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.5"
+  }
+}
+PKG
+```
+
+Add a TypeScript configuration:
+
+```bash
+cat <<'TS' > tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["node"]
+  },
+  "include": ["src/**/*"]
+}
+TS
+```
+
+Install the dependencies declared above:
+
+```bash
+npm install
+```
+
+Create `.env` with your workspace values:
+
+```bash
+cat <<'ENV' > .env
+PORT=3002
+SK_ENV_URL=https://<your-workspace>.scalekit.com
+SK_CLIENT_ID=<client-id-for-google-connection>
+SK_CLIENT_SECRET=<client-secret-for-google-connection>
+MCP_SERVER_ID=<mcp-server-id-from-dashboard>
+PROTECTED_RESOURCE_METADATA='<resource-metadata-json>'
+EXPECTED_AUDIENCE=http://localhost:3002/
+ENV
+```
+
+Add the Express server in TypeScript:
+
+```bash
+mkdir -p src
+cat <<'TS' > src/server.ts
+import 'dotenv/config';
+import cors from 'cors';
+import express, { NextFunction, Request, Response } from 'express';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { Scalekit } from '@scalekit-sdk/node';
+
+const PORT = Number(process.env.PORT ?? 3002);
+const SK_ENV_URL = process.env.SK_ENV_URL ?? '';
+const SK_CLIENT_ID = process.env.SK_CLIENT_ID ?? '';
+const SK_CLIENT_SECRET = process.env.SK_CLIENT_SECRET ?? '';
+const EXPECTED_AUDIENCE = process.env.EXPECTED_AUDIENCE ?? '';
+const PROTECTED_RESOURCE_METADATA = process.env.PROTECTED_RESOURCE_METADATA ?? '';
+const RESOURCE_METADATA_URL = `http://localhost:${PORT}/.well-known/oauth-protected-resource`;
+
+const WWW_HEADER_KEY = 'WWW-Authenticate';
+const WWW_HEADER_VALUE = `Bearer realm="OAuth", resource_metadata="${RESOURCE_METADATA_URL}"`;
+
+const scalekit = new Scalekit(SK_ENV_URL, SK_CLIENT_ID, SK_CLIENT_SECRET);
+const server = new McpServer({ name: 'Greeting MCP', version: '1.0.0' });
+
+server.tool(
+  'greet_user',
+  {
+    description: 'Greets the user with a personalized message.',
+    parameters: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: 'Name of the user to greet' }
+      },
+      required: ['name']
+    }
+  },
+  async ({ name }: { name: string }) => ({
+    content: [{ type: 'text', text: `Hi ${name}, welcome to Scalekit!` }]
+  })
+);
+
+const app = express();
+app.use(cors({ origin: true, credentials: false }));
+app.use(express.json());
+
+app.get('/.well-known/oauth-protected-resource', (_req: Request, res: Response) => {
+  if (!PROTECTED_RESOURCE_METADATA) {
+    res.status(500).json({ error: 'PROTECTED_RESOURCE_METADATA config missing' });
+    return;
+  }
+  const metadata = JSON.parse(PROTECTED_RESOURCE_METADATA);
+  res.type('application/json').send(JSON.stringify(metadata, null, 2));
+});
+
+app.get('/health', (_req: Request, res: Response) => {
+  res.json({ status: 'healthy' });
+});
+
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+  if (req.path === '/.well-known/oauth-protected-resource' || req.path === '/health') {
+    next();
+    return;
+  }
+
+  const header = req.headers.authorization;
+  const token = header?.startsWith('Bearer ')
+    ? header.slice('Bearer '.length).trim()
+    : undefined;
+
+  if (!token) {
+    res.status(401).set(WWW_HEADER_KEY, WWW_HEADER_VALUE).json({ error: 'Missing Bearer token' });
+    return;
+  }
+
+  try {
+    await scalekit.validateToken(token, { audience: [EXPECTED_AUDIENCE] });
+    next();
+  } catch (error) {
+    res.status(401).set(WWW_HEADER_KEY, WWW_HEADER_VALUE).json({ error: 'Token validation failed' });
+  }
+});
+
+app.post('/', async (req: Request, res: Response) => {
+  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+  await server.connect(transport);
+  try {
+    await transport.handleRequest(req, res, req.body);
+  } catch (error) {
+    res.status(500).json({ error: 'MCP transport error' });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`MCP server running on http://localhost:${PORT}`);
+});
+TS
+```
+
+Run the server in watch mode:
+
+```bash
+npm run dev
+```
+
+For a production build:
+
+```bash
+npm run build
+npm start
+```
+
+The MCP endpoint is now live at `http://localhost:3002/`, secured by the same Google-backed authentication flow.
+  </TabItem>
+</Tabs>
+
+## Connect with MCP Inspector
+
+Launch MCP Inspector
+```bash
+npx @modelcontextprotocol/inspector@latest
+```
+
+Provide your MCP Server URL: `http://localhost:3002`
+
+![MCP Inspector Google](@/assets/docs/guides/mcp/mcp-inspector-google.png)
+
+## Explore More Social Integrations Here
+
+import { Card, LinkCard } from '@astrojs/starlight/components'
+
+<div>
+  <LinkCard
+    title="Google"
+    description="Set up Google authentication for your MCP server"
+    href="/mcp/social-connections/google/"
+  />
+  <LinkCard
+    title="Microsoft"
+    description="Set up Microsoft authentication for your MCP server"
+    href="/mcp/social-connections/microsoft/"
+  />
+  <LinkCard
+    title="GitHub"
+    description="Set up GitHub authentication for your MCP server"
+    href="/mcp/social-connections/github/"
+  />
+  <LinkCard
+    title="GitLab"
+    description="Set up GitLab authentication for your MCP server"
+    href="/mcp/social-connections/gitlab/"
+  />
+  <LinkCard
+    title="LinkedIn"
+    description="Set up LinkedIn authentication for your MCP server"
+    href="/mcp/social-connections/linkedin/"
+  />
+  <LinkCard
+    title="Salesforce"
+    description="Set up Salesforce authentication for your MCP server"
+    href="/mcp/social-connections/salesforce/"
+  />
+</div>

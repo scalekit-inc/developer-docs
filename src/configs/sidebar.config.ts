@@ -288,6 +288,12 @@ export const sidebar = [
           { label: 'Bring your own Auth', link: 'mcp/guides/custom-auth' },
         ],
       },
+      {
+        label: 'Authenticate with Social',
+        autogenerate: { directory: 'mcp/social-connections' },
+        // autogenerate: { directory: 'reference/webhooks' },
+        // { label: 'Google', link: 'mcp/social-connections/google' },
+      },
     ],
   },
   {
