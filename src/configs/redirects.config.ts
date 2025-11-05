@@ -49,7 +49,8 @@ export const redirects = {
   '/sso/guides/key-concepts/idtoken-claims': '/guides/idtoken-claims/',
   '/sso/guides/key-concepts/manage-client-secrets': '/guides/client-credentials-practices/',
   '/sso/guides/key-concepts/user-profile': '/sso/guides/user-profile-details/',
-  '/sso/guides/test-your-integration/using-okta': '/sso/guides/okta-sso-test/',
+  '/sso/guides/test-your-integration/using-okta': '/sso/guides/test-sso/',
+  '/sso/guides/okta-sso-test/': '/sso/guides/test-sso/',
   '/sso/reference/redirects': '/guides/dashboard/redirects/',
 
   // SSO integrations with auth systems

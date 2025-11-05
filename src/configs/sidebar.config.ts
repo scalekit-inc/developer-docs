@@ -7,7 +7,7 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['index', 'authenticate/fsa/quickstart'],
+        items: ['index', 'authenticate/fsa/quickstart', 'mcp/quickstart', 'sso/quickstart'],
       },
       {
         label: 'User authentication',
@@ -64,10 +64,8 @@ export const sidebar = [
       {
         label: 'Standalone auth modules',
         items: [
-          'mcp/quickstart',
           'passwordless/quickstart',
           'guides/user-auth/standalone-social-logins',
-          'sso/quickstart',
           'directory/scim/quickstart',
           'authenticate/m2m/api-auth-quickstart',
         ],
@@ -172,7 +170,6 @@ export const sidebar = [
         items: [
           'sso/guides/authorization-url',
           'guides/dashboard/allowed-callback-url',
-          'fsa/guides/onboard-enterprise-customers',
           {
             label: 'Claims',
             items: ['guides/idtoken-claims', 'guides/accesstoken-claims'],
@@ -199,12 +196,11 @@ export const sidebar = [
             label: 'SSO',
             items: [
               'sso/guides/sso-basics',
-              'sso/guides/sso-user-attributes',
               'sso/guides/add-login-ux-sso',
+              'guides/user-auth/check-sso-domain',
+              'sso/guides/sso-user-attributes',
               'sso/guides/idp-init-sso',
               'sso/guides/test-sso',
-              'sso/guides/okta-sso-test',
-              'guides/user-auth/check-sso-domain',
             ],
           },
           {
@@ -212,6 +208,7 @@ export const sidebar = [
             items: ['directory/guides/user-provisioning-basics', 'directory/guides/scim-protocol'],
           },
           'guides/admin-portal',
+          'fsa/guides/onboard-enterprise-customers',
           {
             label: 'View all integrations',
             link: 'guides/integrations',
@@ -488,7 +485,6 @@ export const topics = {
     '/sso/guides/add-login-ux-sso',
     '/sso/guides/idp-init-sso',
     '/sso/guides/test-sso',
-    '/sso/guides/okta-sso-test',
     '/sso/guides/sso-basics',
     '/sso/guides/sso-migration-strategy',
     // Directory/SCIM guides
