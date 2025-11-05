@@ -206,7 +206,8 @@ cat <<'PKG' > package.json
     "@scalekit-sdk/node": "^2.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "zod": "^3.25.57"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
@@ -248,18 +249,19 @@ Install the dependencies declared above:
 npm install
 ```
 
-Create `.env` with your workspace values:
+Create `.env` with the values from your Scalekit environment (replace the placeholders). You can find these values in **Dashboard -> Settings** and **Dashboard -> MCP Servers -> Metadata JSON**
 
 ```bash
 cat <<'ENV' > .env
 PORT=3002
-SK_ENV_URL=https://<your-workspace>.scalekit.com
-SK_CLIENT_ID=<client-id-for-google-connection>
-SK_CLIENT_SECRET=<client-secret-for-google-connection>
+SK_ENV_URL=https://<your-env>.scalekit.com
+SK_CLIENT_ID=<your-client-id>
+SK_CLIENT_SECRET=<your-client-secret>
 MCP_SERVER_ID=<mcp-server-id-from-dashboard>
 PROTECTED_RESOURCE_METADATA='<resource-metadata-json>'
 EXPECTED_AUDIENCE=http://localhost:3002/
 ENV
+open .env
 ```
 
 Add the Express server in TypeScript:
@@ -270,6 +272,7 @@ cat <<'TS' > src/server.ts
 import 'dotenv/config';
 import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
+import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { Scalekit } from '@scalekit-sdk/node';
