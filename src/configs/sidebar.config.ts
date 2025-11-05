@@ -245,10 +245,6 @@ export const sidebar = [
         items: ['authenticate/interceptors/interceptor-scenarios'],
       },
       {
-        label: 'Third-party integrations',
-        items: [],
-      },
-      {
         label: 'AI & agent authentication',
         items: ['mcp/intro-to-mcp-auth', 'mcp/guides/custom-auth'],
       },
