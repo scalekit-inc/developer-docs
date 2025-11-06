@@ -5,9 +5,10 @@ export const sidebar = [
     link: '/authenticate',
     icon: 'seti:lock',
     items: [
+      'index',
       {
-        label: 'Getting started',
-        items: ['index', 'authenticate/fsa/quickstart', 'mcp/quickstart', 'sso/quickstart'],
+        label: 'Quickstarts',
+        items: ['authenticate/fsa/quickstart', 'mcp/quickstart', 'sso/quickstart'],
       },
       {
         label: 'User authentication',
