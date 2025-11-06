@@ -212,6 +212,10 @@ export const sidebar = [
           {
             label: 'View all integrations',
             link: 'guides/integrations',
+            badge: {
+              text: '25+',
+              variant: 'tip',
+            },
             attrs: { target: '_blank', rel: 'noopener' },
           },
         ],
