@@ -153,6 +153,60 @@ export const sidebar = [
     ],
   },
   {
+    label: 'MCP Auth',
+    link: '/guides/mcp/overview',
+    id: 'mcp',
+    icon: 'seti:puppet',
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'mcp/overview',
+          'mcp/oauth',
+          { label: 'Troubleshooting Guide', link: 'mcp/troubleshooting' },
+          { label: 'Bring your own Auth', link: 'mcp/guides/custom-auth' },
+        ],
+      },
+      {
+        label: 'Integrations',
+        items: [{ label: 'FastMCP', link: 'mcp/integrations/fastmcp' }],
+      },
+    ],
+  },
+  {
+    label: 'API Auth',
+    link: '/m2m/quickstart',
+    id: 'm2m',
+    icon: 'seti:crystal_embedded',
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'guides/m2m/overview',
+          'm2m/quickstart',
+          {
+            label: 'Code examples',
+            link: 'https://github.com/scalekit-inc/gists/tree/main/m2m',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+      {
+        label: 'Guides',
+        items: [
+          'guides/m2m/m2m-basics',
+          'guides/m2m/scopes',
+          'guides/m2m/api-auth-m2m-clients',
+          {
+            label: 'Interceptors',
+            link: '/guides/auth-flow-interceptors',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+    ],
+  },
+  {
     label: 'Developer Resources',
     id: 'dev-kit',
     link: '/dev-kit/',
