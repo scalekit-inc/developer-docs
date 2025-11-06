@@ -114,6 +114,7 @@ export const sidebar = [
           // 'agent-actions/frameworks/agno',
           // 'agent-actions/frameworks/openai',
           // 'agent-actions/frameworks/anthropic',
+          'browse/code-samples/agent-framework-examples',
         ],
       },
       {
@@ -183,11 +184,38 @@ export const sidebar = [
           'guides/dashboard/intitate-login-endpoint',
           'guides/user-auth/login-scenarios',
           'guides/dashboard/redirects',
+          {
+            label: 'Code samples',
+            items: [
+              'browse/code-samples/cognito-examples',
+              'browse/code-samples/full-stack-auth-examples',
+              'browse/code-samples/hosted-login-examples',
+              'browse/code-samples/gists/auth-code-exchange-scalekit-sdk',
+              'browse/vids/fsa-walkthrough',
+              'browse/vids/passwordless-walkthrough',
+            ],
+          },
         ],
       },
       {
         label: 'API authentication',
-        items: ['guides/m2m/overview', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
+        items: [
+          'guides/m2m/overview',
+          'guides/m2m/scopes',
+          'guides/m2m/api-auth-m2m-clients',
+          {
+            label: 'Code samples',
+            items: ['browse/code-samples/gists/client-credentials-auth'],
+          },
+        ],
+      },
+      {
+        label: 'MCP authentication',
+        items: ['mcp/intro-to-mcp-auth', 'mcp/guides/custom-auth'],
+      },
+      {
+        label: 'Code samples',
+        items: ['browse/vids/mcp-oauth-walkthrough', 'browse/code-samples/github/mcp-auth-demos'],
       },
       {
         label: 'Enterprise authentication',
@@ -218,139 +246,46 @@ export const sidebar = [
             },
             attrs: { target: '_blank', rel: 'noopener' },
           },
+          {
+            label: 'Code samples',
+            items: [
+              'browse/code-samples/github/admin-portal-embedding',
+              'browse/code-samples/sso-examples',
+              'browse/code-samples/github/sso-migrations-example',
+              'browse/code-samples/firebase-examples',
+              'browse/vids/sso-walkthrough',
+              'browse/vids/scim-walkthrough',
+            ],
+          },
         ],
       },
       {
-        label: 'User & organization management',
+        label: 'Organizations and users',
         collapsed: false,
         items: [
-          'guides/user-management/scim-provisioning',
           'fsa/guides/signup-restrictions',
           'fsa/guides/user-invitations',
-          'guides/user-management/manage-org-memberships',
-          'fsa/guides/migration-guide',
-          'fsa/guides/organization-identifiers',
+          'guides/user-management/scim-provisioning',
           'fsa/guides/merge-identities',
           'fsa/reference/user-management-settings',
         ],
       },
       {
         label: 'Authorization',
+        items: ['directory/guides/group-based-role-assignment'],
+      },
+      {
+        label: 'Migrations',
+        items: ['fsa/guides/migration-guide'],
+      },
+      {
+        label: 'Customize',
         items: [
-          'dev-kit/resources/authorization-best-practices',
-          'directory/guides/group-based-role-assignment',
-        ],
-      },
-      {
-        label: 'Authentication workflows',
-        items: ['authenticate/interceptors/interceptor-scenarios'],
-      },
-      {
-        label: 'AI & agent authentication',
-        items: ['mcp/intro-to-mcp-auth', 'mcp/guides/custom-auth'],
-      },
-      {
-        label: 'Code Samples & Demos',
-        items: [
-          'browse/code-samples/github/api-collections',
-          'browse/vids/fsa-walkthrough',
-          'browse/vids/passwordless-walkthrough',
-          'browse/code-samples/gists/client-credentials-auth',
-          'browse/code-samples/gists/auth-code-exchange-scalekit-sdk',
+          'fsa/guides/organization-identifiers',
+          'authenticate/interceptors/interceptor-scenarios',
           {
-            label: 'Build with Next.js',
-            link: '/browse/code-samples/github/nextjs-full-stack-auth',
-          },
-          {
-            label: 'Next.js demo app',
-            link: '/browse/code-samples/github/nextjs-demo-application',
-          },
-          {
-            label: 'Build with Express.js',
-            link: '/browse/code-samples/github/expressjs-example',
-          },
-          {
-            label: 'Build with Spring Boot',
-            link: '/browse/code-samples/github/spring-boot-example',
-          },
-          {
-            label: 'Build with FastAPI',
-            link: '/browse/code-samples/github/fastapi-example',
-          },
-          {
-            label: 'Build with Go',
-            link: '/browse/code-samples/github/go-example-application',
-          },
-          {
-            label: 'Express.js login box',
-            link: '/browse/code-samples/github/expressjs-login-box',
-          },
-          {
-            label: 'Managed login demo',
-            link: '/browse/code-samples/github/managed-login-box-demo',
-          },
-          {
-            label: 'Code snippets',
-            link: '/browse/code-samples/github/code-gists-collection',
-          },
-          'browse/vids/sso-walkthrough',
-          'browse/vids/scim-walkthrough',
-          'browse/vids/mcp-oauth-walkthrough',
-          {
-            label: 'Express.js SSO demo',
-            link: '/browse/code-samples/github/expressjs-sso-demo',
-          },
-          {
-            label: 'SSO migration guide',
-            link: '/browse/code-samples/github/sso-migrations-example',
-          },
-          {
-            label: 'OIDC & SAML examples',
-            link: '/browse/code-samples/github/oidc-saml-scim-examples',
-          },
-          {
-            label: 'Build with .NET Core',
-            link: '/browse/code-samples/github/dotnet-core-examples',
-          },
-          {
-            label: 'Embed admin portal',
-            link: '/browse/code-samples/github/admin-portal-embedding',
-          },
-          {
-            label: 'Handle webhook events',
-            link: '/browse/code-samples/github/webhook-events',
-          },
-          {
-            label: 'Firebase integration',
-            link: '/browse/code-samples/github/firebase-integration',
-          },
-          {
-            label: 'Firebase with Node.js',
-            link: '/browse/code-samples/github/firebase-node-example',
-          },
-          {
-            label: 'AWS Cognito integration',
-            link: '/browse/code-samples/github/aws-cognito-integration',
-          },
-          {
-            label: 'Cognito with Next.js',
-            link: '/browse/code-samples/github/cognito-nextjs',
-          },
-          {
-            label: 'LangChain integration',
-            link: '/browse/code-samples/github/langchain-integration',
-          },
-          {
-            label: 'Google ADK integration',
-            link: '/browse/code-samples/github/google-adk-integration',
-          },
-          {
-            label: 'Direct agent integration',
-            link: '/browse/code-samples/github/direct-integration',
-          },
-          {
-            label: 'MCP authentication',
-            link: '/browse/code-samples/github/mcp-auth-demos',
+            label: 'Code samples',
+            items: ['browse/code-samples/github/webhook-events'],
           },
         ],
       },
@@ -359,6 +294,7 @@ export const sidebar = [
         collapsed: false,
         items: [
           'guides/security/authentication-best-practices',
+          'dev-kit/resources/authorization-best-practices',
           'guides/security/csrf-protection',
           'guides/client-credentials-practices',
           'guides/webhooks-best-practices',

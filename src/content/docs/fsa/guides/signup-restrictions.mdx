@@ -8,7 +8,7 @@ browseCentral:
   category: ["User management"]
   icon: book
 sidebar:
-  label: "Restricting signups"
+  label: "Sign up email restrictions"
 head:
   - tag: style
     content: |
@@ -18,15 +18,38 @@ head:
       .sl-markdown-content h3 {
         font-size: var(--sl-text-lg);
       }
+prev:
+  label: Onboard enterprise customers
+  link: /fsa/guides/onboard-enterprise-customers/
+next:
+  label: Invite users to organizations
+  link: /fsa/guides/user-invitations/
+seeAlso:
+  label: Related guides
+  expanded: false
+  items:
+    - title: Invite users to organizations
+      icon: book
+      url: /fsa/guides/user-invitations/
+    - title: User management settings
+      icon: seti:config
+      url: /fsa/reference/user-management-settings/
+    - title: SCIM user provisioning
+      icon: book
+      url: /guides/user-management/scim-provisioning/
 
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Steps, Aside } from '@astrojs/starlight/components';
 
-Sign-up restrictions control who can create accounts or be invited to existing organizations. This helps maintain data quality and prevent misuse by ensuring that only users with legitimate email addresses join your application. You can use sign-up restrictions to:
+Sign-up restrictions help you maintain data quality and prevent abuse by controlling who can create accounts in your application. This is particularly important for B2B applications where you need to ensure users have legitimate business email addresses rather than personal or temporary accounts.
 
-- Prevent registrations and invitations from generic email domains such as `@gmail.com` or `@outlook.com`.
-- Block disposable email addresses from signing up or being invited to your application.
+These restrictions automatically block registrations and invitations from two types of email addresses:
+
+- **Generic email domains** - Public email providers like `@gmail.com`, `@outlook.com`, or `@yahoo.com` that anyone can use
+- **Disposable email addresses** - Temporary email services often used for spam, trial abuse, or avoiding accountability
+
+When enabled, these restrictions apply to both direct signups and organization invitations, ensuring consistent policy enforcement across your application. This prevents users from creating multiple trial accounts, maintains clean analytics, and ensures your user base consists of verified business contacts.
 
 The following diagram illustrates how sign-up restrictions work:
 
@@ -49,8 +72,29 @@ Scalekit -- restricted: "🚫"
 
 ## Set sign-up restrictions
 
-Go to **Authentication** > **General** in your Scalekit dashboard and toggle the following options based on what suits your application. Click **Save**
+<Steps>
+1. ### Navigate to sign-up restrictions settings
 
-![](@/assets/docs/signup-restrictions/ui.png)
+   Go to **Dashboard > Authentication > General** and locate the sign-up restrictions section.
 
-You can always come back to this section to update your sign-up restrictions.
+2. ### Configure restriction options
+
+   Toggle the following options based on what suits your application:
+
+   - **Block disposable email domains**: Prevents temporary/disposable email addresses from signing up or being invited
+   - **Block public email domains**: Prevents generic email providers like Gmail, Outlook, Yahoo from creating organizations
+
+   ![](@/assets/docs/signup-restrictions/ui.png)
+
+   <Aside type="tip" title="Choosing the right restrictions">
+     Enable disposable email blocking for all production applications to prevent abuse. Only enable public email blocking if you're building a B2B application that requires verified business identities.
+   </Aside>
+
+3. ### Save your settings
+
+   Click **Save** to apply the restrictions. Changes take effect immediately for all new signups and invitations.
+
+   <Aside type="note">
+     Existing users with restricted email domains remain unaffected. You can return to this section anytime to update your restrictions.
+   </Aside>
+</Steps>
