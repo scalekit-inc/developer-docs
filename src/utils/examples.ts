@@ -34,20 +34,21 @@ const FILTER_LABELS = {
 } as const
 
 const CATEGORY_ORDER = [
-  'Basics',
   'Setup dev environment',
+  'Basics',
   'User authentication',
-  'User management',
+  'API authentication',
+  'MCP authentication',
   'Enterprise authentication',
-  'Machine to Machine',
-  'Auth modules',
-  'Customize workflows',
-  'Integrations',
+  'Organizations and users',
+  'Authorization',
+  'Migrations',
+  'Customize',
   'Agent & AI examples',
-  'SDK examples',
+  'Code samples',
   'Admin portal',
   'Best practices',
-  'Support',
+  'Support & resources',
 ] as const
 
 export async function loadBrowserCentralDocs(): Promise<Resource[]> {
