@@ -175,7 +175,7 @@ export const sidebar = [
   },
   {
     label: 'API Auth',
-    link: '/m2m/quickstart',
+    link: '/authenticate/m2m/api-auth-quickstart',
     id: 'm2m',
     icon: 'seti:crystal_embedded',
     items: [
@@ -183,7 +183,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'guides/m2m/overview',
-          'm2m/quickstart',
+          'authenticate/m2m/api-auth-quickstart',
           {
             label: 'Code examples',
             link: 'https://github.com/scalekit-inc/gists/tree/main/m2m',
@@ -194,7 +194,6 @@ export const sidebar = [
       {
         label: 'Guides',
         items: [
-          'guides/m2m/m2m-basics',
           'guides/m2m/scopes',
           'guides/m2m/api-auth-m2m-clients',
           {
