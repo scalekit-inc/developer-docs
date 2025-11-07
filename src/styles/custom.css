@@ -232,6 +232,42 @@
     color: var(--sl-color-white) !important;
   }
 
+  /* ===========================================================================
+     TEMPORARY FIX: Remove "large" styling from top-level sidebar links
+     ---------------------------------------------------------------------------
+     Issue: Top-level standalone sidebar items (e.g., "Welcome to Scalekit 👋")
+     have different styling than nested items due to the `.large` class applied
+     by Starlight's SidebarSublist component.
+
+     Goal: Make all sidebar items have consistent styling regardless of nesting.
+     Only group labels (summary elements) should maintain their larger styling.
+
+     TODO: Replace with proper SidebarSublist.astro component override in future
+     =========================================================================== */
+  #starlight__sidebar a.large:not([aria-current='page']) {
+    font-size: var(--sl-text-sm) !important; /* Match nested items */
+    font-weight: 400 !important; /* Match nested items (not bold) */
+    color: var(--sl-color-gray-2) !important; /* Match nested items */
+  }
+
+  /* Maintain responsive font sizing consistency */
+  @media (min-width: 50rem) {
+    #starlight__sidebar a.large:not([aria-current='page']) {
+      font-size: var(--sl-text-sm) !important; /* Keep consistent with nested items */
+    }
+  }
+
+  /* Selected state for top-level items - match nested items selected state */
+  #starlight__sidebar a.large[aria-current='page'] {
+    font-size: var(--sl-text-sm) !important; /* Match nested items even when selected */
+  }
+
+  @media (min-width: 50rem) {
+    #starlight__sidebar a.large[aria-current='page'] {
+      font-size: var(--sl-text-sm) !important;
+    }
+  }
+
   #starlight__sidebar details summary {
     display: flex;
   }
