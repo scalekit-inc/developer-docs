@@ -20,6 +20,7 @@ export const sidebar = [
               'fsa/guides/auth-methods',
               'fsa/guides/passwordless',
               'fsa/guides/social-logins',
+              'authenticate/auth-methods/passkeys',
               'fsa/guides/enterprise-sso',
             ],
           },
@@ -290,6 +291,10 @@ export const sidebar = [
           { label: 'Troubleshooting Guide', link: 'mcp/troubleshooting' },
           { label: 'Bring your own Auth', link: 'mcp/guides/custom-auth' },
         ],
+      },
+      {
+        label: 'Integrations',
+        items: [{ label: 'FastMCP', link: 'mcp/integrations/fastmcp' }],
       },
     ],
   },
