@@ -30,13 +30,16 @@ const __dirname = path.dirname(__filename)
 const RESOURCE_PRIORITY = [
   'organizations',
   'users',
+  'passwordless',
+  'passkeys',
+  'sessions',
   'memberships',
   'roles',
   'permissions',
+  'domains',
   'connections',
   'directories',
   'clients',
-  'passwordless',
 ]
 
 // Desired order of HTTP verbs inside each path object
@@ -60,6 +63,7 @@ const TAG_ALIASES = {
   permission: 'permissions',
   connection: 'connections',
   membership: 'memberships',
+  passwordless_auth: 'passwordless',
 }
 
 // UPDATE 1: add slugify helper just below CONFIG section
