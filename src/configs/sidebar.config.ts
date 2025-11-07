@@ -283,7 +283,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'mcp/overview',
-          'mcp/oauth',
+          'mcp/quickstart',
           { label: 'Troubleshooting Guide', link: 'mcp/troubleshooting' },
           { label: 'Bring your own Auth', link: 'mcp/guides/custom-auth' },
         ],
