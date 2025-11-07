@@ -1,0 +1,335 @@
+---
+title: 'FastMCP integration quickstart 🚀'
+description: 'Use Scalekit with FastMCP to protect a sample MCP server, configure it locally, and send authenticated requests.'
+sidebar:
+  label: 'FastMCP'
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev: false
+next: false
+seeAlso:
+  label: 'Related guides'
+  expanded: false
+  items:
+    - title: 'MCP OAuth 2.1 implementation guide'
+      icon: 'book'
+      url: '/mcp/oauth/'
+    - title: 'Auth for MCP servers - Overview'
+      icon: 'book'
+      url: '/mcp/overview/'
+---
+
+import { Steps, Aside, Badge } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence';
+
+This guide shows you how Scalekit's provider secures any FastMCP server. We'll register a sample server as a protected resource, configure a local FastMCP runtime, and use Scalekit as the Authentication server. We will able confirm that every request from MCP Client carries the right scopes and validate them on the MCP Server. 
+
+Use this quickstart to experience a working reference for authorizing any FastMCP project with Scalekit. We walk through a simple Todo MCP application. The Application will allow adding tasks and completing them. You can use this to understand the authenticatin  pattern for MCP and apply it in your own tools.
+
+**Prerequisites**
+- A [Scalekit account](https://app.scalekit.com) with permission to manage MCP servers
+- **Python 3.11+** installed locally
+- Familiarity with OAuth scopes (`todo:read`, `todo:write`) and basic terminal commands
+
+<details>
+<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the FastMCP authorization flow</summary>
+
+```d2 pad=36
+title: "FastMCP with Scalekit" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client -> MCP Server: initiate
+MCP Server -> MCP Client: 401 + WWW-Authenticate header
+MCP Client -> Scalekit Authorization Server: Exchange code for access token
+Scalekit Authorization Server -> MCP Client: Issue token with required scopes
+MCP Client -> MCP Server: Call tool with Bearer token
+MCP Server -> MCP Client: Authorized todo response
+```
+
+</details>
+
+
+<Steps>
+
+1. ## Register your MCP server in Scalekit
+
+    Create a protected resource so Scalekit can issue scoped tokens that FastMCP will validate on every request.
+
+    1. Go to **[Dashboard](https://app.scalekit.com) > MCP Servers > Add MCP Server**.
+    2. Enter a descriptive name (for example, `FastMCP Todo Server`).
+    3. Set **Server URL** to `http://localhost:3002/` (keep the trailing slash).
+    4. Create or link the scopes below, then click **Save**.
+
+    ![Register FastMCP server](@/assets/docs/guides/mcp/register-fastmcp.png)
+
+    | Scope | Description | Required |
+    |-------|-------------|----------|
+    | `todo:read` | Grants read access to todo tasks | Yes |
+    | `todo:write` | Allows creating, updating, or deleting tasks | Yes |
+
+2. ## Create your FastMCP todo server
+
+    Prepare a fresh directory and virtual environment so you can keep the FastMCP dependencies isolated.
+
+    ```bash title="Terminal" frame="terminal"
+    mkdir -p fastmcp-todo
+    cd fastmcp-todo
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
+
+3. ## Add dependencies and configuration templates
+
+    Create the support files that FastMCP and Scalekit expect, then install the required libraries.
+
+    ```bash title="Terminal" frame="terminal"
+    cat <<'EOF' > requirements.txt
+    fastmcp>=2.13.0.2
+    python-dotenv>=1.0.0
+    EOF
+
+    pip install -r requirements.txt
+
+    cat <<'EOF' > env.example
+    PORT=3002
+    SCALEKIT_ENVIRONMENT_URL=https://your-environment-url.scalekit.com
+    SCALEKIT_CLIENT_ID=your_client_id
+    SCALEKIT_RESOURCE_ID=mcp_server_id
+    MCP_URL=http://localhost:3002/
+    EOF
+    ```
+
+    <Aside type="tip" title="Check in templates, not secrets">
+      Keep <code>env.example</code> under version control so teammates know which variables to supply, but never commit the populated <code>.env</code> file.
+    </Aside>
+
+4. ## Implement the FastMCP todo server
+
+    Copy the following code into <code>server.py</code>. It registers the Scalekit provider, defines an in-memory todo store, and exposes CRUD tools guarded by the `todo:read` and `todo:write` scopes.
+
+    ```python title="server.py" wrap {22-27}
+    """Scalekit-authenticated FastMCP server providing in-memory CRUD tools for todos.
+
+    This example mirrors the greeting-fastmcp project structure while exposing
+    todo management capabilities through FastMCP tools.
+    """
+
+    import os
+    import uuid
+    from dataclasses import dataclass, asdict
+    from typing import Optional
+
+    from dotenv import load_dotenv
+    from fastmcp import FastMCP
+    from fastmcp.server.auth.providers.scalekit import ScalekitProvider
+    from fastmcp.server.dependencies import AccessToken, get_access_token
+
+    load_dotenv()
+
+    mcp = FastMCP(
+        "Todo Server",
+        stateless_http=True,
+        auth=ScalekitProvider(
+            environment_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+            client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+            resource_id=os.getenv("SCALEKIT_RESOURCE_ID"),
+            # FastMCP appends /mcp automatically; keep base URL with trailing slash only.
+            mcp_url=os.getenv("MCP_URL"),
+        ),
+    )
+
+
+    @dataclass
+    class TodoItem:
+        id: str
+        title: str
+        description: Optional[str]
+        completed: bool = False
+
+        def to_dict(self) -> dict:
+            return asdict(self)
+
+
+    _TODO_STORE: dict[str, TodoItem] = {}
+
+
+    def _require_scope(scope: str) -> Optional[str]:
+        token: AccessToken = get_access_token()
+        if scope not in token.scopes:
+            return f"Insufficient permissions: `{scope}` scope required."
+        return None
+
+
+    @mcp.tool
+    def create_todo(title: str, description: Optional[str] = None) -> dict:
+        error = _require_scope("todo:write")
+        if error:
+            return {"error": error}
+
+        todo = TodoItem(id=str(uuid.uuid4()), title=title, description=description)
+        _TODO_STORE[todo.id] = todo
+        return {"todo": todo.to_dict()}
+
+
+    @mcp.tool
+    def list_todos(completed: Optional[bool] = None) -> dict:
+        error = _require_scope("todo:read")
+        if error:
+            return {"error": error}
+
+        todos = [
+            todo.to_dict()
+            for todo in _TODO_STORE.values()
+            if completed is None or todo.completed == completed
+        ]
+        return {"todos": todos}
+
+
+    @mcp.tool
+    def get_todo(todo_id: str) -> dict:
+        error = _require_scope("todo:read")
+        if error:
+            return {"error": error}
+
+        todo = _TODO_STORE.get(todo_id)
+        if todo is None:
+            return {"error": f"Todo `{todo_id}` not found."}
+
+        return {"todo": todo.to_dict()}
+
+
+    @mcp.tool
+    def update_todo(
+        todo_id: str,
+        title: Optional[str] = None,
+        description: Optional[str] = None,
+        completed: Optional[bool] = None,
+    ) -> dict:
+        error = _require_scope("todo:write")
+        if error:
+            return {"error": error}
+
+        todo = _TODO_STORE.get(todo_id)
+        if todo is None:
+            return {"error": f"Todo `{todo_id}` not found."}
+
+        if title is not None:
+            todo.title = title
+        if description is not None:
+            todo.description = description
+        if completed is not None:
+            todo.completed = completed
+
+        return {"todo": todo.to_dict()}
+
+
+    @mcp.tool
+    def delete_todo(todo_id: str) -> dict:
+        error = _require_scope("todo:write")
+        if error:
+            return {"error": error}
+
+        todo = _TODO_STORE.pop(todo_id, None)
+        if todo is None:
+            return {"error": f"Todo `{todo_id}` not found."}
+
+        return {"deleted": todo_id}
+
+
+    if __name__ == "__main__":
+        mcp.run(transport="http", port=int(os.getenv("PORT", "3002")))
+    ```
+
+5. ## Provide runtime secrets
+
+    Copy the environment template, populate the values from the Scalekit dashboard, and review them with your security process.
+
+    ```bash title="Terminal" frame="terminal"
+    cp env.example .env
+    open .env
+    ```
+
+   <table>
+    <thead>
+        <tr>
+        <th style="min-width: 300px;">Variable</th>
+        <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+        <td><code>SCALEKIT_ENVIRONMENT_URL</code></td>
+        <td>Your Scalekit environment URL from Dashboard -> Settings</td>
+        </tr>
+        <tr>
+        <td><code>SCALEKIT_CLIENT_ID</code></td>
+        <td>Scalekit Client ID Dashboard -> Settings</td>
+        </tr>
+        <tr>
+        <td><code>SCALEKIT_RESOURCE_ID</code></td>
+        <td>The resource identifier assigned to your MCP server in Scalekit `res_xxxxxx`.</td>
+        </tr>
+        <tr>
+        <td><code>MCP_URL</code></td>
+        <td>The base public URL you registered (keep the trailing slash, e.g., `http://localhost:3002/`).</td>
+        </tr>
+        <tr>
+        <td><code>PORT</code></td>
+        <td>Local port for the FastMCP HTTP transport (defaults to <code>3002</code>).</td>
+        </tr>
+    </tbody>
+    </table>
+
+
+    <Aside type="caution" title="Store secrets securely">
+      Avoid committing <code>.env</code> to source control. Use your team's secret manager in production and rotate credentials if they appear in logs or terminal history.
+    </Aside>
+
+6. ## Run the FastMCP server locally
+
+    Start the server so it can accept authenticated MCP requests at `/mcp`.
+
+    ```bash title="Terminal" frame="terminal"
+    source venv/bin/activate
+    python server.py
+    ```
+
+    When the server boots successfully, you’ll see FastMCP announce the HTTP transport and listen on `http://localhost:3002/`, ready to enforce Scalekit-issued tokens.
+
+    ![Run MCP server](@/assets/docs/guides/mcp/venv-activate-fastmcp.png)
+
+    <Aside type="tip" title="Token enforcement">
+      Every tool in <code>server.py</code> calls <code>_require_scope</code>. If you see <code>Insufficient permissions</code> in responses, verify the caller's token includes the expected scope.
+    </Aside>
+
+7. ## Connect with an MCP client
+
+    Use any MCP-compatible client to exercise the todo tools with scoped tokens. During development, the MCP Inspector demonstrates how the Scalekit provider enforces scopes end-to-end.
+
+    ```bash title="Terminal" frame="terminal"
+    npx @modelcontextprotocol/inspector@latest
+    ```
+
+    In the Inspector UI, point the client to `http://localhost:3002/mcp` and click connect. Run any tool (the example exposes `create_todo`, `list_todos`, `get_todo`, `update_todo`, `delete_todo`).
+
+    ![MCP Inspector](@/assets/docs/guides/mcp/mcp-inspector-fastmcp.png)
+
+</Steps>
+
+
+Once you're satisfied with the quickstart example, extend `server.py` with your own FastMCP tools or replace the in-memory store with your production data source. Scalekit's provider handles authentication for any toolset you add. Continue with the <a href="/mcp/oauth/">MCP OAuth 2.1 implementation guide</a> to enforce additional grant types, rotate credentials, and automate client onboarding.
+
+You can get the full code example at <a href="https://github.com/scalekit-inc/mcp-demo/tree/main/todo-fastmcp" target="_blank" rel="noreferrer">GitHub</a>.
