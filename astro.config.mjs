@@ -4,7 +4,6 @@ import starlight from '@astrojs/starlight'
 import react from '@astrojs/react'
 import path from 'path'
 import vue from '@astrojs/vue'
-import starlightLinksValidator from 'starlight-links-validator'
 import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
@@ -12,6 +11,7 @@ import starlightTocOverviewCustomizer from 'starlight-toc-overview-customizer'
 import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
+import starlightChangelogs from 'starlight-changelogs'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import tailwindcss from '@tailwindcss/vite'
@@ -79,7 +79,6 @@ export default defineConfig({
         './src/styles/theme-priority.css',
       ],
       plugins: [
-        starlightLinksValidator(),
         starlightThemeNova(),
         starlightImageZoom({
           showCaptions: true,
@@ -89,6 +88,9 @@ export default defineConfig({
           overviewTitle: 'Overview',
         }),
         starlightVideos(),
+        starlightChangelogs(),
+        // Note: starlight-links-validator removed due to incompatibility with starlight-changelogs
+        // The validator cannot handle dynamically generated changelog pages
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude', 'lechat', 'grok'],
           hideMainActionLabel: true,

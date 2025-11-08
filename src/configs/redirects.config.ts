@@ -192,7 +192,7 @@ export const redirects = {
   // =============================================================================
   // GENERAL / OTHER REDIRECTS
   // =============================================================================
-  '/sdks': '/dev-kit/',
+  '/dev-kit/': '/authenticate/installation/',
   '/dev-kit/sdks/overview': '/authenticate/installation/',
   '/dev-kit/webhooks/event-object/': '/reference/webhooks/overview/',
   '/reference/webhooks/event-object/': '/reference/webhooks/overview/',
