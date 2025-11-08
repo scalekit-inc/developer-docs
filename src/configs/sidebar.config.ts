@@ -7,8 +7,12 @@ export const sidebar = [
     items: [
       'index',
       {
-        label: 'Quickstarts',
-        items: ['authenticate/fsa/quickstart', 'mcp/quickstart', 'sso/quickstart'],
+        label: 'Getting started',
+        items: [
+          { label: 'Quickstart: Complete Authentication', link: 'authenticate/fsa/quickstart' },
+          { label: 'Quickstart: Auth for MCP', link: 'mcp/quickstart' },
+          { label: 'Quickstart: Modular Enterprise SSO', link: 'sso/quickstart' },
+        ],
       },
       {
         label: 'User authentication',

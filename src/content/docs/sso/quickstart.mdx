@@ -57,7 +57,7 @@ import {
 Enterprise customers often require Single Sign-On (SSO) support for their applications. Rather than building custom integrations for every identity provider—such as Okta, Entra ID, or JumpCloud—and managing the detailed configuration of OIDC and SAML protocols, there are more scalable approaches available.
 
 <details>
-<summary><IconLucidePlay style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> See the integration in action</summary>
+<summary><IconLucidePlay style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> See a walkthrough of the integration</summary>
 
 <VideoPlayer link="https://youtu.be/I7SZyFhKg-s" />
 
@@ -66,18 +66,23 @@ Enterprise customers often require Single Sign-On (SSO) support for their applic
 <details>
 <summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the authentication sequence</summary>
 
-The following diagram illustrates the flow in a nutshell:
+After your customer's identity provider verifies the user, Scalekit forwards the authentication response directly to your application. You receive the verified identity claims and handle all subsequent user management—creating accounts, managing sessions, and controlling access—using your own systems.
 
 ![Diagram showing the SSO authentication flow: User initiates login → Scalekit handles protocol translation → Identity Provider authenticates → User gains access to your application](@/assets/docs/sso-quickstart/1.png)
 
+This approach gives you maximum flexibility to integrate SSO into existing authentication architectures while offloading the complexity of SAML and OIDC protocol handling to Scalekit.
+
 </details>
 
- SSO enables direct integration with your customer's identity provider without creating or storing users in Scalekit.
+Standalone SSO is designed for applications that maintain their own user database and session management. This lightweight integration focuses solely on identity verification, giving you complete control over user data and authentication flows.
 
-- Post identity verficiation auth flows from the customer's identity provider directly to your application.
-- No user records are created in Scalekit's database.
-- Session management and user management features are not available
-- Scalekit hosted auth pages are not available
+Choose Standalone SSO when you:
+
+- Want to manage user records in your own database
+- Prefer to implement custom session management logic
+- Need to integrate SSO without changing your existing authentication architecture
+- Already have existing user management infrastructure
+
 
 <Card title="Get moving, instantly, with your go-to AI assistant" icon={IconRiAiGenerate2}>
   <div style={{display: 'flex',  alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem'}}>
@@ -116,11 +121,9 @@ The following diagram illustrates the flow in a nutshell:
 
     Now you're ready to start integrating SSO into your app! Next, we'll cover how to use the SDK to authenticate users.
 
-2. ## Authorize users
-
-   To configure standalone SSO mode:
-   1. Go to **Dashboard** > **Authentication** > **General**
-   2. Under "Full-Stack Auth" section, click "Disable Full-Stack Auth"
+    <Aside type="note" title="Using complete authentication?">
+      [Complete authentication](/authenticate/fsa/quickstart/) includes SSO functionality by default. If you're using complete authentication, you can skip this guide.
+    </Aside>
 
 
 2. ## Redirect the users to their enterprise identity provider login page
