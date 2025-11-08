@@ -91,7 +91,13 @@ export default defineConfig({
         starlightVideos(),
         starlightChangelogs(),
         starlightLinksValidator({
-          exclude: ['/dev-kit/changelogs/**'],
+          exclude: [
+            '/dev-kit/changelogs/**',
+            // Exclude placeholder links to pages that don't exist yet
+            '/fsa/guides/app-roles/',
+            '/fsa/guides/automated-user-provisioning/',
+            '/apis/admin/',
+          ],
         }),
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude', 'lechat', 'grok'],
