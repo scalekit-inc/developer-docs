@@ -12,6 +12,7 @@ import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
 import starlightChangelogs from 'starlight-changelogs'
+import starlightLinksValidator from 'starlight-links-validator'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import tailwindcss from '@tailwindcss/vite'
@@ -89,8 +90,9 @@ export default defineConfig({
         }),
         starlightVideos(),
         starlightChangelogs(),
-        // Note: starlight-links-validator removed due to incompatibility with starlight-changelogs
-        // The validator cannot handle dynamically generated changelog pages
+        starlightLinksValidator({
+          exclude: ['/dev-kit/changelogs/**'],
+        }),
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude', 'lechat', 'grok'],
           hideMainActionLabel: true,
