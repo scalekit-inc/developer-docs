@@ -4,6 +4,7 @@ import { docsSchema } from '@astrojs/starlight/schema'
 import { topicSchema } from 'starlight-sidebar-topics/schema'
 import { tocOverviewCustomizer } from 'starlight-toc-overview-customizer/schema'
 import { videosSchema } from 'starlight-videos/schemas'
+import { changelogsLoader } from 'starlight-changelogs/loader'
 
 export const collections = {
   docs: defineCollection({
@@ -38,5 +39,52 @@ export const collections = {
           }),
         ),
     }),
+  }),
+  // SDK Changelogs - Automatically fetched from GitHub releases
+  // Configuration options:
+  // - pageSize: Number of versions per page (default: 10)
+  // - enabled: Whether to load this changelog (default: true)
+  // - pagefind: Whether to index in site search (default: true)
+  // - token: GitHub token for higher rate limits (set in .env file)
+  // Example: Add 'pageSize: 20' to any SDK config to show 20 versions per page
+  changelogs: defineCollection({
+    loader: changelogsLoader([
+      {
+        provider: 'github',
+        base: 'dev-kit/changelogs/node',
+        owner: 'scalekit-inc',
+        repo: 'scalekit-sdk-node',
+        title: 'Node.js SDK Changelog',
+        token: import.meta.env.STARLIGHT_CHANGELOG_90DAY_ACCESS,
+        // pageSize: 10, // Uncomment to customize versions per page
+      },
+      {
+        provider: 'github',
+        base: 'dev-kit/changelogs/python',
+        owner: 'scalekit-inc',
+        repo: 'scalekit-sdk-python',
+        title: 'Python SDK Changelog',
+        token: import.meta.env.STARLIGHT_CHANGELOG_90DAY_ACCESS,
+        // pageSize: 10, // Uncomment to customize versions per page
+      },
+      {
+        provider: 'github',
+        base: 'dev-kit/changelogs/go',
+        owner: 'scalekit-inc',
+        repo: 'scalekit-sdk-go',
+        title: 'Go SDK Changelog',
+        token: import.meta.env.STARLIGHT_CHANGELOG_90DAY_ACCESS,
+        // pageSize: 10, // Uncomment to customize versions per page
+      },
+      {
+        provider: 'github',
+        base: 'dev-kit/changelogs/java',
+        owner: 'scalekit-inc',
+        repo: 'scalekit-sdk-java',
+        title: 'Java SDK Changelog',
+        token: import.meta.env.STARLIGHT_CHANGELOG_90DAY_ACCESS,
+        // pageSize: 10, // Uncomment to customize versions per page
+      },
+    ]),
   }),
 }

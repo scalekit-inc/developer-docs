@@ -1,3 +1,5 @@
+import { makeChangelogsSidebarLinks } from 'starlight-changelogs'
+
 export const sidebar = [
   {
     label: 'Authenticate',
@@ -7,8 +9,12 @@ export const sidebar = [
     items: [
       'index',
       {
-        label: 'Quickstarts',
-        items: ['authenticate/fsa/quickstart', 'mcp/quickstart', 'sso/quickstart'],
+        label: 'Getting started',
+        items: [
+          { label: 'Quickstart: Complete Authentication', link: 'authenticate/fsa/quickstart' },
+          { label: 'Quickstart: Auth for MCP', link: 'mcp/quickstart' },
+          { label: 'Quickstart: Modular Enterprise SSO', link: 'sso/quickstart' },
+        ],
       },
       {
         label: 'User authentication',
@@ -362,7 +368,7 @@ export const sidebar = [
           'reference/glossary',
           'support/contact-us',
           {
-            label: 'Release notes',
+            label: 'Platform Release notes',
             link: 'https://www.scalekit.com/product-updates',
             attrs: { target: '_blank', rel: 'noopener' },
           },
@@ -371,6 +377,23 @@ export const sidebar = [
             link: 'https://scalekit.statuspage.io/',
             attrs: { target: '_blank', rel: 'noopener' },
           },
+        ],
+      },
+      {
+        label: 'SDK Changelogs',
+        items: [
+          { label: 'Overview', link: '/dev-kit/changelogs/' },
+          // makeChangelogsSidebarLinks() type options:
+          // - type: 'all' - Single link to full version list page (current)
+          // - type: 'latest' - Link to most recent version only
+          // - type: 'recent' - Multiple links to N recent versions (add count: 5 to customize, default: 5)
+          // Example: { type: 'recent', count: 3, base: '...', label: '...' }
+          ...makeChangelogsSidebarLinks([
+            { type: 'all', base: 'dev-kit/changelogs/node', label: 'Node.js SDK' },
+            { type: 'all', base: 'dev-kit/changelogs/python', label: 'Python SDK' },
+            { type: 'all', base: 'dev-kit/changelogs/go', label: 'Go SDK' },
+            { type: 'all', base: 'dev-kit/changelogs/java', label: 'Java SDK' },
+          ]),
         ],
       },
     ],
@@ -493,6 +516,8 @@ export const topics = {
     '/dev-kit/resources/**',
     '/guides/client-credentials-practices',
     '/guides/webhooks-best-practices',
+    // SDK changelogs
+    '/dev-kit/changelogs/**/*',
   ], // Developer resources and implementation guides
   integrations: ['/guides/integrations/**/*'], // Integration guide pages
   'events-reference': [
