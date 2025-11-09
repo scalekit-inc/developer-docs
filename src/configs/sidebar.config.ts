@@ -380,7 +380,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'SDK Changelogs',
+        label: 'Changelog',
         items: [
           { label: 'Overview', link: '/dev-kit/changelogs/' },
           // makeChangelogsSidebarLinks() type options:
