@@ -651,51 +651,41 @@ Choose Modular SSO when you:
    <TabItem value="python" label="Python">
 
    ```py title="Validate tokens"
-   # Validate and decode the ID token from the authentication result
-   id_token_claims = scalekit_client.validate_access_token_and_get_claims(result.id_token)
+    # Validate and decode the ID token from the authentication result
+    id_token_claims = scalekit_client.validate_token(result["id_token"])
 
-   # Validate and decode the access token
-   access_token_claims = scalekit_client.validate_access_token_and_get_claims(result.access_token)
+    # Validate and decode the access token
+    access_token_claims = scalekit_client.validate_token(result["access_token"])
    ```
 
    </TabItem>
    <TabItem value="go" label="Go">
 
    ```go title="Validate tokens"
-   // Validate the access token from the authentication result
-   isValid, err := scalekitClient.ValidateAccessToken(result.AccessToken)
-   if err != nil {
-       // Handle validation error
-       log.Printf("Access token validation failed: %v", err)
-       return
-   }
 
-   if !isValid {
-       log.Printf("Access token was invalid")
-       return
-   }
+    // Validate and decode the ID token
+    idTokenClaims, err := scalekitClient.ValidateToken(result.IdToken)
+    if err != nil {
+        // handle error
+    }
 
-   // Use the ID token claims from the authentication response as needed
-   idToken := result.IdToken
+    // Validate and decode the access token
+    accessTokenClaims, err := scalekitClient.ValidateToken(result.AccessToken)
+    if err != nil {
+        // handle error
+    }
+
    ```
 
    </TabItem>
    <TabItem value="java" label="Java">
 
    ```java title="Validate tokens"
-   // Access the decoded ID token claims from the authentication result
-   IdTokenClaims idTokenClaims = result.getIdTokenClaims();
+    // Validate and decode the ID token
+    Map<String, Object> idTokenClaims = scalekitClient.validateToken(result.getIdToken());
 
-   // Validate the access token
-   try {
-       boolean isValid = scalekitAuthClient.validateAccessToken(result.getAccessToken());
-       if (isValid) {
-           // Token is valid, proceed with authenticated request
-       }
-   } catch (APIException e) {
-       // Handle validation error
-       System.err.println("Token validation failed: " + e.getMessage());
-   }
+    // Validate and decode the access token
+    Map<String, Object> accessTokenClaims = scalekitClient.validateToken(result.getAccessToken());
    ```
 
    </TabItem>
