@@ -280,9 +280,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.user.deleteMembership(\n\t\"org_123\", // organizationId\n\t\"user_456\" // userId\n);"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "response = scalekit_client.users.delete_membership(\n  organization_id=org_id,user_id=user_id\n)"
+            "source": "scalekit_client.users.delete_membership(\n    organization_id=\"org_123\",  # organizationId\n    user_id=\"user_456\"          # userId\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := ScalekitClient.User().DeleteMembership(\n    ctx,\n    \"org_123\",  // organizationId\n    \"user_456\"  // userId\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "scalekitClient.users().deleteMembership(\n    \"org_123\",   // organizationId\n    \"user_456\"   // userId\n);"
           }
         ]
       },
@@ -804,7 +819,29 @@
               "$ref": "#/definitions/rolesListOrganizationRolesResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.role.listOrganizationRoles(\"org_123\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "res = scalekit_client.roles.list_organization_roles(org_id=\"org_123\")"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Role().ListOrganizationRoles(ctx, \"org_123\")\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ListOrganizationRolesResponse res = scalekitClient.roles().listOrganizationRoles(\"org_123\");"
+          }
+        ]
       },
       "post": {
         "description": "Creates a new role within the specified organization with basic configuration including name, display name, description, and permissions. Use this endpoint to define custom roles that can be assigned to users within the organization. You can create hierarchical roles by extending existing roles and assign specific permissions to control access levels. The role will be scoped to the organization and can be used for organization-specific access control.",
@@ -838,7 +875,29 @@
               "$ref": "#/definitions/rolesCreateOrganizationRoleResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.role.createOrganizationRole(\"org_123\", {\n  name: \"org_admin\",\n  displayName: \"Org Admin\",\n  description: \"Organization-scoped role\",\n   extends: \"base_role_name\", // optional\n   permissions: [\"perm.read\", \"perm.write\"] // optional\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.roles.roles_pb2 import CreateOrganizationRole\n\nrole = CreateOrganizationRole(\n    name=\"org_admin\",\n    display_name=\"Org Admin\",\n    description=\"Organization-scoped role\",\n    extends=\"base_role_name\",              # optional\n    permissions=[\"perm.read\", \"perm.write\"]  # optional\n)\n\nscalekit_client.roles.create_organization_role(\n    org_id=\"org_123\",\n    role=role\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Role().CreateOrganizationRole(ctx, \"org_123\", \u0026rolesv1.CreateOrganizationRole{\n\tName:        \"org_admin\",\n\tDisplayName: \"Org Admin\",\n\tDescription: proto.String(\"Organization-scoped role\"), // optional\n\tExtends:     proto.String(\"base_role_name\"),        // optional\n\tPermissions: []string{\"perm.read\", \"perm.write\"},   // optional\n})"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "CreateOrganizationRoleResponse res = scalekitClient.roles().createOrganizationRole(\n    \"org_123\",\n    CreateOrganizationRoleRequest.newBuilder()\n        .setOrgId(\"org_123\")\n        .setRole(\n            CreateOrganizationRole.newBuilder()\n                .setName(\"org_admin\")\n                .setDisplayName(\"Org Admin\")\n                .setDescription(\"Organization-scoped role\")\n                .setExtends(\"base_role_name\")          // optional\n                .addPermissions(\"perm.read\")           // optional\n                .addPermissions(\"perm.write\")          // optional\n                .build()\n        )\n        .build()\n);"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{org_id}/roles/{role_name}": {
@@ -878,7 +937,29 @@
               "$ref": "#/definitions/rolesGetOrganizationRoleResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.role.getOrganizationRole(\"org_123\", \"org_admin\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "res = scalekit_client.roles.get_organization_role(\n    org_id=\"org_123\",\n    role_name=\"org_admin\"\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Role().GetOrganizationRole(ctx, \"org_123\", \"org_admin\")\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "GetOrganizationRoleResponse res = scalekitClient.roles().getOrganizationRole(\"org_123\", \"org_admin\");"
+          }
+        ]
       },
       "put": {
         "description": "Modifies an existing organization role's properties including display name, description, permissions, and inheritance settings. Use this endpoint to update role metadata, change permission assignments, or modify role hierarchy within the organization. Only the fields you specify will be updated, leaving other properties unchanged. When updating permissions, the new list replaces all existing permissions for the role.",
@@ -919,7 +1000,29 @@
               "$ref": "#/definitions/rolesUpdateOrganizationRoleResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.role.updateOrganizationRole(\"org_123\", \"org_admin\", {\n  displayName: \"Org Admin (Updated)\",\n  description: \"Updated org role description\"\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.roles.roles_pb2 import UpdateRole\n\nscalekit_client.roles.update_organization_role(\n    org_id=\"org_123\",\n    role_name=\"org_admin\",\n    role=UpdateRole(\n        display_name=\"Org Admin (Updated)\",\n        description=\"Updated org role description\"\n    )\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Role().UpdateOrganizationRole(ctx, \"org_123\", \"org_admin\", \u0026rolesv1.UpdateRole{\n    DisplayName: \"Org Admin (Updated)\",\n    Description: \"Updated org role description\",\n})\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "UpdateOrganizationRoleResponse res = scalekitClient.roles().updateOrganizationRole(\n    \"org_123\",\n    \"org_admin\",\n    UpdateOrganizationRoleRequest.newBuilder()\n        .setRole(\n            UpdateRole.newBuilder()\n                .setDisplayName(\"Org Admin (Updated)\")\n                .setDescription(\"Updated org role description\")\n                .build()\n        )\n        .build()\n);"
+          }
+        ]
       },
       "delete": {
         "description": "Permanently removes a role from the organization and optionally reassigns users who had that role to a different role. Use this endpoint when you need to clean up unused roles or restructure your organization's access control system. If users are assigned to the role being deleted, you can provide a reassign_role_name to move those users to a different role before deletion. This action cannot be undone, so ensure no critical users depend on the role before deletion.",
@@ -955,7 +1058,86 @@
             "description": "Organization role successfully deleted and users reassigned if specified. No content returned.",
             "schema": {}
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Basic delete\nawait scalekit.role.deleteOrganizationRole(\"org_123\", \"org_role_admin\");\n\n// With reassignment\nawait scalekit.role.deleteOrganizationRole(\"org_123\", \"org_role_admin\", \"org_role_member\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# Basic delete\nscalekit_client.roles.delete_organization_role(\n    org_id=\"org_123\",\n    role_name=\"org_role_admin\"\n)\n\n# With reassignment\nscalekit_client.roles.delete_organization_role(\n    org_id=\"org_123\",\n    role_name=\"org_role_admin\",\n    reassign_role_name=\"org_role_member\"\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Basic delete\nerr := scalekitClient.Role().DeleteOrganizationRole(ctx, \"org_123\", \"org_role_admin\")\nif err != nil { /* handle err */ }\n\n// With reassignment\nerr = scalekitClient.Role().DeleteOrganizationRole(ctx, \"org_123\", \"org_role_admin\", \"org_role_member\")"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// Basic delete\nscalekitClient.roles().deleteOrganizationRole(\"org_123\", \"org_role_admin\");\n\n// With reassignment\nscalekitClient.roles().deleteOrganizationRole(\"org_123\", \"org_role_admin\", \"org_role_member\");"
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{org_id}/roles:set_defaults": {
+      "patch": {
+        "description": "Updates the default member role for the specified organization. Use this endpoint to configure which role is automatically assigned to new users when they join the organization. The system will validate that the specified role exists and update the organization settings accordingly. This configuration affects all new user invitations and memberships within the organization.",
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Set default organization roles",
+        "operationId": "RolesService_UpdateDefaultOrganizationRoles",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier of the organization",
+            "name": "org_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RolesServiceUpdateDefaultOrganizationRolesBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default organization roles updated successfully. Returns the updated default member role object with complete role information.",
+            "schema": {
+              "$ref": "#/definitions/rolesUpdateDefaultOrganizationRolesResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.role.updateDefaultOrganizationRoles(\"org_123\", {\n  defaultMemberRole: \"org_member\"\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.roles.roles_pb2 import UpdateDefaultOrganizationRolesRequest\n\nres = scalekit_client.roles.update_default_organization_roles(\n    org_id=\"org_123\",\n    default_roles=UpdateDefaultOrganizationRolesRequest(\n        default_member_role=\"org_member\"\n    )\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Role().UpdateDefaultOrganizationRoles(ctx, \"org_123\", \"org_member\")\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "UpdateDefaultOrganizationRolesResponse res = scalekitClient.roles().updateDefaultOrganizationRoles(\n    \"org_123\",\n    UpdateDefaultOrganizationRolesRequest.newBuilder()\n        .setDefaultMemberRole(\"org_member\")\n        .build()\n);"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/clients": {
@@ -1873,14 +2055,7 @@
               "$ref": "#/definitions/domainsListDomainResponse"
             }
           }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "// List all domains in an organization\nconst response = await client.domain.listDomains(organizationId);\n\n// Domain object contains:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Configuration type"
-          }
-        ]
+        }
       },
       "post": {
         "description": "Creates a new domain and associates it with the specified organization. The domain can be configured as either an ALLOWED_EMAIL_DOMAIN for automatic organization suggestions during user sign-in/sign-up, or as an ORGANIZATION_DOMAIN for SSO connection identification.\n\nThe domain must be a valid, business email domain that you control. Public disposable domains (gmail.com, outlook.com, etc.) are automatically blocked for security.\n\n",
@@ -1920,14 +2095,7 @@
               "$ref": "#/definitions/errdetailsErrorInfo"
             }
           }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "// Add a new domain to an organization\nconst response = await scalekit.createDomain(\"org-123\", \"example.com\", {\n\t// Domain type: controls user authentication and email validation\n\tdomainType: \"ALLOWED_EMAIL_DOMAIN\",\n});"
-          }
-        ]
+        }
       }
     },
     "/api/v1/organizations/{organization_id}/domains/{id}": {
@@ -1961,14 +2129,7 @@
               "$ref": "#/definitions/domainsGetDomainResponse"
             }
           }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "// Fetch details of a specific domain\nconst response = await client.domain.getDomain(organizationId, domainId);\n\n// Domain object properties:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Domain configuration type"
-          }
-        ]
+        }
       },
       "delete": {
         "description": "Permanently removes an allowed email domain or organization domain from the organization configuration.\n\nUse this endpoint when you need to remove a domain that is no longer trusted or when consolidating multiple domains. Note that this action cannot be undone.\n\n",
@@ -1998,14 +2159,7 @@
             "description": "Domain successfully deleted.",
             "schema": {}
           }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "// Remove a domain from an organization\n// Caution: Deletion is permanent and may affect user access\nconst response = await client.domain.deleteDomain(organizationId, domainId);"
-          }
-        ]
+        }
       }
     },
     "/api/v1/organizations/{organization_id}/users": {
@@ -2128,6 +2282,74 @@
             "source": "CreateUser createUser = CreateUser.newBuilder()\n        .setEmail(\"user@example.com\")\n        .setExternalId(\"ext_12345a67b89c\")\n        .putMetadata(\"department\", \"engineering\")\n        .putMetadata(\"location\", \"nyc-office\")\n        .setUserProfile(\n          CreateUserProfile.newBuilder()\n                .setFirstName(\"John\")\n                .setLastName(\"Doe\")\n                .build())\n        .build();\nCreateUserAndMembershipRequest cuReq = CreateUserA\n  ndMembershipRequest.newBuilder()\n        .setUser(createUser)\n        .build();\nCreateUserAndMembershipResponse cuResp = users.\n  createUserAndMembership(\"org_123\", cuReq);\nSystem.out.println(cuResp.getUser().getId());"
           }
         ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}/users/{user_id}/permissions": {
+      "get": {
+        "description": "Retrieves all permissions a user has access to within a specific organization. This includes permissions from direct role assignments and inherited permissions from role hierarchy.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "List user permissions",
+        "operationId": "UserService_ListUserPermissions",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier for the organization",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier for the user",
+            "name": "user_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of permissions for the user",
+            "schema": {
+              "$ref": "#/definitions/usersListUserPermissionsResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/users/{user_id}/roles": {
+      "get": {
+        "description": "Retrieves all roles assigned to a user within a specific organization. This includes both direct role assignments and inherited roles from role hierarchy.",
+        "tags": [
+          "Users"
+        ],
+        "summary": "List user roles",
+        "operationId": "UserService_ListUserRoles",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier for the organization",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier for the user",
+            "name": "user_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of roles assigned to the user",
+            "schema": {
+              "$ref": "#/definitions/usersListUserRolesResponse"
+            }
+          }
+        }
       }
     },
     "/api/v1/passwordless/email/resend": {
@@ -2310,7 +2532,29 @@
               "$ref": "#/definitions/rolesListPermissionsResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.permission.listPermissions();"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "res = scalekit_client.permissions.list_permissions()"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Permission().ListPermissions(ctx)\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ListPermissionsResponse res = scalekitClient.permissions().listPermissions();"
+          }
+        ]
       },
       "post": {
         "description": "Creates a new permission that represents a specific action users can perform within the environment. Use this endpoint to define granular access controls for your RBAC system. You can provide a unique permission name following the format 'action:resource' (for example, 'read:documents', 'write:users') and an optional description explaining the permission's purpose. The permission name must be unique across the environment and follows alphanumeric naming conventions with colons and underscores. Returns the created permission object including system-generated ID and timestamps.",
@@ -2336,7 +2580,29 @@
               "$ref": "#/definitions/rolesCreatePermissionResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.permission.createPermission({\n  name: \"read:users\",\n  description: \"Allows reading users\"\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.roles.roles_pb2 import CreatePermission\n\npermission = CreatePermission(\n    name=\"read:users\",\n    description=\"Allows reading users\"\n)\n\nscalekit_client.permissions.create_permission(permission=permission)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Permission().CreatePermission(ctx, \u0026rolesv1.CreatePermission{\n\tName:        \"read:users\",\n\tDescription: \"Allows reading users\",\n})\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "CreatePermissionResponse res = scalekitClient.permissions().createPermission(\n    CreatePermissionRequest.newBuilder()\n        .setPermission(\n            CreatePermission.newBuilder()\n                .setName(\"read:users\")\n                .setDescription(\"Allows reading users\")\n                .build()\n        )\n        .build()\n);"
+          }
+        ]
       }
     },
     "/api/v1/permissions/{permission_name}": {
@@ -2363,7 +2629,29 @@
               "$ref": "#/definitions/rolesGetPermissionResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.permission.getPermission(\"read:users\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "res = scalekit_client.permissions.get_permission(\n    permission_name=\"read:users\"\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Permission().GetPermission(ctx, \"read:users\")\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "GetPermissionResponse res = scalekitClient.permissions().getPermission(\"read:users\");"
+          }
+        ]
       },
       "put": {
         "description": "Modifies an existing permission's attributes including description and metadata. Use this endpoint to update permission descriptions or clarify permission purposes after creation. The permission is identified by its unique name in the path parameter, and only the fields you specify in the request body will be updated. Note that the permission name itself cannot be changed as it serves as the immutable identifier. This operation is useful for maintaining clear documentation of permission purposes or updating descriptions to reflect changes in system functionality. Returns the updated permission object with modified timestamps.",
@@ -2396,7 +2684,29 @@
               "$ref": "#/definitions/rolesUpdatePermissionResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.permission.updatePermission(\"read:users\", {\n  name: \"read:users\",\n  description: \"Allows reading user resources\"\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.roles.roles_pb2 import CreatePermission\n\nscalekit_client.permissions.update_permission(\n    permission_name=\"read:users\",\n    permission=CreatePermission(\n        name=\"read:users\",\n        description=\"Allows reading user resources\"\n    )\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Permission().UpdatePermission(ctx, \"read:users\", \u0026rolesv1.CreatePermission{\n    Name:        \"read:users\",\n    Description: \"Allows reading user resources\",\n})\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "UpdatePermissionResponse res = scalekitClient.permissions().updatePermission(\n    \"read:users\",\n    UpdatePermissionRequest.newBuilder()\n        .setPermission(\n            CreatePermission.newBuilder()\n                .setName(\"read:users\")\n                .setDescription(\"Allows reading user resources\")\n                .build()\n        )\n        .build()\n);"
+          }
+        ]
       },
       "delete": {
         "description": "Permanently removes a permission from the environment using its unique name identifier. Use this endpoint when you need to clean up unused permissions or remove access controls that are no longer relevant. The permission is identified by its name in the path parameter following the format 'action:resource'. This operation cannot be undone, so ensure no active roles depend on the permission before deletion. If the permission is currently assigned to any roles, you may need to remove those assignments first or update the roles to use alternative permissions. Returns no content on successful deletion.",
@@ -2419,7 +2729,29 @@
             "description": "Permission successfully deleted. No content returned.",
             "schema": {}
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.permission.deletePermission(\"read:users\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "scalekit_client.permissions.delete_permission(\n    permission_name=\"read:users\"\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := scalekitClient.Permission().DeletePermission(ctx, \"read:users\")\nif err != nil { /* handle err */ }"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "scalekitClient.permissions().deletePermission(\"read:users\");"
+          }
+        ]
       }
     },
     "/api/v1/roles": {
@@ -2448,9 +2780,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.role.listRoles();"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "roles_response = scalekit_client.roles.list_roles()"
+            "source": "res = scalekit_client.roles.list_roles()"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Role().ListRoles(ctx)\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ListRolesResponse res = scalekitClient.roles().listRoles();"
           }
         ]
       },
@@ -2491,11 +2838,54 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.role.createRole({\n  name: \"admin\",\n  displayName: \"Admin\",\n  description: \"Environment-level role\",\n  extends: \"base_role\",                // optional\n  permissions: [\"read:users\"]          // optional\n});"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "from scalekit.v1.roles.roles_pb2 import CreateRole\n\nrole = CreateRole(\n    name=\"viewer\",\n    display_name=\"Viewer\",\n    description=\"Read-only access\",\n)\ncreate_response = scalekit_client.roles.create_role(\n    role=role,\n)"
+            "source": "from scalekit.v1.roles.roles_pb2 import CreateRole\n\nrole = CreateRole(\n    name=\"admin\",\n    display_name=\"Admin\",\n    description=\"Environment-level role\",\n    extends=\"base_role\",                  # optional\n    permissions=[\"read:users\"]           # optional\n)\n\nscalekit_client.roles.create_role(role=role)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Role().CreateRole(ctx, \u0026rolesv1.CreateRole{\n\tName:        \"admin\",\n\tDisplayName: \"Admin\",\n\tDescription: \"Environment-level role\",\n\tExtends:     proto.String(\"base_role\"),      // optional\n\tPermissions: []string{\"read:users\"},        // optional\n})"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "CreateRoleResponse res = scalekitClient.roles().createRole(\n    CreateRoleRequest.newBuilder()\n        .setRole(\n            CreateRole.newBuilder()\n                .setName(\"admin\")\n                .setDisplayName(\"Admin\")\n                .setDescription(\"Environment-level role\")\n                // .setExtends(\"base_role\")         // optional\n                // .addPermissions(\"read:users\")    // optional\n                .build()\n        )\n        .build()\n);"
           }
         ]
+      }
+    },
+    "/api/v1/roles/default": {
+      "patch": {
+        "description": "Updates the default creator and member roles for the current environment. Use this endpoint to configure which roles are automatically assigned to new users when they join the environment. You can specify role names for both creator and member default roles. The system will validate that the specified roles exist and update the environment settings accordingly. Returns the updated default role objects including their complete role information and permissions.",
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Set default creator and member roles",
+        "operationId": "RolesService_UpdateDefaultRoles2",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/rolesUpdateDefaultRolesRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default roles updated successfully",
+            "schema": {
+              "$ref": "#/definitions/rolesUpdateDefaultRolesResponse"
+            }
+          }
+        }
       }
     },
     "/api/v1/roles/{role_name}": {
@@ -2531,9 +2921,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.role.getRole(\"admin\");"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "role_response = scalekit_client.roles.get_role(\n    role_id=\"role_123456789\",\n)"
+            "source": "res = scalekit_client.roles.get_role(role_name=\"admin\")"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Role().GetRole(ctx, \"admin\")\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "GetRoleResponse res = scalekitClient.roles().getRole(\"admin\");"
           }
         ]
       },
@@ -2576,9 +2981,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.role.updateRole(\"admin\", {\n  displayName: \"Admin (Updated)\",\n  description: \"Updated description\"\n});"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "from scalekit.v1.roles.roles_pb2 import UpdateRole\n\nupdate_role = UpdateRole(\n    display_name=\"Viewer (Limited)\",\n    description=\"Read-only access, no billing\",\n)\nupdated_role = scalekit_client.roles.update_role(\n    role_id=\"role_123456789\",\n    role=update_role,\n)"
+            "source": "from scalekit.v1.roles.roles_pb2 import UpdateRole\n\nscalekit_client.roles.update_role(\n    role_name=\"admin\",\n    role=UpdateRole(\n        display_name=\"Admin (Updated)\",\n        description=\"Updated description\"\n    )\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Role().UpdateRole(ctx, \"admin\", \u0026rolesv1.UpdateRole{\n    DisplayName: \"Admin (Updated)\",\n    Description: \"Updated description\",\n})\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "UpdateRoleResponse res = scalekitClient.roles().updateRole(\n    \"admin\",\n    UpdateRoleRequest.newBuilder()\n        .setRole(\n            UpdateRole.newBuilder()\n                .setDisplayName(\"Admin (Updated)\")\n                .setDescription(\"Updated description\")\n                .build()\n        )\n        .build()\n);"
           }
         ]
       },
@@ -2618,9 +3038,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Basic delete\nawait scalekit.role.deleteRole(\"admin\");\n\n// With reassignment\nawait scalekit.role.deleteRole(\"admin\", \"member\");"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "scalekit_client.roles.delete_role(\n    role_id=\"role_123456789\",\n)"
+            "source": "# Basic delete\nscalekit_client.roles.delete_role(role_name=\"admin\")\n\n# With reassignment\nscalekit_client.roles.delete_role(\n    role_name=\"admin\",\n    reassign_role_name=\"member\"\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Basic delete\nerr := scalekitClient.Role().DeleteRole(ctx, \"admin\")\nif err != nil { /* handle err */ }\n\n// With reassignment\nerr = scalekitClient.Role().DeleteRole(ctx, \"admin\", \"member\")"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// Basic delete\nscalekitClient.roles().deleteRole(\"admin\");\n\n// With reassignment\nscalekitClient.roles().deleteRole(\"admin\", \"member\");"
           }
         ]
       }
@@ -2647,7 +3082,29 @@
             "description": "Base role inheritance relationship successfully removed. The role now has only its directly assigned permissions.",
             "schema": {}
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.role.deleteRoleBase(\"admin\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "scalekit_client.roles.delete_role_base(role_name=\"admin\")"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := scalekitClient.Role().DeleteRoleBase(ctx, \"admin\")\nif err != nil { /* handle err */ }"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "scalekitClient.roles().deleteRoleBase(\"admin\");"
+          }
+        ]
       }
     },
     "/api/v1/roles/{role_name}/dependents": {
@@ -2674,7 +3131,29 @@
               "$ref": "#/definitions/rolesListDependentRolesResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.role.listDependentRoles(\"admin\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "res = scalekit_client.roles.list_dependent_roles(role_name=\"admin\")"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Role().ListDependentRoles(ctx, \"admin\")\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ListDependentRolesResponse res = scalekitClient.roles().listDependentRoles(\"admin\");"
+          }
+        ]
       }
     },
     "/api/v1/roles/{role_name}/permissions": {
@@ -2701,7 +3180,29 @@
               "$ref": "#/definitions/rolesListRolePermissionsResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.permission.listRolePermissions(\"admin\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "res = scalekit_client.permissions.list_role_permissions(role_name=\"admin\")"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Permission().ListRolePermissions(ctx, \"admin\")\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ListRolePermissionsResponse res = scalekitClient.permissions().listRolePermissions(\"admin\");"
+          }
+        ]
       },
       "post": {
         "description": "Adds one or more permissions to the specified role while preserving existing permission assignments. Use this endpoint to grant additional capabilities to a role without affecting its current permission set. Provide the role name as a path parameter and a list of permission names in the request body. The system will validate that all specified permissions exist in the environment and add them to the role. Existing permission assignments remain unchanged, making this operation safe for incremental permission management. This is useful for gradually expanding role capabilities or adding new permissions as your system evolves. Returns the updated list of all permissions now assigned to the role.",
@@ -2734,7 +3235,29 @@
               "$ref": "#/definitions/rolesAddPermissionsToRoleResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.permission.addPermissionsToRole(\"role_admin\", [\"perm.read\", \"perm.write\"]);"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "scalekit_client.permissions.add_permissions_to_role(\n    role_name=\"role_admin\",\n    permission_names=[\"perm.read\", \"perm.write\"]\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Permission().AddPermissionsToRole(ctx, \"role_admin\", []string{\"perm.read\", \"perm.write\"})"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "AddPermissionsToRoleResponse res = scalekitClient.permissions().addPermissionsToRole(\n    \"role_admin\",\n    AddPermissionsToRoleRequest.newBuilder()\n        .addPermissionNames(\"perm.read\")\n        .addPermissionNames(\"perm.write\")\n        .build()\n);"
+          }
+        ]
       }
     },
     "/api/v1/roles/{role_name}/permissions/{permission_name}": {
@@ -2766,7 +3289,29 @@
             "description": "Permission removed from role successfully. No content returned.",
             "schema": {}
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.permission.removePermissionFromRole(\"admin\", \"read:users\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "scalekit_client.permissions.remove_permission_from_role(\n    role_name=\"admin\",\n    permission_name=\"read:users\"\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := scalekitClient.Permission().RemovePermissionFromRole(ctx, \"admin\", \"read:users\")\nif err != nil { /* handle err */ }"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "scalekitClient.permissions().removePermissionFromRole(\"admin\", \"read:users\");"
+          }
+        ]
       }
     },
     "/api/v1/roles/{role_name}/permissions:all": {
@@ -2793,7 +3338,29 @@
               "$ref": "#/definitions/rolesListEffectiveRolePermissionsResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.permission.listEffectiveRolePermissions(\"admin\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "res = scalekit_client.permissions.list_effective_role_permissions(role_name=\"admin\")"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Permission().ListEffectiveRolePermissions(ctx, \"admin\")\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ListEffectiveRolePermissionsResponse res = scalekitClient.permissions().listEffectiveRolePermissions(\"admin\");"
+          }
+        ]
       }
     },
     "/api/v1/roles/{role_name}/users:count": {
@@ -2818,6 +3385,132 @@
             "description": "Successfully retrieved user count for the specified role. Returns the total number of users currently assigned to the role, including both direct assignments and inherited assignments.",
             "schema": {
               "$ref": "#/definitions/rolesGetRoleUsersCountResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.role.getRoleUsersCount(\"admin\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "res = scalekit_client.roles.get_role_users_count(role_name=\"admin\")"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Role().GetRoleUsersCount(ctx, \"admin\")\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "GetRoleUsersCountResponse res = scalekitClient.roles().getRoleUsersCount(\"admin\");"
+          }
+        ]
+      }
+    },
+    "/api/v1/roles:set_defaults": {
+      "patch": {
+        "description": "Updates the default creator and member roles for the current environment. Use this endpoint to configure which roles are automatically assigned to new users when they join the environment. You can specify role names for both creator and member default roles. The system will validate that the specified roles exist and update the environment settings accordingly. Returns the updated default role objects including their complete role information and permissions.",
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Set default creator and member roles",
+        "operationId": "RolesService_UpdateDefaultRoles",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/rolesUpdateDefaultRolesRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default roles updated successfully",
+            "schema": {
+              "$ref": "#/definitions/rolesUpdateDefaultRolesResponse"
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const res = await scalekit.role.updateDefaultRoles({\n  defaultMemberRole: \"member\"\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "from scalekit.v1.roles.roles_pb2 import UpdateDefaultRolesRequest\n\nres = scalekit_client.roles.update_default_roles(\n    default_roles=UpdateDefaultRolesRequest(\n        default_member_role=\"member\"\n    )\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.Role().UpdateDefaultRoles(ctx, \"member\")\nif err != nil { /* handle err */ }\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "UpdateDefaultRolesResponse res = scalekitClient.roles().updateDefaultRoles(\n    UpdateDefaultRolesRequest.newBuilder()\n        .setDefaultMemberRole(\"member\")\n        .build()\n);"
+          }
+        ]
+      }
+    },
+    "/api/v1/sessions/{session_id}": {
+      "get": {
+        "description": "Retrieves comprehensive details for a specific user session including authentication status, device information, and expiration timelines. Use this endpoint to fetch current session metadata for security audits, session validation, or to display session information in user account management interfaces. Returns all session properties including the user ID, authenticated organizations, device details with browser/OS information, IP address and geolocation, and all relevant timestamps (creation, last activity, idle expiration, absolute expiration, and actual expiration if applicable).",
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Get session details",
+        "operationId": "SessionService_GetSession",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier for the session. Must start with 'ses_' prefix.",
+            "name": "session_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved session details",
+            "schema": {
+              "$ref": "#/definitions/sessionsSessionDetails"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}/revoke": {
+      "post": {
+        "description": "Immediately invalidates a specific user session by session ID, setting its status to 'revoked'. Once revoked, the session cannot be used for any future API requests or application access. Use this endpoint to implement session-level logout, force a user to reauthenticate on a specific device, or terminate suspicious sessions. The revocation is instantaneous and irreversible. Returns the revoked session details including the session ID, user ID, and the revocation timestamp.",
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Revoke user session",
+        "operationId": "SessionService_RevokeSession",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier for the session to revoke. Must start with 'ses_' prefix.",
+            "name": "session_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully revoked the session. Returns the revoked session details",
+            "schema": {
+              "$ref": "#/definitions/sessionsRevokeSessionResponse"
             }
           }
         }
@@ -2930,8 +3623,7 @@
             "lang": "java",
             "source": "GetUserResponse resp = scalekitClient.users().getUser(userId);"
           }
-        ],
-        "x-scalar-stability": "experimental"
+        ]
       },
       "delete": {
         "description": "Permanently removes a user from your environment and deletes all associated data. Use this endpoint when you need to completely remove a user account. This action deletes the user's profile, memberships, and all related data across all organizations. This operation cannot be undone, so use with caution.",
@@ -3050,6 +3742,183 @@
           }
         ]
       }
+    },
+    "/api/v1/users/{user_id}/sessions": {
+      "get": {
+        "description": "Retrieves a paginated list of all sessions associated with a specific user across all devices and browsers. Use this endpoint to audit user activity, display all active sessions in account management interfaces, or verify user authentication status across devices. Supports filtering by session status (active, expired, revoked, logout) and time range (creation date). Returns session details for each session including device information, IP address, geolocation, and current status. The response includes pagination metadata (page tokens and total count) to handle large session lists efficiently.",
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "List user sessions",
+        "operationId": "SessionService_GetUserSessions",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier for the user whose sessions to retrieve. Must start with 'usr_' prefix.",
+            "name": "user_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum number of sessions to return in a single page. Optional parameter. If not specified, defaults to a server-defined limit. Use smaller values for faster responses, larger values for fewer requests.",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Pagination token from the previous response for retrieving the next page of results. Leave empty for the first page. Use the next_page_token from a previous response to fetch subsequent pages.",
+            "name": "page_token",
+            "in": "query"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
+            "description": "Filter sessions by one or more status values. Possible values: 'active', 'expired', 'revoked', 'logout'. Leave empty to include all statuses. Multiple values use OR logic (e.g., status=['active', 'expired'] returns sessions that are either active OR expired).",
+            "name": "filter.status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Filter to include only sessions created on or after this timestamp. Optional. Uses RFC 3339 format. Useful for querying sessions within a specific time window.",
+            "name": "filter.start_time",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Filter to include only sessions created on or before this timestamp. Optional. Uses RFC 3339 format. Must be after start_time if both are specified.",
+            "name": "filter.end_time",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved user sessions. Returns a list of sessions with pagination information",
+            "schema": {
+              "$ref": "#/definitions/sessionsUserSessionDetails"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/{user_id}/sessions/revoke": {
+      "post": {
+        "description": "Immediately invalidates all active sessions for a specific user across all devices and browsers, setting their status to 'revoked'. Use this endpoint to implement global logout functionality, force re-authentication after security incidents, or terminate all sessions following a password reset or credential compromise. Only active sessions are revoked; already expired, logout, or previously revoked sessions remain unchanged. The revocation is atomic and instantaneous. Returns a list of all revoked sessions with their details and a total count of sessions revoked.",
+        "tags": [
+          "Sessions"
+        ],
+        "summary": "Revoke all user sessions",
+        "operationId": "SessionService_RevokeAllUserSessions",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier for the user whose all sessions will be revoked. Must start with 'usr_' prefix.",
+            "name": "user_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully revoked all user sessions. Returns the list of revoked sessions and total count",
+            "schema": {
+              "$ref": "#/definitions/sessionsRevokeAllUserSessionsResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/webauthn/credentials": {
+      "get": {
+        "description": "Retrieves all registered passkeys for the current user, including device information, creation timestamps, and display names. Use this to show users their registered authenticators.",
+        "tags": [
+          "Passkeys"
+        ],
+        "summary": "List user's passkeys",
+        "operationId": "WebAuthnService_ListCredentials",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User ID to list credentials for (optional, current user if not provided)",
+            "name": "user_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of passkeys with metadata",
+            "schema": {
+              "$ref": "#/definitions/webauthnListCredentialsResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/webauthn/credentials/{credential_id}": {
+      "delete": {
+        "description": "Deletes a specific passkey credential for the current user. After removal, the authenticator can no longer be used for authentication.",
+        "tags": [
+          "Passkeys"
+        ],
+        "summary": "Remove a passkey",
+        "operationId": "WebAuthnService_DeleteCredential",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The credential ID to delete",
+            "name": "credential_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Passkey successfully deleted",
+            "schema": {
+              "$ref": "#/definitions/webauthnDeleteCredentialResponse"
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Updates the display name of a passkey credential to help users identify their authenticators. Only the display name can be modified.",
+        "tags": [
+          "Passkeys"
+        ],
+        "summary": "Rename a passkey",
+        "operationId": "WebAuthnService_UpdateCredential",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The credential ID to update",
+            "name": "credential_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/WebAuthnServiceUpdateCredentialBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Passkey successfully updated with new name",
+            "schema": {
+              "$ref": "#/definitions/webauthnUpdateCredentialResponse"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -3076,6 +3945,16 @@
         }
       }
     },
+    "RolesServiceUpdateDefaultOrganizationRolesBody": {
+      "type": "object",
+      "properties": {
+        "default_member_role": {
+          "description": "Unique name of the default member role",
+          "type": "string",
+          "example": "member"
+        }
+      }
+    },
     "UserServiceResendInviteBody": {
       "type": "object"
     },
@@ -3092,6 +3971,247 @@
         },
         "field": {
           "type": "string"
+        }
+      }
+    },
+    "WebAuthConfigurationAttestation": {
+      "type": "object",
+      "title": "Attestation preferences for registration",
+      "properties": {
+        "conveyance_preference": {
+          "type": "string",
+          "title": "Conveyance preference"
+        },
+        "enterprise_approved_ids": {
+          "type": "array",
+          "title": "Enterprise-approved IDs (optional allowlist when enterprise attestation is used)",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "WebAuthConfigurationAuthenticatorSelection": {
+      "type": "object",
+      "properties": {
+        "authenticator_attachment": {
+          "type": "string"
+        },
+        "user_verification": {
+          "type": "string",
+          "title": "User verification requirement"
+        }
+      }
+    },
+    "WebAuthConfigurationAuthenticators": {
+      "type": "object",
+      "properties": {
+        "desired_authenticator_status": {
+          "description": "provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate_status set to true.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "default": "[]"
+          }
+        },
+        "undesired_authenticator_status": {
+          "description": "provides the list of statuses which are considered undesirable for status report validation purposes. Should be used with validate_status set to true.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "default": "['ATTESTATION_KEY_COMPROMISE', 'USER_VERIFICATION_BYPASS', 'USER_KEY_REMOTE_COMPROMISE', 'USER_KEY_PHYSICAL_COMPROMISE', 'REVOKED']"
+          }
+        },
+        "validate_anchors": {
+          "description": "when set to true enables the validation of the attestation statement against the trust anchor from the metadata statement.",
+          "type": "boolean"
+        },
+        "validate_attestation_type": {
+          "description": "when set to true enables the validation of the attestation statements type against the known types the authenticator can produce.",
+          "type": "boolean"
+        },
+        "validate_entry": {
+          "description": "requires that the provided metadata has an entry for the given authenticator to be considered valid. By default an AAGUID which has a zero value should fail validation if validate_entry_permit_zero_aaguid is not provided with the value of true.",
+          "type": "boolean"
+        },
+        "validate_entry_permit_zero_aaguid": {
+          "description": "is an option that permits a zero'd AAGUID from an attestation statement to automatically pass metadata validations. Generally helpful to use with validate_entry.",
+          "type": "boolean"
+        },
+        "validate_status": {
+          "description": "when set to true enables the validation of the attestation statements AAGUID against the desired and undesired lists",
+          "type": "boolean"
+        }
+      }
+    },
+    "WebAuthConfigurationRp": {
+      "type": "object",
+      "title": "Rp contains relying party identifiers and origins",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "title": "Relying party IDs (derived from environment domain and verified custom domain)\nAt least one required; must be hostnames without scheme or path",
+          "items": {
+            "type": "string"
+          }
+        },
+        "origins": {
+          "type": "array",
+          "title": "Allowed origins corresponding to the RP IDs (https://\u003cdomain\u003e)\nAt least one required; must be HTTPS origins",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "WebAuthConfigurationTimeout": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "description": "Login timeout duration",
+          "type": "string",
+          "default": "\"300s\""
+        },
+        "login_uvd": {
+          "description": "Login timeout duration when user verification is discouraged",
+          "type": "string",
+          "default": "\"300s\""
+        },
+        "registration": {
+          "description": "Registration timeout duration",
+          "type": "string",
+          "default": "\"300s\""
+        },
+        "registration_uvd": {
+          "description": "Registration timeout duration when user verification is discouraged",
+          "type": "string",
+          "default": "\"300s\""
+        }
+      }
+    },
+    "WebAuthnCredentialAuthenticator": {
+      "type": "object",
+      "properties": {
+        "aaguid": {
+          "description": "Authenticator Attestation GUID (AAGUID) identifying the device model",
+          "type": "string"
+        },
+        "attachment": {
+          "description": "Attachment type: \"platform\" (built-in) or \"cross-platform\"",
+          "type": "string",
+          "example": "platform"
+        },
+        "icon_dark": {
+          "description": "Icon URL for dark theme display",
+          "type": "string"
+        },
+        "icon_light": {
+          "description": "Icon URL for light theme display",
+          "type": "string"
+        },
+        "name": {
+          "description": "Human-readable name of the authenticator model",
+          "type": "string",
+          "example": "Apple Touch ID"
+        }
+      }
+    },
+    "WebAuthnCredentialAuthenticatorFlags": {
+      "type": "object",
+      "properties": {
+        "backup_eligible": {
+          "description": "Whether this credential can be backed up to another device",
+          "type": "boolean"
+        },
+        "backup_state": {
+          "description": "Whether this credential was synced or backed up",
+          "type": "boolean"
+        },
+        "user_present": {
+          "description": "Whether the user was present during authentication",
+          "type": "boolean"
+        },
+        "user_verified": {
+          "description": "Whether the user was verified (e.g., fingerprint, PIN)",
+          "type": "boolean"
+        }
+      }
+    },
+    "WebAuthnCredentialClientInfo": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "description": "City name",
+          "type": "string",
+          "example": "San Francisco"
+        },
+        "ip": {
+          "description": "IP address from which credential was registered",
+          "type": "string",
+          "example": "192.0.2.1"
+        },
+        "region": {
+          "description": "Geographic region (e.g., \"US\")",
+          "type": "string",
+          "example": "US"
+        },
+        "region_subdivision": {
+          "description": "Regional subdivision (e.g., \"CA\")",
+          "type": "string",
+          "example": "CA"
+        }
+      }
+    },
+    "WebAuthnCredentialUserAgent": {
+      "type": "object",
+      "properties": {
+        "browser": {
+          "description": "Browser name (e.g., \"Chrome\", \"Safari\")",
+          "type": "string",
+          "example": "Chrome"
+        },
+        "browser_version": {
+          "description": "Browser version number",
+          "type": "string",
+          "example": "120.0.6099.129"
+        },
+        "device_model": {
+          "description": "Device model if available",
+          "type": "string",
+          "example": "iPhone15,2"
+        },
+        "device_type": {
+          "description": "Device type: \"desktop\", \"mobile\", or \"tablet\"",
+          "type": "string",
+          "example": "mobile"
+        },
+        "os": {
+          "description": "Operating system name (e.g., \"Windows\", \"iOS\")",
+          "type": "string",
+          "example": "macOS"
+        },
+        "os_version": {
+          "description": "Operating system version",
+          "type": "string",
+          "example": "14.2"
+        },
+        "raw": {
+          "description": "Raw user agent string from the browser",
+          "type": "string"
+        },
+        "url": {
+          "description": "Parsed user agent URL reference",
+          "type": "string"
+        }
+      }
+    },
+    "WebAuthnServiceUpdateCredentialBody": {
+      "type": "object",
+      "properties": {
+        "display_name": {
+          "description": "Human-friendly name for this credential (1-120 characters)",
+          "type": "string",
+          "example": "My iPhone 15 Pro"
         }
       }
     },
@@ -3343,6 +4463,11 @@
           "format": "int64",
           "example": 3600
         },
+        "is_dcr": {
+          "description": "Indicates if the client was created via Dynamic Client Registration (DCR). Clients created through DCR may have different management and lifecycle policies compared to those created manually.",
+          "type": "boolean",
+          "example": false
+        },
         "name": {
           "description": "The display name of the API client. This name helps identify the client in the dashboard and logs.",
           "type": "string",
@@ -3488,9 +4613,9 @@
           "format": "date-time"
         },
         "display_name": {
-          "description": "Display name for the Organization name.",
+          "description": "Organization display name. This field stores a user-friendly name for the organization that may be different from the formal name, often used for UI display purposes.",
           "type": "string",
-          "example": "AcmeCorp"
+          "example": "Acme Corporation"
         },
         "expires_at": {
           "description": "Timestamp when the invitation expired.",
@@ -3521,7 +4646,7 @@
           }
         },
         "name": {
-          "description": "Display name for the Organization name.",
+          "description": "Organization name. This field stores the formal organization name used for identification and display purposes.",
           "type": "string",
           "example": "AcmeCorp"
         },
@@ -3561,7 +4686,7 @@
           "example": "role_79643236410327240"
         },
         "name": {
-          "description": "Unique key identifier for the role",
+          "description": "Attribute name/identifier for the role used in system operations and API calls. This should be a machine-readable identifier that follows naming conventions.",
           "type": "string",
           "example": "team_dev"
         }
@@ -3571,7 +4696,7 @@
       "type": "object",
       "properties": {
         "custom_attributes": {
-          "description": "Custom attributes for extended user profile data. Keys (3-25 chars), values (1-256 chars).",
+          "description": "Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.",
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -3587,10 +4712,31 @@
           "readOnly": true,
           "example": true
         },
-        "first_name": {
-          "description": "User's given name. Maximum 200 characters.",
+        "family_name": {
+          "description": "The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.",
+          "type": "string",
+          "example": "Doe"
+        },
+        "gender": {
+          "description": "The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.",
+          "type": "string",
+          "example": "male"
+        },
+        "given_name": {
+          "description": "The user's given name (first name). This field stores the user's first name and is used for personalization, display purposes, and when generating the full display name. The given name appears in user interfaces, formal communications, and user listings throughout the system. Maximum 255 characters allowed.",
           "type": "string",
           "example": "John"
+        },
+        "groups": {
+          "description": "The list of group names the user belongs to within the organization. This field stores the user's group memberships for role-based access control, team assignments, and organizational structure. Groups are typically used for permission management, collaborative access, and organizational hierarchy. Each group name represents a distinct organizational unit or team that the user is associated with.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "admin",
+            "developer"
+          ]
         },
         "id": {
           "description": "Unique system-generated identifier for the user profile. Immutable and read-only.",
@@ -3598,36 +4744,48 @@
           "readOnly": true,
           "example": "usr_profile_1234abcd5678efgh"
         },
-        "last_name": {
-          "description": "User's family name. Maximum 200 characters.",
-          "type": "string",
-          "example": "Doe"
-        },
         "locale": {
-          "description": "User's localization preference in BCP-47 format. Defaults to organization settings.",
+          "description": "The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include `en-US`, `en-GB`, `fr-FR`, `de-DE`, and `es-ES`.",
           "type": "string",
           "example": "en-US"
         },
         "metadata": {
-          "description": "System-managed key-value pairs for internal tracking. Keys (3-25 chars), values (1-256 chars).",
+          "description": "Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.",
           "type": "object",
           "additionalProperties": {
             "type": "string"
           },
           "example": {
-            "account_status": "active",
-            "signup_source": "mobile_app"
+            "department": "engineering",
+            "employee_type": "full-time",
+            "idp_user_id": "12345"
           }
         },
         "name": {
-          "description": "Full name in display format. Typically combines first_name and last_name.",
+          "description": "The user's complete display name in formatted form. This field stores the full name as a single string and is typically used when you want to set the complete name rather than using separate given and family names. This name appears in user interfaces, reports, directory listings, and anywhere a formatted display name is needed. This field serves as a formatted display name that complements the individual given_name and family_name fields.",
           "type": "string",
           "example": "John Michael Doe"
         },
         "phone_number": {
-          "description": "Phone number in E.164 international format. Required for SMS-based authentication.",
+          "description": "The user's phone number in E.164 international format. This field stores the phone number for user contact and identification purposes. The phone number must include the country code and be formatted according to E.164 standards (e.g., `+1` for US numbers). This field is optional.",
           "type": "string",
           "example": "+14155552671"
+        },
+        "phone_number_verified": {
+          "description": "Indicates if the user's phone number has been verified. Automatically updated by the system.",
+          "type": "boolean",
+          "readOnly": true,
+          "example": true
+        },
+        "picture": {
+          "description": "The URL to the user's profile picture or avatar image. This field stores the location of the user's profile photo that appears in user interfaces, directory listings, and collaborative features throughout the system. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. This image is used for visual identification and personalization across the platform.",
+          "type": "string",
+          "example": "https://example.com/avatar.jpg"
+        },
+        "preferred_username": {
+          "description": "The user's preferred username for display and identification purposes. This field stores a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, informal communications, and collaborative features throughout the system. Maximum 512 characters allowed.",
+          "type": "string",
+          "example": "johndoe"
         }
       }
     },
@@ -3742,6 +4900,10 @@
           "description": "Authentication protocol used by this connection. Can be OIDC (OpenID Connect), SAML, OAUTH, or MAGIC_LINK.",
           "$ref": "#/definitions/connectionsConnectionType",
           "example": "OIDC"
+        },
+        "webauthn_config": {
+          "description": "Configuration details for WebAuthn (passkeys). Present only when type is WEBAUTHN.",
+          "$ref": "#/definitions/connectionsWebAuthConfiguration"
         }
       }
     },
@@ -3784,7 +4946,8 @@
         "PASSWORDLESS",
         "BASIC",
         "BEARER",
-        "API_KEY"
+        "API_KEY",
+        "WEBAUTHN"
       ]
     },
     "connectionsGetConnectionResponse": {
@@ -4292,6 +5455,39 @@
         "URL_PARAMS",
         "BASIC_AUTH"
       ]
+    },
+    "connectionsWebAuthConfiguration": {
+      "type": "object",
+      "title": "WebAuthConfiguration defines WebAuthn (passkeys) configuration limited to RP and Attestation",
+      "properties": {
+        "attestation": {
+          "$ref": "#/definitions/WebAuthConfigurationAttestation"
+        },
+        "authenticator_selection": {
+          "$ref": "#/definitions/WebAuthConfigurationAuthenticatorSelection"
+        },
+        "authenticators": {
+          "$ref": "#/definitions/WebAuthConfigurationAuthenticators"
+        },
+        "enable_auto_registration": {
+          "description": "Enable auto registration for WebAuthn",
+          "type": "boolean"
+        },
+        "enable_conditional_login": {
+          "description": "Allow autofill of passkeys in login page",
+          "type": "boolean"
+        },
+        "rp": {
+          "$ref": "#/definitions/WebAuthConfigurationRp"
+        },
+        "show_passkey_button": {
+          "description": "Show passkey button on login screen",
+          "type": "boolean"
+        },
+        "timeout": {
+          "$ref": "#/definitions/WebAuthConfigurationTimeout"
+        }
+      }
     },
     "directoriesAttributeMapping": {
       "type": "object",
@@ -5476,6 +6672,94 @@
         }
       }
     },
+    "rolesUpdateDefaultOrganizationRolesResponse": {
+      "type": "object",
+      "properties": {
+        "default_member": {
+          "description": "Updated default member role",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "description": "Role for regular members",
+            "display_name": "Member Role",
+            "id": "role_0987654321",
+            "name": "member"
+          }
+        }
+      }
+    },
+    "rolesUpdateDefaultRole": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "description": "Unique name of the role",
+          "type": "string",
+          "example": "creator"
+        }
+      }
+    },
+    "rolesUpdateDefaultRolesRequest": {
+      "type": "object",
+      "properties": {
+        "default_creator": {
+          "description": "Default creator role (deprecated - use default_creator_role field instead)",
+          "$ref": "#/definitions/rolesUpdateDefaultRole",
+          "example": {
+            "description": "Role for creating resources",
+            "display_name": "Creator Role",
+            "id": "role_1234567890",
+            "name": "creator"
+          }
+        },
+        "default_creator_role": {
+          "description": "Name of the role to set as the default creator role. This role will be automatically assigned to users who create new resources in the environment. Must be a valid role name that exists in the environment.",
+          "type": "string",
+          "example": "creator"
+        },
+        "default_member": {
+          "description": "Default member role (deprecated - use default_member_role field instead)",
+          "$ref": "#/definitions/rolesUpdateDefaultRole",
+          "example": {
+            "description": "Role for regular members",
+            "display_name": "Member Role",
+            "id": "role_0987654321",
+            "name": "member"
+          }
+        },
+        "default_member_role": {
+          "description": "Name of the role to set as the default member role. This role will be automatically assigned to new users when they join the environment. Must be a valid role name that exists in the environment.",
+          "type": "string",
+          "example": "member"
+        }
+      }
+    },
+    "rolesUpdateDefaultRolesResponse": {
+      "type": "object",
+      "properties": {
+        "default_creator": {
+          "description": "The role that is now set as the default creator role for the environment. Contains complete role information including permissions and metadata.",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "description": "Role for creating resources",
+            "display_name": "Creator Role",
+            "id": "role_1234567890",
+            "name": "creator"
+          }
+        },
+        "default_member": {
+          "description": "The role that is now set as the default member role for the environment. Contains complete role information including permissions and metadata.",
+          "$ref": "#/definitions/v1rolesRole",
+          "example": {
+            "description": "Role for regular members",
+            "display_name": "Member Role",
+            "id": "role_0987654321",
+            "name": "member"
+          }
+        }
+      }
+    },
     "rolesUpdateOrganizationRoleResponse": {
       "type": "object",
       "properties": {
@@ -5504,6 +6788,278 @@
             "id": "role_1234abcd5678efgh",
             "name": "content_editor"
           }
+        }
+      }
+    },
+    "sessionsDeviceDetails": {
+      "type": "object",
+      "properties": {
+        "browser": {
+          "description": "Browser name and family extracted from the user agent. Examples: Chrome, Safari, Firefox, Edge, Mobile Safari.",
+          "type": "string",
+          "example": "Chrome"
+        },
+        "browser_version": {
+          "description": "Version of the browser application. Represents the specific release version of the browser being used.",
+          "type": "string",
+          "example": "120.0.0.0"
+        },
+        "device_type": {
+          "description": "Categorized device type classification. Possible values: 'desktop' (traditional computers), 'mobile' (smartphones and small tablets), 'tablet' (large tablets), 'other'. Useful for displaying session information by device category.",
+          "type": "string",
+          "example": "desktop"
+        },
+        "ip": {
+          "description": "IP address of the device that initiated the session. This is the public-facing IP address used to connect to the application. Useful for security audits and geographic distribution analysis.",
+          "type": "string",
+          "example": "192.0.2.1"
+        },
+        "location": {
+          "description": "Geographic location information derived from IP address geolocation. Includes country, region, city, and coordinates. Note: Based on IP location data and may not represent the user's exact physical location.",
+          "$ref": "#/definitions/v1sessionsLocation"
+        },
+        "os": {
+          "description": "Operating system name extracted from the user agent and device headers. Examples: macOS, Windows, Linux, iOS, Android.",
+          "type": "string",
+          "example": "macOS"
+        },
+        "os_version": {
+          "description": "Version of the operating system. Represents the specific OS release the device is running.",
+          "type": "string",
+          "example": "14.2"
+        },
+        "user_agent": {
+          "description": "Complete HTTP User-Agent header string from the client request. Contains browser type, version, and operating system information. Used for detailed device fingerprinting and user agent analysis.",
+          "type": "string",
+          "example": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+      }
+    },
+    "sessionsRevokeAllUserSessionsResponse": {
+      "type": "object",
+      "properties": {
+        "revoked_sessions": {
+          "description": "List of all sessions that were revoked, including detailed information for each revoked session with IDs, timestamps, and device details.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/sessionsRevokedSessionDetails"
+          }
+        },
+        "total_revoked": {
+          "description": "Total count of active sessions that were revoked. Useful for confirmation and audit logging.",
+          "type": "integer",
+          "format": "int64",
+          "example": 5
+        }
+      }
+    },
+    "sessionsRevokeSessionResponse": {
+      "type": "object",
+      "properties": {
+        "revoked_session": {
+          "description": "Details of the revoked session including session ID, user ID, creation and revocation timestamps, and final device information.",
+          "$ref": "#/definitions/sessionsRevokedSessionDetails"
+        }
+      }
+    },
+    "sessionsRevokedSessionDetails": {
+      "type": "object",
+      "properties": {
+        "absolute_expires_at": {
+          "description": "The absolute expiration timestamp that was configured for this session before revocation. Represents the hard deadline regardless of activity.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-22T10:30:00Z"
+        },
+        "created_at": {
+          "description": "Timestamp indicating when the session was originally created before revocation.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-15T10:30:00Z"
+        },
+        "expired_at": {
+          "description": "Timestamp when the session was actually terminated. Set to the revocation time when the session is revoked.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-15T12:00:00Z"
+        },
+        "idle_expires_at": {
+          "description": "The idle expiration timestamp that was configured for this session before revocation. Represents when the session would have expired due to inactivity.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-15T11:30:00Z"
+        },
+        "last_active_at": {
+          "description": "Timestamp of the last recorded user activity in this session before revocation. Helps identify inactive sessions that were revoked.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-15T10:55:30Z"
+        },
+        "logout_at": {
+          "description": "Timestamp when the user explicitly logged out (if applicable). Null if the session was revoked without prior logout.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-15T14:00:00Z"
+        },
+        "session_id": {
+          "description": "Unique identifier for the revoked session. System-generated read-only field.",
+          "type": "string",
+          "example": "ses_1234567890123456"
+        },
+        "status": {
+          "description": "Status of the session after revocation. Always 'revoked' since only active sessions can be revoked. Sessions that were already expired or logged out are not included in the revocation response.",
+          "type": "string",
+          "example": "revoked"
+        },
+        "updated_at": {
+          "description": "Timestamp indicating when the session was last modified before revocation.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-15T10:45:00Z"
+        },
+        "user_id": {
+          "description": "Unique identifier for the user who owned this session.",
+          "type": "string",
+          "example": "usr_1234567890123456"
+        }
+      }
+    },
+    "sessionsSessionDetails": {
+      "type": "object",
+      "properties": {
+        "absolute_expires_at": {
+          "description": "Hard expiration timestamp for the session regardless of user activity. The session will be forcibly terminated at this time. This represents the maximum session lifetime from creation.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-22T10:30:00Z"
+        },
+        "authenticated_organizations": {
+          "description": "List of organization IDs that have been authenticated for this user within the current session. Contains all organizations where the user has successfully completed SSO or authentication.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "org_123",
+            "org_456"
+          ]
+        },
+        "created_at": {
+          "description": "Timestamp indicating when the session was created. This is set once at session creation and remains constant throughout the session lifetime.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-15T10:30:00Z"
+        },
+        "device": {
+          "description": "Complete device metadata associated with this session including browser, operating system, device type, and geographic location based on IP address.",
+          "$ref": "#/definitions/sessionsDeviceDetails"
+        },
+        "expired_at": {
+          "description": "Timestamp when the session was terminated. Null if the session is still active. Set when the session expires due to reaching idle_expires_at or absolute_expires_at timeout, or when administratively revoked. Not set for user-initiated logout (see logout_at instead).",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-15T12:00:00Z"
+        },
+        "idle_expires_at": {
+          "description": "Projected expiration timestamp if the session remains idle without user activity. This timestamp is recalculated with each user activity. Session will be automatically terminated at this time if no activity occurs.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-15T11:30:00Z"
+        },
+        "last_active_at": {
+          "description": "Timestamp of the most recent user activity detected in this session. Updated on each API request or user interaction. Used to determine if a session has exceeded the idle timeout threshold.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-15T10:55:30Z"
+        },
+        "logout_at": {
+          "description": "Timestamp when the user explicitly logged out from the session. Null if the user has not logged out. When set, indicates the session ended due to explicit user logout rather than timeout.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-15T14:00:00Z"
+        },
+        "organization_id": {
+          "description": "Organization ID for the user's most recently active organization within this session. This represents the primary organization context for the current session.",
+          "type": "string",
+          "example": "org_1234567890123456"
+        },
+        "session_id": {
+          "description": "Unique identifier for the session. System-generated read-only field used to reference this session.",
+          "type": "string",
+          "example": "ses_1234567890123456"
+        },
+        "status": {
+          "description": "Current operational status of the session. Possible values: 'active' (session is valid and requests are allowed), 'expired' (session terminated due to idle or absolute timeout), 'revoked' (session was administratively revoked), 'logout' (user explicitly logged out). Use this to determine if the session can be used for new requests.",
+          "type": "string",
+          "example": "active"
+        },
+        "updated_at": {
+          "description": "Timestamp indicating when the session was last updated. Updated whenever session state changes such as organization context changes or metadata updates.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-15T10:45:00Z"
+        },
+        "user_id": {
+          "description": "Unique identifier for the user who owns and is authenticated within this session.",
+          "type": "string",
+          "example": "usr_1234567890123456"
+        }
+      }
+    },
+    "sessionsUserSessionDetails": {
+      "type": "object",
+      "properties": {
+        "next_page_token": {
+          "description": "Pagination token for retrieving the next page of results. Empty string if there are no more pages (you have reached the final page of results).",
+          "type": "string",
+          "example": "eyJwYWdlIjogMiwgImxhc3RfaWQiOiAic2VzXzEyMzQ1In0="
+        },
+        "prev_page_token": {
+          "description": "Pagination token for retrieving the previous page of results. Empty string for the first page. Use this to navigate backward through result pages.",
+          "type": "string",
+          "example": "eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInNlc183OTAxIn0="
+        },
+        "sessions": {
+          "description": "Array of session objects for the requested user. May contain fewer entries than the requested page_size when reaching the final page of results.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/sessionsSessionDetails"
+          }
+        },
+        "total_size": {
+          "description": "Total number of sessions matching the applied filter criteria, regardless of pagination. This represents the complete result set size before pagination is applied.",
+          "type": "integer",
+          "format": "int64",
+          "example": 42
+        }
+      }
+    },
+    "sessionsUserSessionFilter": {
+      "type": "object",
+      "properties": {
+        "end_time": {
+          "description": "Filter to include only sessions created on or before this timestamp. Optional. Uses RFC 3339 format. Must be after start_time if both are specified.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-12-31T23:59:59Z"
+        },
+        "start_time": {
+          "description": "Filter to include only sessions created on or after this timestamp. Optional. Uses RFC 3339 format. Useful for querying sessions within a specific time window.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-01-01T00:00:00Z"
+        },
+        "status": {
+          "description": "Filter sessions by one or more status values. Possible values: 'active', 'expired', 'revoked', 'logout'. Leave empty to include all statuses. Multiple values use OR logic (e.g., status=['active', 'expired'] returns sessions that are either active OR expired).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "active"
+          ]
         }
       }
     },
@@ -5571,15 +7127,31 @@
             "security_clearance": "level2"
           }
         },
-        "first_name": {
-          "description": "User's given name. Maximum 200 characters.",
+        "family_name": {
+          "description": "User's family name. Maximum 255 characters.",
+          "type": "string",
+          "example": "Doe"
+        },
+        "gender": {
+          "description": "User's gender identity.",
+          "type": "string",
+          "example": "male"
+        },
+        "given_name": {
+          "description": "User's given name. Maximum 255 characters.",
           "type": "string",
           "example": "John"
         },
-        "last_name": {
-          "description": "User's family name. Maximum 200 characters.",
-          "type": "string",
-          "example": "Doe"
+        "groups": {
+          "description": "List of group names the user belongs to. Each group name must be 1-250 characters",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "engineering",
+            "managers"
+          ]
         },
         "locale": {
           "description": "User's localization preference in BCP-47 format. Defaults to organization settings.",
@@ -5606,6 +7178,16 @@
           "description": "Phone number in E.164 international format. Required for SMS-based authentication.",
           "type": "string",
           "example": "+14155552671"
+        },
+        "picture": {
+          "description": "URL to the user's profile picture or avatar.",
+          "type": "string",
+          "example": "https://example.com/avatar.jpg"
+        },
+        "preferred_username": {
+          "description": "User's preferred username for display purposes.",
+          "type": "string",
+          "example": "John Michael Doe"
         }
       }
     },
@@ -5695,6 +7277,32 @@
         }
       }
     },
+    "usersListUserPermissionsResponse": {
+      "type": "object",
+      "properties": {
+        "permissions": {
+          "description": "List of permissions the user has access to",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/usersPermission"
+          }
+        }
+      }
+    },
+    "usersListUserRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "description": "List of roles assigned to the user",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/commonsRole"
+          }
+        }
+      }
+    },
     "usersListUsersResponse": {
       "type": "object",
       "properties": {
@@ -5721,6 +7329,27 @@
             "type": "object",
             "$ref": "#/definitions/usersUser"
           }
+        }
+      }
+    },
+    "usersPermission": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Description of what the permission allows",
+          "type": "string",
+          "example": "Allows creating new user accounts"
+        },
+        "id": {
+          "description": "Unique identifier for the permission",
+          "type": "string",
+          "readOnly": true,
+          "example": "perm_1234abcd5678efgh"
+        },
+        "name": {
+          "description": "Unique name identifier for the permission",
+          "type": "string",
+          "example": "users:create"
         }
       }
     },
@@ -5752,7 +7381,7 @@
       "type": "object",
       "properties": {
         "custom_attributes": {
-          "description": "Custom attributes for extended user profile data. Keys (3-25 chars), values (1-256 chars).",
+          "description": "Updates custom attributes for extended user profile data and application-specific information. Use this field to store business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.",
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -5762,23 +7391,49 @@
             "security_clearance": "level2"
           }
         },
+        "family_name": {
+          "description": "Updates the user's family name (last name or surname). Use this field to modify how the user's last name appears throughout the system. Maximum 255 characters allowed.",
+          "type": "string",
+          "example": "Doe"
+        },
         "first_name": {
-          "description": "User's given name. Maximum 200 characters.",
+          "description": "[DEPRECATED] Use given_name instead. User's given name. Maximum 200 characters.",
           "type": "string",
           "example": "John"
         },
+        "gender": {
+          "description": "Updates the user's gender identity information. Use this field to store the user's gender identity for personalization, compliance, or reporting purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies.",
+          "type": "string",
+          "example": "male"
+        },
+        "given_name": {
+          "description": "Updates the user's given name (first name). Use this field to modify how the user's first name appears in the system and user interfaces. Maximum 255 characters allowed.",
+          "type": "string",
+          "example": "John"
+        },
+        "groups": {
+          "description": "Updates the list of group names the user belongs to within the organization. Use this field to manage the user's group memberships for role-based access control, team assignments, or organizational structure. Groups are typically used for permission management and collaborative access. Each group name must be unique within the list, 1-250 characters long, with a maximum of 50 groups per user.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "engineering",
+            "managers"
+          ]
+        },
         "last_name": {
-          "description": "User's family name. Maximum 200 characters.",
+          "description": "[DEPRECATED] Use family_name instead. User's family name. Maximum 200 characters.",
           "type": "string",
           "example": "Doe"
         },
         "locale": {
-          "description": "User's localization preference in BCP-47 format. Defaults to organization settings.",
+          "description": "Updates the user's preferred language and region settings using BCP-47 format codes. Use this field to customize the user's experience with localized content, date formats, number formatting, and UI language. When not specified, the user inherits the organization's default locale settings. Common values include `en-US`, `en-GB`, `fr-FR`, `de-DE`, and `es-ES`.",
           "type": "string",
           "example": "en-US"
         },
         "metadata": {
-          "description": "System-managed key-value pairs for internal tracking. Keys (3-25 chars), values (1-256 chars).",
+          "description": "Updates system-managed key-value pairs for internal tracking and operational data. Use this field to store system-generated metadata like account status, signup source, last activity tracking, or integration-specific identifiers. These fields are typically managed by automated processes rather than direct user input. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.",
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -5789,14 +7444,24 @@
           }
         },
         "name": {
-          "description": "Full name in display format. Typically combines first_name and last_name.",
+          "description": "Updates the user's complete display name. Use this field when you want to set the full name as a single string rather than using separate given and family names. This name appears in user interfaces, reports, and anywhere a formatted display name is needed.",
           "type": "string",
-          "example": "John Michael Doe"
+          "example": "John Doe"
         },
         "phone_number": {
-          "description": "Phone number in E.164 international format. Required for SMS-based authentication.",
+          "description": "Updates the user's phone number in E.164 international format. Use this field to enable SMS-based authentication methods, two-factor authentication, or phone-based account recovery. The phone number must include the country code and be formatted according to E.164 standards (e.g., `+1` for US numbers). This field is required when enabling SMS authentication features.",
           "type": "string",
           "example": "+14155552671"
+        },
+        "picture": {
+          "description": "Updates the URL to the user's profile picture or avatar image. Use this field to set or change the user's profile photo that appears in user interfaces, directory listings, and collaborative features. The URL should point to a publicly accessible image file. Supported formats typically include JPEG, PNG, and GIF. Maximum URL length is 2048 characters.",
+          "type": "string",
+          "example": "https://example.com/avatar.jpg"
+        },
+        "preferred_username": {
+          "description": "Updates the user's preferred username for display and identification purposes. Use this field to set a custom username that the user prefers to be known by, which may differ from their email or formal name. This username appears in user interfaces, mentions, and informal communications. Maximum 512 characters allowed.",
+          "type": "string",
+          "example": "John Michael Doe"
         }
       }
     },
@@ -6121,6 +7786,36 @@
         }
       }
     },
+    "v1sessionsLocation": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "description": "City name where the session originated based on IP geolocation. Approximate location derived from IP address.",
+          "type": "string",
+          "example": "San Francisco"
+        },
+        "latitude": {
+          "description": "Latitude coordinate of the estimated location. Decimal format (e.g., '37.7749'). Note: Represents IP geolocation center and may not be precise.",
+          "type": "string",
+          "example": "37.7749"
+        },
+        "longitude": {
+          "description": "Longitude coordinate of the estimated location. Decimal format (e.g., '-122.4194'). Note: Represents IP geolocation center and may not be precise.",
+          "type": "string",
+          "example": "-122.4194"
+        },
+        "region": {
+          "description": "Geographic region name derived from IP geolocation. Represents the country-level location (e.g., 'United States', 'France').",
+          "type": "string",
+          "example": "United States"
+        },
+        "region_subdivision": {
+          "description": "Regional subdivision code or name (e.g., state abbreviation for US, province for Canada). Two-letter ISO format when applicable.",
+          "type": "string",
+          "example": "CA"
+        }
+      }
+    },
     "v1usersCreateMembership": {
       "type": "object",
       "properties": {
@@ -6208,6 +7903,148 @@
           "$ref": "#/definitions/usersUpdateUserProfile"
         }
       }
+    },
+    "webauthnAllAcceptedCredentialsOptions": {
+      "type": "object",
+      "properties": {
+        "all_accepted_credential_ids": {
+          "description": "List of credential IDs the user can authenticate with",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rp_id": {
+          "description": "Relying Party ID for credential operations",
+          "type": "string",
+          "example": "example.com"
+        },
+        "user_id": {
+          "description": "User ID for credential verification",
+          "type": "string",
+          "example": "user_xyz789"
+        }
+      }
+    },
+    "webauthnDeleteCredentialResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "description": "Whether the credential was successfully deleted",
+          "type": "boolean",
+          "example": true
+        },
+        "unknown_credential_options": {
+          "description": "Options for handling unknown credentials in client applications",
+          "$ref": "#/definitions/webauthnUnknownCredentialOptions"
+        }
+      }
+    },
+    "webauthnListCredentialsResponse": {
+      "type": "object",
+      "properties": {
+        "all_accepted_credentials_options": {
+          "description": "Options including RP ID and all accepted credential IDs for authentication",
+          "$ref": "#/definitions/webauthnAllAcceptedCredentialsOptions"
+        },
+        "credentials": {
+          "description": "All passkeys registered for the user",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/webauthnWebAuthnCredential"
+          }
+        }
+      }
+    },
+    "webauthnUnknownCredentialOptions": {
+      "type": "object",
+      "properties": {
+        "credential_id": {
+          "description": "The deleted credential ID",
+          "type": "string",
+          "example": "cred_abc123"
+        },
+        "rp_id": {
+          "description": "The RP ID for this credential",
+          "type": "string",
+          "example": "example.com"
+        }
+      }
+    },
+    "webauthnUpdateCredentialResponse": {
+      "type": "object",
+      "properties": {
+        "credential": {
+          "description": "The updated credential with new display name",
+          "$ref": "#/definitions/webauthnWebAuthnCredential"
+        }
+      }
+    },
+    "webauthnWebAuthnCredential": {
+      "type": "object",
+      "properties": {
+        "attestation_type": {
+          "description": "Type of attestation: \"none\", \"indirect\", or \"direct\"",
+          "type": "string",
+          "example": "direct"
+        },
+        "authenticator": {
+          "description": "Authenticator information including model and name",
+          "$ref": "#/definitions/WebAuthnCredentialAuthenticator"
+        },
+        "authenticator_flags": {
+          "description": "Flags indicating authenticator capabilities",
+          "$ref": "#/definitions/WebAuthnCredentialAuthenticatorFlags"
+        },
+        "client_info": {
+          "description": "Geographic and network information from registration",
+          "$ref": "#/definitions/WebAuthnCredentialClientInfo"
+        },
+        "created_at": {
+          "description": "Timestamp when the credential was created",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-02-15T06:23:44.560Z"
+        },
+        "credential_id": {
+          "description": "The actual credential ID bytes from the authenticator",
+          "type": "string",
+          "format": "byte"
+        },
+        "display_name": {
+          "description": "Optional user-friendly name for this passkey",
+          "type": "string",
+          "example": "My Yubikey"
+        },
+        "id": {
+          "description": "Credential unique identifier",
+          "type": "string",
+          "example": "cred_abc123"
+        },
+        "transports": {
+          "description": "Supported transports for this credential",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "updated_at": {
+          "description": "Timestamp of last update",
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-02-15T06:23:44.560Z"
+        },
+        "user_agent": {
+          "description": "Browser and device information from registration",
+          "$ref": "#/definitions/WebAuthnCredentialUserAgent"
+        },
+        "user_id": {
+          "description": "User ID this credential belongs to",
+          "type": "string",
+          "example": "user_xyz789"
+        }
+      }
     }
   },
   "tags": [
@@ -6236,7 +8073,12 @@
       "name": "Roles"
     },
     {
-      "name": "DomainService"
+      "description": "Comprehensive session management for user authentication and authorization. This service provides endpoints for retrieving session details, managing user sessions across devices, revoking individual sessions, and terminating all active sessions for a user. It supports session auditing, device tracking, and security monitoring with detailed session metadata including device information, IP geolocation, and activity timestamps.",
+      "name": "Sessions"
+    },
+    {
+      "description": "Domain management for organization email domains and SSO configurations. This service provides endpoints for creating, retrieving, listing, and deleting domains that are associated with organizations. It supports domain type configuration for email domain allowlists and SSO identification, and provides comprehensive domain metadata including status and connection associations.",
+      "name": "Domains"
     },
     {
       "description": "Endpoints for managing API client applications. API clients enable secure, automated interactions between software systems without human intervention. Each client is uniquely identified by a `client_id` and can be configured with authentication settings, redirect URIs, and security parameters. Use these endpoints to create, manage, and configure API clients for your API clients.",
@@ -6248,6 +8090,10 @@
     {
       "description": "Endpoints for sending and verifying passwordless authentication emails. These APIs allow users to authenticate without passwords by receiving a verification code or magic link in their email.",
       "name": "Passwordless Auth"
+    },
+    {
+      "description": "Endpoints for passkey-based authentication using WebAuthn/FIDO2 standards.",
+      "name": "Passkeys"
     }
   ],
   "externalDocs": {
