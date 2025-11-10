@@ -9,7 +9,7 @@ head:
       table td:not(:last-child), table th:not(:last-child) {
         white-space: nowrap;
       }
-      .sl-markdown-content h2 {P
+      .sl-markdown-content h2 {
           font-size: var(--sl-text-xl);
        }
       .sl-markdown-content h3 {
@@ -130,8 +130,6 @@ Choose Modular SSO when you:
 
    Create an authorization URL to redirect users to Scalekit's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and required scopes.
 
-   To receive a refresh token, include the `offline_access` scope in your authorization request. Note that refresh tokens are only available when "Full-Stack Auth" is enabled in your Scalekit dashboard.
-
    <Tabs syncKey="tech-stack">
    <TabItem value="nodejs" label="Node.js">
 
@@ -157,6 +155,7 @@ Choose Modular SSO when you:
    options['organizationId'] = 'org_15421144869927830';
 
    // 3. loginHint (lowest precedence) - Extracts domain from email to find connection
+   //    Domain must be registered to the organization (manually via Dashboard or through admin portal during enterprise onboarding)
    options['loginHint'] = 'user@example.com';
 
    // redirect_uri: Your callback endpoint that receives the authorization code
@@ -192,6 +191,7 @@ Choose Modular SSO when you:
    options.organization_id = 'org_15421144869927830'
 
    # 3. login_hint (lowest precedence) - Extracts domain from email to find connection
+   #    Domain must be registered to the organization (manually via Dashboard or through admin portal during enterprise onboarding)
    options.login_hint = 'user@example.com'
 
    # redirect_uri: Your callback endpoint that receives the authorization code
@@ -233,6 +233,7 @@ Choose Modular SSO when you:
      options.OrganizationId = "org_15421144869927830"
 
      // 3. LoginHint (lowest precedence) - Extracts domain from email to find connection
+     //    Domain must be registered to the organization (manually via Dashboard or through admin portal during enterprise onboarding)
      options.LoginHint = "user@example.com"
 
      // redirectUrl: Your callback endpoint that receives the authorization code
@@ -274,12 +275,13 @@ Choose Modular SSO when you:
        // 1. connectionId (highest precedence) - Use when you know the exact SSO connection
        options.setConnectionId("con_13388706786312310");
 
-       // 2. organizationId - Routes to organization's SSO (useful for multi-tenant apps)
-       //    If org has multiple connections, the first active one is selected
-       options.setOrganizationId("org_13388706786312310");
+      // 2. organizationId - Routes to organization's SSO (useful for multi-tenant apps)
+      //    If org has multiple connections, the first active one is selected
+      options.setOrganizationId("org_13388706786312310");
 
-       // 3. loginHint (lowest precedence) - Extracts domain from email to find connection
-       options.setLoginHint("user@example.com");
+      // 3. loginHint (lowest precedence) - Extracts domain from email to find connection
+      //    Domain must be registered to the organization (manually via Dashboard or through admin portal during enterprise onboarding)
+      options.setLoginHint("user@example.com");
 
        // redirectUrl: Your callback endpoint that receives the authorization code
        // Must match the URL registered in your Scalekit dashboard
@@ -317,7 +319,7 @@ Choose Modular SSO when you:
    - `connection_id` - Direct to specific SSO connection (highest precedence)
    - `organization_id` - Route to organization's SSO
    - `domain_hint` - Lookup connection by domain
-   - `login_hint` - Extract domain from email (lowest precedence)
+   - `login_hint` - Extract domain from email (lowest precedence). Domain must be registered to the organization (manually via Dashboard or through admin portal when [onboarding an enterprise customer](/fsa/guides/onboard-enterprise-customers/))
 
    ```http showLineNumbers=false title="Example with actual values"
    https://tinotat-dev.scalekit.cloud/oauth/authorize?
@@ -331,7 +333,10 @@ Choose Modular SSO when you:
    </TabItem>
    </Tabs>
 
+
    Enterprise users see their identity provider's login page. Users verify their identity through the authentication policies set by their organization's administrator. Post successful verification, the user profile is [normalized](/sso/guides/user-profile-details/) and sent to your app.
+
+   If your application needs to verify whether an SSO connection exists for a specific domain before proceeding, you can use the [list connections by domain SDK method](/guides/user-auth/check-sso-domain/).
 
    For details on how Scalekit determines which SSO connection to use, refer to the [SSO identifier precedence rules](/sso/guides/authorization-url/#parameter-precedence).
 
