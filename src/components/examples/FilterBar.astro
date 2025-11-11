@@ -4,12 +4,13 @@ import { getIconComponent } from '@/utils/icon-map'
 
 export interface Props {
   filters: Filter[]
+  hidden?: boolean
 }
 
-const { filters } = Astro.props
+const { filters, hidden = false } = Astro.props
 ---
 
-<div class="filter-bar-content">
+<div class:list={['filter-bar-content', { 'filter-bar-hidden': hidden }]}>
   <div class="filter-toggles">
     {
       filters.map((filter) => {
@@ -46,6 +47,10 @@ const { filters } = Astro.props
     gap: 1.5rem;
     flex-wrap: wrap;
     margin-bottom: 1.5rem;
+  }
+
+  .filter-bar-hidden {
+    display: none;
   }
 
   .filter-label {
