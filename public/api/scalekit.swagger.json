@@ -1644,6 +1644,70 @@
         ]
       }
     },
+    "/api/v1/organizations/{organization_id}/users/{user_id}/permissions": {
+      "get": {
+        "description": "Retrieves all permissions a user has access to within a specific organization. This includes permissions from direct role assignments and inherited permissions from role hierarchy.",
+        "tags": ["Users"],
+        "summary": "List user permissions",
+        "operationId": "UserService_ListUserPermissions",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier for the organization",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier for the user",
+            "name": "user_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of permissions for the user",
+            "schema": {
+              "$ref": "#/definitions/usersListUserPermissionsResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/users/{user_id}/roles": {
+      "get": {
+        "description": "Retrieves all roles assigned to a user within a specific organization. This includes both direct role assignments and inherited roles from role hierarchy.",
+        "tags": ["Users"],
+        "summary": "List user roles",
+        "operationId": "UserService_ListUserRoles",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unique identifier for the organization",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier for the user",
+            "name": "user_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of roles assigned to the user",
+            "schema": {
+              "$ref": "#/definitions/usersListUserRolesResponse"
+            }
+          }
+        }
+      }
+    },
     "/api/v1/invites/organizations/{organization_id}/users/{id}/resend": {
       "patch": {
         "description": "Resends an invitation email to a user who has a pending or expired invitation in the specified organization. If the invitation has expired, a new invitation will be automatically created and sent. If the invitation is still valid, a reminder email will be sent instead. Use this endpoint when a user hasn't responded to their initial invitation and you need to send them a reminder or when the original invitation has expired. The invitation email includes a secure magic link that allows the user to complete their account setup and join the organization. Each resend operation increments the resent counter.",
@@ -3370,14 +3434,7 @@
               "$ref": "#/definitions/domainsListDomainResponse"
             }
           }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "// List all domains in an organization\nconst response = await client.domain.listDomains(organizationId);\n\n// Domain object contains:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Configuration type"
-          }
-        ]
+        }
       },
       "post": {
         "description": "Creates a new domain and associates it with the specified organization. The domain can be configured as either an ALLOWED_EMAIL_DOMAIN for automatic organization suggestions during user sign-in/sign-up, or as an ORGANIZATION_DOMAIN for SSO connection identification.\n\nThe domain must be a valid, business email domain that you control. Public disposable domains (gmail.com, outlook.com, etc.) are automatically blocked for security.\n\n",
@@ -3415,14 +3472,7 @@
               "$ref": "#/definitions/errdetailsErrorInfo"
             }
           }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "// Add a new domain to an organization\nconst response = await scalekit.createDomain(\"org-123\", \"example.com\", {\n\t// Domain type: controls user authentication and email validation\n\tdomainType: \"ALLOWED_EMAIL_DOMAIN\",\n});"
-          }
-        ]
+        }
       }
     },
     "/api/v1/organizations/{organization_id}/domains/{id}": {
@@ -3454,14 +3504,7 @@
               "$ref": "#/definitions/domainsGetDomainResponse"
             }
           }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "// Fetch details of a specific domain\nconst response = await client.domain.getDomain(organizationId, domainId);\n\n// Domain object properties:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Domain configuration type"
-          }
-        ]
+        }
       },
       "delete": {
         "description": "Permanently removes an allowed email domain or organization domain from the organization configuration.\n\nUse this endpoint when you need to remove a domain that is no longer trusted or when consolidating multiple domains. Note that this action cannot be undone.\n\n",
@@ -3489,14 +3532,7 @@
             "description": "Domain successfully deleted.",
             "schema": {}
           }
-        },
-        "x-codeSamples": [
-          {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "// Remove a domain from an organization\n// Caution: Deletion is permanent and may affect user access\nconst response = await client.domain.deleteDomain(organizationId, domainId);"
-          }
-        ]
+        }
       }
     },
     "/api/v1/connections": {
@@ -4471,7 +4507,7 @@
       "type": "object",
       "properties": {
         "custom_attributes": {
-          "description": "Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 100 key-value pairs.",
+          "description": "Custom attributes for extended user profile data and application-specific information. This field stores business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users for personalization and business logic. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.",
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -4491,11 +4527,6 @@
           "description": "The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.",
           "type": "string",
           "example": "Doe"
-        },
-        "first_name": {
-          "description": "[DEPRECATED] Use given_name instead. User's given name. Maximum 255 characters.",
-          "type": "string",
-          "example": "John"
         },
         "gender": {
           "description": "The user's gender identity information. This field stores the user's gender identity for personalization, compliance reporting, or organizational analytics purposes. This field supports any string value to accommodate diverse gender identities and should be handled with appropriate privacy considerations according to your organization's policies and applicable regulations.",
@@ -4521,18 +4552,13 @@
           "readOnly": true,
           "example": "usr_profile_1234abcd5678efgh"
         },
-        "last_name": {
-          "description": "[DEPRECATED] Use family_name instead. User's family name. Maximum 255 characters.",
-          "type": "string",
-          "example": "Doe"
-        },
         "locale": {
           "description": "The user's preferred language and region settings using BCP-47 format codes. This field customizes the user's experience with localized content, date formats, number formatting, and UI language throughout the system. When not specified, the user inherits the organization's default locale settings. Common values include `en-US`, `en-GB`, `fr-FR`, `de-DE`, and `es-ES`.",
           "type": "string",
           "example": "en-US"
         },
         "metadata": {
-          "description": "Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 30 key-value pairs.",
+          "description": "Raw attributes received from identity providers during authentication. This field stores the original user profile data as received from external IdP systems (SAML, OIDC, etc.) including provider-specific claims and attributes. These fields preserve the complete set of attributes received from the identity source and are used for mapping, synchronization, and audit purposes. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.",
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -6841,11 +6867,6 @@
           "type": "string",
           "example": "Doe"
         },
-        "first_name": {
-          "description": "[DEPRECATED] Use given_name instead. User's given name. Maximum 200 characters.",
-          "type": "string",
-          "example": "John"
-        },
         "gender": {
           "description": "User's gender identity.",
           "type": "string",
@@ -6863,11 +6884,6 @@
             "type": "string"
           },
           "example": ["engineering", "managers"]
-        },
-        "last_name": {
-          "description": "[DEPRECATED] Use family_name instead. User's family name. Maximum 200 characters.",
-          "type": "string",
-          "example": "Doe"
         },
         "locale": {
           "description": "User's localization preference in BCP-47 format. Defaults to organization settings.",
@@ -6993,6 +7009,32 @@
         }
       }
     },
+    "usersListUserPermissionsResponse": {
+      "type": "object",
+      "properties": {
+        "permissions": {
+          "description": "List of permissions the user has access to",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/usersPermission"
+          }
+        }
+      }
+    },
+    "usersListUserRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "description": "List of roles assigned to the user",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/commonsRole"
+          }
+        }
+      }
+    },
     "usersListUsersResponse": {
       "type": "object",
       "properties": {
@@ -7019,6 +7061,27 @@
             "type": "object",
             "$ref": "#/definitions/usersUser"
           }
+        }
+      }
+    },
+    "usersPermission": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Description of what the permission allows",
+          "type": "string",
+          "example": "Allows creating new user accounts"
+        },
+        "id": {
+          "description": "Unique identifier for the permission",
+          "type": "string",
+          "readOnly": true,
+          "example": "perm_1234abcd5678efgh"
+        },
+        "name": {
+          "description": "Unique name identifier for the permission",
+          "type": "string",
+          "example": "users:create"
         }
       }
     },
@@ -7050,7 +7113,7 @@
       "type": "object",
       "properties": {
         "custom_attributes": {
-          "description": "Updates custom attributes for extended user profile data and application-specific information. Use this field to store business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 100 key-value pairs.",
+          "description": "Updates custom attributes for extended user profile data and application-specific information. Use this field to store business-specific user data like department, job title, security clearances, project assignments, or any other organizational attributes your application requires. Unlike system metadata, these attributes are typically managed by administrators or applications and are visible to end users. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.",
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -7099,7 +7162,7 @@
           "example": "en-US"
         },
         "metadata": {
-          "description": "Updates system-managed key-value pairs for internal tracking and operational data. Use this field to store system-generated metadata like account status, signup source, last activity tracking, or integration-specific identifiers. These fields are typically managed by automated processes rather than direct user input. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 30 key-value pairs.",
+          "description": "Updates system-managed key-value pairs for internal tracking and operational data. Use this field to store system-generated metadata like account status, signup source, last activity tracking, or integration-specific identifiers. These fields are typically managed by automated processes rather than direct user input. Keys must be 3-25 characters, values must be 1-256 characters, with a maximum of 20 key-value pairs.",
           "type": "object",
           "additionalProperties": {
             "type": "string"

@@ -6,6 +6,151 @@ banner:
     Join our dev community to connect with Scalekit engineers for questions or feedback
 ---
 
-# Quickstart
+import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
 
-Agent Actions provides a tool to generate an MCP server. This is useful when you need to generate an MCP server for a specific use case.
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro) is an open-source standard that enables AI systems to interface with external tools and data sources. In Scalekit, every available tool is also provided as an MCP server..
+
+With Scalekit, you can build MCP servers that manage authentication, create personalized access URLs for users, and define which tools are accessible. You can also bundle several toolkits together within a single server.
+
+<Aside >
+  Agent Actions MCP servers only support Streamable HTTP transport.
+</Aside>
+
+# What you’ll build
+In this quickstart, we will:
+1. Create a simple MCP server that fetches your latest email and sets up a reminder calendar event
+2. Connect to this MCP server with langchain-openai
+
+# Prerequisites
+Before you start, make sure you have:
+1. Scalekit API credentials: Go to your [Scalekit Dashboard](https://app.scalekit.com) -> Settings (Left Nav) -> Copy the client_id and client_secret
+2. OpenAI API Key: Get your [api-key](https://platform.openai.com/api-keys)
+3. Gmail and Google Calendar Active Connectors
+    * **Gmail**: Navigate to your Scalekit Dashboard -> Connections under *Agent Actions* (left nav) -> Create Connection -> Gmail -> Create -> `Connection Name = MY_GMAIL` -> Save
+    * **Google Calendar**: Navigate to your Scalekit Dashboard -> Connections under *Agent Actions* (left nav) -> Create Connection -> Google Calendar -> Create -> `Connection Name = MY_CALENDAR` -> Save
+
+## Step 1: Set up your environment
+
+<p>
+  ```sh showLineNumbers=false frame="none"
+  pip install scalekit-sdk-python langgraph>=0.6.5 langchain-mcp-adapters>=0.1.9 python-dotenv>=1.0.1 openai>=1.53.0 requests>=2.32.3
+  ```
+</p>
+
+Add these imports to your `main.py`
+<p>
+  ```sh showLineNumbers=false frame="none"
+import os
+import asyncio
+from dotenv import load_dotenv
+import scalekit.client
+from scalekit.actions.models.mcp_config import McpConfigConnectionToolMapping
+from scalekit.actions.types import (GetMcpInstanceAuthStateResponse)
+from langgraph.prebuilt import create_react_agent
+from langchain_mcp_adapters.client import MultiServerMCPClient
+  ```
+</p>
+
+Set OpenAI API Key for your development environment
+
+<p>
+  ```sh showLineNumbers=false frame="none"
+  export OPENAI_API_KEY=xxxxxx
+  ```
+</p>
+
+Initialize Scalekit Client
+
+
+<p>
+  ```sh showLineNumbers=false frame="none"
+scalekit = scalekit.client.ScalekitClient(
+    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+    env_url=os.getenv("SCALEKIT_ENV_URL"),
+)
+my_mcp = scalekit.actions.mcp
+  ```
+</p>
+
+## Step 2: Create an MCP Server and authenticate the user
+
+Create an MCP config
+
+<p>
+  ```sh showLineNumbers=false frame="none"
+cfg_response = my_mcp.create_config(
+    name="reminder-manager",
+    description="Summarizes latest email and creates a reminder event",
+    connection_tool_mappings=[
+        McpConfigConnectionToolMapping(
+            connection_name="MY_GMAIL",
+            tools=[
+                "gmail_fetch_mails",
+            ],
+        ),
+        McpConfigConnectionToolMapping(
+            connection_name="MY_CALENDAR",
+            tools=[
+                "googlecalendar_create_event",
+            ],
+        ),
+    ],
+)
+  ```
+</p>
+
+Create an MCP server instance for a specific user `john-doe` using this mcp-config
+
+<p>
+  ```sh showLineNumbers=false frame="none"
+inst_response = my_mcp.ensure_instance(
+    config_name=config_name,
+    user_identifier="john-doe",
+)
+print("Instance url:", inst_response.instance.url)
+  ```
+</p>
+
+Generate Authenticate links for john-doe
+
+<p>
+  ```sh showLineNumbers=false frame="none"
+auth_state_response = my_mcp.get_instance_auth_state(
+    instance_id=instance_response.instance.id,
+    include_auth_links=True,
+)
+for conn in getattr(auth_state_response, "connections", []):
+    print("Connection Name:", conn.connection_name, " Provider: ", conn.provider, " Auth Link: ", conn.authentication_link, "Auth Status: ", conn.connected_account_status)
+  ```
+</p>
+
+<Aside type="note">
+    **Complete Authentication:** Open the links that gets printed with the above snippet in your browser and complete authentication.
+</Aside>
+
+## Step 3: Connect to your MCP server
+
+<p>
+  ```sh showLineNumbers=false frame="none"
+client = MultiServerMCPClient(
+    {
+        "reminder_demo": {
+            "transport": "streamable_http",
+            "url": mcp_url
+        },
+    }
+)
+tools = await client.get_tools()
+agent = create_react_agent("openai:gpt-4.1", tools)
+openai_response = await agent.ainvoke({"messages": "get 1 latest email and create a calendar reminder event in next 15 mins for a duration of 15 mins."})
+print(openai_response)
+  ```
+</p>
+
+You have successfully created your mcp server. Full code can be found at [Github](https://github.com/scalekit-inc/python-connect-demos/tree/main/mcp)
+
+<Aside type="note" title="MCP client compatibility">
+    You can test this MCP server with popular clients like MCP Inspector, Claude Desktop, and other spec-compliant implementations. Note that ChatGPT's beta connector feature may not work properly as it's still in beta and doesn't fully adhere to the MCP specification yet.
+</Aside>
