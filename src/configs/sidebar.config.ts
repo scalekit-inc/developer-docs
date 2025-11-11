@@ -258,15 +258,12 @@ export const sidebar = [
         items: [
           'mcp/intro-to-mcp-auth',
           'mcp/auth-methods/custom-auth',
-          'browse/code-samples/github/mcp/fastapi-fastmcp',
-          'browse/code-samples/github/mcp/expressjs',
-          {
-            label: 'Authenticate Methods',
-            autogenerate: { directory: 'mcp/auth-methods' },
-          },
+          'mcp/troubleshooting',
           {
             label: 'Code samples',
             items: [
+              'browse/code-samples/github/mcp/fastapi-fastmcp',
+              'browse/code-samples/github/mcp/expressjs',
               'browse/vids/mcp-oauth-walkthrough',
               'browse/code-samples/github/mcp-auth-demos',
             ],
@@ -449,10 +446,8 @@ export const topics = {
   authenticate: [
     '/authenticate/**/*',
     '/fsa/**/*',
-    '/mcp/**/*',
     '/sso/**/*',
     '/directory/**/*',
-    '/guides/mcp/**/*',
     '/guides/sso/**/*',
     '/guides/dashboard/**/*',
     '/guides/custom-domain',
@@ -461,7 +456,7 @@ export const topics = {
     '/guides/user-auth/standalone-social-logins', // Standalone social logins appears in Authenticate sidebar
   ], // Pages that appear in Authenticate sidebar
   connect: ['/agent-actions/**/*'], // Agent Actions pages
-  mcp: [], // MCP pages are in authenticate sidebar, so they use authenticate topic
+  mcp: [], // MCP pages are in dev-kit sidebar (via the dev-kit topic)
   m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
   'dev-kit': [
     '/dev-kit/**/*',
