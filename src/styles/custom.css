@@ -17,31 +17,33 @@
     --sl-text-2xs: 0.75rem; /* 12px */
     --sl-text-xs: 0.8125rem; /* 13px */
     --sl-text-sm: 0.9rem; /* 14.4px - increased slightly */
-    --sl-text-base: 0.95rem; /* 15.2px - increased for better readability */
+    --sl-text-base: 1rem; /* 15.2px - increased for better readability */
     --sl-text-lg: 1.125rem; /* 18px */
     --sl-text-xl: 1.25rem; /* 20px */
     --sl-text-2xl: 1.5rem; /* 24px */
-    --sl-text-3xl: 1.8125rem; /* 29px */
+    --sl-text-3xl: 2rem; /* 29px */
     --sl-text-4xl: 2.1875rem; /* 35px */
     --sl-text-5xl: 2.625rem; /* 42px */
     --sl-text-6xl: 4rem; /* 64px */
-
+    --sl-content-width: 100%;
+    --sl-content-margin-inline: 32px;
     --sl-text-body: var(--sl-text-base);
     --sl-text-body-sm: var(--sl-text-xs);
     --sl-text-code: var(--sl-text-sm);
     --sl-text-code-sm: var(--sl-text-xs);
+    /**
     --sl-text-h1: var(--sl-text-3xl) !important;
     --sl-text-h2: var(--sl-text-2xl) !important;
     --sl-text-h3: var(--sl-text-xl) !important;
     --sl-text-h4: var(--sl-text-lg) !important;
-    --sl-text-h5: var(--sl-text-base) !important;
+    --sl-text-h5: var(--sl-text-base) !important;*/
 
     --sl-font-system:
       ui-sans-serif, system-ui, Roboto, 'Atkinson Hyperlegible Next Variable',
       'Inter Variable, Arial, sans-serif,';
     --sl-font-system-mono: 'JetBrains Mono', 'Inter Variable', ui-monospace, monospace;
-    --__sl-font: var(--sl-font-system);
-    --__sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
+    --sl-font: var(--sl-font-system);
+    --sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
 
     /* Outline and accessibility tokens */
     --sl-outline-offset-inside: -0.1875rem;
@@ -51,6 +53,7 @@
     --sl-z-index-menu: 5;
     --sl-z-index-navbar: 10;
     --sl-z-index-skiplink: 20;
+    --sl-sidebar-item-padding-inline: 0;
   }
 }
 
@@ -80,6 +83,9 @@
       --sl-header-height-base: 4.75rem; /* Slightly increased for larger screens */
       --secondary-nav-height: 3.25rem; /* Slightly increased for larger screens */
       --sl-nav-height: calc(var(--sl-header-height-base) + var(--secondary-nav-height));
+      .right-sidebar {
+        border-inline-start: 0;
+      }
     }
   }
 
@@ -285,6 +291,24 @@
     color: var(--sl-color-gray-2) !important; /* Match nested items */
   }
 
+  starlight-toc h2 {
+    font-size: var(--sl-text-base);
+    font-weight: normal;
+  }
+  starlight-toc ul li {
+    border-left: 1px lightgray solid;
+    margin-left: 12px;
+  }
+
+  starlight-toc a {
+    margin-left: 12px;
+  }
+
+  starlight-toc a[aria-current='true'] {
+    /* Styles for the currently active item in the ToC */
+    font-weight: bold;
+  }
+
   /* Maintain responsive font sizing consistency */
   @media (min-width: 50rem) {
     #starlight__sidebar a.large:not([aria-current='page']) {
@@ -348,5 +372,9 @@
   :root[data-theme='dark'] .right-sidebar,
   :root[data-theme='dark'] main {
     background-color: #030712 !important;
+  }
+  .content-panel + .content-panel {
+    padding-top: 0;
+    margin-top: -1.5rem;
   }
 }
