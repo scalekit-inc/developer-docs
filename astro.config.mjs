@@ -42,6 +42,7 @@ export default defineConfig({
         PageSidebar: './src/components/overrides/PageSidebar.astro',
         PageTitle: './src/components/overrides/PageTitle.astro',
         MarkdownContent: './src/components/overrides/MarkdownContent.astro',
+        Banner: './src/components/overrides/Banner.astro',
       },
       logo: {
         dark: '/src/assets/images/logos-v4/sk-docs-dark.svg',

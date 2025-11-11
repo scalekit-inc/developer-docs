@@ -130,6 +130,7 @@ export const redirects = {
   // =============================================================================
   '/guides/mcp/overview': '/mcp/overview/',
   '/guides/mcp/oauth': '/mcp/quickstart/',
+  '/mcp/oauth': '/mcp/quickstart/',
   '/mcp/oauth/': '/mcp/quickstart/',
   '/guides/mcp/custom-auth': '/mcp/guides/custom-auth/',
   '/guides/mcp/additional-reading': '/mcp/guides/additional-reading/',

@@ -125,6 +125,10 @@ export const sidebar = [
         ],
       },
       {
+        label: 'MCP',
+        items: ['agent-actions/mcp/quickstart'],
+      },
+      {
         label: 'Advanced Guides',
         items: [
           'agent-actions/advanced/overview',
@@ -168,14 +172,21 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'mcp/overview',
-          'mcp/oauth',
+          'mcp/quickstart',
           { label: 'Troubleshooting Guide', link: 'mcp/troubleshooting' },
-          { label: 'Bring your own Auth', link: 'mcp/guides/custom-auth' },
         ],
       },
       {
-        label: 'Integrations',
-        items: [{ label: 'FastMCP', link: 'mcp/integrations/fastmcp' }],
+        label: 'Example Apps',
+        items: [
+          { label: 'FastMCP', link: 'mcp/integrations/fastmcp' },
+          { label: 'FastAPI-FastMCP', link: 'mcp/integrations/fastapi-fastmcp' },
+          { label: 'ExpressJS', link: 'mcp/integrations/expressjs' },
+        ],
+      },
+      {
+        label: 'Authenticate Methods',
+        autogenerate: { directory: 'mcp/auth-methods' },
       },
     ],
   },

@@ -15,6 +15,10 @@ import '@fontsource-variable/geist'
     editUrl: false,
     prev: false,
     next: false,
+    banner: {
+      content:
+        'Join our dev community to connect with Scalekit engineers for questions or feedback',
+    },
   }}
   hasSidebar={true}
 >
@@ -28,14 +32,39 @@ import '@fontsource-variable/geist'
 
 <style is:global>
   /* Hide the first Starlight content panel only on the homepage */
-  main > .content-panel:first-of-type {
+  main > .content-panel:first-of-type,
+  main .content-panel:first-child {
     display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Hide the page title h1 on the homepage */
+  .content-panel h1#_top,
+  .content-panel h1,
+  .sl-container h1#_top {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Hide the sl-container with title on the homepage */
+  .content-panel:has(h1#_top),
+  .content-panel:has(h1) {
+    display: none !important;
+    visibility: hidden !important;
   }
 
   /* Remove padding from content panels on the homepage */
   .content-panel {
     border: 0;
     padding: 0;
+  }
+
+  /* Hide any content before homepage-content */
+  .homepage-content ~ .content-panel:empty,
+  main > *:not(.homepage-content):has(h1) {
+    display: none !important;
   }
 
   /* Hide sidebar on tablet/desktop for homepage and collapse grid column */
