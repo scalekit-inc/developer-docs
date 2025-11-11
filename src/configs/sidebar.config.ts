@@ -1,213 +1,86 @@
+import { makeChangelogsSidebarLinks } from 'starlight-changelogs'
+
 export const sidebar = [
   {
-    label: 'Full Stack Auth',
-    id: 'full-stack-auth',
-    link: '/fsa/quickstart',
-    icon: 'codePen',
-    items: [
-      {
-        label: 'Getting started',
-        items: ['fsa/quickstart', 'fsa/data-modelling'],
-      },
-      {
-        label: 'Authentication',
-        items: [
-          'fsa/guides/implement-signup',
-          'fsa/guides/implement-login',
-          {
-            label: 'Auth methods',
-            items: [
-              'fsa/guides/auth-methods',
-              'fsa/guides/passwordless',
-              'fsa/guides/social-logins',
-              'authenticate/auth-methods/passkeys',
-              'fsa/guides/enterprise-sso',
-            ],
-          },
-          'fsa/guides/manage-session',
-          'fsa/guides/logout',
-          {
-            label: 'Auth logs',
-            link: 'guides/dashboard/auth-logs',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-      {
-        label: 'User management',
-        items: [
-          'fsa/guides/manage-organization',
-          'fsa/guides/organization-switching',
-          'fsa/reference/user-management-settings',
-          'fsa/guides/user-invitations',
-          // 'fsa/guides/manage-users', // TODO: is it needed? assess later
-          'fsa/guides/merge-identities',
-          'fsa/reference/user-profile',
-          'fsa/guides/app-roles',
-          {
-            label: 'Interceptors',
-            link: '/guides/auth-flow-interceptors',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Sign-up restrictions',
-            link: 'fsa/guides/signup-restrictions',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Redirects',
-            link: 'guides/dashboard/redirects',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          'fsa/guides/just-in-time-provisioning',
-          'fsa/guides/allowed-email-domains',
-          'fsa/guides/migration-guide',
-        ],
-      },
-      {
-        label: 'Customization',
-        items: [
-          'fsa/guides/login-page-branding',
-          'guides/email-providers',
-          {
-            label: 'Custom email templates',
-            link: 'guides/dashboard/custom-email-templates',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-      {
-        label: 'Integrations',
-        link: '/guides/integrations/',
-        attrs: { target: '_blank', rel: 'noopener' },
-      },
-    ],
-  },
-  {
-    label: 'Single Sign-On',
-    link: '/sso/quickstart',
-    id: 'sso',
+    label: 'Authenticate',
+    id: 'authenticate',
+    link: '/authenticate',
     icon: 'seti:lock',
     items: [
+      'index',
       {
         label: 'Getting started',
         items: [
-          'sso/guides/sso-basics',
-          'sso/quickstart',
-          'sso/guides/test-sso',
-          'guides/sso/admin-portal',
-          'sso/guides/launch-checklist',
+          { label: 'Quickstart: Complete Auth', link: 'authenticate/fsa/quickstart' },
+          { label: 'Quickstart: Auth for MCP', link: 'mcp/quickstart' },
+          { label: 'Quickstart: Modular SSO', link: 'sso/quickstart' },
         ],
       },
       {
-        label: 'Social authentication',
-        items: ['social-logins/quickstart'],
+        label: 'User authentication',
+        collapsed: false,
+        items: [
+          'authenticate/fsa/implement-login',
+          'authenticate/fsa/complete-login',
+          'authenticate/fsa/manage-session',
+          'authenticate/fsa/logout',
+        ],
       },
       {
-        label: 'Guides',
+        label: 'Manage auth methods',
+        items: [
+          'authenticate/auth-methods/passwordless',
+          'authenticate/auth-methods/social-logins',
+          'authenticate/auth-methods/passkeys',
+          'authenticate/auth-methods/enterprise-sso',
+        ],
+      },
+      {
+        label: 'Manage users & orgs',
+        collapsed: false,
+        items: [
+          'fsa/data-modelling',
+          'authenticate/manage-users-orgs/create-organization',
+          'authenticate/manage-organizations/add-users-to-organization',
+          'authenticate/manage-organizations/remove-users-from-organization',
+          'authenticate/manage-users-orgs/delete-users-and-organizations',
+        ],
+      },
+      {
+        label: 'Authorization',
+        collapsed: false,
+        items: [
+          'authenticate/authz/overview',
+          'authenticate/authz/create-roles-permissions',
+          'authenticate/authz/assign-roles',
+          'authenticate/authz/implement-access-control',
+        ],
+      },
+      {
+        label: 'Customize',
         items: [
           'guides/custom-domain',
-          'sso/guides/add-login-ux-sso',
-          'sso/guides/idp-init-sso',
-          'sso/guides/okta-sso-test',
-          'sso/guides/sso-user-attributes',
-          'sso/reference/sso-integration-errors',
-          {
-            label: 'Redirects',
-            link: 'guides/dashboard/redirects',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
-            label: 'Auth logs',
-            link: 'guides/dashboard/auth-logs',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          'guides/sso/sso-migration-strategy',
-          {
-            label: 'Coexist with',
-            autogenerate: { directory: 'guides/integrations/auth-systems' },
-          },
-          {
-            label: 'Concepts',
-            items: [
-              'sso/guides/authorization-url',
-              'guides/idtoken-claims',
-              'sso/guides/user-profile-details',
-              'guides/client-credentials-practices',
-            ],
-          },
+          'fsa/guides/login-page-branding',
+          'guides/email-providers',
+          'guides/dashboard/custom-email-templates',
+          'authenticate/manage-users-orgs/custom-user-attributes',
+          'authenticate/interceptors/auth-flow-interceptors',
+          'authenticate/implement-workflows/implement-webhooks',
         ],
       },
       {
-        label: 'Integrations',
-        link: '/guides/integrations/sso-integrations/',
-        attrs: { target: '_blank', rel: 'noopener' },
-      },
-    ],
-  },
-  {
-    label: 'SCIM Provisioning',
-    link: '/directory/scim/quickstart',
-    icon: 'seti:folder',
-    id: 'directory',
-    items: [
-      {
-        label: 'Getting started',
+        label: 'Drop-in auth modules',
         items: [
+          'passwordless/quickstart',
+          'guides/user-auth/standalone-social-logins',
           'directory/scim/quickstart',
-          'directory/code-examples',
-          'directory/guides/admin-portal',
-          'directory/guides/launch-checklist',
+          'authenticate/m2m/api-auth-quickstart',
+          'authenticate/mcp/fastmcp-quickstart',
         ],
       },
       {
-        label: 'Guides',
-        items: [
-          'directory/guides/group-based-role-assignment',
-          'guides/webhooks-best-practices',
-          {
-            label: 'Concepts',
-            items: ['directory/guides/user-provisioning-basics', 'directory/guides/scim-protocol'],
-          },
-        ],
-      },
-      {
-        label: 'Integrations',
-        link: '/guides/integrations',
-        attrs: { target: '_blank', rel: 'noopener' },
-      },
-    ],
-  },
-  {
-    label: 'Passwordless Auth',
-    link: '/passwordless/quickstart',
-    icon: 'email',
-    id: 'passwordless',
-    items: [
-      {
-        label: 'Getting started',
-        items: ['passwordless/overview', 'passwordless/quickstart', 'passwordless/oidc'],
-      },
-      {
-        label: 'Email customization',
-        items: [
-          'guides/passwordless/custom-email-provider',
-          {
-            label: 'Custom email templates',
-            link: 'guides/dashboard/custom-email-templates',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-      {
-        label: 'Guides',
-        items: [
-          {
-            label: 'View auth logs',
-            link: 'guides/dashboard/auth-logs',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
+        label: 'Go Live',
+        items: ['authenticate/launch-checklist', 'guides/dashboard/auth-logs'],
       },
     ],
   },
@@ -223,7 +96,11 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['agent-actions/quickstart'],
+        items: [
+          'agent-actions/overview',
+          'agent-actions/quickstart',
+          'agent-actions/agentic-quickstart',
+        ],
       },
       {
         label: 'Tools',
@@ -245,6 +122,7 @@ export const sidebar = [
           // 'agent-actions/frameworks/agno',
           // 'agent-actions/frameworks/openai',
           // 'agent-actions/frameworks/anthropic',
+          'browse/code-samples/agent-framework-examples',
         ],
       },
       {
@@ -258,6 +136,14 @@ export const sidebar = [
           'agent-actions/advanced/bring-your-own-oauth',
           'agent-actions/advanced/custom-domain',
           'agent-actions/advanced/proxy-api-calls',
+        ],
+      },
+      {
+        label: 'Concepts',
+        items: [
+          'agent-actions/providers',
+          'agent-actions/connections',
+          'agent-actions/connected-accounts',
         ],
       },
       {
@@ -278,125 +164,172 @@ export const sidebar = [
     ],
   },
   {
-    label: 'MCP Auth',
-    link: '/guides/mcp/overview',
-    id: 'mcp',
-    icon: 'seti:puppet',
-    items: [
-      {
-        label: 'Getting started',
-        items: [
-          'mcp/overview',
-          'mcp/quickstart',
-          { label: 'Troubleshooting Guide', link: 'mcp/troubleshooting' },
-        ],
-      },
-      {
-        label: 'Example Apps',
-        items: [
-          { label: 'FastMCP', link: 'mcp/integrations/fastmcp' },
-          { label: 'FastAPI-FastMCP', link: 'mcp/integrations/fastapi-fastmcp' },
-          { label: 'ExpressJS', link: 'mcp/integrations/expressjs' },
-        ],
-      },
-      {
-        label: 'Authenticate Methods',
-        autogenerate: { directory: 'mcp/auth-methods' },
-      },
-    ],
-  },
-  {
-    label: 'API Auth',
-    link: '/m2m/quickstart',
-    id: 'm2m',
-    icon: 'seti:crystal_embedded',
-    items: [
-      {
-        label: 'Getting started',
-        items: [
-          'guides/m2m/overview',
-          'm2m/quickstart',
-          {
-            label: 'Code examples',
-            link: 'https://github.com/scalekit-inc/gists/tree/main/m2m',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-      {
-        label: 'Guides',
-        items: [
-          'guides/m2m/m2m-basics',
-          'guides/m2m/scopes',
-          'guides/m2m/api-auth-m2m-clients',
-          {
-            label: 'Interceptors',
-            link: '/guides/auth-flow-interceptors',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-    ],
-  },
-  {
     label: 'Developer Resources',
     id: 'dev-kit',
     link: '/dev-kit/',
     icon: 'seti:powershell',
     items: [
       {
-        label: 'SDKs',
-        items: ['dev-kit/sdks/overview'],
-      },
-      {
-        label: 'Code Samples',
-        link: '/dev-kit/code-samples',
-      },
-      {
-        label: 'Interceptors',
-        items: ['guides/auth-flow-interceptors', 'guides/interceptor-scenarios'],
-      },
-      {
-        label: 'Webhooks',
+        label: 'Setup dev environment',
         items: [
+          'authenticate/installation',
+          'dev-kit/mcp',
+          'dev-kit/resources/ai-assisted-setup',
+          'browse/code-samples/github/api-collections',
+        ],
+      },
+      {
+        label: 'Basics',
+        items: [
+          'sso/guides/authorization-url',
+          'guides/dashboard/allowed-callback-url',
           {
-            label: 'Webhooks',
-            autogenerate: { directory: 'reference/webhooks' },
+            label: 'Claims',
+            items: ['guides/idtoken-claims', 'guides/accesstoken-claims'],
           },
         ],
       },
       {
-        label: 'Guides',
+        label: 'User authentication',
         items: [
-          'guides/dashboard/custom-email-templates',
-          'guides/setup-scalekit',
-          'dev-kit/resources/ai-assisted-setup',
-          'guides/external-ids-and-metadata',
+          'fsa/guides/implement-signup',
+          'guides/dashboard/intitate-login-endpoint',
+          'guides/user-auth/login-scenarios',
           'guides/dashboard/redirects',
-          'guides/dashboard/auth-logs',
+          {
+            label: 'Code samples',
+            items: [
+              'browse/code-samples/cognito-examples',
+              'browse/code-samples/full-stack-auth-examples',
+              'browse/code-samples/hosted-login-examples',
+              'browse/code-samples/gists/auth-code-exchange-scalekit-sdk',
+              'browse/vids/fsa-walkthrough',
+              'browse/vids/passwordless-walkthrough',
+            ],
+          },
         ],
       },
       {
-        label: 'Reference',
-        items: ['reference/admin-portal/ui-events', 'reference/glossary'],
+        label: 'API authentication',
+        items: [
+          'guides/m2m/overview',
+          'guides/m2m/scopes',
+          'guides/m2m/api-auth-m2m-clients',
+          {
+            label: 'Code samples',
+            items: ['browse/code-samples/gists/client-credentials-auth'],
+          },
+        ],
       },
       {
-        label: 'Development Tools',
+        label: 'MCP authentication',
         items: [
-          'dev-kit/mcp',
+          'mcp/intro-to-mcp-auth',
+          'mcp/auth-methods/custom-auth',
+          'mcp/troubleshooting',
           {
-            label: 'Postman collections',
-            link: 'https://github.com/scalekit-inc/api-collections',
+            label: 'Code samples',
+            items: [
+              'browse/code-samples/github/mcp/fastapi-fastmcp',
+              'browse/code-samples/github/mcp/expressjs',
+              'browse/vids/mcp-oauth-walkthrough',
+              'browse/code-samples/github/mcp-auth-demos',
+            ],
+          },
+        ],
+      },
+      {
+        label: 'Enterprise authentication',
+        items: [
+          {
+            label: 'SSO',
+            items: [
+              'sso/guides/sso-basics',
+              'sso/guides/add-login-ux-sso',
+              'guides/user-auth/check-sso-domain',
+              'sso/guides/sso-user-attributes',
+              'sso/guides/idp-init-sso',
+              'sso/guides/test-sso',
+            ],
+          },
+          {
+            label: 'SCIM',
+            items: ['directory/guides/user-provisioning-basics', 'directory/guides/scim-protocol'],
+          },
+          'guides/admin-portal',
+          'fsa/guides/onboard-enterprise-customers',
+          {
+            label: 'View all integrations',
+            link: 'guides/integrations',
+            badge: {
+              text: '25+',
+              variant: 'tip',
+            },
             attrs: { target: '_blank', rel: 'noopener' },
           },
+          {
+            label: 'Code samples',
+            items: [
+              'browse/code-samples/github/admin-portal-embedding',
+              'browse/code-samples/sso-examples',
+              'browse/code-samples/github/sso-migrations-example',
+              'browse/code-samples/firebase-examples',
+              'browse/vids/sso-walkthrough',
+              'browse/vids/scim-walkthrough',
+            ],
+          },
         ],
       },
       {
-        label: 'Support',
+        label: 'Organizations and users',
+        collapsed: false,
         items: [
+          'fsa/guides/signup-restrictions',
+          'fsa/guides/user-invitations',
+          'guides/user-management/scim-provisioning',
+          'fsa/guides/merge-identities',
+          'fsa/reference/user-management-settings',
+        ],
+      },
+      {
+        label: 'Authorization',
+        items: ['directory/guides/group-based-role-assignment'],
+      },
+      {
+        label: 'Migrations',
+        items: ['fsa/guides/migration-guide'],
+      },
+      {
+        label: 'Customize',
+        items: [
+          'fsa/guides/organization-identifiers',
+          'authenticate/interceptors/interceptor-scenarios',
+          {
+            label: 'Code samples',
+            items: ['browse/code-samples/github/webhook-events'],
+          },
+        ],
+      },
+      {
+        label: 'Best practices',
+        collapsed: false,
+        items: [
+          'guides/security/authentication-best-practices',
+          'dev-kit/resources/authorization-best-practices',
+          'guides/security/csrf-protection',
+          'guides/client-credentials-practices',
+          'guides/webhooks-best-practices',
+          'guides/user-auth/preserve-intended-destination',
+          'guides/user-auth/external-id-system-integration',
+        ],
+      },
+      {
+        label: 'Support & resources',
+        items: [
+          'reference/glossary',
           'support/contact-us',
           {
-            label: 'Release Notes',
+            label: 'Platform Release notes',
             link: 'https://www.scalekit.com/product-updates',
             attrs: { target: '_blank', rel: 'noopener' },
           },
@@ -407,6 +340,39 @@ export const sidebar = [
           },
         ],
       },
+      {
+        label: 'Changelog',
+        items: [
+          { label: 'Overview', link: '/dev-kit/changelogs/' },
+          // makeChangelogsSidebarLinks() type options:
+          // - type: 'all' - Single link to full version list page (current)
+          // - type: 'latest' - Link to most recent version only
+          // - type: 'recent' - Multiple links to N recent versions (add count: 5 to customize, default: 5)
+          // Example: { type: 'recent', count: 3, base: '...', label: '...' }
+          ...makeChangelogsSidebarLinks([
+            { type: 'all', base: 'dev-kit/changelogs/node', label: 'Node.js SDK' },
+            { type: 'all', base: 'dev-kit/changelogs/python', label: 'Python SDK' },
+            { type: 'all', base: 'dev-kit/changelogs/go', label: 'Go SDK' },
+            { type: 'all', base: 'dev-kit/changelogs/java', label: 'Java SDK' },
+          ]),
+        ],
+      },
+    ],
+  },
+  {
+    label: 'Events Reference',
+    id: 'events-reference',
+    link: '/reference/webhooks/overview/',
+    icon: 'seti:event',
+    items: [
+      {
+        label: 'Webhooks',
+        autogenerate: { directory: 'reference/webhooks' },
+      },
+      {
+        label: 'Events',
+        items: ['reference/admin-portal/ui-events', 'reference/interceptors/triggers'],
+      },
     ],
   },
   {
@@ -416,18 +382,22 @@ export const sidebar = [
     icon: 'puzzle',
     items: [
       {
-        label: 'SSO integrations',
-        autogenerate: { directory: 'guides/integrations/sso-integrations' },
-      },
-      {
-        label: 'SCIM integrations',
-        autogenerate: { directory: 'guides/integrations/scim-integrations' },
-      },
-      {
         label: 'Social connections',
         autogenerate: {
           directory: 'guides/integrations/social-connections',
         },
+      },
+      {
+        label: 'SSO with existing auth',
+        autogenerate: { directory: 'guides/integrations/auth-systems' },
+      },
+      {
+        label: 'SSO connections',
+        autogenerate: { directory: 'guides/integrations/sso-integrations' },
+      },
+      {
+        label: 'SCIM connections',
+        autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
     ],
   },
@@ -439,23 +409,169 @@ export const topics = {
     '/index.astro', // Exclude index by name
     '/reference/**/*', // Keep reference docs excluded
     '/guides/integrations', // Exclude integrations overview from sidebar
-    '/guides/integrations/index',
-    '/home/guides/**/*',
-    '/home/guides/admin-portal',
-    '/home/**/*',
   ],
   // Associate unlisted pages with their respective topic sidebars
-  'full-stack-auth': ['/fsa/**/*'], // FSA pages not explicitly listed in sidebar
-  sso: ['/sso/**/*', '/social-logins/**/*'], // SSO and social login unlisted pages
-  directory: ['/directory/**/*'], // SCIM directory unlisted pages
-  passwordless: ['/passwordless/**/*'], // Passwordless auth unlisted pages
-  connect: ['/agent-actions/**/*'], // Agent Actions unlisted pages
-  mcp: ['/guides/mcp/**/*'], // MCP Auth pages under guides
-  m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
+  authenticate: [
+    '/authenticate/**/*',
+    '/fsa/**/*',
+    '/sso/**/*',
+    '/directory/**/*',
+    '/guides/sso/**/*',
+    '/guides/dashboard/**/*',
+    '/guides/custom-domain',
+    '/guides/email-providers',
+    '/authenticate/interceptors/**/*',
+    '/guides/user-auth/standalone-social-logins', // Standalone social logins appears in Authenticate sidebar
+  ], // Pages that appear in Authenticate sidebar
+  connect: ['/agent-actions/**/*'], // Agent Actions pages
+  mcp: [], // MCP pages are in dev-kit sidebar (via the dev-kit topic)
   'dev-kit': [
     '/dev-kit/**/*',
+    '/examples',
+    '/passwordless/**/*',
+    '/social-logins/**/*',
+    '/guides/passwordless/**/*',
+    '/authenticate/interceptors/interceptor-scenarios',
+    '/guides/dashboard/redirects',
+    '/guides/external-ids-and-metadata',
+    '/guides/idtoken-claims',
+    '/guides/accesstoken-claims',
     '/guides/unlisted/passwordless-as-service',
-    '/guides/auth-flow-interceptors',
-  ], // Developer resources
+    '/browse/**/*', // Code samples and videos
+    '/guides/user-auth/**/*', // User auth guides and examples
+    '/guides/security/**/*', // Security best practices
+    '/m2m/**/*', // M2M API auth pages
+    '/guides/m2m/**/*', // M2M authentication guides
+    // Specific FSA implementation guides that appear in dev-kit sidebar
+    '/fsa/guides/implement-signup',
+    '/fsa/guides/login-page-branding',
+    '/fsa/guides/signup-restrictions',
+    '/fsa/guides/user-invitations',
+    '/authenticate/manage-users-orgs/custom-user-attributes',
+    '/fsa/guides/app-roles',
+    '/authenticate/manage-users-orgs/create-organization',
+    '/fsa/guides/migration-guide',
+    '/fsa/guides/merge-identities',
+    '/fsa/guides/onboard-enterprise-customers',
+    '/fsa/guides/organization-identifiers',
+    '/fsa/reference/user-management-settings',
+    // SSO guides that appear in dev-kit sidebar
+    '/sso/guides/authorization-url',
+    '/sso/guides/sso-user-attributes',
+    '/sso/guides/add-login-ux-sso',
+    '/sso/guides/idp-init-sso',
+    '/sso/guides/test-sso',
+    '/sso/guides/sso-basics',
+    '/sso/guides/sso-migration-strategy',
+    // Directory/SCIM guides
+    '/directory/guides/user-provisioning-basics',
+    '/directory/guides/scim-protocol',
+    '/directory/guides/group-based-role-assignment',
+    // MCP guides that appear in dev-kit
+    '/mcp/**/*',
+    // User management guides
+    '/guides/user-management/**/*',
+    // Authorization and best practices guides
+    '/dev-kit/resources/**',
+    '/guides/client-credentials-practices',
+    '/guides/webhooks-best-practices',
+    // SDK changelogs
+    '/dev-kit/changelogs/**/*',
+  ], // Developer resources and implementation guides
   integrations: ['/guides/integrations/**/*'], // Integration guide pages
+  'events-reference': [
+    '/reference/webhooks/**/*',
+    '/reference/admin-portal/ui-events',
+    '/reference/interceptors/triggers',
+  ], // Events reference pages
+  'rest-apis': ['/apis/**/*'], // REST API reference pages
+}
+
+/**
+ * Secondary navigation mapping for top navigation bar
+ * Maps sidebar topics to their corresponding secondary nav items
+ *
+ * This mapping determines which secondary nav item should be highlighted
+ * based on which sidebar topic is active for the current page.
+ */
+export const topicToSecondaryNav: Record<string, string> = {
+  authenticate: 'authenticate',
+  connect: 'agent-actions',
+  'dev-kit': 'examples', // Dev-kit pages show "Examples" in secondary nav
+  integrations: 'examples', // Integration pages also show "Examples"
+  'events-reference': 'webhooks-events', // Events pages map to Events child
+  'rest-apis': 'rest-apis', // REST API pages map to REST APIs child
+  // Note: Some topics may not have a secondary nav item (they won't highlight anything)
+}
+
+/**
+ * Secondary navigation mapping with explicit patterns for direct URL matching
+ * This is used as a fallback when a page doesn't match any topic
+ *
+ * Priority levels (higher number = higher priority):
+ * - 100: Most specific paths (Agent Actions)
+ * - 80: API Reference and Events
+ * - 60: Examples and Dev Resources
+ * - 40: Authenticate (catch-all, lowest priority)
+ */
+export const secondaryNavMapping = {
+  authenticate: {
+    id: 'authenticate',
+    priority: 40,
+    patterns: [
+      '/', // Root path
+      '/authenticate',
+      '/mcp',
+      '/fsa',
+      '/sso',
+      '/guides/sso',
+      '/social-logins',
+      '/passwordless',
+      '/guides/passwordless',
+      '/directory',
+      '/guides/directory',
+      '/guides/custom-domain',
+      '/guides/email-providers',
+      '/authenticate/interceptors/**/*',
+      '/guides/dashboard',
+      '/guides/user-auth',
+      '/guides/security',
+      '/guides/user-management',
+    ],
+  },
+  'agent-actions': {
+    id: 'agent-actions',
+    priority: 100,
+    patterns: ['/agent-actions'],
+  },
+  examples: {
+    id: 'examples',
+    priority: 60,
+    patterns: [
+      '/examples',
+      '/browse',
+      '/dev-kit',
+      '/m2m',
+      '/guides/m2m',
+      '/authenticate/interceptors/interceptor-scenarios',
+      '/guides/dashboard/redirects',
+      '/guides/external-ids-and-metadata',
+      '/guides/client-credentials-practices',
+      '/guides/webhooks-best-practices',
+      '/guides/idtoken-claims',
+      '/guides/accesstoken-claims',
+      '/guides/integrations',
+    ],
+  },
+  'api-reference': {
+    id: 'api-reference',
+    priority: 80,
+    patterns: [
+      '/apis',
+      '/reference/webhooks',
+      '/reference/admin-portal/ui-events',
+      '/reference/interceptors',
+      '/reference/agent-connectors',
+    ],
+  },
 }

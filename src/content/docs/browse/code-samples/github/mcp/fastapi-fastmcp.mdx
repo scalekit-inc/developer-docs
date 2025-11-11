@@ -1,0 +1,357 @@
+---
+title: 'FastAPI + FastMCP quickstart'
+description: 'FastAPI MCP server with custom OAuth middleware and token validation.'
+browseCentral:
+  label: 'MCP auth with FastAPI & FastMCP'
+  category:
+    - 'MCP authentication'
+  filterType:
+    - 'code-sample'
+  icon: 'code'
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+sidebar:
+  order: 2
+  label: 'FastAPI + FastMCP sample'
+prev: false
+next:
+  label: 'MCP OAuth 2.1 implementation guide'
+  link: '/mcp/quickstart/'
+seeAlso:
+  label: 'Related guides'
+  expanded: false
+  items:
+    - title: 'MCP OAuth 2.1 implementation guide'
+      icon: 'book'
+      url: '/mcp/quickstart/'
+    - title: 'Auth for MCP servers - Overview'
+      icon: 'book'
+      url: '/mcp/intro-to-mcp-auth/'
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence';
+
+This guide shows you how to combine FastAPI with FastMCP to build a production-ready MCP server protected by Scalekit's OAuth authentication. You'll implement custom middleware for token validation, expose the OAuth resource metadata endpoint, and create a simple greeting tool.
+
+Use this quickstart when you need more control over your server's behavior than FastMCP's built-in provider offers. The FastAPI integration gives you flexibility to add custom middleware, implement additional endpoints, and integrate with existing FastAPI applications. The full code is available on <a href="https://github.com/scalekit-inc/mcp-auth-demos/tree/main/greeting-mcp-python" target="_blank" rel="noreferrer">GitHub</a>.
+
+**Prerequisites**
+
+- A [Scalekit account](https://app.scalekit.com) with permission to manage MCP servers
+- **Python 3.11+** installed locally
+- Familiarity with FastAPI and OAuth token validation
+- MCP Inspector installed locally to test the connection
+
+<details>
+<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the FastAPI + FastMCP authorization flow</summary>
+
+```d2 pad=36
+title: "FastAPI + FastMCP with Scalekit" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client -> MCP Server: Request resource metadata
+MCP Server -> MCP Client: Return OAuth metadata
+MCP Client -> Scalekit: Exchange code for access token
+Scalekit -> MCP Client: Issue Bearer token
+MCP Client -> MCP Server: Call tool with Bearer token
+MCP Server -> MCP Server: Validate token via middleware
+MCP Server -> MCP Client: Authorized response
+```
+
+</details>
+
+<Steps>
+
+1. ## Register your MCP server in Scalekit
+
+   Create a protected resource entry so Scalekit can issue tokens that your FastAPI middleware validates.
+
+   1. Navigate to **[Dashboard](https://app.scalekit.com) > MCP Servers > Add MCP Server**.
+   2. Enter a descriptive name (for example, `Greeting MCP`).
+   3. Set **Server URL** to `http://localhost:3002/` (keep the trailing slash).
+   4. Click **Save** to create the server.
+
+   ![Greeting MCP Register](@/assets/docs/guides/mcp/greeting-mcp-register.png)
+
+   When you save, Scalekit displays the OAuth-protected resource metadata. Copy this JSON—you'll use it in your `.env` file.
+
+   ![Greeting MCP Protected JSON](@/assets/docs/guides/mcp/greeting-protected-json.png)
+
+2. ## Create your project directory
+
+   Set up a clean directory structure with a Python virtual environment.
+
+   ```bash title="Terminal" frame="terminal"
+   mkdir fastapi-mcp-python
+   cd fastapi-mcp-python
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+3. ## Add dependencies
+
+   Create a `requirements.txt` file with all required packages and install them.
+
+   ```bash title="Terminal" frame="terminal"
+   cat <<'EOF' > requirements.txt
+   mcp>=1.0.0
+   fastapi>=0.104.0
+   fastmcp>=0.8.0
+   uvicorn>=0.24.0
+   pydantic>=2.5.0
+   python-dotenv>=1.0.0
+   httpx>=0.25.0
+   python-jose[cryptography]>=3.3.0
+   cryptography>=41.0.0
+   scalekit-sdk-python>=2.4.0
+   starlette>=0.27.0
+   EOF
+
+   pip install -r requirements.txt
+   ```
+
+   <Aside type="tip" title="Version pinning">
+     Pin exact versions in production to ensure reproducible builds and avoid unexpected breaking changes.
+   </Aside>
+
+4. ## Configure environment variables
+
+   Create a `.env` file with your Scalekit credentials and the protected resource metadata from step 1.
+
+   ```bash title="Terminal" frame="terminal"
+   cat <<'EOF' > .env
+   PORT=3002
+   SK_ENV_URL=https://<your-env>.scalekit.com
+   SK_CLIENT_ID=<your-client-id>
+   SK_CLIENT_SECRET=<your-client-secret>
+   MCP_SERVER_ID=<mcp-server-id-from-dashboard>
+   PROTECTED_RESOURCE_METADATA='<resource-metadata-json>'
+   EXPECTED_AUDIENCE=http://localhost:3002/
+   EOF
+
+   open .env
+   ```
+
+   | Variable                        | Description                                                                   |
+   | ------------------------------- | ----------------------------------------------------------------------------- |
+   | `PORT`                          | Local port for the FastAPI server (defaults to `3002`)                        |
+   | `SK_ENV_URL`                    | Your Scalekit environment URL from **Dashboard > Settings**                   |
+   | `SK_CLIENT_ID`                  | Client ID from **Dashboard > Settings**                                       |
+   | `SK_CLIENT_SECRET`              | Client secret from **Dashboard > Settings**                                   |
+   | `MCP_SERVER_ID`                 | The MCP server ID from **Dashboard > MCP Servers**                            |
+   | `PROTECTED_RESOURCE_METADATA`   | The complete JSON metadata object from step 1                                 |
+   | `EXPECTED_AUDIENCE`             | The audience value that tokens must include (your server URL)                 |
+
+   <Aside type="caution" title="Protect your credentials">
+     Never commit <code>.env</code> to version control. Add it to <code>.gitignore</code> and use a secret manager in production environments.
+   </Aside>
+
+5. ## Implement the FastAPI + FastMCP server
+
+   Create `main.py` with the complete server implementation, including authentication middleware and the MCP tool.
+
+   ```python title="main.py" wrap collapse={1-10} {109-113} {"Authentication middleware": 132-150} {"Token validation": 143-146}
+   import json
+   import os
+   from fastapi import FastAPI, Request, Response
+   from fastmcp import FastMCP, Context
+   from scalekit import ScalekitClient
+   from scalekit.common.scalekit import TokenValidationOptions
+   from starlette.middleware.cors import CORSMiddleware
+   from dotenv import load_dotenv
+
+   load_dotenv()
+
+   # Load environment variables
+   PORT = int(os.getenv("PORT", "3002"))
+   SK_ENV_URL = os.getenv("SK_ENV_URL", "")
+   SK_CLIENT_ID = os.getenv("SK_CLIENT_ID", "")
+   SK_CLIENT_SECRET = os.getenv("SK_CLIENT_SECRET", "")
+   EXPECTED_AUDIENCE = os.getenv("EXPECTED_AUDIENCE", "")
+   PROTECTED_RESOURCE_METADATA = os.getenv("PROTECTED_RESOURCE_METADATA", "")
+
+   # Use case: Configure OAuth resource metadata URL for MCP clients
+   RESOURCE_METADATA_URL = f"http://localhost:{PORT}/.well-known/oauth-protected-resource"
+   WWW_HEADER = {
+       "WWW-Authenticate": f'Bearer realm="OAuth", resource_metadata="{RESOURCE_METADATA_URL}"'
+   }
+
+   # Initialize Scalekit client for token validation
+   # Security: Use SDK to validate JWT signatures and claims
+   scalekit_client = ScalekitClient(
+       env_url=SK_ENV_URL,
+       client_id=SK_CLIENT_ID,
+       client_secret=SK_CLIENT_SECRET,
+   )
+
+   # Initialize FastMCP with stateless HTTP transport
+   mcp = FastMCP("Greeting MCP", stateless_http=True)
+
+
+   @mcp.tool(
+       name="greet_user",
+       description="Greets the user with a personalized message."
+   )
+   async def greet_user(name: str, ctx: Context | None = None) -> dict:
+       """
+       Use case: Simple greeting tool demonstrating OAuth-protected MCP operations
+       """
+       return {
+           "content": [
+               {
+                   "type": "text",
+                   "text": f"Hi {name}, welcome to Scalekit!"
+               }
+           ]
+       }
+
+
+   # Mount FastMCP as a FastAPI application
+   mcp_app = mcp.http_app(path="/")
+   app = FastAPI(lifespan=mcp_app.lifespan)
+
+   # Enable CORS for cross-origin MCP clients
+   app.add_middleware(
+       CORSMiddleware,
+       allow_origins=["*"],
+       allow_credentials=True,
+       allow_methods=["GET", "POST", "OPTIONS"],
+       allow_headers=["*"]
+   )
+
+
+   @app.middleware("http")
+   async def auth_middleware(request: Request, call_next):
+       """
+       Security: Validate Bearer tokens on all protected endpoints.
+       Public endpoints (health, metadata) are exempt from authentication.
+       """
+       # Allow public endpoints without authentication
+       if request.url.path in {"/health", "/.well-known/oauth-protected-resource"}:
+           return await call_next(request)
+
+       # Extract Bearer token from Authorization header
+       auth_header = request.headers.get("authorization")
+       if not auth_header or not auth_header.startswith("Bearer "):
+           return Response(
+               '{"error": "Missing Bearer token"}',
+               status_code=401,
+               headers=WWW_HEADER,
+               media_type="application/json"
+           )
+
+       token = auth_header.split("Bearer ", 1)[1].strip()
+
+       # Validate token using Scalekit SDK
+       # Security: Verifies signature, expiration, issuer, and audience claims
+       options = TokenValidationOptions(
+           issuer=SK_ENV_URL,
+           audience=[EXPECTED_AUDIENCE]
+       )
+
+       try:
+           is_valid = scalekit_client.validate_access_token(token, options=options)
+           if not is_valid:
+               raise ValueError("Invalid token")
+       except Exception:
+           return Response(
+               '{"error": "Token validation failed"}',
+               status_code=401,
+               headers=WWW_HEADER,
+               media_type="application/json"
+           )
+
+       # Token is valid, proceed with request
+       return await call_next(request)
+
+
+   @app.get("/.well-known/oauth-protected-resource")
+   async def oauth_metadata():
+       """
+       Use case: Expose OAuth resource metadata for MCP client discovery
+       This endpoint allows clients to discover authorization requirements
+       """
+       if not PROTECTED_RESOURCE_METADATA:
+           return Response(
+               '{"error": "PROTECTED_RESOURCE_METADATA config missing"}',
+               status_code=500,
+               media_type="application/json"
+           )
+
+       metadata = json.loads(PROTECTED_RESOURCE_METADATA)
+       return Response(
+           json.dumps(metadata, indent=2),
+           media_type="application/json"
+       )
+
+
+   @app.get("/health")
+   async def health_check():
+       """
+       Use case: Health check endpoint for monitoring and load balancers
+       """
+       return {"status": "healthy"}
+
+
+   # Mount the FastMCP application at root path
+   app.mount("/", mcp_app)
+
+
+   if __name__ == "__main__":
+       import uvicorn
+       # Start server with auto-reload for development
+       uvicorn.run(app, host="0.0.0.0", port=PORT)
+   ```
+
+6. ## Start the FastAPI server
+
+   Run the server in development mode with auto-reload enabled.
+
+   ```bash title="Terminal" frame="terminal"
+   python main.py
+   ```
+
+   The server starts on `http://localhost:3002/` and logs indicate FastAPI is ready. The MCP endpoint accepts authenticated requests, and the metadata endpoint is accessible at `/.well-known/oauth-protected-resource`.
+
+   <Aside type="tip" title="Development mode">
+     Uvicorn's auto-reload watches for file changes during development. For production, use <code>uvicorn main:app --host 0.0.0.0 --port 3002 --workers 4</code>.
+   </Aside>
+
+7. ## Connect with MCP Inspector
+
+   Test your server using the MCP Inspector to verify the OAuth flow works end-to-end.
+
+   ```bash title="Terminal" frame="terminal"
+   npx @modelcontextprotocol/inspector@latest
+   ```
+
+   In the Inspector UI:
+
+   1. Enter your MCP Server URL: `http://localhost:3002/`
+   2. Click **Connect** to initiate the OAuth flow
+   3. Authenticate with Scalekit when prompted
+   4. Run the `greet_user` tool with any name
+
+   ![MCP Inspector](@/assets/docs/guides/mcp/mcp-inspector-google.png)
+
+   <Aside type="note" title="Token validation">
+     The middleware validates every request's token. If you see authentication errors, verify your environment variables match the dashboard settings and the token audience is correct.
+   </Aside>
+
+</Steps>
+
+You now have a working FastAPI + FastMCP server with OAuth authentication. Extend this implementation by adding more MCP tools with the `@mcp.tool` decorator, implementing scope-based authorization, or integrating with your existing FastAPI application.

@@ -1,0 +1,155 @@
+---
+title: Onboard enterprise customers
+description: Complete workflow for enabling enterprise SSO and self-serve configuration for your customers
+browseCentral:
+  label: "Onboard enterprise customers"
+  filterType:
+    - "tutorial"
+  category:
+    - "Enterprise authentication"
+  icon: "book"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+sidebar:
+  label: "Onboard enterprise customers"
+prev:
+  link: '/guides/admin-portal/'
+  label: 'Admin portal implementation'
+next:
+  link: '/fsa/guides/signup-restrictions/'
+  label: 'Configure signup restrictions'
+seeAlso:
+  label: Related guides
+  expanded: true
+  items:
+    - title: 'Admin portal implementation'
+      icon: 'book'
+      url: '/guides/admin-portal/'
+    - title: 'Test SSO integration'
+      icon: 'book'
+      url: '/sso/guides/test-sso/'
+    - title: 'SSO launch checklist'
+      icon: 'book'
+      url: '/sso/guides/launch-checklist/'
+---
+import { Steps, Aside, Badge, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Enterprise SSO enables users to authenticate to your application using their organization's identity provider (IdP) such as Okta, Microsoft Entra ID, or Google Workspace. This provides enterprise customers with a secure, centralized authentication experience while reducing password management overhead.
+
+![How Scalekit connects your application to enterprise identity providers](@/assets/docs/sso-quickstart/how-scalekit-connects.png)
+
+This guide walks you through the complete workflow for onboarding enterprise customers with SSO. You'll learn how to create organizations, provide admin portal access, enable domain-based SSO, and verify the integration.
+
+Before onboarding enterprise customers, ensure you have completed the [Full Stack Auth quickstart](/authenticate/fsa/quickstart/) to set up basic authentication in your application.
+
+
+
+<Steps>
+1. ## Create organization
+
+   Create an organization in Scalekit to represent your enterprise customer:
+
+   - Log in to the [Scalekit dashboard](https://app.scalekit.com)
+   - Navigate to **Dashboard > Organizations**
+   - Click **Create Organization**
+   - Enter the organization name and relevant details
+   - Save the organization
+
+   Each organization in Scalekit represents one of your enterprise customers and can have its own SSO configuration, directory sync settings, and domain associations.
+
+2. ## Provide admin portal access
+
+   Give your customer's IT administrator access to the self-serve admin portal to configure their identity provider. Scalekit provides two integration methods:
+
+   **Option 1: Share a no-code link** <Badge text="Quick setup" variant="tip" />
+
+   Generate and share a link to the admin portal:
+
+   - Select the organization from **Dashboard > Organizations**
+   - Click **Generate link** in the organization overview
+   - Share the link with your customer's IT admin via email, Slack, or your preferred channel
+
+   The link remains valid for 7 days and can be revoked anytime from the dashboard.
+
+   <Aside type="caution" title="Link security">
+   Anyone with the portal link can view and modify the organization's SSO configuration. Share it only with authorized administrators.
+   </Aside>
+
+   **Option 2: Embed the portal** <Badge text="Seamless experience" variant="note" />
+
+   Embed the admin portal directly in your application so customers can configure SSO without leaving your interface:
+
+   - Generate a portal link programmatically using the Scalekit SDK
+   - Render the portal in an iframe within your application's settings page
+   - Customers configure SSO directly in your UI
+
+   For complete implementation details including code examples in all supported languages, see the [Admin portal implementation guide](/guides/admin-portal/#embed-the-admin-portal).
+
+3. ## Customer configures SSO
+
+   After receiving admin portal access, your customer's IT administrator:
+
+   - Opens the admin portal (via shared link or embedded iframe)
+   - Selects their identity provider (Okta, Microsoft Entra ID, Google Workspace, etc.)
+   - Follows the provider-specific setup guide
+   - Enters the required configuration (metadata URL, certificates, etc.)
+   - Tests the connection
+   - Activates the SSO connection
+
+   Once configured, the SSO connection appears as active in your organization's settings:
+
+   ![Active enterprise SSO connection](@/assets/docs/fsa/auth-methods/enterpise-sso-1.png)
+
+   <Aside type="tip" title="IdP configuration guides">
+   Share the appropriate [SSO integration guide](/guides/integrations/sso-integrations/) with your customer's IT team to help them configure their identity provider correctly.
+   </Aside>
+
+4. ## Verify domain ownership
+
+   After SSO is configured, verify the organization's email domains to enable automatic SSO routing. When domains are verified, users with matching email addresses are automatically redirected to their organization's SSO login.
+
+   **Verification methods:**
+
+   - **DNS verification** <Badge text="Coming soon" variant="note" />: Organization admins add a DNS TXT record to prove domain ownership through the admin portal
+   - **Manual verification**: Request domain verification through the Scalekit dashboard when domain ownership is already established
+
+   To manually verify a domain:
+
+   - Navigate to **Dashboard > Organizations** and select the organization
+   - Go to **Single Sign-On** settings
+   - Add the domain (e.g., `megacorp.com`)
+   - Verify the domain through the dashboard
+
+   Once verified, users with email addresses from that domain (e.g., `user@megacorp.com`) can authenticate using their organization's SSO.
+
+   <Aside type="note" title="Home realm discovery">
+   Domain verification enables home realm discovery, where Scalekit automatically determines which identity provider to use based on the user's email domain.
+   </Aside>
+
+5. ## Test the integration
+
+   Before rolling out SSO to your customers, thoroughly test the integration:
+
+   - **Use the IdP Simulator** during development to test without configuring real identity providers
+   - **Test with real providers** like Okta or Microsoft Entra ID in your staging environment
+   - **Validate all scenarios**: SP-initiated SSO, IdP-initiated SSO, and error handling
+
+   For complete testing instructions, see the [Test SSO integration guide](/sso/guides/test-sso/).
+
+</Steps>
+
+## Resources for IT administrators
+
+Provide these resources to your customer's IT team to help them configure their identity providers:
+
+<CardGrid>
+  <LinkCard title="SSO integration guides" description="Step-by-step guides for configuring Okta, Microsoft Entra ID, Google Workspace, and other identity providers" href="/guides/integrations/sso-integrations/" />
+  <LinkCard title="SCIM integration guides" description="Setup instructions for automated user provisioning with various identity providers" href="/guides/integrations/scim-integrations/" />
+</CardGrid>

@@ -1,15 +1,30 @@
 ---
 import '../../styles/folds.css'
+import { getIconComponent } from '@/utils/icon-map'
 
 export interface Props {
   title: string
   href?: string
-  icon?: any
+  iconKey?: string
   cta?: string
+  variant?: 'primary' | 'secondary' | 'minimal'
+  showCta?: boolean
+  target?: string
+  rel?: string
 }
 
 import { LinkButton } from 'starlight-theme-nova/components'
-const { title, href, icon: Icon, cta = 'Know more →' } = Astro.props
+const {
+  title,
+  href,
+  iconKey,
+  cta = 'Know more →',
+  variant = 'secondary',
+  showCta = true,
+  target,
+  rel,
+} = Astro.props
+const Icon = getIconComponent(iconKey)
 ---
 
 <article class="fold-card sl-card">
@@ -20,8 +35,14 @@ const { title, href, icon: Icon, cta = 'Know more →' } = Astro.props
   <div class="card-content">
     <slot />
     {
-      href && (
-        <LinkButton href={href} class="card-cta" variant="secondary">
+      href && showCta && (
+        <LinkButton
+          href={href}
+          class={`card-cta sk-${variant}`}
+          variant={variant}
+          {...(target && { target })}
+          {...(rel && { rel })}
+        >
           {cta}
         </LinkButton>
       )
