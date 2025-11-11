@@ -363,11 +363,11 @@ const navSections: NavSection[] = [
     position: absolute;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(6px);
+    transform: translateY(-4px);
     transition:
-      opacity 0.15s ease,
-      transform 0.15s ease,
-      visibility 0.15s ease;
+      opacity 0.2s ease,
+      transform 0.2s ease,
+      visibility 0.2s ease;
     z-index: 999999 !important;
     pointer-events: none;
     isolation: isolate;
@@ -386,7 +386,10 @@ const navSections: NavSection[] = [
     background: var(--sl-color-bg) !important;
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 0.5rem;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25) !important;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
     padding: 0.5rem 0;
     backdrop-filter: blur(12px);
     position: relative;
@@ -394,6 +397,7 @@ const navSections: NavSection[] = [
     isolation: isolate;
     min-width: 220px;
     width: fit-content;
+    border-top: 2px solid var(--sl-color-accent-low);
   }
 
   .dropdown-item {
@@ -445,17 +449,35 @@ const navSections: NavSection[] = [
 <script>
   function positionDropdown(trigger, dropdown) {
     const rect = trigger.getBoundingClientRect()
-    // Place it first, then make it visible to avoid top-left flash
-    dropdown.style.top = `${rect.bottom + 2}px`
+    const dropdownContent = dropdown.querySelector('.dropdown-content')
+
+    // Position dropdown below the trigger with some spacing
+    dropdown.style.top = `${rect.bottom + 8}px`
     dropdown.style.left = `${rect.left}px`
+
+    // Check if dropdown would go off-screen and adjust if needed
+    if (dropdownContent) {
+      const dropdownRect = dropdownContent.getBoundingClientRect()
+      const viewportWidth = window.innerWidth
+
+      if (rect.left + dropdownRect.width > viewportWidth - 20) {
+        dropdown.style.left = `${viewportWidth - dropdownRect.width - 20}px`
+      }
+    }
+
     dropdown.classList.add('open')
   }
 
   function hideDropdown(dropdown) {
     dropdown.classList.remove('open')
     dropdown.style.pointerEvents = 'none'
-    dropdown.style.top = '-9999px'
-    dropdown.style.left = '-9999px'
+    // Use a small delay before moving off-screen to allow animations
+    setTimeout(() => {
+      if (!dropdown.classList.contains('open')) {
+        dropdown.style.top = '-9999px'
+        dropdown.style.left = '-9999px'
+      }
+    }, 200)
   }
 
   function hideAllDropdowns() {
@@ -476,73 +498,91 @@ const navSections: NavSection[] = [
 
       hideDropdown(dropdown)
 
+      let hoverTimeout = null
+      let isClickOpen = false
+
       trigger.addEventListener('click', (e) => {
         // Only prevent default navigation if href is '#' (like API Reference)
-        // For other links (like Authenticate with href='/'), allow navigation
         if (href === '#') {
           e.preventDefault()
           e.stopPropagation()
 
-          if (currentOpenDropdown === dropdown && dropdown.style.pointerEvents === 'all') {
+          if (currentOpenDropdown === dropdown && dropdown.classList.contains('open')) {
             hideDropdown(dropdown)
             currentOpenDropdown = null
+            isClickOpen = false
           } else {
             hideAllDropdowns()
             positionDropdown(trigger, dropdown)
             dropdown.style.pointerEvents = 'all'
             currentOpenDropdown = dropdown
+            isClickOpen = true
           }
         }
         // If href is not '#', navigation will happen naturally
       })
 
       trigger.addEventListener('mouseenter', () => {
-        if (currentOpenDropdown === null) {
-          hideAllDropdowns()
-          positionDropdown(trigger, dropdown)
-          dropdown.style.pointerEvents = 'all'
-          currentOpenDropdown = dropdown
+        clearTimeout(hoverTimeout)
+
+        // Only auto-open on hover if no dropdown is currently open via click
+        if (currentOpenDropdown === null && !isClickOpen) {
+          hoverTimeout = setTimeout(() => {
+            hideAllDropdowns()
+            positionDropdown(trigger, dropdown)
+            dropdown.style.pointerEvents = 'all'
+            currentOpenDropdown = dropdown
+            isClickOpen = false
+          }, 100) // Small delay to prevent accidental triggers
         }
       })
 
       trigger.addEventListener('mouseleave', () => {
-        setTimeout(() => {
-          if (!dropdown.matches(':hover') && !trigger.matches(':hover')) {
-            if (currentOpenDropdown === dropdown) {
+        clearTimeout(hoverTimeout)
+
+        // Only close on mouse leave if dropdown was opened by hover, not click
+        if (currentOpenDropdown === dropdown && !isClickOpen) {
+          hoverTimeout = setTimeout(() => {
+            if (!dropdown.matches(':hover') && !trigger.matches(':hover')) {
               hideDropdown(dropdown)
               currentOpenDropdown = null
             }
-          }
-        }, 150)
+          }, 200)
+        }
+      })
+
+      dropdown.addEventListener('mouseenter', () => {
+        clearTimeout(hoverTimeout)
       })
 
       dropdown.addEventListener('mouseleave', () => {
-        hideDropdown(dropdown)
-        currentOpenDropdown = null
-      })
-
-      dropdown.addEventListener('click', (e) => {
-        const target = e.target
-        if (target.classList.contains('dropdown-item')) {
+        if (currentOpenDropdown === dropdown && !isClickOpen) {
           hideDropdown(dropdown)
           currentOpenDropdown = null
         }
       })
 
+      dropdown.addEventListener('click', (e) => {
+        const target = e.target.closest('.dropdown-item')
+        if (target) {
+          hideDropdown(dropdown)
+          currentOpenDropdown = null
+          isClickOpen = false
+        }
+      })
+
       let ticking = false
       const updatePosition = () => {
-        if (!ticking) {
+        if (!ticking && currentOpenDropdown === dropdown && dropdown.classList.contains('open')) {
           requestAnimationFrame(() => {
-            if (currentOpenDropdown === dropdown && dropdown.style.pointerEvents === 'all') {
-              positionDropdown(trigger, dropdown)
-            }
+            positionDropdown(trigger, dropdown)
             ticking = false
           })
           ticking = true
         }
       }
 
-      window.addEventListener('scroll', updatePosition)
+      window.addEventListener('scroll', updatePosition, { passive: true })
       window.addEventListener('resize', updatePosition)
     })
 
@@ -550,6 +590,13 @@ const navSections: NavSection[] = [
       const target = e.target
       if (!target.closest('.nav-item-wrapper.has-dropdown') && !target.closest('[data-dropdown]')) {
         hideAllDropdowns()
+        currentOpenDropdown = null
+        // Reset click state for all triggers
+        dropdownTriggers.forEach((trigger) => {
+          if (trigger.isClickOpen !== undefined) {
+            trigger.isClickOpen = false
+          }
+        })
       }
     })
 
