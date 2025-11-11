@@ -45,8 +45,8 @@ export default defineConfig({
         Banner: './src/components/overrides/Banner.astro',
       },
       logo: {
-        dark: '/src/assets/images/logos-v4/sk-docs-dark.svg',
-        light: '/src/assets/images/logos-v4/sk-docs-light.svg',
+        dark: '/src/assets/images/scalekit-logo-white.svg',
+        light: '/src/assets/images/scalekit-logo-black.svg',
         replacesTitle: true,
       },
       defaultLocale: 'en',
