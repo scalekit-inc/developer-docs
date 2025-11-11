@@ -130,13 +130,10 @@ export const redirects = {
   // =============================================================================
   '/guides/mcp/overview': '/mcp/intro-to-mcp-auth/',
   '/mcp/overview': '/mcp/intro-to-mcp-auth/',
-  '/mcp/overview/': '/mcp/intro-to-mcp-auth/',
   '/guides/mcp/oauth': '/mcp/quickstart/',
   '/mcp/oauth': '/mcp/quickstart/',
-  '/mcp/oauth/': '/mcp/quickstart/',
   '/guides/mcp/custom-auth': '/mcp/auth-methods/custom-auth/',
   '/mcp/guides/custom-auth': '/mcp/auth-methods/custom-auth/',
-  '/mcp/guides/custom-auth/': '/mcp/auth-methods/custom-auth/',
   '/guides/mcp/additional-reading': '/mcp/guides/additional-reading/',
 
   // MCP integration examples reorganized
