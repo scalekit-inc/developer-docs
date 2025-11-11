@@ -38,6 +38,7 @@ export default defineConfig({
         Header: './src/components/overrides/Header.astro',
         Footer: './src/components/overrides/Footer.astro',
         PageSidebar: './src/components/overrides/PageSidebar.astro',
+        Banner: './src/components/overrides/Banner.astro',
       },
       logo: {
         dark: '/src/assets/images/logos-v4/sk-docs-dark.svg',
