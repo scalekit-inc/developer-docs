@@ -282,7 +282,7 @@ export const sidebar = [
       },
       {
         label: 'MCP authentication',
-        items: ['mcp/intro-to-mcp-auth', 'mcp/guides/custom-auth'],
+        items: ['mcp/intro-to-mcp-auth', 'mcp/auth-methods/custom-auth'],
       },
       {
         label: 'Code samples',
