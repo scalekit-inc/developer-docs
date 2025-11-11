@@ -69,13 +69,13 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Standalone auth modules',
+        label: 'Drop-in auth modules',
         items: [
           'passwordless/quickstart',
           'guides/user-auth/standalone-social-logins',
           'directory/scim/quickstart',
           'authenticate/m2m/api-auth-quickstart',
-          'mcp/fastmcp-quickstart',
+          'authenticate/mcp/fastmcp-quickstart',
         ],
       },
       {
@@ -264,11 +264,14 @@ export const sidebar = [
             label: 'Authenticate Methods',
             autogenerate: { directory: 'mcp/auth-methods' },
           },
+          {
+            label: 'Code samples',
+            items: [
+              'browse/vids/mcp-oauth-walkthrough',
+              'browse/code-samples/github/mcp-auth-demos',
+            ],
+          },
         ],
-      },
-      {
-        label: 'Code samples',
-        items: ['browse/vids/mcp-oauth-walkthrough', 'browse/code-samples/github/mcp-auth-demos'],
       },
       {
         label: 'Enterprise authentication',
