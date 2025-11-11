@@ -135,6 +135,8 @@ export const redirects = {
   '/guides/mcp/custom-auth': '/mcp/auth-methods/custom-auth/',
   '/mcp/guides/custom-auth': '/mcp/auth-methods/custom-auth/',
   '/guides/mcp/additional-reading': '/mcp/guides/additional-reading/',
+  '/mcp/auth-methods/enterprise/': '/mcp/auth-methods/custom-auth/',
+  '/mcp/auth-methods/social/': '/mcp/auth-methods/custom-auth/',
 
   // MCP integration examples reorganized
   '/mcp/integrations/fastmcp': '/authenticate/mcp/fastmcp-quickstart/',

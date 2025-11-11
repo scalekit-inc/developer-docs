@@ -164,38 +164,6 @@ export const sidebar = [
     ],
   },
   {
-    label: 'API Auth',
-    link: '/authenticate/m2m/api-auth-quickstart',
-    id: 'm2m',
-    icon: 'seti:crystal_embedded',
-    items: [
-      {
-        label: 'Getting started',
-        items: [
-          'guides/m2m/overview',
-          'authenticate/m2m/api-auth-quickstart',
-          {
-            label: 'Code examples',
-            link: 'https://github.com/scalekit-inc/gists/tree/main/m2m',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-      {
-        label: 'Guides',
-        items: [
-          'guides/m2m/scopes',
-          'guides/m2m/api-auth-m2m-clients',
-          {
-            label: 'Interceptors',
-            link: '/guides/auth-flow-interceptors',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
-    ],
-  },
-  {
     label: 'Developer Resources',
     id: 'dev-kit',
     link: '/dev-kit/',
@@ -457,7 +425,6 @@ export const topics = {
   ], // Pages that appear in Authenticate sidebar
   connect: ['/agent-actions/**/*'], // Agent Actions pages
   mcp: [], // MCP pages are in dev-kit sidebar (via the dev-kit topic)
-  m2m: ['/m2m/**/*', '/guides/m2m/**/*'], // M2M API auth pages
   'dev-kit': [
     '/dev-kit/**/*',
     '/examples',
@@ -473,6 +440,7 @@ export const topics = {
     '/browse/**/*', // Code samples and videos
     '/guides/user-auth/**/*', // User auth guides and examples
     '/guides/security/**/*', // Security best practices
+    '/m2m/**/*', // M2M API auth pages
     '/guides/m2m/**/*', // M2M authentication guides
     // Specific FSA implementation guides that appear in dev-kit sidebar
     '/fsa/guides/implement-signup',
@@ -569,8 +537,6 @@ export const secondaryNavMapping = {
       '/guides/user-auth',
       '/guides/security',
       '/guides/user-management',
-      '/m2m',
-      '/guides/m2m',
     ],
   },
   'agent-actions': {
@@ -585,6 +551,8 @@ export const secondaryNavMapping = {
       '/examples',
       '/browse',
       '/dev-kit',
+      '/m2m',
+      '/guides/m2m',
       '/authenticate/interceptors/interceptor-scenarios',
       '/guides/dashboard/redirects',
       '/guides/external-ids-and-metadata',
