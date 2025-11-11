@@ -1,0 +1,84 @@
+---
+// Import the `<StarlightPage>` component first to set up cascade layers
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import { ScalarComponent } from '@scalar/astro'
+import ApiSearchIndex from '@/components/ApiSearchIndex.astro'
+
+// Page metadata
+const frontmatter = {
+  title: 'Scalekit API Reference',
+  description: 'Complete reference for all Scalekit API endpoints',
+  template: 'splash',
+  editUrl: false,
+}
+
+// Scalar configuration - migrate all settings from ScalarReference.vue
+const scalarConfig = {
+  url: '/api/scalekit.swagger.json',
+  theme: 'default',
+  pageTitle: 'Scalekit API Reference',
+  hideTestRequestButton: true,
+  withDefaultFonts: false,
+  hideModels: true,
+  searchHotKey: 'p',
+  hideDarkModeToggle: true,
+  defaultOpenAllTags: false,
+  hiddenClients: [
+    'httpclient',
+    'restsharp',
+    'http1.1',
+    'asynchttp',
+    'okhttp',
+    'jquery',
+    'request',
+    'unirest',
+    'nsurlsession',
+    'cohttp',
+    'guzzle',
+    'http',
+    'ofetch',
+    'http1',
+    'http2',
+    'restmethod',
+    'httr',
+    'httpie',
+    'wget',
+    'undici',
+    'requests',
+    'python3',
+    'xhr',
+    'fetch',
+  ],
+  favicon:
+    'https://cdn.prod.website-files.com/65b87d98fa638289e10b8f61/67ab35acf2f180e0fe0a94a8_S%20Icon%20-%20Black%20-%2032x32.png',
+  hideClientButton: true,
+  defaultHttpClient: {
+    targetKey: 'shell',
+    clientKey: 'curl',
+  },
+}
+---
+
+<ScalarComponent configuration={scalarConfig} />
+
+<StarlightPage frontmatter={frontmatter}>
+  <!-- API Reference Component -->
+  <div class="api-reference-wrapper"></div>
+
+  <!-- Hidden search index for Pagefind -->
+  <div style="display: none;">
+    <ApiSearchIndex />
+  </div>
+</StarlightPage>
+
+<style>
+  /* Import the existing API reference styles */
+  @import '@/styles/api-reference.css';
+
+  /* Additional wrapper styles for the new component */
+  .api-reference-wrapper {
+    margin-left: calc(-1 * var(--sl-content-pad-x));
+    margin-right: calc(-1 * var(--sl-content-pad-x));
+    background-color: var(--sl-color-bg);
+  }
+</style>
