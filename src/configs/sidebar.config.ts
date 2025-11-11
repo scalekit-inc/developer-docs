@@ -289,12 +289,19 @@ export const sidebar = [
           'mcp/overview',
           'mcp/oauth',
           { label: 'Troubleshooting Guide', link: 'mcp/troubleshooting' },
-          { label: 'Bring your own Auth', link: 'mcp/guides/custom-auth' },
         ],
       },
       {
-        label: 'Integrations',
-        items: [{ label: 'FastMCP', link: 'mcp/integrations/fastmcp' }],
+        label: 'Example Apps',
+        items: [
+          { label: 'FastMCP', link: 'mcp/integrations/fastmcp' },
+          { label: 'FastAPI-FastMCP', link: 'mcp/integrations/fastapi-fastmcp' },
+          { label: 'ExpressJS', link: 'mcp/integrations/expressjs' },
+        ],
+      },
+      {
+        label: 'Authenticate Methods',
+        autogenerate: { directory: 'mcp/auth-methods' },
       },
     ],
   },
