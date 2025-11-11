@@ -139,6 +139,12 @@ export const redirects = {
   '/mcp/guides/custom-auth/': '/mcp/auth-methods/custom-auth/',
   '/guides/mcp/additional-reading': '/mcp/guides/additional-reading/',
 
+  // MCP integration examples moved to code samples
+  '/mcp/integrations/fastmcp': '/mcp/fastmcp-quickstart/',
+  '/browse/code-samples/github/mcp/fastmcp': '/mcp/fastmcp-quickstart/',
+  '/mcp/integrations/fastapi-fastmcp': '/browse/code-samples/github/mcp/fastapi-fastmcp/',
+  '/mcp/integrations/expressjs': '/browse/code-samples/github/mcp/expressjs/',
+
   // =============================================================================
   // API AUTH (M2M) REDIRECTS
   // =============================================================================

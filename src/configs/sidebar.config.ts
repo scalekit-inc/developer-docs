@@ -75,6 +75,7 @@ export const sidebar = [
           'guides/user-auth/standalone-social-logins',
           'directory/scim/quickstart',
           'authenticate/m2m/api-auth-quickstart',
+          'mcp/fastmcp-quickstart',
         ],
       },
       {
@@ -160,34 +161,6 @@ export const sidebar = [
       //   label: 'Concepts',
       //   items: ['connect/providers', 'connect/connections', 'connect/connected-accounts'],
       // },
-    ],
-  },
-  {
-    label: 'MCP Auth',
-    link: '/mcp/intro-to-mcp-auth',
-    id: 'mcp',
-    icon: 'seti:puppet',
-    items: [
-      {
-        label: 'Getting started',
-        items: [
-          'mcp/intro-to-mcp-auth',
-          'mcp/quickstart',
-          { label: 'Troubleshooting Guide', link: 'mcp/troubleshooting' },
-        ],
-      },
-      {
-        label: 'Example Apps',
-        items: [
-          { label: 'FastMCP', link: 'mcp/integrations/fastmcp' },
-          { label: 'FastAPI-FastMCP', link: 'mcp/integrations/fastapi-fastmcp' },
-          { label: 'ExpressJS', link: 'mcp/integrations/expressjs' },
-        ],
-      },
-      {
-        label: 'Authenticate Methods',
-        autogenerate: { directory: 'mcp/auth-methods' },
-      },
     ],
   },
   {
@@ -282,7 +255,16 @@ export const sidebar = [
       },
       {
         label: 'MCP authentication',
-        items: ['mcp/intro-to-mcp-auth', 'mcp/auth-methods/custom-auth'],
+        items: [
+          'mcp/intro-to-mcp-auth',
+          'mcp/auth-methods/custom-auth',
+          'browse/code-samples/github/mcp/fastapi-fastmcp',
+          'browse/code-samples/github/mcp/expressjs',
+          {
+            label: 'Authenticate Methods',
+            autogenerate: { directory: 'mcp/auth-methods' },
+          },
+        ],
       },
       {
         label: 'Code samples',

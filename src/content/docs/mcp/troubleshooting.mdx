@@ -1,29 +1,49 @@
 ---
-title: Auth for MCP servers - Troubleshooting Guide
+title: Troubleshooting MCP auth
 description: Troubleshooting guide for common errors while adding auth for MCP Servers
+sidebar:
+  label: "Troubleshooting MCP auth"
+tableOfContents:
+  maxHeadingLevel: 2
 prev: false
 next: false
+browseCentral:
+  label: "Troubleshooting MCP auth"
+  category:
+    - "MCP authentication"
+  filterType:
+    - "tutorial"
+  icon: "book"
 ---
-This guide helps you diagnose and resolve common issues when integrating Scalekit as an authentication server for your MCP servers. It covers setup problems, network and CORS issues, debugging techniques, and client-specific limitations.
+
+import { Aside } from '@astrojs/starlight/components';
+
+This guide helps you diagnose and resolve common issues when integrating Scalekit as an authentication server for your MCP servers. When you add authentication to MCP servers, you may encounter configuration problems, network issues, or client-specific limitations. This reference covers the most common scenarios and provides step-by-step solutions.
+
+Use this guide to troubleshoot setup problems, resolve CORS and network issues, understand client-specific behavior, and implement best practices for your authentication setup.
 
 ## Configuration & Setup Issues
 
 ### My MCP server is not connecting to the MCP Inspector
 
-**Diagnosis steps:**
+When your MCP server fails to connect to the MCP Inspector, this typically indicates a problem with the authentication handshake or metadata configuration. Follow these diagnosis steps to identify the issue.
 
-1. **Verify the MCP server is responding correctly**
-   - Open your browser's developer tools (Network tab)
-   - Navigate to your MCP server URL (e.g., `http://localhost:3002/`)
-   - Confirm the response returns a `401` status code
-   - Check the response headers for `www-authenticate` containing `resource_metadata="<metadata-url>"`
+**Verify the MCP server is responding correctly:**
 
-2. **Validate the metadata**
-   - Copy the metadata URL from the `www-authenticate` header
-   - Open it in your browser
-   - Confirm the JSON structure matches what you see in your Scalekit dashboard
+1. Open your browser's developer tools (Network tab)
+2. Navigate to your MCP server URL (e.g., `http://localhost:3002/`)
+3. Confirm the response returns a `401` status code
+4. Check the response headers for `www-authenticate` containing `resource_metadata="<metadata-url>"`
 
-If all checks pass but the connection still fails, proceed to the CORS section below.
+**Validate the metadata:**
+
+1. Copy the metadata URL from the `www-authenticate` header
+2. Open it in your browser
+3. Confirm the JSON structure matches what you see in your Scalekit dashboard
+
+<Aside type="note">
+If all checks pass but the connection still fails, check the CORS & Network Issues section below.
+</Aside>
 
 ### I'm getting a redirect_uri mismatch error during authorization
 
@@ -31,22 +51,23 @@ This error typically occurs when your MCP client has cached an old MCP server do
 
 **Clear cached authentication by client type:**
 
-**MCP-Remote**
+**MCP-Remote:**
 
-- Delete the cached configuration folder: `~/.mcp-auth/mcp-remote-<version>`
-- Try reconnecting
+1. Delete the cached configuration folder: `~/.mcp-auth/mcp-remote-<version>`
+2. Reconnect to your MCP server
 
-**VS Code**
+**VS Code:**
 
-- Open the Command Palette (Cmd/Ctrl + Shift + P)
-- Search for "Authentication: Remove Dynamic Authentication Provider"
-- Select and remove the cached entry
-- Reconnect to your MCP server
+1. Open the Command Palette (Cmd/Ctrl + Shift + P)
+2. Search for **Authentication: Remove Dynamic Authentication Provider**
+3. Select and remove the cached entry
+4. Reconnect to your MCP server
 
-**Claude Desktop**
+**Claude Desktop:**
 
-- Claude Desktop does not currently support clearing cached authentication data
-- Workaround: Use a different domain or subdomain for your MCP server, or contact Claude support
+<Aside type="caution">
+Claude Desktop does not currently support clearing cached authentication data. As a workaround, use a different domain or subdomain for your MCP server, or contact Claude support for assistance.
+</Aside>
 
 ---
 
@@ -54,24 +75,32 @@ This error typically occurs when your MCP client has cached an old MCP server do
 
 ### I see CORS errors in the network logs when using MCP Inspector
 
-CORS errors occur when your MCP client cannot make cross-origin requests to your Scalekit environment during the authentication handshake.
+CORS errors occur when your MCP client cannot make cross-origin requests to your Scalekit environment during the authentication handshake. This prevents the authentication flow from completing successfully.
 
 **Resolution:**
 
-1. Go to your Scalekit dashboard (Authentication → Redirect URLs → Allowed Callback URLs)
+1. Navigate to **Dashboard > Authentication > Redirect URLs > Allowed Callback URLs**
 2. Add your MCP Inspector URL to the allowed list: `http://localhost:6274/`
 3. Retry the connection
 
+<Aside type="tip" title="Development vs Production URLs">
+Ensure you add callback URLs for both your development (`http://localhost:6274/`) and production environments to avoid CORS errors in either environment.
+</Aside>
+
 ### Calls from the MCP client are not reaching my MCP server
 
-If requests from your MCP client silently fail to reach your server, a proxy or firewall may be blocking them.
+If requests from your MCP client silently fail to reach your server, a proxy or firewall may be blocking them. This often happens in corporate environments or when using CDN services.
 
-**Troubleshooting:**
+**Troubleshooting steps:**
 
 1. Check if you're using a proxy (e.g., Cloudflare, AWS WAF, corporate proxy)
 2. Configure your proxy to allow or exempt requests from your MCP client to your server domain
 3. Review proxy logs to confirm whether requests are being blocked
 4. Test direct connectivity from your client machine to your MCP server (without proxy, if possible)
+
+<Aside type="note">
+Some corporate proxies require explicit whitelisting of authentication endpoints. Contact your network administrator if you suspect this is the case.
+</Aside>
 
 ---
 
@@ -79,17 +108,20 @@ If requests from your MCP client silently fail to reach your server, a proxy or 
 
 ### Claude Desktop ignores custom ports when connecting to MCP servers
 
-Claude Desktop currently only supports standard HTTPS traffic on port `443`. If your MCP server runs on a custom port (e.g., `https://mymcp.internal:8443/`), Claude will still attempt to connect to port `443`, causing the connection to fail.
+Claude Desktop currently only supports standard HTTPS traffic on port `443`. If your MCP server runs on a custom port (e.g., `https://mymcp.internal:8443/`), Claude Desktop will still attempt to connect to port `443`, causing the connection to fail.
 
-**Workaround:**
+**Workaround options:**
 
 1. Expose your MCP server on port `443` (requires a proxy or load balancer)
-2. Or use a reverse proxy that listens on `443` and forwards requests to your custom port
-3. Future versions of Claude Desktop may add custom port support
+2. Use a reverse proxy that listens on `443` and forwards requests to your custom port
+
+<Aside type="note">
+Future versions of Claude Desktop may add custom port support. Check the Claude Desktop release notes for updates.
+</Aside>
 
 ### Multiple authentication tabs open when using both MCP-Remote and Claude Desktop
 
-Recent versions of Claude Desktop have introduces Connectors functionality, so you no longer need to run MCP-Remote separately. Claude Desktop includes a **Custom Connector** feature that allows you to configure MCP servers directly without additional tools.
+Recent versions of Claude Desktop have introduced Connectors functionality, eliminating the need to run MCP-Remote separately. Claude Desktop includes a **Custom Connector** feature that allows you to configure MCP servers directly without additional tools.
 
 **Recommendation:**
 
@@ -97,25 +129,53 @@ Recent versions of Claude Desktop have introduces Connectors functionality, so y
 - Disable or stop MCP-Remote if you're only using Claude Desktop
 - If you have a specific use case requiring both, contact Claude's official support
 
+<Aside type="tip">
+To avoid duplicate authentication flows, ensure you're using only one MCP client at a time.
+</Aside>
+
 ### My browser is not getting invoked during authentication
 
-Some MCP clients require permission to open your default browser during the authentication flow. If your browser doesn't launch, the authentication handshake may timeout.
+Some MCP clients require permission to open your default browser during the authentication flow. If your browser doesn't launch, the authentication handshake may timeout, preventing successful authentication.
 
-**Resolution:**
+**Resolution by operating system:**
 
-1. Check your system settings to ensure the MCP client has permission to open applications
-2. **macOS**: System Preferences → Security & Privacy → App Management (or similar)
-3. **Windows**: Settings → Privacy → App permissions → Allow apps to manage your default app settings
-4. **Linux**: Ensure `xdg-open` or your default browser opener is installed and accessible
-5. Restart your MCP client after updating permissions
+**macOS:**
+
+1. Open **System Preferences > Security & Privacy > App Management**
+2. Ensure the MCP client has permission to open applications
+3. Restart your MCP client
+
+**Windows:**
+
+1. Navigate to **Settings > Privacy > App permissions**
+2. Enable **Allow apps to manage your default app settings**
+3. Restart your MCP client
+
+**Linux:**
+
+1. Ensure `xdg-open` or your default browser opener is installed: `which xdg-open`
+2. Verify the command is accessible from your terminal
+3. Restart your MCP client
+
+<Aside type="note">
+After updating permissions, always restart your MCP client to ensure the changes take effect.
+</Aside>
 
 ---
 
 ## Best practices
 
-1. Utilize separate Scalekit environments for development and production
-2. In each environment, register your MCP server with the correct domain:
-   - Dev: `https://mcp-dev.yourdomain.com/`
-   - Prod: `https://mcp.yourdomain.com/`
-3. Update your MCP client configuration to point to the correct Scalekit environment
-4. Test authentication in each environment independently
+Follow these best practices to avoid common issues and maintain a robust MCP authentication setup:
+
+1. **Use separate Scalekit environments** for development and production to prevent configuration conflicts
+2. **Register MCP servers with environment-specific domains:**
+   - Development: `https://mcp-dev.yourdomain.com/`
+   - Production: `https://mcp.yourdomain.com/`
+3. **Update your MCP client configuration** to point to the correct Scalekit environment for each deployment
+4. **Test authentication independently** in each environment before deploying to production
+5. **Monitor authentication logs** in **Dashboard > Authentication > Logs** to identify and resolve issues quickly
+6. **Keep callback URLs updated** whenever you change domains or ports
+
+<Aside type="tip" title="Environment management">
+Maintain separate environment variables for your MCP server configuration (e.g., `SCALEKIT_ENVIRONMENT_URL`, `MCP_SERVER_URL`) to easily switch between development and production environments.
+</Aside>

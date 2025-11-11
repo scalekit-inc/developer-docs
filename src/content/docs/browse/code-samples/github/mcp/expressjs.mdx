@@ -1,0 +1,374 @@
+---
+title: 'Express.js quickstart'
+description: 'Express.js MCP server with TypeScript and custom OAuth middleware.'
+browseCentral:
+  label: 'MCP auth with Express.js'
+  category:
+    - 'MCP authentication'
+  filterType:
+    - 'code-sample'
+  icon: 'code'
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+sidebar:
+  order: 3
+  label: 'Express.js sample'
+prev: false
+next:
+  label: 'MCP OAuth 2.1 implementation guide'
+  link: '/mcp/quickstart/'
+seeAlso:
+  label: 'Related guides'
+  expanded: false
+  items:
+    - title: 'MCP OAuth 2.1 implementation guide'
+      icon: 'book'
+      url: '/mcp/quickstart/'
+    - title: 'Auth for MCP servers - Overview'
+      icon: 'book'
+      url: '/mcp/intro-to-mcp-auth/'
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence';
+
+This guide shows you how to build an Express.js MCP server with TypeScript and Scalekit OAuth authentication. You'll implement custom middleware for token validation, expose the OAuth resource metadata endpoint, and create a simple greeting tool using the MCP SDK.
+
+Use this quickstart when you're building Node.js-based MCP servers and want fine-grained control over request handling. The Express integration gives you flexibility to add custom routes, middleware chains, and integrate with existing Express applications. The full code is available on <a href="https://github.com/scalekit-inc/mcp-auth-demos/tree/main/greeting-mcp-node" target="_blank" rel="noreferrer">GitHub</a>.
+
+**Prerequisites**
+
+- A [Scalekit account](https://app.scalekit.com) with permission to manage MCP servers
+- **Node.js 20+** installed locally
+- Familiarity with Express.js and OAuth token validation
+- MCP Inspector installed locally to test the connection
+
+<details>
+<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the Express.js MCP authorization flow</summary>
+
+```d2 pad=36
+title: "Express.js MCP with Scalekit" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client -> MCP Server: Request resource metadata
+MCP Server -> MCP Client: Return OAuth metadata
+MCP Client -> Scalekit: Exchange code for access token
+Scalekit -> MCP Client: Issue Bearer token
+MCP Client -> MCP Server: POST /mcp with Bearer token
+MCP Server -> MCP Server: Validate token via middleware
+MCP Server -> MCP Client: Authorized tool response
+```
+
+</details>
+
+<Steps>
+
+1. ## Register your MCP server in Scalekit
+
+   Create a protected resource entry so Scalekit can issue tokens that your Express middleware validates.
+
+   1. Navigate to **[Dashboard](https://app.scalekit.com) > MCP Servers > Add MCP Server**.
+   2. Enter a descriptive name (for example, `Greeting MCP`).
+   3. Set **Server URL** to `http://localhost:3002/` (keep the trailing slash).
+   4. Click **Save** to create the server.
+
+   ![Greeting MCP Register](@/assets/docs/guides/mcp/greeting-mcp-register.png)
+
+   When you save, Scalekit displays the OAuth-protected resource metadata. Copy this JSON—you'll use it in your `.env` file.
+
+   ![Greeting MCP Protected JSON](@/assets/docs/guides/mcp/greeting-protected-json.png)
+
+2. ## Create your project directory
+
+   Set up a clean directory structure for your TypeScript Express project.
+
+   ```bash title="Terminal" frame="terminal"
+   mkdir express-mcp-node
+   cd express-mcp-node
+   ```
+
+3. ## Add package dependencies
+
+   Create a `package.json` with scripts and all required dependencies.
+
+   ```bash title="Terminal" frame="terminal"
+   cat <<'EOF' > package.json
+   {
+     "name": "express-mcp-node",
+     "version": "1.0.0",
+     "type": "module",
+     "scripts": {
+       "dev": "tsx src/server.ts",
+       "build": "tsc",
+       "start": "node dist/server.js"
+     },
+     "dependencies": {
+       "@modelcontextprotocol/sdk": "^1.13.0",
+       "@scalekit-sdk/node": "^2.0.1",
+       "cors": "^2.8.5",
+       "dotenv": "^16.4.5",
+       "express": "^5.1.0",
+       "zod": "^3.25.57"
+     },
+     "devDependencies": {
+       "@types/cors": "^2.8.19",
+       "@types/express": "^4.17.21",
+       "@types/node": "^20.11.19",
+       "tsx": "^4.7.0",
+       "typescript": "^5.4.5"
+     }
+   }
+   EOF
+   ```
+
+4. ## Configure TypeScript
+
+   Add a TypeScript configuration file optimized for ES2022 modules.
+
+   ```bash title="Terminal" frame="terminal"
+   cat <<'EOF' > tsconfig.json
+   {
+     "compilerOptions": {
+       "target": "ES2022",
+       "module": "ES2022",
+       "moduleResolution": "node",
+       "esModuleInterop": true,
+       "forceConsistentCasingInFileNames": true,
+       "strict": false,
+       "skipLibCheck": true,
+       "resolveJsonModule": true,
+       "outDir": "dist",
+       "rootDir": "src",
+       "types": ["node"]
+     },
+     "include": ["src/**/*"]
+   }
+   EOF
+   ```
+
+5. ## Install dependencies
+
+   Install all packages declared in `package.json`.
+
+   ```bash title="Terminal" frame="terminal"
+   npm install
+   ```
+
+   <Aside type="tip" title="Package manager choice">
+     This guide uses <code>npm</code>, but you can also use <code>yarn</code>, <code>pnpm</code>, or <code>bun</code> if you prefer.
+   </Aside>
+
+6. ## Configure environment variables
+
+   Create a `.env` file with your Scalekit credentials and the protected resource metadata from step 1.
+
+   ```bash title="Terminal" frame="terminal"
+   cat <<'EOF' > .env
+   PORT=3002
+   SK_ENV_URL=https://<your-env>.scalekit.com
+   SK_CLIENT_ID=<your-client-id>
+   SK_CLIENT_SECRET=<your-client-secret>
+   MCP_SERVER_ID=<mcp-server-id-from-dashboard>
+   PROTECTED_RESOURCE_METADATA='<resource-metadata-json>'
+   EXPECTED_AUDIENCE=http://localhost:3002/
+   EOF
+
+   open .env
+   ```
+
+   | Variable                        | Description                                                                   |
+   | ------------------------------- | ----------------------------------------------------------------------------- |
+   | `PORT`                          | Local port for the Express server (defaults to `3002`)                        |
+   | `SK_ENV_URL`                    | Your Scalekit environment URL from **Dashboard > Settings**                   |
+   | `SK_CLIENT_ID`                  | Client ID from **Dashboard > Settings**                                       |
+   | `SK_CLIENT_SECRET`              | Client secret from **Dashboard > Settings**                                   |
+   | `MCP_SERVER_ID`                 | The MCP server ID from **Dashboard > MCP Servers**                            |
+   | `PROTECTED_RESOURCE_METADATA`   | The complete JSON metadata object from step 1                                 |
+   | `EXPECTED_AUDIENCE`             | The audience value that tokens must include (your server URL)                 |
+
+   <Aside type="caution" title="Protect your credentials">
+     Never commit <code>.env</code> to version control. Add it to <code>.gitignore</code> and use a secret manager in production environments.
+   </Aside>
+
+7. ## Implement the Express MCP server
+
+   Create `src/server.ts` with the complete server implementation, including authentication middleware and the MCP tool.
+
+   ```typescript title="src/server.ts" wrap collapse={1-6} {149} {"Authentication middleware": 180-202} {"Token validation": 196-199}
+   import 'dotenv/config';
+   import cors from 'cors';
+   import express, { NextFunction, Request, Response } from 'express';
+   import { z } from 'zod';
+   import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+   import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+   import { Scalekit } from '@scalekit-sdk/node';
+
+   // Load environment variables
+   const PORT = Number(process.env.PORT ?? 3002);
+   const SK_ENV_URL = process.env.SK_ENV_URL ?? '';
+   const SK_CLIENT_ID = process.env.SK_CLIENT_ID ?? '';
+   const SK_CLIENT_SECRET = process.env.SK_CLIENT_SECRET ?? '';
+   const EXPECTED_AUDIENCE = process.env.EXPECTED_AUDIENCE ?? '';
+   const PROTECTED_RESOURCE_METADATA = process.env.PROTECTED_RESOURCE_METADATA ?? '';
+
+   // Use case: Configure OAuth resource metadata URL for MCP clients
+   const RESOURCE_METADATA_URL = `http://localhost:${PORT}/.well-known/oauth-protected-resource`;
+
+   // WWW-Authenticate header for 401 responses
+   const WWW_HEADER_KEY = 'WWW-Authenticate';
+   const WWW_HEADER_VALUE = `Bearer realm="OAuth", resource_metadata="${RESOURCE_METADATA_URL}"`;
+
+   // Initialize Scalekit client for token validation
+   // Security: Use SDK to validate JWT signatures and claims
+   const scalekit = new Scalekit(SK_ENV_URL, SK_CLIENT_ID, SK_CLIENT_SECRET);
+
+   // Initialize MCP server with greeting tool
+   const server = new McpServer({ name: 'Greeting MCP', version: '1.0.0' });
+
+   // Use case: Simple greeting tool demonstrating OAuth-protected MCP operations
+   server.tool(
+     'greet_user',
+     'Greets the user with a personalized message.',
+     {
+       name: z.string().min(1, 'Name is required'),
+     },
+     async ({ name }: { name: string }) => ({
+       content: [
+         {
+           type: 'text',
+           text: `Hi ${name}, welcome to Scalekit!`
+         }
+       ]
+     })
+   );
+
+   // Initialize Express application
+   const app = express();
+
+   // Enable CORS for cross-origin MCP clients
+   app.use(cors({ origin: true, credentials: false }));
+
+   // Parse JSON request bodies
+   app.use(express.json());
+
+   // Use case: Expose OAuth resource metadata for MCP client discovery
+   // This endpoint allows clients to discover authorization requirements
+   app.get('/.well-known/oauth-protected-resource', (_req: Request, res: Response) => {
+     if (!PROTECTED_RESOURCE_METADATA) {
+       res.status(500).json({ error: 'PROTECTED_RESOURCE_METADATA config missing' });
+       return;
+     }
+
+     const metadata = JSON.parse(PROTECTED_RESOURCE_METADATA);
+     res.type('application/json').send(JSON.stringify(metadata, null, 2));
+   });
+
+   // Use case: Health check endpoint for monitoring and load balancers
+   app.get('/health', (_req: Request, res: Response) => {
+     res.json({ status: 'healthy' });
+   });
+
+   // Security: Validate Bearer tokens on all protected endpoints
+   // Public endpoints (health, metadata) are exempt from authentication
+   app.use(async (req: Request, res: Response, next: NextFunction) => {
+     // Allow public endpoints without authentication
+     if (req.path === '/.well-known/oauth-protected-resource' || req.path === '/health') {
+       next();
+       return;
+     }
+
+     // Extract Bearer token from Authorization header
+     const header = req.headers.authorization;
+     const token = header?.startsWith('Bearer ')
+       ? header.slice('Bearer '.length).trim()
+       : undefined;
+
+     if (!token) {
+       res.status(401)
+         .set(WWW_HEADER_KEY, WWW_HEADER_VALUE)
+         .json({ error: 'Missing Bearer token' });
+       return;
+     }
+
+     try {
+       // Validate token using Scalekit SDK
+       // Security: Verifies signature, expiration, issuer, and audience claims
+       await scalekit.validateToken(token, { audience: [EXPECTED_AUDIENCE] });
+       next();
+     } catch (error) {
+       res.status(401)
+         .set(WWW_HEADER_KEY, WWW_HEADER_VALUE)
+         .json({ error: 'Token validation failed' });
+     }
+   });
+
+   // Handle MCP protocol requests at root path
+   app.post('/', async (req: Request, res: Response) => {
+     // Use case: Process authenticated MCP tool requests
+     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+     await server.connect(transport);
+
+     try {
+       await transport.handleRequest(req, res, req.body);
+     } catch (error) {
+       res.status(500).json({ error: 'MCP transport error' });
+     }
+   });
+
+   // Start the Express server
+   app.listen(PORT, () => {
+     console.log(`MCP server running on http://localhost:${PORT}`);
+   });
+   ```
+
+8. ## Start the Express server
+
+   Run the server in development mode with auto-reload enabled.
+
+   ```bash title="Terminal" frame="terminal"
+   npm run dev
+   ```
+
+   The server starts on `http://localhost:3002/` and logs indicate Express is ready. The MCP endpoint at `/` accepts authenticated POST requests, and the metadata endpoint is accessible at `/.well-known/oauth-protected-resource`.
+
+   <Aside type="tip" title="Production build">
+     For production deployment, build the TypeScript code with <code>npm run build</code>, then start the compiled server with <code>npm start</code>.
+   </Aside>
+
+9. ## Connect with MCP Inspector
+
+   Test your server using the MCP Inspector to verify the OAuth flow works end-to-end.
+
+   ```bash title="Terminal" frame="terminal"
+   npx @modelcontextprotocol/inspector@latest
+   ```
+
+   In the Inspector UI:
+
+   1. Enter your MCP Server URL: `http://localhost:3002/`
+   2. Click **Connect** to initiate the OAuth flow
+   3. Authenticate with Scalekit when prompted
+   4. Run the `greet_user` tool with any name
+
+   ![MCP Inspector](@/assets/docs/guides/mcp/mcp-inspector-google.png)
+
+   <Aside type="note" title="Token validation">
+     The middleware validates every request's token. If you see authentication errors, verify your environment variables match the dashboard settings and the token audience is correct.
+   </Aside>
+
+</Steps>
+
+You now have a working Express.js MCP server with OAuth authentication. Extend this implementation by adding more MCP tools using `server.tool()` with Zod schema validation, implementing scope-based authorization, or integrating with your existing Express application.
