@@ -164,14 +164,14 @@ export const sidebar = [
   },
   {
     label: 'MCP Auth',
-    link: '/guides/mcp/overview',
+    link: '/mcp/intro-to-mcp-auth',
     id: 'mcp',
     icon: 'seti:puppet',
     items: [
       {
         label: 'Getting started',
         items: [
-          'mcp/overview',
+          'mcp/intro-to-mcp-auth',
           'mcp/quickstart',
           { label: 'Troubleshooting Guide', link: 'mcp/troubleshooting' },
         ],

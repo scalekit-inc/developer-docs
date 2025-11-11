@@ -128,7 +128,9 @@ export const redirects = {
   // =============================================================================
   // MCP AUTH REDIRECTS
   // =============================================================================
-  '/guides/mcp/overview': '/mcp/overview/',
+  '/guides/mcp/overview': '/mcp/intro-to-mcp-auth/',
+  '/mcp/overview': '/mcp/intro-to-mcp-auth/',
+  '/mcp/overview/': '/mcp/intro-to-mcp-auth/',
   '/guides/mcp/oauth': '/mcp/quickstart/',
   '/mcp/oauth': '/mcp/quickstart/',
   '/mcp/oauth/': '/mcp/quickstart/',
