@@ -1,0 +1,237 @@
+---
+title: Express.js quickstart
+description: Use Scalekit's out-of-the-box authentication for your MCP server.
+tableOfContents:
+  maxHeadingLevel: 3
+sidebar:
+  order: 3
+  label: Express.js
+---
+import Subtitle from '@/components/ui/Subtitle.astro'
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+This guide shows you how Scalekit's provider secures any Express based MCP server. We'll register a sample server as a protected resource, configure a local mcp runtime, and use Scalekit as the Authentication server. We will able confirm that every request from MCP Client carries the right scopes and validate them on the MCP Server. The full code can be found at <a href="https://github.com/scalekit-inc/mcp-auth-demos/tree/main/greeting-mcp-node" target="_blank" rel="noreferrer">GitHub</a>.
+
+## Before you start
+
+- A Scalekit workspace (https://app.scalekit.com).
+- Python or node installed
+- MCP Inspector installed locally to test the connection.
+
+## Create your MCP server entry
+
+1. Navigate to **[Dashboard](https://app.scalekit.com)** -> **MCP Servers** and click **Add MCP Server**.
+2. Give your server a friendly name (for example, `Greeting MCP`).
+3. Set the resource identifier to the URL your server will use (for local tests this is `http://localhost:3002/`).
+
+![Greeting MCP Register](@/assets/docs/guides/mcp/greeting-mcp-register.png)
+
+When you save, Scalekit shows the OAuth-protected resource metadata. Copy the endpoint and metadata json as is required by for implementations below.
+
+![Greeting MCP Register](@/assets/docs/guides/mcp/greeting-protected-json.png)
+
+## Build your MCP server
+
+Build a TypeScript + Express server that mirrors the Python implementation.
+
+```bash
+mkdir google-mcp-node
+cd google-mcp-node
+```
+
+Scaffold `package.json` with scripts and dependencies:
+
+```bash
+cat <<'PKG' > package.json
+{
+  "name": "google-mcp-node",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.0",
+    "@scalekit-sdk/node": "^2.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^5.1.0",
+    "zod": "^3.25.57"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.19",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.5"
+  }
+}
+PKG
+```
+
+Add a TypeScript configuration:
+
+```bash
+cat <<'TS' > tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["node"]
+  },
+  "include": ["src/**/*"]
+}
+TS
+```
+
+Install the dependencies declared above:
+
+```bash
+npm install
+```
+
+Create `.env` with the values from your Scalekit environment (replace the placeholders). You can find these values in **Dashboard -> Settings** and **Dashboard -> MCP Servers -> Metadata JSON**
+
+```bash
+cat <<'ENV' > .env
+PORT=3002
+SK_ENV_URL=https://<your-env>.scalekit.com
+SK_CLIENT_ID=<your-client-id>
+SK_CLIENT_SECRET=<your-client-secret>
+MCP_SERVER_ID=<mcp-server-id-from-dashboard>
+PROTECTED_RESOURCE_METADATA='<resource-metadata-json>'
+EXPECTED_AUDIENCE=http://localhost:3002/
+ENV
+open .env
+```
+
+Add the Express server in TypeScript:
+
+```bash
+mkdir -p src
+cat <<'TS' > src/server.ts
+import 'dotenv/config';
+import cors from 'cors';
+import express, { NextFunction, Request, Response } from 'express';
+import { z } from 'zod';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { Scalekit } from '@scalekit-sdk/node';
+
+const PORT = Number(process.env.PORT ?? 3002);
+const SK_ENV_URL = process.env.SK_ENV_URL ?? '';
+const SK_CLIENT_ID = process.env.SK_CLIENT_ID ?? '';
+const SK_CLIENT_SECRET = process.env.SK_CLIENT_SECRET ?? '';
+const EXPECTED_AUDIENCE = process.env.EXPECTED_AUDIENCE ?? '';
+const PROTECTED_RESOURCE_METADATA = process.env.PROTECTED_RESOURCE_METADATA ?? '';
+const RESOURCE_METADATA_URL = `http://localhost:${PORT}/.well-known/oauth-protected-resource`;
+
+const WWW_HEADER_KEY = 'WWW-Authenticate';
+const WWW_HEADER_VALUE = `Bearer realm="OAuth", resource_metadata="${RESOURCE_METADATA_URL}"`;
+
+const scalekit = new Scalekit(SK_ENV_URL, SK_CLIENT_ID, SK_CLIENT_SECRET);
+const server = new McpServer({ name: 'Greeting MCP', version: '1.0.0' });
+
+server.tool(
+  'greet_user',
+  'Greets the user with a personalized message.',
+  {
+    name: z.string().min(1, 'Name is required'),
+  },
+  async ({ name }: { name: string }) => ({
+    content: [{ type: 'text', text: `Hi ${name}, welcome to Scalekit!` }]
+  })
+);
+
+const app = express();
+app.use(cors({ origin: true, credentials: false }));
+app.use(express.json());
+
+app.get('/.well-known/oauth-protected-resource', (_req: Request, res: Response) => {
+  if (!PROTECTED_RESOURCE_METADATA) {
+    res.status(500).json({ error: 'PROTECTED_RESOURCE_METADATA config missing' });
+    return;
+  }
+  const metadata = JSON.parse(PROTECTED_RESOURCE_METADATA);
+  res.type('application/json').send(JSON.stringify(metadata, null, 2));
+});
+
+app.get('/health', (_req: Request, res: Response) => {
+  res.json({ status: 'healthy' });
+});
+
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+  if (req.path === '/.well-known/oauth-protected-resource' || req.path === '/health') {
+    next();
+    return;
+  }
+
+  const header = req.headers.authorization;
+  const token = header?.startsWith('Bearer ')
+    ? header.slice('Bearer '.length).trim()
+    : undefined;
+
+  if (!token) {
+    res.status(401).set(WWW_HEADER_KEY, WWW_HEADER_VALUE).json({ error: 'Missing Bearer token' });
+    return;
+  }
+
+  try {
+    await scalekit.validateToken(token, { audience: [EXPECTED_AUDIENCE] });
+    next();
+  } catch (error) {
+    res.status(401).set(WWW_HEADER_KEY, WWW_HEADER_VALUE).json({ error: 'Token validation failed' });
+  }
+});
+
+app.post('/', async (req: Request, res: Response) => {
+  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+  await server.connect(transport);
+  try {
+    await transport.handleRequest(req, res, req.body);
+  } catch (error) {
+    res.status(500).json({ error: 'MCP transport error' });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`MCP server running on http://localhost:${PORT}`);
+});
+TS
+```
+
+Run the server in watch mode:
+
+```bash
+npm run dev
+```
+
+For a production build:
+
+```bash
+npm run build
+npm start
+```
+
+The MCP endpoint is now live at `http://localhost:3002/`, secured by the same Google-backed authentication flow.
+
+## Connect with MCP Inspector
+
+Launch MCP Inspector
+```bash
+npx @modelcontextprotocol/inspector@latest
+```
+
+Provide your MCP Server URL: `http://localhost:3002/`
+
+![MCP Inspector Google](@/assets/docs/guides/mcp/mcp-inspector-google.png)
