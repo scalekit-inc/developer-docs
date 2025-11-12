@@ -29,6 +29,11 @@ In real-world scenarios, an **MCP Server** often needs to make backend calls - t
 
 Your MCP Server can communicate with internal or external backend systems that have their own authorization servers or API key–based access. In this setup, the MCP Server manages its own credentials securely (for example, an environment variable, vault, or secrets manager) and injects them when making downstream calls.
 
+<Aside type="tip" title="Best practice">
+Always store downstream API credentials securely using a secret manager. Do not expose API keys through MCP tool schemas or client-facing logs.
+</Aside>
+<br/>
+
 ```d2 pad=36
 title: "MCP → External API (using API Key or Custom Token)" {
   near: top-center
@@ -47,12 +52,8 @@ MCP Server -> Human/Agent: Return formatted response
 ### Example
 
 - The MCP Server stores an API key as `EXTERNAL_API_KEY` in environment variables.
-- When a tool (e.g., `get_weather_data`) is called, it attaches:
+- When a tool (e.g., `get_weather_data`) is called, your MCP server attaches the key in the request.
 - The backend API validates the key and responds with data.
-
-<Aside type="tip" title="Best practice">
-Always store downstream API credentials securely using a secret manager. Do not expose API keys through MCP tool schemas or client-facing logs.
-</Aside>
 
 ---
 
@@ -62,13 +63,30 @@ If you have two MCP Servers that need to communicate - for example, `crm-mcp` ca
 
 The calling MCP Server (in this case, `crm-mcp`) acts as an **autonomous agent**, authenticating with the receiving MCP Server via **OAuth 2.1 Client Credentials Flow**. Once the token is issued by Scalekit, the calling MCP uses it to call tools exposed by the second MCP Server.
 
-To learn more about this topology, check out [this section](/mcp/topologies/mcp-api).
+<br/>
+
+```d2 pad=36
+title: "Agent → MCP Server (OAuth 2.1 Client Credentials Flow)" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+Agent -> Scalekit Authorization Server: Request access token (grant_type=client_credentials)
+Scalekit Authorization Server -> Agent: Return access token with configured scopes
+Agent -> MCP Server: Call tool with Bearer token
+MCP Server -> Agent: Authorized response
+```
+
+You can find a detailed explanation of this topology in [this section](/mcp/topologies/agent-mcp).
 
 ---
 
 ## 3. Cascading the Same Token to Downstream Systems
 
-In some cases, you may want your MCP Server to forward (or “cascade”) the **same access token** it received from the client - for example, when it trusts the Scalekit Authorization Server and the scopes defined within the token.
+In some cases, you may want your MCP Server to forward (or “cascade”) the **same access token** it received from the client - for example, when your backend system lies within the same trust boundary as the Scalekit Authorization Server and can validate the token based on its issuer, scopes, and expiry.
 
 ```d2 pad=36
 title: "MCP → API (Cascading the Same Token)" {
