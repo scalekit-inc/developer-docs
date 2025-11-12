@@ -643,107 +643,113 @@ These APIs are particularly useful for:
 
 <Tabs syncKey="tech-stack">
   <TabItem value="node" label="Node.js">
-  ```javascript title="Session Management API" wrap showLineNumbers=true
+  ```javascript title="Session Management SDK" wrap showLineNumbers=true
   // Get details for a specific session
-  const sessionDetails = await scalekit.sessions.getSession('ses_1234567890123456');
+  const sessionDetails = await scalekit.session.getSession('ses_1234567890123456');
 
   // List all sessions for a user with optional filtering
-  const userSessions = await scalekit.sessions.getUserSessions('usr_1234567890123456', {
+  const userSessions = await scalekit.session.getUserSessions('usr_1234567890123456', {
     pageSize: 10,
     filter: {
-      status: ['active'], // Filter for active sessions only
-      startTime: '2025-01-01T00:00:00Z',
-      endTime: '2025-12-31T23:59:59Z'
+      status: ['ACTIVE'], // Filter for active sessions only
+      startTime: new Date('2025-01-01T00:00:00Z'),
+      endTime: new Date('2025-12-31T23:59:59Z')
     }
   });
 
   // Revoke a specific session (useful for "Sign out this device" functionality)
-  const revokedSession = await scalekit.sessions.revokeSession('ses_1234567890123456');
+  const revokedSession = await scalekit.session.revokeSession('ses_1234567890123456');
 
   // Revoke all sessions for a user (useful for "Sign out all devices" functionality)
-  const revokedSessions = await scalekit.sessions.revokeAllUserSessions('usr_1234567890123456');
-  console.log(`Revoked ${revokedSessions.totalRevoked} sessions`);
+  const revokedSessions = await scalekit.session.revokeAllUserSessions('usr_1234567890123456');
+  console.log(`Revoked sessions for user`);
   ```
   </TabItem>
   <TabItem value="py" label="Python">
-  ```python title="Session Management API" wrap showLineNumbers=true
+  ```python title="Session Management SDK" wrap showLineNumbers=true
   # Get details for a specific session
-  session_details = scalekit.sessions.get_session('ses_1234567890123456')
+  session_details = scalekit_client.sessions.get_session(session_id="ses_1234567890123456")
 
   # List all sessions for a user with optional filtering
-  user_sessions = scalekit.sessions.get_user_sessions(
-      user_id='usr_1234567890123456',
-      page_size=10,
-      filter_status=['active'],  # Filter for active sessions only
-      filter_start_time='2025-01-01T00:00:00Z',
-      filter_end_time='2025-12-31T23:59:59Z'
+  from google.protobuf.timestamp_pb2 import Timestamp
+  from datetime import datetime
+
+  start_time = Timestamp()
+  start_time.FromDatetime(datetime(2025, 1, 1))
+  end_time = Timestamp()
+  end_time.FromDatetime(datetime(2025, 12, 31))
+
+  filter_obj = scalekit_client.sessions.create_session_filter(
+      status=["ACTIVE"], start_time=start_time, end_time=end_time
+  )
+  user_sessions = scalekit_client.sessions.get_user_sessions(
+      user_id="usr_1234567890123456", page_size=10, filter=filter_obj
   )
 
   # Revoke a specific session (useful for "Sign out this device" functionality)
-  revoked_session = scalekit.sessions.revoke_session('ses_1234567890123456')
+  revoked_session = scalekit_client.sessions.revoke_session(session_id="ses_1234567890123456")
 
   # Revoke all sessions for a user (useful for "Sign out all devices" functionality)
-  revoked_sessions = scalekit.sessions.revoke_all_user_sessions('usr_1234567890123456')
-  print(f"Revoked {revoked_sessions.total_revoked} sessions")
+  revoked_sessions = scalekit_client.sessions.revoke_all_user_sessions(user_id="usr_1234567890123456")
+  print(f"Revoked sessions for user")
   ```
   </TabItem>
   <TabItem value="go" label="Go">
-  ```go title="Session Management API" wrap showLineNumbers=true
+  ```go title="Session Management SDK" wrap showLineNumbers=true
   // Get details for a specific session
-  sessionDetails, err := scalekit.Sessions.GetSession("ses_1234567890123456")
+  sessionDetails, err := scalekitClient.Session().GetSession(ctx, "ses_1234567890123456")
   if err != nil {
       log.Fatal(err)
   }
 
   // List all sessions for a user with optional filtering
-  userSessions, err := scalekit.Sessions.GetUserSessions("usr_1234567890123456", &sessions.GetUserSessionsOptions{
-      PageSize: 10,
-      Filter: &sessions.UserSessionFilter{
-          Status:    []string{"active"}, // Filter for active sessions only
-          StartTime: "2025-01-01T00:00:00Z",
-          EndTime:   "2025-12-31T23:59:59Z",
-      },
-  })
+  // import "time", sessionsv1 "...", "google.golang.org/protobuf/types/known/timestamppb"
+  startTime, _ := time.Parse(time.RFC3339, "2025-01-01T00:00:00Z")
+  endTime, _ := time.Parse(time.RFC3339, "2025-12-31T23:59:59Z")
+  filter := &sessionsv1.UserSessionFilter{
+      Status:    []string{"ACTIVE"}, // Filter for active sessions only
+      StartTime: timestamppb.New(startTime),
+      EndTime:   timestamppb.New(endTime),
+  }
+  userSessions, err := scalekitClient.Session().GetUserSessions(ctx, "usr_1234567890123456", 10, "", filter)
   if err != nil {
       log.Fatal(err)
   }
 
   // Revoke a specific session (useful for "Sign out this device" functionality)
-  revokedSession, err := scalekit.Sessions.RevokeSession("ses_1234567890123456")
+  revokedSession, err := scalekitClient.Session().RevokeSession(ctx, "ses_1234567890123456")
   if err != nil {
       log.Fatal(err)
   }
 
   // Revoke all sessions for a user (useful for "Sign out all devices" functionality)
-  revokedSessions, err := scalekit.Sessions.RevokeAllUserSessions("usr_1234567890123456")
+  revokedSessions, err := scalekitClient.Session().RevokeAllUserSessions(ctx, "usr_1234567890123456")
   if err != nil {
       log.Fatal(err)
   }
-  fmt.Printf("Revoked %d sessions", revokedSessions.TotalRevoked)
+  fmt.Printf("Revoked sessions for user")
   ```
   </TabItem>
   <TabItem value="java" label="Java">
-  ```java title="Session Management API" wrap showLineNumbers=true
+  ```java title="Session Management SDK" wrap showLineNumbers=true
   // Get details for a specific session
-  SessionDetails sessionDetails = scalekit.sessions().getSession("ses_1234567890123456");
+  SessionDetails sessionDetails = scalekitClient.sessions().getSession("ses_1234567890123456");
 
   // List all sessions for a user with optional filtering
-  UserSessionDetails userSessions = scalekit.sessions().getUserSessions(
-      "usr_1234567890123456",
-      GetUserSessionsOptions.builder()
-          .pageSize(10)
-          .filterStatus(Arrays.asList("active")) // Filter for active sessions only
-          .filterStartTime("2025-01-01T00:00:00Z")
-          .filterEndTime("2025-12-31T23:59:59Z")
-          .build()
-  );
+  // import UserSessionFilter, Timestamp, Instant
+  UserSessionFilter filter = UserSessionFilter.newBuilder()
+      .addStatus("ACTIVE")
+      .setStartTime(Timestamp.newBuilder().setSeconds(Instant.parse("2025-01-01T00:00:00Z").getEpochSecond()).build())
+      .setEndTime(Timestamp.newBuilder().setSeconds(Instant.parse("2025-12-31T23:59:59Z").getEpochSecond()).build())
+      .build();
+  UserSessionDetails userSessions = scalekitClient.sessions().getUserSessions("usr_1234567890123456", 10, "", filter);
 
   // Revoke a specific session (useful for "Sign out this device" functionality)
-  RevokeSessionResponse revokedSession = scalekit.sessions().revokeSession("ses_1234567890123456");
+  RevokeSessionResponse revokedSession = scalekitClient.sessions().revokeSession("ses_1234567890123456");
 
   // Revoke all sessions for a user (useful for "Sign out all devices" functionality)
-  RevokeAllUserSessionsResponse revokedSessions = scalekit.sessions().revokeAllUserSessions("usr_1234567890123456");
-  System.out.println("Revoked " + revokedSessions.getTotalRevoked() + " sessions");
+  RevokeAllUserSessionsResponse revokedSessions = scalekitClient.sessions().revokeAllUserSessions("usr_1234567890123456");
+  System.out.println("Revoked sessions for user");
   ```
   </TabItem>
 </Tabs>
