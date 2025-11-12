@@ -329,11 +329,6 @@ export const sidebar = [
           'reference/glossary',
           'support/contact-us',
           {
-            label: 'Platform Release notes',
-            link: 'https://www.scalekit.com/product-updates',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-          {
             label: 'Status',
             link: 'https://scalekit.statuspage.io/',
             attrs: { target: '_blank', rel: 'noopener' },

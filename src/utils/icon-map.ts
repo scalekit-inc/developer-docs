@@ -57,6 +57,7 @@ import IconStreamlineUserSyncOnlineInPersonRemix from '~icons/streamline/user-sy
 import IconFluentPeopleCommunity16Regular from '~icons/fluent/people-community-16-regular'
 import IconStreamlinePlumpPaintPalette from '~icons/streamline-plump/paint-palette'
 import IconSolarServerPathOutline from '~icons/solar/server-path-outline'
+import IconPajamasStatusHealth from '~icons/pajamas/status-health'
 
 // Miscellaneous
 import IconRipple from '~icons/simple-icons/ripple'
@@ -166,6 +167,8 @@ export const iconMap = {
   scim: IconStreamlineUserSyncOnlineInPersonRemix,
   community: IconFluentPeopleCommunity16Regular,
   theme: IconStreamlinePlumpPaintPalette,
+  'status-health': IconPajamasStatusHealth,
+  status: IconPajamasStatusHealth,
 
   // Miscellaneous
   ripple: IconRipple,
