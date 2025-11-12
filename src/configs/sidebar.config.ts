@@ -422,15 +422,16 @@ export const topics = {
     '/guides/email-providers',
     '/authenticate/interceptors/**/*',
     '/guides/user-auth/standalone-social-logins', // Standalone social logins appears in Authenticate sidebar
+    '/passwordless/**/*', // Passwordless authentication belongs in Authenticate
   ], // Pages that appear in Authenticate sidebar
   connect: ['/agent-actions/**/*'], // Agent Actions pages
   mcp: [], // MCP pages are in dev-kit sidebar (via the dev-kit topic)
   'dev-kit': [
     '/dev-kit/**/*',
     '/examples',
-    '/passwordless/**/*',
     '/social-logins/**/*',
-    '/guides/passwordless/**/*',
+    // '/passwordless/**/*', // Moved to authenticate topic
+    // '/guides/passwordless/**/*', // Moved to authenticate topic
     '/authenticate/interceptors/interceptor-scenarios',
     '/guides/dashboard/redirects',
     '/guides/external-ids-and-metadata',
@@ -444,12 +445,12 @@ export const topics = {
     '/guides/m2m/**/*', // M2M authentication guides
     // Specific FSA implementation guides that appear in dev-kit sidebar
     '/fsa/guides/implement-signup',
-    '/fsa/guides/login-page-branding',
+    // '/fsa/guides/login-page-branding', // Moved to authenticate topic
     '/fsa/guides/signup-restrictions',
     '/fsa/guides/user-invitations',
-    '/authenticate/manage-users-orgs/custom-user-attributes',
+    // '/authenticate/manage-users-orgs/custom-user-attributes', // Moved to authenticate topic
     '/fsa/guides/app-roles',
-    '/authenticate/manage-users-orgs/create-organization',
+    // '/authenticate/manage-users-orgs/create-organization', // Moved to authenticate topic
     '/fsa/guides/migration-guide',
     '/fsa/guides/merge-identities',
     '/fsa/guides/onboard-enterprise-customers',
@@ -537,6 +538,11 @@ export const secondaryNavMapping = {
       '/guides/user-auth',
       '/guides/security',
       '/guides/user-management',
+      // Additional patterns for missing Authenticate paths
+      '/authenticate/manage-users-orgs/**/*',
+      '/authenticate/manage-organizations/**/*',
+      '/authenticate/authz/**/*',
+      '/authenticate/implement-workflows/**/*',
     ],
   },
   'agent-actions': {
