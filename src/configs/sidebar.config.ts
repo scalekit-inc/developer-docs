@@ -303,6 +303,10 @@ export const sidebar = [
         label: 'Authenticate Methods',
         autogenerate: { directory: 'mcp/auth-methods' },
       },
+      {
+        label: 'MCP Topologies',
+        autogenerate: { directory: 'mcp/topologies' },
+      },
     ],
   },
   {
