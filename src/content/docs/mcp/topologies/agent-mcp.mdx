@@ -25,6 +25,10 @@ An **autonomous agent** or any **machine-to-machine process** can directly inter
 
 This topology uses the **OAuth 2.1 Client Credentials flow**, allowing the agent to obtain an access token without user interaction. Tokens are scoped and time-bound, ensuring secure and auditable automation between services.
 
+<Aside type="tip" title="Flow Summary">
+The agent authenticates with Scalekit using the **OAuth 2.1 Client Credentials Flow** to obtain a scoped access token, then calls the MCP Server’s tools using that token for secure, automated communication.
+</Aside>
+
 ---
 
 ## Authorization Sequence
@@ -87,14 +91,13 @@ Scalekit responds with a JSON payload similar to:
 ```
 Use the `access_token` in the `Authorization` header when calling your MCP Server’s endpoint.
 
+<Aside type="note" title="Tip">
+Scalekit issues short-lived tokens that can be safely reused until they expire. Cache the token locally and request a new one shortly before expiration to maintain efficient, secure machine-to-machine communication.
+</Aside>
+
 ---
 
 ## Try It Yourself
 
 If you’d like to simulate this flow, use the same **FastMCP Todo Server** from the [FastMCP Example](/mcp/integrations/fastmcp).  
 Create an **M2M client** in the Scalekit Dashboard and run your token request using `curl` or programmatically within your agent. Once the token is obtained, attach it as a Bearer token in the `Authorization` header when calling your MCP Server’s tools.
-
-<Aside type="note" title="Tip">
-Scalekit issued tokens that can be cached and reused for efficient, secure machine-to-machine communication.
-</Aside>
-
