@@ -44,9 +44,27 @@ Take the user through your regular authentication logic (e.g., username/password
 
 #### b. Send User Details to Scalekit
 
-After successful authentication, make a machine-to-machine POST request to Scalekit with the user's details.
+Aquire an `access_token` before you could send user details by hitting the `/oauth/token` path. You can get `env_url`, `client_id_value` and `client_secret_value` from _Scalekit Dashboard > Settings_
 
-**Example cURL Request:**
+```bash title="Terminal" frame="terminal"
+curl --location '{{env_url}}/oauth/token' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'grant_type=client_credentials' \
+--data-urlencode 'client_id={{SK_CLIENT_ID}}' \
+--data-urlencode 'client_secret={{SK_CLIENT_SECRET}}'
+```
+
+Scalekit responds with a JSON payload similar to:
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIn0...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "todo:read todo:write"
+}
+```
+
+Use the `access_token` in the `Authorization` header when making a machine-to-machine POST request to Scalekit with the user's details.
 
 ```bash
 curl --location '{{envurl}}/api/v1/connections/{{connection_id}}/auth-requests/{{login_request_id}}/user' \
