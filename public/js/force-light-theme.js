@@ -1,4 +1,4 @@
-// Force light theme on every page load
-document.addEventListener('DOMContentLoaded', function () {
+// Force light theme immediately - runs before DOMContentLoaded
+;(function () {
   localStorage.setItem('theme-toggle', 'light')
-})
+})()
