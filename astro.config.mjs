@@ -131,7 +131,7 @@ export default defineConfig({
         {
           tag: 'script',
           attrs: {
-            src: '/src/scripts/force-light-theme.js',
+            src: '/js/force-light-theme.js',
           },
         },
         {
