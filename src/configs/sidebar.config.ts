@@ -423,7 +423,7 @@ export const topics = {
   mcp: [], // MCP pages are in dev-kit sidebar (via the dev-kit topic)
   'dev-kit': [
     '/dev-kit/**/*',
-    '/examples',
+    '/scenarios',
     '/social-logins/**/*',
     // '/passwordless/**/*', // Moved to authenticate topic
     // '/guides/passwordless/**/*', // Moved to authenticate topic
@@ -493,8 +493,8 @@ export const topics = {
 export const topicToSecondaryNav: Record<string, string> = {
   authenticate: 'authenticate',
   connect: 'agent-actions',
-  'dev-kit': 'examples', // Dev-kit pages show "Examples" in secondary nav
-  integrations: 'examples', // Integration pages also show "Examples"
+  'dev-kit': 'scenarios', // Dev-kit pages show "Scenarios" in secondary nav
+  integrations: 'scenarios', // Integration pages also show "Scenarios"
   'events-reference': 'webhooks-events', // Events pages map to Events child
   'rest-apis': 'rest-apis', // REST API pages map to REST APIs child
   // Note: Some topics may not have a secondary nav item (they won't highlight anything)
@@ -511,6 +511,25 @@ export const topicToSecondaryNav: Record<string, string> = {
  * - 40: Authenticate (catch-all, lowest priority)
  */
 export const secondaryNavMapping = {
+  scenarios: {
+    id: 'scenarios',
+    priority: 60,
+    patterns: [
+      '/scenarios',
+      '/browse',
+      '/dev-kit',
+      '/m2m',
+      '/guides/m2m',
+      '/authenticate/interceptors/interceptor-scenarios',
+      '/guides/dashboard/redirects',
+      '/guides/external-ids-and-metadata',
+      '/guides/client-credentials-practices',
+      '/guides/webhooks-best-practices',
+      '/guides/idtoken-claims',
+      '/guides/accesstoken-claims',
+      '/guides/integrations',
+    ],
+  },
   authenticate: {
     id: 'authenticate',
     priority: 40,
@@ -544,25 +563,6 @@ export const secondaryNavMapping = {
     id: 'agent-actions',
     priority: 100,
     patterns: ['/agent-actions'],
-  },
-  examples: {
-    id: 'examples',
-    priority: 60,
-    patterns: [
-      '/examples',
-      '/browse',
-      '/dev-kit',
-      '/m2m',
-      '/guides/m2m',
-      '/authenticate/interceptors/interceptor-scenarios',
-      '/guides/dashboard/redirects',
-      '/guides/external-ids-and-metadata',
-      '/guides/client-credentials-practices',
-      '/guides/webhooks-best-practices',
-      '/guides/idtoken-claims',
-      '/guides/accesstoken-claims',
-      '/guides/integrations',
-    ],
   },
   'api-reference': {
     id: 'api-reference',

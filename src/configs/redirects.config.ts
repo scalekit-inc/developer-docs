@@ -203,6 +203,7 @@ export const redirects = {
   // =============================================================================
   // GENERAL / OTHER REDIRECTS
   // =============================================================================
+  '/examples': '/scenarios/',
   '/dev-kit/': '/authenticate/installation/',
   '/dev-kit/sdks/overview': '/authenticate/installation/',
   '/dev-kit/webhooks/event-object/': '/reference/webhooks/overview/',

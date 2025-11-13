@@ -10,10 +10,42 @@ const frontmatter = {
   description: 'Complete reference for all Scalekit API endpoints',
   template: 'splash',
   editUrl: false,
+  head: [
+    {
+      tag: 'style',
+      content: `
+        footer {
+          display: none !important;
+        }
+        .content-panel:first-of-type:has(.sl-container:empty),
+        .content-panel:first-of-type:not(:has(.api-reference-wrapper)) {
+          display: none !important;
+        }
+        .content-panel:first-of-type:empty {
+          display: none !important;
+        }
+        .scalar-api-reference {
+          position: sticky;
+          top: var(--sl-nav-height);
+          height: calc(100vh - var(--sl-nav-height));
+          overflow: auto;
+        }
+        
+        /* Hide Scalar's internal scrollbar to prevent double scrollbars */
+        .scalar-api-reference ::-webkit-scrollbar {
+          display: none;
+        }
+        .scalar-api-reference {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `,
+    },
+  ],
 }
 ---
 
-<div style="margin-top: 6rem;">
+<div class="scalar-api-reference">
   <ScalarComponent
     configuration={{
       url: '/api/scalekit.swagger.json',
