@@ -3,6 +3,7 @@ export const redirects = {
   // HOMEPAGE REDIRECT
   // =============================================================================
   // '/': '/authenticate/welcome',
+  '/authenticate': '/',
 
   // =============================================================================
   // FULL STACK AUTH (FSA) REDIRECTS
