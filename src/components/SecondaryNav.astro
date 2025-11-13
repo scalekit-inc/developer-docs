@@ -185,10 +185,10 @@ const navSections: NavSection[] = [
 ---
 
 <nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
-  {
-    navSections.map((section) => (
-      <div class="nav-items">
-        {section.items.map((item) => (
+  <div class="nav-section nav-left">
+    <div class="nav-items">
+      {
+        navSections[0].items.map((item) => (
           <div
             class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
           >
@@ -218,10 +218,52 @@ const navSections: NavSection[] = [
               </div>
             </a>
           </div>
-        ))}
-      </div>
-    ))
-  }
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="nav-section nav-center">
+    <!-- Center space for logo alignment -->
+  </div>
+
+  <div class="nav-section nav-right">
+    <div class="nav-items">
+      {
+        navSections[1].items.map((item) => (
+          <div
+            class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
+          >
+            <a
+              href={item.href}
+              class={`nav-item ${isCurrentPage(Astro.url.pathname, item) ? 'current' : ''}`}
+              aria-current="page"
+            >
+              <div class="nav-item-content">
+                {(function () {
+                  const IconComponent =
+                    item.children && item.children.length > 0
+                      ? getDisplayIcon(Astro.url.pathname, item)
+                      : item.iconComponent
+                  return IconComponent && <IconComponent class="nav-icon" />
+                })()}
+                {item.label && (
+                  <span class="nav-label">
+                    {item.children && item.children.length > 0
+                      ? getDisplayLabel(Astro.url.pathname, item)
+                      : item.label}
+                  </span>
+                )}
+                {item.children && item.children.length > 0 && (
+                  <IconChevronDown class="dropdown-icon" />
+                )}
+              </div>
+            </a>
+          </div>
+        ))
+      }
+    </div>
+  </div>
 </nav>
 
 <!-- Dropdown portal to ensure menu overlays main content -->
@@ -272,19 +314,34 @@ const navSections: NavSection[] = [
     position: sticky;
     top: var(--sl-nav-height);
     display: flex;
-    justify-content: space-between;
+    align-items: center;
     width: 100%;
     isolation: isolate;
     background-color: var(--sl-color-bg);
     z-index: calc(var(--sl-z-index-navbar) - 1);
   }
 
+  .nav-section {
+    flex: 1;
+    display: flex;
+  }
+
+  .nav-left {
+    justify-content: flex-start;
+  }
+
+  .nav-center {
+    justify-content: center;
+  }
+
+  .nav-right {
+    justify-content: flex-end;
+  }
+
   .nav-items {
     font-weight: 500;
     display: flex;
-    gap: 0;
-    max-width: 100%;
-    margin: 0 1rem;
+    gap: 0.75rem;
     padding: 0.25rem 0;
     overflow-x: auto;
     scrollbar-width: none;
@@ -442,6 +499,14 @@ const navSections: NavSection[] = [
 
     .nav-label {
       font-size: var(--sl-text-xs);
+    }
+
+    .nav-left .nav-items {
+      margin-left: 0.75rem;
+    }
+
+    .nav-right .nav-items {
+      margin-right: 0.75rem;
     }
   }
 </style>
