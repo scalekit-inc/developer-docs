@@ -131,6 +131,12 @@ export default defineConfig({
         {
           tag: 'script',
           attrs: {
+            src: '/src/scripts/force-light-theme.js',
+          },
+        },
+        {
+          tag: 'script',
+          attrs: {
             src: '/js/sidebar-scroll.js',
           },
         },
