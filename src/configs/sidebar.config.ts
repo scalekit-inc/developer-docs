@@ -355,10 +355,10 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Events Reference',
+    label: 'Events reference',
     id: 'events-reference',
     link: '/reference/webhooks/overview/',
-    icon: 'seti:event',
+    icon: 'rss',
     items: [
       {
         label: 'Webhooks',
