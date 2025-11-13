@@ -40,7 +40,7 @@ Prevent new user signups from specific IP addresses or geographic regions during
 
 <Steps>
 
-1. ### Register the interceptor
+1. **Register the interceptor**
 
    In the Scalekit dashboard, navigate to the **Interceptors** tab and create a new interceptor:
 
@@ -50,7 +50,7 @@ Prevent new user signups from specific IP addresses or geographic regions during
    - **Timeout**: 5 seconds
    - **Fallback behavior**: ALLOW (to avoid blocking legitimate users if your service is down)
 
-2. ### Understand the request payload
+2. **Understand the request payload**
 
    When a user attempts to sign up, Scalekit sends a POST request to your endpoint. The request includes IP address and location information in the `interceptor_context`:
 
@@ -100,7 +100,7 @@ Prevent new user signups from specific IP addresses or geographic regions during
    The `data.user` object is `null` for completely new signups. If the user already exists in another organization or workspace, their user details will be included in the payload.
    </Aside>
 
-3. ### Implement the endpoint
+3. **Implement the endpoint**
 
    Create an endpoint that validates the IP address against your blocklist and returns a decision:
 
@@ -197,7 +197,7 @@ Prevent new user signups from specific IP addresses or geographic regions during
    </TabItem>
    </Tabs>
 
-4. ### Test the interceptor
+4. **Test the interceptor**
 
    Navigate to the **Test** tab in the Scalekit dashboard to verify your implementation:
 
@@ -205,7 +205,7 @@ Prevent new user signups from specific IP addresses or geographic regions during
    - Click **Send request** and verify you receive a `DENY` decision
    - Change the IP to an allowed address and verify you receive an `ALLOW` decision
 
-5. ### Enable the interceptor
+5. **Enable the interceptor**
 
    Once testing is complete, toggle the **Enable** switch to activate the interceptor in production.
 
@@ -226,7 +226,7 @@ Add custom claims to ID tokens issued by Scalekit. Use this to include:
 
 <Steps>
 
-1. ### Register the interceptor
+1. **Register the interceptor**
 
    Create a new interceptor in the Scalekit dashboard:
 
@@ -236,7 +236,7 @@ Add custom claims to ID tokens issued by Scalekit. Use this to include:
    - **Timeout**: 5 seconds
    - **Fallback behavior**: ALLOW
 
-2. ### Understand the request payload
+2. **Understand the request payload**
 
    Scalekit sends user information that you can use to determine which claims to add:
 
@@ -274,7 +274,7 @@ Add custom claims to ID tokens issued by Scalekit. Use this to include:
    </TabItem>
    </Tabs>
 
-3. ### Implement the endpoint
+3. **Implement the endpoint**
 
    Create an endpoint that fetches user metadata from your database and returns custom claims:
 
@@ -418,7 +418,7 @@ Add custom claims to ID tokens issued by Scalekit. Use this to include:
    </TabItem>
    </Tabs>
 
-4. ### Expected response format
+4. **Expected response format**
 
    Your endpoint should return custom claims in the `response.claims` object:
 
@@ -444,9 +444,9 @@ Add custom claims to ID tokens issued by Scalekit. Use this to include:
    </TabItem>
    </Tabs>
 
-5. ### Access custom claims in your application
+5. **Access custom claims in your application**
 
-  After authentication, the custom claims are included in the ID token. You can access them by decoding the token:
+   After authentication, the custom claims are included in the ID token. You can access them by decoding the token:
 
    <Tabs>
    <TabItem label='Node.js'>
@@ -466,11 +466,11 @@ Add custom claims to ID tokens issued by Scalekit. Use this to include:
    </TabItem>
    </Tabs>
 
-6. ### Test the interceptor
+6. **Test the interceptor**
 
    Use the Test tab in the dashboard to verify your implementation returns the expected claims.
 
-7. ### Enable the interceptor
+7. **Enable the interceptor**
 
    Toggle the **Enable** switch to activate the interceptor and start adding custom claims to all session tokens.
 
