@@ -44,6 +44,99 @@ Take the user through your regular authentication logic (e.g., username/password
 
 #### b. Send User Details to Scalekit
 
+Send the authenticated user’s profile details from your backend to Scalekit to complete the login handshake.
+
+<Tabs group="sdk" style="pill">
+<TabItem label="Python">
+
+```bash
+pip install scalekit-sdk
+```
+
+```python title="send_user_details.py"
+from scalekit import ScalekitClient
+import os
+
+scalekit = ScalekitClient(
+    os.environ.get('SCALEKIT_ENVIRONMENT_URL'),
+    os.environ.get('SCALEKIT_CLIENT_ID'),
+    os.environ.get('SCALEKIT_CLIENT_SECRET')
+)
+
+# Update login user details
+scalekit.auth.update_login_user_details(
+    connection_id="conn_98902496210059653",
+    login_request_id="lri_98904304894738819",
+    user={
+        "sub": "1234567890",
+        "email": "alice@example.com",
+        "given_name": "Alice",
+        "family_name": "Doe",
+        "email_verified": True,
+        "phone_number": "+1234567890",
+        "phone_number_verified": False,
+        "name": "Alice Doe",
+        "preferred_username": "alice.d",
+        "picture": "https://example.com/avatar.jpg",
+        "gender": "female",
+        "locale": "en-US",
+        "groups": ["engineering", "devops", "admins"],
+        "custom_attributes": {
+            "department": "engineering",
+            "security_clearance": "level2",
+            "office_location": "Building A - Floor 3",
+        },
+    },
+)
+```
+
+</TabItem>
+<TabItem label="Node.js">
+
+```bash
+npm install @scalekit-sdk/node
+```
+
+```javascript title="sendUserDetails.js"
+import { Scalekit } from '@scalekit-sdk/node';
+
+// Initialize client
+const scalekit = new Scalekit(
+  process.env.SCALEKIT_ENVIRONMENT_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
+
+// Update login user details
+await scalekit.auth.updateLoginUserDetails(
+  'conn_98902496210059653',          // connectionId
+  'lri_98914911014486405',           // loginRequestId
+  {
+    sub: '1234567890',
+    email: 'alice@example.com',
+    givenName: 'Alice',
+    familyName: 'Doe',
+    emailVerified: true,
+    phoneNumber: '+1234567890',
+    phoneNumberVerified: false,
+    name: 'Alice Doe',
+    preferredUsername: 'alice.d',
+    picture: 'https://example.com/avatar.jpg',
+    gender: 'female',
+    locale: 'en-US',
+    groups: ['engineering', 'devops', 'admins'],
+    customAttributes: {
+      department: 'engineering',
+      security_clearance: 'level2',
+      office_location: 'Building A - Floor 3',
+    },
+  }
+);
+```
+
+</TabItem>
+<TabItem label="cURL">
+
 Aquire an `access_token` before you could send user details by hitting the `/oauth/token` endpoint. You can get `env_url`, `sk_client_id` and `sk_client_secret` from _Scalekit Dashboard > Settings_
 
 ```bash title="Terminal" frame="terminal"
@@ -59,15 +152,14 @@ Scalekit responds with a JSON payload similar to:
 {
   "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIn0...",
   "token_type": "Bearer",
-  "expires_in": 3600,
-  "scope": "todo:read todo:write"
+  "expires_in": 3600
 }
 ```
 
 Use the `access_token` in the `Authorization` header when making a machine-to-machine POST request to Scalekit with the user's details.
 
 ```bash
-curl --location '{{envurl}}/api/v1/connections/{{connection_id}}/auth-requests/{{login_request_id}}/user' \
+curl --location '{{env_url}}/api/v1/connections/{{connection_id}}/auth-requests/{{login_request_id}}/user' \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer {{access_token}}' \
   --data-raw '{
@@ -82,16 +174,28 @@ curl --location '{{envurl}}/api/v1/connections/{{connection_id}}/auth-requests/{
     "preferred_username": "alice.d",
     "picture": "https://example.com/avatar.jpg",
     "gender": "female",
-    "locale": "en-US"
+    "locale": "en-US",
+    "groups": [
+      "engineering",
+      "devops",
+      "admins"
+    ],
+    "custom_attributes": {
+      "department": "engineering",
+      "security_clearance": "level2",
+      "office_location": "Building A - Floor 3"
+    }
   }'
 ```
 
+</TabItem>
+</Tabs>
+
 :::note
-
-- Replace `{{envurl}}`, `{{connection_id}}`, `{{login_request_id}}`, and `{{access_token}}` with your actual values.
-- You will receive a unique `connection_id` to integrate with your auth system
-
+- Replace placeholders like `{{env_url}}`, `{{connection_id}}`, `{{login_request_id}}`, and `{{access_token}}` with actual values.  
+- Only **`sub`** and **`email`** are required fields; all other properties are optional.  
 :::
+
 ---
 
 ### 3. Redirect Back to Scalekit
