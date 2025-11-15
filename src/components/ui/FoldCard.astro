@@ -12,6 +12,9 @@ export interface Props {
   showCta?: boolean
   target?: string
   rel?: string
+  illustrationSvg?: string
+  illustrationUrl?: string
+  illustrationMaxWidth?: string
 }
 
 import { LinkButton } from 'starlight-theme-nova/components'
@@ -25,37 +28,60 @@ const {
   showCta = true,
   target,
   rel,
+  illustrationSvg,
+  illustrationUrl,
+  illustrationMaxWidth = '300px',
 } = Astro.props
 const Icon = getIconComponent(iconKey)
 ---
 
-<article class="fold-card sl-card">
-  <div class="card-header">
-    {
-      logoUrl ? (
-        <img src={logoUrl} alt={`${title} logo`} class="card-icon img" aria-hidden="true" />
-      ) : (
-        Icon && <Icon class="card-icon" aria-hidden="true" />
-      )
-    }
-    <h3 class="card-title">{title}</h3>
+<article
+  class:list={['fold-card', 'sl-card', { 'has-illustration': illustrationSvg || illustrationUrl }]}
+>
+  <div class="card-main">
+    <div class="card-header">
+      {
+        logoUrl ? (
+          <img src={logoUrl} alt={`${title} logo`} class="card-icon img" aria-hidden="true" />
+        ) : (
+          Icon && <Icon class="card-icon" aria-hidden="true" />
+        )
+      }
+      <h3 class="card-title">{title}</h3>
+    </div>
+    <div class="card-content">
+      <slot />
+      {
+        href && showCta && (
+          <LinkButton
+            href={href}
+            class={`card-cta sk-${variant}`}
+            variant={variant}
+            {...(target && { target })}
+            {...(rel && { rel })}
+          >
+            {cta}
+          </LinkButton>
+        )
+      }
+    </div>
   </div>
-  <div class="card-content">
-    <slot />
-    {
-      href && showCta && (
-        <LinkButton
-          href={href}
-          class={`card-cta sk-${variant}`}
-          variant={variant}
-          {...(target && { target })}
-          {...(rel && { rel })}
-        >
-          {cta}
-        </LinkButton>
-      )
-    }
-  </div>
+  {
+    illustrationSvg && (
+      <div
+        class="card-illustration"
+        style={`max-width: ${illustrationMaxWidth}`}
+        set:html={illustrationSvg}
+      />
+    )
+  }
+  {
+    illustrationUrl && (
+      <div class="card-illustration" style={`max-width: ${illustrationMaxWidth}`}>
+        <img src={illustrationUrl} alt={`${title} illustration`} />
+      </div>
+    )
+  }
 </article>
 
 <style>
@@ -73,6 +99,31 @@ const Icon = getIconComponent(iconKey)
 
   :root[data-theme='dark'] .fold-card {
     background: var(--sl-color-bg-card);
+  }
+
+  /* Two-column layout when illustration is present */
+  .fold-card.has-illustration {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  /* Stack on mobile */
+  @media (max-width: 768px) {
+    .fold-card.has-illustration {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .card-illustration {
+      order: -1;
+      max-width: 100%;
+    }
+  }
+
+  .card-main {
+    min-width: 0; /* Prevent grid overflow */
   }
 
   .card-header {
@@ -123,5 +174,19 @@ const Icon = getIconComponent(iconKey)
 
   .card-cta:hover {
     color: var(--sl-color-text);
+  }
+
+  .card-illustration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .card-illustration :global(svg),
+  .card-illustration img {
+    max-width: 100%;
+    height: auto;
+    display: block;
   }
 </style>
