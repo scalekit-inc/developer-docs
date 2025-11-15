@@ -52,13 +52,43 @@ const frontmatter = {
       theme: 'default',
       layout: 'modern',
       pageTitle: 'Scalekit API',
-      hideTestRequestButton: true,
+      hideTestRequestButton: false,
       withDefaultFonts: false,
       hideModels: true,
       searchHotKey: 'p',
       hideDarkModeToggle: true,
       darkMode: false,
+      proxyUrl: 'https://proxy.scalar.com',
       defaultOpenAllTags: false,
+      servers: [
+        {
+          url: 'https://{environment}',
+          description: 'Scalekit Environment',
+          variables: {
+            environment: {
+              default: 'your-env.scalekit.com',
+              description:
+                'Your full Scalekit environment URL (e.g., my-env.scalekit.com or my-env.scalekit.dev)',
+            },
+          },
+        },
+      ],
+      authentication: {
+        preferredSecurityScheme: 'oauth2',
+        securitySchemes: {
+          oauth2: {
+            flows: {
+              clientCredentials: {
+                tokenUrl: 'https://{environment}/oauth/token',
+                'x-scalar-credentials-location': 'body',
+                'x-scalar-security-body': {
+                  grant_type: 'client_credentials',
+                },
+              },
+            },
+          },
+        },
+      },
       hiddenClients: {
         c: ['libcurl'],
         csharp: ['httpclient', 'restsharp'],

@@ -16,26 +16,41 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0"
     },
     "version": "1.0.0",
+    "x-scalar-environments": {
+      "development": {
+        "color": "#10B981",
+        "description": "Development environment",
+        "variables": {
+          "apiUrl": {
+            "default": "https://{subdomain}.scalekit.dev",
+            "description": "API URL"
+          },
+          "subdomain": {
+            "default": "yourapp",
+            "description": "Your unique Scalekit subdomain"
+          }
+        }
+      },
+      "production": {
+        "color": "#0082D0",
+        "description": "Production environment",
+        "variables": {
+          "apiUrl": {
+            "default": "https://{subdomain}.scalekit.com",
+            "description": "API URL"
+          },
+          "subdomain": {
+            "default": "yourapp",
+            "description": "Your unique Scalekit subdomain"
+          }
+        }
+      }
+    },
     "x-scalar-sdk-installation": [
       {
-        "description": "Install the Scalekit SDK for Node.js from npm:",
-        "lang": "node",
-        "source": "npm install @scalekit-sdk/node"
-      },
-      {
-        "description": "Install the Scalekit SDK for Python using pip:",
-        "lang": "python",
-        "source": "pip install scalekit-sdk-python"
-      },
-      {
-        "description": "Install the Scalekit SDK for Go:",
-        "lang": "Go",
-        "source": "go get -u github.com/scalekit-inc/scalekit-sdk-go"
-      },
-      {
-        "description": "Adding Java SDK dependency",
-        "lang": "Java",
-        "source": "/* Gradle users - add the following to your dependencies in build file */\nimplementation \"com.scalekit:scalekit-sdk-java:2.0.1\"\n\n<!-- Maven users - add the following to your `pom.xml` -->\n<dependency>\n  <groupId>com.scalekit</groupId>\n  <artifactId>scalekit-sdk-java</artifactId>\n  <version>2.0.1</version>\n</dependency>"
+        "description": "Install the Scalekit SDK for your preferred language:",
+        "lang": "shell",
+        "source": "# Node.js\nnpm install @scalekit-sdk/node\n\n# Python\npip install scalekit-sdk-python\n\n# Go\ngo get -u github.com/scalekit-inc/scalekit-sdk-go\n\n# Java (Gradle)\nimplementation \"com.scalekit:scalekit-sdk-java:2.0.5\"\n\n# Java (Maven)\n<dependency>\n  <groupId>com.scalekit</groupId>\n  <artifactId>scalekit-sdk-java</artifactId>\n  <version>2.0.5</version>\n</dependency>"
       }
     ]
   },
@@ -134,7 +149,7 @@
         },
         "x-badges": [
           {
-            "name": "Alpha"
+            "name": ""
           }
         ],
         "x-codeSamples": [
@@ -7833,5 +7848,18 @@
         }
       }
     }
-  }
+  },
+  "securityDefinitions": {
+    "oauth2": {
+      "type": "oauth2",
+      "flow": "application",
+      "tokenUrl": "https://$SCALEKIT_ENVIRONMENT_URL/oauth/token",
+      "description": "OAuth 2.0 Client Credentials flow. Use your Scalekit client ID and secret to obtain an access token."
+    }
+  },
+  "security": [
+    {
+      "oauth2": []
+    }
+  ]
 }
