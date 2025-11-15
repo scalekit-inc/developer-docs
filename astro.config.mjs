@@ -164,7 +164,7 @@ export default defineConfig({
     d2({
       theme: {
         default: '1', // Light theme (Neutral default)
-        dark: '200', // Dark theme for dark mode
+        dark: '1',
       },
       sketch: true, // Clean, professional diagrams instead of hand-drawn
       appendix: true, // Enable interactive elements (tooltips/links)
