@@ -69,7 +69,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Drop-in auth modules',
+        label: 'Drop in auth modules',
         items: [
           'passwordless/quickstart',
           'guides/user-auth/standalone-social-logins',
