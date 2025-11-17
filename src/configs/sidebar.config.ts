@@ -520,6 +520,7 @@ export const secondaryNavMapping = {
       '/dev-kit',
       '/m2m',
       '/guides/m2m',
+      '/authenticate/installation',
       '/authenticate/interceptors/interceptor-scenarios',
       '/guides/dashboard/redirects',
       '/guides/external-ids-and-metadata',
