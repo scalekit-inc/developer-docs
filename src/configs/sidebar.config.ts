@@ -122,7 +122,6 @@ export const sidebar = [
           // 'agent-actions/frameworks/agno',
           // 'agent-actions/frameworks/openai',
           // 'agent-actions/frameworks/anthropic',
-          'browse/code-samples/agent-framework-examples',
         ],
       },
       {
@@ -196,47 +195,15 @@ export const sidebar = [
           'guides/dashboard/intitate-login-endpoint',
           'guides/user-auth/login-scenarios',
           'guides/dashboard/redirects',
-          {
-            label: 'Code samples',
-            items: [
-              'browse/code-samples/cognito-examples',
-              'browse/code-samples/full-stack-auth-examples',
-              'browse/code-samples/hosted-login-examples',
-              'browse/code-samples/gists/auth-code-exchange-scalekit-sdk',
-              'browse/vids/fsa-walkthrough',
-              'browse/vids/passwordless-walkthrough',
-            ],
-          },
         ],
       },
       {
         label: 'API authentication',
-        items: [
-          'guides/m2m/overview',
-          'guides/m2m/scopes',
-          'guides/m2m/api-auth-m2m-clients',
-          {
-            label: 'Code samples',
-            items: ['browse/code-samples/gists/client-credentials-auth'],
-          },
-        ],
+        items: ['guides/m2m/overview', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
       },
       {
         label: 'MCP authentication',
-        items: [
-          'mcp/intro-to-mcp-auth',
-          'mcp/auth-methods/custom-auth',
-          'mcp/troubleshooting',
-          {
-            label: 'Code samples',
-            items: [
-              'browse/code-samples/github/mcp/fastapi-fastmcp',
-              'browse/code-samples/github/mcp/expressjs',
-              'browse/vids/mcp-oauth-walkthrough',
-              'browse/code-samples/github/mcp-auth-demos',
-            ],
-          },
-        ],
+        items: ['mcp/intro-to-mcp-auth', 'mcp/auth-methods/custom-auth', 'mcp/troubleshooting'],
       },
       {
         label: 'Enterprise authentication',
@@ -267,17 +234,6 @@ export const sidebar = [
             },
             attrs: { target: '_blank', rel: 'noopener' },
           },
-          {
-            label: 'Code samples',
-            items: [
-              'browse/code-samples/github/admin-portal-embedding',
-              'browse/code-samples/sso-examples',
-              'browse/code-samples/github/sso-migrations-example',
-              'browse/code-samples/firebase-examples',
-              'browse/vids/sso-walkthrough',
-              'browse/vids/scim-walkthrough',
-            ],
-          },
         ],
       },
       {
@@ -304,10 +260,6 @@ export const sidebar = [
         items: [
           'fsa/guides/organization-identifiers',
           'authenticate/interceptors/interceptor-scenarios',
-          {
-            label: 'Code samples',
-            items: ['browse/code-samples/github/webhook-events'],
-          },
         ],
       },
       {
