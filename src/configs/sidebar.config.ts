@@ -246,7 +246,7 @@ export const sidebar = [
         items: ['directory/guides/user-provisioning-basics', 'directory/guides/scim-protocol'],
       },
       {
-        label: 'Onboard enterprises',
+        label: 'Onboard an enterprise',
         items: [
           'fsa/guides/onboard-enterprise-customers',
           'guides/admin-portal',
@@ -413,6 +413,7 @@ export const topics = {
     '/directory/guides/group-based-role-assignment',
     // MCP guides that appear in dev-kit
     '/mcp/**/*',
+    '/authenticate/installation',
     // User management guides
     '/guides/user-management/**/*',
     // Authorization and best practices guides
