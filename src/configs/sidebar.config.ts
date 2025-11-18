@@ -170,31 +170,19 @@ export const sidebar = [
     items: [
       {
         label: 'Setup dev environment',
-        items: [
-          'authenticate/installation',
-          'dev-kit/mcp',
-          'dev-kit/resources/ai-assisted-setup',
-          'browse/code-samples/github/api-collections',
-        ],
-      },
-      {
-        label: 'Basics',
-        items: [
-          'sso/guides/authorization-url',
-          'guides/dashboard/allowed-callback-url',
-          {
-            label: 'Claims',
-            items: ['guides/idtoken-claims', 'guides/accesstoken-claims'],
-          },
-        ],
+        items: ['authenticate/installation', 'dev-kit/mcp', 'dev-kit/resources/ai-assisted-setup'],
       },
       {
         label: 'User authentication',
         items: [
+          'sso/guides/authorization-url',
+          'guides/dashboard/allowed-callback-url',
+          'guides/dashboard/redirects',
           'fsa/guides/implement-signup',
           'guides/dashboard/intitate-login-endpoint',
           'guides/user-auth/login-scenarios',
-          'guides/dashboard/redirects',
+          'guides/idtoken-claims',
+          'guides/accesstoken-claims',
         ],
       },
       {

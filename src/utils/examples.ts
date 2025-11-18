@@ -35,7 +35,6 @@ const FILTER_LABELS = {
 
 const CATEGORY_ORDER = [
   'Setup dev environment',
-  'Basics',
   'User authentication',
   'API authentication',
   'MCP authentication',
