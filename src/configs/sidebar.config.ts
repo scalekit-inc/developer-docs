@@ -243,7 +243,11 @@ export const sidebar = [
       },
       {
         label: 'SCIM Provisioning',
-        items: ['directory/guides/user-provisioning-basics', 'directory/guides/scim-protocol'],
+        items: [
+          'directory/guides/user-provisioning-basics',
+          'authenticate/manage-organizations/add-users-to-organization',
+          'directory/guides/scim-protocol',
+        ],
       },
       {
         label: 'Onboard an enterprise',
