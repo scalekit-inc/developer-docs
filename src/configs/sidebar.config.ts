@@ -192,7 +192,6 @@ export const sidebar = [
         items: [
           'fsa/guides/signup-restrictions',
           'fsa/guides/user-invitations',
-          'guides/user-management/scim-provisioning',
           'fsa/guides/merge-identities',
           'fsa/reference/user-management-settings',
         ],
@@ -245,7 +244,7 @@ export const sidebar = [
         label: 'SCIM Provisioning',
         items: [
           'directory/guides/user-provisioning-basics',
-          'authenticate/manage-organizations/add-users-to-organization',
+          'guides/user-management/scim-provisioning',
           'directory/guides/scim-protocol',
         ],
       },
