@@ -180,7 +180,6 @@ export const sidebar = [
           'guides/user-auth/login-scenarios',
           'guides/dashboard/allowed-callback-url',
           'guides/dashboard/redirects',
-          'sso/guides/authorization-url',
           'guides/idtoken-claims',
           'guides/accesstoken-claims',
           'guides/security/csrf-protection',
@@ -233,6 +232,7 @@ export const sidebar = [
       {
         label: 'Enterprise SSO',
         items: [
+          'sso/guides/authorization-url',
           'sso/guides/sso-basics',
           'sso/guides/add-login-ux-sso',
           'guides/user-auth/check-sso-domain',

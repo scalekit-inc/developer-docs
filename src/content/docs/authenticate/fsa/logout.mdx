@@ -15,6 +15,12 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
+seeAlso:
+  expanded: true
+  items:
+    - title: 'Add auth redirects'
+      icon: 'book'
+      url: '/guides/dashboard/redirects/'
 ---
 
 import { Aside, Badge, Steps, Tabs, TabItem, Card } from '@astrojs/starlight/components';
@@ -122,13 +128,13 @@ This guide shows you how to clear the application session layer and invalidate t
         @GetMapping("/logout")
         public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
             // Step 1: Extract the ID token (needed for Scalekit logout)
-            String idToken = request.getCookies() != null ? 
+            String idToken = request.getCookies() != null ?
                 Arrays.stream(request.getCookies())
                     .filter(c -> c.getName().equals("idToken"))
                     .findFirst()
                     .map(Cookie::getValue)
                     .orElse(null) : null;
-            
+
             String postLogoutRedirectUri = "http://localhost:3000/login";
 
             // Step 2: Generate the Scalekit logout URL
