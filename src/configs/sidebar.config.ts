@@ -175,13 +175,13 @@ export const sidebar = [
       {
         label: 'User authentication',
         items: [
-          'sso/guides/authorization-url',
-          'guides/dashboard/allowed-callback-url',
-          'guides/dashboard/redirects',
           'fsa/guides/implement-signup',
           'guides/dashboard/intitate-login-endpoint',
           'guides/user-auth/preserve-intended-destination',
           'guides/user-auth/login-scenarios',
+          'guides/dashboard/allowed-callback-url',
+          'guides/dashboard/redirects',
+          'sso/guides/authorization-url',
           'guides/idtoken-claims',
           'guides/accesstoken-claims',
           'guides/security/csrf-protection',
@@ -239,7 +239,7 @@ export const sidebar = [
         items: ['directory/guides/user-provisioning-basics', 'directory/guides/scim-protocol'],
       },
       {
-        label: 'Onboard enterprise customers',
+        label: 'Onboard enterprises',
         items: [
           'fsa/guides/onboard-enterprise-customers',
           'guides/admin-portal',
@@ -256,7 +256,7 @@ export const sidebar = [
       },
       {
         label: 'Migrations',
-        items: ['fsa/guides/migration-guide'],
+        items: ['guides/sso/sso-migration-strategy', 'fsa/guides/migration-guide'],
       },
       // TODO: Come back later as you put together one guide for auth best practices move this up into User authentication category
       // {
@@ -264,18 +264,6 @@ export const sidebar = [
       //   collapsed: false,
       //   items: ['guides/client-credentials-practices'],
       // },
-      {
-        label: 'Support',
-        items: [
-          'reference/glossary',
-          'support/contact-us',
-          {
-            label: 'Status',
-            link: 'https://scalekit.statuspage.io/',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
       {
         label: 'Changelog',
         items: [
@@ -291,6 +279,18 @@ export const sidebar = [
             { type: 'all', base: 'dev-kit/changelogs/go', label: 'Go SDK' },
             { type: 'all', base: 'dev-kit/changelogs/java', label: 'Java SDK' },
           ]),
+        ],
+      },
+      {
+        label: 'Support',
+        items: [
+          'reference/glossary',
+          'support/contact-us',
+          {
+            label: 'Status',
+            link: 'https://scalekit.statuspage.io/',
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
         ],
       },
     ],
