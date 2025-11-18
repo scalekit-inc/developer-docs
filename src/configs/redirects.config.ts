@@ -143,8 +143,24 @@ export const redirects = {
   '/mcp/integrations/fastmcp': '/authenticate/mcp/fastmcp-quickstart/',
   '/browse/code-samples/github/mcp/fastmcp': '/authenticate/mcp/fastmcp-quickstart/',
   '/mcp/fastmcp-quickstart': '/authenticate/mcp/fastmcp-quickstart/',
-  '/mcp/integrations/fastapi-fastmcp': '/browse/code-samples/github/mcp/fastapi-fastmcp/',
-  '/mcp/integrations/expressjs': '/browse/code-samples/github/mcp/expressjs/',
+  '/mcp/integrations/fastapi-fastmcp': '/authenticate/mcp/fastapi-fastmcp-quickstart/',
+  '/browse/code-samples/github/mcp/fastapi-fastmcp':
+    '/authenticate/mcp/fastapi-fastmcp-quickstart/',
+  '/mcp/fastapi-fastmcp': '/authenticate/mcp/fastapi-fastmcp-quickstart/',
+  '/mcp/fastapi-fastmcp-quickstart': '/authenticate/mcp/fastapi-fastmcp-quickstart/',
+  '/mcp/integrations/expressjs': '/authenticate/mcp/expressjs-quickstart/',
+  '/browse/code-samples/github/mcp/expressjs': '/authenticate/mcp/expressjs-quickstart/',
+  '/mcp/expressjs': '/authenticate/mcp/expressjs-quickstart/',
+  '/mcp/expressjs-quickstart': '/authenticate/mcp/expressjs-quickstart/',
+
+  // MCP authentication patterns consolidation
+  '/mcp/topologies/human-mcp':
+    '/authenticate/mcp/auth-patterns/#pattern-1-human-interacting-with-mcp-server',
+  '/mcp/topologies/agent-mcp':
+    '/authenticate/mcp/auth-patterns/#pattern-2-agent--machine-interacting-with-mcp-server',
+  '/mcp/topologies/mcp-api':
+    '/authenticate/mcp/auth-patterns/#pattern-3-mcp-server-integrating-with-downstream-systems',
+  '/mcp/topologies/': '/authenticate/mcp/auth-patterns/',
 
   // =============================================================================
   // API AUTH (M2M) REDIRECTS

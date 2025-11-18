@@ -75,7 +75,6 @@ export const sidebar = [
           'guides/user-auth/standalone-social-logins',
           'directory/scim/quickstart',
           'authenticate/m2m/api-auth-quickstart',
-          'authenticate/mcp/fastmcp-quickstart',
         ],
       },
       {
@@ -217,7 +216,15 @@ export const sidebar = [
       },
       {
         label: 'MCP authentication',
-        items: ['mcp/intro-to-mcp-auth', 'mcp/auth-methods/custom-auth', 'mcp/troubleshooting'],
+        items: [
+          'mcp/intro-to-mcp-auth',
+          'authenticate/mcp/auth-patterns',
+          'authenticate/mcp/fastmcp-quickstart',
+          'authenticate/mcp/fastapi-fastmcp-quickstart',
+          'authenticate/mcp/expressjs-quickstart',
+          'mcp/auth-methods/custom-auth',
+          'mcp/troubleshooting',
+        ],
       },
       {
         label: 'API authentication',
