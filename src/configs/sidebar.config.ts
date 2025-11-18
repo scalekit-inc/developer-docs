@@ -180,39 +180,69 @@ export const sidebar = [
           'guides/dashboard/redirects',
           'fsa/guides/implement-signup',
           'guides/dashboard/intitate-login-endpoint',
+          'guides/user-auth/preserve-intended-destination',
           'guides/user-auth/login-scenarios',
           'guides/idtoken-claims',
           'guides/accesstoken-claims',
+          'guides/security/csrf-protection',
+          // 'guides/security/authentication-best-practices',
         ],
       },
       {
-        label: 'API authentication',
-        items: ['guides/m2m/overview', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
+        label: 'Manage users & orgs',
+        collapsed: false,
+        items: [
+          'fsa/guides/signup-restrictions',
+          'fsa/guides/user-invitations',
+          'guides/user-management/scim-provisioning',
+          'fsa/guides/merge-identities',
+          'fsa/reference/user-management-settings',
+        ],
+      },
+      {
+        label: 'Authorization',
+        items: [
+          'directory/guides/group-based-role-assignment',
+          'dev-kit/resources/authorization-best-practices',
+        ],
+      },
+      {
+        label: 'Customize',
+        items: [
+          'fsa/guides/organization-identifiers',
+          'guides/user-auth/external-id-system-integration',
+          'guides/webhooks-best-practices',
+          'authenticate/interceptors/interceptor-scenarios',
+        ],
       },
       {
         label: 'MCP authentication',
         items: ['mcp/intro-to-mcp-auth', 'mcp/auth-methods/custom-auth', 'mcp/troubleshooting'],
       },
       {
-        label: 'Enterprise authentication',
+        label: 'API authentication',
+        items: ['guides/m2m/overview', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
+      },
+      {
+        label: 'Enterprise SSO',
         items: [
-          {
-            label: 'SSO',
-            items: [
-              'sso/guides/sso-basics',
-              'sso/guides/add-login-ux-sso',
-              'guides/user-auth/check-sso-domain',
-              'sso/guides/sso-user-attributes',
-              'sso/guides/idp-init-sso',
-              'sso/guides/test-sso',
-            ],
-          },
-          {
-            label: 'SCIM',
-            items: ['directory/guides/user-provisioning-basics', 'directory/guides/scim-protocol'],
-          },
-          'guides/admin-portal',
+          'sso/guides/sso-basics',
+          'sso/guides/add-login-ux-sso',
+          'guides/user-auth/check-sso-domain',
+          'sso/guides/sso-user-attributes',
+          'sso/guides/idp-init-sso',
+          'sso/guides/test-sso',
+        ],
+      },
+      {
+        label: 'SCIM Provisioning',
+        items: ['directory/guides/user-provisioning-basics', 'directory/guides/scim-protocol'],
+      },
+      {
+        label: 'Onboard enterprise customers',
+        items: [
           'fsa/guides/onboard-enterprise-customers',
+          'guides/admin-portal',
           {
             label: 'View all integrations',
             link: 'guides/integrations',
@@ -225,46 +255,17 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Organizations and users',
-        collapsed: false,
-        items: [
-          'fsa/guides/signup-restrictions',
-          'fsa/guides/user-invitations',
-          'guides/user-management/scim-provisioning',
-          'fsa/guides/merge-identities',
-          'fsa/reference/user-management-settings',
-        ],
-      },
-      {
-        label: 'Authorization',
-        items: ['directory/guides/group-based-role-assignment'],
-      },
-      {
         label: 'Migrations',
         items: ['fsa/guides/migration-guide'],
       },
+      // TODO: Come back later as you put together one guide for auth best practices move this up into User authentication category
+      // {
+      //   label: 'Best practices',
+      //   collapsed: false,
+      //   items: ['guides/client-credentials-practices'],
+      // },
       {
-        label: 'Customize',
-        items: [
-          'fsa/guides/organization-identifiers',
-          'authenticate/interceptors/interceptor-scenarios',
-        ],
-      },
-      {
-        label: 'Best practices',
-        collapsed: false,
-        items: [
-          'guides/security/authentication-best-practices',
-          'dev-kit/resources/authorization-best-practices',
-          'guides/security/csrf-protection',
-          'guides/client-credentials-practices',
-          'guides/webhooks-best-practices',
-          'guides/user-auth/preserve-intended-destination',
-          'guides/user-auth/external-id-system-integration',
-        ],
-      },
-      {
-        label: 'Support & resources',
+        label: 'Support',
         items: [
           'reference/glossary',
           'support/contact-us',

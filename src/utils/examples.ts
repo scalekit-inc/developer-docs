@@ -36,10 +36,10 @@ const FILTER_LABELS = {
 const CATEGORY_ORDER = [
   'Setup dev environment',
   'User authentication',
+  'Manage users & orgs',
   'API authentication',
   'MCP authentication',
   'Enterprise authentication',
-  'Organizations and users',
   'Authorization',
   'Migrations',
   'Customize',
@@ -47,7 +47,7 @@ const CATEGORY_ORDER = [
   'Code samples',
   'Admin portal',
   'Best practices',
-  'Support & resources',
+  'Support',
 ] as const
 
 export async function loadBrowserCentralDocs(): Promise<Resource[]> {
