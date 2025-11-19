@@ -177,13 +177,10 @@ export const sidebar = [
     items: [
       'dev-kit/overview',
       {
-        label: 'Cookbooks',
+        label: 'Auth scenarios',
         link: '/cookbooks',
       },
-      {
-        label: 'Setup dev environment',
-        items: ['dev-kit/resources/ai-assisted-setup'],
-      },
+      'dev-kit/resources/ai-assisted-setup',
       {
         label: 'User authentication',
         items: [

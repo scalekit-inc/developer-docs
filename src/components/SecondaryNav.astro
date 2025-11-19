@@ -198,6 +198,7 @@ const navSections: NavSection[] = [
         navSections[0].items.map((item) => (
           <div
             class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
+            data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
           >
             <a
               href={item.href}
@@ -240,6 +241,7 @@ const navSections: NavSection[] = [
         navSections[1].items.map((item) => (
           <div
             class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
+            data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
           >
             <a
               href={item.href}
@@ -556,7 +558,83 @@ const navSections: NavSection[] = [
     document.querySelectorAll('[data-dropdown]').forEach((d) => hideDropdown(d))
   }
 
+  function updateCurrentStateFromHash() {
+    const hash = window.location.hash
+    if (!hash) return
+
+    const currentPath = window.location.pathname + hash
+
+    // First, remove current class from all dropdown items
+    document.querySelectorAll('.dropdown-item.current').forEach((el) => {
+      el.classList.remove('current')
+    })
+
+    // Find the dropdown item that matches the current path with hash
+    let matchingItem = null
+    let matchingLabel = null
+    let matchingIcon = null
+
+    document.querySelectorAll('.dropdown-item').forEach((item) => {
+      const href = item.getAttribute('href')
+      // Only match items whose href contains the same hash
+      // This prevents /apis/ from matching when the hash is #description/sdks
+      if (href && href.includes(hash)) {
+        matchingItem = item
+        matchingLabel = item.querySelector('span')?.textContent
+        // Get the icon from the dropdown item
+        const iconEl = item.querySelector('svg')
+        if (iconEl) {
+          matchingIcon = iconEl.cloneNode(true)
+        }
+        item.classList.add('current')
+      }
+    })
+
+    // If we found a matching item, update the parent nav item
+    if (matchingItem && matchingLabel) {
+      const dropdownMenu = matchingItem.closest('[data-dropdown]')
+      if (dropdownMenu) {
+        const navKey = dropdownMenu.getAttribute('data-nav-key')
+        const parentTrigger = document.querySelector(
+          `.nav-item-wrapper.has-dropdown .nav-item[href="${navKey}"]`,
+        )
+        if (parentTrigger) {
+          // Ensure parent is marked as current
+          parentTrigger.classList.add('current')
+
+          // Check if parent has keepParentLabel attribute
+          const wrapper = parentTrigger.closest('.nav-item-wrapper')
+          const hasKeepParentLabel = wrapper?.hasAttribute('data-keep-parent-label')
+
+          // Only update label and icon if keepParentLabel is not set
+          if (!hasKeepParentLabel) {
+            // Update the label text to match the active child
+            const labelEl = parentTrigger.querySelector('.nav-label')
+            if (labelEl && matchingLabel) {
+              labelEl.textContent = matchingLabel
+            }
+
+            // Update the icon to match the active child
+            if (matchingIcon) {
+              const iconContainer = parentTrigger.querySelector('.nav-icon')
+              if (iconContainer) {
+                iconContainer.replaceWith(matchingIcon)
+                matchingIcon.classList.add('nav-icon')
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
+    // Update selection state based on hash on initial load
+    updateCurrentStateFromHash()
+
+    // Update selection state when hash changes
+    window.addEventListener('hashchange', updateCurrentStateFromHash)
+
     const dropdownTriggers = document.querySelectorAll('.nav-item-wrapper.has-dropdown')
     let currentOpenDropdown = null
 
