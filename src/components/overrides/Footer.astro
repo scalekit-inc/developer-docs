@@ -2,6 +2,10 @@
 import Default from '@astrojs/starlight/components/Footer.astro'
 import IconLucideThumbsUp from '~icons/lucide/thumbs-up'
 import IconLucideThumbsDown from '~icons/lucide/thumbs-down'
+import IconLucideMessageCircleQuestionMark from '~icons/lucide/message-circle-question-mark'
+import IconPajamasStatusHealth from '~icons/pajamas/status-health'
+import IconLucideShield from '~icons/lucide/shield'
+import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 
 // Don't apply fold-full-width on homepage to avoid conflict with sidebar
 const isHomePage = Astro.url.pathname === '/' || Astro.url.pathname === '/en/'
@@ -27,6 +31,35 @@ const footerClass = 'footer'
         </div>
         <p data-feedback-response class="feedback-message" role="status" aria-live="polite" hidden>
         </p>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-link">
+          <IconLucideMessageCircleQuestionMark class="footer-link__icon" aria-hidden="true" />
+          <span>Need help? <a href="mailto:support@scalekit.com">Contact support</a></span>
+        </div>
+        <div class="footer-link">
+          <IconPajamasStatusHealth class="footer-link__icon" aria-hidden="true" />
+          <span
+            >Check out our <a
+              href="https://status.scalekit.com"
+              target="_blank"
+              rel="noopener noreferrer">status page</a
+            ></span
+          >
+        </div>
+        <div class="footer-link">
+          <IconLucideShield class="footer-link__icon" aria-hidden="true" />
+          <span
+            >Visit <a href="https://trust.scalekit.com" target="_blank" rel="noopener noreferrer"
+              >Trust center</a
+            ></span
+          >
+        </div>
+        <div class="footer-link">
+          <IconLucideBookOpenText class="footer-link__icon" aria-hidden="true" />
+          <span>LLM? <a href="https://docs.scalekit.com/llms.txt">Read llms.txt</a></span>
+        </div>
       </div>
     </div>
   </div>
@@ -111,6 +144,40 @@ const footerClass = 'footer'
     text-decoration-thickness: 2px;
   }
 
+  /* Footer links section */
+  :global(.footer .footer-links) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  :global(.footer .footer-link) {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--sl-color-gray-2);
+    font-size: 0.875rem;
+  }
+
+  :global(.footer .footer-link__icon) {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  :global(.footer .footer-link a) {
+    color: var(--sl-color-gray-1);
+    font-weight: 500;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  :global(.footer .footer-link a:hover) {
+    border-bottom-color: var(--sl-color-gray-1);
+  }
+
   @media (max-width: 36rem) {
     :global(.footer .feedback-section) {
       flex-direction: column;
@@ -124,6 +191,11 @@ const footerClass = 'footer'
     :global(.footer .feedback-button) {
       flex: 1 1 auto;
       justify-content: center;
+    }
+
+    :global(.footer .footer-links) {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
     }
   }
 </style>

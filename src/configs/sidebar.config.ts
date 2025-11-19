@@ -290,18 +290,6 @@ export const sidebar = [
           ]),
         ],
       },
-      {
-        label: 'Support',
-        items: [
-          'reference/glossary',
-          'support/contact-us',
-          {
-            label: 'Status',
-            link: 'https://scalekit.statuspage.io/',
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
     ],
   },
   {
