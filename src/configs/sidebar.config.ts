@@ -76,8 +76,9 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Drop in auth modules',
+        label: 'Add auth modules',
         items: [
+          { label: 'Quickstart: Modular SSO', link: 'sso/quickstart' },
           'passwordless/quickstart',
           'guides/user-auth/standalone-social-logins',
           'directory/scim/quickstart',
@@ -174,6 +175,7 @@ export const sidebar = [
     link: '/dev-kit/',
     icon: 'seti:powershell',
     items: [
+      'dev-kit/overview',
       {
         label: 'Setup dev environment',
         items: ['authenticate/installation', 'dev-kit/mcp', 'dev-kit/resources/ai-assisted-setup'],
