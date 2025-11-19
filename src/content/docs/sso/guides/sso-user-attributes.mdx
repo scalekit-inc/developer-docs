@@ -1,52 +1,66 @@
 ---
-title: User attributes
+title: Map user attributes to IdP
 description: "Learn how to add and map custom user attributes, such as an employee number, from an Identity Provider (IdP) like Okta using Scalekit."
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+browseCentral:
+  label: "Map SSO user attributes from IdP"
+  filterType:
+    - "tutorial"
+  category:
+    - "Enterprise authentication"
+  icon: "book"
 sidebar:
-  label: Customize user attributes
+  label: Mapping user attributes to IdP
 prev:
-  label: Test SSO
-  link: /sso/guides/test-sso/
+  link: '/guides/user-auth/check-sso-domain/'
+  label: 'Pre-check SSO by domain'
 next:
-  label: Launch checklist
-  link: /sso/guides/launch-checklist/
+  link: '/sso/guides/idp-init-sso/'
+  label: 'Handle IdP-initiated SSO'
 ---
 
 import { Steps, Aside, Badge } from '@astrojs/starlight/components'
 
-Scalekit simplifies Single Sign-On (SSO) by managing user information between Identity Providers (IdPs) and B2B applications. The IdPs provide standard user properties, such as email and firstname, to your application, thus helping recognize the user.
+Scalekit simplifies Single Sign-On (SSO) by managing user information between Identity Providers (IdPs) and B2B applications. The IdPs provide standard user properties, such as `email` and `firstname`, to your application, thus helping recognize the user.
 
-Consider that we want to get employee number of the user logging into the application. This guide demonstrates how to add your own custom attribute (such as employee number) and map its value from the Identity Provider.
+Consider a scenario where you want to get the employee number of the user logging into the application. This guide demonstrates how to add your own custom attribute (such as `employee_number`) and map its value from the Identity Provider.
 
 Broadly, we'll go through two steps:
 
 1. Create a new attribute in Scalekit
 2. Set up the value that the Identity Provider should relay to this attribute
 
-### Create a new attribute
+## Create a new attribute
 
-Let's begin by signing into Scalekit dashboard:
+Let's begin by signing into the Scalekit dashboard:
 
-<Steps>
-1. Navigate to the "SSO" section
-2. In the "User Attributes" section, click on "Add Attribute"
+1. Navigate to **Dashboard > SSO > User Attributes**
+2. Click **Add Attribute**
 3. Add "Employee Number" as Display name
-</Steps>
 
 <figure>
   ![add attribute](@/assets/docs/guides/product/setup-sso/customize-user-attributes/1-add-attribute-scalekit.png)
 </figure>
 
-You'll now notice "Employee Number" in the list of user attributes. Scalekit is now ready to receive this attribute from your customers' identity providers (IdPs)
+You'll now notice "Employee Number" in the list of user attributes. Scalekit is now ready to receive this attribute from your customers' Identity Providers (IdPs).
 
 <figure>
   ![see attribute](@/assets/docs/guides/product/setup-sso/customize-user-attributes/2.png)
 </figure>
 
-### Set up IdP attributes
+## Set up IdP attributes <Badge text="Okta example" variant="tip" />
 
 Now, we'll set up an Identity Provider to send these details. For the purposes of this guide, we'll use Okta as IdP to send the `employee_number` to Scalekit. However, similar functionality can be achieved using any other IdP.
 
-Note that in this specific Okta instance, the "Employee Number" is a default attribute that hasn't been utilized yet. Before we proceed forward, it's important to modify the profile's "employee_number" attribute with any desired number for this example (For example, `1729`). For a detailed guide on how to achieve this, consult <a href="https://help.okta.com/en-us/content/topics/users-groups-profiles/usgp-edit-user-attributes.htm#:~:text=Click%20the%20Profile%20tab" target="_blank" rel="noopener noreferrer">Okta's dedicated help article on updating profile attributes</a>.
+Note that in this specific Okta instance, the "Employee Number" is a default attribute that hasn't been utilized yet. Before you proceed forward, it's important to modify the profile's `employee_number` attribute with any desired number for this example (for example, `1729`). For a detailed guide on how to achieve this, consult <a href="https://help.okta.com/en-us/content/topics/users-groups-profiles/usgp-edit-user-attributes.htm#:~:text=Click%20the%20Profile%20tab" target="_blank" rel="noopener noreferrer">Okta's dedicated help article on updating profile attributes</a>.
 
 Alternatively, you can <a href="https://help.okta.com/en-us/content/topics/users-groups-profiles/usgp-add-custom-user-attributes.htm#:~:text=In%20the%20Admin%20Console%20%2C%20go%20to%20Directory%20Profile%20Editor" target="_blank" rel="noopener noreferrer">add a new custom attribute in the Okta Profile Editor</a>.
 
@@ -54,20 +68,20 @@ Alternatively, you can <a href="https://help.okta.com/en-us/content/topics/users
   ![map attribute](@/assets/docs/guides/product/setup-sso/customize-user-attributes/3-map-attribute-okta.png)
 </figure>
 
-### Test SSO for new attributes
+## Test SSO for new attributes
 
-In the Scalekit dashboard, navigate to Organizations.
+In the Scalekit dashboard, navigate to **Dashboard > Organizations**.
 
 <Steps>
-1. Select the Organization that you'd like to add custom attribute
+1. Select the organization that you'd like to add custom attribute to
 2. Navigate to the SSO Connection
-3. Go to **Test Connection** - you'll find this if the IdP has already been established
+3. Click **Test Connection** - you'll find this if the IdP has already been established
 </Steps>
 
 <figure>
   ![map attr scalekit](@/assets/docs/guides/product/setup-sso/customize-user-attributes/4-map-attribute-scalekit.png)
 </figure>
 
-Upon testing the connection, if you notice the update user profile (employee_number as 1729 in this example), this signifies a successful test.
+Upon testing the connection, if you notice the updated user profile (`employee_number` as `1729` in this example), this signifies a successful test.
 
 Subsequently, these details will be integrated into your B2B application through Scalekit. This ensures seamless recognition and handling of customer user attributes during the SSO authentication process.

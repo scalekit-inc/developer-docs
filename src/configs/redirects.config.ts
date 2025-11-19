@@ -1,21 +1,33 @@
 export const redirects = {
   // =============================================================================
+  // HOMEPAGE REDIRECT
+  // =============================================================================
+  // '/': '/authenticate/welcome',
+  '/authenticate': '/',
+
+  // =============================================================================
   // FULL STACK AUTH (FSA) REDIRECTS
   // =============================================================================
+
+  // User authentication flow pages moved to /authenticate/*
+  '/fsa/quickstart': '/authenticate/fsa/quickstart/',
+  '/fsa/guides/implement-login': '/authenticate/fsa/implement-login/',
+  '/fsa/guides/manage-session': '/authenticate/fsa/manage-session/',
+  '/fsa/guides/logout': '/authenticate/fsa/logout/',
   '/fsa/guides/automated-user-provisioning': '/fsa/guides/allowed-email-domains/',
-  '/fsa/guides/auth-logs': '/guides/dashboard/auth-logs/',
 
   // =============================================================================
   // SINGLE SIGN-ON (SSO) REDIRECTS
   // =============================================================================
 
   // SSO quickstart and admin portal
-  '/sso/quickstart-admin-portal': '/guides/sso/admin-portal',
+  '/sso/quickstart-admin-portal': '/guides/admin-portal',
   '/sso/overview': '/guides/sso/sso-basics/',
   '/sso/launch-checklist': '/guides/sso/launch-checklist/',
   '/sso/test-sso': '/guides/sso/test-sso/',
   '/sso/domain-and-theme-customization': '/guides/custom-domain/',
-  '/sso/bkp/quickstart-admin-portal': '/guides/sso/admin-portal/',
+  '/sso/bkp/quickstart-admin-portal': '/guides/admin-portal/',
+  '/guides/sso/admin-portal': '/guides/admin-portal/',
 
   // SSO legacy guides moved from /guides to /sso
   '/guides/sso/sso-basics/': '/sso/guides/sso-basics/',
@@ -38,8 +50,8 @@ export const redirects = {
   '/sso/guides/key-concepts/idtoken-claims': '/guides/idtoken-claims/',
   '/sso/guides/key-concepts/manage-client-secrets': '/guides/client-credentials-practices/',
   '/sso/guides/key-concepts/user-profile': '/sso/guides/user-profile-details/',
-  '/sso/guides/test-your-integration/using-okta': '/sso/guides/okta-sso-test/',
-  '/sso/guides/auth-logs': '/guides/dashboard/auth-logs/',
+  '/sso/guides/test-your-integration/using-okta': '/sso/guides/test-sso/',
+  '/sso/guides/okta-sso-test/': '/sso/guides/test-sso/',
   '/sso/reference/redirects': '/guides/dashboard/redirects/',
 
   // SSO integrations with auth systems
@@ -47,10 +59,11 @@ export const redirects = {
     '/guides/integrations/auth-systems/firebase/',
   '/sso/guides/integrate-with-your-auth-system/auth0': '/guides/integrations/auth-systems/auth0/',
 
-  // SSO social logins
-  '/sso/social-login': '/social-logins/quickstart/',
-  '/sso/social-logins-quickstart': '/social-logins/quickstart/',
-  '/social-logins': '/social-logins/quickstart/',
+  // SSO social logins - moved to authenticate/auth-methods/social-logins
+  '/sso/social-login': '/authenticate/auth-methods/social-logins/',
+  '/sso/social-logins-quickstart': '/authenticate/auth-methods/social-logins/',
+  '/social-logins': '/authenticate/auth-methods/social-logins/',
+  '/social-logins/quickstart': '/authenticate/auth-methods/social-logins/',
 
   // SSO reference and errors
   '/reference/errors': '/sso/reference/sso-integration-errors/',
@@ -60,6 +73,17 @@ export const redirects = {
   // Best practices
   '/best-practices/redirect-uri': '/guides/dashboard/redirects/',
   '/best-practices/manage-client-secrets': '/guides/client-credentials-practices/',
+
+  // =============================================================================
+  // MANAGE USERS & ORGANIZATIONS REDIRECTS
+  // =============================================================================
+
+  // User and organization management files reorganized
+  '/fsa/guides/create-organization': '/authenticate/manage-users-orgs/create-organization/',
+  '/fsa/guides/custom-user-attributes': '/authenticate/manage-users-orgs/custom-user-attributes/',
+  '/authenticate/manage-users-orgs/delete-users-orgs':
+    '/authenticate/manage-users-orgs/delete-users-and-organizations/',
+  'fsa/guides/app-roles': '/authenticate/authz/create-roles-permissions/',
 
   // =============================================================================
   // SCIM / DIRECTORY PROVISIONING REDIRECTS
@@ -87,7 +111,20 @@ export const redirects = {
   '/guides/directory/scim-protocol': '/directory/guides/scim-protocol',
 
   // =============================================================================
-  // PASSWORDLESS AUTH REDIRECTS
+  // AUTH FLOW INTERCEPTORS REDIRECTS
+  // =============================================================================
+
+  // Auth flow interceptors moved to /authenticate/interceptors/
+  '/guides/auth-flow-interceptors': '/authenticate/interceptors/auth-flow-interceptors/',
+  '/guides/interceptor-scenarios': '/authenticate/interceptors/interceptor-scenarios/',
+
+  // =============================================================================
+  // MODULES TERMINOLOGY REDIRECTS
+  // =============================================================================
+  '/guides/user-auth/standalone-social-logins': '/guides/user-auth/modular-social-logins',
+
+  // =============================================================================
+  // MAGIC LINK & OTP AUTH REDIRECTS
   // =============================================================================
   '/guides/passwordless/quickstart': '/passwordless/quickstart',
   '/guides/passwordless/oidc': '/passwordless/oidc',
@@ -97,17 +134,46 @@ export const redirects = {
   // =============================================================================
   // MCP AUTH REDIRECTS
   // =============================================================================
-  '/guides/mcp/overview': '/mcp/overview/',
+  '/guides/mcp/overview': '/mcp/intro-to-mcp-auth/',
+  '/mcp/overview': '/mcp/intro-to-mcp-auth/',
   '/guides/mcp/oauth': '/mcp/quickstart/',
   '/mcp/oauth': '/mcp/quickstart/',
-  '/guides/mcp/custom-auth': '/mcp/guides/custom-auth/',
+  '/guides/mcp/custom-auth': '/mcp/auth-methods/custom-auth/',
+  '/mcp/guides/custom-auth': '/mcp/auth-methods/custom-auth/',
   '/guides/mcp/additional-reading': '/mcp/guides/additional-reading/',
+  '/mcp/auth-methods/enterprise/': '/mcp/auth-methods/custom-auth/',
+  '/mcp/auth-methods/social/': '/mcp/auth-methods/custom-auth/',
+
+  // MCP integration examples reorganized
+  '/mcp/integrations/fastmcp': '/authenticate/mcp/fastmcp-quickstart/',
+  '/browse/code-samples/github/mcp/fastmcp': '/authenticate/mcp/fastmcp-quickstart/',
+  '/mcp/fastmcp-quickstart': '/authenticate/mcp/fastmcp-quickstart/',
+  '/mcp/integrations/fastapi-fastmcp': '/authenticate/mcp/fastapi-fastmcp-quickstart/',
+  '/browse/code-samples/github/mcp/fastapi-fastmcp':
+    '/authenticate/mcp/fastapi-fastmcp-quickstart/',
+  '/mcp/fastapi-fastmcp': '/authenticate/mcp/fastapi-fastmcp-quickstart/',
+  '/mcp/fastapi-fastmcp-quickstart': '/authenticate/mcp/fastapi-fastmcp-quickstart/',
+  '/mcp/integrations/expressjs': '/authenticate/mcp/expressjs-quickstart/',
+  '/browse/code-samples/github/mcp/expressjs': '/authenticate/mcp/expressjs-quickstart/',
+  '/mcp/expressjs': '/authenticate/mcp/expressjs-quickstart/',
+  '/mcp/expressjs-quickstart': '/authenticate/mcp/expressjs-quickstart/',
+
+  // MCP authentication patterns consolidation
+  '/mcp/topologies/human-mcp':
+    '/authenticate/mcp/auth-patterns/#pattern-1-human-interacting-with-mcp-server',
+  '/mcp/topologies/agent-mcp':
+    '/authenticate/mcp/auth-patterns/#pattern-2-agent--machine-interacting-with-mcp-server',
+  '/mcp/topologies/mcp-api':
+    '/authenticate/mcp/auth-patterns/#pattern-3-mcp-server-integrating-with-downstream-systems',
+  '/mcp/topologies/': '/authenticate/mcp/auth-patterns/',
 
   // =============================================================================
   // API AUTH (M2M) REDIRECTS
   // =============================================================================
+  '/m2m/quickstart': '/authenticate/m2m/api-auth-quickstart/',
   '/m2m/overview': '/guides/m2m/overview/',
-  '/m2m/m2m-basics': '/guides/m2m/m2m-basics/',
+  '/m2m/m2m-basics': '/guides/m2m/overview/',
+  '/guides/m2m/m2m-basics': '/guides/m2m/overview/',
   '/m2m/authenticate-scalekit-api': '/guides/authenticate-scalekit-api/',
   '/m2m/api-auth-for-m2m-clients': '/guides/m2m/api-auth-m2m-clients/',
   '/m2m/external-ids-and-metadata': '/guides/external-ids-and-metadata/',
@@ -159,10 +225,16 @@ export const redirects = {
   // =============================================================================
   // GENERAL / OTHER REDIRECTS
   // =============================================================================
-  '/sdks': '/dev-kit/',
-  '/dev-kit/webhooks/event-object/': '/dev-kit',
+  '/examples': '/scenarios/',
+  '/dev-kit/': '/dev-kit/overview',
+  '/dev-kit/sdks/overview': '/authenticate/installation/',
+  '/dev-kit/webhooks/event-object/': '/reference/webhooks/overview/',
+  '/reference/webhooks/event-object/': '/reference/webhooks/overview/',
   '/api/webhook-events': '/reference/webhooks/directory-events/',
   '/manage-scalekit/glossary': '/reference/glossary/',
   '/contact-us': '/support/contact-us/',
   '/index-old': '/',
+
+  // Logs pages - webhook logs merged into auth logs
+  '/guides/view-webhook-logs/': '/guides/dashboard/auth-logs/',
 }
