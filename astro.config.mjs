@@ -95,7 +95,7 @@ export default defineConfig({
           exclude: ['/dev-kit/changelogs/**'],
         }),
         starlightContextualMenu({
-          actions: ['copy', 'chatgpt', 'claude', 'lechat', 'grok'],
+          actions: ['copy', 'chatgpt', 'claude'],
           hideMainActionLabel: true,
         }),
       ],
