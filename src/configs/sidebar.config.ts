@@ -12,7 +12,6 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           { label: 'Quickstart: Complete Auth', link: 'authenticate/fsa/quickstart' },
-          { label: 'Quickstart: Auth for MCP', link: 'mcp/quickstart' },
           { label: 'Quickstart: Modular SSO', link: 'sso/quickstart' },
         ],
       },
@@ -24,6 +23,14 @@ export const sidebar = [
           'authenticate/fsa/complete-login',
           'authenticate/fsa/manage-session',
           'authenticate/fsa/logout',
+        ],
+      },
+      {
+        label: 'MCP authentication',
+        items: [
+          'mcp/quickstart',
+          'authenticate/mcp/fastmcp-quickstart',
+          'mcp/auth-methods/custom-auth',
         ],
       },
       {
@@ -216,10 +223,8 @@ export const sidebar = [
         items: [
           'mcp/intro-to-mcp-auth',
           'authenticate/mcp/auth-patterns',
-          'authenticate/mcp/fastmcp-quickstart',
           'authenticate/mcp/fastapi-fastmcp-quickstart',
           'authenticate/mcp/expressjs-quickstart',
-          'mcp/auth-methods/custom-auth',
           'mcp/troubleshooting',
         ],
       },
