@@ -368,7 +368,7 @@ export const topics = {
     '/guides/email-providers',
     '/authenticate/interceptors/**/*',
     '/guides/user-auth/standalone-social-logins', // Standalone social logins appears in Authenticate sidebar
-    '/passwordless/**/*', // Passwordless authentication belongs in Authenticate
+    '/passwordless/**/*', // Magic Link & OTP authentication belongs in Authenticate
   ], // Pages that appear in Authenticate sidebar
   connect: ['/agent-actions/**/*'], // Agent Actions pages
   mcp: [], // MCP pages are in dev-kit sidebar (via the dev-kit topic)

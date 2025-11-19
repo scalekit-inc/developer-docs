@@ -119,7 +119,7 @@ export const redirects = {
   '/guides/interceptor-scenarios': '/authenticate/interceptors/interceptor-scenarios/',
 
   // =============================================================================
-  // PASSWORDLESS AUTH REDIRECTS
+  // MAGIC LINK & OTP AUTH REDIRECTS
   // =============================================================================
   '/guides/passwordless/quickstart': '/passwordless/quickstart',
   '/guides/passwordless/oidc': '/passwordless/oidc',
