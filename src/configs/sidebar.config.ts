@@ -80,7 +80,7 @@ export const sidebar = [
         items: [
           { label: 'Quickstart: Modular SSO', link: 'sso/quickstart' },
           'passwordless/quickstart',
-          'guides/user-auth/standalone-social-logins',
+          'guides/user-auth/modular-social-logins',
           'directory/scim/quickstart',
           'authenticate/m2m/api-auth-quickstart',
         ],
@@ -178,7 +178,7 @@ export const sidebar = [
       'dev-kit/overview',
       {
         label: 'Setup dev environment',
-        items: ['authenticate/installation', 'dev-kit/mcp', 'dev-kit/resources/ai-assisted-setup'],
+        items: ['dev-kit/resources/ai-assisted-setup'],
       },
       {
         label: 'User authentication',
@@ -360,7 +360,7 @@ export const topics = {
     '/guides/custom-domain',
     '/guides/email-providers',
     '/authenticate/interceptors/**/*',
-    '/guides/user-auth/standalone-social-logins', // Standalone social logins appears in Authenticate sidebar
+    '/guides/user-auth/modular-social-logins', // Modular social logins appears in Authenticate sidebar
     '/passwordless/**/*', // Magic Link & OTP authentication belongs in Authenticate
   ], // Pages that appear in Authenticate sidebar
   connect: ['/agent-actions/**/*'], // Agent Actions pages
@@ -409,7 +409,6 @@ export const topics = {
     '/directory/guides/group-based-role-assignment',
     // MCP guides that appear in dev-kit
     '/mcp/**/*',
-    '/authenticate/installation',
     // User management guides
     '/guides/user-management/**/*',
     // Authorization and best practices guides
@@ -465,7 +464,6 @@ export const secondaryNavMapping = {
       '/dev-kit',
       '/m2m',
       '/guides/m2m',
-      '/authenticate/installation',
       '/authenticate/interceptors/interceptor-scenarios',
       '/guides/dashboard',
       '/guides/external-ids-and-metadata',

@@ -119,6 +119,11 @@ export const redirects = {
   '/guides/interceptor-scenarios': '/authenticate/interceptors/interceptor-scenarios/',
 
   // =============================================================================
+  // MODULES TERMINOLOGY REDIRECTS
+  // =============================================================================
+  '/guides/user-auth/standalone-social-logins': '/guides/user-auth/modular-social-logins',
+
+  // =============================================================================
   // MAGIC LINK & OTP AUTH REDIRECTS
   // =============================================================================
   '/guides/passwordless/quickstart': '/passwordless/quickstart',

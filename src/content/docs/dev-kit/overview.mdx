@@ -1,6 +1,6 @@
 ---
 title: Developer Resources
-description: Get started with Scalekit's developer tools, SDKs, and AI-powered development resources
+description: Create your account, install the SDK, set up AI tools, and verify your setup to start building with Scalekit
 tableOfContents: true
 head:
   - tag: style
@@ -15,183 +15,346 @@ sidebar:
   label: 'Overview'
 prev: false
 next:
-  link: '/authenticate/installation/'
-  label: 'Set up Scalekit SDK'
+  link: '/dev-kit/resources/ai-assisted-setup/'
+  label: 'Configure AI-assisted development'
 seeAlso:
-  label: "Developer tools"
+  label: "SDK Repositories"
   expanded: true
   items:
-    - title: "Install Scalekit SDK"
-      icon: "rocket"
-      url: "/authenticate/installation/"
-    - title: "Set up MCP Server"
-      icon: "code"
-      url: "/dev-kit/mcp/"
-    - title: "Configure AI-assisted development"
-      icon: "setting"
-      url: "/dev-kit/resources/ai-assisted-setup/"
+    - title: "Node.js SDK"
+      icon: "github"
+      url: "https://github.com/scalekit-inc/scalekit-sdk-node"
+    - title: "Python SDK"
+      icon: "github"
+      url: "https://github.com/scalekit-inc/scalekit-sdk-python"
+    - title: "Go SDK"
+      icon: "github"
+      url: "https://github.com/scalekit-inc/scalekit-sdk-go"
+    - title: "Java SDK"
+      icon: "github"
+      url: "https://github.com/scalekit-inc/scalekit-sdk-java"
 ---
 
-import { Card, CardGrid, LinkCard, Aside, Badge } from '@astrojs/starlight/components'
-import FoldCard from '@components/ui/FoldCard.astro'
+import { LinkButton, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import InstallSDK from '@components/templates/_installsdk.mdx'
 
-Scalekit provides comprehensive developer resources to help you build authentication and identity management into your applications. Whether you're coding directly with our SDKs or using AI-powered development tools, we've built tools to accelerate your integration.
+This guide shows you how to set up Scalekit in your development environment. You'll configure your workspace, get API credentials, install the SDK, verify everything works correctly, and optionally set up AI-powered development tools.
 
-This overview introduces the key developer resources available in your Scalekit workspace and helps you choose the right path to get started.
+Scalekit provides official SDKs for Node.js, Python, Go, and Java with production-ready auth helpers, automatic retries, and typed models to help you integrate faster. Additionally, you can connect your AI coding assistants to Scalekit through our Model Context Protocol (MCP) server for natural language-based development.
 
-## Developer Tools
+Before you begin, create a Scalekit account if you haven't already. After creating your account, a Scalekit workspace is automatically set up for you with dedicated development and production environments.
 
-Scalekit offers two primary development approaches to integrate authentication into your application:
+<LinkButton href="https://app.scalekit.com/ws/signup" variant="secondary" class='sk-secondary' icon='right-arrow'>Create a Scalekit account</LinkButton>
 
-<CardGrid>
-  <FoldCard title="Scalekit SDKs" iconKey="code">
-    Official SDKs for Node.js, Python, Go, and Java with production-ready auth helpers, automatic retries, and typed models. Install the SDK, initialize with your credentials, and start building.
+<Steps>
+1. ## Get your API credentials
 
-    <p class="sdk-links"><a href="/authenticate/installation/">Get started with SDKs</a></p>
-  </FoldCard>
+   Scalekit uses the OAuth 2.0 client credentials flow for secure API authentication.
 
-  <FoldCard title="Scalekit MCP Server" iconKey="ai">
-    Model Context Protocol (MCP) server that connects your AI coding assistants to Scalekit. Manage environments, organizations, users, and authentication through natural language queries in Claude, Cursor, Windsurf, and other MCP-compatible tools.
+   Navigate to **Dashboard > Developers > Settings > API credentials** and copy these values:
 
-    <p class="sdk-links"><a href="/dev-kit/mcp/">Set up MCP Server</a></p>
-  </FoldCard>
-</CardGrid>
+   ```sh showLineNumbers=false title=".env"
+   SCALEKIT_ENVIRONMENT_URL=<your-environment-url> # Example: https://acme.scalekit.dev or https://auth.acme.com (if custom domain is set)
+   SCALEKIT_CLIENT_ID=<app-client-id> # Example: skc_1234567890abcdef
+   SCALEKIT_CLIENT_SECRET=<app-client-secret> # Example: test_abcdef1234567890
+   ```
 
-## Quick Start Paths
+   Your workspace includes two environment URLs:
 
-Choose your development approach based on how you prefer to work:
+   ```md showLineNumbers=false wrap title="Environment URLs"
+   https://{your-subdomain}.scalekit.dev  (Development)
+   https://{your-subdomain}.scalekit.com  (Production)
+   ```
 
-### Traditional SDK Integration
+   View your environment URLs in **Dashboard > Developers > Settings**.
 
-Install and configure the Scalekit SDK in your application code. This path is ideal when:
+2. ## Install and initialize the SDK
 
-- You want direct control over authentication implementation
-- You're building server-side applications in Node.js, Python, Go, or Java
-- You need production-ready auth helpers and typed models
-- You prefer traditional IDE-based development
+   Choose your preferred language and install the Scalekit SDK:
 
-**Start here:** [Set up Scalekit SDK](/authenticate/installation/)
+   <InstallSDK />
 
-### AI-Assisted Development <Badge text="New" variant="tip" />
+   After installation, initialize the SDK with your credentials:
 
-Connect your AI coding assistant to Scalekit through the MCP server. This path is ideal when:
+   <Tabs syncKey="tech-stack">
+     <TabItem value="nodejs" label="Node.js">
 
-- You use AI tools like Claude Desktop, Cursor, or Windsurf for development
-- You want to interact with Scalekit using natural language
-- You need to quickly manage environments, organizations, and users
-- You're building or testing MCP-compatible AI applications
+     ```js title="Initialize SDK"
+     import { Scalekit } from '@scalekit-sdk/node';
 
-**Start here:** [Set up Scalekit MCP Server](/dev-kit/mcp/)
+     // Initialize the Scalekit client with your credentials
+     const scalekit = new Scalekit(
+       process.env.SCALEKIT_ENVIRONMENT_URL,
+       process.env.SCALEKIT_CLIENT_ID,
+       process.env.SCALEKIT_CLIENT_SECRET
+     );
+     ```
 
-## SDK Support
+     </TabItem>
+     <TabItem value="py" label="Python">
 
-Scalekit maintains official SDKs across four languages with consistent APIs and feature parity:
+     ```python title="Initialize SDK"
+     from scalekit import ScalekitClient
+     import os
 
-<CardGrid>
-  <LinkCard
-    title="Node.js SDK"
-    description="Server and edge compatible (Node 18+). Typed models and auth helpers."
-    href="https://github.com/scalekit-inc/scalekit-sdk-node"
-    target="_blank"
-  />
-  <LinkCard
-    title="Python SDK"
-    description="Pythonic client with simple auth utilities and retries."
-    href="https://github.com/scalekit-inc/scalekit-sdk-python"
-    target="_blank"
-  />
-  <LinkCard
-    title="Go SDK"
-    description="Lightweight, idiomatic Go client for services and CLIs."
-    href="https://github.com/scalekit-inc/scalekit-sdk-go"
-    target="_blank"
-  />
-  <LinkCard
-    title="Java SDK"
-    description="JVM-first client for Spring and other Java stacks."
-    href="https://github.com/scalekit-inc/scalekit-sdk-java"
-    target="_blank"
-  />
-</CardGrid>
+     # Initialize the Scalekit client with your credentials
+     scalekit_client = ScalekitClient(
+       env_url=os.getenv('SCALEKIT_ENVIRONMENT_URL'),
+       client_id=os.getenv('SCALEKIT_CLIENT_ID'),
+       client_secret=os.getenv('SCALEKIT_CLIENT_SECRET')
+     )
+     ```
 
-<Aside type="tip" title="All SDKs include">
-- Automatic retries and error handling
-- Production-ready authentication helpers
-- Typed models for IDE autocomplete
-- Comprehensive test coverage
-- Regular updates and security patches
-</Aside>
+     </TabItem>
+     <TabItem value="go" label="Go">
 
-## MCP Server Features
+     ```go title="Initialize SDK"
+     import (
+       "os"
+       "github.com/scalekit-inc/scalekit-sdk-go"
+     )
 
-The Scalekit MCP server provides AI assistants with tools to manage your Scalekit workspace:
+     // Initialize the Scalekit client with your credentials
+     scalekitClient := scalekit.NewScalekitClient(
+       os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+       os.Getenv("SCALEKIT_CLIENT_ID"),
+       os.Getenv("SCALEKIT_CLIENT_SECRET"),
+     )
+     ```
 
-- **Environment management** - Configure and switch between development and production environments
-- **Organization management** - Create, update, and manage organizations
-- **User management** - Add, update, and remove users from organizations
-- **Connection setup** - Configure OIDC and SAML authentication connections
-- **Role administration** - Manage roles, permissions, and access control
-- **Admin portal** - Generate admin portal links for enterprise customers
+     </TabItem>
+     <TabItem value="java" label="Java">
 
-The MCP server uses OAuth 2.1 authentication to securely connect your AI tools to your Scalekit workspace.
+     ```java title="Initialize SDK"
+     import com.scalekit.ScalekitClient;
 
-<Aside type="note">
-Compatible with Claude Desktop, Cursor, Windsurf, VS Code (1.101+), and any MCP-compatible client.
-</Aside>
+     // Initialize the Scalekit client with your credentials
+     ScalekitClient scalekitClient = new ScalekitClient(
+       System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+       System.getenv("SCALEKIT_CLIENT_ID"),
+       System.getenv("SCALEKIT_CLIENT_SECRET")
+     );
+     ```
 
-## Development Environments
+     </TabItem>
+   </Tabs>
 
-Scalekit provides dedicated development and production environments to safely build and test authentication:
+   <Aside type="tip" title="SDK features">
+   All official SDKs include automatic retries, error handling, typed models, and auth helper methods to simplify your integration.
+   </Aside>
 
-- **Development environment** - `https://{your-subdomain}.scalekit.dev`
-- **Production environment** - `https://{your-subdomain}.scalekit.com`
+3. ## Verify your setup
 
-Both SDKs and the MCP server support environment switching through configuration. Use the development environment for testing and the production environment for live applications.
+   Test your configuration by listing organizations in your workspace. This confirms your credentials work correctly.
 
-View your environment URLs in **Dashboard > Developers > Settings**.
+   <Tabs syncKey="tech-stack">
+   <TabItem value="curl" label="cURL">
 
-## API Authentication
+   ```bash wrap showLineNumbers=false title="Authenticate with client credentials"
+   # Get an access token
+   curl https://<SCALEKIT_ENVIRONMENT_URL>/oauth/token \
+     -X POST \
+     -H 'Content-Type: application/x-www-form-urlencoded' \
+     -d 'client_id=<SCALEKIT_CLIENT_ID>' \
+     -d 'client_secret=<SCALEKIT_CLIENT_SECRET>' \
+     -d 'grant_type=client_credentials'
+   ```
 
-All Scalekit developer tools use the OAuth 2.0 client credentials flow for secure API authentication:
+   This returns an access token:
 
-1. Navigate to **Dashboard > Developers > Settings > API credentials**
-2. Copy your environment URL, client ID, and client secret
-3. Configure your SDK or MCP server with these credentials
+   ```json wrap showLineNumbers=false
+   {
+     "access_token": "eyJhbGciOiJSUzI1NiIsImInR5cCI6IkpXVCJ9...",
+     "token_type": "Bearer",
+     "expires_in": 86399,
+     "scope": "openid"
+   }
+   ```
 
-<Aside type="caution">
-Never commit API credentials to version control. Use environment variables or secure secret management.
-</Aside>
+   Use the token to access the Scalekit API
 
-## Next Steps
+   ```sh wrap showLineNumbers=false title="List organizations"
+   curl -L '<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations?page_size=5' \
+     -H 'Authorization: Bearer <ACCESS_TOKEN>'
+   ```
 
-Ready to start building? Choose your path:
+   </TabItem>
 
-<CardGrid>
-  <LinkCard
-    title="Set up Scalekit SDK"
-    description="Install the SDK, configure credentials, and verify your setup"
-    href="/authenticate/installation/"
-  />
-  <LinkCard
-    title="Set up MCP Server"
-    description="Connect your AI coding assistant to Scalekit"
-    href="/dev-kit/mcp/"
-  />
-  <LinkCard
-    title="Configure AI-assisted development"
-    description="Set up AI tools and prompts for faster development"
-    href="/dev-kit/resources/ai-assisted-setup/"
-  />
-  <LinkCard
-    title="Explore SDK changelogs"
-    description="View release notes and version history"
-    href="/dev-kit/changelogs/"
-  />
-</CardGrid>
+   <TabItem value="nodejs" label="Node.js">
 
-## Additional Resources
+   ```javascript collapse={1-8} wrap showLineNumbers=false
+   import { ScalekitClient } from '@scalekit-sdk/node';
 
-- **[API Reference](/apis/)** - Complete REST API documentation
-- **[Code examples](/browse/)** - Sample implementations and patterns
-- **[GitHub repositories](https://github.com/scalekit-inc)** - Source code and issues
-- **[Integration guides](/guides/integrations/)** - Platform-specific setup instructions
+   const scalekit = new ScalekitClient(
+     process.env.SCALEKIT_ENVIRONMENT_URL,
+     process.env.SCALEKIT_CLIENT_ID,
+     process.env.SCALEKIT_CLIENT_SECRET,
+   );
+
+   const { organizations } = await scalekit.organization.listOrganization({
+     pageSize: 5,
+   });
+
+   console.log(`Name of the first organization: ${organizations[0].display_name}`);
+   ```
+
+   </TabItem>
+
+   <TabItem value="python" label="Python">
+
+   ```python collapse={1-9} wrap showLineNumbers=false
+   from scalekit import ScalekitClient
+
+   # Initialize the SDK client
+   scalekit_client = ScalekitClient(
+     '<SCALEKIT_ENVIRONMENT_URL>',
+     '<SCALEKIT_CLIENT_ID>',
+     '<SCALEKIT_CLIENT_SECRET>'
+   )
+
+   org_list = scalekit_client.organization.list_organizations(page_size='100')
+
+   print(f'Organisation details: {org_list[0]}')
+   ```
+
+   </TabItem>
+
+   <TabItem value="go" label="Go">
+
+   ```go collapse={1-5} wrap showLineNumbers=false
+   scalekitClient := scalekit.NewScalekitClient(
+     <SCALEKIT_ENVIRONMENT_URL>,
+     <SCALEKIT_CLIENT_ID>,
+     <SCALEKIT_CLIENT_SECRET>
+   )
+
+   organization, err := scalekitClient.Organization.GetOrganization(
+     ctx,
+     organizationId
+   )
+   ```
+
+   </TabItem>
+
+   <TabItem value="java" label="Java">
+
+   ```java collapse={1-7} wrap showLineNumbers=false
+   import com.scalekit.ScalekitClient;
+
+   ScalekitClient scalekitClient = new ScalekitClient(
+     "<SCALEKIT_ENVIRONMENT_URL>",
+     "<SCALEKIT_CLIENT_ID>",
+     "<SCALEKIT_CLIENT_SECRET>"
+   );
+
+   ListOrganizationsResponse organizations = scalekitClient.organizations().listOrganizations(5, "");
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   If you see organization data, your setup is complete! You're now ready to implement authentication in your application.
+
+4. ## Set up Scalekit MCP Server (Optional)
+
+   Scalekit's Model Context Protocol (MCP) server connects your AI coding assistants to Scalekit. Manage environments, organizations, users, and authentication through natural language queries in Claude, Cursor, Windsurf, and other MCP-compatible tools.
+
+   The MCP server provides AI assistants with tools for environment management, organization and user management, authentication connection setup, role administration, and admin portal access. It uses OAuth 2.1 authentication to securely connect your AI tools to your Scalekit workspace.
+
+   <Aside type="tip" title="Building your own MCP server?">
+   If you're building your own MCP server and need to add OAuth-based authorization, check out our guide: [Add auth to your MCP server](/mcp/quickstart/).
+   </Aside>
+
+   ### Configure your MCP client
+
+   Based on your MCP client, follow the configuration instructions below:
+
+   <Tabs>
+   <TabItem value="claude" label="Claude Desktop">
+
+   1. Open the Claude Desktop app, go to Settings, then Developer
+   2. Click Edit Config
+   3. Open the `claude_desktop_config.json` file
+   4. Copy and paste the server config to your existing file, then save
+   5. Restart Claude
+
+   ```json
+   {
+     "mcpServers": {
+       "scalekit": {
+         "command": "npx",
+         "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
+       }
+     }
+   }
+   ```
+
+   </TabItem>
+
+   <TabItem value="cursor" label="Cursor">
+
+   1. Open Cursor, go to Settings, then Cursor Settings
+   2. Select MCP on the left
+   3. Click Add "New Global MCP Server" at the top right
+   4. Copy and paste the server config to your existing file, then save
+   5. Restart Cursor
+
+   ```json
+   {
+     "mcpServers": {
+       "scalekit": {
+         "command": "npx",
+         "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
+       }
+     }
+   }
+   ```
+
+   </TabItem>
+
+   <TabItem value="windsurf" label="Windsurf">
+
+   1. Open Windsurf, go to Settings, then Developer
+   2. Click Edit Config
+   3. Open the `windsurf_config.json` file
+   4. Copy and paste the server config to your existing file, then save
+   5. Restart Windsurf
+
+   ```json
+   {
+     "mcpServers": {
+       "scalekit": {
+         "command": "npx",
+         "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
+       }
+     }
+   }
+   ```
+
+   </TabItem>
+
+   <TabItem value="vscode" label="VS Code (1.101+)">
+
+   VS Code version 1.101 or greater supports OAuth natively. Configure the MCP server directly without the `mcp-remote` proxy:
+
+   ```json
+   {
+     "servers": {
+       "scalekit": {
+         "type": "http",
+         "url": "https://mcp.scalekit.com/"
+       }
+     }
+   }
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   After configuration, your MCP client will initiate an OAuth authorization workflow to securely connect to Scalekit's MCP server.
+
+   <Aside type="note">
+   The Scalekit MCP server source code is available on [GitHub](https://github.com/scalekit-inc/mcp). Feel free to explore the code, raise issues, or contribute new tools.
+   </Aside>
+
+</Steps>
