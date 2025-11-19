@@ -207,7 +207,6 @@ export const sidebar = [
         label: 'Customize',
         items: [
           'fsa/guides/organization-identifiers',
-          'guides/user-auth/external-id-system-integration',
           'guides/webhooks-best-practices',
           'authenticate/interceptors/interceptor-scenarios',
         ],
@@ -363,7 +362,6 @@ export const topics = {
     '/sso/**/*',
     '/directory/**/*',
     '/guides/sso/**/*',
-    '/guides/dashboard/**/*',
     '/guides/custom-domain',
     '/guides/email-providers',
     '/authenticate/interceptors/**/*',
@@ -379,7 +377,7 @@ export const topics = {
     // '/passwordless/**/*', // Moved to authenticate topic
     // '/guides/passwordless/**/*', // Moved to authenticate topic
     '/authenticate/interceptors/interceptor-scenarios',
-    '/guides/dashboard/redirects',
+    '/guides/dashboard/**/*', // Dashboard guides belong in Developer Resources
     '/guides/external-ids-and-metadata',
     '/guides/idtoken-claims',
     '/guides/accesstoken-claims',
