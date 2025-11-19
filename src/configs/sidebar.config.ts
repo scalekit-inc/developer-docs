@@ -362,12 +362,7 @@ export const sidebar = [
       },
       {
         label: 'Webhooks',
-        items: [
-          {
-            label: 'Webhooks',
-            autogenerate: { directory: 'reference/webhooks' },
-          },
-        ],
+        autogenerate: { directory: 'reference/webhooks' },
       },
       {
         label: 'Guides',

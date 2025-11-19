@@ -1,0 +1,148 @@
+---
+title: Organization events
+description: "Explore the webhook events related to organization operations in Scalekit, including creation, updates, and deletions."
+sidebar:
+  label: Organization events
+  order: 2
+tableOfContents: true
+overviewTitle: "Organization events"
+next: false
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+---
+
+import { Aside, Badge, CardGrid } from '@astrojs/starlight/components';
+import SimpleList from '@components/ui/SimpleList.astro';
+
+This page documents the webhook events related to organization operations in Scalekit.
+
+----
+
+## Organization events
+
+### `organization.created`
+
+This webhook is triggered when a new organization is created. The event type is `organization.created`
+
+```json title="organization.created"
+{
+  "spec_version": "1",
+  "id": "evt_99772985350816258",
+  "object": "Organization",
+  "environment_id": "env_74418471961625391",
+  "occurred_at": "2025-11-19T07:15:33.507289681Z",
+  "organization_id": "org_99772985317065218",
+  "type": "organization.created",
+  "data": {
+    "id": "org_99772985317065218",
+    "name": "",
+    "region": "us",
+    "external_id": null,
+    "metadata": null,
+    "settings": null,
+    "updated_at": "2025-11-19T07:15:33.483736312Z",
+    "deleted_at": null
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the organization |
+| `name` | string | Name of the organization |
+| `region` | string | The region where the organization is hosted |
+| `external_id` | string \| null | External identifier for the organization, if provided |
+| `metadata` | object \| null | Additional metadata associated with the organization |
+| `settings` | object \| null | Organization settings including feature flags and configurations |
+| `updated_at` | string | Timestamp of when the organization was last updated |
+| `deleted_at` | string \| null | Timestamp of when the organization was deleted, null if active |
+
+### `organization.updated`
+
+This webhook is triggered when an organization is updated. The event type is `organization.updated`
+
+```json title="organization.updated"
+{
+  "spec_version": "1",
+  "id": "evt_99645002723885605",
+  "object": "Organization",
+  "environment_id": "env_74418471961625391",
+  "occurred_at": "2025-11-18T10:04:09.916069987Z",
+  "organization_id": "org_99642701594493479",
+  "type": "organization.updated",
+  "data": {
+    "id": "org_99642701594493479",
+    "name": "Test Connection OIDC",
+    "region": "us",
+    "external_id": "",
+    "metadata": null,
+    "settings": {
+      "domain_capture_required": false,
+      "features": [
+        {
+          "enabled": true,
+          "name": "sso"
+        },
+        {
+          "enabled": false,
+          "name": "dir_sync"
+        }
+      ]
+    },
+    "updated_at": "2025-11-18T10:04:09.904961918Z",
+    "deleted_at": null
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the organization |
+| `name` | string | Name of the organization |
+| `region` | string | The region where the organization is hosted |
+| `external_id` | string \| null | External identifier for the organization, if provided |
+| `metadata` | object \| null | Additional metadata associated with the organization |
+| `settings` | object \| null | Organization settings including domain capture requirements and feature flags (sso, dir_sync) |
+| `updated_at` | string | Timestamp of when the organization was last updated |
+| `deleted_at` | string \| null | Timestamp of when the organization was deleted, null if active |
+
+### `organization.deleted`
+
+This webhook is triggered when an organization is deleted. The event type is `organization.deleted`
+
+```json title="organization.deleted"
+{
+  "spec_version": "1",
+  "id": "evt_99663228954477113",
+  "object": "Organization",
+  "environment_id": "env_74418471961625391",
+  "occurred_at": "2025-11-18T13:05:13.593522884Z",
+  "organization_id": "org_99662247906771511",
+  "type": "organization.deleted",
+  "data": {
+    "id": "org_99662247906771511",
+    "name": "",
+    "region": "us",
+    "external_id": null,
+    "metadata": null,
+    "settings": null,
+    "updated_at": "2025-11-18T12:55:28.842005Z",
+    "deleted_at": "2025-11-18T13:05:12.39382Z"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the organization |
+| `name` | string | Name of the organization |
+| `region` | string | The region where the organization is hosted |
+| `external_id` | string \| null | External identifier for the organization, if provided |
+| `metadata` | object \| null | Additional metadata associated with the organization |
+| `settings` | object \| null | Organization settings including feature flags and configurations |
+| `updated_at` | string | Timestamp of when the organization was last updated |
+| `deleted_at` | string | Timestamp of when the organization was deleted |
