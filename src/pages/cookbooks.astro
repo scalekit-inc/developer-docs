@@ -1,0 +1,100 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import FilterBar from '@/components/examples/FilterBar.astro'
+import ResourceGrid from '@/components/examples/ResourceGrid.astro'
+import { processExamplesData } from '@/utils/examples'
+
+// Load and process all examples data with 2 columns
+const { filters, columns } = await processExamplesData(2)
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'Cookbooks',
+    topic: 'dev-kit',
+    description:
+      'Step-by-step guides and recipes to implement authentication, authorization, and user management patterns',
+    template: 'splash',
+    sidebar: {
+      label: 'Cookbooks',
+    },
+    prev: false,
+    next: false,
+    editUrl: false,
+    lastUpdated: false,
+    tableOfContents: false,
+    seeAlso: {
+      label: 'See also',
+      expanded: true,
+      items: [
+        {
+          title: 'Scenarios',
+          icon: 'rocket',
+          url: '/scenarios/',
+        },
+        {
+          title: 'Integrations',
+          icon: 'puzzle',
+          url: '/guides/integrations/',
+        },
+        {
+          title: 'Changelogs',
+          icon: 'progress',
+          url: '/dev-kit/changelogs/',
+        },
+      ],
+    },
+    head: [
+      {
+        tag: 'style',
+        content: 'footer { display: none !important; }',
+      },
+    ],
+  }}
+  hasSidebar={true}
+>
+  <div class="cookbooks-container">
+    <FilterBar filters={filters} hidden={true} />
+    <ResourceGrid columns={columns} />
+  </div>
+</StarlightPage>
+
+<style>
+  /* Cookbooks page specific styles - works with sidebar visible */
+
+  /* Add breathing room from sidebar */
+  .cookbooks-container {
+    padding-left: 1.5rem;
+  }
+
+  /* Force 2-column layout with balanced gap */
+  :global(body:has(.cookbooks-container) .resources-container .card-grid) {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem !important;
+    column-gap: 1rem !important;
+  }
+
+  /* Enhance visual density */
+  :global(body:has(.cookbooks-container) .sl-markdown-content) {
+    line-height: 1.5;
+  }
+
+  /* Reduce excessive padding in lists */
+  :global(body:has(.cookbooks-container) .list-inside) {
+    padding-left: 0 !important;
+  }
+
+  /* Improve mobile responsiveness - single column on smaller screens */
+  @media (max-width: 1024px) {
+    :global(body:has(.cookbooks-container) .resources-container .card-grid) {
+      grid-template-columns: 1fr !important;
+    }
+
+    .cookbooks-container {
+      padding-left: 0;
+    }
+  }
+</style>
+
+<style src="../styles/examples.css"></style>
+<script src="../scripts/examples-filter.ts"></script>

@@ -158,13 +158,13 @@ export function distributeToColumns(
   return columns
 }
 
-export async function processExamplesData() {
+export async function processExamplesData(columnCount: number = 3) {
   // Load and process all data
   const resources = await loadBrowserCentralDocs()
   const categoryMap = organizeResourcesByCategory(resources)
   const filters = buildFilterData(resources)
   const orderedCategories = getOrderedCategories(categoryMap)
-  const columns = distributeToColumns(orderedCategories, categoryMap)
+  const columns = distributeToColumns(orderedCategories, categoryMap, columnCount)
 
   return {
     resources,

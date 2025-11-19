@@ -172,10 +172,14 @@ export const sidebar = [
   {
     label: 'Developer Resources',
     id: 'dev-kit',
-    link: '/dev-kit/',
+    link: '/dev-kit/overview',
     icon: 'seti:powershell',
     items: [
       'dev-kit/overview',
+      {
+        label: 'Cookbooks',
+        link: '/cookbooks',
+      },
       {
         label: 'Setup dev environment',
         items: ['dev-kit/resources/ai-assisted-setup'],
@@ -280,23 +284,23 @@ export const sidebar = [
       //   collapsed: false,
       //   items: ['guides/client-credentials-practices'],
       // },
-      {
-        label: 'Changelog',
-        items: [
-          { label: 'Overview', link: '/dev-kit/changelogs/' },
-          // makeChangelogsSidebarLinks() type options:
-          // - type: 'all' - Single link to full version list page (current)
-          // - type: 'latest' - Link to most recent version only
-          // - type: 'recent' - Multiple links to N recent versions (add count: 5 to customize, default: 5)
-          // Example: { type: 'recent', count: 3, base: '...', label: '...' }
-          ...makeChangelogsSidebarLinks([
-            { type: 'all', base: 'dev-kit/changelogs/node', label: 'Node.js SDK' },
-            { type: 'all', base: 'dev-kit/changelogs/python', label: 'Python SDK' },
-            { type: 'all', base: 'dev-kit/changelogs/go', label: 'Go SDK' },
-            { type: 'all', base: 'dev-kit/changelogs/java', label: 'Java SDK' },
-          ]),
-        ],
-      },
+      // {
+      //   label: 'Changelog',
+      //   items: [
+      //     { label: 'Overview', link: '/dev-kit/changelogs/' },
+      //     // makeChangelogsSidebarLinks() type options:
+      //     // - type: 'all' - Single link to full version list page (current)
+      //     // - type: 'latest' - Link to most recent version only
+      //     // - type: 'recent' - Multiple links to N recent versions (add count: 5 to customize, default: 5)
+      //     // Example: { type: 'recent', count: 3, base: '...', label: '...' }
+      //     ...makeChangelogsSidebarLinks([
+      //       { type: 'all', base: 'dev-kit/changelogs/node', label: 'Node.js SDK' },
+      //       { type: 'all', base: 'dev-kit/changelogs/python', label: 'Python SDK' },
+      //       { type: 'all', base: 'dev-kit/changelogs/go', label: 'Go SDK' },
+      //       { type: 'all', base: 'dev-kit/changelogs/java', label: 'Java SDK' },
+      //     ]),
+      //   ],
+      // },
     ],
   },
   {
@@ -368,6 +372,7 @@ export const topics = {
   'dev-kit': [
     '/dev-kit/**/*',
     '/scenarios',
+    '/cookbooks',
     '/social-logins/**/*',
     // '/passwordless/**/*', // Moved to authenticate topic
     // '/guides/passwordless/**/*', // Moved to authenticate topic
