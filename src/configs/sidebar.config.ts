@@ -349,8 +349,10 @@ export const topics = {
   exclude: [
     '/', // Exclude root path
     '/index.astro', // Exclude index by name
+    '/404', // Exclude 404 page
     '/reference/**/*', // Keep reference docs excluded
     '/guides/integrations', // Exclude integrations overview from sidebar
+    '/dev-kit/', // Exclude dev-kit landing page (redirects to /dev-kit/overview)
   ],
   // Associate unlisted pages with their respective topic sidebars
   authenticate: [
