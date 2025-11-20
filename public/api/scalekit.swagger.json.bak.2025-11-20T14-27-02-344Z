@@ -22,6 +22,36 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0"
     },
     "version": "1.0.0",
+    "x-scalar-environments": {
+      "development": {
+        "color": "#10B981",
+        "description": "Development environment",
+        "variables": {
+          "apiUrl": {
+            "default": "https://{subdomain}.scalekit.dev",
+            "description": "API URL"
+          },
+          "subdomain": {
+            "default": "yourapp",
+            "description": "Your unique Scalekit subdomain"
+          }
+        }
+      },
+      "production": {
+        "color": "#0082D0",
+        "description": "Production environment",
+        "variables": {
+          "apiUrl": {
+            "default": "https://{subdomain}.scalekit.com",
+            "description": "API URL"
+          },
+          "subdomain": {
+            "default": "yourapp",
+            "description": "Your unique Scalekit subdomain"
+          }
+        }
+      }
+    },
     "x-scalar-sdk-installation": [
       {
         "description": "Install the Scalekit SDK for Node.js from npm:",
@@ -471,7 +501,7 @@
         },
         "x-badges": [
           {
-            "name": "Alpha"
+            "name": ""
           }
         ],
         "x-codeSamples": [
@@ -2055,7 +2085,14 @@
               "$ref": "#/definitions/domainsListDomainResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// List all domains in an organization\nconst response = await client.domain.listDomains(organizationId);\n\n// Domain object contains:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Configuration type"
+          }
+        ]
       },
       "post": {
         "description": "Creates a new domain and associates it with the specified organization. The domain can be configured as either an ALLOWED_EMAIL_DOMAIN for automatic organization suggestions during user sign-in/sign-up, or as an ORGANIZATION_DOMAIN for SSO connection identification.\n\nThe domain must be a valid, business email domain that you control. Public disposable domains (gmail.com, outlook.com, etc.) are automatically blocked for security.\n\n",
@@ -2095,7 +2132,14 @@
               "$ref": "#/definitions/errdetailsErrorInfo"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Add a new domain to an organization\nconst response = await scalekit.createDomain(\"org-123\", \"example.com\", {\n\t// Domain type: controls user authentication and email validation\n\tdomainType: \"ALLOWED_EMAIL_DOMAIN\",\n});"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/domains/{id}": {
@@ -2129,7 +2173,14 @@
               "$ref": "#/definitions/domainsGetDomainResponse"
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Fetch details of a specific domain\nconst response = await client.domain.getDomain(organizationId, domainId);\n\n// Domain object properties:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Domain configuration type"
+          }
+        ]
       },
       "delete": {
         "description": "Permanently removes an allowed email domain or organization domain from the organization configuration.\n\nUse this endpoint when you need to remove a domain that is no longer trusted or when consolidating multiple domains. Note that this action cannot be undone.\n\n",
@@ -2159,7 +2210,80 @@
             "description": "Domain successfully deleted.",
             "schema": {}
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Remove a domain from an organization\n// Caution: Deletion is permanent and may affect user access\nconst response = await client.domain.deleteDomain(organizationId, domainId);"
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}/settings/usermanagement": {
+      "patch": {
+        "description": "Update user management settings for an organization. Use this endpoint to configure user limits and other user-related constraints",
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Update user management settings",
+        "operationId": "OrganizationService_UpsertUserManagementSettings",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of the organization.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "settings",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "The new values for the setting fields to patch.",
+              "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully upserted user management settings. Returns the current configuration including the maximum allowed users limit.",
+            "schema": {
+              "$ref": "#/definitions/organizationsUpsertUserManagementSettingsResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request - occurs when the organization_id format is incorrect or settings payload contains invalid values",
+            "schema": {}
+          },
+          "404": {
+            "description": "Organization not found - the specified organization ID doesn't exist",
+            "schema": {}
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "// Coming soon"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# Coming soon"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// Coming soon"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// Coming soon"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/users": {
@@ -4590,6 +4714,80 @@
         }
       }
     },
+    "commonsExternalIdentity": {
+      "type": "object",
+      "properties": {
+        "connection_id": {
+          "description": "Unique identifier for the external identity connection. Immutable and read-only.",
+          "type": "string",
+          "readOnly": true,
+          "example": "conn_1234abcd5678efgh"
+        },
+        "connection_provider": {
+          "description": "Type of the identity provider.",
+          "$ref": "#/definitions/commonsIdentityProviderType",
+          "readOnly": true,
+          "example": "GOOGLE"
+        },
+        "connection_type": {
+          "description": "Name of the external identity connection.",
+          "type": "string",
+          "readOnly": true,
+          "example": "OAUTH"
+        },
+        "connection_user_id": {
+          "description": "Unique identifier for the user in the external identity provider system. Immutable and read-only.",
+          "type": "string",
+          "readOnly": true,
+          "example": "ext_user_12345"
+        },
+        "created_time": {
+          "description": "Timestamp when this external identity connection was first created. Immutable and read-only.",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "is_social": {
+          "description": "Indicates if the identity provider is a social provider (true) or enterprise/custom provider (false). Read-only.",
+          "type": "boolean",
+          "readOnly": true,
+          "example": true
+        },
+        "last_login_time": {
+          "description": "Timestamp of the user's last successful login via this external identity provider. Automatically updated by the system.",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "last_synced_time": {
+          "description": "Timestamp of the last data synchronization for this external identity from the provider. Automatically updated by the system.",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "commonsIdentityProviderType": {
+      "type": "string",
+      "enum": [
+        "OKTA",
+        "GOOGLE",
+        "MICROSOFT_AD",
+        "AUTH0",
+        "ONELOGIN",
+        "PING_IDENTITY",
+        "JUMPCLOUD",
+        "CUSTOM",
+        "GITHUB",
+        "GITLAB",
+        "LINKEDIN",
+        "SALESFORCE",
+        "MICROSOFT",
+        "IDP_SIMULATOR",
+        "SCALEKIT",
+        "ADFS"
+      ]
+    },
     "commonsMembershipStatus": {
       "type": "string",
       "enum": [
@@ -4711,6 +4909,15 @@
           "type": "boolean",
           "readOnly": true,
           "example": true
+        },
+        "external_identities": {
+          "description": "List of external identity connections associated with the user profile.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/commonsExternalIdentity"
+          },
+          "readOnly": true
         },
         "family_name": {
           "description": "The user's family name (last name or surname). This field stores the user's last name and is combined with the given name to create the full display name. The family name is used in formal communications, user listings, and organizational directories throughout the system. Maximum 255 characters allowed.",
@@ -5128,6 +5335,11 @@
             "profile"
           ]
         },
+        "sync_user_profile_on_login": {
+          "description": "Indicates whether user profiles should be synchronized with the identity provider upon each log-in.",
+          "type": "boolean",
+          "example": true
+        },
         "token_uri": {
           "description": "Token URI",
           "type": "string",
@@ -5184,6 +5396,11 @@
           "type": "string",
           "example": "https://youridp.com/service/oauth"
         },
+        "jit_provisioning_with_sso_enabled": {
+          "description": "Indicates if Just In Time user provisioning is enabled for the connection",
+          "type": "boolean",
+          "example": true
+        },
         "jwks_uri": {
           "description": "JWKS URI",
           "type": "string",
@@ -5215,6 +5432,11 @@
             "openid",
             "profile"
           ]
+        },
+        "sync_user_profile_on_login": {
+          "description": "Indicates whether user profiles should be synchronized with the identity provider upon each log-in.",
+          "type": "boolean",
+          "example": true
         },
         "token_auth_type": {
           "description": "Token Auth Type",
@@ -5377,6 +5599,11 @@
           "type": "string",
           "example": "https://youridp.com/service/saml/sso"
         },
+        "jit_provisioning_with_sso_enabled": {
+          "description": "Indicates if Just In Time user provisioning is enabled for the connection",
+          "type": "boolean",
+          "example": true
+        },
         "saml_signing_option": {
           "description": "SAML Signing Option",
           "$ref": "#/definitions/connectionsSAMLSigningOptions",
@@ -5402,6 +5629,11 @@
           "type": "string",
           "readOnly": true,
           "example": "https://yourapp.com/sso/v1/saml/conn_1234/slo/callback"
+        },
+        "sync_user_profile_on_login": {
+          "description": "Indicates whether user profiles should be synchronized with the identity provider upon each log-in.",
+          "type": "boolean",
+          "example": true
         },
         "ui_button_title": {
           "description": "UI Button Title",
@@ -6324,12 +6556,32 @@
         }
       }
     },
+    "organizationsOrganizationUserManagementSettings": {
+      "type": "object",
+      "properties": {
+        "max_allowed_users": {
+          "description": "Maximum number of users allowed in the organization. When set to 0, it means no limit. When set to a positive integer, it enforces the maximum user limit.",
+          "type": "integer",
+          "format": "int32",
+          "example": 100
+        }
+      }
+    },
     "organizationsUpdateOrganizationResponse": {
       "type": "object",
       "properties": {
         "organization": {
           "description": "Updated organization details",
           "$ref": "#/definitions/organizationsOrganization"
+        }
+      }
+    },
+    "organizationsUpsertUserManagementSettingsResponse": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "description": "The updated setting.",
+          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
         }
       }
     },
@@ -7497,6 +7749,12 @@
           "type": "string",
           "example": "usr_1234abcd5678efgh"
         },
+        "last_login_time": {
+          "description": "Timestamp of the user's most recent successful authentication. Updated automatically.",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "memberships": {
           "description": "List of organization memberships. Automatically populated based on group assignments.",
           "type": "array",
@@ -8047,6 +8305,19 @@
       }
     }
   },
+  "securityDefinitions": {
+    "oauth2": {
+      "description": "OAuth 2.0 Client Credentials flow. Use your Scalekit client ID and secret to obtain an access token.",
+      "type": "oauth2",
+      "flow": "application",
+      "tokenUrl": "https://$SCALEKIT_ENVIRONMENT_URL/oauth/token"
+    }
+  },
+  "security": [
+    {
+      "oauth2": []
+    }
+  ],
   "tags": [
     {
       "description": "Organization represents a customer or a tenant of your product. This is the top level entity and all resources are mapped to this Organization object. Each organization is uniquely identified by `organization_id`.\n\n\u003c!-- ## Organization Attributes\n\n| Attribute Name             | Attribute Description                                                                                                                        |\n| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |\n| `id`\u003cbr\u003e_string_           | Unique ID of an Organization. Required for all API operations against this organization.                                                     |\n| `display_name`\u003cbr\u003e_string_ | Name of the Organization                                                                                                                     |\n| `create_time`\u003cbr\u003e_string_  | Creation timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.\u003cbr\u003eExample: `2011-10-05T14:48:00.000Z`                      |\n| `update_time`\u003cbr\u003e_string_  | Last update timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format.\u003cbr\u003eExample: `2021-10-05T14:48:00.000Z`                   |\n| `external_id`\u003cbr\u003e_string_  | Your system's unique ID for this organization. You can use this to fetch Organization and Connection details without storing Scalekit's IDs. |\n| `metadata`\u003cbr\u003e_object_     | Additional organization information stored as JSON.\u003cbr\u003eExample: `{\"key\":\"value\"}`                                                            |\n| `region_code`\u003cbr\u003e_string_  | Data center region where organization data is stored. Currently always returns `US`.                                                         | --\u003e\n",
