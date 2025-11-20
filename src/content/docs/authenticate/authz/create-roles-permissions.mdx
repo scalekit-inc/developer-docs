@@ -35,6 +35,87 @@ Your application's use cases will determine the answers. Here are a few common p
 Scalekit provides the flexibility to build authorization for any of these use cases. Once you have a clear plan, you can start creating your permissions and roles.
 
 
+## Inherit permissions through roles
+Large applications with extensive feature sets require sophisticated role and permission management. Scalekit enables role inheritance, allowing you to create a hierarchical access control system. Permissions can be grouped into roles, and new roles can be derived from existing base roles, providing a flexible and scalable approach to defining user access.
+
+```d2
+direction: right
+
+title: "Role inheritance hierarchy and permission flow" {
+  near: top-center
+  shape: text
+  style: {
+    font-size: 30
+  }
+}
+
+viewer: {
+  shape: class
+  projects: read
+  tasks: read
+  comments: read
+}
+
+editor: {
+  shape: class
+  "(inherits viewer permissions)"
+  projects: write
+  tasks: create
+  tasks: write
+}
+
+project_owner: {
+  shape: class
+  "(inherits editor permissions)"
+  projects: create
+  members: invite
+}
+
+viewer -> editor: inherits
+editor -> project_owner: inherits
+```
+
+Role assignment in Scalekit automatically grants a user all permissions defined within that role.
+
+This is how you can implement use it:
+1. Your app defines the permissions and assigns to a role. Let's say `viewer` role.
+2. When creating new role called `editor`, you specify that it inherits the permissions from the `viewer` role.
+3. When creating new role called `project_owner`, you specify that it inherits the permissions from the `editor` role.
+
+
+Take a look at our [Roles and Permissions APIs](https://docs.scalekit.com/apis/#tag/roles/get/api/v1/roles).
+
+## Manage roles and permissions in the dashboard
+
+For most applications, the simplest way to create and manage roles and permissions is through the Scalekit dashboard. This approach works well when you have a fixed set of roles and permissions that don't need to be modified by users in your application. You can set up your authorization model once during application configuration and manage it through the dashboard going forward.
+
+![](@/assets/docs/app-roles/app-roles-view.png)
+
+<Steps>
+
+1. Navigate to **Dashboard** > **Roles & Permissions** > **Permissions** to create permissions:
+   - Click **Create Permission** and provide:
+     - **Name** - Machine-friendly identifier (e.g., `projects:create`)
+     - **Display Name** - Human-readable label (e.g., "Create Projects")
+     - **Description** - Clear explanation of what this permission allows
+
+2. Go to **Dashboard** > **Roles & Permissions** > **Roles** to create roles:
+   - Click **Create Role** and provide:
+     - **Name** - Machine-friendly identifier (e.g., `project_manager`)
+     - **Display Name** - Human-readable label (e.g., "Project Manager")
+     - **Description** - Clear explanation of the role's purpose
+     - **Permissions** - Select the permissions to include in this role
+
+3. Configure default roles for new users who join organizations
+
+4. Organization administrators can create organization-specific roles by going to **Dashboard** > **Organizations** > **Select organization** > **Roles**
+
+</Steps>
+
+## Configure roles and permissions programmatically
+
+If your application requires dynamic role and permission management, you can use Scalekit's SDKs to create and manage them programmatically. This approach is ideal for applications that allow users to define custom roles or adjust permissions based on evolving requirements.
+
 Define the permissions your application needs by registering them with Scalekit. Use the `resource:action` format for clear, self-documenting permission names. You can skip this step, in case permissions may not fit your app's authorization model.
 
 <Steps>
@@ -424,86 +505,6 @@ Define the permissions your application needs by registering them with Scalekit.
 
    </TabItem>
    </Tabs>
-</Steps>
-
-
-
-
-## Inherit permissions through roles
-Large applications with extensive feature sets require sophisticated role and permission management. Scalekit enables role inheritance, allowing you to create a hierarchical access control system. Permissions can be grouped into roles, and new roles can be derived from existing base roles, providing a flexible and scalable approach to defining user access.
-
-```d2
-direction: right
-
-title: "Role inheritance hierarchy and permission flow" {
-  near: top-center
-  shape: text
-  style: {
-    font-size: 30
-  }
-}
-
-viewer: {
-  shape: class
-  projects: read
-  tasks: read
-  comments: read
-}
-
-editor: {
-  shape: class
-  "(inherits viewer permissions)"
-  projects: write
-  tasks: create
-  tasks: write
-}
-
-project_owner: {
-  shape: class
-  "(inherits editor permissions)"
-  projects: create
-  members: invite
-}
-
-viewer -> editor: inherits
-editor -> project_owner: inherits
-```
-
-Role assignment in Scalekit automatically grants a user all permissions defined within that role.
-
-This is how you can implement use it:
-1. Your app defines the permissions and assigns to a role. Let's say `viewer` role.
-2. When creating new role called `editor`, you specify that it inherits the permissions from the `viewer` role.
-3. When creating new role called `project_owner`, you specify that it inherits the permissions from the `editor` role.
-
-
-Take a look at our [Roles and Permissions APIs](https://docs.scalekit.com/apis/#tag/roles/get/api/v1/roles).
-
-## Manage roles and permissions in the dashboard
-
-For most applications, the simplest way to create and manage roles and permissions is through the Scalekit dashboard. This approach works well when you have a fixed set of roles and permissions that don't need to be modified by users in your application. You can set up your authorization model once during application configuration and manage it through the dashboard going forward.
-
-![](@/assets/docs/app-roles/app-roles-view.png)
-
-<Steps>
-
-1. Navigate to **Dashboard** > **Roles & Permissions** > **Permissions** to create permissions:
-   - Click **Create Permission** and provide:
-     - **Name** - Machine-friendly identifier (e.g., `projects:create`)
-     - **Display Name** - Human-readable label (e.g., "Create Projects")
-     - **Description** - Clear explanation of what this permission allows
-
-2. Go to **Dashboard** > **Roles & Permissions** > **Roles** to create roles:
-   - Click **Create Role** and provide:
-     - **Name** - Machine-friendly identifier (e.g., `project_manager`)
-     - **Display Name** - Human-readable label (e.g., "Project Manager")
-     - **Description** - Clear explanation of the role's purpose
-     - **Permissions** - Select the permissions to include in this role
-
-3. Configure default roles for new users who join organizations
-
-4. Organization administrators can create organization-specific roles by going to **Dashboard** > **Organizations** > **Select organization** > **Roles**
-
 </Steps>
 
 
