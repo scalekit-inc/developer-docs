@@ -1,0 +1,103 @@
+---
+title: Permission events
+description: "Explore the webhook events related to permission operations in Scalekit, including creation, updates, and deletions."
+sidebar:
+  label: Permission events
+  order: 7
+tableOfContents: true
+overviewTitle: "Permission events"
+next: false
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+---
+
+import { Aside, Badge, CardGrid } from '@astrojs/starlight/components';
+import SimpleList from '@components/ui/SimpleList.astro';
+
+This page documents the webhook events related to permission operations in Scalekit.
+
+----
+
+## Permission events
+
+### `permission.created`
+
+This webhook is triggered when a new permission is created. The event type is `permission.created`
+
+```json title="permission.created"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_1234567890",
+  "object": "Permission",
+  "occurred_at": "2024-01-15T10:30:00.123456789Z",
+  "spec_version": "1",
+  "type": "permission.created",
+  "data": {
+    "description": "Permission to manage data",
+    "id": "perm_1234567890",
+    "name": "data:manage"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the permission |
+| `name` | string | Unique name identifier for the permission |
+| `description` | string | Description of what the permission allows |
+
+### `permission.updated`
+
+This webhook is triggered when a permission is updated. The event type is `permission.updated`
+
+```json title="permission.updated"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_2345678901",
+  "object": "Permission",
+  "occurred_at": "2024-01-15T10:35:00.123456789Z",
+  "spec_version": "1",
+  "type": "permission.updated",
+  "data": {
+    "description": "Updated permission to manage all data",
+    "id": "perm_1234567890",
+    "name": "data:manage"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the permission |
+| `name` | string | Unique name identifier for the permission |
+| `description` | string | Description of what the permission allows |
+
+### `permission.deleted`
+
+This webhook is triggered when a permission is deleted. The event type is `permission.deleted`
+
+```json title="permission.deleted"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_3456789012",
+  "object": "Permission",
+  "occurred_at": "2024-01-15T10:40:00.123456789Z",
+  "spec_version": "1",
+  "type": "permission.deleted",
+  "data": {
+    "description": "Updated permission to manage all data",
+    "id": "perm_1234567890",
+    "name": "data:manage"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the deleted permission |
+| `name` | string | Unique name identifier for the deleted permission |
+| `description` | string | Description of what the permission allowed |
