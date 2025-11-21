@@ -1,0 +1,147 @@
+---
+title: Organization events
+description: "Explore the webhook events related to organization operations in Scalekit, including creation, updates, and deletions."
+sidebar:
+  label: Organization events
+  order: 2
+tableOfContents: true
+next: false
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+---
+
+import { Aside, Badge, CardGrid } from '@astrojs/starlight/components';
+import SimpleList from '@components/ui/SimpleList.astro';
+
+This page documents the webhook events related to organization operations in Scalekit.
+
+----
+
+## Organization events
+
+### `organization.created`
+
+This webhook is triggered when a new organization is created. The event type is `organization.created`
+
+```json title="organization.created"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_1234567890",
+  "object": "Organization",
+  "occurred_at": "2024-01-15T10:30:00.123456789Z",
+  "organization_id": "org_1234567890",
+  "spec_version": "1",
+  "type": "organization.created",
+  "data": {
+    "external_id": "org_external_123",
+    "id": "org_1234567890",
+    "metadata": null,
+    "settings": {
+      "features": [
+        {
+          "enabled": true,
+          "name": "sso"
+        },
+        {
+          "enabled": false,
+          "name": "dir_sync"
+        }
+      ]
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the organization |
+| `external_id` | string \| null | External identifier for the organization, if provided |
+| `metadata` | object \| null | Additional metadata associated with the organization |
+| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `settings.features` | array | Array of feature objects with enabled status and name |
+
+### `organization.updated`
+
+This webhook is triggered when an organization is updated. The event type is `organization.updated`
+
+```json title="organization.updated"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_2345678901",
+  "object": "Organization",
+  "occurred_at": "2024-01-15T10:35:00.123456789Z",
+  "organization_id": "org_1234567890",
+  "spec_version": "1",
+  "type": "organization.updated",
+  "data": {
+    "external_id": "org_external_123",
+    "id": "org_1234567890",
+    "metadata": null,
+    "settings": {
+      "features": [
+        {
+          "enabled": true,
+          "name": "sso"
+        },
+        {
+          "enabled": false,
+          "name": "dir_sync"
+        }
+      ]
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the organization |
+| `external_id` | string \| null | External identifier for the organization, if provided |
+| `metadata` | object \| null | Additional metadata associated with the organization |
+| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `settings.features` | array | Array of feature objects with enabled status and name |
+
+### `organization.deleted`
+
+This webhook is triggered when an organization is deleted. The event type is `organization.deleted`
+
+```json title="organization.deleted"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_3456789012",
+  "object": "Organization",
+  "occurred_at": "2024-01-15T10:40:00.123456789Z",
+  "organization_id": "org_1234567890",
+  "spec_version": "1",
+  "type": "organization.deleted",
+  "data": {
+    "external_id": "org_external_123",
+    "id": "org_1234567890",
+    "metadata": null,
+    "settings": {
+      "features": [
+        {
+          "enabled": true,
+          "name": "sso"
+        },
+        {
+          "enabled": false,
+          "name": "dir_sync"
+        }
+      ]
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the organization |
+| `external_id` | string \| null | External identifier for the organization, if provided |
+| `metadata` | object \| null | Additional metadata associated with the organization |
+| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `settings.features` | array | Array of feature objects with enabled status and name |
