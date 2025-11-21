@@ -80,7 +80,7 @@ export const sidebar = [
       {
         label: 'Add auth modules',
         items: [
-          { label: 'Quickstart: Modular SSO', link: 'sso/quickstart' },
+          { label: 'Add Modular SSO', link: 'authenticate/sso/add-modular-sso' },
           'passwordless/quickstart',
           'guides/user-auth/modular-social-logins',
           'directory/scim/quickstart',
