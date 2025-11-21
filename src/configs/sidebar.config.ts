@@ -76,7 +76,6 @@ export const sidebar = [
           'authenticate/implement-workflows/implement-webhooks',
         ],
       },
-      createDivider(),
       {
         label: 'Add auth modules',
         items: [
