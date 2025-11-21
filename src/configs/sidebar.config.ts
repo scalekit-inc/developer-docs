@@ -1,4 +1,5 @@
 import { makeChangelogsSidebarLinks } from 'starlight-changelogs'
+import { createDivider, createSectionHeader } from './sidebar-utils'
 
 export const sidebar = [
   {
@@ -75,6 +76,7 @@ export const sidebar = [
           'authenticate/implement-workflows/implement-webhooks',
         ],
       },
+      createDivider(),
       {
         label: 'Add auth modules',
         items: [
@@ -179,9 +181,8 @@ export const sidebar = [
       {
         label: 'AI Assisted Setup',
         link: 'dev-kit/resources/ai-assisted-setup',
-        attrs: { style: 'border-bottom: 1px solid var(--sl-color-gray-2); margin-bottom: 1rem;' },
       },
-
+      createDivider(),
       {
         label: 'User authentication',
         items: [
