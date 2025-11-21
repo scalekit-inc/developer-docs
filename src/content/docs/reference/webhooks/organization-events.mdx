@@ -30,58 +30,18 @@ This webhook is triggered when a new organization is created. The event type is 
 
 ```json title="organization.created"
 {
-  "spec_version": "1",
-  "id": "evt_99772985350816258",
+  "environment_id": "env_1234567890",
+  "id": "evt_1234567890",
   "object": "Organization",
-  "environment_id": "env_74418471961625391",
-  "occurred_at": "2025-11-19T07:15:33.507289681Z",
-  "organization_id": "org_99772985317065218",
+  "occurred_at": "2024-01-15T10:30:00.123456789Z",
+  "organization_id": "org_1234567890",
+  "spec_version": "1",
   "type": "organization.created",
   "data": {
-    "id": "org_99772985317065218",
-    "name": "",
-    "region": "us",
-    "external_id": null,
-    "metadata": null,
-    "settings": null,
-    "updated_at": "2025-11-19T07:15:33.483736312Z",
-    "deleted_at": null
-  }
-}
-```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | string | Unique identifier for the organization |
-| `name` | string | Name of the organization |
-| `region` | string | The region where the organization is hosted |
-| `external_id` | string \| null | External identifier for the organization, if provided |
-| `metadata` | object \| null | Additional metadata associated with the organization |
-| `settings` | object \| null | Organization settings including feature flags and configurations |
-| `updated_at` | string | Timestamp of when the organization was last updated |
-| `deleted_at` | string \| null | Timestamp of when the organization was deleted, null if active |
-
-### `organization.updated`
-
-This webhook is triggered when an organization is updated. The event type is `organization.updated`
-
-```json title="organization.updated"
-{
-  "spec_version": "1",
-  "id": "evt_99645002723885605",
-  "object": "Organization",
-  "environment_id": "env_74418471961625391",
-  "occurred_at": "2025-11-18T10:04:09.916069987Z",
-  "organization_id": "org_99642701594493479",
-  "type": "organization.updated",
-  "data": {
-    "id": "org_99642701594493479",
-    "name": "Test Connection OIDC",
-    "region": "us",
-    "external_id": "",
+    "external_id": "org_external_123",
+    "id": "org_1234567890",
     "metadata": null,
     "settings": {
-      "domain_capture_required": false,
       "features": [
         {
           "enabled": true,
@@ -92,9 +52,7 @@ This webhook is triggered when an organization is updated. The event type is `or
           "name": "dir_sync"
         }
       ]
-    },
-    "updated_at": "2025-11-18T10:04:09.904961918Z",
-    "deleted_at": null
+    }
   }
 }
 ```
@@ -102,13 +60,51 @@ This webhook is triggered when an organization is updated. The event type is `or
 | Field | Type | Description |
 |-------|------|-------------|
 | `id` | string | Unique identifier for the organization |
-| `name` | string | Name of the organization |
-| `region` | string | The region where the organization is hosted |
 | `external_id` | string \| null | External identifier for the organization, if provided |
 | `metadata` | object \| null | Additional metadata associated with the organization |
-| `settings` | object \| null | Organization settings including domain capture requirements and feature flags (sso, dir_sync) |
-| `updated_at` | string | Timestamp of when the organization was last updated |
-| `deleted_at` | string \| null | Timestamp of when the organization was deleted, null if active |
+| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `settings.features` | array | Array of feature objects with enabled status and name |
+
+### `organization.updated`
+
+This webhook is triggered when an organization is updated. The event type is `organization.updated`
+
+```json title="organization.updated"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_2345678901",
+  "object": "Organization",
+  "occurred_at": "2024-01-15T10:35:00.123456789Z",
+  "organization_id": "org_1234567890",
+  "spec_version": "1",
+  "type": "organization.updated",
+  "data": {
+    "external_id": "org_external_123",
+    "id": "org_1234567890",
+    "metadata": null,
+    "settings": {
+      "features": [
+        {
+          "enabled": true,
+          "name": "sso"
+        },
+        {
+          "enabled": false,
+          "name": "dir_sync"
+        }
+      ]
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the organization |
+| `external_id` | string \| null | External identifier for the organization, if provided |
+| `metadata` | object \| null | Additional metadata associated with the organization |
+| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `settings.features` | array | Array of feature objects with enabled status and name |
 
 ### `organization.deleted`
 
@@ -116,22 +112,29 @@ This webhook is triggered when an organization is deleted. The event type is `or
 
 ```json title="organization.deleted"
 {
-  "spec_version": "1",
-  "id": "evt_99663228954477113",
+  "environment_id": "env_1234567890",
+  "id": "evt_3456789012",
   "object": "Organization",
-  "environment_id": "env_74418471961625391",
-  "occurred_at": "2025-11-18T13:05:13.593522884Z",
-  "organization_id": "org_99662247906771511",
+  "occurred_at": "2024-01-15T10:40:00.123456789Z",
+  "organization_id": "org_1234567890",
+  "spec_version": "1",
   "type": "organization.deleted",
   "data": {
-    "id": "org_99662247906771511",
-    "name": "",
-    "region": "us",
-    "external_id": null,
+    "external_id": "org_external_123",
+    "id": "org_1234567890",
     "metadata": null,
-    "settings": null,
-    "updated_at": "2025-11-18T12:55:28.842005Z",
-    "deleted_at": "2025-11-18T13:05:12.39382Z"
+    "settings": {
+      "features": [
+        {
+          "enabled": true,
+          "name": "sso"
+        },
+        {
+          "enabled": false,
+          "name": "dir_sync"
+        }
+      ]
+    }
   }
 }
 ```
@@ -139,10 +142,7 @@ This webhook is triggered when an organization is deleted. The event type is `or
 | Field | Type | Description |
 |-------|------|-------------|
 | `id` | string | Unique identifier for the organization |
-| `name` | string | Name of the organization |
-| `region` | string | The region where the organization is hosted |
 | `external_id` | string \| null | External identifier for the organization, if provided |
 | `metadata` | object \| null | Additional metadata associated with the organization |
-| `settings` | object \| null | Organization settings including feature flags and configurations |
-| `updated_at` | string | Timestamp of when the organization was last updated |
-| `deleted_at` | string | Timestamp of when the organization was deleted |
+| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `settings.features` | array | Array of feature objects with enabled status and name |
