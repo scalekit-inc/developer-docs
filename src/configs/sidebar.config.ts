@@ -259,8 +259,8 @@ export const sidebar = [
         label: 'SCIM Provisioning',
         items: [
           'directory/guides/user-provisioning-basics',
-          'guides/user-management/scim-provisioning',
           'directory/guides/scim-protocol',
+          'guides/user-management/scim-provisioning',
         ],
       },
       {
