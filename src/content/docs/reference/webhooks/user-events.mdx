@@ -1,0 +1,497 @@
+---
+title: User events
+description: "Explore the webhook events related to user operations in Scalekit, including signup, login, logout, and organization membership events."
+sidebar:
+  label: User events
+  order: 3
+tableOfContents: true
+overviewTitle: "User events"
+next: false
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+---
+
+import { Aside, Badge, CardGrid } from '@astrojs/starlight/components';
+import SimpleList from '@components/ui/SimpleList.astro';
+
+This page documents the webhook events related to user operations in Scalekit.
+
+----
+
+## User authentication events
+
+### `user.signup`
+
+This webhook is triggered when a user signs up to create a new organization. The event type is `user.signup`
+
+```json title="user.signup"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_1234567890",
+  "object": "OrgMembershipEvent",
+  "occurred_at": "2024-01-15T10:30:00.123456789Z",
+  "spec_version": "1",
+  "type": "user.signup",
+  "data": {
+    "organization": {
+      "id": "org_1234567890"
+    },
+    "user": {
+      "create_time": "2024-01-15T10:30:00Z",
+      "email": "user@example.com",
+      "id": "usr_1234567890",
+      "membership": {
+        "accepted_at": "2024-01-15T10:30:00Z",
+        "created_at": "2024-01-15T10:30:00Z",
+        "membership_status": "ACTIVE",
+        "organization_id": "org_1234567890",
+        "provisioning_method": "org_creator",
+        "roles": [
+          {
+            "id": "role_1234567890"
+          }
+        ]
+      },
+      "update_time": "2024-01-15T10:30:00Z",
+      "user_profile": {
+        "email_verified": true,
+        "id": "usp_1234567890"
+      }
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `organization` | object | Organization details associated with the signup |
+| `organization.id` | string | Unique identifier for the organization |
+| `user` | object | User details for the signed-up user |
+| `user.id` | string | Unique identifier for the user |
+| `user.email` | string | Email address of the user |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.user_profile` | object | User profile information |
+| `user.user_profile.id` | string | Unique identifier for the user profile |
+| `user.user_profile.email_verified` | boolean | Indicates if the user's email is verified |
+| `user.membership` | object | Organization membership details |
+| `user.membership.organization_id` | string | Identifier for the organization |
+| `user.membership.membership_status` | string | Status of the membership (ACTIVE, PENDING, etc.) |
+| `user.membership.provisioning_method` | string | Method used for provisioning (org_creator, JIT, etc.) |
+| `user.membership.created_at` | string | Timestamp of when the membership was created |
+| `user.membership.accepted_at` | string | Timestamp of when the membership was accepted |
+| `user.membership.roles` | array | Array of roles assigned to the user |
+
+### `user.login`
+
+This webhook is triggered when a user logs in and a session is created. The event type is `user.login`
+
+```json title="user.login"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_2345678901",
+  "object": "UserLoginEvent",
+  "occurred_at": "2024-01-15T10:35:00.123456789Z",
+  "spec_version": "1",
+  "type": "user.login",
+  "data": {
+    "user": {
+      "create_time": "2024-01-15T10:30:00Z",
+      "email": "user@example.com",
+      "id": "usr_1234567890",
+      "membership": {
+        "accepted_at": "2024-01-15T10:30:00Z",
+        "created_at": "2024-01-15T10:30:00Z",
+        "display_name": "Acme Corporation",
+        "membership_status": "ACTIVE",
+        "name": "Acme Corporation",
+        "organization_id": "org_1234567890",
+        "provisioning_method": "org_creator",
+        "roles": [
+          {
+            "id": "role_1234567890"
+          }
+        ]
+      },
+      "update_time": "2024-01-15T10:30:00Z",
+      "user_profile": {
+        "email_verified": true,
+        "family_name": "Doe",
+        "given_name": "John",
+        "id": "usp_1234567890",
+        "name": "John Doe"
+      }
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `user` | object | User details for the logged-in user |
+| `user.id` | string | Unique identifier for the user |
+| `user.email` | string | Email address of the user |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.user_profile` | object | User profile information |
+| `user.user_profile.id` | string | Unique identifier for the user profile |
+| `user.user_profile.name` | string | Full name of the user |
+| `user.user_profile.given_name` | string | Given name of the user |
+| `user.user_profile.family_name` | string | Family name of the user |
+| `user.user_profile.email_verified` | boolean | Indicates if the user's email is verified |
+| `user.membership` | object | Organization membership details |
+| `user.membership.organization_id` | string | Identifier for the organization |
+| `user.membership.name` | string | Name of the organization |
+| `user.membership.display_name` | string | Display name for the organization |
+| `user.membership.membership_status` | string | Status of the membership (ACTIVE, PENDING, etc.) |
+| `user.membership.provisioning_method` | string | Method used for provisioning (org_creator, JIT, etc.) |
+| `user.membership.created_at` | string | Timestamp of when the membership was created |
+| `user.membership.accepted_at` | string | Timestamp of when the membership was accepted |
+| `user.membership.roles` | array | Array of roles assigned to the user |
+
+### `user.logout`
+
+This webhook is triggered when a user logs out and the session is terminated. The event type is `user.logout`
+
+```json title="user.logout"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_3456789012",
+  "object": "UserLogoutEvent",
+  "occurred_at": "2024-01-15T10:40:00.123456789Z",
+  "spec_version": "1",
+  "type": "user.logout",
+  "data": {
+    "user": {
+      "create_time": "2024-01-15T10:30:00Z",
+      "email": "user@example.com",
+      "external_id": "user_ext_123",
+      "id": "usr_1234567890",
+      "membership": {
+        "accepted_at": "2024-01-15T10:30:00Z",
+        "created_at": "2024-01-15T10:30:00Z",
+        "display_name": "Acme Corporation",
+        "membership_status": "ACTIVE",
+        "name": "Acme Corporation",
+        "organization_id": "org_1234567890",
+        "provisioning_method": "org_creator",
+        "roles": [
+          {
+            "id": "role_1234567890"
+          }
+        ]
+      },
+      "update_time": "2024-01-15T10:35:00Z",
+      "user_profile": {
+        "email_verified": true,
+        "family_name": "Doe",
+        "given_name": "John",
+        "id": "usp_1234567890",
+        "name": "John Doe"
+      }
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `user` | object | User details for the logged-out user |
+| `user.id` | string | Unique identifier for the user |
+| `user.email` | string | Email address of the user |
+| `user.external_id` | string | External identifier for the user |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.user_profile` | object | User profile information |
+| `user.user_profile.id` | string | Unique identifier for the user profile |
+| `user.user_profile.name` | string | Full name of the user |
+| `user.user_profile.given_name` | string | Given name of the user |
+| `user.user_profile.family_name` | string | Family name of the user |
+| `user.user_profile.email_verified` | boolean | Indicates if the user's email is verified |
+| `user.membership` | object | Organization membership details |
+| `user.membership.organization_id` | string | Identifier for the organization |
+| `user.membership.name` | string | Name of the organization |
+| `user.membership.display_name` | string | Display name for the organization |
+| `user.membership.membership_status` | string | Status of the membership (ACTIVE, PENDING, etc.) |
+| `user.membership.provisioning_method` | string | Method used for provisioning (org_creator, JIT, etc.) |
+| `user.membership.created_at` | string | Timestamp of when the membership was created |
+| `user.membership.accepted_at` | string | Timestamp of when the membership was accepted |
+| `user.membership.roles` | array | Array of roles assigned to the user |
+
+----
+
+## Organization membership events
+
+### `user.organization_invitation`
+
+This webhook is triggered when a user is invited to join an organization. The event type is `user.organization_invitation`
+
+```json title="user.organization_invitation"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_4567890123",
+  "object": "OrgMembershipEvent",
+  "occurred_at": "2024-01-15T11:00:00.123456789Z",
+  "spec_version": "1",
+  "type": "user.organization_invitation",
+  "data": {
+    "organization": {
+      "external_id": "org_external_456",
+      "id": "org_2345678901"
+    },
+    "user": {
+      "create_time": "2024-01-15T11:00:00Z",
+      "email": "newuser@example.com",
+      "id": "usr_2345678901",
+      "membership": {
+        "created_at": "2024-01-15T11:00:00Z",
+        "display_name": "Example Corp",
+        "membership_status": "PENDING_INVITE",
+        "name": "Example Corp",
+        "organization_id": "org_2345678901",
+        "provisioning_method": "invitation",
+        "roles": [
+          {
+            "id": "role_2345678901"
+          }
+        ]
+      },
+      "update_time": "2024-01-15T11:00:00Z",
+      "user_profile": {
+        "id": "usp_2345678901"
+      }
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `organization` | object | Organization details for the invitation |
+| `organization.id` | string | Unique identifier for the organization |
+| `organization.external_id` | string | External identifier for the organization |
+| `user` | object | User details for the invited user |
+| `user.id` | string | Unique identifier for the user |
+| `user.email` | string | Email address of the user |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.user_profile` | object | User profile information |
+| `user.user_profile.id` | string | Unique identifier for the user profile |
+| `user.membership` | object | Organization membership details |
+| `user.membership.organization_id` | string | Identifier for the organization |
+| `user.membership.name` | string | Name of the organization |
+| `user.membership.display_name` | string | Display name for the organization membership |
+| `user.membership.membership_status` | string | Status of the membership (PENDING_INVITE for invitations) |
+| `user.membership.provisioning_method` | string | Method used for provisioning (invitation in this case) |
+| `user.membership.created_at` | string | Timestamp of when the membership invitation was created |
+| `user.membership.roles` | array | Array of roles that will be assigned to the user upon acceptance |
+
+### `user.organization_membership_created`
+
+This webhook is triggered when a user joins an organization. The event type is `user.organization_membership_created`
+
+```json title="user.organization_membership_created"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_5678901234",
+  "object": "OrgMembershipEvent",
+  "occurred_at": "2024-01-15T11:05:00.123456789Z",
+  "spec_version": "1",
+  "type": "user.organization_membership_created",
+  "data": {
+    "organization": {
+      "external_id": "org_external_456",
+      "id": "org_2345678901"
+    },
+    "user": {
+      "create_time": "2024-01-15T11:00:00Z",
+      "email": "newuser@example.com",
+      "id": "usr_2345678901",
+      "membership": {
+        "accepted_at": "2024-01-15T11:05:00Z",
+        "created_at": "2024-01-15T11:00:00Z",
+        "display_name": "Example Corp",
+        "membership_status": "ACTIVE",
+        "name": "Example Corp",
+        "organization_id": "org_2345678901",
+        "provisioning_method": "invitation",
+        "roles": [
+          {
+            "id": "role_2345678901"
+          }
+        ]
+      },
+      "update_time": "2024-01-15T11:00:00Z",
+      "user_profile": {
+        "email_verified": true,
+        "id": "usp_2345678901"
+      }
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `organization` | object | Organization details |
+| `organization.id` | string | Unique identifier for the organization |
+| `organization.external_id` | string | External identifier for the organization |
+| `user` | object | User details |
+| `user.id` | string | Unique identifier for the user |
+| `user.email` | string | Email address of the user |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.user_profile` | object | User profile information |
+| `user.user_profile.id` | string | Unique identifier for the user profile |
+| `user.user_profile.email_verified` | boolean | Indicates if the user's email is verified |
+| `user.membership` | object | Organization membership details |
+| `user.membership.organization_id` | string | Identifier for the organization |
+| `user.membership.name` | string | Name of the organization |
+| `user.membership.display_name` | string | Display name for the organization |
+| `user.membership.membership_status` | string | Status of the membership (ACTIVE, PENDING, etc.) |
+| `user.membership.provisioning_method` | string | Method used for provisioning (org_creator, JIT, etc.) |
+| `user.membership.created_at` | string | Timestamp of when the membership was created |
+| `user.membership.accepted_at` | string | Timestamp of when the membership was accepted |
+| `user.membership.roles` | array | Array of roles assigned to the user |
+
+### `user.organization_membership_updated`
+
+This webhook is triggered when a user's organization membership is updated, e.g., change of user's role in an organization.The event type is `user.organization_membership_updated`
+
+```json title="user.organization_membership_updated"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_6789012345",
+  "object": "OrgMembershipEvent",
+  "occurred_at": "2024-01-15T11:10:00.123456789Z",
+  "spec_version": "1",
+  "type": "user.organization_membership_updated",
+  "data": {
+    "organization": {
+      "external_id": "org_external_456",
+      "id": "org_2345678901"
+    },
+    "user": {
+      "create_time": "2024-01-15T11:00:00Z",
+      "email": "newuser@example.com",
+      "environment_id": "env_1234567890",
+      "external_id": "user_ext_456",
+      "id": "usr_2345678901",
+      "membership": {
+        "accepted_at": "2024-01-15T11:10:00Z",
+        "created_at": "2024-01-15T11:00:00Z",
+        "display_name": "Example Corp",
+        "membership_status": "ACTIVE",
+        "name": "Example Corp",
+        "organization_id": "org_2345678901",
+        "provisioning_method": "invitation",
+        "roles": [
+          {
+            "id": "role_3456789012"
+          }
+        ]
+      },
+      "update_time": "2024-01-15T11:05:00Z",
+      "user_profile": {
+        "email_verified": true,
+        "id": "usp_2345678901"
+      }
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `organization` | object | Organization details |
+| `organization.id` | string | Unique identifier for the organization |
+| `organization.external_id` | string | External identifier for the organization |
+| `user` | object | User details |
+| `user.id` | string | Unique identifier for the user |
+| `user.email` | string | Email address of the user |
+| `user.external_id` | string | External identifier for the user |
+| `user.environment_id` | string | Identifier for the environment |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.user_profile` | object | User profile information |
+| `user.user_profile.id` | string | Unique identifier for the user profile |
+| `user.user_profile.email_verified` | boolean | Indicates if the user's email is verified |
+| `user.membership` | object | Organization membership details |
+| `user.membership.organization_id` | string | Identifier for the organization |
+| `user.membership.name` | string | Name of the organization |
+| `user.membership.display_name` | string | Display name for the organization membership |
+| `user.membership.membership_status` | string | Status of the membership (ACTIVE, PENDING, etc.) |
+| `user.membership.provisioning_method` | string | Method used for provisioning (JIT, org_creator, etc.) |
+| `user.membership.created_at` | string | Timestamp of when the membership was created |
+| `user.membership.accepted_at` | string | Timestamp of when the membership was accepted |
+| `user.membership.roles` | array | Array of roles assigned to the user |
+
+### `user.organization_membership_deleted`
+
+This webhook is triggered when a user is removed from an organization. The event type is `user.organization_membership_deleted`
+
+```json title="user.organization_membership_deleted"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_7890123456",
+  "object": "OrgMembershipEvent",
+  "occurred_at": "2024-01-15T11:15:00.123456789Z",
+  "spec_version": "1",
+  "type": "user.organization_membership_deleted",
+  "data": {
+    "organization": {
+      "external_id": "org_external_456",
+      "id": "org_2345678901"
+    },
+    "user": {
+      "create_time": "2024-01-15T11:00:00Z",
+      "email": "newuser@example.com",
+      "external_id": "user_ext_456",
+      "id": "usr_2345678901",
+      "membership": {
+        "created_at": "2024-01-15T11:00:00Z",
+        "display_name": "Example Corp",
+        "membership_status": "DELETED",
+        "organization_id": "org_2345678901",
+        "provisioning_method": "invitation",
+        "roles": [
+          {
+            "id": "role_3456789012"
+          }
+        ]
+      },
+      "update_time": "2024-01-15T11:05:00Z",
+      "user_profile": {
+        "email_verified": true,
+        "id": "usp_2345678901"
+      }
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `organization` | object | Organization details |
+| `organization.id` | string | Unique identifier for the organization |
+| `organization.external_id` | string | External identifier for the organization |
+| `user` | object | User details |
+| `user.id` | string | Unique identifier for the user |
+| `user.email` | string | Email address of the user |
+| `user.external_id` | string | External identifier for the user |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.user_profile` | object | User profile information |
+| `user.user_profile.id` | string | Unique identifier for the user profile |
+| `user.user_profile.email_verified` | boolean | Indicates if the user's email is verified |
+| `user.membership` | object | Organization membership details |
+| `user.membership.organization_id` | string | Identifier for the organization |
+| `user.membership.display_name` | string | Display name for the organization membership |
+| `user.membership.membership_status` | string | Status of the membership (DELETED in this case) |
+| `user.membership.provisioning_method` | string | Method used for provisioning (JIT, org_creator, etc.) |
+| `user.membership.created_at` | string | Timestamp of when the membership was created |
+| `user.membership.roles` | array | Array of roles that were assigned to the user |
