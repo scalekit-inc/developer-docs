@@ -1,0 +1,149 @@
+---
+title: Enterprise SSO events
+description: "Explore the webhook events related to Enterprise SSO operations in Scalekit, including connection creation, enabling, disabling, and deletion."
+sidebar:
+  label: Enterprise SSO events
+  order: 4
+tableOfContents: true
+overviewTitle: "Enterprise SSO events"
+next: false
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+---
+
+import { Aside, Badge, CardGrid } from '@astrojs/starlight/components';
+import SimpleList from '@components/ui/SimpleList.astro';
+
+This page documents the webhook events related to Enterprise SSO connection operations in Scalekit.
+
+----
+
+## SSO connection events
+
+### `organization.sso_created`
+
+This webhook is triggered when a new SSO connection is created for an organization. The event type is `organization.sso_created`
+
+```json title="organization.sso_created"
+{
+  "spec_version": "1",
+  "id": "evt_94567862441607493",
+  "object": "Connection",
+  "environment_id": "env_74418471961625391",
+  "occurred_at": "2025-10-14T09:27:18.488720586Z",
+  "organization_id": "org_83544995172188677",
+  "type": "organization.sso_created",
+  "data": {
+    "id": "conn_94567862424830277",
+    "organization_id": "org_83544995172188677",
+    "connection_type": "OIDC",
+    "provider": "OKTA"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the SSO connection |
+| `organization_id` | string | Identifier for the organization associated with this connection |
+| `connection_type` | string | Type of SSO connection (OIDC, SAML, etc.) |
+| `provider` | string | Identity provider for the SSO connection |
+
+### `organization.sso_enabled`
+
+This webhook is triggered when an SSO connection is enabled for an organization. The event type is `organization.sso_enabled`
+
+```json title="organization.sso_enabled"
+{
+  "spec_version": "1",
+  "id": "evt_94568078213382471",
+  "object": "Connection",
+  "environment_id": "env_74418471961625391",
+  "occurred_at": "2025-10-14T09:29:27.098914861Z",
+  "organization_id": "org_83544995172188677",
+  "type": "organization.sso_enabled",
+  "data": {
+    "id": "conn_94567862424830277",
+    "organization_id": "org_83544995172188677",
+    "connection_type": "OIDC",
+    "provider": "OKTA",
+    "enabled": true,
+    "status": "COMPLETED"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the SSO connection |
+| `organization_id` | string | Identifier for the organization associated with this connection |
+| `connection_type` | string | Type of SSO connection (OIDC, SAML, etc.) |
+| `provider` | string | Identity provider for the SSO connection |
+| `enabled` | boolean | Indicates whether the SSO connection is enabled (true in this case) |
+| `status` | string | Current status of the SSO connection configuration |
+
+### `organization.sso_disabled`
+
+This webhook is triggered when an SSO connection is disabled for an organization. The event type is `organization.sso_disabled`
+
+```json title="organization.sso_disabled"
+{
+  "spec_version": "1",
+  "id": "evt_94557976165089560",
+  "object": "Connection",
+  "environment_id": "env_74418471961625391",
+  "occurred_at": "2025-10-14T07:49:05.809554456Z",
+  "organization_id": "org_83544995172188677",
+  "type": "organization.sso_disabled",
+  "data": {
+    "id": "conn_83545002856153607",
+    "organization_id": "org_83544995172188677",
+    "connection_type": "OIDC",
+    "provider": "OKTA",
+    "enabled": false,
+    "status": "COMPLETED"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the SSO connection |
+| `organization_id` | string | Identifier for the organization associated with this connection |
+| `connection_type` | string | Type of SSO connection (OIDC, SAML, etc.) |
+| `provider` | string | Identity provider for the SSO connection |
+| `enabled` | boolean | Indicates whether the SSO connection is enabled (false in this case) |
+| `status` | string | Current status of the SSO connection configuration |
+
+### `organization.sso_deleted`
+
+This webhook is triggered when an SSO connection is deleted for an organization. The event type is `organization.sso_deleted`
+
+```json title="organization.sso_deleted"
+{
+  "spec_version": "1",
+  "id": "evt_94557997639926040",
+  "object": "Connection",
+  "environment_id": "env_74418471961625391",
+  "occurred_at": "2025-10-14T07:49:18.604546332Z",
+  "organization_id": "org_83544995172188677",
+  "type": "organization.sso_deleted",
+  "data": {
+    "id": "conn_83545002856153607",
+    "organization_id": "org_83544995172188677",
+    "connection_type": "OIDC",
+    "provider": "OKTA"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the SSO connection |
+| `organization_id` | string | Identifier for the organization associated with this connection |
+| `connection_type` | string | Type of SSO connection (OIDC, SAML, etc.) |
+| `provider` | string | Identity provider for the SSO connection |
