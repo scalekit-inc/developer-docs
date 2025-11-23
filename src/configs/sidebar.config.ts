@@ -181,6 +181,15 @@ export const sidebar = [
         label: 'AI Assisted Setup',
         link: 'dev-kit/resources/ai-assisted-setup',
       },
+      {
+        label: 'View all integrations',
+        link: 'guides/integrations',
+        badge: {
+          text: '25+',
+          variant: 'tip',
+        },
+        attrs: { target: '_blank', rel: 'noopener' },
+      },
       createDivider(),
       {
         label: 'User authentication',
@@ -256,19 +265,7 @@ export const sidebar = [
       },
       {
         label: 'Onboard an enterprise',
-        items: [
-          'fsa/guides/onboard-enterprise-customers',
-          'guides/admin-portal',
-          {
-            label: 'View all integrations',
-            link: 'guides/integrations',
-            badge: {
-              text: '25+',
-              variant: 'tip',
-            },
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
+        items: ['fsa/guides/onboard-enterprise-customers', 'guides/admin-portal'],
       },
       {
         label: 'Migrations',
