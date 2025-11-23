@@ -1,6 +1,6 @@
 ---
 title: "Initiate user login"
-description: "Create authorization URLs and redirect users to Scalekit's hosted login page with proper parameters"
+description: "Create authorization URLs and redirect users to Scalekit's hosted login page"
 sidebar:
   label: "Initiate user login"
 head:
@@ -27,16 +27,17 @@ seeAlso:
     - title: "Complete login with code exchange"
       icon: "code"
       url: "/authenticate/fsa/complete-login/"
+    - title: "Handle different login flows"
+      icon: "book"
+      url: "/guides/user-auth/login-scenarios/"
 
 ---
 import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
 
-Login initiation begins your authentication flow. You redirect users to Scalekit's hosted login page by creating an authorization URL with appropriate parameters.
-
-When users visit this URL, Scalekit's authorization server validates the request, displays the login interface, and handles authentication through your configured connection methods (SSO, social providers, or Magic Link & OTP).
+Login initiation begins your authentication flow. You redirect users to Scalekit's hosted login page by creating an authorization URL with appropriate parameters.When users visit this URL, Scalekit's authorization server validates the request, displays the login interface, and handles authentication through your configured connection methods (SSO, social providers, Magic Link or Email OTP
 
 
-```sh title="Authorization URL format" showLineNumbers=true
+```sh title="Authorization URL format" showLineNumbers=false
 <SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
   response_type=code& # always `code` for authorization code flow
   client_id=<SCALEKIT_CLIENT_ID>& # Dashboard > Developers > Settings > API Credentials
@@ -45,7 +46,7 @@ When users visit this URL, Scalekit's authorization server validates the request
   state=<RANDOM_STATE> # prevent CSRF attacks
 ```
 
-The authorization request includes several parameters that control authentication behavior and security:
+The authorization request includes several parameters that control authentication behavior:
 
 - **Required parameters** ensure Scalekit can identify your application and return the user securely
 - **Optional parameters** enable organization routing and pre-populate fields
