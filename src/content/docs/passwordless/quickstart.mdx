@@ -1,13 +1,13 @@
 ---
-title: Magic link & OTP email headless API
-description: Implement Email OTP or Magic Link with direct API calls, full control over UX
+title: Headless email API for magic link and OTP
+description: Implement email OTP or magic link using direct API calls with full control over UX
 browseCentral:
-  label: "API to ship Magic Link or OTP verifications"
+  label: "API to send magic link or OTP verifications"
   filterType: ["tutorial"]
   category: ["User authentication"]
   icon: book
 sidebar:
-  label: 'Build Magic link & OTP auth'
+  label: 'Headless magic link & email OTP'
 badge:
    text: 'Headless'
    variant: 'default'
@@ -58,7 +58,7 @@ import IconTdesignSequence from '~icons/tdesign/sequence'
 import IconRiAiGenerate2 from '~icons/ri/ai-generate-2'
 import InstallSDK from '@components/templates/_installsdk.mdx'
 
-This guide explains how you can implement Magic link & OTP authentication using Scalekit's headless APIs to send either verification codes (OTP) or magic links to your user's email address and verify their identity. Magic link & OTP provides two email-based authentication methods—clickable links or one-time passcodes—allowing users to authenticate without passwords. You have full control over all UI components and user flows in your application, while Scalekit provides the backend authentication infrastructure.
+This guide shows you how to implement magic link and OTP authentication using Scalekit's headless APIs. You send either a one-time passcode (OTP) or a magic link to the user's email and then verify their identity. Magic link and OTP offer two email-based authentication methods—clickable links or one-time passcodes—so users can sign in without passwords. You control the UI and user flows, while Scalekit provides the backend authentication infrastructure.
 
 <details>
 <summary><IconLucidePlay style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> See the integration in action</summary>
@@ -77,7 +77,7 @@ Coming soon
 <Card title="Get moving, instantly, with your go-to AI assistant" icon={IconRiAiGenerate2}>
   <div class="llm-prompt-card">
     <div class="llm-prompt-content">
-      <p>Input this prompt in your IDE to analyze your existing code base and generate Magic link & OTP implementation code accordingly.</p>
+      <p>Input this prompt in your IDE to analyze your existing code base and generate magic link and OTP implementation code accordingly.</p>
 
       <span class="llm-prompt-subtitle">
         *Compatible with Cursor, Windsurf, VS Code, and any AI-powered tools
@@ -89,7 +89,7 @@ Coming soon
             label="Copy llm prompt"
         className="sk-secondary"
         variant="secondary"
-        title="Generate Magic link & OTP integration code"
+        title="Generate magic link and OTP integration code"
       />
     </div>
   </div>
@@ -108,9 +108,9 @@ Coming soon
 
    Your application is responsible for verifying users and initiating sessions, while Scalekit securely manages authentication tokens to ensure the verification process is completed successfully
 
-2. ## Configure Magic link & OTP settings
+2. ## Configure magic link and OTP settings
 
-   In the Scalekit dashboard, enable Magic link & OTP and choose your login method.
+   In the Scalekit dashboard, enable magic link and OTP and choose your login method.
 
    Optional security settings:
    - **Enforce same-browser origin**: Users must complete magic-link auth in the same browser they started in.
@@ -120,12 +120,12 @@ Coming soon
 
 3. ## Send verification email
 
-    The first step in the Magic link & OTP flow is to send a verification email to the user's email. This verification email contains either a **one-time passcode (OTP) or a magic link or both** based on your selection in the Scalekit dashboard (earlier step).
+    The first step in the magic link and OTP flow is to send a verification email to the user's email address. This email contains either a **one-time passcode (OTP), a magic link, or both** based on your selection in the Scalekit dashboard.
 
     Follow these steps to implement the verification email flow:
 
     1. Create a form to collect the user's email address
-    2. Call the Magic link & OTP API when the form is submitted
+    2. Call the passwordless API (magic link and OTP) when the form is submitted
     3. Handle the response to provide feedback to the user
 
     ```http showLineNumbers=false title="API endpoint"
@@ -182,7 +182,7 @@ Coming soon
       | `auth_request_id` | A unique identifier for the authentication request that can be used to verify the code <Badge variant="note" text="string" /> |
       | `expires_at` | Unix timestamp indicating when the verification code will expire <Badge variant="note" text="string" /> |
       | `expires_in` | The time in seconds after which the verification code will expire. Default is 100 seconds <Badge variant="note" text="number" /> |
-      | `passwordless_type` | The type of Magic link & OTP authentication to use. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
+      | `passwordless_type` | The type of magic link and OTP authentication. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
     </details>
 
    </TabItem>
@@ -233,10 +233,10 @@ Coming soon
 
       | Parameters | Description |
       |-----------|-------------|
-      | `authRequestId` | Unique identifier for the Magic link & OTP authentication request <Badge variant="note" text="string" /> |
+      | `authRequestId` | Unique identifier for the magic link and OTP authentication request <Badge variant="note" text="string" /> |
       | `expiresAt` | Expiration time in seconds since epoch <Badge variant="note" text="number" /> |
       | `expiresIn` | Expiration time in seconds <Badge variant="note" text="number" /> |
-      | `passwordlessType` | Type of Magic link & OTP authentication (`OTP`, `LINK` or `LINK_OTP`) <Badge variant="note" text="string" /> |
+      | `passwordlessType` | Type of magic link and OTP authentication (`OTP`, `LINK` or `LINK_OTP`) <Badge variant="note" text="string" /> |
 
     </details>
    </TabItem>
@@ -293,10 +293,10 @@ Coming soon
       <summary>Response parameters</summary>
       | Parameters | Description |
       |-----------|-------------|
-      | `AuthRequestId` | Unique identifier for the Magic link & OTP authentication request <Badge variant="note" text="string" /> |
+      | `AuthRequestId` | Unique identifier for the magic link and OTP authentication request <Badge variant="note" text="string" /> |
       | `ExpiresAt` | Expiration time in seconds since epoch <Badge variant="note" text="number" /> |
       | `ExpiresIn` | Expiration time in seconds <Badge variant="note" text="number" /> |
-      | `PasswordlessType` | Type of Magic link & OTP authentication (`OTP`, `LINK` or `LINK_OTP`) <Badge variant="note" text="string" /> |
+      | `PasswordlessType` | Type of magic link and OTP authentication (`OTP`, `LINK` or `LINK_OTP`) <Badge variant="note" text="string" /> |
     </details>
    </TabItem>
    <TabItem label="Java" value="java">
@@ -327,7 +327,7 @@ Coming soon
 
 3. ### Resend a verification email
 
-    Users can request a new verification email if they need one. Use the following endpoint to send a fresh email to verify using OTP or Magic Link.
+    Users can request a new verification email if they need one. Use the following endpoint to resend an OTP or magic link email.
 
     <Tabs syncKey='tech-stack'>
    <TabItem label="cURL" value="curl">
@@ -371,7 +371,7 @@ Coming soon
       | `auth_request_id` | A unique identifier for the authentication request that can be used to verify the code <Badge variant="note" text="string" /> |
       | `expires_at` | Unix timestamp indicating when the verification code will expire <Badge variant="note" text="string" /> |
       | `expires_in` | The time in seconds after which the verification code will expire. Default is 300 seconds <Badge variant="note" text="number" /> |
-      | `passwordless_type` | The type of Magic link & OTP authentication to use. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
+      | `passwordless_type` | The type of magic link and OTP authentication. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
     </details>
    </TabItem>
    <TabItem label="Node.js" value="node">
@@ -404,7 +404,7 @@ Coming soon
 
       | Parameters | Description |
       |-----------|-------------|
-      | `authRequestId` | Unique identifier for the Magic link & OTP authentication request <Badge variant="note" text="string" /> |
+      | `authRequestId` | Unique identifier for the magic link and OTP authentication request <Badge variant="note" text="string" /> |
       | `expiresAt` | Expiration time in seconds since epoch <Badge variant="note" text="number" /> |
       | `expiresIn` | Expiration time in seconds. Default is 300 seconds <Badge variant="note" text="number" /> |
       | `passwordlessType` | `OTP`, `LINK` or `LINK_OTP` <Badge variant="note" text="string" /> |
@@ -456,7 +456,7 @@ Coming soon
 
       | Parameters | Description |
       |-----------|-------------|
-      | `AuthRequestId` | Unique identifier for the Magic link & OTP authentication request <Badge variant="note" text="string" /> |
+      | `AuthRequestId` | Unique identifier for the magic link and OTP authentication request <Badge variant="note" text="string" /> |
       | `ExpiresAt` | Expiration time in seconds since epoch <Badge variant="note" text="number" /> |
       | `ExpiresIn` | Expiration time in seconds. Default is 300 seconds <Badge variant="note" text="number" /> |
       | `PasswordlessType` | `OTP`, `LINK` or `LINK_OTP` <Badge variant="note" text="string" /> |
@@ -473,15 +473,15 @@ Coming soon
     If you enabled **Enable new Magic link & OTP credentials on resend** in the Scalekit dashboard, a new verification code or magic link will be sent each time the user requests a new one.
 
     <Aside type="caution" title="Rate limits">
-      Scalekit enforces a rate limit of 2 Magic link & OTP emails per minute per email address. This limit includes both initial sends and resends.
+      Scalekit enforces a rate limit of 2 magic link and OTP emails per minute per email address. This limit includes both initial sends and resends.
     </Aside>
 
 4. ### Verify the user's identity
 
     Once the user receives the verification email,
-    - If it's Verification code, they'll enter it in your application. Use the following endpoint to validate the code and complete the authentication process.
-    - If it's Magic Link, they'll click the link in the email to verify their email address. Capture the `link_token` request parameter from the URL and use it to verify the user's email address.
-    - For additional security with magic links, if you enabled the option "Enforce same browser origin", you are required to send the `auth_request_id` to the verification endpoint.
+    - If it is a verification code, they'll enter it in your application. Use the following endpoint to validate the code and complete authentication.
+    - If it is a magic link, they'll click the link in the email to verify their address. Capture the `link_token` query parameter and use it to verify.
+    - For additional security with magic links, if you enabled "Enforce same browser origin" in the dashboard, include the `auth_request_id` in the verification request.
 
     <Tabs syncKey='verification-type'>
      <TabItem label="Verification code">
@@ -523,7 +523,7 @@ Coming soon
              | `email` | The email address of the user <Badge variant="note" text="string" /> |
              | `state` | The state parameter that was passed in the original request <Badge variant="note" text="string" /> |
              | `template` | The template that was used for the verification code <Badge variant="note" text="string" /> |
-             | `passwordless_type` | The type of Magic link & OTP authentication to use. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
+            | `passwordless_type` | The type of magic link and OTP authentication. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
            </details>
          </TabItem>
          <TabItem label="Node.js" value="node">
@@ -557,7 +557,7 @@ Coming soon
              | `email` | The email address of the user <Badge variant="note" text="string" /> |
              | `state` | The state parameter that was passed in the original request <Badge variant="note" text="string" /> |
              | `template` | The template that was used for the verification code <Badge variant="note" text="string" /> |
-             | `passwordlessType` | The type of Magic link & OTP authentication to use. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
+            | `passwordlessType` | The type of magic link and OTP authentication. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
            </details>
          </TabItem>
          <TabItem label="Python" value="python">
@@ -629,7 +629,7 @@ Coming soon
            </TabItem>
        </Tabs>
      </TabItem>
-     <TabItem label="Magic Link Verification">
+    <TabItem label="Magic link verification">
        To support magic link verification, add a callback endpoint in your application typically at <code>https://your-app.com/passwordless/verify</code>. Implement it to verify the magic link token and complete the user authentication process.
 
        <Steps>
@@ -675,7 +675,7 @@ Coming soon
              | `email` | The email address of the user <Badge variant="note" text="string" /> |
              | `state` | The state parameter that was passed in the original request <Badge variant="note" text="string" /> |
              | `template` | The template that was used for the verification code <Badge variant="note" text="string" /> |
-             | `passwordless_type` | The type of Magic link & OTP authentication to use. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
+            | `passwordless_type` | The type of magic link and OTP authentication. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
            </details>
          </TabItem>
          <TabItem label="Node.js" value="node">
@@ -730,7 +730,7 @@ Coming soon
              | `email` | The email address of the user <Badge variant="note" text="string" /> |
              | `state` | The state parameter that was passed in the original request <Badge variant="note" text="string" /> |
              | `template` | The template that was used for the verification code <Badge variant="note" text="string" /> |
-             | `passwordlessType` | The type of Magic link & OTP authentication to use. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
+            | `passwordlessType` | The type of magic link and OTP authentication. Currently supports `OTP`, `LINK` and `LINK_OTP` <Badge variant="note" text="string" /> |
            </details>
          </TabItem>
          <TabItem label="Python" value="python">
