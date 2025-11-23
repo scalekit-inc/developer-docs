@@ -97,13 +97,20 @@ MCP Server -> MCP Client: Authorized response
 
 ### Implementation
 
-To implement this pattern, you'll need to:
+#### 1. Register your MCP server in the Scalekit Dashboard
+Create a new MCP server in the Scalekit Dashboard to obtain your server credentials and configure authentication settings.
 
-- Register your MCP server in the Scalekit Dashboard
-- Implement the `.well-known/oauth-protected-resource` metadata endpoint
-- Configure scopes that match your server's capabilities
-- Set up token validation middleware to verify incoming requests
-- Test the flow end-to-end with an MCP client
+#### 2. Implement the protected resource metadata endpoint
+Add a `.well-known/oauth-protected-resource` endpoint that provides your MCP server's authentication configuration to clients.
+
+#### 3. Configure scopes for your server capabilities
+Define OAuth scopes that correspond to the tools and permissions your MCP server exposes.
+
+#### 4. Set up token validation middleware
+Implement middleware to validate incoming JWT tokens from Scalekit before processing MCP tool requests.
+
+#### 5. Test the complete authentication flow
+Verify the end-to-end flow works with an MCP client to ensure secure authentication.
 
 For complete implementation guidance, see the [MCP OAuth 2.1 quickstart](/mcp/quickstart/) or framework-specific guides for [FastMCP](/authenticate/mcp/fastmcp-quickstart/), [FastAPI + FastMCP](/authenticate/mcp/fastapi-fastmcp-quickstart/), and [Express.js](/authenticate/mcp/expressjs-quickstart/).
 
@@ -136,20 +143,20 @@ MCP Server -> Agent: Authorized response
 
 ### Client registration
 
-Before an agent can request tokens, you must create a Machine-to-Machine (M2M) client for your MCP Server in Scalekit.
+#### 1. Navigate to the MCP Server Clients tab
+Go to **[Dashboard](https://app.scalekit.com) > MCP Servers** and select your MCP Server. Click on the **Clients** tab.
+![Clients tab](@/assets/docs/guides/mcp/mcp-client-nav.png)
 
-**Steps to create a client:**
+#### 2. Create a new M2M client
+Click **Create Client** to start the client creation process.
+![Create client](@/assets/docs/guides/mcp/mcp-clients-tab.png)
 
-1. Navigate to **[Dashboard](https://app.scalekit.com) > MCP Servers** and select your MCP Server. Go to the **Clients** tab.
-   ![Clients tab](@/assets/docs/guides/mcp/mcp-client-nav.png)
+#### 3. Copy your client credentials
+Copy the **client_id** and **client_secret** immediately - the secret will not be shown again for security reasons. Store these securely in your agent's configuration.
+![Client credentials](@/assets/docs/guides/mcp/mcp-client-sidesheet.png)
 
-2. Click **Create Client**.
-   ![Create client](@/assets/docs/guides/mcp/mcp-clients-tab.png)
-
-3. Copy the **client_id** and **client_secret** immediately - the secret will not be shown again.
-   ![Client credentials](@/assets/docs/guides/mcp/mcp-client-sidesheet.png)
-
-4. Optionally, set scopes (e.g., `todo:read`, `todo:write`) that correspond to the permissions configured for your MCP Server. Click **Save**.
+#### 4. Configure client scopes
+Optionally, set scopes (e.g., `todo:read`, `todo:write`) that correspond to the permissions configured for your MCP Server. Click **Save** to complete the setup.
 
 ### Requesting an access token
 
@@ -183,13 +190,20 @@ Scalekit issues short-lived tokens that can be safely reused until they expire. 
 
 ### Implementation
 
-To implement this pattern in your autonomous agent:
+#### 1. Create an M2M client for your target MCP server
+Use the Scalekit Dashboard to create a Machine-to-Machine client for the MCP server you want to authenticate with.
 
-- Create an M2M client in the Scalekit Dashboard for your target MCP server
-- Securely store the client credentials (use environment variables or a secrets manager)
-- Request access tokens using the Client Credentials flow before making MCP calls
-- Cache tokens and refresh them before expiration
-- Attach tokens as Bearer tokens in the `Authorization` header when calling MCP tools
+#### 2. Store client credentials securely
+Store the `client_id` and `client_secret` using environment variables or a secrets manager. Never hardcode credentials in your agent code.
+
+#### 3. Implement token requests in your agent
+Before making MCP calls, request access tokens using the OAuth 2.1 Client Credentials flow from the Scalekit Authorization Server.
+
+#### 4. Add token caching and refresh logic
+Implement caching to store tokens until they expire, and refresh them automatically to maintain uninterrupted service.
+
+#### 5. Attach tokens to MCP tool requests
+Include the access token as a Bearer token in the `Authorization` header when calling MCP server tools.
 
 For hands-on experience, use the FastMCP Todo Server from the [FastMCP quickstart](/authenticate/mcp/fastmcp-quickstart/). Create an M2M client and run your token request programmatically within your agent code.
 
