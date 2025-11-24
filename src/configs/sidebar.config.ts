@@ -246,12 +246,12 @@ export const sidebar = [
       {
         label: 'Enterprise SSO',
         items: [
-          'sso/guides/authorization-url',
           'sso/guides/sso-basics',
-          'sso/guides/add-login-ux-sso',
           'guides/user-auth/check-sso-domain',
-          'sso/guides/sso-user-attributes',
+          'sso/guides/authorization-url',
+          'sso/guides/add-login-ux-sso',
           'sso/guides/idp-init-sso',
+          'sso/guides/sso-user-attributes',
           'sso/guides/test-sso',
         ],
       },
