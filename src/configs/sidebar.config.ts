@@ -210,6 +210,7 @@ export const sidebar = [
         items: [
           'fsa/guides/signup-restrictions',
           'fsa/guides/user-invitations',
+          'fsa/guides/allowed-email-domains',
           'fsa/guides/merge-identities',
           'fsa/reference/user-management-settings',
         ],
