@@ -195,10 +195,10 @@ export const sidebar = [
         label: 'User authentication',
         items: [
           'fsa/guides/implement-signup',
+          'guides/dashboard/redirects',
           'guides/user-auth/login-scenarios',
           'guides/user-auth/preserve-intended-destination',
           'guides/security/csrf-protection',
-          'guides/dashboard/redirects',
           'guides/idtoken-claims',
           'guides/accesstoken-claims',
           // 'guides/security/authentication-best-practices',
