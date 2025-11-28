@@ -1,6 +1,6 @@
 ---
 title: Launch checklist
-description: A focused checklist for delivering a production-ready authentication system that’s secure, reliable, and compliant
+description: A focused checklist for delivering a production-ready authentication system that's secure, reliable, and compliant
 tableOfContents: true
 prev: false
 next: false
@@ -33,56 +33,78 @@ Before launching your authentication system to production, you need to ensure th
 Use this checklist systematically to verify that your authentication implementation meets production standards. Each section addresses critical aspects of a production-ready authentication system, from security hardening to user experience testing.
 
 
-## Common security practices
+## User authentication
 
-Ensure your authentication system is hardened against common security threats.
+Ensure your authentication system is hardened against common security threats and all core flows work correctly.
 
 - [ ] Enable HTTPS for all authentication endpoints (prevents token interception)
-- [ ] Configure proper CORS settings (restrict allowed origins to your domains)
-- [ ] Set up secure session management with `httpOnly`, `secure`, and `sameSite` flags
-- [ ] Review and rotate API credentials (store in environment variables, never commit to code)
-- [ ] Configure rate limiting to prevent brute force attacks
-- [ ] Validate redirect URLs match your configured callback URLs exactly
-
-## Authentication flows
-
-Verify all authentication paths work correctly from initiation to completion.
-
-- [ ] Test all sign-up flows (email/password, social login, magic links)
-- [ ] Test all login methods with valid and invalid credentials
-- [ ] Verify logout functionality clears sessions completely
-- [ ] Test session timeout and automatic token refresh
-- [ ] Verify redirect URLs match your dashboard configuration exactly
-- [ ] Test error handling for expired tokens, invalid codes, and network failures
+- [ ] Test login initiation with authorization URL
+- [ ] Validate redirect URLs match your dashboard configuration exactly
+- [ ] Test authentication completion and code exchange
 - [ ] Validate `state` parameter in callbacks to prevent CSRF attacks
+- [ ] Verify session token storage with `httpOnly`, `secure`, and `sameSite` flags as required
+- [ ] Test session timeout and automatic token refresh
+- [ ] Verify logout functionality clears sessions completely
+- [ ] Test error handling for expired tokens, invalid codes, and network failures
 - [ ] Test the complete flow end-to-end in a staging environment
 
-## User management
+## Manage auth methods
+
+Verify all configured authentication methods work correctly from initiation to completion.
+
+- [ ] Test all enabled authentication methods (email/password, magic links, social logins)
+- [ ] Verify social login integrations with your configured providers (Google, Microsoft, GitHub, etc.)
+- [ ] Test passkey authentication flows (if enabled)
+- [ ] Test enterprise SSO connections (if configured)
+- [ ] Verify auth method selection UI works correctly
+- [ ] Test fallback scenarios when auth methods fail
+- [ ] Configure proper CORS settings (restrict allowed origins to your domains)
+
+## Manage users & orgs
 
 Configure how users and organizations are managed in your application.
 
 - [ ] Configure user profile fields you need to collect during sign-up
 - [ ] Set up organization management (workspaces, teams, tenants)
-- [ ] Configure role-based access control (RBAC) and assign default roles
+- [ ] Test organization creation flow
+- [ ] Test adding users to organizations
+- [ ] Test removing users from organizations
+- [ ] Test user invitation flow and email templates
 - [ ] Set allowed email domains for organization sign-ups (if applicable)
-- [ ] Configure user invitation flow and email templates
-- [ ] Test user profile updates and data synchronization
 - [ ] Verify organization switching works for users in multiple organizations
+- [ ] Test user and organization deletion flows
 - [ ] Review [user management settings](/fsa/reference/user-management-settings) in your dashboard
 
-## Branding & customization
+If you're implementing role-based access control (RBAC), verify these authorization items:
 
-Ensure your authentication experience matches your brand identity.
+- [ ] Define and create roles and permissions
+- [ ] Configure default roles for new users
+- [ ] Test role assignment to users
+- [ ] Test role assignment to organization members
+- [ ] Verify permission checks in application code
+- [ ] Test access control for different role levels
+- [ ] Validate permission enforcement at API endpoints
+
+## Customize
+
+Ensure your authentication experience matches your brand identity and custom requirements.
 
 - [ ] Brand your login page with your logo, colors, and styling
 - [ ] Customize email templates for sign-up, password reset, and invitations
 - [ ] Configure custom domain for authentication pages (if applicable)
 - [ ] Set up your preferred email provider in **Dashboard > Customization > Emails**
 - [ ] Test email deliverability and check spam folders
+- [ ] Configure custom user attributes (if needed)
+- [ ] Set up auth flow interceptors (if using)
+- [ ] Configure webhooks for auth events (if using)
+- [ ] Verify webhook security with signature validation
+- [ ] Review and rotate API credentials (store in environment variables, never commit to code)
 
-## SSO flows
+## Enterprise features
 
-If you're enabling enterprise SSO for your customers, verify these items.
+If you're enabling enterprise SSO or SCIM provisioning for your customers, verify these items.
+
+### SSO flows
 
 - [ ] Test SSO integrations with your target identity providers (Okta, Azure AD, Google Workspace)
 - [ ] Configure SSO user attribute mapping (email, name, groups)
@@ -91,9 +113,7 @@ If you're enabling enterprise SSO for your customers, verify these items.
 - [ ] Verify SSO error handling for misconfigured connections
 - [ ] Test SSO with different user scenarios (new users, existing users, deactivated users)
 
-## SCIM provisioning
-
-If you're enabling directory sync and automated user provisioning for enterprise customers.
+### SCIM provisioning
 
 - [ ] Configure webhook endpoints to receive SCIM events
 - [ ] Verify webhook security with signature validation
@@ -103,7 +123,18 @@ If you're enabling directory sync and automated user provisioning for enterprise
 - [ ] Set up group-based role assignment and synchronization
 - [ ] Test error scenarios (duplicate users, invalid data)
 
-## Monitoring continuously
+## MCP authentication
+
+If you're implementing MCP authentication for AI agents, verify these items.
+
+- [ ] Test MCP server authentication flow
+- [ ] Verify OAuth consent screen for MCP clients
+- [ ] Test token exchange for MCP connections
+- [ ] Verify custom auth handlers (if using)
+- [ ] Test MCP session management
+- [ ] Review [MCP troubleshooting](/mcp/troubleshooting) documentation
+
+## Monitoring & observability
 
 Set up monitoring to track authentication activity and troubleshoot issues quickly.
 
