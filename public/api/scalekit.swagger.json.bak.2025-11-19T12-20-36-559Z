@@ -2071,7 +2071,26 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
+<<<<<<<< HEAD:public/api/scalekit.swagger.json.bak.2025-11-19T12-20-36-559Z
             "source": "// List all domains in an organization\nconst response = await client.domain.listDomains(organizationId);\n\n// Domain object contains:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Configuration type"
+========
+            "source": "// List all domains in an organization\nconst response = await scalekit.domain.listDomains(organizationId);\n\n// Domain object contains:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Configuration type"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# coming soon"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// coming soon"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// coming soon"
+>>>>>>>> origin/main:public/api/scalekit.swagger.json.bak.2025-11-21T11-05-27-228Z
           }
         ]
       },
@@ -2119,6 +2138,24 @@
             "label": "Node.js SDK",
             "lang": "javascript",
             "source": "// Add a new domain to an organization\nconst response = await scalekit.createDomain(\"org-123\", \"example.com\", {\n\t// Domain type: controls user authentication and email validation\n\tdomainType: \"ALLOWED_EMAIL_DOMAIN\",\n});"
+<<<<<<<< HEAD:public/api/scalekit.swagger.json.bak.2025-11-19T12-20-36-559Z
+========
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# coming soon"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// coming soon"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// coming soon"
+>>>>>>>> origin/main:public/api/scalekit.swagger.json.bak.2025-11-21T11-05-27-228Z
           }
         ]
       }
@@ -2159,7 +2196,26 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
+<<<<<<<< HEAD:public/api/scalekit.swagger.json.bak.2025-11-19T12-20-36-559Z
             "source": "// Fetch details of a specific domain\nconst response = await client.domain.getDomain(organizationId, domainId);\n\n// Domain object properties:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Domain configuration type"
+========
+            "source": "// Fetch details of a specific domain\nconst response = await scalekit.domain.getDomain(organizationId, domainId);\n\n// Domain object properties:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Domain configuration type"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# coming soon"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// coming soon"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// coming soon"
+>>>>>>>> origin/main:public/api/scalekit.swagger.json.bak.2025-11-21T11-05-27-228Z
           }
         ]
       },
@@ -2196,7 +2252,92 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
+<<<<<<<< HEAD:public/api/scalekit.swagger.json.bak.2025-11-19T12-20-36-559Z
             "source": "// Remove a domain from an organization\n// Caution: Deletion is permanent and may affect user access\nconst response = await client.domain.deleteDomain(organizationId, domainId);"
+========
+            "source": "// Remove a domain from an organization\n// Caution: Deletion is permanent and may affect user access\nconst response = await scalekit.domain.deleteDomain(organizationId, domainId);"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "# coming soon"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "// coming soon"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "// coming soon"
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}/settings/usermanagement": {
+      "patch": {
+        "description": "Update user management settings for an organization. Use this endpoint to configure user limits and other user-related constraints",
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Update user management settings",
+        "operationId": "OrganizationService_UpsertUserManagementSettings",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of the organization.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "settings",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "The new values for the setting fields to patch.",
+              "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully upserted user management settings. Returns the current configuration including the maximum allowed users limit.",
+            "schema": {
+              "$ref": "#/definitions/organizationsUpsertUserManagementSettingsResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request - occurs when the organization_id format is incorrect or settings payload contains invalid values",
+            "schema": {}
+          },
+          "404": {
+            "description": "Organization not found - the specified organization ID doesn't exist",
+            "schema": {}
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.organization.upsertUserManagementSettings(\"org_123\", {\n  maxAllowedUsers: 150\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "scalekit_client.organization.upsert_user_management_settings(\n    organization_id=\"org_123\",\n    max_allowed_users=150\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "maxUsers := int32(150)\nresp, err := scalekitClient.Organization().UpsertUserManagementSettings(\n    ctx,\n    \"org_123\",\n    scalekit.OrganizationUserManagementSettings{\n        MaxAllowedUsers: \u0026maxUsers,\n    },\n)\nif err != nil {\n    log.Fatal(err)\n}\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "OrganizationUserManagementSettings settings = OrganizationUserManagementSettings.newBuilder()\n    .setMaxAllowedUsers(Int32Value.newBuilder().setValue(150).build())\n    .build();\n\nOrganizationUserManagementSettings res = scalekitClient.organizations()\n    .upsertUserManagementSettings(\"org_123\", settings);"
+>>>>>>>> origin/main:public/api/scalekit.swagger.json.bak.2025-11-21T11-05-27-228Z
           }
         ]
       }
@@ -6471,12 +6612,32 @@
         }
       }
     },
+    "organizationsOrganizationUserManagementSettings": {
+      "type": "object",
+      "properties": {
+        "max_allowed_users": {
+          "description": "Maximum number of users allowed in the organization. When set to 0, it means no limit. When set to a positive integer, it enforces the maximum user limit.",
+          "type": "integer",
+          "format": "int32",
+          "example": 100
+        }
+      }
+    },
     "organizationsUpdateOrganizationResponse": {
       "type": "object",
       "properties": {
         "organization": {
           "description": "Updated organization details",
           "$ref": "#/definitions/organizationsOrganization"
+        }
+      }
+    },
+    "organizationsUpsertUserManagementSettingsResponse": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "description": "The updated setting.",
+          "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
         }
       }
     },
