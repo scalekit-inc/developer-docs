@@ -69,23 +69,7 @@ scalekit.auth.update_login_user_details(
     login_request_id="{{login_request_id}}",
     user={
         "sub": "1234567890",
-        "email": "alice@example.com",
-        "given_name": "Alice",
-        "family_name": "Doe",
-        "email_verified": True,
-        "phone_number": "+1234567890",
-        "phone_number_verified": False,
-        "name": "Alice Doe",
-        "preferred_username": "alice.d",
-        "picture": "https://example.com/avatar.jpg",
-        "gender": "female",
-        "locale": "en-US",
-        "groups": ["engineering", "devops", "admins"],
-        "custom_attributes": {
-            "department": "engineering",
-            "security_clearance": "level2",
-            "office_location": "Building A - Floor 3",
-        },
+        "email": "alice@example.com"
     },
 )
 ```
@@ -113,25 +97,49 @@ await scalekit.auth.updateLoginUserDetails(
   '{{login_request_id}}',           // loginRequestId
   {
     sub: '1234567890',
-    email: 'alice@example.com',
-    givenName: 'Alice',
-    familyName: 'Doe',
-    emailVerified: true,
-    phoneNumber: '+1234567890',
-    phoneNumberVerified: false,
-    name: 'Alice Doe',
-    preferredUsername: 'alice.d',
-    picture: 'https://example.com/avatar.jpg',
-    gender: 'female',
-    locale: 'en-US',
-    groups: ['engineering', 'devops', 'admins'],
-    customAttributes: {
-      department: 'engineering',
-      security_clearance: 'level2',
-      office_location: 'Building A - Floor 3',
-    },
+    email: 'alice@example.com'
   }
 );
+```
+
+</TabItem>
+<TabItem label="Go">
+
+```bash
+go get -u github.com/scalekit-inc/scalekit-sdk-go
+```
+
+```go title="send_user_details.go"
+import (
+	"context"
+	"fmt"
+	"github.com/scalekit-inc/scalekit-sdk-go/v2"
+	"os"
+)
+
+// Get the connectionId from ScaleKit dashboard -> MCP Server -> Your Server -> User Info Post Url
+// eg. https://example.scalekit.dev/api/v1/connections/conn_70982106544698372/auth-requests/{{login_request_id}}/user
+// Your connectionId is conn_70982106544698372 in this example
+func updateLoggedInUserDetails() error {
+	skClient := scalekit.NewScalekitClient(
+		os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+		os.Getenv("SCALEKIT_CLIENT_ID"),
+		os.Getenv("SCALEKIT_CLIENT_SECRET"),
+	)
+	err := skClient.Auth().UpdateLoginUserDetails(context.Background(), &scalekit.UpdateLoginUserDetailsRequest{
+		ConnectionId:   "{{connection_id}}",
+		LoginRequestId: "{{login_request_id}}", // this value is dynamic per login
+		User: &scalekit.LoggedInUserDetails{
+			Sub:   "1234567890",
+			Email: "alice@example.com",
+		},
+	})
+	if err != nil {
+		return err
+	}
+	// Only if there is no error, perform the redirect to scalekit using the redirect url on your Scalekit Dashboard -> MCP Servers
+	return nil
+}
 ```
 
 </TabItem>
@@ -164,27 +172,7 @@ curl --location '{{env_url}}/api/v1/connections/{{connection_id}}/auth-requests/
   --header 'Authorization: Bearer {{access_token}}' \
   --data-raw '{
     "sub": "1234567890",
-    "email": "alice@example.com",
-    "given_name": "Alice",
-    "family_name": "Doe",
-    "email_verified": true,
-    "phone_number": "+1234567890",
-    "phone_number_verified": false,
-    "name": "Alice Doe",
-    "preferred_username": "alice.d",
-    "picture": "https://example.com/avatar.jpg",
-    "gender": "female",
-    "locale": "en-US",
-    "groups": [
-      "engineering",
-      "devops",
-      "admins"
-    ],
-    "custom_attributes": {
-      "department": "engineering",
-      "security_clearance": "level2",
-      "office_location": "Building A - Floor 3"
-    }
+    "email": "alice@example.com"
   }'
 ```
 
