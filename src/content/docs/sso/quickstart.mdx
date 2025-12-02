@@ -356,182 +356,7 @@ Choose Modular SSO when you:
 
    For details on how Scalekit determines which SSO connection to use, refer to the [SSO identifier precedence rules](/sso/guides/authorization-url/#parameter-precedence).
 
-3. ## Handle IdP-initiated SSO <Badge type="tip" text="Recommended" />
-
-   When users start the login process from their identity provider's portal (rather than your application), this is called IdP-initiated SSO. Scalekit converts these requests to secure SP-initiated flows automatically.
-
-   Your initiate login endpoint receives an `idp_initiated_login` JWT parameter containing the user's organization and connection details. Decode this token and generate a new authorization URL to complete the authentication flow securely.
-
-   ```sh showLineNumbers=false "idp_initiated_login=<encoded_jwt_token>" wrap
-   https://yourapp.com/login?idp_initiated_login=<encoded_jwt_token>
-   ```
-   Configure your initiate login endpoint in [Dashboard > Authentication > Redirects](/guides/dashboard/redirects/#initiate-login-url)
-
-   <Tabs syncKey="tech-stack">
-   <TabItem value="nodejs" label="Node.js">
-
-   ```javascript wrap title="handle-idp-initiated.js" "idp_initiated_login" collapse={3-7} {9, 11}
-   // Your initiate login endpoint receives the IdP-initiated login token
-   const { idp_initiated_login, error, error_description } = req.query;
-
-   if (error) {
-     return res.status(400).json({ message: error_description });
-   }
-
-   // When users start login from their IdP portal, convert to SP-initiated flow
-   if (idp_initiated_login) {
-     // Decode the JWT to extract organization and connection information
-     const claims = await scalekit.getIdpInitiatedLoginClaims(idp_initiated_login);
-
-     const options = {
-       connectionId: claims.connection_id,      // Specific SSO connection
-       organizationId: claims.organization_id,  // User's organization
-       loginHint: claims.login_hint,            // User's email for context
-       state: claims.relay_state                // Preserve state from IdP
-     };
-
-     // Generate authorization URL and redirect to complete authentication
-     const authorizationURL = scalekit.getAuthorizationUrl(
-       'https://your-app.com/auth/callback',
-       options
-     );
-
-     return res.redirect(authorizationURL);
-   }
-   ```
-
-   </TabItem>
-   <TabItem value="py" label="Python">
-
-   ```python title="handle_idp_initiated.py" "idp_initiated_login" {10} collapse={5-8}
-   # Your initiate login endpoint receives the IdP-initiated login token
-   idp_initiated_login = request.args.get('idp_initiated_login')
-   error = request.args.get('error')
-   error_description = request.args.get('error_description')
-
-   if error:
-       raise Exception(error_description)
-
-   # When users start login from their IdP portal, convert to SP-initiated flow
-   if idp_initiated_login:
-       # Decode the JWT to extract organization and connection information
-       claims = await scalekit.get_idp_initiated_login_claims(idp_initiated_login)
-
-       options = AuthorizationUrlOptions()
-       options.connection_id = claims.get('connection_id')      # Specific SSO connection
-       options.organization_id = claims.get('organization_id')  # User's organization
-       options.login_hint = claims.get('login_hint')            # User's email for context
-       options.state = claims.get('relay_state')                # Preserve state from IdP
-
-       # Generate authorization URL and redirect to complete authentication
-       authorization_url = scalekit.get_authorization_url(
-           redirect_uri='https://your-app.com/auth/callback',
-           options=options
-       )
-
-       return redirect(authorization_url)
-   ```
-
-   </TabItem>
-   <TabItem value="golang" label="Go">
-
-   ```go title="handle_idp_initiated.go" "idp_initiated_login" {11} collapse={5-9,30-37}
-   // Your initiate login endpoint receives the IdP-initiated login token
-   idpInitiatedLogin := r.URL.Query().Get("idp_initiated_login")
-   errorDesc := r.URL.Query().Get("error_description")
-
-   if errorDesc != "" {
-       http.Error(w, errorDesc, http.StatusBadRequest)
-       return
-   }
-
-   // When users start login from their IdP portal, convert to SP-initiated flow
-   if idpInitiatedLogin != "" {
-       // Decode the JWT to extract organization and connection information
-       claims, err := scalekit.GetIdpInitiatedLoginClaims(idpInitiatedLogin)
-       if err != nil {
-           http.Error(w, err.Error(), http.StatusInternalServerError)
-           return
-       }
-
-       options := scalekit.AuthorizationUrlOptions{
-           ConnectionId:   claims.ConnectionID,    // Specific SSO connection
-           OrganizationId: claims.OrganizationID,  // User's organization
-           LoginHint:      claims.LoginHint,       // User's email for context
-       }
-
-       // Generate authorization URL and redirect to complete authentication
-       authUrl, err := scalekit.GetAuthorizationUrl(
-           "https://your-app.com/auth/callback",
-           options
-       )
-
-       if err != nil {
-           http.Error(w, err.Error(), http.StatusInternalServerError)
-           return
-       }
-
-       http.Redirect(w, r, authUrl.String(), http.StatusFound)
-   }
-   ```
-
-   </TabItem>
-
-   <TabItem value="java" label="Java">
-
-   ```java title="HandleIdpInitiated.java" {15} "idp_initiated_login"
-   // Your initiate login endpoint receives the IdP-initiated login token
-   @GetMapping("/login")
-   public RedirectView handleInitiateLogin(
-       @RequestParam(required = false, name = "idp_initiated_login") String idpInitiatedLoginToken,
-       @RequestParam(required = false) String error,
-       @RequestParam(required = false, name = "error_description") String errorDescription,
-       HttpServletResponse response) throws IOException {
-
-       if (error != null) {
-           response.sendError(HttpStatus.BAD_REQUEST.value(), errorDescription);
-           return null;
-       }
-
-       // When users start login from their IdP portal, convert to SP-initiated flow
-       if (idpInitiatedLoginToken != null) {
-           // Decode the JWT to extract organization and connection information
-           IdpInitiatedLoginClaims claims = scalekit
-               .authentication()
-               .getIdpInitiatedLoginClaims(idpInitiatedLoginToken);
-
-           if (claims == null) {
-               response.sendError(HttpStatus.BAD_REQUEST.value(), "Invalid token");
-               return null;
-           }
-
-           AuthorizationUrlOptions options = new AuthorizationUrlOptions();
-           options.setConnectionId(claims.getConnectionID());      // Specific SSO connection
-           options.setOrganizationId(claims.getOrganizationID());  // User's organization
-           options.setLoginHint(claims.getLoginHint());            // User's email for context
-
-           // Generate authorization URL and redirect to complete authentication
-           String authUrl = scalekit
-               .authentication()
-               .getAuthorizationUrl("https://your-app.com/auth/callback", options)
-               .toString();
-
-           response.sendRedirect(authUrl);
-           return null;
-       }
-
-       return null;
-   }
-   ```
-
-   </TabItem>
-   </Tabs>
-
-   This approach provides enhanced security by converting IdP-initiated requests to standard SP-initiated flows, protecting against SAML assertion theft and replay attacks.
-
-   Learn more: [IdP-initiated SSO implementation guide](/sso/guides/idp-init-sso/)
-
-4. ## Get user details from the callback
+3. ## Get user details from the callback
 
     After successful authentication, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and session tokens.
 
@@ -770,6 +595,181 @@ Choose Modular SSO when you:
         </TabItem>
       </Tabs>
 
+4. ## Handle IdP-initiated SSO <Badge type="tip" text="Recommended" />
+
+   When users start the login process from their identity provider's portal (rather than your application), this is called IdP-initiated SSO. Scalekit converts these requests to secure SP-initiated flows automatically.
+
+   Your initiate login endpoint receives an `idp_initiated_login` JWT parameter containing the user's organization and connection details. Decode this token and generate a new authorization URL to complete the authentication flow securely.
+
+   ```sh showLineNumbers=false "idp_initiated_login=<encoded_jwt_token>" wrap
+   https://yourapp.com/login?idp_initiated_login=<encoded_jwt_token>
+   ```
+   Configure your initiate login endpoint in [Dashboard > Authentication > Redirects](/guides/dashboard/redirects/#initiate-login-url)
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="nodejs" label="Node.js">
+
+   ```javascript wrap title="handle-idp-initiated.js" "idp_initiated_login" collapse={3-7} {9, 11}
+   // Your initiate login endpoint receives the IdP-initiated login token
+   const { idp_initiated_login, error, error_description } = req.query;
+
+   if (error) {
+     return res.status(400).json({ message: error_description });
+   }
+
+   // When users start login from their IdP portal, convert to SP-initiated flow
+   if (idp_initiated_login) {
+     // Decode the JWT to extract organization and connection information
+     const claims = await scalekit.getIdpInitiatedLoginClaims(idp_initiated_login);
+
+     const options = {
+       connectionId: claims.connection_id,      // Specific SSO connection
+       organizationId: claims.organization_id,  // User's organization
+       loginHint: claims.login_hint,            // User's email for context
+       state: claims.relay_state                // Preserve state from IdP
+     };
+
+     // Generate authorization URL and redirect to complete authentication
+     const authorizationURL = scalekit.getAuthorizationUrl(
+       'https://your-app.com/auth/callback',
+       options
+     );
+
+     return res.redirect(authorizationURL);
+   }
+   ```
+
+   </TabItem>
+   <TabItem value="py" label="Python">
+
+   ```python title="handle_idp_initiated.py" "idp_initiated_login" {10} collapse={5-8}
+   # Your initiate login endpoint receives the IdP-initiated login token
+   idp_initiated_login = request.args.get('idp_initiated_login')
+   error = request.args.get('error')
+   error_description = request.args.get('error_description')
+
+   if error:
+       raise Exception(error_description)
+
+   # When users start login from their IdP portal, convert to SP-initiated flow
+   if idp_initiated_login:
+       # Decode the JWT to extract organization and connection information
+       claims = await scalekit.get_idp_initiated_login_claims(idp_initiated_login)
+
+       options = AuthorizationUrlOptions()
+       options.connection_id = claims.get('connection_id')      # Specific SSO connection
+       options.organization_id = claims.get('organization_id')  # User's organization
+       options.login_hint = claims.get('login_hint')            # User's email for context
+       options.state = claims.get('relay_state')                # Preserve state from IdP
+
+       # Generate authorization URL and redirect to complete authentication
+       authorization_url = scalekit.get_authorization_url(
+           redirect_uri='https://your-app.com/auth/callback',
+           options=options
+       )
+
+       return redirect(authorization_url)
+   ```
+
+   </TabItem>
+   <TabItem value="golang" label="Go">
+
+   ```go title="handle_idp_initiated.go" "idp_initiated_login" {11} collapse={5-9,30-37}
+   // Your initiate login endpoint receives the IdP-initiated login token
+   idpInitiatedLogin := r.URL.Query().Get("idp_initiated_login")
+   errorDesc := r.URL.Query().Get("error_description")
+
+   if errorDesc != "" {
+       http.Error(w, errorDesc, http.StatusBadRequest)
+       return
+   }
+
+   // When users start login from their IdP portal, convert to SP-initiated flow
+   if idpInitiatedLogin != "" {
+       // Decode the JWT to extract organization and connection information
+       claims, err := scalekit.GetIdpInitiatedLoginClaims(idpInitiatedLogin)
+       if err != nil {
+           http.Error(w, err.Error(), http.StatusInternalServerError)
+           return
+       }
+
+       options := scalekit.AuthorizationUrlOptions{
+           ConnectionId:   claims.ConnectionID,    // Specific SSO connection
+           OrganizationId: claims.OrganizationID,  // User's organization
+           LoginHint:      claims.LoginHint,       // User's email for context
+       }
+
+       // Generate authorization URL and redirect to complete authentication
+       authUrl, err := scalekit.GetAuthorizationUrl(
+           "https://your-app.com/auth/callback",
+           options
+       )
+
+       if err != nil {
+           http.Error(w, err.Error(), http.StatusInternalServerError)
+           return
+       }
+
+       http.Redirect(w, r, authUrl.String(), http.StatusFound)
+   }
+   ```
+
+   </TabItem>
+
+   <TabItem value="java" label="Java">
+
+   ```java title="HandleIdpInitiated.java" {15} "idp_initiated_login"
+   // Your initiate login endpoint receives the IdP-initiated login token
+   @GetMapping("/login")
+   public RedirectView handleInitiateLogin(
+       @RequestParam(required = false, name = "idp_initiated_login") String idpInitiatedLoginToken,
+       @RequestParam(required = false) String error,
+       @RequestParam(required = false, name = "error_description") String errorDescription,
+       HttpServletResponse response) throws IOException {
+
+       if (error != null) {
+           response.sendError(HttpStatus.BAD_REQUEST.value(), errorDescription);
+           return null;
+       }
+
+       // When users start login from their IdP portal, convert to SP-initiated flow
+       if (idpInitiatedLoginToken != null) {
+           // Decode the JWT to extract organization and connection information
+           IdpInitiatedLoginClaims claims = scalekit
+               .authentication()
+               .getIdpInitiatedLoginClaims(idpInitiatedLoginToken);
+
+           if (claims == null) {
+               response.sendError(HttpStatus.BAD_REQUEST.value(), "Invalid token");
+               return null;
+           }
+
+           AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+           options.setConnectionId(claims.getConnectionID());      // Specific SSO connection
+           options.setOrganizationId(claims.getOrganizationID());  // User's organization
+           options.setLoginHint(claims.getLoginHint());            // User's email for context
+
+           // Generate authorization URL and redirect to complete authentication
+           String authUrl = scalekit
+               .authentication()
+               .getAuthorizationUrl("https://your-app.com/auth/callback", options)
+               .toString();
+
+           response.sendRedirect(authUrl);
+           return null;
+       }
+
+       return null;
+   }
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   This approach provides enhanced security by converting IdP-initiated requests to standard SP-initiated flows, protecting against SAML assertion theft and replay attacks.
+
+   Learn more: [IdP-initiated SSO implementation guide](/sso/guides/idp-init-sso/)
+
 5. ## Test your SSO integration
 
    Validate your implementation using the **IdP Simulator** and **Test Organization** included in your development environment. Test all three scenarios before deploying to production.
@@ -794,7 +794,6 @@ Choose Modular SSO when you:
     Many applications already use an authentication provider such as Auth0, Firebase, or AWS Cognito. To enable single sign-on (SSO) using Scalekit, configure Scalekit to work with your current authentication provider.
 
     <AuthSystemsSection />
-
 
 7. ## Onboard enterprise customers
 
