@@ -22,14 +22,6 @@ export const sidebar = [
         ],
       },
       {
-        label: 'MCP authentication',
-        items: [
-          'mcp/quickstart',
-          'authenticate/mcp/fastmcp-quickstart',
-          'mcp/auth-methods/custom-auth',
-        ],
-      },
-      {
         label: 'Manage auth methods',
         items: [
           'authenticate/auth-methods/passwordless',
@@ -69,16 +61,6 @@ export const sidebar = [
           'authenticate/manage-users-orgs/custom-user-attributes',
           'authenticate/interceptors/auth-flow-interceptors',
           'authenticate/implement-workflows/implement-webhooks',
-        ],
-      },
-      {
-        label: 'Add auth modules',
-        items: [
-          { label: 'Add Modular SSO', link: 'authenticate/sso/add-modular-sso' },
-          'passwordless/quickstart',
-          'guides/user-auth/modular-social-logins',
-          'directory/scim/quickstart',
-          'authenticate/m2m/api-auth-quickstart',
         ],
       },
       {
@@ -331,6 +313,30 @@ export const sidebar = [
       {
         label: 'SCIM connections',
         autogenerate: { directory: 'guides/integrations/scim-integrations' },
+      },
+    ],
+  },
+  {
+    label: 'Modular Auth',
+    id: 'modular-auth',
+    link: '/authenticate/sso/add-modular-sso',
+    icon: 'puzzle',
+    items: [
+      createSectionHeader('Getting started'),
+      'mcp/quickstart',
+      'authenticate/sso/add-modular-sso',
+      'directory/scim/quickstart',
+      {
+        label: 'MCP authentication',
+        items: ['authenticate/mcp/fastmcp-quickstart', 'mcp/auth-methods/custom-auth'],
+      },
+      {
+        label: 'Headless authentication',
+        items: [
+          'passwordless/quickstart',
+          'guides/user-auth/modular-social-logins',
+          'authenticate/m2m/api-auth-quickstart',
+        ],
       },
     ],
   },
