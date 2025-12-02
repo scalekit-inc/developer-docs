@@ -34,6 +34,9 @@ interface NavItem {
   iconComponent?: any
   children?: NavItem[]
   keepParentLabel?: boolean // Keep parent label even when child is active
+  description?: string // Optional description for dropdown items
+  showDivider?: boolean // Show divider after this item
+  sectionLabel?: string // Optional section label for grouping items
 }
 
 interface NavSection {
@@ -80,6 +83,18 @@ function isCurrentPage(pathname: string, item: NavItem): boolean {
     return false
   }
 
+  // For child items (items with patterns but potentially not in secondaryNavMapping),
+  // check if pathname matches any of their patterns
+  if (item.patterns && item.patterns.length > 0) {
+    const matchesPattern = item.patterns.some((pattern) => {
+      // Remove trailing slashes for consistent comparison
+      const normalizedPath = pathname.replace(/\/+$/, '')
+      const normalizedPattern = pattern.replace(/\/+$/, '')
+      return normalizedPath.startsWith(normalizedPattern)
+    })
+    if (matchesPattern) return true
+  }
+
   // Get the active secondary nav ID and compare
   const activeId = getActiveSecondaryNavId(pathname)
   return activeId === item.id
@@ -105,35 +120,54 @@ function getDisplayIcon(pathname: string, item: NavItem): any {
 const navSections: NavSection[] = [
   {
     items: [
+      // Authenticate dropdown with children - replaces standalone Authenticate item
       {
         id: secondaryNavMapping.authenticate.id,
-        href: '/',
+        href: '#authenticate',
         label: 'Authenticate',
         iconComponent: IconLucideShield,
-        keepParentLabel: true, // Keep "Authenticate" label regardless of active child
         patterns: secondaryNavMapping.authenticate.patterns,
-      },
-      {
-        id: secondaryNavMapping['agent-actions'].id,
-        href: '/agent-actions/quickstart',
-        label: 'Agent Actions',
-        patterns: secondaryNavMapping['agent-actions'].patterns,
-        iconComponent: IconLucideBot,
-      },
-    ],
-  },
-  {
-    items: [
-      {
-        id: secondaryNavMapping.scenarios.id,
-        href: '/dev-kit/',
-        label: 'Developer Resources',
-        patterns: secondaryNavMapping.scenarios.patterns,
-        iconComponent: IconHugeiconsResourcesAdd,
+        children: [
+          {
+            id: 'fsa', // Child items need unique IDs but won't be used in matching
+            href: '/authenticate/fsa/quickstart/',
+            label: 'Full-stack Auth',
+            patterns: ['/authenticate/fsa'],
+            iconComponent: IconLucideUsers,
+            description: 'Add secure login pages, user accounts, and safe session handling',
+            sectionLabel: 'FULL-STACK AUTHENTICATION',
+            showDivider: true,
+          },
+          {
+            id: 'mcp',
+            href: '/mcp/quickstart/',
+            label: 'Auth for MCP',
+            patterns: ['/mcp'],
+            iconComponent: IconMcp,
+            description: 'Add secure login pages, user accounts, and safe session handling',
+            sectionLabel: 'MODULAR AUTH',
+          },
+          {
+            id: 'modular-sso',
+            href: '/authenticate/sso/add-modular-sso/',
+            label: 'Modular SSO',
+            patterns: ['/authenticate/sso'],
+            iconComponent: IconMingcuteUserSecurityLine,
+            description: 'Add secure login pages, user accounts, and safe session handling',
+          },
+          {
+            id: 'modular-scim',
+            href: '/directory/scim/quickstart/',
+            label: 'Modular SCIM',
+            patterns: ['/directory/scim'],
+            iconComponent: IconAntDesignUserSwitchOutlined,
+            description: 'Add secure login pages, user accounts, and safe session handling',
+          },
+        ],
       },
       {
         id: secondaryNavMapping['api-reference'].id,
-        href: '#',
+        href: '#sdks-apis',
         label: 'SDKs & APIs',
         patterns: secondaryNavMapping['api-reference'].patterns,
         iconComponent: IconLucideBookOpen,
@@ -160,6 +194,25 @@ const navSections: NavSection[] = [
             iconComponent: IconLucideOutlineWebhook,
           },
         ],
+      },
+      // Temporarily hidden - Agent Actions
+      // {
+      //   id: secondaryNavMapping['agent-actions'].id,
+      //   href: '/agent-actions/quickstart',
+      //   label: 'Agent Actions',
+      //   patterns: secondaryNavMapping['agent-actions'].patterns,
+      //   iconComponent: IconLucideBot,
+      // },
+    ],
+  },
+  {
+    items: [
+      {
+        id: secondaryNavMapping.scenarios.id,
+        href: '/dev-kit/',
+        label: 'Developer Resources',
+        patterns: secondaryNavMapping.scenarios.patterns,
+        iconComponent: IconHugeiconsResourcesAdd,
       },
       // Temporarily hidden - Developer Resources dropdown
       // {
@@ -284,19 +337,37 @@ const navSections: NavSection[] = [
     navSections.map((section) =>
       section.items.map((item) =>
         item.children && item.children.length > 0 ? (
-          <div class="dropdown-menu" data-dropdown data-nav-key={item.href}>
+          <div
+            class="dropdown-menu"
+            data-dropdown
+            data-nav-key={item.href}
+            data-dropdown-id={item.id}
+          >
             <div class="dropdown-content">
-              {item.children.map((child) => (
-                <a
-                  href={child.href}
-                  class={`dropdown-item ${isCurrentPage(Astro.url.pathname, child) ? 'current' : ''}`}
-                >
-                  {(function () {
-                    const ChildIcon = child.iconComponent
-                    return ChildIcon && <ChildIcon class="dropdown-item-icon" />
-                  })()}
-                  <span>{child.label}</span>
-                </a>
+              {item.children.map((child, index) => (
+                <>
+                  {child.sectionLabel && (
+                    <div class="dropdown-section-label">{child.sectionLabel}</div>
+                  )}
+                  <a
+                    href={child.href}
+                    class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child) ? 'current' : ''}`}
+                  >
+                    <div class="dropdown-item-icon-wrapper">
+                      {(function () {
+                        const ChildIcon = child.iconComponent
+                        return ChildIcon && <ChildIcon class="dropdown-item-icon" />
+                      })()}
+                    </div>
+                    <div class="dropdown-item-content">
+                      <span class="dropdown-item-label">{child.label}</span>
+                      {child.description && (
+                        <span class="dropdown-item-description">{child.description}</span>
+                      )}
+                    </div>
+                  </a>
+                  {child.showDivider && <div class="dropdown-divider" />}
+                </>
               ))}
             </div>
           </div>
@@ -453,32 +524,64 @@ const navSections: NavSection[] = [
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 0.5rem;
     box-shadow:
+      0 1px 2px 0 rgba(10, 10, 10, 0.05),
       0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 10px 15px -3px rgba(0, 0, 0, 0.1),
-      0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
-    padding: 0.5rem 0;
+      0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+    padding: 0.75rem 1rem;
     backdrop-filter: blur(12px);
     position: relative;
-    z-index: 100000 !important;
+    /* z-index: 100000 !important; assumed this was needed */
     isolation: isolate;
     min-width: 220px;
     width: fit-content;
-    border-top: 2px solid var(--sl-color-accent-low);
+  }
+
+  /* Wider dropdown for Authenticate (has descriptions) */
+  [data-dropdown-id='authenticate'] .dropdown-content {
+    width: 35rem;
+  }
+
+  .dropdown-section-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+    padding: 0.5rem 0.25rem;
+    letter-spacing: 0.05em;
+    line-height: 1.25rem;
   }
 
   .dropdown-item {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    color: var(--sl-color-gray-2);
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0.25rem;
+    color: var(--sl-color-gray-1);
     text-decoration: none;
-    font-size: var(--sl-text-sm);
-    line-height: 1.4;
     transition: all 0.2s ease;
-    border-left: 3px solid transparent;
-    white-space: nowrap;
+    border-radius: 0.375rem;
     width: 100%;
+  }
+
+  .dropdown-item.with-description {
+    padding: 0.5rem 0.25rem;
+    min-height: 4rem;
+  }
+
+  .dropdown-item-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--sl-color-gray-6);
+    border-radius: 0.375rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  :root[data-theme='light'] .dropdown-item-icon-wrapper {
+    background: #f9f9f9;
   }
 
   .dropdown-item-icon {
@@ -487,11 +590,49 @@ const navSections: NavSection[] = [
     flex-shrink: 0;
   }
 
-  .dropdown-item:hover,
-  .dropdown-item.current {
-    color: var(--sl-color-white);
+  .dropdown-item-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .dropdown-item-label {
+    font-size: var(--sl-text-sm);
+    font-weight: 400;
+    line-height: 1.5rem;
+    color: inherit;
+  }
+
+  .dropdown-item-description {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--sl-color-gray-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  :root[data-theme='light'] .dropdown-item-description {
+    color: #646464;
+  }
+
+  .dropdown-item:hover {
     background: var(--sl-color-gray-6);
-    border-left-color: var(--sl-color-accent);
+  }
+
+  .dropdown-item.current {
+    background: var(--sl-color-gray-6);
+  }
+
+  .dropdown-divider {
+    height: 1px;
+    background: var(--sl-color-gray-5);
+    margin: 0.625rem 0;
+  }
+
+  :root[data-theme='light'] .dropdown-divider {
+    background: #e8e8e8;
   }
 
   /* Responsive adjustments */
@@ -558,6 +699,80 @@ const navSections: NavSection[] = [
     document.querySelectorAll('[data-dropdown]').forEach((d) => hideDropdown(d))
   }
 
+  function updateCurrentStateFromPath() {
+    const currentPath = window.location.pathname
+
+    // Find the dropdown item that matches the current path
+    let matchingItem: Element | null = null
+    let matchingLabel: string | null = null
+    let matchingIcon: Node | null = null
+
+    document.querySelectorAll('.dropdown-item').forEach((item) => {
+      const href = item.getAttribute('href')
+      if (!href) return
+
+      // Normalize paths for comparison
+      const normalizedPath = currentPath.replace(/\/+$/, '')
+      const normalizedHref = href.replace(/\/+$/, '').split('#')[0] // Remove hash for path matching
+
+      // Check if current path starts with the item's href
+      if (normalizedPath.startsWith(normalizedHref) && normalizedHref !== '') {
+        // Only update if this is a better match (longer path = more specific)
+        if (
+          !matchingItem ||
+          normalizedHref.length > (matchingItem.getAttribute('href')?.split('#')[0].length || 0)
+        ) {
+          matchingItem = item
+          // Get label from the dropdown-item-label span, or fallback to any span
+          const labelSpan = item.querySelector('.dropdown-item-label') || item.querySelector('span')
+          matchingLabel = labelSpan?.textContent || null
+          // Get the icon from the dropdown item icon wrapper
+          const iconEl = item.querySelector('.dropdown-item-icon')
+          if (iconEl) {
+            matchingIcon = iconEl.cloneNode(true)
+          }
+        }
+      }
+    })
+
+    // If we found a matching item, update the parent nav item
+    if (matchingItem && matchingLabel) {
+      // Mark the matching item as current
+      matchingItem.classList.add('current')
+
+      const dropdownMenu = matchingItem.closest('[data-dropdown]')
+      if (dropdownMenu) {
+        const navKey = dropdownMenu.getAttribute('data-nav-key')
+        const parentTrigger = document.querySelector(
+          `.nav-item-wrapper.has-dropdown .nav-item[href="${navKey}"]`,
+        )
+        if (parentTrigger) {
+          // Check if parent has keepParentLabel attribute
+          const wrapper = parentTrigger.closest('.nav-item-wrapper')
+          const hasKeepParentLabel = wrapper?.hasAttribute('data-keep-parent-label')
+
+          // Only update label and icon if keepParentLabel is not set
+          if (!hasKeepParentLabel) {
+            // Update the label text to match the active child
+            const labelEl = parentTrigger.querySelector('.nav-label')
+            if (labelEl && matchingLabel) {
+              labelEl.textContent = matchingLabel
+            }
+
+            // Update the icon to match the active child
+            if (matchingIcon) {
+              const iconContainer = parentTrigger.querySelector('.nav-icon')
+              if (iconContainer) {
+                iconContainer.replaceWith(matchingIcon)
+                matchingIcon.classList.add('nav-icon')
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   function updateCurrentStateFromHash() {
     const hash = window.location.hash
     if (!hash) return
@@ -580,9 +795,11 @@ const navSections: NavSection[] = [
       // This prevents /apis/ from matching when the hash is #description/sdks
       if (href && href.includes(hash)) {
         matchingItem = item
-        matchingLabel = item.querySelector('span')?.textContent
-        // Get the icon from the dropdown item
-        const iconEl = item.querySelector('svg')
+        // Get label from the dropdown-item-label span, or fallback to any span
+        const labelSpan = item.querySelector('.dropdown-item-label') || item.querySelector('span')
+        matchingLabel = labelSpan?.textContent
+        // Get the icon from the dropdown item icon wrapper
+        const iconEl = item.querySelector('.dropdown-item-icon')
         if (iconEl) {
           matchingIcon = iconEl.cloneNode(true)
         }
@@ -629,11 +846,20 @@ const navSections: NavSection[] = [
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Update selection state based on hash on initial load
+    // Update selection state based on path on initial load
+    updateCurrentStateFromPath()
+
+    // Update selection state based on hash on initial load (for hash-based routes like APIs)
     updateCurrentStateFromHash()
 
     // Update selection state when hash changes
     window.addEventListener('hashchange', updateCurrentStateFromHash)
+
+    // Update selection state on navigation (back/forward buttons)
+    window.addEventListener('popstate', () => {
+      updateCurrentStateFromPath()
+      updateCurrentStateFromHash()
+    })
 
     const dropdownTriggers = document.querySelectorAll('.nav-item-wrapper.has-dropdown')
     let currentOpenDropdown = null
@@ -652,8 +878,8 @@ const navSections: NavSection[] = [
       let isClickOpen = false
 
       trigger.addEventListener('click', (e) => {
-        // Only prevent default navigation if href is '#' (like API Reference)
-        if (href === '#') {
+        // Only prevent default navigation if href is hash-only (like #authenticate, #sdks-apis)
+        if (href && href.startsWith('#')) {
           e.preventDefault()
           e.stopPropagation()
 
@@ -669,7 +895,7 @@ const navSections: NavSection[] = [
             isClickOpen = true
           }
         }
-        // If href is not '#', navigation will happen naturally
+        // If href is not hash-only, navigation will happen naturally
       })
 
       trigger.addEventListener('mouseenter', () => {
@@ -715,6 +941,36 @@ const navSections: NavSection[] = [
       dropdown.addEventListener('click', (e) => {
         const target = e.target.closest('.dropdown-item')
         if (target) {
+          // Update parent label and icon immediately if keepParentLabel is not set
+          const wrapper = triggerLink.closest('.nav-item-wrapper')
+          const hasKeepParentLabel = wrapper?.hasAttribute('data-keep-parent-label')
+
+          if (!hasKeepParentLabel) {
+            // Get label from the clicked item
+            const labelSpan =
+              target.querySelector('.dropdown-item-label') || target.querySelector('span')
+            const clickedLabel = labelSpan?.textContent
+
+            // Get icon from the clicked item
+            const iconEl = target.querySelector('.dropdown-item-icon')
+
+            if (clickedLabel) {
+              const parentLabel = triggerLink.querySelector('.nav-label')
+              if (parentLabel) {
+                parentLabel.textContent = clickedLabel
+              }
+            }
+
+            if (iconEl) {
+              const clonedIcon = iconEl.cloneNode(true)
+              const parentIcon = triggerLink.querySelector('.nav-icon')
+              if (parentIcon) {
+                parentIcon.replaceWith(clonedIcon)
+                clonedIcon.classList.add('nav-icon')
+              }
+            }
+          }
+
           hideDropdown(dropdown)
           currentOpenDropdown = null
           isClickOpen = false
