@@ -305,36 +305,6 @@ export const sidebar = [
           'mcp/troubleshooting',
         ],
       },
-      {
-        label: 'Add Modular SSO',
-        collapsed: true,
-        items: [
-          'sso/guides/sso-basics',
-          'sso/guides/authorization-url',
-          'guides/user-auth/check-sso-domain',
-          'sso/guides/add-login-ux-sso',
-          'sso/guides/idp-init-sso',
-          'sso/guides/sso-user-attributes',
-          'sso/guides/test-sso',
-        ],
-      },
-      {
-        label: 'Onboard an enterprise',
-        collapsed: true,
-        items: [
-          'fsa/guides/onboard-enterprise-customers',
-          'guides/admin-portal',
-          {
-            label: 'View all integrations',
-            link: 'guides/integrations',
-            badge: {
-              text: '25+',
-              variant: 'tip',
-            },
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
-      },
     ],
   },
   {
@@ -344,38 +314,25 @@ export const sidebar = [
     icon: 'puzzle',
     items: [
       {
-        label: 'Start with Modules',
-        items: ['mcp/quickstart', 'authenticate/sso/add-modular-sso'],
-      },
-      {
-        label: 'Auth for MCP',
-        collapsed: true,
+        label: 'Getting started',
         items: [
-          'mcp/intro-to-mcp-auth',
-          'authenticate/mcp/auth-patterns',
-          'mcp/auth-methods/custom-auth',
-          'authenticate/mcp/fastapi-fastmcp-quickstart',
-          'authenticate/mcp/expressjs-quickstart',
-          'authenticate/mcp/fastmcp-quickstart',
-          'mcp/troubleshooting',
+          'authenticate/sso/add-modular-sso',
+          'sso/guides/idp-init-sso',
+          'sso/guides/test-sso',
         ],
       },
       {
-        label: 'Add Modular SSO',
-        collapsed: true,
+        label: 'Guides',
         items: [
           'sso/guides/sso-basics',
           'sso/guides/authorization-url',
           'guides/user-auth/check-sso-domain',
           'sso/guides/add-login-ux-sso',
-          'sso/guides/idp-init-sso',
           'sso/guides/sso-user-attributes',
-          'sso/guides/test-sso',
         ],
       },
       {
         label: 'Onboard an enterprise',
-        collapsed: true,
         items: [
           'fsa/guides/onboard-enterprise-customers',
           'guides/admin-portal',
@@ -452,7 +409,19 @@ export const topics = {
     '/passwordless/**/*', // Magic Link & OTP authentication belongs in Authenticate
   ], // Pages that appear in Authenticate sidebar
   connect: ['/agent-actions/**/*'], // Agent Actions pages
-  mcp: [], // MCP pages are in dev-kit sidebar (via the dev-kit topic)
+  mcp: ['/mcp/**/*', '/authenticate/mcp/**/*'],
+  'modular-sso': [
+    '/authenticate/sso/**/*',
+    '/sso/**/*',
+    '/guides/sso/**/*',
+    '/passwordless/**/*',
+    '/authenticate/m2m/**/*',
+  ],
+  'modular-scim': [
+    '/directory/scim/**/*',
+    '/directory/guides/**/*',
+    '/guides/user-management/scim-provisioning',
+  ],
   'dev-kit': [
     '/dev-kit/**/*',
     '/scenarios',
@@ -484,20 +453,6 @@ export const topics = {
     '/fsa/guides/onboard-enterprise-customers',
     '/fsa/guides/organization-identifiers',
     '/fsa/reference/user-management-settings',
-    // SSO guides that appear in dev-kit sidebar
-    '/sso/guides/authorization-url',
-    '/sso/guides/sso-user-attributes',
-    '/sso/guides/add-login-ux-sso',
-    '/sso/guides/idp-init-sso',
-    '/sso/guides/test-sso',
-    '/sso/guides/sso-basics',
-    '/sso/guides/sso-migration-strategy',
-    // Directory/SCIM guides
-    '/directory/guides/user-provisioning-basics',
-    '/directory/guides/scim-protocol',
-    '/directory/guides/group-based-role-assignment',
-    // MCP guides that appear in dev-kit
-    '/mcp/**/*',
     // User management guides
     '/guides/user-management/**/*',
     // Authorization and best practices guides
@@ -546,15 +501,8 @@ export const secondaryNavMapping = {
     patterns: [
       '/', // Root path
       '/authenticate',
-      '/mcp',
       '/fsa',
-      '/sso',
-      '/guides/sso',
       '/social-logins',
-      '/passwordless',
-      '/guides/passwordless',
-      '/directory',
-      '/guides/directory',
       '/guides/custom-domain',
       '/guides/email-providers',
       '/authenticate/interceptors/**/*',
@@ -621,26 +569,14 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Main authentication sidebar → Full-stack Auth child item
   authenticate: 'fsa',
 
-  // Modular auth sidebar → path-based child selection
-  'modular-auth': {
-    default: 'modular-sso',
-    pathOverrides: {
-      // Map MCP auth pages to the "Auth for MCP" secondary nav item
-      '/mcp/intro-to-mcp-auth': 'mcp',
-      '/authenticate/mcp/auth-patterns': 'mcp',
-      '/authenticate/mcp/fastapi-fastmcp-quickstart': 'mcp',
-      '/authenticate/mcp/expressjs-quickstart': 'mcp',
-      '/authenticate/mcp/fastmcp-quickstart': 'mcp',
-      '/mcp': 'mcp',
-      '/mcp/troubleshooting': 'mcp',
-      '/authenticate/sso': 'modular-sso',
-      '/directory/scim': 'modular-scim',
-      '/passwordless': 'modular-sso', // Passwordless is part of modular auth
-      '/authenticate/m2m': 'modular-sso', // M2M quickstart in modular auth
-      '/sso': 'modular-sso',
-      '/sso/guides/sso-basics': 'modular-sso',
-    },
-  },
+  // MCP sidebar → Auth for MCP child item
+  mcp: 'mcp',
+
+  // Modular SSO sidebar → Modular SSO child item
+  'modular-sso': 'modular-sso',
+
+  // Modular SCIM sidebar → Modular SCIM child item
+  'modular-scim': 'modular-scim',
 
   // Agent Actions sidebar → agent-actions item (currently hidden in nav)
   connect: 'agent-actions',
