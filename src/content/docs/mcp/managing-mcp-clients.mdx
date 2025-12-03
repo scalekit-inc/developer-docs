@@ -1,6 +1,6 @@
 ---
 title: Managing MCP Clients
-description: Learn about different types of MCP clients and how to manage them in Scalekit.
+description: Manage MCP clients by viewing registered MCP clients, tracking user consent, and revoking access to your MCP servers.
 tableOfContents:
   maxHeadingLevel: 3
 sidebar:
@@ -16,22 +16,56 @@ head:
         white-space: nowrap;
       }
 ---
+import { Steps } from '@astrojs/starlight/components'
+import createClientImg from '@/assets/docs/guides/mcp/mcp_create_client.png'
+import configureClientImg from '@/assets/docs/guides/mcp/mcp_configure_client.png'
 
-Scalekit supports different types of MCP Clients to ensure flexibility and security for your MCP Server. This guide provides an overview of these client types and how to manage them.
+To maintain security and control over your MCP Server, you need to manage which client applications can access it. Scalekit provides several ways for clients to connect, including automatic registration for modern apps and manual pre-registration for custom or trusted clients.
 
-## Types of MCP Clients
+This guide covers the different types of MCP clients and shows you how to:
+
+- View all registered clients
+- See which users have granted consent to a client
+- Revoke user access for any client
 
 There are three main categories of MCP Clients that can interact with your MCP Server:
 
-### 1. Clients registered via Dynamic Client Registration (DCR)
+## 1. Automatic registration with DCR
 
 These are MCP Clients that automatically register themselves as OAuth clients. Most modern MCP clients, such as Claude Desktop, OpenAI, VS Code, and Cursor, support Dynamic Client Registration (DCR). They initiate the registration process and start the OAuth Authorization flow with the Scalekit server to obtain an access token without requiring manual configuration.
 
-### 2. Pre-registered Clients
+## 2. Manual client pre-registration
 
 These are MCP Clients that you manually register in the Scalekit Dashboard. This is useful when you want to restrict access to specific, pre-approved clients or when you are building a custom client that requires fixed credentials. You can create OAuth clients that can either act as themselves or on behalf of the user.
 
-#### 2.1 OAuth Client Credential Flow
+### How to pre-register a client
+
+If you need to manually register an MCP Client, you can do so in the Scalekit Dashboard.
+
+<Steps>
+1.  Navigate to the **Clients** section of your MCP Server.
+
+2.  Click the **Create Client** button.
+
+    <img src={createClientImg.src} alt="Create Client" width="600px" />
+
+    **Configuration:**
+
+    -   **Client name**: A display name (e.g., "My Custom Client").
+    -   **Redirect URI**: The URL where the client will redirect users after authorization.
+
+3.  **Choosing the right OAuth flow:**
+
+    -   **For Client Credentials Flow**: Leave the Redirect URI field empty. Your application will authenticate using only the `client_id` and `client_secret`. This is suitable for server-to-server communication.
+    -   **For Authorization Code Grant Flow**: Provide one or more Redirect URIs where users will be redirected after granting consent. This is required for user-facing applications that need to act on behalf of users.
+
+    Once the client is created, you will receive a `client_id` and `client_secret` to configure in your application.
+
+    <img src={configureClientImg.src} alt="Redirect URI" width="600px" />
+
+</Steps>
+
+### 2.1 OAuth client credential flow
 
 Use this flow when your MCP Client needs to act on its own behalf rather than on behalf of a specific user. This is ideal for machine-to-machine communication scenarios.
 
@@ -49,7 +83,7 @@ Use this flow when your MCP Client needs to act on its own behalf rather than on
 - Client authenticates using `client_id` and `client_secret`
 - Access token represents the client itself
 
-#### 2.2 OAuth Authorization Code Grant Flow
+### 2.2 OAuth authorization code grant flow
 
 Use this flow when your MCP Client needs to act on behalf of a user. This is the standard OAuth flow that requires user consent.
 
@@ -67,37 +101,13 @@ Use this flow when your MCP Client needs to act on behalf of a user. This is the
 - Client receives authorization code, exchanges it for access token
 - Access token represents the user's authorization
 
-### 3. CIMD Supported Clients
+## 3. Registration via metadata URL (CIMD)
 
 These are MCP Clients that support Client ID Metadata Document (CIMD), an OAuth 2.0 mechanism that allows clients to use a URL as their client identifier. When a CIMD-compatible client initiates the OAuth flow, Scalekit fetches the client's metadata (such as name, redirect URIs, and other registration information) from the provided URL. This provides an alternative registration method without requiring manual pre-registration or Dynamic Client Registration, making it easier for clients to authenticate across different authorization servers.
 
-## Pre-registering an MCP Client
+## Manage registered clients
 
-If you need to manually register an MCP Client (Type 2), you can do so in the Scalekit Dashboard.
-
-1. Navigate to the **Clients** section of your MCP Server.
-2. Click the **Create Client** button.
-
-![Create Client](@/assets/docs/guides/mcp/mcp_create_client.png)
-
-**Configuration:**
-
-- **Client name**: A display name (e.g., "My Custom Client").
-- **Redirect URI**: The URL where the client will redirect users after authorization.
-
-**Choosing the Right OAuth Flow:**
-
-- **For Client Credentials Flow**: Leave the Redirect URI field empty. Your application will authenticate using only the `client_id` and `client_secret`. This is suitable for server-to-server communication.
-
-- **For Authorization Code Grant Flow**: Provide one or more Redirect URIs where users will be redirected after granting consent. This is required for user-facing applications that need to act on behalf of users.
-
-Once the client is created, you will receive a `client_id` and `client_secret` to configure in your application.
-
-![Redirect URI](@/assets/docs/guides/mcp/mcp_configure_client.png)
-
-## Managing Registered Clients
-
-### View all Registered Clients
+### View all registered clients
 
 You can view a list of all MCP Clients that have been registered with your MCP Server (both DCR and pre-registered) in the Scalekit Dashboard.
 
@@ -106,7 +116,7 @@ You can view a list of all MCP Clients that have been registered with your MCP S
 
 ![View all MCP Clients](@/assets/docs/guides/mcp/view_all_clients.png)
 
-### View Consented Users
+### View consented users
 
 For each registered MCP Client that uses the OAuth Authorization Code Grant Flow, you can view all users who have granted consent.
 
@@ -119,7 +129,7 @@ For each registered MCP Client that uses the OAuth Authorization Code Grant Flow
 Clients using the Client Credentials Flow do not have user consents since they act on their own behalf rather than on behalf of users.
 :::
 
-### Revoke User Access
+### Revoke user access
 
 As an administrator, you can revoke a user's consent for a specific MCP Client at any time. This is useful when:
 
