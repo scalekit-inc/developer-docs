@@ -8,9 +8,13 @@ export const sidebar = [
     link: '/authenticate',
     icon: 'seti:lock',
     items: [
-      createSectionHeader('Getting started'),
-      'index',
-      { label: 'Quickstart: Full-stack Auth', link: 'authenticate/fsa/quickstart' },
+      {
+        label: 'Getting started',
+        items: [
+          'index',
+          { label: 'Quickstart: Full-stack Auth', link: 'authenticate/fsa/quickstart' },
+        ],
+      },
       {
         label: 'User authentication',
         collapsed: false,

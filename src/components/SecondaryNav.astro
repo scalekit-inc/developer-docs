@@ -72,10 +72,26 @@ function getActiveSecondaryNavId(pathname: string): string | null {
  * Determines if a nav item should be marked as current based on the pathname
  */
 function isCurrentPage(pathname: string, item: NavItem): boolean {
-  // If this is a parent item with children, consider it current if any child is current
-  // (Check this FIRST, before hash-only check, so parent dropdowns can be highlighted)
+  // For dropdown parent items, check if this item OR any child should be current
   if (item.children && item.children.length > 0) {
-    return item.children.some((child) => isCurrentPage(pathname, child))
+    // First, check if any child is current
+    const childIsCurrent = item.children.some((child) => isCurrentPage(pathname, child))
+    if (childIsCurrent) return true
+
+    // Then check if the parent itself should be current based on its own patterns
+    if (item.patterns && item.patterns.length > 0) {
+      const matchesPattern = item.patterns.some((pattern) => {
+        // Remove trailing slashes for consistent comparison
+        const normalizedPath = pathname.replace(/\/+$/, '')
+        const normalizedPattern = pattern.replace(/\/+$/, '')
+        return normalizedPath.startsWith(normalizedPattern)
+      })
+      if (matchesPattern) return true
+    }
+
+    // Finally, check if the parent ID matches the active secondary nav ID
+    const activeId = getActiveSecondaryNavId(pathname)
+    if (activeId === item.id) return true
   }
 
   // Hash-only links (dropdown triggers) are never current on their own
@@ -124,7 +140,7 @@ const navSections: NavSection[] = [
       {
         id: secondaryNavMapping.authenticate.id,
         href: '#authenticate',
-        label: 'Authenticate',
+        label: 'Full-stack Auth',
         iconComponent: IconLucideShield,
         patterns: secondaryNavMapping.authenticate.patterns,
         children: [
@@ -395,7 +411,6 @@ const navSections: NavSection[] = [
   .nav-items {
     font-weight: 500;
     display: flex;
-    gap: 0.75rem;
     padding: 0.25rem 0;
     overflow-x: auto;
     scrollbar-width: none;
