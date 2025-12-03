@@ -84,26 +84,19 @@ Before you begin, ensure you have:
 
 In the Scalekit dashboard, navigate to **MCP servers** and click **Add MCP server**. Configure your server with the following settings:
 
-![MCP server registration](@/assets/docs/guides/mcp/sk-mcp-register.png)
+![MCP server registration](@/assets/docs/guides/mcp/mcp_create.png)
 
 **Basic configuration:**
 
-- **Server name**: A display name that users will see during authorization (e.g., "My AI Assistant")
-- **Resource identifier**: Your MCP server's unique identifier, typically your server's URL (e.g., `https://mcp.yourapp.com`). Access tokens minted by Scalekit will have the resource identifier as `aud` claim.
-
-**Access control settings:**
-
+- **Server name**: A display name that users will see during authorization and in the Consent Screen(e.g., "My ToDo MCP Server")
 - **Allow dynamic client registration** — Enables MCP clients to register automatically without manual approval. For security reasons, Scalekit ensures that any client that registers via DCR has to implement PKCE-based OAuth 2.1 flow to prevent authorization code interception attacks.
 
-**Token configuration:**
+**Advanced settings:**
+These settings are optional and can be configured at a later time. 
+- **Resource identifier**: Your MCP server's unique identifier, typically your server's URL (e.g., `https://mcp.yourapp.com`). This is an optional field. If not provided, Scalekit will use the generated resource_id as the resource identifier. If provided, access tokens minted by Scalekit will have the resource identifier as `aud` claim along with the Scalekit generated resource_id.
 
 - **Access token lifetime**: Recommended 300-3600 seconds (5 minutes to 1 hour)
 
-**Authentication Provider:**
-
-- **Use Scalekit**: If you are already using Scalekit to power authentication for your other resources like web application, mobile application, API etc, you can continue to use Scalekit as the authentication provider for your MCP server too.
-
-- **Use your own authentication provider**: If you are using any other authentication provider like Microsoft Entra, Google Workspace, AWS Cognito, Auth0, Keycloak etc, you can configure Scalekit to integrate with your existing auth system to validate user identity.
 
 ### Step 2: Implement resource metadata discovery
 
@@ -111,7 +104,7 @@ Once you have added your MCP server in the Scalekit dashboard, you will be prese
 
 MCP clients discover your authorization server through the OAuth 2.0 protected resource metadata endpoint.
 
-![Resource Metadata Information](@/assets/docs/guides/mcp/resource-metadata-info.png)
+![Resource Metadata Information](@/assets/docs/guides/mcp/mcp_prm_configure.png)
 
 Below is the code sample to implement resource metadata discovery in your MCP Server:
 
@@ -353,3 +346,7 @@ except ScalekitValidateTokenFailureException as ex:
 ## Next Steps
 
 **Download our sample MCP Server:** We have put together a simple MCP server that you can check out and run it locally to test the end to end functionality of a working MCP server complete with authentication and authorization. You can download and execute a sample MCP server implementation from <a href="https://github.com/scalekit-inc/mcp-auth-demos" target="_blank" rel="noopener">GitHub</a>.
+
+**Configure Auth Methods:** We have documented how you can configure different auth methods like [Social Logins](/mcp/auth-methods/social) or [Enterprise Identity Providers](/mcp/auth-methods/enterprise/) like Okta, Microsoft Entra ID etc. in our documentation.
+
+**Bring your own Auth:** If you already have an authentication system, you can integrate your existing authentication system with Scalekit’s drop-in OAuth 2.1 authorization layer by following this comprehensive [guide](/mcp/auth-methods/custom-auth/).
