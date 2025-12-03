@@ -10,7 +10,7 @@ export const sidebar = [
     items: [
       createSectionHeader('Getting started'),
       'index',
-      { label: 'Quickstart: Complete Auth', link: 'authenticate/fsa/quickstart' },
+      { label: 'Quickstart: Full-stack Auth', link: 'authenticate/fsa/quickstart' },
       {
         label: 'User authentication',
         collapsed: false,
