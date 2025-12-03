@@ -434,31 +434,8 @@ export const topics = {
 }
 
 /**
- * Secondary navigation mapping for top navigation bar
- * Maps sidebar topics to their corresponding secondary nav items
- *
- * This mapping determines which secondary nav item should be highlighted
- * based on which sidebar topic is active for the current page.
- */
-export const topicToSecondaryNav: Record<string, string> = {
-  authenticate: 'authenticate',
-  connect: 'agent-actions',
-  'dev-kit': 'scenarios', // Dev-kit pages show "Scenarios" in secondary nav
-  integrations: 'scenarios', // Integration pages also show "Scenarios"
-  'events-reference': 'webhooks-events', // Events pages map to Events child
-  'rest-apis': 'rest-apis', // REST API pages map to REST APIs child
-  // Note: Some topics may not have a secondary nav item (they won't highlight anything)
-}
-
-/**
- * Secondary navigation mapping with explicit patterns for direct URL matching
- * This is used as a fallback when a page doesn't match any topic
- *
- * Priority levels (higher number = higher priority):
- * - 100: Most specific paths (Agent Actions)
- * - 80: API Reference and Events
- * - 60: Examples and Dev Resources
- * - 40: Authenticate (catch-all, lowest priority)
+ * @deprecated This export is no longer used - replaced by sidebarToSecondaryNav
+ * Kept for backward compatibility during transition
  */
 export const secondaryNavMapping = {
   scenarios: {
@@ -524,4 +501,64 @@ export const secondaryNavMapping = {
       '/reference/agent-connectors',
     ],
   },
+}
+
+/**
+ * Maps sidebar IDs to SecondaryNav item IDs
+ *
+ * This is the single source of truth for determining which SecondaryNav item
+ * should be highlighted based on the current sidebar context.
+ *
+ * Simple string value: Maps directly to a SecondaryNav child item ID
+ * Object with pathOverrides: Uses path matching for granular child selection
+ *   - default: The default child item ID when no path override matches
+ *   - pathOverrides: Record<pathPrefix, childItemId> for specific paths
+ *
+ * @example
+ * // Simple mapping: authenticate sidebar always shows 'fsa' (Full-stack Auth)
+ * 'authenticate': 'fsa'
+ *
+ * // Path-based mapping: modular-auth sidebar shows different children based on path
+ * 'modular-auth': {
+ *   default: 'modular-sso',
+ *   pathOverrides: {
+ *     '/mcp': 'mcp',           // MCP pages show "Auth for MCP"
+ *     '/directory/scim': 'modular-scim', // SCIM pages show "Modular SCIM"
+ *   }
+ * }
+ */
+export type SecondaryNavMapping =
+  | string
+  | {
+      default: string
+      pathOverrides?: Record<string, string>
+    }
+
+export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
+  // Main authentication sidebar → Full-stack Auth child item
+  authenticate: 'fsa',
+
+  // Modular auth sidebar → path-based child selection
+  'modular-auth': {
+    default: 'modular-sso',
+    pathOverrides: {
+      '/mcp': 'mcp',
+      '/authenticate/sso': 'modular-sso',
+      '/directory/scim': 'modular-scim',
+      '/passwordless': 'modular-sso', // Passwordless is part of modular auth
+      '/authenticate/m2m': 'modular-sso', // M2M quickstart in modular auth
+    },
+  },
+
+  // Agent Actions sidebar → agent-actions item (currently hidden in nav)
+  connect: 'agent-actions',
+
+  // Developer Resources sidebar → scenarios item
+  'dev-kit': 'scenarios',
+
+  // Integrations sidebar → scenarios item
+  integrations: 'scenarios',
+
+  // Events reference sidebar → api-reference parent (webhooks-events child)
+  'events-reference': 'webhooks-events',
 }

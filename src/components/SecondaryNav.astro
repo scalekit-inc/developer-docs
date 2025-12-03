@@ -17,16 +17,23 @@ import {
   IconSolarServerPathOutline,
   IconLucideChevronDown as IconChevronDown,
 } from '../utils/icon-map'
-import { secondaryNavMapping, topicToSecondaryNav, topics } from '../configs/sidebar.config'
-import {
-  findBestMatch,
-  isHashOnly,
-  getTopicForPath,
-  type SecondaryNavItem,
-} from '../utils/path-matching'
+import { sidebar, sidebarToSecondaryNav, type SecondaryNavMapping } from '../configs/sidebar.config'
+import { buildPathToSidebarMap, getSidebarIdForPath } from '../configs/sidebar-utils'
+import { isHashOnly, normalizePath } from '../utils/path-matching'
+
+// Props interface - entry is passed from Header.astro
+interface Props {
+  entry?: {
+    data: {
+      topic?: string
+    }
+  }
+}
+
+const { entry } = Astro.props
 
 interface NavItem {
-  id: string // Unique identifier that maps to secondaryNavMapping
+  id: string // Unique identifier for the nav item
   href: string
   label: string
   patterns: string[]
@@ -43,55 +50,76 @@ interface NavSection {
   items: NavItem[]
 }
 
-/**
- * Determines which secondary nav item should be active for the current pathname
- * Uses a two-tier approach:
- * 1. First, check which sidebar topic the page belongs to and map to secondary nav
- * 2. If no topic match, fall back to pattern-based matching
- */
-function getActiveSecondaryNavId(pathname: string): string | null {
-  // First, try to determine the sidebar topic for this page
-  const topic = getTopicForPath(pathname, topics)
+// Build the path-to-sidebar map once at render time
+const pathToSidebarMap = buildPathToSidebarMap(sidebar)
 
-  if (topic && topicToSecondaryNav[topic]) {
-    // Map the topic to its secondary nav item
-    return topicToSecondaryNav[topic]
+/**
+ * Resolves a SecondaryNavMapping to an actual nav item ID
+ * Handles both simple string mappings and complex path-override mappings
+ */
+function resolveNavMapping(mapping: SecondaryNavMapping, pathname: string): string | null {
+  if (typeof mapping === 'string') {
+    return mapping
   }
 
-  // Fallback: Use pattern-based matching
-  const allNavItems: SecondaryNavItem[] = Object.values(secondaryNavMapping).map((mapping) => ({
-    id: mapping.id,
-    patterns: mapping.patterns,
-    priority: mapping.priority,
-  }))
+  // Check path overrides for more specific matches
+  if (mapping.pathOverrides) {
+    const normalizedPath = normalizePath(pathname)
+    for (const [prefix, navId] of Object.entries(mapping.pathOverrides)) {
+      const normalizedPrefix = normalizePath(prefix)
+      if (
+        normalizedPath.startsWith(normalizedPrefix + '/') ||
+        normalizedPath === normalizedPrefix
+      ) {
+        return navId
+      }
+    }
+  }
 
-  return findBestMatch(pathname, allNavItems)
+  return mapping.default || null
+}
+
+/**
+ * Determines which secondary nav item should be active for the current pathname
+ * Uses a sidebar-based approach:
+ * 1. First, check explicit topic from page frontmatter
+ * 2. Then, look up which sidebar the page belongs to from the sidebar config
+ * 3. Map the sidebar ID to a SecondaryNav item using sidebarToSecondaryNav
+ */
+function getActiveSecondaryNavId(pathname: string): string | null {
+  // 1. First check explicit topic from page frontmatter
+  if (entry?.data?.topic) {
+    const mapping = sidebarToSecondaryNav[entry.data.topic]
+    if (mapping) {
+      return resolveNavMapping(mapping, pathname)
+    }
+  }
+
+  // 2. Fall back to path-based sidebar lookup
+  const sidebarId = getSidebarIdForPath(pathname, pathToSidebarMap)
+
+  if (sidebarId && sidebarToSecondaryNav[sidebarId]) {
+    return resolveNavMapping(sidebarToSecondaryNav[sidebarId], pathname)
+  }
+
+  // 3. Default fallback for root path or unmatched pages
+  if (pathname === '/' || pathname === '') {
+    return 'fsa' // Default to Full-stack Auth for home page
+  }
+
+  return null
 }
 
 /**
  * Determines if a nav item should be marked as current based on the pathname
  */
 function isCurrentPage(pathname: string, item: NavItem): boolean {
-  // For dropdown parent items, check if this item OR any child should be current
+  const activeId = getActiveSecondaryNavId(pathname)
+
+  // For dropdown parent items, check if any child is current
   if (item.children && item.children.length > 0) {
-    // First, check if any child is current
-    const childIsCurrent = item.children.some((child) => isCurrentPage(pathname, child))
+    const childIsCurrent = item.children.some((child) => child.id === activeId)
     if (childIsCurrent) return true
-
-    // Then check if the parent itself should be current based on its own patterns
-    if (item.patterns && item.patterns.length > 0) {
-      const matchesPattern = item.patterns.some((pattern) => {
-        // Remove trailing slashes for consistent comparison
-        const normalizedPath = pathname.replace(/\/+$/, '')
-        const normalizedPattern = pattern.replace(/\/+$/, '')
-        return normalizedPath.startsWith(normalizedPattern)
-      })
-      if (matchesPattern) return true
-    }
-
-    // Finally, check if the parent ID matches the active secondary nav ID
-    const activeId = getActiveSecondaryNavId(pathname)
-    if (activeId === item.id) return true
   }
 
   // Hash-only links (dropdown triggers) are never current on their own
@@ -99,20 +127,7 @@ function isCurrentPage(pathname: string, item: NavItem): boolean {
     return false
   }
 
-  // For child items (items with patterns but potentially not in secondaryNavMapping),
-  // check if pathname matches any of their patterns
-  if (item.patterns && item.patterns.length > 0) {
-    const matchesPattern = item.patterns.some((pattern) => {
-      // Remove trailing slashes for consistent comparison
-      const normalizedPath = pathname.replace(/\/+$/, '')
-      const normalizedPattern = pattern.replace(/\/+$/, '')
-      return normalizedPath.startsWith(normalizedPattern)
-    })
-    if (matchesPattern) return true
-  }
-
-  // Get the active secondary nav ID and compare
-  const activeId = getActiveSecondaryNavId(pathname)
+  // Check if this item's ID matches the active nav ID
   return activeId === item.id
 }
 
@@ -132,98 +147,98 @@ function getDisplayIcon(pathname: string, item: NavItem): any {
   return item.iconComponent
 }
 
-// Build nav sections using secondaryNavMapping as source of truth
+// Build nav sections - IDs must match those in sidebarToSecondaryNav mapping
 const navSections: NavSection[] = [
   {
     items: [
-      // Authenticate dropdown with children - replaces standalone Authenticate item
+      // Authenticate dropdown with children for different auth products
       {
-        id: secondaryNavMapping.authenticate.id,
+        id: 'authenticate', // Parent dropdown ID
         href: '#authenticate',
         label: 'Full-stack Auth',
         iconComponent: IconLucideShield,
-        patterns: secondaryNavMapping.authenticate.patterns,
+        patterns: [], // Patterns no longer needed - selection is sidebar-based
         children: [
           {
-            id: 'fsa', // Child items need unique IDs but won't be used in matching
+            id: 'fsa', // Maps to sidebarToSecondaryNav['authenticate']
             href: '/authenticate/fsa/quickstart/',
             label: 'Full-stack Auth',
-            patterns: ['/authenticate/fsa'],
+            patterns: [],
             iconComponent: IconLucideUsers,
             description: 'Add secure login pages, user accounts, and safe session handling',
             sectionLabel: 'FULL-STACK AUTHENTICATION',
             showDivider: true,
           },
           {
-            id: 'mcp',
+            id: 'mcp', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/mcp']
             href: '/mcp/quickstart/',
             label: 'Auth for MCP',
-            patterns: ['/mcp'],
+            patterns: [],
             iconComponent: IconMcp,
             description: 'Add secure login pages, user accounts, and safe session handling',
             sectionLabel: 'MODULAR AUTH',
           },
           {
-            id: 'modular-sso',
+            id: 'modular-sso', // Maps to sidebarToSecondaryNav['modular-auth'].default
             href: '/authenticate/sso/add-modular-sso/',
             label: 'Modular SSO',
-            patterns: ['/authenticate/sso'],
+            patterns: [],
             iconComponent: IconMingcuteUserSecurityLine,
             description: 'Add secure login pages, user accounts, and safe session handling',
           },
           {
-            id: 'modular-scim',
+            id: 'modular-scim', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/directory/scim']
             href: '/directory/scim/quickstart/',
             label: 'Modular SCIM',
-            patterns: ['/directory/scim'],
+            patterns: [],
             iconComponent: IconAntDesignUserSwitchOutlined,
             description: 'Add secure login pages, user accounts, and safe session handling',
           },
         ],
       },
       {
-        id: secondaryNavMapping.scenarios.id,
+        id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit'] and ['integrations']
         href: '/dev-kit/',
         label: 'Developer Resources',
-        patterns: secondaryNavMapping.scenarios.patterns,
+        patterns: [],
         iconComponent: IconHugeiconsResourcesAdd,
       },
       {
-        id: secondaryNavMapping['api-reference'].id,
+        id: 'api-reference', // Parent dropdown ID
         href: '#sdks-apis',
         label: 'SDKs & APIs',
-        patterns: secondaryNavMapping['api-reference'].patterns,
+        patterns: [],
         iconComponent: IconLucideBookOpen,
         children: [
           {
-            id: 'sdks', // Child items still need unique IDs but won't be used in matching
+            id: 'sdks',
             href: '/apis/#description/sdks',
             label: 'SDKs',
-            patterns: ['/apis/#description/sdks'],
+            patterns: [],
             iconComponent: IconLucideCode,
           },
           {
             id: 'rest-apis',
             href: '/apis/',
             label: 'REST APIs',
-            patterns: ['/apis'],
+            patterns: [],
             iconComponent: IconLucideBookOpen,
           },
           {
-            id: 'webhooks-events',
+            id: 'webhooks-events', // Maps to sidebarToSecondaryNav['events-reference']
             href: '/reference/webhooks/overview/',
             label: 'Webhooks',
-            patterns: ['/reference/webhooks', '/reference/admin-portal/ui-events'],
+            patterns: [],
             iconComponent: IconLucideOutlineWebhook,
           },
         ],
       },
       // Temporarily hidden - Agent Actions
       // {
-      //   id: secondaryNavMapping['agent-actions'].id,
+      //   id: 'agent-actions',
       //   href: '/agent-actions/quickstart',
       //   label: 'Agent Actions',
-      //   patterns: secondaryNavMapping['agent-actions'].patterns,
+      //   patterns: [],
       //   iconComponent: IconLucideBot,
       // },
     ],
@@ -527,7 +542,7 @@ const navSections: NavSection[] = [
 
   /* Wider dropdown for Authenticate (has descriptions) */
   [data-dropdown-id='authenticate'] .dropdown-content {
-    width: 35rem;
+    width: 31.875rem;
   }
 
   .dropdown-section-label {
