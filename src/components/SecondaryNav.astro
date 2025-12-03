@@ -3,18 +3,12 @@ import {
   IconLucideShield,
   IconMcp,
   IconLucideUsers,
-  IconLucideMail,
-  IconLucideBot,
   IconLucideBookOpen,
-  IconLucideBell,
   IconLucideCode,
   IconLucideOutlineWebhook,
-  IconLucideWrench,
   IconHugeiconsResourcesAdd,
-  IconClarityBlocksGroupLine,
   IconMingcuteUserSecurityLine,
   IconAntDesignUserSwitchOutlined,
-  IconSolarServerPathOutline,
   IconLucideChevronDown as IconChevronDown,
 } from '../utils/icon-map'
 import { sidebar, sidebarToSecondaryNav, type SecondaryNavMapping } from '../configs/sidebar.config'
@@ -36,18 +30,12 @@ interface NavItem {
   id: string // Unique identifier for the nav item
   href: string
   label: string
-  patterns: string[]
-  isExact?: boolean
   iconComponent?: any
   children?: NavItem[]
   keepParentLabel?: boolean // Keep parent label even when child is active
   description?: string // Optional description for dropdown items
   showDivider?: boolean // Show divider after this item
   sectionLabel?: string // Optional section label for grouping items
-}
-
-interface NavSection {
-  items: NavItem[]
 }
 
 // Build the path-to-sidebar map once at render time
@@ -147,105 +135,87 @@ function getDisplayIcon(pathname: string, item: NavItem): any {
   return item.iconComponent
 }
 
-// Build nav sections - IDs must match those in sidebarToSecondaryNav mapping
-const navSections: NavSection[] = [
+// Nav items - IDs must match those in sidebarToSecondaryNav mapping
+const navItems: NavItem[] = [
+  // Authenticate dropdown with children for different auth products
   {
-    items: [
-      // Authenticate dropdown with children for different auth products
+    id: 'authenticate',
+    href: '#authenticate',
+    label: 'Full-stack Auth',
+    iconComponent: IconLucideShield,
+    children: [
       {
-        id: 'authenticate', // Parent dropdown ID
-        href: '#authenticate',
+        id: 'fsa', // Maps to sidebarToSecondaryNav['authenticate']
+        href: '/authenticate/fsa/quickstart/',
         label: 'Full-stack Auth',
-        iconComponent: IconLucideShield,
-        patterns: [], // Patterns no longer needed - selection is sidebar-based
-        children: [
-          {
-            id: 'fsa', // Maps to sidebarToSecondaryNav['authenticate']
-            href: '/authenticate/fsa/quickstart/',
-            label: 'Full-stack Auth',
-            patterns: [],
-            iconComponent: IconLucideUsers,
-            description: 'Add secure login pages, user accounts, and safe session handling',
-            sectionLabel: 'FULL-STACK AUTHENTICATION',
-            showDivider: true,
-          },
-          {
-            id: 'mcp', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/mcp']
-            href: '/mcp/quickstart/',
-            label: 'Auth for MCP',
-            patterns: [],
-            iconComponent: IconMcp,
-            description: 'Add secure login pages, user accounts, and safe session handling',
-            sectionLabel: 'MODULAR AUTH',
-          },
-          {
-            id: 'modular-sso', // Maps to sidebarToSecondaryNav['modular-auth'].default
-            href: '/authenticate/sso/add-modular-sso/',
-            label: 'Modular SSO',
-            patterns: [],
-            iconComponent: IconMingcuteUserSecurityLine,
-            description: 'Add secure login pages, user accounts, and safe session handling',
-          },
-          {
-            id: 'modular-scim', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/directory/scim']
-            href: '/directory/scim/quickstart/',
-            label: 'Modular SCIM',
-            patterns: [],
-            iconComponent: IconAntDesignUserSwitchOutlined,
-            description: 'Add secure login pages, user accounts, and safe session handling',
-          },
-        ],
+        iconComponent: IconLucideUsers,
+        description: 'Add secure login pages, user accounts, and safe session handling',
+        sectionLabel: 'FULL-STACK AUTHENTICATION',
+        showDivider: true,
       },
       {
-        id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit'] and ['integrations']
-        href: '/dev-kit/',
-        label: 'Developer Resources',
-        patterns: [],
-        iconComponent: IconHugeiconsResourcesAdd,
+        id: 'mcp', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/mcp']
+        href: '/mcp/quickstart/',
+        label: 'Auth for MCP',
+        iconComponent: IconMcp,
+        description: 'Add secure login pages, user accounts, and safe session handling',
+        sectionLabel: 'MODULAR AUTH',
       },
       {
-        id: 'api-reference', // Parent dropdown ID
-        href: '#sdks-apis',
-        label: 'SDKs & APIs',
-        patterns: [],
-        iconComponent: IconLucideBookOpen,
-        children: [
-          {
-            id: 'sdks',
-            href: '/apis/#description/sdks',
-            label: 'SDKs',
-            patterns: [],
-            iconComponent: IconLucideCode,
-          },
-          {
-            id: 'rest-apis',
-            href: '/apis/',
-            label: 'REST APIs',
-            patterns: [],
-            iconComponent: IconLucideBookOpen,
-          },
-          {
-            id: 'webhooks-events', // Maps to sidebarToSecondaryNav['events-reference']
-            href: '/reference/webhooks/overview/',
-            label: 'Webhooks',
-            patterns: [],
-            iconComponent: IconLucideOutlineWebhook,
-          },
-        ],
+        id: 'modular-sso', // Maps to sidebarToSecondaryNav['modular-auth'].default
+        href: '/authenticate/sso/add-modular-sso/',
+        label: 'Modular SSO',
+        iconComponent: IconMingcuteUserSecurityLine,
+        description: 'Add secure login pages, user accounts, and safe session handling',
       },
-      // Temporarily hidden - Agent Actions
-      // {
-      //   id: 'agent-actions',
-      //   href: '/agent-actions/quickstart',
-      //   label: 'Agent Actions',
-      //   patterns: [],
-      //   iconComponent: IconLucideBot,
-      // },
+      {
+        id: 'modular-scim', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/directory/scim']
+        href: '/directory/scim/quickstart/',
+        label: 'Modular SCIM',
+        iconComponent: IconAntDesignUserSwitchOutlined,
+        description: 'Add secure login pages, user accounts, and safe session handling',
+      },
     ],
   },
   {
-    items: [],
+    id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit'] and ['integrations']
+    href: '/dev-kit/',
+    label: 'Developer Resources',
+    iconComponent: IconHugeiconsResourcesAdd,
   },
+  {
+    id: 'api-reference',
+    href: '#sdks-apis',
+    label: 'SDKs & APIs',
+    iconComponent: IconLucideBookOpen,
+    children: [
+      {
+        id: 'sdks',
+        href: '/apis/#description/sdks',
+        label: 'SDKs',
+        iconComponent: IconLucideCode,
+      },
+      {
+        id: 'rest-apis',
+        href: '/apis/',
+        label: 'REST APIs',
+        iconComponent: IconLucideBookOpen,
+      },
+      {
+        id: 'webhooks-events', // Maps to sidebarToSecondaryNav['events-reference']
+        href: '/reference/webhooks/overview/',
+        label: 'Webhooks',
+        iconComponent: IconLucideOutlineWebhook,
+      },
+    ],
+  },
+  // Temporarily hidden - Agent Actions
+  // {
+  //   id: 'agent-actions',
+  //   href: '/agent-actions/quickstart',
+  //   label: 'Agent Actions',
+  //   iconComponent: IconLucideBot,
+  // },
 ]
 ---
 
@@ -253,7 +223,7 @@ const navSections: NavSection[] = [
   <div class="nav-section nav-left">
     <div class="nav-items">
       {
-        navSections[0].items.map((item) => (
+        navItems.map((item) => (
           <div
             class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
             data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
@@ -294,42 +264,7 @@ const navSections: NavSection[] = [
   </div>
 
   <div class="nav-section nav-right">
-    <div class="nav-items">
-      {
-        navSections[1].items.map((item) => (
-          <div
-            class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
-            data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
-          >
-            <a
-              href={item.href}
-              class={`nav-item ${isCurrentPage(Astro.url.pathname, item) ? 'current' : ''}`}
-              aria-current="page"
-            >
-              <div class="nav-item-content">
-                {(function () {
-                  const IconComponent =
-                    item.children && item.children.length > 0
-                      ? getDisplayIcon(Astro.url.pathname, item)
-                      : item.iconComponent
-                  return IconComponent && <IconComponent class="nav-icon" />
-                })()}
-                {item.label && (
-                  <span class="nav-label">
-                    {item.children && item.children.length > 0
-                      ? getDisplayLabel(Astro.url.pathname, item)
-                      : item.label}
-                  </span>
-                )}
-                {item.children && item.children.length > 0 && (
-                  <IconChevronDown class="dropdown-icon" />
-                )}
-              </div>
-            </a>
-          </div>
-        ))
-      }
-    </div>
+    <!-- Reserved for future right-aligned nav items -->
   </div>
 </nav>
 
@@ -339,46 +274,44 @@ const navSections: NavSection[] = [
   style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 999999;"
 >
   {
-    navSections.map((section) =>
-      section.items.map((item) =>
-        item.children && item.children.length > 0 ? (
-          <div
-            class="dropdown-menu"
-            data-dropdown
-            data-nav-key={item.href}
-            data-dropdown-id={item.id}
-          >
-            <div class="dropdown-content">
-              {item.children.map((child, index) => (
-                <>
-                  {child.sectionLabel && (
-                    <div class="dropdown-section-label">{child.sectionLabel}</div>
-                  )}
-                  <a
-                    href={child.href}
-                    class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child) ? 'current' : ''}`}
-                  >
-                    <div class="dropdown-item-icon-wrapper">
-                      {(function () {
-                        const ChildIcon = child.iconComponent
-                        return ChildIcon && <ChildIcon class="dropdown-item-icon" />
-                      })()}
-                    </div>
-                    <div class="dropdown-item-content">
-                      <span class="dropdown-item-label">{child.label}</span>
-                      {child.description && (
-                        <span class="dropdown-item-description">{child.description}</span>
-                      )}
-                    </div>
-                  </a>
-                  {child.showDivider && <div class="dropdown-divider" />}
-                </>
-              ))}
-            </div>
+    navItems
+      .filter((item) => item.children && item.children.length > 0)
+      .map((item) => (
+        <div
+          class="dropdown-menu"
+          data-dropdown
+          data-nav-key={item.href}
+          data-dropdown-id={item.id}
+        >
+          <div class="dropdown-content">
+            {item.children!.map((child) => (
+              <>
+                {child.sectionLabel && (
+                  <div class="dropdown-section-label">{child.sectionLabel}</div>
+                )}
+                <a
+                  href={child.href}
+                  class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child) ? 'current' : ''}`}
+                >
+                  <div class="dropdown-item-icon-wrapper">
+                    {(function () {
+                      const ChildIcon = child.iconComponent
+                      return ChildIcon && <ChildIcon class="dropdown-item-icon" />
+                    })()}
+                  </div>
+                  <div class="dropdown-item-content">
+                    <span class="dropdown-item-label">{child.label}</span>
+                    {child.description && (
+                      <span class="dropdown-item-description">{child.description}</span>
+                    )}
+                  </div>
+                </a>
+                {child.showDivider && <div class="dropdown-divider" />}
+              </>
+            ))}
           </div>
-        ) : null,
-      ),
-    )
+        </div>
+      ))
   }
 </div>
 
