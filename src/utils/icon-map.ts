@@ -50,7 +50,9 @@ import IconLucideUsers from '~icons/lucide/users'
 import IconLucideKeyRound from '~icons/lucide/key-round'
 import IconLucideMail from '~icons/lucide/mail'
 import IconApi from '~icons/material-symbols/api'
-import IconSdk from '~icons/material-symbols/sdk'
+import IconSdk from '~icons/material-symbols/sdk-outline-rounded'
+import IconMdiCubeOutline from '~icons/mdi/cube-outline'
+
 import IconPostman from '~icons/lineicons/postman'
 import IconTablerServerSpark from '~icons/tabler/server-spark'
 import IconStreamlineUserSyncOnlineInPersonRemix from '~icons/streamline/user-sync-online-in-person-remix'
@@ -226,6 +228,9 @@ export {
   IconLucideBell,
   IconLucideCode,
   IconLucideWrench,
+  IconSdk,
+  IconApi,
+  IconMdiCubeOutline,
 
   // Content type icons
   IconHugeiconsResourcesAdd,
