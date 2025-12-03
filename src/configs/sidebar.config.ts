@@ -286,14 +286,66 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Modular Auth',
-    id: 'modular-auth',
+    label: 'Auth for MCP',
+    id: 'mcp',
+    link: '/mcp/quickstart',
+    icon: 'puzzle',
+    items: [
+      {
+        label: 'Getting started',
+        items: ['mcp/quickstart', 'authenticate/mcp/auth-patterns', 'mcp/auth-methods/custom-auth'],
+      },
+      {
+        label: 'Guides',
+        items: [
+          'mcp/intro-to-mcp-auth',
+          'authenticate/mcp/fastapi-fastmcp-quickstart',
+          'authenticate/mcp/expressjs-quickstart',
+          'authenticate/mcp/fastmcp-quickstart',
+          'mcp/troubleshooting',
+        ],
+      },
+      {
+        label: 'Add Modular SSO',
+        collapsed: true,
+        items: [
+          'sso/guides/sso-basics',
+          'sso/guides/authorization-url',
+          'guides/user-auth/check-sso-domain',
+          'sso/guides/add-login-ux-sso',
+          'sso/guides/idp-init-sso',
+          'sso/guides/sso-user-attributes',
+          'sso/guides/test-sso',
+        ],
+      },
+      {
+        label: 'Onboard an enterprise',
+        collapsed: true,
+        items: [
+          'fsa/guides/onboard-enterprise-customers',
+          'guides/admin-portal',
+          {
+            label: 'View all integrations',
+            link: 'guides/integrations',
+            badge: {
+              text: '25+',
+              variant: 'tip',
+            },
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: 'Modular SSO',
+    id: 'modular-sso',
     link: '/authenticate/sso/add-modular-sso',
     icon: 'puzzle',
     items: [
       {
         label: 'Start with Modules',
-        items: ['mcp/quickstart', 'authenticate/sso/add-modular-sso', 'directory/scim/quickstart'],
+        items: ['mcp/quickstart', 'authenticate/sso/add-modular-sso'],
       },
       {
         label: 'Auth for MCP',
@@ -322,8 +374,36 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Add Modular SCIM',
+        label: 'Onboard an enterprise',
         collapsed: true,
+        items: [
+          'fsa/guides/onboard-enterprise-customers',
+          'guides/admin-portal',
+          {
+            label: 'View all integrations',
+            link: 'guides/integrations',
+            badge: {
+              text: '25+',
+              variant: 'tip',
+            },
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: 'Modular SCIM',
+    id: 'modular-scim',
+    link: '/authenticate/sso/add-modular-sso',
+    icon: 'puzzle',
+    items: [
+      {
+        label: 'Getting started',
+        items: ['directory/scim/quickstart', 'guides/admin-portal'],
+      },
+      {
+        label: 'Guides',
         items: [
           'directory/guides/user-provisioning-basics',
           'directory/guides/scim-protocol',
@@ -332,10 +412,8 @@ export const sidebar = [
       },
       {
         label: 'Onboard an enterprise',
-        collapsed: true,
         items: [
           'fsa/guides/onboard-enterprise-customers',
-          'guides/admin-portal',
           {
             label: 'View all integrations',
             link: 'guides/integrations',
