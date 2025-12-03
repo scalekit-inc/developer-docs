@@ -288,6 +288,7 @@ export const sidebar = [
         items: [
           'mcp/overview',
           'mcp/quickstart',
+          'mcp/managing-mcp-clients',
           { label: 'Troubleshooting Guide', link: 'mcp/troubleshooting' },
         ],
       },
