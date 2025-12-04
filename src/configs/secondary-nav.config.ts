@@ -42,7 +42,7 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Full-stack Auth',
         iconComponent: IconLucideUsers,
         description: 'Add secure login, user accounts, and session management',
-        sectionLabel: 'FULL-STACK AUTHENTICATION',
+        sectionLabel: 'AUTHENTICATE',
         showDivider: true,
       },
       {
@@ -51,7 +51,7 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Auth for MCP',
         iconComponent: IconMcp,
         description: 'Production-ready OAuth for MCP servers with dynamic client registration',
-        sectionLabel: 'MODULAR AUTH',
+        sectionLabel: 'AUTHENTICATE → MODULAR AUTH',
       },
       {
         id: 'modular-sso', // Maps to sidebarToSecondaryNav['modular-auth'].default
