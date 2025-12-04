@@ -330,7 +330,7 @@ export const sidebar = [
           'authenticate/sso/add-modular-sso',
           'sso/guides/idp-init-sso',
           'sso/guides/test-sso',
-          'fsa/guides/onboard-enterprise-customers',
+          'sso/guides/onboard-enterprise-customers',
         ],
       },
       {
@@ -363,7 +363,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'directory/scim/quickstart',
-          'fsa/guides/onboard-enterprise-customers',
+          'directory/guides/onboard-enterprise-customers',
           {
             label: 'Directory webhooks reference',
             link: 'reference/webhooks/directory-events',
@@ -390,9 +390,9 @@ export const sidebar = [
  * Topics configuration for starlight-sidebar-topics plugin
  *
  * How it works:
- * 1. Pages explicitly listed in sidebar `items` → Automatically get that sidebar
- * 2. `topics[id]` patterns → For pages NOT in any sidebar, associates them with a topic
- * 3. `exclude` → Pages that should use custom navigation (no topic sidebar)
+ * 1. Pages explicitly listed in sidebar `items` ? Automatically get that sidebar
+ * 2. `topics[id]` patterns ? For pages NOT in any sidebar, associates them with a topic
+ * 3. `exclude` ? Pages that should use custom navigation (no topic sidebar)
  *
  * Pattern matching priority: More specific patterns should be listed first.
  * The plugin matches from top to bottom, first match wins.
@@ -443,28 +443,19 @@ export const topics = {
 }
 
 /**
- * Maps sidebar IDs to SecondaryNav item IDs
+ * Secondary nav routing
  *
- * This is the single source of truth for determining which SecondaryNav item
- * should be highlighted based on the current sidebar context.
+ * This section answers: ?Given the current *sidebar*, which **secondary nav**
+ * item should be highlighted in the top nav??
  *
- * Simple string value: Maps directly to a SecondaryNav child item ID
- * Object with pathOverrides: Uses path matching for granular child selection
- *   - default: The default child item ID when no path override matches
- *   - pathOverrides: Record<pathPrefix, childItemId> for specific paths
+ * Flow:
+ *   1. A page is mapped to a sidebar (via `sidebar` + `topics`)
+ *   2. We look up that sidebar ID in `sidebarToSecondaryNav` below
+ *   3. The result tells the secondary nav which top-level tab to highlight
  *
- * @example
- * // Simple mapping: authenticate sidebar always shows 'fsa' (Full-stack Auth)
- * 'authenticate': 'fsa'
- *
- * // Path-based mapping: modular-auth sidebar shows different children based on path
- * 'modular-auth': {
- *   default: 'modular-sso',
- *   pathOverrides: {
- *     '/mcp': 'mcp',           // MCP pages show "Auth for MCP"
- *     '/directory/scim': 'modular-scim', // SCIM pages show "Modular SCIM"
- *   }
- * }
+ * Two mapping shapes are supported:
+ *   - `string` ? always highlight a single secondary nav item
+ *   - `{ default, pathOverrides }` ? choose item by URL prefix
  */
 export type SecondaryNavMapping =
   | string
@@ -473,25 +464,32 @@ export type SecondaryNavMapping =
       pathOverrides?: Record<string, string>
     }
 
+/**
+ * Maps **sidebar IDs** (from `sidebar`) to **secondary nav item IDs**
+ * (from `secondary-nav.config.ts`).
+ *
+ * Keys here must match `sidebar[*].id`.
+ * Values must match `secondaryNavItems[*].id`.
+ */
 export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
-  // Main authentication sidebar → Full-stack Auth nav item
+  // Main authentication sidebar ? ?Full-stack Auth? tab
   authenticate: 'fsa',
 
-  // MCP sidebar → Auth for MCP nav item
+  // MCP sidebar ? ?Auth for MCP? tab
   mcp: 'mcp',
 
-  // Modular SSO sidebar → Modular SSO nav item
+  // Modular SSO sidebar ? ?Modular SSO? tab
   'modular-sso': 'modular-sso',
 
-  // Modular SCIM sidebar → Modular SCIM nav item
+  // Modular SCIM sidebar ? ?Modular SCIM? tab
   'modular-scim': 'modular-scim',
 
-  // Agent Actions sidebar → agent-actions nav item
+  // Agent Actions sidebar ? ?Agent Actions? tab
   connect: 'agent-actions',
 
-  // Developer Resources sidebar → scenarios nav item
+  // Developer Resources sidebar ? ?Developer Resources? tab
   'dev-kit': 'scenarios',
 
-  // Events reference sidebar → webhooks-events nav item
+  // Events reference sidebar ? ?Webhooks? tab under API Reference
   'events-reference': 'webhooks-events',
 }

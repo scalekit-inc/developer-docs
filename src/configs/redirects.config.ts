@@ -15,6 +15,8 @@ export const redirects = {
   '/fsa/guides/manage-session': '/authenticate/fsa/manage-session/',
   '/fsa/guides/logout': '/authenticate/fsa/logout/',
   '/fsa/guides/automated-user-provisioning': '/fsa/guides/allowed-email-domains/',
+  '/fsa/guides/onboard-enterprise-customers': '/sso/guides/onboard-enterprise-customers/',
+  '/fsa/guides/onboard-enterprise-customers/': '/sso/guides/onboard-enterprise-customers/',
 
   // =============================================================================
   // SINGLE SIGN-ON (SSO) REDIRECTS
