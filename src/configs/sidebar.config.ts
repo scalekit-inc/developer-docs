@@ -162,13 +162,10 @@ export const sidebar = [
         label: 'AI Assisted Setup',
         link: 'dev-kit/resources/ai-assisted-setup',
       },
-      {
-        label: 'Integrations',
-        link: 'guides/integrations',
-      },
       createDivider(),
       {
         label: 'User authentication',
+        collapsed: true,
         items: [
           'fsa/guides/implement-signup',
           'guides/user-auth/login-scenarios',
@@ -177,12 +174,23 @@ export const sidebar = [
           'guides/dashboard/redirects',
           'guides/idtoken-claims',
           'guides/accesstoken-claims',
+          {
+            label: 'View all integrations',
+            link: 'guides/integrations',
+          },
           // 'guides/security/authentication-best-practices',
         ],
       },
       {
+        label: 'Social login integrations',
+        collapsed: true,
+        autogenerate: {
+          directory: 'guides/integrations/social-connections',
+        },
+      },
+      {
         label: 'Manage users & orgs',
-        collapsed: false,
+        collapsed: true,
         items: [
           'fsa/guides/signup-restrictions',
           'fsa/guides/user-invitations',
@@ -193,6 +201,7 @@ export const sidebar = [
       },
       {
         label: 'Authorization',
+        collapsed: true,
         items: [
           'directory/guides/group-based-role-assignment',
           'dev-kit/resources/authorization-best-practices',
@@ -200,6 +209,7 @@ export const sidebar = [
       },
       {
         label: 'Customize',
+        collapsed: true,
         items: [
           'fsa/guides/organization-identifiers',
           'guides/webhooks-best-practices',
@@ -208,13 +218,8 @@ export const sidebar = [
       },
       {
         label: 'API authentication',
+        collapsed: true,
         items: ['guides/m2m/overview', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
-      },
-      {
-        label: 'Social connections',
-        autogenerate: {
-          directory: 'guides/integrations/social-connections',
-        },
       },
       // Hiding them because business decision to limit modular offerings
       // {
@@ -227,10 +232,12 @@ export const sidebar = [
       // },
       {
         label: 'Migrations',
+        collapsed: true,
         items: ['guides/sso/sso-migration-strategy', 'fsa/guides/migration-guide'],
       },
       {
         label: 'MCP authentication',
+        collapsed: true,
         items: ['authenticate/mcp/auth-patterns'],
       },
       // TODO: Come back later as you put together one guide for auth best practices move this up into User authentication category
