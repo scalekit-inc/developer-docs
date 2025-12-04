@@ -67,7 +67,12 @@ export function getActiveSecondaryNavId(
     return resolveNavMapping(sidebarToSecondaryNav[sidebarId], pathname)
   }
 
-  // 3. Default fallback for root path or unmatched pages
+  // 3. Hard-coded fallbacks for pages without a sidebar (e.g. Scalar /apis)
+  if (pathname.startsWith('/apis')) {
+    return 'rest-apis'
+  }
+
+  // 4. Default fallback for root path or unmatched pages
   if (pathname === '/' || pathname === '') {
     return 'fsa' // Default to Full-stack Auth for home page
   }
