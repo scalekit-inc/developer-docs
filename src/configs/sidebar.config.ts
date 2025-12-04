@@ -157,12 +157,10 @@ export const sidebar = [
     link: '/dev-kit/overview',
     icon: 'seti:powershell',
     items: [
-      'dev-kit/overview',
       {
-        label: 'AI Assisted Setup',
-        link: 'dev-kit/resources/ai-assisted-setup',
+        label: 'Get set up',
+        items: ['dev-kit/overview', 'dev-kit/resources/ai-assisted-setup'],
       },
-      createDivider(),
       {
         label: 'User authentication',
         collapsed: true,

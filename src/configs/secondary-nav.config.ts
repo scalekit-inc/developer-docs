@@ -50,7 +50,7 @@ export const secondaryNavItems: NavItem[] = [
         href: '/authenticate/mcp/quickstart/',
         label: 'Auth for MCP',
         iconComponent: IconMcp,
-        description: 'Production-ready OAuth for MCP servers with dynamic client registration',
+        description: 'Add plug-and-play OAuth for MCP servers with dynamic client registration',
         sectionLabel: 'MODULAR AUTH',
       },
       {
@@ -58,16 +58,14 @@ export const secondaryNavItems: NavItem[] = [
         href: '/authenticate/sso/add-modular-sso/',
         label: 'Modular SSO',
         iconComponent: IconMingcuteUserSecurityLine,
-        description:
-          'Easily onboard enterprise customers with any login system. Supports SAML, OIDC',
+        description: 'Enable drop-in SSO with SAML and OIDC for any enterprise identity provider',
       },
       {
         id: 'modular-scim', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/directory/scim']
         href: '/directory/scim/quickstart/',
         label: 'Modular SCIM',
         iconComponent: IconAntDesignUserSwitchOutlined,
-        description:
-          "Automate organization and user changes automatically, so you don't have to babysit user lists",
+        description: 'Automate user and org provisioning and deprovisioning',
       },
     ],
   },
@@ -88,21 +86,21 @@ export const secondaryNavItems: NavItem[] = [
         href: '/apis/#description/sdks',
         label: 'SDKs',
         iconComponent: IconSdk,
-        description: 'Auth to your app using SDKs',
+        description: 'Ready-to-use building blocks',
       },
       {
         id: 'rest-apis',
         href: '/apis/',
         label: 'REST APIs',
         iconComponent: IconApi,
-        description: 'Manage your Scalekit using APIs',
+        description: 'Full programmatic control via APIs',
       },
       {
         id: 'webhooks-events', // Maps to sidebarToSecondaryNav['events-reference']
         href: '/reference/webhooks/overview/',
         label: 'Webhooks',
         iconComponent: IconLucideOutlineWebhook,
-        description: 'Receive real-time auth events',
+        description: 'Real-time auth events',
       },
     ],
   },
