@@ -386,153 +386,60 @@ export const sidebar = [
   },
 ]
 
+/**
+ * Topics configuration for starlight-sidebar-topics plugin
+ *
+ * How it works:
+ * 1. Pages explicitly listed in sidebar `items` → Automatically get that sidebar
+ * 2. `topics[id]` patterns → For pages NOT in any sidebar, associates them with a topic
+ * 3. `exclude` → Pages that should use custom navigation (no topic sidebar)
+ *
+ * Pattern matching priority: More specific patterns should be listed first.
+ * The plugin matches from top to bottom, first match wins.
+ */
 export const topics = {
+  // Pages that use custom navigation or no sidebar at all
   exclude: [
-    '/', // Exclude root path
-    '/index.astro', // Exclude index by name
-    '/404', // Exclude 404 page
-    '/reference/**/*', // Keep reference docs excluded
-    '/guides/integrations', // Exclude integrations overview from sidebar
-    '/dev-kit/', // Exclude dev-kit landing page (redirects to /dev-kit/overview)
+    '/', // Home page
+    '/404', // Error page
+    '/apis/**/*', // REST API reference has Scalar-powered navigation
   ],
-  // Associate unlisted pages with their respective topic sidebars
-  authenticate: [
-    '/authenticate/**/*',
-    '/fsa/**/*',
-    '/sso/**/*',
-    '/directory/**/*',
-    '/guides/sso/**/*',
-    '/guides/custom-domain',
-    '/guides/email-providers',
-    '/authenticate/interceptors/**/*',
-    '/guides/user-auth/modular-social-logins', // Modular social logins appears in Authenticate sidebar
-    '/passwordless/**/*', // Magic Link & OTP authentication belongs in Authenticate
-  ], // Pages that appear in Authenticate sidebar
-  connect: ['/agent-actions/**/*'], // Agent Actions pages
+
+  // === Specific topic mappings (order matters - most specific first) ===
+
+  // MCP authentication (subset of /authenticate)
   mcp: ['/authenticate/mcp/**/*'],
-  'modular-sso': [
-    '/authenticate/sso/**/*',
-    '/sso/**/*',
-    '/guides/sso/**/*',
-    '/passwordless/**/*',
-    '/authenticate/m2m/**/*',
-  ],
-  'modular-scim': [
-    '/directory/scim/**/*',
-    '/directory/guides/**/*',
-    '/guides/user-management/scim-provisioning',
-  ],
-  'dev-kit': [
-    '/dev-kit/**/*',
-    '/scenarios',
-    '/cookbooks',
-    '/social-logins/**/*',
-    // '/passwordless/**/*', // Moved to authenticate topic
-    // '/guides/passwordless/**/*', // Moved to authenticate topic
-    '/authenticate/interceptors/interceptor-scenarios',
-    '/guides/dashboard/**/*', // Dashboard guides belong in Developer Resources
-    '/guides/external-ids-and-metadata',
-    '/guides/idtoken-claims',
-    '/guides/accesstoken-claims',
-    '/guides/unlisted/passwordless-as-service',
-    '/browse/**/*', // Code samples and videos
-    '/guides/user-auth/**/*', // User auth guides and examples
-    '/guides/security/**/*', // Security best practices
-    '/m2m/**/*', // M2M API auth pages
-    '/guides/m2m/**/*', // M2M authentication guides
-    '/authenticate/mcp/auth-patterns', // MCP authentication patterns in dev-kit
-    // Specific FSA implementation guides that appear in dev-kit sidebar
-    '/fsa/guides/implement-signup',
-    // '/fsa/guides/login-page-branding', // Moved to authenticate topic
-    '/fsa/guides/signup-restrictions',
-    '/fsa/guides/user-invitations',
-    // '/authenticate/manage-users-orgs/custom-user-attributes', // Moved to authenticate topic
-    '/fsa/guides/app-roles',
-    // '/authenticate/manage-users-orgs/create-organization', // Moved to authenticate topic
-    '/fsa/guides/migration-guide',
-    '/fsa/guides/merge-identities',
-    '/fsa/guides/onboard-enterprise-customers',
-    '/fsa/guides/organization-identifiers',
-    '/fsa/reference/user-management-settings',
-    // User management guides
-    '/guides/user-management/**/*',
-    // Authorization and best practices guides
-    '/dev-kit/resources/**',
-    '/guides/client-credentials-practices',
-    '/guides/webhooks-best-practices',
-    // SDK changelogs
-    '/dev-kit/changelogs/**/*',
-  ], // Developer resources and implementation guides
-  integrations: ['/guides/integrations/**/*'], // Integration guide pages
+
+  // Modular SSO (includes /sso and /authenticate/sso)
+  'modular-sso': ['/authenticate/sso/**/*', '/sso/**/*'],
+
+  // Modular SCIM (directory provisioning)
+  'modular-scim': ['/directory/**/*'],
+
+  // Agent Actions / Connect
+  connect: ['/agent-actions/**/*', '/reference/agent-connectors/**/*'],
+
+  // Events & webhooks reference
   'events-reference': [
     '/reference/webhooks/**/*',
-    '/reference/admin-portal/ui-events',
-    '/reference/interceptors/triggers',
-  ], // Events reference pages
-  'rest-apis': ['/apis/**/*'], // REST API reference pages
-}
+    '/reference/admin-portal/**/*',
+    '/reference/interceptors/**/*',
+  ],
 
-/**
- * @deprecated This export is no longer used - replaced by sidebarToSecondaryNav
- * Kept for backward compatibility during transition
- */
-export const secondaryNavMapping = {
-  scenarios: {
-    id: 'scenarios',
-    priority: 60,
-    patterns: [
-      '/scenarios',
-      '/browse',
-      '/dev-kit',
-      '/m2m',
-      '/guides/m2m',
-      '/authenticate/interceptors/interceptor-scenarios',
-      '/guides/dashboard',
-      '/guides/external-ids-and-metadata',
-      '/guides/client-credentials-practices',
-      '/guides/webhooks-best-practices',
-      '/guides/idtoken-claims',
-      '/guides/accesstoken-claims',
-      '/guides/integrations',
-    ],
-  },
-  authenticate: {
-    id: 'authenticate',
-    priority: 40,
-    patterns: [
-      '/', // Root path
-      '/authenticate',
-      '/fsa',
-      '/social-logins',
-      '/guides/custom-domain',
-      '/guides/email-providers',
-      '/authenticate/interceptors/**/*',
-      '/guides/user-auth',
-      '/guides/security',
-      '/guides/user-management',
-      // Additional patterns for missing Authenticate paths
-      '/authenticate/manage-users-orgs/**/*',
-      '/authenticate/manage-organizations/**/*',
-      '/authenticate/authz/**/*',
-      '/authenticate/implement-workflows/**/*',
-    ],
-  },
-  'agent-actions': {
-    id: 'agent-actions',
-    priority: 100,
-    patterns: ['/agent-actions'],
-  },
-  'api-reference': {
-    id: 'api-reference',
-    priority: 80,
-    patterns: [
-      '/apis',
-      '/reference/webhooks',
-      '/reference/admin-portal/ui-events',
-      '/reference/interceptors',
-      '/reference/agent-connectors',
-    ],
-  },
+  // Main authentication topic (after more specific mcp/sso patterns)
+  authenticate: ['/authenticate/**/*', '/fsa/**/*'],
+
+  // === dev-kit is the DEFAULT catch-all for everything else ===
+  'dev-kit': [
+    '/dev-kit/**/*',
+    '/guides/**/*',
+    '/browse/**/*',
+    '/m2m/**/*',
+    '/social-logins/**/*',
+    '/passwordless/**/*',
+    '/reference/**/*', // Any remaining reference pages
+    '/**/*', // Catch-all: anything not matched above defaults here
+  ],
 }
 
 /**
@@ -567,27 +474,24 @@ export type SecondaryNavMapping =
     }
 
 export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
-  // Main authentication sidebar ? Full-stack Auth child item
+  // Main authentication sidebar → Full-stack Auth nav item
   authenticate: 'fsa',
 
-  // MCP sidebar ? Auth for MCP child item
+  // MCP sidebar → Auth for MCP nav item
   mcp: 'mcp',
 
-  // Modular SSO sidebar ? Modular SSO child item
+  // Modular SSO sidebar → Modular SSO nav item
   'modular-sso': 'modular-sso',
 
-  // Modular SCIM sidebar ? Modular SCIM child item
+  // Modular SCIM sidebar → Modular SCIM nav item
   'modular-scim': 'modular-scim',
 
-  // Agent Actions sidebar ? agent-actions item (currently hidden in nav)
+  // Agent Actions sidebar → agent-actions nav item
   connect: 'agent-actions',
 
-  // Developer Resources sidebar ? scenarios item
+  // Developer Resources sidebar → scenarios nav item
   'dev-kit': 'scenarios',
 
-  // Integrations sidebar → scenarios item
-  integrations: 'scenarios',
-
-  // Events reference sidebar ? api-reference parent (webhooks-events child)
+  // Events reference sidebar → webhooks-events nav item
   'events-reference': 'webhooks-events',
 }
