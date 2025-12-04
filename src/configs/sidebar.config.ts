@@ -292,7 +292,6 @@ export const sidebar = [
         items: [
           'authenticate/mcp/overview',
           'authenticate/mcp/quickstart',
-          'authenticate/mcp/intro-to-mcp-auth',
           'authenticate/mcp/custom-auth',
         ],
       },
@@ -314,7 +313,11 @@ export const sidebar = [
       },
       {
         label: 'Resources',
-        items: ['authenticate/mcp/troubleshooting', 'authenticate/mcp/additional-reading'],
+        items: [
+          'authenticate/mcp/intro-to-mcp-auth',
+          'authenticate/mcp/troubleshooting',
+          'authenticate/mcp/additional-reading',
+        ],
       },
     ],
   },
@@ -366,7 +369,7 @@ export const sidebar = [
           'directory/guides/onboard-enterprise-customers',
           {
             label: 'Directory webhooks reference',
-            link: 'reference/webhooks/directory-events',
+            link: 'directory/reference/directory-events',
           },
         ],
       },

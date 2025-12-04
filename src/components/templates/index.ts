@@ -12,3 +12,4 @@ export { default as SocialIntegrationsSection } from './_social-integrations.mdx
 export { default as AuthSystemsSection } from './_auth-systems.mdx'
 export { default as AuthResultTabsSection } from './_auth-result-tabs.mdx'
 export { default as OnboardEnterpriseCustomersSection } from './_onboard-enterprise-customers.mdx'
+export { default as DirectoryEventsSection } from './_directory-events.mdx'
