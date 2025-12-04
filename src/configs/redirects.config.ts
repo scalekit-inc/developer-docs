@@ -134,17 +134,34 @@ export const redirects = {
   // =============================================================================
   // MCP AUTH REDIRECTS
   // =============================================================================
-  '/guides/mcp/overview': '/mcp/intro-to-mcp-auth/',
-  '/mcp/overview': '/mcp/intro-to-mcp-auth/',
-  '/guides/mcp/oauth': '/mcp/quickstart/',
-  '/mcp/oauth': '/mcp/quickstart/',
-  '/guides/mcp/custom-auth': '/mcp/auth-methods/custom-auth/',
-  '/mcp/guides/custom-auth': '/mcp/auth-methods/custom-auth/',
-  '/guides/mcp/additional-reading': '/mcp/guides/additional-reading/',
-  '/mcp/auth-methods/enterprise/': '/mcp/auth-methods/custom-auth/',
-  '/mcp/auth-methods/social/': '/mcp/auth-methods/custom-auth/',
 
-  // MCP integration examples reorganized
+  // Core MCP pages moved to /authenticate/mcp/
+  '/mcp/quickstart': '/authenticate/mcp/quickstart/',
+  '/mcp/overview': '/authenticate/mcp/overview/',
+  '/mcp/intro-to-mcp-auth': '/authenticate/mcp/intro-to-mcp-auth/',
+  '/mcp/troubleshooting': '/authenticate/mcp/troubleshooting/',
+
+  // MCP guides moved to /authenticate/mcp/
+  '/guides/mcp/overview': '/authenticate/mcp/intro-to-mcp-auth/',
+  '/guides/mcp/oauth': '/authenticate/mcp/quickstart/',
+  '/mcp/oauth': '/authenticate/mcp/quickstart/',
+  '/guides/mcp/additional-reading': '/authenticate/mcp/additional-reading/',
+  '/mcp/guides/additional-reading': '/authenticate/mcp/additional-reading/',
+
+  // MCP auth methods moved to /authenticate/mcp/
+  '/guides/mcp/custom-auth': '/authenticate/mcp/custom-auth/',
+  '/mcp/guides/custom-auth': '/authenticate/mcp/custom-auth/',
+  '/mcp/auth-methods/custom-auth': '/authenticate/mcp/custom-auth/',
+  '/mcp/auth-methods/enterprise/': '/authenticate/mcp/custom-auth/',
+  '/mcp/auth-methods/social/': '/authenticate/mcp/custom-auth/',
+
+  // MCP topology pages moved to /authenticate/mcp/topologies/
+  '/mcp/topologies/human-mcp': '/authenticate/mcp/topologies/human-mcp/',
+  '/mcp/topologies/agent-mcp': '/authenticate/mcp/topologies/agent-mcp/',
+  '/mcp/topologies/mcp-api': '/authenticate/mcp/topologies/mcp-api/',
+  '/mcp/topologies/': '/authenticate/mcp/topologies/human-mcp/',
+
+  // MCP integration examples already at /authenticate/mcp/ (keep existing redirects)
   '/mcp/integrations/fastmcp': '/authenticate/mcp/fastmcp-quickstart/',
   '/browse/code-samples/github/mcp/fastmcp': '/authenticate/mcp/fastmcp-quickstart/',
   '/mcp/fastmcp-quickstart': '/authenticate/mcp/fastmcp-quickstart/',
@@ -157,15 +174,6 @@ export const redirects = {
   '/browse/code-samples/github/mcp/expressjs': '/authenticate/mcp/expressjs-quickstart/',
   '/mcp/expressjs': '/authenticate/mcp/expressjs-quickstart/',
   '/mcp/expressjs-quickstart': '/authenticate/mcp/expressjs-quickstart/',
-
-  // MCP authentication patterns consolidation
-  '/mcp/topologies/human-mcp':
-    '/authenticate/mcp/auth-patterns/#pattern-1-human-interacting-with-mcp-server',
-  '/mcp/topologies/agent-mcp':
-    '/authenticate/mcp/auth-patterns/#pattern-2-agent--machine-interacting-with-mcp-server',
-  '/mcp/topologies/mcp-api':
-    '/authenticate/mcp/auth-patterns/#pattern-3-mcp-server-integrating-with-downstream-systems',
-  '/mcp/topologies/': '/authenticate/mcp/auth-patterns/',
 
   // =============================================================================
   // API AUTH (M2M) REDIRECTS

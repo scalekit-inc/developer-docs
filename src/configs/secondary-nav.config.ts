@@ -51,7 +51,7 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Auth for MCP',
         iconComponent: IconMcp,
         description: 'Production-ready OAuth for MCP servers with dynamic client registration',
-        sectionLabel: 'AUTHENTICATE → MODULAR AUTH',
+        sectionLabel: 'MODULAR AUTH',
       },
       {
         id: 'modular-sso', // Maps to sidebarToSecondaryNav['modular-auth'].default

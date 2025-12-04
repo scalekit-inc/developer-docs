@@ -1,0 +1,114 @@
+---
+title: 'MCP Server interacting with MCPs / APIs'
+description: 'Understand how an MCP Server integrates with internal systems, other MCP servers, or external APIs using secure tokens or API keys.'
+sidebar:
+  order: 3
+  label: 'MCP ? Machine(API / MCP)'
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence';
+
+## Overview
+
+In real-world scenarios, an **MCP Server** often needs to make backend calls - to your **own APIs**, to **another MCP Server**, or to **external APIs** such as CRM, ticketing, or SaaS tools. This page explains three secure ways to perform these downstream integrations, each corresponding to a different trust boundary and authorization pattern.
+
+---
+
+## 1. Using API Keys or Custom Tokens
+
+Your MCP Server can communicate with internal or external backend systems that have their own authorization servers or API key?based access. In this setup, the MCP Server manages its own credentials securely (for example, an environment variable, vault, or secrets manager) and injects them when making downstream calls.
+
+<Aside type="tip" title="Best practice">
+Always store downstream API credentials securely using a secret manager. Do not expose API keys through MCP tool schemas or client-facing logs.
+</Aside>
+<br/>
+
+```d2 pad=36
+title: "MCP ? External API (using API Key or Custom Token)" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+Human/Agent -> MCP Server: Invoke tool
+MCP Server -> External API: Call endpoint with API Key / Service Token
+External API -> MCP Server: Return data
+MCP Server -> Human/Agent: Return formatted response
+```
+
+### Example
+
+- The MCP Server stores an API key as `EXTERNAL_API_KEY` in environment variables.
+- When a tool (e.g., `get_weather_data`) is called, your MCP server attaches the key in the request.
+- The backend API validates the key and responds with data.
+
+---
+
+## 2. Interacting with Another MCP Server autonomously
+
+If you have two MCP Servers that need to communicate - for example, `crm-mcp` calling tools from `tickets-mcp` - you can follow the same authentication pattern described in the [Agent ? MCP](/authenticate/mcp/topologies/agent-mcp/) topology.
+
+The calling MCP Server (in this case, `crm-mcp`) acts as an **autonomous agent**, authenticating with the receiving MCP Server via **OAuth 2.1 Client Credentials Flow**. Once the token is issued by Scalekit, the calling MCP uses it to call tools exposed by the second MCP Server.
+
+<br/>
+
+```d2 pad=36
+title: "Agent ? MCP Server (OAuth 2.1 Client Credentials Flow)" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+Agent -> Scalekit Authorization Server: Request access token (grant_type=client_credentials)
+Scalekit Authorization Server -> Agent: Return access token with configured scopes
+Agent -> MCP Server: Call tool with Bearer token
+MCP Server -> Agent: Authorized response
+```
+
+You can find a detailed explanation of this topology in [this section](/authenticate/mcp/topologies/agent-mcp).
+
+---
+
+## 3. Cascading the Same Token to Downstream Systems
+
+In some cases, you may want your MCP Server to forward (or "cascade") the **same access token** it received from the client - for example, when your backend system lies within the same trust boundary as the Scalekit Authorization Server and can validate the token based on its issuer, scopes, and expiry.
+
+```d2 pad=36
+title: "MCP ? API (Cascading the Same Token)" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client -> MCP Server: Call tool with Bearer token
+MCP Server -> Backend MCP/API: Forward same Bearer token
+Backend MCP/API -> MCP Server: Validate token (issuer, scopes, exp)
+MCP Server -> MCP Client: Return authorized data
+```
+
+### When to Use This Pattern
+
+- Both systems (MCP Server and backend MCP/API) trust **the same Authorization Server** (Scalekit).  
+- The backend API can validate JWTs using public keys or JWKS URL.  
+- Scopes and issuer claims (`iss`, `scope`, `exp`) are sufficient to determine access.
+
+<Aside type="note" title="Caution">
+Only cascade tokens across services that share the same trust boundary. If your backend MCP or API does not validate Scalekit-issued tokens, use a separate service credential or client credentials flow instead.
+</Aside>

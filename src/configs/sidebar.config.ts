@@ -162,6 +162,10 @@ export const sidebar = [
         label: 'AI Assisted Setup',
         link: 'dev-kit/resources/ai-assisted-setup',
       },
+      {
+        label: 'Integrations',
+        link: 'guides/integrations',
+      },
       createDivider(),
       {
         label: 'User authentication',
@@ -207,16 +211,27 @@ export const sidebar = [
         items: ['guides/m2m/overview', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
       },
       {
-        label: 'Headless API',
-        items: [
-          'passwordless/quickstart',
-          'guides/user-auth/modular-social-logins',
-          'authenticate/m2m/api-auth-quickstart',
-        ],
+        label: 'Social connections',
+        autogenerate: {
+          directory: 'guides/integrations/social-connections',
+        },
       },
+      // Hiding them because business decision to limit modular offerings
+      // {
+      //   label: 'Headless API',
+      //   items: [
+      //     'passwordless/quickstart',
+      //     'guides/user-auth/modular-social-logins',
+      //     'authenticate/m2m/api-auth-quickstart',
+      //   ],
+      // },
       {
         label: 'Migrations',
         items: ['guides/sso/sso-migration-strategy', 'fsa/guides/migration-guide'],
+      },
+      {
+        label: 'MCP authentication',
+        items: ['authenticate/mcp/auth-patterns'],
       },
       // TODO: Come back later as you put together one guide for auth best practices move this up into User authentication category
       // {
@@ -260,50 +275,39 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Integrations',
-    id: 'integrations',
-    link: '/guides/integrations',
-    icon: 'puzzle',
-    items: [
-      {
-        label: 'Social connections',
-        autogenerate: {
-          directory: 'guides/integrations/social-connections',
-        },
-      },
-      {
-        label: 'SSO with existing auth',
-        autogenerate: { directory: 'guides/integrations/auth-systems' },
-      },
-      {
-        label: 'SSO connections',
-        autogenerate: { directory: 'guides/integrations/sso-integrations' },
-      },
-      {
-        label: 'SCIM connections',
-        autogenerate: { directory: 'guides/integrations/scim-integrations' },
-      },
-    ],
-  },
-  {
     label: 'Auth for MCP',
     id: 'mcp',
-    link: '/mcp/quickstart',
+    link: '/authenticate/mcp/quickstart',
     icon: 'puzzle',
     items: [
       {
         label: 'Getting started',
-        items: ['mcp/quickstart', 'authenticate/mcp/auth-patterns', 'mcp/auth-methods/custom-auth'],
+        items: [
+          'authenticate/mcp/overview',
+          'authenticate/mcp/quickstart',
+          'authenticate/mcp/intro-to-mcp-auth',
+          'authenticate/mcp/custom-auth',
+        ],
       },
       {
-        label: 'Guides',
+        label: 'Authentication patterns',
         items: [
-          'mcp/intro-to-mcp-auth',
+          'authenticate/mcp/topologies/human-mcp',
+          'authenticate/mcp/topologies/agent-mcp',
+          'authenticate/mcp/topologies/mcp-api',
+        ],
+      },
+      {
+        label: 'Integration guides',
+        items: [
+          'authenticate/mcp/fastmcp-quickstart',
           'authenticate/mcp/fastapi-fastmcp-quickstart',
           'authenticate/mcp/expressjs-quickstart',
-          'authenticate/mcp/fastmcp-quickstart',
-          'mcp/troubleshooting',
         ],
+      },
+      {
+        label: 'Resources',
+        items: ['authenticate/mcp/troubleshooting', 'authenticate/mcp/additional-reading'],
       },
     ],
   },
@@ -319,10 +323,15 @@ export const sidebar = [
           'authenticate/sso/add-modular-sso',
           'sso/guides/idp-init-sso',
           'sso/guides/test-sso',
+          'fsa/guides/onboard-enterprise-customers',
         ],
       },
       {
-        label: 'Guides',
+        label: 'SSO with existing auth',
+        autogenerate: { directory: 'guides/integrations/auth-systems' },
+      },
+      {
+        label: 'How-to guides',
         items: [
           'sso/guides/sso-basics',
           'sso/guides/authorization-url',
@@ -332,20 +341,8 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Onboard an enterprise',
-        items: [
-          'fsa/guides/onboard-enterprise-customers',
-          'guides/admin-portal',
-          {
-            label: 'View all integrations',
-            link: 'guides/integrations',
-            badge: {
-              text: '25+',
-              variant: 'tip',
-            },
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
+        label: 'SSO integrations',
+        autogenerate: { directory: 'guides/integrations/sso-integrations' },
       },
     ],
   },
@@ -357,10 +354,17 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['directory/scim/quickstart', 'guides/admin-portal'],
+        items: [
+          'directory/scim/quickstart',
+          'fsa/guides/onboard-enterprise-customers',
+          {
+            label: 'Directory webhooks reference',
+            link: 'reference/webhooks/directory-events',
+          },
+        ],
       },
       {
-        label: 'Guides',
+        label: 'How-to guides',
         items: [
           'directory/guides/user-provisioning-basics',
           'directory/guides/scim-protocol',
@@ -368,19 +372,8 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Onboard an enterprise',
-        items: [
-          'fsa/guides/onboard-enterprise-customers',
-          {
-            label: 'View all integrations',
-            link: 'guides/integrations',
-            badge: {
-              text: '25+',
-              variant: 'tip',
-            },
-            attrs: { target: '_blank', rel: 'noopener' },
-          },
-        ],
+        label: 'SCIM integrations',
+        autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
     ],
   },
@@ -409,7 +402,7 @@ export const topics = {
     '/passwordless/**/*', // Magic Link & OTP authentication belongs in Authenticate
   ], // Pages that appear in Authenticate sidebar
   connect: ['/agent-actions/**/*'], // Agent Actions pages
-  mcp: ['/mcp/**/*', '/authenticate/mcp/**/*'],
+  mcp: ['/authenticate/mcp/**/*'],
   'modular-sso': [
     '/authenticate/sso/**/*',
     '/sso/**/*',
@@ -440,6 +433,7 @@ export const topics = {
     '/guides/security/**/*', // Security best practices
     '/m2m/**/*', // M2M API auth pages
     '/guides/m2m/**/*', // M2M authentication guides
+    '/authenticate/mcp/auth-patterns', // MCP authentication patterns in dev-kit
     // Specific FSA implementation guides that appear in dev-kit sidebar
     '/fsa/guides/implement-signup',
     // '/fsa/guides/login-page-branding', // Moved to authenticate topic
@@ -566,27 +560,27 @@ export type SecondaryNavMapping =
     }
 
 export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
-  // Main authentication sidebar → Full-stack Auth child item
+  // Main authentication sidebar ? Full-stack Auth child item
   authenticate: 'fsa',
 
-  // MCP sidebar → Auth for MCP child item
+  // MCP sidebar ? Auth for MCP child item
   mcp: 'mcp',
 
-  // Modular SSO sidebar → Modular SSO child item
+  // Modular SSO sidebar ? Modular SSO child item
   'modular-sso': 'modular-sso',
 
-  // Modular SCIM sidebar → Modular SCIM child item
+  // Modular SCIM sidebar ? Modular SCIM child item
   'modular-scim': 'modular-scim',
 
-  // Agent Actions sidebar → agent-actions item (currently hidden in nav)
+  // Agent Actions sidebar ? agent-actions item (currently hidden in nav)
   connect: 'agent-actions',
 
-  // Developer Resources sidebar → scenarios item
+  // Developer Resources sidebar ? scenarios item
   'dev-kit': 'scenarios',
 
   // Integrations sidebar → scenarios item
   integrations: 'scenarios',
 
-  // Events reference sidebar → api-reference parent (webhooks-events child)
+  // Events reference sidebar ? api-reference parent (webhooks-events child)
   'events-reference': 'webhooks-events',
 }

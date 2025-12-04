@@ -1,0 +1,103 @@
+---
+title: 'Agent / Machine interacting with MCP Server'
+description: 'Learn how an autonomous agent or machine securely authenticates with an MCP Server using OAuth 2.1 Client Credentials flow in Scalekit.'
+sidebar:
+  order: 2
+  label: 'Agent / Machine ? MCP'
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence';
+
+## Overview
+
+An **autonomous agent** or any **machine-to-machine process** can directly interact with an **MCP Server** secured by Scalekit. In this model, the agent acts as a **confidential OAuth client**, authenticated using a `client_id` and `client_secret` issued by Scalekit.
+
+This topology uses the **OAuth 2.1 Client Credentials flow**, allowing the agent to obtain an access token without user interaction. Tokens are scoped and time-bound, ensuring secure and auditable automation between services.
+
+<Aside type="tip" title="Flow Summary">
+The agent authenticates with Scalekit using the **OAuth 2.1 Client Credentials Flow** to obtain a scoped access token, then calls the MCP Server's tools using that token for secure, automated communication.
+</Aside>
+
+---
+
+## Authorization Sequence
+<br/>
+
+```d2 pad=36
+title: "Agent ? MCP Server (OAuth 2.1 Client Credentials Flow)" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+Agent -> Scalekit Authorization Server: Request access token (grant_type=client_credentials)
+Scalekit Authorization Server -> Agent: Return access token with configured scopes
+Agent -> MCP Server: Call tool with Bearer token
+MCP Server -> Agent: Authorized response
+```
+
+---
+
+## How It Works
+
+**Client Registration**  
+   Before an agent can request tokens, you must create a **Machine-to-Machine (M2M) client** for your MCP Server in Scalekit.
+
+   Steps to create a client:
+   1. Navigate to **Dashboard ? MCP Servers** and select your MCP Server. Go to the **Clients** tab.  
+      ![Clients tab placeholder](@/assets/docs/guides/mcp/mcp-client-nav.png)  
+   2. Click **Create Client**.  
+      ![Create client placeholder](@/assets/docs/guides/mcp/mcp-clients-tab.png)  
+   3. Copy the **client_id** and **client_secret** immediately - the secret will not be shown again.  
+      ![Client Sidesheet](@/assets/docs/guides/mcp/mcp-client-sidesheet.png)  
+   4. Optionally, set scopes (e.g., `todo:read`, `todo:write`) that correspond to the permissions configured for your MCP Server. Hit **Save**
+
+---
+
+## Requesting an Access Token
+
+Once you have the client credentials, the agent can request a token directly from the Scalekit Authorization Server:
+
+```bash title="Terminal" frame="terminal"
+curl --location '{{env_url}}/oauth/token' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'grant_type=client_credentials' \
+--data-urlencode 'client_id={{client_id}}' \
+--data-urlencode 'client_secret={{secret_value}}' \
+--data-urlencode 'scope=todo:read todo:write'
+```
+
+Scalekit responds with a JSON payload similar to:
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIn0...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "todo:read todo:write"
+}
+```
+Use the `access_token` in the `Authorization` header when calling your MCP Server's endpoint.
+
+<Aside type="note" title="Tip">
+Scalekit issues short-lived tokens that can be safely reused until they expire. Cache the token locally and request a new one shortly before expiration to maintain efficient, secure machine-to-machine communication.
+</Aside>
+
+---
+
+## Try It Yourself
+
+If you'd like to simulate this flow, use the same **FastMCP Todo Server** from the [FastMCP Example](/authenticate/mcp/fastmcp-quickstart).  
+Create an **M2M client** in the Scalekit Dashboard and run your token request using `curl` or programmatically within your agent. Once the token is obtained, attach it as a Bearer token in the `Authorization` header when calling your MCP Server's tools.
