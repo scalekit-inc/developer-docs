@@ -47,7 +47,7 @@ export const secondaryNavItems: NavItem[] = [
       },
       {
         id: 'mcp', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/mcp']
-        href: '/mcp/quickstart/',
+        href: '/authenticate/mcp/quickstart/',
         label: 'Auth for MCP',
         iconComponent: IconMcp,
         description: 'Production-ready OAuth for MCP servers with dynamic client registration',

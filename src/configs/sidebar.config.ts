@@ -331,7 +331,6 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'authenticate/sso/add-modular-sso',
-          'sso/guides/idp-init-sso',
           'sso/guides/test-sso',
           'sso/guides/onboard-enterprise-customers',
         ],
@@ -345,6 +344,7 @@ export const sidebar = [
         items: [
           'sso/guides/sso-basics',
           'sso/guides/authorization-url',
+          'sso/guides/idp-init-sso',
           'guides/user-auth/check-sso-domain',
           'sso/guides/add-login-ux-sso',
           'sso/guides/sso-user-attributes',

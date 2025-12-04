@@ -54,6 +54,7 @@ export default defineConfig({
         baseUrl: 'https://github.com/scalekit-inc/developer-docs/edit/main',
       },
       pagefind: {
+        rootSelector: 'body',
         mergeIndex: [
           // {
           //   bundlePath: '/apis',
