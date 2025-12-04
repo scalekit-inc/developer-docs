@@ -8,12 +8,11 @@ export const sidebar = [
     link: '/authenticate',
     icon: 'seti:lock',
     items: [
-      'index',
       {
         label: 'Getting started',
         items: [
-          { label: 'Quickstart: Complete Auth', link: 'authenticate/fsa/quickstart' },
-          { label: 'Quickstart: Modular SSO', link: 'sso/quickstart' },
+          'index',
+          { label: 'Quickstart: Full-stack Auth', link: 'authenticate/fsa/quickstart' },
         ],
       },
       {
@@ -24,14 +23,6 @@ export const sidebar = [
           'authenticate/fsa/complete-login',
           'authenticate/fsa/manage-session',
           'authenticate/fsa/logout',
-        ],
-      },
-      {
-        label: 'MCP authentication',
-        items: [
-          'mcp/quickstart',
-          'authenticate/mcp/fastmcp-quickstart',
-          'mcp/auth-methods/custom-auth',
         ],
       },
       {
@@ -74,16 +65,6 @@ export const sidebar = [
           'authenticate/manage-users-orgs/custom-user-attributes',
           'authenticate/interceptors/auth-flow-interceptors',
           'authenticate/implement-workflows/implement-webhooks',
-        ],
-      },
-      {
-        label: 'Add auth modules',
-        items: [
-          { label: 'Add Modular SSO', link: 'authenticate/sso/add-modular-sso' },
-          'passwordless/quickstart',
-          'guides/user-auth/modular-social-logins',
-          'directory/scim/quickstart',
-          'authenticate/m2m/api-auth-quickstart',
         ],
       },
       {
@@ -181,15 +162,6 @@ export const sidebar = [
         label: 'AI Assisted Setup',
         link: 'dev-kit/resources/ai-assisted-setup',
       },
-      {
-        label: 'View all integrations',
-        link: 'guides/integrations',
-        badge: {
-          text: '25+',
-          variant: 'tip',
-        },
-        attrs: { target: '_blank', rel: 'noopener' },
-      },
       createDivider(),
       {
         label: 'User authentication',
@@ -231,42 +203,16 @@ export const sidebar = [
         ],
       },
       {
-        label: 'MCP authentication',
-        items: [
-          'mcp/intro-to-mcp-auth',
-          'authenticate/mcp/auth-patterns',
-          'authenticate/mcp/fastapi-fastmcp-quickstart',
-          'authenticate/mcp/expressjs-quickstart',
-          'mcp/troubleshooting',
-        ],
-      },
-      {
         label: 'API authentication',
         items: ['guides/m2m/overview', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
       },
       {
-        label: 'Enterprise SSO',
+        label: 'Headless API',
         items: [
-          'sso/guides/sso-basics',
-          'guides/user-auth/check-sso-domain',
-          'sso/guides/authorization-url',
-          'sso/guides/add-login-ux-sso',
-          'sso/guides/idp-init-sso',
-          'sso/guides/sso-user-attributes',
-          'sso/guides/test-sso',
+          'passwordless/quickstart',
+          'guides/user-auth/modular-social-logins',
+          'authenticate/m2m/api-auth-quickstart',
         ],
-      },
-      {
-        label: 'SCIM Provisioning',
-        items: [
-          'directory/guides/user-provisioning-basics',
-          'directory/guides/scim-protocol',
-          'guides/user-management/scim-provisioning',
-        ],
-      },
-      {
-        label: 'Onboard an enterprise',
-        items: ['fsa/guides/onboard-enterprise-customers', 'guides/admin-portal'],
       },
       {
         label: 'Migrations',
@@ -339,6 +285,105 @@ export const sidebar = [
       },
     ],
   },
+  {
+    label: 'Auth for MCP',
+    id: 'mcp',
+    link: '/mcp/quickstart',
+    icon: 'puzzle',
+    items: [
+      {
+        label: 'Getting started',
+        items: ['mcp/quickstart', 'authenticate/mcp/auth-patterns', 'mcp/auth-methods/custom-auth'],
+      },
+      {
+        label: 'Guides',
+        items: [
+          'mcp/intro-to-mcp-auth',
+          'authenticate/mcp/fastapi-fastmcp-quickstart',
+          'authenticate/mcp/expressjs-quickstart',
+          'authenticate/mcp/fastmcp-quickstart',
+          'mcp/troubleshooting',
+        ],
+      },
+    ],
+  },
+  {
+    label: 'Modular SSO',
+    id: 'modular-sso',
+    link: '/authenticate/sso/add-modular-sso',
+    icon: 'puzzle',
+    items: [
+      {
+        label: 'Getting started',
+        items: [
+          'authenticate/sso/add-modular-sso',
+          'sso/guides/idp-init-sso',
+          'sso/guides/test-sso',
+        ],
+      },
+      {
+        label: 'Guides',
+        items: [
+          'sso/guides/sso-basics',
+          'sso/guides/authorization-url',
+          'guides/user-auth/check-sso-domain',
+          'sso/guides/add-login-ux-sso',
+          'sso/guides/sso-user-attributes',
+        ],
+      },
+      {
+        label: 'Onboard an enterprise',
+        items: [
+          'fsa/guides/onboard-enterprise-customers',
+          'guides/admin-portal',
+          {
+            label: 'View all integrations',
+            link: 'guides/integrations',
+            badge: {
+              text: '25+',
+              variant: 'tip',
+            },
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: 'Modular SCIM',
+    id: 'modular-scim',
+    link: '/authenticate/sso/add-modular-sso',
+    icon: 'puzzle',
+    items: [
+      {
+        label: 'Getting started',
+        items: ['directory/scim/quickstart', 'guides/admin-portal'],
+      },
+      {
+        label: 'Guides',
+        items: [
+          'directory/guides/user-provisioning-basics',
+          'directory/guides/scim-protocol',
+          'guides/user-management/scim-provisioning',
+        ],
+      },
+      {
+        label: 'Onboard an enterprise',
+        items: [
+          'fsa/guides/onboard-enterprise-customers',
+          {
+            label: 'View all integrations',
+            link: 'guides/integrations',
+            badge: {
+              text: '25+',
+              variant: 'tip',
+            },
+            attrs: { target: '_blank', rel: 'noopener' },
+          },
+        ],
+      },
+    ],
+  },
 ]
 
 export const topics = {
@@ -364,7 +409,19 @@ export const topics = {
     '/passwordless/**/*', // Magic Link & OTP authentication belongs in Authenticate
   ], // Pages that appear in Authenticate sidebar
   connect: ['/agent-actions/**/*'], // Agent Actions pages
-  mcp: [], // MCP pages are in dev-kit sidebar (via the dev-kit topic)
+  mcp: ['/mcp/**/*', '/authenticate/mcp/**/*'],
+  'modular-sso': [
+    '/authenticate/sso/**/*',
+    '/sso/**/*',
+    '/guides/sso/**/*',
+    '/passwordless/**/*',
+    '/authenticate/m2m/**/*',
+  ],
+  'modular-scim': [
+    '/directory/scim/**/*',
+    '/directory/guides/**/*',
+    '/guides/user-management/scim-provisioning',
+  ],
   'dev-kit': [
     '/dev-kit/**/*',
     '/scenarios',
@@ -396,20 +453,6 @@ export const topics = {
     '/fsa/guides/onboard-enterprise-customers',
     '/fsa/guides/organization-identifiers',
     '/fsa/reference/user-management-settings',
-    // SSO guides that appear in dev-kit sidebar
-    '/sso/guides/authorization-url',
-    '/sso/guides/sso-user-attributes',
-    '/sso/guides/add-login-ux-sso',
-    '/sso/guides/idp-init-sso',
-    '/sso/guides/test-sso',
-    '/sso/guides/sso-basics',
-    '/sso/guides/sso-migration-strategy',
-    // Directory/SCIM guides
-    '/directory/guides/user-provisioning-basics',
-    '/directory/guides/scim-protocol',
-    '/directory/guides/group-based-role-assignment',
-    // MCP guides that appear in dev-kit
-    '/mcp/**/*',
     // User management guides
     '/guides/user-management/**/*',
     // Authorization and best practices guides
@@ -429,31 +472,8 @@ export const topics = {
 }
 
 /**
- * Secondary navigation mapping for top navigation bar
- * Maps sidebar topics to their corresponding secondary nav items
- *
- * This mapping determines which secondary nav item should be highlighted
- * based on which sidebar topic is active for the current page.
- */
-export const topicToSecondaryNav: Record<string, string> = {
-  authenticate: 'authenticate',
-  connect: 'agent-actions',
-  'dev-kit': 'scenarios', // Dev-kit pages show "Scenarios" in secondary nav
-  integrations: 'scenarios', // Integration pages also show "Scenarios"
-  'events-reference': 'webhooks-events', // Events pages map to Events child
-  'rest-apis': 'rest-apis', // REST API pages map to REST APIs child
-  // Note: Some topics may not have a secondary nav item (they won't highlight anything)
-}
-
-/**
- * Secondary navigation mapping with explicit patterns for direct URL matching
- * This is used as a fallback when a page doesn't match any topic
- *
- * Priority levels (higher number = higher priority):
- * - 100: Most specific paths (Agent Actions)
- * - 80: API Reference and Events
- * - 60: Examples and Dev Resources
- * - 40: Authenticate (catch-all, lowest priority)
+ * @deprecated This export is no longer used - replaced by sidebarToSecondaryNav
+ * Kept for backward compatibility during transition
  */
 export const secondaryNavMapping = {
   scenarios: {
@@ -481,15 +501,8 @@ export const secondaryNavMapping = {
     patterns: [
       '/', // Root path
       '/authenticate',
-      '/mcp',
       '/fsa',
-      '/sso',
-      '/guides/sso',
       '/social-logins',
-      '/passwordless',
-      '/guides/passwordless',
-      '/directory',
-      '/guides/directory',
       '/guides/custom-domain',
       '/guides/email-providers',
       '/authenticate/interceptors/**/*',
@@ -519,4 +532,61 @@ export const secondaryNavMapping = {
       '/reference/agent-connectors',
     ],
   },
+}
+
+/**
+ * Maps sidebar IDs to SecondaryNav item IDs
+ *
+ * This is the single source of truth for determining which SecondaryNav item
+ * should be highlighted based on the current sidebar context.
+ *
+ * Simple string value: Maps directly to a SecondaryNav child item ID
+ * Object with pathOverrides: Uses path matching for granular child selection
+ *   - default: The default child item ID when no path override matches
+ *   - pathOverrides: Record<pathPrefix, childItemId> for specific paths
+ *
+ * @example
+ * // Simple mapping: authenticate sidebar always shows 'fsa' (Full-stack Auth)
+ * 'authenticate': 'fsa'
+ *
+ * // Path-based mapping: modular-auth sidebar shows different children based on path
+ * 'modular-auth': {
+ *   default: 'modular-sso',
+ *   pathOverrides: {
+ *     '/mcp': 'mcp',           // MCP pages show "Auth for MCP"
+ *     '/directory/scim': 'modular-scim', // SCIM pages show "Modular SCIM"
+ *   }
+ * }
+ */
+export type SecondaryNavMapping =
+  | string
+  | {
+      default: string
+      pathOverrides?: Record<string, string>
+    }
+
+export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
+  // Main authentication sidebar → Full-stack Auth child item
+  authenticate: 'fsa',
+
+  // MCP sidebar → Auth for MCP child item
+  mcp: 'mcp',
+
+  // Modular SSO sidebar → Modular SSO child item
+  'modular-sso': 'modular-sso',
+
+  // Modular SCIM sidebar → Modular SCIM child item
+  'modular-scim': 'modular-scim',
+
+  // Agent Actions sidebar → agent-actions item (currently hidden in nav)
+  connect: 'agent-actions',
+
+  // Developer Resources sidebar → scenarios item
+  'dev-kit': 'scenarios',
+
+  // Integrations sidebar → scenarios item
+  integrations: 'scenarios',
+
+  // Events reference sidebar → api-reference parent (webhooks-events child)
+  'events-reference': 'webhooks-events',
 }

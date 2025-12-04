@@ -3,36 +3,34 @@ import {
   IconLucideShield,
   IconMcp,
   IconLucideUsers,
+  IconLucideMail,
+  IconLucideBot,
   IconLucideBookOpen,
-  IconApi,
-  IconSdk,
-  IconMdiCubeOutline,
+  IconLucideBell,
   IconLucideCode,
   IconLucideOutlineWebhook,
+  IconLucideWrench,
   IconHugeiconsResourcesAdd,
+  IconClarityBlocksGroupLine,
   IconMingcuteUserSecurityLine,
   IconAntDesignUserSwitchOutlined,
+  IconSolarServerPathOutline,
   IconLucideChevronDown as IconChevronDown,
 } from '../utils/icon-map'
-import { sidebar, sidebarToSecondaryNav, type SecondaryNavMapping } from '../configs/sidebar.config'
-import { buildPathToSidebarMap, getSidebarIdForPath } from '../configs/sidebar-utils'
-import { isHashOnly, normalizePath } from '../utils/path-matching'
-
-// Props interface - entry is passed from Header.astro
-interface Props {
-  entry?: {
-    data: {
-      topic?: string
-    }
-  }
-}
-
-const { entry } = Astro.props
+import { secondaryNavMapping, topicToSecondaryNav, topics } from '../configs/sidebar.config'
+import {
+  findBestMatch,
+  isHashOnly,
+  getTopicForPath,
+  type SecondaryNavItem,
+} from '../utils/path-matching'
 
 interface NavItem {
-  id: string // Unique identifier for the nav item
+  id: string // Unique identifier that maps to secondaryNavMapping
   href: string
   label: string
+  patterns: string[]
+  isExact?: boolean
   iconComponent?: any
   children?: NavItem[]
   keepParentLabel?: boolean // Keep parent label even when child is active
@@ -41,76 +39,43 @@ interface NavItem {
   sectionLabel?: string // Optional section label for grouping items
 }
 
-// Build the path-to-sidebar map once at render time
-const pathToSidebarMap = buildPathToSidebarMap(sidebar)
-
-/**
- * Resolves a SecondaryNavMapping to an actual nav item ID
- * Handles both simple string mappings and complex path-override mappings
- */
-function resolveNavMapping(mapping: SecondaryNavMapping, pathname: string): string | null {
-  if (typeof mapping === 'string') {
-    return mapping
-  }
-
-  // Check path overrides for more specific matches
-  if (mapping.pathOverrides) {
-    const normalizedPath = normalizePath(pathname)
-    for (const [prefix, navId] of Object.entries(mapping.pathOverrides)) {
-      const normalizedPrefix = normalizePath(prefix)
-      if (
-        normalizedPath.startsWith(normalizedPrefix + '/') ||
-        normalizedPath === normalizedPrefix
-      ) {
-        return navId
-      }
-    }
-  }
-
-  return mapping.default || null
+interface NavSection {
+  items: NavItem[]
 }
 
 /**
  * Determines which secondary nav item should be active for the current pathname
- * Uses a sidebar-based approach:
- * 1. First, check explicit topic from page frontmatter
- * 2. Then, look up which sidebar the page belongs to from the sidebar config
- * 3. Map the sidebar ID to a SecondaryNav item using sidebarToSecondaryNav
+ * Uses a two-tier approach:
+ * 1. First, check which sidebar topic the page belongs to and map to secondary nav
+ * 2. If no topic match, fall back to pattern-based matching
  */
 function getActiveSecondaryNavId(pathname: string): string | null {
-  // 1. First check explicit topic from page frontmatter
-  if (entry?.data?.topic) {
-    const mapping = sidebarToSecondaryNav[entry.data.topic]
-    if (mapping) {
-      return resolveNavMapping(mapping, pathname)
-    }
+  // First, try to determine the sidebar topic for this page
+  const topic = getTopicForPath(pathname, topics)
+
+  if (topic && topicToSecondaryNav[topic]) {
+    // Map the topic to its secondary nav item
+    return topicToSecondaryNav[topic]
   }
 
-  // 2. Fall back to path-based sidebar lookup
-  const sidebarId = getSidebarIdForPath(pathname, pathToSidebarMap)
+  // Fallback: Use pattern-based matching
+  const allNavItems: SecondaryNavItem[] = Object.values(secondaryNavMapping).map((mapping) => ({
+    id: mapping.id,
+    patterns: mapping.patterns,
+    priority: mapping.priority,
+  }))
 
-  if (sidebarId && sidebarToSecondaryNav[sidebarId]) {
-    return resolveNavMapping(sidebarToSecondaryNav[sidebarId], pathname)
-  }
-
-  // 3. Default fallback for root path or unmatched pages
-  if (pathname === '/' || pathname === '') {
-    return 'fsa' // Default to Full-stack Auth for home page
-  }
-
-  return null
+  return findBestMatch(pathname, allNavItems)
 }
 
 /**
  * Determines if a nav item should be marked as current based on the pathname
  */
 function isCurrentPage(pathname: string, item: NavItem): boolean {
-  const activeId = getActiveSecondaryNavId(pathname)
-
-  // For dropdown parent items, check if any child is current
+  // If this is a parent item with children, consider it current if any child is current
+  // (Check this FIRST, before hash-only check, so parent dropdowns can be highlighted)
   if (item.children && item.children.length > 0) {
-    const childIsCurrent = item.children.some((child) => child.id === activeId)
-    if (childIsCurrent) return true
+    return item.children.some((child) => isCurrentPage(pathname, child))
   }
 
   // Hash-only links (dropdown triggers) are never current on their own
@@ -118,7 +83,20 @@ function isCurrentPage(pathname: string, item: NavItem): boolean {
     return false
   }
 
-  // Check if this item's ID matches the active nav ID
+  // For child items (items with patterns but potentially not in secondaryNavMapping),
+  // check if pathname matches any of their patterns
+  if (item.patterns && item.patterns.length > 0) {
+    const matchesPattern = item.patterns.some((pattern) => {
+      // Remove trailing slashes for consistent comparison
+      const normalizedPath = pathname.replace(/\/+$/, '')
+      const normalizedPattern = pattern.replace(/\/+$/, '')
+      return normalizedPath.startsWith(normalizedPattern)
+    })
+    if (matchesPattern) return true
+  }
+
+  // Get the active secondary nav ID and compare
+  const activeId = getActiveSecondaryNavId(pathname)
   return activeId === item.id
 }
 
@@ -138,95 +116,131 @@ function getDisplayIcon(pathname: string, item: NavItem): any {
   return item.iconComponent
 }
 
-// Nav items - IDs must match those in sidebarToSecondaryNav mapping
-const navItems: NavItem[] = [
-  // Authenticate dropdown with children for different auth products
+// Build nav sections using secondaryNavMapping as source of truth
+const navSections: NavSection[] = [
   {
-    id: 'authenticate',
-    href: '#authenticate',
-    label: 'Full-stack Auth',
-    iconComponent: IconLucideUsers,
-    children: [
+    items: [
+      // Authenticate dropdown with children - replaces standalone Authenticate item
       {
-        id: 'fsa', // Maps to sidebarToSecondaryNav['authenticate']
-        href: '/authenticate/fsa/quickstart/',
-        label: 'Full-stack Auth',
-        iconComponent: IconLucideUsers,
-        description: 'Add secure login, user accounts, and session management',
-        sectionLabel: 'FULL-STACK AUTHENTICATION',
-        showDivider: true,
+        id: secondaryNavMapping.authenticate.id,
+        href: '#authenticate',
+        label: 'Authenticate',
+        iconComponent: IconLucideShield,
+        patterns: secondaryNavMapping.authenticate.patterns,
+        children: [
+          {
+            id: 'fsa', // Child items need unique IDs but won't be used in matching
+            href: '/authenticate/fsa/quickstart/',
+            label: 'Full-stack Auth',
+            patterns: ['/authenticate/fsa'],
+            iconComponent: IconLucideUsers,
+            description: 'Add secure login pages, user accounts, and safe session handling',
+            sectionLabel: 'FULL-STACK AUTHENTICATION',
+            showDivider: true,
+          },
+          {
+            id: 'mcp',
+            href: '/mcp/quickstart/',
+            label: 'Auth for MCP',
+            patterns: ['/mcp'],
+            iconComponent: IconMcp,
+            description: 'Add secure login pages, user accounts, and safe session handling',
+            sectionLabel: 'MODULAR AUTH',
+          },
+          {
+            id: 'modular-sso',
+            href: '/authenticate/sso/add-modular-sso/',
+            label: 'Modular SSO',
+            patterns: ['/authenticate/sso'],
+            iconComponent: IconMingcuteUserSecurityLine,
+            description: 'Add secure login pages, user accounts, and safe session handling',
+          },
+          {
+            id: 'modular-scim',
+            href: '/directory/scim/quickstart/',
+            label: 'Modular SCIM',
+            patterns: ['/directory/scim'],
+            iconComponent: IconAntDesignUserSwitchOutlined,
+            description: 'Add secure login pages, user accounts, and safe session handling',
+          },
+        ],
       },
       {
-        id: 'mcp', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/mcp']
-        href: '/mcp/quickstart/',
-        label: 'Auth for MCP',
-        iconComponent: IconMcp,
-        description: 'Production-ready OAuth for MCP servers with dynamic client registration',
-        sectionLabel: 'MODULAR AUTH',
+        id: secondaryNavMapping['api-reference'].id,
+        href: '#sdks-apis',
+        label: 'SDKs & APIs',
+        patterns: secondaryNavMapping['api-reference'].patterns,
+        iconComponent: IconLucideBookOpen,
+        children: [
+          {
+            id: 'sdks', // Child items still need unique IDs but won't be used in matching
+            href: '/apis/#description/sdks',
+            label: 'SDKs',
+            patterns: ['/apis/#description/sdks'],
+            iconComponent: IconLucideCode,
+          },
+          {
+            id: 'rest-apis',
+            href: '/apis/',
+            label: 'REST APIs',
+            patterns: ['/apis'],
+            iconComponent: IconLucideBookOpen,
+          },
+          {
+            id: 'webhooks-events',
+            href: '/reference/webhooks/overview/',
+            label: 'Webhooks',
+            patterns: ['/reference/webhooks', '/reference/admin-portal/ui-events'],
+            iconComponent: IconLucideOutlineWebhook,
+          },
+        ],
       },
-      {
-        id: 'modular-sso', // Maps to sidebarToSecondaryNav['modular-auth'].default
-        href: '/authenticate/sso/add-modular-sso/',
-        label: 'Modular SSO',
-        iconComponent: IconMingcuteUserSecurityLine,
-        description:
-          'Easily onboard enterprise customers with any login system. Supports SAML, OIDC',
-      },
-      {
-        id: 'modular-scim', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/directory/scim']
-        href: '/directory/scim/quickstart/',
-        label: 'Modular SCIM',
-        iconComponent: IconAntDesignUserSwitchOutlined,
-        description:
-          "Automate organization and user changes automatically, so you don't have to babysit user lists",
-      },
+      // Temporarily hidden - Agent Actions
+      // {
+      //   id: secondaryNavMapping['agent-actions'].id,
+      //   href: '/agent-actions/quickstart',
+      //   label: 'Agent Actions',
+      //   patterns: secondaryNavMapping['agent-actions'].patterns,
+      //   iconComponent: IconLucideBot,
+      // },
     ],
   },
   {
-    id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit'] and ['interations']
-    href: '/dev-kit/',
-    label: 'Developer Resources',
-    iconComponent: IconHugeiconsResourcesAdd,
-  },
-  {
-    id: 'api-reference',
-    href: '#sdks-apis',
-    label: 'SDKs & APIs',
-    iconComponent: IconMdiCubeOutline,
-    children: [
+    items: [
       {
-        id: 'sdks',
-        href: '/apis/#description/sdks',
-        label: 'SDKs',
-        iconComponent: IconSdk,
-        description:
-          'Integrate authentication, user management, and authorization into your application using Scalekit SDKs. Available for Node.js, Python, Go, and Java',
+        id: secondaryNavMapping.scenarios.id,
+        href: '/dev-kit/',
+        label: 'Developer Resources',
+        patterns: secondaryNavMapping.scenarios.patterns,
+        iconComponent: IconHugeiconsResourcesAdd,
       },
-      {
-        id: 'rest-apis',
-        href: '/apis/',
-        label: 'REST APIs',
-        iconComponent: IconApi,
-        description:
-          'Manage your Scalekit environment programmatically. Create and configure organizations, users, roles, permissions, and authentication settings',
-      },
-      {
-        id: 'webhooks-events', // Maps to sidebarToSecondaryNav['events-reference']
-        href: '/reference/webhooks/overview/',
-        label: 'Webhooks',
-        iconComponent: IconLucideOutlineWebhook,
-        description:
-          'Receive real-time authentication events when users sign up, log in, or update their accounts. Configure webhooks to trigger custom workflows',
-      },
+      // Temporarily hidden - Developer Resources dropdown
+      // {
+      //   id: 'dev-kit',
+      //   href: '/dev-kit/',
+      //   label: 'Developer Resources',
+      //   patterns: ['/dev-kit/', '/guides/integrations'],
+      //   iconComponent: IconLucideWrench,
+      //   children: [
+      //     {
+      //       id: 'dev-kit-overview',
+      //       href: '/dev-kit/sdks/overview',
+      //       label: 'Developer Resources',
+      //       patterns: ['/dev-kit/'],
+      //       isExact: true,
+      //       iconComponent: IconLucideWrench,
+      //     },
+      //     {
+      //       id: 'integrations',
+      //       href: '/guides/integrations',
+      //       label: 'Integrations',
+      //       patterns: ['/guides/integrations'],
+      //       iconComponent: IconLucideWrench,
+      //     },
+      //   ],
+      // },
     ],
   },
-  // Temporarily hidden - Agent Actions
-  // {
-  //   id: 'agent-actions',
-  //   href: '/agent-actions/quickstart',
-  //   label: 'Agent Actions',
-  //   iconComponent: IconLucideBot,
-  // },
 ]
 ---
 
@@ -234,7 +248,7 @@ const navItems: NavItem[] = [
   <div class="nav-section nav-left">
     <div class="nav-items">
       {
-        navItems.map((item) => (
+        navSections[0].items.map((item) => (
           <div
             class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
             data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
@@ -275,7 +289,42 @@ const navItems: NavItem[] = [
   </div>
 
   <div class="nav-section nav-right">
-    <!-- Reserved for future right-aligned nav items -->
+    <div class="nav-items">
+      {
+        navSections[1].items.map((item) => (
+          <div
+            class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
+            data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
+          >
+            <a
+              href={item.href}
+              class={`nav-item ${isCurrentPage(Astro.url.pathname, item) ? 'current' : ''}`}
+              aria-current="page"
+            >
+              <div class="nav-item-content">
+                {(function () {
+                  const IconComponent =
+                    item.children && item.children.length > 0
+                      ? getDisplayIcon(Astro.url.pathname, item)
+                      : item.iconComponent
+                  return IconComponent && <IconComponent class="nav-icon" />
+                })()}
+                {item.label && (
+                  <span class="nav-label">
+                    {item.children && item.children.length > 0
+                      ? getDisplayLabel(Astro.url.pathname, item)
+                      : item.label}
+                  </span>
+                )}
+                {item.children && item.children.length > 0 && (
+                  <IconChevronDown class="dropdown-icon" />
+                )}
+              </div>
+            </a>
+          </div>
+        ))
+      }
+    </div>
   </div>
 </nav>
 
@@ -285,44 +334,46 @@ const navItems: NavItem[] = [
   style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 999999;"
 >
   {
-    navItems
-      .filter((item) => item.children && item.children.length > 0)
-      .map((item) => (
-        <div
-          class="dropdown-menu"
-          data-dropdown
-          data-nav-key={item.href}
-          data-dropdown-id={item.id}
-        >
-          <div class="dropdown-content">
-            {item.children!.map((child) => (
-              <>
-                {child.sectionLabel && (
-                  <div class="dropdown-section-label">{child.sectionLabel}</div>
-                )}
-                <a
-                  href={child.href}
-                  class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child) ? 'current' : ''}`}
-                >
-                  <div class="dropdown-item-icon-wrapper">
-                    {(function () {
-                      const ChildIcon = child.iconComponent
-                      return ChildIcon && <ChildIcon class="dropdown-item-icon" />
-                    })()}
-                  </div>
-                  <div class="dropdown-item-content">
-                    <span class="dropdown-item-label">{child.label}</span>
-                    {child.description && (
-                      <span class="dropdown-item-description">{child.description}</span>
-                    )}
-                  </div>
-                </a>
-                {child.showDivider && <div class="dropdown-divider" />}
-              </>
-            ))}
+    navSections.map((section) =>
+      section.items.map((item) =>
+        item.children && item.children.length > 0 ? (
+          <div
+            class="dropdown-menu"
+            data-dropdown
+            data-nav-key={item.href}
+            data-dropdown-id={item.id}
+          >
+            <div class="dropdown-content">
+              {item.children.map((child, index) => (
+                <>
+                  {child.sectionLabel && (
+                    <div class="dropdown-section-label">{child.sectionLabel}</div>
+                  )}
+                  <a
+                    href={child.href}
+                    class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child) ? 'current' : ''}`}
+                  >
+                    <div class="dropdown-item-icon-wrapper">
+                      {(function () {
+                        const ChildIcon = child.iconComponent
+                        return ChildIcon && <ChildIcon class="dropdown-item-icon" />
+                      })()}
+                    </div>
+                    <div class="dropdown-item-content">
+                      <span class="dropdown-item-label">{child.label}</span>
+                      {child.description && (
+                        <span class="dropdown-item-description">{child.description}</span>
+                      )}
+                    </div>
+                  </a>
+                  {child.showDivider && <div class="dropdown-divider" />}
+                </>
+              ))}
+            </div>
           </div>
-        </div>
-      ))
+        ) : null,
+      ),
+    )
   }
 </div>
 
@@ -370,6 +421,7 @@ const navItems: NavItem[] = [
   .nav-items {
     font-weight: 500;
     display: flex;
+    gap: 0.75rem;
     padding: 0.25rem 0;
     overflow-x: auto;
     scrollbar-width: none;
@@ -390,7 +442,7 @@ const navItems: NavItem[] = [
   .nav-item {
     display: flex;
     align-items: center;
-    padding: 0.5rem 0.9rem; /* Back to original padding */
+    padding: 0.5rem 1rem; /* Back to original padding */
     color: var(--sl-color-gray-2);
     text-decoration: none;
     white-space: nowrap;
@@ -405,7 +457,7 @@ const navItems: NavItem[] = [
 
   .nav-item.current {
     color: var(--sl-color-white);
-    padding: 0.3rem 0.9rem;
+    padding: 0.3rem 1.4rem;
     background-color: var(--sl-color-gray-6);
     border-radius: 0.375rem;
     border-bottom: none;
@@ -415,7 +467,7 @@ const navItems: NavItem[] = [
   .nav-item-content {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.5rem;
     line-height: 1.2;
   }
 
@@ -437,7 +489,7 @@ const navItems: NavItem[] = [
     height: 1rem;
     flex-shrink: 0;
     transition: transform 0.2s ease;
-    margin-left: 0.1rem;
+    margin-left: 0.25rem;
   }
 
   .nav-item-wrapper.has-dropdown:hover .dropdown-icon {
@@ -481,12 +533,12 @@ const navItems: NavItem[] = [
     /* z-index: 100000 !important; assumed this was needed */
     isolation: isolate;
     min-width: 220px;
-    width: 31.875rem;
+    width: fit-content;
   }
 
   /* Wider dropdown for Authenticate (has descriptions) */
   [data-dropdown-id='authenticate'] .dropdown-content {
-    width: 31.875rem;
+    width: 35rem;
   }
 
   .dropdown-section-label {
@@ -522,9 +574,14 @@ const navItems: NavItem[] = [
     justify-content: center;
     width: 1.5rem;
     height: 1.5rem;
+    background: var(--sl-color-gray-6);
     border-radius: 0.375rem;
     flex-shrink: 0;
     margin-top: 0.125rem;
+  }
+
+  :root[data-theme='light'] .dropdown-item-icon-wrapper {
+    background: #f9f9f9;
   }
 
   .dropdown-item-icon {
