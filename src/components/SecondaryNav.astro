@@ -1,238 +1,26 @@
 ---
+import { secondaryNavItems, IconLucideCheck } from '../configs/secondary-nav.config'
 import {
-  IconLucideShield,
-  IconMcp,
-  IconLucideUsers,
-  IconLucideBookOpen,
-  IconApi,
-  IconSdk,
-  IconMdiCubeOutline,
-  IconLucideCode,
-  IconLucideOutlineWebhook,
-  IconHugeiconsResourcesAdd,
-  IconMingcuteUserSecurityLine,
-  IconAntDesignUserSwitchOutlined,
-  IconLucideChevronDown as IconChevronDown,
-} from '../utils/icon-map'
-import IconLucideCheck from '~icons/lucide/check'
-import { sidebar, sidebarToSecondaryNav, type SecondaryNavMapping } from '../configs/sidebar.config'
-import { buildPathToSidebarMap, getSidebarIdForPath } from '../configs/sidebar-utils'
-import { isHashOnly, normalizePath } from '../utils/path-matching'
+  resolveNavMapping,
+  getActiveSecondaryNavId,
+  isCurrentPage,
+  getDisplayLabel,
+  getDisplayIcon,
+  type SecondaryNavProps,
+} from '../utils/secondary-nav-utils'
+import { IconLucideChevronDown as IconChevronDown } from '../utils/icon-map'
 
-// Props interface - entry is passed from Header.astro
-interface Props {
-  entry?: {
-    data: {
-      topic?: string
-    }
-  }
-}
+const { entry } = Astro.props satisfies SecondaryNavProps
 
-const { entry } = Astro.props
-
-interface NavItem {
-  id: string // Unique identifier for the nav item
-  href: string
-  label: string
-  iconComponent?: any
-  children?: NavItem[]
-  keepParentLabel?: boolean // Keep parent label even when child is active
-  description?: string // Optional description for dropdown items
-  showDivider?: boolean // Show divider after this item
-  sectionLabel?: string // Optional section label for grouping items
-}
-
-// Build the path-to-sidebar map once at render time
-const pathToSidebarMap = buildPathToSidebarMap(sidebar)
-
-/**
- * Resolves a SecondaryNavMapping to an actual nav item ID
- * Handles both simple string mappings and complex path-override mappings
- */
-function resolveNavMapping(mapping: SecondaryNavMapping, pathname: string): string | null {
-  if (typeof mapping === 'string') {
-    return mapping
-  }
-
-  // Check path overrides for more specific matches
-  if (mapping.pathOverrides) {
-    const normalizedPath = normalizePath(pathname)
-    for (const [prefix, navId] of Object.entries(mapping.pathOverrides)) {
-      const normalizedPrefix = normalizePath(prefix)
-      if (
-        normalizedPath.startsWith(normalizedPrefix + '/') ||
-        normalizedPath === normalizedPrefix
-      ) {
-        return navId
-      }
-    }
-  }
-
-  return mapping.default || null
-}
-
-/**
- * Determines which secondary nav item should be active for the current pathname
- * Uses a sidebar-based approach:
- * 1. First, check explicit topic from page frontmatter
- * 2. Then, look up which sidebar the page belongs to from the sidebar config
- * 3. Map the sidebar ID to a SecondaryNav item using sidebarToSecondaryNav
- */
-function getActiveSecondaryNavId(pathname: string): string | null {
-  // 1. First check explicit topic from page frontmatter
-  if (entry?.data?.topic) {
-    const mapping = sidebarToSecondaryNav[entry.data.topic]
-    if (mapping) {
-      return resolveNavMapping(mapping, pathname)
-    }
-  }
-
-  // 2. Fall back to path-based sidebar lookup
-  const sidebarId = getSidebarIdForPath(pathname, pathToSidebarMap)
-
-  if (sidebarId && sidebarToSecondaryNav[sidebarId]) {
-    return resolveNavMapping(sidebarToSecondaryNav[sidebarId], pathname)
-  }
-
-  // 3. Default fallback for root path or unmatched pages
-  if (pathname === '/' || pathname === '') {
-    return 'fsa' // Default to Full-stack Auth for home page
-  }
-
-  return null
-}
-
-/**
- * Determines if a nav item should be marked as current based on the pathname
- */
-function isCurrentPage(pathname: string, item: NavItem): boolean {
-  const activeId = getActiveSecondaryNavId(pathname)
-
-  // For dropdown parent items, check if any child is current
-  if (item.children && item.children.length > 0) {
-    const childIsCurrent = item.children.some((child) => child.id === activeId)
-    if (childIsCurrent) return true
-  }
-
-  // Hash-only links (dropdown triggers) are never current on their own
-  if (isHashOnly(item.href)) {
-    return false
-  }
-
-  // Check if this item's ID matches the active nav ID
-  return activeId === item.id
-}
-
-function getDisplayLabel(pathname: string, item: NavItem): string {
-  if (item.children && item.children.length > 0 && !item.keepParentLabel) {
-    const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
-    if (activeChild) return activeChild.label
-  }
-  return item.label
-}
-
-function getDisplayIcon(pathname: string, item: NavItem): any {
-  if (item.children && item.children.length > 0) {
-    const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
-    if (activeChild && activeChild.iconComponent) return activeChild.iconComponent
-  }
-  return item.iconComponent
-}
-
-// Nav items - IDs must match those in sidebarToSecondaryNav mapping
-const navItems: NavItem[] = [
-  // Authenticate dropdown with children for different auth products
-  {
-    id: 'authenticate',
-    href: '#authenticate',
-    label: 'Full-stack Auth',
-    iconComponent: IconLucideUsers,
-    children: [
-      {
-        id: 'fsa', // Maps to sidebarToSecondaryNav['authenticate']
-        href: '/authenticate/fsa/quickstart/',
-        label: 'Full-stack Auth',
-        iconComponent: IconLucideUsers,
-        description: 'Add secure login, user accounts, and session management',
-        sectionLabel: 'FULL-STACK AUTHENTICATION',
-        showDivider: true,
-      },
-      {
-        id: 'mcp', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/mcp']
-        href: '/mcp/quickstart/',
-        label: 'Auth for MCP',
-        iconComponent: IconMcp,
-        description: 'Production-ready OAuth for MCP servers with dynamic client registration',
-        sectionLabel: 'MODULAR AUTH',
-      },
-      {
-        id: 'modular-sso', // Maps to sidebarToSecondaryNav['modular-auth'].default
-        href: '/authenticate/sso/add-modular-sso/',
-        label: 'Modular SSO',
-        iconComponent: IconMingcuteUserSecurityLine,
-        description:
-          'Easily onboard enterprise customers with any login system. Supports SAML, OIDC',
-      },
-      {
-        id: 'modular-scim', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/directory/scim']
-        href: '/directory/scim/quickstart/',
-        label: 'Modular SCIM',
-        iconComponent: IconAntDesignUserSwitchOutlined,
-        description:
-          "Automate organization and user changes automatically, so you don't have to babysit user lists",
-      },
-    ],
-  },
-  {
-    id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit'] and ['interations']
-    href: '/dev-kit/',
-    label: 'Developer Resources',
-    iconComponent: IconHugeiconsResourcesAdd,
-  },
-  {
-    id: 'api-reference',
-    href: '#sdks-apis',
-    label: 'SDKs & APIs',
-    iconComponent: IconMdiCubeOutline,
-    children: [
-      {
-        id: 'sdks',
-        href: '/apis/#description/sdks',
-        label: 'SDKs',
-        iconComponent: IconSdk,
-        description: 'Auth to your app using SDKs',
-      },
-      {
-        id: 'rest-apis',
-        href: '/apis/',
-        label: 'REST APIs',
-        iconComponent: IconApi,
-        description: 'Manage your Scalekit using APIs',
-      },
-      {
-        id: 'webhooks-events', // Maps to sidebarToSecondaryNav['events-reference']
-        href: '/reference/webhooks/overview/',
-        label: 'Webhooks',
-        iconComponent: IconLucideOutlineWebhook,
-        description: 'Receive real-time auth events',
-      },
-    ],
-  },
-  // Temporarily hidden - Agent Actions
-  // {
-  //   id: 'agent-actions',
-  //   href: '/agent-actions/quickstart',
-  //   label: 'Agent Actions',
-  //   iconComponent: IconLucideBot,
-  // },
-]
+// Use imported configuration and utilities
+const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
 ---
 
 <nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
   <div class="nav-section nav-left">
     <div class="nav-items">
       {
-        navItems.map((item) => (
+        secondaryNavItems.map((item) => (
           <div
             class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
             data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
@@ -283,7 +71,7 @@ const navItems: NavItem[] = [
   style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 999999;"
 >
   {
-    navItems
+    secondaryNavItems
       .filter((item) => item.children && item.children.length > 0)
       .map((item) => (
         <div
