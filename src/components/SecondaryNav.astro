@@ -795,6 +795,7 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
 
     const dropdownTriggers = document.querySelectorAll('.nav-item-wrapper.has-dropdown')
     let currentOpenDropdown = null
+    let isClickOpen = false // Track if any dropdown is open via click globally
 
     dropdownTriggers.forEach((trigger) => {
       const triggerLink = trigger.querySelector('.nav-item')
@@ -807,40 +808,37 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
       hideDropdown(dropdown)
 
       let hoverTimeout = null
-      let isClickOpen = false
 
       trigger.addEventListener('click', (e) => {
-        // Only prevent default navigation if href is hash-only (like #authenticate, #sdks-apis)
-        if (href && href.startsWith('#')) {
-          e.preventDefault()
-          e.stopPropagation()
+        // Prevent default and handle click toggle
+        e.preventDefault()
+        e.stopPropagation()
 
-          if (currentOpenDropdown === dropdown && dropdown.classList.contains('open')) {
-            hideDropdown(dropdown)
-            currentOpenDropdown = null
-            isClickOpen = false
-          } else {
-            hideAllDropdowns()
-            positionDropdown(trigger, dropdown)
-            dropdown.style.pointerEvents = 'all'
-            currentOpenDropdown = dropdown
-            isClickOpen = true
-          }
+        if (currentOpenDropdown === dropdown && dropdown.classList.contains('open')) {
+          // Close if clicking the same trigger
+          hideDropdown(dropdown)
+          currentOpenDropdown = null
+          isClickOpen = false
+        } else {
+          // Open new dropdown
+          hideAllDropdowns()
+          positionDropdown(trigger, dropdown)
+          dropdown.style.pointerEvents = 'all'
+          currentOpenDropdown = dropdown
+          isClickOpen = true
         }
-        // If href is not hash-only, navigation will happen naturally
       })
 
       trigger.addEventListener('mouseenter', () => {
         clearTimeout(hoverTimeout)
 
         // Only auto-open on hover if no dropdown is currently open via click
-        if (currentOpenDropdown === null && !isClickOpen) {
+        if (!isClickOpen) {
           hoverTimeout = setTimeout(() => {
             hideAllDropdowns()
             positionDropdown(trigger, dropdown)
             dropdown.style.pointerEvents = 'all'
             currentOpenDropdown = dropdown
-            isClickOpen = false
           }, 100) // Small delay to prevent accidental triggers
         }
       })
@@ -933,18 +931,15 @@ const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
       if (!target.closest('.nav-item-wrapper.has-dropdown') && !target.closest('[data-dropdown]')) {
         hideAllDropdowns()
         currentOpenDropdown = null
-        // Reset click state for all triggers
-        dropdownTriggers.forEach((trigger) => {
-          if (trigger.isClickOpen !== undefined) {
-            trigger.isClickOpen = false
-          }
-        })
+        isClickOpen = false
       }
     })
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         hideAllDropdowns()
+        currentOpenDropdown = null
+        isClickOpen = false
       }
     })
   })
