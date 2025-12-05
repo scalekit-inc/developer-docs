@@ -20,6 +20,8 @@ export const redirects = {
   '/fsa/guides/signup-restrictions/': '/authenticate/manage-users-orgs/email-domain-rules/',
   '/fsa/guides/allowed-email-domains': '/authenticate/manage-users-orgs/email-domain-rules/',
   '/fsa/guides/allowed-email-domains/': '/authenticate/manage-users-orgs/email-domain-rules/',
+  '/fsa/guides/merge-identities': '/authenticate/manage-users-orgs/merge-identities/',
+  '/fsa/guides/merge-identities/': '/authenticate/manage-users-orgs/merge-identities/',
   '/fsa/guides/onboard-enterprise-customers': '/sso/guides/onboard-enterprise-customers/',
   '/fsa/guides/onboard-enterprise-customers/': '/sso/guides/onboard-enterprise-customers/',
 
