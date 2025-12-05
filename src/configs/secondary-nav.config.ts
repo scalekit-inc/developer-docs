@@ -2,6 +2,7 @@ import {
   IconLucideShield,
   IconMcp,
   IconLucideUsers,
+  IconLucideBot,
   IconLucideBookOpen,
   IconApi,
   IconSdk,
@@ -13,22 +14,38 @@ import {
   IconAntDesignUserSwitchOutlined,
   IconLucideChevronDown as IconChevronDown,
 } from '../utils/icon-map'
+import IconLucideRocket from '~icons/lucide/rocket'
+import IconLucideLogIn from '~icons/lucide/log-in'
+import IconLucideBuilding2 from '~icons/lucide/building-2'
+import IconLucideShieldCheck from '~icons/lucide/shield-check'
+import IconLucidePalette from '~icons/lucide/palette'
 import IconLucideCheck from '~icons/lucide/check'
+import IconLucideHome from '~icons/lucide/home'
 
 export interface NavItem {
   id: string // Unique identifier for the nav item
   href: string
   label: string
+  dropdownLabel?: string // Optional label to show in dropdown (defaults to label if not provided)
   iconComponent?: any
   children?: NavItem[]
   keepParentLabel?: boolean // Keep parent label even when child is active
   description?: string // Optional description for dropdown items
   showDivider?: boolean // Show divider after this item
   sectionLabel?: string // Optional section label for grouping items
+  sectionDescription?: string // Optional description text below section label
+  columnGroup?: 'left' | 'right' // Optional column grouping for side-by-side layout
 }
 
 // Nav items - IDs must match those in sidebarToSecondaryNav mapping
 export const secondaryNavItems: NavItem[] = [
+  // Home link
+  {
+    id: 'home',
+    href: '/',
+    label: 'Home',
+    iconComponent: IconLucideHome,
+  },
   // Authenticate dropdown with children for different auth products
   {
     id: 'authenticate',
@@ -37,21 +54,22 @@ export const secondaryNavItems: NavItem[] = [
     iconComponent: IconLucideUsers,
     children: [
       {
-        id: 'fsa', // Maps to sidebarToSecondaryNav['authenticate']
-        href: '/authenticate/fsa/quickstart/',
-        label: 'Full-stack Auth',
-        iconComponent: IconLucideUsers,
-        description: 'Add secure login, user accounts, and session management',
-        sectionLabel: 'AUTHENTICATE',
-        showDivider: true,
-      },
-      {
         id: 'mcp', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/mcp']
         href: '/authenticate/mcp/quickstart/',
         label: 'Auth for MCP',
         iconComponent: IconMcp,
         description: 'Add plug-and-play OAuth for MCP servers with dynamic client registration',
         sectionLabel: 'MODULAR AUTH',
+        sectionDescription: 'Add authentication modules to your existing auth system',
+        columnGroup: 'left',
+      },
+      {
+        id: 'agent-auth',
+        href: '/agent-actions/quickstart',
+        label: 'Agent Auth',
+        iconComponent: IconLucideBot,
+        description: 'Enable AI agents to authenticate and take actions on behalf of users',
+        columnGroup: 'left',
       },
       {
         id: 'modular-sso', // Maps to sidebarToSecondaryNav['modular-auth'].default
@@ -59,6 +77,7 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Modular SSO',
         iconComponent: IconMingcuteUserSecurityLine,
         description: 'Enable drop-in SSO with SAML and OIDC for any enterprise identity provider',
+        columnGroup: 'left',
       },
       {
         id: 'modular-scim', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/directory/scim']
@@ -66,6 +85,54 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Modular SCIM',
         iconComponent: IconAntDesignUserSwitchOutlined,
         description: 'Automate user and org provisioning and deprovisioning',
+        columnGroup: 'left',
+      },
+      {
+        id: 'fsa-quickstart',
+        href: '/authenticate/fsa/quickstart/',
+        label: 'Full-stack Auth', // Use parent label for nav button
+        dropdownLabel: 'Quickstart', // Show in dropdown
+        iconComponent: IconLucideRocket, // Distinct icon for Quickstart
+        description: 'Get started with Full-stack Auth',
+        sectionLabel: 'FULL-STACK AUTH',
+        sectionDescription: 'Complete authentication solution with user management',
+        columnGroup: 'right',
+      },
+      {
+        id: 'fsa-user-auth',
+        href: '/authenticate/fsa/implement-login/',
+        label: 'Full-stack Auth', // Use parent label for nav button
+        dropdownLabel: 'User Authentication', // Show in dropdown
+        iconComponent: IconLucideLogIn, // Distinct icon for User Auth
+        description: 'Implement login and session management',
+        columnGroup: 'right',
+      },
+      {
+        id: 'fsa-users-orgs',
+        href: '/fsa/data-modelling/',
+        label: 'Full-stack Auth', // Use parent label for nav button
+        dropdownLabel: 'Manage Users & Orgs', // Show in dropdown
+        iconComponent: IconLucideBuilding2, // Distinct icon for Users & Orgs
+        description: 'Organization and user management',
+        columnGroup: 'right',
+      },
+      {
+        id: 'fsa-authorization',
+        href: '/authenticate/authz/overview/',
+        label: 'Full-stack Auth', // Use parent label for nav button
+        dropdownLabel: 'Authorization', // Show in dropdown
+        iconComponent: IconLucideShieldCheck, // Distinct icon for Authorization
+        description: 'Roles, permissions, and access control',
+        columnGroup: 'right',
+      },
+      {
+        id: 'fsa-customize',
+        href: '/guides/custom-domain/',
+        label: 'Full-stack Auth', // Use parent label for nav button
+        dropdownLabel: 'Customize', // Show in dropdown
+        iconComponent: IconLucidePalette, // Distinct icon for Customize
+        description: 'Branding, domains, and workflows',
+        columnGroup: 'right',
       },
     ],
   },
