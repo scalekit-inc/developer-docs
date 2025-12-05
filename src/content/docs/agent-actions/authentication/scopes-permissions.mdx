@@ -1,0 +1,836 @@
+---
+title: Scopes and Permissions
+description: Learn how to manage OAuth scopes and permissions for Agent Auth connections to control what your application can access.
+sidebar:
+  order: 7
+  label: "Scopes & Permissions"
+tableOfContents:
+  maxHeadingLevel: 3
+---
+
+import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+OAuth scopes and permissions determine what data and actions your application can access on behalf of users. Understanding how to properly configure and manage scopes is essential for building secure and functional Agent Auth integrations.
+
+## Understanding OAuth scopes
+
+OAuth scopes are permission grants that define the level of access your application has to a user's data with third-party providers.
+
+### What are scopes?
+
+Scopes are strings that represent specific permissions:
+
+```
+# Example OAuth scopes
+https://www.googleapis.com/auth/gmail.readonly    # Read Gmail messages
+https://www.googleapis.com/auth/gmail.send        # Send Gmail messages
+https://www.googleapis.com/auth/calendar.events   # Manage calendar events
+channels:read                                      # Read Slack channels
+chat:write                                         # Send Slack messages
+```
+
+###How scopes work
+
+<Steps>
+1. **Application requests scopes** - Your connection specifies required scopes
+2. **User sees consent screen** - Provider shows what permissions are requested
+3. **User grants access** - User approves or denies the requested permissions
+4. **Tokens include scopes** - Access tokens are limited to granted scopes
+5. **API enforces scopes** - Provider APIs check tokens have required scopes
+</Steps>
+
+### Scope granularity
+
+Scopes typically follow a hierarchy from broad to specific:
+
+**Gmail example:**
+- `https://mail.google.com/` - Full Gmail access (read, send, delete)
+- `https://www.googleapis.com/auth/gmail.modify` - Read and modify (but not delete)
+- `https://www.googleapis.com/auth/gmail.readonly` - Read-only access
+- `https://www.googleapis.com/auth/gmail.send` - Send emails only
+
+<Aside type="tip" title="Principle of least privilege">
+Always request the minimum scopes necessary for your application's functionality. Users are more likely to grant limited, specific permissions than broad access.
+</Aside>
+
+## Provider-specific scopes
+
+Different providers use different scope formats and naming conventions:
+
+### Google Workspace scopes
+
+Google uses URL-based scopes with hierarchical permissions:
+
+<CardGrid>
+<Card title="Gmail Scopes" icon="mail">
+
+**Read-only access:**
+```
+https://www.googleapis.com/auth/gmail.readonly
+```
+
+**Send emails:**
+```
+https://www.googleapis.com/auth/gmail.send
+```
+
+**Full access:**
+```
+https://mail.google.com/
+```
+
+**Modify (read/write, no delete):**
+```
+https://www.googleapis.com/auth/gmail.modify
+```
+
+</Card>
+
+<Card title="Google Calendar Scopes" icon="calendar">
+
+**Read-only calendar access:**
+```
+https://www.googleapis.com/auth/calendar.readonly
+```
+
+**Manage calendar events:**
+```
+https://www.googleapis.com/auth/calendar.events
+```
+
+**Full calendar access:**
+```
+https://www.googleapis.com/auth/calendar
+```
+
+</Card>
+
+<Card title="Google Drive Scopes" icon="folder">
+
+**Read-only access:**
+```
+https://www.googleapis.com/auth/drive.readonly
+```
+
+**Per-file access:**
+```
+https://www.googleapis.com/auth/drive.file
+```
+
+**Full drive access:**
+```
+https://www.googleapis.com/auth/drive
+```
+
+</Card>
+
+<Card title="Google Sheets Scopes" icon="document">
+
+**Read-only sheets:**
+```
+https://www.googleapis.com/auth/spreadsheets.readonly
+```
+
+**Edit sheets:**
+```
+https://www.googleapis.com/auth/spreadsheets
+```
+
+</Card>
+</CardGrid>
+
+### Microsoft 365 scopes
+
+Microsoft uses dotted notation with resource.permission format:
+
+<CardGrid>
+<Card title="Outlook/Mail Scopes" icon="mail">
+
+**Read mail:**
+```
+Mail.Read
+```
+
+**Send mail:**
+```
+Mail.Send
+```
+
+**Read/write mail:**
+```
+Mail.ReadWrite
+```
+
+</Card>
+
+<Card title="Calendar Scopes" icon="calendar">
+
+**Read calendar:**
+```
+Calendars.Read
+```
+
+**Manage calendar:**
+```
+Calendars.ReadWrite
+```
+
+</Card>
+
+<Card title="OneDrive Scopes" icon="folder">
+
+**Read files:**
+```
+Files.Read.All
+```
+
+**Read/write files:**
+```
+Files.ReadWrite.All
+```
+
+</Card>
+
+<Card title="Teams Scopes" icon="chat">
+
+**Read teams:**
+```
+Team.ReadBasic.All
+```
+
+**Send messages:**
+```
+ChannelMessage.Send
+```
+
+</Card>
+</CardGrid>
+
+### Slack scopes
+
+Slack uses simple string-based scopes:
+
+<CardGrid>
+<Card title="Channel Scopes" icon="chat">
+
+**Read channels:**
+```
+channels:read
+```
+
+**Manage channels:**
+```
+channels:manage
+```
+
+**Join channels:**
+```
+channels:join
+```
+
+</Card>
+
+<Card title="Chat Scopes" icon="message">
+
+**Send messages:**
+```
+chat:write
+```
+
+**Send as user:**
+```
+chat:write.customize
+```
+
+</Card>
+
+<Card title="User Scopes" icon="users">
+
+**Read user info:**
+```
+users:read
+```
+
+**Read user email:**
+```
+users:read.email
+```
+
+</Card>
+
+<Card title="File Scopes" icon="folder">
+
+**Read files:**
+```
+files:read
+```
+
+**Write files:**
+```
+files:write
+```
+
+</Card>
+</CardGrid>
+
+### Jira/Atlassian scopes
+
+Atlassian uses colon-separated scopes:
+
+```
+read:jira-work          # Read issues and projects
+write:jira-work         # Create and update issues
+read:jira-user          # Read user information
+manage:jira-project     # Manage projects
+```
+
+## Configuring scopes in connections
+
+Scopes are configured at the connection level in Scalekit:
+
+### Using Scalekit dashboard
+
+<Steps>
+1. Navigate to **Agent Actions** → **Connections**
+2. Select your connection or create a new one
+3. In the **Scopes** section, enter required scopes
+4. Scopes vary by provider - refer to provider's documentation
+5. Save the connection configuration
+6. Existing users must re-authenticate to get new scopes
+</Steps>
+
+### Scope configuration examples
+
+**Gmail connection with multiple scopes:**
+
+```javascript
+// Dashboard configuration (for reference)
+{
+  "connection_name": "gmail",
+  "provider": "GMAIL",
+  "scopes": [
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/gmail.modify"
+  ]
+}
+```
+
+**Slack connection with workspace scopes:**
+
+```javascript
+// Dashboard configuration (for reference)
+{
+  "connection_name": "slack",
+  "provider": "SLACK",
+  "scopes": [
+    "channels:read",
+    "chat:write",
+    "users:read",
+    "files:read"
+  ]
+}
+```
+
+## Checking granted scopes
+
+Verify which scopes a user has granted:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="python" label="Python">
+
+```python
+# Get connected account and check granted scopes
+account = actions.get_connected_account(
+    identifier="user_123",
+    connection_name="gmail"
+)
+
+print(f"Granted scopes: {account.scopes}")
+
+# Check if specific scope is granted
+required_scope = "https://www.googleapis.com/auth/gmail.send"
+if required_scope in account.scopes:
+    print("✓ User granted email sending permission")
+else:
+    print("✗ Email sending permission not granted")
+    # Request re-authentication with required scope
+```
+
+</TabItem>
+<TabItem value="node" label="Node.js">
+
+```javascript
+// Get connected account and check granted scopes
+const account = await scalekit.actions.getConnectedAccount({
+  identifier: 'user_123',
+  connectionName: 'gmail'
+});
+
+console.log(`Granted scopes: ${account.scopes}`);
+
+// Check if specific scope is granted
+const requiredScope = 'https://www.googleapis.com/auth/gmail.send';
+if (account.scopes.includes(requiredScope)) {
+  console.log('✓ User granted email sending permission');
+} else {
+  console.log('✗ Email sending permission not granted');
+  // Request re-authentication with required scope
+}
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+// Get connected account and check granted scopes
+account, err := scalekitClient.Actions.GetConnectedAccount(
+    context.Background(),
+    "user_123",
+    "gmail",
+)
+if err != nil {
+    log.Fatal(err)
+}
+
+fmt.Printf("Granted scopes: %v\n", account.Scopes)
+
+// Check if specific scope is granted
+requiredScope := "https://www.googleapis.com/auth/gmail.send"
+hasScope := false
+for _, scope := range account.Scopes {
+    if scope == requiredScope {
+        hasScope = true
+        break
+    }
+}
+
+if hasScope {
+    fmt.Println("✓ User granted email sending permission")
+} else {
+    fmt.Println("✗ Email sending permission not granted")
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+// Get connected account and check granted scopes
+ConnectedAccount account = scalekitClient.actions().getConnectedAccount(
+    "user_123",
+    "gmail"
+);
+
+System.out.println("Granted scopes: " + account.getScopes());
+
+// Check if specific scope is granted
+String requiredScope = "https://www.googleapis.com/auth/gmail.send";
+if (account.getScopes().contains(requiredScope)) {
+    System.out.println("✓ User granted email sending permission");
+} else {
+    System.out.println("✗ Email sending permission not granted");
+    // Request re-authentication with required scope
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Requesting additional scopes
+
+When you need additional permissions, users must re-authenticate:
+
+### Scope upgrade flow
+
+<Steps>
+1. **Update connection** - Add new scopes to connection configuration
+2. **Detect missing scopes** - Check connected account for required scopes
+3. **Generate auth link** - Create new authorization link for user
+4. **User re-authenticates** - User approves additional permissions
+5. **Verify new scopes** - Confirm scopes were granted
+</Steps>
+
+### Implementation example
+
+<Tabs syncKey="tech-stack">
+<TabItem value="python" label="Python">
+
+```python
+def ensure_required_scopes(identifier: str, connection_name: str, required_scopes: list):
+    """
+    Ensure user has granted all required scopes.
+    Returns True if all scopes granted, False if re-authentication needed.
+    """
+    # Get current account and scopes
+    account = actions.get_connected_account(
+        identifier=identifier,
+        connection_name=connection_name
+    )
+
+    # Check if all required scopes are granted
+    granted_scopes = set(account.scopes)
+    missing_scopes = [s for s in required_scopes if s not in granted_scopes]
+
+    if not missing_scopes:
+        print("✓ All required scopes granted")
+        return True
+
+    print(f"⚠ Missing scopes: {missing_scopes}")
+
+    # Generate authorization link for re-authentication
+    link_response = actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier=identifier
+    )
+
+    print(f"🔗 User must re-authorize with additional permissions:")
+    print(f"   {link_response.link}")
+    print(f"\nMissing permissions:")
+    for scope in missing_scopes:
+        print(f"   - {scope}")
+
+    return False
+
+# Usage
+required_scopes = [
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/gmail.modify"
+]
+
+if ensure_required_scopes("user_123", "gmail", required_scopes):
+    # All scopes granted, proceed with operation
+    result = actions.execute_tool(...)
+else:
+    # Waiting for user to re-authenticate
+    print("Please authorize additional permissions")
+```
+
+</TabItem>
+<TabItem value="node" label="Node.js">
+
+```javascript
+async function ensureRequiredScopes(identifier, connectionName, requiredScopes) {
+  /**
+   * Ensure user has granted all required scopes.
+   * Returns true if all scopes granted, false if re-authentication needed.
+   */
+  // Get current account and scopes
+  const account = await scalekit.actions.getConnectedAccount({
+    identifier,
+    connectionName
+  });
+
+  // Check if all required scopes are granted
+  const grantedScopes = new Set(account.scopes);
+  const missingScopes = requiredScopes.filter(s => !grantedScopes.has(s));
+
+  if (missingScopes.length === 0) {
+    console.log('✓ All required scopes granted');
+    return true;
+  }
+
+  console.log(`⚠ Missing scopes: ${missingScopes.join(', ')}`);
+
+  // Generate authorization link for re-authentication
+  const linkResponse = await scalekit.actions.getAuthorizationLink({
+    connectionName,
+    identifier
+  });
+
+  console.log('🔗 User must re-authorize with additional permissions:');
+  console.log(`   ${linkResponse.link}`);
+  console.log('\nMissing permissions:');
+  missingScopes.forEach(scope => console.log(`   - ${scope}`));
+
+  return false;
+}
+
+// Usage
+const requiredScopes = [
+  'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/gmail.send',
+  'https://www.googleapis.com/auth/gmail.modify'
+];
+
+if (await ensureRequiredScopes('user_123', 'gmail', requiredScopes)) {
+  // All scopes granted, proceed with operation
+  const result = await scalekit.actions.executeTool(...);
+} else {
+  // Waiting for user to re-authenticate
+  console.log('Please authorize additional permissions');
+}
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+func ensureRequiredScopes(identifier, connectionName string, requiredScopes []string) (bool, error) {
+    // Get current account and scopes
+    account, err := scalekitClient.Actions.GetConnectedAccount(
+        context.Background(),
+        identifier,
+        connectionName,
+    )
+    if err != nil {
+        return false, err
+    }
+
+    // Check if all required scopes are granted
+    grantedScopes := make(map[string]bool)
+    for _, scope := range account.Scopes {
+        grantedScopes[scope] = true
+    }
+
+    var missingScopes []string
+    for _, scope := range requiredScopes {
+        if !grantedScopes[scope] {
+            missingScopes = append(missingScopes, scope)
+        }
+    }
+
+    if len(missingScopes) == 0 {
+        fmt.Println("✓ All required scopes granted")
+        return true, nil
+    }
+
+    fmt.Printf("⚠ Missing scopes: %v\n", missingScopes)
+
+    // Generate authorization link
+    linkResponse, err := scalekitClient.Actions.GetAuthorizationLink(
+        context.Background(),
+        connectionName,
+        identifier,
+    )
+    if err != nil {
+        return false, err
+    }
+
+    fmt.Printf("🔗 User must re-authorize: %s\n", linkResponse.Link)
+
+    return false, nil
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+public boolean ensureRequiredScopes(String identifier, String connectionName, List<String> requiredScopes) {
+    try {
+        // Get current account and scopes
+        ConnectedAccount account = scalekitClient.actions().getConnectedAccount(
+            identifier,
+            connectionName
+        );
+
+        // Check if all required scopes are granted
+        Set<String> grantedScopes = new HashSet<>(account.getScopes());
+        List<String> missingScopes = requiredScopes.stream()
+            .filter(s -> !grantedScopes.contains(s))
+            .collect(Collectors.toList());
+
+        if (missingScopes.isEmpty()) {
+            System.out.println("✓ All required scopes granted");
+            return true;
+        }
+
+        System.out.println("⚠ Missing scopes: " + String.join(", ", missingScopes));
+
+        // Generate authorization link
+        AuthorizationLink linkResponse = scalekitClient.actions().getAuthorizationLink(
+            connectionName,
+            identifier
+        );
+
+        System.out.println("🔗 User must re-authorize: " + linkResponse.getLink());
+        System.out.println("\nMissing permissions:");
+        missingScopes.forEach(scope -> System.out.println("   - " + scope));
+
+        return false;
+    } catch (Exception e) {
+        System.err.println("Error checking scopes: " + e.getMessage());
+        return false;
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Scope validation before tool execution
+
+Always validate scopes before executing tools to provide better error messages:
+
+```python
+# Map tools to required scopes
+TOOL_SCOPE_REQUIREMENTS = {
+    'gmail_send_email': ['https://www.googleapis.com/auth/gmail.send'],
+    'gmail_fetch_mails': ['https://www.googleapis.com/auth/gmail.readonly'],
+    'gmail_delete_email': ['https://mail.google.com/'],
+    'calendar_create_event': ['https://www.googleapis.com/auth/calendar.events'],
+    'slack_send_message': ['chat:write'],
+}
+
+def execute_tool_with_scope_check(identifier, connection_name, tool_name, tool_input):
+    """Execute tool after validating required scopes"""
+    # Get required scopes for this tool
+    required_scopes = TOOL_SCOPE_REQUIREMENTS.get(tool_name, [])
+
+    if required_scopes:
+        # Verify user has granted required scopes
+        account = actions.get_connected_account(
+            identifier=identifier,
+            connection_name=connection_name
+        )
+
+        granted_scopes = set(account.scopes)
+        missing_scopes = [s for s in required_scopes if s not in granted_scopes]
+
+        if missing_scopes:
+            raise PermissionError(
+                f"Missing required permissions for {tool_name}: {missing_scopes}. "
+                f"Please re-authorize to grant these permissions."
+            )
+
+    # Scopes verified, execute tool
+    return actions.execute_tool(
+        identifier=identifier,
+        tool_name=tool_name,
+        tool_input=tool_input
+    )
+
+# Usage
+try:
+    result = execute_tool_with_scope_check(
+        identifier="user_123",
+        connection_name="gmail",
+        tool_name="gmail_send_email",
+        tool_input={"to": "user@example.com", "subject": "Test", "body": "Hello"}
+    )
+    print("✓ Email sent successfully")
+except PermissionError as e:
+    print(f"✗ Permission error: {e}")
+    # Prompt user to re-authorize
+```
+
+## Best practices
+
+### Request minimum necessary scopes
+
+<Aside type="tip">
+Only request scopes your application actually uses. Users are more likely to grant limited, specific permissions.
+</Aside>
+
+**Good:**
+```python
+# Only request scopes you need
+scopes = [
+    "https://www.googleapis.com/auth/gmail.readonly",  # For reading emails
+    "https://www.googleapis.com/auth/gmail.send"        # For sending emails
+]
+```
+
+**Avoid:**
+```python
+# Don't request overly broad access
+scopes = [
+    "https://mail.google.com/"  # Full Gmail access including delete
+]
+```
+
+### Explain permissions to users
+
+Provide clear explanations of why you need specific permissions:
+
+```python
+SCOPE_EXPLANATIONS = {
+    "https://www.googleapis.com/auth/gmail.readonly":
+        "Read your emails to analyze and summarize them",
+    "https://www.googleapis.com/auth/gmail.send":
+        "Send emails on your behalf",
+    "https://www.googleapis.com/auth/calendar.events":
+        "Create and manage calendar events for you",
+    "chat:write":
+        "Send messages in Slack channels",
+}
+
+# Show explanations in your UI before redirecting to OAuth
+def get_scope_explanation(scope):
+    return SCOPE_EXPLANATIONS.get(scope, "Access your account data")
+```
+
+### Handle scope denials gracefully
+
+```python
+# After OAuth callback
+if user_denied_scopes:
+    # Don't show error - explain what features won't work
+    message = """
+    Some features will be limited because certain permissions weren't granted:
+    - Email sending: Requires 'Send email' permission
+    - Email reading: Requires 'Read email' permission
+
+    You can grant these permissions later in Settings.
+    """
+    # Provide link to re-authorize in settings
+```
+
+### Incremental authorization
+
+Request additional scopes only when needed:
+
+```python
+# Start with minimal scopes
+initial_scopes = ["https://www.googleapis.com/auth/gmail.readonly"]
+
+# Later, when user wants to send email
+if user_wants_to_send_email:
+    # Request additional scope
+    additional_scopes = ["https://www.googleapis.com/auth/gmail.send"]
+    # Prompt user to grant additional permission
+```
+
+## Troubleshooting scope issues
+
+### Insufficient permissions error
+
+**Error:** "Insufficient permissions" or 403 Forbidden
+
+**Solution:**
+1. Check which scopes are currently granted
+2. Verify the tool requires those specific scopes
+3. Update connection configuration if needed
+4. Have user re-authenticate to grant additional scopes
+
+### Scope not available for provider
+
+**Error:** Invalid scope or scope not recognized
+
+**Solution:**
+1. Verify scope name matches provider's documentation exactly
+2. Check if scope requires special provider approval
+3. Some scopes only available to verified applications
+4. Review provider's scope documentation for correct format
+
+### User sees unexpected consent screen
+
+**Issue:** OAuth consent shows different or additional permissions
+
+**Causes:**
+- Scopes configured in connection don't match expected
+- Provider groups related scopes together
+- Sensitive scopes trigger additional consent
+
+**Solution:**
+- Review connection scope configuration
+- Check provider's scope grouping behavior
+- Ensure sensitive scopes are truly necessary
+
+## Next steps
+
+- [Token Management](/agent-actions/authentication/token-management) - Managing access and refresh tokens
+- [Authentication Troubleshooting](/agent-actions/authentication/troubleshooting) - Debugging auth issues
+- [Multi-Provider Authentication](/agent-actions/authentication/multi-provider) - Managing multiple provider connections

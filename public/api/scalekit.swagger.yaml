@@ -17,7 +17,28 @@ info:
         url: https://scalekit.com
         email: support@scalekit.com
         name: Scalekit
+    x-scalar-sdk-installation:
+        - description: "Install the Scalekit SDK for Node.js from npm:"
+          lang: node
+          source: "npm install @scalekit-sdk/node"
+        - description: "Install the Scalekit SDK for Python using pip:"
+          lang: python
+          source: "pip install scalekit-sdk-python"
+        - description: "Install the Scalekit SDK for Go:"
+          lang: Go
+          source: "go get -u github.com/scalekit-inc/scalekit-sdk-go"
+        - description: "Adding Java SDK dependency"
+          lang: Java
+          source: "/* Gradle users - add the following to your dependencies in build file */\nimplementation \"com.scalekit:scalekit-sdk-java:2.0.5\"\n\n<!-- Maven users - add the following to your `pom.xml` -->\n<dependency>\n  <groupId>com.scalekit</groupId>\n  <artifactId>scalekit-sdk-java</artifactId>\n  <version>2.0.5</version>\n</dependency>"
 host: $ENV_DOMAIN
+securityDefinitions:
+    oauth2:
+        type: oauth2
+        flow: application
+        tokenUrl: https://$SCALEKIT_ENVIRONMENT_URL/oauth/token
+        description: OAuth 2.0 Client Credentials flow. Use your Scalekit client ID and secret to obtain an access token.
+security:
+    - oauth2: []
 paths:
     /api/v1/organizations/-/connections/{id}:disable:
         patch:
@@ -1209,3 +1230,67 @@ tags:
 externalDocs:
     description: Scalekit Developer documentation
     url: https://docs.scalekit.com/
+x-scalar-active-environment: staging
+x-scalar-environments:
+    production:
+        variables:
+            SCALEKIT_ENVIRONMENT_URL:
+                default: "https://{environment}.scalekit.com"
+                description: "API URL"
+    staging:
+        variables:
+            SCALEKIT_ENVIRONMENT_URL:
+                default: "https://{environment}.scalekit.dev"
+                description: "API URL"
+x-scalar-examples:
+    - title: "Initialize Scalekit Client"
+      description: "Set up the Scalekit SDK in your application"
+      examples:
+        - lang: node
+          source: |
+            import { ScalekitClient } from '@scalekit-sdk/node';
+
+            const scalekit = new ScalekitClient(
+              process.env.SCALEKIT_ENVIRONMENT_URL,
+              process.env.SCALEKIT_CLIENT_ID,
+              process.env.SCALEKIT_CLIENT_SECRET
+            );
+        - lang: python
+          source: |
+            import os
+            from scalekit_client import ScalekitClient
+
+            scalekit_client = ScalekitClient(
+                env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+                client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+                client_secret=os.getenv("SCALEKIT_CLIENT_SECRET")
+            )
+        - lang: go
+          source: |
+            package main
+
+            import (
+                "os"
+                "github.com/scalekit-inc/scalekit-sdk-go/scalekit"
+            )
+
+            func main() {
+                scalekitClient := scalekit.NewScalekitClient(
+                    os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+                    os.Getenv("SCALEKIT_CLIENT_ID"),
+                    os.Getenv("SCALEKIT_CLIENT_SECRET"),
+                )
+            }
+        - lang: Java
+          source: |
+            import com.scalekit.ScalekitClient;
+
+            public class Main {
+                public static void main(String[] args) {
+                    ScalekitClient scalekitClient = new ScalekitClient(
+                        System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+                        System.getenv("SCALEKIT_CLIENT_ID"),
+                        System.getenv("SCALEKIT_CLIENT_SECRET")
+                    );
+                }
+            }

@@ -1,0 +1,707 @@
+---
+title: "Implement access control"
+description: "Verify permissions and roles in your application code to control user access"
+sidebar:
+  label: "Implement access control"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev:
+  label: 'Create roles'
+  link: '/authenticate/authz/create-roles-permissions/'
+next: false
+---
+
+import { AuthResultTabsSection } from '@components/templates'
+import { Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence'
+import IconJsonwebtokens from '~icons/simple-icons/jsonwebtokens'
+
+After configuring permissions and roles, the next critical step is implementing access control directly within your application code. This is achieved by carefully examining the roles and permissions embedded in the user's access token to make authorization decisions.
+
+Scalekit conveniently packages these authorization details during the authentication process, providing you with a comprehensive set of data to make precise access control decisions without requiring additional API calls.
+
+<details>
+<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the authorization flow</summary>
+
+```d2 pad=100
+shape: sequence_diagram
+
+User -> Your App: Request protected resource
+Your App -> Your App: Decode and validate access token
+Your App -> Your App: Extract and verify \n required permission/role
+Your App -> User: Return resource or error
+
+```
+
+</details>
+
+This section focuses on implementing access control, which naturally follows user authentication. We recommend completing the authentication [quickstart](/authenticate/fsa/quickstart) before diving into these access control implementation details.
+
+## Start by inspecting the access token
+
+When you [exchange the code for a user profile](/authenticate/fsa/complete-login/), Scalekit also adds additional information that help your app determine the access control decisions.
+
+<AuthResultTabsSection />
+
+Let's closely look at the access token:
+
+```json title="Decoded access token" {9,11} wrap showLineNumbers=false
+{
+  "aud": ["skc_987654321098765432"],
+  "client_id": "skc_987654321098765432",
+  "exp": 1750850145,
+  "iat": 1750849845,
+  "iss": "http://example.localhost:8889",
+  "jti": "tkn_987654321098765432",
+  "nbf": 1750849845,
+  "roles": ["project_manager", "member"],
+  "oid": "org_69615647365005430",
+  "permissions": ["projects:create", "projects:read", "projects:update", "tasks:assign"],
+  "sid": "ses_987654321098765432",
+  "sub": "usr_987654321098765432"
+}
+```
+
+The `roles` and `permissions` values provide runtime insights into the user's access constraints directly within the access token, eliminating the need for additional API requests. Crucially, always validate the token's integrity before relying on the embedded authorization details.
+
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Validate and decode access token in middleware" wrap
+
+// Middleware to validate tokens and extract authorization data
+const validateAndExtractAuth = async (req, res, next) => {
+  try {
+    // Extract access token from cookie (decrypt if needed)
+    const accessToken = decrypt(req.cookies.accessToken);
+
+    // Validate the token using Scalekit SDK
+    const isValid = await scalekit.validateAccessToken(accessToken);
+
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+
+    // Decode token to get roles and permissions using any JWT decode library
+    const tokenData = await decodeAccessToken(accessToken);
+
+    // Make authorization data available to route handlers
+    req.user = {
+      id: tokenData.sub,
+      organizationId: tokenData.oid,
+      roles: tokenData.roles || [],
+      permissions: tokenData.permissions || []
+    };
+
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: 'Authentication failed' });
+  }
+};
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Validate and decode access token" wrap collapse={1-4} {8-9,12,15-19,23-25}
+from scalekit import ScalekitClient
+from functools import wraps
+import jwt
+
+scalekit_client = ScalekitClient(/* your credentials */)
+
+def validate_and_extract_auth(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            # Extract access token from cookie (decrypt if needed)
+            access_token = decrypt(request.cookies.get('accessToken'))
+
+            # Validate the token using Scalekit SDK
+            is_valid = scalekit_client.validate_access_token(access_token)
+
+            if not is_valid:
+                return jsonify({'error': 'Invalid or expired token'}), 401
+
+            # Decode token to get roles and permissions
+            token_data = scalekit_client.decode_access_token(access_token)
+
+            # Make authorization data available to route handlers
+            request.user = {
+                'id': token_data.get('sub'),
+                'organization_id': token_data.get('oid'),
+                'roles': token_data.get('roles', []),
+                'permissions': token_data.get('permissions', [])
+            }
+
+            return f(*args, **kwargs)
+        except Exception as e:
+            return jsonify({'error': 'Authentication failed'}), 401
+
+    return decorated_function
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Validate and decode access token" wrap collapse={1-7} {11-12,15,18-22,26-28}
+import (
+    "context"
+    "encoding/json"
+    "net/http"
+    "github.com/scalekit-inc/scalekit-sdk-go"
+)
+
+scalekitClient := scalekit.NewScalekitClient(/* your credentials */)
+
+func validateAndExtractAuth(next http.HandlerFunc) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        // Extract access token from cookie (decrypt if needed)
+        cookie, err := r.Cookie("accessToken")
+        if err != nil {
+            http.Error(w, `{"error": "No access token provided"}`, http.StatusUnauthorized)
+            return
+        }
+
+        accessToken, err := decrypt(cookie.Value)
+        if err != nil {
+            http.Error(w, `{"error": "Token decryption failed"}`, http.StatusUnauthorized)
+            return
+        }
+
+        // Validate the token using Scalekit SDK
+        isValid, err := scalekitClient.ValidateAccessToken(accessToken)
+        if err != nil || !isValid {
+            http.Error(w, `{"error": "Invalid or expired token"}`, http.StatusUnauthorized)
+            return
+        }
+
+        // Decode token to get roles and permissions using any JWT decode lib
+        tokenData, err := DecodeAccessToken(accessToken)
+        if err != nil {
+            http.Error(w, `{"error": "Token decode failed"}`, http.StatusUnauthorized)
+            return
+        }
+
+        // Add authorization data to request context
+        user := map[string]interface{}{
+            "id":             tokenData["sub"],
+            "organization_id": tokenData["oid"],
+            "roles":          tokenData["roles"],
+            "permissions":    tokenData["permissions"],
+        }
+
+        ctx := context.WithValue(r.Context(), "user", user)
+        next(w, r.WithContext(ctx))
+    }
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Validate and decode access token" wrap collapse={1-7} {11-15,18,21-25,29-31}
+import com.scalekit.ScalekitClient;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.servlet.HandlerInterceptor;
+import java.util.Map;
+import java.util.HashMap;
+
+@Component
+public class AuthorizationInterceptor implements HandlerInterceptor {
+    private final ScalekitClient scalekit;
+
+    @Override
+    public boolean preHandle(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Object handler
+    ) throws Exception {
+        try {
+            // Extract access token from cookie (decrypt if needed)
+            String accessToken = getCookieValue(request, "accessToken");
+            String decryptedToken = decrypt(accessToken);
+
+            // Validate the token using Scalekit SDK
+            boolean isValid = scalekit.authentication().validateAccessToken(decryptedToken);
+
+            if (!isValid) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
+                return false;
+            }
+
+            // Decode token to get roles and permissions using any JWT decode lib
+            Map<String, Object> tokenData = decodeAccessToken(decryptedToken);
+
+            // Make authorization data available to controllers
+            Map<String, Object> user = new HashMap<>();
+            user.put("id", tokenData.get("sub"));
+            user.put("organizationId", tokenData.get("oid"));
+            user.put("roles", tokenData.get("roles"));
+            user.put("permissions", tokenData.get("permissions"));
+
+            request.setAttribute("user", user);
+            return true;
+
+        } catch (Exception e) {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.getWriter().write("{\"error\": \"Authentication failed\"}");
+            return false;
+        }
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+This approach makes user roles and permissions available throughout different routes of your application, enabling consistent and secure access control across all endpoints.
+
+## Verify user's role to allow access to protected resources
+
+Role-based access control (RBAC) provides a straightforward way to manage permissions by grouping them into logical roles. Instead of checking individual permissions for every action, your application can simply verify if the user has the required role, making access control decisions more efficient and easier to maintain.
+
+<Aside type="tip">
+Use roles for broad access control patterns like admin access, management privileges, or user tiers. Reserve permissions for fine-grained control over specific actions and resources.
+</Aside>
+
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Role-based access control" wrap collapse={1-17}
+// Helper function to check roles
+function hasRole(user, requiredRole) {
+  return user.roles && user.roles.includes(requiredRole);
+}
+
+// Middleware to require specific roles
+function requireRole(role) {
+  return (req, res, next) => {
+    if (!hasRole(req.user, role)) {
+      return res.status(403).json({
+        error: `Access denied. Required role: ${role}`
+      });
+    }
+    next();
+  };
+}
+
+// Admin-only routes
+app.get('/api/admin/users', validateAndExtractAuth, requireRole('admin'), (req, res) => {
+  // Only admin users can access this endpoint
+  res.json(getAllUsers(req.user.organizationId));
+});
+
+// Multiple role check
+app.post('/api/admin/invite-user', validateAndExtractAuth, (req, res) => {
+  const user = req.user;
+
+  // Allow admins or managers to invite users
+  if (!hasRole(user, 'admin') && !hasRole(user, 'manager')) {
+    return res.status(403).json({ error: 'Only admins and managers can invite users' });
+  }
+
+  const invitation = createUserInvitation(req.body, user.organizationId);
+  res.json(invitation);
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Role-based access control" wrap collapse={1-17}
+# Helper function to check roles
+def has_role(user, required_role):
+    roles = user.get('roles', [])
+    return required_role in roles
+
+# Decorator to require specific roles
+def require_role(role):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            user = getattr(request, 'user', {})
+            if not has_role(user, role):
+                return jsonify({'error': f'Access denied. Required role: {role}'}), 403
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+# Admin-only routes
+@app.route('/api/admin/users')
+@validate_and_extract_auth
+@require_role('admin')
+def get_all_users():
+    # Only admin users can access this endpoint
+    return jsonify(get_all_users_for_org(request.user['organization_id']))
+
+# Multiple role check
+@app.route('/api/admin/invite-user', methods=['POST'])
+@validate_and_extract_auth
+def invite_user():
+    user = request.user
+
+    # Allow admins or managers to invite users
+    if not has_role(user, 'admin') and not has_role(user, 'manager'):
+        return jsonify({'error': 'Only admins and managers can invite users'}), 403
+
+    invitation = create_user_invitation(request.json, user['organization_id'])
+    return jsonify(invitation)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Role-based access control" collapse={1-31}
+// Helper function to check roles
+func hasRole(user map[string]interface{}, requiredRole string) bool {
+    roles, ok := user["roles"].([]interface{})
+    if !ok {
+        return false
+    }
+
+    for _, role := range roles {
+        if roleStr, ok := role.(string); ok && roleStr == requiredRole {
+            return true
+        }
+    }
+    return false
+}
+
+// Middleware to require specific roles
+func requireRole(role string) func(http.HandlerFunc) http.HandlerFunc {
+    return func(next http.HandlerFunc) http.HandlerFunc {
+        return func(w http.ResponseWriter, r *http.Request) {
+            user := r.Context().Value("user").(map[string]interface{})
+
+            if !hasRole(user, role) {
+                http.Error(w, fmt.Sprintf(`{"error": "Access denied. Required role: %s"}`, role), http.StatusForbidden)
+                return
+            }
+
+            next(w, r)
+        }
+    }
+}
+
+// Admin-only routes
+func getAllUsersHandler(w http.ResponseWriter, r *http.Request) {
+    user := r.Context().Value("user").(map[string]interface{})
+    orgId := user["organization_id"].(string)
+
+    // Only admin users can access this endpoint
+    users := getAllUsersForOrg(orgId)
+    json.NewEncoder(w).Encode(users)
+}
+
+// Route setup with role middleware
+http.HandleFunc("/api/admin/users", validateAndExtractAuth(requireRole("admin")(getAllUsersHandler)))
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Role-based access control"  collapse={3-9}
+@RestController
+public class AdminController {
+
+    // Helper method to check roles
+    private boolean hasRole(Map<String, Object> user, String requiredRole) {
+        List<String> roles = (List<String>) user.get("roles");
+        return roles != null && roles.contains(requiredRole);
+    }
+
+    // Admin-only endpoint
+    @GetMapping("/api/admin/users")
+    public ResponseEntity<List<User>> getAllUsers(HttpServletRequest request) {
+        Map<String, Object> user = (Map<String, Object>) request.getAttribute("user");
+
+        // Check for admin role
+        if (!hasRole(user, "admin")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        String orgId = (String) user.get("organizationId");
+        List<User> users = userService.getAllUsersForOrg(orgId);
+        return ResponseEntity.ok(users);
+    }
+
+    @PostMapping("/api/admin/invite-user")
+    public ResponseEntity<Invitation> inviteUser(
+        @RequestBody InviteUserRequest request,
+        HttpServletRequest httpRequest
+    ) {
+        Map<String, Object> user = (Map<String, Object>) httpRequest.getAttribute("user");
+
+        // Allow admins or managers to invite users
+        if (!hasRole(user, "admin") && !hasRole(user, "manager")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        String orgId = (String) user.get("organizationId");
+        Invitation invitation = userService.createInvitation(request, orgId);
+        return ResponseEntity.ok(invitation);
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+
+## Verify user's permissions to allow specific actions
+
+Permission-based access control provides granular control over specific actions and resources within your application. While roles offer broad access patterns, permissions allow you to define exactly what operations users can perform, enabling precise security controls and the principle of least privilege.
+
+<Aside type="note">
+Permissions are typically formatted as `resource:action` (e.g., `projects:create`, `users:read`, `reports:delete`) to provide clear, consistent naming conventions that make your access control logic more readable and maintainable.
+</Aside>
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+```javascript title="Permission-based access control" collapse={1-17}
+// Helper function to check permissions
+function hasPermission(user, requiredPermission) {
+  return user.permissions && user.permissions.includes(requiredPermission);
+}
+
+// Middleware to require specific permissions
+function requirePermission(permission) {
+  return (req, res, next) => {
+    if (!hasPermission(req.user, permission)) {
+      return res.status(403).json({
+        error: `Access denied. Required permission: ${permission}`
+      });
+    }
+    next();
+  };
+}
+
+// Protected routes with permission checks
+app.get('/api/projects', validateAndExtractAuth, requirePermission('projects:read'), (req, res) => {
+  // User has projects:read permission - allow access
+  res.json(getProjects(req.user.organizationId));
+});
+
+app.post('/api/projects', validateAndExtractAuth, requirePermission('projects:create'), (req, res) => {
+  // User has projects:create permission - allow creation
+  const newProject = createProject(req.body, req.user.organizationId);
+  res.json(newProject);
+});
+
+// Multiple permission check
+app.delete('/api/projects/:id', validateAndExtractAuth, (req, res) => {
+  const user = req.user;
+
+  // Check if user has either admin role or specific delete permission
+  if (!hasPermission(user, 'projects:delete') && !user.roles.includes('admin')) {
+    return res.status(403).json({ error: 'Cannot delete projects' });
+  }
+
+  deleteProject(req.params.id, user.organizationId);
+  res.json({ success: true });
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Permission-based access control" collapse={1-17}
+# Helper function to check permissions
+def has_permission(user, required_permission):
+    permissions = user.get('permissions', [])
+    return required_permission in permissions
+
+# Decorator to require specific permissions
+def require_permission(permission):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            user = getattr(request, 'user', {})
+            if not has_permission(user, permission):
+                return jsonify({'error': f'Access denied. Required permission: {permission}'}), 403
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+# Protected routes with permission checks
+@app.route('/api/projects')
+@validate_and_extract_auth
+@require_permission('projects:read')
+def get_projects():
+    # User has projects:read permission - allow access
+    return jsonify(get_projects_for_org(request.user['organization_id']))
+
+@app.route('/api/projects', methods=['POST'])
+@validate_and_extract_auth
+@require_permission('projects:create')
+def create_project():
+    # User has projects:create permission - allow creation
+    new_project = create_project_for_org(request.json, request.user['organization_id'])
+    return jsonify(new_project)
+
+# Multiple permission check
+@app.route('/api/projects/<project_id>', methods=['DELETE'])
+@validate_and_extract_auth
+def delete_project(project_id):
+    user = request.user
+
+    # Check if user has either admin role or specific delete permission
+    if not has_permission(user, 'projects:delete') and 'admin' not in user.get('roles', []):
+        return jsonify({'error': 'Cannot delete projects'}), 403
+
+    delete_project_from_org(project_id, user['organization_id'])
+    return jsonify({'success': True})
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Permission-based access control"
+// Helper function to check permissions
+func hasPermission(user map[string]interface{}, requiredPermission string) bool {
+    permissions, ok := user["permissions"].([]interface{})
+    if !ok {
+        return false
+    }
+
+    for _, perm := range permissions {
+        if permStr, ok := perm.(string); ok && permStr == requiredPermission {
+            return true
+        }
+    }
+    return false
+}
+
+// Middleware to require specific permissions
+func requirePermission(permission string) func(http.HandlerFunc) http.HandlerFunc {
+    return func(next http.HandlerFunc) http.HandlerFunc {
+        return func(w http.ResponseWriter, r *http.Request) {
+            user := r.Context().Value("user").(map[string]interface{})
+
+            if !hasPermission(user, permission) {
+                http.Error(w, fmt.Sprintf(`{"error": "Access denied. Required permission: %s"}`, permission), http.StatusForbidden)
+                return
+            }
+
+            next(w, r)
+        }
+    }
+}
+
+// Protected routes with permission checks
+func getProjectsHandler(w http.ResponseWriter, r *http.Request) {
+    user := r.Context().Value("user").(map[string]interface{})
+    orgId := user["organization_id"].(string)
+
+    // User has projects:read permission - allow access
+    projects := getProjectsForOrg(orgId)
+    json.NewEncoder(w).Encode(projects)
+}
+
+func createProjectHandler(w http.ResponseWriter, r *http.Request) {
+    user := r.Context().Value("user").(map[string]interface{})
+    orgId := user["organization_id"].(string)
+
+    // User has projects:create permission - allow creation
+    var projectData map[string]interface{}
+    json.NewDecoder(r.Body).Decode(&projectData)
+
+    newProject := createProjectForOrg(projectData, orgId)
+    json.NewEncoder(w).Encode(newProject)
+}
+
+// Route setup with middleware
+http.HandleFunc("/api/projects", validateAndExtractAuth(requirePermission("projects:read")(getProjectsHandler)))
+http.HandleFunc("/api/projects/create", validateAndExtractAuth(requirePermission("projects:create")(createProjectHandler)))
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Permission-based access control"
+@RestController
+public class ProjectController {
+
+    // Helper method to check permissions
+    private boolean hasPermission(Map<String, Object> user, String requiredPermission) {
+        List<String> permissions = (List<String>) user.get("permissions");
+        return permissions != null && permissions.contains(requiredPermission);
+    }
+
+    // Annotation-based permission checking
+    @GetMapping("/api/projects")
+    @PreAuthorize("hasPermission('projects:read')")
+    public ResponseEntity<List<Project>> getProjects(HttpServletRequest request) {
+        Map<String, Object> user = (Map<String, Object>) request.getAttribute("user");
+        String orgId = (String) user.get("organizationId");
+
+        // User has projects:read permission - allow access
+        List<Project> projects = projectService.getProjectsForOrg(orgId);
+        return ResponseEntity.ok(projects);
+    }
+
+    @PostMapping("/api/projects")
+    public ResponseEntity<Project> createProject(
+        @RequestBody CreateProjectRequest request,
+        HttpServletRequest httpRequest
+    ) {
+        Map<String, Object> user = (Map<String, Object>) httpRequest.getAttribute("user");
+
+        // Check permission manually
+        if (!hasPermission(user, "projects:create")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(null);
+        }
+
+        String orgId = (String) user.get("organizationId");
+        Project newProject = projectService.createProject(request, orgId);
+        return ResponseEntity.ok(newProject);
+    }
+
+    @DeleteMapping("/api/projects/{projectId}")
+    public ResponseEntity<Map<String, Boolean>> deleteProject(
+        @PathVariable String projectId,
+        HttpServletRequest request
+    ) {
+        Map<String, Object> user = (Map<String, Object>) request.getAttribute("user");
+        List<String> roles = (List<String>) user.get("roles");
+
+        // Check if user has either admin role or specific delete permission
+        if (!hasPermission(user, "projects:delete") && !roles.contains("admin")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Map.of("error", true));
+        }
+
+        String orgId = (String) user.get("organizationId");
+        projectService.deleteProject(projectId, orgId);
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+By implementing both role-based and permission-based access control, your application now has a comprehensive security framework that protects different routes and endpoints. You can combine both approaches to create fine-grained access control that matches your application's specific requirements.
+
+**Admin bypass pattern**: Allow users with `admin` role to bypass certain permission checks while maintaining granular control for other users
+
+**Resource ownership pattern**: Combine role/permission checks with resource ownership verification (e.g., users can only edit their own projects unless they have admin role)
+
+**Time-based access pattern**: Consider implementing time-based restrictions for sensitive operations, especially for roles with elevated permissions
+
+<Aside type="caution">
+Never implement authorization logic solely on the client side. Always perform server-side validation of roles and permissions, as client-side checks can be bypassed by malicious users.
+</Aside>

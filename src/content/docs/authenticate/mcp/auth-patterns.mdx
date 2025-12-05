@@ -1,0 +1,351 @@
+---
+title: 'MCP authentication patterns'
+description: 'Authentication patterns: Human users via OAuth Authorization Code flow, autonomous agents via Client Credentials flow, and downstream integrations using API keys, OAuth, or token cascading'
+sidebar:
+  label: 'Auth patterns'
+tableOfContents:
+  maxHeadingLevel: 2
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+browseCentral:
+  label: 'MCP authentication patterns'
+  category:
+    - 'MCP authentication'
+  filterType:
+    - 'tutorial'
+  icon: 'book'
+---
+
+import { Aside, Badge } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence';
+
+Scalekit provides secure authentication for MCP servers across three distinct patterns, each corresponding to different interaction models and trust boundaries. Understanding which pattern applies to your use case ensures you implement the right security model for your MCP server architecture.
+
+This guide covers all three authentication patterns: human-to-MCP interactions, agent-to-MCP communication, and MCP-to-downstream integrations. Each pattern uses different OAuth 2.1 flows and has specific configuration requirements explained with sequence diagrams and practical guidance.
+
+## Pattern comparison
+
+Understanding the differences between these patterns helps you choose the right approach for your architecture. Each pattern serves specific use cases and has different security characteristics.
+
+| Aspect | Human → MCP | Agent/Machine → MCP | MCP → Downstream |
+|--------|-------------|---------------------|------------------|
+| **Actor** | Human using AI host (Claude, ChatGPT, VS Code) | Autonomous agent or service | MCP Server making backend calls |
+| **OAuth Flow** | Authorization Code | Client Credentials | Varies by sub-pattern |
+| **Initiator** | User interaction in MCP client | Programmatic request | MCP server implementation code |
+| **Token Lifetime** | Medium (typically hours) | Configurable (typically long-lived) | Depends on downstream system |
+| **User Consent** | Required during authorization flow | Not applicable (pre-configured) | Not applicable |
+| **Scope Assignment** | During consent prompt | At client registration | At implementation time |
+| **Best For** | Interactive human workflows | Scheduled tasks, autonomous operations | Backend integration with APIs/services |
+| **Complexity** | Medium (handles browser flow) | Low (direct token request) | Varies (simple to complex) |
+
+## Pattern 1: Human interacting with MCP server
+
+When a human uses a compliant MCP host application, that host acts as the OAuth client. It initiates authorization with the Scalekit Authorization Server, obtains a scoped access token, and interacts securely with the MCP Server on behalf of the user.
+
+This pattern represents the most common interaction model for real-world MCP use cases - humans interacting with an MCP server through AI host applications like Claude Desktop, VS Code, Cursor, or Windsurf, while Scalekit ensures tokens are valid, scoped, and auditable.
+
+<Aside type="tip" title="OAuth flow summary">
+Human-initiated MCP interactions use the **OAuth 2.1 Authorization Code Flow**. Scalekit acts as the Authorization Server, the MCP Server as the Protected Resource, and the AI host (ChatGPT, Claude, Windsurf, etc.) as the OAuth Client.
+</Aside>
+
+### Authorization sequence
+
+```d2 pad=36
+title: "Human → MCP Server (OAuth 2.1 Authorization Code Flow)" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client -> MCP Server: initiate
+MCP Server -> MCP Client: 401 + WWW-Authenticate header
+MCP Client -> Scalekit Authorization Server: Exchange code for access token
+Scalekit Authorization Server -> Scalekit Authorization Server: Handles Authentication and user consent
+Scalekit Authorization Server -> MCP Client: Issue token with required scopes
+MCP Client -> MCP Server: Call tool with Bearer token
+MCP Server -> MCP Client: Authorized response
+```
+
+### How it works
+
+1. **Initiation** – The human configures an MCP server in their MCP client application.
+
+2. **Challenge** – The MCP Server responds with an HTTP `401` containing a `WWW-Authenticate` header that points to the Scalekit Authorization Server.
+
+3. **Authorization Flow** – The MCP Client opens the user's browser to initiate the OAuth 2.1 authorization flow. During this step, the Scalekit Authorization Server handles user authentication through Magic Link & OTP, Passkeys, Social login providers (like Google, GitHub, or LinkedIn), or Enterprise SSO integrations (such as Okta, Microsoft Entra ID, or ADFS). The user is then prompted to grant consent for the requested scopes. Once approved, Scalekit returns an authorization code, which the MCP Client exchanges for an access token.
+
+4. **Token Issuance** – Scalekit issues an OAuth 2.1 access token containing claims and scopes (for example, `todo:read`, `calendar:write`) that represent the user's permissions.
+
+5. **Authorized Request** – The client calls the MCP Server again, now attaching the Bearer token in the `Authorization` header.
+
+6. **Validation and Execution** – The MCP Server validates the token issued by Scalekit and executes the requested tool.
+
+### Implementation
+
+#### 1. Register your MCP server in the Scalekit Dashboard
+Create a new MCP server in the Scalekit Dashboard to obtain your server credentials and configure authentication settings.
+
+#### 2. Implement the protected resource metadata endpoint
+Add a `.well-known/oauth-protected-resource` endpoint that provides your MCP server's authentication configuration to clients.
+
+#### 3. Configure scopes for your server capabilities
+Define OAuth scopes that correspond to the tools and permissions your MCP server exposes.
+
+#### 4. Set up token validation middleware
+Implement middleware to validate incoming JWT tokens from Scalekit before processing MCP tool requests.
+
+#### 5. Test the complete authentication flow
+Verify the end-to-end flow works with an MCP client to ensure secure authentication.
+
+For complete implementation guidance, see the [MCP OAuth 2.1 quickstart](/authenticate/mcp/quickstart/) or framework-specific guides for [FastMCP](/authenticate/mcp/fastmcp-quickstart/), [FastAPI + FastMCP](/authenticate/mcp/fastapi-fastmcp-quickstart/), and [Express.js](/authenticate/mcp/expressjs-quickstart/).
+
+## Pattern 2: Agent / machine interacting with MCP server
+
+An autonomous agent or any machine-to-machine process can directly interact with an MCP Server secured by Scalekit. In this model, the agent acts as a confidential OAuth client, authenticated using a `client_id` and `client_secret` issued by Scalekit.
+
+This pattern uses the OAuth 2.1 Client Credentials flow, allowing the agent to obtain an access token without user interaction. Tokens are scoped and time-bound, ensuring secure and auditable automation between services.
+
+<Aside type="tip" title="OAuth flow summary">
+The agent authenticates with Scalekit using the **OAuth 2.1 Client Credentials Flow** to obtain a scoped access token, then calls the MCP Server's tools using that token for secure, automated communication.
+</Aside>
+
+### Authorization sequence
+
+```d2 pad=36
+title: "Agent → MCP Server (OAuth 2.1 Client Credentials Flow)" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+Agent -> Scalekit Authorization Server: Request access token (grant_type=client_credentials)
+Scalekit Authorization Server -> Agent: Return access token with configured scopes
+Agent -> MCP Server: Call tool with Bearer token
+MCP Server -> Agent: Authorized response
+```
+
+### Client registration
+
+#### 1. Navigate to the MCP Server Clients tab
+Go to **[Dashboard](https://app.scalekit.com) > MCP Servers** and select your MCP Server. Click on the **Clients** tab.
+![Clients tab](@/assets/docs/guides/mcp/mcp-client-nav.png)
+
+#### 2. Create a new M2M client
+Click **Create Client** to start the client creation process.
+![Create client](@/assets/docs/guides/mcp/mcp-clients-tab.png)
+
+#### 3. Copy your client credentials
+Copy the **client_id** and **client_secret** immediately - the secret will not be shown again for security reasons. Store these securely in your agent's configuration.
+![Client credentials](@/assets/docs/guides/mcp/mcp-client-sidesheet.png)
+
+#### 4. Configure client scopes
+Optionally, set scopes (e.g., `todo:read`, `todo:write`) that correspond to the permissions configured for your MCP Server. Click **Save** to complete the setup.
+
+### Requesting an access token
+
+Once you have the client credentials, the agent can request a token directly from the Scalekit Authorization Server:
+
+```bash title="Request access token" frame="terminal" wrap
+curl --location '{{env_url}}/oauth/token' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'grant_type=client_credentials' \
+--data-urlencode 'client_id={{client_id}}' \
+--data-urlencode 'client_secret={{secret_value}}' \
+--data-urlencode 'scope=todo:read todo:write'
+```
+
+Scalekit responds with a JSON payload containing the access token:
+
+```json title="Token response" showLineNumbers=false
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIn0...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "todo:read todo:write"
+}
+```
+
+Use the `access_token` in the `Authorization` header when calling your MCP Server's endpoints.
+
+<Aside type="note" title="Token caching best practice">
+Scalekit issues short-lived tokens that can be safely reused until they expire. Cache the token locally and request a new one shortly before expiration to maintain efficient, secure machine-to-machine communication.
+</Aside>
+
+### Implementation
+
+#### 1. Create an M2M client for your target MCP server
+Use the Scalekit Dashboard to create a Machine-to-Machine client for the MCP server you want to authenticate with.
+
+#### 2. Store client credentials securely
+Store the `client_id` and `client_secret` using environment variables or a secrets manager. Never hardcode credentials in your agent code.
+
+#### 3. Implement token requests in your agent
+Before making MCP calls, request access tokens using the OAuth 2.1 Client Credentials flow from the Scalekit Authorization Server.
+
+#### 4. Add token caching and refresh logic
+Implement caching to store tokens until they expire, and refresh them automatically to maintain uninterrupted service.
+
+#### 5. Attach tokens to MCP tool requests
+Include the access token as a Bearer token in the `Authorization` header when calling MCP server tools.
+
+For hands-on experience, use the FastMCP Todo Server from the [FastMCP quickstart](/authenticate/mcp/fastmcp-quickstart/). Create an M2M client and run your token request programmatically within your agent code.
+
+## Pattern 3: MCP server integrating with downstream systems
+
+In real-world scenarios, an MCP Server often needs to make backend calls - to your own APIs, to another MCP Server, or to external APIs such as CRM, ticketing, or SaaS tools. This section explains three secure ways to perform these downstream integrations, each corresponding to a different trust boundary and authorization pattern.
+
+### Sub-pattern 3a: Using API keys or custom tokens
+
+Your MCP Server can communicate with internal or external backend systems that have their own authorization servers or API key-based access. In this setup, the MCP Server manages its own credentials securely (for example, in environment variables, a vault, or secrets manager) and injects them when making downstream calls.
+
+<Aside type="tip" title="Security best practice">
+Always store downstream API credentials securely using a secret manager. Do not expose API keys through MCP tool schemas or client-facing logs.
+</Aside>
+
+#### Authorization sequence
+
+```d2 pad=36
+title: "MCP → External API (using API Key or Custom Token)" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+Human/Agent -> MCP Server: Invoke tool
+MCP Server -> External API: Call endpoint with API Key / Service Token
+External API -> MCP Server: Return data
+MCP Server -> Human/Agent: Return formatted response
+```
+
+#### When to use this pattern
+
+- External APIs have their own authentication (AWS, Stripe, Twilio, etc.)
+- Internal systems use proprietary authentication mechanisms
+- Legacy systems that don't support OAuth 2.1
+- You control credential management and rotation
+
+#### Example scenario
+
+- The MCP Server stores an API key as `EXTERNAL_API_KEY` in environment variables
+- When a tool (e.g., `get_weather_data`) is called, your MCP server attaches the key in the request headers
+- The backend API validates the key and responds with data
+- The MCP Server processes and returns the formatted response to the client
+
+### Sub-pattern 3b: MCP-to-MCP communication
+
+If you have two MCP Servers that need to communicate - for example, `crm-mcp` calling tools from `tickets-mcp` - you can follow the same authentication pattern described in **Pattern 2** above.
+
+The calling MCP Server (in this case, `crm-mcp`) acts as an autonomous agent, authenticating with the receiving MCP Server via OAuth 2.1 Client Credentials Flow. Once the token is issued by Scalekit, the calling MCP uses it to call tools exposed by the second MCP Server.
+
+#### Authorization sequence
+
+```d2 pad=36
+title: "MCP → MCP Server (OAuth 2.1 Client Credentials Flow)" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+Calling MCP -> Scalekit Authorization Server: Request access token (grant_type=client_credentials)
+Scalekit Authorization Server -> Calling MCP: Return access token with configured scopes
+Calling MCP -> Receiving MCP Server: Call tool with Bearer token
+Receiving MCP Server -> Calling MCP: Authorized response
+```
+
+#### Implementation
+
+The implementation follows Pattern 2 (Agent/Machine → MCP):
+
+1. Create an M2M client for the receiving MCP server in Scalekit
+2. Configure the calling MCP server with the client credentials
+3. Request tokens using the Client Credentials flow
+4. Call the receiving MCP's tools with the Bearer token
+
+For detailed implementation guidance, refer to the [Pattern 2 section](#pattern-2-agent--machine-interacting-with-mcp-server) above.
+
+### Sub-pattern 3c: Cascading the same token
+
+In some cases, you may want your MCP Server to forward (or "cascade") the same access token it received from the client - for example, when your backend system lies within the same trust boundary as the Scalekit Authorization Server and can validate the token based on its issuer, scopes, and expiry.
+
+#### Authorization sequence
+
+```d2 pad=36
+title: "MCP → API (Cascading the Same Token)" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client -> MCP Server: Call tool with Bearer token
+MCP Server -> Backend API: Forward same Bearer token
+Backend API -> Backend API: Validate token (issuer, scopes, exp)
+Backend API -> MCP Server: Return authorized data
+MCP Server -> MCP Client: Return formatted response
+```
+
+#### When to use this pattern
+
+Use token cascading when:
+
+- Both systems (MCP Server and backend API) trust the same Authorization Server (Scalekit)
+- The backend API can validate JWTs using public keys or JWKS URL
+- Scopes and issuer claims (`iss`, `scope`, `exp`) are sufficient to determine access
+- You need to preserve the original user context across service boundaries
+
+<Aside type="caution" title="Trust boundary consideration">
+Only cascade tokens across services that share the same trust boundary. If your backend API does not validate Scalekit-issued tokens, use a separate service credential or the Client Credentials flow (sub-pattern 3b) instead.
+</Aside>
+
+#### Implementation requirements
+
+For the backend API to validate cascaded tokens:
+
+1. Configure the backend to validate JWT signatures using Scalekit's public keys
+2. Verify the token's `iss` (issuer) claim matches your Scalekit environment
+3. Check the `aud` (audience) claim includes the backend API's identifier
+4. Validate the `exp` (expiration) claim to reject expired tokens
+5. Verify required scopes are present in the token's `scope` claim
+
+## Choosing the right pattern
+
+Use this decision guide to select the appropriate authentication pattern for your use case:
+
+**For human users accessing MCP tools:**
+→ Use **Pattern 1: Human → MCP** (Authorization Code Flow)
+
+**For autonomous agents or scheduled tasks:**
+→ Use **Pattern 2: Agent/Machine → MCP** (Client Credentials Flow)
+
+**For MCP server making backend calls:**
+
+- External APIs with their own auth → Use **Pattern 3a: API Keys**
+- Another MCP server you control → Use **Pattern 3b: MCP-to-MCP** (Client Credentials Flow)
+- Backend within same trust boundary → Use **Pattern 3c: Token Cascading**
+
+## Next steps
+
+Now that you understand the authentication patterns, you can:
+
+- Follow the [MCP OAuth 2.1 quickstart](/authenticate/mcp/quickstart/) to implement Pattern 1 or Pattern 2
+- Explore framework-specific implementations:
+  - [FastMCP quickstart](/authenticate/mcp/fastmcp-quickstart/) for Python with built-in provider
+  - [FastAPI + FastMCP quickstart](/authenticate/mcp/fastapi-fastmcp-quickstart/) for custom Python middleware
+  - [Express.js quickstart](/authenticate/mcp/expressjs-quickstart/) for Node.js/TypeScript servers
+- Review the [MCP authentication demos](https://github.com/scalekit-inc/mcp-auth-demos) on GitHub for complete working examples

@@ -1,0 +1,87 @@
+---
+title: Merge user identities
+description: "Scalekit automatically merges user identities from different authentication methods, ensuring a single user profile and preventing duplicate accounts"
+tableOfContents: true
+browseCentral:
+  label: "See how Scalekit merges user identities"
+  filterType: ["tutorial"]
+  category: ["Manage users & orgs"]
+  icon: book
+sidebar:
+  label: "Merge user identities"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev:
+  link: '/authenticate/manage-users-orgs/email-domain-rules/'
+  label: 'Configure email domain rules'
+next:
+  link: '/authenticate/manage-organizations/remove-users-from-organization/'
+  label: 'Remove users from organizations'
+---
+
+import { Aside, Badge } from '@astrojs/starlight/components';
+
+Users can sign into your application using different authentication methods. A user might authenticate with a passwordless method today and LinkedIn OAuth tomorrow. Scalekit automatically merges these identities into a single user profile. This prevents duplicate accounts and ensures a unified experience.
+
+Identity linking is how Scalekit safely deduplicates authentication methods across identity providers. Scalekit uses the **email address** as the unique identifier and access to the email inbox as the source of truth.
+
+```d2 pad=50
+direction: right;
+
+email: "Email: john.doee@megacrop.com"
+google_oauth: "Google OAuth"
+microsoft_oauth: "Microsoft OAuth"
+user: "User"
+
+email -> google_oauth: "Credential"
+email -> microsoft_oauth: "Credential"
+google_oauth -> user: "Linked"
+microsoft_oauth -> user: "Linked"
+```
+
+When users prove access to their email inbox through any authentication method, Scalekit treats this as an identity. Scalekit automatically links multiple identities together using the user's email address as the source of truth. All authentication methods for the same email address are associated with a single User object.
+
+## Domain verification
+
+When an organization administrator verifies a domain for their organization through [allowed email domains](/authenticate/manage-users-orgs/email-domain-rules/), they prove they have access to create email inboxes. A **verified domain implies the ability to verify all users with that email domain**.
+
+When a domain is verified and an SSO connection is configured, users who sign in through an organization's identity provider are automatically considered email verified if the domain matches. This reduces friction for your end users while maintaining security.
+
+Users who sign in through SSO with an email address that is not a verified domain are not considered verified. These users must go through the email verification process.
+
+<Aside type="tip" title="Configure allowed email domains">
+  Learn how to set up allowed email domains for automatic organization membership and domain verification in the [email domain rules guide](/authenticate/manage-users-orgs/email-domain-rules/).
+</Aside>
+
+## Merge SSO identities
+
+Users can have multiple authentication methods. Users can also have multiple SSO credentials. This happens when a user works with multiple organizations that each require SSO authentication for all members. There is still only one User object. Users choose which organization's SSO identity provider to use when authenticating.
+
+```d2 pad=50
+direction: right;
+
+user: "User"
+org1_sso: "Organization 1 SSO"
+org2_sso: "Organization 2 SSO"
+user_profile: "Single User Profile"
+
+user -> org1_sso: "SSO Credential 1"
+user -> org2_sso: "SSO Credential 2"
+org1_sso -> user_profile: "Linked"
+org2_sso -> user_profile: "Linked"
+```
+
+When users sign in through an SSO identity provider for the first time, Scalekit checks if their email domain is verified. If verified, Scalekit automatically links the SSO credential to the user's existing account.
+
+Email verification safety still applies. When a user signs in for the first time through an SSO identity provider where the user's email address is not a verified domain, Scalekit asks the user to verify their email before linking the SSO credential to their account.
+
+<Aside type="note" title="Multiple organizations">
+  Users can belong to multiple organizations, each with their own SSO configuration. Scalekit maintains a single user profile while allowing users to authenticate through different organization identity providers.
+</Aside>

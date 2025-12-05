@@ -1,0 +1,205 @@
+---
+title: "Set up SCIM connection"
+description: "Set up a SCIM connection to your directory provider"
+browseCentral:
+  label: "Setup SCIM connection to a directory"
+  filterType: ["tutorial"]
+  category: ["Manage users & orgs"]
+  icon: book
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-lg);
+      }
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+sidebar:
+  label: "Set up SCIM connection"
+prev:
+  link: '/fsa/guides/user-invitations/'
+  label: 'Building user invitations'
+next:
+  link: '/authenticate/manage-users-orgs/merge-identities/'
+  label: 'Merge user identities'
+---
+
+import {
+  LinkButton, Aside, Steps, Tabs, TabItem, Card, CardGrid,
+ } from '@astrojs/starlight/components';
+
+Scalekit supports user provisioning based on the [SCIM protocol](/directory/guides/user-provisioning-basics/). This allows your customers to manage their users automatically through directory providers, simplifying user access and revocation to your app when their employees join or leave an organization.
+
+By configuring their directory provider with your app via the Scalekit admin portal, customers can ensure seamless user management.
+
+
+<Steps>
+
+1. ## Enable SCIM provisioning for the organization
+
+    The SCIM provisioning feature should be enabled for that particular organization. You can manually do this via the Scalekit dashboard > organization > overview. The other way, is to provide an option in your app so that organization admins (customers) can enable it within your app.
+
+    Here's how you can do that with Scalekit. Use the following SDK method to activate SSO for the organization:
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="node" label="Node.js">
+    ```javascript title="Enable SSO" showLineNumbers=false
+    const settings = {
+      features: [
+        {
+          name: 'scim',
+          enabled: true,
+        }
+      ],
+    };
+
+    await scalekit.organization.updateOrganizationSettings(
+      '<organization_id>', // Get this from the idToken or accessToken
+      settings
+    );
+    ```
+    </TabItem>
+    <TabItem value="python" label="Python">
+    ```python title="Enable SSO" showLineNumbers=false
+    settings = [
+        {
+            "name": "scim",
+            "enabled": True
+        }
+    ]
+
+    scalekit.organization.update_organization_settings(
+        organization_id='<organization_id>',  # Get this from the idToken or accessToken
+        settings=settings
+    )
+    ```
+    </TabItem>
+    <TabItem value="java" label="Java">
+    ```java title="Enable SSO" showLineNumbers=false
+    OrganizationSettingsFeature featureSSO = OrganizationSettingsFeature.newBuilder()
+            .setName("scim")
+            .setEnabled(true)
+            .build();
+
+    updatedOrganization = scalekitClient.organizations()
+            .updateOrganizationSettings(organizationId, List.of(featureSSO));
+    ```
+    </TabItem>
+    <TabItem value="go" label="Go">
+    ```go title="Enable SSO" showLineNumbers=false
+    settings := OrganizationSettings{
+        Features: []Feature{
+            {
+                Name:    "scim",
+                Enabled: true,
+            },
+        },
+    }
+
+    organization, err := sc.Organization().UpdateOrganizationSettings(ctx, organizationId, settings)
+    if err != nil {
+        // Handle error
+    }
+    ```
+    </TabItem>
+    </Tabs>
+
+    You can also enable this from the [organization settings](/authenticate/fsa/user-management-settings/) in the Scalekit dashboard.
+
+2. ## Enable admin portal for enterprise customer onboarding
+
+    After SCIM provisioning is enabled for that organization, provide a method for configuring a SCIM connection with the organization's identity provider.
+
+    Scalekit offers two primary approaches:
+    - Generate a link to the admin portal from the Scalekit dashboard and share it with organization admins via your usual channels.
+    - Or embed the admin portal in your application in an inline frame so administrators can configure their IdP without leaving your app.
+
+    <LinkButton href="/directory/guides/onboard-enterprise-customers/" target="_blank" variant='secondary' class='sk-secondary' icon='right-arrow'>See how to onboard enterprise customers</LinkButton>
+
+3. ## Test your SCIM integration
+
+    To verify that SCIM provisioning is working correctly, create a new user in the directory provider and confirm that it is automatically created in the Scalekit organization's user list.
+
+    To programmatically list the connected directories in your app, use the following SDK methods:
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="node" label="Node.js">
+    ```javascript title="List connected directories" showLineNumbers=false
+    const { directories } = await scalekit.directory.listDirectories('<organization_id>');
+    ```
+    </TabItem>
+    <TabItem value="python" label="Python">
+    ```python title="List connected directories" showLineNumbers=false
+    directories = scalekit_client.directory.list_directories(organization_id='<organization_id>')
+    ```
+    </TabItem>
+    <TabItem value="java" label="Java">
+    ```java title="List connected directories" showLineNumbers=false
+    ListDirectoriesResponse response = scalekitClient.directories().listDirectories(organizationId);
+    ```
+    </TabItem>
+    <TabItem value="go" label="Go">
+    ```go title="List connected directories" showLineNumbers=false
+    directories, err := sc.Directory().ListDirectories(ctx, organizationId)
+    ```
+    </TabItem>
+    </Tabs>
+
+    The response will be a list of connected directories, similar to the following:
+
+    ```json title="List connected directories response" showLineNumbers=false frame="terminal"
+    {
+      "directories": [
+        {
+          "attribute_mappings": {
+            "attributes": []
+          },
+          "directory_endpoint": "https://yourapp.scalekit.com/api/v1/directoies/dir_123212312/scim/v2",
+          "directory_provider": "OKTA",
+          "directory_type": "SCIM",
+          "email": "john.doe@scalekit.cloud",
+          "enabled": true,
+          "groups_tracked": "ALL",
+          "id": "dir_121312434123312",
+          "last_synced_at": "2024-10-01T00:00:00Z",
+          "name": "Azure AD",
+          "organization_id": "org_121312434123312",
+          "role_assignments": {
+            "assignments": [
+              {
+                "group_id": "dirgroup_121312434123",
+                "role_name": "string"
+              }
+            ]
+          },
+          "secrets": [
+            {
+              "create_time": "2024-10-01T00:00:00Z",
+              "directory_id": "dir_12362474900684814",
+              "expire_time": "2025-10-01T00:00:00Z",
+              "id": "string",
+              "last_used_time": "2024-10-01T00:00:00Z",
+              "secret_suffix": "Nzg5",
+              "status": "INACTIVE"
+            }
+          ],
+          "stats": {
+            "group_updated_at": "2024-10-01T00:00:00Z",
+            "total_groups": 10,
+            "total_users": 10,
+            "user_updated_at": "2024-10-01T00:00:00Z"
+          },
+          "status": "IN_PROGRESS",
+          "total_groups": 10,
+          "total_users": 10
+        }
+      ]
+    }
+    ```
+4. ## Enterprise users are now automatically provisioned your app
+
+   Scalekit automatically provisions and synchronizes users from the directory provider to your application. The organization administrator configures the synchronization frequency within their directory provider console.
+
+   To retrieve a list of all provisioned users, use the [Users API](https://docs.scalekit.com/apis/#tag/users/get/api/v1/organizations/{organization_id}/users).
+</Steps>
