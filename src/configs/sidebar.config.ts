@@ -192,20 +192,15 @@ export const sidebar = [
         collapsed: true,
         items: ['fsa/guides/user-invitations'],
       },
-      {
-        label: 'Authorization',
-        collapsed: true,
-        items: [],
-      },
+      // {
+      //   label: 'Authorization',
+      //   collapsed: true,
+      //   items: [],
+      // },
       {
         label: 'Customize',
         collapsed: true,
         items: ['fsa/guides/organization-identifiers'],
-      },
-      {
-        label: 'API authentication',
-        collapsed: true,
-        items: ['guides/m2m/overview', 'guides/m2m/scopes', 'guides/m2m/api-auth-m2m-clients'],
       },
       // Hiding them because business decision to limit modular offerings
       // {
@@ -216,11 +211,6 @@ export const sidebar = [
       //     'authenticate/m2m/api-auth-quickstart',
       //   ],
       // },
-      {
-        label: 'MCP authentication',
-        collapsed: true,
-        items: ['authenticate/mcp/auth-patterns'],
-      },
       // TODO: Come back later as you put together one guide for auth best practices move this up into User authentication category
       // {
       //   label: 'Best practices',
