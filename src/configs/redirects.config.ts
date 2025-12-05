@@ -15,7 +15,11 @@ export const redirects = {
   '/fsa/guides/implement-signup': '/authenticate/fsa/implement-login/',
   '/fsa/guides/manage-session': '/authenticate/fsa/manage-session/',
   '/fsa/guides/logout': '/authenticate/fsa/logout/',
-  '/fsa/guides/automated-user-provisioning': '/fsa/guides/allowed-email-domains/',
+  '/fsa/guides/automated-user-provisioning': '/authenticate/manage-users-orgs/email-domain-rules/',
+  '/fsa/guides/signup-restrictions': '/authenticate/manage-users-orgs/email-domain-rules/',
+  '/fsa/guides/signup-restrictions/': '/authenticate/manage-users-orgs/email-domain-rules/',
+  '/fsa/guides/allowed-email-domains': '/authenticate/manage-users-orgs/email-domain-rules/',
+  '/fsa/guides/allowed-email-domains/': '/authenticate/manage-users-orgs/email-domain-rules/',
   '/fsa/guides/onboard-enterprise-customers': '/sso/guides/onboard-enterprise-customers/',
   '/fsa/guides/onboard-enterprise-customers/': '/sso/guides/onboard-enterprise-customers/',
 
@@ -238,7 +242,9 @@ export const redirects = {
   // =============================================================================
   '/examples': '/scenarios/',
   '/dev-kit/': '/dev-kit/overview',
-  '/dev-kit/sdks/overview': '/authenticate/installation/',
+  '/dev-kit/sdks/overview': '/authenticate/set-up-scalekit/',
+  '/authenticate/installation': '/authenticate/set-up-scalekit/',
+  '/authenticate/installation/': '/authenticate/set-up-scalekit/',
   '/dev-kit/webhooks/event-object/': '/reference/webhooks/overview/',
   '/reference/webhooks/event-object/': '/reference/webhooks/overview/',
   '/api/webhook-events': '/reference/webhooks/directory-events/',

@@ -12,7 +12,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'index',
-          'dev-kit/set-up-scalekit',
+          'authenticate/set-up-scalekit',
           { label: 'Quickstart: Full-stack Auth', link: 'authenticate/fsa/quickstart' },
         ],
       },
@@ -43,6 +43,7 @@ export const sidebar = [
           'fsa/data-modelling',
           'authenticate/manage-users-orgs/create-organization',
           'authenticate/manage-organizations/add-users-to-organization',
+          'authenticate/manage-users-orgs/email-domain-rules',
           'authenticate/manage-organizations/remove-users-from-organization',
           'authenticate/manage-users-orgs/delete-users-and-organizations',
         ],
@@ -184,9 +185,7 @@ export const sidebar = [
         label: 'Manage users & orgs',
         collapsed: true,
         items: [
-          'fsa/guides/signup-restrictions',
           'fsa/guides/user-invitations',
-          'fsa/guides/allowed-email-domains',
           'fsa/guides/merge-identities',
           'fsa/reference/user-management-settings',
         ],
