@@ -191,19 +191,12 @@ export const sidebar = [
       {
         label: 'Authorization',
         collapsed: true,
-        items: [
-          'directory/guides/group-based-role-assignment',
-          'dev-kit/resources/authorization-best-practices',
-        ],
+        items: [],
       },
       {
         label: 'Customize',
         collapsed: true,
-        items: [
-          'fsa/guides/organization-identifiers',
-          'guides/webhooks-best-practices',
-          'authenticate/interceptors/interceptor-scenarios',
-        ],
+        items: ['fsa/guides/organization-identifiers'],
       },
       {
         label: 'API authentication',
@@ -267,6 +260,10 @@ export const sidebar = [
       {
         label: 'Events',
         items: ['reference/admin-portal/ui-events', 'reference/interceptors/triggers'],
+      },
+      {
+        label: 'How-to guides',
+        items: ['guides/webhooks-best-practices'],
       },
     ],
   },
@@ -355,6 +352,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'directory/scim/quickstart',
+          'directory/guides/group-based-role-assignment',
           'directory/guides/onboard-enterprise-customers',
           {
             label: 'Directory webhooks reference',

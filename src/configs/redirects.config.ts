@@ -121,7 +121,9 @@ export const redirects = {
 
   // Auth flow interceptors moved to /authenticate/interceptors/
   '/guides/auth-flow-interceptors': '/authenticate/interceptors/auth-flow-interceptors/',
-  '/guides/interceptor-scenarios': '/authenticate/interceptors/interceptor-scenarios/',
+  '/guides/interceptor-scenarios': '/authenticate/interceptors/auth-flow-interceptors/',
+  '/authenticate/interceptors/interceptor-scenarios/':
+    '/authenticate/interceptors/auth-flow-interceptors/',
 
   // =============================================================================
   // MODULES TERMINOLOGY REDIRECTS
