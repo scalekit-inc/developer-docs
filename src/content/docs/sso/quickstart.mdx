@@ -558,38 +558,36 @@ Choose Modular SSO when you:
         <TabItem value="idToken" label="ID token (decoded)">
         ```js
         {
-          amr: [ 'conn_70087756662964366' ], // SSO connection ID
-          at_hash: 'yMGIBg7BkmIGgD6_dZPEGQ',
-          aud: [ 'skc_70087756327420046' ],
-          azp: 'skc_70087756327420046',
-          c_hash: '4x7qsXnlRw6dRC6twnuENw',
-          client_id: 'skc_70087756327420046',
-          email: 'john@example.com',
-          exp: 1758952038,
-          family_name: 'Doe',
-          given_name: 'John',
-          iat: 1758692838,
-          iss: '<SCALEKIT_ENVIRONMENT_URL>',
-          oid: 'org_70087756646187150',
-          preferred_username: 'john@example.com',
-          sid: 'ses_91646612652163629',
-          sub: 'conn_70087756662964366;e964d135-35c7-4a13-a3b4-2579a1cdf4e6'
+          iss: '<SCALEKIT_ENVIRONMENT_URL>', // Issuer: Scalekit environment URL (must match your environment)
+          aud: [ 'skc_70087756327420046' ], // Audience: Your client ID (must match for validation)
+          azp: 'skc_70087756327420046', // Authorized party: Usually same as aud
+          sub: 'conn_70087756662964366;e964d135-35c7-4a13-a3b4-2579a1cdf4e6', // Subject: Connection ID and IdP user ID (SSO-specific format)
+          oid: 'org_70087756646187150', // Organization ID: User's organization
+          exp: 1758952038, // Expiration: Unix timestamp (validate token hasn't expired)
+          iat: 1758692838, // Issued at: Unix timestamp when token was issued
+          at_hash: 'yMGIBg7BkmIGgD6_dZPEGQ', // Access token hash: For token binding validation
+          c_hash: '4x7qsXnlRw6dRC6twnuENw', // Authorization code hash: For code binding validation
+          amr: [ 'conn_70087756662964366' ], // Authentication method reference: SSO connection ID used for authentication
+          email: 'john@example.com', // User's email address
+          preferred_username: 'john@example.com', // Preferred username (often same as email for SSO)
+          family_name: 'Doe', // User's last name
+          given_name: 'John', // User's first name
+          sid: 'ses_91646612652163629', // Session ID: Links token to user session
+          client_id: 'skc_70087756327420046' // Client ID: Your application identifier
         }
         ```
         </TabItem>
         <TabItem value="accessToken" label="Access token (decoded)">
         ```js
          {
-          "iss": "<SCALEKIT_ENVIRONMENT_URL>",
-          "sub": "conn_70087756662964366;dcc62570-6a5a-4819-b11b-d33d110c7716",
-          "aud": [
-            "skc_70087756327420046"
-          ],
-          "exp": 1758693916,
-          "iat": 1758693016,
-          "nbf": 1758693016,
-          "client_id": "skc_70087756327420046",
-          "jti": "tkn_91646913048216109"
+          "iss": "<SCALEKIT_ENVIRONMENT_URL>", // Issuer: Scalekit environment URL (must match your environment)
+          "aud": ["skc_70087756327420046"], // Audience: Your client ID (must match for validation)
+          "sub": "conn_70087756662964366;dcc62570-6a5a-4819-b11b-d33d110c7716", // Subject: Connection ID and IdP user ID (SSO-specific format)
+          "exp": 1758693916, // Expiration: Unix timestamp (validate token hasn't expired)
+          "iat": 1758693016, // Issued at: Unix timestamp when token was issued
+          "nbf": 1758693016, // Not before: Unix timestamp (token valid from this time)
+          "jti": "tkn_91646913048216109", // JWT ID: Unique token identifier
+          "client_id": "skc_70087756327420046" // Client ID: Your application identifier
         }
         ```
         </TabItem>

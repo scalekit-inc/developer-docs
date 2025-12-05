@@ -71,7 +71,7 @@ export const secondaryNavItems: NavItem[] = [
   },
   {
     id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit'] and ['interations']
-    href: '/fsa/guides/implement-signup',
+    href: '/guides/integrations',
     label: 'Developer Resources',
     iconComponent: IconHugeiconsResourcesAdd,
   },

@@ -215,12 +215,16 @@ Scalekit handles the complex authentication flow while you focus on your core pr
           }
 
           try {
-            // Exchange the authorization code for a user profile
+            // Exchange the authorization code for user profile and session tokens
+            // Returns: user (profile info), idToken (JWT with user claims), accessToken (JWT with roles/permissions), refreshToken
             const authResult = await scalekit.authenticateWithCode(
               code, redirectUri
             );
 
-            const { user } = authResult;
+            const { user, idToken, accessToken, refreshToken } = authResult;
+            // idToken: Decode to access full user profile (sub, oid, email, name)
+            // accessToken: Contains roles and permissions for authorization decisions
+            // refreshToken: Use to obtain new access tokens when they expire
 
             // "user" object contains the user's profile information
             // Next step: Create a session and log in the user
@@ -252,13 +256,17 @@ Scalekit handles the complex authentication flow while you focus on your core pr
                 return jsonify({'error': error, 'error_description': error_description}), 401
 
             try:
-                # Exchange the authorization code for a user profile
+                # Exchange the authorization code for user profile and session tokens
+                # Returns: user (profile info), id_token (JWT with user claims), access_token (JWT with roles/permissions), refresh_token
                 options = CodeAuthenticationOptions()
                 auth_result = scalekit.authenticate_with_code(
                     code, redirect_uri, options
                 )
 
                 user = auth_result.user
+                # id_token: Decode to access full user profile (sub, oid, email, name)
+                # access_token: Contains roles and permissions for authorization decisions
+                # refresh_token: Use to obtain new access tokens when they expire
 
                 # "user" object contains the user's profile information
                 # Next step: Create a session and log in the user
@@ -302,7 +310,8 @@ Scalekit handles the complex authentication flow while you focus on your core pr
                 return
             }
 
-            // Exchange the authorization code for a user profile
+            // Exchange the authorization code for user profile and session tokens
+            // Returns: User (profile info), IdToken (JWT with user claims), AccessToken (JWT with roles/permissions), RefreshToken
             options := scalekit.AuthenticationOptions{}
             authResult, err := scalekitClient.AuthenticateWithCode(
                 code, redirectUri, options,
@@ -317,6 +326,9 @@ Scalekit handles the complex authentication flow while you focus on your core pr
             }
 
             user := authResult.User
+            // IdToken: Decode to access full user profile (sub, oid, email, name)
+            // AccessToken: Contains roles and permissions for authorization decisions
+            // RefreshToken: Use to obtain new access tokens when they expire
 
             // "user" object contains the user's profile information
             // Next step: Create a session and log in the user
@@ -352,13 +364,17 @@ Scalekit handles the complex authentication flow while you focus on your core pr
                 }
 
                 try {
-                    // Exchange the authorization code for a user profile
+                    // Exchange the authorization code for user profile and session tokens
+                    // Returns: user (profile info), idToken (JWT with user claims), accessToken (JWT with roles/permissions), refreshToken
                     AuthenticationOptions options = new AuthenticationOptions();
                     AuthenticationResponse authResult = scalekit
                         .authentication()
                         .authenticateWithCode(code,redirectUri,options);
 
                     var user = authResult.getIdTokenClaims();
+                    // idToken: Decode to access full user profile (sub, oid, email, name)
+                    // accessToken: Contains roles and permissions for authorization decisions
+                    // refreshToken: Use to obtain new access tokens when they expire
 
                     // "user" object contains the user's profile information
                     // Next step: Create a session and log in the user
@@ -376,13 +392,13 @@ Scalekit handles the complex authentication flow while you focus on your core pr
       The `authResult` object contains:
 
       - `user` - Common user details with email, name, and verification status
-      - `idToken` - JWT containing verified full user identity claims
-      - `accessToken` - Short-lived token that determines current access context
+      - `idToken` - JWT containing verified full user identity claims (includes: `sub` user ID, `oid` organization ID, `email`, `name`, `exp` expiration)
+      - `accessToken` - Short-lived token that determines current access context (includes: `sub` user ID, `oid` organization ID, `roles`, `permissions`, `exp` expiration)
       - `refreshToken` - Long-lived token to obtain new access tokens
 
       <AuthResultTabsSection />
 
-      The user details are packaged in the form of JWT tokens. You can decode them to get the full user details. See reference for [ID token](/guides/idtoken-claims/) and [access token](/guides/accesstoken-claims/).
+      The user details are packaged in the form of JWT tokens. Decode the `idToken` to access full user profile information (email, name, organization ID) and the `accessToken` to check user roles and permissions for authorization decisions. See [Complete login with code exchange](/authenticate/fsa/complete-login/) for detailed token claim references and verification instructions.
 
 
 4. ## Create and manage user sessions

@@ -24,6 +24,7 @@ export const sidebar = [
           'authenticate/fsa/complete-login',
           'authenticate/fsa/manage-session',
           'authenticate/fsa/logout',
+          'guides/dashboard/redirects',
         ],
       },
       {
@@ -162,26 +163,23 @@ export const sidebar = [
         label: 'User authentication',
         collapsed: true,
         items: [
-          'guides/user-auth/login-scenarios',
-          'guides/user-auth/preserve-intended-destination',
           'guides/security/csrf-protection',
-          'guides/dashboard/redirects',
-          'guides/idtoken-claims',
-          'guides/accesstoken-claims',
-          {
-            label: 'View all integrations',
-            link: 'guides/integrations',
-          },
           // 'guides/security/authentication-best-practices',
         ],
       },
       {
-        label: 'Social login integrations',
-        collapsed: true,
-        autogenerate: {
-          directory: 'guides/integrations/social-connections',
-        },
+        label: 'Integrations',
+        items: [
+          'guides/integrations',
+          {
+            label: 'Social logins',
+            autogenerate: {
+              directory: 'guides/integrations/social-connections',
+            },
+          },
+        ],
       },
+
       {
         label: 'Manage users & orgs',
         collapsed: true,
