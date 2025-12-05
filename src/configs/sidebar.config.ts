@@ -94,53 +94,30 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: [
-          'agent-actions/overview',
-          'agent-actions/quickstart',
-          'agent-actions/agentic-quickstart',
-        ],
+        items: ['agent-actions/overview', 'agent-actions/quickstart'],
       },
       {
-        label: 'Tools',
-        items: [
-          'agent-actions/tools/overview',
-          'agent-actions/tools/modifiers',
-          'agent-actions/tools/execute',
-          'agent-actions/tools/authorize',
-          // 'agent-actions/tools/custom-processors',
-          // 'connect/tools/custom-tools',
-          // 'connect/tools/proxy-tools',
-        ],
-      },
-      {
-        label: 'AI Frameworks',
-        items: [
-          'agent-actions/frameworks/langchain',
-          'agent-actions/frameworks/google-adk',
-          // 'agent-actions/frameworks/agno',
-          // 'agent-actions/frameworks/openai',
-          // 'agent-actions/frameworks/anthropic',
-        ],
-      },
-      {
-        label: 'MCP',
-        items: ['agent-actions/mcp/quickstart'],
-      },
-      {
-        label: 'Advanced Guides',
-        items: [
-          'agent-actions/advanced/overview',
-          'agent-actions/advanced/bring-your-own-oauth',
-          'agent-actions/advanced/custom-domain',
-          'agent-actions/advanced/proxy-api-calls',
-        ],
-      },
-      {
-        label: 'Concepts',
+        label: 'Authentication',
+        collapsed: false,
         items: [
           'agent-actions/providers',
           'agent-actions/connections',
           'agent-actions/connected-accounts',
+          // 'agent-actions/authentication/auth-flows-comparison',
+          'agent-actions/tools/authorize',
+          'agent-actions/authentication/token-management',
+          // 'agent-actions/authentication/scopes-permissions',
+          // 'agent-actions/authentication/multi-provider',
+          // 'agent-actions/authentication/troubleshooting',
+          // 'agent-actions/authentication/testing-auth-flows',
+          // 'agent-actions/advanced/overview',
+        ],
+      },
+      {
+        label: 'Advanced authentication',
+        items: [
+          'agent-actions/advanced/bring-your-own-oauth',
+          'agent-actions/advanced/custom-domain',
         ],
       },
       {
@@ -148,6 +125,40 @@ export const sidebar = [
         autogenerate: {
           directory: 'reference/agent-connectors',
         },
+      },
+      {
+        label: 'Agentic tool calling',
+        collapsed: true,
+        items: [
+          'agent-actions/agentic-quickstart',
+          {
+            label: 'AI Frameworks',
+            items: [
+              'agent-actions/frameworks/langchain',
+              'agent-actions/frameworks/google-adk',
+              // 'agent-actions/frameworks/agno',
+              // 'agent-actions/frameworks/openai',
+              // 'agent-actions/frameworks/anthropic',
+            ],
+          },
+          {
+            label: 'MCP',
+            items: ['agent-actions/mcp/quickstart'],
+          },
+        ],
+      },
+      {
+        label: 'Tool calling reference',
+        collapsed: true,
+        items: [
+          'agent-actions/tools/overview',
+          'agent-actions/tools/execute',
+          'agent-actions/tools/modifiers',
+          'agent-actions/advanced/proxy-api-calls',
+          // 'agent-actions/tools/custom-processors',
+          // 'connect/tools/custom-tools',
+          // 'connect/tools/proxy-tools',
+        ],
       },
       // {
       //   label: 'MCP',
@@ -452,24 +463,42 @@ export type SecondaryNavMapping =
  * Values must match `secondaryNavItems[*].id`.
  */
 export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
-  // Main authentication sidebar ? ?Full-stack Auth? tab
-  authenticate: 'fsa',
+  // Main authentication sidebar → Full-stack Auth tabs (with path-based routing)
+  authenticate: {
+    default: 'fsa-quickstart',
+    pathOverrides: {
+      '/authenticate/fsa/implement-login': 'fsa-user-auth',
+      '/authenticate/fsa/complete-login': 'fsa-user-auth',
+      '/authenticate/fsa/manage-session': 'fsa-user-auth',
+      '/authenticate/fsa/logout': 'fsa-user-auth',
+      '/fsa/data-modelling': 'fsa-users-orgs',
+      '/authenticate/manage-users-orgs': 'fsa-users-orgs',
+      '/authenticate/manage-organizations': 'fsa-users-orgs',
+      '/authenticate/authz': 'fsa-authorization',
+      '/guides/custom-domain': 'fsa-customize',
+      '/fsa/guides/login-page-branding': 'fsa-customize',
+      '/guides/email-providers': 'fsa-customize',
+      '/guides/dashboard/custom-email-templates': 'fsa-customize',
+      '/authenticate/interceptors': 'fsa-customize',
+      '/authenticate/implement-workflows': 'fsa-customize',
+    },
+  },
 
-  // MCP sidebar ? ?Auth for MCP? tab
+  // MCP sidebar → 'Auth for MCP' tab
   mcp: 'mcp',
 
-  // Modular SSO sidebar ? ?Modular SSO? tab
+  // Modular SSO sidebar → 'Modular SSO' tab
   'modular-sso': 'modular-sso',
 
-  // Modular SCIM sidebar ? ?Modular SCIM? tab
+  // Modular SCIM sidebar → 'Modular SCIM' tab
   'modular-scim': 'modular-scim',
 
-  // Agent Actions sidebar ? ?Agent Actions? tab
-  connect: 'agent-actions',
+  // Agent Actions sidebar → 'Agent Auth' tab
+  connect: 'agent-auth',
 
-  // Developer Resources sidebar ? ?Developer Resources? tab
+  // Developer Resources sidebar → 'Developer Resources' tab
   'dev-kit': 'scenarios',
 
-  // Events reference sidebar ? ?Webhooks? tab under API Reference
+  // Events reference sidebar → 'Webhooks' tab under API Reference
   'events-reference': 'webhooks-events',
 }

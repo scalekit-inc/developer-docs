@@ -1,0 +1,588 @@
+---
+title: Token Management
+description: Learn how Scalekit manages access tokens, refresh tokens, and token lifecycle for Agent Auth connections.
+sidebar:
+  order: 5
+  label: "Token Management"
+tableOfContents:
+  maxHeadingLevel: 3
+---
+
+import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Token management is a critical aspect of Agent Auth that ensures your users' connections remain active and secure. Scalekit automatically handles the complete token lifecycle, including storage, refresh, and expiration, so you can focus on building your application.
+
+## Understanding tokens
+
+When users authenticate with third-party providers through Agent Auth, Scalekit securely manages several types of tokens:
+
+### Access tokens
+
+Access tokens are short-lived credentials used to make authenticated API requests to third-party providers on behalf of users.
+
+**Characteristics:**
+- **Lifetime**: Typically 1-2 hours (varies by provider)
+- **Purpose**: Authorize API requests to provider endpoints
+- **Security**: Encrypted at rest and in transit
+- **Usage**: Automatically included in tool execution requests
+
+### Refresh tokens
+
+Refresh tokens are long-lived credentials used to obtain new access tokens when they expire.
+
+**Characteristics:**
+- **Lifetime**: Typically 30-90 days or indefinite (varies by provider)
+- **Purpose**: Obtain new access tokens without user re-authentication
+- **Security**: Encrypted and stored securely by Scalekit
+- **Usage**: Automatically used when access tokens expire
+
+### Token metadata
+
+Additional information stored with tokens:
+
+- **Expiration time**: When the access token expires
+- **Granted scopes**: Permissions the user granted
+- **Provider account ID**: User's identifier with the provider
+- **Token type**: OAuth 2.0, API key, Bearer token, etc.
+
+## Automatic token refresh
+
+Scalekit automatically handles token refresh to ensure uninterrupted service for your users.
+
+### How automatic refresh works
+
+<Steps>
+1. **Token expiration detection** - Scalekit monitors token expiration times
+2. **Proactive refresh** - Tokens are refreshed 5 minutes before expiration
+3. **Transparent refresh** - Refresh happens without interrupting tool execution
+4. **Status update** - Connected account status updated upon successful refresh
+5. **Error handling** - Failed refreshes trigger appropriate error states
+</Steps>
+
+### Refresh timing
+
+```d2 pad=20
+title: "Token Lifecycle and Refresh" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+User -> Scalekit: Authenticate
+Scalekit -> Provider: OAuth Flow
+Provider -> Scalekit: Access Token (expires in 1h)
+Scalekit -> User: Connection Active
+
+Scalekit -> Scalekit: Monitor expiration (55 min)
+Scalekit -> Provider: Refresh access token
+Provider -> Scalekit: New Access Token (expires in 1h)
+Scalekit -> Scalekit: Update token, reset timer
+```
+
+### Token refresh during tool execution
+
+When you execute a tool, Scalekit automatically handles token refresh if needed:
+
+```python
+# You don't need to check token expiration manually
+result = actions.execute_tool(
+    identifier="user_123",
+    tool_name='gmail_send_email',
+    tool_input={
+        'to': 'recipient@example.com',
+        'subject': 'Hello',
+        'body': 'This is a test email'
+    }
+)
+
+# Scalekit automatically:
+# 1. Checks if access token is valid
+# 2. Refreshes token if expired or expiring soon
+# 3. Executes the tool with valid token
+# 4. Returns result or error
+```
+
+<Aside type="tip" title="Best practice">
+Always check the connected account status before executing critical operations to ensure the user's connection is active and tokens are valid.
+</Aside>
+
+## Manual token refresh
+
+While Scalekit handles automatic refresh, you can manually refresh tokens when needed:
+
+### Check token status
+
+Verify the current token status before manual operations:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="python" label="Python">
+
+```python
+# Get connected account details
+account = actions.get_connected_account(
+    identifier="user_123",
+    connection_name="gmail"
+)
+
+# Check account status
+if account.status == "ACTIVE":
+    print("✓ Tokens are valid")
+elif account.status == "EXPIRED":
+    print("⚠ Tokens expired, refresh needed")
+elif account.status == "REVOKED":
+    print("✗ User revoked access, re-authentication needed")
+```
+
+</TabItem>
+<TabItem value="node" label="Node.js">
+
+```javascript
+// Get connected account details
+const account = await scalekit.actions.getConnectedAccount({
+  identifier: 'user_123',
+  connectionName: 'gmail'
+});
+
+// Check account status
+if (account.status === 'ACTIVE') {
+  console.log('✓ Tokens are valid');
+} else if (account.status === 'EXPIRED') {
+  console.log('⚠ Tokens expired, refresh needed');
+} else if (account.status === 'REVOKED') {
+  console.log('✗ User revoked access, re-authentication needed');
+}
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+// Get connected account details
+account, err := scalekitClient.Actions.GetConnectedAccount(
+    context.Background(),
+    "user_123",
+    "gmail",
+)
+if err != nil {
+    log.Fatal(err)
+}
+
+// Check account status
+switch account.Status {
+case "ACTIVE":
+    fmt.Println("✓ Tokens are valid")
+case "EXPIRED":
+    fmt.Println("⚠ Tokens expired, refresh needed")
+case "REVOKED":
+    fmt.Println("✗ User revoked access, re-authentication needed")
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+// Get connected account details
+ConnectedAccount account = scalekitClient.actions().getConnectedAccount(
+    "user_123",
+    "gmail"
+);
+
+// Check account status
+switch (account.getStatus()) {
+    case "ACTIVE":
+        System.out.println("✓ Tokens are valid");
+        break;
+    case "EXPIRED":
+        System.out.println("⚠ Tokens expired, refresh needed");
+        break;
+    case "REVOKED":
+        System.out.println("✗ User revoked access, re-authentication needed");
+        break;
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Force token refresh
+
+Manually trigger a token refresh when needed:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="python" label="Python">
+
+```python
+# Manually refresh tokens
+try:
+    account = actions.refresh_connected_account(
+        identifier="user_123",
+        connection_name="gmail"
+    )
+    print(f"✓ Tokens refreshed successfully")
+    print(f"  Status: {account.status}")
+except Exception as e:
+    print(f"✗ Token refresh failed: {e}")
+    # Handle refresh failure - may need user re-authentication
+```
+
+</TabItem>
+<TabItem value="node" label="Node.js">
+
+```javascript
+// Manually refresh tokens
+try {
+  const account = await scalekit.actions.refreshConnectedAccount({
+    identifier: 'user_123',
+    connectionName: 'gmail'
+  });
+  console.log('✓ Tokens refreshed successfully');
+  console.log(`  Status: ${account.status}`);
+} catch (error) {
+  console.error(`✗ Token refresh failed: ${error.message}`);
+  // Handle refresh failure - may need user re-authentication
+}
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+// Manually refresh tokens
+account, err := scalekitClient.Actions.RefreshConnectedAccount(
+    context.Background(),
+    "user_123",
+    "gmail",
+)
+if err != nil {
+    fmt.Printf("✗ Token refresh failed: %v\n", err)
+    // Handle refresh failure - may need user re-authentication
+} else {
+    fmt.Println("✓ Tokens refreshed successfully")
+    fmt.Printf("  Status: %s\n", account.Status)
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+// Manually refresh tokens
+try {
+    ConnectedAccount account = scalekitClient.actions().refreshConnectedAccount(
+        "user_123",
+        "gmail"
+    );
+    System.out.println("✓ Tokens refreshed successfully");
+    System.out.println("  Status: " + account.getStatus());
+} catch (Exception e) {
+    System.err.println("✗ Token refresh failed: " + e.getMessage());
+    // Handle refresh failure - may need user re-authentication
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Token expiration handling
+
+Understanding how different scenarios affect token expiration:
+
+### Normal expiration cycle
+
+**Timeline:**
+1. Access token issued (expires in 1 hour)
+2. Scalekit monitors expiration (55 minutes elapsed)
+3. Automatic refresh initiated (5 minutes before expiry)
+4. New access token obtained (valid for 1 hour)
+5. Cycle repeats
+
+### Failed refresh scenarios
+
+**When refresh fails:**
+- **Revoked refresh token**: User revoked app access
+- **Invalid refresh token**: Token became invalid or expired
+- **Provider errors**: Temporary provider API issues
+- **Network issues**: Connection problems during refresh
+
+**Scalekit behavior:**
+- Account status changes to `EXPIRED` or `REVOKED`
+- Tool execution attempts return authentication errors
+- You receive detailed error information
+- User must re-authenticate to restore access
+
+### Handling refresh failures
+
+Implement proper error handling for refresh failures:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="python" label="Python">
+
+```python
+# Execute tool with refresh failure handling
+try:
+    result = actions.execute_tool(
+        identifier="user_123",
+        tool_name='gmail_send_email',
+        tool_input={'to': 'user@example.com', 'subject': 'Hello', 'body': 'Test'}
+    )
+except Exception as e:
+    # Check if error is due to token issues
+    if 'EXPIRED' in str(e) or 'REVOKED' in str(e):
+        # Get fresh authorization link for user
+        link_response = actions.get_authorization_link(
+            connection_name="gmail",
+            identifier="user_123"
+        )
+
+        # Notify user to re-authenticate
+        print(f"⚠ Please re-authenticate: {link_response.link}")
+        # In production: send email, push notification, or in-app message
+    else:
+        # Handle other errors
+        print(f"✗ Tool execution failed: {e}")
+```
+
+</TabItem>
+<TabItem value="node" label="Node.js">
+
+```javascript
+// Execute tool with refresh failure handling
+try {
+  const result = await scalekit.actions.executeTool({
+    identifier: 'user_123',
+    toolName: 'gmail_send_email',
+    toolInput: { to: 'user@example.com', subject: 'Hello', body: 'Test' }
+  });
+} catch (error) {
+  // Check if error is due to token issues
+  if (error.message.includes('EXPIRED') || error.message.includes('REVOKED')) {
+    // Get fresh authorization link for user
+    const linkResponse = await scalekit.actions.getAuthorizationLink({
+      connectionName: 'gmail',
+      identifier: 'user_123'
+    });
+
+    // Notify user to re-authenticate
+    console.log(`⚠ Please re-authenticate: ${linkResponse.link}`);
+    // In production: send email, push notification, or in-app message
+  } else {
+    // Handle other errors
+    console.error(`✗ Tool execution failed: ${error.message}`);
+  }
+}
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+// Execute tool with refresh failure handling
+result, err := scalekitClient.Actions.ExecuteTool(
+    context.Background(),
+    "user_123",
+    "gmail_send_email",
+    map[string]interface{}{
+        "to": "user@example.com",
+        "subject": "Hello",
+        "body": "Test",
+    },
+)
+
+if err != nil {
+    // Check if error is due to token issues
+    if strings.Contains(err.Error(), "EXPIRED") || strings.Contains(err.Error(), "REVOKED") {
+        // Get fresh authorization link for user
+        linkResponse, _ := scalekitClient.Actions.GetAuthorizationLink(
+            context.Background(),
+            "gmail",
+            "user_123",
+        )
+
+        // Notify user to re-authenticate
+        fmt.Printf("⚠ Please re-authenticate: %s\n", linkResponse.Link)
+        // In production: send email, push notification, or in-app message
+    } else {
+        // Handle other errors
+        fmt.Printf("✗ Tool execution failed: %v\n", err)
+    }
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+// Execute tool with refresh failure handling
+try {
+    Map<String, Object> toolInput = new HashMap<>();
+    toolInput.put("to", "user@example.com");
+    toolInput.put("subject", "Hello");
+    toolInput.put("body", "Test");
+
+    ToolResult result = scalekitClient.actions().executeTool(
+        "user_123",
+        "gmail_send_email",
+        toolInput
+    );
+} catch (Exception e) {
+    // Check if error is due to token issues
+    if (e.getMessage().contains("EXPIRED") || e.getMessage().contains("REVOKED")) {
+        // Get fresh authorization link for user
+        AuthorizationLink linkResponse = scalekitClient.actions().getAuthorizationLink(
+            "gmail",
+            "user_123"
+        );
+
+        // Notify user to re-authenticate
+        System.out.println("⚠ Please re-authenticate: " + linkResponse.getLink());
+        // In production: send email, push notification, or in-app message
+    } else {
+        // Handle other errors
+        System.err.println("✗ Tool execution failed: " + e.getMessage());
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Token security
+
+Scalekit implements multiple security measures to protect user tokens:
+
+### Encryption
+
+- **At rest**: All tokens encrypted using AES-256
+- **In transit**: TLS 1.3 for all API communication
+- **Key management**: Regular key rotation and secure storage
+- **Access control**: Role-based access to token data
+
+### Token isolation
+
+- **User isolation**: Each user's tokens stored separately
+- **Tenant isolation**: Multi-tenant architecture with data separation
+- **Connection isolation**: Different connections use different tokens
+- **Audit trail**: Complete logging of token access
+
+### Compliance
+
+Scalekit's token management meets industry standards:
+
+- **SOC 2 Type II**: Certified security controls
+- **GDPR compliant**: Data protection and user privacy
+- **HIPAA ready**: Additional security for healthcare data
+- **PCI DSS**: Secure handling of sensitive data
+
+## Monitoring token health
+
+Track the health of your users' connections and tokens:
+
+### Token metrics
+
+Monitor key metrics for connected accounts:
+
+```python
+# Get token health metrics for monitoring
+account = actions.get_connected_account(
+    identifier="user_123",
+    connection_name="gmail"
+)
+
+# Key metrics to track:
+print(f"Status: {account.status}")
+print(f"Created: {account.created_at}")
+print(f"Last updated: {account.updated_at}")
+print(f"Scopes: {account.scopes}")
+
+# Calculate time until re-authentication may be needed
+# (if using providers with expiring refresh tokens)
+```
+
+### Proactive monitoring
+
+Implement monitoring to catch issues early:
+
+<Steps>
+1. **Regular status checks** - Poll connected account status daily
+2. **Error rate tracking** - Monitor tool execution failures
+3. **Refresh failure alerts** - Alert on repeated refresh failures
+4. **User notifications** - Notify users proactively when re-auth needed
+5. **Dashboard visibility** - Show connection status in your app
+</Steps>
+
+## Best practices
+
+### Refresh strategy
+
+- **Trust automatic refresh**: Let Scalekit handle token refresh automatically
+- **Check status first**: Verify account status before critical operations
+- **Handle failures gracefully**: Implement proper error handling for expired tokens
+- **Notify users proactively**: Alert users before connections become inactive
+
+### User experience
+
+- **Clear status indicators**: Show users their connection status
+- **Easy re-authentication**: Provide simple re-auth flows
+- **Graceful degradation**: Handle expired tokens without breaking your app
+- **Helpful error messages**: Explain what users need to do
+
+### Security
+
+- **Never expose tokens**: Never send tokens to client applications
+- **Minimize token access**: Limit who can access token data
+- **Regular audits**: Review token access logs regularly
+- **Rotate credentials**: Regularly rotate OAuth client credentials
+
+### Performance
+
+- **Cache account status**: Cache status checks appropriately (1-5 minutes)
+- **Batch operations**: Group multiple tool executions when possible
+- **Async refresh**: Don't block user operations on token refresh
+- **Monitor latency**: Track token refresh times and failures
+
+## Troubleshooting
+
+### Common token issues
+
+**Issue: Account status shows EXPIRED**
+- **Cause**: Access token expired and refresh failed
+- **Solution**: Check refresh token validity, may need user re-authentication
+
+**Issue: Tool execution fails with authentication error**
+- **Cause**: Token invalid or revoked by user
+- **Solution**: Generate new authorization link for user
+
+**Issue: Frequent refresh failures**
+- **Cause**: Provider API issues or invalid credentials
+- **Solution**: Check provider status, verify OAuth credentials
+
+**Issue: User reports connection not working**
+- **Cause**: Refresh token expired (for providers with expiring refresh tokens)
+- **Solution**: User must re-authenticate via new authorization link
+
+### Debug token issues
+
+<Steps>
+1. **Check account status** - Verify connected account status
+2. **Review error messages** - Examine detailed error responses
+3. **Check provider status** - Verify third-party provider is operational
+4. **Test manual refresh** - Try manually refreshing tokens
+5. **Verify credentials** - Ensure OAuth credentials are correct
+6. **Check scopes** - Verify required scopes are granted
+7. **Review audit logs** - Check Scalekit dashboard for token events
+</Steps>
+
+<Aside type="note">
+For additional help with token management issues, contact Scalekit support with the connected account ID and error details.
+</Aside>
+
+## Next steps
+
+Now that you understand token management, learn about:
+
+- [Scopes and Permissions](/agent-actions/authentication/scopes-permissions) - Managing OAuth scopes and permissions
+- [Authentication Troubleshooting](/agent-actions/authentication/troubleshooting) - Debugging authentication issues
+- [Multi-Provider Authentication](/agent-actions/authentication/multi-provider) - Managing multiple provider connections
