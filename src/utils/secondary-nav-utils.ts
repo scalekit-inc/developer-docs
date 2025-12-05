@@ -74,7 +74,7 @@ export function getActiveSecondaryNavId(
 
   // 4. Default fallback for root path or unmatched pages
   if (pathname === '/' || pathname === '') {
-    return 'fsa-quickstart' // Default to Full-stack Auth Quickstart for home page
+    return 'home' // Home page should select the Home nav item
   }
 
   return null
@@ -102,6 +102,11 @@ export function isCurrentPage(pathname: string, item: NavItem): boolean {
 }
 
 export function getDisplayLabel(pathname: string, item: NavItem): string {
+  // Special case: Show "Choose a solution" for authenticate nav item when on home page
+  if (item.id === 'authenticate' && (pathname === '/' || pathname === '')) {
+    return 'Choose a solution'
+  }
+
   if (item.children && item.children.length > 0) {
     const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
     // For right column items (Full-stack Auth shortcuts), always use parent label

@@ -20,6 +20,7 @@ import IconLucideBuilding2 from '~icons/lucide/building-2'
 import IconLucideShieldCheck from '~icons/lucide/shield-check'
 import IconLucidePalette from '~icons/lucide/palette'
 import IconLucideCheck from '~icons/lucide/check'
+import IconLucideHome from '~icons/lucide/home'
 
 export interface NavItem {
   id: string // Unique identifier for the nav item
@@ -38,6 +39,13 @@ export interface NavItem {
 
 // Nav items - IDs must match those in sidebarToSecondaryNav mapping
 export const secondaryNavItems: NavItem[] = [
+  // Home link
+  {
+    id: 'home',
+    href: '/',
+    label: 'Home',
+    iconComponent: IconLucideHome,
+  },
   // Authenticate dropdown with children for different auth products
   {
     id: 'authenticate',
