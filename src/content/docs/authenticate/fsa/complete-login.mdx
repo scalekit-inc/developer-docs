@@ -553,7 +553,7 @@ return redirect(url)
 ```
 </TabItem>
 <TabItem value="golang" label="Go">
-```go title="Gin" {4}
+```go title="Gin" {3}
 orgID := getOrgFromRequest(c)
 redirectUri := "https://your-app.com/auth/callback"
 options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, OrganizationId: orgID}
@@ -579,19 +579,22 @@ return new RedirectView(url.toString());
 <details>
 <summary>How do I route users based on email domain?</summary>
 
-If you don't know the organization beforehand, you can use `loginHint` to let Scalekit determine the correct authentication method from the user's email domain. This is common for enterprise logins where the email domain is associated with a specific SSO connection. The domain must be registered to the organization either manually from the Scalekit Dashboard or through the admin portal when [onboarding an enterprise customer](/sso/guides/onboard-enterprise-customers/).
+If you don't know the organization ID beforehand, you can use `loginHint` to let Scalekit determine the correct authentication method from the user's email domain. This is common for enterprise logins where the email domain is associated with a specific SSO connection. The domain must be registered to the organization either manually from the Scalekit Dashboard or through the admin portal when [onboarding an enterprise customer](/sso/guides/onboard-enterprise-customers/).
 
 <Tabs syncKey="tech-stack">
 <TabItem value="nodejs" label="Node.js">
-```javascript title="Express.js" {3}
+```javascript title="Express.js" wrap {4}
 const redirectUri = 'https://your-app.com/auth/callback'
-const options = { scopes: ['openid', 'profile', 'email', 'offline_access'], loginHint: userEmail }
+const options = {
+    scopes: ['openid', 'profile', 'email', 'offline_access'],
+    loginHint: userEmail
+  }
 const url = scalekit.getAuthorizationUrl(redirectUri, options)
 return res.redirect(url)
 ```
 </TabItem>
 <TabItem value="py" label="Python">
-```python title="Flask" {3}
+```python title="Flask" {2}
 redirect_uri = 'https://your-app.com/auth/callback'
 options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], login_hint=user_email)
 url = scalekit_client.get_authorization_url(redirect_uri, options)
@@ -599,7 +602,7 @@ return redirect(url)
 ```
 </TabItem>
 <TabItem value="golang" label="Go">
-```go title="Gin" {3}
+```go title="Gin" {2}
 redirectUri := "https://your-app.com/auth/callback"
 options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, LoginHint: userEmail}
 url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
@@ -627,15 +630,18 @@ When you know the exact enterprise connection a user should use, you can pass it
 
 <Tabs syncKey="tech-stack">
 <TabItem value="nodejs" label="Node.js">
-```javascript title="Express.js" {3}
+```javascript title="Express.js" {5}
 const redirectUri = 'https://your-app.com/auth/callback'
-const options = { scopes: ['openid', 'profile', 'email', 'offline_access'], connectionId: 'conn_123...' }
+const options = {
+    scopes: ['openid', 'profile', 'email', 'offline_access'],
+    connectionId: 'conn_123...'
+  }
 const url = scalekit.getAuthorizationUrl(redirectUri, options)
 return res.redirect(url)
 ```
 </TabItem>
 <TabItem value="py" label="Python">
-```python title="Flask" {3}
+```python title="Flask" {2}
 redirect_uri = 'https://your-app.com/auth/callback'
 options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], connection_id='conn_123...')
 url = scalekit_client.get_authorization_url(redirect_uri, options)
@@ -643,7 +649,7 @@ return redirect(url)
 ```
 </TabItem>
 <TabItem value="golang" label="Go">
-```go title="Gin" {3}
+```go title="Gin" {2}
 redirectUri := "https://your-app.com/auth/callback"
 options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, ConnectionId: "conn_123..."}
 url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
@@ -671,21 +677,24 @@ You can require users to authenticate again, even if they have an active session
 
 <Tabs syncKey="tech-stack">
 <TabItem value="nodejs" label="Node.js">
-```javascript title="Express.js" {3}
+```javascript title="Express.js" {4}
 const redirectUri = 'https://your-app.com/auth/callback'
-const options = { scopes: ['openid', 'profile', 'email', 'offline_access'], prompt: 'login' }
+const options = {
+    scopes: ['openid', 'profile', 'email', 'offline_access'],
+    prompt: 'login'
+  }
 return res.redirect(scalekit.getAuthorizationUrl(redirectUri, options))
 ```
 </TabItem>
 <TabItem value="py" label="Python">
-```python title="Flask" {3}
+```python title="Flask" {2}
 redirect_uri = 'https://your-app.com/auth/callback'
 options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], prompt='login')
 return redirect(scalekit_client.get_authorization_url(redirect_uri, options))
 ```
 </TabItem>
 <TabItem value="golang" label="Go">
-```go title="Gin" {3}
+```go title="Gin" {2}
 redirectUri := "https://your-app.com/auth/callback"
 options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, Prompt: "login"}
 url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
@@ -712,21 +721,24 @@ To show the organization or account chooser, set `prompt: 'select_account'`. Thi
 
 <Tabs syncKey="tech-stack">
 <TabItem value="nodejs" label="Node.js">
-```javascript title="Express.js" {3}
+```javascript title="Express.js" {4}
 const redirectUri = 'https://your-app.com/auth/callback'
-const options = { scopes: ['openid', 'profile', 'email', 'offline_access'], prompt: 'select_account' }
+const options = {
+    scopes: ['openid', 'profile', 'email', 'offline_access'],
+    prompt: 'select_account'
+  }
 return res.redirect(scalekit.getAuthorizationUrl(redirectUri, options))
 ```
 </TabItem>
 <TabItem value="py" label="Python">
-```python title="Flask" {3}
+```python title="Flask" {2}
 redirect_uri = 'https://your-app.com/auth/callback'
 options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], prompt='select_account')
 return redirect(scalekit_client.get_authorization_url(redirect_uri, options))
 ```
 </TabItem>
 <TabItem value="golang" label="Go">
-```go title="Gin" {3}
+```go title="Gin" {2}
 redirectUri := "https://your-app.com/auth/callback"
 options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, Prompt: "select_account"}
 url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
@@ -753,9 +765,12 @@ To send users directly to the signup form instead of the login page, use `prompt
 
 <Tabs syncKey="tech-stack">
 <TabItem value="nodejs" label="Node.js">
-```javascript title="Express.js" {3}
+```javascript title="Express.js" {4}
 const redirectUri = 'https://your-app.com/auth/callback'
-const options = { scopes: ['openid', 'profile', 'email', 'offline_access'], prompt: 'create' }
+const options = {
+    scopes: ['openid', 'profile', 'email', 'offline_access'],
+    prompt: 'create'
+}
 return res.redirect(scalekit.getAuthorizationUrl(redirectUri, options))
 ```
 </TabItem>

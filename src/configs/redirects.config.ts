@@ -244,6 +244,7 @@ export const redirects = {
   '/dev-kit/': '/dev-kit/overview',
   '/dev-kit/sdks/overview': '/authenticate/set-up-scalekit/',
   '/authenticate/installation': '/authenticate/set-up-scalekit/',
+  '/guides/setup-scalekit/': '/authenticate/set-up-scalekit/',
   '/fsa/reference/user-management-settings': '/authenticate/fsa/user-management-settings/',
   '/dev-kit/webhooks/event-object/': '/reference/webhooks/overview/',
   '/reference/webhooks/event-object/': '/reference/webhooks/overview/',
