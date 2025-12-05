@@ -46,6 +46,7 @@ export const sidebar = [
           'authenticate/manage-users-orgs/email-domain-rules',
           'authenticate/manage-organizations/remove-users-from-organization',
           'authenticate/manage-users-orgs/delete-users-and-organizations',
+          'authenticate/fsa/user-management-settings',
         ],
       },
       {
@@ -184,11 +185,7 @@ export const sidebar = [
       {
         label: 'Manage users & orgs',
         collapsed: true,
-        items: [
-          'fsa/guides/user-invitations',
-          'fsa/guides/merge-identities',
-          'fsa/reference/user-management-settings',
-        ],
+        items: ['fsa/guides/user-invitations', 'fsa/guides/merge-identities'],
       },
       {
         label: 'Authorization',
