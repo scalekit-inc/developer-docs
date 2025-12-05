@@ -17,13 +17,9 @@ export const redirects = {
   '/fsa/guides/logout': '/authenticate/fsa/logout/',
   '/fsa/guides/automated-user-provisioning': '/authenticate/manage-users-orgs/email-domain-rules/',
   '/fsa/guides/signup-restrictions': '/authenticate/manage-users-orgs/email-domain-rules/',
-  '/fsa/guides/signup-restrictions/': '/authenticate/manage-users-orgs/email-domain-rules/',
   '/fsa/guides/allowed-email-domains': '/authenticate/manage-users-orgs/email-domain-rules/',
-  '/fsa/guides/allowed-email-domains/': '/authenticate/manage-users-orgs/email-domain-rules/',
   '/fsa/guides/merge-identities': '/authenticate/manage-users-orgs/merge-identities/',
-  '/fsa/guides/merge-identities/': '/authenticate/manage-users-orgs/merge-identities/',
   '/fsa/guides/onboard-enterprise-customers': '/sso/guides/onboard-enterprise-customers/',
-  '/fsa/guides/onboard-enterprise-customers/': '/sso/guides/onboard-enterprise-customers/',
 
   // =============================================================================
   // SINGLE SIGN-ON (SSO) REDIRECTS
@@ -246,9 +242,7 @@ export const redirects = {
   '/dev-kit/': '/dev-kit/overview',
   '/dev-kit/sdks/overview': '/authenticate/set-up-scalekit/',
   '/authenticate/installation': '/authenticate/set-up-scalekit/',
-  '/authenticate/installation/': '/authenticate/set-up-scalekit/',
   '/fsa/reference/user-management-settings': '/authenticate/fsa/user-management-settings/',
-  '/fsa/reference/user-management-settings/': '/authenticate/fsa/user-management-settings/',
   '/dev-kit/webhooks/event-object/': '/reference/webhooks/overview/',
   '/reference/webhooks/event-object/': '/reference/webhooks/overview/',
   '/api/webhook-events': '/reference/webhooks/directory-events/',
