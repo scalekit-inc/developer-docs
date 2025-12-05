@@ -12,6 +12,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'index',
+          'dev-kit/set-up-scalekit',
           { label: 'Quickstart: Full-stack Auth', link: 'authenticate/fsa/quickstart' },
         ],
       },
@@ -154,18 +155,13 @@ export const sidebar = [
   {
     label: 'Developer Resources',
     id: 'dev-kit',
-    link: '/dev-kit/overview',
+    link: 'fsa/guides/implement-signup',
     icon: 'seti:powershell',
     items: [
-      {
-        label: 'Get set up',
-        items: ['dev-kit/overview', 'dev-kit/resources/ai-assisted-setup'],
-      },
       {
         label: 'User authentication',
         collapsed: true,
         items: [
-          'fsa/guides/implement-signup',
           'guides/user-auth/login-scenarios',
           'guides/user-auth/preserve-intended-destination',
           'guides/security/csrf-protection',

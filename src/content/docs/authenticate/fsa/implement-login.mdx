@@ -1,8 +1,8 @@
 ---
-title: "Initiate user login"
+title: "Initiate user signup or login"
 description: "Create authorization URLs and redirect users to Scalekit's hosted login page"
 sidebar:
-  label: "Initiate user login"
+  label: "Initiate signup/login"
 head:
   - tag: style
     content: |
@@ -33,6 +33,8 @@ seeAlso:
 
 ---
 import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
+
+import { RedirectAuthPageSection } from '@components/templates';
 
 Login initiation begins your authentication flow. You redirect users to Scalekit's hosted login page by creating an authorization URL with appropriate parameters.When users visit this URL, Scalekit's authorization server validates the request, displays the login interface, and handles authentication through your configured connection methods (SSO, social providers, Magic Link or Email OTP
 
@@ -134,7 +136,7 @@ Understand each parameter and how it controls the authorization flow:
 
 2. #### Redirect to the authorization URL
 
-    Use the Scalekit SDK to generate the authorization URL. It doesn't make any network requests; it simply returns the URL as a string. Your app can redirect the user to this URL.
+    Use the Scalekit SDK to generate the authorization URL. This method constructs the URL locally without making network requests. Redirect users to this URL to start authentication.
 
     <Tabs syncKey="tech-stack">
     <TabItem value="node" label="Node.js">
@@ -214,9 +216,17 @@ Understand each parameter and how it controls the authorization flow:
     ```
     </TabItem>
     </Tabs>
+    
+   Scalekit will try to verify the user's identity and redirect them to your application's callback URL. If the user is a new user, Scalekit will automatically create a new user account.
+
 </Steps>
 
-After the user authenticates:
+## Dedicated sign up flow
+Cases where your app wants to keep the sign up flow seperate and dedicated to creating the user account, you can use the `prompt: 'create'` parameter to redirect the user to the sign up page.
+
+<RedirectAuthPageSection />
+
+After the user authenticates either in signup or login flows:
 1. Scalekit generates an authorization code
 2. Makes a callback to your registered allowed callback URL
 3. Your backend exchanges the code for tokens by making a server-to-server request

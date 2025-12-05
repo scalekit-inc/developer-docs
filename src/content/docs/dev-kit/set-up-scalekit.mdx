@@ -1,6 +1,5 @@
 ---
-title: Developer Resources
-topic: dev-kit
+title: Setup Scalekit
 description: Create your account, install the SDK, set up AI tools, and verify your setup to start building with Scalekit
 tableOfContents: true
 head:
@@ -13,7 +12,7 @@ head:
         font-size: var(--sl-text-lg);
       }
 sidebar:
-  label: 'Overview'
+  label: 'Set up environment & SDK'
 prev: false
 next:
   link: '/dev-kit/resources/ai-assisted-setup/'
@@ -36,7 +35,8 @@ seeAlso:
       url: "https://github.com/scalekit-inc/scalekit-sdk-java"
 ---
 
-import { LinkButton, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+import { LinkButton, Aside, Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components'
+import { VideoPlayer } from 'starlight-videos/components'
 import InstallSDK from '@components/templates/_installsdk.mdx'
 
 This guide shows you how to set up Scalekit in your development environment. You'll configure your workspace, get API credentials, install the SDK, verify everything works correctly, and optionally set up AI-powered development tools.
@@ -254,7 +254,7 @@ Before you begin, create a Scalekit account if you haven't already. After creati
 
    If you see organization data, your setup is complete! You're now ready to implement authentication in your application.
 
-4. ## Set up Scalekit MCP Server (Optional)
+4. ## Set up Scalekit MCP Server <Badge text="Optional" />
 
    Scalekit's Model Context Protocol (MCP) server connects your AI coding assistants to Scalekit. Manage environments, organizations, users, and authentication through natural language queries in Claude, Cursor, Windsurf, and other MCP-compatible tools.
 
@@ -355,5 +355,67 @@ Before you begin, create a Scalekit account if you haven't already. After creati
    <Aside type="note">
    The Scalekit MCP server source code is available on [GitHub](https://github.com/scalekit-inc/mcp). Feel free to explore the code, raise issues, or contribute new tools.
    </Aside>
+5. ## Configure code editors for Scalekit documentation
+
+    In-code editor chat features are powered by models that understand your codebase and project context. These models search the web for relevant information to help you. However, they may not always have the latest information. Follow the instructions below to configure your code editors to explicitly index for up-to-date information.
+
+
+    ### Set up Cursor
+
+    <VideoPlayer link="https://youtu.be/oMMG1k_9fmU" />
+
+    To enable Cursor to access up-to-date Scalekit documentation:
+
+    1. Open Cursor settings (Cmd/Ctrl + ,)
+    2. Navigate to **Indexing & Docs** section
+    3. Click on **Add**
+    4. Add `https://docs.scalekit.com/llms-full.txt` to the indexable URLs
+    5. Click on **Save**
+
+    Once configured, use `@Scalekit Docs` in your chat to ask questions about Scalekit features, APIs, and integration guides. Cursor will search the latest documentation to provide accurate, up-to-date answers.
+
+    ### Use Windsurf
+
+    ![](@/assets/docs/dev-kit/ai-assisted-setup/windsurf.png)
+
+    Windsurf enables `@docs` mentions within the Cascade chat to search for the best answers to your questions.
+
+
+    <Tabs>
+      <TabItem label="Full Documentation">
+        ```
+        @docs:https://docs.scalekit.com/llms-full.txt
+        <your question here>
+        ```
+        Costs more tokens.
+      </TabItem>
+      <TabItem label="Specific Section">
+        ```
+        @docs:https://docs.scalekit.com/your-specific-section-or-file
+        <your question here>
+        ```
+        Costs less tokens.
+      </TabItem>
+      <TabItem label="Let AI decide">
+        ```
+        @docs:https://docs.scalekit.com/llms.txt
+        <your question here>
+        ```
+        Costs tokens as per the model decisions.
+      </TabItem>
+    </Tabs>
+
+
+    ## Use AI assistants
+
+    Assistants like **Anthropic Claude**, **Ollama**, **Google Gemini**, **Vercel v0**, **OpenAI's ChatGPT**, or your own models can help you with Scalekit projects.
+
+    <VideoPlayer link="https://youtu.be/ZDAI32I6s-I" description="AI assistants" />
+
+    <Aside type="note" title="Need help with a specific AI tool?">
+
+      Don't see instructions for your favorite AI assistant? We'd love to add support for more tools! [Raise an issue](https://github.com/scalekit-inc/developer-docs/issues) on our GitHub repository and let us know which AI tool you'd like us to document.
+    </Aside>
+
 
 </Steps>
