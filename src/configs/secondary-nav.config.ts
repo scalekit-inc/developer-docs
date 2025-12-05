@@ -69,12 +69,12 @@ export const secondaryNavItems: NavItem[] = [
       },
     ],
   },
-  {
-    id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit'] and ['interations']
-    href: '/guides/integrations',
-    label: 'Developer Resources',
-    iconComponent: IconHugeiconsResourcesAdd,
-  },
+  // {
+  //   id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit'] and ['interations']
+  //   href: '/scenarios',
+  //   label: 'Developer Resources',
+  //   iconComponent: IconHugeiconsResourcesAdd,
+  // },
   {
     id: 'api-reference',
     href: '#sdks-apis',
