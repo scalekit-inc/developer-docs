@@ -169,6 +169,7 @@ export const redirects = {
   '/mcp/topologies/': '/authenticate/mcp/topologies/human-mcp/',
 
   // MCP integration examples already at /authenticate/mcp/ (keep existing redirects)
+  '/mcp/managing-mcp-clients': '/authenticate/mcp/managing-mcp-clients/',
   '/mcp/integrations/fastmcp': '/authenticate/mcp/fastmcp-quickstart/',
   '/browse/code-samples/github/mcp/fastmcp': '/authenticate/mcp/fastmcp-quickstart/',
   '/mcp/fastmcp-quickstart': '/authenticate/mcp/fastmcp-quickstart/',

@@ -268,6 +268,7 @@ export const sidebar = [
           'authenticate/mcp/overview',
           'authenticate/mcp/quickstart',
           'authenticate/mcp/custom-auth',
+          'authenticate/mcp/managing-mcp-clients',
         ],
       },
       {
