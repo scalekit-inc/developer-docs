@@ -74,7 +74,11 @@ export const sidebar = [
       },
       {
         label: 'Go Live',
-        items: ['authenticate/launch-checklist', 'guides/dashboard/auth-logs'],
+        items: [
+          'authenticate/launch-checklist',
+          'guides/dashboard/auth-logs',
+          'fsa/guides/migration-guide',
+        ],
       },
     ],
   },
@@ -213,11 +217,6 @@ export const sidebar = [
       //   ],
       // },
       {
-        label: 'Migrations',
-        collapsed: true,
-        items: ['guides/sso/sso-migration-strategy', 'fsa/guides/migration-guide'],
-      },
-      {
         label: 'MCP authentication',
         collapsed: true,
         items: ['authenticate/mcp/auth-patterns'],
@@ -334,6 +333,7 @@ export const sidebar = [
           'guides/user-auth/check-sso-domain',
           'sso/guides/add-login-ux-sso',
           'sso/guides/sso-user-attributes',
+          'guides/sso/sso-migration-strategy',
         ],
       },
       {
