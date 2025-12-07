@@ -193,7 +193,7 @@ export const sidebar = [
       //   items: [],
       // },
       {
-        label: 'Customize',
+        label: 'Code samples',
         items: ['fsa/guides/organization-identifiers'],
       },
       // Hiding them because business decision to limit modular offerings
