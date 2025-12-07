@@ -173,30 +173,19 @@ export const sidebar = [
     icon: 'seti:powershell',
     items: [
       {
-        label: 'User authentication',
-        collapsed: true,
-        items: [
-          'guides/security/csrf-protection',
-          // 'guides/security/authentication-best-practices',
-        ],
+        label: 'Configure social connections',
+        autogenerate: {
+          directory: 'guides/integrations/social-connections',
+        },
       },
       {
-        label: 'Integrations',
+        label: 'How to',
         items: [
-          'guides/integrations',
           {
-            label: 'Social logins',
-            autogenerate: {
-              directory: 'guides/integrations/social-connections',
-            },
+            label: 'Authenticate with the Scalekit API',
+            link: 'guides/authenticate-scalekit-api',
           },
         ],
-      },
-
-      {
-        label: 'Manage users & orgs',
-        collapsed: true,
-        items: ['fsa/guides/user-invitations'],
       },
       // {
       //   label: 'Authorization',
@@ -205,7 +194,6 @@ export const sidebar = [
       // },
       {
         label: 'Customize',
-        collapsed: true,
         items: ['fsa/guides/organization-identifiers'],
       },
       // Hiding them because business decision to limit modular offerings

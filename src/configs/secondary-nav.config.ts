@@ -22,6 +22,7 @@ import IconLucideShieldCheck from '~icons/lucide/shield-check'
 import IconLucidePalette from '~icons/lucide/palette'
 import IconLucideCheck from '~icons/lucide/check'
 import IconLucideHome from '~icons/lucide/home'
+import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 
 export interface NavItem {
   id: string // Unique identifier for the nav item
@@ -137,12 +138,12 @@ export const secondaryNavItems: NavItem[] = [
       },
     ],
   },
-  // {
-  //   id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit'] and ['interations']
-  //   href: '/scenarios',
-  //   label: 'Developer Resources',
-  //   iconComponent: IconHugeiconsResourcesAdd,
-  // },
+  {
+    id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit']
+    href: '/guides/integrations/social-connections/google',
+    label: 'Recipes',
+    iconComponent: IconLucideBookOpenText,
+  },
   {
     id: 'api-reference',
     href: '#sdks-apis',
