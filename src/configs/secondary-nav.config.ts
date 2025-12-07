@@ -8,6 +8,7 @@ import {
   IconSdk,
   IconMdiCubeOutline,
   IconLucideCode,
+  IconLucideLayoutGrid,
   IconLucideOutlineWebhook,
   IconHugeiconsResourcesAdd,
   IconMingcuteUserSecurityLine,

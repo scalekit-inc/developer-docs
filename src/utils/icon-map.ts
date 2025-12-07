@@ -3,6 +3,7 @@ import IconLucideChevronDown from '~icons/lucide/chevron-down'
 import IconOcticonTabExternal from '~icons/octicon/tab-external-24'
 import IconCarbonMigrate from '~icons/carbon/migrate'
 import IconGardenShapes26 from '~icons/garden/shapes-26'
+import IconMaterialSymbolsEncryptedAddOutline from '~icons/material-symbols/encrypted-add-outline'
 
 // Navigation icons
 import IconLucideShield from '~icons/lucide/shield'
@@ -11,6 +12,7 @@ import IconLucideBookOpen from '~icons/lucide/book-open'
 import IconLucideBell from '~icons/lucide/bell'
 import IconLucideCode from '~icons/lucide/code'
 import IconLucideWrench from '~icons/lucide/wrench'
+import IconLucideLayoutGrid from '~icons/lucide/layout-grid'
 
 // Content type icons
 import IconLucideFileVideoCamera from '~icons/lucide/file-video-camera'
@@ -67,6 +69,7 @@ import IconReaddotcv from '~icons/simple-icons/readdotcv'
 import IconStreamlinePlumpBusinessProgressBar2 from '~icons/streamline-plump/business-progress-bar-2'
 import IconCarbonEnterprise from '~icons/carbon/enterprise'
 import IconGardenPlatform26 from '~icons/garden/platform-26'
+import IconLucideWorkflow from '~icons/lucide/workflow'
 
 // Auth provider and integration logos
 import IconLogosAuth0 from '~icons/logos/auth0-icon'
@@ -98,6 +101,7 @@ export const iconMap = {
   // Core UI icons
   'chevron-down': IconLucideChevronDown,
   migrate: IconCarbonMigrate,
+  'encrypted-add': IconMaterialSymbolsEncryptedAddOutline,
 
   // Navigation icons
   shield: IconLucideShield,
@@ -112,6 +116,7 @@ export const iconMap = {
   wrench: IconLucideWrench,
   'developer-resources': IconLucideWrench,
   integrations: IconLucideWrench,
+  grid: IconLucideLayoutGrid,
 
   // Content type icons
   video: IconLucideVideo,
@@ -180,6 +185,7 @@ export const iconMap = {
   enterprise: IconCarbonEnterprise,
   company: IconCarbonEnterprise,
   platform: IconGardenPlatform26,
+  workflow: IconLucideWorkflow,
 
   // Auth provider and integration logos
   auth0: IconLogosAuth0,
@@ -220,6 +226,7 @@ export {
   IconOcticonTabExternal,
   IconCarbonMigrate,
   IconGardenShapes26,
+  IconMaterialSymbolsEncryptedAddOutline,
 
   // Navigation icons
   IconLucideShield,
@@ -231,11 +238,12 @@ export {
   IconSdk,
   IconApi,
   IconMdiCubeOutline,
+  IconLucideLayoutGrid,
 
   // Content type icons
   IconHugeiconsResourcesAdd,
   IconLucideOutlineWebhook,
-
+  IconLucideWorkflow,
   // Programming languages
   IconProiconsJavascript,
 

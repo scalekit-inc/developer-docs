@@ -15,6 +15,7 @@ export interface Props {
   illustrationSvg?: string
   illustrationUrl?: string
   illustrationMaxWidth?: string
+  clickable?: boolean
 }
 
 import { LinkButton } from 'starlight-theme-nova/components'
@@ -31,58 +32,101 @@ const {
   illustrationSvg,
   illustrationUrl,
   illustrationMaxWidth = '300px',
+  clickable = false,
 } = Astro.props
+
+// When clickable is true, automatically hide CTA button
+const shouldShowCta = clickable ? false : showCta
+const isClickable = clickable && href
 const Icon = getIconComponent(iconKey)
 ---
 
-<article
-  class:list={['fold-card', 'sl-card', { 'has-illustration': illustrationSvg || illustrationUrl }]}
->
-  <div class="card-main">
-    <div class="card-header">
-      {
-        logoUrl ? (
-          <img src={logoUrl} alt={`${title} logo`} class="card-icon img" aria-hidden="true" />
-        ) : (
-          Icon && <Icon class="card-icon" aria-hidden="true" />
-        )
-      }
-      <h3 class="card-title">{title}</h3>
-    </div>
-    <div class="card-content">
-      <slot />
-      {
-        href && showCta && (
-          <LinkButton
-            href={href}
-            class={`card-cta sk-${variant}`}
-            variant={variant}
-            {...(target && { target })}
-            {...(rel && { rel })}
-          >
-            {cta}
-          </LinkButton>
-        )
-      }
-    </div>
-  </div>
-  {
-    illustrationSvg && (
-      <div
-        class="card-illustration"
-        style={`max-width: ${illustrationMaxWidth}`}
-        set:html={illustrationSvg}
-      />
-    )
-  }
-  {
-    illustrationUrl && (
-      <div class="card-illustration" style={`max-width: ${illustrationMaxWidth}`}>
-        <img src={illustrationUrl} alt={`${title} illustration`} />
+{
+  isClickable ? (
+    <a
+      href={href}
+      class:list={[
+        'fold-card',
+        'sl-card',
+        'clickable',
+        { 'has-illustration': illustrationSvg || illustrationUrl },
+      ]}
+      {...(target && { target })}
+      {...(rel && { rel })}
+    >
+      <div class="card-main">
+        <div class="card-header">
+          {logoUrl ? (
+            <img src={logoUrl} alt={`${title} logo`} class="card-icon img" aria-hidden="true" />
+          ) : (
+            Icon && <Icon class="card-icon" aria-hidden="true" />
+          )}
+          <h3 class="card-title">{title}</h3>
+        </div>
+        <div class="card-content">
+          <slot />
+        </div>
       </div>
-    )
-  }
-</article>
+      {illustrationSvg && (
+        <div
+          class="card-illustration"
+          style={`max-width: ${illustrationMaxWidth}`}
+          set:html={illustrationSvg}
+        />
+      )}
+      {illustrationUrl && (
+        <div class="card-illustration" style={`max-width: ${illustrationMaxWidth}`}>
+          <img src={illustrationUrl} alt={`${title} illustration`} />
+        </div>
+      )}
+    </a>
+  ) : (
+    <article
+      class:list={[
+        'fold-card',
+        'sl-card',
+        { 'has-illustration': illustrationSvg || illustrationUrl },
+      ]}
+    >
+      <div class="card-main">
+        <div class="card-header">
+          {logoUrl ? (
+            <img src={logoUrl} alt={`${title} logo`} class="card-icon img" aria-hidden="true" />
+          ) : (
+            Icon && <Icon class="card-icon" aria-hidden="true" />
+          )}
+          <h3 class="card-title">{title}</h3>
+        </div>
+        <div class="card-content">
+          <slot />
+          {href && shouldShowCta && (
+            <LinkButton
+              href={href}
+              class={`card-cta sk-${variant}`}
+              variant={variant}
+              {...(target && { target })}
+              {...(rel && { rel })}
+            >
+              {cta}
+            </LinkButton>
+          )}
+        </div>
+      </div>
+      {illustrationSvg && (
+        <div
+          class="card-illustration"
+          style={`max-width: ${illustrationMaxWidth}`}
+          set:html={illustrationSvg}
+        />
+      )}
+      {illustrationUrl && (
+        <div class="card-illustration" style={`max-width: ${illustrationMaxWidth}`}>
+          <img src={illustrationUrl} alt={`${title} illustration`} />
+        </div>
+      )}
+    </article>
+  )
+}
 
 <style>
   .fold-card {
@@ -91,6 +135,42 @@ const Icon = getIconComponent(iconKey)
     border-radius: 0.5rem;
     padding: 1.5rem;
     transition: all 0.2s ease;
+  }
+
+  /* Clickable card styles */
+  .fold-card.clickable {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  /* Maintain grid layout for clickable cards with illustrations */
+  .fold-card.clickable.has-illustration {
+    display: grid;
+  }
+
+  .fold-card.clickable:hover {
+    border-color: var(--sl-color-accent);
+    background: var(--sl-color-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  :root[data-theme='dark'] .fold-card.clickable:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .fold-card.clickable:focus {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  .fold-card.clickable .card-title {
+    color: var(--sl-color-text-heading);
+  }
+
+  .fold-card.clickable:hover .card-title {
+    color: var(--sl-color-accent);
   }
 
   :root[data-theme='light'] .fold-card {

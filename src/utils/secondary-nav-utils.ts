@@ -2,6 +2,7 @@ import { sidebar, sidebarToSecondaryNav, type SecondaryNavMapping } from '../con
 import { buildPathToSidebarMap, getSidebarIdForPath } from '../configs/sidebar-utils'
 import { isHashOnly, normalizePath } from './path-matching'
 import type { NavItem } from '../configs/secondary-nav.config'
+import { IconLucideLayoutGrid } from './icon-map'
 
 // Props interface - entry is passed from Header.astro
 export interface SecondaryNavProps {
@@ -104,7 +105,7 @@ export function isCurrentPage(pathname: string, item: NavItem): boolean {
 export function getDisplayLabel(pathname: string, item: NavItem): string {
   // Special case: Show "Choose a solution" for authenticate nav item when on home page
   if (item.id === 'authenticate' && (pathname === '/' || pathname === '')) {
-    return 'Choose a solution'
+    return 'Choose a module'
   }
 
   if (item.children && item.children.length > 0) {
@@ -120,6 +121,11 @@ export function getDisplayLabel(pathname: string, item: NavItem): string {
 }
 
 export function getDisplayIcon(pathname: string, item: NavItem): any {
+  // Special case: Show IconLucideLayoutGrid for authenticate nav item when on home page
+  if (item.id === 'authenticate' && (pathname === '/' || pathname === '')) {
+    return IconLucideLayoutGrid
+  }
+
   if (item.children && item.children.length > 0) {
     const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
     // For right column items (Full-stack Auth shortcuts), always use parent icon
