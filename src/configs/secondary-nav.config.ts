@@ -1,16 +1,12 @@
 import {
-  IconLucideShield,
   IconMcp,
   IconLucideUsers,
   IconLucideBot,
-  IconLucideBookOpen,
   IconApi,
   IconSdk,
   IconMdiCubeOutline,
-  IconLucideCode,
-  IconLucideLayoutGrid,
+  IconCodiconDebugStart,
   IconLucideOutlineWebhook,
-  IconHugeiconsResourcesAdd,
   IconMingcuteUserSecurityLine,
   IconAntDesignUserSwitchOutlined,
   IconLucideChevronDown as IconChevronDown,
@@ -45,8 +41,8 @@ export const secondaryNavItems: NavItem[] = [
   {
     id: 'home',
     href: '/',
-    label: 'Home',
-    iconComponent: IconLucideHome,
+    label: 'Get started',
+    iconComponent: IconLucideRocket,
   },
   // Authenticate dropdown with children for different auth products
   {
@@ -104,7 +100,7 @@ export const secondaryNavItems: NavItem[] = [
         id: 'fsa-user-auth',
         href: '/authenticate/fsa/implement-login/',
         label: 'Full-stack Auth', // Use parent label for nav button
-        dropdownLabel: 'User Authentication', // Show in dropdown
+        dropdownLabel: 'User authentication', // Show in dropdown
         iconComponent: IconLucideLogIn, // Distinct icon for User Auth
         description: 'Implement login and session management',
         columnGroup: 'right',
@@ -113,7 +109,7 @@ export const secondaryNavItems: NavItem[] = [
         id: 'fsa-users-orgs',
         href: '/fsa/data-modelling/',
         label: 'Full-stack Auth', // Use parent label for nav button
-        dropdownLabel: 'Manage Users & Orgs', // Show in dropdown
+        dropdownLabel: 'Manage users & orgs', // Show in dropdown
         iconComponent: IconLucideBuilding2, // Distinct icon for Users & Orgs
         description: 'Organization and user management',
         columnGroup: 'right',

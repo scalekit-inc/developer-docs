@@ -13,6 +13,8 @@ import IconLucideBell from '~icons/lucide/bell'
 import IconLucideCode from '~icons/lucide/code'
 import IconLucideWrench from '~icons/lucide/wrench'
 import IconLucideLayoutGrid from '~icons/lucide/layout-grid'
+import IconCodiconDebugStart from '~icons/codicon/debug-start'
+import IconLucideRocket from '~icons/lucide/rocket'
 
 // Content type icons
 import IconLucideFileVideoCamera from '~icons/lucide/file-video-camera'
@@ -117,6 +119,8 @@ export const iconMap = {
   'developer-resources': IconLucideWrench,
   integrations: IconLucideWrench,
   grid: IconLucideLayoutGrid,
+  start: IconCodiconDebugStart,
+  rocket: IconLucideRocket,
 
   // Content type icons
   video: IconLucideVideo,
@@ -239,6 +243,8 @@ export {
   IconApi,
   IconMdiCubeOutline,
   IconLucideLayoutGrid,
+  IconCodiconDebugStart,
+  IconLucideRocket,
 
   // Content type icons
   IconHugeiconsResourcesAdd,
