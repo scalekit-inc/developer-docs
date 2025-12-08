@@ -54,7 +54,7 @@ export const secondaryNavItems: NavItem[] = [
       {
         id: 'mcp', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/mcp']
         href: '/authenticate/mcp/quickstart/',
-        label: 'Auth for MCP',
+        label: 'MCP Auth',
         iconComponent: IconMcp,
         description: 'Add plug-and-play OAuth for MCP servers with dynamic client registration',
         sectionLabel: 'MODULAR AUTH',
@@ -88,18 +88,18 @@ export const secondaryNavItems: NavItem[] = [
       {
         id: 'fsa-quickstart',
         href: '/authenticate/fsa/quickstart/',
-        label: 'Full-stack Auth', // Use parent label for nav button
+        label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'Quickstart', // Show in dropdown
         iconComponent: IconLucideRocket, // Distinct icon for Quickstart
-        description: 'Get started with Full-stack Auth',
-        sectionLabel: 'FULL-STACK AUTH',
+        description: 'Get started with Full stack auth',
+        sectionLabel: 'FULL STACK AUTH',
         sectionDescription: 'Complete authentication solution with user management',
         columnGroup: 'right',
       },
       {
         id: 'fsa-user-auth',
         href: '/authenticate/fsa/implement-login/',
-        label: 'Full-stack Auth', // Use parent label for nav button
+        label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'User authentication', // Show in dropdown
         iconComponent: IconLucideLogIn, // Distinct icon for User Auth
         description: 'Implement login and session management',
@@ -108,7 +108,7 @@ export const secondaryNavItems: NavItem[] = [
       {
         id: 'fsa-users-orgs',
         href: '/fsa/data-modelling/',
-        label: 'Full-stack Auth', // Use parent label for nav button
+        label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'Manage users & orgs', // Show in dropdown
         iconComponent: IconLucideBuilding2, // Distinct icon for Users & Orgs
         description: 'Organization and user management',
@@ -117,7 +117,7 @@ export const secondaryNavItems: NavItem[] = [
       {
         id: 'fsa-authorization',
         href: '/authenticate/authz/overview/',
-        label: 'Full-stack Auth', // Use parent label for nav button
+        label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'Authorization', // Show in dropdown
         iconComponent: IconLucideShieldCheck, // Distinct icon for Authorization
         description: 'Roles, permissions, and access control',
@@ -126,7 +126,7 @@ export const secondaryNavItems: NavItem[] = [
       {
         id: 'fsa-customize',
         href: '/guides/custom-domain/',
-        label: 'Full-stack Auth', // Use parent label for nav button
+        label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'Customize', // Show in dropdown
         iconComponent: IconLucidePalette, // Distinct icon for Customize
         description: 'Branding, domains, and workflows',

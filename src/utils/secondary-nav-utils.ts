@@ -105,7 +105,7 @@ export function isCurrentPage(pathname: string, item: NavItem): boolean {
 export function getDisplayLabel(pathname: string, item: NavItem): string {
   // Special case: Show "Choose a solution" for authenticate nav item when on home page
   if (item.id === 'authenticate' && (pathname === '/' || pathname === '')) {
-    return 'Choose a module'
+    return 'Choose product'
   }
 
   if (item.children && item.children.length > 0) {
