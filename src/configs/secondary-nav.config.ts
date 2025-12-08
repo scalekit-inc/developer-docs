@@ -48,7 +48,7 @@ export const secondaryNavItems: NavItem[] = [
   {
     id: 'authenticate',
     href: '#authenticate',
-    label: 'Full-stack Auth',
+    label: 'Full stack auth',
     iconComponent: IconLucideUsers,
     children: [
       {

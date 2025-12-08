@@ -13,7 +13,7 @@ export const sidebar = [
         items: [
           'index',
           'authenticate/set-up-scalekit',
-          { label: 'Quickstart: Full-stack Auth', link: 'authenticate/fsa/quickstart' },
+          { label: 'Quickstart: Full stack auth', link: 'authenticate/fsa/quickstart' },
         ],
       },
       {
@@ -178,15 +178,6 @@ export const sidebar = [
           directory: 'guides/integrations/social-connections',
         },
       },
-      {
-        label: 'How to',
-        items: [
-          {
-            label: 'Authenticate with the Scalekit API',
-            link: 'guides/authenticate-scalekit-api',
-          },
-        ],
-      },
       // {
       //   label: 'Authorization',
       //   collapsed: true,
@@ -194,7 +185,13 @@ export const sidebar = [
       // },
       {
         label: 'Code samples',
-        items: ['fsa/guides/organization-identifiers'],
+        items: [
+          'dev-kit/code-samples',
+          'dev-kit/code-samples/full-stack-auth',
+          'dev-kit/code-samples/modular-sso',
+          'dev-kit/code-samples/modular-scim',
+          'dev-kit/code-samples/agent-auth',
+        ],
       },
       // Hiding them because business decision to limit modular offerings
       // {
