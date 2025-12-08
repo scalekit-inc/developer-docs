@@ -40,11 +40,94 @@ head:
       .meta.sl-flex {
         display: none !important;
       }
+      .modular-auth-layout {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        margin: 2rem 0;
+      }
+      .modular-auth-left {
+        flex: 0 0 33.333%;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .modular-auth-icon {
+        font-size: 2rem;
+        color: var(--sl-color-accent);
+        margin-bottom: 0.5rem;
+      }
+      .modular-auth-heading {
+        font-size: 1.8rem;
+        margin: 0;
+        font-weight: 600;
+        color: var(--sl-color-text-heading);
+      }
+      .modular-auth-description {
+        font-size: 1.1rem;
+        margin: 0;
+        color: var(--sl-color-text-muted);
+        line-height: 1.6;
+      }
+      .modular-auth-cards-grid {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, auto);
+        gap: 1.5rem;
+      }
+      @media (max-width: 1024px) {
+        .modular-auth-layout {
+          flex-direction: column;
+        }
+        .modular-auth-left {
+          flex: none;
+          width: 100%;
+        }
+      }
+      @media (max-width: 768px) {
+        .modular-auth-cards-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .full-stack-auth-layout {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        margin: 2rem 0;
+      }
+      .full-stack-auth-left {
+        flex: 0 0 33.333%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .full-stack-auth-heading {
+        font-size: 1.8rem;
+        margin: 0;
+        font-weight: 600;
+        color: var(--sl-color-text-heading);
+      }
+      .full-stack-auth-description {
+        font-size: 1.1rem;
+        margin: 0;
+        color: var(--sl-color-text-muted);
+        line-height: 1.6;
+      }
+      .full-stack-auth-card {
+        flex: 1;
+      }
+      @media (max-width: 1024px) {
+        .full-stack-auth-layout {
+          flex-direction: column;
+        }
+        .full-stack-auth-left {
+          flex: none;
+          width: 100%;
+        }
+      }
 prev: false
 next: false
-banner:
-  content: |
-    Join our dev community to connect with Scalekit engineers for questions or feedback
 ---
 
 import { Card, CardGrid, Badge } from '@astrojs/starlight/components'
@@ -52,6 +135,7 @@ import FoldCard from '@components/ui/FoldCard.astro'
 import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
 import SimpleList from '@components/ui/SimpleList.astro'
 import CheckItem from '@components/ui/CheckItem.astro'
+import IconLucideKeyRound from '~icons/lucide/key-round'
 import homeFsaImage from '@/assets/docs/home/home-fsa-new.png'
 import shieldImage from '@/assets/docs/home/shield.svg'
 
@@ -156,86 +240,87 @@ Customize -- Go Live
 
 ``` */}
 
-<h2 style="font-size: 1.8rem; margin: 0.5rem 0rem; text-align: center;"> Modular Auth</h2>
-<p style="font-size: 1.1rem; margin: 0rem; text-align: center;">Turn on just the auth modules your app needs now</p>
-
-<ResponsiveCardGrid>
-
-   <FoldCard
-    title="Secure MCP servers"
-    iconKey="mcp"
-    href="/authenticate/mcp/quickstart/"
-    showCta={false}
-    clickable={true}
-  >
-    Add plug-and-play OAuth for MCP servers with dynamic client registration
-  </FoldCard>
-
-   <FoldCard
-    title="Enable Agents do auth"
-    iconKey="bot"
-    href="/agent-actions/quickstart"
-          showCta={false}
-         clickable={true}
-  >
-    Runtime token vault for AI agents to authenticate themselves
-  </FoldCard>
+<div class="modular-auth-layout">
+  <div class="modular-auth-left">
+    <h2 class="modular-auth-heading">Modular Auth</h2>
+    <p class="modular-auth-description">Turn on just the auth modules you need</p>
+  </div>
+  <div class="modular-auth-cards-grid">
+    <FoldCard
+      title="Secure MCP servers"
+      iconKey="mcp"
+      href="/authenticate/mcp/quickstart/"
+      showCta={false}
+      clickable={true}
+    >
+      Add plug-and-play OAuth for MCP servers with dynamic client registration
+    </FoldCard>
 
     <FoldCard
-    title="Add Enterprise SSO"
-    iconKey="sso"
-    href="/authenticate/auth-methods/enterprise-sso"
-        showCta={false}
-    clickable={true}
-  >
-    Enable drop-in SSO with SAML and OIDC for any enterprise identity provider
-  </FoldCard>
+      title="Enable Agents do auth"
+      iconKey="bot"
+      href="/agent-actions/quickstart"
+      showCta={false}
+      clickable={true}
+    >
+      Runtime token vault for AI agents to authenticate themselves
+    </FoldCard>
 
     <FoldCard
-    title="Setup SCIM"
-    iconKey="scim"
-    href="/directory/scim/quickstart"
-    showCta={false}
-    clickable={true}
-  >
-    Automate provisioning and deprovisioning of users and organizations
-  </FoldCard>
-  {/* <FoldCard
-    title="Secure APIs"
-    iconKey="api"
-    href="/authenticate/m2m/api-auth-quickstart/"
-    showCta={false}
-  >
-    Enable organization and user level API access with service and user-scoped tokens
-    <br />
-    <a href="/authenticate/m2m/api-auth-quickstart/">Add API auth →</a>
-  </FoldCard> */}
+      title="Add Enterprise SSO"
+      iconKey="sso"
+      href="/authenticate/auth-methods/enterprise-sso"
+      showCta={false}
+      clickable={true}
+    >
+      Enable drop-in SSO with SAML and OIDC for any enterprise identity provider
+    </FoldCard>
 
-</ResponsiveCardGrid>
+    <FoldCard
+      title="Setup SCIM"
+      iconKey="scim"
+      href="/directory/scim/quickstart"
+      showCta={false}
+      clickable={true}
+    >
+      Automate provisioning and deprovisioning of users and organizations
+    </FoldCard>
+  </div>
+</div>
+
 {/* <div style="display: flex; padding: 0.5rem 1rem; align-items: center; gap: 0.625rem; border-radius: 0.375rem; border: 1px solid var(--sl-color-gray-5); background: #FCFCFC">
 Ready to build something new? <a href="https://app.scalekit.com" target="_blank" rel="noopener">Set up your account now</a>
 </div> */}
 
 <br />
+<div class="platform-divider" style="display: flex; align-items: center; gap: 1rem; color: var(--sl-color-gray-3); font-size: 0.875rem; font-weight: 500; letter-spacing: 0.05em;">
+  <div style="flex: 1; height: 1px; background: var(--sl-color-gray-5);"></div>
+  <span>OR</span>
+  <div style="flex: 1; height: 1px; background: var(--sl-color-gray-5);"></div>
+</div>
+<br />
 
-<h2 style="font-size: 1.8rem; margin: 0.5rem 0rem; text-align: center;"> Full stack auth</h2>
-<p style="font-size: 1.1rem; margin: 0rem; text-align: center;">Or level up to complete auth stack</p>
-
-<FoldCard
-  title="Add Full stack auth"
-  iconKey="fsa"
-  href="/authenticate/fsa/quickstart"
+<div class="full-stack-auth-layout">
+  <div class="full-stack-auth-left">
+    <h2 class="full-stack-auth-heading">Full stack auth</h2>
+    <p class="full-stack-auth-description">Or level up to complete auth stack</p>
+  </div>
+  <div class="full-stack-auth-card">
+    <FoldCard
+      title="Add Full stack auth"
+      iconKey="fsa"
+      href="/authenticate/fsa/quickstart"
       showCta={true}
-  cta="Get started →"
-  illustrationUrl={homeFsaImage.src}
-  illustrationMaxWidth="35rem"
->
-  Complete solution for authentication, session and user management in one stack
-  - Add login, sessions, and passwordless or social flows
-  - Manage companies, teams, and people in one place
-  - Define roles, permissions, and access controls
-  - Customize branding, domains, and auth workflows
-</FoldCard>
+      cta="Get started →"
+    >
+      Complete solution for authentication, session and user management in one stack
+      - Add login, sessions, and passwordless or social flows
+      - Manage companies, teams, and people in one place
+      - Define roles, permissions, and access controls
+      - Customize branding, domains, and auth workflows
+    </FoldCard>
+  </div>
+</div>
 
 <br />
 
@@ -286,6 +371,17 @@ Ready to build something new? <a href="https://app.scalekit.com" target="_blank"
       Monitor authentication activities and webhook deliveries for compliance
     </FoldCard>
   </CardGrid>
+</div>
+
+{/* TODO: Cards: SDKs, Code samples, Developer Community, Release Notes  */}
+
+<br/>
+<br/>
+
+<div class="platform-divider" style="display: flex; align-items: center; gap: 1rem; color: var(--sl-color-gray-3); font-size: 0.875rem; font-weight: 500; letter-spacing: 0.05em;">
+  <div style="flex: 1; height: 1px; background: var(--sl-color-gray-5);"></div>
+  <span>ALL BACKED BY ONE UNIFIED PLATFORM</span>
+  <div style="flex: 1; height: 1px; background: var(--sl-color-gray-5);"></div>
 </div>
 
 

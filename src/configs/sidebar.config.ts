@@ -174,6 +174,7 @@ export const sidebar = [
     items: [
       {
         label: 'Configure social connections',
+        collapsed: true,
         autogenerate: {
           directory: 'guides/integrations/social-connections',
         },
@@ -185,6 +186,7 @@ export const sidebar = [
       // },
       {
         label: 'Code samples',
+        collapsed: true,
         items: [
           'dev-kit/code-samples',
           'dev-kit/code-samples/full-stack-auth',
