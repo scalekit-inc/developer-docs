@@ -173,6 +173,15 @@ export const sidebar = [
     icon: 'seti:powershell',
     items: [
       {
+        label: 'How to...',
+        items: [
+          {
+            label: 'Listen to webhook events',
+            link: 'authenticate/implement-workflows/listen-to-webhooks',
+          },
+        ],
+      },
+      {
         label: 'Configure social connections',
         collapsed: true,
         autogenerate: {
@@ -193,6 +202,7 @@ export const sidebar = [
           'dev-kit/code-samples/modular-sso',
           'dev-kit/code-samples/modular-scim',
           'dev-kit/code-samples/agent-auth',
+          'dev-kit/code-samples/mcp-auth',
         ],
       },
       // Hiding them because business decision to limit modular offerings
@@ -250,7 +260,7 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Auth for MCP',
+    label: 'MCP Auth',
     id: 'mcp',
     link: '/authenticate/mcp/quickstart',
     icon: 'puzzle',
