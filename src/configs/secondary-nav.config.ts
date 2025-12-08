@@ -38,12 +38,12 @@ export interface NavItem {
 // Nav items - IDs must match those in sidebarToSecondaryNav mapping
 export const secondaryNavItems: NavItem[] = [
   // Home link
-  {
-    id: 'home',
-    href: '/',
-    label: 'Get started',
-    iconComponent: IconLucideRocket,
-  },
+  // {
+  //   id: 'home',
+  //   href: '/',
+  //   label: 'Get started',
+  //   iconComponent: IconLucideRocket,
+  // },
   // Authenticate dropdown with children for different auth products
   {
     id: 'authenticate',
@@ -158,7 +158,7 @@ export const secondaryNavItems: NavItem[] = [
         href: '/apis/',
         label: 'REST APIs',
         iconComponent: IconApi,
-        description: 'Full programmatic control via APIs',
+        description: 'Programmatic control via APIs',
       },
       {
         id: 'webhooks-events', // Maps to sidebarToSecondaryNav['events-reference']
