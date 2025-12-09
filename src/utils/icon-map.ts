@@ -15,6 +15,8 @@ import IconLucideWrench from '~icons/lucide/wrench'
 import IconLucideLayoutGrid from '~icons/lucide/layout-grid'
 import IconCodiconDebugStart from '~icons/codicon/debug-start'
 import IconLucideRocket from '~icons/lucide/rocket'
+import IconSimpleIconsLangchain from '~icons/simple-icons/langchain'
+import IconSimpleIconsDotnet from '~icons/simple-icons/dotnet'
 
 // Content type icons
 import IconLucideFileVideoCamera from '~icons/lucide/file-video-camera'
@@ -33,7 +35,8 @@ import IconMaterialSymbolsMotionSensorAlertRounded from '~icons/material-symbols
 import IconProiconsJavascript from '~icons/proicons/javascript'
 import IconHugeiconsTypescript01 from '~icons/hugeicons/typescript-01'
 import IconNodejs from '~icons/simple-icons/nodedotjs'
-import IconPython from '~icons/simple-icons/python'
+import IconPython from '~icons/proicons/python'
+
 import IconGo from '~icons/simple-icons/go'
 import IconJava from '~icons/ri/java-line'
 import IconHugeiconsPhp from '~icons/hugeicons/php'
@@ -121,6 +124,8 @@ export const iconMap = {
   grid: IconLucideLayoutGrid,
   start: IconCodiconDebugStart,
   rocket: IconLucideRocket,
+  langchain: IconSimpleIconsLangchain,
+  dotnet: IconSimpleIconsDotnet,
 
   // Content type icons
   video: IconLucideVideo,
@@ -245,6 +250,7 @@ export {
   IconLucideLayoutGrid,
   IconCodiconDebugStart,
   IconLucideRocket,
+  IconSimpleIconsLangchain,
 
   // Content type icons
   IconHugeiconsResourcesAdd,
