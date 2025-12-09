@@ -174,11 +174,29 @@ export const sidebar = [
     items: [
       {
         label: 'How to...',
+        collapsed: false,
         items: [
           {
-            label: 'Listen to webhook events',
-            link: 'authenticate/implement-workflows/listen-to-webhooks',
+            label: 'Preserve target route post-auth',
+            link: 'guides/user-auth/preserve-intended-destination',
           },
+        ],
+      },
+      // {
+      //   label: 'Authorization',
+      //   collapsed: true,
+      //   items: [],
+      // },
+      {
+        label: 'Code samples',
+        collapsed: false,
+        items: [
+          'dev-kit/code-samples',
+          'dev-kit/code-samples/full-stack-auth',
+          'dev-kit/code-samples/modular-sso',
+          'dev-kit/code-samples/modular-scim',
+          'dev-kit/code-samples/agent-auth',
+          'dev-kit/code-samples/mcp-auth',
         ],
       },
       {
@@ -188,21 +206,22 @@ export const sidebar = [
           directory: 'guides/integrations/social-connections',
         },
       },
-      // {
-      //   label: 'Authorization',
-      //   collapsed: true,
-      //   items: [],
-      // },
       {
-        label: 'Code samples',
+        label: 'Changelog',
         collapsed: true,
         items: [
-          'dev-kit/code-samples',
-          'dev-kit/code-samples/full-stack-auth',
-          'dev-kit/code-samples/modular-sso',
-          'dev-kit/code-samples/modular-scim',
-          'dev-kit/code-samples/agent-auth',
-          'dev-kit/code-samples/mcp-auth',
+          { label: 'Overview', link: '/dev-kit/changelogs/' },
+          // makeChangelogsSidebarLinks() type options:
+          // - type: 'all' - Single link to full version list page (current)
+          // - type: 'latest' - Link to most recent version only
+          // - type: 'recent' - Multiple links to N recent versions (add count: 5 to customize, default: 5)
+          // Example: { type: 'recent', count: 3, base: '...', label: '...' }
+          ...makeChangelogsSidebarLinks([
+            { type: 'all', base: 'dev-kit/changelogs/node', label: 'Node.js SDK' },
+            { type: 'all', base: 'dev-kit/changelogs/python', label: 'Python SDK' },
+            { type: 'all', base: 'dev-kit/changelogs/go', label: 'Go SDK' },
+            { type: 'all', base: 'dev-kit/changelogs/java', label: 'Java SDK' },
+          ]),
         ],
       },
       // Hiding them because business decision to limit modular offerings
@@ -219,23 +238,6 @@ export const sidebar = [
       //   label: 'Best practices',
       //   collapsed: false,
       //   items: ['guides/client-credentials-practices'],
-      // },
-      // {
-      //   label: 'Changelog',
-      //   items: [
-      //     { label: 'Overview', link: '/dev-kit/changelogs/' },
-      //     // makeChangelogsSidebarLinks() type options:
-      //     // - type: 'all' - Single link to full version list page (current)
-      //     // - type: 'latest' - Link to most recent version only
-      //     // - type: 'recent' - Multiple links to N recent versions (add count: 5 to customize, default: 5)
-      //     // Example: { type: 'recent', count: 3, base: '...', label: '...' }
-      //     ...makeChangelogsSidebarLinks([
-      //       { type: 'all', base: 'dev-kit/changelogs/node', label: 'Node.js SDK' },
-      //       { type: 'all', base: 'dev-kit/changelogs/python', label: 'Python SDK' },
-      //       { type: 'all', base: 'dev-kit/changelogs/go', label: 'Go SDK' },
-      //       { type: 'all', base: 'dev-kit/changelogs/java', label: 'Java SDK' },
-      //     ]),
-      //   ],
       // },
     ],
   },
@@ -255,7 +257,13 @@ export const sidebar = [
       },
       {
         label: 'How-to guides',
-        items: ['guides/webhooks-best-practices'],
+        items: [
+          {
+            label: 'Handle webhook events',
+            link: 'authenticate/implement-workflows/listen-to-webhooks',
+          },
+          'guides/webhooks-best-practices',
+        ],
       },
     ],
   },

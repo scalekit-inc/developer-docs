@@ -136,7 +136,7 @@ export const secondaryNavItems: NavItem[] = [
   },
   {
     id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit']
-    href: '/authenticate/implement-workflows/listen-to-webhooks/',
+    href: '/guides/user-auth/preserve-intended-destination',
     label: 'Recipes',
     iconComponent: IconLucideBookOpenText,
   },
