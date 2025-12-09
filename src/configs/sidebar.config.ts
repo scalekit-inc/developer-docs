@@ -316,26 +316,33 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: [
-          'authenticate/sso/add-modular-sso',
-          'sso/guides/test-sso',
-          'sso/guides/onboard-enterprise-customers',
-        ],
+        items: ['authenticate/sso/add-modular-sso'],
       },
       {
-        label: 'SSO with existing auth',
+        label: 'Integrate SSO with own auth',
         autogenerate: { directory: 'guides/integrations/auth-systems' },
       },
       {
-        label: 'How-to guides',
+        label: 'How to...',
+        items: [
+          'sso/guides/authorization-url',
+          'sso/guides/idp-init-sso',
+          'guides/user-auth/check-sso-domain',
+          'sso/guides/sso-user-attributes',
+          'sso/guides/test-sso',
+          'sso/guides/onboard-enterprise-customers',
+          'guides/sso/sso-migration-strategy',
+        ],
+      },
+      {
+        label: 'Guides',
         items: [
           'sso/guides/sso-basics',
           'sso/guides/authorization-url',
           'sso/guides/idp-init-sso',
-          'guides/user-auth/check-sso-domain',
           'sso/guides/add-login-ux-sso',
           'sso/guides/sso-user-attributes',
-          'guides/sso/sso-migration-strategy',
+          'sso/guides/test-sso',
         ],
       },
       {
@@ -352,22 +359,25 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
+        items: ['directory/scim/quickstart'],
+      },
+      {
+        label: 'How to...',
         items: [
-          'directory/scim/quickstart',
           'directory/guides/group-based-role-assignment',
+          'guides/user-management/scim-provisioning',
           'directory/guides/onboard-enterprise-customers',
+        ],
+      },
+      {
+        label: 'Guides',
+        items: [
+          'directory/guides/user-provisioning-basics',
+          'directory/guides/scim-protocol',
           {
             label: 'Directory webhooks reference',
             link: 'directory/reference/directory-events',
           },
-        ],
-      },
-      {
-        label: 'How-to guides',
-        items: [
-          'directory/guides/user-provisioning-basics',
-          'directory/guides/scim-protocol',
-          'guides/user-management/scim-provisioning',
         ],
       },
       {
