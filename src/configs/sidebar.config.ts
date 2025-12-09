@@ -172,16 +172,6 @@ export const sidebar = [
     link: 'fsa/guides/implement-signup',
     icon: 'seti:powershell',
     items: [
-      {
-        label: 'How to...',
-        collapsed: false,
-        items: [
-          {
-            label: 'Preserve target route post-auth',
-            link: 'guides/user-auth/preserve-intended-destination',
-          },
-        ],
-      },
       // {
       //   label: 'Authorization',
       //   collapsed: true,
@@ -197,6 +187,16 @@ export const sidebar = [
           'dev-kit/code-samples/modular-scim',
           'dev-kit/code-samples/agent-auth',
           'dev-kit/code-samples/mcp-auth',
+        ],
+      },
+      {
+        label: 'How to...',
+        collapsed: true,
+        items: [
+          {
+            label: 'Preserve target route post-auth',
+            link: 'guides/user-auth/preserve-intended-destination',
+          },
         ],
       },
       {
