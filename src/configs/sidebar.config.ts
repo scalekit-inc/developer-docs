@@ -182,11 +182,11 @@ export const sidebar = [
         collapsed: false,
         items: [
           'dev-kit/code-samples',
-          'dev-kit/code-samples/full-stack-auth',
+          'dev-kit/code-samples/mcp-auth',
+          'dev-kit/code-samples/agent-auth',
           'dev-kit/code-samples/modular-sso',
           'dev-kit/code-samples/modular-scim',
-          'dev-kit/code-samples/agent-auth',
-          'dev-kit/code-samples/mcp-auth',
+          'dev-kit/code-samples/full-stack-auth',
         ],
       },
       {
