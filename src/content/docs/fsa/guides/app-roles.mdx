@@ -168,17 +168,15 @@ You can register roles and permissions from the Scalekit dashboard:
 
 ## Configure organization specific roles
 
-Organization specific roles allow your organization administrators to create roles that go beyond the roles your application can assign.
+Organization-level roles let organization administrators create custom roles that apply only within their specific organization. These roles are separate from any application-level roles you define.
 
-For example, an organization administrator wants to create a role that allows users to create and manage projects. While this is covered by the `project_owner` role, the organization administrator may want to create a role that allows users to create and manage projects and also manage users.
+![](@/assets/docs/app-roles/2025-12-10-19-49-27.png)
 
-![](@/assets/docs/app-roles/organization-roles.png)
-
-You can go ahead and create organization specific roles from the Scalekit dashboard:
+You can create organization-level roles from the Scalekit Dashboard:
 - Go to **Organizations → Select an organization → Roles**
-- In **Custom Role** section, Click **+ Add role** and provide:
-  - **Display name**: Human-readable name (e.g., "Project Owner")
-  - **Name (key)**: Machine-friendly identifier (e.g., `project_owner`)
+- In **Organization roles** section, Click **+ Add role** and provide:
+  - **Display name**: Human-readable name (e.g., "Manager")
+  - **Name (key)**: Machine-friendly identifier (e.g., `manager`)
   - **Description**: Clear explanation of what users with this role can do
 
 <Tabs>
@@ -189,13 +187,11 @@ You can go ahead and create organization specific roles from the Scalekit dashbo
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
-  "description": "Organization Viewer Role will be used only for viewing the objects",
-  "display_name": "Organization Viewer Role",
-  "extends": "admin_role",
-  "name": "org_viewer_role",
+  "description": "Manage access to resources.",
+  "display_name": "Manager",
+  "name": "manager",
   "permissions": [
-    "read:users",
-    "write:documents"
+    "data:manage"
     ]
   }'
   ```
@@ -207,12 +203,11 @@ You can go ahead and create organization specific roles from the Scalekit dashbo
   View full API reference
 </LinkButton>
 
+## Set a default role for new organization members
 
-<Aside type='note' title='Do not send inherited permissions when creating roles'>
+You can also set a default role that is automatically assigned to any new user who joins a particular organization. This setting overrides the application-level default role.
 
-When you **create** or **update** a role, Scalekit automatically handles inherited permissions from base roles. You only need to specify the direct permissions for the role - inherited permissions will be included automatically in tokens and API responses.
-
-</Aside>
+![](@/assets/docs/app-roles/2025-12-10-19-48-16.png)
 
 ## Token contents and sessions
 
