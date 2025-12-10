@@ -59,7 +59,7 @@ export const secondaryNavItems: NavItem[] = [
         href: '/authenticate/mcp/quickstart/',
         label: 'MCP Auth',
         iconComponent: IconMcp,
-        description: 'Add plug-and-play OAuth for MCP servers with dynamic client registration',
+        description: 'Add OAuth for MCP servers with CIMD & dynamic client registration support',
         sectionLabel: 'MODULAR AUTH',
         sectionDescription: 'Add authentication modules to your existing auth system',
         columnGroup: 'left',
@@ -67,9 +67,10 @@ export const secondaryNavItems: NavItem[] = [
       {
         id: 'agent-auth',
         href: '/agent-actions/quickstart',
-        label: 'Agent Auth',
+        label: 'Agentic Auth',
         iconComponent: IconLucideBot,
-        description: 'Enable AI agents to authenticate and take actions on behalf of users',
+        description:
+          'Authenticate agents with external tools via a token vault managing consent, scopes, and OAuth tokens',
         columnGroup: 'left',
       },
       {
@@ -77,7 +78,7 @@ export const secondaryNavItems: NavItem[] = [
         href: '/authenticate/sso/add-modular-sso/',
         label: 'Modular SSO',
         iconComponent: IconMingcuteUserSecurityLine,
-        description: 'Enable drop-in SSO with SAML and OIDC for any enterprise identity provider',
+        description: 'Enable SAML or OIDC single sign-on for any enterprise identity provider',
         columnGroup: 'left',
       },
       {
@@ -85,7 +86,7 @@ export const secondaryNavItems: NavItem[] = [
         href: '/directory/scim/quickstart/',
         label: 'Modular SCIM',
         iconComponent: IconAntDesignUserSwitchOutlined,
-        description: 'Automate user and org provisioning and deprovisioning',
+        description: 'Automate user and group provisioning and de-provisioning',
         columnGroup: 'left',
       },
       {
@@ -94,9 +95,9 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'Quickstart', // Show in dropdown
         iconComponent: IconLucideRocket, // Distinct icon for Quickstart
-        description: 'Get started with Full stack auth',
-        sectionLabel: 'FULL STACK AUTH',
-        sectionDescription: 'Complete authentication solution with user management',
+        description: 'Set up Full-stack Auth and start building',
+        sectionLabel: 'FULL-STACK AUTH',
+        sectionDescription: 'Complete authentication and user management',
         columnGroup: 'right',
       },
       {
@@ -105,7 +106,7 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'User authentication', // Show in dropdown
         iconComponent: IconLucideLogIn, // Distinct icon for User Auth
-        description: 'Implement login and session management',
+        description: 'Implement login, sign-up flows and session management',
         columnGroup: 'right',
       },
       {
@@ -114,7 +115,7 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'Manage users & orgs', // Show in dropdown
         iconComponent: IconLucideBuilding2, // Distinct icon for Users & Orgs
-        description: 'Organization and user management',
+        description: 'Manage users and organizations with built-in multi-tenancy support',
         columnGroup: 'right',
       },
       {
@@ -123,7 +124,7 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'Authorization', // Show in dropdown
         iconComponent: IconLucideShieldCheck, // Distinct icon for Authorization
-        description: 'Roles, permissions, and access control',
+        description: 'Define roles, permissions, and access policies',
         columnGroup: 'right',
       },
       {
@@ -132,7 +133,7 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'Customize', // Show in dropdown
         iconComponent: IconLucidePalette, // Distinct icon for Customize
-        description: 'Branding, domains, and workflows',
+        description: 'Configure branding, domains, and authentication workflows',
         columnGroup: 'right',
       },
     ],
