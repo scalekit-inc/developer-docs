@@ -8,8 +8,11 @@ import {
   IconCodiconDebugStart,
   IconLucideOutlineWebhook,
   IconMingcuteUserSecurityLine,
+  IconGardenShapes26,
   IconAntDesignUserSwitchOutlined,
   IconLucideChevronDown as IconChevronDown,
+  IconHugeiconsResourcesAdd,
+  IconLucideBlocks,
 } from '../utils/icon-map'
 import IconLucideRocket from '~icons/lucide/rocket'
 import IconLucideLogIn from '~icons/lucide/log-in'
@@ -48,7 +51,7 @@ export const secondaryNavItems: NavItem[] = [
   {
     id: 'authenticate',
     href: '#authenticate',
-    label: 'Full stack auth',
+    label: 'Choose product',
     iconComponent: IconLucideUsers,
     children: [
       {
@@ -138,7 +141,7 @@ export const secondaryNavItems: NavItem[] = [
     id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit']
     href: '/dev-kit/code-samples/',
     label: 'Developer Resources',
-    iconComponent: IconLucideBookOpenText,
+    iconComponent: IconHugeiconsResourcesAdd,
   },
   {
     id: 'api-reference',

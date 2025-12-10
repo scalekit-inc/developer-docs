@@ -251,6 +251,7 @@ export {
   IconCodiconDebugStart,
   IconLucideRocket,
   IconSimpleIconsLangchain,
+  IconLucideBlocks,
 
   // Content type icons
   IconHugeiconsResourcesAdd,
