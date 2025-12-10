@@ -28,9 +28,7 @@ Enterprise SSO allows users to sign in to your application using their organizat
 
 ![How Scalekit connects your application to enterprise identity providers](@/assets/docs/sso-quickstart/how-scalekit-connects.png)
 
-This guide shows you how to enable enterprise SSO for your customers.
-
-This guide shows you how to enable each passwordless login method. You should complete the [quickstart guide](/fsa/quickstart/) before following this guide, as it covers building a sign-in page that combines Scalekit's hosted UI.
+This guide shows you how to enable enterprise SSO for your customers. You should complete the [quickstart guide](/fsa/quickstart/) before following this guide, as it covers building a sign-in page that combines Scalekit's hosted UI.
 
 ## Onboard your enterprise customer
 
@@ -70,60 +68,187 @@ Once they have configured their IdP, the connection will be active for their org
   During development, you don't need to manually configure each identity provider your customers might use. Scalekit provides an IdP simulator that helps you test the SSO flow easily. Learn more about [testing your SSO integration](/sso/guides/test-sso/).
 </Aside>
 
-## Organization domain verification
+## Organization domains
+Organization domains are used for **Home Realm Discovery**. When a user enters an email address whose domain matches one of the organization’s configured domains, Scalekit automatically redirects them to the correct SSO provider. For example, if an organization registers *megacorp.org*, any user signing in with *@megacorp.org* will be routed to Megacorp’s SSO connection. When the domain matches, Scalekit enforces SSO login for the user. You can manage organization domains in the Scalekit Dashboard or programmatically using the API.
 
-When organization admins verify organization domains, users can sign in directly through their organization's identity provider from the sign-in page. Scalekit uses the domain part of their email address (for example, `@megacorp.org`) to automatically redirect them to the correct identity provider for authentication. Also called Home Realm Discovery. You can add a verified domain manually on behalf of your customer from the Scalekit Dashboard -> Organizations -> Select an Organization -> Single Sign On
+### Manage via Scalekit Dashboard
+![](@/assets/docs/enterprise-sso/2025-12-10-14-23-20.png)
 
-**Organization admins** can verify domains through the [admin portal](/guides/sso/admin-portal/). Once verified, any user with an email address from that domain can use SSO.
+<Steps>
+1. Navigate to **Organizations** and select the target organization.
+2. Go to **Organization Domains** section.
+3. Add or remove domains for that organization.
+</Steps>
 
-1. **DNS verification**: Add a DNS TXT record to prove domain ownership. The Admin Portal guides you through each step of adding the record. Once you add the record correctly, Scalekit automatically completes the verification. <Badge type="note" text="Coming soon" />
-2. **Manual verification**: Request domain verification through the Scalekit Dashboard. This method is suitable when you have already verified domain ownership through other means.
+## Manage via API
 
-#### Pre-check SSO by domain (when using discovery)
+You can also configure organization domains using the Scalekit API.
 
-If your login form uses discovery (`domain_hint` or `login_hint`), run a lightweight check to confirm the user’s email domain maps to an active SSO connection before redirecting. This prevents dead-end redirects and helps you present the right path (SSO vs non‑SSO).
+<InstallSDK />
 
-- Recommended when: You ask for email first or infer SSO from the domain.
-- Skip when: You already pass `organizationId` or `connectionId` explicitly.
 
-How to implement:
-1. Ask for email and extract the domain
-2. Query for connections by domain
-3. If found → redirect with `domain_hint` (or `connectionId`)
-4. If none → route to your non‑SSO flow
 
-```sh showLineNumbers=false
-curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/connections?domain=megacorp.org'
+### Register an organization domain
+
+**Path Parameters:**
+  - `organization_id` (string, required): The ID of the organization
+
+**Request Body:**
+  - `domain` (string, required): The email domain to add (e.g., "customerdomain.com")
+  - `domain_type` (string, required): Must be "ORGANIZATION_DOMAIN"
+
+<Tabs>
+<TabItem label="cURL">
+
+```sh title="Register an organization domain"
+curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains' \
+  --request POST \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "domain": "customerdomain.com",
+  "domain_type": "ORGANIZATION_DOMAIN" 
+}'
 ```
 
-```js title="Example (pseudocode)" showLineNumbers=false
-const domain = email.split('@')[1].toLowerCase();
-const connections = await scalekit.connections.listConnectionsByDomain({ domain });
+</TabItem>
+<TabItem label="Nodejs">
 
-if (connections.length > 0) {
-  // Proceed with SSO (domain_hint/login_hint or connectionId)
-} else {
-  // Fallback: passwordless, magic link, or other methods
+```js title="Register an organization domain"
+// Add a new organization domain
+const response = await scalekit.createDomain("org-123", "customerdomain.com", {
+	domainType: "ORGANIZATION_DOMAIN",
+});
+```
+
+</TabItem>
+</Tabs>
+
+
+
+```json title="Response"
+{
+    "domain": {
+        "id": "dom_88351643129225005",
+        "domain": "customerdomain.com",
+        "environment_id": "env_58345499215790610",
+        "organization_id": "org_81667076086825451",
+        "create_time": "2025-09-01T12:14:43.100Z",
+        "update_time": "2025-09-01T12:14:43.110455169Z",
+        "domain_type": "ORGANIZATION_DOMAIN"
+    }
 }
 ```
 
-<Aside>
-This check returns results only when the domain is configured for an organization with an enabled SSO connection. See the <a href="https://docs.scalekit.com/apis/#tag/connections/get/api/v1/connections" target="_blank" rel="noopener">connections API reference</a>.
-</Aside>
 
+### List organization domains
+
+**Request Parameters:**
+
+- **Path Parameters:**
+  - `organization_id` (string, required): The ID of the organization
+
+<Tabs>
+<TabItem label="cURL">
+
+```sh title="List all organization domains for an organization"
+curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains&domain_type=ORGANIZATION_DOMAIN' \
+  --header 'Authorization: Bearer YOUR_SECRET_TOKEN'
+ 
+Status:200
+
+{
+  "domains": [
+    {
+      "create_time": "2025-09-01T11:59:50.005Z",
+      "domain": "customerdomain.com",
+      "domain_type": "ORGANIZATION_DOMAIN",
+      "environment_id": "env_73947929838",
+      "id": "dom_883516432292250875",
+      "organization_id": "org_987654321",
+      "update_time": "2025-09-01T11:59:50.005Z",
+    }
+  ],
+  "page_number": 1,
+  "page_size": 1
+}
+```
+
+</TabItem>
+<TabItem label="Nodejs">
+
+```js title="List all organization domains for an organization"
+// List all organization domains for an organization
+const response = await scalekit.domain.listDomains(organizationId, {
+        domainType: "ORGANIZATION_DOMAIN"
+      });
+// Domain object contains:
+// - id: Domain identifier
+// - domain: Domain name
+// - organizationId: Owning organization
+// - domainType: Configuration type
+```
+
+</TabItem>
+</Tabs>
+
+```json title="Response"
+{
+  "domains": [
+    {
+      "create_time": "2025-09-01T11:59:50.005Z",
+      "domain": "customerdomain.com",
+      "domain_type": "ORGANIZATION_DOMAIN",
+      "environment_id": "env_73947929838",
+      "id": "dom_883516432292250875",
+      "organization_id": "org_987654321",
+      "update_time": "2025-09-01T11:59:50.005Z",
+    }
+  ],
+  "page_number": 1,
+  "page_size": 1
+}
+```
+
+### Delete an organization domain
+
+**Request Parameters:**
+
+- **Path Parameters:**
+  - `organization_id` (string, required): The ID of the organization
+  - `id` (string, required): The ID of the domain to delete
+
+<Tabs>
+<TabItem label="cURL">
+
+```sh title="Delete an organization domain"
+curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains/{id}' \
+  --request DELETE
+```
+
+</TabItem>
+<TabItem label="Nodejs">
+
+```js title="Delete an organization domain"
+// Remove an organization domain
+// Caution: Deletion is permanent and may affect user access
+const response = await client.domain.deleteDomain(organizationId, domainId);
+```
+
+</TabItem>
+</Tabs>
+
+## Advanced SSO settings
+Scalekit provides additional settings for Enterprise SSO connections. These settings can be managed under **Single Sign On** → **Settings** in the Scalekit dashboard or Admin Portal.
+![](@/assets/docs/enterprise-sso/2025-12-09-13-59-23.png)
+
+### Just-in-time provisioning
+Just-in-time (JIT) provisioning automatically creates users and organization memberships when they sign in through SSO for the first time. JIT is enabled by default for all new SSO connections. Learn more about [JIT provisioning](/fsa/guides/just-in-time-provisioning/).
+
+### Sync user attributes during login
+When you enable **Sync user attributes during login**, Scalekit updates the user’s profile using attributes from the identity provider each time they authenticate. This keeps the user’s profile in Scalekit aligned with the external Identity Provider. This ensures that user profile maintained on Scalekit end remains in sync with the SSO identity provider.
 
 
 ## What's next?
-
-<div class="sk-quiz">
-<Quiz title="When should you run a domain-based SSO pre-check?" variant="minimal">
-  <QuizOption correct>When using discovery via domain_hint or login_hint</QuizOption>
-  <QuizOption>Always, even if passing organizationId or connectionId</QuizOption>
-  <QuizOption>Never; redirects should be attempted first</QuizOption>
-  <QuizOption>Only after receiving the OAuth callback</QuizOption>
-</Quiz>
-</div>
-
 - Learn more about the [Admin Portal](/guides/sso/admin-portal/) and its customization options.
 - [Customize the login page](/fsa/guides/login-page-branding/) to match your brand's design and style.
 - Explore our [SSO integration guides](/guides/integrations/sso-integrations/) for specific identity provider configurations.
