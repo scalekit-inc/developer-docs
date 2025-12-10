@@ -80,24 +80,22 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    1. Provide a **name** for your MCP server to help you identify it easily. This name appears on the Consent page that MCP hosts display to users when authorizing access to your MCP server.
    2. Enter the **Server URL** where your MCP server is hosted. Include the trailing slash (for example, `https://mcp.yourapp.com/`). Scalekit includes this URL as the `aud` claim in issued tokens, indicating that the token was intended for your specific MCP server. You can optionally validate this claim before allowing tool access or execution.
    3. Enable **dynamic client registration** for MCP hosts. This allows MCP hosts to automatically register with Scalekit (and your authorization server), eliminating the need for manual registration and making it easier for users to adopt your MCP server securely.
-   4. Define the **scopes** that MCP hosts can request for this MCP server. These scopes are pre-approved when users authenticate to use your MCP server, streamlining the authorization process.
    5. Click **Save** to register the server.
 
    When you save, Scalekit displays the OAuth-protected resource metadata. Copy this JSON—you'll use it to implement the discovery endpoint, up next.
 
    <details>
-   <summary>Advanced settings</summary>
-
-   These settings are optional and can be configured at a later time.
+   <summary>Advanced settings (optional)</summary>
    - **Resource identifier**: Your MCP server's unique identifier, typically your server's URL (e.g., `https://mcp.yourapp.com`). This is an optional field. If not provided, Scalekit will use the generated resource_id as the resource identifier. If provided, access tokens minted by Scalekit will have the resource identifier as `aud` claim along with the Scalekit generated resource_id.
-   - **Access token lifetime**: Recommended 300-3600 seconds (5 minutes to 1 hour)
-   - **Scopes**: Define the permissions your MCP server needs, such as `usr:read` or `usr:write`
-
-   </details>
 
    <Aside type="tip" title="Using FastMCP?">
      If you're using FastMCP, you must provide a resource identifier. For a server running at `https://mcp.example.com/mcp`, register `https://mcp.example.com/` as the resource identifier. FastMCP appends <code>/mcp</code> automatically, so use the base URL with a trailing slash only.
    </Aside>
+
+   - **Access token lifetime**: Recommended 300-3600 seconds (5 minutes to 1 hour)
+   - **Scopes**: Define the permissions your MCP server needs, such as `usr:read` or `usr:write`. These scopes are pre-approved when users authenticate to use your MCP server, streamlining the authorization process.
+
+   </details>
 
 3. ## Let MCP clients discover your OAuth2.1 authorization server
 
