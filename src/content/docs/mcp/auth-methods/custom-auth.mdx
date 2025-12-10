@@ -1,0 +1,216 @@
+---
+title: Federated Auth Integration Guide
+description: Using Scalekit as a drop-in OAuth 2.1 authorization layer for your MCP Servers with federated authentication to your existing auth layer.
+sidebar:
+  label: 'Bring your own auth'
+  order: 3
+topic: 'mcp'
+---
+import Subtitle from '@/components/ui/Subtitle.astro'
+import { CardGrid, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+
+This document explains how to integrate your existing authentication system with Scalekit's drop-in OAuth 2.1 authorization layer. Follow the steps below to enable seamless and secure OAuth2.1 MCP layer for your users.
+
+---
+
+## Step-by-Step Workflow
+
+When an MCP client initiates an authentication flow, Scalekit redirects to your login endpoint. You then provide user details to Scalekit via a secure backend call, and finally redirect back to Scalekit to complete the process.
+
+![MCP Federated Auth - Sequence Diagram](@/assets/docs/m2m/mcp/mcp_federated_auth_sequence.png)
+
+### 1. Initiate Authentication
+
+- The MCP client starts the authentication flow by calling `/oauth/authorize` on Scalekit.
+- Scalekit redirects the user to your login endpoint, passing two parameters:
+  - `login_request_id`: Unique identifier for the login request.
+  - `state`: Value to maintain state between requests.
+
+**Example Redirect URL:**
+
+```
+https://app.example.com/login?login_request_id=lri_86659065219908156&state=HntJ_ENB6y161i9_P1yzuZVv2SSTfD3aZH-Tej0_Y33_Fk8Z3g
+```
+
+---
+
+### 2. Handle Authentication in Your Application
+
+Once the user lands on your login page:
+
+#### a. Authenticate the User
+
+Take the user through your regular authentication logic (e.g., username/password, SSO, etc.).
+
+#### b. Send User Details to Scalekit
+
+Send the authenticated user’s profile details from your backend to Scalekit to complete the login handshake.
+
+<Tabs group="sdk" style="pill">
+<TabItem label="Python">
+
+```bash
+pip install scalekit-sdk-python
+```
+
+```python title="send_user_details.py"
+from scalekit import ScalekitClient
+import os
+
+scalekit = ScalekitClient(
+    os.environ.get('SCALEKIT_ENVIRONMENT_URL'),
+    os.environ.get('SCALEKIT_CLIENT_ID'),
+    os.environ.get('SCALEKIT_CLIENT_SECRET')
+)
+
+# Update login user details
+scalekit.auth.update_login_user_details(
+    connection_id="{{connection_id}}",
+    login_request_id="{{login_request_id}}",
+    user={
+        "sub": "1234567890",
+        "email": "alice@example.com"
+    },
+)
+```
+
+</TabItem>
+<TabItem label="Node.js">
+
+```bash
+npm install @scalekit-sdk/node
+```
+
+```javascript title="sendUserDetails.js"
+import { Scalekit } from '@scalekit-sdk/node';
+
+// Initialize client
+const scalekit = new Scalekit(
+  process.env.SCALEKIT_ENVIRONMENT_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
+
+// Update login user details
+await scalekit.auth.updateLoginUserDetails(
+  '{{connection_id}}',              // connectionId
+  '{{login_request_id}}',           // loginRequestId
+  {
+    sub: '1234567890',
+    email: 'alice@example.com'
+  }
+);
+```
+
+</TabItem>
+<TabItem label="Go">
+
+```bash
+go get -u github.com/scalekit-inc/scalekit-sdk-go
+```
+
+```go title="send_user_details.go"
+import (
+	"context"
+	"fmt"
+	"github.com/scalekit-inc/scalekit-sdk-go/v2"
+	"os"
+)
+
+// Get the connectionId from ScaleKit dashboard -> MCP Server -> Your Server -> User Info Post Url
+// eg. https://example.scalekit.dev/api/v1/connections/conn_70982106544698372/auth-requests/{{login_request_id}}/user
+// Your connectionId is conn_70982106544698372 in this example
+func updateLoggedInUserDetails() error {
+	skClient := scalekit.NewScalekitClient(
+		os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+		os.Getenv("SCALEKIT_CLIENT_ID"),
+		os.Getenv("SCALEKIT_CLIENT_SECRET"),
+	)
+	err := skClient.Auth().UpdateLoginUserDetails(context.Background(), &scalekit.UpdateLoginUserDetailsRequest{
+		ConnectionId:   "{{connection_id}}",
+		LoginRequestId: "{{login_request_id}}", // this value is dynamic per login
+		User: &scalekit.LoggedInUserDetails{
+			Sub:   "1234567890",
+			Email: "alice@example.com",
+		},
+	})
+	if err != nil {
+		return err
+	}
+	// Only if there is no error, perform the redirect to scalekit using the redirect url on your Scalekit Dashboard -> MCP Servers
+	return nil
+}
+```
+
+</TabItem>
+<TabItem label="cURL">
+
+Aquire an `access_token` before you could send user details by hitting the `/oauth/token` endpoint. You can get `env_url`, `sk_client_id` and `sk_client_secret` from _Scalekit Dashboard > Settings_
+
+```bash title="Terminal" frame="terminal"
+curl --location '{{env_url}}/oauth/token' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'grant_type=client_credentials' \
+--data-urlencode 'client_id={{sk_client_id}}' \
+--data-urlencode 'client_secret={{sk_client_secret}}'
+```
+
+Scalekit responds with a JSON payload similar to:
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIn0...",
+  "token_type": "Bearer",
+  "expires_in": 3600
+}
+```
+
+Use the `access_token` in the `Authorization` header when making a machine-to-machine POST request to Scalekit with the user's details.
+
+```bash
+curl --location '{{env_url}}/api/v1/connections/{{connection_id}}/auth-requests/{{login_request_id}}/user' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer {{access_token}}' \
+  --data-raw '{
+    "sub": "1234567890",
+    "email": "alice@example.com"
+  }'
+```
+
+</TabItem>
+</Tabs>
+
+:::note
+- Replace placeholders like `{{env_url}}`, `{{connection_id}}`, `{{login_request_id}}`, and `{{access_token}}` with actual values.  
+- Only `sub` and `email` are required fields; all other properties are optional.  
+:::
+
+---
+
+### 3. Redirect Back to Scalekit
+
+- Once you receive a successful response from Scalekit, redirect the user back to Scalekit using the provided `state` value to the below endpoint.
+
+**Example Redirect URL:**
+
+```
+{{envurl}}/sso/v1/connections/{{connection_id}}/partner:callback?state={{state_value}}
+```
+
+`state_value` should match the `state` parameter you received in Step 1.
+
+---
+
+## 4. Completion
+
+- After processing the callback from your auth system, Scalekit will handle the remaining steps (showing the consent screen to the user, token exchange, etc.) automatically.
+
+:::tip
+
+- Ensure your backend securely stores and transmits all sensitive data.
+- The `login_request_id` and `state` parameters are essential for correlating requests and maintaining security.
+
+:::
+
+## Next Steps
+
+**Download our sample MCP Server:** We have put together a simple MCP server that you can check out and run it locally to test the end to end functionality of a working MCP server complete with authentication and authorization. You can download and execute a sample MCP server implementation from <a href="https://github.com/scalekit-inc/mcp-auth-demos" target="_blank" rel="noopener">GitHub</a>.

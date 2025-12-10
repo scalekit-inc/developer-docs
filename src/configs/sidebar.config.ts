@@ -264,11 +264,14 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
+        items: ['authenticate/mcp/overview', 'authenticate/mcp/quickstart'],
+      },
+      {
+        label: 'Auth methods',
         items: [
-          'authenticate/mcp/overview',
-          'authenticate/mcp/quickstart',
-          'authenticate/mcp/custom-auth',
-          'authenticate/mcp/managing-mcp-clients',
+          'mcp/auth-methods/enterprise',
+          'mcp/auth-methods/social',
+          'mcp/auth-methods/custom-auth',
         ],
       },
       {
@@ -291,6 +294,7 @@ export const sidebar = [
         label: 'Resources',
         items: [
           'authenticate/mcp/intro-to-mcp-auth',
+          'authenticate/mcp/code-samples',
           'authenticate/mcp/troubleshooting',
           'authenticate/mcp/additional-reading',
         ],
@@ -398,8 +402,8 @@ export const topics = {
 
   // === Specific topic mappings (order matters - most specific first) ===
 
-  // MCP authentication (subset of /authenticate)
-  mcp: ['/authenticate/mcp/**/*'],
+  // MCP authentication (subset of /authenticate and /mcp)
+  mcp: ['/authenticate/mcp/**/*', '/mcp/**/*'],
 
   // Modular SSO (includes /sso and /authenticate/sso)
   'modular-sso': ['/authenticate/sso/**/*', '/sso/**/*'],

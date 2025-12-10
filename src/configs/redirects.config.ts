@@ -155,13 +155,6 @@ export const redirects = {
   '/guides/mcp/additional-reading': '/authenticate/mcp/additional-reading/',
   '/mcp/guides/additional-reading': '/authenticate/mcp/additional-reading/',
 
-  // MCP auth methods moved to /authenticate/mcp/
-  '/guides/mcp/custom-auth': '/authenticate/mcp/custom-auth/',
-  '/mcp/guides/custom-auth': '/authenticate/mcp/custom-auth/',
-  '/mcp/auth-methods/custom-auth': '/authenticate/mcp/custom-auth/',
-  '/mcp/auth-methods/enterprise/': '/authenticate/mcp/custom-auth/',
-  '/mcp/auth-methods/social/': '/authenticate/mcp/custom-auth/',
-
   // MCP topology pages moved to /authenticate/mcp/topologies/
   '/mcp/topologies/human-mcp': '/authenticate/mcp/topologies/human-mcp/',
   '/mcp/topologies/agent-mcp': '/authenticate/mcp/topologies/agent-mcp/',
