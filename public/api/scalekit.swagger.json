@@ -1,10 +1,16 @@
 {
-  "consumes": ["application/json"],
-  "produces": ["application/json"],
-  "schemes": ["https"],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https"
+  ],
   "swagger": "2.0",
   "info": {
-    "description": "# Introduction\n\nThe Scalekit API is a comprehensive RESTful API that enables you to manage organizations, users, authentication settings, and identity provider integrations. All requests must use HTTPS and require proper authentication.\n\n### Base URL\n\nAll API requests use the following base URLs:\n\n```\nhttps://{environment}.scalekit.dev (Development)\nhttps://{environment}.scalekit.com (Production)\nhttps://auth.example.com (Custom domain)\n```\n\nScalekit operates two separate environments: Development and Production. Resources cannot be moved between environments.\n\n# Authentication\n\nThe Scalekit API uses OAuth 2.0 Client Credentials for authentication.\n\nGetting an access token\n\n1. Get your credentials from the [Scalekit Dashboard](https://app.scalekit.com): `SCALEKIT_ENVIRONMENT_URL`, `SCALEKIT_CLIENT_ID`, `SCALEKIT_CLIENT_SECRET`\n\n2. Request an access token:\n\n```shell\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/oauth/token \\\n  -X POST \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  -d 'client_id={client_id}' \\\n  -d 'client_secret={client_secret}' \\\n  -d 'grant_type=client_credentials'\n```\n\nUse the access token in API requests:\n\n```shell\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/api/v1/organizations \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer {access_token}'\n```\n\nThe response includes an access token:\n\n```json\n{\n\t\"access_token\": \"eyJhbGciOiJSUzI1NiIsImInR5cCI6IkpXVCJ9...\",\n\t\"token_type\": \"Bearer\",\n\t\"expires_in\": 86399,\n\t\"scope\": \"openid\"\n}\n```\n",
+    "description": "# Introduction\n\nThe Scalekit API is a RESTful API that enables you to manage organizations, users, and authentication settings. All requests must use HTTPS.\nAll API requests use the following base URLs:\n\n```\nhttps://{environment}.scalekit.dev (Development)\nhttps://{environment}.scalekit.com (Production)\nhttps://auth.example.com (Custom domain)\n```\n\nScalekit operates two separate environments: Development and Production. Resources cannot be moved between environments.\n\n# Authentication\n\nThe Scalekit API uses OAuth 2.0 Client Credentials for authentication.\n\nCopy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.\n\n```sh\nSCALEKIT_ENVIRONMENT_URL='\u003cYOUR_ENVIRONMENT_URL\u003e'\nSCALEKIT_CLIENT_ID='\u003cENVIRONMENT_CLIENT_ID\u003e'\nSCALEKIT_CLIENT_SECRET='\u003cENVIRONMENT_CLIENT_SECRET\u003e'\n```\n\nGetting an access token\n\n1. Get your credentials from the [Scalekit Dashboard](https://app.scalekit.com)\n2. Request an access token:\n\n```sh\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/oauth/token \\\n  -X POST \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  -d 'client_id={client_id}' \\\n  -d 'client_secret={client_secret}' \\\n  -d 'grant_type=client_credentials'\n```\n\n3. Use the access token in API requests:\n\n```sh\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/api/v1/organizations \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer {access_token}'\n```\n\nThe response includes an access token:\n\n```json\n{\n\t\"access_token\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6InNua181Ok4OTEyMjU2NiIsInR5cCI6IkpXVCJ9...\",\n\t\"token_type\": \"Bearer\",\n\t\"expires_in\": 86399,\n\t\"scope\": \"openid\"\n}\n```\n\n# SDKs\n\nScalekit provides official SDKs for multiple programming languages. Check the changelog at GitHub repositories for the latest updates.\n\n### Node.js\n\n```sh\nnpm install @scalekit-sdk/node\n```\n\nCreate a new Scalekit client instance after initializing the environment variables\n\n```js\nimport { Scalekit } from \"@scalekit-sdk/node\";\n\nexport let scalekit = new Scalekit(\n\tprocess.env.SCALEKIT_ENVIRONMENT_URL,\n\tprocess.env.SCALEKIT_CLIENT_ID,\n\tprocess.env.SCALEKIT_CLIENT_SECRET\n);\n```\n\n[See the Node SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-node/releases)\n\n### Python\n\n```sh\npip install scalekit-sdk-python\n```\n\nCreate a new Scalekit client instance after initializing the environment variables.\n\n```py\nfrom scalekit import ScalekitClient\nimport os\n\nscalekit_client = ScalekitClient(\n    os.environ.get('SCALEKIT_ENVIRONMENT_URL'),\n    os.environ.get('SCALEKIT_CLIENT_ID'),\n    os.environ.get('SCALEKIT_CLIENT_SECRET')\n)\n```\n\n[See the Python SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-python/releases)\n\n### Go\n\n```sh\ngo get -u github.com/scalekit-inc/scalekit-sdk-go\n```\n\nCreate a new Scalekit client instance after initializing the environment variables.\n\n```go\npackage main\n\nimport (\n    \"os\"\n    \"github.com/scalekit-inc/scalekit-sdk-go\"\n)\n\nscalekitClient := scalekit.NewScalekitClient(\n    os.Getenv(\"SCALEKIT_ENVIRONMENT_URL\"),\n    os.Getenv(\"SCALEKIT_CLIENT_ID\"),\n    os.Getenv(\"SCALEKIT_CLIENT_SECRET\"),\n)\n```\n\n[See the Go SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-go/releases)\n\n### Java\n\n```gradle\n/* Gradle users - add the following to your dependencies in build file */\nimplementation \"com.scalekit:scalekit-sdk-java:2.0.6\"\n```\n\n```xml\n\u003c!-- Maven users - add the following to your `pom.xml` --\u003e\n\u003cdependency\u003e\n    \u003cgroupId\u003ecom.scalekit\u003c/groupId\u003e\n    \u003cartifactId\u003escalekit-sdk-java\u003c/artifactId\u003e\n    \u003cversion\u003e2.0.6\u003c/version\u003e\n\u003c/dependency\u003e\n```\n\n[See the Java SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-java/releases)\n\n# Error handling\n\nThe API uses standard HTTP status codes:\n\n| Code        | Description          |\n| ----------- | -------------------- |\n| 200/201     | Success              |\n| 400         | Invalid request      |\n| 401         | Authentication error |\n| 404         | Resource not found   |\n| 429         | Rate limit exceeded  |\n| 500/501/504 | Server error         |\n\nError responses include detailed information:\n\n```json\n{\n\t\"code\": 16,\n\t\"message\": \"Token empty\",\n\t\"details\": [\n\t\t{\n\t\t\t\"@type\": \"type.googleapis.com/scalekit.v1.errdetails.ErrorInfo\",\n\t\t\t\"error_code\": \"UNAUTHENTICATED\"\n\t\t}\n\t]\n}\n```\n\n",
     "title": "Scalekit APIs",
     "contact": {
       "name": "Scalekit Inc",
@@ -16,50 +22,364 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0"
     },
     "version": "1.0.0",
-    "x-scalar-environments": {
-      "development": {
-        "color": "#10B981",
-        "description": "Development environment",
-        "variables": {
-          "apiUrl": {
-            "default": "https://{subdomain}.scalekit.dev",
-            "description": "API URL"
-          },
-          "subdomain": {
-            "default": "yourapp",
-            "description": "Your unique Scalekit subdomain"
-          }
-        }
-      },
-      "production": {
-        "color": "#0082D0",
-        "description": "Production environment",
-        "variables": {
-          "apiUrl": {
-            "default": "https://{subdomain}.scalekit.com",
-            "description": "API URL"
-          },
-          "subdomain": {
-            "default": "yourapp",
-            "description": "Your unique Scalekit subdomain"
-          }
-        }
-      }
-    },
     "x-scalar-sdk-installation": [
       {
-        "description": "Install the Scalekit SDK for your preferred language:",
+        "description": "Set up OAuth 2.0 Client Credentials authentication to access Scalekit APIs. Includes credential configuration, token exchange, and authenticated API request examples.",
         "lang": "shell",
-        "source": "# Node.js\nnpm install @scalekit-sdk/node\n\n# Python\npip install scalekit-sdk-python\n\n# Go\ngo get -u github.com/scalekit-inc/scalekit-sdk-go\n\n# Java (Gradle)\nimplementation \"com.scalekit:scalekit-sdk-java:2.0.5\"\n\n# Java (Maven)\n\u003cdependency\u003e\n  \u003cgroupId\u003ecom.scalekit\u003c/groupId\u003e\n  \u003cartifactId\u003escalekit-sdk-java\u003c/artifactId\u003e\n  \u003cversion\u003e2.0.5\u003c/version\u003e\n\u003c/dependency\u003e"
+        "source": "\n# 1. Obtain API Credentials\n# Get your credentials from the Scalekit dashboard\nexport SCALEKIT_ENVIRONMENT_URL=\"https://your-org.scalekit.dev\" # Your Scalekit environment URL\nexport SCALEKIT_CLIENT_ID=\"your_client_id\"                      # Your client ID\nexport SCALEKIT_CLIENT_SECRET=\"your_client_secret\"              # Your client secret\n\n# 2. Exchange client credentials an OAuth 2.0 access token\nTOKEN_RESPONSE=$(curl -s -X POST \"${SCALEKIT_ENVIRONMENT_URL}/oauth/token\" \\\n  -H \"Content-Type: application/x-www-form-urlencoded\" \\\n  -d \"client_id=${SCALEKIT_CLIENT_ID}\" \\\n  -d \"client_secret=${SCALEKIT_CLIENT_SECRET}\" \\\n  -d \"grant_type=client_credentials\")\n\n# 3. Make Authenticated API Requests\ncurl -X GET \"${SCALEKIT_ENVIRONMENT_URL}/api/v1/organizations\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n  -H \"Accept: application/json\"\n"
       }
     ]
   },
   "host": "$SCALEKIT_ENVIRONMENT_URL",
   "paths": {
+    "/api/v1/connected_accounts": {
+      "get": {
+        "description": "Retrieves a paginated list of connected accounts for third-party integrations. Filter by organization, user, connector type, provider, or identifier. Returns OAuth tokens, API keys, and connection status for each account. Use pagination tokens to navigate through large result sets.",
+        "tags": [
+          "Connected Accounts"
+        ],
+        "summary": "List connected accounts",
+        "operationId": "ConnectedAccountService_ListConnectedAccounts",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Filter by organization ID. Returns only connected accounts associated with this organization.",
+            "name": "organization_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by user ID. Returns only connected accounts associated with this user.",
+            "name": "user_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by connector type. Connector identifier such as 'notion', 'slack', 'google', etc. Alphanumeric with hyphens and underscores allowed.",
+            "name": "connector",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by account identifier. The unique identifier for the connected account within the third-party service (e.g., email address, workspace ID).",
+            "name": "identifier",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by OAuth provider. The authentication provider name such as 'google', 'microsoft', 'github', etc.",
+            "name": "provider",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum number of connected accounts to return per page. Must be between 0 and 100. Default is typically 10.",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Pagination token from a previous response. Use the next_page_token value from ListConnectedAccountsResponse to fetch the next page.",
+            "name": "page_token",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Text search query to filter connected accounts by name, identifier, or other searchable fields. Case-insensitive.",
+            "name": "query",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of connected accounts with their authentication details and status",
+            "schema": {
+              "$ref": "#/definitions/connected_accountsListConnectedAccountsResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request - occurs when query parameters are malformed or validation fails",
+            "schema": {}
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "schema": {}
+          }
+        }
+      },
+      "put": {
+        "description": "Updates authentication credentials and configuration for an existing connected account. Modify OAuth tokens, refresh tokens, access scopes, or API configuration settings. Specify the account by ID, or by combination of organization/user, connector, and identifier. Returns the updated account with new token expiry and status information.",
+        "tags": [
+          "Connected Accounts"
+        ],
+        "summary": "Update connected account credentials",
+        "operationId": "ConnectedAccountService_UpdateConnectedAccount",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/connected_accountsUpdateConnectedAccountRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Connected account updated successfully with new credentials or configuration",
+            "schema": {
+              "$ref": "#/definitions/connected_accountsUpdateConnectedAccountResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing required fields, invalid authorization details, or validation failed",
+            "schema": {}
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "schema": {}
+          },
+          "404": {
+            "description": "Connected account not found - the specified account does not exist",
+            "schema": {}
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new connected account with OAuth tokens or API credentials for third-party service integration. Supply authorization details including access tokens, refresh tokens, scopes, and optional API configuration. The account can be scoped to an organization or user. Returns the created account with its unique identifier and authentication status.",
+        "tags": [
+          "Connected Accounts"
+        ],
+        "summary": "Create a connected account",
+        "operationId": "ConnectedAccountService_CreateConnectedAccount",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/connected_accountsCreateConnectedAccountRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Connected account created successfully with authentication credentials stored securely",
+            "schema": {
+              "$ref": "#/definitions/connected_accountsCreateConnectedAccountResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing required fields, invalid authorization details, or validation failed",
+            "schema": {}
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "schema": {}
+          },
+          "409": {
+            "description": "Conflict - connected account with the same identifier already exists",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/v1/connected_accounts/auth": {
+      "get": {
+        "description": "Retrieves complete authentication details for a connected account including OAuth tokens, refresh tokens, scopes, and API configuration. Query by account ID or by combination of organization/user, connector, and identifier. Returns sensitive credential information - use appropriate access controls.",
+        "tags": [
+          "Connected Accounts"
+        ],
+        "summary": "Get connected account details",
+        "operationId": "ConnectedAccountService_GetConnectedAccountAuth",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Organization ID for the connector",
+            "name": "organization_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "User ID for the connector",
+            "name": "user_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Connector identifier",
+            "name": "connector",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
+            "name": "identifier",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Unique identifier for the connected account",
+            "name": "id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved connected account with full authentication details",
+            "schema": {
+              "$ref": "#/definitions/connected_accountsGetConnectedAccountByIdentifierResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing required query parameters",
+            "schema": {}
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "schema": {}
+          },
+          "404": {
+            "description": "Connected account not found - no account matches the specified criteria",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/v1/connected_accounts/magic_link": {
+      "post": {
+        "description": "Creates a time-limited magic link for connecting or re-authorizing a third-party account. The link directs users to the OAuth authorization flow for the specified connector. Returns the generated link URL and expiration timestamp. Links typically expire after a short duration for security.",
+        "tags": [
+          "Connected Accounts"
+        ],
+        "summary": "Generate authentication magic link",
+        "operationId": "ConnectedAccountService_GetMagicLinkForConnectedAccount",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/connected_accountsGetMagicLinkForConnectedAccountRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Magic link generated successfully with authorization URL and expiry time",
+            "schema": {
+              "$ref": "#/definitions/connected_accountsGetMagicLinkForConnectedAccountResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing required parameters or invalid connector",
+            "schema": {}
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/v1/connected_accounts:delete": {
+      "post": {
+        "description": "Permanently removes a connected account and revokes all associated authentication credentials. Identify the account by ID, or by combination of organization/user, connector, and identifier. This action cannot be undone. All OAuth tokens and API keys for this account will be invalidated.",
+        "tags": [
+          "Connected Accounts"
+        ],
+        "summary": "Delete a connected account",
+        "operationId": "ConnectedAccountService_DeleteConnectedAccount",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/connected_accountsDeleteConnectedAccountRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Connected account deleted successfully and all credentials revoked",
+            "schema": {}
+          },
+          "400": {
+            "description": "Invalid request - malformed parameters or validation failed",
+            "schema": {}
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "schema": {}
+          },
+          "404": {
+            "description": "Connected account not found - the specified account does not exist",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/v1/connected_accounts:search": {
+      "get": {
+        "description": "Search for connected accounts in your environment using a text query that matches against identifiers, providers, or connectors. The search performs case-insensitive matching across account details. Returns paginated results with account status and authentication type information.",
+        "tags": [
+          "Connected Accounts"
+        ],
+        "summary": "Search connected accounts",
+        "operationId": "ConnectedAccountService_SearchConnectedAccounts",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Search term to match against connected account identifiers, providers, or connectors. Must be at least 3 characters. Case insensitive.",
+            "name": "query",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum number of connected accounts to return per page. Value must be between 1 and 30.",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Token from a previous response for pagination. Provide this to retrieve the next page of results.",
+            "name": "page_token",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Connection ID to filter connected accounts",
+            "name": "connection_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved matching connected accounts with pagination support",
+            "schema": {
+              "$ref": "#/definitions/connected_accountsSearchConnectedAccountsResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request - query parameter is too short (minimum 3 characters) or validation failed",
+            "schema": {}
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "schema": {}
+          }
+        }
+      }
+    },
     "/api/v1/connections": {
       "get": {
         "description": "Retrieves a list of connections in the environment",
-        "tags": ["Connections"],
+        "tags": [
+          "Connections"
+        ],
         "summary": "List connections",
         "operationId": "ConnectionService_ListConnections",
         "parameters": [
@@ -114,10 +434,56 @@
         ]
       }
     },
+    "/api/v1/execute_tool": {
+      "post": {
+        "description": "Executes a tool action using authentication credentials from a connected account. Specify the tool by name and provide required parameters as JSON. The connected account can be identified by ID, or by combination of organization/user, connector, and identifier. Returns the execution result data and a unique execution ID for tracking. Use this endpoint to perform actions like sending emails, creating calendar events, or managing resources in external services.",
+        "tags": [
+          "Connected Accounts"
+        ],
+        "summary": "Execute a tool using a connected account",
+        "operationId": "ToolService_ExecuteTool",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/toolsExecuteToolRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tool executed successfully with result data and execution ID",
+            "schema": {
+              "$ref": "#/definitions/toolsExecuteToolResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request - occurs when tool name is missing, parameters are malformed, or tool definition validation fails",
+            "schema": {}
+          },
+          "401": {
+            "description": "Authentication required - missing or invalid access token",
+            "schema": {}
+          },
+          "404": {
+            "description": "Tool or connected account not found - occurs when the specified tool name or connected account does not exist",
+            "schema": {}
+          },
+          "500": {
+            "description": "Tool execution failed - occurs when the external service returns an error or the tool encounters a runtime exception",
+            "schema": {}
+          }
+        }
+      }
+    },
     "/api/v1/invites/organizations/{organization_id}/users/{id}/resend": {
       "patch": {
         "description": "Resends an invitation email to a user who has a pending or expired invitation in the specified organization. If the invitation has expired, a new invitation will be automatically created and sent. If the invitation is still valid, a reminder email will be sent instead. Use this endpoint when a user hasn't responded to their initial invitation and you need to send them a reminder or when the original invitation has expired. The invitation email includes a secure magic link that allows the user to complete their account setup and join the organization. Each resend operation increments the resent counter.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Resend user invitation email",
         "operationId": "UserService_ResendInvite",
         "parameters": [
@@ -175,7 +541,9 @@
     "/api/v1/memberships/organizations/{organization_id}/users/{id}": {
       "post": {
         "description": "Adds an existing user to an organization and assigns them specific roles and permissions. Use this endpoint when you want to grant an existing user access to a particular organization. You can specify roles, metadata, and other membership details during the invitation process.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Add existing user to organization",
         "operationId": "UserService_CreateMembership",
         "parameters": [
@@ -248,7 +616,9 @@
       },
       "delete": {
         "description": "Removes a user from an organization by user ID or external ID. If the user has no memberships left and cascade is true, the user is also deleted. This action is irreversible and may also remove related group memberships.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Delete organization membership for user",
         "operationId": "UserService_DeleteMembership",
         "parameters": [
@@ -289,7 +659,9 @@
       },
       "patch": {
         "description": "Updates a user's membership details within an organization by user ID or external ID. You can update roles and membership metadata.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Update organization membership for user",
         "operationId": "UserService_UpdateMembership",
         "parameters": [
@@ -339,7 +711,9 @@
     "/api/v1/organizations": {
       "get": {
         "description": "Retrieve a paginated list of organizations within your environment. The response includes a `page_token` that can be used to access subsequent pages of results.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "List organizations",
         "operationId": "OrganizationService_ListOrganization",
         "parameters": [
@@ -400,7 +774,9 @@
       },
       "post": {
         "description": "Creates a new organization in your environment. Use this endpoint to add a new tenant that can be configured with various settings and metadata",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Create an organization",
         "operationId": "OrganizationService_CreateOrganization",
         "parameters": [
@@ -455,7 +831,9 @@
     "/api/v1/organizations/{id}": {
       "get": {
         "description": "Retrieves organization details by Scalekit ID, including name, region, metadata, and settings",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Get organization details",
         "operationId": "OrganizationService_GetOrganization",
         "parameters": [
@@ -500,7 +878,9 @@
       },
       "delete": {
         "description": "Remove an existing organization from the environment using its unique identifier",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Delete an organization",
         "operationId": "OrganizationService_DeleteOrganization",
         "parameters": [
@@ -543,7 +923,9 @@
       },
       "patch": {
         "description": "Updates an organization's display name, external ID, or metadata. Requires a valid organization identifier. Region code cannot be modified through this endpoint.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Update organization details",
         "operationId": "OrganizationService_UpdateOrganization",
         "parameters": [
@@ -599,7 +981,9 @@
     "/api/v1/organizations/{id}/portal_links": {
       "put": {
         "description": "Creates a single use Admin Portal URL valid for 1 minute. Once the generated admin portal URL is accessed or rendered, a temporary session of 6 hours is created to allow the admin to update SSO/SCIM configuration.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Generate admin portal link",
         "operationId": "OrganizationService_GeneratePortalLink",
         "parameters": [
@@ -613,7 +997,10 @@
           {
             "type": "array",
             "items": {
-              "enum": ["dir_sync", "sso"],
+              "enum": [
+                "dir_sync",
+                "sso"
+              ],
               "type": "string"
             },
             "collectionFormat": "multi",
@@ -657,7 +1044,9 @@
     "/api/v1/organizations/{id}/settings": {
       "patch": {
         "description": "Updates configuration settings for an organization. Supports modifying SSO configuration, directory synchronization settings, and session parameters. Requires organization ID and the specific settings to update.",
-        "tags": ["Organizations"],
+        "tags": [
+          "Organizations"
+        ],
         "summary": "Toggle organization settings",
         "operationId": "OrganizationService_UpdateOrganizationSettings",
         "parameters": [
@@ -733,7 +1122,9 @@
     "/api/v1/organizations/{org_id}/roles": {
       "get": {
         "description": "Retrieves all environment roles and organization specific roles. Use this endpoint to view all role definitions, including custom roles and their configurations. You can optionally include permission details for each role to understand their capabilities. This is useful for role management, auditing organization access controls, or understanding the available access levels within the organization.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "List organization roles",
         "operationId": "RolesService_ListOrganizationRoles",
         "parameters": [
@@ -784,7 +1175,9 @@
       },
       "post": {
         "description": "Creates a new role within the specified organization with basic configuration including name, display name, description, and permissions. Use this endpoint to define custom roles that can be assigned to users within the organization. You can create hierarchical roles by extending existing roles and assign specific permissions to control access levels. The role will be scoped to the organization and can be used for organization-specific access control.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Create organization role",
         "operationId": "RolesService_CreateOrganizationRole",
         "parameters": [
@@ -840,7 +1233,9 @@
     "/api/v1/organizations/{org_id}/roles/{role_name}": {
       "get": {
         "description": "Retrieves complete information for a specific organization role including metadata, inheritance details, and optionally permissions. Use this endpoint to audit role configuration and understand the role's place in the organization's role hierarchy. You can include permission details to see what capabilities the role provides. This operation is useful for role management, user assignment decisions, or understanding organization access controls.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Get organization role details",
         "operationId": "RolesService_GetOrganizationRole",
         "parameters": [
@@ -898,7 +1293,9 @@
       },
       "put": {
         "description": "Modifies an existing organization role's properties including display name, description, permissions, and inheritance settings. Use this endpoint to update role metadata, change permission assignments, or modify role hierarchy within the organization. Only the fields you specify will be updated, leaving other properties unchanged. When updating permissions, the new list replaces all existing permissions for the role.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Update organization role",
         "operationId": "RolesService_UpdateOrganizationRole",
         "parameters": [
@@ -959,7 +1356,9 @@
       },
       "delete": {
         "description": "Permanently removes a role from the organization and optionally reassigns users who had that role to a different role. Use this endpoint when you need to clean up unused roles or restructure your organization's access control system. If users are assigned to the role being deleted, you can provide a reassign_role_name to move those users to a different role before deletion. This action cannot be undone, so ensure no critical users depend on the role before deletion.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Delete organization role",
         "operationId": "RolesService_DeleteOrganizationRole",
         "parameters": [
@@ -1017,7 +1416,9 @@
     "/api/v1/organizations/{org_id}/roles:set_defaults": {
       "patch": {
         "description": "Updates the default member role for the specified organization. Use this endpoint to configure which role is automatically assigned to new users when they join the organization. The system will validate that the specified role exists and update the organization settings accordingly. This configuration affects all new user invitations and memberships within the organization.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Set default organization roles",
         "operationId": "RolesService_UpdateDefaultOrganizationRoles",
         "parameters": [
@@ -1072,7 +1473,9 @@
     "/api/v1/organizations/{organization_id}/clients": {
       "get": {
         "description": "Retrieves a paginated list of API clients for a specific organization. Returns client details including metadata, scopes, and secret information (without exposing actual secret values).",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "List organization API clients",
         "operationId": "ClientService_ListOrganizationClients",
         "parameters": [
@@ -1115,7 +1518,9 @@
       },
       "post": {
         "description": "Creates a new API client for an organization. Returns the client details and a plain secret (available only once).",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Create organization API client",
         "operationId": "ClientService_CreateOrganizationClient",
         "parameters": [
@@ -1156,7 +1561,9 @@
     "/api/v1/organizations/{organization_id}/clients/{client_id}": {
       "get": {
         "description": "Retrieves details of a specific API client in an organization.",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Get organization API client",
         "operationId": "ClientService_GetOrganizationClient",
         "parameters": [
@@ -1193,7 +1600,9 @@
       },
       "delete": {
         "description": "Permanently deletes an API client from an organization. This operation cannot be undone and will revoke all access for the client. All associated secrets will also be invalidated. Use this endpoint to remove unused or compromised clients.",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Delete organization API client",
         "operationId": "ClientService_DeleteOrganizationClient",
         "parameters": [
@@ -1228,7 +1637,9 @@
       },
       "patch": {
         "description": "Updates an existing organization API client. Only specified fields are modified.",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Update organization API client",
         "operationId": "ClientService_UpdateOrganizationClient",
         "parameters": [
@@ -1276,7 +1687,9 @@
     "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets": {
       "post": {
         "description": "Creates a new secret for an organization API client. Returns the plain secret (available only once).",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Create organization API client secret",
         "operationId": "ClientService_CreateOrganizationClientSecret",
         "parameters": [
@@ -1315,7 +1728,9 @@
     "/api/v1/organizations/{organization_id}/clients/{client_id}/secrets/{secret_id}": {
       "delete": {
         "description": "Permanently deletes a secret from an organization API client. This operation cannot be undone.",
-        "tags": ["API Auth"],
+        "tags": [
+          "API Auth"
+        ],
         "summary": "Delete organization API client secret",
         "operationId": "ClientService_DeleteOrganizationClientSecret",
         "parameters": [
@@ -1359,7 +1774,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}": {
       "get": {
         "description": "Retrieves the complete configuration and status details for a specific connection by its ID within an organization. Returns all connection properties including provider settings, protocols, and current status.",
-        "tags": ["Connections"],
+        "tags": [
+          "Connections"
+        ],
         "summary": "Get connection details",
         "operationId": "ConnectionService_GetConnection",
         "parameters": [
@@ -1413,7 +1830,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:disable": {
       "patch": {
         "description": "Deactivate an existing connection for the specified organization. When disabled, users cannot authenticate using this connection. This endpoint changes the connection state from enabled to disabled without modifying other configuration settings",
-        "tags": ["Connections"],
+        "tags": [
+          "Connections"
+        ],
         "summary": "Disable organization connection",
         "operationId": "ConnectionService_DisableConnection",
         "parameters": [
@@ -1467,7 +1886,9 @@
     "/api/v1/organizations/{organization_id}/connections/{id}:enable": {
       "patch": {
         "description": "Activate an existing connection for the specified organization. When enabled, users can authenticate using this connection. This endpoint changes the connection state from disabled to enabled without modifying other configuration settings",
-        "tags": ["Connections"],
+        "tags": [
+          "Connections"
+        ],
         "summary": "Enable organization connection",
         "operationId": "ConnectionService_EnableConnection",
         "parameters": [
@@ -1520,7 +1941,9 @@
     },
     "/api/v1/organizations/{organization_id}/directories": {
       "get": {
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List organization directories",
         "operationId": "DirectoryService_ListDirectories",
         "parameters": [
@@ -1567,7 +1990,9 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/groups": {
       "get": {
         "description": "Retrieves all groups from a specified directory. Use this endpoint to view group structures from your connected identity provider.",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List directory groups",
         "operationId": "DirectoryService_ListDirectoryGroups",
         "parameters": [
@@ -1653,7 +2078,9 @@
     "/api/v1/organizations/{organization_id}/directories/{directory_id}/users": {
       "get": {
         "description": "Retrieves a list of all users within a specified directory for an organization. This endpoint allows you to view user accounts associated with your connected Directory Providers.",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "List directory users",
         "operationId": "DirectoryService_ListDirectoryUsers",
         "parameters": [
@@ -1739,7 +2166,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}": {
       "get": {
         "description": "Retrieves detailed information about a specific directory within an organization",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Get directory details",
         "operationId": "DirectoryService_GetDirectory",
         "parameters": [
@@ -1793,7 +2222,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:disable": {
       "patch": {
         "description": "Stops synchronization of users and groups from a specified directory within an organization. This operation prevents further updates from the connected Directory provider",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Disable a directory",
         "operationId": "DirectoryService_DisableDirectory",
         "parameters": [
@@ -1847,7 +2278,9 @@
     "/api/v1/organizations/{organization_id}/directories/{id}:enable": {
       "patch": {
         "description": "Activates a directory within an organization, allowing it to synchronize users and groups with the connected Directory provider",
-        "tags": ["Directory"],
+        "tags": [
+          "Directory"
+        ],
         "summary": "Enable a directory",
         "operationId": "DirectoryService_EnableDirectory",
         "parameters": [
@@ -1901,7 +2334,9 @@
     "/api/v1/organizations/{organization_id}/domains": {
       "get": {
         "description": "Retrieves a paginated list of all allowed email domains and organization domains configured for the specified organization.Use this endpoint to view and manage domain configurations.\n\nALLOWED_EMAIL_DOMAIN enables users to join an organization with automatic suggestions in the organization switcher.\n\nORGANIZATION_DOMAIN is used to identify the SSO connection for the organization.\n\n",
-        "tags": ["Domains"],
+        "tags": [
+          "Domains"
+        ],
         "summary": "List Domains",
         "operationId": "DomainService_ListDomains",
         "parameters": [
@@ -1933,7 +2368,10 @@
             "in": "query"
           },
           {
-            "enum": ["ALLOWED_EMAIL_DOMAIN", "ORGANIZATION_DOMAIN"],
+            "enum": [
+              "ALLOWED_EMAIL_DOMAIN",
+              "ORGANIZATION_DOMAIN"
+            ],
             "type": "string",
             "description": "ALLOWED_EMAIL_DOMAIN enables users to join an organization with automatic suggestions in the organization switcher.\n\nORGANIZATION_DOMAIN is used to identify the SSO connection for the organization.\n\n",
             "name": "domain_type",
@@ -1973,7 +2411,9 @@
       },
       "post": {
         "description": "Creates a new domain and associates it with the specified organization. The domain can be configured as either an ALLOWED_EMAIL_DOMAIN for automatic organization suggestions during user sign-in/sign-up, or as an ORGANIZATION_DOMAIN for SSO connection identification.\n\nThe domain must be a valid, business email domain that you control. Public disposable domains (gmail.com, outlook.com, etc.) are automatically blocked for security.\n\n",
-        "tags": ["Domains"],
+        "tags": [
+          "Domains"
+        ],
         "summary": "Create Domain",
         "operationId": "DomainService_CreateDomain",
         "parameters": [
@@ -2035,7 +2475,9 @@
     "/api/v1/organizations/{organization_id}/domains/{id}": {
       "get": {
         "description": "Retrieves complete details for a specific allowed email domain or organization domain, including timestamps, and configuration information.\n\n",
-        "tags": ["Domains"],
+        "tags": [
+          "Domains"
+        ],
         "summary": "Get Domain",
         "operationId": "DomainService_GetDomain",
         "parameters": [
@@ -2087,7 +2529,9 @@
       },
       "delete": {
         "description": "Permanently removes an allowed email domain or organization domain from the organization configuration.\n\nUse this endpoint when you need to remove a domain that is no longer trusted or when consolidating multiple domains. Note that this action cannot be undone.\n\n",
-        "tags": ["Domains"],
+        "tags": [
+          "Domains"
+        ],
         "summary": "Delete Domain",
         "operationId": "DomainService_DeleteDomain",
         "parameters": [
@@ -2139,7 +2583,9 @@
     "/api/v1/organizations/{organization_id}/users": {
       "get": {
         "description": "Retrieves a paginated list of all users who are members of the specified organization. Use this endpoint to view all users with access to a particular organization, including their roles, metadata, and membership details. Supports pagination for large user lists.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "List organization users",
         "operationId": "UserService_ListOrganizationUsers",
         "parameters": [
@@ -2197,7 +2643,9 @@
       },
       "post": {
         "description": "Creates a new user account and immediately adds them to the specified organization. Use this endpoint when you want to create a user and grant them access to an organization in a single operation. You can provide user profile information, assign roles, and configure membership metadata. The user receives an activation email unless this feature is disabled in the organization settings.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Create new user in organization",
         "operationId": "UserService_CreateUserAndMembership",
         "parameters": [
@@ -2257,7 +2705,9 @@
     "/api/v1/organizations/{organization_id}/users/{user_id}/permissions": {
       "get": {
         "description": "Retrieves all permissions a user has access to within a specific organization. This includes permissions from direct role assignments and inherited permissions from role hierarchy.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "List user permissions",
         "operationId": "UserService_ListUserPermissions",
         "parameters": [
@@ -2289,7 +2739,9 @@
     "/api/v1/organizations/{organization_id}/users/{user_id}/roles": {
       "get": {
         "description": "Retrieves all roles assigned to a user within a specific organization. This includes both direct role assignments and inherited roles from role hierarchy.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "List user roles",
         "operationId": "UserService_ListUserRoles",
         "parameters": [
@@ -2321,7 +2773,9 @@
     "/api/v1/passwordless/email/resend": {
       "post": {
         "description": "Resend a verification email if the user didn't receive it or if the previous code/link has expired",
-        "tags": ["Passwordless Auth"],
+        "tags": [
+          "Magic link \u0026 OTP"
+        ],
         "summary": "Resend passwordless email",
         "operationId": "PasswordlessService_ResendPasswordlessEmail",
         "parameters": [
@@ -2369,7 +2823,9 @@
     "/api/v1/passwordless/email/send": {
       "post": {
         "description": "Send a verification email containing either a verification code (OTP), magic link, or both to a user's email address",
-        "tags": ["Passwordless Auth"],
+        "tags": [
+          "Magic link \u0026 OTP"
+        ],
         "summary": "Send passwordless email",
         "operationId": "PasswordlessService_SendPasswordlessEmail",
         "parameters": [
@@ -2417,7 +2873,9 @@
     "/api/v1/passwordless/email/verify": {
       "post": {
         "description": "Verify a user's identity using either a verification code or magic link token",
-        "tags": ["Passwordless Auth"],
+        "tags": [
+          "Magic link \u0026 OTP"
+        ],
         "summary": "Verify passwordless email",
         "operationId": "PasswordlessService_VerifyPasswordlessEmail",
         "parameters": [
@@ -2465,7 +2923,9 @@
     "/api/v1/permissions": {
       "get": {
         "description": "Retrieves a comprehensive, paginated list of all permissions available within the environment. Use this endpoint to view all permission definitions for auditing, role management, or understanding the complete set of available access controls. The response includes pagination tokens to navigate through large sets of permissions efficiently. Each permission object contains the permission name, description, creation time, and last update time. This operation is useful for building permission selection interfaces, auditing permission usage, or understanding the scope of available access controls in your RBAC system.",
-        "tags": ["Permissions"],
+        "tags": [
+          "Permissions"
+        ],
         "summary": "List all permissions",
         "operationId": "RolesService_ListPermissions",
         "parameters": [
@@ -2516,7 +2976,9 @@
       },
       "post": {
         "description": "Creates a new permission that represents a specific action users can perform within the environment. Use this endpoint to define granular access controls for your RBAC system. You can provide a unique permission name following the format 'action:resource' (for example, 'read:documents', 'write:users') and an optional description explaining the permission's purpose. The permission name must be unique across the environment and follows alphanumeric naming conventions with colons and underscores. Returns the created permission object including system-generated ID and timestamps.",
-        "tags": ["Permissions"],
+        "tags": [
+          "Permissions"
+        ],
         "summary": "Create new permission",
         "operationId": "RolesService_CreatePermission",
         "parameters": [
@@ -2564,7 +3026,9 @@
     "/api/v1/permissions/{permission_name}": {
       "get": {
         "description": "Retrieves complete information for a specific permission by its unique name identifier. Use this endpoint to view permission details including description, creation time, and last update time. Provide the permission name in the path parameter following the format 'action:resource' (for example, 'read:documents'). This operation is useful for auditing permission definitions, understanding permission purposes, or verifying permission existence before assignment. Returns the complete permission object with all metadata and system-generated timestamps.",
-        "tags": ["Permissions"],
+        "tags": [
+          "Permissions"
+        ],
         "summary": "Retrieve permission details",
         "operationId": "RolesService_GetPermission",
         "parameters": [
@@ -2609,7 +3073,9 @@
       },
       "put": {
         "description": "Modifies an existing permission's attributes including description and metadata. Use this endpoint to update permission descriptions or clarify permission purposes after creation. The permission is identified by its unique name in the path parameter, and only the fields you specify in the request body will be updated. Note that the permission name itself cannot be changed as it serves as the immutable identifier. This operation is useful for maintaining clear documentation of permission purposes or updating descriptions to reflect changes in system functionality. Returns the updated permission object with modified timestamps.",
-        "tags": ["Permissions"],
+        "tags": [
+          "Permissions"
+        ],
         "summary": "Update permission details",
         "operationId": "RolesService_UpdatePermission",
         "parameters": [
@@ -2662,7 +3128,9 @@
       },
       "delete": {
         "description": "Permanently removes a permission from the environment using its unique name identifier. Use this endpoint when you need to clean up unused permissions or remove access controls that are no longer relevant. The permission is identified by its name in the path parameter following the format 'action:resource'. This operation cannot be undone, so ensure no active roles depend on the permission before deletion. If the permission is currently assigned to any roles, you may need to remove those assignments first or update the roles to use alternative permissions. Returns no content on successful deletion.",
-        "tags": ["Permissions"],
+        "tags": [
+          "Permissions"
+        ],
         "summary": "Delete permission",
         "operationId": "RolesService_DeletePermission",
         "parameters": [
@@ -2707,7 +3175,9 @@
     "/api/v1/roles": {
       "get": {
         "description": "Retrieves a comprehensive list of all roles available within the specified environment including organization roles. Use this endpoint to view all role definitions, including custom roles and their configurations. You can optionally include permission details for each role to understand their capabilities. This is useful for role management, auditing organization access controls, or understanding the available access levels within the organization.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "List all roles in environment",
         "operationId": "RolesService_ListRoles",
         "parameters": [
@@ -2751,7 +3221,9 @@
       },
       "post": {
         "description": "Creates a new role within the environment with specified permissions and metadata. Use this endpoint to define custom roles that can be assigned to users or groups. You can create hierarchical roles by extending existing roles, assign specific permissions, and configure display information. Roles are the foundation of your access control system and determine what actions users can perform.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Create new role in environment",
         "operationId": "RolesService_CreateRole",
         "parameters": [
@@ -2766,7 +3238,10 @@
                 "description": "Can edit content",
                 "display_name": "Content Editor",
                 "name": "content_editor",
-                "permissions": ["read:content", "write:content"]
+                "permissions": [
+                  "read:content",
+                  "write:content"
+                ]
               }
             }
           }
@@ -2806,7 +3281,9 @@
     "/api/v1/roles/default": {
       "patch": {
         "description": "Updates the default creator and member roles for the current environment. Use this endpoint to configure which roles are automatically assigned to new users when they join the environment. You can specify role names for both creator and member default roles. The system will validate that the specified roles exist and update the environment settings accordingly. Returns the updated default role objects including their complete role information and permissions.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Set default creator and member roles",
         "operationId": "RolesService_UpdateDefaultRoles2",
         "parameters": [
@@ -2832,7 +3309,9 @@
     "/api/v1/roles/{role_name}": {
       "get": {
         "description": "Retrieves complete information for a specific role including metadata and inheritance details (base role and dependent role count). Use this endpoint to audit role configuration and understand the role's place in the hierarchy. To view the role's permissions, use the ListRolePermissions endpoint.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Get role details",
         "operationId": "RolesService_GetRole",
         "parameters": [
@@ -2883,7 +3362,9 @@
       },
       "put": {
         "description": "Modifies an existing role's properties including display name, description, permissions, and inheritance. Use this endpoint to update role metadata, change permission assignments, or modify role hierarchy. Only the fields you specify will be updated, leaving other properties unchanged. When updating permissions, the new list replaces all existing permissions for the role.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Update role information",
         "operationId": "RolesService_UpdateRole",
         "parameters": [
@@ -2941,7 +3422,9 @@
       },
       "delete": {
         "description": "Permanently removes a role from the environment and reassigns users who had that role to a different role. Use this endpoint when you need to clean up unused roles or restructure your access control system. The role cannot be deleted if it has dependent roles (roles that extend it) unless you specify a replacement role. If users are assigned to the role being deleted, you must provide a reassign_role_name to move those users to a different role before deletion can proceed. This action cannot be undone, so ensure no critical users depend on the role before deletion.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Delete role and reassign users",
         "operationId": "RolesService_DeleteRole",
         "parameters": [
@@ -2998,7 +3481,9 @@
     "/api/v1/roles/{role_name}/base": {
       "delete": {
         "description": "Removes the base role inheritance relationship for a specified role, effectively eliminating all inherited permissions from the base role. Use this endpoint when you want to break the hierarchical relationship between roles and remove inherited permissions. The role will retain only its directly assigned permissions after this operation. This action cannot be undone, so ensure the role has sufficient direct permissions before removing inheritance. Returns no content on successful removal of the base relationship.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Delete role inheritance relationship",
         "operationId": "RolesService_DeleteRoleBase",
         "parameters": [
@@ -3043,7 +3528,9 @@
     "/api/v1/roles/{role_name}/dependents": {
       "get": {
         "description": "Retrieves all roles that directly extend the specified base role through inheritance. Use this endpoint to understand the role hierarchy and identify which roles inherit permissions from a particular base role. Provide the base role name as a path parameter, and the response will include all dependent roles with their metadata and permission information. This operation is useful for auditing role inheritance relationships, understanding the impact of changes to base roles, or managing role hierarchies effectively. Returns a list of dependent role objects including their names, display names, descriptions, and permission details.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "List dependent roles",
         "operationId": "RolesService_ListDependentRoles",
         "parameters": [
@@ -3090,7 +3577,9 @@
     "/api/v1/roles/{role_name}/permissions": {
       "get": {
         "description": "Retrieves all permissions directly assigned to the specified role, excluding permissions inherited from base roles. Use this endpoint to view the explicit permission assignments for a role, which is useful for understanding direct role capabilities, auditing permission assignments, or managing role-permission relationships. Provide the role name as a path parameter, and the response will include only the permissions that are directly assigned to that role. This operation does not include inherited permissions from role hierarchies - use ListEffectiveRolePermissions to see the complete set of permissions including inheritance. Returns a list of permission objects with their names, descriptions, and assignment metadata.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "List permissions for role",
         "operationId": "RolesService_ListRolePermissions",
         "parameters": [
@@ -3135,7 +3624,9 @@
       },
       "post": {
         "description": "Adds one or more permissions to the specified role while preserving existing permission assignments. Use this endpoint to grant additional capabilities to a role without affecting its current permission set. Provide the role name as a path parameter and a list of permission names in the request body. The system will validate that all specified permissions exist in the environment and add them to the role. Existing permission assignments remain unchanged, making this operation safe for incremental permission management. This is useful for gradually expanding role capabilities or adding new permissions as your system evolves. Returns the updated list of all permissions now assigned to the role.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Add permissions to role",
         "operationId": "RolesService_AddPermissionsToRole",
         "parameters": [
@@ -3190,7 +3681,9 @@
     "/api/v1/roles/{role_name}/permissions/{permission_name}": {
       "delete": {
         "description": "Removes a specific permission from the specified role, revoking that capability from all users assigned to the role. Use this endpoint to restrict role capabilities or remove unnecessary permissions. Provide both the role name and permission name as path parameters. This operation only affects the direct permission assignment and does not impact permissions inherited from base roles. If the permission is inherited through role hierarchy, you may need to modify the base role instead. This is useful for fine-tuning role permissions, implementing least-privilege access controls, or removing deprecated permissions. Returns no content on successful removal.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Remove permission from role",
         "operationId": "RolesService_RemovePermissionFromRole",
         "parameters": [
@@ -3242,7 +3735,9 @@
     "/api/v1/roles/{role_name}/permissions:all": {
       "get": {
         "description": "Retrieves the complete set of effective permissions for a role, including both directly assigned permissions and permissions inherited from base roles through the role hierarchy. Use this endpoint to understand the full scope of capabilities available to users assigned to a specific role. Provide the role name as a path parameter, and the response will include all permissions that apply to the role, accounting for inheritance relationships. This operation is essential for auditing role capabilities, understanding permission inheritance, or verifying the complete access scope before role assignment. Returns a comprehensive list of permission names representing the full set of effective permissions for the specified role.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "List effective permissions for role",
         "operationId": "RolesService_ListEffectiveRolePermissions",
         "parameters": [
@@ -3289,7 +3784,9 @@
     "/api/v1/roles/{role_name}/users:count": {
       "get": {
         "description": "Retrieves the total number of users currently assigned to the specified role within the environment. Use this endpoint to monitor role usage, enforce user limits, or understand the scope of role assignments. Provide the role's unique name as a path parameter, and the response will include the current user count for that role. This operation is read-only and does not modify any data or user assignments. The count reflects all users who have the role either directly assigned or inherited through organization membership. This information is useful for capacity planning, security auditing, or understanding the impact of role changes across your user base.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Retrieve user count for role",
         "operationId": "RolesService_GetRoleUsersCount",
         "parameters": [
@@ -3336,7 +3833,9 @@
     "/api/v1/roles:set_defaults": {
       "patch": {
         "description": "Updates the default creator and member roles for the current environment. Use this endpoint to configure which roles are automatically assigned to new users when they join the environment. You can specify role names for both creator and member default roles. The system will validate that the specified roles exist and update the environment settings accordingly. Returns the updated default role objects including their complete role information and permissions.",
-        "tags": ["Roles"],
+        "tags": [
+          "Roles"
+        ],
         "summary": "Set default creator and member roles",
         "operationId": "RolesService_UpdateDefaultRoles",
         "parameters": [
@@ -3384,7 +3883,9 @@
     "/api/v1/sessions/{session_id}": {
       "get": {
         "description": "Retrieves comprehensive details for a specific user session including authentication status, device information, and expiration timelines. Use this endpoint to fetch current session metadata for security audits, session validation, or to display session information in user account management interfaces. Returns all session properties including the user ID, authenticated organizations, device details with browser/OS information, IP address and geolocation, and all relevant timestamps (creation, last activity, idle expiration, absolute expiration, and actual expiration if applicable).",
-        "tags": ["Sessions"],
+        "tags": [
+          "Sessions"
+        ],
         "summary": "Get session details",
         "operationId": "SessionService_GetSession",
         "parameters": [
@@ -3431,7 +3932,9 @@
     "/api/v1/sessions/{session_id}/revoke": {
       "post": {
         "description": "Immediately invalidates a specific user session by session ID, setting its status to 'revoked'. Once revoked, the session cannot be used for any future API requests or application access. Use this endpoint to implement session-level logout, force a user to reauthenticate on a specific device, or terminate suspicious sessions. The revocation is instantaneous and irreversible. Returns the revoked session details including the session ID, user ID, and the revocation timestamp.",
-        "tags": ["Sessions"],
+        "tags": [
+          "Sessions"
+        ],
         "summary": "Revoke user session",
         "operationId": "SessionService_RevokeSession",
         "parameters": [
@@ -3478,7 +3981,9 @@
     "/api/v1/users": {
       "get": {
         "description": "Retrieves a paginated list of all users across your entire environment. Use this endpoint to view all users regardless of their organization memberships. This is useful for administrative purposes, user audits, or when you need to see all users in your Scalekit environment. Supports pagination for large user bases.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "List all users in environment",
         "operationId": "UserService_ListUsers",
         "parameters": [
@@ -3531,7 +4036,9 @@
     "/api/v1/users/{id}": {
       "get": {
         "description": "Retrieves all details for a user by system-generated user ID or external ID. The response includes organization memberships and user metadata.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Get user",
         "operationId": "UserService_GetUser",
         "parameters": [
@@ -3560,7 +4067,9 @@
       },
       "delete": {
         "description": "Permanently removes a user from your environment and deletes all associated data. Use this endpoint when you need to completely remove a user account. This action deletes the user's profile, memberships, and all related data across all organizations. This operation cannot be undone, so use with caution.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Delete user permanently",
         "operationId": "UserService_DeleteUser",
         "parameters": [
@@ -3609,7 +4118,9 @@
       },
       "patch": {
         "description": "Modifies user account information including profile details, metadata, and external ID. Use this endpoint to update a user's personal information, contact details, or custom metadata. You can update the user's profile, phone number, and metadata fields. Note that fields like user ID, email address, environment ID, and creation time cannot be modified.",
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Update user information",
         "operationId": "UserService_UpdateUser",
         "parameters": [
@@ -3675,7 +4186,9 @@
     "/api/v1/users/{user_id}/sessions": {
       "get": {
         "description": "Retrieves a paginated list of all sessions associated with a specific user across all devices and browsers. Use this endpoint to audit user activity, display all active sessions in account management interfaces, or verify user authentication status across devices. Supports filtering by session status (active, expired, revoked, logout) and time range (creation date). Returns session details for each session including device information, IP address, geolocation, and current status. The response includes pagination metadata (page tokens and total count) to handle large session lists efficiently.",
-        "tags": ["Sessions"],
+        "tags": [
+          "Sessions"
+        ],
         "summary": "List user sessions",
         "operationId": "SessionService_GetUserSessions",
         "parameters": [
@@ -3759,7 +4272,9 @@
     "/api/v1/users/{user_id}/sessions/revoke": {
       "post": {
         "description": "Immediately invalidates all active sessions for a specific user across all devices and browsers, setting their status to 'revoked'. Use this endpoint to implement global logout functionality, force re-authentication after security incidents, or terminate all sessions following a password reset or credential compromise. Only active sessions are revoked; already expired, logout, or previously revoked sessions remain unchanged. The revocation is atomic and instantaneous. Returns a list of all revoked sessions with their details and a total count of sessions revoked.",
-        "tags": ["Sessions"],
+        "tags": [
+          "Sessions"
+        ],
         "summary": "Revoke all user sessions",
         "operationId": "SessionService_RevokeAllUserSessions",
         "parameters": [
@@ -3806,7 +4321,9 @@
     "/api/v1/webauthn/credentials": {
       "get": {
         "description": "Retrieves all registered passkeys for the current user, including device information, creation timestamps, and display names. Use this to show users their registered authenticators.",
-        "tags": ["Passkeys"],
+        "tags": [
+          "Passkeys"
+        ],
         "summary": "List user's passkeys",
         "operationId": "WebAuthnService_ListCredentials",
         "parameters": [
@@ -3852,7 +4369,9 @@
     "/api/v1/webauthn/credentials/{credential_id}": {
       "delete": {
         "description": "Deletes a specific passkey credential for the current user. After removal, the authenticator can no longer be used for authentication.",
-        "tags": ["Passkeys"],
+        "tags": [
+          "Passkeys"
+        ],
         "summary": "Remove a passkey",
         "operationId": "WebAuthnService_DeleteCredential",
         "parameters": [
@@ -3897,7 +4416,9 @@
       },
       "patch": {
         "description": "Updates the display name of a passkey credential to help users identify their authenticators. Only the display name can be modified.",
-        "tags": ["Passkeys"],
+        "tags": [
+          "Passkeys"
+        ],
         "summary": "Rename a passkey",
         "operationId": "WebAuthnService_UpdateCredential",
         "parameters": [
@@ -4246,7 +4767,11 @@
     },
     "authpasswordlessPasswordlessType": {
       "type": "string",
-      "enum": ["OTP", "LINK", "LINK_OTP"]
+      "enum": [
+        "OTP",
+        "LINK",
+        "LINK_OTP"
+      ]
     },
     "clientsClientSecret": {
       "description": "A secure credential used for authenticating an API client. Each client can have multiple secrets for key rotation purposes.",
@@ -4307,7 +4832,9 @@
     "clientsClientSecretStatus": {
       "description": "ClientSecretStatus indicates whether a client secret can be used for authentication.\nACTIVE secrets can be used for authentication while INACTIVE secrets cannot.\n\n - INACTIVE: The secret is inactive and cannot be used for authentication",
       "type": "string",
-      "enum": ["INACTIVE"]
+      "enum": [
+        "INACTIVE"
+      ]
     },
     "clientsCreateOrganizationClientResponse": {
       "type": "object",
@@ -4405,7 +4932,9 @@
           "items": {
             "type": "string"
           },
-          "example": ["https://api.example.com"]
+          "example": [
+            "https://api.example.com"
+          ]
         },
         "client_id": {
           "description": "The unique identifier for this API client. This ID is used to identify the client in API requests and logs. It is automatically generated when the client is created and cannot be modified.",
@@ -4458,7 +4987,9 @@
           "items": {
             "type": "string"
           },
-          "example": ["https://example.com/callback"]
+          "example": [
+            "https://example.com/callback"
+          ]
         },
         "resource_id": {
           "description": "The ID of the resource associated with this M2M client. This field is used to link the client to a specific resource in the system.",
@@ -4471,7 +5002,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["deploy:resources", "read:deployments"]
+          "example": [
+            "deploy:resources",
+            "read:deployments"
+          ]
         },
         "secrets": {
           "description": "List of client secrets associated with this client. Each secret can be used for authentication, but only the most recently created secret is typically active. Secrets are stored securely and their values are never returned after creation.",
@@ -4543,7 +5077,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["deploy:resources", "read:deployments"]
+          "example": [
+            "deploy:resources",
+            "read:deployments"
+          ]
         }
       }
     },
@@ -4632,7 +5169,12 @@
     },
     "commonsMembershipStatus": {
       "type": "string",
-      "enum": ["ACTIVE", "INACTIVE", "PENDING_INVITE", "INVITE_EXPIRED"]
+      "enum": [
+        "ACTIVE",
+        "INACTIVE",
+        "PENDING_INVITE",
+        "INVITE_EXPIRED"
+      ]
     },
     "commonsOrganizationMembership": {
       "type": "object",
@@ -4705,7 +5247,10 @@
     },
     "commonsRegionCode": {
       "type": "string",
-      "enum": ["US", "EU"]
+      "enum": [
+        "US",
+        "EU"
+      ]
     },
     "commonsRole": {
       "type": "object",
@@ -4778,7 +5323,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["admin", "developer"]
+          "example": [
+            "admin",
+            "developer"
+          ]
         },
         "id": {
           "description": "Unique system-generated identifier for the user profile. Immutable and read-only.",
@@ -4831,13 +5379,481 @@
         }
       }
     },
+    "connected_accountsAuthorizationDetails": {
+      "type": "object",
+      "title": "Authentication credentials container supporting multiple auth types",
+      "properties": {
+        "oauth_token": {
+          "title": "OAuth 2.0 credentials",
+          "$ref": "#/definitions/connected_accountsOauthToken"
+        },
+        "static_auth": {
+          "title": "Static authentication credentials",
+          "$ref": "#/definitions/connected_accountsStaticAuth"
+        }
+      }
+    },
+    "connected_accountsConnectedAccount": {
+      "type": "object",
+      "properties": {
+        "api_config": {
+          "description": "Optional JSON configuration for connector-specific API settings such as rate limits, custom endpoints, or feature flags.",
+          "type": "object",
+          "example": {
+            "base_url": "https://api.custom-domain.com",
+            "rate_limit": 1000,
+            "timeout": 30
+          }
+        },
+        "authorization_details": {
+          "description": "Sensitive authentication credentials including access tokens, refresh tokens, and scopes. Contains either OAuth tokens or static auth details.",
+          "$ref": "#/definitions/connected_accountsAuthorizationDetails"
+        },
+        "authorization_type": {
+          "description": "Type of authorization mechanism used. Specifies whether this connection uses OAuth, API keys, bearer tokens, or other auth methods.",
+          "$ref": "#/definitions/connected_accountsConnectorType"
+        },
+        "connection_id": {
+          "description": "Reference to the parent connection configuration. Links this account to a specific connector setup in your environment.",
+          "type": "string",
+          "example": "conn_24834495392086178"
+        },
+        "connector": {
+          "description": "Connector identifier (e.g., 'notion', 'slack', 'salesforce'). Indicates which third-party application this account connects to.",
+          "type": "string",
+          "example": "notion"
+        },
+        "id": {
+          "description": "Unique Scalekit-generated identifier for this connected account. Always prefixed with 'ca_'.",
+          "type": "string",
+          "example": "ca_24834495392086178"
+        },
+        "identifier": {
+          "description": "The unique identifier for this account in the third-party service. Typically an email address, user ID, or workspace identifier.",
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "last_used_at": {
+          "description": "Timestamp when this connected account was last used to make an API call. Useful for tracking active connections.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-03-20T14:30:00Z"
+        },
+        "provider": {
+          "description": "OAuth provider name (e.g., 'google', 'microsoft', 'github'). Identifies which authentication service manages this connection.",
+          "type": "string",
+          "example": "google"
+        },
+        "status": {
+          "description": "Current status of the connected account. Indicates if the account is active, expired, or pending authorization.",
+          "$ref": "#/definitions/connected_accountsConnectorStatus"
+        },
+        "token_expires_at": {
+          "description": "Expiration timestamp for the access token. After this time, the token must be refreshed or re-authorized.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-12-31T23:59:59Z"
+        },
+        "updated_at": {
+          "description": "Timestamp when this connected account was last modified. Updated whenever credentials or configuration changes.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-03-20T15:04:05Z"
+        }
+      }
+    },
+    "connected_accountsConnectedAccountForList": {
+      "type": "object",
+      "title": "Connected account summary for list operations - excludes sensitive authorization details",
+      "properties": {
+        "authorization_type": {
+          "description": "Authorization mechanism type.",
+          "$ref": "#/definitions/connected_accountsConnectorType"
+        },
+        "connection_id": {
+          "description": "Parent connection configuration reference.",
+          "type": "string",
+          "example": "conn_24834495392086178"
+        },
+        "connector": {
+          "description": "Connector identifier.",
+          "type": "string",
+          "example": "notion"
+        },
+        "id": {
+          "description": "Unique connected account identifier.",
+          "type": "string",
+          "example": "ca_24834495392086178"
+        },
+        "identifier": {
+          "description": "The unique identifier for this account in the third-party service.",
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "last_used_at": {
+          "description": "Last usage timestamp.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-03-20T14:30:00Z"
+        },
+        "provider": {
+          "description": "OAuth provider name (e.g., 'google', 'microsoft').",
+          "type": "string",
+          "example": "google"
+        },
+        "status": {
+          "description": "Current connection status.",
+          "$ref": "#/definitions/connected_accountsConnectorStatus"
+        },
+        "token_expires_at": {
+          "description": "Token expiration timestamp.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-12-31T23:59:59Z"
+        },
+        "updated_at": {
+          "description": "Last modification timestamp.",
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-03-20T15:04:05Z"
+        }
+      }
+    },
+    "connected_accountsConnectorStatus": {
+      "description": "- ACTIVE: Account is connected and credentials are valid\n - EXPIRED: Access token has expired and needs refresh\n - PENDING_AUTH: Account awaiting user authorization",
+      "type": "string",
+      "title": "Status of a connected account indicating its current state",
+      "enum": [
+        "ACTIVE",
+        "EXPIRED",
+        "PENDING_AUTH"
+      ]
+    },
+    "connected_accountsConnectorType": {
+      "description": "- OAUTH: OAuth 2.0 authorization with access and refresh tokens\n - API_KEY: Static API key authentication\n - BASIC_AUTH: HTTP Basic Authentication (username/password)\n - BEARER_TOKEN: Bearer token authentication\n - CUSTOM: Custom authentication mechanism\n - BASIC: Basic authentication (alias)",
+      "type": "string",
+      "title": "Type of authentication mechanism used for the connected account",
+      "enum": [
+        "OAUTH",
+        "API_KEY",
+        "BASIC_AUTH",
+        "BEARER_TOKEN",
+        "CUSTOM",
+        "BASIC"
+      ]
+    },
+    "connected_accountsCreateConnectedAccountRequest": {
+      "type": "object",
+      "properties": {
+        "connected_account": {
+          "description": "Details of the connected account to create",
+          "$ref": "#/definitions/v1connected_accountsCreateConnectedAccount",
+          "example": {
+            "authorization_details": {
+              "oauth_token": {
+                "access_token": "...",
+                "refresh_token": "...",
+                "scopes": [
+                  "read",
+                  "write"
+                ]
+              }
+            },
+            "authorization_type": "OAUTH2"
+          }
+        },
+        "connector": {
+          "description": "Connector identifier",
+          "type": "string",
+          "example": "notion"
+        },
+        "identifier": {
+          "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "organization_id": {
+          "description": "Organization ID for the connector",
+          "type": "string",
+          "example": "org_121312434123312"
+        },
+        "user_id": {
+          "description": "User ID for the connector",
+          "type": "string",
+          "example": "user_121312434123312"
+        }
+      }
+    },
+    "connected_accountsCreateConnectedAccountResponse": {
+      "type": "object",
+      "properties": {
+        "connected_account": {
+          "description": "The newly created connected account with its unique identifier, status, and complete authorization details including access tokens.",
+          "$ref": "#/definitions/connected_accountsConnectedAccount"
+        }
+      }
+    },
+    "connected_accountsDeleteConnectedAccountRequest": {
+      "type": "object",
+      "properties": {
+        "connector": {
+          "description": "Connector identifier",
+          "type": "string",
+          "example": "notion"
+        },
+        "id": {
+          "description": "Unique identifier for the connected account to delete",
+          "type": "string",
+          "example": "ca_123"
+        },
+        "identifier": {
+          "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "organization_id": {
+          "description": "Organization ID for the connector",
+          "type": "string",
+          "example": "org_121312434123312"
+        },
+        "user_id": {
+          "description": "User ID for the connector",
+          "type": "string",
+          "example": "user_121312434123312"
+        }
+      }
+    },
+    "connected_accountsDeleteConnectedAccountResponse": {
+      "type": "object"
+    },
+    "connected_accountsGetConnectedAccountByIdentifierResponse": {
+      "type": "object",
+      "properties": {
+        "connected_account": {
+          "description": "The connected account with complete details including sensitive authorization credentials (access tokens, refresh tokens, scopes). Handle with appropriate access controls.",
+          "$ref": "#/definitions/connected_accountsConnectedAccount"
+        }
+      }
+    },
+    "connected_accountsGetMagicLinkForConnectedAccountRequest": {
+      "type": "object",
+      "properties": {
+        "connector": {
+          "description": "Connector identifier",
+          "type": "string",
+          "example": "notion"
+        },
+        "id": {
+          "description": "Unique identifier for the connected account",
+          "type": "string",
+          "example": "ca_123"
+        },
+        "identifier": {
+          "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "organization_id": {
+          "description": "Organization ID for the connector",
+          "type": "string",
+          "example": "org_121312434123312"
+        },
+        "user_id": {
+          "description": "User ID for the connector",
+          "type": "string",
+          "example": "user_121312434123312"
+        }
+      }
+    },
+    "connected_accountsGetMagicLinkForConnectedAccountResponse": {
+      "type": "object",
+      "properties": {
+        "expiry": {
+          "description": "Expiry timestamp for the authentication link",
+          "type": "string",
+          "format": "date-time",
+          "example": "2024-03-20T15:04:05Z"
+        },
+        "link": {
+          "description": "Authentication link for the connector",
+          "type": "string",
+          "example": "https://notion.com/oauth/authorize?client_id=..."
+        }
+      }
+    },
+    "connected_accountsListConnectedAccountsResponse": {
+      "type": "object",
+      "properties": {
+        "connected_accounts": {
+          "description": "List of connected accounts matching the filter criteria. Excludes sensitive authorization details for security.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/connected_accountsConnectedAccountForList"
+          }
+        },
+        "next_page_token": {
+          "description": "Pagination token for retrieving the next page. Empty if this is the last page. Pass this value to page_token in the next request.",
+          "type": "string",
+          "example": "eyJvZmZzZXQiOjIwfQ=="
+        },
+        "prev_page_token": {
+          "description": "Pagination token for retrieving the previous page. Empty if this is the first page. Pass this value to page_token to go back.",
+          "type": "string",
+          "example": "eyJvZmZzZXQiOjB9"
+        },
+        "total_size": {
+          "description": "Total count of connected accounts matching the filter criteria across all pages. Use for calculating pagination.",
+          "type": "integer",
+          "format": "int64",
+          "example": 100
+        }
+      }
+    },
+    "connected_accountsOauthToken": {
+      "type": "object",
+      "title": "OAuth 2.0 access and refresh tokens with scopes",
+      "properties": {
+        "access_token": {
+          "description": "OAuth access token for API requests. Typically short-lived and must be refreshed after expiration.",
+          "type": "string",
+          "example": "ya29.a0AfH6SMBx..."
+        },
+        "domain": {
+          "description": "Associated domain for workspace or organization-scoped OAuth connections (e.g., Google Workspace domain).",
+          "type": "string",
+          "example": "example.com"
+        },
+        "refresh_token": {
+          "description": "OAuth refresh token for obtaining new access tokens. Long-lived and used to maintain persistent authorization.",
+          "type": "string",
+          "example": "1//0gHJxZ-Lb2..."
+        },
+        "scopes": {
+          "description": "List of granted OAuth scopes defining the permissions and access levels for this connection.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "https://www.googleapis.com/auth/drive.readonly",
+            "https://www.googleapis.com/auth/userinfo.email"
+          ]
+        }
+      }
+    },
+    "connected_accountsSearchConnectedAccountsResponse": {
+      "type": "object",
+      "properties": {
+        "connected_accounts": {
+          "description": "List of connected accounts matching the search query. Excludes sensitive authorization details.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/connected_accountsConnectedAccountForList"
+          }
+        },
+        "next_page_token": {
+          "description": "Pagination token for the next page. Empty if this is the last page.",
+          "type": "string",
+          "example": "eyJvZmZzZXQiOjMwfQ=="
+        },
+        "prev_page_token": {
+          "description": "Pagination token for the previous page. Empty if this is the first page.",
+          "type": "string",
+          "example": "eyJvZmZzZXQiOjB9"
+        },
+        "total_size": {
+          "description": "Total count of accounts matching the search query across all pages.",
+          "type": "integer",
+          "format": "int64",
+          "example": 100
+        }
+      }
+    },
+    "connected_accountsStaticAuth": {
+      "type": "object",
+      "title": "Static authentication credentials for API keys, bearer tokens, or basic auth",
+      "properties": {
+        "details": {
+          "description": "Flexible JSON structure containing static credentials. Format varies by connector type (API key, username/password, etc.).",
+          "type": "object",
+          "example": {
+            "api_key": "sk_live_...",
+            "api_secret": "..."
+          }
+        }
+      }
+    },
+    "connected_accountsUpdateConnectedAccountRequest": {
+      "type": "object",
+      "properties": {
+        "connected_account": {
+          "description": "Details of the connected account to update",
+          "$ref": "#/definitions/v1connected_accountsUpdateConnectedAccount",
+          "example": {
+            "authorization_details": {
+              "oauth_token": {
+                "access_token": "...",
+                "refresh_token": "...",
+                "scopes": [
+                  "read",
+                  "write"
+                ]
+              }
+            },
+            "authorization_type": "OAUTH2"
+          }
+        },
+        "connector": {
+          "description": "Connector identifier",
+          "type": "string",
+          "example": "notion"
+        },
+        "id": {
+          "description": "Unique identifier for the connected account to update",
+          "type": "string",
+          "example": "ca_123"
+        },
+        "identifier": {
+          "description": "The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier).",
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "organization_id": {
+          "description": "Organization ID for the connector",
+          "type": "string",
+          "example": "org_121312434123312"
+        },
+        "user_id": {
+          "description": "User ID for the connector",
+          "type": "string",
+          "example": "user_121312434123312"
+        }
+      }
+    },
+    "connected_accountsUpdateConnectedAccountResponse": {
+      "type": "object",
+      "properties": {
+        "connected_account": {
+          "description": "The updated connected account with refreshed credentials, new token expiry, and modified configuration settings.",
+          "$ref": "#/definitions/connected_accountsConnectedAccount"
+        }
+      }
+    },
     "connectionsCodeChallengeType": {
       "type": "string",
-      "enum": ["NUMERIC", "ALPHANUMERIC"]
+      "enum": [
+        "NUMERIC",
+        "ALPHANUMERIC"
+      ]
     },
     "connectionsConfigurationType": {
       "type": "string",
-      "enum": ["DISCOVERY", "MANUAL"]
+      "enum": [
+        "DISCOVERY",
+        "MANUAL"
+      ]
     },
     "connectionsConnection": {
       "type": "object",
@@ -4966,7 +5982,11 @@
     },
     "connectionsConnectionStatus": {
       "type": "string",
-      "enum": ["DRAFT", "IN_PROGRESS", "COMPLETED"]
+      "enum": [
+        "DRAFT",
+        "IN_PROGRESS",
+        "COMPLETED"
+      ]
     },
     "connectionsConnectionType": {
       "type": "string",
@@ -5031,7 +6051,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["yourapp.com", "yourworkspace.com"]
+          "example": [
+            "yourapp.com",
+            "yourworkspace.com"
+          ]
         },
         "enabled": {
           "description": "Whether the connection is currently active for organization users",
@@ -5096,7 +6119,12 @@
     },
     "connectionsNameIdFormat": {
       "type": "string",
-      "enum": ["UNSPECIFIED", "EMAIL", "TRANSIENT", "PERSISTENT"]
+      "enum": [
+        "UNSPECIFIED",
+        "EMAIL",
+        "TRANSIENT",
+        "PERSISTENT"
+      ]
     },
     "connectionsOAuthConnectionConfig": {
       "type": "object",
@@ -5147,7 +6175,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["openid", "profile"]
+          "example": [
+            "openid",
+            "profile"
+          ]
         },
         "sync_user_profile_on_login": {
           "description": "Indicates whether user profiles should be synchronized with the identity provider upon each log-in.",
@@ -5242,7 +6273,10 @@
           "items": {
             "$ref": "#/definitions/connectionsOIDCScope"
           },
-          "example": ["openid", "profile"]
+          "example": [
+            "openid",
+            "profile"
+          ]
         },
         "sync_user_profile_on_login": {
           "description": "Indicates whether user profiles should be synchronized with the identity provider upon each log-in.",
@@ -5268,7 +6302,13 @@
     },
     "connectionsOIDCScope": {
       "type": "string",
-      "enum": ["openid", "profile", "email", "address", "phone"]
+      "enum": [
+        "openid",
+        "profile",
+        "email",
+        "address",
+        "phone"
+      ]
     },
     "connectionsPasswordLessConfig": {
       "type": "object",
@@ -5315,11 +6355,18 @@
     },
     "connectionsPasswordlessType": {
       "type": "string",
-      "enum": ["LINK", "OTP", "LINK_OTP"]
+      "enum": [
+        "LINK",
+        "OTP",
+        "LINK_OTP"
+      ]
     },
     "connectionsRequestBinding": {
       "type": "string",
-      "enum": ["HTTP_POST", "HTTP_REDIRECT"]
+      "enum": [
+        "HTTP_POST",
+        "HTTP_REDIRECT"
+      ]
     },
     "connectionsSAMLConnectionConfigResponse": {
       "type": "object",
@@ -5481,7 +6528,10 @@
     },
     "connectionsTokenAuthType": {
       "type": "string",
-      "enum": ["URL_PARAMS", "BASIC_AUTH"]
+      "enum": [
+        "URL_PARAMS",
+        "BASIC_AUTH"
+      ]
     },
     "connectionsWebAuthConfiguration": {
       "type": "object",
@@ -5665,11 +6715,23 @@
     },
     "directoriesDirectoryProvider": {
       "type": "string",
-      "enum": ["OKTA", "GOOGLE", "MICROSOFT_AD", "AUTH0", "ONELOGIN", "JUMPCLOUD", "PING_IDENTITY"]
+      "enum": [
+        "OKTA",
+        "GOOGLE",
+        "MICROSOFT_AD",
+        "AUTH0",
+        "ONELOGIN",
+        "JUMPCLOUD",
+        "PING_IDENTITY"
+      ]
     },
     "directoriesDirectoryType": {
       "type": "string",
-      "enum": ["SCIM", "LDAP", "POLL"]
+      "enum": [
+        "SCIM",
+        "LDAP",
+        "POLL"
+      ]
     },
     "directoriesDirectoryUser": {
       "type": "object",
@@ -5868,7 +6930,9 @@
     },
     "directoriesSecretStatus": {
       "type": "string",
-      "enum": ["INACTIVE"]
+      "enum": [
+        "INACTIVE"
+      ]
     },
     "directoriesStats": {
       "type": "object",
@@ -5967,7 +7031,10 @@
     },
     "domainsDomainType": {
       "type": "string",
-      "enum": ["ALLOWED_EMAIL_DOMAIN", "ORGANIZATION_DOMAIN"]
+      "enum": [
+        "ALLOWED_EMAIL_DOMAIN",
+        "ORGANIZATION_DOMAIN"
+      ]
     },
     "domainsGetDomainResponse": {
       "type": "object",
@@ -6146,7 +7213,10 @@
       "description": "- dir_sync: Enables directory synchronization configuration in the portal\n - sso: Enables Single Sign-On (SSO) configuration in the portal",
       "type": "string",
       "title": "Feature represents the available features that can be enabled for an organization's portal link",
-      "enum": ["dir_sync", "sso"]
+      "enum": [
+        "dir_sync",
+        "sso"
+      ]
     },
     "organizationsGeneratePortalLinkResponse": {
       "type": "object",
@@ -6170,7 +7240,7 @@
       "type": "object",
       "properties": {
         "expire_time": {
-          "description": "Expiry time of the link. The link is valid for 1 week.",
+          "description": "Expiry time of the link. The link is valid for 1 minute.",
           "type": "string",
           "format": "date-time",
           "example": "2024-02-06T14:48:00.000Z"
@@ -6181,7 +7251,7 @@
           "example": "lnk_123123123123123"
         },
         "location": {
-          "description": "Location of the link. This is the URL that can be used to access the Admin portal. The link is valid for 1 week.",
+          "description": "Location of the link. This is the URL that can be used to access the Admin portal. The link is valid for 1 minute",
           "type": "string",
           "example": "https://scalekit.com/portal/lnk_123123123123123"
         }
@@ -6218,7 +7288,9 @@
     },
     "organizationsOrganization": {
       "type": "object",
-      "required": ["create_time"],
+      "required": [
+        "create_time"
+      ],
       "properties": {
         "create_time": {
           "description": "Timestamp when the organization was created",
@@ -6312,7 +7384,10 @@
       "description": "Controls the activation state of a specific organization feature",
       "type": "object",
       "title": "Organization Feature Toggle",
-      "required": ["name", "enabled"],
+      "required": [
+        "name",
+        "enabled"
+      ],
       "properties": {
         "enabled": {
           "description": "Whether the feature is enabled (true) or disabled (false) for this organization",
@@ -6418,7 +7493,10 @@
     },
     "passwordlessTemplateType": {
       "type": "string",
-      "enum": ["SIGNIN", "SIGNUP"]
+      "enum": [
+        "SIGNIN",
+        "SIGNUP"
+      ]
     },
     "passwordlessVerifyPasswordLessRequest": {
       "type": "object",
@@ -6986,7 +8064,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["org_123", "org_456"]
+          "example": [
+            "org_123",
+            "org_456"
+          ]
         },
         "created_at": {
           "description": "Timestamp indicating when the session was created. This is set once at session creation and remains constant throughout the session lifetime.",
@@ -7100,7 +8181,72 @@
           "items": {
             "type": "string"
           },
-          "example": ["active"]
+          "example": [
+            "active"
+          ]
+        }
+      }
+    },
+    "toolsExecuteToolRequest": {
+      "type": "object",
+      "properties": {
+        "connected_account_id": {
+          "description": "Optional. The unique ID of the connected account. Use this to directly identify the connected account instead of using identifier + connector combination.",
+          "type": "string",
+          "example": "ca_123"
+        },
+        "connector": {
+          "description": "Optional. The name of the connector/provider (e.g., 'Google Workspace', 'Slack', 'Notion'). Use this in combination with identifier to identify the connected account.",
+          "type": "string",
+          "example": "Google Workspace"
+        },
+        "identifier": {
+          "description": "Optional. The unique identifier for the connected account within the third-party service (e.g., email address, user ID, workspace identifier). Use this in combination with connector to identify the connected account.",
+          "type": "string",
+          "example": "user@example.com"
+        },
+        "organization_id": {
+          "description": "Optional. The organization ID to scope the connected account lookup. Use this to narrow down the search when the same identifier exists across multiple organizations.",
+          "type": "string",
+          "example": "org_123"
+        },
+        "params": {
+          "description": "JSON object containing the parameters required for tool execution. The structure depends on the specific tool being executed.",
+          "type": "object",
+          "example": {
+            "body": "Hello World",
+            "subject": "Hello",
+            "to": "user@example.com"
+          }
+        },
+        "tool_name": {
+          "description": "Name of the tool to execute",
+          "type": "string",
+          "example": "send_email"
+        },
+        "user_id": {
+          "description": "Optional. The user ID to scope the connected account lookup. Use this to narrow down the search when the same identifier exists across multiple users.",
+          "type": "string",
+          "example": "user_123"
+        }
+      }
+    },
+    "toolsExecuteToolResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "description": "Free-flowing JSON parameters for the tool execution",
+          "type": "object",
+          "example": {
+            "body": "Hello World",
+            "subject": "Hello",
+            "to": "user@example.com"
+          }
+        },
+        "execution_id": {
+          "description": "Unique identifier for the tool execution",
+          "type": "string",
+          "example": "123456789"
         }
       }
     },
@@ -7189,7 +8335,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["engineering", "managers"]
+          "example": [
+            "engineering",
+            "managers"
+          ]
         },
         "locale": {
           "description": "User's localization preference in BCP-47 format. Defaults to organization settings.",
@@ -7455,7 +8604,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["engineering", "managers"]
+          "example": [
+            "engineering",
+            "managers"
+          ]
         },
         "last_name": {
           "description": "[DEPRECATED] Use family_name instead. User's family name. Maximum 200 characters.",
@@ -7569,6 +8721,64 @@
         }
       }
     },
+    "v1connected_accountsCreateConnectedAccount": {
+      "type": "object",
+      "title": "Payload for creating a new connected account - only authorization details required",
+      "properties": {
+        "api_config": {
+          "description": "Optional JSON configuration for connector-specific API settings such as rate limits, custom API endpoints, timeouts, or feature flags.",
+          "type": "object",
+          "example": {
+            "base_url": "https://api.custom-domain.com",
+            "rate_limit": 1000,
+            "timeout": 30
+          }
+        },
+        "authorization_details": {
+          "description": "Required authentication credentials for the connected account. Must include either OAuth tokens (access_token, refresh_token, scopes) or static auth details (API keys, bearer tokens).",
+          "$ref": "#/definitions/connected_accountsAuthorizationDetails",
+          "example": {
+            "oauth_token": {
+              "access_token": "ya29.a0...",
+              "refresh_token": "1//0g...",
+              "scopes": [
+                "email",
+                "profile"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "v1connected_accountsUpdateConnectedAccount": {
+      "type": "object",
+      "title": "Payload for updating an existing connected account - all fields optional",
+      "properties": {
+        "api_config": {
+          "description": "Updated JSON configuration for API-specific settings. Merges with existing configuration - only provided fields are modified.",
+          "type": "object",
+          "example": {
+            "rate_limit": 2000,
+            "timeout": 60
+          }
+        },
+        "authorization_details": {
+          "description": "Updated authentication credentials. Provide new OAuth tokens (e.g., after refresh) or updated static auth details. Only included fields will be modified.",
+          "$ref": "#/definitions/connected_accountsAuthorizationDetails",
+          "example": {
+            "oauth_token": {
+              "access_token": "ya29.new_token...",
+              "refresh_token": "1//0g...",
+              "scopes": [
+                "email",
+                "profile",
+                "calendar"
+              ]
+            }
+          }
+        }
+      }
+    },
     "v1domainsCreateDomain": {
       "type": "object",
       "properties": {
@@ -7586,7 +8796,9 @@
     },
     "v1organizationsCreateOrganization": {
       "type": "object",
-      "required": ["display_name"],
+      "required": [
+        "display_name"
+      ],
       "properties": {
         "display_name": {
           "description": "Name of the organization. Must be between 1 and 200 characters.",
@@ -7661,7 +8873,10 @@
           "items": {
             "type": "string"
           },
-          "example": ["read:users", "write:documents"]
+          "example": [
+            "read:users",
+            "write:documents"
+          ]
         }
       }
     },
@@ -7709,7 +8924,11 @@
           "items": {
             "type": "string"
           },
-          "example": ["read:content", "write:content", "publish:content"]
+          "example": [
+            "read:content",
+            "write:content",
+            "publish:content"
+          ]
         }
       }
     },
@@ -7809,7 +9028,12 @@
           "items": {
             "type": "string"
           },
-          "example": ["read:content", "write:content", "publish:content", "approve:content"]
+          "example": [
+            "read:content",
+            "write:content",
+            "publish:content",
+            "approve:content"
+          ]
         }
       }
     },
@@ -8129,11 +9353,21 @@
     },
     {
       "description": "Endpoints for sending and verifying passwordless authentication emails. These APIs allow users to authenticate without passwords by receiving a verification code or magic link in their email.",
-      "name": "Passwordless Auth"
+      "name": "Magic link \u0026 OTP"
     },
     {
       "description": "Endpoints for passkey-based authentication using WebAuthn/FIDO2 standards.",
       "name": "Passkeys"
+    },
+    {
+      "description": "Manage connected accounts for third-party integrations and OAuth connections. Connected accounts represent authenticated access to external services like Google, Notion, Slack, and other applications.",
+      "name": "Connected Accounts"
+    },
+    {
+      "name": "ConnectedAccountService"
+    },
+    {
+      "name": "ToolService"
     }
   ],
   "externalDocs": {
