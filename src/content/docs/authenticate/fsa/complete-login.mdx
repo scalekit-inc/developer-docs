@@ -799,6 +799,124 @@ return new RedirectView(scalekitClient.authentication().getAuthorizationUrl(redi
 
 </details>
 
+<details>
+<summary>How do I redirect users back to the page they requested after authentication?</summary>
+
+When users bookmark specific pages or their session expires, redirect them to their original destination after authentication. Store the intended path in a secure cookie before redirecting to Scalekit, then read it after the callback.
+
+**Step 1: Capture the intended destination**
+
+Before redirecting to Scalekit, store the user's requested path in a secure cookie:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Express.js"
+app.get('/login', (req, res) => {
+  const nextPath = typeof req.query.next === 'string' ? req.query.next : '/'
+  // Only allow internal paths to prevent open redirects
+  const safe = nextPath.startsWith('/') && !nextPath.startsWith('//') ? nextPath : '/'
+  res.cookie('sk_return_to', safe, { httpOnly: true, secure: true, sameSite: 'lax', path: '/' })
+  // Build authorization URL and redirect to Scalekit
+})
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Flask"
+@app.route('/login')
+def login():
+    next_path = request.args.get('next', '/')
+    safe = next_path if next_path.startswith('/') and not next_path.startswith('//') else '/'
+    resp = make_response()
+    resp.set_cookie('sk_return_to', safe, httponly=True, secure=True, samesite='Lax', path='/')
+    return resp
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Gin"
+func login(c *gin.Context) {
+  nextPath := c.Query("next")
+  if nextPath == "" || !strings.HasPrefix(nextPath, "/") || strings.HasPrefix(nextPath, "//") {
+    nextPath = "/"
+  }
+  cookie := &http.Cookie{Name: "sk_return_to", Value: nextPath, HttpOnly: true, Secure: true, Path: "/"}
+  http.SetCookie(c.Writer, cookie)
+}
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Spring"
+@GetMapping("/login")
+public void login(HttpServletRequest request, HttpServletResponse response) {
+  String nextPath = Optional.ofNullable(request.getParameter("next")).orElse("/");
+  boolean safe = nextPath.startsWith("/") && !nextPath.startsWith("//");
+  Cookie cookie = new Cookie("sk_return_to", safe ? nextPath : "/");
+  cookie.setHttpOnly(true); cookie.setSecure(true); cookie.setPath("/");
+  response.addCookie(cookie);
+}
+```
+</TabItem>
+</Tabs>
+
+**Step 2: Redirect after callback**
+
+After exchanging the authorization code, read the cookie and redirect to the stored path:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Express.js" {8-12}
+app.get('/auth/callback', async (req, res) => {
+  // ... exchange code ...
+  const raw = req.cookies.sk_return_to || '/'
+  const safe = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/'
+  res.clearCookie('sk_return_to', { path: '/' })
+  res.redirect(safe || '/dashboard')
+})
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Flask" {8-12}
+def callback():
+    # ... exchange code ...
+    raw = request.cookies.get('sk_return_to', '/')
+    safe = raw if raw.startswith('/') and not raw.startswith('//') else '/'
+    resp = redirect(safe or '/dashboard')
+    resp.delete_cookie('sk_return_to', path='/')
+    return resp
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Gin" {9-13}
+func callback(c *gin.Context) {
+  // ... exchange code ...
+  raw, _ := c.Cookie("sk_return_to")
+  if raw == "" || !strings.HasPrefix(raw, "/") || strings.HasPrefix(raw, "//") {
+    raw = "/"
+  }
+  http.SetCookie(c.Writer, &http.Cookie{Name: "sk_return_to", Value: "", MaxAge: -1, Path: "/"})
+  c.Redirect(http.StatusFound, raw)
+}
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Spring" {9-13}
+public RedirectView callback(HttpServletRequest request, HttpServletResponse response) {
+  // ... exchange code ...
+  String raw = getCookie(request, "sk_return_to").orElse("/");
+  boolean ok = raw.startsWith("/") && !raw.startsWith("//");
+  Cookie clear = new Cookie("sk_return_to", ""); clear.setPath("/"); clear.setMaxAge(0);
+  response.addCookie(clear);
+  return new RedirectView(ok ? raw : "/dashboard");
+}
+```
+</TabItem>
+</Tabs>
+
+<Aside type="caution" title="Never redirect to external origins">
+Allow only same-origin paths (e.g., `/billing`). Do not accept absolute URLs or protocol-relative URLs. This blocks open redirect attacks.
+</Aside>
+
+</details>
+
 <Aside type="note" title="Routing precedence">
 Scalekit applies connection selection in this order: `connection_id` → `organizationId` → `loginHint` (domain extraction). Prefer the highest confidence signal you have.
 </Aside>

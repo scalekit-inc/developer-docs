@@ -9,6 +9,7 @@ import {
   IconLucideOutlineWebhook,
   IconMingcuteUserSecurityLine,
   IconGardenShapes26,
+  IconLucideLayoutGrid,
   IconAntDesignUserSwitchOutlined,
   IconLucideChevronDown as IconChevronDown,
   IconHugeiconsResourcesAdd,
@@ -52,7 +53,7 @@ export const secondaryNavItems: NavItem[] = [
     id: 'authenticate',
     href: '#authenticate',
     label: 'Choose product',
-    iconComponent: IconLucideUsers,
+    iconComponent: IconLucideLayoutGrid,
     children: [
       {
         id: 'mcp', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/mcp']

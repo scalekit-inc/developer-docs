@@ -11,7 +11,6 @@ export const sidebar = [
       {
         label: 'Getting started',
         items: [
-          'index',
           'authenticate/set-up-scalekit',
           { label: 'Quickstart: Full stack auth', link: 'authenticate/fsa/quickstart' },
         ],
@@ -187,16 +186,6 @@ export const sidebar = [
           'dev-kit/code-samples/modular-sso',
           'dev-kit/code-samples/modular-scim',
           'dev-kit/code-samples/full-stack-auth',
-        ],
-      },
-      {
-        label: 'How to...',
-        collapsed: true,
-        items: [
-          {
-            label: 'Preserve target route post-auth',
-            link: 'guides/user-auth/preserve-intended-destination',
-          },
         ],
       },
       {
