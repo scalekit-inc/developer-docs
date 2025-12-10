@@ -44,7 +44,7 @@ MCP servers expose tools that AI hosts can discover and execute to interact with
 
 - A sales team member could use Claude Desktop to view customer information, update records, or set follow-up reminders
 - A developer could use VS Code or Cursor with a GitHub MCP server to perform everyday GitHub actions through chat
-- A autonomous agent could use a MCP server to perform actions such as look up the account details in a CRM system
+- An autonomous agent could use an MCP server to perform actions such as look up the account details in a CRM system
 
 When you build MCP servers, multiple AI hosts may need to discover and use your server to interact with your resources. Scalekit handles the complex authentication and authorization for you, so you can focus on building better tools and improving functionality.
 
@@ -54,7 +54,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
 
    To get started, make sure you have your Scalekit account and API credentials ready. If you haven't created a Scalekit account yet, you can [sign up and get a free account](https://app.scalekit.com/ws/signup).
 
-   Next, install the Scalekit SDK
+   Next, install the Scalekit SDK for your language:
 
    <Tabs syncKey="tech-stack">
      <TabItem value="nodejs" label="Node.js">
@@ -69,25 +69,43 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
      </TabItem>
    </Tabs>
 
-   Use the Scalekit dashboard to register your MCP server and configure MCP hosts (or AI agents following the MCP client protocol) to use Scalekit as the authorization server. The Scalekit SDK is then used to validate tokens after users have been authenticated and authorized to access your MCP server.
+   Use the Scalekit dashboard to register your MCP server and configure MCP hosts (or AI agents following the MCP client protocol) to use Scalekit as the authorization server. The Scalekit SDK validates tokens after users have been authenticated and authorized to access your MCP server.
 
 2. ## Add MCP server to get drop-in OAuth2.1 authorization server
 
-    ![MCP server setup](@/assets/docs/quickstart/mcp-server-setup.png)
-
    In the Scalekit dashboard, go to **MCP servers** and select **Add MCP server**.
 
+   ![Add MCP server](@/assets/docs/quickstart/mcp-create.webp)
+
    1. Provide a **name** for your MCP server to help you identify it easily. This name appears on the Consent page that MCP hosts display to users when authorizing access to your MCP server.
-   2. Enter the **Server URL** where your MCP server is hosted. Scalekit includes this URL as the `aud` claim in issued tokens, indicating that the token was intended for your specific MCP server. You can optionally validate this claim before allowing tool access or execution.
-   3. Enable dynamic client registration for MCP hosts. This allows MCP hosts to automatically register with Scalekit (and your authorization server), eliminating the need for manual registration and making it easier for users to adopt your MCP server securely.
+   2. Enter the **Server URL** where your MCP server is hosted. Include the trailing slash (for example, `https://mcp.yourapp.com/`). Scalekit includes this URL as the `aud` claim in issued tokens, indicating that the token was intended for your specific MCP server. You can optionally validate this claim before allowing tool access or execution.
+   3. Enable **dynamic client registration** for MCP hosts. This allows MCP hosts to automatically register with Scalekit (and your authorization server), eliminating the need for manual registration and making it easier for users to adopt your MCP server securely.
    4. Define the **scopes** that MCP hosts can request for this MCP server. These scopes are pre-approved when users authenticate to use your MCP server, streamlining the authorization process.
-   <br />
+   5. Click **Save** to register the server.
+
+   When you save, Scalekit displays the OAuth-protected resource metadata. Copy this JSON—you'll use it to implement the discovery endpoint, up next.
+
+   <details>
+   <summary>Advanced settings</summary>
+
+   These settings are optional and can be configured at a later time.
+   - **Resource identifier**: Your MCP server's unique identifier, typically your server's URL (e.g., `https://mcp.yourapp.com`). This is an optional field. If not provided, Scalekit will use the generated resource_id as the resource identifier. If provided, access tokens minted by Scalekit will have the resource identifier as `aud` claim along with the Scalekit generated resource_id.
+   - **Access token lifetime**: Recommended 300-3600 seconds (5 minutes to 1 hour)
+   - **Scopes**: Define the permissions your MCP server needs, such as `usr:read` or `usr:write`
+
+   </details>
+
+   <Aside type="tip" title="Using FastMCP?">
+     If you're using FastMCP, you must provide a resource identifier. For a server running at `https://mcp.example.com/mcp`, register `https://mcp.example.com/` as the resource identifier. FastMCP appends <code>/mcp</code> automatically, so use the base URL with a trailing slash only.
+   </Aside>
 
 3. ## Let MCP clients discover your OAuth2.1 authorization server
 
-   MCP protocol directs the any MCP client to discover your OAuth2.1 authorization server by calling a public endpoint on your MCP server. This endpoint is called `.well-known/oauth-protected-resource` and your MCP server is expected to host this endpoint.
+   MCP protocol directs any MCP client to discover your OAuth2.1 authorization server by calling a public endpoint on your MCP server. This endpoint is called `.well-known/oauth-protected-resource` and your MCP server must host this endpoint.
 
-   Copy the response from Dashboard > MCP Servers > Your server > Metadata JSON and implement it in your `.well-known/oauth-protected-resource` endpoint.
+   ![MCP server setup](@/assets/docs/quickstart/mcp-server-setup.webp)
+
+   Copy the resource metadata JSON from **Dashboard > MCP Servers > Your server > Metadata JSON** and implement it in your `.well-known/oauth-protected-resource` endpoint. The `authorization_servers` field contains your Scalekit resource identifier, which clients use to initiate the OAuth flow.
 
 
    <Tabs syncKey="tech-stack">
@@ -95,9 +113,10 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
 
    ```javascript showLineNumbers=false title="ExpressJS" frame="none"
    // MCP client discovery endpoint
+   // Use case: Allow MCP clients to discover OAuth authorization server configuration
    app.get('/.well-known/oauth-protected-resource', (req, res) => {
      res.json({
-       // From Scalekit dashboard > MCP servers
+       // From Scalekit dashboard > MCP servers > Your server > Metadata JSON
        "authorization_servers": [
          "https://<SCALEKIT_ENVIRONMENT_URL>/resources/<YOUR_RESOURCE_ID>"
        ],
@@ -105,7 +124,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
          "header"  // Bearer token in Authorization header
        ],
        "resource": "https://mcp.yourapp.com",  // Your MCP server URL
-       "resource_documentation": "https://mcp.yourapp.com/docs",
+       "resource_documentation": "https://mcp.yourapp.com/docs", // A URL to the documentation of the resource server
        "scopes_supported": ["weather:read", "weather:write"]  // Dashboard-configured scopes
      });
    });
@@ -115,35 +134,35 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    <TabItem value="python" label="Python">
 
    ```python showLineNumbers=false title="FastAPI" frame="none"
-   from fastapi import FastAPI
-   from fastapi.responses import JSONResponse
+    from fastapi import FastAPI
+    from fastapi.responses import JSONResponse
 
-   app = FastAPI()
+    app = FastAPI()
 
-   # MCP client discovery endpoint
-   @app.get("/.well-known/oauth-protected-resource")
-   async def get_oauth_protected_resource():
-       return JSONResponse({
-           "authorization_servers": [
-               "https://<SCALEKIT_ENVIRONMENT_URL>/resources/res_82829009141891595"
-           ],
-           "bearer_methods_supported": ["header"],
-           "resource": "https://mcp.yourapp.com",
-           "resource_documentation": "https://mcp.yourapp.com/docs",
-           "scopes_supported": ["weather:read", "weather:write"]
-       })
+    # OAuth Protected Resource Metadata endpoint - Required for MCP client discovery
+    # Copy the actual authorization server URL and metadata from your Scalekit dashboard.
+    # The values shown here are examples - replace with your actual configuration.
+    @app.get("/.well-known/oauth-protected-resource")
+    async def get_oauth_protected_resource():
+        return JSONResponse({
+            "authorization_servers": [
+                "https://<SCALEKIT_ENVIRONMENT_URL>/resources/<YOUR_RESOURCE_ID>"
+            ],
+            "bearer_methods_supported": [
+                "header"
+            ],
+            "resource": "https://mcp.yourapp.com",
+            "resource_documentation": "https://mcp.yourapp.com/docs",
+            "scopes_supported": ["todo:read", "todo:write"]
+        })
    ```
 
    </TabItem>
    </Tabs>
 
-   <br />
-
 4. ## Validate all MCP client requests have a valid access token
 
    Your MCP server should validate that all incoming requests contain a valid access token. Leverage Scalekit SDKs to validate tokens and verify essential claims such as `aud` (audience), `iss` (issuer), `exp` (expiration), `iat` (issued at), and `scope` (permissions).
-
-   Set up the Scalekit client and configure your resource identifiers. Get these values from **Dashboard > MCP servers > Your server**.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="nodejs" label="Node.js">
@@ -161,6 +180,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
 
    // Resource configuration
    // Get these values from Scalekit dashboard > MCP servers > Your server
+   // For FastMCP: Use base URL with trailing slash (e.g., https://mcp.example.com/)
    const RESOURCE_ID = 'https://your-mcp-server.com';
    const METADATA_ENDPOINT = 'https://your-mcp-server.com/.well-known/oauth-protected-resource';
 
@@ -190,6 +210,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
 
    # Resource configuration
    # Get these values from Scalekit dashboard > MCP servers > Your server
+   # For FastMCP: Use base URL with trailing slash (e.g., https://mcp.example.com/)
    RESOURCE_ID = "https://your-mcp-server.com"
    METADATA_ENDPOINT = "https://your-mcp-server.com/.well-known/oauth-protected-resource"
 
@@ -239,7 +260,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    </TabItem>
    </Tabs>
 
-   Validate the token against your configured resource audience to ensure it was issued for your specific MCP server.
+   Validate the token against your configured resource audience to ensure it was issued for your specific MCP server. The resource identifier must match the Server URL you registered in step 2.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="nodejs" label="Node.js">
@@ -394,7 +415,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    </Tabs>
 
 
-5. ## Implement scope-based tool authorization
+5. ## Implement scope-based tool authorization <Badge text="Optional" />
 
    Add scope validation at the MCP tool execution level to ensure tools are only executed when the user has authorized the MCP client with the required permissions. This provides fine-grained access control and follows the principle of least privilege.
 
@@ -473,7 +494,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    - Familiar authentication experience
    - Reduced friction for personal and small team use cases
 
-   These authentication methods require no changes to your MCP server implementation?you continue validating tokens exactly as shown in the previous steps.
+   These authentication methods require no changes to your MCP server implementation—you continue validating tokens exactly as shown in the previous steps.
 
 </Steps>
 
