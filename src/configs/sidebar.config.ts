@@ -264,7 +264,11 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['authenticate/mcp/overview', 'authenticate/mcp/quickstart'],
+        items: [
+          'authenticate/mcp/overview',
+          'authenticate/mcp/quickstart',
+          'authenticate/mcp/managing-mcp-clients',
+        ],
       },
       {
         label: 'Auth methods',
