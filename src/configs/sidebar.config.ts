@@ -321,7 +321,7 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['authenticate/sso/add-modular-sso'],
+        items: ['authenticate/sso/add-modular-sso', 'authenticate/sso/code-samples'],
       },
       {
         label: 'Integrate SSO with own auth',
@@ -368,7 +368,7 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['directory/scim/quickstart'],
+        items: ['directory/scim/quickstart', 'directory/code-samples'],
       },
       {
         label: 'How to...',
