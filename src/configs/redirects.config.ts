@@ -30,6 +30,7 @@ export const redirects = {
   // =============================================================================
 
   // SSO quickstart and admin portal
+  '/sso/quickstart': '/authenticate/sso/add-modular-sso/',
   '/sso/quickstart-admin-portal': '/guides/admin-portal',
   '/sso/overview': '/guides/sso/sso-basics/',
   '/sso/launch-checklist': '/guides/sso/launch-checklist/',
