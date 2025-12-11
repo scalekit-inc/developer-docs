@@ -152,6 +152,14 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
         "provider": "GOOGLE"
       }
     ],
+    //Contains parameters from the /oauth/authorize request
+    "auth_request": { 
+        "connection_id": "conn_81665025441299343",
+        "organization_id": "org_102953846317318346",
+        "domain": "foocorp.com",
+        "login_hint": "john.doe@example.com",
+        "state": "xsrPHl7k7ARgdhC6"
+    },
     "device_type": "Desktop",
     "ip_address": "203.0.113.24",
     "region": "IN",
@@ -170,10 +178,24 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
       "updated_at": "2025-10-06T13:33:06.479Z",
       "given_name": "John",
       "family_name": "Doe",
+      "metadata": {
+        "type": "social_user"
+      },
       "memberships": [
         {
           "organization_id": "org_93418204671239864",
-          "status": "ACTIVE"
+          "status": "ACTIVE",
+          "roles": [
+              "admin"
+          ],
+          "metadata": {
+                "cost": {
+                    "category": "platform",
+                    "region": "US"
+                },
+                "department": "engineering"
+          },
+           "organization_name": "Example inc"
         }
       ]
     }
@@ -189,8 +211,20 @@ In the Scalekit dashboard, register an interceptor at a trigger point from the *
 {
   // Required: choose ALLOW or DENY
   "decision": "DENY", // ALLOW | DENY
-  // Optional (with DENY)
+  // Optional with DENY
   "error": { "message": "Email domain not allowed" }
+  // Optional with ALLOW, Include when the user is to be provisioned in an existing organization.
+   "response": {
+        "create_organization_membership": {
+            // either external_organization_id or organization_id is required
+            "external_organization_id": "ext_B6YycAGRaPmnuxAFPT5KI4HBHxr4qWX", 
+            "organization_id": "org_102953846317318346"
+            "roles": [
+                "admin",
+                "viewer"
+            ]
+        }
+    }
 }
 ```
 
