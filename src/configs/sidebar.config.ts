@@ -348,6 +348,10 @@ export const sidebar = [
           'sso/guides/add-login-ux-sso',
           'sso/guides/sso-user-attributes',
           'sso/guides/test-sso',
+          {
+            label: 'Self-service admin portal',
+            link: 'authenticate/sso/admin-portal',
+          },
         ],
       },
       {
@@ -379,6 +383,10 @@ export const sidebar = [
         items: [
           'directory/guides/user-provisioning-basics',
           'directory/guides/scim-protocol',
+          {
+            label: 'Self-service admin portal',
+            link: 'directory/admin-portal',
+          },
           {
             label: 'Directory webhooks reference',
             link: 'directory/reference/directory-events',
