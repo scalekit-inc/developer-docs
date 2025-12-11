@@ -46,7 +46,7 @@ export default defineConfig({
       },
       logo: {
         dark: '/src/assets/images/scalekit-logo-white.svg',
-        light: '/src/assets/images/logo-v5/sk-docs.svg',
+        light: '/src/assets/images/logos-v4/sk-docs-light.svg',
         replacesTitle: true,
       },
       defaultLocale: 'en',
