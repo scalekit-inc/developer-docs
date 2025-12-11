@@ -1,44 +1,132 @@
 ---
-title: Machine-2-Machine (M2M) authentication
-description: "Learn how to secure interactions between software systems with M2M authentication, enabling secure API access for AI agents, apps, and automated workflows."
+title: Machine-2-Machine authentication
+description: "Secure interactions between software systems with M2M authentication, enabling secure API access for AI agents, apps, and automated workflows"
+browseCentral:
+  label: "Machine-to-machine authentication"
+  filterType: ["tutorial"]
+  category: ["API authentication"]
+  icon: "book"
 sidebar:
   label: Overview
-prev: false
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-M2M authentication secures interactions between software systems that operate without human intervention. This authentication method enables AI agents, apps, automation tools, and workflows to interact with your API securely.
+Machine-2-Machine (M2M) authentication secures API access for non-human clients like AI agents, third-party integrations, backend services, and automated workflows. When you need to give these machine clients secure access to your APIs, M2M authentication provides credential-based authentication using client IDs and secrets, without exposing hardcoded tokens or requiring human interaction.
 
-Your API provides essential data for M2M interactions. External systems require secure authentication to access this data through your application's API.
+Your machine clients can act on behalf of an organization, a specific user, or operate independently to perform system-level tasks. You get centralized management of all machine identities with granular permissions and seamless credential rotation across internal and external services.
 
-Common M2M use cases include:
+This approach ensures your machine clients authenticate with the same rigour as human users, giving you secure, scoped access to APIs while simplifying integration development and meeting enterprise security standards.
 
-- API integration with third-party services (CRM systems, analytics platforms, payment providers)
+## When to use M2M authentication
+
+You'll use M2M auth when your APIs need to be accessed by:
+
+- Automated clients or AI agents making requests on behalf of users or organizations
+- External platforms or third-party integrations (like Zapier, CRM systems, analytics platforms, or payment providers)
+- Internal services or background jobs that programmatically invoke your APIs
 - Scheduled services that automatically sync data with your API
 - Automated workflows that update external systems
 
-Scalekit provides an authentication layer for your API, requiring all downstream machines (AI agents, third-party services) to authenticate before consuming your API.
+In all these cases, there's no human user session involved. The system still needs a secure way to authenticate the client and determine what access it should have.
 
-### How M2M authentication works
+## Understanding the OAuth 2.0 client credentials flow
 
-The following example demonstrates how to implement M2M authentication for a tasks API that enables customer Slack automations to post weekly reminders:
+M2M authentication uses the OAuth 2.0 client credentials flow. This is the standard way for non-human clients to obtain access tokens without requiring user interaction.
 
-![M2M Authentication Flow](@/assets/docs/m2m/m2m-flow.png)
+OAuth 2.0 is an authorization framework that allows client applications to access protected resources on a resource server by presenting an access token. The protocol delegates authorization decisions to a central authorization server, which issues access tokens after validating the client or user.
+
+The protocol defines several grant types for different use cases:
+
+- **Client credentials flow** - Use this when one system (like an automated client or AI agent) wants to access another system's API
+- **Authorization code flow** - Use this when a user authorizes a machine client to act on their behalf
+
+For org-level or internal service clients, you use a `client_id` and `client_secret` to authenticate. For user-backed clients, the user first authorizes the client via the authorization code flow.
+
+## Choose your client type
+
+Scalekit provides three types of machine clients based on the OAuth 2.0 flow:
+
+- **Org-level clients:** Use these when your automated client needs to access APIs on behalf of an organization. Tokens are scoped to a specific org (`oid`) and work well for org-wide workflows. Read the M2M authentication quickstart to set up an org-level client.
+- **User-level clients:** Use these when your machine client acts on behalf of a specific user. These tokens include a `uid` (user ID) in addition to `oid`, letting you enforce user-contextual access. *(Coming soon)*
+- **Internal service clients:** Use these for secure service-to-service communication between internal systems. These clients issue tokens with an `aud` (audience) claim to enforce destination-specific access. They're ideal for microservices that need to communicate without org or user context. *(Coming soon)*
+
+![How M2M authentication works](@/assets/docs/m2m/m2m-flow.png)
+
+## How the authentication flow works
+
+Here's the complete M2M authentication flow:
 
 <Steps>
-1. Authenticate with the Scalekit API using your API credentials from your Scalekit environment.
-2. Create a client ID and client secret to identify API consumers through your customer interface.
-3. Your customer's application authenticates with your Scalekit environment using these credentials to obtain an access token.
-4. The customer's application uses this token to request data from your tasks API.
-5. Your application verifies the access token using your Scalekit environment's JSON Web Key Set (JWKS) before processing the request.
+1. **Register a machine client**
+
+    You create an M2M client in Scalekit for the machine that needs access to your APIs.
+
+2. **Generate credentials**
+
+    Scalekit issues a `client_id` and `client_secret` for that client. Your client uses these credentials to request access tokens.
+
+3. **Request an access token**
+
+    Your client requests an access token from Scalekit's `/oauth/token` endpoint. For org-level access, it uses the client credentials flow directly. For user-level access, it exchanges an authorization code after user consent in the authorization code flow.
+
+4. **Receive a signed JWT**
+
+    Scalekit validates the request and returns a short-lived, signed JWT that contains claims specific to your client type:
+
+    - Which organization it belongs to (`oid`)
+    - Which user it belongs to (`uid`)
+    - What it's allowed to do (`scopes`)
+    - How long it's valid for (`exp`, `nbf`)
+    - Which service it's intended for (`aud`)
+
+    Each token is signed by Scalekit so your API can validate it locally without calling back to Scalekit. This improves performance and keeps your authorization flow resilient even if the auth server is briefly unavailable.
+
+5. **Make authenticated API calls**
+
+    Your machine client sends this token in the `Authorization` header when calling your API.
+
+6. **Validate the token**
+
+    Your API checks the token's signature and claims locally. You don't need to make a network call to Scalekit for validation.
 </Steps>
 
+This approach gives you secure, programmatic authentication using short-lived, scoped tokens that you can revoke or rotate as needed.
 
-### Benefits of M2M Authentication
+## What Scalekit handles for you
 
+Building secure M2M authentication from scratch can be complex when dealing with token scoping, TTL management, credential rotation, and validation.
 
-- **Security**: Eliminates the need to share user credentials between services
-- **Auditability**: Each service has its own identity, making it easier to track and audit API usage
-- **Scalability**: Services can be easily added or removed without affecting other parts of the system
-- **Granular Control**: Fine-grained access control can be implemented at the service level
+Scalekit handles these concerns out of the box with minimal setup. With just a few API calls or dashboard actions, you can:
+
+- Register machine clients scoped to an organization, user, or service
+- Generate and manage credentials with safe rotation
+- Issue signed, short-lived JWTs with the right claims (`oid`, `uid`, `aud`, `scopes`) based on the client type
+- Validate tokens locally in your API without calling back to Scalekit
+
+You can enforce least-privilege access for machine clients without implementing the OAuth flow or token lifecycle yourself.
+
+## Token security and management
+
+<Aside type="tip">
+Tokens issued by Scalekit are designed to be secure by default and operationally smooth to manage over time:
+</Aside>
+
+- **Short-lived**: All tokens have a configurable TTL (default: 1 hour; minimum: 5 minutes) to reduce long-term risk.
+- **Locally verifiable**: Tokens are signed JWTs that your API can verify without calling back to Scalekit.
+- **Supports rotation**: Each client can store up to five secrets at a time, making credential rotation seamless with no downtime.
+- **Includes identity context**: Tokens contain claims like `oid` (org ID), `uid` (user ID), and `aud` (audience) so you can enforce precise access.
+- **Scoped access**: You define fine-grained scopes to limit what each client is allowed to do.
+
+These defaults ensure that your tokens are short-lived, constrained in what they can do, and fully verifiable without external dependencies.
+
+## Key benefits
+
+When you implement M2M authentication with Scalekit, you get:
+
+- **Security**: You eliminate the need to share user credentials between services or expose hardcoded secrets
+- **Auditability**: Each service has its own identity, making it easier for you to track and audit API usage
+- **Scalability**: You can easily add or remove services without affecting other parts of your system
+- **Granular Control**: You can implement fine-grained access control at the service level
+
+To start integrating M2M authentication in your application, head to the [quickstart guide](/authenticate/m2m/api-auth-quickstart) for setting up an org-level client.

@@ -1,0 +1,58 @@
+---
+title: Role based access control (RBAC)
+description: "Control what authenticated users can access in your application based on their roles and permissions"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+sidebar:
+  label: "Overview"
+prev: false
+tableOfContents: false
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+When users access features in your application, your app needs to control what actions they can perform. These permissions might be set by your app as defaults or by organization administrators. For example, in a project management application, you can allow some users to create projects while restricting others to only view existing projects. Role-based access control (RBAC) provides the framework to implement these permissions systematically.
+
+After users authenticate through Scalekit, your application receives an access token containing their roles and permissions. Use this token to make authorization decisions and control access to features and resources.
+
+```d2 pad=100
+shape: sequence_diagram
+
+User -> Scalekit: Initiate sign up \n or login
+Scalekit -> Your App: Package access contents \n in access tokens
+Your App -> Your App: Determine the \nrole & permissions from access token
+Your App -> User: Allow/Deny
+```
+
+Access tokens contain two key components for authorization:
+
+**Roles** group related permissions together and define what users can do in your system. Common examples include Admin, Manager, Editor, and Viewer. Roles can inherit permissions from other roles, creating hierarchical access levels.
+
+**Permissions** represent specific actions users can perform, formatted as `resource:action` patterns like `projects:create` or `tasks:read`. Use permissions for granular access control when you need precise control over individual capabilities.
+
+```json title="Access token contents" {9,11} wrap showLineNumbers=false
+{
+  "aud": ["skc_987654321098765432"],
+  "client_id": "skc_987654321098765432",
+  "exp": 1750850145,
+  "iat": 1750849845,
+  "iss": "http://example.localhost:8889",
+  "jti": "tkn_987654321098765432",
+  "nbf": 1750849845,
+  "roles": ["project_manager", "member"],
+  "oid": "org_69615647365005430",
+  "permissions": ["projects:create", "projects:read", "tasks:assign"],
+  "sid": "ses_987654321098765432",
+  "sub": "usr_987654321098765432"
+}
+```
+Scalekit automatically assigns the `admin` role to the first user in each organization and the `member` role to subsequent users. Your application uses the role and permission information from Scalekit to make final authorization decisions at runtime.
+
+Start by defining the roles and permissions your application needs.

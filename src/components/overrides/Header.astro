@@ -4,10 +4,10 @@ import { Icon } from '@astrojs/starlight/components'
 
 import Search from '@astrojs/starlight/components/Search.astro'
 import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro'
+import SecondaryNav from '../SecondaryNav.astro'
 
 import ThemeSelect from 'starlight-theme-nova/components/ThemeSelect.astro'
 import { LinkButton } from '@astrojs/starlight/components'
-import SecondaryNav from '../SecondaryNav.astro'
 import MobileMenuToggle from '@astrojs/starlight/components/MobileMenuToggle.astro'
 
 const { dir, entry, lang, locale } = Astro.props
@@ -15,42 +15,46 @@ const { dir, entry, lang, locale } = Astro.props
 
 <div class="header">
   <div class="top-row">
-    <SiteTitle {locale} />
+    <div class="header-left">
+      <SiteTitle {locale} />
+    </div>
 
-    <div class="center-content">
+    <div class="header-center">
       <div class="search-wrapper">
         <Search {locale} />
         <MobileMenuToggle />
       </div>
     </div>
 
-    <div class="right-actions sl-hidden md:sl-flex">
-      <LinkButton
-        href="https://schedule.scalekit.com/meet/ravi-madabhushi/demo-8b100203"
-        target="_blank"
-        variant="secondary"
-        iconPlacement="start"
-        class="sk-secondary"
-      >
-        Talk to an Engineer
-      </LinkButton>
-      <LinkButton
-        href="https://app.scalekit.com/"
-        target="_blank"
-        variant="primary"
-        icon="right-arrow"
-        iconPlacement="end"
-        class="sk-primary"
-      >
-        Dashboard
-      </LinkButton>
-      <div class="ml-4">
-        <ThemeSelect />
+    <div class="header-right">
+      <div class="right-actions sl-hidden md:sl-flex">
+        <LinkButton
+          href="https://schedule.scalekit.com/meet/ravi-madabhushi/demo-8b100203"
+          target="_blank"
+          variant="secondary"
+          iconPlacement="start"
+          class="sk-secondary"
+        >
+          Talk to an Engineer
+        </LinkButton>
+        <LinkButton
+          href="https://app.scalekit.com/"
+          target="_blank"
+          variant="primary"
+          icon="right-arrow"
+          iconPlacement="end"
+          class="sk-primary"
+        >
+          Dashboard
+        </LinkButton>
+        <!-- <div class="ml-4">
+          <ThemeSelect />
+        </div> -->
       </div>
     </div>
   </div>
 
-  <SecondaryNav />
+  <SecondaryNav entry={entry} />
 </div>
 
 <style>
@@ -62,7 +66,7 @@ const { dir, entry, lang, locale } = Astro.props
      ============================================================================= */
   @layer header.layout {
     .header {
-      position: sticky;
+      /* position: sticky; */
       top: 0;
       z-index: var(--sl-z-index-navbar);
       background-color: var(--sl-color-bg);
@@ -71,16 +75,29 @@ const { dir, entry, lang, locale } = Astro.props
     .top-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      height: var(--sl-header-height-base);
+      width: 100%;
     }
 
-    .center-content {
-      display: flex;
-      align-items: center;
-      gap: 4rem;
+    .header-left {
       flex: 1;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .header-center {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       max-width: 800px;
+    }
+
+    .header-right {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
     }
   }
 
@@ -95,9 +112,8 @@ const { dir, entry, lang, locale } = Astro.props
 
     .right-actions {
       display: none;
-      gap: 0.5rem;
+      gap: 1rem; /* Back to original spacing */
       align-items: center;
-      font-weight: 500;
     }
 
     /* Custom padding for header LinkButtons only */
@@ -108,6 +124,12 @@ const { dir, entry, lang, locale } = Astro.props
     .right-actions :global(.sk-secondary),
     .right-actions :global(.sk-minimal) {
       padding: 0.5rem 1.5rem;
+    }
+
+    /* Match font size with other site buttons */
+    .right-actions :global(.sk-primary),
+    .right-actions :global(.sk-secondary) {
+      font-size: var(--sl-text-sm); /* Match other site buttons (14.4px) */
     }
   }
 
@@ -124,22 +146,25 @@ const { dir, entry, lang, locale } = Astro.props
 
     /* Large tablet adjustments */
     @media (max-width: 72rem) {
-      .center-content {
-        gap: 3rem;
+      .header-center {
         margin: 0 2rem;
-      }
-    }
-
-    /* Small tablet adjustments */
-    @media (max-width: 60rem) {
-      .center-content {
-        gap: 2rem;
-        margin: 0 1rem;
       }
 
       .search-wrapper {
         flex: 0 1 250px;
         min-width: 200px;
+      }
+    }
+
+    /* Small tablet adjustments */
+    @media (max-width: 60rem) {
+      .header-center {
+        margin: 0 1rem;
+      }
+
+      .search-wrapper {
+        flex: 0 1 200px;
+        min-width: 180px;
       }
     }
 

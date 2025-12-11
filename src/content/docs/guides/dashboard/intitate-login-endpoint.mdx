@@ -1,0 +1,136 @@
+---
+title: "Configure initiate login endpoint"
+topic: dev-kit
+description: "Set up a login endpoint that Scalekit redirects to when users access your application through indirect entry points"
+tableOfContents: true
+browseCentral:
+  label: "Create login endpoint for redirected users"
+  filterType: ["tutorial"]
+  category: ["User authentication"]
+  icon: "book"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+sidebar:
+  label: "Implement initiate login endpoint"
+prev:
+  link: '/authenticate/fsa/implement-login/'
+  label: 'Initiate user signup or login'
+next:
+  link: '/authenticate/fsa/complete-login/'
+  label: 'Complete login with code exchange'
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+In certain scenarios, Scalekit redirects users to your application's login endpoint using OIDC third-party initiated login. Your application must implement this endpoint to construct the authorization URL and redirect users to Scalekit's authentication flow.
+
+Scalekit redirects to your login endpoint in these (example) scenarios:
+
+- **Bookmarked login page**: Users bookmark your login page and visit it later. When they access the bookmarked URL, Scalekit redirects them to your application's login endpoint because the original authentication transaction has expired.
+
+- **Password reset completion**: After users complete a password reset, Scalekit redirects them to your login endpoint. Users can then sign in with their new password.
+
+- **Email verification completion**: After users verify their email address during signup, Scalekit redirects them to your login endpoint to complete authentication.
+
+- **Organization invitations**: When users click an invitation link to join an organization, Scalekit redirects them to your login endpoint with invitation parameters. Your application must forward these parameters to Scalekit's authorization endpoint.
+
+- **Disabled cookies**: If users navigate to Scalekit's authorization endpoint with cookies disabled, Scalekit redirects them to your login endpoint.
+
+## Configure the initiate login endpoint
+
+Register your login endpoint in the Scalekit dashboard.
+
+Go to **Dashboard** > **Authentication** > **Redirect URLs** > **Initiate Login URL** and add your endpoint.
+
+![](@/assets/docs/intitate-login-endpoint/add-initiate-login-url.png)
+
+The endpoint must:
+- Use HTTPS (required in production)
+- Not point to localhost (production only)
+- Accept query parameters that Scalekit appends
+
+## Implement the login endpoint
+
+Create a `/login` endpoint that constructs the authorization URL and redirects users to Scalekit.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+  ```javascript title="routes/auth.js" {2,9}
+  // Handle indirect auth entry points
+  app.get('/login', (req, res) => {
+    const redirectUri = 'http://localhost:3000/auth/callback';
+    const options = {
+      scopes: ['openid', 'profile', 'email', 'offline_access']
+    };
+
+    const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+    res.redirect(authorizationUrl);
+  });
+  ```
+  </TabItem>
+  <TabItem value="py" label="Python">
+  ```python title="routes/auth.py" collapse={1-3} {5,13}
+  from flask import redirect
+  from scalekit import AuthorizationUrlOptions
+
+  # Handle indirect auth entry points
+  @app.route('/login')
+  def login():
+      redirect_uri = 'http://localhost:3000/auth/callback'
+      options = AuthorizationUrlOptions(
+          scopes=['openid', 'profile', 'email', 'offline_access']
+      )
+
+      authorization_url = scalekit_client.get_authorization_url(redirect_uri, options)
+      return redirect(authorization_url)
+  ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+  ```go title="routes/auth.go" {2,9}
+  // Handle indirect auth entry points
+  r.GET("/login", func(c *gin.Context) {
+    redirectUri := "http://localhost:3000/auth/callback"
+    options := scalekitClient.AuthorizationUrlOptions{
+      Scopes: []string{"openid", "profile", "email", "offline_access"}
+    }
+
+    authorizationUrl, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+    c.Redirect(http.StatusFound, authorizationUrl.String())
+  })
+  ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+  ```java title="AuthController.java" {6,12-13} collapse={1-4}
+  import org.springframework.web.bind.annotation.GetMapping;
+  import org.springframework.web.bind.annotation.RestController;
+  import java.net.URL;
+
+  // Handle indirect auth entry points
+  @GetMapping("/login")
+  public String login() {
+      String redirectUri = "http://localhost:3000/auth/callback";
+      AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+      options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+
+      URL authorizationUrl = scalekitClient.authentication().getAuthorizationUrl(redirectUri, options);
+      return "redirect:" + authorizationUrl.toString();
+  }
+  ```
+  </TabItem>
+</Tabs>
+
+
+{/*
+ Check with the team if this is still needed
+<Aside type="caution">
+If users have cookies disabled, Scalekit redirects them to your login endpoint. This can cause a redirect loop. Consider adding a landing page that checks for cookies and warns users to enable them before proceeding.
+</Aside>
+
+*/}

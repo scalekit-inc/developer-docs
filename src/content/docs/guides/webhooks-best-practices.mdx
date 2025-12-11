@@ -1,10 +1,19 @@
 ---
-title: 'Best practices for webhooks'
+title: 'Following webhook best practices'
 description: 'Learn best practices for implementing webhooks in your SCIM integration. Covers security measures, event handling, signature verification, and performance optimization techniques for real-time directory updates.'
 sidebar:
-  label: 'Webhook best practices'
-prev: false
-next: false
+  label: 'Review webhook best practices'
+browseCentral:
+  label: "Secure webhooks best practices"
+  filterType: ["code-sample"]
+  category: ["Best practices"]
+  icon: code
+prev:
+  link: '/guides/client-credentials-practices/'
+  label: 'Managing client credentials'
+next:
+  link: '/guides/user-auth/preserve-intended-destination/'
+  label: 'Preserve user destinations'
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
@@ -314,3 +323,467 @@ By following these best practices, you can ensure that your application effectiv
 ## Do not ignore errors
 
 Do not overlook repeated 4xx and 5xx error codes. Instead, verify that your API interactions are correct. For instance, if an endpoint expects a string but receives a numeric value, a validation error should occur. Likewise, trying to access an unauthorized or nonexistent endpoint will trigger a 4xx error.
+
+## Advanced signature verification
+
+While using the Scalekit SDK is recommended for webhook signature verification, you can also verify signatures manually using HMAC-SHA256 libraries when the SDK isn't available for your language.
+
+### Manual signature verification
+
+```javascript title="Manual signature verification"
+function verifySignatureManually(rawBody, signature, secret) {
+  const crypto = require('crypto');
+
+  // Extract timestamp and signature from header
+  // Header format: "t=<timestamp>,v1=<signature>"
+  const elements = signature.split(',');
+  const timestamp = elements.find(el => el.startsWith('t=')).substring(2);
+  const receivedSignature = elements.find(el => el.startsWith('v1=')).substring(3);
+
+  // Create expected signature
+  // Payload format: <timestamp>.<raw_body>
+  const payload = `${timestamp}.${rawBody}`;
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(payload, 'utf8')
+    .digest('hex');
+
+  // Compare signatures securely using timing-safe comparison
+  // This prevents timing attacks
+  return crypto.timingSafeEqual(
+    Buffer.from(receivedSignature, 'hex'),
+    Buffer.from(expectedSignature, 'hex')
+  );
+}
+```
+
+### Timestamp validation
+
+Always validate the webhook timestamp to prevent replay attacks:
+
+```javascript title="Timestamp validation"
+function validateWebhookTimestamp(timestamp, toleranceSeconds = 300) {
+  // Convert timestamp to milliseconds
+  const webhookTime = parseInt(timestamp) * 1000;
+  const currentTime = Date.now();
+  const timeDifference = Math.abs(currentTime - webhookTime);
+
+  // Reject webhooks older than tolerance period (default 5 minutes)
+  if (timeDifference > toleranceSeconds * 1000) {
+    throw new Error('Webhook timestamp too old or too far in future');
+  }
+
+  return true;
+}
+```
+
+## Advanced error handling and reliability
+
+Implement comprehensive error handling to ensure reliable webhook processing across various failure scenarios.
+
+### Retry logic with exponential backoff
+
+```javascript title="Retry with exponential backoff"
+async function processWebhookWithRetry(event, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await processWebhookEvent(event);
+      return; // Success, exit retry loop
+
+    } catch (error) {
+      console.error(`Webhook processing attempt ${attempt} failed:`, error);
+
+      if (attempt === maxRetries) {
+        // Final attempt failed - log to dead letter queue
+        await deadLetterQueue.add('failed_webhook', {
+          event,
+          error: error.message,
+          attempts: attempt,
+          timestamp: new Date()
+        });
+        throw error;
+      }
+
+      // Wait before retry with exponential backoff
+      // Attempt 1: 1s, Attempt 2: 2s, Attempt 3: 4s
+      const waitTime = Math.pow(2, attempt) * 1000;
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+  }
+}
+```
+
+### Circuit breaker pattern
+
+Prevent cascading failures by implementing a circuit breaker:
+
+```javascript title="Circuit breaker for webhook processing"
+class WebhookCircuitBreaker {
+  constructor(options = {}) {
+    this.failureThreshold = options.failureThreshold || 5;
+    this.recoveryTimeout = options.recoveryTimeout || 60000; // 60 seconds
+    this.state = 'CLOSED'; // CLOSED, OPEN, HALF_OPEN
+    this.failures = 0;
+    this.nextAttempt = Date.now();
+  }
+
+  async execute(fn) {
+    if (this.state === 'OPEN') {
+      if (Date.now() < this.nextAttempt) {
+        throw new Error('Circuit breaker is OPEN');
+      }
+      // Try to recover
+      this.state = 'HALF_OPEN';
+    }
+
+    try {
+      const result = await fn();
+      this.onSuccess();
+      return result;
+    } catch (error) {
+      this.onFailure();
+      throw error;
+    }
+  }
+
+  onSuccess() {
+    this.failures = 0;
+    this.state = 'CLOSED';
+  }
+
+  onFailure() {
+    this.failures++;
+    if (this.failures >= this.failureThreshold) {
+      this.state = 'OPEN';
+      this.nextAttempt = Date.now() + this.recoveryTimeout;
+    }
+  }
+}
+
+// Usage
+const circuitBreaker = new WebhookCircuitBreaker({
+  failureThreshold: 5,
+  recoveryTimeout: 60000
+});
+
+async function handleWebhook(event) {
+  try {
+    await circuitBreaker.execute(async () => {
+      return await processWebhookEvent(event);
+    });
+  } catch (error) {
+    if (error.message === 'Circuit breaker is OPEN') {
+      // Service is unhealthy, queue for later
+      await queueForLater(event);
+    }
+    throw error;
+  }
+}
+```
+
+## Advanced testing strategies
+
+### Webhook testing utilities
+
+Create comprehensive testing utilities for your webhook handlers:
+
+```javascript title="Webhook testing utilities"
+// Test webhook handler with sample events
+async function testWebhookHandler() {
+  const sampleUserCreatedEvent = {
+    spec_version: '1',
+    id: 'evt_test_123',
+    type: 'organization.directory.user_created',
+    occurred_at: new Date().toISOString(),
+    environment_id: 'env_test_123',
+    organization_id: 'org_test_123',
+    object: 'DirectoryUser',
+    data: {
+      id: 'diruser_test_123',
+      organization_id: 'org_test_123',
+      email: 'test@example.com',
+      given_name: 'Test',
+      family_name: 'User',
+      active: true,
+      groups: [],
+      roles: []
+    }
+  };
+
+  // Test your webhook processing
+  await processWebhookEvent(sampleUserCreatedEvent);
+  console.log('Test webhook processed successfully');
+}
+
+// Mock webhook signature for testing
+function createTestSignature(payload, secret) {
+  const crypto = require('crypto');
+  const timestamp = Math.floor(Date.now() / 1000);
+  const payloadString = typeof payload === 'string' ? payload : JSON.stringify(payload);
+  const signature = crypto
+    .createHmac('sha256', secret)
+    .update(`${timestamp}.${payloadString}`)
+    .digest('hex');
+
+  return {
+    'webhook-id': 'evt_test_' + Date.now(),
+    'webhook-timestamp': timestamp.toString(),
+    'webhook-signature': `t=${timestamp},v1=${signature}`
+  };
+}
+
+// Integration test
+async function testWebhookIntegration() {
+  const testSecret = 'test_secret_key';
+  const testEvent = {
+    type: 'organization.directory.user_created',
+    data: { /* test data */ }
+  };
+
+  const headers = createTestSignature(testEvent, testSecret);
+
+  // Make request to your webhook endpoint
+  const response = await fetch('http://localhost:3000/webhooks/manage-users', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers
+    },
+    body: JSON.stringify(testEvent)
+  });
+
+  assert(response.status === 201, 'Expected 201 status');
+  console.log('Integration test passed');
+}
+```
+
+## Monitoring and debugging
+
+### Webhook delivery monitoring
+
+Track webhook processing metrics to identify issues and optimize performance:
+
+```javascript title="Webhook monitoring"
+// Track webhook processing metrics
+async function trackWebhookMetrics(event, processingTime, success) {
+  await metricsService.record('webhook_processed', {
+    event_type: event.type,
+    processing_time_ms: processingTime,
+    success: success,
+    organization_id: event.organization_id,
+    environment_id: event.environment_id,
+    timestamp: new Date()
+  });
+
+  // Alert on processing time anomalies
+  if (processingTime > 5000) { // 5 seconds
+    await alertService.warn({
+      message: 'Slow webhook processing detected',
+      eventType: event.type,
+      processingTime: processingTime,
+      eventId: event.id
+    });
+  }
+
+  // Alert on failures
+  if (!success) {
+    await alertService.error({
+      message: 'Webhook processing failed',
+      eventType: event.type,
+      eventId: event.id
+    });
+  }
+}
+
+// Dashboard endpoint to view webhook statistics
+app.get('/admin/webhook-stats', async (req, res) => {
+  const stats = await db.query(`
+    SELECT
+      event_type,
+      COUNT(*) as total_events,
+      SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as successful,
+      SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed,
+      AVG(processing_time_ms) as avg_processing_time,
+      MAX(processing_time_ms) as max_processing_time,
+      MIN(processing_time_ms) as min_processing_time
+    FROM processed_webhooks
+    WHERE processed_at > NOW() - INTERVAL 24 HOUR
+    GROUP BY event_type
+    ORDER BY total_events DESC
+  `);
+
+  res.json(stats);
+});
+
+// Real-time webhook monitoring
+async function monitorWebhookHealth() {
+  const recentFailures = await db.processed_webhooks.count({
+    where: {
+      status: 'failed',
+      processed_at: {
+        $gte: new Date(Date.now() - 5 * 60 * 1000) // Last 5 minutes
+      }
+    }
+  });
+
+  if (recentFailures > 10) {
+    await alertService.critical({
+      message: 'High webhook failure rate detected',
+      failureCount: recentFailures,
+      timeWindow: '5 minutes'
+    });
+  }
+}
+
+// Run health check every minute
+setInterval(monitorWebhookHealth, 60000);
+```
+
+### Debugging webhook issues
+
+```javascript title="Webhook debugging utilities"
+// Detailed webhook logging
+async function logWebhookDetails(event, context) {
+  await db.webhook_logs.create({
+    event_id: event.id,
+    event_type: event.type,
+    organization_id: event.organization_id,
+    environment_id: event.environment_id,
+    received_at: new Date(),
+    headers: context.headers,
+    payload: event,
+    ip_address: context.ip,
+    user_agent: context.userAgent
+  });
+}
+
+// Webhook replay for debugging
+async function replayWebhook(eventId) {
+  // Retrieve original webhook from logs
+  const webhookLog = await db.webhook_logs.findOne({
+    event_id: eventId
+  });
+
+  if (!webhookLog) {
+    throw new Error(`Webhook ${eventId} not found`);
+  }
+
+  // Replay the webhook
+  console.log(`Replaying webhook ${eventId}`);
+  await processWebhookEvent(webhookLog.payload);
+  console.log(`Webhook ${eventId} replayed successfully`);
+}
+
+// Dead letter queue processor for failed webhooks
+async function processDeadLetterQueue() {
+  const failedWebhooks = await deadLetterQueue.getAll('failed_webhook');
+
+  for (const item of failedWebhooks) {
+    try {
+      console.log(`Reprocessing failed webhook: ${item.event.id}`);
+      await processWebhookEvent(item.event);
+
+      // Remove from dead letter queue on success
+      await deadLetterQueue.remove('failed_webhook', item.id);
+
+    } catch (error) {
+      console.error(`Failed to reprocess webhook ${item.event.id}:`, error);
+
+      // Increment retry count
+      item.retries = (item.retries || 0) + 1;
+
+      if (item.retries >= 5) {
+        // Move to permanent failure queue
+        await permanentFailureQueue.add(item);
+        await deadLetterQueue.remove('failed_webhook', item.id);
+      }
+    }
+  }
+}
+
+// Run dead letter queue processor periodically
+setInterval(processDeadLetterQueue, 5 * 60 * 1000); // Every 5 minutes
+```
+
+### Performance optimization
+
+```javascript title="Webhook performance optimization"
+// Batch processing for high-volume webhooks
+class WebhookBatchProcessor {
+  constructor(options = {}) {
+    this.batchSize = options.batchSize || 100;
+    this.flushInterval = options.flushInterval || 5000; // 5 seconds
+    this.queue = [];
+    this.timer = null;
+  }
+
+  add(event) {
+    this.queue.push(event);
+
+    if (this.queue.length >= this.batchSize) {
+      this.flush();
+    } else if (!this.timer) {
+      this.timer = setTimeout(() => this.flush(), this.flushInterval);
+    }
+  }
+
+  async flush() {
+    if (this.queue.length === 0) return;
+
+    const batch = this.queue.splice(0, this.batchSize);
+    clearTimeout(this.timer);
+    this.timer = null;
+
+    try {
+      await this.processBatch(batch);
+    } catch (error) {
+      console.error('Batch processing error:', error);
+      // Re-queue failed items
+      this.queue.unshift(...batch);
+    }
+  }
+
+  async processBatch(events) {
+    // Process multiple events efficiently
+    await db.transaction(async (trx) => {
+      // Bulk insert processed events
+      await trx('processed_webhooks').insert(
+        events.map(e => ({
+          event_id: e.id,
+          event_type: e.type,
+          organization_id: e.organization_id,
+          status: 'processing',
+          received_at: new Date()
+        }))
+      );
+
+      // Process events in parallel
+      await Promise.all(events.map(e => this.processEvent(e, trx)));
+    });
+  }
+
+  async processEvent(event, trx) {
+    // Event-specific processing logic
+    // Use transaction for atomicity
+  }
+}
+
+// Usage
+const batchProcessor = new WebhookBatchProcessor({
+  batchSize: 100,
+  flushInterval: 5000
+});
+
+app.post('/webhooks/manage-users', async (req, res) => {
+  // Verify signature...
+  const event = req.body;
+
+  // Add to batch processor
+  batchProcessor.add(event);
+
+  // Respond immediately
+  return res.status(201).json({ received: true });
+});
+```
+
+By following these advanced best practices, you can build a robust, reliable, and performant webhook integration that handles high volumes of events while maintaining data consistency and security.

@@ -1,0 +1,692 @@
+---
+title: "Implement webhooks"
+description: "Receive real-time notifications about authentication events in your application using Scalekit webhooks"
+sidebar:
+  label: "Implement webhooks"
+prev: false
+next: false
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+seeAlso:
+  items:
+    - title: "Webhooks best practices"
+      icon: "code"
+      url: "/guides/webhooks-best-practices/"
+    - title: "Webhook events reference"
+      icon: "book"
+      url: "/reference/webhooks/directory-events/"
+    - title: "Webhook event handling example"
+      icon: "code"
+      url: "https://github.com/scalekit-inc/nextjs-example-apps/tree/main/webhook-events"
+---
+
+import { Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code, CardGrid } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence'
+import IconLucideFileJson from '~icons/lucide/file-json'
+
+Receive real-time notifications when authentication and user management events occur in your application. For example, when users are provisioned, updated, or deprovisioned through directory sync, Scalekit sends webhook events to your application so you can keep your systems synchronized automatically.
+
+Scalekit sends POST requests to your webhook endpoint with event details, and waits for a 201 response to confirm receipt. For example, one event fires immediately after a user is provisioned via SCIM. We'll explore more events throughout this guide.
+
+```d2 pad=50
+title: "Example of directory user created webhook" {
+  near: top-center
+  shape: text
+  style.font-size: 20
+}
+
+shape: sequence_diagram
+
+IdP -> Scalekit: Provision user via SCIMt
+Your App: {
+Scalekit -> Your App: POST /webhooks/manage-users
+Your App -> Your App: Verify signature with signing secret
+Your App -> Your App: Process event: sync user to DB
+Your App -> Scalekit: Return 201 Created
+}
+```
+
+## Implementing webhooks
+
+You can receive webhooks for directory sync events, user provisioning changes, and other authentication events.
+
+| Event | When it fires |
+|-------|--------------|
+| `organization.directory_enabled` | Directory synchronization is activated for an organization |
+| `organization.directory_disabled` | Directory synchronization is deactivated for an organization |
+| `organization.directory.user_created` | New user is provisioned via SCIM |
+| `organization.directory.user_updated` | User profile is updated via SCIM |
+| `organization.directory.user_deleted` | User is deprovisioned via SCIM |
+| `organization.directory.group_created` | New group is created via SCIM |
+| `organization.directory.group_updated` | Group is updated via SCIM |
+| `organization.directory.group_deleted` | Group is deleted via SCIM |
+
+At each event occurrence, Scalekit sends a POST request to your webhook endpoint with the relevant event details.
+
+<Steps>
+
+1. #### Verify the webhook request
+
+    Create an HTTPS endpoint that receives and verifies POST requests from Scalekit. This critical security step ensures requests are authentic and haven't been tampered with.
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="node" label="Node.js">
+
+    ```javascript title="Express.js - Verify request signature" wrap
+    // Security: ALWAYS verify requests are from Scalekit before processing
+    // This prevents unauthorized parties from triggering your webhook handlers
+
+    app.post('/webhooks/manage-users', async (req, res) => {
+      try {
+        // Parse the webhook headers for signature verification
+        const headers = {
+          'webhook-id': req.headers['webhook-id'],
+          'webhook-signature': req.headers['webhook-signature'],
+          'webhook-timestamp': req.headers['webhook-timestamp']
+        };
+        const event = req.body;
+
+        // Get the signing secret from Scalekit dashboard > Settings > Webhooks
+        // Store this securely in environment variables
+        const webhookSecret = process.env.SCALEKIT_WEBHOOK_SECRET;
+
+        // Initialize Scalekit client (reference installation guide for setup)
+        const scalekit = new ScalekitClient(
+          process.env.SCALEKIT_ENVIRONMENT_URL,
+          process.env.SCALEKIT_CLIENT_ID,
+          process.env.SCALEKIT_CLIENT_SECRET
+        );
+
+        // Verify the webhook payload signature
+        // This confirms the request is from Scalekit and hasn't been tampered with
+        await scalekit.verifyWebhookPayload(webhookSecret, headers, event);
+
+        // ✓ Request verified - proceed to business logic (next step)
+
+      } catch (error) {
+        console.error('Webhook verification failed:', error);
+        // Return 401 on verification failures to fail securely
+        return res.status(401).json({
+          error: 'Invalid signature'
+        });
+      }
+    });
+    ```
+
+    </TabItem>
+    <TabItem value="python" label="Python">
+
+    ```python title="Flask - Verify request signature" wrap
+    # Security: ALWAYS verify requests are from Scalekit before processing
+    # This prevents unauthorized parties from triggering your webhook handlers
+
+    from flask import Flask, request, jsonify
+    import os
+
+    app = Flask(__name__)
+
+    @app.route('/webhooks/manage-users', methods=['POST'])
+    def handle_webhook():
+        try:
+            # Parse the webhook headers for signature verification
+            headers = {
+                'webhook-id': request.headers.get('webhook-id'),
+                'webhook-signature': request.headers.get('webhook-signature'),
+                'webhook-timestamp': request.headers.get('webhook-timestamp')
+            }
+            body = request.get_data()
+
+            # Get the signing secret from Scalekit dashboard > Settings > Webhooks
+            # Store this securely in environment variables
+            webhook_secret = os.getenv('SCALEKIT_WEBHOOK_SECRET')
+
+            # Initialize Scalekit client (reference installation guide for setup)
+            scalekit_client = ScalekitClient(
+                env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+                client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+                client_secret=os.getenv("SCALEKIT_CLIENT_SECRET")
+            )
+
+            # Verify the webhook payload signature
+            # This confirms the request is from Scalekit and hasn't been tampered with
+            is_valid = scalekit_client.verify_webhook_payload(
+                secret=webhook_secret,
+                headers=headers,
+                payload=body
+            )
+
+            if not is_valid:
+                return jsonify({
+                    'error': 'Invalid signature'
+                }), 401
+
+            # ✓ Request verified - proceed to business logic (next step)
+
+        except Exception as error:
+            print(f'Webhook verification failed: {error}')
+            # Return 401 on verification failures to fail securely
+            return jsonify({
+                'error': 'Invalid signature'
+            }), 401
+    ```
+
+    </TabItem>
+    <TabItem value="go" label="Go">
+
+    ```go title="Gin - Verify request signature" wrap
+    // Security: ALWAYS verify requests are from Scalekit before processing
+    // This prevents unauthorized parties from triggering your webhook handlers
+
+    package main
+
+    import (
+        "io"
+        "log"
+        "net/http"
+        "os"
+
+        "github.com/gin-gonic/gin"
+    )
+
+    type WebhookResponse struct {
+        Received bool              `json:"received,omitempty"`
+        Error    *WebhookError     `json:"error,omitempty"`
+    }
+
+    type WebhookError struct {
+        Message string `json:"message"`
+    }
+
+    func handleWebhook(c *gin.Context) {
+        // Parse the webhook headers for signature verification
+        headers := map[string]string{
+            "webhook-id":        c.GetHeader("webhook-id"),
+            "webhook-signature": c.GetHeader("webhook-signature"),
+            "webhook-timestamp": c.GetHeader("webhook-timestamp"),
+        }
+
+        // Read raw body for verification
+        bodyBytes, err := io.ReadAll(c.Request.Body)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, WebhookResponse{
+                Error: &WebhookError{Message: "Unable to read request"},
+            })
+            return
+        }
+
+        // Get the signing secret from Scalekit dashboard > Settings > Webhooks
+        // Store this securely in environment variables
+        webhookSecret := os.Getenv("SCALEKIT_WEBHOOK_SECRET")
+
+        // Initialize Scalekit client (reference installation guide for setup)
+        scalekitClient := scalekit.NewScalekitClient(
+            os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+            os.Getenv("SCALEKIT_CLIENT_ID"),
+            os.Getenv("SCALEKIT_CLIENT_SECRET"),
+        )
+
+        // Verify the webhook payload signature
+        // This confirms the request is from Scalekit and hasn't been tampered with
+        _, err = scalekitClient.VerifyWebhookPayload(
+            webhookSecret,
+            headers,
+            bodyBytes,
+        )
+        if err != nil {
+            log.Printf("Webhook verification failed: %v", err)
+            // Return 401 on verification failures to fail securely
+            c.JSON(http.StatusUnauthorized, WebhookResponse{
+                Error: &WebhookError{Message: "Invalid signature"},
+            })
+            return
+        }
+
+        // ✓ Request verified - proceed to business logic (next step)
+    }
+    ```
+
+    </TabItem>
+    <TabItem value="java" label="Java">
+
+    ```java title="Spring Boot - Verify request signature" wrap
+    // Security: ALWAYS verify requests are from Scalekit before processing
+    // This prevents unauthorized parties from triggering your webhook handlers
+
+    package com.example.webhooks;
+
+    import org.springframework.http.ResponseEntity;
+    import org.springframework.web.bind.annotation.*;
+
+    import java.util.Map;
+
+    @RestController
+    @RequestMapping("/webhooks")
+    public class WebhookController {
+
+        @PostMapping("/manage-users")
+        public ResponseEntity<Map<String, Object>> handleWebhook(
+            @RequestBody String body,
+            @RequestHeader Map<String, String> headers
+        ) {
+            try {
+                // Get the signing secret from Scalekit dashboard > Settings > Webhooks
+                // Store this securely in environment variables
+                String webhookSecret = System.getenv("SCALEKIT_WEBHOOK_SECRET");
+
+                // Initialize Scalekit client (reference installation guide for setup)
+                ScalekitClient scalekitClient = new ScalekitClient(
+                    System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+                    System.getenv("SCALEKIT_CLIENT_ID"),
+                    System.getenv("SCALEKIT_CLIENT_SECRET")
+                );
+
+                // Verify the webhook payload signature
+                // This confirms the request is from Scalekit and hasn't been tampered with
+                boolean valid = scalekitClient.webhook()
+                    .verifyWebhookPayload(webhookSecret, headers, body.getBytes());
+
+                if (!valid) {
+                    // Return 401 on invalid signatures
+                    return ResponseEntity.status(401).body(Map.of(
+                        "error", "Invalid signature"
+                    ));
+                }
+
+                // ✓ Request verified - proceed to business logic (next step)
+
+            } catch (Exception error) {
+                System.err.println("Webhook verification failed: " + error.getMessage());
+                // Return 401 on verification failures to fail securely
+                return ResponseEntity.status(401).body(Map.of(
+                    "error", "Invalid signature"
+                ));
+            }
+        }
+    }
+    ```
+
+    </TabItem>
+    </Tabs>
+
+2. #### Process the event and respond
+
+    After verification, parse the webhook event, apply your custom business logic, and return a 201 response to acknowledge receipt.
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="node" label="Node.js">
+
+    ```javascript title="Express.js - Business logic and response" wrap
+    // Use case: Sync user data from directory to your application
+    // Examples: User provisioning, deprovisioning, group membership updates
+
+    app.post('/webhooks/manage-users', async (req, res) => {
+      try {
+        // ... (verification code from Step 1)
+
+        // Parse the verified webhook event
+        const event = req.body;
+
+        // Process webhook asynchronously (don't block the response)
+        // This allows us to respond quickly to prevent unnecessary retries
+        processWebhookEvent(event).catch(error => {
+          // Log error but don't throw - we already acknowledged receipt
+          console.error('Async processing error:', error);
+        });
+
+        // IMPORTANT: Always respond with 201 to acknowledge receipt
+        // Scalekit expects this response within 10 seconds
+        return res.status(201).json({ received: true });
+
+      } catch (error) {
+        console.error('Webhook error:', error);
+        return res.status(401).json({ error: 'Invalid signature' });
+      }
+    });
+
+    async function processWebhookEvent(event) {
+      console.log(`Processing event: ${event.type}`);
+
+      switch (event.type) {
+        case 'organization.directory.user_created':
+          // Sync new user to your database
+          await handleUserCreated(event.data);
+          break;
+
+        case 'organization.directory.user_updated':
+          // Update user profile in your database
+          await handleUserUpdated(event.data);
+          break;
+
+        case 'organization.directory.user_deleted':
+          // Deprovision user from your application
+          await handleUserDeleted(event.data);
+          break;
+
+        case 'organization.directory.group_created':
+          // Handle new group creation
+          await handleGroupCreated(event.data);
+          break;
+
+        default:
+          console.log(`Unhandled event type: ${event.type}`);
+      }
+    }
+
+    async function handleUserCreated(data) {
+      // Use case: Sync new user to your database when provisioned via SCIM
+      console.log(`New user created: ${data.email} in org: ${data.organization_id}`);
+
+      // Sync to your database
+      await syncUserToDatabase(data);
+
+      // Grant default permissions
+      await setupUserDefaults(data.id, data.organization_id);
+    }
+    ```
+
+    </TabItem>
+    <TabItem value="python" label="Python">
+
+    ```python title="Flask - Business logic and response" wrap
+    # Use case: Sync user data from directory to your application
+    # Examples: User provisioning, deprovisioning, group membership updates
+
+    import json
+
+    @app.route('/webhooks/manage-users', methods=['POST'])
+    def handle_webhook():
+        try:
+            # ... (verification code from Step 1)
+
+            # Parse the verified webhook event
+            event = json.loads(body.decode('utf-8'))
+
+            # Process webhook asynchronously (don't block the response)
+            # This allows us to respond quickly to prevent unnecessary retries
+            process_webhook_event(event)
+
+            # IMPORTANT: Always respond with 201 to acknowledge receipt
+            # Scalekit expects this response within 10 seconds
+            return jsonify({'received': True}), 201
+
+        except Exception as error:
+            print(f'Webhook error: {error}')
+            return jsonify({'error': 'Invalid signature'}), 401
+
+    def process_webhook_event(event):
+        print(f'Processing event: {event["type"]}')
+
+        event_type = event['type']
+        event_data = event['data']
+
+        if event_type == 'organization.directory.user_created':
+            # Sync new user to your database
+            handle_user_created(event_data)
+        elif event_type == 'organization.directory.user_updated':
+            # Update user profile in your database
+            handle_user_updated(event_data)
+        elif event_type == 'organization.directory.user_deleted':
+            # Deprovision user from your application
+            handle_user_deleted(event_data)
+        elif event_type == 'organization.directory.group_created':
+            # Handle new group creation
+            handle_group_created(event_data)
+        else:
+            print(f'Unhandled event type: {event_type}')
+
+    def handle_user_created(data):
+        # Use case: Sync new user to your database when provisioned via SCIM
+        print(f'New user created: {data["email"]} in org: {data["organization_id"]}')
+
+        # Sync to your database
+        sync_user_to_database(data)
+
+        # Grant default permissions
+        setup_user_defaults(data['id'], data['organization_id'])
+    ```
+
+    </TabItem>
+    <TabItem value="go" label="Go">
+
+    ```go title="Gin - Business logic and response" wrap
+    // Use case: Sync user data from directory to your application
+    // Examples: User provisioning, deprovisioning, group membership updates
+
+    package main
+
+    import (
+        "encoding/json"
+        "log"
+    )
+
+    type WebhookEvent struct {
+        Type string                 `json:"type"`
+        Data map[string]interface{} `json:"data"`
+    }
+
+    func handleWebhook(c *gin.Context) {
+        // ... (verification code from Step 1)
+
+        // Parse the verified webhook event
+        var event WebhookEvent
+        if err := json.Unmarshal(bodyBytes, &event); err != nil {
+            c.JSON(http.StatusBadRequest, WebhookResponse{
+                Error: &WebhookError{Message: "Invalid event format"},
+            })
+            return
+        }
+
+        // Process webhook asynchronously (don't block the response)
+        // This allows us to respond quickly to prevent unnecessary retries
+        go processWebhookEvent(event)
+
+        // IMPORTANT: Always respond with 201 to acknowledge receipt
+        // Scalekit expects this response within 10 seconds
+        c.JSON(http.StatusCreated, WebhookResponse{
+            Received: true,
+        })
+    }
+
+    func processWebhookEvent(event WebhookEvent) {
+        log.Printf("Processing event: %s", event.Type)
+
+        switch event.Type {
+        case "organization.directory.user_created":
+            // Sync new user to your database
+            handleUserCreated(event.Data)
+
+        case "organization.directory.user_updated":
+            // Update user profile in your database
+            handleUserUpdated(event.Data)
+
+        case "organization.directory.user_deleted":
+            // Deprovision user from your application
+            handleUserDeleted(event.Data)
+
+        case "organization.directory.group_created":
+            // Handle new group creation
+            handleGroupCreated(event.Data)
+
+        default:
+            log.Printf("Unhandled event type: %s", event.Type)
+        }
+    }
+
+    func handleUserCreated(data map[string]interface{}) {
+        // Use case: Sync new user to your database when provisioned via SCIM
+        log.Printf("New user created: %s in org: %s",
+            data["email"], data["organization_id"])
+
+        // Sync to your database
+        syncUserToDatabase(data)
+
+        // Grant default permissions
+        setupUserDefaults(data["id"].(string), data["organization_id"].(string))
+    }
+    ```
+
+    </TabItem>
+    <TabItem value="java" label="Java">
+
+    ```java title="Spring Boot - Business logic and response" wrap
+    // Use case: Sync user data from directory to your application
+    // Examples: User provisioning, deprovisioning, group membership updates
+
+    package com.example.webhooks;
+
+    import com.fasterxml.jackson.databind.JsonNode;
+    import com.fasterxml.jackson.databind.ObjectMapper;
+
+    @PostMapping("/manage-users")
+    public ResponseEntity<Map<String, Object>> handleWebhook(
+        @RequestBody String body,
+        @RequestHeader Map<String, String> headers
+    ) {
+        try {
+            // ... (verification code from Step 1)
+
+            // Parse the verified webhook event
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode event = mapper.readTree(body);
+
+            // Process webhook asynchronously (don't block the response)
+            // This allows us to respond quickly to prevent unnecessary retries
+            processWebhookEventAsync(event);
+
+            // IMPORTANT: Always respond with 201 to acknowledge receipt
+            // Scalekit expects this response within 10 seconds
+            return ResponseEntity.status(201).body(Map.of(
+                "received", true
+            ));
+
+        } catch (Exception error) {
+            System.err.println("Webhook error: " + error.getMessage());
+            return ResponseEntity.status(401).body(Map.of(
+                "error", "Invalid signature"
+            ));
+        }
+    }
+
+    private void processWebhookEvent(JsonNode event) {
+        String eventType = event.get("type").asText();
+        JsonNode eventData = event.get("data");
+
+        System.out.println("Processing event: " + eventType);
+
+        switch (eventType) {
+            case "organization.directory.user_created":
+                // Sync new user to your database
+                handleUserCreated(eventData);
+                break;
+
+            case "organization.directory.user_updated":
+                // Update user profile in your database
+                handleUserUpdated(eventData);
+                break;
+
+            case "organization.directory.user_deleted":
+                // Deprovision user from your application
+                handleUserDeleted(eventData);
+                break;
+
+            case "organization.directory.group_created":
+                // Handle new group creation
+                handleGroupCreated(eventData);
+                break;
+
+            default:
+                System.out.println("Unhandled event type: " + eventType);
+        }
+    }
+
+    private void handleUserCreated(JsonNode data) {
+        // Use case: Sync new user to your database when provisioned via SCIM
+        System.out.println("New user created: " + data.get("email").asText() +
+            " in org: " + data.get("organization_id").asText());
+
+        // Sync to your database
+        syncUserToDatabase(data);
+
+        // Grant default permissions
+        setupUserDefaults(data.get("id").asText(), data.get("organization_id").asText());
+    }
+    ```
+
+    </TabItem>
+    </Tabs>
+
+3. #### Register the webhook in Scalekit dashboard
+
+    Configure your webhook by specifying the endpoint URL, selecting events to receive, and setting up security.
+
+    In the Scalekit dashboard, navigate to **Settings** > **Webhooks** to register your endpoint.
+
+    - Click **Add Endpoint** and provide:
+      - **Endpoint URL** - Your application's HTTPS webhook handler (e.g., `https://yourapp.com/webhooks/manage-users`)
+      - **Description** - Optional description for this endpoint
+    - Select which events you want to receive:
+      - Directory sync events (`organization.directory_enabled`, `organization.directory_disabled`)
+      - User events (`organization.directory.user_created`, `user_updated`, `user_deleted`)
+      - Group events (`organization.directory.group_created`, `group_updated`, `group_deleted`)
+    - Copy the **Signing Secret** to verify webhook authenticity in your application
+    - Click **Create**
+    - Toggle **Enable** to activate the webhook
+
+    <LinkCard
+      title="Complete webhook events reference"
+      href="/reference/webhooks/directory-events/"
+      description="View detailed schemas and payload examples for all webhook events"
+    />
+
+4. #### Test the webhook
+
+    Use the Test tab in the Scalekit dashboard to verify your implementation before enabling it in production.
+
+    - Open the **Test** tab on the Webhooks page
+    - The left panel shows the request body sent to your endpoint
+    - Click **Send Test Event** to test your webhook handler
+    - The right panel shows your application's response
+    - Verify your endpoint returns a 201 status code
+
+    <Aside type='note' title='Quick testing with request bin services'>
+
+    For quick testing without deploying an endpoint, use a request bin service like <a href="https://beeceptor.com/" target="_blank" rel="noopener">Beeceptor</a> or <a href="https://requestbin.com/" target="_blank" rel="noopener">RequestBin</a>. These services provide temporary endpoints that capture incoming requests and let you configure responses, making them ideal for webhook development and validation.
+
+    </Aside>
+
+    <Aside type="tip" title="Local testing with ngrok">
+
+    Test webhooks locally by exposing your development server using ngrok:
+
+    ```bash frame="terminal"
+    # Start your local server
+    npm run dev
+
+    # In another terminal, expose your local server
+    ngrok http 3000
+
+    # Use the ngrok URL in your Scalekit dashboard
+    # Example: https://abc123.ngrok.io/webhooks/manage-users
+    ```
+
+    </Aside>
+
+5. #### View webhook request logs
+
+    Scalekit keeps a log of every webhook request sent to your application and the response it returned. Use these logs to debug and troubleshoot issues.
+
+    - Navigate to **Settings** > **Webhooks** in your dashboard
+    - Select your webhook endpoint
+    - Click on the **Logs** tab to view request history
+    - Each log entry shows the request payload, response status, and timestamps
+
+    Requests and responses generated by the "Test" button are not logged. This keeps production logs free of test data.
+
+</Steps>

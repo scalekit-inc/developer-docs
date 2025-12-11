@@ -1,9 +1,19 @@
 ---
 title: "Redirects"
-topic: dev-kit
-description: "Learn how to configure and validate redirect URLs in Scalekit for secure authentication flows, including callback, login, logout, and back-channel logout endpoints."
+description: "Learn how to configure and validate redirect URLs in Scalekit for secure authentication flows, including callback, login, logout, and back-channel logout endpoints"
+browseCentral:
+  label: "Register endpoints for Scalekit redirects"
+  filterType: ["tutorial"]
+  category: ["User authentication"]
+  icon: "book"
 sidebar:
-  label: "Redirect configurations"
+  label: "Configure redirect URLs"
+prev:
+  link: '/authenticate/fsa/complete-login/'
+  label: 'Complete login with code exchange'
+next:
+  link: '/guides/m2m/overview/'
+  label: 'Understanding API authentication'
 head:
   - tag: style
     attrs:
@@ -46,6 +56,8 @@ All redirect URIs must be registered under Authentication settings in your Scale
 
 **Example scenario**: A user completes sign-in and Scalekit redirects them to `https://yourapp.com/callback` where your application processes the authentication response.
 
+To add or remove an redirect URL, go to Dashboard > Authentication > Redirects > Allowed Callback URLs.
+
 ### Initiate login URL
 **Purpose**: When authentication does not initiate from your application, Scalekit redirects users back to your application's login initiation endpoint. This endpoint should point to a route in your application that ultimately redirects users to Scalekit's `/authorize` endpoint.
 
@@ -84,8 +96,6 @@ Custom URI schemes allow for redirects, enabling deep linking and native app int
 
 Your redirect URIs must meet specific requirements that vary between development and production environments:
 
-
-
 | Requirement | Development | Production |
 | ----------- | ----------- | ---------- |
 | Supported schemes | <span class="icon-text"><Icon name="approve-check" /> `http` <Icon name="approve-check" /> `https` <Icon name="approve-check" /> `{scheme}`</span> | <span class="icon-text"><Icon name="approve-check" /> `https` <Icon name="approve-check" /> `{scheme}`</span> |
@@ -111,13 +121,3 @@ Wildcards can simplify testing in development environments, but they must follow
 <Aside type="caution">
 According to the <a href="https://tools.ietf.org/html/rfc6749#section-3.1.2" target="_blank">OAuth 2.0 specification</a>, redirect URIs must be absolute URIs. For development convenience, Scalekit relaxes this restriction slightly by allowing wildcards in development environments.
 </Aside>
-
-## Configure redirect URIs
-
-![](@/assets/docs/redirects/screenshot.png)
-
-To configure your redirect URIs:
-
-1. Navigate to **Authentication settings** in your Scalekit dashboard
-2. Add your URIs following the validation rules above
-3. Save your configuration

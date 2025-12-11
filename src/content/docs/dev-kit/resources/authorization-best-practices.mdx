@@ -1,0 +1,374 @@
+---
+title: "Authorization best practices"
+description: "Security guidelines and best practices for implementing robust authorization systems with Scalekit"
+sidebar:
+  label: "AuthZ best practices"
+browseCentral:
+  label: "Secure authorization best practices"
+  filterType: ["tutorial"]
+  category: ["Best practices"]
+  icon: book
+prev:
+  link: '/guides/security/authentication-best-practices/'
+  label: 'Authentication best practices'
+---
+
+import { Tabs, TabItem, Badge, Aside, LinkCard, Steps, Code, CardGrid } from '@astrojs/starlight/components';
+
+Implementing secure and maintainable authorization requires careful planning and adherence to security best practices. This guide consolidates proven patterns and recommendations for building robust access control systems with Scalekit.
+
+## Permission design principles
+
+### Use consistent naming patterns
+
+**Follow the `resource:action` format consistently**
+- Group related permissions under common resource names
+- Use descriptive action names (`create`, `read`, `update`, `delete`, `manage`)
+- Maintain consistency across your entire application
+
+```javascript title="Good permission naming examples"
+// Project management permissions
+"projects:create"     // Create new projects
+"projects:read"       // View project details
+"projects:update"     // Modify existing projects
+"projects:delete"     // Remove projects
+"projects:manage"     // Full project administration
+
+// User management permissions
+"users:invite"        // Send user invitations
+"users:read"          // View user profiles
+"users:update"        // Modify user information
+"users:suspend"       // Temporarily disable users
+
+// Billing permissions
+"billing:read"        // View billing information
+"billing:manage"      // Modify payment methods and plans
+```
+
+### Keep permissions granular
+
+**Create specific permissions for distinct actions**
+- Avoid overly broad permissions that grant too much access
+- Consider breaking down complex actions into smaller, specific permissions
+- Allow for precise control over individual capabilities
+
+```javascript title="Granular vs. broad permissions"
+// ❌ Too broad - grants excessive access
+"admin:all"           // Dangerous - gives unlimited access
+
+// ✅ Granular - precise control
+"users:create"
+"users:read"
+"users:update"
+"users:delete"
+"billing:read"
+"billing:update"
+"settings:read"
+"settings:update"
+```
+
+### Plan for inheritance
+
+**Design permissions that work well when inherited through roles**
+- Consider permission hierarchies (e.g., `manage` implies `create`, `read`, `update`, `delete`)
+- Group related permissions that are commonly assigned together
+- Create logical permission families that make sense for role composition
+
+```javascript title="Permission hierarchy design"
+// Base permissions
+"tasks:read"          // View tasks
+"tasks:create"        // Create new tasks
+"tasks:update"        // Modify existing tasks
+"tasks:delete"        // Remove tasks
+
+// Composite permission
+"tasks:manage"        // Implies all above permissions
+
+// Role composition
+const viewerRole = ["tasks:read"];
+const editorRole = ["tasks:read", "tasks:create", "tasks:update"];
+const managerRole = ["tasks:manage"]; // Includes all task permissions
+```
+
+### Document permission purposes
+
+**Use clear, descriptive display names and descriptions**
+- Provide meaningful descriptions explaining what each permission allows
+- Maintain documentation of how permissions relate to your application features
+- Include use cases and security implications in your documentation
+
+## Runtime access control security
+
+### Fail securely by default
+
+**Deny access when permissions are unclear or missing**
+- Always default to denying access when in doubt
+- Log access attempts for security auditing and compliance
+- Use explicit allow-lists rather than deny-lists
+
+```javascript title="Secure default patterns"
+// ❌ Insecure - fails open
+function hasPermission(user, permission) {
+  if (!user || !user.permissions) {
+    return true; // Dangerous - grants access when uncertain
+  }
+  return user.permissions.includes(permission);
+}
+
+// ✅ Secure - fails closed
+function hasPermission(user, permission) {
+  if (!user || !user.permissions || !permission) {
+    console.warn('Access denied: Missing user, permissions, or permission check');
+    return false; // Safe default
+  }
+  return user.permissions.includes(permission);
+}
+
+// ✅ Secure with audit logging
+function hasPermission(user, permission, resource = null) {
+  const granted = user?.permissions?.includes(permission) || false;
+
+  // Log all access attempts for security auditing
+  auditLog({
+    userId: user?.id,
+    permission,
+    resource,
+    granted,
+    timestamp: new Date().toISOString(),
+    ipAddress: getCurrentRequestIP()
+  });
+
+  return granted;
+}
+```
+
+### Centralize authorization logic
+
+**Create reusable functions for common permission checks**
+- Keep authorization rules in dedicated modules or services
+- Avoid duplicating authorization logic across your application
+- Make authorization logic easy to test and maintain
+
+```javascript title="Centralized authorization service"
+// ✅ Centralized authorization service
+class AuthorizationService {
+  static hasPermission(user, permission) {
+    return user?.permissions?.includes(permission) || false;
+  }
+
+  static hasRole(user, role) {
+    return user?.roles?.includes(role) || false;
+  }
+
+  static canManageProject(user, project) {
+    // Centralized business logic for project access
+    return (
+      this.hasRole(user, 'admin') ||
+      project.ownerId === user.id ||
+      (project.managers.includes(user.id) && this.hasPermission(user, 'projects:manage'))
+    );
+  }
+
+  static requirePermission(permission) {
+    return (req, res, next) => {
+      if (!this.hasPermission(req.user, permission)) {
+        return res.status(403).json({
+          error: `Access denied. Required permission: ${permission}`
+        });
+      }
+      next();
+    };
+  }
+}
+
+// Usage across your application
+app.get('/api/projects/:id', AuthorizationService.requirePermission('projects:read'), getProject);
+app.post('/api/projects', AuthorizationService.requirePermission('projects:create'), createProject);
+```
+
+### Validate at multiple layers
+
+**Implement defense in depth**
+- Check permissions at the API layer for all requests
+- Implement additional checks in your business logic
+- Use database-level permissions where appropriate
+
+```javascript title="Multi-layer authorization"
+// Layer 1: API middleware
+app.use('/api/admin/*', requireRole('admin'));
+
+// Layer 2: Route-level checks
+app.get('/api/projects/:id', requirePermission('projects:read'), (req, res) => {
+  // Layer 3: Business logic validation
+  const project = getProject(req.params.id);
+
+  if (!canAccessProject(req.user, project)) {
+    return res.status(403).json({ error: 'Access denied to this project' });
+  }
+
+  res.json(project);
+});
+
+// Layer 4: Database-level security (where possible)
+async function getProjectsForUser(userId, organizationId) {
+  return await db.query(`
+    SELECT p.* FROM projects p
+    JOIN project_members pm ON p.id = pm.project_id
+    WHERE pm.user_id = ? AND p.organization_id = ?
+  `, [userId, organizationId]);
+}
+```
+
+### Handle token expiration gracefully
+
+**Provide seamless user experience during token refresh**
+- Refresh tokens automatically when possible
+- Provide clear error messages for expired tokens
+- Redirect users to re-authenticate when refresh fails
+
+```javascript title="Graceful token handling"
+// Token validation with automatic refresh
+async function validateAndRefreshToken(req, res, next) {
+  try {
+    const accessToken = getTokenFromRequest(req);
+
+    // Try to validate current token
+    if (await scalekit.validateAccessToken(accessToken)) {
+      req.user = await decodeAccessToken(accessToken);
+      return next();
+    }
+
+    // Token expired - attempt refresh
+    const refreshToken = getRefreshTokenFromRequest(req);
+    if (refreshToken) {
+      try {
+        const newTokens = await scalekit.refreshAccessToken(refreshToken);
+
+        // Update tokens in response
+        setTokensInResponse(res, newTokens);
+        req.user = await decodeAccessToken(newTokens.accessToken);
+        return next();
+
+      } catch (refreshError) {
+        // Refresh failed - clear tokens and require re-authentication
+        clearTokensFromResponse(res);
+        return res.status(401).json({
+          error: 'Session expired. Please log in again.',
+          redirectToLogin: true
+        });
+      }
+    }
+
+    // No valid tokens available
+    return res.status(401).json({
+      error: 'Authentication required',
+      redirectToLogin: true
+    });
+
+  } catch (error) {
+    console.error('Token validation error:', error);
+    return res.status(401).json({ error: 'Authentication failed' });
+  }
+}
+```
+
+## Security considerations
+
+### Token security
+
+**Always validate tokens on the server side, never trust client-side token validation**
+- Store access tokens securely and use HTTPS in production
+- Regularly audit your permission assignments and access patterns
+- Implement proper token rotation and expiration policies
+
+```javascript title="Secure token storage"
+// ✅ Secure token storage
+function storeTokensSecurely(tokens, res) {
+  // Encrypt tokens before storing
+  const encryptedAccessToken = encrypt(tokens.accessToken);
+  const encryptedRefreshToken = encrypt(tokens.refreshToken);
+
+  // Store with secure cookie settings
+  res.cookie('accessToken', encryptedAccessToken, {
+    httpOnly: true,        // Prevents JavaScript access
+    secure: true,          // HTTPS only
+    sameSite: 'strict',    // CSRF protection
+    maxAge: tokens.expiresIn * 1000
+  });
+
+  res.cookie('refreshToken', encryptedRefreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+  });
+}
+```
+
+### Audit and monitoring
+
+**Track authorization decisions for security and compliance**
+- Log all access attempts, both successful and failed
+- Monitor for unusual permission usage patterns
+- Regularly audit user permissions and role assignments
+- Implement alerts for privileged access usage
+
+```javascript title="Authorization auditing"
+function auditAuthorizationDecision(user, action, resource, granted, context = {}) {
+  const auditEntry = {
+    timestamp: new Date().toISOString(),
+    userId: user?.id,
+    userEmail: user?.email,
+    organizationId: user?.organizationId,
+    action,
+    resource,
+    granted,
+    userAgent: context.userAgent,
+    ipAddress: context.ipAddress,
+    sessionId: context.sessionId,
+    // Include relevant permissions and roles for analysis
+    userPermissions: user?.permissions || [],
+    userRoles: user?.roles || []
+  };
+
+  // Send to your security monitoring system
+  securityLogger.log('authorization_decision', auditEntry);
+
+  // Alert on suspicious patterns
+  if (!granted && isPrivilegedAction(action)) {
+    securityAlerting.checkForSuspiciousActivity(auditEntry);
+  }
+}
+```
+
+### Performance optimization
+
+**Design authorization checks to be fast and efficient**
+- Cache user permissions in memory or fast storage
+- Avoid database lookups during authorization checks
+- Use Scalekit's token-based approach to eliminate runtime permission queries
+
+```javascript title="Efficient authorization patterns"
+// ✅ Fast authorization using token data
+function hasPermission(user, permission) {
+  // Permissions are already in the decoded token - no DB lookup needed
+  return user.permissions?.includes(permission) || false;
+}
+
+// ✅ Cache role hierarchies for complex checks
+const roleHierarchyCache = new Map();
+
+function getUserEffectivePermissions(user) {
+  const cacheKey = `${user.organizationId}:${user.roles.join(',')}`;
+
+  if (roleHierarchyCache.has(cacheKey)) {
+    return roleHierarchyCache.get(cacheKey);
+  }
+
+  // Calculate effective permissions from roles
+  const effectivePermissions = calculateEffectivePermissions(user.roles);
+  roleHierarchyCache.set(cacheKey, effectivePermissions);
+
+  return effectivePermissions;
+}
+```

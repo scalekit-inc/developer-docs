@@ -10,7 +10,11 @@
   ],
   "swagger": "2.0",
   "info": {
+<<<<<<<< HEAD:public/api/scalekit.swagger.json.bak.2025-11-19T12-20-36-559Z
+    "description": "# Introduction\n\nScalekit provides RESTful APIs for managing organizations, users, authentication settings, and identity provider integrations. The platform supports multiple authentication protocols including OAuth 2.0, OpenID Connect (OIDC), SAML, and SCIM 2.0 for both human users and AI agents.\n\n### Base URLs\n\nAll API requests use the following base URLs:\n\n```\nhttps://{environment}.scalekit.dev    # Development environment\nhttps://{environment}.scalekit.com    # Production environment\nhttps://auth.example.com              # Custom domain\n```\n\nScalekit operates separate Development and Production environments. Resources cannot be transferred between environments.\n\n## Authentication\n\nScalekit APIs use OAuth 2.0 Client Credentials for authentication. See the SDK installation section for detailed authentication steps.\n\n## SDKs\n\nScalekit provides official SDKs for multiple programming languages. Installation instructions:\n\n**Node.js**\n```bash\nnpm install @scalekit-sdk/node\n```\n[Node.js SDK releases](https://github.com/scalekit-inc/scalekit-sdk-node/releases)\n\n**Python**\n```bash\npip install scalekit-sdk-python\n```\n[Python SDK releases](https://github.com/scalekit-inc/scalekit-sdk-python/releases)\n\n**Go**\n```bash\ngo get -u github.com/scalekit-inc/scalekit-sdk-go\n```\n[Go SDK releases](https://github.com/scalekit-inc/scalekit-sdk-go/releases)\n\n**Java**\n\n**Gradle:**\n```gradle\nimplementation \"com.scalekit:scalekit-sdk-java:2.0.5\"\n```\n\n**Maven:**\n```xml\n\u003cdependency\u003e\n  \u003cgroupId\u003ecom.scalekit\u003c/groupId\u003e\n  \u003cartifactId\u003escalekit-sdk-java\u003c/artifactId\u003e\n  \u003cversion\u003e2.0.5\u003c/version\u003e\n\u003c/dependency\u003e\n```\n[Java SDK releases](https://github.com/scalekit-inc/scalekit-sdk-java/releases)\n",
+========
     "description": "# Introduction\n\nThe Scalekit API is a RESTful API that enables you to manage organizations, users, and authentication settings. All requests must use HTTPS.\nAll API requests use the following base URLs:\n\n```\nhttps://{environment}.scalekit.dev (Development)\nhttps://{environment}.scalekit.com (Production)\nhttps://auth.example.com (Custom domain)\n```\n\nScalekit operates two separate environments: Development and Production. Resources cannot be moved between environments.\n\n# Authentication\n\nThe Scalekit API uses OAuth 2.0 Client Credentials for authentication.\n\nCopy your API credentials from the Scalekit dashboard's API Config section and set them as environment variables.\n\n```sh\nSCALEKIT_ENVIRONMENT_URL='\u003cYOUR_ENVIRONMENT_URL\u003e'\nSCALEKIT_CLIENT_ID='\u003cENVIRONMENT_CLIENT_ID\u003e'\nSCALEKIT_CLIENT_SECRET='\u003cENVIRONMENT_CLIENT_SECRET\u003e'\n```\n\nGetting an access token\n\n1. Get your credentials from the [Scalekit Dashboard](https://app.scalekit.com)\n2. Request an access token:\n\n```sh\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/oauth/token \\\n  -X POST \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  -d 'client_id={client_id}' \\\n  -d 'client_secret={client_secret}' \\\n  -d 'grant_type=client_credentials'\n```\n\n3. Use the access token in API requests:\n\n```sh\ncurl https://{SCALEKIT_ENVIRONMENT_URL}/api/v1/organizations \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer {access_token}'\n```\n\nThe response includes an access token:\n\n```json\n{\n\t\"access_token\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6InNua181Ok4OTEyMjU2NiIsInR5cCI6IkpXVCJ9...\",\n\t\"token_type\": \"Bearer\",\n\t\"expires_in\": 86399,\n\t\"scope\": \"openid\"\n}\n```\n\n# SDKs\n\nScalekit provides official SDKs for multiple programming languages. Check the changelog at GitHub repositories for the latest updates.\n\n### Node.js\n\n```sh\nnpm install @scalekit-sdk/node\n```\n\nCreate a new Scalekit client instance after initializing the environment variables\n\n```js\nimport { Scalekit } from \"@scalekit-sdk/node\";\n\nexport let scalekit = new Scalekit(\n\tprocess.env.SCALEKIT_ENVIRONMENT_URL,\n\tprocess.env.SCALEKIT_CLIENT_ID,\n\tprocess.env.SCALEKIT_CLIENT_SECRET\n);\n```\n\n[See the Node SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-node/releases)\n\n### Python\n\n```sh\npip install scalekit-sdk-python\n```\n\nCreate a new Scalekit client instance after initializing the environment variables.\n\n```py\nfrom scalekit import ScalekitClient\nimport os\n\nscalekit_client = ScalekitClient(\n    os.environ.get('SCALEKIT_ENVIRONMENT_URL'),\n    os.environ.get('SCALEKIT_CLIENT_ID'),\n    os.environ.get('SCALEKIT_CLIENT_SECRET')\n)\n```\n\n[See the Python SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-python/releases)\n\n### Go\n\n```sh\ngo get -u github.com/scalekit-inc/scalekit-sdk-go\n```\n\nCreate a new Scalekit client instance after initializing the environment variables.\n\n```go\npackage main\n\nimport (\n    \"os\"\n    \"github.com/scalekit-inc/scalekit-sdk-go\"\n)\n\nscalekitClient := scalekit.NewScalekitClient(\n    os.Getenv(\"SCALEKIT_ENVIRONMENT_URL\"),\n    os.Getenv(\"SCALEKIT_CLIENT_ID\"),\n    os.Getenv(\"SCALEKIT_CLIENT_SECRET\"),\n)\n```\n\n[See the Go SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-go/releases)\n\n### Java\n\n```gradle\n/* Gradle users - add the following to your dependencies in build file */\nimplementation \"com.scalekit:scalekit-sdk-java:2.0.6\"\n```\n\n```xml\n\u003c!-- Maven users - add the following to your `pom.xml` --\u003e\n\u003cdependency\u003e\n    \u003cgroupId\u003ecom.scalekit\u003c/groupId\u003e\n    \u003cartifactId\u003escalekit-sdk-java\u003c/artifactId\u003e\n    \u003cversion\u003e2.0.6\u003c/version\u003e\n\u003c/dependency\u003e\n```\n\n[See the Java SDK changelog](https://github.com/scalekit-inc/scalekit-sdk-java/releases)\n\n# Error handling\n\nThe API uses standard HTTP status codes:\n\n| Code        | Description          |\n| ----------- | -------------------- |\n| 200/201     | Success              |\n| 400         | Invalid request      |\n| 401         | Authentication error |\n| 404         | Resource not found   |\n| 429         | Rate limit exceeded  |\n| 500/501/504 | Server error         |\n\nError responses include detailed information:\n\n```json\n{\n\t\"code\": 16,\n\t\"message\": \"Token empty\",\n\t\"details\": [\n\t\t{\n\t\t\t\"@type\": \"type.googleapis.com/scalekit.v1.errdetails.ErrorInfo\",\n\t\t\t\"error_code\": \"UNAUTHENTICATED\"\n\t\t}\n\t]\n}\n```\n\n",
+>>>>>>>> origin/main:public/api/scalekit.swagger.json.bak.2025-12-10T08-49-28-072Z
     "title": "Scalekit APIs",
     "contact": {
       "name": "Scalekit Inc",
@@ -2390,6 +2394,9 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
+<<<<<<<< HEAD:public/api/scalekit.swagger.json.bak.2025-11-19T12-20-36-559Z
+            "source": "// List all domains in an organization\nconst response = await client.domain.listDomains(organizationId);\n\n// Domain object contains:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Configuration type"
+========
             "source": "// List all domains in an organization\nconst response = await scalekit.domain.listDomains(organizationId);\n\n// Domain object contains:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Configuration type"
           },
           {
@@ -2406,6 +2413,7 @@
             "label": "Java SDK",
             "lang": "java",
             "source": "// coming soon"
+>>>>>>>> origin/main:public/api/scalekit.swagger.json.bak.2025-11-21T11-05-27-228Z
           }
         ]
       },
@@ -2453,6 +2461,8 @@
             "label": "Node.js SDK",
             "lang": "javascript",
             "source": "// Add a new domain to an organization\nconst response = await scalekit.createDomain(\"org-123\", \"example.com\", {\n\t// Domain type: controls user authentication and email validation\n\tdomainType: \"ALLOWED_EMAIL_DOMAIN\",\n});"
+<<<<<<<< HEAD:public/api/scalekit.swagger.json.bak.2025-11-19T12-20-36-559Z
+========
           },
           {
             "label": "Python SDK",
@@ -2468,6 +2478,7 @@
             "label": "Java SDK",
             "lang": "java",
             "source": "// coming soon"
+>>>>>>>> origin/main:public/api/scalekit.swagger.json.bak.2025-11-21T11-05-27-228Z
           }
         ]
       }
@@ -2508,6 +2519,9 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
+<<<<<<<< HEAD:public/api/scalekit.swagger.json.bak.2025-11-19T12-20-36-559Z
+            "source": "// Fetch details of a specific domain\nconst response = await client.domain.getDomain(organizationId, domainId);\n\n// Domain object properties:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Domain configuration type"
+========
             "source": "// Fetch details of a specific domain\nconst response = await scalekit.domain.getDomain(organizationId, domainId);\n\n// Domain object properties:\n// - id: Domain identifier\n// - domain: Domain name\n// - organizationId: Owning organization\n// - domainType: Domain configuration type"
           },
           {
@@ -2524,6 +2538,7 @@
             "label": "Java SDK",
             "lang": "java",
             "source": "// coming soon"
+>>>>>>>> origin/main:public/api/scalekit.swagger.json.bak.2025-11-21T11-05-27-228Z
           }
         ]
       },
@@ -2560,6 +2575,9 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
+<<<<<<<< HEAD:public/api/scalekit.swagger.json.bak.2025-11-19T12-20-36-559Z
+            "source": "// Remove a domain from an organization\n// Caution: Deletion is permanent and may affect user access\nconst response = await client.domain.deleteDomain(organizationId, domainId);"
+========
             "source": "// Remove a domain from an organization\n// Caution: Deletion is permanent and may affect user access\nconst response = await scalekit.domain.deleteDomain(organizationId, domainId);"
           },
           {
@@ -2580,6 +2598,76 @@
         ]
       }
     },
+<<<<<<<< HEAD:public/api/scalekit.swagger.json.bak.2025-11-19T12-20-36-559Z
+    "/api/v1/organizations/{organization_id}/settings/usermanagement": {
+      "patch": {
+        "description": "Update user management settings for an organization. Use this endpoint to configure user limits and other user-related constraints",
+        "tags": [
+          "Organizations"
+        ],
+        "summary": "Update user management settings",
+        "operationId": "OrganizationService_UpsertUserManagementSettings",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of the organization.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "settings",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "The new values for the setting fields to patch.",
+              "$ref": "#/definitions/organizationsOrganizationUserManagementSettings"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully upserted user management settings. Returns the current configuration including the maximum allowed users limit.",
+            "schema": {
+              "$ref": "#/definitions/organizationsUpsertUserManagementSettingsResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request - occurs when the organization_id format is incorrect or settings payload contains invalid values",
+            "schema": {}
+          },
+          "404": {
+            "description": "Organization not found - the specified organization ID doesn't exist",
+            "schema": {}
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.organization.upsertUserManagementSettings(\"org_123\", {\n  maxAllowedUsers: 150\n});"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "scalekit_client.organization.upsert_user_management_settings(\n    organization_id=\"org_123\",\n    max_allowed_users=150\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "maxUsers := int32(150)\nresp, err := scalekitClient.Organization().UpsertUserManagementSettings(\n    ctx,\n    \"org_123\",\n    scalekit.OrganizationUserManagementSettings{\n        MaxAllowedUsers: \u0026maxUsers,\n    },\n)\nif err != nil {\n    log.Fatal(err)\n}\n_ = resp"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "OrganizationUserManagementSettings settings = OrganizationUserManagementSettings.newBuilder()\n    .setMaxAllowedUsers(Int32Value.newBuilder().setValue(150).build())\n    .build();\n\nOrganizationUserManagementSettings res = scalekitClient.organizations()\n    .upsertUserManagementSettings(\"org_123\", settings);"
+>>>>>>>> origin/main:public/api/scalekit.swagger.json.bak.2025-11-21T11-05-27-228Z
+          }
+        ]
+      }
+    },
+========
+>>>>>>>> origin/main:public/api/scalekit.swagger.json.bak.2025-12-10T08-49-28-072Z
     "/api/v1/organizations/{organization_id}/users": {
       "get": {
         "description": "Retrieves a paginated list of all users who are members of the specified organization. Use this endpoint to view all users with access to a particular organization, including their roles, metadata, and membership details. Supports pagination for large user lists.",

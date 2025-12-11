@@ -1,56 +1,47 @@
 ---
 title: Overview
-description: Learn about Agent Actions, Scalekit's solution for connecting to third-party applications and executing tools through a unified API.
-
+description: Learn about Agent Auth, Scalekit's authentication solution for securely connecting to third-party applications through OAuth 2.0
+banner:
+  content: |
+    Join our dev community to connect with Scalekit engineers for questions or feedback
 ---
 
 import { Card, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
 
-Agent Actions is Scalekit's powerful solution that enables your applications to connect to third-party services and execute tools on behalf of your users. It provides a unified API interface for interacting with popular business applications like Gmail, Slack, Jira, and more.
+Agent Auth is Scalekit's authentication solution that enables your applications to securely connect to third-party services on behalf of your users. It handles the complexity of OAuth flows, token management, and multi-provider authentication for popular business applications like Gmail, Slack, Jira, and more.
 
-## What is Agent Actions?
+## What is Agent Auth?
 
-Agent Actions abstracts the complexity of integrating with multiple third-party APIs by providing:
+Agent Auth simplifies third-party authentication by providing:
 
-- **Unified API**: Single interface for all supported providers
-- **Secure authentication**: OAuth 2.0 and other authentication methods
-- **Tool execution**: Standardized way to perform actions across different platforms
-- **Token management**: Automatic token refresh and lifecycle management
-- **Error handling**: Consistent error responses and retry mechanisms
+- **Multi-provider OAuth**: Support for OAuth 2.0 flows across all major providers
+- **Unified authentication API**: Single interface for managing connections to any provider
+- **Automatic token management**: Token refresh, storage, and lifecycle handling
+- **Flexible authentication modes**: Use Scalekit-managed OAuth or bring your own credentials
+- **Secure token handling**: Encrypted token storage and transmission
 
 ## Key concepts
 
 ### Providers
 
-Providers are third-party applications that your users can connect to. Each provider offers specific capabilities and tools.
-
-**Examples:**
-
-- **Gmail**: Send emails, fetch messages, create drafts
-- **Google Calendar**: Create events, fetch schedules, manage calendars
-- **Slack**: Send messages, create channels, manage workspaces
-- **Jira**: Create issues, update tickets, manage projects
+Providers are third-party applications that your users can authenticate with. Agent Actions supports OAuth 2.0 flows for popular platforms including Gmail, Slack, GitHub, Jira, and many more.
 
 ### Connections
 
-Connections are configurations that define how to authenticate and interact with a specific provider. They contain:
+Connections define the authentication configuration for a specific provider. Each connection contains:
 
 - **Authentication credentials** (OAuth client ID/secret, API keys)
-- **Provider settings** (endpoints, scopes, rate limits)
-- **Tool definitions** and their parameters
+- **OAuth configuration** (authorization URLs, token endpoints, scopes)
+- **Provider-specific settings** (rate limits, API versions)
 
 ### Connected accounts
 
-Connected accounts represent individual user or organization connections to providers. They link a specific identifier (user_id, org_id) to a provider account and maintain:
+Connected accounts represent the authenticated link between a user in your application and their account on a third-party provider. Each connected account maintains:
 
 - **Authentication state** (active, expired, revoked)
-- **Access tokens** and refresh tokens
-- **Granted permissions** and scopes
-- **User metadata** and preferences
-
-### Tools
-
-Tools are standardized functions that can be executed against connected accounts. They abstract complex API operations into simple, consistent interfaces.
+- **Access tokens** and refresh tokens with automatic refresh handling
+- **Granted OAuth scopes** and permissions
+- **Token expiration** tracking and lifecycle management
 
 ## Architecture overview
 
@@ -60,45 +51,43 @@ direction: down
 A: "Your Application"
 C: "Connected Account"
 
-AgentConnect: {
-  label: "Agent Actions"
-  B: "Agent Actions API"
-  E: "Authentication"
-  F: "Tool Execution"
+AgentAuth: {
+  label: "Agent Auth"
+  B: "Agent Auth API"
+  E: "OAuth Flow Handler"
   G: "Token Management"
-  H: "Error Handling"
+  H: "Token Refresh"
   B -> E
-  B -> F
   B -> G
   B -> H
 }
 
 Providers: {
-  label: "Providers"
-  D: "Provider API"
+  label: "OAuth Providers"
+  D: "Provider OAuth"
   I: "Gmail"
   J: "Slack"
   K: "Jira"
-  L: "Calendar"
+  L: "GitHub"
   D -> I
   D -> J
   D -> K
   D -> L
 }
 
-A -> AgentConnect.B
-AgentConnect.B -> C
-C -> Providers.D
+A -> AgentAuth.B: "Initiate OAuth"
+AgentAuth.B -> C: "Manage tokens"
+C -> Providers.D: "Authenticate"
 ```
 
-## How Agent Actions works
+## How authentication works
 
-### 1. Setup connections
+### 1. Configure provider connections
 
-Configure connections for each provider you want to support:
+Set up OAuth credentials for each provider you want to support:
 
 ```javascript
-// Create a connection for Gmail
+// Create a connection for Gmail with OAuth 2.0
 const gmailConnection = await agentConnect.connections.create({
   provider: 'gmail',
   auth_type: 'oauth2',
@@ -110,9 +99,9 @@ const gmailConnection = await agentConnect.connections.create({
 });
 ```
 
-### 2. Create connected accounts
+### 2. Initiate OAuth flow for users
 
-When users want to connect their accounts, create connected accounts:
+When users want to connect their accounts, create a connected account and redirect them to complete OAuth:
 
 ```javascript
 // Create a connected account for a user
@@ -122,31 +111,25 @@ const connectedAccount = await agentConnect.accounts.create({
   identifier_type: 'user_id'
 });
 
-// Generate OAuth URL for user authentication
+// Generate OAuth authorization URL
 const authUrl = await agentConnect.accounts.getAuthUrl(connectedAccount.id);
-// Redirect user to authUrl to complete OAuth flow
+// Redirect user to authUrl to authenticate with the provider
 ```
 
-### 3. Execute tools
+### 3. Handle OAuth callback
 
-Once authenticated, execute tools on behalf of users:
+After the user authorizes your application, the provider redirects back with an authorization code. Agent Actions automatically exchanges this code for access and refresh tokens:
 
 ```javascript
-// Send an email using the connected account
-const result = await agentConnect.tools.execute({
-  connected_account_id: connectedAccount.id,
-  tool: 'send_email',
-  parameters: {
-    to: 'recipient@example.com',
-    subject: 'Hello from Agent Actions',
-    body: 'This email was sent via Agent Actions'
-  }
-});
+// Agent Actions handles the OAuth callback and token exchange
+// Tokens are securely stored and automatically refreshed when needed
+const account = await agentConnect.accounts.get(connectedAccount.id);
+// account.status will be 'active' once authentication is complete
 ```
 
 ## Supported providers
 
-Agent Actions supports a wide range of popular business applications:
+Agent Auth supports OAuth authentication for a wide range of popular business applications:
 
 <CardGrid>
   <Card title="Communication" icon="chat">
@@ -179,153 +162,121 @@ Agent Actions supports a wide range of popular business applications:
   </Card>
 </CardGrid>
 
-## Common use cases
+## Common authentication scenarios
 
-### Customer support automation
+### Multi-provider authentication
 
-Automate customer support workflows across multiple platforms:
+Enable users to connect multiple third-party accounts in your application:
 
 ```javascript
-// Create support ticket in Jira and notify team in Slack
-await Promise.all([
-  agentConnect.tools.execute({
-    connected_account_id: 'jira_account',
-    tool: 'create_issue',
-    parameters: {
-      project: 'SUPPORT',
-      summary: 'Customer inquiry from John Doe',
-      description: 'Customer needs help with billing'
-    }
-  }),
-  agentConnect.tools.execute({
-    connected_account_id: 'slack_account',
-    tool: 'send_message',
-    parameters: {
-      channel: '#support-team',
-      text: 'New support ticket created for John Doe'
-    }
-  })
-]);
+// Allow users to authenticate with both Gmail and Slack
+const gmailAccount = await agentConnect.accounts.create({
+  connection_id: gmailConnection.id,
+  identifier: 'user_123',
+  identifier_type: 'user_id'
+});
+
+const slackAccount = await agentConnect.accounts.create({
+  connection_id: slackConnection.id,
+  identifier: 'user_123',
+  identifier_type: 'user_id'
+});
+
+// Generate OAuth URLs for each provider
+const gmailAuthUrl = await agentConnect.accounts.getAuthUrl(gmailAccount.id);
+const slackAuthUrl = await agentConnect.accounts.getAuthUrl(slackAccount.id);
 ```
 
-### Email marketing campaigns
+### Organization-level connections
 
-Send personalized emails and track responses:
+Authenticate once for an entire organization:
 
 ```javascript
-// Send campaign email and create calendar reminder
-const emailResult = await agentConnect.tools.execute({
-  connected_account_id: 'gmail_account',
-  tool: 'send_email',
-  parameters: {
-    to: 'lead@example.com',
-    subject: 'Special offer for you',
-    body: 'Check out our latest product updates...'
-  }
+// Create organization-level connection for shared access
+const orgConnection = await agentConnect.accounts.create({
+  connection_id: jiraConnection.id,
+  identifier: 'org_456',
+  identifier_type: 'org_id'
 });
 
-// Schedule follow-up reminder
-await agentConnect.tools.execute({
-  connected_account_id: 'calendar_account',
-  tool: 'create_event',
-  parameters: {
-    title: 'Follow up with lead',
-    start_time: '2024-01-20T10:00:00Z',
-    end_time: '2024-01-20T10:30:00Z'
-  }
-});
+// All users in the organization can access this connection
+const authUrl = await agentConnect.accounts.getAuthUrl(orgConnection.id);
 ```
 
-### Project coordination
+### Token lifecycle management
 
-Coordinate project activities across different tools:
+Agent Auth automatically handles token refresh and expiration:
 
 ```javascript
-// Create project in Jira and set up Slack channel
-const project = await agentConnect.tools.execute({
-  connected_account_id: 'jira_account',
-  tool: 'create_project',
-  parameters: {
-    key: 'NEWPROJ',
-    name: 'New Project',
-    description: 'Exciting new project'
-  }
-});
+// Retrieve connected account - tokens are automatically refreshed if expired
+const account = await agentConnect.accounts.get(connectedAccount.id);
 
-// Create dedicated Slack channel
-await agentConnect.tools.execute({
-  connected_account_id: 'slack_account',
-  tool: 'create_channel',
-  parameters: {
-    name: 'newproj-team',
-    topic: 'New Project coordination'
-  }
-});
+// Check authentication status
+if (account.status === 'active') {
+  // User is authenticated and tokens are valid
+} else if (account.status === 'expired') {
+  // Re-authentication required
+  const reAuthUrl = await agentConnect.accounts.getAuthUrl(account.id);
+}
 ```
 
 ## Key benefits
 
 ### Developer experience
 
-- **Single API**: One interface for all providers
-- **Consistent responses**: Standardized response formats
-- **Automatic authentication**: Handle OAuth flows automatically
-- **Error handling**: Unified error handling across providers
-- **SDKs available**: Support for popular programming languages
+- **Unified authentication API**: Single interface for OAuth across all providers
+- **Automatic token refresh**: No manual token lifecycle management required
+- **Pre-built OAuth flows**: Skip complex OAuth implementation for each provider
+- **Multi-language SDKs**: Support for popular programming languages
+- **Standardized error handling**: Consistent error responses across providers
 
 ### Security and compliance
 
-- **OAuth 2.0**: Industry-standard authentication
-- **Token encryption**: Secure token storage and transmission
-- **Audit logging**: Comprehensive audit trails
-- **GDPR compliance**: Data protection and user privacy
-- **SOC 2 certified**: Enterprise-grade security
-
-### Scalability and reliability
-
-- **High availability**: 99.9% uptime SLA
-- **Auto-scaling**: Handle traffic spikes automatically
-- **Rate limiting**: Intelligent rate limit management
-- **Monitoring**: Real-time performance monitoring
-- **Global infrastructure**: Low-latency worldwide
+- **OAuth 2.0 standard**: Industry-standard authentication protocol
+- **Encrypted token storage**: Secure storage and transmission of access tokens
+- **Automatic token rotation**: Refresh tokens automatically to minimize exposure
+- **Audit logging**: Complete audit trail of authentication events
+- **SOC 2 certified**: Enterprise-grade security standards
 
 ## Authentication options
 
-Agent Actions supports multiple authentication approaches:
+Agent Auth supports multiple authentication approaches:
 
 ### Scalekit-managed OAuth
 
 Use Scalekit's shared OAuth applications for quick setup:
 
-- **Fast setup**: Get started in minutes
-- **Shared credentials**: No need to create OAuth apps
+- **Fast setup**: Get started in minutes without registering OAuth apps
+- **Shared credentials**: Pre-configured OAuth credentials for all providers
+- **Zero configuration**: No need to manage client IDs or secrets
 - **Perfect for**: Development, testing, proof of concepts
 
-### Bring Your Own Authentication (BYOA)
+### Bring Your Own OAuth (BYOO)
 
 Use your own OAuth applications for complete control:
 
-- **Complete branding**: Users see your app name and logo
-- **Higher rate limits**: Dedicated quotas for your application
-- **Enhanced security**: Direct OAuth relationships with providers
+- **Custom branding**: Users see your application name and logo during OAuth
+- **Higher rate limits**: Dedicated quotas for your OAuth application
+- **Direct relationships**: Establish direct OAuth connections with providers
+- **Enhanced control**: Full control over OAuth scopes and permissions
 - **Perfect for**: Production applications, enterprise customers
 
 ## Getting started
 
-Ready to start using Agent Actions? Here's what you need to do:
+Ready to start using Agent Auth? Here's what you need to do:
 
 <CardGrid>
   <LinkCard title="Quickstart Guide" href="/agent-actions/quickstart">
-    Get up and running with Agent Actions in minutes
+    Get up and running with Agent Auth in minutes
+  </LinkCard>
+  <LinkCard title="Authentication Flows" href="/agent-actions/authentication/auth-flows-comparison">
+    Compare different authentication flow patterns
   </LinkCard>
   <LinkCard title="Providers" href="/agent-actions/providers">
-    Learn about supported third-party applications
+    View supported OAuth providers and their requirements
   </LinkCard>
-  <LinkCard title="Connections" href="/agent-actions/connections">
-    Configure authentication and provider settings
-  </LinkCard>
-  <LinkCard title="Tool Execution" href="/agent-actions/tools/execute">
-    Execute tools on behalf of your users
+  <LinkCard title="Token Management" href="/agent-actions/authentication/token-management">
+    Learn about token lifecycle and refresh handling
   </LinkCard>
 </CardGrid>
 
@@ -333,20 +284,19 @@ Ready to start using Agent Actions? Here's what you need to do:
 
 ### Documentation
 
-- **API reference**: Complete API documentation
-- **SDK documentation**: Language-specific guides
-- **Integration examples**: Real-world use cases
-- **Best practices**: Security and performance guidelines
+- **Authentication guides**: Step-by-step OAuth integration guides
+- **API reference**: Complete authentication API documentation
+- **SDK documentation**: Language-specific authentication examples
+- **Best practices**: Security and token management guidelines
 
 ### Community and support
 
-- **Developer community**: Join other developers using Agent Actions
-- **Support portal**: Get help with technical issues
-- **Professional services**: Expert assistance for complex integrations
-- **Training programs**: Learn advanced Agent Actions features
+- **Developer community**: Join other developers using Agent Auth
+- **Support portal**: Get help with authentication issues
+- **Professional services**: Expert assistance for complex OAuth integrations
 
 <Aside type="note">
-**Ready to get started?** Check out our [Quickstart Guide](/agent-actions/quickstart) to build your first Agent Actions integration in minutes.
+**Ready to get started?** Check out our [Quickstart Guide](/agent-actions/quickstart) to implement your first OAuth integration with Agent Auth in minutes.
 </Aside>
 
-Agent Actions makes it easy to build powerful integrations that connect your application to the tools your users already love. Start building today and unlock the full potential of connected applications.
+Agent Auth simplifies third-party authentication so you can focus on building features instead of managing OAuth flows. Start building today and provide seamless authentication experiences for your users.

@@ -1,0 +1,90 @@
+---
+title: "How to register a callback endpoint"
+topic: dev-kit
+description: "Learn how to register a callback endpoint in the Scalekit dashboard."
+tableOfContents: false
+browseCentral:
+  label: "Register authentication callback URLs"
+  category:
+    - "User authentication"
+  filterType:
+    - "tutorial"
+  icon: "book"
+sidebar:
+  label: "Registering callback endpoints"
+prev:
+  link: '/sso/guides/authorization-url/'
+  label: 'Authorization URLs'
+next:
+  link: '/authenticate/fsa/complete-login/'
+  label: 'Complete login with code exchange'
+seeAlso:
+  expanded: true
+  items:
+    - title: "Initiate user login"
+      icon: "authenticate"
+      url: "/authenticate/fsa/implement-login/"
+head:
+  - tag: style
+    attrs:
+      type: text/css
+    content: |
+      table {
+        word-wrap: break-word;
+        table-layout: fixed;
+      }
+      td {
+        word-wrap: break-word;
+        vertical-align: top;
+        padding: 8px;
+      }
+      .icon-text {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        white-space: nowrap;
+      }
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import { Aside, Icon } from '@astrojs/starlight/components'
+
+In the authentication flow for a user, a callback endpoint is the endpoint that Scalekit remembers about your application, trusts it, and sends a authentication grant (code). It further expects your application to exchange the code for a user token and user profile.
+
+This needs to be pre-registered in the Scalekit dashboard.
+
+Go to **Dashboard** > **Authentication** > **Redirect URLS** > **Allowed Callback URLs** and add the callback endpoint.
+
+![](@/assets/docs/allowed-callback-url/allowed-callback-url.png)
+
+
+
+Your redirect URIs must meet specific requirements that vary between development and production environments:
+
+| Requirement | Development | Production |
+| ----------- | ----------- | ---------- |
+| Supported schemes | <span class="icon-text"><Icon name="approve-check" /> `http` <Icon name="approve-check" /> `https` <Icon name="approve-check" /> `{scheme}`</span> | <span class="icon-text"><Icon name="approve-check" /> `https` <Icon name="approve-check" /> `{scheme}`</span> |
+| Localhost support | <span class="icon-text"><Icon name="approve-check" /> Allowed</span> | <span class="icon-text"><Icon name="error" /> Not allowed</span> |
+| Wildcard domains | <span class="icon-text"><Icon name="approve-check" /> Allowed</span> | <span class="icon-text"><Icon name="error" /> Not allowed</span> |
+| URI length limit | 256 characters | 256 characters |
+| Query parameters | <span class="icon-text"><Icon name="error" /> Not allowed</span> | <span class="icon-text"><Icon name="error" /> Not allowed</span> |
+| URL fragments | <span class="icon-text"><Icon name="error" /> Not allowed</span> | <span class="icon-text"><Icon name="error" /> Not allowed</span> |
+
+
+Wildcards can simplify testing in development environments, but they must follow specific patterns:
+
+| Validation rule                                                                     | Examples                                                                                                                                                                                                          |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Wildcards cannot be used as root-level domains                          | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> `https://*.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://*.acmecorp.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://auth-*.acmecorp.com`</div> |
+| Only one wildcard character is allowed per URI                                 | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> `https://*.*.acmecorp.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://*.acmecorp.com`</div>                                                                            |
+| Wildcards must be in the hostname component only     | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> `https://acmecorp.*.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://*.acmecorp.com`</div>                                                                  |
+| Wildcards must be in the outermost subdomain | <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="error" /> `https://auth.*.acmecorp.com`</div> <div style="display: inline-flex; align-items: center; gap: 0.5rem;"><Icon name="approve-check" /> `https://*.auth.acmecorp.com`</div>                                                        |
+
+<Aside type="caution">
+According to the <a href="https://tools.ietf.org/html/rfc6749#section-3.1.2" target="_blank">OAuth 2.0 specification</a>, redirect URIs must be absolute URIs. For development convenience, Scalekit relaxes this restriction slightly by allowing wildcards in development environments.
+</Aside>

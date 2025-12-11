@@ -1,36 +1,289 @@
 ---
 import Default from '@astrojs/starlight/components/Footer.astro'
-import { Icon } from '@astrojs/starlight/components'
-import SimpleList from '@components/ui/SimpleList.astro'
-import CheckItem from '@components/ui/CheckItem.astro'
-import IconLucideHelpCircle from '~icons/lucide/help-circle'
-import IconLucideActivity from '~icons/lucide/activity'
+import IconLucideThumbsUp from '~icons/lucide/thumbs-up'
+import IconLucideThumbsDown from '~icons/lucide/thumbs-down'
+import IconLucideMessageCircleQuestionMark from '~icons/lucide/message-circle-question-mark'
+import IconPajamasStatusHealth from '~icons/pajamas/status-health'
 import IconLucideShield from '~icons/lucide/shield'
-import IconLucideFileText from '~icons/lucide/file-text'
+import IconLucideBookOpenText from '~icons/lucide/book-open-text'
+
+// Don't apply fold-full-width on homepage to avoid conflict with sidebar
+const isHomePage = Astro.url.pathname === '/' || Astro.url.pathname === '/en/'
+const footerClass = 'footer'
 ---
 
 <Default {...Astro.props} />
 
-<footer
-  style="margin-top: 1rem; margin-bottom: 1rem; padding-top: 1rem; border-top: 1px solid var(--sl-color-gray-5); text-align: left; font-size: 0.875rem; color: var(--sl-color-gray-3);"
-  class="fold-full-width"
->
+<div class="footer-fold-separator"></div>
+
+<footer class={footerClass}>
   <div class="home-container">
-    <div
-      style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;"
-    >
-      <SimpleList>
-        <CheckItem icon={IconLucideHelpCircle}
-          >Need help? <a href="mailto:support@scalekit.com">Contact support</a></CheckItem
-        >
-        <CheckItem icon={IconLucideActivity}
-          >Check out our <a href="https://scalekit.statuspage.io/">status page</a></CheckItem
-        >
-        <CheckItem icon={IconLucideShield}
-          >Visit <a href="https://www.scalekit.com/trust-center">Trust center</a></CheckItem
-        >
-        <CheckItem icon={IconLucideFileText}>LLM? <a href="/llms.txt">Read llms.txt</a></CheckItem>
-      </SimpleList>
+    <div class="footer__content">
+      <div data-feedback-section class="feedback-section">
+        <span class="feedback-question">Were you able to complete your task?</span>
+        <div class="feedback-actions" role="group" aria-label="Task completion feedback">
+          <button type="button" data-feedback-value="yes" class="feedback-button">
+            <IconLucideThumbsUp class="feedback-button__icon" aria-hidden="true" />
+            Yes
+          </button>
+          <button type="button" data-feedback-value="no" class="feedback-button">
+            <IconLucideThumbsDown class="feedback-button__icon" aria-hidden="true" />
+            No
+          </button>
+        </div>
+        <p data-feedback-response class="feedback-message" role="status" aria-live="polite" hidden>
+        </p>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-link">
+          <IconLucideMessageCircleQuestionMark class="footer-link__icon" aria-hidden="true" />
+          <span>Need help? <a href="mailto:support@scalekit.com">Contact support</a></span>
+        </div>
+        <div class="footer-link">
+          <IconPajamasStatusHealth class="footer-link__icon" aria-hidden="true" />
+          <span
+            >Check out our <a
+              href="https://status.scalekit.com"
+              target="_blank"
+              rel="noopener noreferrer">status page</a
+            ></span
+          >
+        </div>
+        <div class="footer-link">
+          <IconLucideShield class="footer-link__icon" aria-hidden="true" />
+          <span
+            >Visit <a href="https://trust.scalekit.com" target="_blank" rel="noopener noreferrer"
+              >Trust center</a
+            ></span
+          >
+        </div>
+        <div class="footer-link">
+          <IconLucideBookOpenText class="footer-link__icon" aria-hidden="true" />
+          <span>LLM? <a href="https://docs.scalekit.com/llms.txt">Read llms.txt</a></span>
+        </div>
+      </div>
     </div>
   </div>
 </footer>
+
+<style>
+  /* Footer fold separator - horizontal line that spans across */
+  .footer-fold-separator {
+    width: 100vw;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    position: relative;
+    height: 1px;
+    background: var(--sl-color-gray-5);
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  /* Base footer styles - apply to both homepage and doc pages */
+  :global(.footer) {
+    margin: 1rem 0;
+    padding-top: 1rem;
+    text-align: left;
+    font-size: 0.875rem;
+    color: var(--sl-color-gray-3);
+  }
+
+  :global(.footer .feedback-section) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    color: var(--sl-color-gray-1);
+  }
+
+  :global(.footer .feedback-question) {
+    font-weight: 400;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  :global(.footer .feedback-actions) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  :global(.footer .feedback-button) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.85rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--sl-color-gray-5);
+    background: transparent;
+    color: var(--sl-color-gray-1);
+    cursor: pointer;
+    transition:
+      background 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  :global(.footer .feedback-button:hover:not(:disabled)) {
+    background: var(--sl-color-gray-6);
+  }
+
+  :global(.footer .feedback-button:disabled) {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  :global(.footer .feedback-button__icon) {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  :global(.footer .feedback-message) {
+    margin: 0;
+    color: var(--sl-color-gray-2);
+    width: 100%;
+  }
+
+  :global(.footer .feedback-followup) {
+    color: var(--sl-color-accent);
+    font-weight: 500;
+    text-decoration: underline;
+    margin-left: 0.25rem;
+  }
+
+  :global(.footer .feedback-followup:hover) {
+    text-decoration-thickness: 2px;
+  }
+
+  /* Footer links section */
+  :global(.footer .footer-links) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  :global(.footer .footer-link) {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--sl-color-gray-2);
+    font-size: 0.875rem;
+  }
+
+  :global(.footer .footer-link__icon) {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  :global(.footer .footer-link a) {
+    color: var(--sl-color-gray-1);
+    font-weight: 500;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  :global(.footer .footer-link a:hover) {
+    border-bottom-color: var(--sl-color-gray-1);
+  }
+
+  @media (max-width: 36rem) {
+    :global(.footer .feedback-section) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    :global(.footer .feedback-actions) {
+      width: 100%;
+    }
+
+    :global(.footer .feedback-button) {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+
+    :global(.footer .footer-links) {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+</style>
+
+<script is:inline>
+  const FEEDBACK_FORM_URL =
+    'https://www.notion.so/scalekitinc/27887a580a3780fbb4b8fad28038392a?pvs=106'
+
+  function setupFeedbackSections(root = document) {
+    const sections = Array.from(root.querySelectorAll('[data-feedback-section]'))
+
+    sections.forEach((section) => {
+      if (section.dataset.feedbackBound === 'true') return
+      section.dataset.feedbackBound = 'true'
+
+      const buttons = Array.from(section.querySelectorAll('[data-feedback-value]'))
+      const response = section.querySelector('[data-feedback-response]')
+      const question = section.querySelector('.feedback-question')
+
+      if (buttons.length === 0 || !response) return
+
+      const showResponse = ({ text, linkText }) => {
+        response.innerHTML = `${text}<a class="feedback-followup" href="${FEEDBACK_FORM_URL}" target="_blank" rel="noopener noreferrer">${linkText}</a>`
+        response.hidden = false
+        response.removeAttribute('hidden')
+      }
+
+      const captureFeedback = (value) => {
+        if (typeof window.posthog?.capture !== 'function') {
+          console.warn('PostHog is not available to capture feedback.')
+          return
+        }
+
+        window.posthog.capture('docs_page_feedback', {
+          feedback: value,
+          pathname: window.location.pathname,
+        })
+      }
+
+      const handleClick = (event) => {
+        const button = event.currentTarget
+        const value = button.getAttribute('data-feedback-value')
+        if (!value) return
+
+        buttons.forEach((btn) => btn.setAttribute('disabled', 'true'))
+
+        const followUp =
+          value === 'yes'
+            ? {
+                text: 'Thanks for sharing! ',
+                linkText: 'Share what worked well',
+              }
+            : {
+                text: 'Thanks for the feedback. ',
+                linkText: 'Make this page work better for you',
+              }
+
+        if (question) {
+          question.classList.add('feedback-question--answered')
+        }
+
+        showResponse(followUp)
+        captureFeedback(value)
+      }
+
+      buttons.forEach((button) => {
+        button.addEventListener('click', handleClick)
+      })
+    })
+  }
+
+  if (typeof window !== 'undefined') {
+    setupFeedbackSections(document)
+    document.addEventListener('astro:page-load', (event) => {
+      setupFeedbackSections(event.target)
+    })
+  }
+</script>

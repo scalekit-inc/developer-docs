@@ -1,0 +1,930 @@
+---
+title: Quickstart
+description: "Hosted auth pages, managed sessions, secure logout. Purpose built. Simple where it counts"
+sidebar:
+  label: "Full stack auth 🚀"
+tableOfContents: true
+next:
+  label: "Manage users"
+  link: "/fsa/data-modelling/"
+banner:
+  content: |
+    Join our dev community to connect with Scalekit engineers for questions or feedback
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+seeAlso:
+  items:
+    - title: "Browse nextjs example app"
+      icon: "nextjs"
+      url: "https://github.com/scalekit-inc/nextjs-example-apps/tree/main/full-stack-auth"
+    - title: "Browse expressjs demo app"
+      icon: "express"
+      url: "https://github.com/scalekit-inc/nodejs-example-apps/tree/main/expressjs-loginbox-authn"
+  expanded: true
+  label: "See also"
+---
+
+import { CardGrid, Steps, TabItem, Tabs, Aside } from '@astrojs/starlight/components';
+import Card from '@/components/ui/Card.astro';
+import CopyPrompt from '@components/ui/CopyPrompt.astro';
+import CheckItem from '@/components/ui/CheckItem.astro';
+import InstallSDK from '@components/templates/_installsdk.mdx'
+import { AuthResultTabsSection } from '@components/templates'
+import { VideoPlayer } from 'starlight-videos/components'
+import IconLucidePlay from '~icons/lucide/play'
+import IconTdesignSequence from '~icons/tdesign/sequence'
+import IconRiAiGenerate2 from '~icons/ri/ai-generate-2'
+
+ You'll implement sign-up, login, and logout flows with secure session management and user management included. The foundation you build here extends to features like workspaces, enterprise SSO, MCP authentication, and SCIM provisioning.
+
+<details>
+<summary><IconLucidePlay style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> See the integration in action</summary>
+
+<VideoPlayer link="https://www.youtube.com/watch?v=Gnz8FYhHKI8" />
+
+</details>
+
+<details>
+<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the authentication sequence</summary>
+
+Scalekit handles the complex authentication flow while you focus on your core product:
+
+![Full-Stack Authentication Flow](@/assets/docs/fsa/overview/new-1.png)
+
+1. **User initiates sign-in** - Your app redirects to Scalekit's hosted auth page
+2. **Identity verification** - User authenticates via their preferred method
+3. **Secure callback** - Scalekit returns user profile and session tokens
+4. **Session creation** - Your app establishes a secure user session
+5. **Protected access** - User accesses your application's features
+
+</details>
+
+
+
+<Card title="Get moving, instantly, with your go-to AI assistant" icon={IconRiAiGenerate2}>
+  <div class="llm-prompt-card">
+    <div class="llm-prompt-content">
+      <p>Input this prompt in your IDE to analyze your existing code base and generate complete auth implementation code accordingly.</p>
+
+      <span class="llm-prompt-subtitle">
+        *Compatible with Cursor, Windsurf, VS Code, and any AI-powered tools
+      </span>
+    </div>
+    <div class="llm-prompt-action">
+      <CopyPrompt
+        promptType="fsaQuickstartPrompt"
+        label="Copy llm prompt"
+        className="sk-secondary"
+        variant="secondary"
+        title="Generate FSA integration code"
+      />
+    </div>
+  </div>
+</Card>
+
+----
+
+<Steps>
+1. ## Install Scalekit SDK
+
+    Use the following instructions to install the SDK for your technology stack.
+
+   <InstallSDK />
+
+
+2. ## Redirect users to sign up (or) login
+
+   Create an authorization URL to redirect users to Scalekit's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and required scopes.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```javascript wrap title="Express.js"
+   // Must match the callback URL you registered in step 1
+   const redirectUri = 'http://localhost:3000/auth/callback';
+
+   // Request user profile data (openid, profile, email) and session tracking (offline_access)
+   // offline_access enables refresh tokens so users can stay logged in across sessions
+   const options = {
+     scopes: ['openid', 'profile', 'email', 'offline_access']
+   };
+
+   const authorizationUrl = scalekit.getAuthorizationUrl(redirectUri, options);
+   // Generated URL will look like:
+   // https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fauth%2Fcallback
+
+   res.redirect(authorizationUrl);
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```python wrap title="Flask"
+   from scalekit import AuthorizationUrlOptions
+
+   # Must match the callback URL you registered in step 1
+   redirect_uri = 'http://localhost:3000/auth/callback'
+
+   # Request user profile data (openid, profile, email) and session tracking (offline_access)
+   # offline_access enables refresh tokens so users can stay logged in across sessions
+   options = AuthorizationUrlOptions(
+       scopes=['openid', 'profile', 'email', 'offline_access']
+   )
+
+   authorization_url = scalekit.get_authorization_url(redirect_uri, options)
+   # Generated URL will look like:
+   # https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
+
+   return redirect(authorization_url)
+   ```
+   </TabItem>
+   <TabItem value="go" label="Go">
+   ```go wrap title="Gin"
+   // Must match the callback URL you registered in step 1
+   redirectUri := "http://localhost:3000/auth/callback"
+
+   // Request user profile data (openid, profile, email) and session tracking (offline_access)
+   // offline_access enables refresh tokens so users can stay logged in across sessions
+   options := scalekit.AuthorizationUrlOptions{
+       Scopes: []string{"openid", "profile", "email", "offline_access"}
+   }
+
+   authorizationUrl, err := scalekit.GetAuthorizationUrl(redirectUri, options)
+   // Generated URL will look like:
+   // https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
+   if err != nil {
+       // Handle error based on your application's error handling strategy
+       panic(err)
+   }
+
+   c.Redirect(http.StatusFound, authorizationUrl.String())
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java wrap title="Spring"
+   import com.scalekit.internal.http.AuthorizationUrlOptions;
+   import java.net.URL;
+   import java.util.Arrays;
+
+   // Must match the callback URL you registered in step 1
+   String redirectUri = "http://localhost:3000/auth/callback";
+
+   // Request user profile data (openid, profile, email) and session tracking (offline_access)
+   // offline_access enables refresh tokens so users can stay logged in across sessions
+   AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+   options.setScopes(Arrays.asList("openid", "profile", "email", "offline_access"));
+
+   URL authorizationUrl = scalekit.authentication().getAuthorizationUrl(redirectUri, options);
+   // Generated URL will look like:
+   // https://<SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?response_type=code&client_id=skc_1234&scope=openid%20profile%20email%20offline_access&redirect_uri=https%3A%2F%2Fyourapp.com%2Fcallback
+   ```
+   </TabItem>
+   </Tabs>
+
+   This redirects users to Scalekit's managed sign-in page where they can authenticate. The page includes default authentication methods for users to toggle between sign in and sign up.
+
+   <Aside type="tip" title='Match your redirect URLs exactly'>
+   Ensure the URL in your code matches what you configured in the Scalekit dashboard, including protocol (`https://`), domain, port, and path.
+   </Aside>
+
+3. ## Get user details from the callback
+
+    After successful authentication, Scalekit creates a user record and sends the user information to your callback endpoint.
+
+   1. Add a callback endpoint in your application (typically `https://your-app.com/auth/callback`)
+   2. [Register](/guides/dashboard/allowed-callback-url/) it in your Scalekit dashboard > Authentication > Redirect URLS > Allowed Callback URLs
+
+   In authentication flow, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and session tokens.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+        ```javascript collapse={19-26, 6-11} "authenticateWithCode"
+        import scalekit from '@/utils/auth.js'
+        const redirectUri = '<http://localhost:3000/auth/callback>';
+
+        // Get the authorization code from the scalekit initiated callback
+        app.get('/auth/callback', async (req, res) => {
+          const { code, error, error_description } = req.query;
+
+          if (error) {
+            return res.status(401).json({ error, error_description });
+          }
+
+          try {
+            // Exchange the authorization code for user profile and session tokens
+            // Returns: user (profile info), idToken (JWT with user claims), accessToken (JWT with roles/permissions), refreshToken
+            const authResult = await scalekit.authenticateWithCode(
+              code, redirectUri
+            );
+
+            const { user, idToken, accessToken, refreshToken } = authResult;
+            // idToken: Decode to access full user profile (sub, oid, email, name)
+            // accessToken: Contains roles and permissions for authorization decisions
+            // refreshToken: Use to obtain new access tokens when they expire
+
+            // "user" object contains the user's profile information
+            // Next step: Create a session and log in the user
+            res.redirect('/dashboard/profile');
+          } catch (err) {
+            console.error('Error exchanging code:', err);
+            res.status(500).json({ error: 'Failed to authenticate user' });
+          }
+        });
+        ```
+        </TabItem>
+        <TabItem value="python" label="Python">
+        ```python collapse={1-6, 29-32} "authenticate_with_code"
+        from flask import Flask, request, redirect, jsonify
+        from scalekit import ScalekitClient, CodeAuthenticationOptions
+
+        app = Flask(__name__)
+        # scalekit imported from your auth utils
+
+        redirect_uri = 'http://localhost:3000/auth/callback'
+
+        @app.route('/auth/callback')
+        def callback():
+            code = request.args.get('code')
+            error = request.args.get('error')
+            error_description = request.args.get('error_description')
+
+            if error:
+                return jsonify({'error': error, 'error_description': error_description}), 401
+
+            try:
+                # Exchange the authorization code for user profile and session tokens
+                # Returns: user (profile info), id_token (JWT with user claims), access_token (JWT with roles/permissions), refresh_token
+                options = CodeAuthenticationOptions()
+                auth_result = scalekit.authenticate_with_code(
+                    code, redirect_uri, options
+                )
+
+                user = auth_result.user
+                # id_token: Decode to access full user profile (sub, oid, email, name)
+                # access_token: Contains roles and permissions for authorization decisions
+                # refresh_token: Use to obtain new access tokens when they expire
+
+                # "user" object contains the user's profile information
+                # Next step: Create a session and log in the user
+                return redirect('/dashboard/profile')
+            except Exception as err:
+                print(f'Error exchanging code: {err}')
+                return jsonify({'error': 'Failed to authenticate user'}), 500
+        ```
+        </TabItem>
+        <TabItem value="go" label="Go">
+        ```go collapse={1-17, 24-32, 38-46} { 34-37 } "AuthenticateWithCode"
+        package main
+
+        import (
+            "log"
+            "net/http"
+            "os"
+            "github.com/gin-gonic/gin"
+            "github.com/scalekit-inc/scalekit-sdk-go"
+        )
+
+        // Create Scalekit client instance
+        var scalekitClient = scalekit.NewScalekitClient(
+            os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+            os.Getenv("SCALEKIT_CLIENT_ID"),
+            os.Getenv("SCALEKIT_CLIENT_SECRET"),
+        )
+
+        const redirectUri = "http://localhost:3000/auth/callback"
+
+        func callbackHandler(c *gin.Context) {
+            code := c.Query("code")
+            errorParam := c.Query("error")
+            errorDescription := c.Query("error_description")
+
+            if errorParam != "" {
+                c.JSON(http.StatusUnauthorized, gin.H{
+                    "error": errorParam,
+                    "error_description": errorDescription,
+                })
+                return
+            }
+
+            // Exchange the authorization code for user profile and session tokens
+            // Returns: User (profile info), IdToken (JWT with user claims), AccessToken (JWT with roles/permissions), RefreshToken
+            options := scalekit.AuthenticationOptions{}
+            authResult, err := scalekitClient.AuthenticateWithCode(
+                code, redirectUri, options,
+            )
+
+            if err != nil {
+                log.Printf("Error exchanging code: %v", err)
+                c.JSON(http.StatusInternalServerError, gin.H{
+                    "error": "Failed to authenticate user",
+                })
+                return
+            }
+
+            user := authResult.User
+            // IdToken: Decode to access full user profile (sub, oid, email, name)
+            // AccessToken: Contains roles and permissions for authorization decisions
+            // RefreshToken: Use to obtain new access tokens when they expire
+
+            // "user" object contains the user's profile information
+            // Next step: Create a session and log in the user
+            c.Redirect(http.StatusFound, "/dashboard/profile")
+        }
+        ```
+        </TabItem>
+        <TabItem value="java" label="Java">
+        ```java collapse={1-10, 40-47, 22-25} wrap "authenticateWithCode" {14,33, 29-31}
+        import com.scalekit.ScalekitClient;
+        import com.scalekit.internal.http.AuthenticationOptions;
+        import com.scalekit.internal.http.AuthenticationResponse;
+        import org.springframework.web.bind.annotation.*;
+        import org.springframework.web.servlet.view.RedirectView;
+        import org.springframework.http.ResponseEntity;
+        import org.springframework.http.HttpStatus;
+        import java.util.HashMap;
+        import java.util.Map;
+
+        @RestController
+        public class CallbackController {
+
+            private final String redirectUri = "http://localhost:3000/auth/callback";
+
+            @GetMapping("/auth/callback")
+            public Object callback(
+                @RequestParam(required = false) String code,
+                @RequestParam(required = false) String error,
+                @RequestParam(name = "error_description", required = false) String errorDescription
+            ) {
+                if (error != null) {
+                   // handle error
+                }
+
+                try {
+                    // Exchange the authorization code for user profile and session tokens
+                    // Returns: user (profile info), idToken (JWT with user claims), accessToken (JWT with roles/permissions), refreshToken
+                    AuthenticationOptions options = new AuthenticationOptions();
+                    AuthenticationResponse authResult = scalekit
+                        .authentication()
+                        .authenticateWithCode(code,redirectUri,options);
+
+                    var user = authResult.getIdTokenClaims();
+                    // idToken: Decode to access full user profile (sub, oid, email, name)
+                    // accessToken: Contains roles and permissions for authorization decisions
+                    // refreshToken: Use to obtain new access tokens when they expire
+
+                    // "user" object contains the user's profile information
+                    // Next step: Create a session and log in the user
+                    return new RedirectView("/dashboard/profile");
+
+                } catch (Exception err) {
+                    // Handle exception (e.g., log error, return error response)
+                }
+            }
+        }
+        ```
+        </TabItem>
+      </Tabs>
+
+      The `authResult` object contains:
+
+      - `user` - Common user details with email, name, and verification status
+      - `idToken` - JWT containing verified full user identity claims (includes: `sub` user ID, `oid` organization ID, `email`, `name`, `exp` expiration)
+      - `accessToken` - Short-lived token that determines current access context (includes: `sub` user ID, `oid` organization ID, `roles`, `permissions`, `exp` expiration)
+      - `refreshToken` - Long-lived token to obtain new access tokens
+
+      <AuthResultTabsSection />
+
+      The user details are packaged in the form of JWT tokens. Decode the `idToken` to access full user profile information (email, name, organization ID) and the `accessToken` to check user roles and permissions for authorization decisions. See [Complete login with code exchange](/authenticate/fsa/complete-login/) for detailed token claim references and verification instructions.
+
+
+4. ## Create and manage user sessions
+
+      The access token is a JWT that contains the user's permissions and roles. It expires in 5 minutes (default) but [can be configured](/authenticate/fsa/manage-session/#configure-session-security-and-duration). When it expires, use the refresh token to obtain a new access token. The refresh token is long-lived and designed for this purpose.
+
+      The Scalekit SDK provides methods to refresh access tokens automatically. However, you must log the user out when the refresh token itself expires or becomes invalid.
+
+      <Tabs syncKey="tech-stack">
+        <TabItem value="node" label="Node.js">
+        ```javascript collapse={1-4} { "1": 5-6 } { "2": 8-15 } { "3": 17}
+        import cookieParser from 'cookie-parser';
+        // Set cookie parser middleware
+        app.use(cookieParser());
+
+        // Store access token in HttpOnly cookie with Path scoping to API routes
+        res.cookie('accessToken', authResult.accessToken, {
+          maxAge: (authResult.expiresIn - 60) * 1000,
+          httpOnly: true,
+          secure: true,
+          path: '/api',
+          sameSite: 'strict'
+        });
+
+        // Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
+        res.cookie('refreshToken', authResult.refreshToken, {
+          httpOnly: true,
+          secure: true,
+          path: '/auth/refresh',
+          sameSite: 'strict'
+        });
+        ```
+        </TabItem>
+
+        <TabItem value="python" label="Python">
+        ```python collapse={1-10}  { 21-28 }
+        from flask import Flask, make_response
+        import os
+
+        # Cookie parsing is built-in with Flask's request object
+        app = Flask(__name__)
+
+        response = make_response()
+
+        # Store access token in HttpOnly cookie with Path scoping to API routes
+        response.set_cookie(
+            'accessToken',
+            auth_result.access_token,
+            max_age=auth_result.expires_in - 60,  # seconds in Flask
+            httponly=True,
+            secure=True,
+            path='/api',
+            samesite='Strict'
+        )
+
+        # Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
+        response.set_cookie(
+            'refreshToken',
+            auth_result.refresh_token,
+            httponly=True,
+            secure=True,
+            path='/auth/refresh',
+            samesite='Strict'
+        )
+        ```
+        </TabItem>
+
+        <TabItem value="go" label="Go">
+        ```go collapse={1-8}
+        import (
+            "net/http"
+            "os"
+        )
+
+        // Set SameSite mode for CSRF protection
+        c.SetSameSite(http.SameSiteStrictMode)
+
+        // Store access token in HttpOnly cookie with Path scoping to API routes
+        c.SetCookie(
+            "accessToken",
+            authResult.AccessToken,
+            authResult.ExpiresIn-60, // seconds in Gin
+            "/api",
+            "",
+            os.Getenv("GIN_MODE") == "release",
+            true,
+        )
+
+        // Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
+        c.SetCookie(
+            "refreshToken",
+            authResult.RefreshToken,
+            0, // No expiry for refresh token cookie
+            "/auth/refresh",
+            "",
+            os.Getenv("GIN_MODE") == "release",
+            true,
+        )
+        ```
+        </TabItem>
+
+        <TabItem value="java" label="Java">
+        ```java collapse={1-6}
+        import javax.servlet.http.Cookie;
+        import javax.servlet.http.HttpServletResponse;
+
+        // Store access token in HttpOnly cookie with Path scoping to API routes
+        Cookie accessTokenCookie = new Cookie("accessToken", authResult.getAccessToken());
+        accessTokenCookie.setMaxAge(authResult.getExpiresIn() - 60); // seconds in Spring
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(true);
+        accessTokenCookie.setPath("/api");
+        response.addCookie(accessTokenCookie);
+
+        // Store refresh token in separate HttpOnly cookie with Path scoped to refresh endpoint
+        Cookie refreshTokenCookie = new Cookie("refreshToken", authResult.getRefreshToken());
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/auth/refresh");
+        response.addCookie(refreshTokenCookie);
+        response.setHeader("Set-Cookie",
+          response.getHeader("Set-Cookie") + "; SameSite=Strict");
+        ```
+        </TabItem>
+      </Tabs>
+
+      This sets browser cookies with the session tokens. Every request to your backend needs to verify the `accessToken` to ensure the user is authenticated. If expired, use the `refreshToken` to get a new access token.
+
+      <Tabs syncKey="tech-stack">
+        <TabItem value="node" label="Node.js">
+        ```javascript wrap collapse={8-11, 26-37} {5-6, 13, 22}
+        // Middleware to verify and refresh tokens if needed
+        const verifyToken = async (req, res, next) => {
+          try {
+            // Get access token from cookie and decrypt it
+            const accessToken = req.cookies.accessToken;
+            const decryptedAccessToken = decrypt(accessToken);
+
+            if (!accessToken) {
+              return res.status(401).json({ message: 'No access token provided' });
+            }
+
+            // Use Scalekit SDK to validate the token
+            const isValid = await scalekit.validateAccessToken(decryptedAccessToken);
+
+            if (!isValid) {
+              // Use stored refreshToken to get a new access token
+               const {
+                    user,
+                    idToken,
+                    accessToken,
+                    refreshToken: newRefreshToken,
+              } = await scalekit.refreshAccessToken(refreshToken);
+
+              // Store the new refresh token
+              // Update the cookie with the new access token
+            }
+            next();
+        };
+
+        // Example of using the middleware to protect routes
+        app.get('/dashboard', verifyToken, (req, res) => {
+          // The user object is now available in req.user
+          res.json({
+            message: 'This is a protected route',
+            user: req.user
+          });
+        });
+        ```
+        </TabItem>
+        <TabItem value="python" label="Python">
+        ```python wrap collapse={1-3, 11-14, 22-27, 51-67}
+        from functools import wraps
+        from flask import request, jsonify, make_response
+
+        def verify_token(f):
+            """Decorator to verify and refresh tokens if needed"""
+            @wraps(f)
+            def decorated_function(*args, **kwargs):
+                try:
+                    # Get access token from cookie
+                    access_token = request.cookies.get('accessToken')
+
+                    if not access_token:
+                        return jsonify({'message': 'No access token provided'}), 401
+
+                    # Decrypt the accessToken using the same encryption algorithm
+                    decrypted_access_token = decrypt(access_token)
+
+                    # Use Scalekit SDK to validate the token
+                    is_valid = scalekit.validate_access_token(decrypted_access_token)
+
+                    if not is_valid:
+                        # Get stored refresh token
+                        refresh_token = get_stored_refresh_token()
+
+                        if not refresh_token:
+                            return jsonify({'message': 'No refresh token available'}), 401
+
+                        # Use stored refreshToken to get a new access token
+                        token_response = scalekit.refresh_access_token(refresh_token)
+
+                        # Python SDK returns dict with access_token and refresh_token
+                        new_access_token = token_response.get('access_token')
+                        new_refresh_token = token_response.get('refresh_token')
+
+                        # Store the new refresh token
+                        store_refresh_token(new_refresh_token)
+
+                        # Update the cookie with the new access token
+                        encrypted_new_access_token = encrypt(new_access_token)
+                        response = make_response(f(*args, **kwargs))
+                        response.set_cookie(
+                            'accessToken',
+                            encrypted_new_access_token,
+                            httponly=True,
+                            secure=True,
+                            path='/',
+                            samesite='Strict'
+                        )
+
+                        return response
+
+                    # If the token was valid we just invoke the view as-is
+                    return f(*args, **kwargs)
+
+                except Exception as e:
+                    return jsonify({'message': f'Token verification failed: {str(e)}'}), 401
+
+            return decorated_function
+
+        # Example of using the decorator to protect routes
+        @app.route('/dashboard')
+        @verify_token
+        def dashboard():
+            return jsonify({
+                'message': 'This is a protected route',
+                'user': getattr(request, 'user', None)
+            })
+        ```
+        </TabItem>
+        <TabItem value="go" label="Go">
+        ```go wrap collapse={1-5,11-14, 21-25, 34-38, 42-46, 50-54, 58-62, 65-95}
+        import (
+            "context"
+            "net/http"
+        )
+
+        // verifyToken is a middleware that ensures a valid access token or refreshes it if expired.
+        func verifyToken(next http.HandlerFunc) http.HandlerFunc {
+            return func(w http.ResponseWriter, r *http.Request) {
+                // Retrieve the access token from the user's cookie
+                cookie, err := r.Cookie("accessToken")
+                if err != nil {
+                    // No access token cookie found; reject the request
+                    http.Error(w, `{"message": "No access token provided"}`, http.StatusUnauthorized)
+                    return
+                }
+
+                accessToken := cookie.Value
+
+                // Decrypt the access token before validation
+                decryptedAccessToken, err := decrypt(accessToken)
+                if err != nil {
+                    // Could not decrypt access token; treat as invalid
+                    http.Error(w, `{"message": "Token decryption failed"}`, http.StatusUnauthorized)
+                    return
+                }
+
+                // Validate the access token using the Scalekit SDK
+                isValid, err := scalekit.ValidateAccessToken(decryptedAccessToken)
+                if err != nil || !isValid {
+                    // Access token is invalid or expired
+
+                    // Attempt to retrieve the stored refresh token
+                    refreshToken, err := getStoredRefreshToken(r)
+                    if err != nil {
+                        // No refresh token is available; cannot continue
+                        http.Error(w, `{"message": "No refresh token available"}`, http.StatusUnauthorized)
+                        return
+                    }
+
+                    // Use the refresh token to obtain a new access token from Scalekit
+                    tokenResponse, err := scalekit.RefreshAccessToken(refreshToken)
+                    if err != nil {
+                        // Refresh attempt failed; likely an expired or invalid refresh token
+                        http.Error(w, `{"message": "Token refresh failed"}`, http.StatusUnauthorized)
+                        return
+                    }
+
+                    // Save the new refresh token so it can be reused for future requests
+                    err = storeRefreshToken(tokenResponse.RefreshToken)
+                    if err != nil {
+                        // Could not store the new refresh token
+                        http.Error(w, `{"message": "Failed to store refresh token"}`, http.StatusInternalServerError)
+                        return
+                    }
+
+                    // Encrypt the new access token before setting it in the cookie
+                    encryptedNewAccessToken, err := encrypt(tokenResponse.AccessToken)
+                    if err != nil {
+                        // Could not encrypt new access token
+                        http.Error(w, `{"message": "Token encryption failed"}`, http.StatusInternalServerError)
+                        return
+                    }
+
+                    // Issue a new accessToken cookie with updated credentials
+                    newCookie := &http.Cookie{
+                        Name:     "accessToken",
+                        Value:    encryptedNewAccessToken,
+                        HttpOnly: true,
+                        Secure:   true,
+                        Path:     "/",
+                        SameSite: http.SameSiteStrictMode,
+                    }
+                    http.SetCookie(w, newCookie)
+
+                    // Mark the token as valid in the request context and proceed
+                    r = r.WithContext(context.WithValue(r.Context(), "tokenValid", true))
+                } else {
+                    // The access token is valid; continue with marked context
+                    r = r.WithContext(context.WithValue(r.Context(), "tokenValid", true))
+                }
+
+                // Pass the request along to the next handler in the chain
+                next(w, r)
+            }
+        }
+
+        // dashboardHandler demonstrates a protected route that requires authentication.
+        func dashboardHandler(w http.ResponseWriter, r *http.Request) {
+            w.Header().Set("Content-Type", "application/json")
+            w.Write([]byte(`{
+                "message": "This is a protected route",
+                "tokenValid": true
+            }`))
+        }
+
+        // Usage example:
+        // Attach middleware to the /dashboard route:
+        // http.HandleFunc("/dashboard", verifyToken(dashboardHandler))
+        ```
+        </TabItem>
+        <TabItem value="java" label="Java">
+        ```java wrap collapse={1-6, 53-65}
+        import javax.servlet.http.HttpServletRequest;
+        import javax.servlet.http.HttpServletResponse;
+        import javax.servlet.http.Cookie;
+        import org.springframework.web.servlet.HandlerInterceptor;
+
+        @Component
+        public class TokenVerificationInterceptor implements HandlerInterceptor {
+            @Override
+            public boolean preHandle(
+                HttpServletRequest request,
+                HttpServletResponse response,
+                Object handler
+            ) throws Exception {
+                try {
+                    // Get access token from cookie
+                    String accessToken = getCookieValue(request, "accessToken");
+                    String refreshToken = getCookieValue(request, "refreshToken");
+
+                    // Decrypt the tokens
+                    String decryptedAccessToken = decrypt(accessToken);
+                    String decryptedRefreshToken = decrypt(refreshToken);
+
+                    // Use Scalekit SDK to validate the token
+                    boolean isValid = scalekit.authentication().validateAccessToken(decryptedAccessToken);
+
+
+                    // Use refreshToken to get a new access token
+                    AuthenticationResponse tokenResponse = scalekit
+                            .authentication()
+                            .refreshToken(decryptedRefreshToken);
+
+                    // Update the cookie with the new access token and refresh token
+                    String encryptedNewAccessToken = encrypt(tokenResponse.getAccessToken());
+                    String encryptedNewRefreshToken = encrypt(tokenResponse.getRefreshToken());
+
+                    Cookie accessTokenCookie = new Cookie("accessToken", encryptedNewAccessToken);
+                    accessTokenCookie.setHttpOnly(true);
+                    accessTokenCookie.setSecure(true);
+                    accessTokenCookie.setPath("/");
+                    response.addCookie(accessTokenCookie);
+
+                    Cookie refreshTokenCookie = new Cookie("refreshToken", encryptedNewRefreshToken);
+                    refreshTokenCookie.setHttpOnly(true);
+                    refreshTokenCookie.setSecure(true);
+                    refreshTokenCookie.setPath("/");
+                    response.addCookie(refreshTokenCookie);
+
+                    return true;
+                } catch (Exception e) {
+                   // handle exception
+                }
+            }
+
+            private String getCookieValue(HttpServletRequest request, String cookieName) {
+                Cookie[] cookies = request.getCookies();
+                if (cookies != null) {
+                    for (Cookie cookie : cookies) {
+                        if (cookieName.equals(cookie.getName())) {
+                            return cookie.getValue();
+                        }
+                    }
+                }
+                return null;
+            }
+        }
+        ```
+        </TabItem>
+      </Tabs>
+
+      Authenticated users can access your dashboard. The app enforces session policies using session tokens. To change session policies, go to Dashboard > Authentication > Session Policy in the Scalekit dashboard.
+
+5. ## Log out the user
+
+      Session persistence depends on the session policy configured in the Scalekit dashboard.
+      To log out a user, clear local session data and invalidate the user's session in Scalekit.
+
+      <Tabs syncKey="tech-stack">
+        <TabItem value="node" label="Node.js">
+          ```javascript { 3}
+          app.get('/logout', (req, res) => {
+            // Clear all session data including cookies and local storage
+            clearSessionData();
+
+            const logoutUrl = scalekit.getLogoutUrl(
+              idTokenHint, // ID token to invalidate
+              postLogoutRedirectUri // URL that scalekit redirects after session invalidation
+            );
+
+            // Redirect the user to the Scalekit logout endpoint to begin invalidating the session.
+            res.redirect(logoutUrl); // This URL can only be used once and expires after logout.
+          });
+          ```
+        </TabItem>
+        <TabItem value="python" label="Python">
+          ```python { 16, 13-14, 20 } collapse={1-5}
+          from flask import Flask, redirect
+          from scalekit import LogoutUrlOptions
+
+          app = Flask(__name__)
+
+          @app.route('/logout')
+          def logout():
+              # Clear all session data including cookies and local storage
+              clear_session_data()
+
+              # Generate Scalekit logout URL
+              options = LogoutUrlOptions(
+                  id_token_hint=id_token,
+                  post_logout_redirect_uri=post_logout_redirect_uri
+              )
+              logout_url = scalekit.get_logout_url(options)
+
+              # Redirect to Scalekit's logout endpoint
+              # Note: This is a one-time use URL that becomes invalid after use
+              return redirect(logout_url)
+          ```
+        </TabItem>
+        <TabItem value="go" label="Go">
+          ```go collapse={1-8}
+          package main
+
+          import (
+              "net/http"
+              "github.com/gin-gonic/gin"
+              "github.com/scalekit-inc/scalekit-sdk-go"
+          )
+
+          func logoutHandler(c *gin.Context) {
+              // Clear all session data including cookies and local storage
+              clearSessionData()
+
+              // Generate Scalekit logout URL
+              options := scalekit.LogoutUrlOptions{
+                  IdTokenHint:           idToken,
+                  PostLogoutRedirectUri: postLogoutRedirectUri,
+              }
+              logoutUrl, err := scalekit.GetLogoutUrl(options)
+              if err != nil {
+                  c.JSON(http.StatusInternalServerError, gin.H{
+                      "error": "Failed to generate logout URL",
+                  })
+                  return
+              }
+
+              // Redirect to Scalekit's logout endpoint
+              // Note: This is a one-time use URL that becomes invalid after use
+              c.Redirect(http.StatusFound, logoutUrl.String())
+          }
+          ```
+        </TabItem>
+        <TabItem value="java" label="Java">
+          ```java collapse={1-5} {"Clear all session data including cookies and local storage": 11} {"Generate Scalekit logout URL": 14} {"Redirect to Scalekit's logout endpoint": 22}
+          import com.scalekit.internal.http.LogoutUrlOptions;
+          import org.springframework.web.bind.annotation.*;
+          import org.springframework.web.servlet.view.RedirectView;
+          import java.net.URL;
+
+          @RestController
+          public class LogoutController {
+
+              @GetMapping("/logout")
+              public RedirectView logout() {
+
+                  clearSessionData();
+
+
+                  LogoutUrlOptions options = new LogoutUrlOptions();
+                  options.setIdTokenHint(idToken);
+                  options.setPostLogoutRedirectUri(postLogoutRedirectUri);
+
+                  URL logoutUrl = scalekit.authentication()
+                      .getLogoutUrl(options);
+
+
+                  // Note: This is a one-time use URL that becomes invalid after use
+                  return new RedirectView(logoutUrl.toString());
+              }
+          }
+          ```
+        </TabItem>
+      </Tabs>
+      The logout process completes when Scalekit invalidates the user's session and redirects them to your [registered post-logout URL](/guides/dashboard/redirects/#post-logout-url).
+
+</Steps>
+
+
+ This single integration unlocks multiple authentication methods, including Magic Link & OTP, social sign-ins, enterprise single sign-on (SSO), and robust user management features. As you continue working with Scalekit, you'll discover even more features that enhance your authentication workflows.

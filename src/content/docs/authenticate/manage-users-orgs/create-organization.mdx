@@ -1,0 +1,145 @@
+---
+title: "Create organizations"
+description: "Ways the organizations are created in Scalekit"
+sidebar:
+  label: "Create organizations"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+---
+
+import { Aside, Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
+
+An Organization enables shared data access and enforces consistent authentication methods, session policies, and access control policies for all its members.
+Scalekit supports two main approaches to organization creation:
+1. **Sign up creates organizations automatically**: When users successfully authenticate with your app, Scalekit automatically creates an organization for them.
+2. **User creates organizations themselves**: When your application provides users with the option to create new organizations themselves. For instance, Jira enables users to create their own workspaces.
+
+## Sign up creates organizations automatically
+
+Existing [Scalekit integration](/authenticate/fsa/quickstart/) to authenticate users and handle the login flow automatically generates an organization for each user. The organization ID associated with the user will be included in both the ID token and access token.
+
+<Tabs>
+      <TabItem value="idToken" label="Decoded ID token">
+        ```json title="ID token decoded" collapse={3-14} {17}
+        {
+          "at_hash": "ec_jU2ZKpFelCKLTRWiRsg", // Access token hash for validation
+          "aud": [
+            "skc_58327482062864390" // Audience (your client ID)
+          ],
+          "azp": "skc_58327482062864390", // Authorized party (your client ID)
+          "c_hash": "6wMreK9kWQQY6O5R0CiiYg", // Authorization code hash
+          "client_id": "skc_58327482062864390", // Your application's client ID
+          "email": "john.doe@example.com", // User's email address
+          "email_verified": true, // Whether the user's email is verified
+          "exp": 1742975822, // Expiration time (Unix timestamp)
+          "family_name": "Doe", // User's last name
+          "given_name": "John", // User's first name
+          "iat": 1742974022, // Issued at time (Unix timestamp)
+          "iss": "https://scalekit-z44iroqaaada-dev.scalekit.cloud", // Issuer (Scalekit environment URL)
+          "name": "John Doe", // User's full name
+          "oid": "org_59615193906282635", // Organization ID
+          "sid": "ses_65274187031249433", // Session ID
+          "sub": "usr_63261014140912135" // Subject (user's unique ID)
+        }
+        ```
+        </TabItem>
+        <TabItem value="accessToken" label="Decoded access token">
+            ```json title="Decoded access token" collapse={9-18} {6}
+            {
+                "aud": [
+                  "prd_skc_7848964512134X699" // Audience (API or resource server)
+                ],
+                "client_id": "prd_skc_7848964512134X699", // Your application's client ID
+                "oid": "org_89678001X21929734", // Organization ID
+                "exp": 1758265247, // Expiration time (Unix timestamp)
+                "iat": 1758264947, // Issued at time (Unix timestamp)
+                "iss": "https://login.devramp.ai", // Issuer (Scalekit environment URL)
+                "jti": "tkn_90928731115292X63", // JWT ID (unique token identifier)
+                "nbf": 1758264947, // Not before time (Unix timestamp)
+                "permissions": [ // Scopes or permissions granted
+                  "workspace_data:write",
+                  "workspace_data:read"
+                ],
+                "roles": [ // User roles within the organization
+                  "admin"
+                ],
+                "sid": "ses_90928729571723X24", // Session ID
+                "sub": "usr_8967800122X995270", // Subject (user's unique ID)
+            }
+          ```
+        </TabItem>
+      </Tabs>
+
+## Allow users to create organizations  <Badge text="API" />
+
+Applications often provide options for users to create their own organizations.
+
+For example, show an option for users such "Create new workspace" within their app. Use the Scalekit SDK to power such options:
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+
+```javascript title="Create and manage organizations" wrap
+
+const { organization } = await scalekit.organization.createOrganization({
+  name: 'Orion Analytics'
+})
+
+// Use case: Sync organization profile to downstream systems
+const { organization: fetched } = await scalekit.organization.getOrganization(organization.id)
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+```python title="Create and manage organizations" wrap
+organization = scalekit_client.organization.create_organization(
+    name="Orion Analytics"
+)["organization"]
+
+# Use case: Sync organization profile to downstream systems
+fetched = scalekit_client.organization.get_organization(organization["id"])
+```
+
+  </TabItem>
+  <TabItem value="go" label="Go">
+
+```go title="Create and manage organizations" wrap
+created, err := scalekitClient.Organization.Create(ctx, scalekit.CreateOrganizationRequest{
+    Name: "Orion Analytics",
+})
+if err != nil {
+    log.Fatalf("create organization: %v", err)
+}
+
+// Use case: Sync organization profile to downstream systems
+fetched, err := scalekitClient.Organization.Get(ctx, created.Organization.Id)
+if err != nil {
+    log.Fatalf("get organization: %v", err)
+}
+```
+
+  </TabItem>
+  <TabItem value="java" label="Java">
+
+```java title="Create and manage organizations" wrap
+// Use case: Provision a workspace after a sales-assisted onboarding
+Organization organization = scalekitClient.organization().create(
+    CreateOrganizationRequest.builder()
+        .name("Orion Analytics")
+        .build()
+).organization();
+
+
+// Use case: Sync organization profile to downstream systems
+Organization fetched = scalekitClient.organization().get(organization.id()).organization();
+```
+
+  </TabItem>
+</Tabs>
+
+Next, let's look at how users can be added to organizations.
