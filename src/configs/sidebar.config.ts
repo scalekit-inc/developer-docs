@@ -60,6 +60,15 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Add auth to your APIs',
+        items: [
+          // 'guides/m2m/overview', TODO: It uses M2M context, and older context. Hiding it until we are sure to open it up
+          'authenticate/m2m/api-auth-quickstart',
+          'guides/m2m/scopes',
+          // 'guides/m2m/api-auth-m2m-clients', TODO: Translate this as guides for future
+        ],
+      },
+      {
         label: 'Customize',
         items: [
           'guides/custom-domain',
