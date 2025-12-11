@@ -101,6 +101,14 @@ Fires before a user creates a new organization. Use this to validate email domai
         "provider": "GOOGLE" // Identity provider used for authentication
       }
     ],
+    //Contains parameters from the /oauth/authorize request
+    "auth_request": { 
+        "connection_id": "conn_81665025441299343",
+        "organization_id": "org_102953846317318346",
+        "domain": "foocorp.com",
+        "login_hint": "john.doe@example.com",
+        "state": "xsrPHl7k7ARgdhC6"
+    },
     "device_type": "Desktop", // Desktop, Mobile, Tablet, or Unknown
     "ip_address": "203.0.113.24", // Client's IP address for geolocation or blocklist checks
     "region": "IN", // Two-letter country code
@@ -117,12 +125,26 @@ Fires before a user creates a new organization. Use this to validate email domai
       "email_verified": true,
       "created_at": "2025-10-06T11:06:49.120Z",
       "updated_at": "2025-10-06T13:33:06.479Z",
-      "first_name": "John",
-      "last_name": "Doe",
+      "given_name": "John",
+      "family_name": "Doe",
+      "metadata": {
+        "type": "social_user"
+      },
       "memberships": [ // Existing organization memberships
         {
           "organization_id": "org_93418204671239864",
-          "status": "ACTIVE"
+          "status": "ACTIVE",
+          "roles": [
+              "admin"
+          ],
+          "metadata": {
+                "cost": {
+                    "category": "platform",
+                    "region": "US"
+                },
+                "department": "engineering"
+          },
+           "organization_name": "Example inc"
         }
       ]
     }
@@ -134,10 +156,24 @@ Fires before a user creates a new organization. Use this to validate email domai
 
 ```json title="PRE_SIGNUP — response body" wrap showLineNumbers=true
 {
-  "decision": "DENY", // Required: ALLOW to proceed with signup, DENY to block
-  "error": {
+  // Required: choose ALLOW or DENY
+  "decision": "DENY", // ALLOW | DENY
+  // Optional with DENY
+  "error": { 
     "message": "Only @acmecorp.com email addresses are allowed to sign up" // Shown to user when DENY
-  }
+  },
+  // Optional with ALLOW, Include when the user is to be provisioned in an existing organization.
+   "response": {
+        "create_organization_membership": {
+            // either external_organization_id or organization_id is required
+            "external_organization_id": "ext_B6YycAGRaPmnuxAFPT5KI4HBHxr4qWX", 
+            "organization_id": "org_102953846317318346",
+            "roles": [
+                "admin",
+                "viewer"
+            ]
+        }
+    }
 }
 ```
 
