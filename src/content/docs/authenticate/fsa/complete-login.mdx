@@ -1,0 +1,926 @@
+---
+title: "Complete login with code exchange"
+description: "Process authentication callbacks and handle redirect flows after users authenticate with Scalekit"
+tableOfContents: true
+sidebar:
+  label: "Complete login"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+prev:
+  label: "Initiate user login"
+  link: "/authenticate/fsa/implement-login/"
+next:
+  label: "Manage session"
+  link: "/authenticate/fsa/manage-session/"
+seeAlso:
+  expanded: true
+  items:
+    - title: "How to exchange code for tokens"
+      icon: "code"
+      url: "https://github.com/scalekit-inc/gists/blob/main/auth-code-exchange-scalekit-sdk.js"
+---
+
+import { AuthResultTabsSection } from '@components/templates'
+import { Card, CardGrid, Steps, TabItem, Tabs, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
+
+
+Once users have successfully verified their identity using their chosen login method, Scalekit will have gathered the necessary user information for your app to complete the login process. However, your app must provide a callback endpoint where Scalekit can exchange an authorization code to return your app the user details.
+
+
+<Steps>
+1. ## Validate the `state` parameter <Badge text="recommended" />
+
+   Before exchanging the authorization code, your application must validate the `state` parameter returned by Scalekit. Compare it with the value you stored in the user's session before redirecting them. This critical step prevents Cross-Site Request Forgery (CSRF) attacks, ensuring the authentication response corresponds to a request initiated by the same user.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="nodejs" label="Node.js">
+   ```javascript title="Validate state in Express.js"
+   const { state } = req.query;
+
+   // Assumes you are using a session middleware like express-session
+   const storedState = req.session.oauthState;
+   delete req.session.oauthState; // State should be used only once
+
+   if (!state || state !== storedState) {
+     console.error('Invalid state parameter');
+     return res.redirect('/login?error=invalid_state');
+   }
+   ```
+   </TabItem>
+   <TabItem value="py" label="Python">
+   ```python title="Validate state in Flask"
+   from flask import session, request, redirect
+
+   state = request.args.get('state')
+
+   # Retrieve and remove stored state from session
+   stored_state = session.pop('oauth_state', None)
+
+   if not state or state != stored_state:
+       print('Invalid state parameter')
+       return redirect('/login?error=invalid_state')
+   ```
+   </TabItem>
+   <TabItem value="golang" label="Go">
+   ```go title="Validate state in Gin"
+   stateParam := c.Query("state")
+
+   // Assumes you are using a session library like gin-contrib/sessions
+   session := sessions.Default(c)
+   storedState := session.Get("oauth_state")
+   session.Delete("oauth_state") // State should be used only once
+   session.Save()
+
+   if stateParam == "" || stateParam != storedState {
+       log.Println("Invalid state parameter")
+       c.Redirect(http.StatusFound, "/login?error=invalid_state")
+       return
+   }
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="Validate state in Spring"
+   // Assumes HttpSession is injected into your controller method
+   String storedState = (String) session.getAttribute("oauth_state");
+   session.removeAttribute("oauth_state"); // State should be used only once
+
+   if (state == null || !state.equals(storedState)) {
+       System.err.println("Invalid state parameter");
+       return new RedirectView("/login?error=invalid_state");
+   }
+   ```
+   </TabItem>
+   </Tabs>
+
+2. ## Exchange authorization code for tokens
+
+   Once the `state` is validated, your app can safely exchange the authorization code for tokens. The Scalekit SDK simplifies this process with the `authenticateWithCode` method, which handles the secure server-to-server request.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="nodejs" label="Node.js">
+   ```javascript title="Express.js callback handler" "authenticateWithCode" "code" collapse={ 5-15, 24-34 }
+   app.get('/auth/callback', async (req, res) => {
+     const { code, error, error_description, state } = req.query;
+
+     //  Add state validation here (see previous step)
+
+     // Handle errors first
+     if (error) {
+       console.error('Authentication error:', error);
+       return res.redirect('/login?error=auth_failed');
+     }
+
+     if (!code) {
+       return res.redirect('/login?error=missing_code');
+     }
+
+     try {
+       // Exchange code for user data
+       const authResult = await scalekit.authenticateWithCode(
+         code,
+         'https://yourapp.com/auth/callback'
+       );
+
+       const { user, accessToken, refreshToken } = authResult;
+
+       // TODO: Store user session (next guide covers this)
+       // req.session.user = user;
+
+       res.redirect('/dashboard');
+
+     } catch (error) {
+       console.error('Token exchange failed:', error);
+       res.redirect('/login?error=exchange_failed');
+     }
+   });
+   ```
+   </TabItem>
+   <TabItem value="py" label="Python">
+   ```python title="Flask callback handler"  "authenticate_with_code" collapse={5-13, 29-34}
+   @app.route('/auth/callback')
+   def auth_callback():
+       code = request.args.get('code')
+       error = request.args.get('error')
+       state = request.args.get('state')
+
+       # TODO: Add state validation here (see previous step)
+
+       # Handle errors first
+       if error:
+           print(f'Authentication error: {error}')
+           return redirect('/login?error=auth_failed')
+
+       if not code:
+           return redirect('/login?error=missing_code')
+
+       try:
+           # Exchange code for user data
+           options = CodeAuthenticationOptions()
+           auth_result = scalekit.authenticate_with_code(
+               code,
+               'https://yourapp.com/auth/callback',
+               options
+           )
+
+           user = auth_result.user
+           # access_token = auth_result.access_token
+           # refresh_token = auth_result.refresh_token
+
+           # TODO: Store user session (next guide covers this)
+           # session['user'] = user
+
+           return redirect('/dashboard')
+
+       except Exception as e:
+           print(f'Token exchange failed: {e}')
+           return redirect('/login?error=exchange_failed')
+   ```
+   </TabItem>
+   <TabItem value="golang" label="Go">
+   ```go title="Gin callback handler" collapse={4-16, 24-30} "AuthenticateWithCode"
+   func authCallbackHandler(c *gin.Context) {
+       code := c.Query("code")
+       errorParam := c.Query("error")
+       stateParam := c.Query("state")
+
+       // TODO: Add state validation here (see previous step)
+
+       // Handle errors first
+       if errorParam != "" {
+           log.Printf("Authentication error: %s", errorParam)
+           c.Redirect(http.StatusFound, "/login?error=auth_failed")
+           return
+       }
+
+       if code == "" {
+           c.Redirect(http.StatusFound, "/login?error=missing_code")
+           return
+       }
+
+       // Exchange code for user data
+       options := scalekit.AuthenticationOptions{}
+       authResult, err := scalekitClient.AuthenticateWithCode(
+           code,
+           "https://yourapp.com/auth/callback",
+           options,
+       )
+
+       if err != nil {
+           log.Printf("Token exchange failed: %v", err)
+           c.Redirect(http.StatusFound, "/login?error=exchange_failed")
+           return
+       }
+
+       user := authResult.User
+       // accessToken := authResult.AccessToken
+       // refreshToken := authResult.RefreshToken
+
+       // TODO: Store user session (next guide covers this)
+       // session.Set("user", user)
+
+       c.Redirect(http.StatusFound, "/dashboard")
+   }
+   ```
+   </TabItem>
+   <TabItem value="java" label="Java">
+   ```java title="Spring callback handler" collapse={6-15, 31-36} "authenticateWithCode"
+   @GetMapping("/auth/callback")
+   public Object authCallback(
+       @RequestParam(required = false) String code,
+       @RequestParam(required = false) String error,
+       @RequestParam(required = false) String state,
+       HttpSession session
+   ) {
+       // TODO: Add state validation here (see previous step)
+
+       // Handle errors first
+       if (error != null) {
+           System.err.println("Authentication error: " + error);
+           return new RedirectView("/login?error=auth_failed");
+       }
+
+       if (code == null) {
+           return new RedirectView("/login?error=missing_code");
+       }
+
+       try {
+           // Exchange code for user data
+           AuthenticationOptions options = new AuthenticationOptions();
+           AuthenticationResponse authResult = scalekit
+               .authentication()
+               .authenticateWithCode(code, "https://yourapp.com/auth/callback", options);
+
+           var user = authResult.getIdTokenClaims();
+           // String accessToken = authResult.getAccessToken();
+           // String refreshToken = authResult.getRefreshToken();
+
+           // TODO: Store user session (next guide covers this)
+           // session.setAttribute("user", user);
+
+           return new RedirectView("/dashboard");
+
+       } catch (Exception e) {
+           System.err.println("Token exchange failed: " + e.getMessage());
+           return new RedirectView("/login?error=exchange_failed");
+       }
+   }
+   ```
+   </TabItem>
+   </Tabs>
+    The authorization `code` can be redeemed only once and expires in approx ~10 minutes. Reuse or replay attempts typically return errors like `invalid_grant`. If this occurs, start a new login flow to obtain a fresh `code` and `state`.
+
+       The `authResult` object returned contains:
+
+    ```js showLineNumbers=false {"session tokens": 10-12} { 9 }
+      {
+        user: {
+          email: "john.doe@example.com",
+          emailVerified: true,
+          givenName: "John",
+          name: "John Doe",
+          id: "usr_74599896446906854"
+        },
+        idToken: "eyJhbGciO..", // Decode for full user details
+
+        accessToken: "eyJhbGciOi..",
+        refreshToken: "rt_8f7d6e5c4b3a2d1e0f9g8h7i6j..",
+        expiresIn: 299 // in seconds
+      }
+      ```
+
+    | Key           | Description                                                            |
+    |---------------|------------------------------------------------------------------------|
+    | `user`        | Common user details with email, name, and verification status          |
+    | `idToken`     | JWT containing verified full user identity claims                      |
+    | `accessToken` | Short-lived token that determines current access                       |
+    | `refreshToken`| Long-lived token to obtain new access tokens
+
+3. ## Decoding token claims
+
+      The `idToken` and `accessToken` are JSON Web Tokens (JWT) that contain user claims. These tokens can be decoded to retrieve comprehensive user and access information.
+
+      <Tabs syncKey="tech-stack">
+      <TabItem value="nodejs" label="Node.js">
+      ```javascript title="Decode ID token"
+      // Use a library like 'jsonwebtoken'
+      const jwt = require('jsonwebtoken');
+
+      // The idToken from the authResult object
+      const { idToken } = authResult;
+
+      // Decode the token without verifying its signature
+      const decoded = jwt.decode(idToken);
+
+      console.log('Decoded claims:', decoded);
+      ```
+      </TabItem>
+      <TabItem value="py" label="Python">
+      ```python title="Decode ID token"
+      # Use a library like 'PyJWT'
+      import jwt
+
+      # The id_token from the auth_result object
+      id_token = auth_result.id_token
+
+      # Decode the token without verifying its signature
+      decoded = jwt.decode(id_token, options={"verify_signature": False})
+      print(f'Decoded claims: {decoded}')
+      ```
+      </TabItem>
+      <TabItem value="golang" label="Go">
+      ```go title="Decode ID token"
+      // Use a library like 'github.com/golang-jwt/jwt/v5'
+      import (
+      	"fmt"
+      	"github.com/golang-jwt/jwt/v5"
+      )
+
+      // The IdToken from the authResult object
+      idToken := authResult.IdToken
+      token, _, err := new(jwt.Parser).ParseUnverified(idToken, jwt.MapClaims{})
+      if err != nil {
+      	fmt.Printf("Error parsing token: %v\n", err)
+      	return
+      }
+
+      if claims, ok := token.Claims.(jwt.MapClaims); ok {
+      	fmt.Printf("Decoded claims: %+v\n", claims)
+      }
+      ```
+      </TabItem>
+      <TabItem value="java" label="Java">
+      ```java title="Decode ID token"
+      // Use a library like 'com.auth0:java-jwt'
+      import com.auth0.jwt.JWT;
+      import com.auth0.jwt.interfaces.DecodedJWT;
+      import com.auth0.jwt.interfaces.Claim;
+      import com.auth0.jwt.exceptions.JWTDecodeException;
+      import java.util.Map;
+
+      try {
+          // The idToken from the authResult object
+          String idToken = authResult.getIdToken();
+
+          // Decode the token without verifying its signature
+          DecodedJWT decodedJwt = JWT.decode(idToken);
+          Map<String, Claim> claims = decodedJwt.getClaims();
+
+          System.out.println("Decoded claims: " + claims);
+      } catch (JWTDecodeException exception){
+          // Invalid token
+          System.err.println("Failed to decode ID token: " + exception.getMessage());
+      }
+      ```
+      </TabItem>
+      </Tabs>
+
+      The decoded token claims contain:
+      <Tabs>
+      <TabItem value="idToken" label="Decoded ID token">
+        ```json title="ID token decoded"
+        {
+          "iss": "https://scalekit-z44iroqaaada-dev.scalekit.cloud", // Issuer: Scalekit environment URL (must match your environment)
+          "aud": ["skc_58327482062864390"], // Audience: Your client ID (must match for validation)
+          "azp": "skc_58327482062864390", // Authorized party: Usually same as aud
+          "sub": "usr_63261014140912135", // Subject: User's unique identifier
+          "oid": "org_59615193906282635", // Organization ID: User's organization
+          "exp": 1742975822, // Expiration: Unix timestamp (validate token hasn't expired)
+          "iat": 1742974022, // Issued at: Unix timestamp when token was issued
+          "at_hash": "ec_jU2ZKpFelCKLTRWiRsg", // Access token hash: For token binding validation
+          "c_hash": "6wMreK9kWQQY6O5R0CiiYg", // Authorization code hash: For code binding validation
+          "amr": ["conn_123"], // Authentication method reference: Connection ID used for auth
+          "email": "john.doe@example.com", // User's email address
+          "email_verified": true, // Email verification status
+          "name": "John Doe", // User's full name (optional)
+          "given_name": "John", // User's first name (optional)
+          "family_name": "Doe", // User's last name (optional)
+          "picture": "https://...", // Profile picture URL (optional)
+          "locale": "en", // User's locale preference (optional)
+          "sid": "ses_65274187031249433", // Session ID: Links token to user session
+          "client_id": "skc_58327482062864390" // Client ID: Your application identifier
+        }
+        ```
+        </TabItem>
+        <TabItem value="accessToken" label="Decoded access token">
+            ```json title="Decoded access token"
+            {
+                "iss": "https://login.devramp.ai", // Issuer: Scalekit environment URL (must match your environment)
+                "aud": ["prd_skc_7848964512134X699"], // Audience: Your client ID (must match for validation)
+                "sub": "usr_8967800122X995270", // Subject: User's unique identifier
+                "oid": "org_89678001X21929734", // Organization ID: User's organization
+                "exp": 1758265247, // Expiration: Unix timestamp (validate token hasn't expired)
+                "iat": 1758264947, // Issued at: Unix timestamp when token was issued
+                "nbf": 1758264947, // Not before: Unix timestamp (token valid from this time)
+                "jti": "tkn_90928731115292X63", // JWT ID: Unique token identifier
+                "sid": "ses_90928729571723X24", // Session ID: Links token to user session
+                "client_id": "prd_skc_7848964512134X699", // Client ID: Your application identifier
+                "roles": ["admin"], // Roles: User roles within organization (optional, for authorization)
+                "permissions": ["workspace_data:write", "workspace_data:read"], // Permissions: resource:action format (optional, for granular access control)
+                "scope": "openid profile email", // OAuth scopes granted (optional)
+                "xoid": "ext_org_123", // External organization ID (if mapped)
+                "xuid": "ext_usr_456" // External user ID (if mapped)
+            }
+          ```
+        </TabItem>
+      </Tabs>
+
+      <details>
+      <summary>ID token claims reference</summary>
+
+      ID tokens contain cryptographically signed claims about a user's profile information. The Scalekit SDK automatically validates ID tokens when you use `authenticateWithCode`. If you need to manually verify or access custom claims, use the claim reference below.
+
+      | Claim | Presence | Description |
+      |-------|----------|-------------|
+      | `iss` | Always | Issuer identifier (Scalekit environment URL) |
+      | `aud` | Always | Intended audience (your client ID) |
+      | `sub` | Always | Subject identifier (user's unique ID) |
+      | `oid` | Always | Organization ID of the user |
+      | `exp` | Always | Expiration time (Unix timestamp) |
+      | `iat` | Always | Issuance time (Unix timestamp) |
+      | `at_hash` | Always | Access token hash for validation |
+      | `c_hash` | Always | Authorization code hash for validation |
+      | `azp` | Always | Authorized presenter (usually same as `aud`) |
+      | `amr` | Always | Authentication method reference (connection ID) |
+      | `email` | Always | User's email address |
+      | `email_verified` | Optional | Email verification status |
+      | `name` | Optional | User's full name |
+      | `family_name` | Optional | User's surname or last name |
+      | `given_name` | Optional | User's given name or first name |
+      | `locale` | Optional | User's locale (BCP 47 language tag) |
+      | `picture` | Optional | URL of user's profile picture |
+      | `sid` | Always | Session identifier |
+      | `client_id` | Always | Your application's client ID |
+
+      </details>
+
+      <details>
+      <summary>Access token claims reference</summary>
+
+      Access tokens contain authorization information including roles and permissions. Use these claims to make authorization decisions in your application.
+
+      **Roles** group related permissions together and define what users can do in your system. Common examples include Admin, Manager, Editor, and Viewer. Roles can inherit permissions from other roles, creating hierarchical access levels.
+
+      **Permissions** represent specific actions users can perform, formatted as `resource:action` patterns like `projects:create` or `tasks:read`. Use permissions for granular access control when you need precise control over individual capabilities.
+
+      Scalekit automatically assigns the `admin` role to the first user in each organization and the `member` role to subsequent users. Your application uses the role and permission information from Scalekit to make final authorization decisions at runtime.
+
+      | Claim | Presence | Description |
+      |-------|----------|-------------|
+      | `iss` | Always | Issuer identifier (Scalekit environment URL) |
+      | `aud` | Always | Intended audience (your client ID) |
+      | `sub` | Always | Subject identifier (user's unique ID) |
+      | `oid` | Always | Organization ID of the user |
+      | `exp` | Always | Expiration time (Unix timestamp) |
+      | `iat` | Always | Issuance time (Unix timestamp) |
+      | `nbf` | Always | Not before time (Unix timestamp) |
+      | `jti` | Always | JWT ID (unique token identifier) |
+      | `sid` | Always | Session identifier |
+      | `client_id` | Always | Client identifier for the application |
+      | `roles` | Optional | Array of role names assigned to the user |
+      | `permissions` | Optional | Array of permissions in `resource:action` format |
+      | `scope` | Optional | Space-separated list of OAuth scopes granted |
+
+      </details>
+
+4. ## Verifying access tokens <Badge text="optional" />
+
+    The Scalekit SDK provides methods to validate tokens automatically. When you use the SDK's `validateAccessToken` method, it:
+
+    1. Verifies the token signature using Scalekit's public keys
+    2. Checks the token hasn't expired (`exp` claim)
+    3. Validates the issuer (`iss` claim) matches your environment
+    4. Ensures the audience (`aud` claim) matches your client ID
+
+    If you need to manually verify tokens, fetch the public signing keys from the JSON Web Key Set (JWKS) endpoint:
+
+    ```sh title="JWKS endpoint"
+    https://<YOUR_ENVIRONMENT_URL>/keys
+    ```
+
+    For example, if your Scalekit Environment URL is `https://your-environment.scalekit.com`, the keys can be found at `https://your-environment.scalekit.com/keys`.
+
+    <Aside type="note" title="Important claims to validate">
+    When validating tokens manually, pay attention to these claims:
+
+    - **`iss` (Issuer)**: Must match your Scalekit environment URL
+    - **`aud` (Audience)**: Must match your application's client ID
+    - **`exp` (Expiration Time)**: Ensure the token has not expired
+    - **`sub` (Subject)**: Uniquely identifies the user
+    - **`oid` (Organization ID)**: Identifies which organization the user belongs to
+    </Aside>
+
+</Steps>
+
+An `IdToken` contains comprehensive profile information about the user. You can save this in your database for app use cases, using [your own identifier](/fsa/guides/organization-identifiers/). Now, let's utilize _access and refresh tokens_ to manage user access and maintain active sessions.
+
+## Common login scenarios
+
+Customize the login flow by passing different parameters when creating the authorization URL. These scenarios help you route users to specific organizations, force re-authentication, or direct users to signup.
+
+<details>
+<summary>How do I route users to a specific organization?</summary>
+
+For multi-tenant applications, you can route users directly to their organization's authentication method using `organizationId`. This is useful when you already know the user's organization.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Express.js" {5}
+const orgId = getOrganizationFromRequest(req)
+const redirectUri = 'https://your-app.com/auth/callback'
+const options = {
+  scopes: ['openid', 'profile', 'email', 'offline_access'],
+  organizationId: orgId,
+}
+const url = scalekit.getAuthorizationUrl(redirectUri, options)
+return res.redirect(url)
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Flask" {5}
+from scalekit import AuthorizationUrlOptions
+
+org_id = get_org_from_request(request)
+redirect_uri = 'https://your-app.com/auth/callback'
+options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], organization_id=org_id)
+url = scalekit_client.get_authorization_url(redirect_uri, options)
+return redirect(url)
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Gin" {3}
+orgID := getOrgFromRequest(c)
+redirectUri := "https://your-app.com/auth/callback"
+options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, OrganizationId: orgID}
+url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+c.Redirect(http.StatusFound, url.String())
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Spring" {5}
+String orgId = getOrgFromRequest(request);
+String redirectUri = "https://your-app.com/auth/callback";
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+options.setOrganizationId(orgId);
+URL url = scalekitClient.authentication().getAuthorizationUrl(redirectUri, options);
+return new RedirectView(url.toString());
+```
+</TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>How do I route users based on email domain?</summary>
+
+If you don't know the organization ID beforehand, you can use `loginHint` to let Scalekit determine the correct authentication method from the user's email domain. This is common for enterprise logins where the email domain is associated with a specific SSO connection. The domain must be registered to the organization either manually from the Scalekit Dashboard or through the admin portal when [onboarding an enterprise customer](/sso/guides/onboard-enterprise-customers/).
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Express.js" wrap {4}
+const redirectUri = 'https://your-app.com/auth/callback'
+const options = {
+    scopes: ['openid', 'profile', 'email', 'offline_access'],
+    loginHint: userEmail
+  }
+const url = scalekit.getAuthorizationUrl(redirectUri, options)
+return res.redirect(url)
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Flask" {2}
+redirect_uri = 'https://your-app.com/auth/callback'
+options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], login_hint=user_email)
+url = scalekit_client.get_authorization_url(redirect_uri, options)
+return redirect(url)
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Gin" {2}
+redirectUri := "https://your-app.com/auth/callback"
+options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, LoginHint: userEmail}
+url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+c.Redirect(http.StatusFound, url.String())
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Spring" {4}
+String redirectUri = "https://your-app.com/auth/callback";
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+options.setLoginHint(userEmail);
+URL url = scalekitClient.authentication().getAuthorizationUrl(redirectUri, options);
+return new RedirectView(url.toString());
+```
+</TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>How do I route users to a specific SSO connection?</summary>
+
+When you know the exact enterprise connection a user should use, you can pass its `connectionId` for the highest routing precision. This bypasses any other routing logic.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Express.js" {5}
+const redirectUri = 'https://your-app.com/auth/callback'
+const options = {
+    scopes: ['openid', 'profile', 'email', 'offline_access'],
+    connectionId: 'conn_123...'
+  }
+const url = scalekit.getAuthorizationUrl(redirectUri, options)
+return res.redirect(url)
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Flask" {2}
+redirect_uri = 'https://your-app.com/auth/callback'
+options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], connection_id='conn_123...')
+url = scalekit_client.get_authorization_url(redirect_uri, options)
+return redirect(url)
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Gin" {2}
+redirectUri := "https://your-app.com/auth/callback"
+options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, ConnectionId: "conn_123..."}
+url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+c.Redirect(http.StatusFound, url.String())
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Spring" {4}
+String redirectUri = "https://your-app.com/auth/callback";
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+options.setConnectionId("conn_123...");
+URL url = scalekitClient.authentication().getAuthorizationUrl(redirectUri, options);
+return new RedirectView(url.toString());
+```
+</TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>How do I force users to re-authenticate?</summary>
+
+You can require users to authenticate again, even if they have an active session, by setting `prompt: 'login'`. This is useful for high-security actions that require recent authentication.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Express.js" {4}
+const redirectUri = 'https://your-app.com/auth/callback'
+const options = {
+    scopes: ['openid', 'profile', 'email', 'offline_access'],
+    prompt: 'login'
+  }
+return res.redirect(scalekit.getAuthorizationUrl(redirectUri, options))
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Flask" {2}
+redirect_uri = 'https://your-app.com/auth/callback'
+options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], prompt='login')
+return redirect(scalekit_client.get_authorization_url(redirect_uri, options))
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Gin" {2}
+redirectUri := "https://your-app.com/auth/callback"
+options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, Prompt: "login"}
+url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+c.Redirect(http.StatusFound, url.String())
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Spring" {4}
+String redirectUri = "https://your-app.com/auth/callback";
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+options.setPrompt("login");
+return new RedirectView(scalekitClient.authentication().getAuthorizationUrl(redirectUri, options).toString());
+```
+</TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>How do I let users choose an account or organization?</summary>
+
+To show the organization or account chooser, set `prompt: 'select_account'`. This is helpful when a user is part of multiple organizations and needs to select which one to sign into.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Express.js" {4}
+const redirectUri = 'https://your-app.com/auth/callback'
+const options = {
+    scopes: ['openid', 'profile', 'email', 'offline_access'],
+    prompt: 'select_account'
+  }
+return res.redirect(scalekit.getAuthorizationUrl(redirectUri, options))
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Flask" {2}
+redirect_uri = 'https://your-app.com/auth/callback'
+options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], prompt='select_account')
+return redirect(scalekit_client.get_authorization_url(redirect_uri, options))
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Gin" {2}
+redirectUri := "https://your-app.com/auth/callback"
+options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, Prompt: "select_account"}
+url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+c.Redirect(http.StatusFound, url.String())
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Spring" {4}
+String redirectUri = "https://your-app.com/auth/callback";
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+options.setPrompt("select_account");
+return new RedirectView(scalekitClient.authentication().getAuthorizationUrl(redirectUri, options).toString());
+```
+</TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>How do I send users directly to signup?</summary>
+
+To send users directly to the signup form instead of the login page, use `prompt: 'create'`.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Express.js" {4}
+const redirectUri = 'https://your-app.com/auth/callback'
+const options = {
+    scopes: ['openid', 'profile', 'email', 'offline_access'],
+    prompt: 'create'
+}
+return res.redirect(scalekit.getAuthorizationUrl(redirectUri, options))
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Flask" {3}
+redirect_uri = 'https://your-app.com/auth/callback'
+options = AuthorizationUrlOptions(scopes=['openid','profile','email','offline_access'], prompt='create')
+return redirect(scalekit_client.get_authorization_url(redirect_uri, options))
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Gin" {3}
+redirectUri := "https://your-app.com/auth/callback"
+options := scalekitClient.AuthorizationUrlOptions{Scopes: []string{"openid","profile","email","offline_access"}, Prompt: "create"}
+url, _ := scalekitClient.GetAuthorizationUrl(redirectUri, options)
+c.Redirect(http.StatusFound, url.String())
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Spring" {4}
+String redirectUri = "https://your-app.com/auth/callback";
+AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+options.setScopes(Arrays.asList("openid","profile","email","offline_access"));
+options.setPrompt("create");
+return new RedirectView(scalekitClient.authentication().getAuthorizationUrl(redirectUri, options).toString());
+```
+</TabItem>
+</Tabs>
+
+</details>
+
+<details>
+<summary>How do I redirect users back to the page they requested after authentication?</summary>
+
+When users bookmark specific pages or their session expires, redirect them to their original destination after authentication. Store the intended path in a secure cookie before redirecting to Scalekit, then read it after the callback.
+
+**Step 1: Capture the intended destination**
+
+Before redirecting to Scalekit, store the user's requested path in a secure cookie:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Express.js"
+app.get('/login', (req, res) => {
+  const nextPath = typeof req.query.next === 'string' ? req.query.next : '/'
+  // Only allow internal paths to prevent open redirects
+  const safe = nextPath.startsWith('/') && !nextPath.startsWith('//') ? nextPath : '/'
+  res.cookie('sk_return_to', safe, { httpOnly: true, secure: true, sameSite: 'lax', path: '/' })
+  // Build authorization URL and redirect to Scalekit
+})
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Flask"
+@app.route('/login')
+def login():
+    next_path = request.args.get('next', '/')
+    safe = next_path if next_path.startswith('/') and not next_path.startswith('//') else '/'
+    resp = make_response()
+    resp.set_cookie('sk_return_to', safe, httponly=True, secure=True, samesite='Lax', path='/')
+    return resp
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Gin"
+func login(c *gin.Context) {
+  nextPath := c.Query("next")
+  if nextPath == "" || !strings.HasPrefix(nextPath, "/") || strings.HasPrefix(nextPath, "//") {
+    nextPath = "/"
+  }
+  cookie := &http.Cookie{Name: "sk_return_to", Value: nextPath, HttpOnly: true, Secure: true, Path: "/"}
+  http.SetCookie(c.Writer, cookie)
+}
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Spring"
+@GetMapping("/login")
+public void login(HttpServletRequest request, HttpServletResponse response) {
+  String nextPath = Optional.ofNullable(request.getParameter("next")).orElse("/");
+  boolean safe = nextPath.startsWith("/") && !nextPath.startsWith("//");
+  Cookie cookie = new Cookie("sk_return_to", safe ? nextPath : "/");
+  cookie.setHttpOnly(true); cookie.setSecure(true); cookie.setPath("/");
+  response.addCookie(cookie);
+}
+```
+</TabItem>
+</Tabs>
+
+**Step 2: Redirect after callback**
+
+After exchanging the authorization code, read the cookie and redirect to the stored path:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="nodejs" label="Node.js">
+```javascript title="Express.js" {8-12}
+app.get('/auth/callback', async (req, res) => {
+  // ... exchange code ...
+  const raw = req.cookies.sk_return_to || '/'
+  const safe = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/'
+  res.clearCookie('sk_return_to', { path: '/' })
+  res.redirect(safe || '/dashboard')
+})
+```
+</TabItem>
+<TabItem value="py" label="Python">
+```python title="Flask" {8-12}
+def callback():
+    # ... exchange code ...
+    raw = request.cookies.get('sk_return_to', '/')
+    safe = raw if raw.startswith('/') and not raw.startswith('//') else '/'
+    resp = redirect(safe or '/dashboard')
+    resp.delete_cookie('sk_return_to', path='/')
+    return resp
+```
+</TabItem>
+<TabItem value="golang" label="Go">
+```go title="Gin" {9-13}
+func callback(c *gin.Context) {
+  // ... exchange code ...
+  raw, _ := c.Cookie("sk_return_to")
+  if raw == "" || !strings.HasPrefix(raw, "/") || strings.HasPrefix(raw, "//") {
+    raw = "/"
+  }
+  http.SetCookie(c.Writer, &http.Cookie{Name: "sk_return_to", Value: "", MaxAge: -1, Path: "/"})
+  c.Redirect(http.StatusFound, raw)
+}
+```
+</TabItem>
+<TabItem value="java" label="Java">
+```java title="Spring" {9-13}
+public RedirectView callback(HttpServletRequest request, HttpServletResponse response) {
+  // ... exchange code ...
+  String raw = getCookie(request, "sk_return_to").orElse("/");
+  boolean ok = raw.startsWith("/") && !raw.startsWith("//");
+  Cookie clear = new Cookie("sk_return_to", ""); clear.setPath("/"); clear.setMaxAge(0);
+  response.addCookie(clear);
+  return new RedirectView(ok ? raw : "/dashboard");
+}
+```
+</TabItem>
+</Tabs>
+
+<Aside type="caution" title="Never redirect to external origins">
+Allow only same-origin paths (e.g., `/billing`). Do not accept absolute URLs or protocol-relative URLs. This blocks open redirect attacks.
+</Aside>
+
+</details>
+
+<Aside type="note" title="Routing precedence">
+Scalekit applies connection selection in this order: `connection_id` → `organizationId` → `loginHint` (domain extraction). Prefer the highest confidence signal you have.
+</Aside>
+
+<Aside type="caution" title="Always send state">
+Include a cryptographically strong `state` parameter and validate it on callback to prevent CSRF and session fixation attacks. See our guide on CSRF protection for details.
+</Aside>

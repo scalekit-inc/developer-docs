@@ -1,0 +1,138 @@
+---
+title: "Implement enterprise SSO"
+description: How to implement enterprise SSO for your application
+sidebar:
+  label: "Enterprise SSO"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-lg);
+      }
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+seeAlso:
+  expanded: true
+  label: "Next steps"
+  items:
+    - title: "Browse supported SSO integrations"
+      icon: "puzzle"
+      url: "/guides/integrations/sso-integrations"
+prev: false
+next:
+  label: "Explore users & orgs"
+  link: "/fsa/data-modelling/"
+---
+
+import {
+  LinkButton, Aside, Steps, Tabs, TabItem, Card, CardGrid,
+ } from '@astrojs/starlight/components';
+
+
+Enterprise single sign-on (SSO) enables users to authenticate using their organization's identity provider (IdP), such as Okta, Azure AD, or Google Workspace. [After completing the quickstart](/authenticate/fsa/quickstart/), follow this guide to implement SSO for an organization, streamline admin onboarding, enforce login requirements, and validate your configuration.
+
+<Steps>
+
+1. ## Enable SSO for the organization
+
+    When a user signs up for your application, Scalekit automatically creates an organization and assigns an admin role to the user. Provide an option in your user interface to enable SSO for the organization or workspace.
+
+    Here's how you can do that with Scalekit. Use the following SDK method to activate SSO for the organization:
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="node" label="Node.js">
+    ```javascript title="Enable SSO" showLineNumbers=false
+    const settings = {
+      features: [
+        {
+          name: 'sso',
+          enabled: true,
+        }
+      ],
+    };
+
+    await scalekit.organization.updateOrganizationSettings(
+      '<organization_id>', // Get this from the idToken or accessToken
+      settings
+    );
+    ```
+    </TabItem>
+    <TabItem value="python" label="Python">
+    ```python title="Enable SSO" showLineNumbers=false
+    settings = [
+        {
+            "name": "sso",
+            "enabled": True
+        }
+    ]
+
+    scalekit.organization.update_organization_settings(
+        organization_id='<organization_id>',  # Get this from the idToken or accessToken
+        settings=settings
+    )
+    ```
+    </TabItem>
+    <TabItem value="java" label="Java">
+    ```java title="Enable SSO" showLineNumbers=false
+    OrganizationSettingsFeature featureSSO = OrganizationSettingsFeature.newBuilder()
+            .setName("sso")
+            .setEnabled(true)
+            .build();
+
+    updatedOrganization = scalekitClient.organizations()
+            .updateOrganizationSettings(organizationId, List.of(featureSSO));
+    ```
+    </TabItem>
+    <TabItem value="go" label="Go">
+    ```go title="Enable SSO" showLineNumbers=false
+    settings := OrganizationSettings{
+        Features: []Feature{
+            {
+                Name:    "sso",
+                Enabled: true,
+            },
+        },
+    }
+
+    organization, err := sc.Organization().UpdateOrganizationSettings(ctx, organizationId, settings)
+    if err != nil {
+        // Handle error
+    }
+    ```
+    </TabItem>
+    </Tabs>
+
+    You can also enable this from the [organization settings](/authenticate/fsa/user-management-settings/) in the Scalekit dashboard.
+
+3. ## Enable admin portal for enterprise customer onboarding
+
+    After SSO is enabled for that organization, provide a method for configuring a SSO connection with the organization's identity provider.
+
+    Scalekit offers two primary approaches:
+    - Generate a link to the admin portal from the Scalekit dashboard and share it with organization admins via your usual channels.
+    - Or embed the admin portal in your application in an inline frame so administrators can configure their IdP without leaving your app.
+
+    <LinkButton href="/sso/guides/onboard-enterprise-customers/" target="_blank" variant='secondary' class='sk-secondary' icon='right-arrow'>See how to onboard enterprise customers</LinkButton>
+
+
+
+4. ## Identify and enforce SSO for organization users
+
+    Administrators typically register organization-owned domains through the admin portal. When a user attempts to sign in with an email address matching a registered domain, they are automatically redirected to their organization's designated identity provider for authentication.
+
+    The Scalekit authorization endpoint supports multiple methods for identifying the appropriate SSO connection, including flexible parameters such as `domain_hint`, `login_hint`, `organizationId`, or `connectionId`. These options provide granular control over the authentication routing process at runtime.
+
+    <Aside>
+    When implementing domain-based discovery mechanisms like `domain_hint`, [implement a lightweight validation step](/guides/user-auth/check-sso-domain/) to prevent unnecessary redirect loops.
+    </Aside>
+
+5. ## Test your SSO integration
+
+    Scalekit offers a "Test Organization" feature that enables SSO flow validation without requiring test accounts from your customers' identity providers.
+
+    To quickly test the integration, enter an email address using the domains `@example.com` or `@example.org`. This will trigger a redirect to the IdP simulator, which serves as the test organization's identity provider for authentication.
+
+    For a comprehensive step-by-step walkthrough, refer to the [Test SSO integration guide](/sso/guides/test-sso/).
+
+</Steps>

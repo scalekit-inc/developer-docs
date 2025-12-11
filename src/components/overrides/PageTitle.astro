@@ -1,0 +1,43 @@
+---
+const { title, description } = Astro.locals.starlightRoute.entry.data
+const PAGE_TITLE_ID = '_top'
+---
+
+<h1 id={PAGE_TITLE_ID}>{title}</h1>
+{description && <p class="page-description">{description}</p>}
+
+<style>
+  h1 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: var(--sl-text-h1);
+    line-height: var(--sl-line-height-headings);
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+
+  .page-description {
+    margin-top: 0.5rem;
+    color: var(--sl-color-gray-2);
+    display: block;
+    order: 2;
+  }
+
+  /* Ensure description appears below title even when contextual menu is present */
+  :global(.contextual-menu-parent) {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  :global(.contextual-menu-parent .contextual-menu-container) {
+    align-self: flex-end !important;
+    margin-top: -2.5rem !important;
+  }
+
+  /* Hide contextual menu on mobile to prevent content overlap */
+  @media (max-width: 48rem) {
+    :global(.contextual-menu-container) {
+      display: none !important;
+    }
+  }
+</style>

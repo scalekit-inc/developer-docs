@@ -1,0 +1,805 @@
+---
+title: Intercept authentication flows
+description: Apply decision checks at key points in the authentication flow
+sidebar:
+  label: Intercept auth flows
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+seeAlso:
+  items:
+   - title: "Trigger payloads reference"
+     icon: "book"
+     url: "/reference/interceptors/triggers/"
+  label: "Related resources"
+---
+
+import { Aside, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence'
+
+Execute custom business logic during sign-up or login processes. For example, you can integrate with external systems to validate user existence before allowing login, or prevent sign-ups originating from suspicious IP addresses.
+
+Scalekit calls your application at key trigger points during authentication flows and waits for an ALLOW or DENY response to determine whether to continue with the authentication process. For example, one trigger point occurs immediately before a user signs up for your application. We'll explore more trigger points throughout this guide.
+
+```d2 pad=50
+title: "Example of pre-signup interceptor " {
+  near: top-center
+  shape: text
+  style.font-size: 20
+}
+
+shape: sequence_diagram
+
+User -> Your app: Attempts sign-up
+Your app -> Scalekit: Detects pre-signup trigger
+Interceptor: {
+Scalekit -> Your app: POST /auth/interceptors/pre-signup
+Your app -> Your app: Process the request: allow IP address?
+Your app -> Scalekit: Decision ALLOW or DENY
+}
+Scalekit -> User: Proceed or block sign-up
+
+```
+
+## Implementing interceptors
+
+You can define interceptors at several trigger points during authentication flows.
+
+
+| Trigger point | When it runs |
+|----------------|-------------|
+| Pre-signup | Before a user creates a new organization |
+| Pre-session creation | Before session tokens are issued for a user |
+| Pre-user invitation | Before an invitation is created or sent for a new organization member |
+| Pre-M2M token creation | Before issuing a machine-to-machine access token |
+
+At each trigger point, Scalekit sends a POST request to your interceptor endpoint with the relevant details needed to process the request.
+
+<Steps>
+
+1. #### Verify the interceptor request
+    Create an HTTPS endpoint that receives and verifies POST requests from Scalekit. This critical security step ensures requests are authentic and haven't been tampered with.
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="node" label="Node.js">
+
+    ```javascript title="Express.js - Verify request signature" wrap
+    // Security: ALWAYS verify requests are from Scalekit before processing
+    // This prevents unauthorized parties from triggering your interceptor logic
+
+    app.post('/auth/interceptors/pre-signup', async (req, res) => {
+      try {
+        // Parse the request payload and headers
+        const event = await req.json();
+        const headers = req.headers;
+
+        // Get the signing secret from Scalekit dashboard > Interceptors tab
+        // Store this securely in environment variables
+        const interceptorSecret = process.env.SCALEKIT_INTERCEPTOR_SECRET;
+
+        // Initialize Scalekit client (reference installation guide for setup)
+        const scalekit = new ScalekitClient(
+          process.env.SCALEKIT_ENVIRONMENT_URL,
+          process.env.SCALEKIT_CLIENT_ID,
+          process.env.SCALEKIT_CLIENT_SECRET
+        );
+
+        // Verify the interceptor payload signature
+        // This confirms the request is from Scalekit and hasn't been tampered with
+        await scalekit.verifyInterceptorPayload(interceptorSecret, headers, event);
+
+        // ✓ Request verified - proceed to business logic (next step)
+
+      } catch (error) {
+        console.error('Interceptor verification failed:', error);
+        // DENY on verification failures to fail securely
+        return res.status(200).json({
+          decision: 'DENY',
+          error: {
+            message: 'Unable to process request. Please try again later.'
+          }
+        });
+      }
+    });
+    ```
+
+    </TabItem>
+    <TabItem value="python" label="Python">
+
+    ```python title="Flask - Verify request signature" wrap
+    # Security: ALWAYS verify requests are from Scalekit before processing
+    # This prevents unauthorized parties from triggering your interceptor logic
+
+    from flask import Flask, request, jsonify
+    import os
+
+    app = Flask(__name__)
+
+    @app.route('/auth/interceptors/pre-signup', methods=['POST'])
+    def interceptor_pre_signup():
+        try:
+            # Parse the request payload and headers
+            event = request.get_json()
+            body = request.get_data()
+
+            # Get the signing secret from Scalekit dashboard > Interceptors tab
+            # Store this securely in environment variables
+            interceptor_secret = os.getenv('SCALEKIT_INTERCEPTOR_SECRET')
+
+            # Extract headers for verification
+            headers = {
+                'interceptor-id': request.headers.get('interceptor-id'),
+                'interceptor-signature': request.headers.get('interceptor-signature'),
+                'interceptor-timestamp': request.headers.get('interceptor-timestamp')
+            }
+
+            # Initialize Scalekit client (reference installation guide for setup)
+            scalekit_client = ScalekitClient(
+                env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+                client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+                client_secret=os.getenv("SCALEKIT_CLIENT_SECRET")
+            )
+
+            # Verify the interceptor payload signature
+            # This confirms the request is from Scalekit and hasn't been tampered with
+            is_valid = scalekit_client.verify_interceptor_payload(
+                secret=interceptor_secret,
+                headers=headers,
+                payload=body
+            )
+
+            if not is_valid:
+                return jsonify({
+                    'decision': 'DENY',
+                    'error': {'message': 'Invalid request signature'}
+                }), 200
+
+            # ✓ Request verified - proceed to business logic (next step)
+
+        except Exception as error:
+            print(f'Interceptor verification failed: {error}')
+            # DENY on verification failures to fail securely
+            return jsonify({
+                'decision': 'DENY',
+                'error': {
+                    'message': 'Unable to process request. Please try again later.'
+                }
+            }), 200
+    ```
+
+    </TabItem>
+    <TabItem value="go" label="Go">
+
+    ```go title="Gin - Verify request signature" wrap
+    // Security: ALWAYS verify requests are from Scalekit before processing
+    // This prevents unauthorized parties from triggering your interceptor logic
+
+    package main
+
+    import (
+        "io"
+        "log"
+        "net/http"
+        "os"
+
+        "github.com/gin-gonic/gin"
+    )
+
+    type InterceptorResponse struct {
+        Decision string            `json:"decision"`
+        Error    *InterceptorError `json:"error,omitempty"`
+    }
+
+    type InterceptorError struct {
+        Message string `json:"message"`
+    }
+
+    func interceptorPreSignup(c *gin.Context) {
+        // Parse the request payload
+        bodyBytes, err := io.ReadAll(c.Request.Body)
+        if err != nil {
+            c.JSON(http.StatusOK, InterceptorResponse{
+                Decision: "DENY",
+                Error:    &InterceptorError{Message: "Unable to read request"},
+            })
+            return
+        }
+
+        // Get the signing secret from Scalekit dashboard > Interceptors tab
+        // Store this securely in environment variables
+        interceptorSecret := os.Getenv("SCALEKIT_INTERCEPTOR_SECRET")
+
+        // Extract headers for verification
+        headers := map[string]string{
+            "interceptor-id":        c.GetHeader("interceptor-id"),
+            "interceptor-signature": c.GetHeader("interceptor-signature"),
+            "interceptor-timestamp": c.GetHeader("interceptor-timestamp"),
+        }
+
+        // Initialize Scalekit client (reference installation guide for setup)
+        scalekitClient := scalekit.NewScalekitClient(
+            os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+            os.Getenv("SCALEKIT_CLIENT_ID"),
+            os.Getenv("SCALEKIT_CLIENT_SECRET"),
+        )
+
+        // Verify the interceptor payload signature
+        // This confirms the request is from Scalekit and hasn't been tampered with
+        _, err = scalekitClient.VerifyInterceptorPayload(
+            interceptorSecret,
+            headers,
+            bodyBytes,
+        )
+        if err != nil {
+            log.Printf("Interceptor verification failed: %v", err)
+            // DENY on verification failures to fail securely
+            c.JSON(http.StatusOK, InterceptorResponse{
+                Decision: "DENY",
+                Error:    &InterceptorError{Message: "Invalid request signature"},
+            })
+            return
+        }
+
+        // ✓ Request verified - proceed to business logic (next step)
+    }
+    ```
+
+    </TabItem>
+    <TabItem value="java" label="Java">
+
+    ```java title="Spring Boot - Verify request signature" wrap
+    // Security: ALWAYS verify requests are from Scalekit before processing
+    // This prevents unauthorized parties from triggering your interceptor logic
+
+    package com.example.auth;
+
+    import org.springframework.http.ResponseEntity;
+    import org.springframework.web.bind.annotation.*;
+
+    import java.util.Map;
+
+    @RestController
+    @RequestMapping("/auth/interceptors")
+    public class InterceptorController {
+
+        @PostMapping("/pre-signup")
+        public ResponseEntity<Map<String, Object>> preSignupInterceptor(
+            @RequestBody String body,
+            @RequestHeader Map<String, String> headers
+        ) {
+            try {
+                // Get the signing secret from Scalekit dashboard > Interceptors tab
+                // Store this securely in environment variables
+                String interceptorSecret = System.getenv("SCALEKIT_INTERCEPTOR_SECRET");
+
+                // Initialize Scalekit client (reference installation guide for setup)
+                ScalekitClient scalekitClient = new ScalekitClient(
+                    System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+                    System.getenv("SCALEKIT_CLIENT_ID"),
+                    System.getenv("SCALEKIT_CLIENT_SECRET")
+                );
+
+                // Verify the interceptor payload signature
+                // This confirms the request is from Scalekit and hasn't been tampered with
+                boolean valid = scalekitClient.interceptor()
+                    .verifyInterceptorPayload(interceptorSecret, headers, body.getBytes());
+
+                if (!valid) {
+                    // DENY on invalid signatures
+                    return ResponseEntity.ok(Map.of(
+                        "decision", "DENY",
+                        "error", Map.of("message", "Invalid request signature")
+                    ));
+                }
+
+                // ✓ Request verified - proceed to business logic (next step)
+
+            } catch (Exception error) {
+                System.err.println("Interceptor verification failed: " + error.getMessage());
+                // DENY on verification failures to fail securely
+                return ResponseEntity.ok(Map.of(
+                    "decision", "DENY",
+                    "error", Map.of(
+                        "message", "Unable to process request. Please try again later."
+                    )
+                ));
+            }
+        }
+    }
+    ```
+
+    </TabItem>
+    </Tabs>
+
+2. #### Implement business logic and respond
+
+    After verification, extract data from the payload, apply your custom validation logic, and return either ALLOW or DENY to control the authentication flow.
+
+    <Tabs syncKey="tech-stack">
+    <TabItem value="node" label="Node.js">
+
+    ```javascript title="Express.js - Business logic and response" wrap
+    // Use case: Apply custom validation rules before allowing authentication
+    // Examples: email domain validation, IP filtering, database checks, etc.
+
+    app.post('/auth/interceptors/pre-signup', async (req, res) => {
+      try {
+        // ... (verification code from Step 1)
+
+        // Extract data from the verified payload
+        const { interceptor_context, data } = event;
+        const userEmail = interceptor_context?.user_email || data?.user?.email;
+
+        // Implement your business logic
+        // Example: Validate email domain against an allowlist
+        const emailDomain = userEmail?.split('@')[1];
+        const allowedDomains = ['company.com', 'example.com'];
+
+        if (!allowedDomains.includes(emailDomain)) {
+          // DENY: Block the authentication flow
+          return res.status(200).json({
+            decision: 'DENY',
+            error: {
+              message: 'Sign-ups from this email domain are not permitted.'
+            }
+          });
+        }
+
+        // Optional: Log successful validations for audit purposes
+        console.log(`Allowed signup for ${userEmail}`);
+
+        // ALLOW: Permit the authentication flow to continue
+        return res.status(200).json({
+          decision: 'ALLOW'
+        });
+
+      } catch (error) {
+        console.error('Interceptor error:', error);
+        return res.status(200).json({
+          decision: 'DENY',
+          error: {
+            message: 'Unable to process request. Please try again later.'
+          }
+        });
+      }
+    });
+    ```
+
+    </TabItem>
+    <TabItem value="python" label="Python">
+
+    ```python title="Flask - Business logic and response" wrap
+    # Use case: Apply custom validation rules before allowing authentication
+    # Examples: email domain validation, IP filtering, database checks, etc.
+
+    @app.route('/auth/interceptors/pre-signup', methods=['POST'])
+    def interceptor_pre_signup():
+        try:
+            # ... (verification code from Step 1)
+
+            # Extract data from the verified payload
+            interceptor_context = event.get('interceptor_context', {})
+            data = event.get('data', {})
+            user_email = interceptor_context.get('user_email') or data.get('user', {}).get('email')
+
+            # Implement your business logic
+            # Example: Validate email domain against an allowlist
+            email_domain = user_email.split('@')[1] if user_email else ''
+            allowed_domains = ['company.com', 'example.com']
+
+            if email_domain not in allowed_domains:
+                # DENY: Block the authentication flow
+                return jsonify({
+                    'decision': 'DENY',
+                    'error': {
+                        'message': 'Sign-ups from this email domain are not permitted.'
+                    }
+                }), 200
+
+            # Optional: Log successful validations for audit purposes
+            print(f'Allowed signup for {user_email}')
+
+            # ALLOW: Permit the authentication flow to continue
+            return jsonify({
+                'decision': 'ALLOW'
+            }), 200
+
+        except Exception as error:
+            print(f'Interceptor error: {error}')
+            return jsonify({
+                'decision': 'DENY',
+                'error': {
+                    'message': 'Unable to process request. Please try again later.'
+                }
+            }), 200
+    ```
+
+    </TabItem>
+    <TabItem value="go" label="Go">
+
+    ```go title="Gin - Business logic and response" wrap
+    // Use case: Apply custom validation rules before allowing authentication
+    // Examples: email domain validation, IP filtering, database checks, etc.
+
+    package main
+
+    import (
+        "encoding/json"
+        "strings"
+    )
+
+    type InterceptorEvent struct {
+        InterceptorContext struct {
+            UserEmail string `json:"user_email"`
+        } `json:"interceptor_context"`
+        Data struct {
+            User struct {
+                Email string `json:"email"`
+            } `json:"user"`
+        } `json:"data"`
+    }
+
+    func interceptorPreSignup(c *gin.Context) {
+        // ... (verification code from Step 1)
+
+        // Extract data from the verified payload
+        var event InterceptorEvent
+        if err := json.Unmarshal(bodyBytes, &event); err != nil {
+            c.JSON(http.StatusOK, InterceptorResponse{
+                Decision: "DENY",
+                Error:    &InterceptorError{Message: "Invalid request format"},
+            })
+            return
+        }
+
+        userEmail := event.InterceptorContext.UserEmail
+        if userEmail == "" {
+            userEmail = event.Data.User.Email
+        }
+
+        // Implement your business logic
+        // Example: Validate email domain against an allowlist
+        parts := strings.Split(userEmail, "@")
+        if len(parts) != 2 {
+            c.JSON(http.StatusOK, InterceptorResponse{
+                Decision: "DENY",
+                Error:    &InterceptorError{Message: "Invalid email address"},
+            })
+            return
+        }
+
+        emailDomain := parts[1]
+        allowedDomains := []string{"company.com", "example.com"}
+
+        allowed := false
+        for _, domain := range allowedDomains {
+            if emailDomain == domain {
+                allowed = true
+                break
+            }
+        }
+
+        if !allowed {
+            // DENY: Block the authentication flow
+            c.JSON(http.StatusOK, InterceptorResponse{
+                Decision: "DENY",
+                Error: &InterceptorError{
+                    Message: "Sign-ups from this email domain are not permitted.",
+                },
+            })
+            return
+        }
+
+        // Optional: Log successful validations for audit purposes
+        log.Printf("Allowed signup for %s", userEmail)
+
+        // ALLOW: Permit the authentication flow to continue
+        c.JSON(http.StatusOK, InterceptorResponse{
+            Decision: "ALLOW",
+        })
+    }
+    ```
+
+    </TabItem>
+    <TabItem value="java" label="Java">
+
+    ```java title="Spring Boot - Business logic and response" wrap
+    // Use case: Apply custom validation rules before allowing authentication
+    // Examples: email domain validation, IP filtering, database checks, etc.
+
+    package com.example.auth;
+
+    import com.fasterxml.jackson.databind.JsonNode;
+    import com.fasterxml.jackson.databind.ObjectMapper;
+
+    import java.util.Arrays;
+    import java.util.List;
+
+    @PostMapping("/pre-signup")
+    public ResponseEntity<Map<String, Object>> preSignupInterceptor(
+        @RequestBody String body,
+        @RequestHeader Map<String, String> headers
+    ) {
+        try {
+            // ... (verification code from Step 1)
+
+            // Extract data from the verified payload
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode event = mapper.readTree(body);
+            JsonNode interceptorContext = event.get("interceptor_context");
+            JsonNode data = event.get("data");
+
+            String userEmail = null;
+            if (interceptorContext != null && interceptorContext.has("user_email")) {
+                userEmail = interceptorContext.get("user_email").asText();
+            } else if (data != null && data.has("user")) {
+                userEmail = data.get("user").get("email").asText();
+            }
+
+            // Implement your business logic
+            // Example: Validate email domain against an allowlist
+            if (userEmail != null && userEmail.contains("@")) {
+                String emailDomain = userEmail.split("@")[1];
+                List<String> allowedDomains = Arrays.asList("company.com", "example.com");
+
+                if (!allowedDomains.contains(emailDomain)) {
+                    // DENY: Block the authentication flow
+                    return ResponseEntity.ok(Map.of(
+                        "decision", "DENY",
+                        "error", Map.of(
+                            "message", "Sign-ups from this email domain are not permitted."
+                        )
+                    ));
+                }
+            }
+
+            // Optional: Log successful validations for audit purposes
+            System.out.println("Allowed signup for " + userEmail);
+
+            // ALLOW: Permit the authentication flow to continue
+            return ResponseEntity.ok(Map.of(
+                "decision", "ALLOW"
+            ));
+
+        } catch (Exception error) {
+            System.err.println("Interceptor error: " + error.getMessage());
+            return ResponseEntity.ok(Map.of(
+                "decision", "DENY",
+                "error", Map.of(
+                    "message", "Unable to process request. Please try again later."
+                )
+            ));
+        }
+    }
+    ```
+
+    </TabItem>
+    </Tabs>
+
+3. #### Register the interceptor in Scalekit dashboard
+    Configure your interceptor by specifying the trigger point, endpoint URL, timeout settings, and fallback behavior.
+
+    In the Scalekit dashboard, navigate to the **Interceptors** tab to register your endpoint.
+
+    ![Interceptors settings in the Scalekit dashboard](@/assets/docs/authenticate/interceptors/add-interceptor-page.png)
+
+
+    - Enter a descriptive name, choose a trigger point, and provide the HTTPS endpoint that will receive POST requests
+    - Set the timeout for your app's response (recommended: 3-5 seconds)
+    - Choose the fallback behavior if your app fails or times out (allow or block the flow)
+    - Click **Create**
+    - Toggle **Enable** to activate the interceptor
+
+4. #### Test the interceptor
+    Use the Test tab in the Scalekit dashboard to verify your implementation before enabling it in production.
+
+    - Open the **Test** tab on the Interceptors page
+    - The left panel shows the request body sent to your endpoint
+    - Click **Send request** to test your interceptor
+    - The right panel shows your application's response
+    - Verify your endpoint returns the expected ALLOW or DENY decision
+
+    ![Interceptor test tab example](@/assets/docs/authenticate/interceptors/test-example.png)
+
+    <Aside type='note' title='Quick testing with request bin services'>
+
+    For quick testing without building or deploying an endpoint, use a request bin service like <a href="https://beeceptor.com/" target="_blank" rel="noopener">Beeceptor</a> or <a href="https://requestbin.com/" target="_blank" rel="noopener">RequestBin</a>. These services provide temporary endpoints that capture incoming requests and let you configure responses, making them ideal for interceptor development and validation.
+
+    </Aside>
+
+5. #### View interceptor request logs
+
+    Scalekit keeps a log of every interceptor request sent to your app and the response it returned. Use these logs to debug and troubleshoot issues.
+
+    ![Interceptor logs in the dashboard](@/assets/docs/authenticate/interceptors/logging.png)
+
+    Requests and responses generated by the "Test" button are not logged. This keeps production logs free of test data.
+
+</Steps>
+
+
+
+<Aside type='note' title='Generic error messages'>
+  Scalekit shows a generic error to end users when:
+
+  - Your interceptor returns `DENY` without an `error.message`.
+  - The interceptor request fails or times out and the fail policy is set to "Fail closed".
+
+  Messages shown:
+  - "The request could not be completed due to a policy restriction. Please contact support for assistance."
+  - "The request could not be completed due to a policy restriction. Please contact support@yourapp.com for assistance." (when a support email is configured)
+</Aside>
+
+## Interceptor examples
+
+### Block signups from restricted IP addresses
+
+Prevent new user signups from specific IP addresses or geographic regions. The request includes `ip_address` and `region` (country code) in `interceptor_context`.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Express.js"
+app.post('/auth/interceptor/pre-signup', async (req, res) => {
+  const { interceptor_context } = req.body;
+
+  // Extract IP address and region from the request
+  const ipAddress = interceptor_context.ip_address;
+  const region = interceptor_context.region;
+
+  // Define your IP blocklist (you can also check against a database)
+  const blockedIPs = ['203.0.113.24', '198.51.100.42'];
+  const blockedRegions = ['XX', 'YY']; // Example: blocked region codes
+
+  // Check if IP is blocked
+  if (blockedIPs.includes(ipAddress)) {
+    return res.json({
+      decision: 'DENY',
+      error: {
+        message: 'Signups from your IP address are not allowed due to security policy'
+      }
+    });
+  }
+
+  // Check if region is blocked
+  if (blockedRegions.includes(region)) {
+    return res.json({
+      decision: 'DENY',
+      error: {
+        message: 'Signups from your location are restricted due to compliance requirements'
+      }
+    });
+  }
+
+  // Allow signup to proceed
+  return res.json({
+    decision: 'ALLOW'
+  });
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Flask" collapse={2-3} {6-7,11-12,16-17}
+@app.post('/auth/interceptor/pre-signup')
+async def pre_signup(request: Request):
+    body = await request.json()
+    interceptor_context = body['interceptor_context']
+
+    # Extract IP address and region from the request
+    ip_address = interceptor_context['ip_address']
+    region = interceptor_context['region']
+
+    # Define your IP blocklist (you can also check against a database)
+    blocked_ips = ['203.0.113.24', '198.51.100.42']
+    blocked_regions = ['XX', 'YY']  # Example: blocked region codes
+
+    # Check if IP is blocked
+    if ip_address in blocked_ips:
+        return {
+            'decision': 'DENY',
+            'error': {
+                'message': 'Signups from your IP address are not allowed due to security policy'
+            }
+        }
+
+    # Check if region is blocked
+    if region in blocked_regions:
+        return {
+            'decision': 'DENY',
+            'error': {
+                'message': 'Signups from your location are restricted due to compliance requirements'
+            }
+        }
+
+    # Allow signup to proceed
+    return {'decision': 'ALLOW'}
+```
+
+</TabItem>
+</Tabs>
+
+### Modify claims in session tokens
+
+Add custom claims to ID tokens issued by Scalekit. Fetch user metadata from your database and return claims in the `response.claims` object. Claims are automatically included in the ID token after authentication.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Express.js" {24}
+app.post('/auth/interceptor/pre-session-creation', async (req, res) => {
+  const { interceptor_context } = req.body;
+
+  const userId = interceptor_context.user_id;
+  const organizationId = interceptor_context.organization_id;
+
+  // Fetch user subscription and permissions from your database
+  const userMetadata = await fetchUserMetadata(userId, organizationId);
+
+  // Build custom claims based on your business logic
+  const customClaims = {
+    plan: userMetadata.subscription.plan, // 'free', 'pro', 'enterprise'
+    plan_expires_at: userMetadata.subscription.expiresAt,
+    features: userMetadata.features, // ['analytics', 'api_access', 'advanced_reports']
+    org_role: userMetadata.organizationRole, // 'admin', 'member', 'viewer'
+    department: userMetadata.department,
+    cost_center: userMetadata.costCenter
+  };
+
+  // Return ALLOW decision with custom claims
+  return res.json({
+    decision: 'ALLOW',
+    response: {
+      claims: customClaims
+    }
+  });
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Flask"  {4,26}
+@app.post('/auth/interceptor/pre-session-creation')
+async def pre_session_creation(request: Request):
+    body = await request.json()
+    interceptor_context = body['interceptor_context']
+
+    user_id = interceptor_context['user_id']
+    organization_id = interceptor_context['organization_id']
+
+    # Fetch user subscription and permissions from your database
+    user_metadata = await fetch_user_metadata(user_id, organization_id)
+
+    # Build custom claims based on your business logic
+    custom_claims = {
+        'plan': user_metadata['subscription']['plan'],
+        'plan_expires_at': user_metadata['subscription']['expires_at'],
+        'features': user_metadata['features'],
+        'org_role': user_metadata['organization_role'],
+        'department': user_metadata['department'],
+        'cost_center': user_metadata['cost_center']
+    }
+
+    # Return ALLOW decision with custom claims
+    return {
+        'decision': 'ALLOW',
+        'response': {
+            'claims': custom_claims
+        }
+    }
+```
+
+</TabItem>
+</Tabs>
+
+<Aside type='note' title='Token size considerations'>
+  Keep custom claims minimal to avoid exceeding JWT size limits. Store large datasets in your database and use claims only for frequently-accessed metadata that needs to be available in the token.
+</Aside>

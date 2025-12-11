@@ -1,33 +1,137 @@
 ---
 import '../../styles/folds.css'
+import { getIconComponent } from '@/utils/icon-map'
+import { Badge } from '@astrojs/starlight/components'
 
 export interface Props {
   title: string
   href?: string
-  icon?: any
+  iconKey?: string
+  logoUrl?: string
   cta?: string
+  variant?: 'primary' | 'secondary' | 'minimal'
+  showCta?: boolean
+  target?: string
+  rel?: string
+  illustrationSvg?: string
+  illustrationUrl?: string
+  illustrationMaxWidth?: string
+  clickable?: boolean
+  badge?: { text: string; variant?: 'tip' | 'note' | 'default' }
 }
 
 import { LinkButton } from 'starlight-theme-nova/components'
-const { title, href, icon: Icon, cta = 'Know more →' } = Astro.props
+const {
+  title,
+  href,
+  iconKey,
+  logoUrl,
+  cta = 'Know more →',
+  variant = 'secondary',
+  showCta = true,
+  target,
+  rel,
+  illustrationSvg,
+  illustrationUrl,
+  illustrationMaxWidth = '300px',
+  clickable = false,
+  badge,
+} = Astro.props
+
+// When clickable is true, automatically hide CTA button
+const shouldShowCta = clickable ? false : showCta
+const isClickable = clickable && href
+const Icon = iconKey ? getIconComponent(iconKey) : null
 ---
 
-<article class="fold-card sl-card">
-  <div class="card-header">
-    {Icon && <Icon class="card-icon" aria-hidden="true" />}
-    <h3 class="card-title">{title}</h3>
-  </div>
-  <div class="card-content">
-    <slot />
-    {
-      href && (
-        <LinkButton href={href} class="card-cta" variant="secondary">
-          {cta}
-        </LinkButton>
-      )
-    }
-  </div>
-</article>
+{
+  isClickable ? (
+    <a
+      href={href}
+      class:list={[
+        'fold-card',
+        'sl-card',
+        'clickable',
+        { 'has-illustration': illustrationSvg || illustrationUrl },
+      ]}
+      {...(target && { target })}
+      {...(rel && { rel })}
+    >
+      <div class="card-main">
+        <div class="card-header">
+          {logoUrl ? (
+            <img src={logoUrl} alt={`${title} logo`} class="card-icon img" aria-hidden="true" />
+          ) : (
+            Icon && <Icon class="card-icon" aria-hidden="true" />
+          )}
+          <h3 class="card-title">{title}</h3>
+          {badge && <Badge text={badge.text} variant={badge.variant || 'default'} />}
+        </div>
+        <div class="card-content">
+          <slot />
+        </div>
+      </div>
+      {illustrationSvg && (
+        <div
+          class="card-illustration"
+          style={`max-width: ${illustrationMaxWidth}`}
+          set:html={illustrationSvg}
+        />
+      )}
+      {illustrationUrl && (
+        <div class="card-illustration" style={`max-width: ${illustrationMaxWidth}`}>
+          <img src={illustrationUrl} alt={`${title} illustration`} />
+        </div>
+      )}
+    </a>
+  ) : (
+    <article
+      class:list={[
+        'fold-card',
+        'sl-card',
+        { 'has-illustration': illustrationSvg || illustrationUrl },
+      ]}
+    >
+      <div class="card-main">
+        <div class="card-header">
+          {logoUrl ? (
+            <img src={logoUrl} alt={`${title} logo`} class="card-icon img" aria-hidden="true" />
+          ) : (
+            Icon && <Icon class="card-icon" aria-hidden="true" />
+          )}
+          <h3 class="card-title">{title}</h3>
+          {badge && <Badge text={badge.text} variant={badge.variant || 'default'} />}
+        </div>
+        <div class="card-content">
+          <slot />
+          {href && shouldShowCta && (
+            <LinkButton
+              href={href}
+              class={`card-cta sk-${variant}`}
+              variant={variant}
+              {...(target && { target })}
+              {...(rel && { rel })}
+            >
+              {cta}
+            </LinkButton>
+          )}
+        </div>
+      </div>
+      {illustrationSvg && (
+        <div
+          class="card-illustration"
+          style={`max-width: ${illustrationMaxWidth}`}
+          set:html={illustrationSvg}
+        />
+      )}
+      {illustrationUrl && (
+        <div class="card-illustration" style={`max-width: ${illustrationMaxWidth}`}>
+          <img src={illustrationUrl} alt={`${title} illustration`} />
+        </div>
+      )}
+    </article>
+  )
+}
 
 <style>
   .fold-card {
@@ -38,6 +142,42 @@ const { title, href, icon: Icon, cta = 'Know more →' } = Astro.props
     transition: all 0.2s ease;
   }
 
+  /* Clickable card styles */
+  .fold-card.clickable {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  /* Maintain grid layout for clickable cards with illustrations */
+  .fold-card.clickable.has-illustration {
+    display: grid;
+  }
+
+  .fold-card.clickable:hover {
+    border-color: var(--sl-color-accent);
+    background: var(--sl-color-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  :root[data-theme='dark'] .fold-card.clickable:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .fold-card.clickable:focus {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  .fold-card.clickable .card-title {
+    color: var(--sl-color-text-heading);
+  }
+
+  .fold-card.clickable:hover .card-title {
+    color: var(--sl-color-accent);
+  }
+
   :root[data-theme='light'] .fold-card {
     background: #fff;
   }
@@ -46,17 +186,53 @@ const { title, href, icon: Icon, cta = 'Know more →' } = Astro.props
     background: var(--sl-color-bg-card);
   }
 
+  /* Two-column layout when illustration is present */
+  .fold-card.has-illustration {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  /* Stack on mobile */
+  @media (max-width: 768px) {
+    .fold-card.has-illustration {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .card-illustration {
+      order: -1;
+      max-width: 100%;
+    }
+  }
+
+  .card-main {
+    min-width: 0; /* Prevent grid overflow */
+  }
+
   .card-header {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 0.75rem;
     margin-bottom: 1rem;
+  }
+
+  .card-header :global(.sl-badge) {
+    margin-top: -0.25rem;
   }
 
   :global(.card-icon) {
     font-size: 1.5rem;
     color: var(--sl-color-accent);
     flex-shrink: 0;
+  }
+
+  :global(.card-icon.img) {
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
   }
 
   .card-title {
@@ -87,5 +263,19 @@ const { title, href, icon: Icon, cta = 'Know more →' } = Astro.props
 
   .card-cta:hover {
     color: var(--sl-color-text);
+  }
+
+  .card-illustration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .card-illustration :global(svg),
+  .card-illustration img {
+    max-width: 100%;
+    height: auto;
+    display: block;
   }
 </style>

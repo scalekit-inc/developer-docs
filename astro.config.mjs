@@ -4,13 +4,15 @@ import starlight from '@astrojs/starlight'
 import react from '@astrojs/react'
 import path from 'path'
 import vue from '@astrojs/vue'
-import starlightLinksValidator from 'starlight-links-validator'
 import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import starlightTocOverviewCustomizer from 'starlight-toc-overview-customizer'
+import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
+import starlightChangelogs from 'starlight-changelogs'
+import starlightLinksValidator from 'starlight-links-validator'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import tailwindcss from '@tailwindcss/vite'
@@ -38,10 +40,12 @@ export default defineConfig({
         Header: './src/components/overrides/Header.astro',
         Footer: './src/components/overrides/Footer.astro',
         PageSidebar: './src/components/overrides/PageSidebar.astro',
+        PageTitle: './src/components/overrides/PageTitle.astro',
+        MarkdownContent: './src/components/overrides/MarkdownContent.astro',
         Banner: './src/components/overrides/Banner.astro',
       },
       logo: {
-        dark: '/src/assets/images/logos-v4/sk-docs-dark.svg',
+        dark: '/src/assets/images/scalekit-logo-white.svg',
         light: '/src/assets/images/logos-v4/sk-docs-light.svg',
         replacesTitle: true,
       },
@@ -50,6 +54,7 @@ export default defineConfig({
         baseUrl: 'https://github.com/scalekit-inc/developer-docs/edit/main',
       },
       pagefind: {
+        rootSelector: 'body',
         mergeIndex: [
           // {
           //   bundlePath: '/apis',
@@ -66,18 +71,17 @@ export default defineConfig({
         themes: ['tokyo-night', 'light-plus'],
         styleOverrides: {
           codeFontFamily:
-            "'Geist Mono Variable','Inter Mono Variable', ui-monospace, 'Courier New', monospace",
+            "'JetBrains Mono', 'Inter Variable', ui-monospace, 'Courier New', monospace",
           borderRadius: '0.375rem',
         },
       },
       customCss: [
         '@fontsource-variable/inter',
-        '@fontsource-variable/geist',
-        '@fontsource-variable/geist-mono',
+        '@fontsource-variable/atkinson-hyperlegible-next',
+        '@fontsource/jetbrains-mono',
         './src/styles/theme-priority.css',
       ],
       plugins: [
-        starlightLinksValidator(),
         starlightThemeNova(),
         starlightImageZoom({
           showCaptions: true,
@@ -87,6 +91,14 @@ export default defineConfig({
           overviewTitle: 'Overview',
         }),
         starlightVideos(),
+        starlightChangelogs(),
+        starlightLinksValidator({
+          exclude: ['/dev-kit/changelogs/**'],
+        }),
+        starlightContextualMenu({
+          actions: ['copy', 'chatgpt', 'claude'],
+          hideMainActionLabel: true,
+        }),
       ],
       head: [
         {
@@ -179,6 +191,18 @@ export default defineConfig({
         {
           tag: 'script',
           attrs: {
+            src: '/js/force-light-theme.js',
+          },
+        },
+        {
+          tag: 'script',
+          attrs: {
+            src: '/js/sidebar-scroll.js',
+          },
+        },
+        {
+          tag: 'script',
+          attrs: {
             type: 'text/javascript',
             id: 'hs-script-loader',
             async: true,
@@ -199,11 +223,14 @@ export default defineConfig({
     }),
     d2({
       theme: {
-        default: '0',
-        dark: '1', // choose at https://d2lang.com/tour/themes/
+        default: '1', // Light theme (Neutral default)
+        dark: '1',
       },
-      sketch: true,
-      layout: 'elk',
+      sketch: true, // Clean, professional diagrams instead of hand-drawn
+      appendix: true, // Enable interactive elements (tooltips/links)
+      inline: true, // Embed SVG inline to make links clickable
+      layout: 'elk', // ELK layout engine for better positioning
+      pad: 5,
     }),
   ],
   image: {

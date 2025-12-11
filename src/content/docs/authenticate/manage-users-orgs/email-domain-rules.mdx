@@ -1,0 +1,186 @@
+---
+title: Configure email domain rules
+description: Set up allowed domains for organization auto-join and configure restrictions for generic and disposable email sign-ups
+tableOfContents: true
+browseCentral:
+  label: "Configure email domain rules"
+  filterType: ["tutorial"]
+  category: ["Manage users & orgs"]
+  icon: book
+sidebar:
+  label: "Configure email domain rules"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+prev:
+  link: '/authenticate/manage-organizations/add-users-to-organization/'
+  label: 'Add users to organizations'
+next:
+  link: '/authenticate/manage-organizations/remove-users-from-organization/'
+  label: 'Remove users from organizations'
+---
+
+import { Steps, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Email domain rules control how users join your application in two ways: by restricting who can sign up and by enabling automatic organization membership for trusted domains. These rules help maintain data quality, prevent abuse, and streamline onboarding for enterprise customers.
+
+Sign-up restrictions block registrations and invitations from generic email providers (like Gmail or Outlook) and disposable email services, ensuring your user base consists of verified business contacts. Allowed email domains enable users with matching email addresses to automatically join organizations through the organization switcher, reducing manual invitation overhead.
+
+Together, these features give you fine-grained control over user addition—blocking unwanted sign-ups while facilitating seamless access for legitimate users from trusted domains.
+
+## Set up sign-up restrictions
+
+Sign-up restrictions help you maintain data quality and prevent abuse by controlling who can create accounts in your application. This is particularly important for B2B applications where you need to ensure users have legitimate business email addresses rather than personal or temporary accounts.
+
+These restrictions automatically block registrations and invitations from two types of email addresses:
+
+- **Generic email domains** - Public email providers like `@gmail.com`, `@outlook.com`, or `@yahoo.com` that anyone can use
+- **Disposable email addresses** - Temporary email services often used for spam, trial abuse, or avoiding accountability
+
+When enabled, these restrictions apply to both direct signups and organization invitations, ensuring consistent policy enforcement across your application. This prevents users from creating multiple trial accounts, maintains clean analytics, and ensures your user base consists of verified business contacts.
+
+The following diagram illustrates how sign-up restrictions work:
+
+```d2
+direction: right;
+
+user
+Scalekit.sign-up page
+Scalekit.invite user
+
+user -> Scalekit: "ben0948@gmail.com"
+user -> Scalekit: "woxoco4761@knilkk.com"
+Scalekit -- restricted: "🚫"
+```
+
+### How restrictions affect invitations
+
+- Any user with a disposable email domain cannot sign up to create a new organization and cannot be invited to any existing organization.
+- Any user with a public email domain cannot sign up to create a new organization and cannot be invited to any existing organization.
+
+### Set sign-up restrictions
+
+<Steps>
+1. ### Navigate to sign-up restrictions settings
+
+   Go to **Dashboard > Authentication > General** and locate the sign-up restrictions section.
+
+2. ### Configure restriction options
+
+   Toggle the following options based on what suits your application:
+
+   - **Block disposable email domains**: Prevents temporary/disposable email addresses from signing up or being invited
+   - **Block public email domains**: Prevents generic email providers like Gmail, Outlook, Yahoo from creating organizations
+
+   ![](@/assets/docs/signup-restrictions/ui.png)
+
+   <Aside type="tip" title="Choosing the right restrictions">
+     Enable disposable email blocking for all production applications to prevent abuse. Only enable public email blocking if you're building a B2B application that requires verified business identities.
+   </Aside>
+
+3. ### Save your settings
+
+   Click **Save** to apply the restrictions. Changes take effect immediately for all new signups and invitations.
+
+   <Aside type="note">
+     Existing users with restricted email domains remain unaffected. You can return to this section anytime to update your restrictions.
+   </Aside>
+</Steps>
+
+## Configure allowed email domains
+
+Allowed email domains lets organization admins define trusted domains for their organization. When a user signs in or signs up with a matching email domain, Scalekit suggests the user to join that organization in the **organization switcher** so the user can join the organization with one click. This feature is authentication-method agnostic: regardless of whether a user authenticates via SSO, social login, or passwordless authentication, organization options are suggested based on their email domain.
+
+```d2
+direction: right;
+
+domain_match: "Domain Match?"
+suggest_org: "Show option for the user to join organization"
+join_create: "User joined the organization"
+
+domain_match -> suggest_org: "Yes"
+suggest_org -> join_create: "Join"
+```
+
+When a user signs up or signs in, Scalekit will automatically:
+
+
+
+1. **Match email domains** - Check if the user's email domain matches configured allowed domains for any organization.
+2. **Suggest organization options** - Show the user available organizations they can join through an organization switcher.
+3. **Enable user choice** - Allow users to decide which of the suggested organizations they want to join.
+4. **Create organization membership** - Automatically add the user to their selected organization.
+
+
+<Aside type="note" title="Security consideration">
+Disposable and public email domains are blocked and cannot be added to the allow-list (e.g., `gmail.com`, `outlook.com`). We maintain a blocklist to enforce this.
+</Aside>
+
+### Manage allowed email domains in Scalekit Dashboard
+
+Allowed email domains can be configured for an organization through the Scalekit Dashboard.
+
+### Manage allowed email domains <Badge text='API'/>
+
+Configure allowed email domains for an organization programmatically through the Scalekit API. Before proceeding, complete the steps in the [installation guide](/authenticate/set-up-scalekit/).
+
+<Tabs>
+<TabItem label="cURL">
+
+```sh title="Register, list, get, and delete allowed email domains" frame="terminal" "ALLOWED_EMAIL_DOMAIN" showLineNumbers=false
+# 1. Register an allowed email domain
+# Use case: Restrict user registration to specific company domains for B2B applications
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/{organization_id}/domains' \
+  --request POST \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "domain": "customerdomain.com",
+  "domain_type": "ALLOWED_EMAIL_DOMAIN"
+}'
+
+# 2. List all registered allowed email domains
+# Use case: Display domain restrictions in admin dashboard or verify current settings
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/{organization_id}/domains'
+
+# 3. Get details of a specific domain
+# Use case: Verify domain configuration or retrieve domain metadata
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/{organization_id}/domains/{domain_id}'
+
+# 4. Delete an allowed email domain
+# Use case: Remove domain restrictions or clean up unused configurations
+curl 'https://<SCALEKIT_ENVIRONMENT_URL>/api/v1/organizations/{organization_id}/domains/{domain_id}' \
+  --request DELETE
+```
+
+</TabItem>
+<TabItem label="Nodejs">
+
+```js title="Register, list, get, and delete allowed email domains" frame="terminal" wrap
+// 1. Register an allowed email domain
+// Use case: Restrict user registration to specific company domains for B2B applications
+const newDomain = await scalekit.createDomain("org-123", "customerdomain.com", {
+	domainType: "ALLOWED_EMAIL_DOMAIN",
+});
+
+// 2. List all registered allowed email domains
+// Use case: Display domain restrictions in admin dashboard or verify current settings
+const domains = await client.domain.listDomains(organizationId);
+
+// 3. Get details of a specific domain
+// Use case: Verify domain configuration or retrieve domain metadata
+const domain = await client.domain.getDomain(organizationId, domainId);
+
+// 4. Delete an allowed email domain
+// Use case: Remove domain restrictions or clean up unused configurations
+// Caution: Deletion is permanent and may affect user access
+await client.domain.deleteDomain(organizationId, domainId);
+```
+
+</TabItem>
+</Tabs>

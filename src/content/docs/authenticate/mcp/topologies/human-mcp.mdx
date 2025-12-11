@@ -1,0 +1,75 @@
+---
+title: 'Human interacting with MCP Server'
+description: 'Learn how a human authenticates with an MCP Server via OAuth 2.1 when using MCP-compliant hosts such as ChatGPT, Claude, VSCode, or Windsurf.'
+sidebar:
+  order: 1
+  label: 'Human → MCP'
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import { Aside } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence';
+
+When a human uses a compliant MCP host, that host acts as the OAuth client. It initiates authorization with the Scalekit Authorization Server, obtains a scoped access token, and interacts securely with the MCP Server on behalf of the user.
+
+This topology represents the most common interaction model for real-world MCP usecases - **humans interacting with an MCP**, while Scalekit ensures tokens are valid, scoped, and auditable.
+
+<Aside type="tip" title="Flow Summary">
+In general, human-initiated MCP flow uses the **OAuth 2.1 Authorization Code Flow**.
+Scalekit acts as the Authorization Server, the MCP Server as the Protected Resource, and the host (ChatGPT, Claude, Windsurf, etc.) as the OAuth Client.
+</Aside>
+
+---
+
+## Authorization Sequence
+<br/>
+```d2 pad=36
+title: "Human ? MCP Server (OAuth 2.1 Authorization Code Flow)" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client -> MCP Server: initiate
+MCP Server -> MCP Client: 401 + WWW-Authenticate header
+MCP Client -> Scalekit Authorization Server: Exchange code for access token
+Scalekit Authorization Server -> Scalekit Authorization Server: Handles Authentication and user consent
+Scalekit Authorization Server -> MCP Client: Issue token with required scopes
+MCP Client -> MCP Server: Call tool with Bearer token
+MCP Server -> MCP Client: Authorized response
+```
+
+---
+
+## How It Works
+
+1. **Initiation** ? The human configures an MCP server in their MCP client.
+
+2. **Challenge** ? The MCP Server responds with an HTTP `401` containing a `WWW-Authenticate` header that points to the Scalekit Authorization Server.
+
+3. **Authorization Flow** ? The MCP Client opens the user's browser to initiate the OAuth 2.1 authorization flow.
+During this step, the Scalekit Authorization Server handles user authentication through Passwordless, Passkeys, Social login providers (like Google, GitHub, or LinkedIn), or Enterprise SSO integrations (such as Okta, Microsoft Entra ID, or ADFS). The user is then prompted to grant consent for the requested scopes. Once approved, Scalekit returns an authorization code, which the MCP Client exchanges for an access token.
+
+
+4. **Token Issuance** ? Scalekit issues an OAuth 2.1 access token containing claims and scopes (for example, `todo:read`, `calendar:write`) that represent the user's permissions.
+
+5. **Authorized Request** ? The client calls the MCP Server again, now attaching the Bearer token in the `Authorization` header.
+
+6. **Validation and Execution** ? The MCP Server validates the token issued by scalekit and executes the requested tool.
+
+---
+
+## Try It Yourself
+
+Head to the **[FastMCP Examples section](/authenticate/mcp/fastmcp-quickstart)** to experience this topology in action. There you'll register a FastMCP server, configure Scalekit Auth, and observe token issuance and validation end-to-end.

@@ -1,0 +1,175 @@
+---
+/**
+ * RemoteFileTree: Render a GitHub repo directory tree from a public URL.
+ * Example URL: https://github.com/owner/repo/tree/branch/path/to/dir
+ */
+
+import { FileTree } from '@astrojs/starlight/components'
+
+export interface Props {
+  /** GitHub tree URL like https://github.com/org/repo/tree/main/path */
+  url: string
+  /** Title shown above the tree */
+  title?: string
+  /** Collapse folders by default */
+  collapsed?: boolean
+}
+
+const { url, title, collapsed = false } = Astro.props as Props
+
+interface GithubTreeEntry {
+  path: string
+  mode: string
+  type: 'blob' | 'tree'
+  sha: string
+  size?: number
+  url: string
+}
+
+interface GithubTreeResponse {
+  sha: string
+  url: string
+  tree: GithubTreeEntry[]
+  truncated?: boolean
+}
+
+function parseGithubTreeUrl(inputUrl: string): {
+  owner: string
+  repo: string
+  ref: string
+  pathPrefix: string
+} {
+  const u = new URL(inputUrl)
+  const parts = u.pathname.split('/').filter(Boolean)
+  // Expected: /{owner}/{repo}/tree/{ref}/[...path]
+  if (parts.length < 4 || parts[2] !== 'tree') {
+    throw new Error(
+      'RemoteFileTree: URL must be a GitHub tree URL like /owner/repo/tree/branch/path',
+    )
+  }
+  const owner = parts[0]
+  const repo = parts[1]
+  const ref = parts[3]
+  const pathPrefix = parts.slice(4).join('/') // may be '' for repo root
+  return { owner, repo, ref, pathPrefix }
+}
+
+function buildNestedTree(entries: GithubTreeEntry[], prefix: string) {
+  type Node = { name: string; type: 'tree' | 'blob'; children?: Map<string, Node> }
+  const root: Node = { name: prefix || '/', type: 'tree', children: new Map() }
+  const normalizedPrefix = prefix ? prefix.replace(/^\/+|\/+$/g, '') : ''
+
+  const relevant = entries.filter((e) => {
+    if (!normalizedPrefix) return true
+    return e.path === normalizedPrefix || e.path.startsWith(normalizedPrefix + '/')
+  })
+
+  for (const entry of relevant) {
+    const relative = normalizedPrefix
+      ? entry.path === normalizedPrefix
+        ? ''
+        : entry.path.slice(normalizedPrefix.length + 1)
+      : entry.path
+
+    if (relative === '') {
+      // This is the directory itself; ensure root exists (already does)
+      continue
+    }
+
+    const parts = relative.split('/')
+    let current = root
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i]
+      const isLeaf = i === parts.length - 1
+      const nodeType: 'tree' | 'blob' = isLeaf ? (entry.type === 'tree' ? 'tree' : 'blob') : 'tree'
+
+      if (!current.children) current.children = new Map()
+      let next = current.children.get(part)
+      if (!next) {
+        next = { name: part, type: nodeType, children: nodeType === 'tree' ? new Map() : undefined }
+        current.children.set(part, next)
+      }
+      current = next
+    }
+  }
+
+  return root
+}
+
+async function fetchGithubTree(
+  owner: string,
+  repo: string,
+  ref: string,
+): Promise<GithubTreeResponse> {
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${encodeURIComponent(ref)}?recursive=1`
+  // Optional private token for higher rate limits; never exposed to client
+  const token =
+    (import.meta as any).env?.GITHUB_TOKEN ?? (import.meta as any).env?.ASTRO_PRIVATE_GITHUB_TOKEN
+  const headers: Record<string, string> = {
+    Accept: 'application/vnd.github+json',
+    'User-Agent': 'scalekit-docs-astro-remote-file-tree',
+  }
+  if (token && typeof token === 'string' && token.length > 0) {
+    headers.Authorization = `Bearer ${token}`
+  }
+  const res = await fetch(apiUrl, { headers })
+  if (!res.ok) {
+    throw new Error(`Failed to fetch GitHub tree: ${res.status} ${res.statusText}`)
+  }
+  return (await res.json()) as GithubTreeResponse
+}
+
+function sortEntries(entries: [string, any][]): [string, any][] {
+  return entries.sort((a, b) => {
+    const an = a[1]
+    const bn = b[1]
+    if (an.type !== bn.type) return an.type === 'tree' ? -1 : 1 // folders first
+    return a[0].localeCompare(b[0])
+  })
+}
+
+const { owner, repo, ref, pathPrefix } = parseGithubTreeUrl(url)
+const treeResponse = await fetchGithubTree(owner, repo, ref)
+const nested = buildNestedTree(treeResponse.tree, pathPrefix)
+---
+
+{
+  title ? (
+    <p data-title={title}>
+      <em>{title}</em>
+    </p>
+  ) : null
+}
+
+<FileTree>
+  <ul>
+    {
+      (() => {
+        function renderNode(node: any): any {
+          const children = node.children ? sortEntries(Array.from(node.children.entries())) : []
+          if (!node.children || children.length === 0) {
+            return <li>{node.name}</li>
+          }
+
+          return (
+            <li>
+              {node.name}
+              <ul>{children.map(([_, child]) => renderNode(child))}</ul>
+            </li>
+          )
+        }
+
+        const topLevel = nested.children ? sortEntries(Array.from(nested.children.entries())) : []
+        if (pathPrefix) {
+          return (
+            <li>
+              {pathPrefix}
+              <ul>{topLevel.map(([_, child]) => renderNode(child))}</ul>
+            </li>
+          )
+        }
+        return topLevel.map(([_, child]) => renderNode(child))
+      })()
+    }
+  </ul>
+</FileTree>

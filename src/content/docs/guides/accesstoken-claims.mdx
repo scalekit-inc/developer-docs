@@ -1,0 +1,108 @@
+---
+title: Access token claims
+description: Inspect the contents of the access token
+browseCentral:
+  label: "Inspect access token claims"
+  category:
+    - "User authentication"
+  filterType:
+    - "tutorial"
+  icon: "book"
+sidebar:
+  label: "Access token reference"
+prev:
+  link: '/guides/idtoken-claims/'
+  label: 'ID token claims reference'
+next:
+  link: '/authenticate/fsa/implement-login/'
+  label: 'Initiate user signup or login'
+---
+
+An access token is a JSON Web Token (JWT) containing cryptographically signed claims about a user's authorization information. Scalekit issues this token after successful authentication. The access token is a Base64-encoded JSON object with three parts: header, payload, and signature.
+
+Access tokens contain two key components for authorization:
+
+**Roles** group related permissions together and define what users can do in your system. Common examples include Admin, Manager, Editor, and Viewer. Roles can inherit permissions from other roles, creating hierarchical access levels.
+
+**Permissions** represent specific actions users can perform, formatted as `resource:action` patterns like `projects:create` or `tasks:read`. Use permissions for granular access control when you need precise control over individual capabilities.
+
+Here's an example of the payload. Note this is formatted for readability and the header and signature fields are skipped.
+
+```json title="Sample access token payload" frame="terminal"
+{
+  "aud": ["skc_987654321098765432"],
+  "client_id": "skc_987654321098765432",
+  "exp": 1750850145,
+  "iat": 1750849845,
+  "iss": "http://example.localhost:8889",
+  "jti": "tkn_987654321098765432",
+  "nbf": 1750849845,
+  "roles": ["project_manager", "member"],
+  "oid": "org_69615647365005430",
+  "permissions": ["projects:create", "projects:read", "tasks:assign"],
+  "sid": "ses_987654321098765432",
+  "sub": "usr_987654321098765432"
+}
+```
+
+## Full list of access token claims
+
+| Claim         | Presence | Description                                                      |
+| ------------- | -------- | ---------------------------------------------------------------- |
+| `aud`         | Always   | Intended audience (client ID)                                    |
+| `client_id`   | Always   | Client identifier for the application                            |
+| `exp`         | Always   | Expiration time (Unix timestamp)                                 |
+| `iat`         | Always   | Issuance time (Unix timestamp)                                   |
+| `iss`         | Always   | Issuer identifier (Scalekit environment URL)                     |
+| `jti`         | Always   | JWT ID - unique identifier for this token                        |
+| `nbf`         | Always   | Not before time (Unix timestamp)                                 |
+| `oid`         | Always   | Organization ID of the user                                      |
+| `sub`         | Always   | Subject identifier for the user                                  |
+| `sid`         | Always   | Session identifier                                               |
+| `roles`       | Optional | Array of role names assigned to the user                         |
+| `permissions` | Optional | Array of permissions in `resource:action` format                 |
+| `scope`       | Optional | Space-separated list of OAuth scopes granted                     |
+
+## Using access tokens for authorization
+
+After users authenticate through Scalekit, your application receives an access token containing their roles and permissions. Use this token to make authorization decisions and control access to features and resources.
+
+Scalekit automatically assigns the `admin` role to the first user in each organization and the `member` role to subsequent users. Your application uses the role and permission information from Scalekit to make final authorization decisions at runtime.
+
+## Verifying the access token
+
+The Scalekit SDK provides methods to validate access tokens automatically. When you use the SDK's `validateAccessToken` method, it:
+
+1. Verifies the token signature using Scalekit's public keys
+2. Checks the token hasn't expired (`exp` claim)
+3. Validates the issuer (`iss` claim) matches your environment
+4. Ensures the audience (`aud` claim) matches your client ID
+
+The JWKS endpoint for your environment is located at:
+
+```sh
+https://<YOUR_ENVIRONMENT_URL>/keys
+```
+
+For example, if your Scalekit Environment URL is `https://your-environment.scalekit.com`, the keys can be found at `https://your-environment.scalekit.com/keys`.
+
+### Important claims
+
+When validating manually, pay attention to these claims:
+
+- **`iss` (Issuer)**: This must match your Scalekit environment URL.
+- **`aud` (Audience)**: This must match your application's client ID.
+- **`exp` (Expiration Time)**: Ensure the token has not expired.
+- **`sub` (Subject)**: This uniquely identifies the user.
+- **`oid` (Organization ID)**: Identifies which organization the user belongs to.
+
+## Token lifecycle
+
+Access tokens are short-lived for security. When an access token expires:
+
+1. Your application's middleware detects the expired token
+2. Uses the refresh token to obtain a new access token
+3. Updates the stored tokens transparently
+4. Allows the request to continue without user intervention
+
+This automatic refresh keeps users authenticated without requiring them to log in again, while maintaining security through short-lived access tokens.
