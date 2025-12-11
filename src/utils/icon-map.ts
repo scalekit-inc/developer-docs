@@ -17,6 +17,7 @@ import IconCodiconDebugStart from '~icons/codicon/debug-start'
 import IconLucideRocket from '~icons/lucide/rocket'
 import IconSimpleIconsLangchain from '~icons/simple-icons/langchain'
 import IconSimpleIconsDotnet from '~icons/simple-icons/dotnet'
+import IconApiAuth from '~icons/flowbite/api-key-outline'
 
 // Content type icons
 import IconLucideFileVideoCamera from '~icons/lucide/file-video-camera'
@@ -195,6 +196,7 @@ export const iconMap = {
   company: IconCarbonEnterprise,
   platform: IconGardenPlatform26,
   workflow: IconLucideWorkflow,
+  apiauth: IconApiAuth,
 
   // Auth provider and integration logos
   auth0: IconLogosAuth0,
@@ -262,6 +264,7 @@ export {
 
   // Products
   IconMcp, // MCP Auth
+  IconApiAuth,
   IconLucideUsers, // FSA
   IconLucideMail, // Passwordless
   IconClarityBlocksGroupLine, // Social logins
