@@ -85,19 +85,17 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    ![Add MCP server](@/assets/docs/quickstart/mcp-create.webp)
 
    1. Provide a **name** for your MCP server to help you identify it easily. This name appears on the Consent page that MCP hosts display to users when authorizing access to your MCP server.
-   2. Enter the **Server URL** where your MCP server is hosted. Include the trailing slash (for example, `https://mcp.yourapp.com/`). Scalekit includes this URL as the `aud` claim in issued tokens, indicating that the token was intended for your specific MCP server. You can optionally validate this claim before allowing tool access or execution.
-   3. Enable **dynamic client registration** for MCP hosts. This allows MCP hosts to automatically register with Scalekit (and your authorization server), eliminating the need for manual registration and making it easier for users to adopt your MCP server secur.
-   5. Click **Save** to register the server.
+   2. Enable **dynamic client registration** for MCP hosts. This allows MCP hosts to automatically register with Scalekit (and your authorization server), eliminating the need for manual registration and making it easier for users to adopt your MCP server secur.
+   3. Click **Save** to register the server.
 
    When you save, Scalekit displays the OAuth-protected resource metadata. Copy this JSON—you'll use it to implement the discovery endpoint, up next.
 
-   <details>
-   <summary>Advanced settings (optional)</summary>
-   - **Resource identifier**: Your MCP server's unique identifier, typically your server's URL (e.g., `https://mcp.yourapp.com`). This is an optional field. If not provided, Scalekit will use the generated resource_id as the resource identifier. If provided, access tokens minted by Scalekit will have the resource identifier as `aud` claim along with the Scalekit generated resource_id.
-
-   <Aside type="tip" title="Using FastMCP?">
-     If you're using FastMCP, you must provide a resource identifier. For a server running at `https://mcp.example.com/mcp`, register `https://mcp.example.com/` as the resource identifier. FastMCP appends <code>/mcp</code> automatically, so use the base URL with a trailing slash only.
-   </Aside>
+   <details open>
+   <summary>Advanced settings</summary>
+   - **Server URL**: Your MCP server's unique identifier, typically your server's URL (e.g., `https://mcp.yourapp.com`). This is an optional field. If not provided, Scalekit will use the generated resource_id as the resource identifier. If provided, access tokens minted by Scalekit will have the resource identifier as `aud` claim along with the Scalekit generated resource_id.
+    <Aside type="tip" title="Using FastMCP?">
+      If you're using FastMCP, you must provide a resource identifier. For a server running at `https://mcp.example.com/mcp`, register `https://mcp.example.com/` as the resource identifier. FastMCP appends <code>/mcp</code> automatically, so use the base URL with a trailing slash only.
+    </Aside>
 
    - **Access token lifetime**: Recommended 300-3600 seconds (5 minutes to 1 hour)
    - **Scopes**: Define the permissions your MCP server needs, such as `usr:read` or `usr:write`. These scopes are pre-approved when users authenticate to use your MCP server, streamlining the authorization process.
@@ -130,7 +128,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
        ],
        "resource": "https://mcp.yourapp.com",  // Your MCP server URL
        "resource_documentation": "https://mcp.yourapp.com/docs", // A URL to the documentation of the resource server
-       "scopes_supported": ["weather:read", "weather:write"]  // Dashboard-configured scopes
+       "scopes_supported": ["todo:read", "todo:write"]  // Dashboard-configured scopes
      });
    });
    ```
@@ -265,12 +263,12 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    </TabItem>
    </Tabs>
 
-   Validate the token against your configured resource audience to ensure it was issued for your specific MCP server. The resource identifier must match the Server URL you registered in step 2.
+   Validate the token against your configured resource audience to ensure it was issued for your specific MCP server. The resource identifier must match the Server URL you registered earlier.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="nodejs" label="Node.js">
 
-   ```javascript title="Validate token" {2-5}
+   ```javascript title="Validate token"
    // Security: Validate token against configured resource audience
    // This ensures the token was issued for your specific MCP server
    await scalekit.validateToken(token, {
@@ -281,14 +279,46 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    </TabItem>
    <TabItem value="python" label="Python">
 
-   ```python title="Validate token" {2-6}
-   # Security: Validate token against configured resource audience
-   # This ensures the token was issued for your specific MCP server
-   options = TokenValidationOptions(
-       issuer=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
-       audience=[RESOURCE_ID]
-   )
-   scalekit_client.validate_token(token, options=options)
+   ```python title="Validate token"
+    # Method 1: validate_access_token - Returns boolean (True/False)
+    # Use this method when you only need to verify token validity without detailed error information.
+    # This approach is suitable for simple authorization checks where you don't need token claims.
+    def validate_token_with_issuer_audience(token: str) -> bool:
+        """
+        Validates a token and returns True if valid, False otherwise.
+
+        :param token: The token to validate
+        :return: True if token is valid, False otherwise
+        """
+        options = TokenValidationOptions(
+            issuer="<SCALEKIT_ENVIRONMENT_URL>",
+            audience=["your-api-audience"]
+        )
+
+        try:
+            is_valid = scalekit_client.validate_access_token(token, options=options)
+            return is_valid
+        except Exception as ex:
+            print(f"Token validation failed: {ex}")
+            return False
+
+    # Method 2: validate_token - Returns token claims/payload
+    # Use this method when you need access to token claims (user info, scopes, etc.) or detailed error information.
+    # This approach is suitable for authorization that requires specific user context or scope validation.
+    def validate_token_and_get_claims(token: str) -> dict:
+        """
+        Validates a token with specific audience and raises exception on failure.
+
+        :param token: The token to validate
+        :raises: ScalekitValidateTokenFailureException if validation fails
+        """
+        options = TokenValidationOptions(
+            issuer="<SCALEKIT_ENVIRONMENT_URL>",
+            audience=["<YOUR_MCP_AUDIENCE>"],
+            required_scopes=["todo:read", "todo:write"]  # Optional: validate specific scopes for finer access control
+        )
+
+        scalekit_client.validate_token(token, options=options)
    ```
 
    </TabItem>
@@ -427,7 +457,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    <Tabs syncKey="tech-stack">
    <TabItem value="nodejs" label="Node.js">
 
-   ```javascript
+   ```javascript ins={7}
    // Security: Validate token has required scope for this specific tool execution
    // Use case: Ensure users only have access to authorized MCP tools
    try {
@@ -450,7 +480,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    </TabItem>
    <TabItem value="python" label="Python">
 
-   ```python
+   ```python ins={8}
    # Security: Validate token has required scope for this specific tool execution
    # Use case: Ensure users only have access to authorized MCP tools
    try:
@@ -481,7 +511,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
 
    Beyond the OAuth 2.1 authorization you've implemented, you can enable additional authentication methods that work seamlessly with your MCP server's token validation:
 
-   **[Enterprise SSO](/authenticate/auth-methods/enterprise-sso/)**
+   **[Enterprise SSO](/mcp/auth-methods/enterprise/)**
 
    Enable organizations to authenticate through their identity providers (Okta, Azure AD, Google Workspace). Your MCP server continues validating tokens the same way, while Scalekit handles:
    - Centralized access control through existing enterprise identity systems
@@ -492,7 +522,7 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
     Authentication through Enterprise SSO for MCP users requires the organization administrators to register the domain their organization owns with Scalekit through [the admin portal](/sso/guides/onboard-enterprise-customers/).
    </Aside>
 
-   **[Social logins](/authenticate/auth-methods/social-logins/)**
+   **[Social logins](/mcp/auth-methods/social/)**
 
    Allow users to authenticate via Google, GitHub, Microsoft, and other social providers. Your existing token validation logic remains unchanged while providing:
    - Quick onboarding for individual users
@@ -500,6 +530,8 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    - Reduced friction for personal and small team use cases
 
    These authentication methods require no changes to your MCP server implementation—you continue validating tokens exactly as shown in the previous steps.
+
+    **[Bring your own auth](/mcp/auth-methods/custom-auth/)** allows you to use your own authentication system to authenticate users to your MCP server.
 
 </Steps>
 

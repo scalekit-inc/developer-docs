@@ -91,7 +91,7 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Agent Actions',
+    label: 'Agent Auth',
     link: '/agent-actions/quickstart',
     id: 'connect',
     badge: {
