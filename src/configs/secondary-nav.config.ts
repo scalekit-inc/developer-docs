@@ -68,7 +68,7 @@ export const secondaryNavItems: NavItem[] = [
       {
         id: 'agent-auth',
         href: '/agent-actions/quickstart',
-        label: 'Agentic Auth',
+        label: 'Agent Auth',
         iconComponent: IconLucideBot,
         description:
           'Authenticate agents with external tools via a token vault managing consent, scopes, and OAuth tokens',

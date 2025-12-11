@@ -18,6 +18,7 @@ import IconLucideRocket from '~icons/lucide/rocket'
 import IconSimpleIconsLangchain from '~icons/simple-icons/langchain'
 import IconSimpleIconsDotnet from '~icons/simple-icons/dotnet'
 import IconApiAuth from '~icons/flowbite/api-key-outline'
+import IconLucideUserLock from '~icons/lucide/user-lock'
 
 // Content type icons
 import IconLucideFileVideoCamera from '~icons/lucide/file-video-camera'
@@ -127,6 +128,7 @@ export const iconMap = {
   rocket: IconLucideRocket,
   langchain: IconSimpleIconsLangchain,
   dotnet: IconSimpleIconsDotnet,
+  userlock: IconLucideUserLock,
 
   // Content type icons
   video: IconLucideVideo,
