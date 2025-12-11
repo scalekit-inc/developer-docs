@@ -3,7 +3,7 @@ import { createDivider, createSectionHeader } from './sidebar-utils'
 
 export const sidebar = [
   {
-    label: 'Authenticate',
+    label: 'Full stack auth',
     id: 'authenticate',
     link: '/authenticate',
     icon: 'seti:lock',
