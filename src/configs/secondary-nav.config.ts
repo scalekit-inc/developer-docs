@@ -52,8 +52,8 @@ export const secondaryNavItems: NavItem[] = [
   {
     id: 'authenticate',
     href: '#authenticate',
-    label: 'Choose product',
-    iconComponent: IconLucideLayoutGrid,
+    label: 'Full stack auth',
+    iconComponent: IconLucideUsers,
     children: [
       {
         id: 'mcp', // Maps to sidebarToSecondaryNav['modular-auth'].pathOverrides['/mcp']
