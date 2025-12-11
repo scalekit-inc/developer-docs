@@ -309,7 +309,6 @@ export const sidebar = [
           'authenticate/mcp/intro-to-mcp-auth',
           'authenticate/mcp/code-samples',
           'authenticate/mcp/troubleshooting',
-          'authenticate/mcp/additional-reading',
         ],
       },
     ],

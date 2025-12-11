@@ -21,6 +21,9 @@ export const redirects = {
   '/fsa/guides/merge-identities': '/authenticate/manage-users-orgs/merge-identities/',
   '/fsa/guides/onboard-enterprise-customers': '/sso/guides/onboard-enterprise-customers/',
   '/fsa/guides/enterprise-sso/': '/authenticate/auth-methods/enterprise-sso/',
+  '/fsa/guides/auth-methods/': '/authenticate/auth-methods/passwordless/',
+  '/fsa/guides/social-logins/': '/authenticate/auth-methods/social-logins/',
+  '/fsa/reference/user-profile/': '/authenticate/manage-users-orgs/custom-user-attributes/',
 
   // =============================================================================
   // SINGLE SIGN-ON (SSO) REDIRECTS
