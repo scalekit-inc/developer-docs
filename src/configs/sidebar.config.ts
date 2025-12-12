@@ -343,11 +343,7 @@ export const sidebar = [
         label: 'Guides',
         items: [
           'sso/guides/sso-basics',
-          'sso/guides/authorization-url',
-          'sso/guides/idp-init-sso',
           'sso/guides/add-login-ux-sso',
-          'sso/guides/sso-user-attributes',
-          'sso/guides/test-sso',
           {
             label: 'Self-service admin portal',
             link: 'authenticate/sso/admin-portal',
