@@ -185,9 +185,8 @@ Connect steps and sections with:
 3. **H2 [Procedure Name]** - Main content using `<Steps>` component with numbered steps
    - Each step MUST have verification indicators or success criteria
 4. **H2 Verify** - How to confirm successful completion
-5. **H2 Troubleshooting** - Common issues with symptom → cause → fix pattern
-6. **H2 Next Steps** - Links to subsequent guides or related documentation
-7. **H2 FAQs** (optional) - Short, scoped questions
+5. **H2 Next Steps** - Links to subsequent guides or related documentation
+6. **H2 FAQs** (optional) - Short, scoped questions
 
 **Step Structure Pattern:**
 

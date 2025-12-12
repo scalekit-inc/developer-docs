@@ -14,8 +14,11 @@ head:
       }
 seeAlso:
   expanded: true
-  label: "Next steps"
+  label: "Related guides"
   items:
+    - title: "Just-in-time provisioning"
+      icon: "rocket"
+      url: "/authenticate/manage-users-orgs/jit-provisioning/"
     - title: "Browse supported SSO integrations"
       icon: "puzzle"
       url: "/guides/integrations/sso-integrations"
@@ -133,9 +136,12 @@ Enterprise single sign-on (SSO) enables users to authenticate using their organi
 
 
 ## Organization domains
-Organization domains power **Home Realm Discovery** in Scalekit. When a user enters an email address whose domain matches one of an organization’s configured domains, Scalekit automatically routes the user to the correct SSO connection. 
+Organization domains power **Home Realm Discovery** in Scalekit. When a user enters an email address whose domain matches one of an organization's configured domains, Scalekit automatically routes the user to the correct SSO connection.
 
-For example, if an organization registers *megacorp.org*, any user signing in with *@megacorp.org* is redirected to Megacorp’s SSO provider. When a domain match occurs, SSO login is enforced for that user.
+For example, if an organization registers *megacorp.org*, any user signing in with *@megacorp.org* is redirected to Megacorp's SSO provider. When a domain match occurs, SSO login is enforced for that user.
+
+Organization domains are also required for [Just-in-time (JIT) provisioning](/authenticate/manage-users-orgs/jit-provisioning/), which automatically creates user accounts for users with matching domains when they first authenticate through SSO.
+
 You can manage organization domains from the Scalekit Dashboard or programmatically using the API.
 
 ### Manage via Scalekit Dashboard
@@ -293,39 +299,12 @@ const response = await client.domain.deleteDomain(organizationId, domainId);
 </TabItem>
 </Tabs>
 
-## Just-in-time provisioning
-Just-in-time (JIT) provisioning automatically creates users and organization memberships when they sign in through SSO for the first time. This eliminates the need for manual invitations and allows users to access your application immediately after authenticating with their identity provider. JIT is enabled by default for all new SSO connections.
+## Related features
 
-### Domain restriction for JIT provisioning
-JIT provisioning only works for users whose email domain matches one of the organization’s registered [Organization domains](/authenticate/auth-methods/enterprise-sso/#organization-domains). This ensures that only verified members of the organization can be automatically provisioned.
+### Just-in-time provisioning
 
-JIT provisioning has limitations for guest users whose email domains do not match the organization domains registered for an organization. **Contractors and external users** with non-matching domains cannot be automatically provisioned. These users must be [manually invited](/fsa/guides/user-invitations/) to join the organization. This ensures that unauthorized users cannot obtain access automatically.
+When users authenticate through SSO, Scalekit can automatically create user accounts and organization memberships through [Just-in-time (JIT) provisioning](/authenticate/manage-users-orgs/jit-provisioning/). This eliminates manual invitation workflows and allows immediate access for authorized users.
 
-### Manage JIT provisioning
+### User attribute synchronization
 
-You can manage JIT settings for a SSO connection on the Scalekit Dashboard, programmatically via the API, or expose it to your customers through the Admin Portal.
-
-#### Manage via Dashboard
-Go to **Organizations** and select the target organization > **Single Sign On** → **Settings** → **Just-in-time provisioning**
-![](@/assets/docs/enterprise-sso/jit-provisioning.png)
-
-#### Manage via API
-
-```javascript title="Manage JIT provisioning"
-// Coming soon — API to manage JIT provisioning
-```
-
-#### Admin Portal
-
-You can expose JIT provisioning settings to be configured by your end customers via Admin Portal.
-<Steps>
-
-1. Generate and share Admin Portal with your end customers to set up SSO for their organization. Learn more about generating [Admin Portal](/guides/admin-portal/) for an organization.
-2. Your end customer can manage the JIT configuration in **Single Sign On** > **Settings** > **Just-in-time provisioning** section.
-
-</Steps>
-
-
-## Sync user attributes during login
-When you enable **Sync user attributes during login**, Scalekit updates the user’s profile using attributes from the identity provider each time they authenticate. This keeps the user’s profile in Scalekit aligned with the external Identity Provider. This ensures that user profile maintained on Scalekit end remains in sync with the SSO identity provider.
-![](@/assets/docs/enterprise-sso/sync-user-profile.png)
+Scalekit can automatically sync user profile attributes from your identity provider each time a user authenticates. This ensures that user information remains current across both systems. Configure this option in your SSO connection settings to maintain consistent user data.

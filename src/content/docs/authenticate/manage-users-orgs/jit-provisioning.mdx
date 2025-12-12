@@ -1,0 +1,119 @@
+---
+title: "Just-in-time provisioning"
+description: How to configure and manage JIT provisioning for automatic user creation
+sidebar:
+  label: "JIT provisioning"
+  order: 3
+tags: [jit, provisioning, users, organizations, sso, automation]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-lg);
+      }
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+prev:
+  label: "Manage users"
+  link: "/authenticate/manage-users-orgs/"
+next:
+  label: "Organization domains"
+  link: "/authenticate/auth-methods/enterprise-sso/#organization-domains"
+---
+
+import {
+  Steps, Tabs, TabItem, Aside, Card, CardGrid,
+} from '@astrojs/starlight/components';
+
+Just-in-time (JIT) provisioning automatically creates users and organization memberships when they sign in through SSO for the first time. This eliminates the need for manual invitations and allows users to access your application immediately after authenticating with their identity provider. JIT is enabled by default for all new SSO connections.
+
+This guide shows you how to configure and manage JIT provisioning settings for your organizations, understand domain restrictions, and handle guest user scenarios.
+
+## How JIT provisioning works
+
+When a user authenticates through SSO, Scalekit checks if they already exist in the organization. If not, JIT provisioning automatically:
+
+1. Creates a new user record with attributes from the identity provider
+2. Creates an organization membership for the user
+3. Assigns default roles based on the SSO connection configuration
+4. Syncs user profile information from the IdP
+
+## Domain restriction for JIT provisioning
+
+JIT provisioning only works for users whose email domain matches one of the organization's registered [Organization domains](/authenticate/auth-methods/enterprise-sso/#organization-domains). This ensures that only verified members of the organization can be automatically provisioned.
+
+<Aside type="caution" title="Guest user limitations">
+JIT provisioning has limitations for guest users whose email domains do not match the organization domains registered for an organization. <strong>Contractors and external users</strong> with non-matching domains cannot be automatically provisioned. These users must be <a href="/fsa/guides/user-invitations/">manually invited</a> to join the organization. This ensures that unauthorized users cannot obtain access automatically.
+</Aside>
+
+## Manage JIT provisioning
+
+You can manage JIT settings for a SSO connection on the Scalekit Dashboard, programmatically via the API, or expose it to your customers through the Admin Portal.
+
+### Manage via Dashboard
+
+Go to **Organizations** and select the target organization > **Single Sign On** → **Settings** → **Just-in-time provisioning**
+
+![](@/assets/docs/enterprise-sso/jit-provisioning.png)
+
+### Manage via API
+
+```javascript title="Manage JIT provisioning"
+// Coming soon — API to manage JIT provisioning
+```
+
+### Admin Portal
+
+You can expose JIT provisioning settings to be configured by your end customers via Admin Portal.
+
+<Steps>
+
+1. ## Generate Admin Portal for your organization
+
+    Generate and share Admin Portal with your end customers to set up SSO for their organization. Learn more about generating [Admin Portal](/guides/admin-portal/) for an organization.
+
+2. ## Configure JIT settings in Admin Portal
+
+    Your end customer can manage the JIT configuration in **Single Sign On** > **Settings** > **Just-in-time provisioning** section.
+
+</Steps>
+
+## Sync user attributes during login
+
+When you enable **Sync user attributes during login**, Scalekit updates the user's profile using attributes from the identity provider each time they authenticate. This keeps the user's profile in Scalekit aligned with the external Identity Provider. This ensures that user profile maintained on Scalekit end remains in sync with the SSO identity provider.
+
+![](@/assets/docs/enterprise-sso/sync-user-profile.png)
+
+## Troubleshooting JIT provisioning
+
+### Common issues and solutions
+
+**Issue**: User not automatically provisioned during SSO login
+
+- **Cause**: User's email domain doesn't match registered organization domains
+- **Solution**: Register the user's domain in [Organization domains](/authenticate/auth-methods/enterprise-sso/#organization-domains) or [manually invite](/fsa/guides/user-invitations/) the user
+
+**Issue**: JIT provisioning creates duplicate users
+
+- **Cause**: Multiple SSO connections with different user identifier mappings
+- **Solution**: Ensure consistent user identifier mapping across all SSO connections
+
+**Issue**: User roles not assigned correctly
+
+- **Cause**: Default role configuration missing or incorrect
+- **Solution**: Review SSO connection settings for default role assignments
+
+## Best practices for JIT provisioning
+
+- **Register all organization domains**: Add all email domains used by your organization to enable JIT provisioning for all users
+- **Use consistent user identifiers**: Configure SSO connections to use the same user identifier (email, userPrincipalName, etc.)
+- **Monitor JIT activity**: Regularly review automatically provisioned users for security
+- **Set appropriate default roles**: Configure appropriate default roles for new users based on your security requirements
+- **Combine with manual invitation**: Use manual invitations for contractors and external users with non-matching domains
+
+## Related guides
+
+- [Organization domains](/authenticate/auth-methods/enterprise-sso/#organization-domains) - Register email domains for JIT provisioning
+- [User invitations](/fsa/guides/user-invitations/) - Manually invite external users and contractors
+- [Admin Portal](/guides/admin-portal/) - Enable self-service SSO configuration for customers
