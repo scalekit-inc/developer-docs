@@ -10,7 +10,7 @@ This is the Scalekit developer documentation site built with Astro and Starlight
 
 **Target Audience:** Internal Scalekit employees writing developer-facing documentation
 **Primary Tool:** Claude Code (though guidelines apply to all authoring tools)
-**Enforcement Level:** Strong guidance with minimal flexibility—deviations require explicit justification
+**Enforcement Level:** Guidance with flexibility—adapt based on content needs and reader value
 
 ---
 
@@ -112,46 +112,51 @@ Custom Starlight components in `src/components/overrides/`:
 - **Clarity:** Prioritize clarity over flourish; explain the **why**, not just the **how**
 - **Jargon:** Use only industry-standard terms; define Scalekit-specific terms once, then reuse consistently
 
+**Note:** These guidelines align with [ted-docs-philosophy](https://github.com/openai/openai-cookbook/blob/main/articles/what_makes_documentation_good.md). When in doubt, prioritize clarity and directness over complex sentence structures.
+
 ### Language Rules
 
 **1. Sentence Structure:**
 
-- Target: ≤24 words per sentence
-- Paragraphs: ≤5 sentences
+- Target: ≤24 words per sentence (not a hard limit, aim for clarity)
+- Paragraphs: ≤5 sentences (adjust based on content)
 - Use concrete verbs: "Configure", "Validate", "Rotate", "Initialize"
 
 **2. Direct, Instructional Language:**
 
 - ✅ "This guide shows you how to..."
 - ✅ "Create an authorization URL to..."
-- ❌ "You might want to consider creating..."
+- ✅ "Configure the settings to enable..."
+- ⚠️ "You might want to consider..." (use sparingly, when giving options)
+- ❌ "Now you'll want to..." (presumes reader's state)
+- ❌ "Let's see how to..." (too informal)
 
 **3. Second Person:**
 
 - ✅ "Your application receives an access token"
 - ✅ "You must validate the state parameter"
-- ❌ "The application receives an access token"
+- ⚠️ "The application receives..." (acceptable for passive voice in some contexts)
 
 **4. Active Voice:**
 
-- ✅ "Scalekit creates a user record"
-- ❌ "A user record is created by Scalekit"
+- ✅ "Scalekit creates a user record" (preferred)
+- ⚠️ "A user record is created by Scalekit" (acceptable when focus is on the record)
 
 **5. Avoid Filler Words:**
 
-- ❌ "clearly", "simply", "basically", "obviously", "just"
-- ❌ Excessive superlatives and praise
-- ✅ Direct, factual statements
+- Minimize: "clearly", "simply", "basically", "obviously"
+- Avoid: excessive superlatives and praise
+- Use direct, factual statements
 
 **6. Explain Security and Context:**
 
-- Always explain security implications with specific threats
+- Explain security implications when relevant
 - Include real-world use cases in comments
-- Provide practical implementation context
+- Provide practical implementation context when it helps understanding
 
 ### Opening Phrases
 
-Use these patterns to begin sections:
+Consider these patterns to begin sections:
 
 - "This guide shows you how to..."
 - "[Feature] provides the framework to..."
@@ -164,29 +169,41 @@ Connect steps and sections with:
 
 - "After the user authenticates..."
 - "Once the state is validated..."
-- "Let's take a look at how to..."
 - "Now that you have created..."
 - "The next step is to..."
+- "The following section shows how to..."
+
+Avoid phrases that presume the reader's state of mind:
+
+- ❌ "Let's take a look at how to..."
+- ❌ "Now you'll want to..."
+- ❌ "You might be wondering..."
 
 ---
 
 ## Document Type Categories
 
-**CRITICAL REQUIREMENT:** Every documentation page MUST fit into one of these four categories. If uncertain which category applies, Claude Code MUST ask the author before drafting.
+**Guideline:** Every documentation page should fit into one of these four categories. Use these as templates rather than rigid requirements - adapt based on your content needs.
 
 ### A) How-to Guide (Task-Oriented)
 
-**Purpose:** Produce practical, step-by-step guides that verify success and anticipate common failures.
+**Purpose:** Produce practical, step-by-step guides that help users accomplish specific tasks.
 
-**Required Sections:**
+**Recommended Structure:**
 
 1. **H2 Overview** - What users will accomplish and when to use this guide (1-3 paragraphs)
-2. **H2 Prerequisites** - Required roles, scopes, versions, prior setup
+2. **H2 Prerequisites** - Required roles, scopes, versions, prior setup (if applicable)
 3. **H2 [Procedure Name]** - Main content using `<Steps>` component with numbered steps
-   - Each step MUST have verification indicators or success criteria
-4. **H2 Verify** - How to confirm successful completion
+   - Include verification indicators or success criteria where helpful
+4. **H2 Verify** - How to confirm successful completion (if not obvious)
 5. **H2 Next Steps** - Links to subsequent guides or related documentation
 6. **H2 FAQs** (optional) - Short, scoped questions
+
+**Flexible Approach:**
+
+- Some guides may naturally combine Overview and Prerequisites
+- Simple procedures might not need a separate Verify section
+- Use your judgment based on content complexity
 
 **Step Structure Pattern:**
 
@@ -235,9 +252,9 @@ Connect steps and sections with:
 
 ### B) API Reference Page
 
-**Purpose:** Generate standardized endpoint documentation with complete technical specifications.
+**Purpose:** Generate clear endpoint documentation with technical specifications.
 
-**Required Sections:**
+**Recommended Structure:**
 
 1. **H2 Endpoint Summary** - Brief description of what the endpoint does
 2. **H2 Authentication** - Auth scheme, required headers, scopes
@@ -247,6 +264,12 @@ Connect steps and sections with:
 6. **H2 Response** - Success responses with schema
 7. **H2 Errors** - Error responses in table format (status | code | message | resolution)
 8. **H2 Examples** (optional) - Additional use case examples
+
+**Flexible Approach:**
+
+- For simple endpoints, combine Summary and Authentication
+- Include error tables when they provide value beyond standard HTTP errors
+- Focus on clarity over rigid structure
 
 **Parameter Table Format:**
 
@@ -285,9 +308,9 @@ Connect steps and sections with:
 
 ### C) Concept Page (Explanatory)
 
-**Purpose:** Explain domain concepts clearly and neutrally without step-by-step instructions.
+**Purpose:** Explain domain concepts clearly without step-by-step instructions.
 
-**Required Sections:**
+**Recommended Structure:**
 
 1. **H2 Overview** - What the concept is and why it matters (1-3 paragraphs)
 2. **H2 How It Works** - Architecture, workflow, or mechanism explanation
@@ -296,6 +319,12 @@ Connect steps and sections with:
 5. **H2 Trade-offs** (if applicable) - Benefits, limitations, alternatives
 6. **H2 Best Practices** - Recommended patterns and approaches
 7. **H2 Related Guides** - Links to implementation guides and references
+
+**Flexible Approach:**
+
+- Combine sections naturally based on content flow
+- Use diagrams and examples to illustrate concepts
+- Focus on helping readers understand, not just follow steps
 
 **When to Use:**
 
@@ -386,20 +415,27 @@ Connect steps and sections with:
 
 ## Frontmatter Standards
 
-Every documentation page MUST include complete frontmatter. All fields listed as **Required** must be present.
+Every documentation page should include appropriate frontmatter. Focus on clarity rather than completeness.
 
-### Required Fields
+### Essential Fields
 
 ```yaml
 ---
-title: 'Clear, descriptive title' # Required - max 60 characters
-description: 'Concise description explaining what this page covers' # Required - max 160 characters
+title: 'Clear, descriptive title' # Essential - max 60 characters
+description: 'Concise description explaining what this page covers' # Essential - max 160 characters
 sidebar:
-  label: 'Short sidebar label' # Required - shorter than title
-  order: 42 # Required - integer for navigation ordering
-tags: [auth, sso, api, oauth2.1, tokens] # Required - for categorization
+  label: 'Short sidebar label' # Essential - shorter than title
+  order: 42 # Include if ordering matters in navigation
+tags: [auth, sso, api, oauth2.1, tokens] # Helpful for search and categorization
 ---
 ```
+
+**Guidance:**
+
+- Always include title and description
+- Include sidebar label (can be same as title if not too long)
+- Add order only when you need specific positioning
+- Tags are helpful but not mandatory for all pages
 
 ### Conditional Fields
 
@@ -462,12 +498,18 @@ head:
 
 ### Opening Paragraphs
 
-Every page MUST begin with 1-3 paragraphs that:
+Most pages should begin with 1-3 paragraphs that:
 
 1. Explain what users will accomplish
 2. Provide context about when/why they need this
 3. Preview key concepts or workflow
 4. Use direct, instructional language
+
+**Flexible Approach:**
+
+- Some content (like API references) can start more directly
+- Adjust length based on complexity
+- Focus on helping users understand quickly if they're in the right place
 
 **Example:**
 
@@ -567,6 +609,11 @@ Use `<details>` for supplementary content that shouldn't interrupt the main flow
 - Environment variables: `SCALEKIT_CLIENT_ID`, `NODE_ENV`
 - File paths: `src/config/auth.ts`
 - Placeholders: `<SCALEKIT_ENVIRONMENT_URL>`, `<CALLBACK_URL>`
+
+**Technical Term Definitions:**
+
+- Define unfamiliar terms briefly when first used
+- Example: "Use the access token (a JWT that proves user authentication) to make API requests"
 
 **Italics (`_text_`):**
 
@@ -1318,8 +1365,65 @@ Avoid these mistakes:
 
 ---
 
+## Learnings from Practice
+
+Based on analysis of existing documentation, here are practical insights that complement these guidelines:
+
+### What Works Well
+
+1. **Mixed Document Types** - Some pages naturally blend How-to Guide with Concept explanations. This is acceptable when it serves the reader's understanding.
+
+2. **Practical Code Examples** - The main branch shows good use of:
+   - Actual working code examples rather than placeholders
+   - Security-focused comments (e.g., CSRF prevention explanations)
+   - Framework-specific titles (Express.js, Flask, Gin, Spring)
+
+3. **Effective Use of Components** - Strong patterns observed:
+   - `<Aside>` for tips, notes, and warnings
+   - `<Badge>` for required/optional indicators
+   - `<Steps>` for procedural content
+   - D2 diagrams for visual explanations
+
+### Common Patterns to Emulate
+
+1. **API Documentation Flow**:
+
+   ```mdx
+   - Brief description
+   - cURL example first (quick copy-paste)
+   - SDK examples in tabs
+   - Response example
+   ```
+
+2. **Security Documentation**:
+   - Explain the threat (CSRF, XSS, etc.)
+   - Show the mitigation
+   - Explain what happens without it
+
+3. **Dashboard References**:
+   - Use bold: **Dashboard > Section > Subsection**
+   - Be specific about navigation paths
+
+### When to Be Flexible
+
+1. **Section Requirements** - Not every How-to Guide needs all sections:
+   - Simple procedures might not need "Verify"
+   - "Prerequisites" can be integrated into overview for basic tasks
+   - "FAQs" only if there are frequently asked questions
+
+2. **Code Language Order** - Standard is Node.js → Python → Go → Java, but:
+   - Maintain consistency within a page
+   - Order can vary based on target audience
+
+3. **Page Length** - Long pages are acceptable when:
+   - Content is cohesive
+   - Good use of headings and sections
+   - TOC is enabled for navigation
+
 ## Revision History
 
+- **v2.2** (2025-12-12) - Aligned with ted-docs-philosophy rules; removed phrases that presume reader's state of mind
+- **v2.1** (2025-12-12) - Made guidelines more practical based on real-world implementation analysis
 - **v2.0** (2025-12-05) - Unified guide merging house style standards with comprehensive technical guidelines
 - **v1.0** (2024) - Initial documentation style guide
 

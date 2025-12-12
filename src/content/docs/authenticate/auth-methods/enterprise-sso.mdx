@@ -17,7 +17,7 @@ seeAlso:
   label: "Related guides"
   items:
     - title: "Just-in-time provisioning"
-      icon: "rocket"
+      icon: "book"
       url: "/authenticate/manage-users-orgs/jit-provisioning/"
     - title: "Browse supported SSO integrations"
       icon: "puzzle"
@@ -29,7 +29,7 @@ next:
 ---
 
 import {
-  LinkButton, Aside, Steps, Tabs, TabItem, Card, CardGrid,
+  LinkButton, Aside, Steps, Tabs, TabItem, Card, CardGrid, Badge
  } from '@astrojs/starlight/components';
 
 
@@ -122,7 +122,19 @@ Enterprise single sign-on (SSO) enables users to authenticate using their organi
 
 4. ## Identify and enforce SSO for organization users
 
-   Administrators typically want to enforce SSO for organization users. This can be achieved using organization domains. When a user attempts to sign in with an email address matching a registered organization domain, they are automatically redirected to their organization's designated identity provider for authentication. Learn more about [Organization domains](/authenticate/auth-methods/enterprise-sso/#organization-domains).
+    Administrators typically register organization-owned domains through the admin portal. When a user attempts to sign in with an email address matching a registered domain, they are automatically redirected to their organization's designated identity provider for authentication.
+
+    **Organization domains** automatically route users to the correct SSO connection based on their email address. When a user signs in with an email domain that matches a registered organization domain, Scalekit redirects them to that organization's SSO provider and enforces SSO login.
+
+    For example, if an organization registers `megacorp.org`, any user signing in with an `@megacorp.org` email address is redirected to Megacorp's SSO provider.
+
+    ![](@/assets/docs/enterprise-sso/organization_domain.png)
+
+    Navigate to **Dashboard > Organizations** and select the target organization > **Overview** > **Organization Domains** section to register organization domains.
+
+    <Aside>
+    When implementing [domain-based discovery mechanisms like `domain_hint`](/authenticate/fsa/implement-login/#add-state-parameter:~:text=Optional-,login_hint,-Pre%2Dpopulate%20the), light weight validation step to check if the [domain has an active SSO connection](https://docs.scalekit.com/apis/#tag/connections/GET/api/v1/connections) to prevent unnecessary redirect loops
+    </Aside>
 
 5. ## Test your SSO integration
 
@@ -135,176 +147,10 @@ Enterprise single sign-on (SSO) enables users to authenticate using their organi
 </Steps>
 
 
-## Organization domains
-Organization domains power **Home Realm Discovery** in Scalekit. When a user enters an email address whose domain matches one of an organization's configured domains, Scalekit automatically routes the user to the correct SSO connection.
+## Keep user data current with automatic attribute sync
 
-For example, if an organization registers *megacorp.org*, any user signing in with *@megacorp.org* is redirected to Megacorp's SSO provider. When a domain match occurs, SSO login is enforced for that user.
+Scalekit automatically syncs user profile attributes from your identity provider each time a user authenticates. User information stays current across both systems without manual updates.
 
-Organization domains are also required for [Just-in-time (JIT) provisioning](/authenticate/manage-users-orgs/jit-provisioning/), which automatically creates user accounts for users with matching domains when they first authenticate through SSO.
+![](@/assets/docs/enterprise-sso/user-profile-current.png)
 
-You can manage organization domains from the Scalekit Dashboard or programmatically using the API.
-
-### Manage via Scalekit Dashboard
-Go to **Organizations** and select the target organization > **Overview** > **Organization Domains** section.
-![](@/assets/docs/enterprise-sso/organization_domain.png) 
-
-### Manage via API
-
-#### Register an organization domain
-
-**Path Parameters:**
-  - `organization_id` (string, required): The ID of the organization
-
-**Request Body:**
-  - `domain` (string, required): The email domain to add (e.g., "customerdomain.com")
-  - `domain_type` (string, required): Must be "ORGANIZATION_DOMAIN"
-
-<Tabs>
-<TabItem label="cURL">
-
-```sh title="Register an organization domain"
-curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains' \
-  --request POST \
-  --header 'Content-Type: application/json' \
-  --data '{
-  "domain": "customerdomain.com",
-  "domain_type": "ORGANIZATION_DOMAIN" 
-}'
-```
-
-</TabItem>
-<TabItem label="Nodejs">
-
-```js title="Register an organization domain"
-// Add a new organization domain
-const response = await scalekit.createDomain("org-123", "customerdomain.com", {
-	domainType: "ORGANIZATION_DOMAIN",
-});
-```
-
-</TabItem>
-</Tabs>
-
-
-
-```json title="Response"
-{
-    "domain": {
-        "id": "dom_88351643129225005",
-        "domain": "customerdomain.com",
-        "environment_id": "env_58345499215790610",
-        "organization_id": "org_81667076086825451",
-        "create_time": "2025-09-01T12:14:43.100Z",
-        "update_time": "2025-09-01T12:14:43.110455169Z",
-        "domain_type": "ORGANIZATION_DOMAIN"
-    }
-}
-```
-
-
-#### List organization domains
-
-**Request Parameters:**
-
-- **Path Parameters:**
-  - `organization_id` (string, required): The ID of the organization
-
-<Tabs>
-<TabItem label="cURL">
-
-```sh title="List all organization domains for an organization"
-curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains&domain_type=ORGANIZATION_DOMAIN' \
-  --header 'Authorization: Bearer YOUR_SECRET_TOKEN'
- 
-Status:200
-
-{
-  "domains": [
-    {
-      "create_time": "2025-09-01T11:59:50.005Z",
-      "domain": "customerdomain.com",
-      "domain_type": "ORGANIZATION_DOMAIN",
-      "environment_id": "env_73947929838",
-      "id": "dom_883516432292250875",
-      "organization_id": "org_987654321",
-      "update_time": "2025-09-01T11:59:50.005Z",
-    }
-  ],
-  "page_number": 1,
-  "page_size": 1
-}
-```
-
-</TabItem>
-<TabItem label="Nodejs">
-
-```js title="List all organization domains for an organization"
-// List all organization domains for an organization
-const response = await scalekit.domain.listDomains(organizationId, {
-        domainType: "ORGANIZATION_DOMAIN"
-      });
-// Domain object contains:
-// - id: Domain identifier
-// - domain: Domain name
-// - organizationId: Owning organization
-// - domainType: Configuration type
-```
-
-</TabItem>
-</Tabs>
-
-```json title="Response"
-{
-  "domains": [
-    {
-      "create_time": "2025-09-01T11:59:50.005Z",
-      "domain": "customerdomain.com",
-      "domain_type": "ORGANIZATION_DOMAIN",
-      "environment_id": "env_73947929838",
-      "id": "dom_883516432292250875",
-      "organization_id": "org_987654321",
-      "update_time": "2025-09-01T11:59:50.005Z",
-    }
-  ],
-  "page_number": 1,
-  "page_size": 1
-}
-```
-
-#### Delete an organization domain
-
-**Request Parameters:**
-
-- **Path Parameters:**
-  - `organization_id` (string, required): The ID of the organization
-  - `id` (string, required): The ID of the domain to delete
-
-<Tabs>
-<TabItem label="cURL">
-
-```sh title="Delete an organization domain"
-curl 'https://$SCALEKIT_ENVIRONMENT_URL/api/v1/organizations/{organization_id}/domains/{id}' \
-  --request DELETE
-```
-
-</TabItem>
-<TabItem label="Nodejs">
-
-```js title="Delete an organization domain"
-// Remove an organization domain
-// Caution: Deletion is permanent and may affect user access
-const response = await client.domain.deleteDomain(organizationId, domainId);
-```
-
-</TabItem>
-</Tabs>
-
-## Related features
-
-### Just-in-time provisioning
-
-When users authenticate through SSO, Scalekit can automatically create user accounts and organization memberships through [Just-in-time (JIT) provisioning](/authenticate/manage-users-orgs/jit-provisioning/). This eliminates manual invitation workflows and allows immediate access for authorized users.
-
-### User attribute synchronization
-
-Scalekit can automatically sync user profile attributes from your identity provider each time a user authenticates. This ensures that user information remains current across both systems. Configure this option in your SSO connection settings to maintain consistent user data.
+The organization administrators can enable this feature in the admin portal from Admin Portal > Single Sign On > Settings > Sync user attributes during login
