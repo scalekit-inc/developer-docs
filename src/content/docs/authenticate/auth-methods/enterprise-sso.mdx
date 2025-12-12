@@ -14,8 +14,11 @@ head:
       }
 seeAlso:
   expanded: true
-  label: "Next steps"
+  label: "Related guides"
   items:
+    - title: "Just-in-time provisioning"
+      icon: "book"
+      url: "/authenticate/manage-users-orgs/jit-provisioning/"
     - title: "Browse supported SSO integrations"
       icon: "puzzle"
       url: "/guides/integrations/sso-integrations"
@@ -26,7 +29,7 @@ next:
 ---
 
 import {
-  LinkButton, Aside, Steps, Tabs, TabItem, Card, CardGrid,
+  LinkButton, Aside, Steps, Tabs, TabItem, Card, CardGrid, Badge
  } from '@astrojs/starlight/components';
 
 
@@ -115,24 +118,37 @@ Enterprise single sign-on (SSO) enables users to authenticate using their organi
 
     <LinkButton href="/sso/guides/onboard-enterprise-customers/" target="_blank" variant='secondary' class='sk-secondary' icon='right-arrow'>See how to onboard enterprise customers</LinkButton>
 
-
-
 4. ## Identify and enforce SSO for organization users
 
     Administrators typically register organization-owned domains through the admin portal. When a user attempts to sign in with an email address matching a registered domain, they are automatically redirected to their organization's designated identity provider for authentication.
 
-    The Scalekit authorization endpoint supports multiple methods for identifying the appropriate SSO connection, including flexible parameters such as `domain_hint`, `login_hint`, `organizationId`, or `connectionId`. These options provide granular control over the authentication routing process at runtime.
+    **Organization domains** automatically route users to the correct SSO connection based on their email address. When a user signs in with an email domain that matches a registered organization domain, Scalekit redirects them to that organization's SSO provider and enforces SSO login.
+
+    For example, if an organization registers `megacorp.org`, any user signing in with an `joe@megacorp.org` email address is redirected to Megacorp's SSO provider.
+
+    ![](@/assets/docs/enterprise-sso/organization_domain.png)
+
+    Navigate to **Dashboard > Organizations** and select the target organization > **Overview** > **Organization Domains** section to register organization domains.
 
     <Aside>
-    When implementing domain-based discovery mechanisms like `domain_hint`, [implement a lightweight validation step](/guides/user-auth/check-sso-domain/) to prevent unnecessary redirect loops.
+    When implementing [domain-based discovery mechanisms like `login_hint`](/authenticate/fsa/implement-login/), light weight validation step to check if the [domain has an active SSO connection](https://docs.scalekit.com/apis/#tag/connections/GET/api/v1/connections) to prevent unnecessary redirect loops
     </Aside>
 
 5. ## Test your SSO integration
 
     Scalekit offers a "Test Organization" feature that enables SSO flow validation without requiring test accounts from your customers' identity providers.
 
-    To quickly test the integration, enter an email address using the domains `@example.com` or `@example.org`. This will trigger a redirect to the IdP simulator, which serves as the test organization's identity provider for authentication.
+    To quickly test the integration, enter an email address using the domains `joe@example.com` or `jane@example.org`. This will trigger a redirect to the IdP simulator, which serves as the test organization's identity provider for authentication.
 
     For a comprehensive step-by-step walkthrough, refer to the [Test SSO integration guide](/sso/guides/test-sso/).
 
 </Steps>
+
+{/* TODO: Move this as part of JIT provisionning */}
+## Keep user data current with automatic attribute sync
+
+Scalekit automatically syncs user profile attributes from your identity provider each time a user authenticates. User information stays current across both systems without manual updates.
+
+![](@/assets/docs/enterprise-sso/user-profile-current.png)
+
+The organization administrators can enable this feature in the admin portal from Admin Portal > Single Sign On > Settings > Sync user attributes during login
