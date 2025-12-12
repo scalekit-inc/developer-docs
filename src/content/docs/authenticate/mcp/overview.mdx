@@ -61,12 +61,14 @@ This authorization mechanism is based on established specifications listed below
 - **OAuth 2.0 Authorization Server Metadata (RFC8414)**: Standardized server discovery
 - **OAuth 2.0 Dynamic Client Registration Protocol (RFC7591)**: Automatic client registration
 - **OAuth 2.0 Protected Resource Metadata (RFC9728)**: Resource server discovery
+- **Client-Initiated Metadata (CIMD)**: Lets authorization servers fetch client metadata directly from a client-hosted document for authorization
 
 ## The authorization flow in practice
 
 Here's how the MCP OAuth 2.1 flow unfolds step-by-step::
 
-![MCP OAuth 2.1 Authorization Flow](@/assets/docs/guides/mcp/mcp-auth-flow.png)
+![MCP OAuth 2.1 Authorization Flow](@/assets/docs/guides/mcp/overview-mcp-seq-diag.png)
+
 
 **Discovery phase**
 <Steps>
@@ -80,9 +82,9 @@ Here's how the MCP OAuth 2.1 flow unfolds step-by-step::
 **Authorization phase**
 
 <Steps>
-4. **Client** registers with authorization server (if using Dynamic Client Registration)
-5. **Authorization server** issues client credentials
-6. **Client** initiates appropriate OAuth flow (Authorization Code or Client Credentials)
+4. **Client** registers with authorization server (if using DCR)
+5. **Authorization server** issues client credentials (if using DCR)
+6. **Client** initiates appropriate OAuth flow
 7. **User** grants consent (for Authorization Code flow)
 8. **Authorization server** issues access token with appropriate scopes
 </Steps>
@@ -117,15 +119,17 @@ MCP authorization servers SHOULD issue short-lived access tokens to reduce the i
 
 MCP OAuth 2.1 supports granular permissions through scopes like:
 
-| Scope                              | Description                          |
+| Scope                               | Description                          |
 |-------------------------------------|--------------------------------------|
-| `mcp:tools:weather`                 | Access to weather tools only         |
-| `mcp:resources:customer-data:read`  | Read-only access to customer data    |
-| `mcp:exec:workflows:*`              | Execute any workflow                 |
+| `todo:read`                         | Read todo tasks                      |
+| `todo:write`                        | Create and edit todo tasks           |
 
 #### Dynamic client registration
 
 MCP clients and authorization servers SHOULD support the OAuth 2.1 Dynamic Client Registration Protocol to allow MCP clients to obtain OAuth client IDs without user interaction. This enables seamless onboarding of new AI agents without manual configuration.
+
+#### Client-initiated metadata (CIMD)
+MCP clients SHOULD support the Client-Initiated Metadata (CIMD) specification, which allows clients to publish their OAuth client metadata at a well-known URL under their control. This enables authorization servers to automatically retrieve and validate client metadata without requiring an explicit dynamic registration request, simplifying onboarding for new AI agents while maintaining secure, decentralized client configuration.
 
 ## Why authorization matters more than ever
 
