@@ -186,6 +186,11 @@ export const sidebar = [
       //   items: [],
       // },
       {
+        label: 'AI-powered tools',
+        collapsed: false,
+        items: ['guides/claude-auth-skill'],
+      },
+      {
         label: 'Code samples',
         collapsed: false,
         items: [
