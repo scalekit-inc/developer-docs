@@ -43,6 +43,7 @@ export const sidebar = [
           'authenticate/manage-users-orgs/create-organization',
           'authenticate/manage-organizations/add-users-to-organization',
           'authenticate/manage-users-orgs/email-domain-rules',
+          'authenticate/manage-users-orgs/jit-provisioning',
           'authenticate/manage-users-orgs/merge-identities',
           'authenticate/manage-organizations/remove-users-from-organization',
           'authenticate/manage-users-orgs/delete-users-and-organizations',
@@ -348,11 +349,7 @@ export const sidebar = [
         label: 'Guides',
         items: [
           'sso/guides/sso-basics',
-          'sso/guides/authorization-url',
-          'sso/guides/idp-init-sso',
           'sso/guides/add-login-ux-sso',
-          'sso/guides/sso-user-attributes',
-          'sso/guides/test-sso',
           {
             label: 'Self-service admin portal',
             link: 'authenticate/sso/admin-portal',
