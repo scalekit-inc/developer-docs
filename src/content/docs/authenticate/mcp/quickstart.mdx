@@ -55,6 +55,10 @@ MCP servers expose tools that AI hosts can discover and execute to interact with
 
 When you build MCP servers, multiple AI hosts may need to discover and use your server to interact with your resources. Scalekit handles the complex authentication and authorization for you, so you can focus on building better tools and improving functionality.
 
+<Aside type="tip" title="Using FastMCP?">
+  If you're using FastMCP, please follow the [integration guide](/authenticate/mcp/fastmcp-quickstart).
+</Aside>
+
 <Steps>
 
 1. ## Get Scalekit SDK
@@ -92,16 +96,12 @@ When you build MCP servers, multiple AI hosts may need to discover and use your 
    Note: If your MCP server is intended for use by public MCP Clients, it’s recommended to keep both DCR and CIMD enabled.
 
     <Aside type="caution" title="Toggling DCR or CIMD?">
-      If you enable or disable DCR or CIMD, be sure to restart your MCP server. Certain MCP frameworks cache authorization server details, and a restart ensures the updated configuration is correctly applied.
+      If you enable or disable DCR or CIMD, be sure to restart your MCP server. Certain MCP frameworks, like FastMCP, cache authorization server details, and a restart ensures the updated configuration is correctly applied.
     </Aside>
 
    <details open>
    <summary>Advanced settings</summary>
    - **Server URL**: Your MCP server's unique identifier, typically your server's URL (e.g., `https://mcp.yourapp.com`). This is an optional field. If not provided, Scalekit will use the generated resource_id as the resource identifier. If provided, access tokens minted by Scalekit will have the resource identifier as `aud` claim along with the Scalekit generated resource_id.
-    <Aside type="tip" title="Using FastMCP?">
-      If you're using FastMCP, you must provide a resource identifier. For a server running at `https://mcp.example.com/mcp`, register `https://mcp.example.com/` as the resource identifier. FastMCP appends <code>/mcp</code> automatically, so use the base URL with a trailing slash only.
-    </Aside>
-
    - **Access token lifetime**: Recommended 300-3600 seconds (5 minutes to 1 hour)
    - **Scopes**: Define the permissions your MCP server needs, such as `todo:read` or `todo:write`. These scopes are pre-approved when users authenticate to use your MCP server, streamlining the authorization process.
 
