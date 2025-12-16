@@ -67,7 +67,7 @@ export const secondaryNavItems: NavItem[] = [
       },
       {
         id: 'agent-auth',
-        href: '/agent-actions/quickstart',
+        href: '/agent-auth/quickstart/',
         label: 'Agent Auth',
         iconComponent: IconLucideBot,
         description:
@@ -174,11 +174,11 @@ export const secondaryNavItems: NavItem[] = [
       },
     ],
   },
-  // Temporarily hidden - Agent Actions
+  // Temporarily hidden - Agent Auth
   // {
   //   id: 'agent-actions',
   //   href: '/agent-actions/quickstart',
-  //   label: 'Agent Actions',
+  //   label: 'Agent Auth',
   //   iconComponent: IconLucideBot,
   // },
 ]

@@ -93,7 +93,7 @@ export const sidebar = [
   },
   {
     label: 'Agent Auth',
-    link: '/agent-actions/quickstart',
+    link: '/agent-auth/quickstart',
     id: 'connect',
     badge: {
       text: 'New', // The text to display in the badge
@@ -103,25 +103,25 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['agent-actions/overview', 'agent-actions/quickstart'],
+        items: ['agent-auth/overview', 'agent-auth/quickstart'],
       },
       {
         label: 'Authentication',
         collapsed: false,
         items: [
-          'agent-actions/providers',
-          'agent-actions/connections',
-          'agent-actions/connected-accounts',
-          // 'agent-actions/authentication/auth-flows-comparison',
-          'agent-actions/tools/authorize',
-          'agent-actions/authentication/token-management',
-          'agent-actions/advanced/bring-your-own-oauth',
-          'agent-actions/advanced/custom-domain',
-          // 'agent-actions/authentication/scopes-permissions',
-          // 'agent-actions/authentication/multi-provider',
-          // 'agent-actions/authentication/troubleshooting',
-          // 'agent-actions/authentication/testing-auth-flows',
-          // 'agent-actions/advanced/overview',
+          'agent-auth/providers',
+          'agent-auth/connections',
+          'agent-auth/connected-accounts',
+          // 'agent-auth/authentication/auth-flows-comparison',
+          'agent-auth/tools/authorize',
+          'agent-auth/authentication/token-management',
+          'agent-auth/advanced/bring-your-own-oauth',
+          'agent-auth/advanced/custom-domain',
+          // 'agent-auth/authentication/scopes-permissions',
+          // 'agent-auth/authentication/multi-provider',
+          // 'agent-auth/authentication/troubleshooting',
+          // 'agent-auth/authentication/testing-auth-flows',
+          // 'agent-auth/advanced/overview',
         ],
       },
       {
@@ -134,20 +134,20 @@ export const sidebar = [
         label: 'Agentic tool calling',
         collapsed: true,
         items: [
-          'agent-actions/agentic-quickstart',
+          'agent-auth/agentic-quickstart',
           {
             label: 'AI Frameworks',
             items: [
-              'agent-actions/frameworks/langchain',
-              'agent-actions/frameworks/google-adk',
-              // 'agent-actions/frameworks/agno',
-              // 'agent-actions/frameworks/openai',
-              // 'agent-actions/frameworks/anthropic',
+              'agent-auth/frameworks/langchain',
+              'agent-auth/frameworks/google-adk',
+              // 'agent-auth/frameworks/agno',
+              // 'agent-auth/frameworks/openai',
+              // 'agent-auth/frameworks/anthropic',
             ],
           },
           {
             label: 'MCP',
-            items: ['agent-actions/mcp/quickstart'],
+            items: ['agent-auth/mcp/quickstart'],
           },
         ],
       },
@@ -155,11 +155,11 @@ export const sidebar = [
         label: 'Tool calling reference',
         collapsed: true,
         items: [
-          'agent-actions/tools/overview',
-          'agent-actions/tools/execute',
-          'agent-actions/tools/modifiers',
-          //'agent-actions/advanced/proxy-api-calls',
-          // 'agent-actions/tools/custom-processors',
+          'agent-auth/tools/overview',
+          'agent-auth/tools/execute',
+          'agent-auth/tools/modifiers',
+          //'agent-auth/advanced/proxy-api-calls',
+          // 'agent-auth/tools/custom-processors',
           // 'connect/tools/custom-tools',
           // 'connect/tools/proxy-tools',
         ],
@@ -428,8 +428,8 @@ export const topics = {
   // Modular SCIM (directory provisioning)
   'modular-scim': ['/directory/**/*'],
 
-  // Agent Actions / Connect
-  connect: ['/agent-actions/**/*', '/reference/agent-connectors/**/*'],
+  // Agent Auth / Connect
+  connect: ['/agent-auth/**/*', '/reference/agent-connectors/**/*'],
 
   // Events & webhooks reference
   'events-reference': [
@@ -514,7 +514,7 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Modular SCIM sidebar → 'Modular SCIM' tab
   'modular-scim': 'modular-scim',
 
-  // Agent Actions sidebar → 'Agent Auth' tab
+  // Agent Auth sidebar → 'Agent Auth' tab
   connect: 'agent-auth',
 
   // Developer Resources sidebar → 'Developer Resources' tab
