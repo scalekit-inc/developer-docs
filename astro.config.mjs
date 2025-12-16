@@ -18,10 +18,13 @@ import tailwindcss from '@tailwindcss/vite'
 import d2 from 'astro-d2' // https://astro-d2.vercel.app/configuration/
 import Icons from 'unplugin-icons/vite'
 
+import netlify from '@astrojs/netlify'
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://docs.scalekit.com',
   redirects,
+
   integrations: [
     starlight({
       title: 'Scalekit Docs',
@@ -229,9 +232,11 @@ export default defineConfig({
       pad: 5,
     }),
   ],
+
   image: {
     service: passthroughImageService(),
   },
+
   vite: {
     resolve: {
       alias: {
@@ -263,4 +268,6 @@ export default defineConfig({
       },
     },
   },
+
+  adapter: netlify(),
 })
