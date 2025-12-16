@@ -7,7 +7,6 @@ import vue from '@astrojs/vue'
 import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
-import starlightTocOverviewCustomizer from 'starlight-toc-overview-customizer'
 import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
@@ -87,9 +86,6 @@ export default defineConfig({
           showCaptions: true,
         }),
         starlightSidebarTopics(sidebarConfig, { topics }),
-        starlightTocOverviewCustomizer({
-          overviewTitle: 'Overview',
-        }),
         starlightVideos(),
         starlightChangelogs(),
         starlightLinksValidator({
