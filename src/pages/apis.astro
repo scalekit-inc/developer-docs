@@ -2,7 +2,7 @@
 // Import the `<StarlightPage>` component first to set up cascade layers
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import { ScalarComponent } from '@scalar/astro'
-import ApiSearchIndex from '@/components/ApiSearchIndex.astro'
+import ApiSearchIndex from '../components/ApiSearchIndex.astro'
 
 /*
 TODO:
@@ -11,14 +11,15 @@ TODO:
 **/
 
 // Page metadata
+const template = 'splash' as const
 const frontmatter = {
   title: 'Scalekit API Reference',
   description: 'Complete reference for all Scalekit API endpoints',
-  template: 'splash',
-  editUrl: false,
+  template,
+  editUrl: false as const,
   head: [
     {
-      tag: 'style',
+      tag: 'style' as const,
       content: `
         footer {
           display: none !important;
@@ -43,6 +44,107 @@ const frontmatter = {
 ---
 
 <div class="scalar-api-reference">
+  <!--
+    Persist the selected "Request Example" client globally across endpoints.
+    Scalar stores this preference under `scalar-reference-selected-client-v2`.
+    We only set an initial default for first-time visitors; afterwards Scalar keeps it updated.
+  -->
+  <script is:inline>
+    ;(() => {
+      try {
+        const KEY = 'scalar-reference-selected-client-v2'
+        if (!window?.localStorage?.getItem(KEY)) {
+          // Default to cURL on first visit (matches the previous `defaultHttpClient` behavior).
+          window.localStorage.setItem(KEY, 'shell/curl')
+        }
+      } catch {
+        // Ignore storage errors (private mode, blocked storage, etc.)
+      }
+    })()
+  </script>
+  <!--
+    Scalar only emits `scalar-update-selected-client` for non-custom http-clients.
+    When users pick an SDK example (which uses `custom/<lang>` ids), Scalar intentionally
+    does NOT emit that event, so other request examples don’t update.
+    This bridge makes SDK selection global for inline request examples only.
+  -->
+  <script is:inline>
+    ;(() => {
+      const SELECTED_CLIENT_KEY = 'scalar-reference-selected-client-v2'
+
+      // Scalar generates SDK examples from OpenAPI `x-codeSamples` and assigns them ids in the
+      // form `custom/<lang>`. For our spec, those SDK labels are consistent and map cleanly.
+      const sdkLabelToClientId = new Map([
+        ['Node.js SDK', 'custom/javascript'],
+        ['Python SDK', 'custom/python'],
+        ['Go SDK', 'custom/go'],
+        ['Java SDK', 'custom/java'],
+      ])
+
+      const normalizeText = (value) => (value ?? '').replace(/\s+/g, ' ').trim()
+
+      // Keep this scoped to inline request examples, not the API client drawer/modal.
+      const isInsideApiClientDialog = (el) => Boolean(el?.closest?.('[role="dialog"]'))
+      const findClosestRequestCard = (el) => el?.closest?.('.request-card')
+      const findScalarInstanceRoot = (el) =>
+        el?.closest?.('[id^="scalar-client-"]') ?? document.getElementById('scalar-client-0')
+
+      const syncCustomClientSelection = (sourceEl) => {
+        if (!(sourceEl instanceof Element)) return
+        if (isInsideApiClientDialog(sourceEl)) return
+
+        const card = findClosestRequestCard(sourceEl)
+        if (!card) return
+
+        const pickerButton = card.querySelector('[data-testid="client-picker"]')
+        if (!(pickerButton instanceof HTMLElement)) return
+
+        const label = normalizeText(pickerButton.textContent)
+        const clientId = sdkLabelToClientId.get(label)
+        if (!clientId) return
+
+        try {
+          const current = window?.localStorage?.getItem(SELECTED_CLIENT_KEY)
+          if (current === clientId) return
+
+          window.localStorage.setItem(SELECTED_CLIENT_KEY, clientId)
+
+          // Dispatch on the Scalar instance root so only that app instance updates.
+          const root = findScalarInstanceRoot(card)
+          root?.dispatchEvent(
+            new CustomEvent('scalar-update-selected-client', {
+              detail: clientId,
+              bubbles: true,
+              composed: true,
+              cancelable: false,
+            }),
+          )
+        } catch {
+          // Ignore storage/DOM errors
+        }
+      }
+
+      // The SDK picker is a teleported combobox. It doesn't reliably emit a DOM `change` event,
+      // so we watch for the selected label (the `data-testid="client-picker"` button text) to change.
+      const observedButtons = new WeakSet()
+      const attachObservers = () => {
+        document.querySelectorAll('[data-testid="client-picker"]').forEach((btn) => {
+          if (!(btn instanceof HTMLElement)) return
+          if (observedButtons.has(btn)) return
+
+          observedButtons.add(btn)
+
+          const observer = new MutationObserver(() => syncCustomClientSelection(btn))
+          observer.observe(btn, { childList: true, subtree: true, characterData: true })
+        })
+      }
+
+      // Attach initial observers and keep watching for new request cards as the user navigates.
+      attachObservers()
+      const pageObserver = new MutationObserver(() => attachObservers())
+      pageObserver.observe(document.documentElement, { childList: true, subtree: true })
+    })()
+  </script>
   <ScalarComponent
     configuration={{
       url: '/api/scalekit.swagger.json',
@@ -116,10 +218,6 @@ const frontmatter = {
       hideClientButton: true,
       baseServerURL: 'https://scalekit.com',
       documentDownloadType: 'json',
-      defaultHttpClient: {
-        targetKey: 'shell',
-        clientKey: 'curl',
-      },
       // hides an unnecessary button that says "Authorize" + intro card
       customCss: `#scalar-client-0 { margin-top: 8rem; } .introduction-card-item.scalar-reference-intro-clients { display: none; } button.scalar-button-outlined { display: none !important; }`,
     }}
