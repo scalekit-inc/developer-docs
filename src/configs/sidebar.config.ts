@@ -95,10 +95,6 @@ export const sidebar = [
     label: 'Agent Auth',
     link: '/agent-auth/quickstart',
     id: 'connect',
-    badge: {
-      text: 'New', // The text to display in the badge
-      variant: 'tip', // Optional: 'note', 'tip', 'caution', 'danger', 'success'
-    },
     icon: 'rocket',
     items: [
       {
