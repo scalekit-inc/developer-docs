@@ -7,7 +7,6 @@ import vue from '@astrojs/vue'
 import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
-import starlightTocOverviewCustomizer from 'starlight-toc-overview-customizer'
 import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
@@ -19,10 +18,13 @@ import tailwindcss from '@tailwindcss/vite'
 import d2 from 'astro-d2' // https://astro-d2.vercel.app/configuration/
 import Icons from 'unplugin-icons/vite'
 
+import netlify from '@astrojs/netlify'
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://docs.scalekit.com',
   redirects,
+
   integrations: [
     starlight({
       title: 'Scalekit Docs',
@@ -87,9 +89,6 @@ export default defineConfig({
           showCaptions: true,
         }),
         starlightSidebarTopics(sidebarConfig, { topics }),
-        starlightTocOverviewCustomizer({
-          overviewTitle: 'Overview',
-        }),
         starlightVideos(),
         starlightChangelogs(),
         starlightLinksValidator({
@@ -233,9 +232,11 @@ export default defineConfig({
       pad: 5,
     }),
   ],
+
   image: {
     service: passthroughImageService(),
   },
+
   vite: {
     resolve: {
       alias: {
@@ -267,4 +268,6 @@ export default defineConfig({
       },
     },
   },
+
+  adapter: netlify(),
 })
