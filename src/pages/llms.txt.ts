@@ -7,6 +7,7 @@ import { sidebar } from '../configs/sidebar.config'
  * Uses sidebar configuration for dynamic content generation.
  */
 const BASE_URL = 'https://docs.scalekit.com'
+export const prerender = false
 
 function abs(link: string): string {
   if (link.startsWith('http://') || link.startsWith('https://')) return link

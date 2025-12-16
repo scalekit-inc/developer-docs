@@ -11,3 +11,5 @@ export const GET = createLlmsRoute({
   instructionFilePath: 'scripts/manual/LLM_INSTRUCTIONS.md',
   style: 'plain',
 })
+
+export const prerender = false
