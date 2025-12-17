@@ -206,7 +206,17 @@ export const sidebar = [
       },
       {
         label: 'Reference',
-        items: ['reference/admin-portal/ui-events', 'reference/interceptors/triggers'],
+        items: [
+          'reference/webhooks/overview',
+          'reference/webhooks/directory-events',
+          'reference/webhooks/user-events',
+          'reference/webhooks/organization-events',
+          'reference/webhooks/permission-events',
+          'reference/webhooks/role-events',
+          'reference/webhooks/sso-events',
+          'reference/admin-portal/ui-events',
+          'reference/interceptors/triggers',
+        ],
       },
       {
         label: 'Configure social connections',
