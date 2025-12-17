@@ -222,22 +222,18 @@ const frontmatter = {
       customCss: `#scalar-client-0 { margin-top: 8rem; } .introduction-card-item.scalar-reference-intro-clients { display: none; } }`,
       // Custom slug generation for webhooks to prevent "undefined" in URLs
       generateWebhookSlug: (webhook) => {
-        // The webhook object structure from OpenAPI parsing doesn't include the original key
-        // We need to extract a meaningful identifier from the available properties
+        // For OpenAPI webhooks, the key is typically not included in the parsed object
+        // We need to use the summary as a fallback when name is not available
+        const name = webhook.name || webhook.summary || 'list-of-events'
 
-        // Try to use summary first (most descriptive)
-        if (webhook.summary) {
-          return webhook.summary
-            .toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
-            .replace(/\s+/g, '-') // Replace spaces with hyphens
-            .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-            .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
-        }
-
-        // Fallback to a generic webhook identifier
-        // This ensures we never get "undefined" in the URL
-        return 'webhook-event'
+        // Convert to a URL-friendly slug
+        // For example: "Organization Created" -> "organization-created"
+        return name
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+          .replace(/\s+/g, '-') // Replace spaces with hyphens
+          .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+          .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
       },
     }}
   />
