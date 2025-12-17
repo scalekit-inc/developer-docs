@@ -220,6 +220,25 @@ const frontmatter = {
       documentDownloadType: 'json',
       // hides an unnecessary button that says "Authorize" + intro card
       customCss: `#scalar-client-0 { margin-top: 8rem; } .introduction-card-item.scalar-reference-intro-clients { display: none; } }`,
+      // Custom slug generation for webhooks to prevent "undefined" in URLs
+      generateWebhookSlug: (webhook) => {
+        // The webhook object structure from OpenAPI parsing doesn't include the original key
+        // We need to extract a meaningful identifier from the available properties
+
+        // Try to use summary first (most descriptive)
+        if (webhook.summary) {
+          return webhook.summary
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+            .replace(/\s+/g, '-') // Replace spaces with hyphens
+            .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+            .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+        }
+
+        // Fallback to a generic webhook identifier
+        // This ensures we never get "undefined" in the URL
+        return 'webhook-event'
+      },
     }}
   />
 </div>
