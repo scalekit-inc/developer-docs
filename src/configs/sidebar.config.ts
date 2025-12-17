@@ -195,6 +195,20 @@ export const sidebar = [
         ],
       },
       {
+        label: 'How-to guides',
+        items: [
+          {
+            label: 'Handle webhook events',
+            link: 'authenticate/implement-workflows/listen-to-webhooks',
+          },
+          'guides/webhooks-best-practices',
+        ],
+      },
+      {
+        label: 'Reference',
+        items: ['reference/admin-portal/ui-events', 'reference/interceptors/triggers'],
+      },
+      {
         label: 'Configure social connections',
         collapsed: true,
         autogenerate: {
@@ -234,32 +248,6 @@ export const sidebar = [
       //   collapsed: false,
       //   items: ['guides/client-credentials-practices'],
       // },
-    ],
-  },
-  {
-    label: 'Events reference',
-    id: 'events-reference',
-    link: '/reference/webhooks/overview/',
-    icon: 'rss',
-    items: [
-      {
-        label: 'Webhooks',
-        autogenerate: { directory: 'reference/webhooks' },
-      },
-      {
-        label: 'Events',
-        items: ['reference/admin-portal/ui-events', 'reference/interceptors/triggers'],
-      },
-      {
-        label: 'How-to guides',
-        items: [
-          {
-            label: 'Handle webhook events',
-            link: 'authenticate/implement-workflows/listen-to-webhooks',
-          },
-          'guides/webhooks-best-practices',
-        ],
-      },
     ],
   },
   {

@@ -167,7 +167,7 @@ export const secondaryNavItems: NavItem[] = [
       },
       {
         id: 'webhooks-events', // Maps to sidebarToSecondaryNav['events-reference']
-        href: '/reference/webhooks/overview/',
+        href: '/apis/#webhook/list-of-events',
         label: 'Webhooks',
         iconComponent: IconLucideOutlineWebhook,
         description: 'Real-time auth events',
