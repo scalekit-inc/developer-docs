@@ -60,9 +60,9 @@ export const secondaryNavItems: NavItem[] = [
         href: '/authenticate/mcp/quickstart/',
         label: 'MCP Auth',
         iconComponent: IconMcp,
-        description: 'Add OAuth for MCP servers with CIMD & dynamic client registration support',
+        description: 'Secure MCP servers with OAuth 2.1, CIMD, and dynamic registration',
         sectionLabel: 'MODULAR AUTH',
-        sectionDescription: 'Add authentication modules to your existing auth system',
+        sectionDescription: 'Add auth capabilities without replacing your system',
         columnGroup: 'left',
       },
       {
@@ -70,8 +70,7 @@ export const secondaryNavItems: NavItem[] = [
         href: '/agent-actions/quickstart',
         label: 'Agent Auth',
         iconComponent: IconLucideBot,
-        description:
-          'Authenticate agents with external tools via a token vault managing consent, scopes, and OAuth tokens',
+        description: 'Connect AI agents to external tools with a token vault and OAuth',
         columnGroup: 'left',
       },
       {
@@ -79,7 +78,7 @@ export const secondaryNavItems: NavItem[] = [
         href: '/authenticate/sso/add-modular-sso/',
         label: 'Modular SSO',
         iconComponent: IconMingcuteUserSecurityLine,
-        description: 'Enable SAML or OIDC single sign-on for any enterprise identity provider',
+        description: 'Add SAML or OIDC SSO with enterprise identity providers',
         columnGroup: 'left',
       },
       {
@@ -87,7 +86,7 @@ export const secondaryNavItems: NavItem[] = [
         href: '/directory/scim/quickstart/',
         label: 'Modular SCIM',
         iconComponent: IconAntDesignUserSwitchOutlined,
-        description: 'Automate user and group provisioning and de-provisioning',
+        description: 'Automate user provisioning, sync roles and groups from directories',
         columnGroup: 'left',
       },
       {
@@ -96,27 +95,27 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'Quickstart', // Show in dropdown
         iconComponent: IconLucideRocket, // Distinct icon for Quickstart
-        description: 'Set up Full-stack Auth and start building',
+        description: 'Add production-ready auth flows',
         sectionLabel: 'FULL-STACK AUTH',
-        sectionDescription: 'Complete authentication and user management',
+        sectionDescription: 'Use Scalekit as your full identity layer',
         columnGroup: 'right',
       },
       {
         id: 'fsa-user-auth',
         href: '/authenticate/fsa/implement-login/',
         label: 'Full stack auth', // Use parent label for nav button
-        dropdownLabel: 'User authentication', // Show in dropdown
+        dropdownLabel: 'Authentication methods', // Show in dropdown
         iconComponent: IconLucideLogIn, // Distinct icon for User Auth
-        description: 'Implement login, sign-up flows and session management',
+        description: 'Support modern login flows with passkeys, magic links, and more',
         columnGroup: 'right',
       },
       {
         id: 'fsa-users-orgs',
         href: '/fsa/data-modelling/',
         label: 'Full stack auth', // Use parent label for nav button
-        dropdownLabel: 'Manage users & orgs', // Show in dropdown
+        dropdownLabel: 'Users & organizations', // Show in dropdown
         iconComponent: IconLucideBuilding2, // Distinct icon for Users & Orgs
-        description: 'Manage users and organizations with built-in multi-tenancy support',
+        description: 'Manage users, organizations, and memberships with multi-tenancy',
         columnGroup: 'right',
       },
       {
@@ -125,16 +124,16 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'Authorization', // Show in dropdown
         iconComponent: IconLucideShieldCheck, // Distinct icon for Authorization
-        description: 'Define roles, permissions, and access policies',
+        description: 'Define roles and permissions for human users and AI agents',
         columnGroup: 'right',
       },
       {
         id: 'fsa-customize',
         href: '/guides/custom-domain/',
         label: 'Full stack auth', // Use parent label for nav button
-        dropdownLabel: 'Customize', // Show in dropdown
+        dropdownLabel: 'Extensibility & controls', // Show in dropdown
         iconComponent: IconLucidePalette, // Distinct icon for Customize
-        description: 'Configure branding, domains, and authentication workflows',
+        description: 'Customize identity workflows and apply your business logic',
         columnGroup: 'right',
       },
     ],
@@ -156,21 +155,21 @@ export const secondaryNavItems: NavItem[] = [
         href: '/apis/#description/sdks',
         label: 'SDKs',
         iconComponent: IconSdk,
-        description: 'Ready-to-use building blocks',
+        description: 'Ready-to-use libraries to implement auth in your app',
       },
       {
         id: 'rest-apis',
         href: '/apis/',
         label: 'REST APIs',
         iconComponent: IconApi,
-        description: 'Programmatic control via APIs',
+        description: 'Programmatic control to manage users, orgs, sessions etc.',
       },
       {
         id: 'webhooks-events', // Maps to sidebarToSecondaryNav['events-reference']
         href: '/reference/webhooks/overview/',
         label: 'Webhooks',
         iconComponent: IconLucideOutlineWebhook,
-        description: 'Real-time auth events',
+        description: 'Receive real-time events for auth, users, and orgs',
       },
     ],
   },

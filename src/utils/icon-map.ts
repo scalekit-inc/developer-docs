@@ -19,6 +19,10 @@ import IconSimpleIconsLangchain from '~icons/simple-icons/langchain'
 import IconSimpleIconsDotnet from '~icons/simple-icons/dotnet'
 import IconApiAuth from '~icons/flowbite/api-key-outline'
 import IconLucideUserLock from '~icons/lucide/user-lock'
+import IconLucideUserCheck from '~icons/lucide/user-check'
+import IconHugeiconsAuthorized from '~icons/hugeicons/authorized'
+import IconLucideBuilding2 from '~icons/lucide/building-2'
+import IconCodiconWorkspaceTrusted from '~icons/codicon/workspace-trusted'
 
 // Content type icons
 import IconLucideFileVideoCamera from '~icons/lucide/file-video-camera'
@@ -129,6 +133,10 @@ export const iconMap = {
   langchain: IconSimpleIconsLangchain,
   dotnet: IconSimpleIconsDotnet,
   userlock: IconLucideUserLock,
+  usercheck: IconLucideUserCheck,
+  authmethods: IconHugeiconsAuthorized,
+  b2b: IconLucideBuilding2,
+  trust: IconCodiconWorkspaceTrusted,
 
   // Content type icons
   video: IconLucideVideo,
@@ -256,6 +264,7 @@ export {
   IconLucideRocket,
   IconSimpleIconsLangchain,
   IconLucideBlocks,
+  IconCodiconWorkspaceTrusted,
 
   // Content type icons
   IconHugeiconsResourcesAdd,
