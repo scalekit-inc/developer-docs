@@ -212,14 +212,20 @@ export const redirects = {
   '/agent-actions/agentic-quickstart/': '/agent-auth/agentic-quickstart/',
 
   // Authentication pages
-  '/agent-actions/authentication/auth-flows-comparison': '/agent-auth/authentication/auth-flows-comparison/',
-  '/agent-actions/authentication/auth-flows-comparison/': '/agent-auth/authentication/auth-flows-comparison/',
+  '/agent-actions/authentication/auth-flows-comparison':
+    '/agent-auth/authentication/auth-flows-comparison/',
+  '/agent-actions/authentication/auth-flows-comparison/':
+    '/agent-auth/authentication/auth-flows-comparison/',
   '/agent-actions/authentication/multi-provider': '/agent-auth/authentication/multi-provider/',
   '/agent-actions/authentication/multi-provider/': '/agent-auth/authentication/multi-provider/',
-  '/agent-actions/authentication/scopes-permissions': '/agent-auth/authentication/scopes-permissions/',
-  '/agent-actions/authentication/scopes-permissions/': '/agent-auth/authentication/scopes-permissions/',
-  '/agent-actions/authentication/testing-auth-flows': '/agent-auth/authentication/testing-auth-flows/',
-  '/agent-actions/authentication/testing-auth-flows/': '/agent-auth/authentication/testing-auth-flows/',
+  '/agent-actions/authentication/scopes-permissions':
+    '/agent-auth/authentication/scopes-permissions/',
+  '/agent-actions/authentication/scopes-permissions/':
+    '/agent-auth/authentication/scopes-permissions/',
+  '/agent-actions/authentication/testing-auth-flows':
+    '/agent-auth/authentication/testing-auth-flows/',
+  '/agent-actions/authentication/testing-auth-flows/':
+    '/agent-auth/authentication/testing-auth-flows/',
   '/agent-actions/authentication/token-management': '/agent-auth/authentication/token-management/',
   '/agent-actions/authentication/token-management/': '/agent-auth/authentication/token-management/',
   '/agent-actions/authentication/troubleshooting': '/agent-auth/authentication/troubleshooting/',
