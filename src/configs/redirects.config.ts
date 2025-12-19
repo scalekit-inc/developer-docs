@@ -343,8 +343,11 @@ export const redirects = {
   '/authenticate/installation': '/authenticate/set-up-scalekit/',
   '/guides/setup-scalekit/': '/authenticate/set-up-scalekit/',
   '/fsa/reference/user-management-settings': '/authenticate/fsa/user-management-settings/',
-  '/dev-kit/webhooks/event-object/': '/reference/webhooks/overview/',
-  '/reference/webhooks/event-object/': '/reference/webhooks/overview/',
+  '/dev-kit/webhooks/event-object/': '/authenticate/implement-workflows/handle-webhooks/',
+  '/reference/webhooks/event-object/': '/authenticate/implement-workflows/handle-webhooks/',
+  '/reference/webhooks/overview/': '/authenticate/implement-workflows/handle-webhooks/',
+  '/authenticate/implement-workflows/listen-to-webhooks/':
+    '/authenticate/implement-workflows/handle-webhooks/',
   '/api/webhook-events': '/reference/webhooks/directory-events/',
   '/manage-scalekit/glossary': '/reference/glossary/',
   '/contact-us': '/support/contact-us/',
