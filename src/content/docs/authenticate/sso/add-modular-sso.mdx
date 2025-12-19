@@ -54,11 +54,9 @@ Choose Modular SSO when you:
 - Need to integrate SSO without changing your existing authentication architecture
 - Already have existing user management infrastructure
 
-
 <Aside type="note" title="Using Full stack auth?">
   [Full stack auth](/authenticate/fsa/quickstart/) includes SSO functionality by default. If you're using Full stack auth, you can skip this guide.
 </Aside>
-
 
 <Card title="Get moving, instantly, with your go-to AI assistant" icon={IconRiAiGenerate2}>
   <div class="llm-prompt-card">
@@ -81,24 +79,24 @@ Choose Modular SSO when you:
   </div>
 </Card>
 
-
 <Steps>
 
-1. ## Set up Scalekit
+1. ## Configure "Modular Auth" mode
 
-    Use the following instructions to install the SDK for your technology stack.
-
-   <InstallSDK />
-
-    In case you want to use Modular SSO:
+    Configure your environment to use Modular SSO.
 
     1. Go to Dashboard > Authentication > General
     2. Under "Full-Stack Auth" section, click "Disable Full-Stack Auth"
 
     Now you're ready to start integrating SSO into your app! Next, we'll cover how to use the SDK to authenticate users.
 
+2. ## Set up Scalekit
 
-2. ## Redirect the users to their enterprise identity provider login page
+    Use the following instructions to install the SDK for your technology stack.
+
+   <InstallSDK />
+
+3. ## Redirect the users to their enterprise identity provider login page
 
    Create an authorization URL to redirect users to Scalekit's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and required scopes.
 
@@ -305,28 +303,27 @@ Choose Modular SSO when you:
    </TabItem>
    </Tabs>
 
-
    Enterprise users see their identity provider's login page. Users verify their identity through the authentication policies set by their organization's administrator. Post successful verification, the user profile is [normalized](/sso/guides/user-profile-details/) and sent to your app.
 
-   If your application needs to verify whether an SSO connection exists for a specific domain before proceeding, you can use the [list connections by domain SDK method](/guides/user-auth/check-sso-domain/).
 
    For details on how Scalekit determines which SSO connection to use, refer to the [SSO identifier precedence rules](/sso/guides/authorization-url/#parameter-precedence).
 
-3. ## Handle IdP-initiated SSO <Badge type="tip" text="Recommended" />
+4. ## Handle IdP-initiated SSO <Badge type="tip" text="Recommended" />
 
    When users start the login process from their identity provider's portal (rather than your application), this is called IdP-initiated SSO. Scalekit converts these requests to secure SP-initiated flows automatically.
 
    Your initiate login endpoint receives an `idp_initiated_login` JWT parameter containing the user's organization and connection details. Decode this token and generate a new authorization URL to complete the authentication flow securely.
 
-   ```sh showLineNumbers=false "idp_initiated_login=<encoded_jwt_token>" wrap
+   ```sh showLineNumbers=false wrap
    https://yourapp.com/login?idp_initiated_login=<encoded_jwt_token>
    ```
+
    Configure your initiate login endpoint in [Dashboard > Authentication > Redirects](/guides/dashboard/redirects/#initiate-login-url)
 
    <Tabs syncKey="tech-stack">
    <TabItem value="nodejs" label="Node.js">
 
-   ```javascript wrap title="handle-idp-initiated.js" "idp_initiated_login" collapse={3-7} {9, 11}
+   ```javascript wrap title="handle-idp-initiated.js" collapse={3-7}
    // Your initiate login endpoint receives the IdP-initiated login token
    const { idp_initiated_login, error, error_description } = req.query;
 
@@ -359,7 +356,7 @@ Choose Modular SSO when you:
    </TabItem>
    <TabItem value="py" label="Python">
 
-   ```python title="handle_idp_initiated.py" "idp_initiated_login" {10} collapse={5-8}
+   ```python title="handle_idp_initiated.py"  collapse={5-8}
    # Your initiate login endpoint receives the IdP-initiated login token
    idp_initiated_login = request.args.get('idp_initiated_login')
    error = request.args.get('error')
@@ -391,7 +388,7 @@ Choose Modular SSO when you:
    </TabItem>
    <TabItem value="golang" label="Go">
 
-   ```go title="handle_idp_initiated.go" "idp_initiated_login" {11} collapse={5-9,30-37}
+   ```go title="handle_idp_initiated.go" collapse={5-9,30-37}
    // Your initiate login endpoint receives the IdP-initiated login token
    idpInitiatedLogin := r.URL.Query().Get("idp_initiated_login")
    errorDesc := r.URL.Query().Get("error_description")
@@ -435,7 +432,7 @@ Choose Modular SSO when you:
 
    <TabItem value="java" label="Java">
 
-   ```java title="HandleIdpInitiated.java" {15} "idp_initiated_login"
+   ```java title="HandleIdpInitiated.java"
    // Your initiate login endpoint receives the IdP-initiated login token
    @GetMapping("/login")
    public RedirectView handleInitiateLogin(
@@ -487,7 +484,7 @@ Choose Modular SSO when you:
 
    Learn more: [IdP-initiated SSO implementation guide](/sso/guides/idp-init-sso/)
 
-4. ## Get user details from the callback
+5. ## Get user details from the callback
 
     After successful authentication, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and session tokens.
 
@@ -499,7 +496,7 @@ Choose Modular SSO when you:
     <Tabs syncKey="tech-stack">
     <TabItem value="nodejs" label="Node.js">
 
-    ```javascript showLineNumbers wrap title="Fetch user profile" "code" {17}
+    ```javascript showLineNumbers wrap title="Fetch user profile" {17}
     // Extract authentication parameters from the callback request
     const {
       code,
@@ -525,7 +522,7 @@ Choose Modular SSO when you:
     </TabItem>
     <TabItem value="py" label="Python">
 
-    ```py showLineNumbers title="Fetch user profile" "code"
+    ```py showLineNumbers title="Fetch user profile"
     # Extract authentication parameters from the callback request
     code = request.args.get('code')
     error = request.args.get('error')
@@ -550,7 +547,7 @@ Choose Modular SSO when you:
     </TabItem>
     <TabItem value="golang" label="Go">
 
-    ```go title="Fetch user profile" "code"
+    ```go title="Fetch user profile"
     // Extract authentication parameters from the callback request
     code := r.URL.Query().Get("code")
     error := r.URL.Query().Get("error")
@@ -581,7 +578,7 @@ Choose Modular SSO when you:
 
     <TabItem value="java" label="Java">
 
-    ```java showLineNumbers title="Fetch user profile" "code"
+    ```java showLineNumbers title="Fetch user profile"
     // Extract authentication parameters from the callback request
     String code = request.getParameter("code");
     String error = request.getParameter("error");
@@ -726,7 +723,7 @@ Choose Modular SSO when you:
         </TabItem>
       </Tabs>
 
-5. ## Test your SSO integration
+6. ## Test your SSO integration
 
    Validate your implementation using the **IdP Simulator** and **Test Organization** included in your development environment. Test all three scenarios before deploying to production.
 
@@ -744,13 +741,11 @@ Choose Modular SSO when you:
 
    For detailed testing instructions and scenarios, see our [Complete SSO testing guide](/sso/guides/test-sso/)
 
-6. ## Set up SSO with your existing authentication system
-
+7. ## Set up SSO with your existing authentication system
 
     Many applications already use an authentication provider such as Auth0, Firebase, or AWS Cognito. To enable single sign-on (SSO) using Scalekit, configure Scalekit to work with your current authentication provider.
 
     <AuthSystemsSection />
-
 
 7. ## Onboard enterprise customers
 
@@ -782,7 +777,7 @@ Choose Modular SSO when you:
 
    Embed the Admin Portal directly in your application using an iframe:
 
-   ```javascript showLineNumbers=false title="embed-portal.js" {1-2,8-9}
+   ```javascript showLineNumbers=false title="embed-portal.js"
    // Generate a secure portal link at runtime
    const portalLink = await scalekit.organizations.generatePortalLink(orgId);
 
@@ -790,7 +785,7 @@ Choose Modular SSO when you:
    res.json({ portalUrl: portalLink.url });
    ```
 
-   ```html showLineNumbers=false title="admin-settings.html" {2}
+   ```html showLineNumbers=false title="admin-settings.html"
    <!-- Embed in your application's settings page -->
    <iframe
      src="https://random-subdomain.scalekit.dev/magicLink/8930509d-68cf-4e2c-8c6d-94d2b5e2db43"
