@@ -1,0 +1,84 @@
+---
+title: Authorization - Overview
+description: Learn about authorization options in Agent Auth, including OAuth flows, permissions, and security best practices.
+
+---
+
+import { LinkCard, CardGrid, Aside, Steps } from '@astrojs/starlight/components';
+
+Agents that need to take actions on-behalf-of users in third party applications like gmail, calendar, slack, notion, hubspot etc need to do so in a secure, authorized manner. Scalekit's Agent Auth solution helps developers build agents to act on-behalf-of users by managing user's authentication and authorization for those tools.
+
+## Supported Auth Methods
+
+Agent Auth supports all the different types of authentication and authorization methods that are adopted by different applications so that you don't have to worry about handling and managing user authorization tokens.
+
+- OAuth 2.0
+- API Keys
+- Bearer Tokens
+- Custom JWTs
+
+## Authorize a user
+
+### Create Connected Account
+
+Create a connected_account for a user and an application. In the example below - we show how to create a connected account for a user whose unique identifier is user_123 and gmail application.
+
+```python
+# Create a connected account for user if it doesn't exist already
+response = actions.get_or_create_connected_account(
+            connection_name="gmail",
+            identifier="user_123"
+        )
+connected_account = response.connected_account
+print(f'Connected account created: {connected_account.id}')
+```
+
+### Complete authorization
+
+Next, check the authorization status for this user's connected account. If authorization status is not ACTIVE, generate a unique one-time magic link and redirect the user to this link.
+
+Depending on the application's authentication type, Scalekit presents the user with appropriate next steps to complete user authorization.
+
+- If the application requires OAuth 2.0 based authorization, Scalekit will manage the OAuth 2.0 handshake on your behalf and keeps the user's access token for subsequent tool calls.
+- If the application requires API Key based authentication, Scalekit will present them with a form to collect API Keys and other necessary information and stores them securely in an encrypted manner and uses them for subsequent tool calls.
+
+```python
+# If the user hasn't yet authorized the gmail connection or if the user's access token is expired, generate a link for them to authorize the connection
+if(connected_account.status != "ACTIVE"):
+      print(f"gmail is not connected: {connected_account.status}")
+      link_response = actions.get_authorization_link(
+          connection_name="gmail",
+          identifier="user_123"
+      )
+      print(f"🔗click on the link to authorize gmail", link_response.link)
+
+# In a real app, redirect the user to this URL so that the user can complete the authentication process for their gmail account
+```
+
+### Make Authorized Tool Calls
+
+Once the user has successfully authorized the applications, your agent can use our SDK to execute tool calls on behalf of the user.
+
+Below is a small example to fetch user's unread emails using the same connected account details.
+
+```python
+# Fetch recent emails
+emails = actions.execute_tool(
+    connected_account_id=connected_account.id,
+    tool='gmail_fetch_mails',
+    tool_input={
+        'query': 'is:unread',
+        'max_results': 5
+    }
+)
+
+print(f'Recent emails: {emails.result}')
+```
+
+## Next Steps
+
+To make your agentic implementation faster, we have added Scalekit's credentials for popular third party applications like GMail, Google Calendar, Google Drive etc.
+
+For a complete white-labelled experience, you can configure your own oauth credentials.
+
+<LinkCard href="/agent-auth/advanced/bring-your-own-oauth" title="Bring your own Credentials"/>

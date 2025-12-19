@@ -119,6 +119,7 @@ export const iconMap = {
   authenticate: IconLucideShield,
   bot: IconLucideBot,
   'agent-actions': IconLucideBot,
+  'agent-auth': IconLucideBot,
   'book-open': IconLucideBookOpen,
   'api-reference': IconLucideBookOpen,
   'rest-apis': IconLucideBookOpen,

@@ -67,7 +67,7 @@ export const secondaryNavItems: NavItem[] = [
       },
       {
         id: 'agent-auth',
-        href: '/agent-actions/quickstart',
+        href: '/agent-auth/quickstart/',
         label: 'Agent Auth',
         iconComponent: IconLucideBot,
         description: 'Connect AI agents to external tools with a token vault and OAuth',
@@ -102,7 +102,7 @@ export const secondaryNavItems: NavItem[] = [
       },
       {
         id: 'fsa-user-auth',
-        href: '/authenticate/fsa/implement-login/',
+        href: '/authenticate/auth-methods/passwordless/',
         label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'Authentication methods', // Show in dropdown
         iconComponent: IconLucideLogIn, // Distinct icon for User Auth
@@ -166,18 +166,18 @@ export const secondaryNavItems: NavItem[] = [
       },
       {
         id: 'webhooks-events', // Maps to sidebarToSecondaryNav['events-reference']
-        href: '/reference/webhooks/overview/',
+        href: '/apis/#webhook/organizationcreated',
         label: 'Webhooks',
         iconComponent: IconLucideOutlineWebhook,
         description: 'Receive real-time events for auth, users, and orgs',
       },
     ],
   },
-  // Temporarily hidden - Agent Actions
+  // Temporarily hidden - Agent Auth
   // {
   //   id: 'agent-actions',
   //   href: '/agent-actions/quickstart',
-  //   label: 'Agent Actions',
+  //   label: 'Agent Auth',
   //   iconComponent: IconLucideBot,
   // },
 ]
