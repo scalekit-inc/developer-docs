@@ -195,7 +195,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'How-to guides',
+        label: 'Webhooks',
         items: [
           {
             label: 'Handle webhook events',

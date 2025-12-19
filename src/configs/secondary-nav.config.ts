@@ -164,13 +164,6 @@ export const secondaryNavItems: NavItem[] = [
         iconComponent: IconApi,
         description: 'Programmatic control to manage users, orgs, sessions etc.',
       },
-      {
-        id: 'webhooks-events', // Maps to sidebarToSecondaryNav['events-reference']
-        href: '/apis/#webhook/organizationcreated',
-        label: 'Webhooks',
-        iconComponent: IconLucideOutlineWebhook,
-        description: 'Receive real-time events for auth, users, and orgs',
-      },
     ],
   },
   // Temporarily hidden - Agent Auth
