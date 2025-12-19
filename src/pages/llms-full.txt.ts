@@ -10,6 +10,11 @@ export const GET = createLlmsRoute({
   include: '**/*.mdx,**/*.md',
   instructionFilePath: 'scripts/manual/LLM_INSTRUCTIONS.md',
   style: 'plain',
+  // Reduce memory usage for Netlify functions
+  repomixOptions: {
+    verbose: false,
+    progress: false,
+  },
 })
 
-export const prerender = false
+export const prerender = true

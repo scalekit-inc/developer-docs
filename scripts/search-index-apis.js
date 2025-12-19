@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename)
 
 // Load Swagger spec
 function loadSwaggerSpec() {
-  const swaggerPath = path.join(__dirname, '../public/api/scalekit.swagger.json')
+  const swaggerPath = path.join(__dirname, '../public/api/scalekit.scalar.json')
   const swaggerContent = fs.readFileSync(swaggerPath, 'utf8')
   return JSON.parse(swaggerContent)
 }

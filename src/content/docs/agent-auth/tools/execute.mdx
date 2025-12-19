@@ -1,0 +1,49 @@
+---
+title: Tool Calling
+description: Learn how to execute tools in Agent Auth to interact with third-party applications using connected accounts.
+---
+
+import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Tool execution is the core functionality of Agent Auth that allows you to perform actions on third-party applications using connected accounts. Tools abstract complex API operations into simple, consistent function calls.
+
+## What is tool execution?
+
+Tool execution in Agent Auth enables you to:
+
+- **Perform actions** on third-party applications via connected accounts
+- **Execute operations** like sending emails, creating calendar events, or fetching data on-behalf-of users
+- **Handle authentication** automatically using connected account tokens
+
+## Tool execution workflow
+
+1. **Identify the tool** you want to execute (e.g., `send_email`, `create_event`)
+2. **Select connected account** that has the required permissions
+3. **Prepare parameters** needed for the tool execution
+4. **Execute the tool** using the Agent Auth API
+5. **Handle the response** and any errors that occur
+
+## Direct tool execution
+
+Using Scalekit SDK, you can execute any action on behalf of a user using the following parameters:
+
+- user context
+- tool_name
+- tool_input_parameters
+
+```python
+# Fetch recent emails
+tool_response = actions.execute_tool(
+    # connected_account gives the user context
+    connected_account_id=connected_account.id,
+    # tool name to execute
+    tool='gmail_fetch_mails',
+    # tool input parameters
+    tool_input={
+        'query': 'is:unread',
+        'max_results': 5
+    }
+)
+
+print(f'Recent emails: {tool_response.result}')
+```

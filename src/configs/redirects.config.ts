@@ -182,6 +182,19 @@ export const redirects = {
   '/mcp/expressjs-quickstart': '/authenticate/mcp/expressjs-quickstart/',
 
   // =============================================================================
+  // AGENT AUTH REDIRECTS
+  // =============================================================================
+  // Agent Actions rebranded to Agent Auth (preserve all legacy URLs)
+  //
+  // Notes (Astro routing):
+  // - File-based routes take precedence over redirects.
+  // - Prefer a single dynamic redirect for 1:1 path renames.
+  //
+  // Redirects are handled via dynamic route endpoints in:
+  // - src/pages/agent-actions/index.ts
+  // - src/pages/agent-actions/[...slug].ts
+
+  // =============================================================================
   // API AUTH (M2M) REDIRECTS
   // =============================================================================
   '/m2m/quickstart': '/authenticate/m2m/api-auth-quickstart/',

@@ -1,0 +1,786 @@
+---
+title: Multi-Provider Authentication
+description: Learn how to manage authentication for multiple third-party providers simultaneously, handle different auth states, and provide seamless user experiences.
+sidebar:
+  order: 8
+  label: "Multi-Provider Auth"
+tableOfContents:
+  maxHeadingLevel: 3
+---
+
+import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+When building applications with Agent Auth, users often need to connect multiple third-party providers. This guide shows you how to manage multiple authenticated connections per user effectively.
+
+## Understanding multi-provider scenarios
+
+Users might connect multiple providers for different purposes:
+
+- **Email & Calendar**: Gmail + Google Calendar + Slack
+- **Project Management**: Jira + GitHub + Slack notifications
+- **Productivity Suite**: Microsoft 365 + Notion + Asana
+- **Support Systems**: Gmail + Slack + Jira + Salesforce
+
+## Managing multiple connected accounts
+
+### Create connections for multiple providers
+
+Each provider requires a separate connected account:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="python" label="Python">
+
+```python
+# Create connected accounts for multiple providers
+providers = ["gmail", "slack", "jira"]
+user_id = "user_123"
+
+for provider in providers:
+    response = actions.get_or_create_connected_account(
+        connection_name=provider,
+        identifier=user_id
+    )
+
+    account = response.connected_account
+    print(f"{provider}: {account.status}")
+
+    # Generate authorization link if not active
+    if account.status != "ACTIVE":
+        link = actions.get_authorization_link(
+            connection_name=provider,
+            identifier=user_id
+        )
+        print(f"  Authorize {provider}: {link.link}")
+```
+
+</TabItem>
+<TabItem value="node" label="Node.js">
+
+```javascript
+// Create connected accounts for multiple providers
+const providers = ['gmail', 'slack', 'jira'];
+const userId = 'user_123';
+
+for (const provider of providers) {
+  const response = await scalekit.actions.getOrCreateConnectedAccount({
+    connectionName: provider,
+    identifier: userId
+  });
+
+  const account = response.connectedAccount;
+  console.log(`${provider}: ${account.status}`);
+
+  // Generate authorization link if not active
+  if (account.status !== 'ACTIVE') {
+    const link = await scalekit.actions.getAuthorizationLink({
+      connectionName: provider,
+      identifier: userId
+    });
+    console.log(`  Authorize ${provider}: ${link.link}`);
+  }
+}
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+// Create connected accounts for multiple providers
+providers := []string{"gmail", "slack", "jira"}
+userID := "user_123"
+
+for _, provider := range providers {
+    response, err := scalekitClient.Actions.GetOrCreateConnectedAccount(
+        context.Background(),
+        provider,
+        userID,
+    )
+    if err != nil {
+        log.Printf("Error for %s: %v", provider, err)
+        continue
+    }
+
+    account := response.ConnectedAccount
+    fmt.Printf("%s: %s\n", provider, account.Status)
+
+    // Generate authorization link if not active
+    if account.Status != "ACTIVE" {
+        link, _ := scalekitClient.Actions.GetAuthorizationLink(
+            context.Background(),
+            provider,
+            userID,
+        )
+        fmt.Printf("  Authorize %s: %s\n", provider, link.Link)
+    }
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+// Create connected accounts for multiple providers
+String[] providers = {"gmail", "slack", "jira"};
+String userId = "user_123";
+
+for (String provider : providers) {
+    ConnectedAccountResponse response = scalekitClient.actions()
+        .getOrCreateConnectedAccount(provider, userId);
+
+    ConnectedAccount account = response.getConnectedAccount();
+    System.out.println(provider + ": " + account.getStatus());
+
+    // Generate authorization link if not active
+    if (!"ACTIVE".equals(account.getStatus())) {
+        AuthorizationLink link = scalekitClient.actions()
+            .getAuthorizationLink(provider, userId);
+        System.out.println("  Authorize " + provider + ": " + link.getLink());
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Check status across all providers
+
+Monitor authentication status for all connected providers:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="python" label="Python">
+
+```python
+def get_user_connection_status(user_id: str, providers: list) -> dict:
+    """Get authentication status for all providers"""
+    status_map = {}
+
+    for provider in providers:
+        try:
+            account = actions.get_connected_account(
+                identifier=user_id,
+                connection_name=provider
+            )
+            status_map[provider] = {
+                "status": account.status,
+                "last_updated": account.updated_at,
+                "scopes": account.scopes
+            }
+        except Exception as e:
+            status_map[provider] = {
+                "status": "NOT_CONNECTED",
+                "error": str(e)
+            }
+
+    return status_map
+
+# Usage
+providers = ["gmail", "slack", "jira", "github"]
+status = get_user_connection_status("user_123", providers)
+
+for provider, info in status.items():
+    print(f"{provider}: {info['status']}")
+```
+
+</TabItem>
+<TabItem value="node" label="Node.js">
+
+```javascript
+async function getUserConnectionStatus(userId, providers) {
+  /**
+   * Get authentication status for all providers
+   */
+  const statusMap = {};
+
+  for (const provider of providers) {
+    try {
+      const account = await scalekit.actions.getConnectedAccount({
+        identifier: userId,
+        connectionName: provider
+      });
+
+      statusMap[provider] = {
+        status: account.status,
+        lastUpdated: account.updatedAt,
+        scopes: account.scopes
+      };
+    } catch (error) {
+      statusMap[provider] = {
+        status: 'NOT_CONNECTED',
+        error: error.message
+      };
+    }
+  }
+
+  return statusMap;
+}
+
+// Usage
+const providers = ['gmail', 'slack', 'jira', 'github'];
+const status = await getUserConnectionStatus('user_123', providers);
+
+Object.entries(status).forEach(([provider, info]) => {
+  console.log(`${provider}: ${info.status}`);
+});
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+func GetUserConnectionStatus(userID string, providers []string) map[string]interface{} {
+    statusMap := make(map[string]interface{})
+
+    for _, provider := range providers {
+        account, err := scalekitClient.Actions.GetConnectedAccount(
+            context.Background(),
+            userID,
+            provider,
+        )
+
+        if err != nil {
+            statusMap[provider] = map[string]interface{}{
+                "status": "NOT_CONNECTED",
+                "error":  err.Error(),
+            }
+        } else {
+            statusMap[provider] = map[string]interface{}{
+                "status":      account.Status,
+                "lastUpdated": account.UpdatedAt,
+                "scopes":      account.Scopes,
+            }
+        }
+    }
+
+    return statusMap
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+public Map<String, Map<String, Object>> getUserConnectionStatus(
+    String userId, List<String> providers
+) {
+    Map<String, Map<String, Object>> statusMap = new HashMap<>();
+
+    for (String provider : providers) {
+        try {
+            ConnectedAccount account = scalekitClient.actions()
+                .getConnectedAccount(userId, provider);
+
+            Map<String, Object> info = new HashMap<>();
+            info.put("status", account.getStatus());
+            info.put("lastUpdated", account.getUpdatedAt());
+            info.put("scopes", account.getScopes());
+            statusMap.put(provider, info);
+        } catch (Exception e) {
+            Map<String, Object> info = new HashMap<>();
+            info.put("status", "NOT_CONNECTED");
+            info.put("error", e.getMessage());
+            statusMap.put(provider, info);
+        }
+    }
+
+    return statusMap;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Handling different authentication states
+
+Different providers may have different states simultaneously:
+
+```python
+# Example: User's connection status
+{
+    "gmail": "ACTIVE",      # Working normally
+    "slack": "EXPIRED",     # Needs token refresh
+    "jira": "PENDING",      # User hasn't authorized yet
+    "github": "REVOKED"     # User revoked access
+}
+```
+
+### Implement state-aware logic
+
+```python
+def execute_multi_provider_workflow(user_id: str):
+    """
+    Execute workflow requiring multiple providers.
+    Handle different authentication states gracefully.
+    """
+    providers_status = {
+        "gmail": None,
+        "slack": None,
+        "jira": None
+    }
+
+    # Check status of all required providers
+    for provider in providers_status.keys():
+        try:
+            account = actions.get_connected_account(
+                identifier=user_id,
+                connection_name=provider
+            )
+            providers_status[provider] = account.status
+        except Exception:
+            providers_status[provider] = "NOT_CONNECTED"
+
+    # Determine what actions are possible
+    can_send_email = providers_status["gmail"] == "ACTIVE"
+    can_notify_slack = providers_status["slack"] == "ACTIVE"
+    can_create_ticket = providers_status["jira"] == "ACTIVE"
+
+    # Execute workflow with graceful degradation
+    results = {}
+
+    if can_send_email:
+        results["email"] = actions.execute_tool(
+            identifier=user_id,
+            tool_name="gmail_send_email",
+            tool_input={"to": "team@example.com", "subject": "Update"}
+        )
+    else:
+        results["email"] = {"error": "Gmail not connected"}
+
+    if can_notify_slack:
+        results["slack"] = actions.execute_tool(
+            identifier=user_id,
+            tool_name="slack_send_message",
+            tool_input={"channel": "#general", "text": "Update posted"}
+        )
+    else:
+        results["slack"] = {"error": "Slack not connected"}
+
+    if can_create_ticket:
+        results["jira"] = actions.execute_tool(
+            identifier=user_id,
+            tool_name="jira_create_issue",
+            tool_input={"project": "SUPPORT", "summary": "Customer inquiry"}
+        )
+    else:
+        results["jira"] = {"error": "Jira not connected"}
+
+    # Report results to user
+    return {
+        "completed": [k for k, v in results.items() if "error" not in v],
+        "failed": [k for k, v in results.items() if "error" in v],
+        "details": results
+    }
+
+# Usage
+result = execute_multi_provider_workflow("user_123")
+print(f"Completed: {result['completed']}")
+print(f"Failed: {result['failed']}")
+```
+
+## User experience patterns
+
+### Connection management dashboard
+
+Display all provider connections in user settings:
+
+```python
+def get_connection_dashboard_data(user_id: str) -> dict:
+    """Get data for user's connection management dashboard"""
+    supported_providers = ["gmail", "slack", "jira", "github", "calendar"]
+
+    dashboard_data = []
+
+    for provider in supported_providers:
+        try:
+            account = actions.get_connected_account(
+                identifier=user_id,
+                connection_name=provider
+            )
+
+            dashboard_data.append({
+                "provider": provider,
+                "connected": True,
+                "status": account.status,
+                "last_updated": account.updated_at,
+                "can_reconnect": account.status in ["EXPIRED", "REVOKED"],
+                "reconnect_link": None if account.status == "ACTIVE" else
+                    actions.get_authorization_link(
+                        connection_name=provider,
+                        identifier=user_id
+                    ).link
+            })
+        except Exception:
+            dashboard_data.append({
+                "provider": provider,
+                "connected": False,
+                "status": "NOT_CONNECTED",
+                "connect_link": actions.get_authorization_link(
+                    connection_name=provider,
+                    identifier=user_id
+                ).link
+            })
+
+    return {
+        "user_id": user_id,
+        "connections": dashboard_data,
+        "total_connected": sum(1 for c in dashboard_data if c["connected"]),
+        "needs_attention": sum(
+            1 for c in dashboard_data
+            if c.get("can_reconnect", False)
+        )
+    }
+
+# Usage - send this data to your frontend
+dashboard = get_connection_dashboard_data("user_123")
+```
+
+### Progressive connection onboarding
+
+Guide users to connect providers as needed:
+
+```python
+def get_required_connections_for_feature(feature: str) -> list:
+    """Map features to required provider connections"""
+    feature_requirements = {
+        "email_automation": ["gmail"],
+        "team_notifications": ["slack"],
+        "project_sync": ["jira", "github"],
+        "calendar_scheduling": ["calendar"],
+        "full_productivity": ["gmail", "slack", "jira", "calendar", "github"]
+    }
+
+    return feature_requirements.get(feature, [])
+
+def check_user_ready_for_feature(user_id: str, feature: str) -> dict:
+    """Check if user has connected all providers needed for feature"""
+    required_providers = get_required_connections_for_feature(feature)
+
+    connection_status = {}
+    missing_connections = []
+
+    for provider in required_providers:
+        try:
+            account = actions.get_connected_account(
+                identifier=user_id,
+                connection_name=provider
+            )
+            is_active = account.status == "ACTIVE"
+            connection_status[provider] = is_active
+
+            if not is_active:
+                missing_connections.append({
+                    "provider": provider,
+                    "status": account.status,
+                    "link": actions.get_authorization_link(
+                        connection_name=provider,
+                        identifier=user_id
+                    ).link
+                })
+        except Exception:
+            connection_status[provider] = False
+            missing_connections.append({
+                "provider": provider,
+                "status": "NOT_CONNECTED",
+                "link": actions.get_authorization_link(
+                    connection_name=provider,
+                    identifier=user_id
+                ).link
+            })
+
+    return {
+        "feature": feature,
+        "ready": len(missing_connections) == 0,
+        "connection_status": connection_status,
+        "missing_connections": missing_connections
+    }
+
+# Usage
+readiness = check_user_ready_for_feature("user_123", "email_automation")
+if not readiness["ready"]:
+    print("Please connect the following providers:")
+    for conn in readiness["missing_connections"]:
+        print(f"  - {conn['provider']}: {conn['link']}")
+```
+
+## Bulk operations
+
+Execute operations across multiple providers efficiently:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="python" label="Python">
+
+```python
+def send_notification_to_all_channels(user_id: str, message: str):
+    """Send notification via all connected messaging platforms"""
+    messaging_providers = {
+        "slack": "slack_send_message",
+        "teams": "teams_send_message",
+        "discord": "discord_send_message"
+    }
+
+    results = {}
+
+    for provider, tool_name in messaging_providers.items():
+        try:
+            # Check if provider is connected
+            account = actions.get_connected_account(
+                identifier=user_id,
+                connection_name=provider
+            )
+
+            if account.status == "ACTIVE":
+                # Execute tool
+                result = actions.execute_tool(
+                    identifier=user_id,
+                    tool_name=tool_name,
+                    tool_input={"text": message, "channel": "#notifications"}
+                )
+                results[provider] = {"success": True, "result": result}
+            else:
+                results[provider] = {
+                    "success": False,
+                    "error": f"Not connected (status: {account.status})"
+                }
+        except Exception as e:
+            results[provider] = {"success": False, "error": str(e)}
+
+    return results
+
+# Usage
+notification_results = send_notification_to_all_channels(
+    "user_123",
+    "Deployment completed successfully!"
+)
+```
+
+</TabItem>
+<TabItem value="node" label="Node.js">
+
+```javascript
+async function sendNotificationToAllChannels(userId, message) {
+  /**
+   * Send notification via all connected messaging platforms
+   */
+  const messagingProviders = {
+    slack: 'slack_send_message',
+    teams: 'teams_send_message',
+    discord: 'discord_send_message'
+  };
+
+  const results = {};
+
+  for (const [provider, toolName] of Object.entries(messagingProviders)) {
+    try {
+      // Check if provider is connected
+      const account = await scalekit.actions.getConnectedAccount({
+        identifier: userId,
+        connectionName: provider
+      });
+
+      if (account.status === 'ACTIVE') {
+        // Execute tool
+        const result = await scalekit.actions.executeTool({
+          identifier: userId,
+          toolName: toolName,
+          toolInput: { text: message, channel: '#notifications' }
+        });
+        results[provider] = { success: true, result };
+      } else {
+        results[provider] = {
+          success: false,
+          error: `Not connected (status: ${account.status})`
+        };
+      }
+    } catch (error) {
+      results[provider] = { success: false, error: error.message };
+    }
+  }
+
+  return results;
+}
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+func SendNotificationToAllChannels(userID, message string) map[string]interface{} {
+    messagingProviders := map[string]string{
+        "slack":   "slack_send_message",
+        "teams":   "teams_send_message",
+        "discord": "discord_send_message",
+    }
+
+    results := make(map[string]interface{})
+
+    for provider, toolName := range messagingProviders {
+        account, err := scalekitClient.Actions.GetConnectedAccount(
+            context.Background(),
+            userID,
+            provider,
+        )
+
+        if err != nil {
+            results[provider] = map[string]interface{}{
+                "success": false,
+                "error":   err.Error(),
+            }
+            continue
+        }
+
+        if account.Status == "ACTIVE" {
+            result, err := scalekitClient.Actions.ExecuteTool(
+                context.Background(),
+                userID,
+                toolName,
+                map[string]interface{}{
+                    "text":    message,
+                    "channel": "#notifications",
+                },
+            )
+
+            if err != nil {
+                results[provider] = map[string]interface{}{
+                    "success": false,
+                    "error":   err.Error(),
+                }
+            } else {
+                results[provider] = map[string]interface{}{
+                    "success": true,
+                    "result":  result,
+                }
+            }
+        }
+    }
+
+    return results
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+public Map<String, Map<String, Object>> sendNotificationToAllChannels(
+    String userId, String message
+) {
+    Map<String, String> messagingProviders = Map.of(
+        "slack", "slack_send_message",
+        "teams", "teams_send_message",
+        "discord", "discord_send_message"
+    );
+
+    Map<String, Map<String, Object>> results = new HashMap<>();
+
+    for (Map.Entry<String, String> entry : messagingProviders.entrySet()) {
+        String provider = entry.getKey();
+        String toolName = entry.getValue();
+
+        try {
+            ConnectedAccount account = scalekitClient.actions()
+                .getConnectedAccount(userId, provider);
+
+            if ("ACTIVE".equals(account.getStatus())) {
+                Map<String, Object> toolInput = Map.of(
+                    "text", message,
+                    "channel", "#notifications"
+                );
+
+                ToolResult result = scalekitClient.actions()
+                    .executeTool(userId, toolName, toolInput);
+
+                results.put(provider, Map.of("success", true, "result", result));
+            } else {
+                results.put(provider, Map.of(
+                    "success", false,
+                    "error", "Not connected (status: " + account.getStatus() + ")"
+                ));
+            }
+        } catch (Exception e) {
+            results.put(provider, Map.of("success", false, "error", e.getMessage()));
+        }
+    }
+
+    return results;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Best practices
+
+### Graceful degradation
+
+Design workflows that degrade gracefully when providers aren't connected:
+
+```python
+# Good: Workflow continues with available providers
+if gmail_connected:
+    send_email()
+if slack_connected:
+    notify_slack()
+# User gets partial functionality
+
+# Bad: Workflow fails completely
+if not (gmail_connected and slack_connected):
+    raise Error("Connect all providers first")
+```
+
+### Clear status communication
+
+Show users which providers are connected and which need attention:
+
+```python
+dashboard_message = f"""
+Your Connections:
+  ✓ Gmail: Connected and working
+  ⚠ Slack: Token expired - reconnect now
+  ✗ Jira: Not connected - connect to enable tickets
+  ✓ Calendar: Connected and working
+"""
+```
+
+### Proactive reconnection prompts
+
+Notify users before connections become critical:
+
+```python
+def check_and_notify_expiring_connections(user_id: str):
+    """Check for connections that need attention"""
+    providers = ["gmail", "slack", "jira", "calendar"]
+
+    needs_attention = []
+
+    for provider in providers:
+        try:
+            account = actions.get_connected_account(
+                identifier=user_id,
+                connection_name=provider
+            )
+
+            if account.status in ["EXPIRED", "REVOKED"]:
+                needs_attention.append({
+                    "provider": provider,
+                    "status": account.status,
+                    "reconnect_link": actions.get_authorization_link(
+                        connection_name=provider,
+                        identifier=user_id
+                    ).link
+                })
+        except Exception:
+            continue
+
+    if needs_attention:
+        # Send notification to user
+        print(f"⚠ {len(needs_attention)} connection(s) need your attention")
+        for conn in needs_attention:
+            print(f"  - {conn['provider']}: {conn['status']}")
+
+    return needs_attention
+```
+
+## Next steps
+
+- [Token Management](/agent-auth/authentication/token-management) - Managing tokens across providers
+- [Testing Authentication](/agent-auth/authentication/testing-auth-flows) - Testing multi-provider scenarios
+- [Troubleshooting](/agent-auth/authentication/troubleshooting) - Debugging multi-provider issues

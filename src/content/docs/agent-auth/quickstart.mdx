@@ -1,0 +1,123 @@
+---
+title: Agent Auth - Quickstart Guide
+description: Get started with Agent Auth in minutes. Learn how to create your first connection, authenticate users, and execute tools.
+sidebar:
+  order: 1
+  label: "Quickstart"
+banner:
+  content: |
+    Join our dev community to connect with Scalekit engineers for questions or feedback
+---
+
+import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Agent Auth will help enable your AI Agents to take actions in real world applications on behalf of your users. Scalekit automatically handles authorizing your users to grant access to third party applications like Gmail, Calendar, Slack, Notion etc and using our pre-built connectors and tool, lets your AI Agent execute actions like fetching emails, creating calendar events, updating notion pages, sending alerts via Slack etc.
+
+This quickstart guide will show you how to get started with Agent Auth in just a few minutes. You'll learn how to set up connections, authenticate users, and run your first tools.
+
+## What you'll build
+
+In this quickstart, you'll build a simple tool calling program that:
+
+1. **Authenticates a user with GMail** to authenticate their Gmail account via OAuth 2.0
+2. **Fetches last 5 unread emails** from the user's inbox
+
+## Prerequisites
+
+Before you start, make sure you have:
+
+- **Scalekit API credentials** (Client ID and Client Secret)
+- **Development environment** (Node.js, Python, or similar)
+
+## Step 1: Set up your environment
+
+First, install the Scalekit Python SDK and initialize the client with your API credentials:
+Get Your credentials from  Scalekit dashboard at [app.scalekit.com](https://app.scalekit.com)
+Developers-> Settings -> API Credentials
+<p>
+  ```sh showLineNumbers=false frame="none"
+  pip install scalekit-sdk-python
+  ```
+</p>
+<p>
+  ```python showLineNumbers=false frame="none"
+  import scalekit.client
+  import os
+  from dotenv import load_dotenv
+  load_dotenv()
+
+  scalekit = scalekit.client.ScalekitClient(
+      client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+      client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+      env_url=os.getenv("SCALEKIT_ENV_URL"),
+  )
+  actions = scalekit.actions
+
+  ```
+</p>
+
+## Step 2: Create a connected account
+
+Let's authorize a user to access their Gmail account by creating a connected account. This represents the user's connection to their Gmail account:
+
+
+```python
+# Create a connected account for user if it doesn't exist already
+response = actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier="user_123" #unique identifier for your connected account. can be replaced with your system's user ID
+)
+connected_account = response.connected_account
+print(f'Connected account created: {connected_account.id}')
+```
+
+## Step 3: Authenticate the user
+
+Inorder to execute any tools on behalf of the user, the user first needs to grant authorization to access their gmail account. Scalekit automatically handles the entire OAuth workflow with the Gmail provider, gets the access token, refreshes the access token periodically based on the refresh token etc.
+
+If the user's access token is expired, Scalekit will automatically refresh the access token using the refresh token. At any time, you can check the authorization status of the connected account and determine if the user needs to re-authorize the connection.
+
+```python
+# If the user hasn't yet authorized the gmail connection or if the user's access token is expired, generate a link for them to authorize the connection
+if(connected_account.status != "ACTIVE"):
+      print(f"gmail is not connected: {connected_account.status}")
+      link_response = actions.get_authorization_link(
+          connection_name="gmail",
+          identifier="user_123"
+      )
+      print(f"🔗click on the link to authorize gmail", link_response.link)
+      input(f"⎆ Press Enter after authorizing gmail...")
+
+# In a real app, redirect the user to this URL so that the user can complete the authentication process for their gmail account
+```
+
+## Step 4: Execute a tool - Send an email
+
+Now that the user has successfully authorized the gmail connection, you can execute tools on their behalf. For this example, let's fetch the last 5 unread emails from the user's inbox.
+
+```python
+# Fetch recent emails
+emails = actions.execute_tool(
+    #connected_account_id= connected_account.id      if using multiple connectors
+    identifier="user_123",
+    tool_name='gmail_fetch_mails',
+    tool_input={
+        'query': 'is:unread',
+        'max_results': 5
+    }
+)
+
+print(f'Recent emails: {emails.result}')
+```
+
+## Next steps
+
+Congratulations! You've successfully implemented a program that executes action in real world applications on behalf of a user.
+
+Let's make it more interesting by implementing an AI agent that uses large language models from OpenAI or Anthropic and actually help determine which tool to be called with what parameters.  Go through our Agentic Tool Calling guide to implement the same usecase using Langchain and Agent Auth.
+
+<CardGrid>
+  <LinkCard title="Agentic Tool Calling" icon="star" href="/agent-auth/frameworks/langchain">
+    Implement a simple agent with langchain that can fetch the last 5 unread emails from the user's inbox and generate a summary of the emails.
+  </LinkCard>
+</CardGrid>
