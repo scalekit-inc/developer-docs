@@ -190,11 +190,9 @@ export const redirects = {
   // - File-based routes take precedence over redirects.
   // - Prefer a single dynamic redirect for 1:1 path renames.
   //
-  // Redirects are handled via dynamic route endpoints in:
-  // - src/pages/agent-actions/index.ts
-  // - src/pages/agent-actions/[...slug].ts
-  //
-  // Explicit redirects below serve as fallback for common paths:
+  // Explicit redirects below handle all known routes.
+  // The dynamic route src/pages/agent-actions/[...slug].ts serves as a
+  // safety net for any routes not explicitly listed here.
   // Main pages
   '/agent-actions': '/agent-auth/quickstart/',
   '/agent-actions/': '/agent-auth/quickstart/',
