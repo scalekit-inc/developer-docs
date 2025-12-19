@@ -193,6 +193,14 @@ export const redirects = {
   // Redirects are handled via dynamic route endpoints in:
   // - src/pages/agent-actions/index.ts
   // - src/pages/agent-actions/[...slug].ts
+  //
+  // Explicit redirects below serve as fallback for common paths:
+  '/agent-actions/providers': '/agent-auth/providers/',
+  '/agent-actions/providers/': '/agent-auth/providers/',
+  '/agent-actions/connections': '/agent-auth/connections/',
+  '/agent-actions/connections/': '/agent-auth/connections/',
+  '/agent-actions/connected-accounts': '/agent-auth/connected-accounts/',
+  '/agent-actions/connected-accounts/': '/agent-auth/connected-accounts/',
 
   // =============================================================================
   // API AUTH (M2M) REDIRECTS
