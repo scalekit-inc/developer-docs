@@ -5861,9 +5861,6 @@ paths:
             schema:
               $ref: '#/components/schemas/WebAuthnServiceUpdateCredentialBody'
         required: true
-security:
-  - oauth2: []
-
 tags:
   - description: |
       Organization represents a customer or a tenant of your product. This is the top level entity and all resources are mapped to this Organization object. Each organization is uniquely identified by `organization_id`.
@@ -5949,18 +5946,6 @@ tags:
 externalDocs:
   description: Scalekit Docs
   url: https://docs.scalekit.com/
-x-scalar-active-environment: staging
-x-scalar-environments:
-  production:
-    variables:
-      SCALEKIT_ENVIRONMENT_URL:
-        default: https://$SCALEKIT_ENVIRONMENT_URL
-        description: yourapp.scalekit.com
-  staging:
-    variables:
-      SCALEKIT_ENVIRONMENT_URL:
-        default: https://$SCALEKIT_ENVIRONMENT_URL
-        description: yourapp.scalekit.dev
 openapi: 3.1.1
 servers:
   - url: https://$SCALEKIT_ENVIRONMENT_URL
@@ -10729,18 +10714,11 @@ components:
             - 'organization.created'
             - 'organization.updated'
             - 'organization.deleted'
-            - 'organization.domain_created'
-            - 'organization.domain_deleted'
-            - 'organization.domain_update'
             - 'organization.sso_created'
-            - 'organization.sso_updated'
             - 'organization.sso_deleted'
             - 'organization.sso_enabled'
             - 'organization.sso_disabled'
             # User events
-            - 'user_created'
-            - 'user_deleted'
-            - 'user_updated'
             - 'user.signup'
             - 'user.login'
             - 'user.logout'
@@ -10748,12 +10726,6 @@ components:
             - 'user.organization_membership_created'
             - 'user.organization_membership_updated'
             - 'user.organization_membership_deleted'
-            # Social connection events
-            - 'social_connection_created'
-            - 'social_connection_updated'
-            - 'social_connection_deleted'
-            - 'social_connection_enabled'
-            - 'social_connection_disabled'
             # Directory events
             - 'organization.directory.user_created'
             - 'organization.directory.user_updated'
@@ -10761,28 +10733,16 @@ components:
             - 'organization.directory.group_created'
             - 'organization.directory.group_updated'
             - 'organization.directory.group_deleted'
-            - 'organization.directory_created'
             - 'organization.directory_enabled'
             - 'organization.directory_disabled'
-            - 'organization.directory_deleted'
-            - 'organization.directory_broken'
-            - 'organization.directory_sync'
-            # Session events
-            - 'session_created'
-            - 'session_updated'
-            - 'session_logout'
-            - 'session_expired'
-            # Template events
-            - 'template_created'
-            - 'template_updated'
-            - 'template_deleted'
-            - 'template_enabled'
-            - 'template_disabled'
-            # Other events
-            - 'user_attributes_created'
-            - 'user_attributes_updated'
-            - 'user_attributes_deleted'
-            - 'crm_frontend_event'
+            # Role events
+            - 'role.created'
+            - 'role.updated'
+            - 'role.deleted'
+            # Permission events
+            - 'permission.created'
+            - 'permission.updated'
+            - 'permission.deleted'
         occurred_at:
           type: string
           format: date-time
@@ -10806,47 +10766,16 @@ components:
           type: string
           description: The type of object that triggered the webhook
           enum:
-            - 'Workspace'
-            - 'Environment'
             - 'Organization'
             - 'Connection'
-            - 'User'
             - 'Role'
             - 'Directory'
             - 'DirectoryUser'
             - 'DirectoryGroup'
-            - 'Session'
-            - 'Template'
-            - 'Job'
-            - 'Domain'
-            - 'EmailServer'
-            - 'Email'
-            - 'AuthRequest'
-            - 'SAMLRequest'
-            - 'SAMLResponse'
-            - 'TokenClaims'
-            - 'OIDCReqParams'
-            - 'OIDCRespClaims'
-            - 'SSOError'
-            - 'RefreshTokens'
-            - 'EndSessionRequest'
-            - 'LogoutTokenClaims'
-            - 'OAuthResponse'
-            - 'JSON'
-            - 'SKErrors'
-            - 'OrgMembership'
-            - 'UserProfile'
-            - 'IDPInitiatedPayload'
-            - 'DeviceDetails'
-            - 'Actions'
-            - 'InterceptorEvent'
             - 'Permission'
-            - 'OrgMembershipEvent'
-            - 'UserLoginEvent'
-            - 'UserLogoutEvent'
-            - 'ConnectedAccount'
-            - 'CustomAttributes'
-          example: 'Workspace'
+            - 'OrgMembership'
+            - 'User'
+          example: 'Organization'
         data:
           type: object
           description: The event payload (structure varies by event type)
@@ -10869,6 +10798,21 @@ components:
           tokenUrl: https://$SCALEKIT_ENVIRONMENT_URL/oauth/token
           scopes:
             '': No scope required for client credentials flow
+x-scalar-environments:
+  production:
+    variables:
+      SCALEKIT_ENVIRONMENT_URL:
+        default: https://$SCALEKIT_ENVIRONMENT_URL
+        description: yourapp.scalekit.com
+  staging:
+    variables:
+      SCALEKIT_ENVIRONMENT_URL:
+        default: https://$SCALEKIT_ENVIRONMENT_URL
+        description: yourapp.scalekit.dev
+x-scalar-active-environment: staging
+security:
+  - oauth2: []
+
 webhooks:
   # Organization Events
   organization.created:
@@ -10994,7 +10938,7 @@ webhooks:
               spec_version: '1'
               id: 'evt_1234567890'
               type: 'user.signup'
-              object: 'OrgMembershipEvent'
+              object: 'OrgMembership'
               occurred_at: '2024-01-15T10:30:00.123456789Z'
               environment_id: 'env_1234567890'
               organization_id: 'org_102690563312124938'
@@ -11054,7 +10998,7 @@ webhooks:
               spec_version: '1'
               id: 'evt_102701193859432713'
               type: 'user.login'
-              object: 'UserLoginEvent'
+              object: 'User'
               occurred_at: '2025-12-09T12:04:41.781873312Z'
               environment_id: 'env_96736846679245078'
               organization_id: 'org_102701193188409609'
@@ -11137,7 +11081,7 @@ webhooks:
               spec_version: '1'
               id: 'evt_102708230123160586'
               type: 'user.logout'
-              object: 'UserLogoutEvent'
+              object: 'User'
               occurred_at: '2025-12-09T13:14:35.722070822Z'
               environment_id: 'env_96736846679245078'
               organization_id: 'org_102701193188409609'
@@ -11162,14 +11106,14 @@ webhooks:
                         is_social: true
                         last_login_time: '2025-12-09T12:04:41.469311Z'
                         last_synced_time: '2025-12-09T12:04:41.469311Z'
-                    family_name: 'Charles'
+                    family_name: 'Doe'
                     gender: ''
-                    given_name: 'Dwayne'
+                    given_name: 'John'
                     groups:
                     id: 'usp_102701193205186825'
                     locale: ''
                     metadata: {}
-                    name: 'Dwayne Charles'
+                    name: 'John Doe'
                     phone_number: ''
                     phone_number_verified: false
                     picture: 'https://lh3.googleusercontent.com/a/abcdef'
@@ -11221,7 +11165,7 @@ webhooks:
               spec_version: '1'
               id: 'evt_4567890123'
               type: 'user.organization_invitation'
-              object: 'OrgMembershipEvent'
+              object: 'OrgMembership'
               occurred_at: '2024-01-15T11:00:00.123456789Z'
               environment_id: 'env_1234567890'
               organization_id: 'org_102690563312124938'
@@ -11289,7 +11233,7 @@ webhooks:
               spec_version: '1'
               id: 'evt_5678901234'
               type: 'user.organization_membership_created'
-              object: 'OrgMembershipEvent'
+              object: 'OrgMembership'
               occurred_at: '2024-01-15T11:05:00.123456789Z'
               environment_id: 'env_1234567890'
               organization_id: 'org_102690563312124938'
@@ -11358,7 +11302,7 @@ webhooks:
               spec_version: '1'
               id: 'evt_9012345678'
               type: 'user.organization_membership_deleted'
-              object: 'OrgMembershipEvent'
+              object: 'OrgMembership'
               occurred_at: '2024-01-15T11:10:00.123456789Z'
               environment_id: 'env_1234567890'
               organization_id: 'org_102690563312124938'
@@ -11427,7 +11371,7 @@ webhooks:
               spec_version: '1'
               id: 'evt_6789012345'
               type: 'user.organization_membership_updated'
-              object: 'OrgMembershipEvent'
+              object: 'OrgMembership'
               occurred_at: '2024-01-15T11:10:00.123456789Z'
               environment_id: 'env_1234567890'
               organization_id: 'org_102690563312124938'

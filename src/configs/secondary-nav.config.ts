@@ -103,7 +103,7 @@ export const secondaryNavItems: NavItem[] = [
       },
       {
         id: 'fsa-user-auth',
-        href: '/authenticate/fsa/implement-login/',
+        href: '/authenticate/auth-methods/passwordless/',
         label: 'Full stack auth', // Use parent label for nav button
         dropdownLabel: 'User authentication', // Show in dropdown
         iconComponent: IconLucideLogIn, // Distinct icon for User Auth
