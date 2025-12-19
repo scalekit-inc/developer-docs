@@ -38,6 +38,10 @@ export function createLlmsRoute(config: LlmsConfig): APIRoute {
           enableSecurityCheck: false, // Disable security check for docs
         },
         quiet: true,
+        // Add timeout and memory constraints for serverless environments
+        maxFileSize: 10 * 1024 * 1024, // 10MB max file size
+        verbose: false,
+        progress: false,
         ...config.repomixOptions,
       }
 
@@ -46,7 +50,15 @@ export function createLlmsRoute(config: LlmsConfig): APIRoute {
       }
 
       // Use runCli from the Repomix library
-      const result = await runCli([docsPath], projectRoot, options)
+      // Add timeout for serverless environments (60 seconds)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Documentation generation timeout')), 60000)
+      })
+
+      const result = (await Promise.race([
+        runCli([docsPath], projectRoot, options),
+        timeoutPromise,
+      ])) as any
 
       // Read the generated file content
       const content = await readFile(tempOutputFile, 'utf-8')
@@ -56,11 +68,34 @@ export function createLlmsRoute(config: LlmsConfig): APIRoute {
         await unlink(tempOutputFile)
       }
 
+      // Check content size and potentially compress for large outputs
+      const contentSize = Buffer.byteLength(content, 'utf8')
+      console.log(`Generated documentation size: ${(contentSize / 1024 / 1024).toFixed(2)} MB`)
+
+      if (contentSize > 5 * 1024 * 1024) {
+        // 5MB
+        console.warn(
+          'Large documentation output detected, may cause issues in serverless environment',
+        )
+      }
+
       return new Response(content, {
-        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        status: 200,
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        },
       })
     } catch (error) {
       console.error('Failed to generate documentation with Repomix:', error)
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        code: error.code,
+        errno: error.errno,
+        path: error.path,
+      })
 
       // Clean up the temporary file in case of error
       try {
@@ -71,7 +106,8 @@ export function createLlmsRoute(config: LlmsConfig): APIRoute {
         console.error('Failed to clean up temporary file:', cleanupError)
       }
 
-      return new Response('Unable to generate documentation.', {
+      const errorMessage = `Unable to generate documentation. Error: ${error.message || 'Unknown error'}`
+      return new Response(errorMessage, {
         status: 500,
         headers: { 'Content-Type': 'text/plain; charset=utf-8' },
       })
