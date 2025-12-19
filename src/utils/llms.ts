@@ -21,6 +21,11 @@ export function createLlmsRoute(config: LlmsConfig): APIRoute {
     try {
       const docsPath = join(projectRoot, 'src/content/docs')
 
+      // Validate docsPath exists
+      if (!existsSync(docsPath)) {
+        throw new Error(`Documentation path not found: ${docsPath}`)
+      }
+
       let headerText = `# ${config.title}\n\n`
       if (config.description) {
         headerText += `> ${config.description}\n\n`
@@ -45,12 +50,25 @@ export function createLlmsRoute(config: LlmsConfig): APIRoute {
         ...config.repomixOptions,
       }
 
+      // Validate and add instruction file if provided
       if (config.instructionFilePath) {
-        options.instructionFilePath = join(projectRoot, config.instructionFilePath)
+        const fullInstructionPath = join(projectRoot, config.instructionFilePath)
+        if (existsSync(fullInstructionPath)) {
+          options.instructionFilePath = fullInstructionPath
+          console.log(`Using instruction file: ${fullInstructionPath}`)
+        } else {
+          console.warn(
+            `Instruction file not found at ${fullInstructionPath}, continuing without it`,
+          )
+        }
       }
 
       // Use runCli from the Repomix library
       // Add timeout for serverless environments (60 seconds)
+      console.log(`Starting documentation generation with Repomix...`)
+      console.log(`Output file: ${tempOutputFile}`)
+      console.log(`Docs path: ${docsPath}`)
+
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('Documentation generation timeout')), 60000)
       })
@@ -59,6 +77,15 @@ export function createLlmsRoute(config: LlmsConfig): APIRoute {
         runCli([docsPath], projectRoot, options),
         timeoutPromise,
       ])) as any
+
+      // Verify output file was created before reading
+      if (!existsSync(tempOutputFile)) {
+        throw new Error(
+          `Repomix did not generate output file at ${tempOutputFile}. Check Repomix logs for errors.`,
+        )
+      }
+
+      console.log(`Repomix completed successfully, reading output file...`)
 
       // Read the generated file content
       const content = await readFile(tempOutputFile, 'utf-8')
@@ -87,14 +114,15 @@ export function createLlmsRoute(config: LlmsConfig): APIRoute {
         },
       })
     } catch (error) {
-      console.error('Failed to generate documentation with Repomix:', error)
+      const err = error as Error & { code?: string; errno?: number; path?: string }
+      console.error('Failed to generate documentation with Repomix:', err)
       console.error('Error details:', {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-        code: error.code,
-        errno: error.errno,
-        path: error.path,
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+        code: err.code,
+        errno: err.errno,
+        path: err.path,
       })
 
       // Clean up the temporary file in case of error
@@ -106,7 +134,7 @@ export function createLlmsRoute(config: LlmsConfig): APIRoute {
         console.error('Failed to clean up temporary file:', cleanupError)
       }
 
-      const errorMessage = `Unable to generate documentation. Error: ${error.message || 'Unknown error'}`
+      const errorMessage = `Unable to generate documentation. Error: ${err.message || 'Unknown error'}`
       return new Response(errorMessage, {
         status: 500,
         headers: { 'Content-Type': 'text/plain; charset=utf-8' },
