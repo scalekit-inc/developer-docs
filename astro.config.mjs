@@ -92,7 +92,7 @@ export default defineConfig({
         starlightVideos(),
         starlightChangelogs(),
         starlightLinksValidator({
-          exclude: ['/dev-kit/changelogs/**'],
+          exclude: ['/dev-kit/changelogs/**', '/apis/**'],
         }),
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude'],
