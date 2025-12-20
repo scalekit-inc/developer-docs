@@ -152,7 +152,7 @@ export const secondaryNavItems: NavItem[] = [
     children: [
       {
         id: 'sdks',
-        href: '/apis/#description/sdks',
+        href: '/dev-kit/changelogs/',
         label: 'SDKs',
         iconComponent: IconSdk,
         description: 'Ready-to-use libraries to implement auth in your app',
