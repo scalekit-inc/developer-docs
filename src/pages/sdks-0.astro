@@ -1,0 +1,373 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import { getCollection } from 'astro:content'
+import FoldCard from '@components/ui/FoldCard.astro'
+
+// Load GitHub releases and get latest tag for each SDK
+const releases = await getCollection('github-releases')
+
+const getLatestRelease = (repoName: string) => {
+  const repoReleases = releases
+    .filter((release) => {
+      const data = release.data as any
+      return data.repoNameWithOwner === repoName
+    })
+    .map((release) => release.data as any)
+    .sort((a, b) => {
+      const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0
+      const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0
+      return dateB - dateA
+    })
+
+  return repoReleases.length > 0 ? repoReleases[0].tagName : undefined
+}
+
+const nodeVersion = getLatestRelease('scalekit-inc/scalekit-sdk-node')
+const pythonVersion = getLatestRelease('scalekit-inc/scalekit-sdk-python')
+const goVersion = getLatestRelease('scalekit-inc/scalekit-sdk-go')
+const javaVersion = getLatestRelease('scalekit-inc/scalekit-sdk-java')
+
+const frontmatter = {
+  title: 'Scalekit SDKs and APIs',
+  template: 'splash' as const,
+  description: 'Secure your  MCP servers, APIs, users - in one scalable stack',
+  tableOfContents: false,
+  hero: {
+    tagline:
+      'Add MCP auth, Agent Auth, or SSO as modular components - or adopt the full-stack platform for your B2B, AI application',
+  },
+  head: [
+    {
+      tag: 'style' as const,
+      content: `
+        right-sidebar-panel {
+          display: none !important;
+        }
+        .hero {
+          display: none !important;
+        }
+        .platform-divider {
+          margin-top: 1rem !important;
+        }
+        .platform-features-grid {
+          margin-top: 1rem !important;
+        }
+        .platform-features-grid .responsive-card-grid {
+          margin-top: 1rem !important;
+        }
+        .platform-features-grid .responsive-card-grid article.fold-card {
+          margin-top: 1rem !important;
+        }
+        .security-sections {
+          display: grid;
+          grid-template-columns: 1.2fr 1fr;
+          gap: 1.5rem;
+        }
+        @media (max-width: 768px) {
+          .security-sections {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+          }
+        }
+        .meta.sl-flex {
+          display: none !important;
+        }
+        footer.sl-flex {
+          display: none !important;
+        }
+        .fold-section {
+          padding: 3rem 0;
+          margin: 0;
+        }
+        .fold-section.fold--background-muted {
+          background-color: #F8F9FF !important;
+          background: #F8F9FF !important;
+        }
+        main .fold-section.fold--background-muted,
+        .sl-markdown-content .fold-section.fold--background-muted,
+        .content-panel .fold-section.fold--background-muted,
+        body .fold-section.fold--background-muted {
+          background-color: #F8F9FF !important;
+          background: #F8F9FF !important;
+        }
+        .content-panel{
+         padding-top: 0
+        }
+        .fold-full-width {
+          width: 100vw;
+          margin-left: 50%;
+          transform: translateX(-50%);
+          position: relative;
+          z-index: 1;
+        }
+        main {
+          overflow-x: hidden;
+        }
+        body {
+          overflow-x: hidden;
+        }
+        .fold-container {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0 4rem;
+        }
+        @media (max-width: 768px) {
+          .fold-section {
+            padding: 2rem 0;
+          }
+          .fold-container {
+            padding: 0 1rem;
+          }
+        }
+        .modular-auth-layout {
+          display: flex;
+          gap: 2rem;
+          align-items: top;
+        }
+        .modular-auth-left {
+          flex: 0 0 33.333%;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        .modular-auth-icon {
+          font-size: 2rem;
+          color: var(--sl-color-accent);
+          margin-bottom: 0.5rem;
+        }
+        .modular-auth-heading {
+          font-size: 1.375rem;
+          margin: 0;
+          font-weight: 600;
+          color: var(--sl-color-text-heading);
+        }
+        .modular-auth-description {
+          font-size: 1.05rem;
+          margin: 0;
+          color: var(--sl-color-text-muted);
+          line-height: 1.6;
+        }
+        .modular-auth-cards-grid {
+          flex: 1;
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          grid-template-rows: repeat(2, auto);
+          gap: 1.5rem;
+        }
+        @media (max-width: 1024px) {
+          .modular-auth-layout {
+            flex-direction: column;
+          }
+          .modular-auth-left {
+            flex: none;
+            width: 100%;
+          }
+        }
+        @media (max-width: 768px) {
+          .modular-auth-cards-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .api-reference-layout {
+          display: flex;
+          gap: 2rem;
+          align-items: top;
+        }
+        .api-reference-left {
+          flex: 0 0 33.333%;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        .api-reference-heading {
+          font-size: 1.375rem;
+          margin: 0;
+          font-weight: 600;
+          color: var(--sl-color-text-heading);
+        }
+        .api-reference-description {
+          font-size: 1.05rem;
+          margin: 0;
+          color: var(--sl-color-text-muted);
+          line-height: 1.6;
+        }
+        .api-reference-cards-grid {
+          flex: 1;
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          grid-template-rows: repeat(2, auto);
+          gap: 1.5rem;
+        }
+        @media (max-width: 1024px) {
+          .api-reference-layout {
+            flex-direction: column;
+          }
+          .api-reference-left {
+            flex: none;
+            width: 100%;
+          }
+        }
+        @media (max-width: 768px) {
+          .api-reference-cards-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .sl-markdown-content :not(a, strong, em, del, span, code, kbd, samp, var, pre, abbr, acronym, b, bdi, bdo, big, cite, dfn, i, mark, q, rp, rt, ruby, s, small, sub, sup, time, tt, u, wbr, img, video, audio, canvas, svg, iframe, embed, object, picture, source, track, map, area, input, button, select, textarea, label, output, progress, meter, details, summary, dialog, script, noscript, template, slot, content *) {
+          margin-top: 0 !important;
+        }
+        .full-stack-auth-layout {
+          display: flex;
+          gap: 3rem;
+          align-items: top;
+          margin: 0;
+        }
+        .full-stack-auth-left {
+          flex: 0 0 33.333%;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        .full-stack-auth-heading {
+          font-size: 1.4rem;
+          margin: 0;
+          font-weight: 600;
+          color: var(--sl-color-text-heading);
+        }
+        .full-stack-auth-description {
+          font-size: 1.1rem;
+          margin: 0;
+          color: var(--sl-color-text-muted);
+          line-height: 1.6;
+        }
+        .full-stack-auth-card {
+          flex: 1;
+        }
+        @media (max-width: 1024px) {
+          .full-stack-auth-layout {
+            flex-direction: column;
+          }
+          .full-stack-auth-left {
+            flex: none;
+            width: 100%;
+          }
+        }
+        button[aria-label="Menu"].sl-flex.md\\:sl-hidden {
+          display: none !important;
+        }
+      `,
+    },
+  ],
+  prev: false,
+  next: false,
+}
+---
+
+<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
+  <div class="fold-section fold-full-width">
+    <div class="fold-container">
+      <div class="modular-auth-layout">
+        <div class="modular-auth-left">
+          <h1
+            class="modular-auth-heading"
+            style="margin-top: 1.8rem !important; font-size: 1.9rem !important;"
+          >
+            SDKs
+          </h1>
+          <div class="modular-auth-description">
+            <p>Drop-in libraries to quickly integrate Scalekit into your app</p>
+          </div>
+        </div>
+        <div class="modular-auth-cards-grid">
+          <FoldCard
+            title="Node.js"
+            iconKey="nodejs"
+            href="/sdks/node/"
+            badge={{ text: String(nodeVersion) }}
+            showCta={false}
+            clickable={false}
+          >
+            Drop-in library to quickly integrate Scalekit into your Node.js application
+          </FoldCard>
+
+          <FoldCard
+            title="Python"
+            iconKey="python"
+            href="/sdks/python/"
+            badge={pythonVersion ? { text: pythonVersion } : undefined}
+            showCta={false}
+            clickable={true}
+          >
+            Drop-in library to quickly integrate Scalekit into your Python application
+          </FoldCard>
+
+          <FoldCard
+            title="Go"
+            iconKey="go"
+            href="/sdks/go/"
+            badge={goVersion ? { text: goVersion } : undefined}
+            showCta={false}
+            clickable={true}
+          >
+            Drop-in library to quickly integrate Scalekit into your Go application
+          </FoldCard>
+
+          <FoldCard
+            title="Java"
+            iconKey="java"
+            href="/sdks/java/"
+            badge={javaVersion ? { text: javaVersion } : undefined}
+            showCta={false}
+            clickable={true}
+          >
+            Drop-in library to quickly integrate Scalekit into your Java application
+          </FoldCard>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fold-section fold--background-muted fold-full-width">
+    <div class="fold-container">
+      <div class="api-reference-layout">
+        <div class="api-reference-left">
+          <h1
+            class="api-reference-heading"
+            style="margin-top: 1.8rem !important; font-size: 1.9rem !important;"
+          >
+            APIs
+          </h1>
+          <div class="api-reference-description">
+            <p>
+              REST APIs, webhooks, and interceptors for programmatic control and real-time events
+            </p>
+          </div>
+        </div>
+        <div class="api-reference-cards-grid">
+          <FoldCard title="REST APIs" iconKey="api" href="/apis/" showCta={false} clickable={false}>
+            Programmatic control to manage users, orgs, sessions, and more
+          </FoldCard>
+
+          <FoldCard
+            title="Webhooks"
+            iconKey="webhooks"
+            href="/reference/webhooks/directory-events/"
+            showCta={false}
+            clickable={false}
+          >
+            Receive real-time events for authentication, user lifecycle, and organizations
+          </FoldCard>
+
+          <FoldCard
+            title="Interceptors"
+            iconKey="workflow"
+            href="/reference/interceptors/triggers/"
+            showCta={false}
+            clickable={false}
+          >
+            Apply custom logic and policy checks during authentication & authorization flows
+          </FoldCard>
+        </div>
+      </div>
+    </div>
+  </div>
+</StarlightPage>

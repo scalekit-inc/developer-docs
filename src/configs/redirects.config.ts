@@ -318,4 +318,13 @@ export const redirects = {
 
   // Logs pages - webhook logs merged into auth logs
   '/guides/view-webhook-logs/': '/guides/dashboard/auth-logs/',
+
+  // =============================================================================
+  // CHANGELOG REDIRECTS - Redirect to SDK pages
+  // =============================================================================
+  '/dev-kit/changelogs/': '/sdks/',
+  '/dev-kit/changelogs/node/': '/sdks/node/',
+  '/dev-kit/changelogs/python/': '/sdks/python/',
+  '/dev-kit/changelogs/go/': '/sdks/go/',
+  '/dev-kit/changelogs/java/': '/sdks/java/',
 }
