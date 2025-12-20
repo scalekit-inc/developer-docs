@@ -77,7 +77,13 @@ export const sidebar = [
           'guides/email-providers',
           'guides/dashboard/custom-email-templates',
           'authenticate/manage-users-orgs/custom-user-attributes',
-          'authenticate/interceptors/auth-flow-interceptors',
+          {
+            label: 'Intercept auth flows',
+            link: '/authenticate/interceptors/auth-flow-interceptors',
+            attrs: {
+              target: '_blank',
+            },
+          },
           'authenticate/implement-workflows/implement-webhooks',
         ],
       },
@@ -182,49 +188,46 @@ export const sidebar = [
       //   collapsed: true,
       //   items: [],
       // },
+      createSectionHeader('Code samples'),
+      'dev-kit/code-samples',
+      'dev-kit/code-samples/mcp-auth',
+      'dev-kit/code-samples/agent-auth',
+      'dev-kit/code-samples/modular-sso',
+      'dev-kit/code-samples/modular-scim',
+      'dev-kit/code-samples/full-stack-auth',
+      createDivider(),
+      createSectionHeader('Webhooks'),
       {
-        label: 'Code samples',
-        collapsed: false,
-        items: [
-          'dev-kit/code-samples',
-          'dev-kit/code-samples/mcp-auth',
-          'dev-kit/code-samples/agent-auth',
-          'dev-kit/code-samples/modular-sso',
-          'dev-kit/code-samples/modular-scim',
-          'dev-kit/code-samples/full-stack-auth',
-        ],
+        label: 'Handle webhook events',
+        link: 'authenticate/implement-workflows/handle-webhooks',
+      },
+      'guides/webhooks-best-practices',
+      createDivider(),
+      createSectionHeader('Interceptors'),
+      'authenticate/interceptors/auth-flow-interceptors',
+      'reference/interceptors/triggers',
+      createDivider(),
+      createSectionHeader('Auth Integrations'),
+      {
+        label: 'SSO integrations',
+        collapsed: true,
+        autogenerate: { directory: 'guides/integrations/sso-integrations' },
       },
       {
-        label: 'How-to guides',
-        items: [
-          {
-            label: 'Handle webhook events',
-            link: 'authenticate/implement-workflows/listen-to-webhooks',
-          },
-          'guides/webhooks-best-practices',
-        ],
+        label: 'SCIM directories',
+        collapsed: true,
+        autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
       {
-        label: 'Reference',
-        items: [
-          // 'reference/webhooks/overview',
-          // 'reference/webhooks/directory-events',
-          // 'reference/webhooks/user-events',
-          // 'reference/webhooks/organization-events',
-          // 'reference/webhooks/permission-events',
-          // 'reference/webhooks/role-events',
-          // 'reference/webhooks/sso-events',
-          'reference/admin-portal/ui-events',
-          'reference/interceptors/triggers',
-        ],
-      },
-      {
-        label: 'Configure social connections',
+        label: 'Social connections',
         collapsed: true,
         autogenerate: {
           directory: 'guides/integrations/social-connections',
         },
       },
+      createSectionHeader('Events'),
+      'reference/admin-portal/ui-events',
+      createDivider(),
       {
         label: 'Changelog',
         collapsed: true,
@@ -243,21 +246,6 @@ export const sidebar = [
           ]),
         ],
       },
-      // Hiding them because business decision to limit modular offerings
-      // {
-      //   label: 'Headless API',
-      //   items: [
-      //     'passwordless/quickstart',
-      //     'guides/user-auth/modular-social-logins',
-      //     'authenticate/m2m/api-auth-quickstart',
-      //   ],
-      // },
-      // TODO: Come back later as you put together one guide for auth best practices move this up into User authentication category
-      // {
-      //   label: 'Best practices',
-      //   collapsed: false,
-      //   items: ['guides/client-credentials-practices'],
-      // },
     ],
   },
   {
@@ -345,10 +333,6 @@ export const sidebar = [
           },
         ],
       },
-      {
-        label: 'SSO integrations',
-        autogenerate: { directory: 'guides/integrations/sso-integrations' },
-      },
     ],
   },
   {
@@ -383,10 +367,6 @@ export const sidebar = [
             link: 'directory/reference/directory-events',
           },
         ],
-      },
-      {
-        label: 'SCIM integrations',
-        autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
     ],
   },
@@ -425,17 +405,7 @@ export const topics = {
   // Agent Auth / Connect
   connect: ['/agent-auth/**/*', '/reference/agent-connectors/**/*'],
 
-  // Events & webhooks reference
-  'events-reference': [
-    '/reference/webhooks/**/*',
-    '/reference/admin-portal/**/*',
-    '/reference/interceptors/**/*',
-  ],
-
-  // Main authentication topic (after more specific mcp/sso patterns)
-  authenticate: ['/authenticate/**/*', '/fsa/**/*'],
-
-  // === dev-kit is the DEFAULT catch-all for everything else ===
+  // === dev-kit patterns (must come before authenticate pattern) ===
   'dev-kit': [
     '/dev-kit/**/*',
     '/guides/**/*',
@@ -446,6 +416,9 @@ export const topics = {
     '/reference/**/*', // Any remaining reference pages
     '/**/*', // Catch-all: anything not matched above defaults here
   ],
+
+  // Main authentication topic (after more specific mcp/sso patterns)
+  authenticate: ['/authenticate/**/*', '/fsa/**/*'],
 }
 
 /**
@@ -513,7 +486,4 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
 
   // Developer Resources sidebar → 'Developer Resources' tab
   'dev-kit': 'scenarios',
-
-  // Events reference sidebar → 'Webhooks' tab under API Reference
-  'events-reference': 'webhooks-events',
 }
