@@ -369,18 +369,36 @@ export const sidebar = [
     link: '/sdks/',
     icon: 'book',
     items: [
-      { label: 'Overview', link: '/sdks/' },
-      { label: 'Node.js SDK', link: '/sdks/node/' },
-      { label: 'Python SDK', link: '/sdks/python/' },
-      { label: 'Go SDK', link: '/sdks/go/' },
-      { label: 'Java SDK', link: '/sdks/java/' },
       {
-        label: 'REST APIs',
-        link: '/apis/',
-        attrs: {
-          target: '_blank',
-          rel: 'noopener noreferrer',
-        },
+        label: 'SDKs',
+        items: [
+          { label: 'Node.js SDK', link: '/sdks/node/' },
+          { label: 'Python SDK', link: '/sdks/python/' },
+          { label: 'Go SDK', link: '/sdks/go/' },
+          { label: 'Java SDK', link: '/sdks/java/' },
+        ],
+      },
+      {
+        label: 'API Reference',
+        collapsed: true,
+        items: [
+          {
+            label: 'REST APIs',
+            link: '/apis/',
+            attrs: { target: '_blank', rel: 'noopener noreferrer' },
+          },
+          // TODO: Verify internally if it makes sense
+          // {
+          //   label: 'Webhooks',
+          //   link: '/apis/#webhook/organizationcreated',
+          //   attrs: { target: '_blank', rel: 'noopener noreferrer' },
+          // },
+          // {
+          //   label: 'Interceptors',
+          //   link: '/reference/interceptors/triggers',
+          //   attrs: { target: '_blank', rel: 'noopener noreferrer' },
+          // },
+        ],
       },
     ],
   },
