@@ -159,7 +159,7 @@ export const secondaryNavItems: NavItem[] = [
       },
       {
         id: 'rest-apis',
-        href: '/apis/',
+        href: '/apis/#description/overview',
         label: 'REST APIs',
         iconComponent: IconApi,
         description: 'Programmatic control to manage users, orgs, sessions etc.',
