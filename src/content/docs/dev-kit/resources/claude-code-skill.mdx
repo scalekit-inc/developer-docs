@@ -1,0 +1,576 @@
+---
+title: Implement auth with Claude Code Skill
+description: "Use the Scalekit Claude Code Skill to implement authentication faster with AI-powered guidance"
+sidebar:
+  label: "Claude Code Skill"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+browseCentral:
+  label: "Claude Code Skill"
+  category:
+    - "Setup dev environment"
+  filterType:
+    - "tutorial"
+  icon: "code"
+tableOfContents: true
+prev: false
+next: false
+---
+
+import { Tabs, TabItem, Aside, Steps, Card, CardGrid } from '@astrojs/starlight/components';
+
+The **Scalekit Claude Code Skill** is a comprehensive AI assistant that guides you through implementing Scalekit authentication in your applications. It provides complete, tested code templates for multiple frameworks and authentication patterns.
+
+<Aside type="tip" title="What you'll get">
+  - Complete authentication implementations for your framework
+  - Production-ready code with security best practices
+  - Step-by-step guidance through the entire setup process
+  - Troubleshooting help for common issues
+</Aside>
+
+## What is the Claude Code Skill?
+
+The Scalekit Claude Code Skill is a specialized knowledge base for [Claude Code](https://claude.ai/code), Anthropic's AI coding assistant. It contains:
+
+- **3 authentication implementation paths**: Full-Stack Auth, Modular SSO, and MCP Server Auth
+- **Framework-specific templates**: Next.js, Express, FastAPI, and more
+- **Complete working code**: Copy-paste ready implementations with all imports, configs, and error handling
+- **Best practices**: Security patterns, session management, and production deployment guidance
+
+## Prerequisites
+
+Before you begin, you'll need:
+
+1. **Claude Code access** - Sign up at [claude.ai/code](https://claude.ai/code)
+2. **Scalekit account** - Create one at [scalekit.com](https://scalekit.com)
+3. **Your Scalekit credentials**:
+   - Environment URL
+   - Client ID
+   - Client Secret
+
+<Aside type="note">
+  The Claude Code Skill is free and open source. View the complete skill on [GitHub](https://github.com/scalekit-inc/claude-auth-skill).
+</Aside>
+
+## Installation
+
+The Scalekit Claude Code Skill can be installed in two ways:
+
+<Tabs>
+  <TabItem label="Claude Code Plugin (Recommended)">
+    ### Install via Claude Code Plugin Marketplace
+
+    This method makes the skill automatically available in all your Claude Code sessions.
+
+    <Steps>
+    1. **Open Claude Code**
+
+       Launch Claude Code in your terminal or IDE.
+
+    2. **Add the plugin marketplace**
+
+       ```bash
+       claude plugin marketplace add https://github.com/scalekit-inc/claude-auth-skill
+       ```
+
+    3. **Install the skill**
+
+       ```bash
+       claude plugin install scalekit-auth@scalekit-marketplace
+       ```
+
+    4. **Verify installation**
+
+       ```bash
+       claude plugin list
+       ```
+
+       You should see `scalekit-auth` in the list.
+    </Steps>
+
+    **Benefits:**
+    - Available in all projects automatically
+    - Easy updates with `claude plugin update`
+    - Centrally managed
+  </TabItem>
+
+  <TabItem label="Local Installation">
+    ### Install to local project
+
+    This method installs the skill for a specific project only.
+
+    <Steps>
+    1. **Clone the skill repository**
+
+       ```bash
+       git clone https://github.com/scalekit-inc/claude-auth-skill.git
+       cd claude-auth-skill
+       ```
+
+    2. **Run the install script**
+
+       ```bash
+       chmod +x install_local.sh
+       ./install_local.sh
+       ```
+
+       This copies the skill to `.claude/skills/scalekit-auth/` in your project.
+
+    3. **Verify installation**
+
+       Check that `.claude/skills/scalekit-auth/` exists in your project directory.
+    </Steps>
+
+    **Benefits:**
+    - Project-specific customization
+    - No plugin marketplace needed
+    - Works offline
+  </TabItem>
+</Tabs>
+
+## Choose your authentication path
+
+The skill provides three distinct implementation paths. Choose based on your needs:
+
+<CardGrid>
+  <Card title="Full-Stack Authentication" icon="seti:lock">
+    **Use when:**
+    - Building a new application
+    - Replacing existing authentication
+    - Need social login + enterprise SSO
+
+    **What's included:**
+    - Complete auth system
+    - User sign-up, login, logout
+    - Session management
+    - Social login (Google, GitHub, Microsoft)
+    - Enterprise SSO (SAML/OIDC)
+
+    **Supported frameworks:**
+    - Node.js + Express
+    - Next.js (App Router)
+    - Python + FastAPI
+  </Card>
+
+  <Card title="Modular SSO" icon="puzzle">
+    **Use when:**
+    - You already have authentication
+    - Enterprise customers require SSO
+    - Keep your existing user database
+    - No migration needed
+
+    **What's included:**
+    - SAML/OIDC protocol handling
+    - Integration with Auth0, Firebase, AWS Cognito
+    - Keep existing sessions and tokens
+    - Enterprise self-service portal
+
+    **Supported frameworks:**
+    - Node.js + Express
+    - Next.js (App Router)
+  </Card>
+
+  <Card title="MCP Server Authentication" icon="rocket">
+    **Use when:**
+    - Building an MCP server
+    - Need OAuth 2.1 compliance
+    - Supporting Claude Desktop, Cursor, VS Code
+
+    **What's included:**
+    - OAuth 2.1 with Scalekit
+    - Discovery endpoint automatic
+    - Multiple auth methods
+    - Custom authentication integration
+
+    **Supported frameworks:**
+    - Node.js
+    - Python + FastMCP
+    - Go
+  </Card>
+</CardGrid>
+
+## Quick start
+
+Once installed, use the skill to implement authentication:
+
+<Steps>
+
+1. **Start Claude Code in your project**
+
+   ```bash
+   cd your-project
+   claude
+   ```
+
+2. **Ask Claude to implement authentication**
+
+   Choose one of these prompts based on your needs:
+
+   <Tabs>
+     <TabItem label="Full-Stack Auth">
+       ```
+       Use the Scalekit Claude Code Skill to implement complete
+       authentication for my Next.js application. I want hosted
+       login pages, social login, and session management.
+       ```
+     </TabItem>
+
+     <TabItem label="Modular SSO">
+       ```
+       Use the Scalekit Claude Code Skill to add Enterprise SSO
+       to my existing Express application. I want to keep my
+       current authentication system and add SAML/OIDC support.
+       ```
+     </TabItem>
+
+     <TabItem label="MCP Auth">
+       ```
+       Use the Scalekit Claude Code Skill to add OAuth 2.1
+       authentication to my Model Context Protocol server.
+       ```
+     </TabItem>
+   </Tabs>
+
+3. **Follow Claude's guidance**
+
+   Claude will:
+   - Ask clarifying questions about your setup
+   - Provide step-by-step instructions
+   - Generate complete, working code
+   - Help you test and troubleshoot
+
+4. **Test your implementation**
+
+   Claude will guide you through:
+   - Setting up environment variables
+   - Running your application
+   - Testing the authentication flow
+   - Verifying everything works correctly
+
+</Steps>
+
+## Using slash commands
+
+The skill includes convenient slash commands for common tasks:
+
+<Tabs>
+  <TabItem label="/scalekit">
+    ### Interactive help
+
+    ```
+    /scalekit
+    ```
+
+    Shows the authentication path selection guide and helps you choose the right approach for your project.
+  </TabItem>
+
+  <TabItem label="/scalekit-init">
+    ### Initialize new project
+
+    ```
+    /scalekit-init
+    ```
+
+    Launches an interactive wizard to:
+    - Set up your Scalekit credentials
+    - Choose your framework
+    - Select your authentication path
+    - Generate initial project structure
+  </TabItem>
+
+  <TabItem label="/scalekit-validate">
+    ### Validate configuration
+
+    ```
+    /scalekit-validate
+    ```
+
+    Checks your:
+    - Environment variables
+    - Scalekit API connectivity
+    - Configuration correctness
+    - Common setup issues
+  </TabItem>
+</Tabs>
+
+## Example: Implementing Full-Stack Auth with Next.js
+
+Here's a complete example of using the Claude Code Skill:
+
+<Steps>
+
+1. **Start Claude and describe your goal**
+
+   ```
+   I want to add authentication to my Next.js app using Scalekit.
+   I need hosted login pages, Google social login, and session management.
+   ```
+
+2. **Claude will guide you through setup**
+
+   Claude will provide:
+   - Environment variable configuration
+   - Scalekit SDK installation
+   - Complete route handlers for login, callback, and logout
+   - Authentication middleware
+   - Protected route examples
+
+3. **Review the generated code**
+
+   Example `app/auth/login/route.ts`:
+
+   ```typescript
+   import { NextRequest } from 'next/server';
+   import { scalekit, CALLBACK_URL } from '@/lib/scalekit';
+
+   export async function GET(request: NextRequest) {
+     try {
+       const authorizationUrl = scalekit.getAuthorizationUrl(CALLBACK_URL, {
+         scopes: ['openid', 'profile', 'email', 'offline_access'],
+       });
+
+       return Response.redirect(authorizationUrl);
+     } catch (error) {
+       console.error('Login error:', error);
+       return new Response('Failed to initiate login', { status: 500 });
+     }
+   }
+   ```
+
+4. **Test your implementation**
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+   Visit `http://localhost:3000` and test the login flow.
+
+</Steps>
+
+## What the skill provides
+
+The Claude Code Skill includes comprehensive templates for each authentication path:
+
+### Full-Stack Authentication
+
+- **Complete implementations** for Express, Next.js, and FastAPI
+- **Session management** with token refresh
+- **Protected routes** with middleware
+- **Social login** configuration
+- **Production deployment** checklist
+
+### Modular SSO
+
+- **SSO integration** patterns for existing apps
+- **Domain-based routing** for enterprise customers
+- **Admin portal** integration
+- **Session bridging** between your auth and SSO
+
+### MCP Server Authentication
+
+- **OAuth 2.1** implementation
+- **Discovery endpoints** configuration
+- **Client registration** handling
+- **Token validation** patterns
+
+## Best practices built-in
+
+Every template includes:
+
+✅ **Security patterns**
+- HttpOnly cookies for tokens
+- CSRF protection with sameSite cookies
+- Token validation on every request
+- Secure session management
+
+✅ **Error handling**
+- Comprehensive error messages
+- Fallback mechanisms
+- User-friendly error pages
+
+✅ **Production readiness**
+- Environment-based configuration
+- HTTPS enforcement in production
+- Logging and monitoring hooks
+- Deployment checklists
+
+## Troubleshooting
+
+### Skill not found
+
+If Claude says it doesn't have access to the Scalekit skill:
+
+1. **Verify installation**
+   ```bash
+   claude plugin list
+   # or check .claude/skills/scalekit-auth/ exists
+   ```
+
+2. **Reinstall if needed**
+   ```bash
+   claude plugin install scalekit-auth@scalekit-marketplace
+   # or run ./install_local.sh again
+   ```
+
+3. **Explicitly reference the skill**
+   ```
+   Using the Scalekit Authentication Claude Code Skill from GitHub
+   (github.com/scalekit-inc/claude-auth-skill), implement authentication...
+   ```
+
+### Generated code doesn't work
+
+If you encounter issues with generated code:
+
+1. **Use the validation command**
+   ```
+   /scalekit-validate
+   ```
+
+2. **Check SDK versions**
+
+   Ensure you're using the correct SDK versions:
+   - Node.js: `@scalekit-sdk/node@^2.1.6`
+   - Python: `scalekit-sdk-python>=2.4.13`
+
+3. **Review environment variables**
+
+   Verify all required variables are set:
+   ```bash
+   SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
+   SCALEKIT_CLIENT_ID=skc_...
+   SCALEKIT_CLIENT_SECRET=test_...
+   CALLBACK_URL=http://localhost:3000/auth/callback
+   POST_LOGOUT_URL=http://localhost:3000
+   ```
+
+4. **Check redirect URL registration**
+
+   Ensure your callback and logout URLs are registered in the Scalekit Dashboard.
+
+### Need more help?
+
+- **View the skill source**: [github.com/scalekit-inc/claude-auth-skill](https://github.com/scalekit-inc/claude-auth-skill)
+- **Report issues**: [GitHub Issues](https://github.com/scalekit-inc/claude-auth-skill/issues)
+- **Read the docs**: [docs.scalekit.com](https://docs.scalekit.com)
+- **Contact support**: support@scalekit.com
+
+## Advanced usage
+
+### Customize templates
+
+The skill templates are fully customizable. After Claude generates code:
+
+1. Review the complete implementation
+2. Modify authentication flows as needed
+3. Add custom business logic
+4. Extend with additional features
+
+### Multiple authentication methods
+
+Combine different approaches:
+
+```
+I want to use Full-Stack Auth for regular users and add Modular SSO
+for enterprise customers. How do I implement both with the skill?
+```
+
+Claude will guide you through implementing multiple authentication paths in the same application.
+
+### Framework-specific features
+
+Ask Claude about framework-specific implementations:
+
+<Tabs>
+  <TabItem label="Next.js">
+    ```
+    Show me how to implement authentication with Next.js Server Components,
+    Server Actions, and middleware using the Scalekit skill.
+    ```
+  </TabItem>
+
+  <TabItem label="Express">
+    ```
+    How do I add Scalekit authentication to my existing Express app
+    with Passport.js using the skill?
+    ```
+  </TabItem>
+
+  <TabItem label="FastAPI">
+    ```
+    Implement Scalekit authentication in FastAPI with dependency injection
+    using the Claude Code Skill.
+    ```
+  </TabItem>
+</Tabs>
+
+## Updates and maintenance
+
+The Claude Code Skill is actively maintained:
+
+### Stay up to date
+
+<Tabs>
+  <TabItem label="Plugin Installation">
+    Update to the latest version:
+    ```bash
+    claude plugin update scalekit-auth
+    ```
+  </TabItem>
+
+  <TabItem label="Local Installation">
+    Pull the latest changes:
+    ```bash
+    cd claude-auth-skill
+    git pull origin main
+    ./install_local.sh
+    ```
+  </TabItem>
+</Tabs>
+
+### What's included in updates
+
+- Latest SDK versions
+- New framework templates
+- Bug fixes and improvements
+- Updated best practices
+- New authentication patterns
+
+### Version tracking
+
+The skill maintains version information:
+- Current SDK versions: Node 2.1.6, Python 2.4.13
+- View changelog: [CHANGELOG.md](https://github.com/scalekit-inc/claude-auth-skill/blob/main/CHANGELOG.md)
+- Release notes: [GitHub Releases](https://github.com/scalekit-inc/claude-auth-skill/releases)
+
+## Next steps
+
+<CardGrid>
+  <Card title="Explore templates" icon="seti:folder">
+    Browse all available templates in the [skill repository](https://github.com/scalekit-inc/claude-auth-skill/tree/main/skills/scalekit-auth).
+  </Card>
+
+  <Card title="View examples" icon="github">
+    See working example applications in our [example repos](https://github.com/scalekit-inc?q=example&type=all).
+  </Card>
+
+  <Card title="Read the guides" icon="open-book">
+    Deep dive into authentication concepts in our [documentation](https://docs.scalekit.com).
+  </Card>
+
+  <Card title="Join the community" icon="discord">
+    Get help and share feedback in our [community Slack](https://scalekit.com/slack).
+  </Card>
+</CardGrid>
+
+<Aside type="tip" title="Pro tip">
+  The Claude Code Skill works best when you provide context about your application. Describe your tech stack, existing authentication (if any), and specific requirements for the most accurate guidance.
+</Aside>

@@ -195,6 +195,11 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Setup & Tools',
+        collapsed: false,
+        items: ['dev-kit/resources/ai-assisted-setup', 'dev-kit/resources/claude-code-skill'],
+      },
+      {
         label: 'How-to guides',
         items: [
           {
