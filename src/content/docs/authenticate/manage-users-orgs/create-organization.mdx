@@ -85,39 +85,45 @@ For example, show an option for users such "Create new workspace" within their a
 
 ```javascript title="Create and manage organizations" wrap
 
-const { organization } = await scalekit.organization.createOrganization({
-  name: 'Orion Analytics'
-})
+const { organization } = await scalekit.organization.createOrganization(
+  'Orion Analytics'
+);
 
 // Use case: Sync organization profile to downstream systems
-const { organization: fetched } = await scalekit.organization.getOrganization(organization.id)
+const { organization: fetched } = await scalekit.organization.getOrganization(organization.id);
 ```
 
   </TabItem>
   <TabItem value="python" label="Python">
 
 ```python title="Create and manage organizations" wrap
-organization = scalekit_client.organization.create_organization(
-    name="Orion Analytics"
-)["organization"]
+from scalekit.v1.organizations.organizations_pb2 import CreateOrganization
+
+response = scalekit_client.organization.create_organization(
+    CreateOrganization(
+        display_name="Orion Analytics",
+    )
+)
 
 # Use case: Sync organization profile to downstream systems
-fetched = scalekit_client.organization.get_organization(organization["id"])
+fetched = scalekit_client.organization.get_organization(response[0].organization.id)
 ```
 
   </TabItem>
   <TabItem value="go" label="Go">
 
 ```go title="Create and manage organizations" wrap
-created, err := scalekitClient.Organization.Create(ctx, scalekit.CreateOrganizationRequest{
-    Name: "Orion Analytics",
-})
+created, err := scalekitClient.Organization().CreateOrganization(
+    ctx,
+    "Orion Analytics",
+    scalekit.CreateOrganizationOptions{},
+)
 if err != nil {
     log.Fatalf("create organization: %v", err)
 }
 
 // Use case: Sync organization profile to downstream systems
-fetched, err := scalekitClient.Organization.Get(ctx, created.Organization.Id)
+fetched, err := scalekitClient.Organization().GetOrganization(ctx, created.Organization.Id)
 if err != nil {
     log.Fatalf("get organization: %v", err)
 }
@@ -128,15 +134,14 @@ if err != nil {
 
 ```java title="Create and manage organizations" wrap
 // Use case: Provision a workspace after a sales-assisted onboarding
-Organization organization = scalekitClient.organization().create(
-    CreateOrganizationRequest.builder()
-        .name("Orion Analytics")
-        .build()
-).organization();
+CreateOrganization createOrganization = CreateOrganization.newBuilder()
+    .setDisplayName("Orion Analytics")
+    .build();
 
+Organization organization = scalekitClient.organizations().create(createOrganization);
 
 // Use case: Sync organization profile to downstream systems
-Organization fetched = scalekitClient.organization().get(organization.id()).organization();
+Organization fetched = scalekitClient.organizations().getById(organization.getId());
 ```
 
   </TabItem>

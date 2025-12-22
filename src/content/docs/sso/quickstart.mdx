@@ -49,7 +49,7 @@ next:
   label: Test SSO
   link: /sso/guides/test-sso/
 prev: false
-
+pagefind: false
 ---
 
 import {
@@ -806,13 +806,13 @@ Choose Modular SSO when you:
 
    ```javascript showLineNumbers=false title="generate-portal-link.js"
    // Generate a one-time Admin Portal link for your customer
-   const portalLink = await scalekit.organizations.generatePortalLink(
+   const portalLink = await scalekit.organization.generatePortalLink(
      'org_32656XXXXXX0438'  // Your customer's organization ID
    );
 
    // Share this link with your customer's IT admin via email or messaging
    // Example: '<SCALEKIT_ENVIRONMENT_URL>/magicLink/8930509d-68cf-4e2c-8c6d-94d2b5e2db43
-   console.log('Admin Portal URL:', portalLink.url);
+   console.log('Admin Portal URL:', portalLink.location);
    ```
 
    Send this link to your customer's IT administrator through email, Slack, or your preferred communication channel. They can configure their SSO connection without any developer involvement.
@@ -825,10 +825,10 @@ Choose Modular SSO when you:
 
    ```javascript showLineNumbers=false title="embed-portal.js" {1-2,8-9}
    // Generate a secure portal link at runtime
-   const portalLink = await scalekit.organizations.generatePortalLink(orgId);
+   const portalLink = await scalekit.organization.generatePortalLink(orgId);
 
    // Return the link to your frontend to embed in an iframe
-   res.json({ portalUrl: portalLink.url });
+   res.json({ portalUrl: portalLink.location });
    ```
 
    ```html showLineNumbers=false title="admin-settings.html" {2}
