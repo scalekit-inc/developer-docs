@@ -19,6 +19,7 @@ export interface Props {
   illustrationMaxWidth?: string
   clickable?: boolean
   badge?: { text: string; variant?: 'tip' | 'note' | 'default' }
+  iconPosition?: 'left' | 'right'
 }
 
 import { LinkButton } from 'starlight-theme-nova/components'
@@ -38,6 +39,7 @@ const {
   illustrationMaxWidth = '300px',
   clickable = false,
   badge,
+  iconPosition = 'left',
 } = Astro.props
 
 // When clickable is true, automatically hide CTA button
@@ -60,7 +62,7 @@ const Icon = iconKey ? getIconComponent(iconKey) : null
       {...(rel && { rel })}
     >
       <div class="card-main">
-        <div class="card-header">
+        <div class={`card-header ${iconPosition === 'right' ? 'icon-right' : 'icon-left'}`}>
           {logoUrl ? (
             <img src={logoUrl} alt={`${title} logo`} class="card-icon img" aria-hidden="true" />
           ) : (
@@ -95,7 +97,7 @@ const Icon = iconKey ? getIconComponent(iconKey) : null
       ]}
     >
       <div class="card-main">
-        <div class="card-header">
+        <div class={`card-header ${iconPosition === 'right' ? 'icon-right' : 'icon-left'}`}>
           {logoUrl ? (
             <img src={logoUrl} alt={`${title} logo`} class="card-icon img" aria-hidden="true" />
           ) : (
@@ -219,6 +221,18 @@ const Icon = iconKey ? getIconComponent(iconKey) : null
     align-items: flex-start;
     gap: 0.75rem;
     margin-bottom: 1rem;
+  }
+
+  /* Icon positioning - only icon moves, title and badges stay left */
+  .card-header.icon-right {
+    position: relative;
+    padding-right: 3rem; /* Make space for icon on right */
+  }
+
+  .card-header.icon-right .card-icon {
+    position: absolute;
+    top: 0;
+    right: 0;
   }
 
   .card-header :global(.sl-badge) {

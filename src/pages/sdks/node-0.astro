@@ -1,8 +1,10 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
-import { Badge, Code } from '@astrojs/starlight/components'
+import { Badge, Code, Aside, Steps } from '@astrojs/starlight/components'
 import { getCollection, render } from 'astro:content'
 import FoldCard from '@components/ui/FoldCard.astro'
+import { PackageManagers } from 'starlight-package-managers'
+import { LinkButton } from 'starlight-theme-nova/components'
 
 // Load GitHub releases for Node.js SDK
 const allReleases = await getCollection('github-releases', (entry) => {
@@ -21,10 +23,26 @@ const releases = allReleases
   })
   .slice(0, 10)
 
+// Get latest release info
+const latestRelease = releases.length > 0 ? (releases[0].data as any) : null
+
+// Helper to format "2 weeks ago"
+const formatTimeAgo = (dateString: string) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffTime = Math.abs(now.getTime() - date.getTime())
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+  if (diffDays < 7) return `${diffDays} days ago`
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`
+  return `${Math.floor(diffDays / 365)} years ago`
+}
+
 const frontmatter = {
   title: 'Node.js SDK',
   topic: 'sdks',
-  description: 'Drop-in library to quickly integrate Scalekit into your Node.js application',
   template: 'doc' as const,
   tableOfContents: false,
   sidebar: {
@@ -37,21 +55,81 @@ const frontmatter = {
 
 <StarlightPage frontmatter={frontmatter} hasSidebar={true}>
   <FoldCard
-    title="Github repository"
-    iconKey="github"
-    href="/sdks/node/"
+    title="Installation"
+    iconKey="nodejs"
+    iconPosition="right"
     showCta={false}
     clickable={false}
+    showTitle={true}
   >
-    <p>Placeholder content</p>
+    <div class="sdk-overview-content">
+      <div class="sdk-header">
+        <div class="sdk-title-section">
+          <Code
+            code="npm install @scalekit-sdk/node"
+            lang="bash"
+            showLineNumbers={false}
+            frame="none"
+          />
+          <div class="sdk-badges">
+            {latestRelease && <Badge text={latestRelease.tagName} variant="default" />}
+            <Badge text="TypeScript" variant="tip" />
+            <Badge text="ESM Ready" variant="tip" />
+          </div>
+        </div>
+        <div class="sdk-stats">
+          {
+            latestRelease && (
+              <div class="stat-item">
+                <span class="stat-label">Updated</span>
+                <span class="stat-value">{formatTimeAgo(latestRelease.publishedAt)}</span>
+              </div>
+            )
+          }
+          {
+            latestRelease && latestRelease.repoStargazerCount > 50 && (
+              <div class="stat-item">
+                <span class="stat-label">Stars</span>
+                <span class="stat-value">⭐ {latestRelease.repoStargazerCount}</span>
+              </div>
+            )
+          }
+        </div>
+      </div>
+      <div class="sdk-links">
+        <LinkButton
+          href="https://github.com/scalekit-inc/scalekit-sdk-node"
+          target="_blank"
+          rel="noopener noreferrer"
+          variant="secondary"
+          class="github-button"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+            ></path>
+          </svg>
+          View on GitHub
+        </LinkButton>
+      </div>
+    </div>
   </FoldCard>
 
-  <div class="install-section">
+  <div class="initialization-section">
     <Code
-      code="npm install @scalekit-sdk/node"
-      lang="bash"
+      code={`import { ScalekitClient } from '@scalekit-sdk/node';
+
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENVIRONMENT_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
+
+export default scalekit;`}
+      lang="javascript"
+      frame="terminal"
+      title="Initialize the client"
       showLineNumbers={false}
-      title="Installation"
     />
   </div>
 
@@ -99,27 +177,6 @@ const frontmatter = {
                   <div class="release-content">
                     <Content />
                   </div>
-
-                  <div class="release-footer">
-                    <a href={data.url} target="_blank" rel="noopener" class="release-link">
-                      View on GitHub
-                      <svg
-                        class="external-icon"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                        <polyline points="15 3 21 3 21 9" />
-                        <line x1="10" y1="14" x2="21" y2="3" />
-                      </svg>
-                    </a>
-                  </div>
                 </article>
               )
             }),
@@ -131,13 +188,157 @@ const frontmatter = {
 </StarlightPage>
 
 <style>
-  .install-section {
-    margin: 2rem 0 3rem;
+  /* SDK Overview Card Styles */
+  .sdk-overview-content {
+    display: flex;
+    flex-direction: column;
   }
 
-  .install-title {
-    margin: 0 0 1rem;
+  .sdk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .sdk-title-section h3 {
+    margin: 0 0 0.5rem 0;
     font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+  }
+
+  .sdk-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .sdk-stats {
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--sl-color-text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--sl-color-text);
+  }
+
+  .sdk-description {
+    color: var(--sl-color-text);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  .sdk-features h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+  }
+
+  .features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .features-list li {
+    padding: 0.25rem 0;
+    color: var(--sl-color-text);
+    font-size: 0.875rem;
+  }
+
+  .sdk-links {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .github-button {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Section Styles */
+  .install-section,
+  .initialization-section {
+    margin: 3rem 0;
+  }
+
+  .install-section h2,
+  .initialization-section h2 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+    border-bottom: 2px solid var(--sl-color-hairline);
+    padding-bottom: 0.5rem;
+  }
+
+  .prerequisites,
+  .env-setup,
+  .sdk-setup {
+    margin: 1.5rem 0;
+  }
+
+  .prerequisites h3,
+  .env-setup h3,
+  .sdk-setup h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+  }
+
+  .init-overview {
+    margin: 0 0 2rem 0;
+    padding: 1rem;
+    background-color: var(--sl-color-bg-code);
+    border-left: 4px solid var(--sl-color-accent);
+    border-radius: 0.25rem;
+  }
+
+  .init-overview p {
+    margin: 0;
+    color: var(--sl-color-text);
+  }
+
+  .env-setup p,
+  .sdk-setup p {
+    margin: 0.5rem 0 1rem 0;
+    color: var(--sl-color-text);
+  }
+
+  .verification {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--sl-color-hairline);
+  }
+
+  .verification h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--sl-color-text-heading);
   }
@@ -146,6 +347,15 @@ const frontmatter = {
     margin-top: 4rem;
     padding-top: 3rem;
     border-top: 2px solid var(--sl-color-hairline);
+    max-width: var(--sl-content-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .releases-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
 
   .releases-header {
