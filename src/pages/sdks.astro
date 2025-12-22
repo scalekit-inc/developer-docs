@@ -2,6 +2,7 @@
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import { getCollection } from 'astro:content'
 import FoldCard from '@components/ui/FoldCard.astro'
+import { Code } from '@astrojs/starlight/components'
 
 // Load GitHub releases and get latest tag for each SDK
 const releases = await getCollection('github-releases')
@@ -119,35 +120,30 @@ const frontmatter = {
             padding: 0 1rem;
           }
         }
-        .modular-auth-layout {
+        .sdk-section-layout {
           display: flex;
           gap: 2rem;
           align-items: top;
         }
-        .modular-auth-left {
-          flex: 0 0 33.333%;
+        .sdk-header-section {
+          flex: 0 0 13.333%;
           display: flex;
           flex-direction: column;
           gap: 1rem;
         }
-        .modular-auth-icon {
-          font-size: 2rem;
-          color: var(--sl-color-accent);
-          margin-bottom: 0.5rem;
-        }
-        .modular-auth-heading {
+        .section-title {
           font-size: 1.375rem;
           margin: 0;
           font-weight: 600;
           color: var(--sl-color-text-heading);
         }
-        .modular-auth-description {
+        .section-subtitle {
           font-size: 1.05rem;
           margin: 0;
           color: var(--sl-color-text-muted);
           line-height: 1.6;
         }
-        .modular-auth-cards-grid {
+        .sdk-cards-grid {
           flex: 1;
           display: grid;
           grid-template-columns: repeat(2, 1fr);
@@ -155,43 +151,43 @@ const frontmatter = {
           gap: 1.5rem;
         }
         @media (max-width: 1024px) {
-          .modular-auth-layout {
+          .sdk-section-layout {
             flex-direction: column;
           }
-          .modular-auth-left {
+          .sdk-header-section {
             flex: none;
             width: 100%;
           }
         }
         @media (max-width: 768px) {
-          .modular-auth-cards-grid {
+          .sdk-cards-grid {
             grid-template-columns: 1fr;
           }
         }
-        .api-reference-layout {
+        .api-section-layout {
           display: flex;
           gap: 2rem;
           align-items: top;
         }
-        .api-reference-left {
+        .api-header-section {
           flex: 0 0 33.333%;
           display: flex;
           flex-direction: column;
           gap: 1rem;
         }
-        .api-reference-heading {
+        .section-title {
           font-size: 1.375rem;
           margin: 0;
           font-weight: 600;
           color: var(--sl-color-text-heading);
         }
-        .api-reference-description {
+        .section-description {
           font-size: 1.05rem;
           margin: 0;
           color: var(--sl-color-text-muted);
           line-height: 1.6;
         }
-        .api-reference-cards-grid {
+        .api-cards-grid {
           flex: 1;
           display: grid;
           grid-template-columns: repeat(2, 1fr);
@@ -199,16 +195,16 @@ const frontmatter = {
           gap: 1.5rem;
         }
         @media (max-width: 1024px) {
-          .api-reference-layout {
+          .api-section-layout {
             flex-direction: column;
           }
-          .api-reference-left {
+          .api-header-section {
             flex: none;
             width: 100%;
           }
         }
         @media (max-width: 768px) {
-          .api-reference-cards-grid {
+          .api-cards-grid {
             grid-template-columns: 1fr;
           }
         }
@@ -265,19 +261,17 @@ const frontmatter = {
 <StarlightPage frontmatter={frontmatter} hasSidebar={false}>
   <div class="fold-section fold-full-width">
     <div class="fold-container">
-      <div class="modular-auth-layout">
-        <div class="modular-auth-left">
+      <div class="sdk-section-layout">
+        <div class="sdk-header-section">
           <h1
-            class="modular-auth-heading"
+            class="section-title"
             style="margin-top: 1.8rem !important; font-size: 1.9rem !important;"
           >
             SDKs
           </h1>
-          <div class="modular-auth-description">
-            <p>Drop-in libraries to quickly integrate Scalekit into your app</p>
-          </div>
+          <div class="section-subtitle"></div>
         </div>
-        <div class="modular-auth-cards-grid">
+        <div class="sdk-cards-grid">
           <FoldCard
             title="Node.js"
             iconKey="nodejs"
@@ -285,9 +279,7 @@ const frontmatter = {
             badge={nodeVersion ? { text: nodeVersion } : undefined}
             showCta={false}
             clickable={true}
-          >
-            Drop-in library to quickly integrate Scalekit into your Node.js application
-          </FoldCard>
+          />
 
           <FoldCard
             title="Python"
@@ -296,9 +288,7 @@ const frontmatter = {
             badge={pythonVersion ? { text: pythonVersion } : undefined}
             showCta={false}
             clickable={true}
-          >
-            Drop-in library to quickly integrate Scalekit into your Python application
-          </FoldCard>
+          />
 
           <FoldCard
             title="Go"
@@ -307,9 +297,7 @@ const frontmatter = {
             badge={goVersion ? { text: goVersion } : undefined}
             showCta={false}
             clickable={true}
-          >
-            Drop-in library to quickly integrate Scalekit into your Go application
-          </FoldCard>
+          />
 
           <FoldCard
             title="Java"
@@ -318,9 +306,7 @@ const frontmatter = {
             badge={javaVersion ? { text: javaVersion } : undefined}
             showCta={false}
             clickable={true}
-          >
-            Drop-in library to quickly integrate Scalekit into your Java application
-          </FoldCard>
+          />
         </div>
       </div>
     </div>
@@ -328,21 +314,21 @@ const frontmatter = {
 
   <div class="fold-section fold--background-muted fold-full-width">
     <div class="fold-container">
-      <div class="api-reference-layout">
-        <div class="api-reference-left">
+      <div class="api-section-layout">
+        <div class="api-header-section">
           <h1
-            class="api-reference-heading"
+            class="section-title"
             style="margin-top: 1.8rem !important; font-size: 1.9rem !important;"
           >
             APIs
           </h1>
-          <div class="api-reference-description">
+          <div class="section-description">
             <p>
               REST APIs, webhooks, and interceptors for programmatic control and real-time events
             </p>
           </div>
         </div>
-        <div class="api-reference-cards-grid">
+        <div class="api-cards-grid">
           <FoldCard title="REST APIs" iconKey="api" href="/apis/" showCta={false} clickable={false}>
             Programmatic control to manage users, orgs, sessions, and more <br /><br /><a
               href="/apis/#description/quickstart"
