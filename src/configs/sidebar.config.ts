@@ -379,27 +379,27 @@ export const sidebar = [
         ],
       },
       {
-        label: 'API Reference',
-        collapsed: true,
-        items: [
-          {
-            label: 'REST APIs',
-            link: '/apis/',
-            attrs: { target: '_blank', rel: 'noopener noreferrer' },
-          },
-          // TODO: Verify internally if it makes sense
-          // {
-          //   label: 'Webhooks',
-          //   link: '/apis/#webhook/organizationcreated',
-          //   attrs: { target: '_blank', rel: 'noopener noreferrer' },
-          // },
-          // {
-          //   label: 'Interceptors',
-          //   link: '/reference/interceptors/triggers',
-          //   attrs: { target: '_blank', rel: 'noopener noreferrer' },
-          // },
-        ],
+        label: 'REST APIs',
+        link: '/apis/',
+        attrs: { target: '_blank', rel: 'noopener noreferrer' },
       },
+      // {
+      //   label: 'API Reference',
+      //   collapsed: true,
+      //   items: [
+      //     // TODO: Verify internally if it makes sense
+      //     // {
+      //     //   label: 'Webhooks',
+      //     //   link: '/apis/#webhook/organizationcreated',
+      //     //   attrs: { target: '_blank', rel: 'noopener noreferrer' },
+      //     // },
+      //     // {
+      //     //   label: 'Interceptors',
+      //     //   link: '/reference/interceptors/triggers',
+      //     //   attrs: { target: '_blank', rel: 'noopener noreferrer' },
+      //     // },
+      //   ],
+      // },
     ],
   },
 ]

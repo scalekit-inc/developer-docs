@@ -1,0 +1,575 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import { Badge, Code, Aside, Steps } from '@astrojs/starlight/components'
+import { getCollection, render } from 'astro:content'
+import FoldCard from '@components/ui/FoldCard.astro'
+import { PackageManagers } from 'starlight-package-managers'
+import { LinkButton } from 'starlight-theme-nova/components'
+
+// Load GitHub releases for Go SDK
+const allReleases = await getCollection('github-releases', (entry) => {
+  const data = entry.data as any
+  return data.repoNameWithOwner === 'scalekit-inc/scalekit-sdk-go'
+})
+
+// Sort releases by published date (most recent first) and limit to 10
+const releases = allReleases
+  .sort((a, b) => {
+    const dataA = a.data as any
+    const dataB = b.data as any
+    const dateA = dataA.publishedAt ? new Date(dataA.publishedAt).getTime() : 0
+    const dateB = dataB.publishedAt ? new Date(dataB.publishedAt).getTime() : 0
+    return dateB - dateA
+  })
+  .slice(0, 10)
+
+// Get latest release info
+const latestRelease = releases.length > 0 ? (releases[0].data as any) : null
+
+// Helper to format "2 weeks ago"
+const formatTimeAgo = (dateString: string) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffTime = Math.abs(now.getTime() - date.getTime())
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+  if (diffDays < 7) return `${diffDays} days ago`
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`
+  return `${Math.floor(diffDays / 365)} years ago`
+}
+
+const frontmatter = {
+  title: 'Go SDK',
+  topic: 'sdks',
+  template: 'doc' as const,
+  tableOfContents: false,
+  sidebar: {
+    label: 'Go',
+  },
+  prev: false,
+  next: false,
+}
+---
+
+<StarlightPage frontmatter={frontmatter} hasSidebar={true}>
+  <FoldCard
+    title="Go SDK Overview"
+    iconKey="go"
+    iconPosition="right"
+    showCta={false}
+    clickable={false}
+    showTitle={false}
+  >
+    <div class="sdk-overview-content">
+      <div class="sdk-header">
+        <div class="sdk-title-section">
+          <Code
+            code="go get -u github.com/scalekit-inc/scalekit-sdk-go"
+            lang="bash"
+            showLineNumbers={false}
+            frame="none"
+          />
+          <div class="sdk-badges">
+            {latestRelease && <Badge text={latestRelease.tagName} variant="default" />}
+            <Badge text="Thread-safe" variant="tip" />
+            <Badge text="Zero dependencies" variant="tip" />
+          </div>
+        </div>
+        <div class="sdk-stats">
+          {
+            latestRelease && (
+              <div class="stat-item">
+                <span class="stat-label">Updated</span>
+                <span class="stat-value">{formatTimeAgo(latestRelease.publishedAt)}</span>
+              </div>
+            )
+          }
+          {
+            latestRelease && latestRelease.repoStargazerCount > 50 && (
+              <div class="stat-item">
+                <span class="stat-label">Stars</span>
+                <span class="stat-value">⭐ {latestRelease.repoStargazerCount}</span>
+              </div>
+            )
+          }
+        </div>
+      </div>
+      <div class="sdk-links">
+        <LinkButton
+          href="https://github.com/scalekit-inc/scalekit-sdk-go"
+          target="_blank"
+          rel="noopener noreferrer"
+          variant="secondary"
+          class="github-button"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            style="margin-right: 0.5rem;"
+          >
+            <path
+              d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+            ></path>
+          </svg>
+          View on GitHub
+        </LinkButton>
+      </div>
+    </div>
+  </FoldCard>
+
+  <div class="initialization-section">
+    <Code
+      code={`package main
+
+import (
+    "os"
+    "github.com/scalekit-inc/scalekit-sdk-go/scalekit"
+)
+
+func main() {
+    scalekitClient := scalekit.NewScalekitClient(
+        os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+        os.Getenv("SCALEKIT_CLIENT_ID"),
+        os.Getenv("SCALEKIT_CLIENT_SECRET"),
+    )
+    // Use scalekitClient for authentication
+}`}
+      lang="go"
+      frame="terminal"
+      title="Initialize the client"
+      showLineNumbers={false}
+    />
+  </div>
+
+  {
+    releases.length > 0 && (
+      <section class="releases-section">
+        <div class="releases-header">
+          <h2 class="releases-title">Changelog</h2>
+          <a
+            href="https://github.com/scalekit-inc/scalekit-sdk-go/releases"
+            target="_blank"
+            rel="noopener"
+            class="view-all-link"
+          >
+            View all releases →
+          </a>
+        </div>
+
+        <div class="releases-list">
+          {await Promise.all(
+            releases.map(async (release) => {
+              const { Content } = await render(release)
+              const data = release.data as any
+              return (
+                <article class="release-item">
+                  <div class="release-header">
+                    <div class="release-title-group">
+                      <h3 class="release-title">
+                        <Badge text={data.tagName} variant="default" />
+                        {data.isPrerelease && <Badge text="Pre-release" variant="note" />}
+                        {data.isDraft && <Badge text="Draft" variant="note" />}
+                      </h3>
+                      {data.publishedAt && (
+                        <time datetime={data.publishedAt} class="release-date">
+                          {new Date(data.publishedAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                          })}
+                        </time>
+                      )}
+                    </div>
+                  </div>
+
+                  <div class="release-content">
+                    <Content />
+                  </div>
+                </article>
+              )
+            }),
+          )}
+        </div>
+      </section>
+    )
+  }
+</StarlightPage>
+
+<style>
+  /* SDK Overview Card Styles */
+  .sdk-overview-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sdk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .sdk-title-section h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+  }
+
+  .sdk-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .sdk-stats {
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--sl-color-text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--sl-color-text);
+  }
+
+  .sdk-description {
+    color: var(--sl-color-text);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  .sdk-features h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+  }
+
+  .features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .features-list li {
+    padding: 0.25rem 0;
+    color: var(--sl-color-text);
+    font-size: 0.875rem;
+  }
+
+  .sdk-links {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .github-button {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Section Styles */
+  .initialization-section {
+    margin: 3rem 0;
+  }
+
+  .initialization-section h2 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+    border-bottom: 2px solid var(--sl-color-hairline);
+    padding-bottom: 0.5rem;
+  }
+
+  .prerequisites,
+  .env-setup,
+  .sdk-setup {
+    margin: 1.5rem 0;
+  }
+
+  .prerequisites h3,
+  .env-setup h3,
+  .sdk-setup h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+  }
+
+  .init-overview {
+    margin: 0 0 2rem 0;
+    padding: 1rem;
+    background-color: var(--sl-color-bg-code);
+    border-left: 4px solid var(--sl-color-accent);
+    border-radius: 0.25rem;
+  }
+
+  .init-overview p {
+    margin: 0;
+    color: var(--sl-color-text);
+  }
+
+  .env-setup p,
+  .sdk-setup p {
+    margin: 0.5rem 0 1rem 0;
+    color: var(--sl-color-text);
+  }
+
+  .verification {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--sl-color-hairline);
+  }
+
+  .verification h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+  }
+
+  .releases-section {
+    margin-top: 4rem;
+    padding-top: 3rem;
+    border-top: 2px solid var(--sl-color-hairline);
+    max-width: var(--sl-content-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .releases-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .releases-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .releases-title {
+    margin: 0;
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--sl-color-text-heading);
+    letter-spacing: -0.02em;
+  }
+
+  .view-all-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--sl-color-accent);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .view-all-link:hover {
+    color: var(--sl-color-accent-high);
+    text-decoration: underline;
+  }
+
+  .release-item {
+    position: relative;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    background: var(--sl-color-bg);
+    transition: all 0.2s ease;
+  }
+
+  .release-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .release-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .release-title {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .release-date {
+    display: inline-block;
+    color: var(--sl-color-text-2);
+    font-size: 0.875rem;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  .release-content {
+    margin: 1.5rem 0;
+    color: var(--sl-color-text);
+    line-height: 1.7;
+  }
+
+  .release-content :global(h1),
+  .release-content :global(h2),
+  .release-content :global(h3),
+  .release-content :global(h4) {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--sl-color-text-heading);
+  }
+
+  .release-content :global(h1) {
+    font-size: 1.5rem;
+  }
+
+  .release-content :global(h2) {
+    font-size: 1.25rem;
+  }
+
+  .release-content :global(h3) {
+    font-size: 1.125rem;
+  }
+
+  .release-content :global(p) {
+    margin: 0.75rem 0;
+  }
+
+  .release-content :global(ul),
+  .release-content :global(ol) {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+  }
+
+  .release-content :global(li) {
+    margin: 0.375rem 0;
+  }
+
+  .release-content :global(code) {
+    background: var(--sl-color-bg-inline-code);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+    font-family: var(--sl-font-mono);
+  }
+
+  .release-content :global(pre) {
+    background: var(--sl-color-bg-inline-code);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--sl-color-hairline);
+  }
+
+  .release-content :global(blockquote) {
+    border-left: 3px solid var(--sl-color-accent);
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: var(--sl-color-text-2);
+    font-style: italic;
+  }
+
+  .release-content :global(a) {
+    color: var(--sl-color-accent);
+    text-decoration: none;
+  }
+
+  .release-content :global(a:hover) {
+    text-decoration: underline;
+  }
+
+  .release-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--sl-color-hairline);
+  }
+
+  .release-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--sl-color-accent);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .release-link:hover {
+    color: var(--sl-color-accent-high);
+    text-decoration: underline;
+  }
+
+  .external-icon {
+    width: 14px;
+    height: 14px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+
+  .release-link:hover .external-icon {
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    .releases-section {
+      margin-top: 3rem;
+      padding-top: 2rem;
+    }
+
+    .releases-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .releases-title {
+      font-size: 1.5rem;
+    }
+
+    .release-item {
+      padding: 1.5rem;
+    }
+
+    .release-title-group {
+      gap: 0.5rem;
+    }
+
+    .release-content {
+      margin: 1.25rem 0;
+    }
+  }
+</style>
