@@ -152,24 +152,17 @@ export const secondaryNavItems: NavItem[] = [
     children: [
       {
         id: 'sdks',
-        href: '/apis/#description/sdks',
+        href: '/sdks/',
         label: 'SDKs',
         iconComponent: IconSdk,
         description: 'Ready-to-use libraries to implement auth in your app',
       },
       {
         id: 'rest-apis',
-        href: '/apis/',
+        href: '/apis/#description/overview',
         label: 'REST APIs',
         iconComponent: IconApi,
         description: 'Programmatic control to manage users, orgs, sessions etc.',
-      },
-      {
-        id: 'webhooks-events', // Maps to sidebarToSecondaryNav['events-reference']
-        href: '/apis/#webhook/organizationcreated',
-        label: 'Webhooks',
-        iconComponent: IconLucideOutlineWebhook,
-        description: 'Receive real-time events for auth, users, and orgs',
       },
     ],
   },

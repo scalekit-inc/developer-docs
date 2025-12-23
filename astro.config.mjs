@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, passthroughImageService } from 'astro/config'
+import { defineConfig, sharpImageService } from 'astro/config'
 import starlight from '@astrojs/starlight'
 import react from '@astrojs/react'
 import path from 'path'
@@ -10,7 +10,6 @@ import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-s
 import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
-import starlightChangelogs from 'starlight-changelogs'
 import starlightLinksValidator from 'starlight-links-validator'
 import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
@@ -90,9 +89,8 @@ export default defineConfig({
         }),
         starlightSidebarTopics(sidebarConfig, { topics }),
         starlightVideos(),
-        starlightChangelogs(),
         starlightLinksValidator({
-          exclude: ['/dev-kit/changelogs/**'],
+          exclude: ['/apis/**'],
         }),
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude'],
@@ -234,7 +232,7 @@ export default defineConfig({
   ],
 
   image: {
-    service: passthroughImageService(),
+    service: sharpImageService(),
   },
 
   vite: {
