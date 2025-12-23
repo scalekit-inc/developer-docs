@@ -11,6 +11,7 @@ export interface Props {
   cta?: string
   variant?: 'primary' | 'secondary' | 'minimal'
   showCta?: boolean
+  showTitle?: boolean
   target?: string
   rel?: string
   illustrationSvg?: string
@@ -18,6 +19,12 @@ export interface Props {
   illustrationMaxWidth?: string
   clickable?: boolean
   badge?: { text: string; variant?: 'tip' | 'note' | 'default' }
+  iconPosition?: 'left' | 'right'
+  // LinkButton-specific props
+  ctaIcon?: string
+  ctaIconPlacement?: 'start' | 'end'
+  ctaSize?: 'small' | 'medium' | 'large'
+  ctaSmall?: boolean
 }
 
 import { LinkButton } from 'starlight-theme-nova/components'
@@ -29,6 +36,7 @@ const {
   cta = 'Know more →',
   variant = 'secondary',
   showCta = true,
+  showTitle = true,
   target,
   rel,
   illustrationSvg,
@@ -36,12 +44,18 @@ const {
   illustrationMaxWidth = '300px',
   clickable = false,
   badge,
+  iconPosition = 'left',
+  ctaIcon,
+  ctaIconPlacement,
+  ctaSize,
+  ctaSmall,
 } = Astro.props
 
 // When clickable is true, automatically hide CTA button
 const shouldShowCta = clickable ? false : showCta
 const isClickable = clickable && href
 const Icon = iconKey ? getIconComponent(iconKey) : null
+const cardClass = ctaSmall ? 'fold-card--small-cta' : ''
 ---
 
 {
@@ -53,18 +67,19 @@ const Icon = iconKey ? getIconComponent(iconKey) : null
         'sl-card',
         'clickable',
         { 'has-illustration': illustrationSvg || illustrationUrl },
+        cardClass,
       ]}
       {...(target && { target })}
       {...(rel && { rel })}
     >
       <div class="card-main">
-        <div class="card-header">
+        <div class={`card-header ${iconPosition === 'right' ? 'icon-right' : 'icon-left'}`}>
           {logoUrl ? (
             <img src={logoUrl} alt={`${title} logo`} class="card-icon img" aria-hidden="true" />
           ) : (
             Icon && <Icon class="card-icon" aria-hidden="true" />
           )}
-          <h3 class="card-title">{title}</h3>
+          {showTitle && <h3 class="card-title">{title}</h3>}
           {badge && <Badge text={badge.text} variant={badge.variant || 'default'} />}
         </div>
         <div class="card-content">
@@ -90,16 +105,17 @@ const Icon = iconKey ? getIconComponent(iconKey) : null
         'fold-card',
         'sl-card',
         { 'has-illustration': illustrationSvg || illustrationUrl },
+        cardClass,
       ]}
     >
       <div class="card-main">
-        <div class="card-header">
+        <div class={`card-header ${iconPosition === 'right' ? 'icon-right' : 'icon-left'}`}>
           {logoUrl ? (
             <img src={logoUrl} alt={`${title} logo`} class="card-icon img" aria-hidden="true" />
           ) : (
             Icon && <Icon class="card-icon" aria-hidden="true" />
           )}
-          <h3 class="card-title">{title}</h3>
+          {showTitle && <h3 class="card-title">{title}</h3>}
           {badge && <Badge text={badge.text} variant={badge.variant || 'default'} />}
         </div>
         <div class="card-content">
@@ -107,10 +123,13 @@ const Icon = iconKey ? getIconComponent(iconKey) : null
           {href && shouldShowCta && (
             <LinkButton
               href={href}
-              class={`card-cta sk-${variant}`}
+              class={`card-cta sk-${variant} ${ctaSmall ? 'cta-small' : ''}`}
               variant={variant}
               {...(target && { target })}
               {...(rel && { rel })}
+              {...(ctaIcon && { icon: ctaIcon })}
+              {...(ctaIconPlacement && { iconPlacement: ctaIconPlacement })}
+              {...(ctaSize && { size: ctaSize })}
             >
               {cta}
             </LinkButton>
@@ -219,6 +238,18 @@ const Icon = iconKey ? getIconComponent(iconKey) : null
     margin-bottom: 1rem;
   }
 
+  /* Icon positioning - only icon moves, title and badges stay left */
+  .card-header.icon-right {
+    position: relative;
+    padding-right: 3rem; /* Make space for icon on right */
+  }
+
+  .card-header.icon-right .card-icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
   .card-header :global(.sl-badge) {
     margin-top: -0.25rem;
   }
@@ -263,6 +294,15 @@ const Icon = iconKey ? getIconComponent(iconKey) : null
 
   .card-cta:hover {
     color: var(--sl-color-text);
+  }
+
+  .card-cta.cta-small {
+    font-size: 0.8rem;
+  }
+
+  /* Target LinkButtons within cards that have small-cta class */
+  :global(.fold-card--small-cta) :global(.card-content) :global(a) {
+    font-size: 0.8rem;
   }
 
   .card-illustration {
