@@ -38,7 +38,7 @@ sidebar:
 
 import { Steps, Aside, Badge } from '@astrojs/starlight/components';
 
-This guide walks you through configuring Shibboleth as your SAML identity provider for the application you are onboarding, enabling secure single sign-on for your users. You'll learn how to set up a Shibboleth identity provider, configure SAML settings, map user attributes, and connect it to Scalekit. By following these steps, your users will be able to seamlessly authenticate using their Shibboleth credentials.
+This guide walks you through configuring Shibboleth as your SAML identity provider for the application you are onboarding, enabling secure single sign-on for your users. You'll learn how to set up a Shibboleth identity provider, configure SAML settings, map user attributes, and connect it to your application. By following these steps, your users will be able to seamlessly authenticate using their Shibboleth credentials.
 
 <Aside type="note">
 This guide is written for Shibboleth Identity Provider (IdP) version 4.0.1. If you need help with the initial Shibboleth IdP setup, please refer to the [official Shibboleth documentation](https://shibboleth.atlassian.net/wiki/spaces/IDP5/overview) and [download Shibboleth version v4.0.1](https://shibboleth.net/downloads/identity-provider/latest4/). While other versions may work similarly, the specific steps and configuration options shown here are for v4.0.1.
@@ -67,7 +67,7 @@ This guide is written for Shibboleth Identity Provider (IdP) version 4.0.1. If y
    idp.entityId = https://your-shibboleth-url/idp/shibboleth
    ```
 
-   Copy this entity ID value and paste it into the **Entity ID** field in your Scalekit SSO Configuration Portal.
+   Copy this entity ID value and paste it into the **Entity ID** field in your SSO Configuration Portal.
 
 3. ### Configure SAML SSO URL
 
@@ -79,7 +79,7 @@ This guide is written for Shibboleth Identity Provider (IdP) version 4.0.1. If y
        Location="https://your-shibboleth-url/idp/profile/SAML2/Redirect/SSO"/>
    ```
 
-   Copy the `Location` attribute value and paste it into the **IdP Single Sign-on URL** field in your Scalekit SSO Configuration Portal.
+   Copy the `Location` attribute value and paste it into the **IdP Single Sign-on URL** field in your SSO Configuration Portal.
 
 4. ### Configure signing options
 
@@ -96,7 +96,7 @@ This guide is written for Shibboleth Identity Provider (IdP) version 4.0.1. If y
 
    ```xml showLineNumbers=false wrap
    <util:list id="shibboleth.RelyingPartyOverrides">
-       <bean id="ScalekitSP" parent="RelyingPartyByName" c:relyingPartyIds="SCALEKIT_SP_ENTITY_ID">
+       <bean id="OnboardedAppSP" parent="RelyingPartyByName" c:relyingPartyIds="ONBOARDED_APP_SP_ENTITY_ID">
            <property name="profileConfigurations">
                <list>
                    <bean parent="SAML2.SSO" p:signAssertions="false" p:encryptAssertions="true" p:signResponses="true"/>
@@ -107,12 +107,12 @@ This guide is written for Shibboleth Identity Provider (IdP) version 4.0.1. If y
    </util:list>
    ```
 
-   Replace `SCALEKIT_SP_ENTITY_ID` with your Scalekit Entity ID from the SSO Configuration Portal. For example:
+   Replace `ONBOARDED_APP_SP_ENTITY_ID` with your Entity ID from the SSO Configuration Portal. For example:
    `https://your-app.scalekit.dev/sso/v1/saml/conn_123456789`
 
 5. ### Configure security certificate
 
-   In your `metadata/idp-metadata.xml` file, locate the `<KeyDescriptor use="signing">` elements. Copy the second certificate (front-channel configuration) and paste it into the **Security Certificate** field in your Scalekit SSO Configuration Portal.
+   In your `metadata/idp-metadata.xml` file, locate the `<KeyDescriptor use="signing">` elements. Copy the second certificate (front-channel configuration) and paste it into the **Security Certificate** field in your SSO Configuration Portal.
 
    ```xml showLineNumbers=false
    <KeyDescriptor use="signing">
@@ -136,7 +136,7 @@ This guide is written for Shibboleth Identity Provider (IdP) version 4.0.1. If y
 <Steps>
 1. ### Download SP metadata
 
-   In your Scalekit SSO Configuration Portal, save the SSO configuration and click **Download Metadata** to download the Service Provider metadata file. Refer to [Generic SAML](/guides/integrations/sso-integrations/generic-saml) for detailed instructions.
+   In your SSO Configuration Portal, save the SSO configuration and click **Download Metadata** to download the Service Provider metadata file. Refer to [Generic SAML](/guides/integrations/sso-integrations/generic-saml) for detailed instructions.
 
 2. ### Configure metadata provider
 
@@ -150,7 +150,7 @@ This guide is written for Shibboleth Identity Provider (IdP) version 4.0.1. If y
    Open `conf/metadata-providers.xml` and add the following configuration:
 
    ```xml
-   <MetadataProvider id="ScalekitMetadata"
+   <MetadataProvider id="OnboardedAppMetadata"
                      xsi:type="FileBackedHTTPMetadataProvider"
                      minRefreshDelay="PT30S"
                      maxRefreshDelay="PT30S"
@@ -166,7 +166,7 @@ This guide is written for Shibboleth Identity Provider (IdP) version 4.0.1. If y
    </MetadataProvider>
    ```
 
-   Replace `YOUR_SCALEKIT_ENTITY_ID` with the Entity ID from your Scalekit SSO Configuration Portal.
+   Replace the Entity ID with the value from your SSO Configuration Portal.
 </Steps>
 
 ## Configure attribute mapping
@@ -234,21 +234,21 @@ This guide is written for Shibboleth Identity Provider (IdP) version 4.0.1. If y
    </bean>
    ```
 
-3. ### Map attributes in Scalekit
+3. ### Map attributes in SSO Configuration Portal
 
-   In your Scalekit SSO Configuration Portal, ensure the attribute mapping section matches the attributes configured in your Shibboleth IdP:
+   In your SSO Configuration Portal, ensure the attribute mapping section matches the attributes configured in your Shibboleth IdP:
 
    - **Email**: `email`
    - **First Name**: `givenname`
    - **Last Name**: `surname`
 </Steps>
 
-## Configure Identity Provider in Scalekit
+## Configure Identity Provider in SSO Configuration Portal
 
 <Steps>
 1. ### Upload IdP metadata URL
 
-   In your Scalekit SSO Configuration Portal, under **Identity Provider Configuration**, select **Configure using Metadata URL**.
+   In your SSO Configuration Portal, under **Identity Provider Configuration**, select **Configure using Metadata URL**.
 
    Enter your Shibboleth IdP metadata URL:
    ```
@@ -316,10 +316,10 @@ Configure the logout service in your metadata:
 To test IdP-initiated SSO, use the following URL format:
 
 ```
-https://your-shibboleth-url/idp/profile/SAML2/Unsolicited/SSO?providerId=YOUR_SCALEKIT_ENTITY_ID&target=YOUR_RELAY_STATE_URL
+https://your-shibboleth-url/idp/profile/SAML2/Unsolicited/SSO?providerId=ONBOARDED_APP_SP_ENTITY_ID&target=YOUR_RELAY_STATE_URL
 ```
 
-Replace `YOUR_SCALEKIT_ENTITY_ID` with your Scalekit Entity ID and `YOUR_RELAY_STATE_URL` with your desired redirect URL.
+Replace `ONBOARDED_APP_SP_ENTITY_ID` with your Entity ID and `YOUR_RELAY_STATE_URL` with your desired redirect URL.
 
 ## Restart and test <Badge variant="note" text='Optional'/>
 
@@ -337,4 +337,4 @@ Replace `YOUR_SCALEKIT_ENTITY_ID` with your Scalekit Entity ID and `YOUR_RELAY_S
    After successful authentication, verify that user attributes are properly mapped and displayed in your application.
 </Steps>
 
-With this configuration, your Shibboleth IdP is now integrated with Scalekit, enabling secure single sign-on for your users. Users can authenticate using their Shibboleth credentials and access your application seamlessly.
+With this configuration, your Shibboleth IdP is now integrated with your application, enabling secure single sign-on for your users. Users can authenticate using their Shibboleth credentials and access your application seamlessly.
