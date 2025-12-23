@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content'
 import FoldCard from '@components/ui/FoldCard.astro'
 import { Code } from '@astrojs/starlight/components'
 import { LinkButton } from 'starlight-theme-nova/components'
-import { getSDKConfigs, formatTimeAgo } from '@/utils/release-helpers'
+import { getSDKConfigs, formatTimeAgo, type SDKConfig } from '@/utils/release-helpers'
 import '@/styles/pages/sdks.css'
 
 // Load GitHub releases and get latest release data for each SDK
@@ -42,7 +42,7 @@ const frontmatter = {
         </div>
         <div class="sdk-cards-grid">
           {
-            Object.values(sdkConfig).map((sdk) => (
+            (Object.values(sdkConfig) as SDKConfig[]).map((sdk: SDKConfig) => (
               <div class="sdk-card-wrapper">
                 <FoldCard
                   title={sdk.title}
