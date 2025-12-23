@@ -2,8 +2,6 @@
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import { getCollection } from 'astro:content'
 import FoldCard from '@components/ui/FoldCard.astro'
-import { Code } from '@astrojs/starlight/components'
-import { LinkButton } from 'starlight-theme-nova/components'
 import { getSDKConfigs, formatTimeAgo, type SDKConfig } from '@/utils/release-helpers'
 import '@/styles/pages/sdks.css'
 
@@ -51,7 +49,7 @@ const frontmatter = {
                   badge={sdk.release ? { text: sdk.release.tagName } : undefined}
                   showCta={false}
                   showTitle={false}
-                  clickable={false}
+                  clickable={true}
                   ctaSmall={true}
                 >
                   <div class="sdk-card-subtitle">{sdk.description}</div>
@@ -64,6 +62,7 @@ const frontmatter = {
 
                   <div class="sdk-bottom-row">
                     <div class="sdk-meta-row">
+                      <span class="get-started-link">Get Started →</span>
                       {sdk.release && (
                         <>
                           <div class="meta-item" title="Actively Maintained">
@@ -79,18 +78,6 @@ const frontmatter = {
                           )}
                         </>
                       )}
-                    </div>
-
-                    <div class="sdk-actions">
-                      <LinkButton
-                        href={sdk.href}
-                        variant="secondary"
-                        icon="right-arrow"
-                        iconPlacement="end"
-                        class="sk-secondary"
-                      >
-                        Get Started
-                      </LinkButton>
                     </div>
                   </div>
                 </FoldCard>
@@ -115,116 +102,73 @@ const frontmatter = {
           <div class="section-description"></div>
         </div>
         <div class="api-cards-grid">
-          <FoldCard
-            title="REST APIs"
-            iconKey="api"
-            href="/apis/"
-            showCta={false}
-            showTitle={true}
-            clickable={false}
-            ctaSmall={true}
-          >
-            <div class="sdk-card-subtitle">
-              Programmatic control to manage users, orgs, sessions, and more
-            </div>
-
-            <div class="sdk-bottom-row">
-              <div class="sdk-meta-row">
-                <!-- Empty for now -->
+          <div class="api-card-wrapper">
+            <FoldCard
+              title="REST APIs"
+              iconKey="api"
+              href="/apis/"
+              showCta={false}
+              showTitle={true}
+              clickable={true}
+              ctaSmall={true}
+            >
+              <div class="sdk-card-subtitle">
+                Programmatic control to manage users, orgs, sessions, and more
               </div>
 
-              <div class="sdk-actions">
-                <LinkButton
-                  href="/apis/#description/quickstart"
-                  variant="secondary"
-                  icon="right-arrow"
-                  iconPlacement="end"
-                  class="sk-secondary"
-                >
-                  Get Started
-                </LinkButton>
+              <div class="sdk-bottom-row">
+                <div class="sdk-meta-row">
+                  <span class="get-started-link">Get Started →</span>
+                </div>
               </div>
-            </div>
-          </FoldCard>
+            </FoldCard>
+          </div>
 
-          <FoldCard
-            title="Webhooks"
-            iconKey="webhooks"
-            href="/apis/#webhook/organizationcreated"
-            showCta={false}
-            showTitle={true}
-            clickable={false}
-            ctaSmall={true}
-          >
-            <div class="sdk-card-subtitle">
-              Receive real-time events for authentication, user lifecycle, and organizations
-            </div>
-
-            <div class="sdk-bottom-row">
-              <div class="sdk-meta-row">
-                <a href="/authenticate/implement-workflows/implement-webhooks" class="action-link">
-                  See docs
-                </a>
+          <div class="api-card-wrapper">
+            <FoldCard
+              title="Webhooks"
+              iconKey="webhooks"
+              href="/apis/#webhook/organizationcreated"
+              showCta={false}
+              showTitle={true}
+              clickable={true}
+              ctaSmall={true}
+            >
+              <div class="sdk-card-subtitle">
+                Receive real-time events for authentication, user lifecycle, and organizations
               </div>
 
-              <div class="sdk-actions">
-                <LinkButton
-                  href="/apis/#webhook/organizationcreated"
-                  variant="secondary"
-                  icon="right-arrow"
-                  iconPlacement="end"
-                  class="sk-secondary"
-                >
-                  View events
-                </LinkButton>
+              <div class="sdk-bottom-row">
+                <div class="sdk-meta-row">
+                  <span class="get-started-link">View events →</span>
+                </div>
               </div>
-            </div>
-          </FoldCard>
+            </FoldCard>
+          </div>
 
-          <FoldCard
-            title="Interceptors"
-            iconKey="workflow"
-            href="/reference/interceptors/triggers"
-            showCta={false}
-            showTitle={true}
-            clickable={false}
-            ctaSmall={true}
-          >
-            <div class="sdk-card-subtitle">
-              Apply custom logic and policy checks during authentication & authorization flows
-            </div>
-
-            <div class="sdk-bottom-row">
-              <div class="sdk-meta-row">
-                <a href="/authenticate/interceptors/auth-flow-interceptors" class="action-link">
-                  See docs
-                </a>
+          <div class="api-card-wrapper">
+            <FoldCard
+              title="Interceptors"
+              iconKey="workflow"
+              href="/reference/interceptors/triggers"
+              showCta={false}
+              showTitle={true}
+              clickable={true}
+              ctaSmall={true}
+            >
+              <div class="sdk-card-subtitle">
+                Apply custom logic and policy checks during authentication & authorization flows
               </div>
 
-              <div class="sdk-actions">
-                <LinkButton
-                  href="/reference/interceptors/triggers"
-                  variant="secondary"
-                  icon="right-arrow"
-                  iconPlacement="end"
-                  class="sk-secondary"
-                >
-                  View triggers
-                </LinkButton>
+              <div class="sdk-bottom-row">
+                <div class="sdk-meta-row">
+                  <span class="get-started-link">View triggers →</span>
+                </div>
               </div>
-            </div>
-          </FoldCard>
+            </FoldCard>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </StarlightPage>
-
-<script>
-  // Prevent card click when clicking on footer links
-  document.querySelectorAll('.action-link').forEach((link) => {
-    link.addEventListener('click', (e) => {
-      e.stopPropagation()
-    })
-  })
-</script>
