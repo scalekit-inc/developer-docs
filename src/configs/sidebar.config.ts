@@ -98,7 +98,7 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['agent-auth/overview', 'agent-auth/quickstart'],
+        items: ['agent-auth/overview', 'agent-auth/quickstart', 'agent-auth/code-samples'],
       },
       {
         label: 'Authentication',
@@ -245,6 +245,7 @@ export const sidebar = [
           'authenticate/mcp/overview',
           'authenticate/mcp/quickstart',
           'authenticate/mcp/managing-mcp-clients',
+          'authenticate/mcp/code-samples',
         ],
       },
       {
