@@ -2,6 +2,7 @@
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import { getCollection } from 'astro:content'
 import FoldCard from '@components/ui/FoldCard.astro'
+import { Badge } from '@astrojs/starlight/components'
 import { getSDKConfigs, formatTimeAgo, type SDKConfig } from '@/utils/release-helpers'
 import '@/styles/pages/sdks.css'
 
@@ -46,12 +47,21 @@ const frontmatter = {
                   title={sdk.title}
                   iconKey={sdk.icon}
                   href={sdk.href}
-                  badge={sdk.release ? { text: sdk.release.tagName } : undefined}
                   showCta={false}
                   showTitle={false}
                   clickable={true}
                   ctaSmall={true}
                 >
+                  <div class="sdk-card-header-meta">
+                    {sdk.release && <Badge text={sdk.release.tagName} />}
+                    {sdk.release && <span class="separator">•</span>}
+                    {sdk.release && (
+                      <span class="sdk-card-meta">
+                        Updated {formatTimeAgo(sdk.release.publishedAt)}
+                      </span>
+                    )}
+                  </div>
+
                   <div class="sdk-card-subtitle">{sdk.description}</div>
 
                   <div class="sdk-card-features">
@@ -63,20 +73,12 @@ const frontmatter = {
                   <div class="sdk-bottom-row">
                     <div class="sdk-meta-row">
                       <span class="get-started-link">Get Started →</span>
-                      {sdk.release && (
-                        <>
-                          <div class="meta-item" title="Actively Maintained">
-                            <span class="status-dot" />
-                            Updated {formatTimeAgo(sdk.release.publishedAt)}
-                          </div>
 
-                          {/* Pulling stars directly from loader data */}
-                          {sdk.release.repoStargazerCount > 50 && (
-                            <div class="meta-item" title="GitHub Stars">
-                              ⭐ {sdk.release.repoStargazerCount}
-                            </div>
-                          )}
-                        </>
+                      {/* Pulling stars directly from loader data */}
+                      {sdk.release && sdk.release.repoStargazerCount > 50 && (
+                        <div class="meta-item" title="GitHub Stars">
+                          ⭐ {sdk.release.repoStargazerCount}
+                        </div>
                       )}
                     </div>
                   </div>
