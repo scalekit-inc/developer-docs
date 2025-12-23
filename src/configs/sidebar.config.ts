@@ -380,7 +380,7 @@ export const sidebar = [
       },
       {
         label: 'REST APIs',
-        link: '/apis/',
+        link: '/apis/#description/overview',
         attrs: { target: '_blank', rel: 'noopener noreferrer' },
       },
       // {

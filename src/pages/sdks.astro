@@ -3,6 +3,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import { getCollection } from 'astro:content'
 import FoldCard from '@components/ui/FoldCard.astro'
 import { Code } from '@astrojs/starlight/components'
+import { LinkButton } from 'starlight-theme-nova/components'
 
 // Load GitHub releases and get latest release data for each SDK
 const releases = await getCollection('github-releases')
@@ -32,10 +33,13 @@ const formatTimeAgo = (dateString: string) => {
   const diffTime = Math.abs(now.getTime() - date.getTime())
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-  if (diffDays < 7) return `${diffDays} days ago`
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
-  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`
-  return `${Math.floor(diffDays / 365)} years ago`
+  if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`
+  const weeks = Math.floor(diffDays / 7)
+  if (diffDays < 30) return `${weeks} week${weeks === 1 ? '' : 's'} ago`
+  const months = Math.floor(diffDays / 30)
+  if (diffDays < 365) return `${months} month${months === 1 ? '' : 's'} ago`
+  const years = Math.floor(diffDays / 365)
+  return `${years} year${years === 1 ? '' : 's'} ago`
 }
 
 // Get latest release data for each SDK
@@ -324,15 +328,6 @@ const frontmatter = {
           display: flex;
           gap: 0.5rem;
         }
-        .sdk-actions a {
-          font-size: 0.8rem;
-          text-decoration: none;
-          color: var(--sl-color-text-accent);
-          font-weight: 500;
-        }
-        .sdk-actions a:hover {
-          text-decoration: underline;
-        }
         .sl-markdown-content :not(a, strong, em, del, span, code, kbd, samp, var, pre, abbr, acronym, b, bdi, bdo, big, cite, dfn, i, mark, q, rp, rt, ruby, s, small, sub, sup, time, tt, u, wbr, img, video, audio, canvas, svg, iframe, embed, object, picture, source, track, map, area, input, button, select, textarea, label, output, progress, meter, details, summary, dialog, script, noscript, template, slot, content *) {
           margin-top: 0 !important;
         }
@@ -408,6 +403,7 @@ const frontmatter = {
                   showCta={false}
                   showTitle={false}
                   clickable={false}
+                  ctaSmall={true}
                 >
                   <div class="sdk-card-subtitle">{sdk.description}</div>
 
@@ -423,7 +419,7 @@ const frontmatter = {
                         <>
                           <div class="meta-item" title="Actively Maintained">
                             <span class="status-dot" />
-                            {formatTimeAgo(sdk.release.publishedAt)}
+                            Updated {formatTimeAgo(sdk.release.publishedAt)}
                           </div>
 
                           {/* Pulling stars directly from loader data */}
@@ -437,7 +433,15 @@ const frontmatter = {
                     </div>
 
                     <div class="sdk-actions">
-                      <a href={sdk.href}>Get Started →</a>
+                      <LinkButton
+                        href={sdk.href}
+                        variant="secondary"
+                        icon="right-arrow"
+                        iconPlacement="end"
+                        class="sk-secondary"
+                      >
+                        Get Started
+                      </LinkButton>
                     </div>
                   </div>
                 </FoldCard>
@@ -469,6 +473,7 @@ const frontmatter = {
             showCta={false}
             showTitle={true}
             clickable={false}
+            ctaSmall={true}
           >
             <div class="sdk-card-subtitle">
               Programmatic control to manage users, orgs, sessions, and more
@@ -480,7 +485,15 @@ const frontmatter = {
               </div>
 
               <div class="sdk-actions">
-                <a href="/apis/#description/quickstart"> Get Started → </a>
+                <LinkButton
+                  href="/apis/#description/quickstart"
+                  variant="secondary"
+                  icon="right-arrow"
+                  iconPlacement="end"
+                  class="sk-secondary"
+                >
+                  Get Started
+                </LinkButton>
               </div>
             </div>
           </FoldCard>
@@ -492,6 +505,7 @@ const frontmatter = {
             showCta={false}
             showTitle={true}
             clickable={false}
+            ctaSmall={true}
           >
             <div class="sdk-card-subtitle">
               Receive real-time events for authentication, user lifecycle, and organizations
@@ -500,12 +514,20 @@ const frontmatter = {
             <div class="sdk-bottom-row">
               <div class="sdk-meta-row">
                 <a href="/authenticate/implement-workflows/implement-webhooks" class="action-link">
-                  Implement webhooks
+                  See docs
                 </a>
               </div>
 
               <div class="sdk-actions">
-                <a href="/apis/#webhook/organizationcreated"> View events → </a>
+                <LinkButton
+                  href="/apis/#webhook/organizationcreated"
+                  variant="secondary"
+                  icon="right-arrow"
+                  iconPlacement="end"
+                  class="sk-secondary"
+                >
+                  View events
+                </LinkButton>
               </div>
             </div>
           </FoldCard>
@@ -517,6 +539,7 @@ const frontmatter = {
             showCta={false}
             showTitle={true}
             clickable={false}
+            ctaSmall={true}
           >
             <div class="sdk-card-subtitle">
               Apply custom logic and policy checks during authentication & authorization flows
@@ -525,12 +548,20 @@ const frontmatter = {
             <div class="sdk-bottom-row">
               <div class="sdk-meta-row">
                 <a href="/authenticate/interceptors/auth-flow-interceptors" class="action-link">
-                  Implement interceptors
+                  See docs
                 </a>
               </div>
 
               <div class="sdk-actions">
-                <a href="/reference/interceptors/triggers"> View triggers → </a>
+                <LinkButton
+                  href="/reference/interceptors/triggers"
+                  variant="secondary"
+                  icon="right-arrow"
+                  iconPlacement="end"
+                  class="sk-secondary"
+                >
+                  View triggers
+                </LinkButton>
               </div>
             </div>
           </FoldCard>

@@ -20,6 +20,11 @@ export interface Props {
   clickable?: boolean
   badge?: { text: string; variant?: 'tip' | 'note' | 'default' }
   iconPosition?: 'left' | 'right'
+  // LinkButton-specific props
+  ctaIcon?: string
+  ctaIconPlacement?: 'start' | 'end'
+  ctaSize?: 'small' | 'medium' | 'large'
+  ctaSmall?: boolean
 }
 
 import { LinkButton } from 'starlight-theme-nova/components'
@@ -40,12 +45,17 @@ const {
   clickable = false,
   badge,
   iconPosition = 'left',
+  ctaIcon,
+  ctaIconPlacement,
+  ctaSize,
+  ctaSmall,
 } = Astro.props
 
 // When clickable is true, automatically hide CTA button
 const shouldShowCta = clickable ? false : showCta
 const isClickable = clickable && href
 const Icon = iconKey ? getIconComponent(iconKey) : null
+const cardClass = ctaSmall ? 'fold-card--small-cta' : ''
 ---
 
 {
@@ -57,6 +67,7 @@ const Icon = iconKey ? getIconComponent(iconKey) : null
         'sl-card',
         'clickable',
         { 'has-illustration': illustrationSvg || illustrationUrl },
+        cardClass,
       ]}
       {...(target && { target })}
       {...(rel && { rel })}
@@ -94,6 +105,7 @@ const Icon = iconKey ? getIconComponent(iconKey) : null
         'fold-card',
         'sl-card',
         { 'has-illustration': illustrationSvg || illustrationUrl },
+        cardClass,
       ]}
     >
       <div class="card-main">
@@ -111,10 +123,13 @@ const Icon = iconKey ? getIconComponent(iconKey) : null
           {href && shouldShowCta && (
             <LinkButton
               href={href}
-              class={`card-cta sk-${variant}`}
+              class={`card-cta sk-${variant} ${ctaSmall ? 'cta-small' : ''}`}
               variant={variant}
               {...(target && { target })}
               {...(rel && { rel })}
+              {...(ctaIcon && { icon: ctaIcon })}
+              {...(ctaIconPlacement && { iconPlacement: ctaIconPlacement })}
+              {...(ctaSize && { size: ctaSize })}
             >
               {cta}
             </LinkButton>
@@ -279,6 +294,15 @@ const Icon = iconKey ? getIconComponent(iconKey) : null
 
   .card-cta:hover {
     color: var(--sl-color-text);
+  }
+
+  .card-cta.cta-small {
+    font-size: 0.8rem;
+  }
+
+  /* Target LinkButtons within cards that have small-cta class */
+  :global(.fold-card--small-cta) :global(.card-content) :global(a) {
+    font-size: 0.8rem;
   }
 
   .card-illustration {
