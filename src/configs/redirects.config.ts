@@ -189,10 +189,12 @@ export const redirects = {
   // Notes (Astro routing):
   // - File-based routes take precedence over redirects.
   // - Prefer a single dynamic redirect for 1:1 path renames.
+  // - With trailingSlash: 'ignore', a single redirect handles both
+  //   `/path` and `/path/` variants, so avoid defining both.
   //
-  // Explicit redirects below handle all known routes.
-  // The dynamic route src/pages/agent-actions/[...slug].ts serves as a
-  // safety net for any routes not explicitly listed here.
+  // Explicit redirects below handle known routes, while the dynamic route
+  // src/pages/agent-actions/[...slug].ts serves as a safety net for any
+  // paths not explicitly listed here.
   // Main pages
   '/agent-actions': '/agent-auth/quickstart/',
   '/agent-actions/overview': '/agent-auth/overview/',

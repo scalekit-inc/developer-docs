@@ -16,6 +16,7 @@ prev: false
 next:
   label: "Manage users"
   link: "/fsa/guides/manage-users/"
+pagefind: false
 ---
 import { Tabs, TabItem, Aside, Badge, LinkCard } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
@@ -47,10 +48,6 @@ For more control over the organization creation process, create organizations pr
 ```javascript title="Create organization"
 const organization = await scalekit.organization.createOrganization('Acme Corporation', {
   externalId: 'acme-corp-123',
-  metadata: {
-    plan: 'enterprise',
-    industry: 'technology'
-  }
 });
 
 console.log('Organization created:', organization.id);
@@ -81,10 +78,6 @@ organization, err := scalekitClient.Organization.CreateOrganization(
     "Acme Corporation",
     scalekit.CreateOrganizationOptions{
         ExternalId: "acme-corp-123",
-        Metadata: map[string]interface{}{
-            "plan": "enterprise",
-            "industry": "technology",
-        },
     },
 )
 if err != nil {
@@ -106,10 +99,9 @@ metadata.put("industry", "technology");
 CreateOrganization createOrg = CreateOrganization.newBuilder()
     .setDisplayName("Acme Corporation")
     .setExternalId("acme-corp-123")
-    .putAllMetadata(metadata)
     .build();
 
-Organization organization = scalekitClient.getOrganization().create(createOrg);
+Organization organization = scalekitClient.organizations().create(createOrg);
 System.out.println("Organization created: " + organization.getId());
 ```
 </TabItem>
@@ -165,14 +157,12 @@ metadata := map[string]interface{}{
     "custom_field": "custom-value",
 }
 
-updatedOrganization, err := scalekitClient.Organization.UpdateOrganization(
-    ctx,
-    "org_12345",
-    scalekit.UpdateOrganizationOptions{
-        DisplayName: "Acme Corporation Ltd",
-        Metadata: metadata,
-    },
-)
+update := &scalekit.UpdateOrganization{
+    DisplayName: "Acme Corporation Ltd",
+    Metadata:    metadata,
+}
+
+updatedOrganization, err := scalekitClient.Organization.UpdateOrganization(ctx, "org_12345", update)
 ```
 </TabItem>
 <TabItem label="Java" value="java">
@@ -182,11 +172,13 @@ metadata.put("plan", "enterprise");
 metadata.put("payment_method", "stripe");
 metadata.put("custom_field", "custom-value");
 
-Organization updatedOrganization = scalekitClient.getOrganization()
-    .updateOrganization("org_12345", UpdateOrganizationRequest.builder()
-        .displayName("Acme Corporation Ltd")
-        .metadata(metadata)
-        .build());
+UpdateOrganization updateOrganization = UpdateOrganization.newBuilder()
+    .setDisplayName("Acme Corporation Ltd")
+    .putAllMetadata(metadata)
+    .build();
+
+Organization updatedOrganization = scalekitClient.organizations()
+    .updateById("org_12345", updateOrganization);
 ```
 </TabItem>
 </Tabs>
@@ -221,12 +213,10 @@ await scalekit.organization.updateOrganizationSettings(
 </TabItem>
 <TabItem label="Python" value="python">
 ```python title="Enable organization features"
-settings = {
-    "features": [
-        {"name": "sso", "enabled": True},
-        {"name": "dir_sync", "enabled": True}
-    ]
-}
+settings = [
+    {"sso": True},
+    {"dir_sync": True},
+]
 
 scalekit_client.organization.update_organization_settings(
     'org_12345',
@@ -236,35 +226,34 @@ scalekit_client.organization.update_organization_settings(
 </TabItem>
 <TabItem label="Go" value="go">
 ```go title="Enable organization features"
-settings := map[string]interface{}{
-    "features": []map[string]interface{}{
-        {"name": "sso", "enabled": true},
-        {"name": "dir_sync", "enabled": true},
+settings := scalekit.OrganizationSettings{
+    Features: []scalekit.OrganizationSettingsFeature{
+        {Name: "sso", Enabled: true},
+        {Name: "dir_sync", Enabled: true},
     },
 }
 
-err := scalekitClient.Organization.UpdateOrganizationSettings(
+_, err := scalekitClient.Organization.UpdateOrganizationSettings(
     ctx,
     "org_12345",
-    settings
+    settings,
 )
 ```
 </TabItem>
 <TabItem label="Java" value="java">
 ```java title="Enable organization features"
-Map<String, Object> settings = new HashMap<>();
-settings.put("features", Arrays.asList(
-    new HashMap<String, Object>() {{
-        put("name", "sso");
-        put("enabled", true);
-    }},
-    new HashMap<String, Object>() {{
-        put("name", "dir_sync");
-        put("enabled", true);
-    }}
-));
+List<OrganizationSettingsFeature> settings = Arrays.asList(
+    OrganizationSettingsFeature.newBuilder()
+        .setName("sso")
+        .setEnabled(true)
+        .build(),
+    OrganizationSettingsFeature.newBuilder()
+        .setName("dir_sync")
+        .setEnabled(true)
+        .build()
+);
 
-scalekitClient.getOrganization().updateOrganizationSettings(
+scalekitClient.organizations().updateOrganizationSettings(
     "org_12345",
     settings
 );
@@ -307,13 +296,13 @@ Both approaches give administrators a sandboxed interface to configure SSO (SAML
 const portalLink = await scalekit.organization.generatePortalLink('org_12345');
 
 // Present this URL to the organization's IT admin or load it in an iframe
-console.log('Admin Portal URL:', portalLink.url);
+console.log('Admin Portal URL:', portalLink.location);
 ```
 </TabItem>
 <TabItem label="Python" value="python">
 ```python title="Generate Admin Portal link"
 portal_link = scalekit_client.organization.generate_portal_link('org_12345')
-print(f'Admin Portal URL: {portal_link.url}')
+print(f'Admin Portal URL: {portal_link}')
 ```
 </TabItem>
 <TabItem label="Go" value="go">
@@ -327,8 +316,8 @@ fmt.Println("Admin Portal URL:", portalLink.URL)
 </TabItem>
 <TabItem label="Java" value="java">
 ```java title="Generate Admin Portal link"
-PortalLink portalLink = scalekitClient.getOrganization().generatePortalLink("org_12345");
-System.out.println("Admin Portal URL: " + portalLink.getUrl());
+Link portalLink = scalekitClient.organizations().generatePortalLink("org_12345");
+System.out.println("Admin Portal URL: " + portalLink.getLocation());
 ```
 </TabItem>
 </Tabs>
