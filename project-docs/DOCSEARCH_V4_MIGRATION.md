@@ -7,26 +7,28 @@ This document explains the temporary setup for using DocSearch v4 before the off
 We are using DocSearch v4 from a fork of the Starlight project:
 
 - **Source**: `https://github.com/dylantientcheu/starlight` (PR #3346)
-- **Local clone**: `~/starlight-docsearch-v4/packages/docsearch`
+- **Local clone**: `vendor/starlight-docsearch-v4/` (committed to repo)
 - **Override location**: `package.json` → `pnpm.overrides`
+
+The vendor folder is committed to the repository (~34MB) so it works offline and on Netlify without any extra setup.
 
 ## How to Update to Official Release
 
 When `@astrojs/starlight-docsearch` officially releases DocSearch v4 support:
 
-### Step 1: Remove the file: override
+### Step 1: Remove the override
 
-In `package.json`, remove the `pnpm.overrides` section:
+In `package.json`:
 
 ```diff
 {
   "dependencies": {
--   "@astrojs/starlight-docsearch": "file:~/starlight-docsearch-v4/packages/docsearch",
+-   "@astrojs/starlight-docsearch": "file:./vendor/starlight-docsearch-v4/packages/docsearch",
 +   "@astrojs/starlight-docsearch": "^0.7.0",  // or whatever version is released
   },
 - "pnpm": {
 -   "overrides": {
--     "@astrojs/starlight-docsearch": "file:~/starlight-docsearch-v4/packages/docsearch"
+-     "@astrojs/starlight-docsearch": "file:./vendor/starlight-docsearch-v4/packages/docsearch"
 -   }
 - }
 }
@@ -40,27 +42,22 @@ pnpm install
 
 ### Step 3: Clean up (optional)
 
-Remove the local clone:
+Remove the vendor folder:
 
 ```bash
-rm -rf ~/starlight-docsearch-v4
+rm -rf vendor/starlight-docsearch-v4
 ```
 
-## How to Update the Fork
+## How to Update the Fork Manually
 
-To pull latest changes from the fork:
+If you want to pull the latest changes from the fork:
 
 ```bash
-cd ~/starlight-docsearch-v4
+cd vendor/starlight-docsearch-v4
 git pull origin main
 ```
 
-Then reinstall:
-
-```bash
-cd /Users/saif/Projects/astro
-pnpm install
-```
+Then commit the updated vendor folder to your repo.
 
 ## Tracking
 
