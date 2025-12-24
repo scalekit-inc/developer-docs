@@ -1,0 +1,176 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import { getCollection } from 'astro:content'
+import FoldCard from '@components/ui/FoldCard.astro'
+import { Badge } from '@astrojs/starlight/components'
+import { getSDKConfigs, formatTimeAgo, type SDKConfig } from '@/utils/release-helpers'
+import '@/styles/pages/sdks.css'
+
+// Load GitHub releases and get latest release data for each SDK
+const releases = await getCollection('github-releases')
+
+// Get SDK configurations with latest releases
+const sdkConfig = getSDKConfigs(releases)
+
+const frontmatter = {
+  title: 'Scalekit SDKs and APIs',
+  template: 'splash' as const,
+  description: 'Secure your  MCP servers, APIs, users - in one scalable stack',
+  tableOfContents: false,
+  hero: {
+    tagline:
+      'Add MCP auth, Agent Auth, or SSO as modular components - or adopt the full-stack platform for your B2B, AI application',
+  },
+  prev: false,
+  next: false,
+}
+---
+
+<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
+  <div class="fold-section fold-full-width">
+    <div class="fold-container">
+      <div class="sdk-section-layout">
+        <div class="sdk-header-section">
+          <h1
+            class="section-title"
+            style="margin-top: 1.8rem !important; font-size: 1.9rem !important;"
+          >
+            SDKs
+          </h1>
+          <div class="section-subtitle"></div>
+        </div>
+        <div class="sdk-cards-grid">
+          {
+            (Object.values(sdkConfig) as SDKConfig[]).map((sdk: SDKConfig) => (
+              <div class="sdk-card-wrapper">
+                <FoldCard
+                  title={sdk.title}
+                  iconKey={sdk.icon}
+                  href={sdk.href}
+                  showCta={false}
+                  showTitle={false}
+                  clickable={true}
+                  ctaSmall={true}
+                >
+                  <div class="sdk-card-header-meta">
+                    {sdk.release && <Badge text={sdk.release.tagName} />}
+                    {sdk.release && <span class="separator">•</span>}
+                    {sdk.release && (
+                      <span class="sdk-card-meta">
+                        Updated {formatTimeAgo(sdk.release.publishedAt)}
+                      </span>
+                    )}
+                  </div>
+
+                  <div class="sdk-card-subtitle">{sdk.description}</div>
+
+                  <div class="sdk-card-features">
+                    {sdk.features.map((feature) => (
+                      <div class="sdk-feature">{feature}</div>
+                    ))}
+                  </div>
+
+                  <div class="sdk-bottom-row">
+                    <div class="sdk-meta-row">
+                      <span class="get-started-link">Get Started →</span>
+
+                      {/* Pulling stars directly from loader data */}
+                      {sdk.release && sdk.release.repoStargazerCount > 50 && (
+                        <div class="meta-item" title="GitHub Stars">
+                          ⭐ {sdk.release.repoStargazerCount}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </FoldCard>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fold-section fold--background-muted fold-full-width">
+    <div class="fold-container">
+      <div class="api-section-layout">
+        <div class="api-header-section">
+          <h1
+            class="section-title"
+            style="margin-top: 1.8rem !important; font-size: 1.9rem !important;"
+          >
+            APIs
+          </h1>
+          <div class="section-description"></div>
+        </div>
+        <div class="api-cards-grid">
+          <div class="api-card-wrapper">
+            <FoldCard
+              title="REST APIs"
+              iconKey="api"
+              href="/apis/"
+              showCta={false}
+              showTitle={true}
+              clickable={true}
+              ctaSmall={true}
+            >
+              <div class="sdk-card-subtitle">
+                Programmatic control to manage users, orgs, sessions, and more
+              </div>
+
+              <div class="sdk-bottom-row">
+                <div class="sdk-meta-row">
+                  <span class="get-started-link">Get Started →</span>
+                </div>
+              </div>
+            </FoldCard>
+          </div>
+
+          <div class="api-card-wrapper">
+            <FoldCard
+              title="Webhooks"
+              iconKey="webhooks"
+              href="/apis/#webhook/organizationcreated"
+              showCta={false}
+              showTitle={true}
+              clickable={true}
+              ctaSmall={true}
+            >
+              <div class="sdk-card-subtitle">
+                Receive real-time events for authentication, user lifecycle, and organizations
+              </div>
+
+              <div class="sdk-bottom-row">
+                <div class="sdk-meta-row">
+                  <span class="get-started-link">View events →</span>
+                </div>
+              </div>
+            </FoldCard>
+          </div>
+
+          <div class="api-card-wrapper">
+            <FoldCard
+              title="Interceptors"
+              iconKey="workflow"
+              href="/reference/interceptors/triggers"
+              showCta={false}
+              showTitle={true}
+              clickable={true}
+              ctaSmall={true}
+            >
+              <div class="sdk-card-subtitle">
+                Apply custom logic and policy checks during authentication & authorization flows
+              </div>
+
+              <div class="sdk-bottom-row">
+                <div class="sdk-meta-row">
+                  <span class="get-started-link">View triggers →</span>
+                </div>
+              </div>
+            </FoldCard>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</StarlightPage>

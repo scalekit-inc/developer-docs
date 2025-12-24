@@ -189,95 +189,60 @@ export const redirects = {
   // Notes (Astro routing):
   // - File-based routes take precedence over redirects.
   // - Prefer a single dynamic redirect for 1:1 path renames.
+  // - With trailingSlash: 'ignore', a single redirect handles both
+  //   `/path` and `/path/` variants, so avoid defining both.
   //
-  // Explicit redirects below handle all known routes.
-  // The dynamic route src/pages/agent-actions/[...slug].ts serves as a
-  // safety net for any routes not explicitly listed here.
+  // Explicit redirects below handle known routes, while the dynamic route
+  // src/pages/agent-actions/[...slug].ts serves as a safety net for any
+  // paths not explicitly listed here.
   // Main pages
   '/agent-actions': '/agent-auth/quickstart/',
-  '/agent-actions/': '/agent-auth/quickstart/',
   '/agent-actions/overview': '/agent-auth/overview/',
-  '/agent-actions/overview/': '/agent-auth/overview/',
   '/agent-actions/quickstart': '/agent-auth/quickstart/',
-  '/agent-actions/quickstart/': '/agent-auth/quickstart/',
   '/agent-actions/providers': '/agent-auth/providers/',
-  '/agent-actions/providers/': '/agent-auth/providers/',
   '/agent-actions/connections': '/agent-auth/connections/',
-  '/agent-actions/connections/': '/agent-auth/connections/',
   '/agent-actions/connected-accounts': '/agent-auth/connected-accounts/',
-  '/agent-actions/connected-accounts/': '/agent-auth/connected-accounts/',
   '/agent-actions/agentic-quickstart': '/agent-auth/agentic-quickstart/',
-  '/agent-actions/agentic-quickstart/': '/agent-auth/agentic-quickstart/',
 
   // Authentication pages
   '/agent-actions/authentication/auth-flows-comparison':
     '/agent-auth/authentication/auth-flows-comparison/',
-  '/agent-actions/authentication/auth-flows-comparison/':
-    '/agent-auth/authentication/auth-flows-comparison/',
   '/agent-actions/authentication/multi-provider': '/agent-auth/authentication/multi-provider/',
-  '/agent-actions/authentication/multi-provider/': '/agent-auth/authentication/multi-provider/',
   '/agent-actions/authentication/scopes-permissions':
-    '/agent-auth/authentication/scopes-permissions/',
-  '/agent-actions/authentication/scopes-permissions/':
     '/agent-auth/authentication/scopes-permissions/',
   '/agent-actions/authentication/testing-auth-flows':
     '/agent-auth/authentication/testing-auth-flows/',
-  '/agent-actions/authentication/testing-auth-flows/':
-    '/agent-auth/authentication/testing-auth-flows/',
   '/agent-actions/authentication/token-management': '/agent-auth/authentication/token-management/',
-  '/agent-actions/authentication/token-management/': '/agent-auth/authentication/token-management/',
   '/agent-actions/authentication/troubleshooting': '/agent-auth/authentication/troubleshooting/',
-  '/agent-actions/authentication/troubleshooting/': '/agent-auth/authentication/troubleshooting/',
 
   // Advanced pages
   '/agent-actions/advanced/bring-your-own-oauth': '/agent-auth/advanced/bring-your-own-oauth/',
-  '/agent-actions/advanced/bring-your-own-oauth/': '/agent-auth/advanced/bring-your-own-oauth/',
   '/agent-actions/advanced/custom-domain': '/agent-auth/advanced/custom-domain/',
-  '/agent-actions/advanced/custom-domain/': '/agent-auth/advanced/custom-domain/',
   '/agent-actions/advanced/overview': '/agent-auth/advanced/overview/',
-  '/agent-actions/advanced/overview/': '/agent-auth/advanced/overview/',
   '/agent-actions/advanced/proxy-api-calls': '/agent-auth/advanced/proxy-api-calls/',
-  '/agent-actions/advanced/proxy-api-calls/': '/agent-auth/advanced/proxy-api-calls/',
 
   // Frameworks pages
   '/agent-actions/frameworks/agno': '/agent-auth/frameworks/agno/',
-  '/agent-actions/frameworks/agno/': '/agent-auth/frameworks/agno/',
   '/agent-actions/frameworks/anthropic': '/agent-auth/frameworks/anthropic/',
-  '/agent-actions/frameworks/anthropic/': '/agent-auth/frameworks/anthropic/',
   '/agent-actions/frameworks/google-adk': '/agent-auth/frameworks/google-adk/',
-  '/agent-actions/frameworks/google-adk/': '/agent-auth/frameworks/google-adk/',
   '/agent-actions/frameworks/google-genai': '/agent-auth/frameworks/google-genai/',
-  '/agent-actions/frameworks/google-genai/': '/agent-auth/frameworks/google-genai/',
   '/agent-actions/frameworks/langchain': '/agent-auth/frameworks/langchain/',
-  '/agent-actions/frameworks/langchain/': '/agent-auth/frameworks/langchain/',
   '/agent-actions/frameworks/mastra': '/agent-auth/frameworks/mastra/',
-  '/agent-actions/frameworks/mastra/': '/agent-auth/frameworks/mastra/',
   '/agent-actions/frameworks/mcp': '/agent-auth/frameworks/mcp/',
-  '/agent-actions/frameworks/mcp/': '/agent-auth/frameworks/mcp/',
   '/agent-actions/frameworks/openai': '/agent-auth/frameworks/openai/',
-  '/agent-actions/frameworks/openai/': '/agent-auth/frameworks/openai/',
   '/agent-actions/frameworks/vercel-ai': '/agent-auth/frameworks/vercel-ai/',
-  '/agent-actions/frameworks/vercel-ai/': '/agent-auth/frameworks/vercel-ai/',
 
   // MCP pages
   '/agent-actions/mcp/quickstart': '/agent-auth/mcp/quickstart/',
-  '/agent-actions/mcp/quickstart/': '/agent-auth/mcp/quickstart/',
 
   // Tools pages
   '/agent-actions/tools/authorize': '/agent-auth/tools/authorize/',
-  '/agent-actions/tools/authorize/': '/agent-auth/tools/authorize/',
   '/agent-actions/tools/custom-processors': '/agent-auth/tools/custom-processors/',
-  '/agent-actions/tools/custom-processors/': '/agent-auth/tools/custom-processors/',
   '/agent-actions/tools/custom-tools': '/agent-auth/tools/custom-tools/',
-  '/agent-actions/tools/custom-tools/': '/agent-auth/tools/custom-tools/',
   '/agent-actions/tools/execute': '/agent-auth/tools/execute/',
-  '/agent-actions/tools/execute/': '/agent-auth/tools/execute/',
   '/agent-actions/tools/modifiers': '/agent-auth/tools/modifiers/',
-  '/agent-actions/tools/modifiers/': '/agent-auth/tools/modifiers/',
   '/agent-actions/tools/overview': '/agent-auth/tools/overview/',
-  '/agent-actions/tools/overview/': '/agent-auth/tools/overview/',
   '/agent-actions/tools/proxy-tools': '/agent-auth/tools/proxy-tools/',
-  '/agent-actions/tools/proxy-tools/': '/agent-auth/tools/proxy-tools/',
 
   // =============================================================================
   // API AUTH (M2M) REDIRECTS
@@ -343,8 +308,11 @@ export const redirects = {
   '/authenticate/installation': '/authenticate/set-up-scalekit/',
   '/guides/setup-scalekit/': '/authenticate/set-up-scalekit/',
   '/fsa/reference/user-management-settings': '/authenticate/fsa/user-management-settings/',
-  '/dev-kit/webhooks/event-object/': '/reference/webhooks/overview/',
-  '/reference/webhooks/event-object/': '/reference/webhooks/overview/',
+  '/dev-kit/webhooks/event-object/': '/authenticate/implement-workflows/handle-webhooks/',
+  '/reference/webhooks/event-object/': '/authenticate/implement-workflows/handle-webhooks/',
+  '/reference/webhooks/overview/': '/authenticate/implement-workflows/handle-webhooks/',
+  '/authenticate/implement-workflows/listen-to-webhooks/':
+    '/authenticate/implement-workflows/handle-webhooks/',
   '/api/webhook-events': '/reference/webhooks/directory-events/',
   '/manage-scalekit/glossary': '/reference/glossary/',
   '/contact-us': '/support/contact-us/',
@@ -352,4 +320,13 @@ export const redirects = {
 
   // Logs pages - webhook logs merged into auth logs
   '/guides/view-webhook-logs/': '/guides/dashboard/auth-logs/',
+
+  // =============================================================================
+  // CHANGELOG REDIRECTS - Redirect to SDK pages
+  // =============================================================================
+  '/dev-kit/changelogs/': '/sdks/',
+  '/dev-kit/changelogs/node/': '/sdks/node/',
+  '/dev-kit/changelogs/python/': '/sdks/python/',
+  '/dev-kit/changelogs/go/': '/sdks/go/',
+  '/dev-kit/changelogs/java/': '/sdks/java/',
 }

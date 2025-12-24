@@ -21,6 +21,7 @@ seeAlso:
     - title: "Browse code samples"
       icon: "github"
       url: "https://github.com/scalekit-inc/gists/tree/main/m2m"
+pagefind: false
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
@@ -299,4 +300,11 @@ When implementing token validation in your API:
 
 ### SDK support status
 
-The [Python SDK](https://github.com/scalekit-inc/scalekit-sdk-python) includes built-in methods for token validation (`validate_access_token_and_get_claims`). For Node.js, Go, and Java, you can use standard JWT libraries with the JWKS endpoint as shown in the examples above. Native SDK support for token validation is coming soon to these SDKs.
+All Scalekit SDKs include helpers for validating access tokens:
+
+- **Node.js**: Provides `validateAccessToken` and `validateToken` methods with `TokenValidationOptions` for validating issuer, audience, and required scopes.
+- **Python**: Provides `validate_access_token`, `validate_token`, and `validate_access_token_and_get_claims` methods with `TokenValidationOptions` for validating issuer, audience, and required scopes.
+- **Go**: Provides `ValidateAccessToken`, generic `ValidateToken[T]`, and `GetAccessTokenClaims` helpers that validate tokens using JWKS and return typed claims with errors.
+- **Java**: Provides `validateAccessToken` (boolean) and `validateAccessTokenAndGetClaims` (returns claims and throws `APIException`) for token validation in JVM applications.
+
+You can still use standard JWT libraries with the JWKS endpoint, as shown in the examples above, when you need custom validation logic or cannot use an SDK in your API service.

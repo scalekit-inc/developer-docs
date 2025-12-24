@@ -1,4 +1,3 @@
-import { makeChangelogsSidebarLinks } from 'starlight-changelogs'
 import { createDivider, createSectionHeader } from './sidebar-utils'
 
 export const sidebar = [
@@ -105,7 +104,7 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['agent-auth/overview', 'agent-auth/quickstart'],
+        items: ['agent-auth/overview', 'agent-auth/quickstart', 'agent-auth/code-samples'],
       },
       {
         label: 'Authentication',
@@ -214,36 +213,26 @@ export const sidebar = [
         autogenerate: { directory: 'guides/integrations/sso-integrations' },
       },
       {
-        label: 'SCIM directories',
-        collapsed: true,
-        autogenerate: { directory: 'guides/integrations/scim-integrations' },
-      },
-      {
-        label: 'Social connections',
+        label: 'Configure social connections',
         collapsed: true,
         autogenerate: {
           directory: 'guides/integrations/social-connections',
         },
       },
-      createSectionHeader('Events'),
-      'reference/admin-portal/ui-events',
-      createDivider(),
       {
-        label: 'Changelog',
+        label: 'Guides',
         collapsed: true,
         items: [
-          { label: 'Overview', link: '/dev-kit/changelogs/' },
-          // makeChangelogsSidebarLinks() type options:
-          // - type: 'all' - Single link to full version list page (current)
-          // - type: 'latest' - Link to most recent version only
-          // - type: 'recent' - Multiple links to N recent versions (add count: 5 to customize, default: 5)
-          // Example: { type: 'recent', count: 3, base: '...', label: '...' }
-          ...makeChangelogsSidebarLinks([
-            { type: 'all', base: 'dev-kit/changelogs/node', label: 'Node.js SDK' },
-            { type: 'all', base: 'dev-kit/changelogs/python', label: 'Python SDK' },
-            { type: 'all', base: 'dev-kit/changelogs/go', label: 'Go SDK' },
-            { type: 'all', base: 'dev-kit/changelogs/java', label: 'Java SDK' },
-          ]),
+          // 'reference/webhooks/overview',
+          // 'reference/webhooks/directory-events',
+          // 'reference/webhooks/user-events',
+          // 'reference/webhooks/organization-events',
+          // 'reference/webhooks/permission-events',
+          // 'reference/webhooks/role-events',
+          // 'reference/webhooks/sso-events',
+          { label: 'Admin portal events', link: 'reference/admin-portal/ui-events' },
+          { label: 'Interceptors triggers', link: 'reference/interceptors/triggers' },
+          { label: 'Webhooks best practices', link: 'guides/webhooks-best-practices' },
         ],
       },
     ],
@@ -260,6 +249,7 @@ export const sidebar = [
           'authenticate/mcp/overview',
           'authenticate/mcp/quickstart',
           'authenticate/mcp/managing-mcp-clients',
+          'authenticate/mcp/code-samples',
         ],
       },
       {
@@ -368,6 +358,45 @@ export const sidebar = [
           },
         ],
       },
+    ],
+  },
+  {
+    label: 'SDKs & APIs',
+    id: 'sdks',
+    link: '/sdks/',
+    icon: 'book',
+    items: [
+      {
+        label: 'SDKs',
+        items: [
+          { label: 'Node.js SDK', link: '/sdks/node/' },
+          { label: 'Python SDK', link: '/sdks/python/' },
+          { label: 'Go SDK', link: '/sdks/go/' },
+          { label: 'Java SDK', link: '/sdks/java/' },
+        ],
+      },
+      {
+        label: 'REST APIs',
+        link: '/apis/#description/overview',
+        attrs: { target: '_blank', rel: 'noopener noreferrer' },
+      },
+      // {
+      //   label: 'API Reference',
+      //   collapsed: true,
+      //   items: [
+      //     // TODO: Verify internally if it makes sense
+      //     // {
+      //     //   label: 'Webhooks',
+      //     //   link: '/apis/#webhook/organizationcreated',
+      //     //   attrs: { target: '_blank', rel: 'noopener noreferrer' },
+      //     // },
+      //     // {
+      //     //   label: 'Interceptors',
+      //     //   link: '/reference/interceptors/triggers',
+      //     //   attrs: { target: '_blank', rel: 'noopener noreferrer' },
+      //     // },
+      //   ],
+      // },
     ],
   },
 ]
@@ -486,4 +515,10 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
 
   // Developer Resources sidebar → 'Developer Resources' tab
   'dev-kit': 'scenarios',
+
+  // SDKs sidebar → 'SDKs' tab
+  sdks: 'sdks',
+
+  // Events reference sidebar → 'Webhooks' tab under API Reference
+  'events-reference': 'webhooks-events',
 }
