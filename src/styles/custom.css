@@ -16,32 +16,36 @@
     /* Text size and line height */
     --sl-text-2xs: 0.75rem; /* 12px */
     --sl-text-xs: 0.8125rem; /* 13px */
-    --sl-text-sm: 0.875rem; /* 14px */
-    --sl-text-base: 0.9rem; /* 16px */
+    --sl-text-sm: 0.9rem; /* 14.4px - increased slightly */
+    --sl-text-base: 1rem; /* 15.2px - increased for better readability */
     --sl-text-lg: 1.125rem; /* 18px */
     --sl-text-xl: 1.25rem; /* 20px */
     --sl-text-2xl: 1.5rem; /* 24px */
-    --sl-text-3xl: 1.8125rem; /* 29px */
+    --sl-text-3xl: 2rem; /* 29px */
     --sl-text-4xl: 2.1875rem; /* 35px */
     --sl-text-5xl: 2.625rem; /* 42px */
     --sl-text-6xl: 4rem; /* 64px */
-
+    /* Commented out to restore Starlight Nova's default centered layout */
+    /* --sl-content-width: 100%; */
+    /* --sl-content-margin-inline: 32px; */
     --sl-text-body: var(--sl-text-base);
     --sl-text-body-sm: var(--sl-text-xs);
     --sl-text-code: var(--sl-text-sm);
     --sl-text-code-sm: var(--sl-text-xs);
+    --sl-nav-height: 6.3rem; /* Default header height */
+    /**
     --sl-text-h1: var(--sl-text-3xl) !important;
     --sl-text-h2: var(--sl-text-2xl) !important;
     --sl-text-h3: var(--sl-text-xl) !important;
     --sl-text-h4: var(--sl-text-lg) !important;
-    --sl-text-h5: var(--sl-text-base) !important;
-    --sl-line-height: 1.75;
-    --sl-line-height-headings: 1.2;
+    --sl-text-h5: var(--sl-text-base) !important;*/
 
-    --sl-font-system: 'Inter Variable', ui-sans-serif, system-ui, Roboto, Arial, sans-serif;
-    --sl-font-system-mono: 'Inter Mono Variable', ui-monospace, monospace;
-    --__sl-font: var(--sl-font-system);
-    --__sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
+    --sl-font-system:
+      ui-sans-serif, system-ui, Roboto, 'Atkinson Hyperlegible Next Variable',
+      'Inter Variable, Arial, sans-serif,';
+    --sl-font-system-mono: 'JetBrains Mono', 'Inter Variable', ui-monospace, monospace;
+    --sl-font: var(--sl-font-system);
+    --sl-font-mono: var(--sl-font-mono, var(--sl-font-system-mono)), var(--sl-font-system-mono);
 
     /* Outline and accessibility tokens */
     --sl-outline-offset-inside: -0.1875rem;
@@ -52,27 +56,26 @@
     --sl-z-index-navbar: 10;
     --sl-z-index-skiplink: 20;
   }
+
+  /* Responsive nav height adjustments */
+  @media (max-width: 60rem) {
+    :root {
+      --sl-nav-height: 5.8rem; /* Smaller screens get slightly less height */
+    }
+  }
+
+  @media (max-width: 48rem) {
+    :root {
+      --sl-nav-height: 5.5rem; /* Tablet screens get less height */
+    }
+  }
 }
 
 /* =============================================================================
    LAYOUT LAYER - Layout-specific variables and responsive design
    ============================================================================= */
 @layer scalekit.layout {
-  /* Header and navigation layout tokens */
-  :root {
-    /* Defaults for small screens: no secondary nav */
-    --sl-header-height-base: 4rem; /* Increased from 3.5rem */
-    --secondary-nav-height: 0rem;
-    --sl-nav-height: var(--sl-header-height-base);
-  }
-
-  @media (min-width: 50em) {
-    :root {
-      --sl-header-height-base: 4.5rem; /* Increased from 4rem */
-      --secondary-nav-height: 3rem; /* Increased from 2.75rem */
-      --sl-nav-height: calc(var(--sl-header-height-base) + var(--secondary-nav-height));
-    }
-  }
+  /* Use Starlight's default header heights - no custom overrides needed */
 }
 
 /* =============================================================================
@@ -84,7 +87,7 @@
   .sk-secondary,
   .sk-minimal {
     display: inline-flex;
-    /* padding: 0.5rem 1.5rem; add this to header only */
+    padding: 0.5rem 1.5rem; /* originally, add this to header only */
     justify-content: center;
     align-items: center;
     border-radius: 0.375rem;
@@ -120,6 +123,15 @@
       0 2px 5px -2px rgba(10, 10, 10, 0.05) !important;
   }
 
+  /* Table components */
+  .sl-markdown-content h2 {
+    font-size: var(--sl-text-xl);
+  }
+
+  .sl-markdown-content h3 {
+    font-size: var(--sl-text-lg);
+  }
+
   /* Image components */
   starlight-image-zoom-zoomable img {
     border: 1px solid var(--sl-color-gray-5);
@@ -131,20 +143,179 @@
   .footnotes {
     font-size: 0.875rem;
   }
+
+  /* Sidebar separator components */
+  /* Horizontal divider */
+  #starlight__sidebar a[data-separator='divider'] {
+    pointer-events: none;
+    cursor: default;
+    padding: 0 !important;
+    margin: 0.75rem 0 !important;
+    height: 1px;
+    background: var(--sl-color-gray-5);
+    border: none;
+    min-height: 1px;
+    display: block;
+  }
+
+  #starlight__sidebar a[data-separator='divider']:hover {
+    background: var(--sl-color-gray-5);
+    color: transparent;
+  }
+
+  /* Hide the text content and caret for dividers */
+  #starlight__sidebar a[data-separator='divider'] span,
+  #starlight__sidebar a[data-separator='divider'] svg {
+    display: none;
+  }
+
+  /* Section header separator */
+  #starlight__sidebar a[data-separator='section-header'] {
+    pointer-events: none;
+    cursor: default;
+    font-size: 0.725rem !important; /* 10px - reduced from 11px */
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--sl-color-gray-3) !important;
+    padding: 0.5rem 0 0 0 !important;
+    margin: 0.5rem 0 0 0 !important;
+    background: transparent !important;
+  }
+
+  #starlight__sidebar a[data-separator='section-header']:hover {
+    background: transparent !important;
+    color: var(--sl-color-gray-3) !important;
+  }
+
+  /* Hide the caret for section headers */
+  #starlight__sidebar a[data-separator='section-header'] svg {
+    display: none;
+  }
+
+  /* Dark theme adjustments */
+  :root[data-theme='dark'] #starlight__sidebar a[data-separator='divider'] {
+    background: var(--sl-color-gray-5);
+  }
+
+  :root[data-theme='dark'] #starlight__sidebar a[data-separator='divider']:hover {
+    background: var(--sl-color-gray-5);
+  }
+
+  :root[data-theme='dark'] #starlight__sidebar a[data-separator='section-header']:hover {
+    color: var(--sl-color-gray-4) !important;
+  }
+
+  /* LLM Prompt Card Layout Fix */
+  .llm-prompt-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0;
+  }
+
+  .llm-prompt-content {
+    flex: 1;
+    min-width: 0; /* Allows text to properly truncate */
+  }
+
+  .llm-prompt-content p {
+    margin: 0 0 0.5rem 0;
+    line-height: 1.5;
+  }
+
+  .llm-prompt-subtitle {
+    display: block;
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  .llm-prompt-action {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    margin-top: 0.125rem; /* Slight alignment adjustment */
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 48rem) {
+    .llm-prompt-card {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .llm-prompt-action {
+      align-self: flex-start;
+      margin-top: 0;
+    }
+  }
+
+  /* Banner components */
+  .sl-banner {
+    background-color: var(--sl-color-bg-nav) !important;
+    border-bottom: 1px solid var(--sl-color-hairline-light) !important;
+    padding: 0.75rem 1rem !important;
+    font-size: var(--sl-text-sm) !important;
+    color: var(--sl-color-gray-2) !important;
+  }
+
+  .sl-banner a {
+    color: var(--sl-color-text-accent) !important;
+    text-decoration: underline !important;
+    font-weight: 500 !important;
+    transition: color 0.2s ease !important;
+  }
+
+  .sl-banner a:hover {
+    color: var(--sl-color-text) !important;
+    text-decoration: underline !important;
+  }
+
+  :root[data-theme='dark'] .sl-banner {
+    background-color: var(--sl-color-gray-6) !important;
+    border-bottom: 1px solid var(--sl-color-gray-5) !important;
+    color: var(--sl-color-gray-2) !important;
+  }
+
+  :root[data-theme='dark'] .sl-banner a {
+    color: var(--sl-color-text-accent) !important;
+  }
+
+  :root[data-theme='dark'] .sl-banner a:hover {
+    color: var(--sl-color-white) !important;
+  }
 }
 
 /* =============================================================================
    OVERRIDES LAYER - Framework and third-party overrides
    ============================================================================= */
 @layer scalekit.overrides {
-  /* Ensure base line-height is consistent and inherited site-wide */
-  html {
-    line-height: var(--sl-line-height);
-  }
-
+  /**
+   Ensure consistent font weight
+   Slight letter spacing for better readability
   body {
     line-height: inherit;
+    font-weight: 400;
+    letter-spacing: 0.01em;
   }
+  **/
+
+  /* Improve text rendering for Atkinson Hyperlegible Next */
+  .sl-markdown-content {
+    text-rendering: optimizeLegibility;
+    font-feature-settings:
+      'kern' 1,
+      'liga' 1;
+  }
+
+  /*
+  // Slightly increase font weight for better readability
+  .sl-markdown-content p,
+  .sl-markdown-content li {
+    font-weight: 425;
+  } */
 
   /* Starlight Videos <Quiz> submit button sizing to blend with Nova */
   .sl-markdown-content sl-videos-quiz button[type='submit'] {
@@ -167,29 +338,66 @@
   }
 
   /* Sidebar selected item background - less intrusive */
+  /* Nested items (inside details) and top-level items with .large class */
   #starlight__sidebar details ul li a[aria-current='page'],
-  #starlight__sidebar details ul li a[data-current-parent] {
+  #starlight__sidebar details ul li a[data-current-parent],
+  #starlight__sidebar ul li a.large[aria-current='page'] {
     background-color: var(--sl-color-gray-6) !important;
     color: var(--sl-color-white) !important;
   }
 
   :root[data-theme='dark'] #starlight__sidebar details ul li a[aria-current='page'],
-  :root[data-theme='dark'] #starlight__sidebar details ul li a[data-current-parent] {
+  :root[data-theme='dark'] #starlight__sidebar details ul li a[data-current-parent],
+  :root[data-theme='dark'] #starlight__sidebar ul li a.large[aria-current='page'] {
     background-color: var(--sl-color-gray-5) !important;
     color: var(--sl-color-white) !important;
+  }
+
+  /* ===========================================================================
+     TEMPORARY FIX: Remove "large" styling from top-level sidebar links
+     ---------------------------------------------------------------------------
+     Issue: Top-level standalone sidebar items (e.g., "Welcome to Scalekit 👋")
+     have different styling than nested items due to the `.large` class applied
+     by Starlight's SidebarSublist component.
+
+     Goal: Make all sidebar items have consistent styling regardless of nesting.
+     Only group labels (summary elements) should maintain their larger styling.
+
+     TODO: Replace with proper SidebarSublist.astro component override in future
+     =========================================================================== */
+  #starlight__sidebar a.large:not([aria-current='page']) {
+    font-size: var(--sl-text-base) !important; /* 16px on small screens - match nested items */
+    font-weight: 400 !important; /* Match nested items (not bold) */
+    color: var(--sl-color-gray-2) !important; /* Match nested items */
+  }
+
+  /* Maintain responsive font sizing consistency */
+  @media (min-width: 50rem) {
+    #starlight__sidebar a.large:not([aria-current='page']) {
+      font-size: var(--sl-text-sm) !important; /* 14.4px on large screens - match nested items */
+    }
+  }
+
+  /* Selected state for top-level items - match nested items selected state */
+  #starlight__sidebar a.large[aria-current='page'] {
+    font-size: var(--sl-text-base) !important; /* 16px on small screens - match nested items */
+  }
+
+  @media (min-width: 50rem) {
+    #starlight__sidebar a.large[aria-current='page'] {
+      font-size: var(--sl-text-sm) !important; /* 14.4px on large screens */
+    }
   }
 
   #starlight__sidebar details summary {
     display: flex;
   }
 
-  #starlight__sidebar details details summary span {
-    opacity: 0.5;
+  #starlight__sidebar details details summary span:not(.trigger-label) {
+    color: var(--sl-color-gray-3);
     text-transform: uppercase;
     font-weight: 700;
     font-size: 0.75rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
     display: block;
   }
 
@@ -197,9 +405,32 @@
     display: none;
   }
 
+  /* Ensure dropdown trigger labels maintain proper styling */
+  #starlight__sidebar .authenticate-topics-dropdown .trigger-label {
+    font-size: var(--sl-text-sm) !important;
+    color: inherit;
+    text-transform: none;
+    font-weight: 550;
+  }
+
   .starlight-sidebar-topics-dropdown-dropdown {
     width: inherit;
     margin: inherit;
+  }
+
+  /* Hide TopicsDropdown on tablet and desktop layouts */
+  /* Show only on mobile (max-width: 48rem) */
+  .starlight-sidebar-topics-dropdown,
+  [class*='starlight-sidebar-topics-dropdown'] {
+    display: none !important;
+  }
+
+  /* Show TopicsDropdown only on mobile */
+  @media (max-width: 48rem) {
+    .starlight-sidebar-topics-dropdown,
+    [class*='starlight-sidebar-topics-dropdown'] {
+      display: block !important;
+    }
   }
 
   /* Header and navigation overrides */
@@ -208,11 +439,12 @@
   }
 
   .site-title img {
-    height: 35px;
+    height: 2.5rem;
   }
 
+  /* Override nova-page-frame-header background to white */
   .nova-page-frame-header {
-    background-color: var(--sl-color-bg);
+    background-color: white !important;
   }
 
   /* Fix Nova theme background color persistence in production builds */
@@ -226,5 +458,8 @@
   :root[data-theme='dark'] .right-sidebar,
   :root[data-theme='dark'] main {
     background-color: #030712 !important;
+  }
+  .content-panel + .content-panel {
+    padding-top: 0;
   }
 }

@@ -1,0 +1,172 @@
+---
+title: Organization events
+description: "Explore the webhook events related to organization operations in Scalekit, including creation, updates, and deletions."
+topic: dev-kit
+tableOfContents: true
+next: false
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+pagefind: false
+---
+
+import { Aside, Badge, CardGrid } from '@astrojs/starlight/components';
+import SimpleList from '@components/ui/SimpleList.astro';
+
+This page documents the webhook events related to organization operations in Scalekit.
+
+----
+
+## Organization events
+
+### `organization.created`
+
+This webhook is triggered when a new organization is created. The event type is `organization.created`
+
+```json title="organization.created"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_1234567890",
+  "object": "Organization",
+  "occurred_at": "2024-01-15T10:30:00.123456789Z",
+  "organization_id": "org_1234567890",
+  "spec_version": "1",
+  "type": "organization.created",
+  "data": {
+    "create_time": "2025-12-09T09:25:02.02Z",
+    "display_name": "AcmeCorp",
+    "external_id": "org_external_123",
+    "id": "org_1234567890",
+    "metadata": null,
+    "region_code": "US",
+    "update_time": "2025-12-09T09:25:02.025330364Z",
+    "settings": {
+      "features": [
+        {
+          "enabled": true,
+          "name": "sso"
+        },
+        {
+          "enabled": false,
+          "name": "dir_sync"
+        }
+      ]
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the organization |
+| `external_id` | string \| null | External identifier for the organization, if provided |
+| `display_name` | string \| null | Name of the organization, if provided |
+| `region_code` | string \| null | Geographic region code for the organization (US, EU), currently limited to US |
+| `create_time` | string | Timestamp of when the organization was created  |
+| `update_time` | string \| null | Timestamp of when the organization was last updated |
+| `metadata` | object \| null | Additional metadata associated with the organization |
+| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `settings.features` | array | Array of feature objects with enabled status and name |
+
+### `organization.updated`
+
+This webhook is triggered when an organization is updated. The event type is `organization.updated`
+
+```json title="organization.updated"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_2345678901",
+  "object": "Organization",
+  "occurred_at": "2024-01-15T10:35:00.123456789Z",
+  "organization_id": "org_1234567890",
+  "spec_version": "1",
+  "type": "organization.updated",
+  "data": {
+    "create_time": "2025-12-09T09:25:02.02Z",
+    "display_name": "AcmeCorp",
+    "external_id": "org_external_123",
+    "id": "org_1234567890",
+    "metadata": null,
+    "region_code": "US",
+    "update_time": "2025-12-09T09:25:02.025330364Z",
+    "settings": {
+      "features": [
+        {
+          "enabled": true,
+          "name": "sso"
+        },
+        {
+          "enabled": false,
+          "name": "dir_sync"
+        }
+      ]
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the organization |
+| `external_id` | string \| null | External identifier for the organization, if provided |
+| `display_name` | string \| null | Name of the organization, if provided |
+| `region_code` | string \| null | Geographic region code for the organization (US, EU), currently limited to US |
+| `create_time` | string | Timestamp of when the organization was created  |
+| `update_time` | string \| null | Timestamp of when the organization was last updated |
+| `metadata` | object \| null | Additional metadata associated with the organization |
+| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `settings.features` | array | Array of feature objects with enabled status and name |
+
+### `organization.deleted`
+
+This webhook is triggered when an organization is deleted. The event type is `organization.deleted`
+
+```json title="organization.deleted" collapse={19-28}
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_3456789012",
+  "object": "Organization",
+  "occurred_at": "2024-01-15T10:40:00.123456789Z",
+  "organization_id": "org_1234567890",
+  "spec_version": "1",
+  "type": "organization.deleted",
+  "data": {
+    "create_time": "2025-12-09T09:25:02.02Z",
+    "deleted_at": "2025-12-09T10:25:45.337417Z",
+    "display_name": "AcmeCorp",
+    "external_id": "org_external_123",
+    "id": "org_1234567890",
+    "metadata": null,
+    "region_code": "US",
+    "update_time": "2025-12-09T09:25:02.025330364Z",
+    "settings": {
+      "features": [
+        {
+          "enabled": true,
+          "name": "sso"
+        },
+        {
+          "enabled": false,
+          "name": "dir_sync"
+        }
+      ]
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the organization |
+| `external_id` | string \| null | External identifier for the organization, if provided |
+| `display_name` | string \| null | Name of the organization, if provided |
+| `region_code` | string \| null | Geographic region code for the organization (US, EU), currently limited to US |
+| `create_time` | string | Timestamp of when the organization was created  |
+| `deleted_at` | string \| null | Timestamp of when the organization was deleted |
+| `update_time` | string \| null | Timestamp of when the organization was last updated |
+| `metadata` | object \| null | Additional metadata associated with the organization |
+| `settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `settings.features` | array | Array of feature objects with enabled status and name |

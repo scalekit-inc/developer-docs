@@ -1,0 +1,656 @@
+---
+title: "Link to billing, CRM & HR systems"
+topic: dev-kit
+description: "Production-ready patterns for linking Scalekit organizations and users to Stripe, Salesforce, Workday and other enterprise systems using external identifiers"
+tableOfContents:
+  maxHeadingLevel: 2
+sidebar:
+  label: "Link to billing, CRM & HR"
+prev:
+  link: '/guides/user-auth/preserve-intended-destination/'
+  label: 'Preserve user destinations'
+next: false
+browseCentral:
+  label: "Link to billing & CRM systems"
+  filterType: ["tutorial"]
+  category: ["Customize"]
+  icon: book
+seeAlso:
+  label: "Related guides"
+  items:
+    - title: "Set external IDs & metadata"
+      icon: "setting"
+      url: "/fsa/guides/organization-identifiers/"
+pagefind: false
+---
+
+import { Aside, Steps, Tabs, TabItem, Card } from '@astrojs/starlight/components';
+
+External identifiers enable seamless integration between Scalekit and your existing business systems. This guide provides practical patterns for implementing these integrations across common enterprise scenarios including billing platforms, CRM systems, HR systems, and multi-system workflows.
+
+## Integration patterns overview
+
+External IDs serve as the bridge between Scalekit's authentication system and your business infrastructure. Common integration scenarios include:
+
+- **Billing and subscription management** - Link customers to payment platforms like Stripe, Chargebee
+- **Customer relationship management** - Sync with Salesforce, HubSpot, Pipedrive
+- **Human resources systems** - Connect with Workday, BambooHR, ADP
+- **Internal tools and databases** - Maintain consistency across custom applications
+- **Multi-system orchestration** - Coordinate data across multiple platforms
+
+## Billing system integration
+
+Connect organizations and users with your billing platform to track subscriptions, handle payment events, and maintain customer lifecycle data.
+
+### Stripe integration example
+
+This example shows how to handle subscription updates by finding organizations using external IDs and updating their metadata accordingly.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+```javascript title="Stripe webhook handler"
+// When a customer subscribes via Stripe
+app.post('/stripe/webhook', async (req, res) => {
+  const event = req.body;
+
+  if (event.type === 'customer.subscription.updated') {
+    const customerId = event.data.object.customer;
+
+    // Find organization by external ID (Stripe customer ID)
+    const org = await scalekit.organization.getByExternalId(customerId);
+
+    if (org) {
+      // Update subscription metadata
+      await scalekit.organization.update(org.id, {
+        metadata: {
+          ...org.metadata,
+          subscription_status: event.data.object.status,
+          plan_type: event.data.object.items.data[0].price.lookup_key,
+          last_billing_update: new Date().toISOString(),
+          subscription_current_period_end: new Date(event.data.object.current_period_end * 1000).toISOString()
+        }
+      });
+
+      // Use case: Automatically provision/deprovision features based on subscription status
+      if (event.data.object.status === 'active') {
+        await enablePremiumFeatures(org.id);
+      } else if (event.data.object.status === 'canceled') {
+        await disablePremiumFeatures(org.id);
+      }
+    }
+  }
+
+  // Handle customer deletion
+  if (event.type === 'customer.deleted') {
+    const customerId = event.data.object.id;
+    const org = await scalekit.organization.getByExternalId(customerId);
+
+    if (org) {
+      await scalekit.organization.update(org.id, {
+        metadata: {
+          ...org.metadata,
+          billing_status: 'deleted',
+          deletion_date: new Date().toISOString()
+        }
+      });
+    }
+  }
+
+  res.status(200).send('OK');
+});
+```
+</TabItem>
+<TabItem value="python" label="Python">
+```python title="Stripe webhook handler"
+# When a customer subscribes via Stripe
+@app.route('/stripe/webhook', methods=['POST'])
+def stripe_webhook():
+    event = request.json
+
+    if event['type'] == 'customer.subscription.updated':
+        customer_id = event['data']['object']['customer']
+
+        # Find organization by external ID (Stripe customer ID)
+        org = scalekit.organization.get_by_external_id(customer_id)
+
+        if org:
+            # Update subscription metadata
+            updated_metadata = {
+                **org.metadata,
+                'subscription_status': event['data']['object']['status'],
+                'plan_type': event['data']['object']['items']['data'][0]['price']['lookup_key'],
+                'last_billing_update': datetime.utcnow().isoformat(),
+                'subscription_current_period_end': datetime.fromtimestamp(
+                    event['data']['object']['current_period_end']
+                ).isoformat()
+            }
+
+            scalekit.organization.update(org.id, {'metadata': updated_metadata})
+
+            # Use case: Automatically provision/deprovision features based on subscription status
+            if event['data']['object']['status'] == 'active':
+                enable_premium_features(org.id)
+            elif event['data']['object']['status'] == 'canceled':
+                disable_premium_features(org.id)
+
+    # Handle customer deletion
+    elif event['type'] == 'customer.deleted':
+        customer_id = event['data']['object']['id']
+        org = scalekit.organization.get_by_external_id(customer_id)
+
+        if org:
+            updated_metadata = {
+                **org.metadata,
+                'billing_status': 'deleted',
+                'deletion_date': datetime.utcnow().isoformat()
+            }
+            scalekit.organization.update(org.id, {'metadata': updated_metadata})
+
+    return 'OK', 200
+```
+</TabItem>
+</Tabs>
+
+### Best practices for billing integration
+
+- **Use Stripe customer IDs as external IDs** for organizations to enable quick lookups during webhook processing
+- **Store subscription metadata** in organization records for immediate access in your application
+- **Handle subscription lifecycle events** (trial start, subscription active, canceled, past due)
+- **Implement idempotency** in webhook handlers to prevent duplicate processing
+- **Use external IDs for user-level billing** when implementing per-seat pricing models
+
+## CRM synchronization
+
+Keep organization and user data synchronized between Scalekit and your CRM system to maintain consistent customer records and enable sales team workflows.
+
+### Salesforce integration example
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+```javascript title="Salesforce sync integration"
+// Sync organization data with Salesforce
+async function syncOrganizationWithCRM(organizationId, salesforceAccountId) {
+  try {
+    // Fetch account data from Salesforce
+    const crmData = await salesforce.getAccount(salesforceAccountId);
+
+    // Update Scalekit organization with CRM data
+    await scalekit.organization.update(organizationId, {
+      metadata: {
+        salesforce_account_id: salesforceAccountId,
+        industry: crmData.Industry,
+        annual_revenue: crmData.AnnualRevenue,
+        account_owner: crmData.Owner.Name,
+        account_type: crmData.Type,
+        company_size: crmData.NumberOfEmployees,
+        last_crm_sync: new Date().toISOString(),
+        crm_last_modified: crmData.LastModifiedDate
+      }
+    });
+
+    // Use case: Update user permissions based on account type
+    if (crmData.Type === 'Enterprise') {
+      await enableEnterpriseFeatures(organizationId);
+    }
+
+  } catch (error) {
+    console.error('CRM sync failed:', error);
+    // Log sync failure for monitoring
+    await logSyncFailure('salesforce', organizationId, error);
+  }
+}
+
+// Sync user data with Salesforce contacts
+async function syncUserWithCRM(userId, organizationId, salesforceContactId) {
+  try {
+    const contactData = await salesforce.getContact(salesforceContactId);
+
+    await scalekit.user.updateUser(userId, {
+      metadata: {
+        salesforce_contact_id: salesforceContactId,
+        job_title: contactData.Title,
+        department: contactData.Department,
+        territory: contactData.Sales_Territory__c,
+        last_crm_contact_sync: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('User CRM sync failed:', error);
+  }
+}
+
+// Bidirectional sync: Update Salesforce when Scalekit data changes
+async function updateCRMFromScalekit(organizationId) {
+  const org = await scalekit.organization.getById(organizationId);
+
+  if (org.metadata.salesforce_account_id) {
+    await salesforce.updateAccount(org.metadata.salesforce_account_id, {
+      Last_Login_Date__c: new Date().toISOString(),
+      Active_Users__c: await getUserCount(organizationId),
+      Subscription_Status__c: org.metadata.plan_type
+    });
+  }
+}
+```
+</TabItem>
+<TabItem value="python" label="Python">
+```python title="Salesforce sync integration"
+# Sync organization data with Salesforce
+async def sync_organization_with_crm(organization_id, salesforce_account_id):
+    try:
+        # Fetch account data from Salesforce
+        crm_data = await salesforce.get_account(salesforce_account_id)
+
+        # Update Scalekit organization with CRM data
+        metadata = {
+            'salesforce_account_id': salesforce_account_id,
+            'industry': crm_data.get('Industry'),
+            'annual_revenue': crm_data.get('AnnualRevenue'),
+            'account_owner': crm_data.get('Owner', {}).get('Name'),
+            'account_type': crm_data.get('Type'),
+            'company_size': crm_data.get('NumberOfEmployees'),
+            'last_crm_sync': datetime.utcnow().isoformat(),
+            'crm_last_modified': crm_data.get('LastModifiedDate')
+        }
+
+        scalekit.organization.update(organization_id, {'metadata': metadata})
+
+        # Use case: Update user permissions based on account type
+        if crm_data.get('Type') == 'Enterprise':
+            await enable_enterprise_features(organization_id)
+
+    except Exception as error:
+        print(f'CRM sync failed: {error}')
+        # Log sync failure for monitoring
+        await log_sync_failure('salesforce', organization_id, str(error))
+
+# Sync user data with Salesforce contacts
+async def sync_user_with_crm(user_id, organization_id, salesforce_contact_id):
+    try:
+        contact_data = await salesforce.get_contact(salesforce_contact_id)
+
+        metadata = {
+            'salesforce_contact_id': salesforce_contact_id,
+            'job_title': contact_data.get('Title'),
+            'department': contact_data.get('Department'),
+            'territory': contact_data.get('Sales_Territory__c'),
+            'last_crm_contact_sync': datetime.utcnow().isoformat()
+        }
+
+        scalekit.user.update_user(user_id, {'metadata': metadata})
+
+    except Exception as error:
+        print(f'User CRM sync failed: {error}')
+
+# Bidirectional sync: Update Salesforce when Scalekit data changes
+async def update_crm_from_scalekit(organization_id):
+    org = scalekit.organization.get_by_id(organization_id)
+
+    if org.metadata.get('salesforce_account_id'):
+        await salesforce.update_account(org.metadata['salesforce_account_id'], {
+            'Last_Login_Date__c': datetime.utcnow().isoformat(),
+            'Active_Users__c': await get_user_count(organization_id),
+            'Subscription_Status__c': org.metadata.get('plan_type')
+        })
+```
+</TabItem>
+</Tabs>
+
+### CRM integration best practices
+
+- **Use CRM record IDs as external IDs** to enable quick bidirectional lookups
+- **Implement scheduled sync jobs** to keep data fresh without overloading APIs
+- **Handle API rate limits** with exponential backoff and queuing
+- **Store sync timestamps** to enable incremental updates
+- **Log sync failures** for monitoring and debugging
+- **Implement conflict resolution** for bidirectional sync scenarios
+
+## HR system integration
+
+Connect user records with HR systems to automate provisioning, maintain employee data, and handle organizational changes.
+
+### Workday integration pattern
+
+```javascript title="HR system integration example"
+// Sync user data with HR system during onboarding
+async function syncNewEmployeeWithScalekit(employeeData) {
+  const { employee_id, email, first_name, last_name, department, start_date, manager_email } = employeeData;
+
+  // Find organization by domain or external ID
+  const domain = email.split('@')[1];
+  const organization = await scalekit.organization.getByDomain(domain);
+
+  if (organization) {
+    // Create user with HR system external ID
+    const { user } = await scalekit.user.createUserAndMembership(organization.id, {
+      email: email,
+      externalId: employee_id, // HR system employee ID
+      metadata: {
+        hr_employee_id: employee_id,
+        department: department,
+        start_date: start_date,
+        manager_email: manager_email,
+        employee_status: 'active',
+        hr_last_sync: new Date().toISOString()
+      },
+      userProfile: {
+        firstName: first_name,
+        lastName: last_name
+      },
+      sendInvitationEmail: true
+    });
+
+    // Use case: Assign department-based roles
+    await assignDepartmentRoles(user.id, department);
+
+    return user;
+  }
+}
+
+// Handle employee status changes
+async function handleEmployeeStatusChange(employee_id, status) {
+  try {
+    // Find user by HR system external ID
+    const user = await scalekit.user.getUserByExternalId(organization.id, employee_id);
+
+    if (user) {
+      if (status === 'terminated') {
+        // Disable user access
+        await scalekit.user.updateUser(user.id, {
+          metadata: {
+            ...user.metadata,
+            employee_status: 'terminated',
+            termination_date: new Date().toISOString()
+          }
+        });
+
+        // Remove from organization
+        await scalekit.user.removeMembership(user.id, organization.id);
+
+      } else if (status === 'on_leave') {
+        // Temporarily suspend access
+        await scalekit.user.updateUser(user.id, {
+          metadata: {
+            ...user.metadata,
+            employee_status: 'on_leave',
+            leave_start_date: new Date().toISOString()
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.error('HR status sync failed:', error);
+  }
+}
+```
+
+## Multi-system integration workflows
+
+Orchestrate data across multiple systems using external IDs as the common identifier thread.
+
+### Customer lifecycle automation
+
+```javascript title="Multi-system workflow example"
+// Complete customer onboarding workflow
+async function onboardNewCustomer(customerData) {
+  const { company_name, admin_email, plan_type, salesforce_account_id, stripe_customer_id } = customerData;
+
+  try {
+    // 1. Create organization in Scalekit
+    const organization = await scalekit.organization.create({
+      display_name: company_name,
+      external_id: stripe_customer_id, // Use billing system ID as primary external ID
+      metadata: {
+        plan_type: plan_type,
+        salesforce_account_id: salesforce_account_id,
+        stripe_customer_id: stripe_customer_id,
+        onboarding_status: 'pending',
+        created_date: new Date().toISOString()
+      }
+    });
+
+    // 2. Create admin user
+    const { user } = await scalekit.user.createUserAndMembership(organization.id, {
+      email: admin_email,
+      externalId: `${stripe_customer_id}_admin`, // Composite external ID
+      metadata: {
+        role_type: 'admin',
+        onboarding_step: 'account_created'
+      },
+      sendInvitationEmail: true
+    });
+
+    // 3. Update CRM with Scalekit IDs
+    await salesforce.updateAccount(salesforce_account_id, {
+      Scalekit_Organization_ID__c: organization.id,
+      Scalekit_Admin_User_ID__c: user.id,
+      Onboarding_Status__c: 'In Progress'
+    });
+
+    // 4. Configure billing in Stripe
+    await stripe.customers.update(stripe_customer_id, {
+      metadata: {
+        scalekit_org_id: organization.id,
+        scalekit_admin_user_id: user.id
+      }
+    });
+
+    // 5. Send onboarding notifications
+    await sendOnboardingEmail(admin_email, organization.id);
+    await notifySalesTeam(salesforce_account_id, 'customer_onboarded');
+
+    return { organization, user };
+
+  } catch (error) {
+    console.error('Customer onboarding failed:', error);
+    // Rollback logic here
+    throw error;
+  }
+}
+```
+
+## Error handling and retry patterns
+
+Implement robust error handling for external system integrations to ensure data consistency and reliability.
+
+### Retry with exponential backoff
+
+```javascript title="Robust integration error handling"
+// Utility function for retrying API calls with exponential backoff
+async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw error;
+      }
+
+      // Exponential backoff with jitter
+      const delay = baseDelay * Math.pow(2, attempt - 1) + Math.random() * 1000;
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+}
+
+// Resilient external ID lookup
+async function findOrganizationWithRetry(externalId) {
+  return retryWithBackoff(async () => {
+    const org = await scalekit.organization.getByExternalId(externalId);
+    if (!org) {
+      throw new Error(`Organization not found for external ID: ${externalId}`);
+    }
+    return org;
+  });
+}
+
+// Webhook processing with error handling
+app.post('/webhook', async (req, res) => {
+  try {
+    const { external_id, event_type, data } = req.body;
+
+    // Find organization with retry logic
+    const organization = await findOrganizationWithRetry(external_id);
+
+    // Process the webhook data
+    await processWebhookEvent(organization, event_type, data);
+
+    res.status(200).json({ status: 'success' });
+
+  } catch (error) {
+    console.error('Webhook processing failed:', error);
+
+    // Queue for retry if it's a temporary failure
+    if (isRetryableError(error)) {
+      await queueWebhookForRetry(req.body);
+      res.status(202).json({ status: 'queued_for_retry' });
+    } else {
+      res.status(400).json({ status: 'error', message: error.message });
+    }
+  }
+});
+
+function isRetryableError(error) {
+  return error.code === 'NETWORK_ERROR' ||
+         error.code === 'RATE_LIMITED' ||
+         error.status >= 500;
+}
+```
+
+## Security considerations
+
+When implementing external ID integrations, follow these security best practices:
+
+### Webhook security
+
+```javascript title="Secure webhook handling"
+// Verify webhook signatures
+function verifyWebhookSignature(payload, signature, secret) {
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex');
+
+  return crypto.timingSafeEqual(
+    Buffer.from(signature, 'hex'),
+    Buffer.from(expectedSignature, 'hex')
+  );
+}
+
+// Rate limiting for webhook endpoints
+const webhookLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many webhook requests from this IP'
+});
+
+app.post('/webhook', webhookLimiter, (req, res) => {
+  // Verify signature before processing
+  if (!verifyWebhookSignature(req.body, req.headers['x-signature'], process.env.WEBHOOK_SECRET)) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+
+  // Process webhook...
+});
+```
+
+### Data validation and sanitization
+
+- **Validate external IDs** before using them in database queries
+- **Sanitize metadata** to prevent injection attacks
+- **Use prepared statements** for database operations
+- **Implement input validation** for all external data
+- **Log security events** for monitoring and auditing
+
+<Aside type="tip">
+External IDs and metadata are included in JWT tokens when users authenticate, making this information immediately available in your application without additional API calls. This enables real-time feature toggles and personalization based on external system data.
+</Aside>
+
+## Monitoring and observability
+
+Implement comprehensive monitoring for external ID integrations to ensure system health and quick issue resolution.
+
+### Integration health monitoring
+
+```javascript title="Integration monitoring example"
+// Track integration health metrics
+class IntegrationMonitor {
+  constructor() {
+    this.metrics = {
+      successful_syncs: 0,
+      failed_syncs: 0,
+      average_sync_time: 0,
+      last_successful_sync: null
+    };
+  }
+
+  async recordSyncAttempt(system, success, duration) {
+    if (success) {
+      this.metrics.successful_syncs++;
+      this.metrics.last_successful_sync = new Date();
+    } else {
+      this.metrics.failed_syncs++;
+    }
+
+    // Update average sync time
+    this.updateAverageSyncTime(duration);
+
+    // Send metrics to monitoring system
+    await this.sendMetrics(system, this.metrics);
+  }
+
+  updateAverageSyncTime(duration) {
+    const totalSyncs = this.metrics.successful_syncs + this.metrics.failed_syncs;
+    this.metrics.average_sync_time =
+      (this.metrics.average_sync_time * (totalSyncs - 1) + duration) / totalSyncs;
+  }
+}
+
+// Usage in integration functions
+const monitor = new IntegrationMonitor();
+
+async function syncWithExternalSystem(externalId, data) {
+  const startTime = Date.now();
+  let success = false;
+
+  try {
+    await performSync(externalId, data);
+    success = true;
+  } catch (error) {
+    console.error('Sync failed:', error);
+    throw error;
+  } finally {
+    const duration = Date.now() - startTime;
+    await monitor.recordSyncAttempt('external_system', success, duration);
+  }
+}
+```
+
+## Best practices summary
+
+### External ID management
+- **Use meaningful, stable identifiers** from your primary business system
+- **Implement consistent naming conventions** across all external IDs
+- **Handle ID migration scenarios** when external systems change
+- **Validate external IDs** before using them in operations
+
+### Integration reliability
+- **Implement retry logic** with exponential backoff for API calls
+- **Use webhooks for real-time sync** and scheduled jobs for periodic reconciliation
+- **Handle rate limits** gracefully with queuing and backoff strategies
+- **Monitor integration health** with comprehensive metrics and alerting
+
+### Security and compliance
+- **Verify webhook signatures** to ensure authenticity
+- **Implement rate limiting** on webhook endpoints
+- **Validate and sanitize** all external data
+- **Audit integration activities** for compliance requirements
+
+### Performance optimization
+- **Cache frequently accessed external ID mappings**
+- **Batch operations** where possible to reduce API calls
+- **Use appropriate timeouts** for external API calls
+- **Implement circuit breakers** for unreliable external services
+
+This integration approach enables seamless data flow between Scalekit and your business systems while maintaining security, reliability, and performance standards.

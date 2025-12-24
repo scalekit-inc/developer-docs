@@ -1,0 +1,1015 @@
+---
+import {
+  IconLucideShield,
+  IconMcp,
+  IconLucideUsers,
+  IconLucideMail,
+  IconLucideBot,
+  IconLucideBookOpen,
+  IconLucideBell,
+  IconLucideCode,
+  IconLucideOutlineWebhook,
+  IconLucideWrench,
+  IconHugeiconsResourcesAdd,
+  IconClarityBlocksGroupLine,
+  IconMingcuteUserSecurityLine,
+  IconAntDesignUserSwitchOutlined,
+  IconSolarServerPathOutline,
+  IconLucideChevronDown as IconChevronDown,
+} from '../utils/icon-map'
+import { secondaryNavMapping, topicToSecondaryNav, topics } from '../configs/sidebar.config'
+import {
+  findBestMatch,
+  isHashOnly,
+  getTopicForPath,
+  type SecondaryNavItem,
+} from '../utils/path-matching'
+
+interface NavItem {
+  id: string // Unique identifier that maps to secondaryNavMapping
+  href: string
+  label: string
+  patterns: string[]
+  isExact?: boolean
+  iconComponent?: any
+  children?: NavItem[]
+  keepParentLabel?: boolean // Keep parent label even when child is active
+  description?: string // Optional description for dropdown items
+  showDivider?: boolean // Show divider after this item
+  sectionLabel?: string // Optional section label for grouping items
+}
+
+interface NavSection {
+  items: NavItem[]
+}
+
+/**
+ * Determines which secondary nav item should be active for the current pathname
+ * Uses a two-tier approach:
+ * 1. First, check which sidebar topic the page belongs to and map to secondary nav
+ * 2. If no topic match, fall back to pattern-based matching
+ */
+function getActiveSecondaryNavId(pathname: string): string | null {
+  // First, try to determine the sidebar topic for this page
+  const topic = getTopicForPath(pathname, topics)
+
+  if (topic && topicToSecondaryNav[topic]) {
+    // Map the topic to its secondary nav item
+    return topicToSecondaryNav[topic]
+  }
+
+  // Fallback: Use pattern-based matching
+  const allNavItems: SecondaryNavItem[] = Object.values(secondaryNavMapping).map((mapping) => ({
+    id: mapping.id,
+    patterns: mapping.patterns,
+    priority: mapping.priority,
+  }))
+
+  return findBestMatch(pathname, allNavItems)
+}
+
+/**
+ * Determines if a nav item should be marked as current based on the pathname
+ */
+function isCurrentPage(pathname: string, item: NavItem): boolean {
+  // If this is a parent item with children, consider it current if any child is current
+  // (Check this FIRST, before hash-only check, so parent dropdowns can be highlighted)
+  if (item.children && item.children.length > 0) {
+    return item.children.some((child) => isCurrentPage(pathname, child))
+  }
+
+  // Hash-only links (dropdown triggers) are never current on their own
+  if (isHashOnly(item.href)) {
+    return false
+  }
+
+  // For child items (items with patterns but potentially not in secondaryNavMapping),
+  // check if pathname matches any of their patterns
+  if (item.patterns && item.patterns.length > 0) {
+    const matchesPattern = item.patterns.some((pattern) => {
+      // Remove trailing slashes for consistent comparison
+      const normalizedPath = pathname.replace(/\/+$/, '')
+      const normalizedPattern = pattern.replace(/\/+$/, '')
+      return normalizedPath.startsWith(normalizedPattern)
+    })
+    if (matchesPattern) return true
+  }
+
+  // Get the active secondary nav ID and compare
+  const activeId = getActiveSecondaryNavId(pathname)
+  return activeId === item.id
+}
+
+function getDisplayLabel(pathname: string, item: NavItem): string {
+  if (item.children && item.children.length > 0 && !item.keepParentLabel) {
+    const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
+    if (activeChild) return activeChild.label
+  }
+  return item.label
+}
+
+function getDisplayIcon(pathname: string, item: NavItem): any {
+  if (item.children && item.children.length > 0) {
+    const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
+    if (activeChild && activeChild.iconComponent) return activeChild.iconComponent
+  }
+  return item.iconComponent
+}
+
+// Build nav sections using secondaryNavMapping as source of truth
+const navSections: NavSection[] = [
+  {
+    items: [
+      // Authenticate dropdown with children - replaces standalone Authenticate item
+      {
+        id: secondaryNavMapping.authenticate.id,
+        href: '#authenticate',
+        label: 'Authenticate',
+        iconComponent: IconLucideShield,
+        patterns: secondaryNavMapping.authenticate.patterns,
+        children: [
+          {
+            id: 'fsa', // Child items need unique IDs but won't be used in matching
+            href: '/authenticate/fsa/quickstart/',
+            label: 'Full-stack Auth',
+            patterns: ['/authenticate/fsa'],
+            iconComponent: IconLucideUsers,
+            description: 'Add secure login pages, user accounts, and safe session handling',
+            sectionLabel: 'FULL-STACK AUTHENTICATION',
+            showDivider: true,
+          },
+          {
+            id: 'mcp',
+            href: '/mcp/quickstart/',
+            label: 'Auth for MCP',
+            patterns: ['/mcp'],
+            iconComponent: IconMcp,
+            description: 'Add secure login pages, user accounts, and safe session handling',
+            sectionLabel: 'MODULAR AUTH',
+          },
+          {
+            id: 'modular-sso',
+            href: '/authenticate/sso/add-modular-sso/',
+            label: 'Modular SSO',
+            patterns: ['/authenticate/sso'],
+            iconComponent: IconMingcuteUserSecurityLine,
+            description: 'Add secure login pages, user accounts, and safe session handling',
+          },
+          {
+            id: 'modular-scim',
+            href: '/directory/scim/quickstart/',
+            label: 'Modular SCIM',
+            patterns: ['/directory/scim'],
+            iconComponent: IconAntDesignUserSwitchOutlined,
+            description: 'Add secure login pages, user accounts, and safe session handling',
+          },
+        ],
+      },
+      {
+        id: secondaryNavMapping['api-reference'].id,
+        href: '#sdks-apis',
+        label: 'SDKs & APIs',
+        patterns: secondaryNavMapping['api-reference'].patterns,
+        iconComponent: IconLucideBookOpen,
+        children: [
+          {
+            id: 'sdks', // Child items still need unique IDs but won't be used in matching
+            href: '/apis/#description/sdks',
+            label: 'SDKs',
+            patterns: ['/apis/#description/sdks'],
+            iconComponent: IconLucideCode,
+          },
+          {
+            id: 'rest-apis',
+            href: '/apis/',
+            label: 'REST APIs',
+            patterns: ['/apis'],
+            iconComponent: IconLucideBookOpen,
+          },
+          {
+            id: 'webhooks-events',
+            href: '/reference/webhooks/overview/',
+            label: 'Webhooks',
+            patterns: ['/reference/webhooks', '/reference/admin-portal/ui-events'],
+            iconComponent: IconLucideOutlineWebhook,
+          },
+        ],
+      },
+      // Temporarily hidden - Agent Actions
+      // {
+      //   id: secondaryNavMapping['agent-actions'].id,
+      //   href: '/agent-actions/quickstart',
+      //   label: 'Agent Actions',
+      //   patterns: secondaryNavMapping['agent-actions'].patterns,
+      //   iconComponent: IconLucideBot,
+      // },
+    ],
+  },
+  {
+    items: [
+      {
+        id: secondaryNavMapping.scenarios.id,
+        href: '/dev-kit/',
+        label: 'Developer Resources',
+        patterns: secondaryNavMapping.scenarios.patterns,
+        iconComponent: IconHugeiconsResourcesAdd,
+      },
+      // Temporarily hidden - Developer Resources dropdown
+      // {
+      //   id: 'dev-kit',
+      //   href: '/dev-kit/',
+      //   label: 'Developer Resources',
+      //   patterns: ['/dev-kit/', '/guides/integrations'],
+      //   iconComponent: IconLucideWrench,
+      //   children: [
+      //     {
+      //       id: 'dev-kit-overview',
+      //       href: '/dev-kit/sdks/overview',
+      //       label: 'Developer Resources',
+      //       patterns: ['/dev-kit/'],
+      //       isExact: true,
+      //       iconComponent: IconLucideWrench,
+      //     },
+      //     {
+      //       id: 'integrations',
+      //       href: '/guides/integrations',
+      //       label: 'Integrations',
+      //       patterns: ['/guides/integrations'],
+      //       iconComponent: IconLucideWrench,
+      //     },
+      //   ],
+      // },
+    ],
+  },
+]
+---
+
+<nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
+  <div class="nav-section nav-left">
+    <div class="nav-items">
+      {
+        navSections[0].items.map((item) => (
+          <div
+            class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
+            data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
+          >
+            <a
+              href={item.href}
+              class={`nav-item ${isCurrentPage(Astro.url.pathname, item) ? 'current' : ''}`}
+              aria-current="page"
+            >
+              <div class="nav-item-content">
+                {(function () {
+                  const IconComponent =
+                    item.children && item.children.length > 0
+                      ? getDisplayIcon(Astro.url.pathname, item)
+                      : item.iconComponent
+                  return IconComponent && <IconComponent class="nav-icon" />
+                })()}
+                {item.label && (
+                  <span class="nav-label">
+                    {item.children && item.children.length > 0
+                      ? getDisplayLabel(Astro.url.pathname, item)
+                      : item.label}
+                  </span>
+                )}
+                {item.children && item.children.length > 0 && (
+                  <IconChevronDown class="dropdown-icon" />
+                )}
+              </div>
+            </a>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="nav-section nav-center">
+    <!-- Center space for logo alignment -->
+  </div>
+
+  <div class="nav-section nav-right">
+    <div class="nav-items">
+      {
+        navSections[1].items.map((item) => (
+          <div
+            class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
+            data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
+          >
+            <a
+              href={item.href}
+              class={`nav-item ${isCurrentPage(Astro.url.pathname, item) ? 'current' : ''}`}
+              aria-current="page"
+            >
+              <div class="nav-item-content">
+                {(function () {
+                  const IconComponent =
+                    item.children && item.children.length > 0
+                      ? getDisplayIcon(Astro.url.pathname, item)
+                      : item.iconComponent
+                  return IconComponent && <IconComponent class="nav-icon" />
+                })()}
+                {item.label && (
+                  <span class="nav-label">
+                    {item.children && item.children.length > 0
+                      ? getDisplayLabel(Astro.url.pathname, item)
+                      : item.label}
+                  </span>
+                )}
+                {item.children && item.children.length > 0 && (
+                  <IconChevronDown class="dropdown-icon" />
+                )}
+              </div>
+            </a>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</nav>
+
+<!-- Dropdown portal to ensure menu overlays main content -->
+<div
+  id="dropdown-portal"
+  style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 999999;"
+>
+  {
+    navSections.map((section) =>
+      section.items.map((item) =>
+        item.children && item.children.length > 0 ? (
+          <div
+            class="dropdown-menu"
+            data-dropdown
+            data-nav-key={item.href}
+            data-dropdown-id={item.id}
+          >
+            <div class="dropdown-content">
+              {item.children.map((child, index) => (
+                <>
+                  {child.sectionLabel && (
+                    <div class="dropdown-section-label">{child.sectionLabel}</div>
+                  )}
+                  <a
+                    href={child.href}
+                    class={`dropdown-item ${child.description ? 'with-description' : ''} ${isCurrentPage(Astro.url.pathname, child) ? 'current' : ''}`}
+                  >
+                    <div class="dropdown-item-icon-wrapper">
+                      {(function () {
+                        const ChildIcon = child.iconComponent
+                        return ChildIcon && <ChildIcon class="dropdown-item-icon" />
+                      })()}
+                    </div>
+                    <div class="dropdown-item-content">
+                      <span class="dropdown-item-label">{child.label}</span>
+                      {child.description && (
+                        <span class="dropdown-item-description">{child.description}</span>
+                      )}
+                    </div>
+                  </a>
+                  {child.showDivider && <div class="dropdown-divider" />}
+                </>
+              ))}
+            </div>
+          </div>
+        ) : null,
+      ),
+    )
+  }
+</div>
+
+<style>
+  /* Hide the duplicate sidebar topics in the left sidebar on desktop */
+  :global(.starlight-sidebar-topics) {
+    display: none;
+  }
+
+  /* Show the sidebar topics on mobile */
+  @media (max-width: 50rem) {
+    :global(.starlight-sidebar-topics) {
+      display: block !important;
+    }
+  }
+
+  .secondary-nav {
+    position: sticky;
+    top: var(--sl-nav-height);
+    display: flex;
+    align-items: center;
+    width: 100%;
+    isolation: isolate;
+    background-color: var(--sl-color-bg);
+    z-index: calc(var(--sl-z-index-navbar) - 1);
+  }
+
+  .nav-section {
+    flex: 1;
+    display: flex;
+  }
+
+  .nav-left {
+    justify-content: flex-start;
+  }
+
+  .nav-center {
+    justify-content: center;
+  }
+
+  .nav-right {
+    justify-content: flex-end;
+  }
+
+  .nav-items {
+    font-weight: 500;
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.25rem 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: flex-start;
+  }
+
+  .nav-items::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-item-wrapper {
+    position: relative;
+    display: flex;
+    isolation: isolate;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem; /* Back to original padding */
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    white-space: nowrap;
+    position: relative;
+    line-height: 1;
+    box-sizing: border-box;
+  }
+
+  .nav-item:hover {
+    color: var(--sl-color-white);
+  }
+
+  .nav-item.current {
+    color: var(--sl-color-white);
+    padding: 0.3rem 1.4rem;
+    background-color: var(--sl-color-gray-6);
+    border-radius: 0.375rem;
+    border-bottom: none;
+    margin: 0.25rem 0;
+  }
+
+  .nav-item-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .nav-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .nav-label {
+    font-size: var(--sl-text-sm);
+    line-height: 1.5;
+    text-decoration: none;
+  }
+
+  /* Dropdown styles via portal overlay */
+  .dropdown-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+    margin-left: 0.25rem;
+  }
+
+  .nav-item-wrapper.has-dropdown:hover .dropdown-icon {
+    transform: rotate(180deg);
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease,
+      visibility 0.2s ease;
+    z-index: 999999 !important;
+    pointer-events: none;
+    isolation: isolate;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .dropdown-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  .dropdown-content {
+    background: var(--sl-color-bg) !important;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    box-shadow:
+      0 1px 2px 0 rgba(10, 10, 10, 0.05),
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+    padding: 0.75rem 1rem;
+    backdrop-filter: blur(12px);
+    position: relative;
+    /* z-index: 100000 !important; assumed this was needed */
+    isolation: isolate;
+    min-width: 220px;
+    width: fit-content;
+  }
+
+  /* Wider dropdown for Authenticate (has descriptions) */
+  [data-dropdown-id='authenticate'] .dropdown-content {
+    width: 35rem;
+  }
+
+  .dropdown-section-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+    padding: 0.5rem 0.25rem;
+    letter-spacing: 0.05em;
+    line-height: 1.25rem;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0.25rem;
+    color: var(--sl-color-gray-1);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-radius: 0.375rem;
+    width: 100%;
+  }
+
+  .dropdown-item.with-description {
+    padding: 0.5rem 0.25rem;
+    min-height: 4rem;
+  }
+
+  .dropdown-item-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--sl-color-gray-6);
+    border-radius: 0.375rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  :root[data-theme='light'] .dropdown-item-icon-wrapper {
+    background: #f9f9f9;
+  }
+
+  .dropdown-item-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .dropdown-item-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .dropdown-item-label {
+    font-size: var(--sl-text-sm);
+    font-weight: 400;
+    line-height: 1.5rem;
+    color: inherit;
+  }
+
+  .dropdown-item-description {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--sl-color-gray-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  :root[data-theme='light'] .dropdown-item-description {
+    color: #646464;
+  }
+
+  .dropdown-item:hover {
+    background: var(--sl-color-gray-6);
+  }
+
+  .dropdown-item.current {
+    background: var(--sl-color-gray-6);
+  }
+
+  .dropdown-divider {
+    height: 1px;
+    background: var(--sl-color-gray-5);
+    margin: 0.625rem 0;
+  }
+
+  :root[data-theme='light'] .dropdown-divider {
+    background: #e8e8e8;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 50rem) {
+    .secondary-nav {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 72rem) {
+    .nav-item {
+      padding: 0.5rem 0.75rem; /* Back to original responsive padding */
+    }
+
+    .nav-label {
+      font-size: var(--sl-text-xs);
+    }
+
+    .nav-left .nav-items {
+      margin-left: 0.75rem;
+    }
+
+    .nav-right .nav-items {
+      margin-right: 0.75rem;
+    }
+  }
+</style>
+
+<script>
+  function positionDropdown(trigger, dropdown) {
+    const rect = trigger.getBoundingClientRect()
+    const dropdownContent = dropdown.querySelector('.dropdown-content')
+
+    // Position dropdown below the trigger with some spacing
+    dropdown.style.top = `${rect.bottom + 8}px`
+    dropdown.style.left = `${rect.left}px`
+
+    // Check if dropdown would go off-screen and adjust if needed
+    if (dropdownContent) {
+      const dropdownRect = dropdownContent.getBoundingClientRect()
+      const viewportWidth = window.innerWidth
+
+      if (rect.left + dropdownRect.width > viewportWidth - 20) {
+        dropdown.style.left = `${viewportWidth - dropdownRect.width - 20}px`
+      }
+    }
+
+    dropdown.classList.add('open')
+  }
+
+  function hideDropdown(dropdown) {
+    dropdown.classList.remove('open')
+    dropdown.style.pointerEvents = 'none'
+    // Use a small delay before moving off-screen to allow animations
+    setTimeout(() => {
+      if (!dropdown.classList.contains('open')) {
+        dropdown.style.top = '-9999px'
+        dropdown.style.left = '-9999px'
+      }
+    }, 200)
+  }
+
+  function hideAllDropdowns() {
+    document.querySelectorAll('[data-dropdown]').forEach((d) => hideDropdown(d))
+  }
+
+  function updateCurrentStateFromPath() {
+    const currentPath = window.location.pathname
+
+    // Find the dropdown item that matches the current path
+    let matchingItem: Element | null = null
+    let matchingLabel: string | null = null
+    let matchingIcon: Node | null = null
+
+    document.querySelectorAll('.dropdown-item').forEach((item) => {
+      const href = item.getAttribute('href')
+      if (!href) return
+
+      // Normalize paths for comparison
+      const normalizedPath = currentPath.replace(/\/+$/, '')
+      const normalizedHref = href.replace(/\/+$/, '').split('#')[0] // Remove hash for path matching
+
+      // Check if current path starts with the item's href
+      if (normalizedPath.startsWith(normalizedHref) && normalizedHref !== '') {
+        // Only update if this is a better match (longer path = more specific)
+        if (
+          !matchingItem ||
+          normalizedHref.length > (matchingItem.getAttribute('href')?.split('#')[0].length || 0)
+        ) {
+          matchingItem = item
+          // Get label from the dropdown-item-label span, or fallback to any span
+          const labelSpan = item.querySelector('.dropdown-item-label') || item.querySelector('span')
+          matchingLabel = labelSpan?.textContent || null
+          // Get the icon from the dropdown item icon wrapper
+          const iconEl = item.querySelector('.dropdown-item-icon')
+          if (iconEl) {
+            matchingIcon = iconEl.cloneNode(true)
+          }
+        }
+      }
+    })
+
+    // If we found a matching item, update the parent nav item
+    if (matchingItem && matchingLabel) {
+      // Mark the matching item as current
+      matchingItem.classList.add('current')
+
+      const dropdownMenu = matchingItem.closest('[data-dropdown]')
+      if (dropdownMenu) {
+        const navKey = dropdownMenu.getAttribute('data-nav-key')
+        const parentTrigger = document.querySelector(
+          `.nav-item-wrapper.has-dropdown .nav-item[href="${navKey}"]`,
+        )
+        if (parentTrigger) {
+          // Check if parent has keepParentLabel attribute
+          const wrapper = parentTrigger.closest('.nav-item-wrapper')
+          const hasKeepParentLabel = wrapper?.hasAttribute('data-keep-parent-label')
+
+          // Only update label and icon if keepParentLabel is not set
+          if (!hasKeepParentLabel) {
+            // Update the label text to match the active child
+            const labelEl = parentTrigger.querySelector('.nav-label')
+            if (labelEl && matchingLabel) {
+              labelEl.textContent = matchingLabel
+            }
+
+            // Update the icon to match the active child
+            if (matchingIcon) {
+              const iconContainer = parentTrigger.querySelector('.nav-icon')
+              if (iconContainer) {
+                iconContainer.replaceWith(matchingIcon)
+                matchingIcon.classList.add('nav-icon')
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  function updateCurrentStateFromHash() {
+    const hash = window.location.hash
+    if (!hash) return
+
+    const currentPath = window.location.pathname + hash
+
+    // First, remove current class from all dropdown items
+    document.querySelectorAll('.dropdown-item.current').forEach((el) => {
+      el.classList.remove('current')
+    })
+
+    // Find the dropdown item that matches the current path with hash
+    let matchingItem = null
+    let matchingLabel = null
+    let matchingIcon = null
+
+    document.querySelectorAll('.dropdown-item').forEach((item) => {
+      const href = item.getAttribute('href')
+      // Only match items whose href contains the same hash
+      // This prevents /apis/ from matching when the hash is #description/sdks
+      if (href && href.includes(hash)) {
+        matchingItem = item
+        // Get label from the dropdown-item-label span, or fallback to any span
+        const labelSpan = item.querySelector('.dropdown-item-label') || item.querySelector('span')
+        matchingLabel = labelSpan?.textContent
+        // Get the icon from the dropdown item icon wrapper
+        const iconEl = item.querySelector('.dropdown-item-icon')
+        if (iconEl) {
+          matchingIcon = iconEl.cloneNode(true)
+        }
+        item.classList.add('current')
+      }
+    })
+
+    // If we found a matching item, update the parent nav item
+    if (matchingItem && matchingLabel) {
+      const dropdownMenu = matchingItem.closest('[data-dropdown]')
+      if (dropdownMenu) {
+        const navKey = dropdownMenu.getAttribute('data-nav-key')
+        const parentTrigger = document.querySelector(
+          `.nav-item-wrapper.has-dropdown .nav-item[href="${navKey}"]`,
+        )
+        if (parentTrigger) {
+          // Ensure parent is marked as current
+          parentTrigger.classList.add('current')
+
+          // Check if parent has keepParentLabel attribute
+          const wrapper = parentTrigger.closest('.nav-item-wrapper')
+          const hasKeepParentLabel = wrapper?.hasAttribute('data-keep-parent-label')
+
+          // Only update label and icon if keepParentLabel is not set
+          if (!hasKeepParentLabel) {
+            // Update the label text to match the active child
+            const labelEl = parentTrigger.querySelector('.nav-label')
+            if (labelEl && matchingLabel) {
+              labelEl.textContent = matchingLabel
+            }
+
+            // Update the icon to match the active child
+            if (matchingIcon) {
+              const iconContainer = parentTrigger.querySelector('.nav-icon')
+              if (iconContainer) {
+                iconContainer.replaceWith(matchingIcon)
+                matchingIcon.classList.add('nav-icon')
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Update selection state based on path on initial load
+    updateCurrentStateFromPath()
+
+    // Update selection state based on hash on initial load (for hash-based routes like APIs)
+    updateCurrentStateFromHash()
+
+    // Update selection state when hash changes
+    window.addEventListener('hashchange', updateCurrentStateFromHash)
+
+    // Update selection state on navigation (back/forward buttons)
+    window.addEventListener('popstate', () => {
+      updateCurrentStateFromPath()
+      updateCurrentStateFromHash()
+    })
+
+    const dropdownTriggers = document.querySelectorAll('.nav-item-wrapper.has-dropdown')
+    let currentOpenDropdown = null
+
+    dropdownTriggers.forEach((trigger) => {
+      const triggerLink = trigger.querySelector('.nav-item')
+      const href = triggerLink?.getAttribute('href')
+      if (!href) return
+
+      const dropdown = document.querySelector(`[data-nav-key="${href}"]`)
+      if (!dropdown) return
+
+      hideDropdown(dropdown)
+
+      let hoverTimeout = null
+      let isClickOpen = false
+
+      trigger.addEventListener('click', (e) => {
+        // Only prevent default navigation if href is hash-only (like #authenticate, #sdks-apis)
+        if (href && href.startsWith('#')) {
+          e.preventDefault()
+          e.stopPropagation()
+
+          if (currentOpenDropdown === dropdown && dropdown.classList.contains('open')) {
+            hideDropdown(dropdown)
+            currentOpenDropdown = null
+            isClickOpen = false
+          } else {
+            hideAllDropdowns()
+            positionDropdown(trigger, dropdown)
+            dropdown.style.pointerEvents = 'all'
+            currentOpenDropdown = dropdown
+            isClickOpen = true
+          }
+        }
+        // If href is not hash-only, navigation will happen naturally
+      })
+
+      trigger.addEventListener('mouseenter', () => {
+        clearTimeout(hoverTimeout)
+
+        // Only auto-open on hover if no dropdown is currently open via click
+        if (currentOpenDropdown === null && !isClickOpen) {
+          hoverTimeout = setTimeout(() => {
+            hideAllDropdowns()
+            positionDropdown(trigger, dropdown)
+            dropdown.style.pointerEvents = 'all'
+            currentOpenDropdown = dropdown
+            isClickOpen = false
+          }, 100) // Small delay to prevent accidental triggers
+        }
+      })
+
+      trigger.addEventListener('mouseleave', () => {
+        clearTimeout(hoverTimeout)
+
+        // Only close on mouse leave if dropdown was opened by hover, not click
+        if (currentOpenDropdown === dropdown && !isClickOpen) {
+          hoverTimeout = setTimeout(() => {
+            if (!dropdown.matches(':hover') && !trigger.matches(':hover')) {
+              hideDropdown(dropdown)
+              currentOpenDropdown = null
+            }
+          }, 200)
+        }
+      })
+
+      dropdown.addEventListener('mouseenter', () => {
+        clearTimeout(hoverTimeout)
+      })
+
+      dropdown.addEventListener('mouseleave', () => {
+        if (currentOpenDropdown === dropdown && !isClickOpen) {
+          hideDropdown(dropdown)
+          currentOpenDropdown = null
+        }
+      })
+
+      dropdown.addEventListener('click', (e) => {
+        const target = e.target.closest('.dropdown-item')
+        if (target) {
+          // Update parent label and icon immediately if keepParentLabel is not set
+          const wrapper = triggerLink.closest('.nav-item-wrapper')
+          const hasKeepParentLabel = wrapper?.hasAttribute('data-keep-parent-label')
+
+          if (!hasKeepParentLabel) {
+            // Get label from the clicked item
+            const labelSpan =
+              target.querySelector('.dropdown-item-label') || target.querySelector('span')
+            const clickedLabel = labelSpan?.textContent
+
+            // Get icon from the clicked item
+            const iconEl = target.querySelector('.dropdown-item-icon')
+
+            if (clickedLabel) {
+              const parentLabel = triggerLink.querySelector('.nav-label')
+              if (parentLabel) {
+                parentLabel.textContent = clickedLabel
+              }
+            }
+
+            if (iconEl) {
+              const clonedIcon = iconEl.cloneNode(true)
+              const parentIcon = triggerLink.querySelector('.nav-icon')
+              if (parentIcon) {
+                parentIcon.replaceWith(clonedIcon)
+                clonedIcon.classList.add('nav-icon')
+              }
+            }
+          }
+
+          hideDropdown(dropdown)
+          currentOpenDropdown = null
+          isClickOpen = false
+        }
+      })
+
+      let ticking = false
+      const updatePosition = () => {
+        if (!ticking && currentOpenDropdown === dropdown && dropdown.classList.contains('open')) {
+          requestAnimationFrame(() => {
+            positionDropdown(trigger, dropdown)
+            ticking = false
+          })
+          ticking = true
+        }
+      }
+
+      window.addEventListener('scroll', updatePosition, { passive: true })
+      window.addEventListener('resize', updatePosition)
+    })
+
+    document.addEventListener('click', (e) => {
+      const target = e.target
+      if (!target.closest('.nav-item-wrapper.has-dropdown') && !target.closest('[data-dropdown]')) {
+        hideAllDropdowns()
+        currentOpenDropdown = null
+        // Reset click state for all triggers
+        dropdownTriggers.forEach((trigger) => {
+          if (trigger.isClickOpen !== undefined) {
+            trigger.isClickOpen = false
+          }
+        })
+      }
+    })
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        hideAllDropdowns()
+      }
+    })
+  })
+</script>

@@ -1,0 +1,89 @@
+---
+import IconSimpleIconsSlack from '~icons/simple-icons/slack'
+// Alternative: import IconSimpleIconsSlack from '~icons/simple-icons/slack'
+
+// Get banner data from Starlight's route data
+const { banner } = Astro.locals.starlightRoute.entry.data
+
+// Check if this is the community banner
+const isCommunityBanner = banner?.content?.includes('Join our dev community')
+
+// Slack community invite URL
+const slackUrl =
+  'https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw'
+---
+
+{
+  banner &&
+    (isCommunityBanner ? (
+      <div class="community-banner" data-pagefind-ignore>
+        <div class="community-banner-content">
+          <IconSimpleIconsSlack class="slack-icon" />
+          <span class="banner-text">
+            <!-- prettier-ignore -->
+            <a href={slackUrl} class="banner-link" target="_blank" rel="noopener noreferrer">Join our dev community</a> to connect with Scalekit engineers for questions or feedback
+          </span>
+        </div>
+      </div>
+    ) : (
+      <div class="sl-banner" data-pagefind-ignore set:html={banner.content} />
+    ))
+}
+
+<style>
+  /* Community banner styles */
+  .community-banner {
+    padding: 0.75rem 1rem;
+    background: var(--sl-color-gray-6);
+  }
+
+  .community-banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: var(--sl-text-sm);
+    line-height: 1;
+    color: var(--sl-color-gray-2);
+    text-align: center;
+  }
+
+  .slack-icon {
+    flex-shrink: 0;
+    width: 1.05rem;
+    height: 1.05rem;
+    color: var(--sl-color-text-accent);
+  }
+
+  .banner-text {
+    text-align: center;
+  }
+
+  .banner-link {
+    color: var(--sl-color-white);
+    text-decoration: underline;
+    font-weight: 500;
+    margin-right: 0.25em;
+    transition: opacity 0.2s ease;
+  }
+
+  .banner-link:hover {
+    opacity: 0.8;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 50rem) {
+    .community-banner {
+      padding: 0.625rem 0.875rem;
+    }
+
+    .community-banner-content {
+      gap: 0.6rem;
+    }
+
+    .slack-icon {
+      width: 0.8rem;
+      height: 0.8rem;
+    }
+  }
+</style>

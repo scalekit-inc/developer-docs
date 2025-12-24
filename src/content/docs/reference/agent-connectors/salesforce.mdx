@@ -2,6 +2,8 @@
 title: Salesforce
 description: Connect to Salesforce CRM. Manage leads, opportunities, accounts, and customer relationships
 tableOfContents: true
+sidebar:
+  order: 8
 head:
   - tag: style
     content: |
@@ -25,15 +27,6 @@ head:
         font-size: 0.8em;
         opacity: 0.7;
       }
-
-      /* Style for the copied state */
-      .sl-markdown-content h2.copied::after,
-      .sl-markdown-content h3.copied::after,
-      .sl-markdown-content h4.copied::after {
-        content: " ✓ " !important;
-        font-size: 0.8em;
-        opacity: 0.7;
-      }
   - tag: script
     content: |
       // Using a self-executing function to avoid global namespace pollution
@@ -48,22 +41,17 @@ head:
             heading.setAttribute('data-copy-initialized', 'true');
 
             heading.addEventListener('click', async () => {
-              // Store original HTML for restoration
-              const originalHTML = heading.innerHTML;
-
-              // Build plain text to copy (no backticks)
-              let textToCopy = heading.textContent.trim();
-              // Safety: remove clipboard icon if somehow included
-              textToCopy = textToCopy.replace(/\s📋$/, '');
+              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
 
               try {
-                await navigator.clipboard.writeText(textToCopy);
+                await navigator.clipboard.writeText(headingText);
 
-                // Visual feedback - add a class to change the ::after content
-                heading.classList.add('copied');
+                // Visual feedback
+                const originalText = heading.textContent;
+                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
 
                 setTimeout(() => {
-                  heading.classList.remove('copied');
+                  heading.textContent = originalText;
                 }, 2000);
               } catch (err) {
                 console.error('Failed to copy heading:', err);
@@ -93,7 +81,7 @@ import { Accordion, AccordionItem } from 'accessible-astro-components'
   Connect to Salesforce CRM. Manage leads, opportunities, accounts, and customer relationships
  </div>
  <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/sales_force.svg" width="64" height="64" alt="Salesforce logo" />
+  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/sales_force.svg" width="64" height="64" alt="Salesforce logo" />
  </div>
 </div>
 
@@ -124,6 +112,14 @@ Create a new Account in Salesforce. Supports standard fields
 | `RecordTypeId` | Record Type Id | string | null |
 | `Website` | Website URL | string | null |
 
+## `salesforce_account_delete`
+
+Delete an existing Account from Salesforce by account ID. This is a destructive operation that permanently removes the account record.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `account_id` | ID of the account to delete | string |
+
 ## `salesforce_account_get`
 
 Retrieve details of a specific account from Salesforce by account ID. Returns account properties and associated data.
@@ -133,13 +129,65 @@ Retrieve details of a specific account from Salesforce by account ID. Returns ac
 | `account_id` | ID of the account to retrieve | string |
 | `fields` | Comma-separated list of fields to include in the response | string | null |
 
+## `salesforce_account_update`
+
+Update an existing Account in Salesforce by account ID. Allows updating account properties like name, phone, website, industry, billing information, and more.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `AccountNumber` | Account number for the organization | string | null |
+| `AccountSource` | Lead source for this account | string | null |
+| `AnnualRevenue` | Annual revenue | number | null |
+| `BillingCity` | Billing city | string | null |
+| `BillingCountry` | Billing country | string | null |
+| `BillingGeocodeAccuracy` | Billing geocode accuracy | string | null |
+| `BillingLatitude` | Billing address latitude | number | null |
+| `BillingLongitude` | Billing address longitude | number | null |
+| `BillingPostalCode` | Billing postal code | string | null |
+| `BillingState` | Billing state/province | string | null |
+| `BillingStreet` | Billing street | string | null |
+| `CleanStatus` | Data.com clean status | string | null |
+| `Description` | Description | string | null |
+| `DunsNumber` | D-U-N-S Number | string | null |
+| `Fax` | Fax number | string | null |
+| `Industry` | Industry | string | null |
+| `Jigsaw` | Data.com key | string | null |
+| `JigsawCompanyId` | Jigsaw company ID | string | null |
+| `NaicsCode` | NAICS code | string | null |
+| `NaicsDesc` | NAICS description | string | null |
+| `Name` | Account Name | string | null |
+| `NumberOfEmployees` | Number of employees | integer | null |
+| `OwnerId` | Record owner (User/Queue Id) | string | null |
+| `Ownership` | Ownership type | string | null |
+| `ParentId` | Parent Account Id | string | null |
+| `Phone` | Main phone number | string | null |
+| `Rating` | Account rating | string | null |
+| `RecordTypeId` | Record Type Id | string | null |
+| `ShippingCity` | Shipping city | string | null |
+| `ShippingCountry` | Shipping country | string | null |
+| `ShippingGeocodeAccuracy` | Shipping geocode accuracy | string | null |
+| `ShippingLatitude` | Shipping address latitude | number | null |
+| `ShippingLongitude` | Shipping address longitude | number | null |
+| `ShippingPostalCode` | Shipping postal code | string | null |
+| `ShippingState` | Shipping state/province | string | null |
+| `ShippingStreet` | Shipping street | string | null |
+| `Sic` | SIC code | string | null |
+| `SicDesc` | SIC description | string | null |
+| `Site` | Account site or location | string | null |
+| `TickerSymbol` | Stock ticker symbol | string | null |
+| `Tradestyle` | Trade style name | string | null |
+| `Type` | Account type | string | null |
+| `Website` | Website URL | string | null |
+| `YearStarted` | Year the company started | string | null |
+| `account_id` | ID of the account to update | string |
+
 ## `salesforce_accounts_list`
 
 Retrieve a list of accounts from Salesforce using a pre-built SOQL query. Returns basic account information.
 
 | Properties | Description | Type |
 | --- | --- | --- |
-| `limit` | Number of results to return per page | number | null |
+| `limit` | Number of results to return per page | number |
 
 ## `salesforce_composite`
 
@@ -179,6 +227,14 @@ Retrieve details of a specific contact from Salesforce by contact ID. Returns co
 | --- | --- | --- |
 | `contact_id` | ID of the contact to retrieve | string |
 | `fields` | Comma-separated list of fields to include in the response | string | null |
+
+## `salesforce_dashboard_metadata_get`
+
+Retrieve metadata for a Salesforce dashboard, including dashboard components, filters, layout, and the running user.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `dashboard_id` | The unique ID of the Salesforce dashboard | string |
 
 ## `salesforce_global_describe`
 
@@ -267,6 +323,14 @@ Execute SOQL queries against Salesforce data. Supports complex queries with join
 | --- | --- | --- |
 | `query` | SOQL query string to execute | string |
 
+## `salesforce_report_metadata_get`
+
+Retrieve report, report type, and related metadata for a Salesforce report. Returns information about report structure, fields, groupings, and configuration.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `report_id` | The unique ID of the Salesforce report | string |
+
 ## `salesforce_search_parameterized`
 
 Execute parameterized searches against Salesforce data. Provides simplified search interface with predefined parameters.
@@ -284,6 +348,44 @@ Execute SOSL searches against Salesforce data. Performs full-text search across 
 | Properties | Description | Type |
 | --- | --- | --- |
 | `search_query` | SOSL search query string to execute | string |
+
+## `salesforce_sobject_create`
+
+Create a new record for any Salesforce SObject type (Account, Contact, Lead, Opportunity, custom objects, etc.). Provide the object type and fields as a dynamic object.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `fields` | Object containing field names and values to set on the new record | `object` |
+| `sobject_type` | The Salesforce SObject API name (e.g., Account, Contact, Lead, CustomObject__c) | string |
+
+## `salesforce_sobject_delete`
+
+Delete a record from any Salesforce SObject type by ID. This is a destructive operation that permanently removes the record.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `record_id` | ID of the record to delete | string |
+| `sobject_type` | The Salesforce SObject API name (e.g., Account, Contact, Lead, CustomObject__c) | string |
+
+## `salesforce_sobject_get`
+
+Retrieve a record from any Salesforce SObject type by ID. Optionally specify which fields to return.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `fields` | Comma-separated list of fields to include in the response | string | null |
+| `record_id` | ID of the record to retrieve | string |
+| `sobject_type` | The Salesforce SObject API name (e.g., Account, Contact, Lead, CustomObject__c) | string |
+
+## `salesforce_sobject_update`
+
+Update an existing record for any Salesforce SObject type by ID. Only the fields provided will be updated.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `fields` | Object containing field names and values to update on the record | `object` |
+| `record_id` | ID of the record to update | string |
+| `sobject_type` | The Salesforce SObject API name (e.g., Account, Contact, Lead, CustomObject__c) | string |
 
 ## `salesforce_soql_execute`
 

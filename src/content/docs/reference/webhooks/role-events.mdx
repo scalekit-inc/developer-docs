@@ -1,0 +1,114 @@
+---
+title: Role events
+description: "Explore the webhook events related to role operations in Scalekit, including creation, updates, and deletions."
+topic: dev-kit
+tableOfContents: true
+overviewTitle: "Role events"
+next: false
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+pagefind: false
+---
+
+import { Aside, Badge, CardGrid } from '@astrojs/starlight/components';
+import SimpleList from '@components/ui/SimpleList.astro';
+
+This page documents the webhook events related to role operations in Scalekit.
+
+----
+
+## Role events
+
+### `role.created`
+
+This webhook is triggered when a new role is created. The event type is `role.created`
+
+```json title="role.created"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_1234567890",
+  "object": "Role",
+  "occurred_at": "2024-01-15T10:30:00.123456789Z",
+  "spec_version": "1",
+  "type": "role.created",
+  "data": {
+    "description": "Viewer role with read-only access",
+    "display_name": "Viewer",
+    "extends": "member",
+    "id": "role_1234567890",
+    "name": "viewer"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the role |
+| `name` | string | Unique name identifier for the role |
+| `display_name` | string | Human-readable display name for the role |
+| `description` | string | Description of the role and its purpose |
+| `extends` | string | Name of the role that this role extends from |
+
+### `role.updated`
+
+This webhook is triggered when a role is updated. The event type is `role.updated`
+
+```json title="role.updated"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_2345678901",
+  "object": "Role",
+  "occurred_at": "2024-01-15T10:35:00.123456789Z",
+  "spec_version": "1",
+  "type": "role.updated",
+  "data": {
+    "description": "Updated viewer role with limited permissions",
+    "display_name": "Viewer",
+    "extends": "member",
+    "id": "role_1234567890",
+    "name": "viewer"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the role |
+| `name` | string | Unique name identifier for the role |
+| `display_name` | string | Human-readable display name for the role |
+| `description` | string | Description of the role and its purpose |
+| `extends` | string | Name of the role that this role extends from |
+
+### `role.deleted`
+
+This webhook is triggered when a role is deleted. The event type is `role.deleted`
+
+```json title="role.deleted"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_3456789012",
+  "object": "Role",
+  "occurred_at": "2024-01-15T10:40:00.123456789Z",
+  "spec_version": "1",
+  "type": "role.deleted",
+  "data": {
+    "description": "Updated viewer role with limited permissions",
+    "display_name": "Viewer",
+    "extends": "member",
+    "id": "role_1234567890",
+    "name": "viewer"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier for the deleted role |
+| `name` | string | Unique name identifier for the deleted role |
+| `display_name` | string | Human-readable display name for the deleted role |
+| `description` | string | Description of the role that was deleted |
+| `extends` | string | Name of the role that this role extends from |

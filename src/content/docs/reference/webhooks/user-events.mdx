@@ -1,0 +1,709 @@
+---
+title: User events
+description: "Explore the webhook events related to user operations in Scalekit, including signup, login, logout, and organization membership events."
+topic: dev-kit
+tableOfContents: true
+overviewTitle: "User events"
+next: false
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+pagefind: false
+---
+
+import { Aside, Badge, CardGrid } from '@astrojs/starlight/components';
+import SimpleList from '@components/ui/SimpleList.astro';
+
+This page documents the webhook events related to user operations in Scalekit.
+
+----
+
+## User authentication events
+
+### `user.signup`
+
+This webhook is triggered when a user signs up to create a new organization. The event type is `user.signup`.
+
+```json title="user.signup"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_1234567890",
+  "object": "OrgMembershipEvent",
+  "occurred_at": "2024-01-15T10:30:00.123456789Z",
+  "spec_version": "1",
+  "type": "user.signup",
+  "data": {
+    "organization": {
+      "id": "org_1234567890",
+      "create_time": "2025-12-09T10:19:05.48Z",
+      "display_name": "",
+      "external_id": null,
+      "id": "org_102690563312124938",
+      "metadata": null,
+      "region_code": "US",
+      "update_time": "2025-12-09T12:04:41.386974738Z",
+      "settings": {
+        "features": [
+          {
+            "enabled": true,
+            "name": "sso"
+          },
+          {
+            "enabled": true,
+            "name": "dir_sync"
+          }
+        ]
+      }
+    },
+    "user": {
+      "create_time": "2025-12-09T12:04:41.39Z",
+      "email": "amit.ash1996@gmail.com",
+      "external_id": "",
+      "id": "usr_102701193205121289",
+      "metadata": {},
+      "update_time": "2025-12-09T12:04:41.391988278Z",
+      "user_profile": {
+        "custom_attributes": null,
+        "email_verified": true,
+        "external_identities": null,
+        "family_name": "doe",
+        "gender": "",
+        "given_name": "John",
+        "groups": null,
+        "id": "usp_102701193205186825",
+        "locale": "",
+        "metadata": {},
+        "name": "John Doe",
+        "phone_number": "",
+        "phone_number_verified": false,
+        "picture": "https://lh3.googleusercontent.com/a/abcdef",
+        "preferred_username": ""
+      }
+    }
+  }
+}
+
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `organization` | object | Details of organization that is created on signup |
+| `organization.id` | string | Unique identifier for the organization |
+| `organization.external_id` | string \| null | External identifier for the organization, if provided |
+| `organization.display_name` | string \| null | Name of the organization, if provided |
+| `organization.region_code` | string \| null | Geographic region code for the organization (US, EU), currently limited to US |
+| `organization.create_time` | string | Timestamp of when the organization was created  |
+| `organization.update_time` | string \| null | Timestamp of when the organization was last updated |
+| `organization.metadata` | object \| null | Additional metadata associated with the organization |
+| `organization.settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `organization.settings.features` | array | Array of feature objects with enabled status and name |
+| `user` | object | User details for the signed-up user |
+| `user.id` | string | Unique identifier for the user |
+| `user.email` | string | Email address of the user |
+| `user.external_id` | string \| null | External identifier for the user, if provided |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.metadata` | string | Custom key-value pairs storing additional user context |
+| `user.user_profile` | object | User profile information |
+
+
+### `user.login`
+
+This webhook is triggered when a user logs in and a session is created. The event type is `user.login`.
+
+```json title="user.login"
+{
+  "environment_id": "env_96736846679245078",
+  "id": "evt_102701193859432713",
+  "object": "UserLoginEvent",
+  "occurred_at": "2025-12-09T12:04:41.781873312Z",
+  "spec_version": "1",
+  "type": "user.login",
+  "data": {
+    "user": {
+      "create_time": "2025-12-09T12:04:41.39Z",
+      "email": "john.doe@acmecorp.com",
+      "external_id": "ext_123456789",
+      "id": "usr_123456789",
+      "last_login_time": "2025-12-09T12:04:41.48Z",
+      "metadata": {},
+      "update_time": "2025-12-09T12:04:41.391988Z",
+      "user_profile": {
+        "custom_attributes": null,
+        "email_verified": true,
+        "external_identities": [
+          {
+            "connection_id": "conn_97896332307464201",
+            "connection_provider": "GOOGLE",
+            "connection_type": "OAUTH",
+            "connection_user_id": "105055379523565727691",
+            "created_time": "2025-12-09T12:04:41.47Z",
+            "is_social": true,
+            "last_login_time": "2025-12-09T12:04:41.469311Z",
+            "last_synced_time": "2025-12-09T12:04:41.469311Z"
+          }
+        ],
+        "family_name": "Doe",
+        "gender": "",
+        "given_name": "John",
+        "groups": null,
+        "id": "usp_102701193205186825",
+        "locale": "",
+        "metadata": {},
+        "name": "John Doe",
+        "phone_number": "",
+        "phone_number_verified": false,
+        "picture": "https://lh3.googleusercontent.com/a/abcdef",
+        "preferred_username": ""
+      }
+    },
+    "user_session": {
+      "absolute_expires_at": "2026-01-08T12:04:41.737394Z",
+      "authenticated_organizations": ["org_102701193188409609"],
+      "created_at": "2025-12-09T12:04:41.48Z",
+      "expired_at": null,
+      "idle_expires_at": "2025-12-16T12:04:41.737395Z",
+      "last_active_at": "2025-12-09T12:04:41.747206Z",
+      "logout_at": null,
+      "organization_id": "org_102701193188409609",
+      "session_id": "ses_102701193356116233",
+      "status": "ACTIVE",
+      "updated_at": "2025-12-09T12:04:41.748512Z",
+      "user_id": "usr_102701193205121289",
+      "device": {
+        "browser": "Chrome",
+        "browser_version": "142.0.0.0",
+        "device_type": "Desktop",
+        "ip": "152.59.144.211",
+        "location": {
+          "city": "Patna",
+          "latitude": "25.594095",
+          "longitude": "85.137564",
+          "region": "IN",
+          "region_subdivision": "INBR"
+        },
+        "os": "macOS",
+        "os_version": "10.15.7",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+      }
+    }
+  }
+}
+
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `user` | object | User details for the logged-in user |
+| `user.id` | string | Unique identifier for the user |
+| `user.email` | string | Email address of the user |
+| `user.external_id` | string \| null | External identifier for the user, if provided |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.user_profile` | object | User profile information |
+| `user_session.absolute_expires_at` | string | Hard expiration timestamp for the session regardless of user activity |
+| `user_session.authenticated_organizations` | array | List of organization IDs that have been authenticated for this user within the current session |
+| `user_session.created_at` | string | Timestamp indicating when the session was created |
+| `user_session.expired_at` | string \| null | Timestamp when the session was terminated|
+| `user_session.idle_expires_at` | string | Projected expiration timestamp if the session remains idle without user activity |
+| `user_session.last_active_at` | string | Timestamp of the most recent user activity detected in this session |
+| `user_session.logout_at` | string \| null |  Timestamp when the user explicitly logged out from the session |
+| `user_session.organization_id` | string | Organization ID for the user's current active organization in this session |
+| `user_session.session_id` | string | Unique identifier for the session |
+| `user_session.status` | string | Current operational status of the session. Possible values: 'active' |
+| `user_session.updated_at` | string | Timestamp indicating when the session was last updated |
+| `user_session.user_id` | string | User ID for the user who owns this session |
+| `user_session.device` | object | Device metadata associated with this session |
+
+
+### `user.logout`
+
+This webhook is triggered when a user's session is terminated. The session termination could be due to user-initiated logout, idle or absolute session expiration, admin-administered session revocation.
+
+```json title="user.logout"
+{
+  "environment_id": "env_96736846679245078",
+  "id": "evt_102708230123160586",
+  "object": "UserLogoutEvent",
+  "occurred_at": "2025-12-09T13:14:35.722070822Z",
+  "spec_version": "1",
+  "type": "user.logout",
+  "data": {
+    "user": {
+      "create_time": "2025-12-09T12:04:41.39Z",
+      "email": "john.doe@acmecorp.com",
+      "external_id": "ext_123456789",
+      "id": "usr_123456789",
+      "last_login_time": "2025-12-09T12:04:41.48Z",
+      "metadata": {},
+      "update_time": "2025-12-09T12:04:41.391988Z",
+      "user_profile": {
+        "custom_attributes": null,
+        "email_verified": true,
+        "external_identities": [
+          {
+            "connection_id": "conn_97896332307464201",
+            "connection_provider": "GOOGLE",
+            "connection_type": "OAUTH",
+            "connection_user_id": "105055379523565727691",
+            "created_time": "2025-12-09T12:04:41.47Z",
+            "is_social": true,
+            "last_login_time": "2025-12-09T12:04:41.469311Z",
+            "last_synced_time": "2025-12-09T12:04:41.469311Z"
+          }
+        ],
+        "family_name": "Charles",
+        "gender": "",
+        "given_name": "Dwayne",
+        "groups": null,
+        "id": "usp_102701193205186825",
+        "locale": "",
+        "metadata": {},
+        "name": "Dwayne Charles",
+        "phone_number": "",
+        "phone_number_verified": false,
+        "picture": "https://lh3.googleusercontent.com/a/abcdef",
+        "preferred_username": ""
+      }
+    },
+    "user_session": {
+      "absolute_expires_at": "2026-01-08T12:04:41.737394Z",
+      "authenticated_organizations": ["org_102701193188409609"],
+      "created_at": "2025-12-09T12:04:41.48Z",
+      "expired_at": null,
+      "idle_expires_at": "2025-12-16T12:04:41.737395Z",
+      "last_active_at": "2025-12-09T12:04:41.747206Z",
+      "logout_at": null,
+      "organization_id": "org_102701193188409609",
+      "session_id": "ses_102701193356116233",
+      "status": "ACTIVE",
+      "updated_at": "2025-12-09T12:04:41.748512Z",
+      "user_id": "usr_102701193205121289",
+      "device": {
+        "browser": "Chrome",
+        "browser_version": "142.0.0.0",
+        "device_type": "Desktop",
+        "ip": "152.59.144.211",
+        "location": {
+          "city": "Patna",
+          "latitude": "25.594095",
+          "longitude": "85.137564",
+          "region": "IN",
+          "region_subdivision": "INBR"
+        },
+        "os": "macOS",
+        "os_version": "10.15.7",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+      }
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `user` | object | User details for the logged-in user |
+| `user.id` | string | Unique identifier for the user |
+| `user.email` | string | Email address of the user |
+| `user.external_id` | string \| null | External identifier for the user, if provided |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.user_profile` | object | User profile information |
+| `user_session.absolute_expires_at` | string | Hard expiration timestamp for the session regardless of user activity |
+| `user_session.authenticated_organizations` | array | List of organization IDs that have been authenticated for this user within the current session |
+| `user_session.created_at` | string | Timestamp indicating when the session was created |
+| `user_session.expired_at` | string \| null | Timestamp when the session was terminated|
+| `user_session.idle_expires_at` | string | Projected expiration timestamp if the session remains idle without user activity |
+| `user_session.last_active_at` | string | Timestamp of the most recent user activity detected in this session |
+| `user_session.logout_at` | string \| null |  Timestamp when the user explicitly logged out from the session |
+| `user_session.organization_id` | string | Organization ID for the user's current active organization in this session |
+| `user_session.session_id` | string | Unique identifier for the session |
+| `user_session.status` | string | Current operational status of the session. Possible values: 'expired', 'revoked', 'logout' |
+| `user_session.updated_at` | string | Timestamp indicating when the session was last updated |
+| `user_session.user_id` | string | User ID for the user who owns this session |
+| `user_session.device` | object | Device metadata associated with this session |
+
+## Organization membership events
+
+### `user.organization_invitation`
+
+This webhook is triggered when a user is invited to join an organization. The event type is `user.organization_invitation`.
+
+```json title="user.organization_invitation"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_4567890123",
+  "object": "OrgMembershipEvent",
+  "occurred_at": "2024-01-15T11:00:00.123456789Z",
+  "spec_version": "1",
+  "type": "user.organization_invitation",
+  "data": {
+      "organization": {
+        "id": "org_1234567890",
+        "create_time": "2025-12-09T10:19:05.48Z",
+        "display_name": "Acme Corp",
+        "external_id": "org_external_123",
+        "id": "org_102690563312124938",
+        "metadata": null,
+        "region_code": "US",
+        "update_time": "2025-12-09T12:04:41.386974738Z",
+        "settings": {
+          "features": [
+          {
+            "enabled": true,
+            "name": "sso"
+          },
+          {
+            "enabled": true,
+            "name": "dir_sync"
+          }
+        ]
+      }
+    },
+    "user": {
+      "create_time": "2025-12-09T12:04:41.39Z",
+      "email": "john.doe@acmecorp.com",
+      "external_id": "ext_123456789",
+      "id": "usr_123456789",
+      "metadata": {},
+      "update_time": "2025-12-09T12:04:41.391988Z",
+      "user_profile": {
+        "custom_attributes": null,
+        "email_verified": true,
+        "external_identities": [
+          {
+            "connection_id": "conn_97896332307464201",
+            "connection_provider": "GOOGLE",
+            "connection_type": "OAUTH",
+            "connection_user_id": "105055379523565727691",
+            "created_time": "2025-12-09T12:04:41.47Z",
+            "is_social": true,
+            "last_login_time": "2025-12-09T12:04:41.469311Z",
+            "last_synced_time": "2025-12-09T12:04:41.469311Z"
+          }
+        ],
+        "family_name": "Doe",
+        "gender": "",
+        "given_name": "John",
+        "groups": null,
+        "id": "usp_102701193205186825",
+        "locale": "",
+        "metadata": {},
+        "name": "John Doe",
+        "phone_number": "",
+        "phone_number_verified": false,
+        "picture": "https://lh3.googleusercontent.com/a/abcdef",
+        "preferred_username": ""
+      }
+    }
+  }
+}
+
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `organization` | object | Organization details for the invitation |
+| `organization.id` | string | Unique identifier for the organization |
+| `organization.external_id` | string \| null | External identifier for the organization if provided |
+| `organization.display_name` | string \| null | Name of the organization, if provided |
+| `organization.region_code` | string \| null | Geographic region code for the organization (US, EU), currently limited to US |
+| `organization.create_time` | string | Timestamp of when the organization was created  |
+| `organization.update_time` | string \| null | Timestamp of when the organization was last updated |
+| `organization.metadata` | object \| null | Additional metadata associated with the organization |
+| `organization.settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `organization.settings.features` | array | Array of feature objects with enabled status and name |
+| `user` | object | User details for the invited user |
+| `user.id` | string | Unique identifier for the invited user |
+| `user.email` | string | Email address of the invited user |
+| `user.external_id` | string \| null | External identifier for the user, if provided |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.user_profile` | object | User profile information |
+
+### `user.organization_membership_created`
+
+This webhook is triggered when a user joins an organization. The event type is `user.organization_membership_created`.
+
+```json title="user.organization_membership_created"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_5678901234",
+  "object": "OrgMembershipEvent",
+  "occurred_at": "2024-01-15T11:05:00.123456789Z",
+  "spec_version": "1",
+  "type": "user.organization_membership_created",
+  "data": {
+    "organization":  {
+        "id": "org_1234567890",
+        "create_time": "2025-12-09T10:19:05.48Z",
+        "display_name": "Acme Corp",
+        "external_id": "org_external_123",
+        "id": "org_102690563312124938",
+        "metadata": null,
+        "region_code": "US",
+        "update_time": "2025-12-09T12:04:41.386974738Z",
+        "settings": {
+          "features": [
+          {
+            "enabled": true,
+            "name": "sso"
+          },
+          {
+            "enabled": true,
+            "name": "dir_sync"
+          }
+        ]
+      }
+    },
+    "user": {
+      "create_time": "2025-12-09T12:04:41.39Z",
+      "email": "john.doe@acmecorp.com",
+      "external_id": "ext_123456789",
+      "id": "usr_123456789",
+      "metadata": {},
+      "update_time": "2025-12-09T12:04:41.391988Z",
+      "user_profile": {
+        "custom_attributes": null,
+        "email_verified": true,
+        "external_identities": [
+          {
+            "connection_id": "conn_97896332307464201",
+            "connection_provider": "GOOGLE",
+            "connection_type": "OAUTH",
+            "connection_user_id": "105055379523565727691",
+            "created_time": "2025-12-09T12:04:41.47Z",
+            "is_social": true,
+            "last_login_time": "2025-12-09T12:04:41.469311Z",
+            "last_synced_time": "2025-12-09T12:04:41.469311Z"
+          }
+        ],
+        "family_name": "Doe",
+        "gender": "",
+        "given_name": "John",
+        "groups": null,
+        "id": "usp_102701193205186825",
+        "locale": "",
+        "metadata": {},
+        "name": "John Doe",
+        "phone_number": "",
+        "phone_number_verified": false,
+        "picture": "https://lh3.googleusercontent.com/a/abcdef",
+        "preferred_username": ""
+      }
+    }
+  }
+}
+```
+| Field | Type | Description |
+|-------|------|-------------|
+| `organization` | object | Details of the organization which the user has joined |
+| `organization.id` | string | Unique identifier for the organization |
+| `organization.external_id` | string \| null | External identifier for the organization if provided |
+| `organization.display_name` | string \| null | Name of the organization, if provided |
+| `organization.region_code` | string \| null | Geographic region code for the organization (US, EU), currently limited to US |
+| `organization.create_time` | string | Timestamp of when the organization was created  |
+| `organization.update_time` | string \| null | Timestamp of when the organization was last updated |
+| `organization.metadata` | object \| null | Additional metadata associated with the organization |
+| `organization.settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `organization.settings.features` | array | Array of feature objects with enabled status and name |
+| `user` | object | User details for the user who joined the organization |
+| `user.id` | string | Unique identifier for the user |
+| `user.email` | string | Email address of the user |
+| `user.external_id` | string \| null | External identifier for the user, if provided |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.user_profile` | object | User profile information |
+
+### `user.organization_membership_updated`
+
+This webhook is triggered when a user's organization membership is updated, e.g., change of user's role in an organization. The event type is `user.organization_membership_updated`.
+
+```json title="user.organization_membership_updated"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_6789012345",
+  "object": "OrgMembershipEvent",
+  "occurred_at": "2024-01-15T11:10:00.123456789Z",
+  "spec_version": "1",
+  "type": "user.organization_membership_updated",
+  "data": {
+    "organization":  {
+        "id": "org_1234567890",
+        "create_time": "2025-12-09T10:19:05.48Z",
+        "display_name": "Acme Corp",
+        "external_id": "org_external_123",
+        "id": "org_102690563312124938",
+        "metadata": null,
+        "region_code": "US",
+        "update_time": "2025-12-09T12:04:41.386974738Z",
+        "settings": {
+          "features": [
+          {
+            "enabled": true,
+            "name": "sso"
+          },
+          {
+            "enabled": true,
+            "name": "dir_sync"
+          }
+        ]
+      }
+    },
+    "user": {
+      "create_time": "2025-12-09T12:04:41.39Z",
+      "email": "john.doe@acmecorp.com",
+      "external_id": "ext_123456789",
+      "id": "usr_123456789",
+      "metadata": {},
+      "update_time": "2025-12-09T12:04:41.391988Z",
+      "user_profile": {
+        "custom_attributes": null,
+        "email_verified": true,
+        "external_identities": [
+          {
+            "connection_id": "conn_97896332307464201",
+            "connection_provider": "GOOGLE",
+            "connection_type": "OAUTH",
+            "connection_user_id": "105055379523565727691",
+            "created_time": "2025-12-09T12:04:41.47Z",
+            "is_social": true,
+            "last_login_time": "2025-12-09T12:04:41.469311Z",
+            "last_synced_time": "2025-12-09T12:04:41.469311Z"
+          }
+        ],
+        "family_name": "Doe",
+        "gender": "",
+        "given_name": "John",
+        "groups": null,
+        "id": "usp_102701193205186825",
+        "locale": "",
+        "metadata": {},
+        "name": "John Doe",
+        "phone_number": "",
+        "phone_number_verified": false,
+        "picture": "https://lh3.googleusercontent.com/a/abcdef",
+        "preferred_username": ""
+      }
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `organization` | object | Details of the organization for which users' membership details have been updated |
+| `organization.id` | string | Unique identifier for the organization |
+| `organization.external_id` | string \| null | External identifier for the organization if provided |
+| `organization.display_name` | string \| null | Name of the organization, if provided |
+| `organization.region_code` | string \| null | Geographic region code for the organization (US, EU), currently limited to US |
+| `organization.create_time` | string | Timestamp of when the organization was created  |
+| `organization.update_time` | string \| null | Timestamp of when the organization was last updated |
+| `organization.metadata` | object \| null | Additional metadata associated with the organization |
+| `organization.settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `organization.settings.features` | array | Array of feature objects with enabled status and name |
+| `user` | object | User details for the user whose organization membership has been updated |
+| `user.id` | string | Unique identifier for the user |
+| `user.email` | string | Email address of the user |
+| `user.external_id` | string \| null | External identifier for the user, if provided |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.user_profile` | object | User profile information |
+
+### `user.organization_membership_deleted`
+
+This webhook is triggered when a user is removed from an organization. The event type is `user.organization_membership_deleted`.
+
+```json title="user.organization_membership_deleted"
+{
+  "environment_id": "env_1234567890",
+  "id": "evt_7890123456",
+  "object": "OrgMembershipEvent",
+  "occurred_at": "2024-01-15T11:15:00.123456789Z",
+  "spec_version": "1",
+  "type": "user.organization_membership_deleted",
+  "data": {
+    "organization":  {
+        "id": "org_1234567890",
+        "create_time": "2025-12-09T10:19:05.48Z",
+        "display_name": "Acme Corp",
+        "external_id": "org_external_123",
+        "id": "org_102690563312124938",
+        "metadata": null,
+        "region_code": "US",
+        "update_time": "2025-12-09T12:04:41.386974738Z",
+        "settings": {
+          "features": [
+          {
+            "enabled": true,
+            "name": "sso"
+          },
+          {
+            "enabled": true,
+            "name": "dir_sync"
+          }
+        ]
+      }
+    },
+    "user": {
+      "create_time": "2025-12-09T12:04:41.39Z",
+      "email": "john.doe@acmecorp.com",
+      "external_id": "ext_123456789",
+      "id": "usr_123456789",
+      "metadata": {},
+      "update_time": "2025-12-09T12:04:41.391988Z",
+      "user_profile": {
+        "custom_attributes": null,
+        "email_verified": true,
+        "external_identities": [
+          {
+            "connection_id": "conn_97896332307464201",
+            "connection_provider": "GOOGLE",
+            "connection_type": "OAUTH",
+            "connection_user_id": "105055379523565727691",
+            "created_time": "2025-12-09T12:04:41.47Z",
+            "is_social": true,
+            "last_login_time": "2025-12-09T12:04:41.469311Z",
+            "last_synced_time": "2025-12-09T12:04:41.469311Z"
+          }
+        ],
+        "family_name": "Doe",
+        "gender": "",
+        "given_name": "John",
+        "groups": null,
+        "id": "usp_102701193205186825",
+        "locale": "",
+        "metadata": {},
+        "name": "John Doe",
+        "phone_number": "",
+        "phone_number_verified": false,
+        "picture": "https://lh3.googleusercontent.com/a/abcdef",
+        "preferred_username": ""
+      }
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `organization` | object | Details of the organization from which the user has been removed |
+| `organization.id` | string | Unique identifier for the organization |
+| `organization.external_id` | string \| null | External identifier for the organization if provided |
+| `organization.display_name` | string \| null | Name of the organization, if provided |
+| `organization.region_code` | string \| null | Geographic region code for the organization (US, EU), currently limited to US |
+| `organization.create_time` | string | Timestamp of when the organization was created  |
+| `organization.update_time` | string \| null | Timestamp of when the organization was last updated |
+| `organization.metadata` | object \| null | Additional metadata associated with the organization |
+| `organization.settings` | object \| null | Organization settings including feature flags (sso, dir_sync) |
+| `organization.settings.features` | array | Array of feature objects with enabled status and name |
+| `user` | object | User details for the user who has been removed from an organization |
+| `user.id` | string | Unique identifier for the user |
+| `user.email` | string | Email address of the user |
+| `user.external_id` | string \| null | External identifier for the user, if provided |
+| `user.create_time` | string | Timestamp of when the user was created |
+| `user.update_time` | string | Timestamp of when the user was last updated |
+| `user.user_profile` | object | User profile information |

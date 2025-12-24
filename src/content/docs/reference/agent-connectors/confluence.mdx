@@ -1,0 +1,89 @@
+---
+title: Confluence
+description: Connect to Confluence. Manage spaces, pages, content, and team collaboration
+tableOfContents: true
+sidebar:
+  order: 15
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+      /* Heading copy functionality */
+      .sl-markdown-content h2,
+      .sl-markdown-content h3,
+      .sl-markdown-content h4 {
+        position: relative;
+        cursor: pointer;
+      }
+      .sl-markdown-content h2:hover::after,
+      .sl-markdown-content h3:hover::after,
+      .sl-markdown-content h4:hover::after {
+        content: " 📋 ";
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+  - tag: script
+    content: |
+      // Using a self-executing function to avoid global namespace pollution
+      (function() {
+        // Function to initialize the copy functionality
+        function initHeadingCopy() {
+          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
+
+          headings.forEach(heading => {
+            // Skip if already initialized
+            if (heading.hasAttribute('data-copy-initialized')) return;
+            heading.setAttribute('data-copy-initialized', 'true');
+
+            heading.addEventListener('click', async () => {
+              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
+
+              try {
+                await navigator.clipboard.writeText(headingText);
+
+                // Visual feedback
+                const originalText = heading.textContent;
+                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
+
+                setTimeout(() => {
+                  heading.textContent = originalText;
+                }, 2000);
+              } catch (err) {
+                console.error('Failed to copy heading:', err);
+              }
+            });
+          });
+        }
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initHeadingCopy);
+
+        // Also initialize now in case the DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          setTimeout(initHeadingCopy, 1);
+        }
+
+        // For Astro's client-side navigation
+        document.addEventListener('astro:page-load', initHeadingCopy);
+      })();
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Confluence. Manage spaces, pages, content, and team collaboration
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/confluence.svg" width="64" height="64" alt="Confluence logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="OAuth 2.0" />
+

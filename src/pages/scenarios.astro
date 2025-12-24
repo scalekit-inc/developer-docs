@@ -1,0 +1,106 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import FilterBar from '@/components/examples/FilterBar.astro'
+import ResourceGrid from '@/components/examples/ResourceGrid.astro'
+import { processExamplesData } from '@/utils/examples'
+
+// Load and process all examples data
+const { filters, columns } = await processExamplesData()
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'Scenarios',
+    description:
+      'Implementation paths with how-to guides, runnable code, and short videos to plug Scalekit into your stack fast',
+    template: 'splash',
+    sidebar: {
+      label: 'Scenarios',
+    },
+    prev: false,
+    next: false,
+    editUrl: false,
+    lastUpdated: false,
+    tableOfContents: true,
+    seeAlso: {
+      label: 'See also',
+      expanded: true,
+      items: [
+        {
+          title: 'Integrations',
+          icon: 'puzzle',
+          url: '/guides/integrations/',
+        },
+        {
+          title: 'SDKs & APIs',
+          icon: 'book',
+          url: '/sdks/',
+        },
+        {
+          title: 'Status page',
+          icon: 'status-health',
+          url: 'https://scalekit.statuspage.io/',
+        },
+        {
+          title: 'Join the dev community',
+          icon: 'slack',
+          url: 'https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw',
+        },
+      ],
+    },
+    head: [
+      {
+        tag: 'style',
+        content: 'footer { display: none !important; }',
+      },
+    ],
+  }}
+  hasSidebar={false}
+>
+  <div class="scenarios-container">
+    <FilterBar filters={filters} hidden={true} />
+    <ResourceGrid columns={columns} />
+  </div>
+</StarlightPage>
+
+<style>
+  /* Scenarios page specific styles - scoped to this page only using :has() selector */
+
+  /* Override Starlight's content width constraints for full-width layout */
+  /* Only apply when the page contains .scenarios-container (this page only) */
+  :global(body:has(.scenarios-container) .content-panel) {
+    max-width: none !important;
+    width: 100% !important;
+    padding: 0 2rem !important;
+  }
+
+  :global(body:has(.scenarios-container) .main-frame) {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Optimize CardGrid spacing */
+  :global(body:has(.scenarios-container) .card-grid) {
+    gap: 1.5rem !important;
+  }
+
+  /* Enhance visual density */
+  :global(body:has(.scenarios-container) .sl-markdown-content) {
+    line-height: 1.5;
+  }
+
+  /* Reduce excessive padding in lists */
+  :global(body:has(.scenarios-container) .list-inside) {
+    padding-left: 0 !important;
+  }
+
+  /* Improve mobile responsiveness */
+  @media (max-width: 768px) {
+    :global(body:has(.scenarios-container) .content-panel) {
+      padding: 0 1rem !important;
+    }
+  }
+</style>
+
+<style src="../styles/examples.css"></style>
+<script src="../scripts/examples-filter.ts"></script>

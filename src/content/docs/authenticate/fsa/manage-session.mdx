@@ -1,0 +1,629 @@
+---
+title: 'Manage user sessions'
+description: 'Store tokens safely with proper cookie security, validate on every request, and refresh with rotation to keep sessions secure'
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+sidebar:
+  label: 'Manage user sessions'
+seeAlso:
+  expanded: true
+  items:
+    - title: "Preserve destination post login"
+      icon: "book"
+      url: "/guides/user-auth/preserve-intended-destination/"
+---
+
+import {
+  Steps,
+  Tabs,
+  TabItem,
+  Aside,
+  Card,
+  Badge,
+} from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+import { AuthResultTabsSection } from '@components/templates';
+import CheckItem from '@/components/ui/CheckItem.astro';
+import IconTdesignSequence from '~icons/tdesign/sequence'
+
+User sessions determine how long users stay signed in to your application. After users successfully authenticate, you receive session tokens that manage their access. These tokens control session duration, multi-device access, and cross-product authentication within your company's ecosystem.
+
+This guide shows you how to store these tokens securely with encryption and proper cookie attributes, validate them on every request, and refresh them transparently in middleware to maintain seamless user sessions.
+
+
+<details>
+<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the session management sequence</summary>
+
+![User session management flow diagram showing how access tokens and refresh tokens work together](@/assets/docs/fsa/manage-session/1.png)
+
+</details>
+
+
+<Steps>
+1. ## Store session tokens securely
+
+    After successful identity verification using any of the auth methods (Magic Link & OTP, social, enterprise SSO), your application receives session tokens(access and refresh tokens) towards the [end of the login](/authenticate/fsa/complete-login/).
+
+   <AuthResultTabsSection />
+
+   Store each token based on its security requirements. For SPAs and mobile apps, consider storing access tokens in memory and sending via `Authorization: Bearer` headers to minimize CSRF exposure. For traditional web apps, use the cookie-based approach below:
+   - **Access Token**: Store in a secure, HttpOnly cookie with proper `Path` scoping (e.g., `/api`) to prevent XSS attacks. This token has a short lifespan and provides access to protected resources.
+   - **Refresh Token**: Store in a separate HttpOnly, Secure cookie with `Path=/auth/refresh` scoping. This limits the refresh token to only be sent to your refresh endpoint, reducing exposure. Rotate the token on each use to detect theft.
+   - **ID Token**: Ensure it is stored in local storage or a cookie so that it remains accessible at runtime, which is necessary for logging the user out successfully.
+
+
+   <Tabs syncKey="tech-stack">
+     <TabItem value="node" label="Node.js">
+     ```javascript title="Express.js" showLineNumbers=true  collapse={1-4} "accessToken" "refreshToken"
+     import cookieParser from 'cookie-parser';
+     // Enable parsing of cookies from request headers
+     app.use(cookieParser());
+
+     // Extract authentication data from the successful authentication response
+     const { accessToken, expiresIn, refreshToken, user } = authResult;
+
+     // Encrypt tokens before storing to add an additional security layer
+     const encryptedAccessToken = encrypt(accessToken);
+     const encryptedRefreshToken = encrypt(refreshToken);
+
+     // Store encrypted access token in HttpOnly cookie
+     res.cookie('accessToken', encryptedAccessToken, {
+       maxAge: (expiresIn - 60) * 1000, // Subtract 60s buffer for clock skew (milliseconds)
+       httpOnly: true, // Prevents JavaScript access to mitigate XSS attacks
+       secure: process.env.NODE_ENV === 'production', // HTTPS-only in production
+       sameSite: 'strict' // Prevents CSRF attacks
+     });
+
+     // Store encrypted refresh token in separate HttpOnly cookie
+     res.cookie('refreshToken', encryptedRefreshToken, {
+       httpOnly: true, // Prevents JavaScript access to mitigate XSS attacks
+       secure: process.env.NODE_ENV === 'production', // HTTPS-only in production
+       sameSite: 'strict' // Prevents CSRF attacks
+     });
+     ```
+     </TabItem>
+     <TabItem value="py" label="Python">
+     ```python title="Flask" collapse={1-4} {6,8}
+     from flask import Flask, make_response, request
+     import os
+     app = Flask(__name__)
+
+     # Extract authentication data from the successful authentication response
+     access_token = auth_result.access_token
+     expires_in = auth_result.expires_in
+     refresh_token = auth_result.refresh_token
+     user = auth_result.user
+
+     # Encrypt tokens before storing to add an additional security layer
+     encrypted_access_token = encrypt(access_token)
+     encrypted_refresh_token = encrypt(refresh_token)
+
+     response = make_response()
+
+     # Store encrypted access token in HttpOnly cookie
+     response.set_cookie(
+       'accessToken',
+       encrypted_access_token,
+       max_age=expires_in - 60,  # Subtract 60s buffer for clock skew (seconds in Flask)
+       httponly=True,             # Prevents JavaScript access to mitigate XSS attacks
+       secure=os.environ.get('FLASK_ENV') == 'production',  # HTTPS-only in production
+       samesite='Strict'          # Prevents CSRF attacks
+     )
+
+     # Store encrypted refresh token in separate HttpOnly cookie
+     response.set_cookie(
+       'refreshToken',
+       encrypted_refresh_token,
+       httponly=True,             # Prevents JavaScript access to mitigate XSS attacks
+       secure=os.environ.get('FLASK_ENV') == 'production',  # HTTPS-only in production
+       samesite='Strict'          # Prevents CSRF attacks
+     )
+     ```
+     </TabItem>
+     <TabItem value="go" label="Go">
+     ```go title="Gin" collapse={1-7}
+     import (
+       "net/http"
+       "os"
+       "time"
+       "github.com/gin-gonic/gin"
+     )
+
+     // Extract authentication data from the successful authentication response
+     accessToken := authResult.AccessToken
+     expiresIn := authResult.ExpiresIn
+     refreshToken := authResult.RefreshToken
+     user := authResult.User
+
+     // Encrypt tokens before storing to add an additional security layer
+     encryptedAccessToken := encrypt(accessToken)
+     encryptedRefreshToken := encrypt(refreshToken)
+
+     // Set SameSite mode for CSRF protection
+     c.SetSameSite(http.SameSiteStrictMode) // Prevents CSRF attacks
+
+     // Store encrypted access token in HttpOnly cookie
+     c.SetCookie(
+       "accessToken",
+       encryptedAccessToken,
+       expiresIn-60, // Subtract 60s buffer for clock skew (seconds in Gin)
+       "/",          // Available on all routes
+       "",
+       os.Getenv("GIN_MODE") == "release", // HTTPS-only in production
+       true, // Prevents JavaScript access to mitigate XSS attacks
+     )
+
+     // Store encrypted refresh token in separate HttpOnly cookie
+     c.SetCookie(
+       "refreshToken",
+       encryptedRefreshToken,
+       0,    // No expiry for refresh token cookie (session lifetime controlled server-side)
+       "/",  // Available on all routes
+       "",
+       os.Getenv("GIN_MODE") == "release", // HTTPS-only in production
+       true, // Prevents JavaScript access to mitigate XSS attacks
+     )
+     ```
+     </TabItem>
+     <TabItem value="java" label="Java">
+     ```java title="Spring" collapse={1-6}
+     import javax.servlet.http.Cookie;
+     import javax.servlet.http.HttpServletResponse;
+     import org.springframework.core.env.Environment;
+     @Autowired
+     private Environment env;
+
+     // Extract authentication data from the successful authentication response
+     String accessToken = authResult.getAccessToken();
+     int expiresIn = authResult.getExpiresIn();
+     String refreshToken = authResult.getRefreshToken();
+     User user = authResult.getUser();
+
+     // Encrypt tokens before storing to add an additional security layer
+     String encryptedAccessToken = encrypt(accessToken);
+     String encryptedRefreshToken = encrypt(refreshToken);
+
+     // Store encrypted access token in HttpOnly cookie
+     Cookie accessTokenCookie = new Cookie("accessToken", encryptedAccessToken);
+     accessTokenCookie.setMaxAge(expiresIn - 60); // Subtract 60s buffer for clock skew (seconds in Spring)
+     accessTokenCookie.setHttpOnly(true); // Prevents JavaScript access to mitigate XSS attacks
+     accessTokenCookie.setSecure("production".equals(env.getActiveProfiles()[0])); // HTTPS-only in production
+     accessTokenCookie.setPath("/"); // Available on all routes
+     response.addCookie(accessTokenCookie);
+     response.setHeader("Set-Cookie",
+       response.getHeader("Set-Cookie") + "; SameSite=Strict"); // Prevents CSRF attacks
+
+     // Store encrypted refresh token in separate HttpOnly cookie
+     Cookie refreshTokenCookie = new Cookie("refreshToken", encryptedRefreshToken);
+     refreshTokenCookie.setHttpOnly(true); // Prevents JavaScript access to mitigate XSS attacks
+     refreshTokenCookie.setSecure("production".equals(env.getActiveProfiles()[0])); // HTTPS-only in production
+     refreshTokenCookie.setPath("/"); // Available on all routes
+     response.addCookie(refreshTokenCookie);
+     ```
+     </TabItem>
+   </Tabs>
+
+2. ## Check the access token before handling requests
+
+   Validate every request for a valid access token in your application. Create middleware to protect your application routes. This middleware validates the access token on every request to secured endpoints. For APIs, consider reading from `Authorization: Bearer` headers instead of cookies to minimize CSRF risk.
+
+
+   Here's an example middle ware method validating access token and refreshing the token if it's expired for every request.
+
+   <Tabs syncKey="tech-stack">
+     <TabItem value="node" label="Node.js">
+     ```javascript title="middleware/auth.js" "validateAccessToken"
+     async function verifyToken(req, res, next) {
+       // Extract encrypted tokens from request cookies
+       const { accessToken, refreshToken } = req.cookies;
+
+       if (!accessToken) {
+         return res.status(401).json({ error: 'Authentication required' });
+       }
+
+       try {
+         // Decrypt the access token before validation
+         const decryptedAccessToken = decrypt(accessToken);
+
+         // Verify token validity using Scalekit's validation method
+         const isValid = await scalekit.validateAccessToken(decryptedAccessToken);
+
+         if (!isValid && refreshToken) {
+           // Token expired - refresh it transparently
+           const decryptedRefreshToken = decrypt(refreshToken);
+           const authResult = await scalekit.refreshAccessToken(decryptedRefreshToken);
+
+           // Encrypt and store new tokens
+           res.cookie('accessToken', encrypt(authResult.accessToken), {
+             maxAge: (authResult.expiresIn - 60) * 1000,
+             httpOnly: true,
+             secure: process.env.NODE_ENV === 'production',
+             sameSite: 'strict'
+           });
+
+           res.cookie('refreshToken', encrypt(authResult.refreshToken), {
+             httpOnly: true,
+             secure: process.env.NODE_ENV === 'production',
+             sameSite: 'strict'
+           });
+
+           return next();
+         }
+
+         if (!isValid) {
+           return res.status(401).json({ error: 'Session expired. Please sign in again.' });
+         }
+
+         // Token is valid, proceed to the next middleware or route handler
+         next();
+       } catch (error) {
+         return res.status(401).json({ error: 'Authentication failed' });
+       }
+     }
+     ```
+     </TabItem>
+     <TabItem value="py" label="Python">
+     ```python title="middleware/auth.py" wrap collapse={1-2} "validate_access_token"
+     from flask import request, jsonify
+     from functools import wraps
+     def verify_token(f):
+         @wraps(f)
+         def decorated_function(*args, **kwargs):
+             # Extract encrypted tokens from request cookies
+             access_token = request.cookies.get('accessToken')
+             refresh_token = request.cookies.get('refreshToken')
+
+             if not access_token:
+                 return jsonify({'error': 'Authentication required'}), 401
+
+             try:
+                 # Decrypt the access token before validation
+                 decrypted_access_token = decrypt(access_token)
+
+                 # Verify token validity using Scalekit's validation method
+                 is_valid = scalekit_client.validate_access_token(decrypted_access_token)
+
+                 if not is_valid and refresh_token:
+                     # Token expired - refresh it transparently
+                     decrypted_refresh_token = decrypt(refresh_token)
+                     auth_result = scalekit_client.refresh_access_token(decrypted_refresh_token)
+
+                     # Encrypt and store new tokens
+                     response = make_response(f(*args, **kwargs))
+                     response.set_cookie(
+                         'accessToken',
+                         encrypt(auth_result.access_token),
+                         max_age=auth_result.expires_in - 60,
+                         httponly=True,
+                         secure=os.environ.get('FLASK_ENV') == 'production',
+                         samesite='Strict'
+                     )
+                     response.set_cookie(
+                         'refreshToken',
+                         encrypt(auth_result.refresh_token),
+                         httponly=True,
+                         secure=os.environ.get('FLASK_ENV') == 'production',
+                         samesite='Strict'
+                     )
+                     return response
+
+                 if not is_valid:
+                     return jsonify({'error': 'Session expired. Please sign in again.'}), 401
+
+                 # Token is valid, proceed to the protected view function
+                 return f(*args, **kwargs)
+
+             except Exception:
+                 return jsonify({'error': 'Authentication failed'}), 401
+
+         return decorated_function
+     ```
+     </TabItem>
+     <TabItem value="go" label="Go">
+     ```go title="middleware/auth.go" collapse={1-5} "decrypt" "ValidateAccessToken" "RefreshAccessToken"
+     import (
+       "net/http"
+       "os"
+       "github.com/gin-gonic/gin"
+     )
+     func VerifyToken() gin.HandlerFunc {
+       return func(c *gin.Context) {
+         // Extract encrypted tokens from request cookies
+         accessToken, err := c.Cookie("accessToken")
+         if err != nil || accessToken == "" {
+           c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+           c.Abort()
+           return
+         }
+
+         // Decrypt the access token before validation
+         decryptedAccessToken := decrypt(accessToken)
+
+         // Verify token validity using Scalekit's validation method
+         isValid, err := scalekitClient.ValidateAccessToken(decryptedAccessToken)
+
+         if (err != nil || !isValid) {
+           // Token expired - attempt transparent refresh
+           refreshToken, err := c.Cookie("refreshToken")
+           if err == nil && refreshToken != "" {
+             decryptedRefreshToken := decrypt(refreshToken)
+             authResult, err := scalekitClient.RefreshAccessToken(decryptedRefreshToken)
+
+             if err == nil {
+               // Encrypt and store new tokens
+               c.SetSameSite(http.SameSiteStrictMode)
+               c.SetCookie(
+                 "accessToken",
+                 encrypt(authResult.AccessToken),
+                 authResult.ExpiresIn-60,
+                 "/",
+                 "",
+                 os.Getenv("GIN_MODE") == "release",
+                 true,
+               )
+               c.SetCookie(
+                 "refreshToken",
+                 encrypt(authResult.RefreshToken),
+                 0,
+                 "/",
+                 "",
+                 os.Getenv("GIN_MODE") == "release",
+                 true,
+               )
+               c.Next()
+               return
+             }
+           }
+
+           c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired. Please sign in again."})
+           c.Abort()
+           return
+         }
+
+         // Token is valid, proceed to the next handler in the chain
+         c.Next()
+       }
+     }
+     ```
+     </TabItem>
+     <TabItem value="java" label="Java">
+     ```java title="middleware/AuthInterceptor.java" collapse={1-5,22-28, 45-64}
+     import javax.servlet.http.HttpServletRequest;
+     import javax.servlet.http.HttpServletResponse;
+     import javax.servlet.http.Cookie;
+     import org.springframework.web.servlet.HandlerInterceptor;
+     import org.springframework.core.env.Environment;
+
+     /**
+      * Intercepts HTTP requests to verify authentication tokens.
+      * Transparently refreshes expired tokens to maintain user sessions.
+      */
+     @Component
+     public class AuthInterceptor implements HandlerInterceptor {
+       @Autowired
+       private Environment env;
+
+       @Override
+       public boolean preHandle(
+         HttpServletRequest request,
+         HttpServletResponse response,
+         Object handler
+       ) throws Exception {
+         // Extract encrypted tokens from cookies
+         String accessToken = getCookieValue(request, "accessToken");
+         String refreshToken = getCookieValue(request, "refreshToken");
+
+         if (accessToken == null) {
+           response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+           response.getWriter().write("{\"error\": \"Authentication required\"}");
+           return false;
+         }
+
+         try {
+           // Decrypt the access token before validation
+           String decryptedAccessToken = decrypt(accessToken);
+
+           // Verify token validity using Scalekit's validation method
+           boolean isValid = scalekitClient.validateAccessToken(decryptedAccessToken);
+
+           if (!isValid && refreshToken != null) {
+             // Token expired - refresh it transparently
+             String decryptedRefreshToken = decrypt(refreshToken);
+             AuthResult authResult = scalekitClient.authentication().refreshToken(decryptedRefreshToken);
+
+             // Encrypt and store new tokens
+             Cookie accessTokenCookie = new Cookie("accessToken", encrypt(authResult.getAccessToken()));
+             accessTokenCookie.setMaxAge(authResult.getExpiresIn() - 60);
+             accessTokenCookie.setHttpOnly(true);
+             accessTokenCookie.setSecure("production".equals(env.getActiveProfiles()[0]));
+             accessTokenCookie.setPath("/");
+             response.addCookie(accessTokenCookie);
+
+             Cookie refreshTokenCookie = new Cookie("refreshToken", encrypt(authResult.getRefreshToken()));
+             refreshTokenCookie.setHttpOnly(true);
+             refreshTokenCookie.setSecure("production".equals(env.getActiveProfiles()[0]));
+             refreshTokenCookie.setPath("/");
+             response.addCookie(refreshTokenCookie);
+             response.setHeader("Set-Cookie", response.getHeader("Set-Cookie") + "; SameSite=Strict");
+
+             return true;
+           }
+
+           if (!isValid) {
+             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+             response.getWriter().write("{\"error\": \"Session expired. Please sign in again.\"}");
+             return false;
+           }
+
+           // Token is valid, allow request to proceed
+           return true;
+         } catch (Exception e) {
+           response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+           response.getWriter().write("{\"error\": \"Authentication failed\"}");
+           return false;
+         }
+       }
+
+       private String getCookieValue(HttpServletRequest request, String cookieName) {
+         Cookie[] cookies = request.getCookies();
+         if (cookies != null) {
+           for (Cookie cookie : cookies) {
+             if (cookieName.equals(cookie.getName())) {
+               return cookie.getValue();
+             }
+           }
+         }
+         return null;
+       }
+      }
+      ```
+      </TabItem>
+   </Tabs>
+
+3. ## Configure session security and duration
+
+    Manage user session behavior directly from your Scalekit dashboard without modifying application code. Configure session durations and authentication frequency to balance security and user experience for your application.
+
+    ![](@/assets/docs/manage-session/session-policies-dashboard.png)
+
+      In your Scalekit dashboard, the **Session settings** page lets you set these options:
+
+    - **Absolute session timeout**: This is the maximum time a user can stay signed in, no matter what. After this time, they must log in again. For example, if you set it to 30 minutes, users will be logged out after 30 minutes, even if they are still using your app.
+
+    - **Idle session timeout**: This is the time your app waits before logging out a user who is not active. If you turn this on, the session will end if the user does nothing for the set time. For example, if you set it to 10 minutes, and the user does not click or type for 10 minutes, they will be logged out.
+
+    - **Access token lifetime**: This is how long an access token is valid. When it expires, your app needs to get a new token (using the refresh token) so the user can keep using the app without logging in again. For example, if you set it to 5 minutes, your app will need to refresh the token every 5 minutes.
+
+    Shorter timeouts provide better security, while longer timeouts reduce authentication interruptions.
+
+4. ## Manage sessions remotely <Badge text="API" />
+
+    Beyond client-side session management, Scalekit provides powerful APIs to manage user sessions remotely from your backend application. This enables you to build features like active session management in user account settings, security incident response, or administrative session control.
+
+    These APIs are particularly useful for:
+    - Displaying all active sessions in user account settings
+    - Allowing users to revoke specific sessions from unfamiliar devices
+    - Security incident response and suspicious session termination
+
+    <Tabs syncKey="tech-stack">
+      <TabItem value="node" label="Node.js">
+      ```javascript title="Session Management SDK" wrap showLineNumbers=true
+      // Get details for a specific session
+      const sessionDetails = await scalekit.session.getSession('ses_1234567890123456');
+
+      // List all sessions for a user with optional filtering
+      const userSessions = await scalekit.session.getUserSessions('usr_1234567890123456', {
+        pageSize: 10,
+        filter: {
+          status: ['ACTIVE'], // Filter for active sessions only
+          startTime: new Date('2025-01-01T00:00:00Z'),
+          endTime: new Date('2025-12-31T23:59:59Z')
+        }
+      });
+
+      // Revoke a specific session (useful for "Sign out this device" functionality)
+      const revokedSession = await scalekit.session.revokeSession('ses_1234567890123456');
+
+      // Revoke all sessions for a user (useful for "Sign out all devices" functionality)
+      const revokedSessions = await scalekit.session.revokeAllUserSessions('usr_1234567890123456');
+      console.log(`Revoked sessions for user`);
+      ```
+      </TabItem>
+      <TabItem value="py" label="Python">
+      ```python title="Session Management SDK" wrap showLineNumbers=true
+      # Get details for a specific session
+      session_details = scalekit_client.session.get_session(session_id="ses_1234567890123456")
+
+      # List all sessions for a user with optional filtering
+      from google.protobuf.timestamp_pb2 import Timestamp
+      from datetime import datetime
+
+      start_time = Timestamp()
+      start_time.FromDatetime(datetime(2025, 1, 1))
+      end_time = Timestamp()
+      end_time.FromDatetime(datetime(2025, 12, 31))
+
+      filter_obj = scalekit_client.session.create_session_filter(
+          status=["ACTIVE"], start_time=start_time, end_time=end_time
+      )
+      user_sessions = scalekit_client.session.get_user_sessions(
+          user_id="usr_1234567890123456", page_size=10, filter=filter_obj
+      )
+
+      # Revoke a specific session (useful for "Sign out this device" functionality)
+      revoked_session = scalekit_client.session.revoke_session(session_id="ses_1234567890123456")
+
+      # Revoke all sessions for a user (useful for "Sign out all devices" functionality)
+      revoked_sessions = scalekit_client.session.revoke_all_user_sessions(user_id="usr_1234567890123456")
+      print(f"Revoked sessions for user")
+      ```
+      </TabItem>
+      <TabItem value="go" label="Go">
+      ```go title="Session Management SDK" wrap showLineNumbers=true
+      // Get details for a specific session
+      sessionDetails, err := scalekitClient.Session().GetSession(ctx, "ses_1234567890123456")
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      // List all sessions for a user with optional filtering
+      // import "time", sessionsv1 "...", "google.golang.org/protobuf/types/known/timestamppb"
+      startTime, _ := time.Parse(time.RFC3339, "2025-01-01T00:00:00Z")
+      endTime, _ := time.Parse(time.RFC3339, "2025-12-31T23:59:59Z")
+      filter := &sessionsv1.UserSessionFilter{
+          Status:    []string{"ACTIVE"}, // Filter for active sessions only
+          StartTime: timestamppb.New(startTime),
+          EndTime:   timestamppb.New(endTime),
+      }
+      userSessions, err := scalekitClient.Session().GetUserSessions(ctx, "usr_1234567890123456", 10, "", filter)
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      // Revoke a specific session (useful for "Sign out this device" functionality)
+      revokedSession, err := scalekitClient.Session().RevokeSession(ctx, "ses_1234567890123456")
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      // Revoke all sessions for a user (useful for "Sign out all devices" functionality)
+      revokedSessions, err := scalekitClient.Session().RevokeAllUserSessions(ctx, "usr_1234567890123456")
+      if err != nil {
+          log.Fatal(err)
+      }
+      fmt.Printf("Revoked sessions for user")
+      ```
+      </TabItem>
+      <TabItem value="java" label="Java">
+      ```java title="Session Management SDK" wrap showLineNumbers=true
+      // Get details for a specific session
+      SessionDetails sessionDetails = scalekitClient.sessions().getSession("ses_1234567890123456");
+
+      // List all sessions for a user with optional filtering
+      // import UserSessionFilter, Timestamp, Instant
+      UserSessionFilter filter = UserSessionFilter.newBuilder()
+          .addStatus("ACTIVE")
+          .setStartTime(Timestamp.newBuilder().setSeconds(Instant.parse("2025-01-01T00:00:00Z").getEpochSecond()).build())
+          .setEndTime(Timestamp.newBuilder().setSeconds(Instant.parse("2025-12-31T23:59:59Z").getEpochSecond()).build())
+          .build();
+      UserSessionDetails userSessions = scalekitClient.sessions().getUserSessions("usr_1234567890123456", 10, "", filter);
+
+      // Revoke a specific session (useful for "Sign out this device" functionality)
+      RevokeSessionResponse revokedSession = scalekitClient.sessions().revokeSession("ses_1234567890123456");
+
+      // Revoke all sessions for a user (useful for "Sign out all devices" functionality)
+      RevokeAllUserSessionsResponse revokedSessions = scalekitClient.sessions().revokeAllUserSessions("usr_1234567890123456");
+      System.out.println("Revoked sessions for user");
+      ```
+      </TabItem>
+    </Tabs>
+</Steps>
+
+Your application continuously validates the access token for each incoming request. When the token is valid, the user's session remains active. If the access token expires, your middleware transparently refreshes it using the stored refresh token—users never notice this happening. If the refresh token itself expires or becomes invalid, users are prompted to sign in again.

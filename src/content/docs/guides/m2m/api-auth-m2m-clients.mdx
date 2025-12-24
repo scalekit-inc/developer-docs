@@ -1,37 +1,58 @@
 ---
-title: Authenticate M2M clients
-description: "Learn how to authenticate M2M clients with your API using Scalekit, from obtaining access tokens to validating requests with JWKS."
+title: Authenticate customer apps
+description: "Use Scalekit to implement OAuth for customer apps. Issue tokens and validate API requests with JWKS"
+browseCentral:
+  label: "Validate API tokens with JWKS"
+  filterType: ["tutorial"]
+  category: ["API authentication"]
+  icon: "book"
 sidebar:
-  label: Authenticate M2M clients
+  label: Authenticate customer apps
+prev:
+  link: '/guides/m2m/scopes/'
+  label: 'Define & validate scopes'
+next:
+  link: '/authenticate/mcp/intro-to-mcp-auth/'
+  label: 'Understanding MCP authentication'
+seeAlso:
+  label: "Code samples"
+  expanded: true
+  items:
+    - title: "Browse code samples"
+      icon: "github"
+      url: "https://github.com/scalekit-inc/gists/tree/main/m2m"
+pagefind: false
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
-This guide explains how your application can validate API requests from Machine-2-Machine (M2M) clients using Scalekit's M2M authentication system. This guide explains the authentication flow, from obtaining access tokens to validating requests using JSON Web Key Sets (JWKS).
+This guide explains how you enable API authentication for your customers' applications using Scalekit's OAuth 2.0 client credentials flow. When your customers build applications that need to access your API, they use client credentials registered through your Scalekit environment to obtain access tokens. Your API validates these tokens to authorize their requests using JWKS.
 
-## How M2M clients authenticate with your API
+## How your customers' applications authenticate with your API
 
-Every Scalekit environment functions as an Authorization Server. M2M clients authenticate using client credentials with this server.
+Your Scalekit environment functions as an OAuth 2.0 Authorization Server. Your customers' applications authenticate using the client credentials flow, exchanging their registered client ID and secret for access tokens that authorize API requests to your platform.
 
 ### Storing client credentials
 
-M2M clients must securely store their credentials in environment variables:
+Your customers' applications securely store the credentials you issued to them in environment variables. This example shows how their applications would store these credentials:
 
-```sh title="Environment variables"
+```sh title="Environment variables in customer's application"
 YOURAPP_ENVIRONMENT_URL="<YOURAPP_SCALEKIT_ENVIRONMENT_URL>"
 YOURAPP_CLIENT_ID="<YOURAPP_CLIENT_ID>"
 YOURAPP_CLIENT_SECRET="<YOURAPP_CLIENT_SECRET>"
 ```
 
+These credentials are obtained when you register an API client for your customer (see the [quickstart guide](/authenticate/m2m/api-auth-quickstart/) for client registration).
+
 ### Obtaining access tokens
 
-To authenticate API requests, clients must first obtain an access token from your authorization server using the Token endpoint:
+Your customers' applications obtain access tokens from your Scalekit authorization server before making API requests. They send their credentials to your token endpoint:
 
 ```sh title="Token endpoint"
 https://<YOURAPP_SCALEKIT_ENVIRONMENT_URL>/oauth/token
 ```
 
-The client sends their credentials to this endpoint:
+Here's how your customers' applications request access tokens:
 
 <Tabs>
   <TabItem value="curl" label="cURL">
@@ -51,10 +72,14 @@ The client sends their credentials to this endpoint:
     import json
     import requests
 
+    # Customer's application configuration
     env_url = os.environ['YOURAPP_SCALEKIT_ENVIRONMENT_URL']
 
     def get_m2m_access_token():
-        """Request an access token for M2M client authentication."""
+        """
+        Customer's application requests an access token using client credentials.
+        This token will be used to authenticate API requests to your platform.
+        """
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         params = {
             "grant_type": "client_credentials",
@@ -76,7 +101,7 @@ The client sends their credentials to this endpoint:
   </TabItem>
 </Tabs>
 
-The server returns a JSON response containing the access token:
+Your authorization server returns a JSON response containing the access token:
 
 ```json title="Token response"
 {
@@ -96,9 +121,9 @@ The server returns a JSON response containing the access token:
 
 ### Using access tokens
 
-After obtaining the access token, clients include it in the Authorization header of their API requests:
+After obtaining an access token, your customers' applications include it in the Authorization header when making requests to your API:
 
-```sh title="API request with access token"
+```sh title="Customer's application making an API request"
 curl --request GET "https://<your-api-endpoint>" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <YOURAPP_ACCESS_TOKEN>"
@@ -148,18 +173,19 @@ curl -s "https://<YOURAPP_ENVIRONMENT_URL>/keys" | jq
 
 <Tabs>
   <TabItem value="nodejs" label="jwksClient (Node.js)">
-    ```javascript
+    ```javascript title="Express.js" wrap
     const express = require('express');
     const jwt = require('jsonwebtoken');
     const jwksClient = require('jwks-rsa');
     const app = express();
 
-    // Initialize JWKS client
+    // Initialize JWKS client to validate tokens from customer applications
+    // This fetches public keys from your Scalekit environment
     const client = jwksClient({
       jwksUri: `https://<YOURAPP_ENVIRONMENT_URL>/keys`
     });
 
-    // Function to get signing key
+    // Function to get signing key for token verification
     function getKey(header, callback) {
       client.getSigningKey(header.kid, function(err, key) {
         if (err) return callback(err);
@@ -169,9 +195,9 @@ curl -s "https://<YOURAPP_ENVIRONMENT_URL>/keys" | jq
       });
     }
 
-    // Middleware to validate JWT
+    // Middleware to validate JWT from customer's API client application
     function validateJwt(req, res, next) {
-      // Extract token from header
+      // Extract token sent by customer's application
       const authHeader = req.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ error: 'Missing authorization token' });
@@ -179,7 +205,7 @@ curl -s "https://<YOURAPP_ENVIRONMENT_URL>/keys" | jq
 
       const token = authHeader.split(' ')[1];
 
-      // Verify token
+      // Verify the token signature using JWKS
       jwt.verify(token, getKey, {
         algorithms: ['RS256']
       }, (err, decoded) => {
@@ -187,45 +213,98 @@ curl -s "https://<YOURAPP_ENVIRONMENT_URL>/keys" | jq
           return res.status(401).json({ error: 'Invalid token', details: err.message });
         }
 
-        // Add decoded token to request object
+        // Token is valid - add decoded claims to request
         req.user = decoded;
         next();
       });
     }
 
-    // Apply middleware to protected routes
+    // Apply validation middleware to your API routes
     app.use('/api', validateJwt);
 
-    // Example protected route
+    // Example protected API endpoint
     app.get('/api/data', (req, res) => {
-      res.json({ message: 'Authenticated successfully', userId: req.user.sub });
+      res.json({
+        message: 'Customer application authenticated successfully',
+        userId: req.user.sub
+      });
     });
 
     app.listen(3000, () => {
-      console.log('Server running on port 3000');
+      console.log('API server running on port 3000');
     });
     ```
   </TabItem>
   <TabItem value="python" label="Python">
-    ```python
-    # Validate token and get claims using Scalekit SDK
-    claims = scalekit_client.validate_access_token_and_get_claims(
-      token="<M2M_CLIENT_ACCESS_TOKEN>"
-      )
+    ```python title="Flask" wrap collapse={1-9}
+    from scalekit import ScalekitClient
+    import os
+
+    # Initialize Scalekit SDK to validate tokens from customer applications
+    scalekit_client = ScalekitClient(
+        env_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET")
+    )
+
+    def validate_api_request(request):
+        """
+        Validate access token from customer's API client application.
+        Your API uses this to authorize requests from customer applications.
+        """
+        # Extract token sent by customer's application
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return None, "Missing authorization token"
+
+        token = auth_header.split(' ')[1]
+
+        try:
+            # Validate token and extract claims using Scalekit SDK
+            claims = scalekit_client.validate_access_token_and_get_claims(
+                token=token
+            )
+
+            # Token is valid - return claims for authorization logic
+            return claims, None
+        except Exception as e:
+            return None, f"Invalid token: {str(e)}"
+
+    # Example: Use in your Flask API endpoint
+    @app.route('/api/data', methods=['GET'])
+    def get_data():
+        claims, error = validate_api_request(request)
+
+        if error:
+            return {"error": error}, 401
+
+        # Customer application is authenticated
+        return {
+            "message": "Customer application authenticated successfully",
+            "userId": claims.get("sub")
+        }
     ```
   </TabItem>
 </Tabs>
 
-<Aside type="tip">
-When implementing token validation:
+<Aside type="tip" title="Token validation best practices">
+When implementing token validation in your API:
 
 1. Always verify the token signature using the public key from JWKS
-2. Validate token expiration and required claims
-3. Consider caching JWKS responses to improve performance
+2. Validate token expiration and required claims (issuer, audience, expiration)
+3. Cache JWKS responses to improve performance and reduce latency
 4. Implement token revocation checks for sensitive operations
-5. Use HTTPS for all API endpoints
+5. Use HTTPS for all API endpoints to prevent token interception
+6. Check scopes in the token claims to enforce fine-grained permissions
 </Aside>
 
 ### SDK support status
 
-Our [Python SDK](https://github.com/scalekit-inc/scalekit-sdk-python) currently includes support for M2M authentication. The support to verify tokens is coming soon to Node, Java, and Go SDKs.
+All Scalekit SDKs include helpers for validating access tokens:
+
+- **Node.js**: Provides `validateAccessToken` and `validateToken` methods with `TokenValidationOptions` for validating issuer, audience, and required scopes.
+- **Python**: Provides `validate_access_token`, `validate_token`, and `validate_access_token_and_get_claims` methods with `TokenValidationOptions` for validating issuer, audience, and required scopes.
+- **Go**: Provides `ValidateAccessToken`, generic `ValidateToken[T]`, and `GetAccessTokenClaims` helpers that validate tokens using JWKS and return typed claims with errors.
+- **Java**: Provides `validateAccessToken` (boolean) and `validateAccessTokenAndGetClaims` (returns claims and throws `APIException`) for token validation in JVM applications.
+
+You can still use standard JWT libraries with the JWKS endpoint, as shown in the examples above, when you need custom validation logic or cannot use an SDK in your API service.

@@ -1,6 +1,6 @@
 ---
-title: 'Authorization URL'
-description: 'Learn how to construct and implement authorization URLs in Scalekit to initiate secure single sign-on (SSO) flows with your identity provider.'
+title: 'Authorization URL to initiate SSO'
+description: 'Learn how to construct and implement authorization URLs in Scalekit to initiate secure Single Sign-on (SSO) flows with your identity provider.'
 tableOfContents: false
 head:
   - tag: style
@@ -11,8 +11,21 @@ head:
       table td:not(:last-child), table th:not(:last-child) {
         white-space: nowrap;
       }
-prev: false
-next: false
+browseCentral:
+  label: "Construct authorization URL to SSO"
+  category:
+    - "User authentication"
+  filterType:
+    - "tutorial"
+  icon: "book"
+sidebar:
+  label: "Initiate Single Sign-on"
+prev:
+  link: '/browse/code-samples/github/api-collections/'
+  label: 'API testing collections'
+next:
+  link: '/guides/dashboard/allowed-callback-url/'
+  label: 'Register callback endpoints'
 ---
 
 import { Aside, TabItem, Tabs } from '@astrojs/starlight/components'
@@ -47,9 +60,9 @@ https://SCALEKIT_ENVIRONMENT_URL/oauth/authorize?
 
 \* You must provide one of `organization_id`, `connection_id`, `domain`, or `provider`.
 
-<Aside type="tip">
-**Important security notes:**
+If you identify SSO connection using `domain` or `login_hint`, the domain must be registered to the organization. Register domains in **Dashboard > Organizations > General**, or let customers add them via the admin portal. See [Onboard enterprise customers](/sso/guides/onboard-enterprise-customers/).
 
+<Aside type="tip">
 - Your `redirect_uri` must exactly match one of the authorized redirect URIs configured in your API settings
 - Always include the `state` parameter to protect against cross-site request forgery attacks
 - Use `login_hint` to improve user experience by prefilling login forms at the identity provider
@@ -177,7 +190,7 @@ public class Main {
 
 When you provide multiple connection parameters, Scalekit follows a specific precedence order to determine which identity provider to use:
 
-1. `provider` (highest precedence): If present, Scalekit ignores all other connection parameters and directs users to the specified social login provider. For example, `provider=google` redirects users to Google's login screen. See [Social Login](/social-logins/quickstart/) for more details.
+1. `provider` (highest precedence): If present, Scalekit ignores all other connection parameters and directs users to the specified social login provider. For example, `provider=google` redirects users to Google's login screen. See [Social Login](/authenticate/auth-methods/social-logins/) for more details.
 
 2. `connection_id`: Takes highest precedence among enterprise SSO parameters. Scalekit uses this specific connection if you provide a valid connection ID. If the connection ID is invalid, the authorization request fails.
 
@@ -185,8 +198,8 @@ When you provide multiple connection parameters, Scalekit follows a specific pre
 
 4. `domain`: Scalekit uses this parameter when neither `connection_id` nor `organization_id` are provided. It selects the SSO connection configured for the specified domain.
 
-5. `login_hint` (lowest precedence): Scalekit extracts the domain portion from the email address and uses the corresponding SSO connection mapped to that organization.
+5. `login_hint` (lowest precedence): Scalekit extracts the domain portion from the email address and uses the corresponding SSO connection mapped to that organization. The domain must be registered to the organization either manually from the Scalekit Dashboard or through the admin portal when [onboarding an enterprise customer](/sso/guides/onboard-enterprise-customers/).
 
 <Aside type="note" title="Example scenario">
-**Example**: If you provide both `organization_id=org_123` and `login_hint=user@company.com`, Scalekit uses the organization's SSO connection because `organization_id` has higher precedence than `login_hint`.
+If you provide both `organization_id=org_123` and `login_hint=user@company.com`, Scalekit uses the organization's SSO connection because `organization_id` has higher precedence than `login_hint`
 </Aside>
