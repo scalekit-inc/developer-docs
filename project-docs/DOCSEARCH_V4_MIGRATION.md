@@ -7,10 +7,10 @@ This document explains the temporary setup for using DocSearch v4 before the off
 We are using DocSearch v4 from a fork of the Starlight project:
 
 - **Source**: `https://github.com/dylantientcheu/starlight` (PR #3346)
-- **Local clone**: `vendor/starlight-docsearch-v4/` (committed to repo)
+- **Local clone**: `vendor/docsearch/` (committed to repo)
 - **Override location**: `package.json` → `pnpm.overrides`
 
-The vendor folder is committed to the repository (~34MB) so it works offline and on Netlify without any extra setup.
+The vendor folder contains only the docsearch package (~44KB) with DocSearch v4 support.
 
 ## How to Update to Official Release
 
@@ -23,12 +23,12 @@ In `package.json`:
 ```diff
 {
   "dependencies": {
--   "@astrojs/starlight-docsearch": "file:./vendor/starlight-docsearch-v4/packages/docsearch",
+-   "@astrojs/starlight-docsearch": "file:./vendor/docsearch",
 +   "@astrojs/starlight-docsearch": "^0.7.0",  // or whatever version is released
   },
 - "pnpm": {
 -   "overrides": {
--     "@astrojs/starlight-docsearch": "file:./vendor/starlight-docsearch-v4/packages/docsearch"
+-     "@astrojs/starlight-docsearch": "file:./vendor/docsearch"
 -   }
 - }
 }
@@ -45,19 +45,25 @@ pnpm install
 Remove the vendor folder:
 
 ```bash
-rm -rf vendor/starlight-docsearch-v4
+rm -rf vendor/docsearch
 ```
 
 ## How to Update the Fork Manually
 
-If you want to pull the latest changes from the fork:
+To pull the latest changes from the fork:
 
 ```bash
-cd vendor/starlight-docsearch-v4
-git pull origin main
+# Clone to temp
+git clone --depth 1 --branch main https://github.com/dylantientcheu/starlight.git /tmp/starlight-tmp
+
+# Copy only docsearch package
+cp -r /tmp/starlight-tmp/packages/docsearch/. vendor/docsearch/
+
+# Clean up
+rm -rf /tmp/starlight-tmp
 ```
 
-Then commit the updated vendor folder to your repo.
+Then commit the updated vendor folder.
 
 ## Tracking
 
