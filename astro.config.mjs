@@ -81,6 +81,7 @@ export default defineConfig({
           appId: '7554BDRAJD',
           apiKey: 'b2fecf525a556f05d46ef2389ad7e4b6',
           indexName: 'scalekit-starlight-crawler',
+          askAI: '8jKZkVuXS0hG',
         }),
         starlightVideos(),
         starlightLinksValidator({
