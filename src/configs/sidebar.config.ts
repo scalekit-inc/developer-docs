@@ -186,7 +186,6 @@ export const sidebar = [
       'dev-kit/sdks',
       'dev-kit/apis',
       'dev-kit/code-samples',
-      createDivider(),
       createSectionHeader('Workflows'),
       {
         label: 'Webhooks',
@@ -227,7 +226,6 @@ export const sidebar = [
           'dev-kit/ai-assisted-development/vscode',
         ],
       },
-      createDivider(),
       createSectionHeader('Auth Integrations'),
       {
         label: 'Social connections',
@@ -251,7 +249,6 @@ export const sidebar = [
         collapsed: true,
         items: ['dev-kit/guides/testing/sso-simulator', 'dev-kit/guides/testing/scim-simulator'],
       },
-      createDivider(),
       {
         label: 'How-to guides',
         collapsed: true,
