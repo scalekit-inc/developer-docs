@@ -12,7 +12,7 @@ const sdkConfig = getSDKConfigs(releases)
 const sdkList = Object.values(sdkConfig) as SDKConfig[]
 ---
 
-<div class="sdk-cards-grid">
+<div class="sdk-cards-grid" style="--sl-content-gap-y: 0;">
   {
     sdkList.map((sdk) => (
       <div class="sdk-card-wrapper">
@@ -58,12 +58,17 @@ const sdkList = Object.values(sdkConfig) as SDKConfig[]
   }
 </div>
 
-<style>
+<style is:global>
   .sdk-cards-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
-    margin-top: 1rem;
+    --sl-content-gap-y: 0 !important;
+  }
+
+  /* Prevent all margin-top within SDK cards grid */
+  .sdk-cards-grid * {
+    margin-top: 0 !important;
   }
 
   .sdk-card-wrapper :global(.fold-card) {
