@@ -133,7 +133,7 @@ export const sidebar = [
       },
       {
         label: 'Agentic tool calling',
-        collapsed: true,
+        collapsed: false,
         items: [
           'agent-auth/agentic-quickstart',
           {
@@ -154,7 +154,7 @@ export const sidebar = [
       },
       {
         label: 'Tool calling reference',
-        collapsed: true,
+        collapsed: false,
         items: [
           'agent-auth/tools/overview',
           'agent-auth/tools/execute',
@@ -186,10 +186,11 @@ export const sidebar = [
       'dev-kit/sdks',
       'dev-kit/apis',
       'dev-kit/code-samples',
+      createDivider(),
       createSectionHeader('Workflows'),
       {
         label: 'Webhooks',
-        collapsed: true,
+        collapsed: false,
         items: [
           {
             label: 'Handle webhook events',
@@ -200,7 +201,7 @@ export const sidebar = [
       },
       {
         label: 'Interceptors',
-        collapsed: true,
+        collapsed: false,
         items: [
           'authenticate/interceptors/auth-flow-interceptors',
           'reference/interceptors/triggers',
@@ -208,16 +209,16 @@ export const sidebar = [
       },
       createSectionHeader('Productivity'),
       {
-        label: 'API Collections',
-        collapsed: true,
+        label: 'API collections',
+        collapsed: false,
         items: [
           'dev-kit/api-collections/postman-collections',
           'dev-kit/api-collections/openapi-spec',
         ],
       },
       {
-        label: 'AI-Assisted Development',
-        collapsed: true,
+        label: 'AI assisted development',
+        collapsed: false,
         items: [
           'dev-kit/ai-assisted-development/scalekit-mcp-server',
           'dev-kit/ai-assisted-development/cursor',
@@ -245,13 +246,14 @@ export const sidebar = [
         autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
       {
-        label: 'Testing',
+        label: 'Test enterprise integrations',
         collapsed: true,
         items: ['dev-kit/guides/testing/sso-simulator', 'dev-kit/guides/testing/scim-simulator'],
       },
+      createDivider(),
       {
         label: 'How-to guides',
-        collapsed: true,
+        collapsed: false,
         items: [
           // 'reference/webhooks/overview',
           // 'reference/webhooks/directory-events',
@@ -265,8 +267,8 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Dashboard',
-        collapsed: true,
+        label: 'Scalekit dashboard',
+        collapsed: false,
         items: [
           'dev-kit/guides/dashboard/environments',
           'dev-kit/guides/dashboard/manage-team-members',
@@ -420,7 +422,7 @@ export const sidebar = [
       },
       // {
       //   label: 'API Reference',
-      //   collapsed: true,
+      //   collapsed: false,
       //   items: [
       //     // TODO: Verify internally if it makes sense
       //     // {
