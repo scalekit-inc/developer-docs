@@ -140,7 +140,7 @@ export const secondaryNavItems: NavItem[] = [
   },
   {
     id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit']
-    href: '/dev-kit/code-samples/',
+    href: '/dev-kit/',
     label: 'Developer Resources',
     iconComponent: IconHugeiconsResourcesAdd,
   },

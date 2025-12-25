@@ -303,7 +303,6 @@ export const redirects = {
   // GENERAL / OTHER REDIRECTS
   // =============================================================================
   '/examples': '/scenarios/',
-  '/dev-kit/': '/dev-kit/overview',
   '/dev-kit/sdks/overview': '/authenticate/set-up-scalekit/',
   '/authenticate/installation': '/authenticate/set-up-scalekit/',
   '/guides/setup-scalekit/': '/authenticate/set-up-scalekit/',
