@@ -95,13 +95,12 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
    <InstallSDK />
 
-
 2. ## Set up redirect URLs for your application
 
-   Redirect URLs are endpoints in your application that Scalekit redirects users to during the authentication flow. Pre-registering these URLs with Scalekit is required to prevent malicious or unauthorized redirects. 
+   Redirect URLs are endpoints in your application that Scalekit redirects users to during the authentication flow. Pre-registering these URLs with Scalekit is required to prevent malicious or unauthorized redirects.
    To configure them, go to **Scalekit dashboard** → **Authentication** → **Redirect URLs**.
 
-   - **Allowed callback URL**: Where Scalekit sends the user after they successfully authenticate.  
+   - **Allowed callback URL**: Where Scalekit sends the user after they successfully authenticate.
      Your app uses this endpoint to exchange the authorization code for session tokens and fetch the user profile (example: `https://your-app.com/auth/callback`). Make sure this matches your app URL exactly (scheme, domain, port, and path). [Learn more](/guides/dashboard/redirects/#allowed-callback-urls)
 
    - **Initiate-login URL**: Required to handle scenarios where authentication is not initiated from your app—for example, when a user accepts an organization invitation or starts sign-in directly from their identity provider (IdP-initiated SSO). Scalekit redirects the user to this endpoint, and your app should immediately redirect them back to Scalekit’s `/authorize` endpoint to continue the authentication flow. [Learn more](/guides/dashboard/redirects/#initiate-login-url)
@@ -110,10 +109,15 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
    Create an authorization URL to redirect users to Scalekit's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and required scopes.
 
+   Before creating the authorization URL, register redirect URLs in your Scalekit dashboard. Go to **Scalekit dashboard** → **Authentication** → **Redirect URLs** and configure:
+
+   - **Allowed callback URL**: The endpoint where Scalekit sends users after successful authentication. The `redirect_uri` in your code must match this URL exactly. [Learn more](/guides/dashboard/redirects/#allowed-callback-urls)
+   - **Initiate-login URL**: Required when authentication is not initiated from your app. Identity providers like Okta use this URL to let employees access your app through a dedicated employee portal. [Learn more](/guides/dashboard/redirects/#initiate-login-url)
+
    <Tabs syncKey="tech-stack">
    <TabItem value="node" label="Node.js">
    ```javascript wrap title="Express.js"
-   // Must match the allowed callback URL you registered in step 2
+   // Must match the allowed callback URL you registered in the dashboard
    const redirectUri = 'http://localhost:3000/auth/callback';
 
    // Request user profile data (openid, profile, email) and session tracking (offline_access)
@@ -133,7 +137,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    ```python wrap title="Flask"
    from scalekit import AuthorizationUrlOptions
 
-   # Must match the allowed callback URL you registered in step 2
+   # Must match the allowed callback URL you registered in the dashboard
    redirect_uri = 'http://localhost:3000/auth/callback'
 
    # Request user profile data (openid, profile, email) and session tracking (offline_access)
@@ -151,7 +155,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    </TabItem>
    <TabItem value="go" label="Go">
    ```go wrap title="Gin"
-   // Must match the allowed callback URL you registered in step 2
+   // Must match the allowed callback URL you registered in the dashboard
    redirectUri := "http://localhost:3000/auth/callback"
 
    // Request user profile data (openid, profile, email) and session tracking (offline_access)
@@ -177,7 +181,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    import java.net.URL;
    import java.util.Arrays;
 
-   // Must match the allowed callback URL you registered in step 2
+   // Must match the allowed callback URL you registered in the dashboard
    String redirectUri = "http://localhost:3000/auth/callback";
 
    // Request user profile data (openid, profile, email) and session tracking (offline_access)
