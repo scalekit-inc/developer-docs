@@ -4,7 +4,7 @@ export const sidebar = [
   {
     label: 'Full stack auth',
     id: 'authenticate',
-    link: '/authenticate',
+    link: '/authenticate/fsa/quickstart/',
     icon: 'seti:lock',
     items: [
       {
@@ -107,7 +107,7 @@ export const sidebar = [
     label: 'Agent Auth',
     link: '/agent-auth/quickstart',
     id: 'connect',
-    icon: 'rocket',
+    icon: 'seti:bicep',
     items: [
       {
         label: 'Getting started',
@@ -186,7 +186,7 @@ export const sidebar = [
   {
     label: 'Developer Resources',
     id: 'dev-kit',
-    link: 'fsa/guides/implement-signup',
+    link: '/dev-kit/code-samples/',
     icon: 'seti:powershell',
     // TODO: A lot of items are intentionally hidden until contents in them are authored.
     items: [
@@ -401,7 +401,7 @@ export const sidebar = [
   {
     label: 'Modular SCIM',
     id: 'modular-scim',
-    link: '/authenticate/sso/add-modular-sso',
+    link: '/directory/scim/quickstart/',
     icon: 'puzzle',
     items: [
       {
@@ -442,7 +442,7 @@ export const sidebar = [
     label: 'SDKs & APIs',
     id: 'sdks',
     link: '/sdks/',
-    icon: 'book',
+    icon: 'seti:webpack',
     items: [
       {
         label: 'SDKs',

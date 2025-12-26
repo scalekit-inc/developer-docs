@@ -23,7 +23,6 @@ import netlify from '@astrojs/netlify'
 export default defineConfig({
   site: 'https://docs.scalekit.com',
   redirects,
-
   integrations: [
     starlight({
       title: 'Scalekit Docs',
