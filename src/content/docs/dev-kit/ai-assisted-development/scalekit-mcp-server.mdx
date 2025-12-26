@@ -1,9 +1,161 @@
 ---
 title: Scalekit MCP Server
-description: 'Connect to Scalekit APIs through the Model Context Protocol for AI-assisted development'
-template: doc
+description: "Learn how to use the Scalekit MCP Server to manage your users, organizations, and applications."
+browseCentral:
+  label: "Operate Scalekit through MCP server"
+  category:
+    - "Setup dev environment"
+  filterType:
+    - "tutorial"
+  icon: "code"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
 sidebar:
-  label: 'Scalekit MCP Server'
+  label: 'Using Scalekit MCP Server'
+seeAlso:
+  items:
+    - title: "Scalekit MCP Server on GitHub"
+      icon: "github"
+      url: "https://github.com/scalekit-inc/mcp"
+    - title: "Add auth to your MCP server"
+      icon: "book"
+      url: "/authenticate/mcp/quickstart/"
+prev:
+  link: '/authenticate/set-up-scalekit/'
+  label: 'Set up Scalekit'
+next:
+  link: '/dev-kit/resources/ai-assisted-setup/'
+  label: 'Configure AI-assisted development'
+pagefind: false
 ---
 
-Coming soon
+Scalekit Model Context Protocol (MCP) server provides comprehensive tools for managing environments, organizations, users, connections, and workspace operations. Built for developers who want to connect their AI tools to Scalekit context and capabilities based on simple natural language queries.
+
+This MCP server enables AI assistants to interact with Scalekit's identity and access management platform through a standardized set of tools. It provides secure, OAuth-protected access to manage environments, organizations, users, authentication connections, and more.
+
+- Environment management and configuration
+- Organization and user management
+- Workspace member administration
+- OIDC connection setup and management
+- MCP server registration and configuration
+- Role and scope management
+- Admin portal link generation
+
+## Configuration
+
+The Scalekit MCP server can be configured to support OAuth for compatible clients.
+
+If your MCP Client doesn't support OAuth based authorization for MCP Servers, you can still use the Scalekit MCP server with the mcp-remote acting as a local proxy to add OAuth support.
+
+### Using OAuth (VS Code version 1.101 or greater)
+
+```json
+{
+  "servers": {
+    "scalekit": {
+      "type": "http",
+      "url": "https://mcp.scalekit.com/"
+    }
+  }
+}
+```
+
+### Using mcp-remote proxy
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
+    }
+  }
+}
+```
+
+Based on your MCP Host, configuration instructions to add Scalekit as an MCP Server can be found below:
+
+### Claude Desktop
+
+Configure the Claude app to use the MCP server:
+
+1. Open the Claude Desktop app, go to Settings, then Developer
+2. Click Edit Config
+3. Open the claude_desktop_config.json file
+4. Copy and paste the server config to your existing file, then save
+5. Restart Claude
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
+    }
+  }
+}
+```
+
+### Cursor
+
+Configure Cursor to use the MCP server:
+
+1. Open Cursor, go to Settings, then Cursor Settings
+2. Select MCP on the left
+3. Click Add "New Global MCP Server" at the top right
+4. Copy and paste the server config to your existing file, then save
+5. Restart Cursor
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
+    }
+  }
+}
+```
+
+### Windsurf
+
+Configure Windsurf to use the MCP server:
+
+1. Open Windsurf, go to Settings, then Developer
+2. Click Edit Config
+3. Open the windsurf_config.json file
+4. Copy and paste the server config to your existing file, then save
+5. Restart Windsurf
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
+    }
+  }
+}
+```
+
+## Authentication for MCP Server
+
+Scalekit MCP server uses OAuth2.1 based authentication. As soon as you register Scalekit MCP Server in your MCP Host, your MCP Host will initiate an OAuth authorization workflow so that the MCP Client can get appropriate tokens to securely communicate with Scalekit's MCP Server.
+
+:::tip
+If you are building your own MCP Server and would like to add OAuth based authorization, you can refer to our solution [Auth for MCP Servers](https://docs.scalekit.com/authenticate/mcp/quickstart).
+:::
+
+## Github
+
+We have made the source code for the Scalekit MCP server available on [Github](https://github.com/scalekit-inc/mcp). You can also find all available tools and descriptions in our Github repo.
+
+- Feel free to go through the code and raise an issue if you find any bugs or have any questions.
+- If you have suggestions for new tools, please raise a PR or open an issue.
