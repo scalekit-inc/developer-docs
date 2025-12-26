@@ -191,6 +191,15 @@ export const sidebar = [
     // TODO: A lot of items are intentionally hidden until contents in them are authored.
     items: [
       // 'dev-kit',
+      // {
+      //   label: 'Work with Scalekit',
+      //   collapsed: true,
+      //   items: [
+      //     'dev-kit/guides/dashboard/environments',
+      //     'dev-kit/guides/dashboard/manage-team-members',
+      //     'dev-kit/guides/dashboard/billing',
+      //   ],
+      // },
       {
         label: 'Code samples',
         items: [
@@ -281,8 +290,6 @@ export const sidebar = [
       //   collapsed: true,
       //   items: ['dev-kit/guides/testing/sso-simulator', 'dev-kit/guides/testing/scim-simulator'],
       // },
-      createSpacing(),
-      createDivider(),
       // {
       //   label: 'How-to guides',
       //   collapsed: false,
@@ -296,15 +303,6 @@ export const sidebar = [
       //     // 'reference/webhooks/sso-events'
       //   ],
       // },
-      {
-        label: 'Scalekit dashboard',
-        collapsed: false,
-        items: [
-          'dev-kit/guides/dashboard/environments',
-          'dev-kit/guides/dashboard/manage-team-members',
-          'dev-kit/guides/dashboard/billing',
-        ],
-      },
     ],
   },
   {
