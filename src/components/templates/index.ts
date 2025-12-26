@@ -15,3 +15,4 @@ export { default as OnboardEnterpriseCustomersSection } from './_onboard-enterpr
 export { default as DirectoryEventsSection } from './_directory-events.mdx'
 export { default as MCPAuthCodeSamplesCatalog } from './_mcp-integrations.mdx'
 export { default as AgentAuthCodeSamplesCatalog } from './_agent-auth-code-samples.mdx'
+export { default as FSACodeSamplesCatalog } from './_fsa-code-samples.mdx'

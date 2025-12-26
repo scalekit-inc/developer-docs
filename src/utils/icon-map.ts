@@ -81,6 +81,7 @@ import IconStreamlinePlumpBusinessProgressBar2 from '~icons/streamline-plump/bus
 import IconCarbonEnterprise from '~icons/carbon/enterprise'
 import IconGardenPlatform26 from '~icons/garden/platform-26'
 import IconLucideWorkflow from '~icons/lucide/workflow'
+import IconOpenapi from '~icons/file-icons/openapi'
 
 // Auth provider and integration logos
 import IconLogosAuth0 from '~icons/logos/auth0-icon'
@@ -208,6 +209,7 @@ export const iconMap = {
   platform: IconGardenPlatform26,
   workflow: IconLucideWorkflow,
   apiauth: IconApiAuth,
+  openapi: IconOpenapi,
 
   // Auth provider and integration logos
   auth0: IconLogosAuth0,
@@ -283,4 +285,5 @@ export {
   IconMingcuteUserSecurityLine, // Enterprise SSO
   IconAntDesignUserSwitchOutlined, // SCIM provisioning
   IconSolarServerPathOutline, // API Auth
+  IconOpenapi, // OpenAPI specification
 }

@@ -1,0 +1,84 @@
+---
+title: Manage environments
+description: Configure and manage development, staging, and production environments in Scalekit.
+tableOfContents: true
+sidebar:
+  label: Manage environments
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+Scalekit supports multiple environments to help you manage your application development lifecycle. Keep your development, staging, and production configurations separate while maintaining consistent authentication behavior.
+
+## Environment types
+
+Scalekit provides three default environments:
+
+| Environment | Purpose |
+| ----------- | ------- |
+| **Development** | Local development and testing with relaxed security policies |
+| **Staging** | Pre-production testing that mirrors production configuration |
+| **Production** | Live environment with strict security policies and monitoring |
+
+<Aside type="tip" title="Use separate environments">
+  Keep your development and production environments separate to prevent accidental
+  configuration changes from affecting your live users.
+</Aside>
+
+## Access environment settings
+
+Navigate to **Dashboard > Settings > Environments** to view and manage your environments.
+
+Each environment has its own:
+- Environment ID and URL
+- API credentials (client ID and secret)
+- Redirect URLs
+- Webhook endpoints
+- Authentication method configurations
+
+## Switch between environments
+
+Use the environment selector in the top-right corner of the dashboard to switch between environments.
+
+<Aside type="caution" title="Verify your environment">
+  Always confirm you're working in the correct environment before making configuration changes.
+  The dashboard displays the current environment name in the header.
+</Aside>
+
+## Configure environment-specific settings
+
+### Redirect URLs
+
+Each environment requires its own set of redirect URLs. Configure the appropriate URLs for your application in each environment:
+
+- **Development**: `http://localhost:3000/auth/callback`
+- **Staging**: `https://staging.yourapp.com/auth/callback`
+- **Production**: `https://yourapp.com/auth/callback`
+
+### API credentials
+
+Each environment uses unique API credentials. Store credentials securely using environment variables:
+
+```bash
+# Development
+SCALEKIT_ENVIRONMENT_ID=dev_env_123
+SCALEKIT_CLIENT_ID=dev_client_abc
+SCALEKIT_CLIENT_SECRET=dev_secret_xyz
+
+# Production
+SCALEKIT_ENVIRONMENT_ID=prod_env_456
+SCALEKIT_CLIENT_ID=prod_client_def
+SCALEKIT_CLIENT_SECRET=prod_secret_uvw
+```
+
+### Webhook endpoints
+
+Configure different webhook endpoints for each environment to test webhook delivery in staging before enabling in production.
+
+## Environment best practices
+
+- **Never use production credentials in development**
+- **Test all changes in staging before deploying to production**
+- **Use environment-specific API endpoints**
+- **Monitor logs separately for each environment**
+- **Keep webhook configurations synchronized across environments**

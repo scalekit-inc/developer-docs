@@ -1,4 +1,4 @@
-import { createDivider, createSectionHeader } from './sidebar-utils'
+import { createDivider, createSectionHeader, createSpacing } from './sidebar-utils'
 
 export const sidebar = [
   {
@@ -12,6 +12,7 @@ export const sidebar = [
         items: [
           'authenticate/set-up-scalekit',
           { label: 'Quickstart: Full stack auth', link: 'authenticate/fsa/quickstart' },
+          'authenticate/fsa/code-samples',
         ],
       },
       {
@@ -76,8 +77,20 @@ export const sidebar = [
           'guides/email-providers',
           'guides/dashboard/custom-email-templates',
           'authenticate/manage-users-orgs/custom-user-attributes',
-          'authenticate/interceptors/auth-flow-interceptors',
-          'authenticate/implement-workflows/implement-webhooks',
+          {
+            label: 'Intercept auth flows',
+            link: 'https://docs.scalekit.com/authenticate/interceptors/auth-flow-interceptors/',
+            attrs: {
+              target: '_blank',
+              rel: 'noopener noreferrer',
+              class: 'external-link',
+            },
+          },
+          {
+            label: 'Implement webhooks',
+            link: 'https://docs.scalekit.com/authenticate/implement-workflows/implement-webhooks',
+            attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
+          },
         ],
       },
       {
@@ -127,7 +140,7 @@ export const sidebar = [
       },
       {
         label: 'Agentic tool calling',
-        collapsed: true,
+        collapsed: false,
         items: [
           'agent-auth/agentic-quickstart',
           {
@@ -148,7 +161,7 @@ export const sidebar = [
       },
       {
         label: 'Tool calling reference',
-        collapsed: true,
+        collapsed: false,
         items: [
           'agent-auth/tools/overview',
           'agent-auth/tools/execute',
@@ -175,17 +188,22 @@ export const sidebar = [
     id: 'dev-kit',
     link: 'fsa/guides/implement-signup',
     icon: 'seti:powershell',
+    // TODO: A lot of items are intentionally hidden until contents in them are authored.
     items: [
+      // 'dev-kit',
       // {
-      //   label: 'Authorization',
+      //   label: 'Work with Scalekit',
       //   collapsed: true,
-      //   items: [],
+      //   items: [
+      //     'dev-kit/guides/dashboard/environments',
+      //     'dev-kit/guides/dashboard/manage-team-members',
+      //     'dev-kit/guides/dashboard/billing',
+      //   ],
       // },
       {
         label: 'Code samples',
-        collapsed: false,
         items: [
-          'dev-kit/code-samples',
+          { label: 'Overview', link: 'dev-kit/code-samples' },
           'dev-kit/code-samples/mcp-auth',
           'dev-kit/code-samples/agent-auth',
           'dev-kit/code-samples/modular-sso',
@@ -193,43 +211,97 @@ export const sidebar = [
           'dev-kit/code-samples/full-stack-auth',
         ],
       },
+      createSpacing(),
+      createSectionHeader('DEV TOOLS'),
       {
-        label: 'Configure social connections',
+        label: 'SDKs',
+        link: 'dev-kit/sdks',
+      },
+      {
+        label: 'APIs',
+        // link: 'dev-kit/apis',
+        link: '/apis/#description/overview',
+        attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
+      },
+      {
+        label: 'API collections',
+        collapsed: true,
+        items: [
+          // 'dev-kit/api-collections/postman-collections', TODO: Expand the guide for postman collections
+          {
+            label: 'Postman collections',
+            link: 'https://github.com/scalekit-inc/api-collections/tree/main/postman',
+            attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
+          },
+          'dev-kit/api-collections/openapi-spec',
+        ],
+      },
+      {
+        label: 'AI tools',
+        collapsed: true,
+        items: [
+          'dev-kit/ai-assisted-development/scalekit-mcp-server',
+          'dev-kit/resources/ai-assisted-setup',
+          // 'dev-kit/ai-assisted-development/cursor',
+          // 'dev-kit/ai-assisted-development/claude',
+          // 'dev-kit/ai-assisted-development/codex',
+          // 'dev-kit/ai-assisted-development/vscode',
+        ],
+      },
+      createSpacing(),
+      createSectionHeader('Workflows'),
+      {
+        label: 'Webhooks',
+        collapsed: false,
+        items: [
+          'authenticate/implement-workflows/implement-webhooks',
+          'guides/webhooks-best-practices',
+        ],
+      },
+      {
+        label: 'Interceptors',
+        collapsed: false,
+        items: [
+          'authenticate/interceptors/auth-flow-interceptors',
+          'reference/interceptors/triggers',
+        ],
+      },
+      { label: 'Admin portal events', link: 'reference/admin-portal/ui-events' },
+      createSectionHeader('Auth Integrations'),
+      {
+        label: 'Social connections',
         collapsed: true,
         autogenerate: {
           directory: 'guides/integrations/social-connections',
         },
       },
       {
-        label: 'Guides',
+        label: 'SSO integrations',
         collapsed: true,
-        items: [
-          // 'reference/webhooks/overview',
-          // 'reference/webhooks/directory-events',
-          // 'reference/webhooks/user-events',
-          // 'reference/webhooks/organization-events',
-          // 'reference/webhooks/permission-events',
-          // 'reference/webhooks/role-events',
-          // 'reference/webhooks/sso-events',
-          { label: 'Admin portal events', link: 'reference/admin-portal/ui-events' },
-          { label: 'Interceptors triggers', link: 'reference/interceptors/triggers' },
-          { label: 'Webhooks best practices', link: 'guides/webhooks-best-practices' },
-        ],
+        autogenerate: { directory: 'guides/integrations/sso-integrations' },
       },
-      // Hiding them because business decision to limit modular offerings
+      {
+        label: 'SCIM integrations',
+        collapsed: true,
+        autogenerate: { directory: 'guides/integrations/scim-integrations' },
+      },
       // {
-      //   label: 'Headless API',
-      //   items: [
-      //     'passwordless/quickstart',
-      //     'guides/user-auth/modular-social-logins',
-      //     'authenticate/m2m/api-auth-quickstart',
-      //   ],
+      //   label: 'Test enterprise integrations',
+      //   collapsed: true,
+      //   items: ['dev-kit/guides/testing/sso-simulator', 'dev-kit/guides/testing/scim-simulator'],
       // },
-      // TODO: Come back later as you put together one guide for auth best practices move this up into User authentication category
       // {
-      //   label: 'Best practices',
+      //   label: 'How-to guides',
       //   collapsed: false,
-      //   items: ['guides/client-credentials-practices'],
+      //   items: [
+      //     // 'reference/webhooks/overview',
+      //     // 'reference/webhooks/directory-events',
+      //     // 'reference/webhooks/user-events',
+      //     // 'reference/webhooks/organization-events',
+      //     // 'reference/webhooks/permission-events',
+      //     // 'reference/webhooks/role-events',
+      //     // 'reference/webhooks/sso-events'
+      //   ],
       // },
     ],
   },
@@ -320,8 +392,9 @@ export const sidebar = [
         ],
       },
       {
-        label: 'SSO integrations',
-        autogenerate: { directory: 'guides/integrations/sso-integrations' },
+        label: 'View all SCIM integrations',
+        link: 'https://docs.scalekit.com/guides/integrations/scim-integrations/',
+        attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
       },
     ],
   },
@@ -359,8 +432,9 @@ export const sidebar = [
         ],
       },
       {
-        label: 'SCIM integrations',
-        autogenerate: { directory: 'guides/integrations/scim-integrations' },
+        label: 'View all SSO integrations',
+        link: 'https://docs.scalekit.com/guides/integrations/sso-integrations/',
+        attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
       },
     ],
   },
@@ -380,13 +454,13 @@ export const sidebar = [
         ],
       },
       {
-        label: 'REST APIs',
+        label: 'APIs',
         link: '/apis/#description/overview',
-        attrs: { target: '_blank', rel: 'noopener noreferrer' },
+        attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
       },
       // {
       //   label: 'API Reference',
-      //   collapsed: true,
+      //   collapsed: false,
       //   items: [
       //     // TODO: Verify internally if it makes sense
       //     // {
@@ -416,14 +490,22 @@ export const sidebar = [
  * Pattern matching priority: More specific patterns should be listed first.
  * The plugin matches from top to bottom, first match wins.
  */
-export const topics = {
-  // Pages that use custom navigation or no sidebar at all
-  exclude: [
-    '/', // Home page
-    '/404', // Error page
-    '/apis/**/*', // REST API reference has Scalar-powered navigation
-  ],
 
+/**
+ * Pages that should be excluded from any topic.
+ * These pages will use the built-in Starlight sidebar and not render a list of topics.
+ */
+export const exclude = [
+  '/', // Home page
+  '/404', // Error page
+  '/apis/**/*', // REST API reference has Scalar-powered navigation
+]
+
+/**
+ * Maps topic IDs to arrays of glob patterns for pages that should be associated with each topic.
+ * This is useful for pages generated by other plugins or pages not explicitly listed in sidebar items.
+ */
+export const topics = {
   // === Specific topic mappings (order matters - most specific first) ===
 
   // MCP authentication (subset of /authenticate and /mcp)
@@ -438,18 +520,10 @@ export const topics = {
   // Agent Auth / Connect
   connect: ['/agent-auth/**/*', '/reference/agent-connectors/**/*'],
 
-  // Events & webhooks reference
-  'events-reference': [
-    '/reference/webhooks/**/*',
-    '/reference/admin-portal/**/*',
-    '/reference/interceptors/**/*',
-  ],
-
-  // Main authentication topic (after more specific mcp/sso patterns)
-  authenticate: ['/authenticate/**/*', '/fsa/**/*'],
-
-  // === dev-kit is the DEFAULT catch-all for everything else ===
+  // === dev-kit patterns (must come before authenticate pattern) ===
   'dev-kit': [
+    '/authenticate/implement-workflows/implement-webhooks',
+    '/authenticate/interceptors/auth-flow-interceptors',
     '/dev-kit/**/*',
     '/guides/**/*',
     '/browse/**/*',
@@ -459,6 +533,8 @@ export const topics = {
     '/reference/**/*', // Any remaining reference pages
     '/**/*', // Catch-all: anything not matched above defaults here
   ],
+
+  // Main authentication topic (after more specific mcp/sso patterns)
 }
 
 /**
@@ -507,8 +583,7 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
       '/fsa/guides/login-page-branding': 'fsa-customize',
       '/guides/email-providers': 'fsa-customize',
       '/guides/dashboard/custom-email-templates': 'fsa-customize',
-      '/authenticate/interceptors': 'fsa-customize',
-      '/authenticate/implement-workflows': 'fsa-customize',
+      // Removed: interceptors and workflows now use topics-based routing (maps to dev-kit)
     },
   },
 
