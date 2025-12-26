@@ -82,6 +82,7 @@ export const sidebar = [
             link: 'https://docs.scalekit.com/authenticate/interceptors/auth-flow-interceptors/',
             attrs: {
               target: '_blank',
+              rel: 'noopener noreferrer',
               class: 'external-link',
             },
           },
@@ -392,6 +393,11 @@ export const sidebar = [
           },
         ],
       },
+      {
+        label: 'View all SCIM integrations',
+        link: 'https://docs.scalekit.com/guides/integrations/scim-integrations/',
+        attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
+      },
     ],
   },
   {
@@ -426,6 +432,11 @@ export const sidebar = [
             link: 'directory/reference/directory-events',
           },
         ],
+      },
+      {
+        label: 'View all SSO integrations',
+        link: 'https://docs.scalekit.com/guides/integrations/sso-integrations/',
+        attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
       },
     ],
   },
