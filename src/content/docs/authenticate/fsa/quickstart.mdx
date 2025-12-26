@@ -95,17 +95,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
    <InstallSDK />
 
-2. ## Set up redirect URLs for your application
-
-   Redirect URLs are endpoints in your application that Scalekit redirects users to during the authentication flow. Pre-registering these URLs with Scalekit is required to prevent malicious or unauthorized redirects.
-   To configure them, go to **Scalekit dashboard** → **Authentication** → **Redirect URLs**.
-
-   - **Allowed callback URL**: Where Scalekit sends the user after they successfully authenticate.
-     Your app uses this endpoint to exchange the authorization code for session tokens and fetch the user profile (example: `https://your-app.com/auth/callback`). Make sure this matches your app URL exactly (scheme, domain, port, and path). [Learn more](/guides/dashboard/redirects/#allowed-callback-urls)
-
-   - **Initiate-login URL**: Required to handle scenarios where authentication is not initiated from your app—for example, when a user accepts an organization invitation or starts sign-in directly from their identity provider (IdP-initiated SSO). Scalekit redirects the user to this endpoint, and your app should immediately redirect them back to Scalekit’s `/authorize` endpoint to continue the authentication flow. [Learn more](/guides/dashboard/redirects/#initiate-login-url)
-
-3. ## Redirect users to sign up (or) login
+2. ## Redirect users to sign up (or) login
 
    Create an authorization URL to redirect users to Scalekit's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and required scopes.
 
@@ -202,7 +192,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    Ensure the redirect URL in your code matches what you configured in the Scalekit dashboard, including protocol (`https://`), domain, port, and path.
    </Aside>
 
-4. ## Get user details from the callback
+3. ## Get user details from the callback
 
     After successful authentication, Scalekit creates a user record and sends the user information to your callback endpoint.
     In authentication flow, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and session tokens.
@@ -408,7 +398,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
       The user details are packaged in the form of JWT tokens. Decode the `idToken` to access full user profile information (email, name, organization ID) and the `accessToken` to check user roles and permissions for authorization decisions. See [Complete login with code exchange](/authenticate/fsa/complete-login/) for detailed token claim references and verification instructions.
 
 
-5. ## Create and manage user sessions
+4. ## Create and manage user sessions
 
       The access token is a JWT that contains the user's permissions and roles. It expires in 5 minutes (default) but [can be configured](/authenticate/fsa/manage-session/#configure-session-security-and-duration). When it expires, use the refresh token to obtain a new access token. The refresh token is long-lived and designed for this purpose.
 
@@ -822,7 +812,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
       Authenticated users can access your dashboard. The app enforces session policies using session tokens. To change session policies, go to Dashboard > Authentication > Session Policy in the Scalekit dashboard.
 
-6. ## Log out the user
+5. ## Log out the user
 
       Session persistence depends on the session policy configured in the Scalekit dashboard.
       To log out a user, clear local session data and invalidate the user's session in Scalekit.
