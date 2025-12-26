@@ -79,7 +79,7 @@ export const sidebar = [
           'authenticate/manage-users-orgs/custom-user-attributes',
           {
             label: 'Intercept auth flows',
-            link: '/authenticate/interceptors/auth-flow-interceptors',
+            link: 'https://docs.scalekit.com/authenticate/interceptors/auth-flow-interceptors/',
             attrs: {
               target: '_blank',
               class: 'external-link',
@@ -87,8 +87,8 @@ export const sidebar = [
           },
           {
             label: 'Implement webhooks',
-            link: '/authenticate/implement-workflows/implement-webhooks',
-            attrs: { target: '_blank', class: 'external-link' },
+            link: 'https://docs.scalekit.com/authenticate/implement-workflows/implement-webhooks',
+            attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
           },
         ],
       },
@@ -526,7 +526,6 @@ export const topics = {
   ],
 
   // Main authentication topic (after more specific mcp/sso patterns)
-  authenticate: ['/authenticate/**/*', '/fsa/**/*'],
 }
 
 /**
