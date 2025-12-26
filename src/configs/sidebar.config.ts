@@ -12,6 +12,7 @@ export const sidebar = [
         items: [
           'authenticate/set-up-scalekit',
           { label: 'Quickstart: Full stack auth', link: 'authenticate/fsa/quickstart' },
+          'authenticate/fsa/code-samples',
         ],
       },
       {
