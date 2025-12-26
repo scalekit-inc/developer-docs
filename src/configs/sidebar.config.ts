@@ -225,7 +225,7 @@ export const sidebar = [
         collapsed: true,
         items: [
           'dev-kit/ai-assisted-development/scalekit-mcp-server',
-          '/dev-kit/resources/ai-assisted-setup/',
+          'dev-kit/resources/ai-assisted-setup',
           // 'dev-kit/ai-assisted-development/cursor',
           // 'dev-kit/ai-assisted-development/claude',
           // 'dev-kit/ai-assisted-development/codex',
