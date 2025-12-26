@@ -11,7 +11,7 @@ import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
 import starlightLinksValidator from 'starlight-links-validator'
-import { sidebar as sidebarConfig, topics } from './src/configs/sidebar.config'
+import { sidebar as sidebarConfig, topics, exclude } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import tailwindcss from '@tailwindcss/vite'
 import d2 from 'astro-d2' // https://astro-d2.vercel.app/configuration/
@@ -87,7 +87,7 @@ export default defineConfig({
         starlightImageZoom({
           showCaptions: true,
         }),
-        starlightSidebarTopics(sidebarConfig, { topics }),
+        starlightSidebarTopics(sidebarConfig, { topics, exclude }),
         starlightVideos(),
         starlightLinksValidator({
           exclude: ['/apis/**'],
