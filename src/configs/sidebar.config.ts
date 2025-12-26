@@ -181,12 +181,50 @@ export const sidebar = [
     id: 'dev-kit',
     link: 'fsa/guides/implement-signup',
     icon: 'seti:powershell',
+    // TODO: A lot of items are intentionally hidden until contents in them are authored.
     items: [
-      'dev-kit',
-      'dev-kit/sdks',
-      'dev-kit/apis',
-      'dev-kit/code-samples',
-      createDivider(),
+      // 'dev-kit',
+      {
+        label: 'Code samples',
+        items: [
+          { label: 'Overview', link: 'dev-kit/code-samples' },
+          'dev-kit/code-samples/mcp-auth',
+          'dev-kit/code-samples/agent-auth',
+          'dev-kit/code-samples/modular-sso',
+          'dev-kit/code-samples/modular-scim',
+          'dev-kit/code-samples/full-stack-auth',
+        ],
+      },
+      createSectionHeader('DEV TOOLS'),
+      {
+        label: 'SDKs',
+        link: 'dev-kit/sdks',
+      },
+      {
+        label: 'APIs',
+        // link: 'dev-kit/apis',
+        link: '/apis/#description/overview',
+        attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
+      },
+      {
+        label: 'API collections',
+        collapsed: false,
+        items: [
+          'dev-kit/api-collections/postman-collections',
+          'dev-kit/api-collections/openapi-spec',
+        ],
+      },
+      {
+        label: 'AI tools',
+        collapsed: false,
+        items: [
+          'dev-kit/ai-assisted-development/scalekit-mcp-server',
+          'dev-kit/ai-assisted-development/cursor',
+          // 'dev-kit/ai-assisted-development/claude',
+          // 'dev-kit/ai-assisted-development/codex',
+          // 'dev-kit/ai-assisted-development/vscode',
+        ],
+      },
       createSectionHeader('Workflows'),
       {
         label: 'Webhooks',
@@ -205,26 +243,6 @@ export const sidebar = [
         items: [
           'authenticate/interceptors/auth-flow-interceptors',
           'reference/interceptors/triggers',
-        ],
-      },
-      createSectionHeader('Productivity'),
-      {
-        label: 'API collections',
-        collapsed: false,
-        items: [
-          'dev-kit/api-collections/postman-collections',
-          'dev-kit/api-collections/openapi-spec',
-        ],
-      },
-      {
-        label: 'AI assisted development',
-        collapsed: false,
-        items: [
-          'dev-kit/ai-assisted-development/scalekit-mcp-server',
-          'dev-kit/ai-assisted-development/cursor',
-          'dev-kit/ai-assisted-development/claude',
-          'dev-kit/ai-assisted-development/codex',
-          'dev-kit/ai-assisted-development/vscode',
         ],
       },
       createSectionHeader('Auth Integrations'),
@@ -416,9 +434,9 @@ export const sidebar = [
         ],
       },
       {
-        label: 'REST APIs',
+        label: 'APIs',
         link: '/apis/#description/overview',
-        attrs: { target: '_blank', rel: 'noopener noreferrer' },
+        attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
       },
       // {
       //   label: 'API Reference',
