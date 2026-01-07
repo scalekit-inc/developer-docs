@@ -7,6 +7,7 @@ import vue from '@astrojs/vue'
 import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
+import starlightDocSearch from '@astrojs/starlight-docsearch'
 import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
@@ -53,18 +54,6 @@ export default defineConfig({
       editLink: {
         baseUrl: 'https://github.com/scalekit-inc/developer-docs/edit/main',
       },
-      pagefind: {
-        rootSelector: 'body',
-        mergeIndex: [
-          // {
-          //   bundlePath: '/apis',
-          //   indexWeight: 1.5, // Give API reference slightly higher weight in search results
-          //   mergeFilter: {
-          //     resource: 'API Reference',
-          //   },
-          // },
-        ],
-      },
       expressiveCode: {
         useStarlightDarkModeSwitch: true,
         // themes: ['vitesse-dark', 'vitesse-light'],
@@ -87,6 +76,12 @@ export default defineConfig({
           showCaptions: true,
         }),
         starlightSidebarTopics(sidebarConfig, { topics, exclude }),
+        starlightDocSearch({
+          appId: '7554BDRAJD',
+          apiKey: 'b2fecf525a556f05d46ef2389ad7e4b6',
+          indexName: 'scalekit-starlight-crawler',
+          askAi: '8jKZkVuXS0hG',
+        }),
         starlightVideos(),
         starlightLinksValidator({
           exclude: ['/apis/**'],
