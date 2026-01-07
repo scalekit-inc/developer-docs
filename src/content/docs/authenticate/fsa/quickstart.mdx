@@ -95,15 +95,21 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
    <InstallSDK />
 
-
 2. ## Redirect users to sign up (or) login
 
-   Create an authorization URL to redirect users to Scalekit's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and required scopes.
+   An authorization URL is an endpoint that redirects users to Scalekit's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and required scopes.
+
+   Before creating the authorization URL, register redirect URLs in your Scalekit dashboard. Go to **Scalekit dashboard** → **Authentication** → **Redirect URLs** and configure:
+
+   - **Allowed callback URL**: The endpoint where Scalekit sends users after successful authentication. The `redirect_uri` in your code must match this URL exactly. [Learn more](/guides/dashboard/redirects/#allowed-callback-urls)
+   - **Initiate-login URL**: Required when authentication is not initiated from your app-for example, when a user accepts an organization invitation or starts sign-in directly from their identity provider (IdP-initiated SSO). [Learn more](/guides/dashboard/redirects/#initiate-login-url)
+
+   Now, you can create an authorization URL to redirect users to the login  page.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="node" label="Node.js">
    ```javascript wrap title="Express.js"
-   // Must match the callback URL you registered in step 1
+   // Must match the allowed callback URL you registered in the dashboard
    const redirectUri = 'http://localhost:3000/auth/callback';
 
    // Request user profile data (openid, profile, email) and session tracking (offline_access)
@@ -123,7 +129,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    ```python wrap title="Flask"
    from scalekit import AuthorizationUrlOptions
 
-   # Must match the callback URL you registered in step 1
+   # Must match the allowed callback URL you registered in the dashboard
    redirect_uri = 'http://localhost:3000/auth/callback'
 
    # Request user profile data (openid, profile, email) and session tracking (offline_access)
@@ -141,7 +147,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    </TabItem>
    <TabItem value="go" label="Go">
    ```go wrap title="Gin"
-   // Must match the callback URL you registered in step 1
+   // Must match the allowed callback URL you registered in the dashboard
    redirectUri := "http://localhost:3000/auth/callback"
 
    // Request user profile data (openid, profile, email) and session tracking (offline_access)
@@ -167,7 +173,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    import java.net.URL;
    import java.util.Arrays;
 
-   // Must match the callback URL you registered in step 1
+   // Must match the allowed callback URL you registered in the dashboard
    String redirectUri = "http://localhost:3000/auth/callback";
 
    // Request user profile data (openid, profile, email) and session tracking (offline_access)
@@ -185,17 +191,13 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    This redirects users to Scalekit's managed sign-in page where they can authenticate. The page includes default authentication methods for users to toggle between sign in and sign up.
 
    <Aside type="tip" title='Match your redirect URLs exactly'>
-   Ensure the URL in your code matches what you configured in the Scalekit dashboard, including protocol (`https://`), domain, port, and path.
+   Ensure the redirect URL in your code matches what you configured in the Scalekit dashboard, including protocol (`https://`), domain, port, and path.
    </Aside>
 
 3. ## Get user details from the callback
 
     After successful authentication, Scalekit creates a user record and sends the user information to your callback endpoint.
-
-   1. Add a callback endpoint in your application (typically `https://your-app.com/auth/callback`)
-   2. [Register](/guides/dashboard/allowed-callback-url/) it in your Scalekit dashboard > Authentication > Redirect URLS > Allowed Callback URLs
-
-   In authentication flow, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and session tokens.
+    In authentication flow, Scalekit redirects to your callback URL with an authorization code. Your application exchanges this code for the user's profile information and session tokens.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="node" label="Node.js">
