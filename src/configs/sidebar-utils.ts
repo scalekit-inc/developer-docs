@@ -160,3 +160,32 @@ export function createSectionHeader(label: string) {
     },
   }
 }
+
+/**
+ * Creates blank spacing in the sidebar
+ * @returns A sidebar item configured as visual spacing
+ * @example
+ * ```ts
+ * {
+ *   label: 'User authentication',
+ *   items: [...]
+ * },
+ * createSpacing(),
+ * {
+ *   label: 'Authorization',
+ *   items: [...]
+ * }
+ * ```
+ */
+export function createSpacing() {
+  return {
+    label: '',
+    link: '#',
+    attrs: {
+      'data-separator': 'spacing',
+      class: 'sidebar-spacing',
+      'aria-hidden': 'true',
+      tabindex: '-1',
+    },
+  }
+}

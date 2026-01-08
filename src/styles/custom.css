@@ -173,8 +173,8 @@
   #starlight__sidebar a[data-separator='section-header'] {
     pointer-events: none;
     cursor: default;
-    font-size: 0.725rem !important; /* 10px - reduced from 11px */
-    font-weight: 700 !important;
+    font-size: 0.78rem !important; /* 10px - reduced from 11px */
+    font-weight: 650 !important;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--sl-color-gray-3) !important;
@@ -190,6 +190,26 @@
 
   /* Hide the caret for section headers */
   #starlight__sidebar a[data-separator='section-header'] svg {
+    display: none;
+  }
+
+  /* Spacing separator - blank vertical space */
+  #starlight__sidebar a[data-separator='spacing'] {
+    pointer-events: none;
+    cursor: default;
+    padding: 0 !important;
+    margin: 1rem 0 !important;
+    min-height: 0;
+    background: transparent !important;
+  }
+
+  #starlight__sidebar a[data-separator='spacing']:hover {
+    background: transparent !important;
+  }
+
+  /* Hide the text content and caret for spacing */
+  #starlight__sidebar a[data-separator='spacing'] span,
+  #starlight__sidebar a[data-separator='spacing'] svg {
     display: none;
   }
 
@@ -424,16 +444,35 @@
     display: flex;
   }
 
-  #starlight__sidebar details details summary span:not(.trigger-label) {
-    color: var(--sl-color-gray-3);
-    text-transform: uppercase;
-    font-weight: 700;
-    font-size: 0.75rem;
-    display: block;
+  /* Reduce size of collapsible group labels (e.g., "Webhooks", "Interceptors") */
+  #starlight__sidebar details summary span.group-label span.large {
+    font-size: var(--sl-text-sm) !important; /* 14.4px - match nested items */
+    font-weight: 500 !important; /* Slightly heavier than nested items but lighter than current 600 */
   }
 
-  #starlight__sidebar details details summary svg {
-    display: none;
+  /* Reduce spacing between top-level standalone items (not in collapsible groups) */
+  #starlight__sidebar ul.top-level > li:not(:first-child):not(:has(details)) {
+    margin-top: 0.25rem !important; /* 4px - tighter spacing for standalone items like Overview, SDKs, APIs, Code samples */
+  }
+
+  /* External link indicator for sidebar items that open in new tab */
+  /* Uses an SVG icon similar to IconOcticonTabExternal */
+  #starlight__sidebar a.external-link::after {
+    content: '';
+    display: inline-block;
+    width: 0.75em;
+    height: 0.75em;
+    margin-left: 0.1875rem;
+    vertical-align: baseline;
+    opacity: 0.7;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='currentColor' d='M3.75 2A1.75 1.75 0 0 0 2 3.75v8.5c0 .966.784 1.75 1.75 1.75h8.5A1.75 1.75 0 0 0 14 12.25v-3.5a.75.75 0 0 1 1.5 0v3.5A3.25 3.25 0 0 1 12.25 16h-8.5A3.25 3.25 0 0 1 .5 12.25v-8.5A3.25 3.25 0 0 1 3.75.5h3.5a.75.75 0 0 1 0 1.5z'/%3E%3Cpath fill='currentColor' d='M10.5 1.5a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0V2.56l-5.22 5.22a.75.75 0 1 1-1.06-1.06l5.22-5.22H11.25a.75.75 0 0 1-.75-.75'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  #starlight__sidebar a.external-link:hover::after {
+    opacity: 1;
   }
 
   /* Ensure dropdown trigger labels maintain proper styling */
