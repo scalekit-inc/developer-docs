@@ -1,0 +1,689 @@
+---
+/**
+ * CodeWalkthrough.astro - Interactive code walkthrough component
+ * Two-pane layout with step-by-step instructions on left and highlighted code on right
+ * Supports multiple programming languages with multiple files per language
+ */
+
+import { Code } from '@astrojs/starlight/components'
+import { readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
+
+export interface LanguageConfig {
+  id: string
+  label: string
+  codeDir: string // Directory containing all files for this language
+}
+
+export interface Props {
+  /**
+   * Array of language configurations
+   * E.g., [{ id: "typescript", label: "Node.js", codeDir: "authentication/nodejs" }]
+   */
+  languages: LanguageConfig[]
+
+  /**
+   * Optional title for the code panel
+   */
+  title?: string
+
+  /**
+   * Show line numbers in the code
+   * @default true
+   */
+  showLineNumbers?: boolean
+
+  /**
+   * Make code panel sticky while scrolling through steps
+   * @default true
+   */
+  sticky?: boolean
+
+  /**
+   * Optional class name for custom styling
+   */
+  class?: string
+}
+
+const {
+  languages,
+  title,
+  showLineNumbers = true,
+  sticky = true,
+  class: className = '',
+} = Astro.props
+
+// Read all code files for each language at build time
+const codeByLanguage: Record<string, Record<string, string>> = {}
+const filesByLanguage: Record<string, string[]> = {}
+
+for (const lang of languages) {
+  const codeDirPath = join(process.cwd(), 'src', 'content', 'code-samples', lang.codeDir)
+  codeByLanguage[lang.id] = {}
+  filesByLanguage[lang.id] = []
+
+  try {
+    const files = readdirSync(codeDirPath).filter((f) => !f.startsWith('.'))
+    filesByLanguage[lang.id] = files
+
+    for (const file of files) {
+      const filePath = join(codeDirPath, file)
+      try {
+        codeByLanguage[lang.id][file] = readFileSync(filePath, 'utf-8').trim()
+      } catch (error) {
+        console.error(`Failed to read file: ${filePath}`, error)
+        codeByLanguage[lang.id][file] = `// Error: Could not load ${file}`
+      }
+    }
+  } catch (error) {
+    console.error(`Failed to read directory: ${codeDirPath}`, error)
+  }
+}
+
+const defaultLanguage = languages[0].id
+---
+
+<div class={`code-walkthrough-wrapper ${className}`}>
+  <!-- Language Switcher -->
+  <div class="language-switcher">
+    <label class="language-switcher-label">Select your language:</label>
+    <div class="language-buttons" role="tablist">
+      {
+        languages.map((lang, index) => (
+          <button
+            type="button"
+            role="tab"
+            class={`language-button ${index === 0 ? 'active' : ''}`}
+            data-language={lang.id}
+            aria-selected={index === 0 ? 'true' : 'false'}
+          >
+            {lang.label}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  <!-- Two-pane layout -->
+  <div class="code-walkthrough" data-walkthrough>
+    <!-- Left panel: Steps -->
+    <div class="walkthrough-steps" data-walkthrough-steps>
+      <slot />
+    </div>
+
+    <!-- Right panel: Code with language tabs and file tabs -->
+    <div class={`walkthrough-code-panel ${sticky ? 'sticky' : ''}`} data-walkthrough-code>
+      {
+        title && (
+          <p class="walkthrough-code-title">
+            <em>{title}</em>
+          </p>
+        )
+      }
+
+      {
+        languages.map((lang, index) => (
+          <div
+            class={`walkthrough-language-container ${index === 0 ? 'active' : ''}`}
+            data-language-container
+            data-language={lang.id}
+          >
+            {/* File Tabs */}
+            <div class="file-tabs" data-file-tabs>
+              {filesByLanguage[lang.id].map((file, fileIndex) => (
+                <button
+                  type="button"
+                  class={`file-tab ${fileIndex === 0 ? 'active' : ''}`}
+                  data-file={file}
+                  data-language={lang.id}
+                >
+                  {file}
+                </button>
+              ))}
+            </div>
+
+            {/* Code Containers for each file */}
+            {filesByLanguage[lang.id].map((file, fileIndex) => (
+              <div
+                class={`walkthrough-code-container ${fileIndex === 0 ? 'active' : ''}`}
+                data-code-container
+                data-language={lang.id}
+                data-file={file}
+                role="tabpanel"
+              >
+                <Code
+                  code={codeByLanguage[lang.id][file]}
+                  lang={lang.id}
+                  showLineNumbers={showLineNumbers}
+                />
+              </div>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .code-walkthrough-wrapper {
+    margin: 2rem 0;
+    width: 100%;
+  }
+
+  /* Language Switcher */
+  .language-switcher {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--sl-color-gray-6);
+    border-radius: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+  }
+
+  .language-switcher-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--sl-color-gray-2);
+  }
+
+  .language-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .language-button {
+    padding: 0.5rem 1.25rem;
+    border-radius: 0.375rem;
+    border: 2px solid var(--sl-color-gray-5);
+    background: var(--sl-color-bg);
+    color: var(--sl-color-gray-2);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .language-button:hover {
+    border-color: var(--sl-color-gray-4);
+    background: var(--sl-color-gray-6);
+  }
+
+  .language-button.active {
+    border-color: var(--sl-color-accent);
+    background: var(--sl-color-accent);
+    color: white;
+  }
+
+  .language-button:focus {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Two-pane layout */
+  .code-walkthrough {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+    position: relative;
+  }
+
+  .walkthrough-steps {
+    min-width: 0;
+    padding-bottom: 40vh;
+  }
+
+  .walkthrough-code-panel {
+    min-width: 0;
+  }
+
+  .walkthrough-code-panel.sticky {
+    position: sticky;
+    top: calc(var(--sl-nav-height, 0px) + 1rem);
+    height: calc(100vh - var(--sl-nav-height, 0px) - 2rem);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-self: start;
+  }
+
+  .walkthrough-code-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin: 0 0 0.75rem 0;
+    color: var(--sl-color-gray-2);
+    flex-shrink: 0;
+  }
+
+  /* Language Container */
+  .walkthrough-language-container {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .walkthrough-language-container.active {
+    display: flex;
+  }
+
+  /* File Tabs */
+  .file-tabs {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    padding-bottom: 0.5rem;
+    flex-shrink: 0;
+    overflow-x: auto;
+  }
+
+  .file-tab {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-bottom: none;
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-gray-2);
+    font-size: 0.75rem;
+    font-family: var(--sl-font-mono);
+    cursor: pointer;
+    border-radius: 0.375rem 0.375rem 0 0;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .file-tab:hover {
+    background: var(--sl-color-gray-5);
+  }
+
+  .file-tab.active {
+    background: var(--sl-color-bg);
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-accent);
+    font-weight: 600;
+  }
+
+  /* Code Containers */
+  .walkthrough-code-container {
+    flex: 1;
+    display: none;
+    border-radius: 0.5rem;
+    overflow: auto;
+  }
+
+  .walkthrough-code-container.active {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .walkthrough-code-container .expressive-code {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .walkthrough-code-container .expressive-code figure {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+
+  .walkthrough-code-container .expressive-code pre {
+    flex: 1;
+    margin: 0;
+    max-height: none !important;
+  }
+
+  /* Mobile responsive: stack vertically */
+  @media (max-width: 768px) {
+    .code-walkthrough {
+      grid-template-columns: 1fr;
+    }
+
+    .walkthrough-code-panel {
+      order: -1;
+    }
+
+    .walkthrough-code-panel.sticky {
+      position: static;
+      height: auto;
+      max-height: 600px;
+    }
+
+    .walkthrough-code-container .expressive-code pre {
+      max-height: 600px !important;
+    }
+  }
+
+  /* Smooth scrolling */
+  @media (prefers-reduced-motion: no-preference) {
+    .walkthrough-code-panel.sticky {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* Full width layout */
+  :global(.code-walkthrough-wrapper) {
+    max-width: none !important;
+  }
+</style>
+
+<script>
+  function initializeWalkthrough() {
+    const wrappers = document.querySelectorAll('.code-walkthrough-wrapper')
+
+    wrappers.forEach((wrapper) => {
+      const languageButtons = wrapper.querySelectorAll('.language-button')
+      const languageContainers = wrapper.querySelectorAll('[data-language-container]')
+      const walkthrough = wrapper.querySelector('[data-walkthrough]')
+
+      if (!walkthrough) return
+
+      const stepsContainer = walkthrough.querySelector('[data-walkthrough-steps]')
+      if (!stepsContainer) return
+
+      let currentLanguage = languageButtons[0]?.getAttribute('data-language') || 'typescript'
+      let activeStepNumber = 0
+      let isManualClick = false
+
+      // Language switching
+      languageButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const language = button.getAttribute('data-language')
+          if (!language) return
+
+          currentLanguage = language
+
+          // Update button states
+          languageButtons.forEach((btn) => {
+            btn.classList.remove('active')
+            btn.setAttribute('aria-selected', 'false')
+          })
+          button.classList.add('active')
+          button.setAttribute('aria-selected', 'true')
+
+          // Update language container visibility
+          languageContainers.forEach((container) => {
+            const containerLang = container.getAttribute('data-language')
+            if (containerLang === language) {
+              container.classList.add('active')
+
+              // Re-highlight current step in new language
+              if (activeStepNumber > 0) {
+                const step = steps.find((s) => s.stepNumber === activeStepNumber)
+                if (step) {
+                  switchToFileForStep(step, language)
+                }
+              }
+            } else {
+              container.classList.remove('active')
+            }
+          })
+        })
+      })
+
+      // File tab switching
+      wrapper.querySelectorAll('.file-tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const file = tab.getAttribute('data-file')
+          const language = tab.getAttribute('data-language')
+          if (!file || !language) return
+
+          switchToFile(language, file)
+        })
+      })
+
+      // Helper: Switch to a specific file in a language
+      function switchToFile(language, filename) {
+        const container = wrapper.querySelector(
+          `[data-language-container][data-language="${language}"]`,
+        )
+        if (!container) return
+
+        // Update file tabs
+        container.querySelectorAll('.file-tab').forEach((tab) => {
+          if (tab.getAttribute('data-file') === filename) {
+            tab.classList.add('active')
+          } else {
+            tab.classList.remove('active')
+          }
+        })
+
+        // Update code containers
+        container.querySelectorAll('[data-code-container]').forEach((codeContainer) => {
+          if (codeContainer.getAttribute('data-file') === filename) {
+            codeContainer.classList.add('active')
+          } else {
+            codeContainer.classList.remove('active')
+          }
+        })
+      }
+
+      // Collect all steps with their metadata
+      const steps = []
+      stepsContainer.querySelectorAll('[data-walkthrough-step]').forEach((stepEl) => {
+        const stepNumber = parseInt(stepEl.getAttribute('data-step-number') || '0', 10)
+        const filesData = stepEl.getAttribute('data-step-files')
+
+        if (stepNumber > 0 && filesData) {
+          let files
+          try {
+            files = JSON.parse(filesData)
+          } catch (e) {
+            console.error('Failed to parse files data:', filesData)
+            return
+          }
+
+          steps.push({
+            element: stepEl,
+            stepNumber: stepNumber,
+            files: files,
+          })
+
+          // Make steps clickable
+          stepEl.style.cursor = 'pointer'
+          stepEl.addEventListener('click', () => {
+            isManualClick = true
+            stepEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            highlightStep(stepNumber)
+            setTimeout(() => {
+              isManualClick = false
+            }, 800)
+          })
+        }
+      })
+
+      if (steps.length === 0) return
+
+      // Parse line range strings like "1-5" or "1-5,8-10,15"
+      function parseLineRanges(rangeStr) {
+        if (!rangeStr) return []
+
+        const lines = []
+        const parts = rangeStr.split(',').map((s) => s.trim())
+
+        parts.forEach((part) => {
+          if (part.includes('-')) {
+            const [start, end] = part.split('-').map((n) => parseInt(n.trim(), 10))
+            if (!isNaN(start) && !isNaN(end)) {
+              for (let i = start; i <= end; i++) {
+                lines.push(i)
+              }
+            }
+          } else {
+            const num = parseInt(part, 10)
+            if (!isNaN(num)) {
+              lines.push(num)
+            }
+          }
+        })
+
+        return lines
+      }
+
+      // Switch to the file for a given step
+      function switchToFileForStep(step, language) {
+        const fileInfo = step.files[language]
+        if (!fileInfo || !fileInfo.file) return
+
+        switchToFile(language, fileInfo.file)
+
+        // Highlight lines after switching file
+        setTimeout(() => {
+          const container = wrapper.querySelector(
+            `[data-code-container][data-language="${language}"][data-file="${fileInfo.file}"]`,
+          )
+          if (container) {
+            highlightLinesInContainer(container, fileInfo.lines)
+          }
+        }, 50)
+      }
+
+      // Highlight code lines in a specific container
+      function highlightLinesInContainer(container, linesStr) {
+        // Remove previous highlights
+        container.querySelectorAll('.ec-line').forEach((line) => {
+          line.classList.remove('walkthrough-highlight', 'walkthrough-fade')
+        })
+
+        if (!linesStr) return
+
+        // Parse line ranges
+        const lineNumbers = parseLineRanges(linesStr)
+
+        // Apply highlighting
+        container.querySelectorAll('.ec-line').forEach((lineEl) => {
+          const lnEl = lineEl.querySelector('.ln')
+          if (!lnEl) return
+
+          const lineNum = parseInt(lnEl.textContent || '0', 10)
+
+          if (lineNumbers.includes(lineNum)) {
+            lineEl.classList.add('walkthrough-highlight')
+            lineEl.classList.remove('walkthrough-fade')
+          } else {
+            lineEl.classList.remove('walkthrough-highlight')
+            lineEl.classList.add('walkthrough-fade')
+          }
+        })
+      }
+
+      // Highlight code for the active step
+      function highlightStep(stepNumber) {
+        if (activeStepNumber === stepNumber) return
+
+        activeStepNumber = stepNumber
+
+        // Find the step
+        const step = steps.find((s) => s.stepNumber === stepNumber)
+        if (!step) return
+
+        // Switch to the file for current language
+        switchToFileForStep(step, currentLanguage)
+
+        // Update active step indicator
+        steps.forEach((s) => {
+          if (s.stepNumber === stepNumber) {
+            s.element.classList.add('active')
+            s.element.setAttribute('aria-current', 'step')
+          } else {
+            s.element.classList.remove('active')
+            s.element.removeAttribute('aria-current')
+          }
+        })
+      }
+
+      // Set up Intersection Observer for scroll synchronization
+      const observerOptions = {
+        root: null,
+        rootMargin: '-10% 0px -70% 0px',
+        threshold: [0, 0.25, 0.5, 0.75, 1],
+      }
+
+      let lastIntersectingStep = null
+
+      const observer = new IntersectionObserver((entries) => {
+        if (isManualClick) return
+
+        let mostVisibleEntry = null
+        let maxRatio = 0
+
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio
+            mostVisibleEntry = entry
+          }
+        })
+
+        if (mostVisibleEntry) {
+          const stepEl = mostVisibleEntry.target
+          const stepNumber = parseInt(stepEl.getAttribute('data-step-number') || '0', 10)
+
+          if (stepNumber > 0 && stepNumber !== lastIntersectingStep) {
+            lastIntersectingStep = stepNumber
+            highlightStep(stepNumber)
+          }
+        }
+      }, observerOptions)
+
+      // Observe all steps
+      steps.forEach((step) => {
+        observer.observe(step.element)
+      })
+
+      // Initialize with first step
+      if (steps.length > 0) {
+        setTimeout(() => {
+          highlightStep(steps[0].stepNumber)
+        }, 100)
+      }
+    })
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeWalkthrough)
+  } else {
+    initializeWalkthrough()
+  }
+
+  // Re-initialize on navigation (for SPAs)
+  document.addEventListener('astro:page-load', initializeWalkthrough)
+</script>
+
+<style is:global>
+  /* Global styles for code highlighting with Expressive Code */
+  .ec-line.walkthrough-highlight {
+    opacity: 1 !important;
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.15) 0%, transparent 100%) !important;
+    border-left: 3px solid var(--sl-color-accent) !important;
+  }
+
+  .ec-line.walkthrough-fade {
+    opacity: 0.35 !important;
+    transition:
+      opacity 0.3s ease,
+      background 0.3s ease;
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .ec-line.walkthrough-highlight,
+    .ec-line.walkthrough-fade {
+      transition: none !important;
+    }
+  }
+
+  /* Make content full width for walkthrough pages */
+  :root:has(.code-walkthrough-wrapper) .main-frame {
+    max-width: none !important;
+    padding-inline: 2rem !important;
+  }
+
+  :root:has(.code-walkthrough-wrapper) .sl-container {
+    max-width: none !important;
+  }
+</style>

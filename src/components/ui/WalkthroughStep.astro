@@ -1,0 +1,140 @@
+---
+/**
+ * WalkthroughStep.astro - Individual step in a code walkthrough
+ * Used as children of CodeWalkthrough component
+ */
+
+export interface FileInfo {
+  file: string
+  lines: string
+}
+
+export interface Props {
+  /**
+   * Step number (must be sequential)
+   */
+  stepNumber: number
+
+  /**
+   * Files to highlight per language
+   * Format: { typescript: { file: "app.js", lines: "1-10" }, python: { file: "app.py", lines: "1-8" } }
+   */
+  files: Record<string, FileInfo>
+
+  /**
+   * Optional class name for custom styling
+   */
+  class?: string
+}
+
+const { stepNumber, files, class: className = '' } = Astro.props
+
+// Convert files object to JSON string for data attribute
+const filesData = JSON.stringify(files)
+---
+
+<div
+  class={`walkthrough-step ${className}`}
+  data-walkthrough-step
+  data-step-number={stepNumber}
+  data-step-files={filesData}
+  role="article"
+  aria-labelledby={`step-${stepNumber}-heading`}
+>
+  <div class="step-number">{stepNumber}</div>
+  <div class="walkthrough-step-content">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .walkthrough-step {
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    position: relative;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .walkthrough-step:hover {
+    border-color: var(--sl-color-gray-4);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .walkthrough-step.active {
+    border-color: var(--sl-color-accent);
+    background: var(--sl-color-accent-low);
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);
+  }
+
+  .step-number {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    background: var(--sl-color-gray-6);
+    border: 2px solid var(--sl-color-gray-5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--sl-color-gray-2);
+    transition: all 0.2s ease;
+  }
+
+  .walkthrough-step.active .step-number {
+    background: var(--sl-color-accent);
+    border-color: var(--sl-color-accent);
+    color: white;
+    transform: scale(1.1);
+  }
+
+  .walkthrough-step-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .walkthrough-step-content :global(h2),
+  .walkthrough-step-content :global(h3),
+  .walkthrough-step-content :global(h4) {
+    margin-top: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .walkthrough-step-content :global(p:first-of-type) {
+    margin-top: 0.25rem;
+  }
+
+  .walkthrough-step-content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .walkthrough-step,
+    .step-number {
+      transition: none;
+    }
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 768px) {
+    .walkthrough-step {
+      padding: 1rem;
+      gap: 0.75rem;
+    }
+
+    .step-number {
+      width: 1.75rem;
+      height: 1.75rem;
+      font-size: 0.75rem;
+    }
+  }
+</style>
