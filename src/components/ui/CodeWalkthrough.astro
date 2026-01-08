@@ -229,22 +229,30 @@ const defaultLanguage = languages[0].id
     gap: 2rem;
     align-items: start;
     position: relative;
+    overflow: visible;
   }
 
   .walkthrough-steps {
     min-width: 0;
     padding-bottom: 40vh;
+    overflow: visible;
+    position: relative;
+    z-index: 1;
   }
 
   .walkthrough-code-panel {
     min-width: 0;
+    position: relative;
+    z-index: 2;
   }
 
   .walkthrough-code-panel.sticky {
+    position: -webkit-sticky;
     position: sticky;
-    top: calc(var(--sl-nav-height, 0px) + 1rem);
-    height: calc(100vh - var(--sl-nav-height, 0px) - 2rem);
-    overflow-y: auto;
+    top: 1rem;
+    height: calc(100vh - 2rem);
+    max-height: calc(100vh - 2rem);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-self: start;
@@ -263,6 +271,8 @@ const defaultLanguage = languages[0].id
     display: none;
     flex-direction: column;
     flex: 1;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .walkthrough-language-container.active {
@@ -310,7 +320,9 @@ const defaultLanguage = languages[0].id
     flex: 1;
     display: none;
     border-radius: 0.5rem;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: auto;
+    min-height: 0;
   }
 
   .walkthrough-code-container.active {
@@ -322,6 +334,7 @@ const defaultLanguage = languages[0].id
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 0;
   }
 
   .walkthrough-code-container .expressive-code figure {
@@ -329,12 +342,14 @@ const defaultLanguage = languages[0].id
     display: flex;
     flex-direction: column;
     margin: 0;
+    min-height: 0;
   }
 
   .walkthrough-code-container .expressive-code pre {
     flex: 1;
     margin: 0;
     max-height: none !important;
+    min-height: 0;
   }
 
   /* Mobile responsive: stack vertically */
@@ -553,6 +568,7 @@ const defaultLanguage = languages[0].id
 
         // Parse line ranges
         const lineNumbers = parseLineRanges(linesStr)
+        let firstHighlightedLine = null
 
         // Apply highlighting
         container.querySelectorAll('.ec-line').forEach((lineEl) => {
@@ -564,11 +580,37 @@ const defaultLanguage = languages[0].id
           if (lineNumbers.includes(lineNum)) {
             lineEl.classList.add('walkthrough-highlight')
             lineEl.classList.remove('walkthrough-fade')
+
+            // Track first highlighted line
+            if (!firstHighlightedLine) {
+              firstHighlightedLine = lineEl
+            }
           } else {
             lineEl.classList.remove('walkthrough-highlight')
             lineEl.classList.add('walkthrough-fade')
           }
         })
+
+        // Scroll the first highlighted line into view
+        if (firstHighlightedLine) {
+          // Find the scrollable code container
+          const scrollContainer = container.closest('.walkthrough-code-container')
+          if (scrollContainer) {
+            // Get positions
+            const containerRect = scrollContainer.getBoundingClientRect()
+            const lineRect = firstHighlightedLine.getBoundingClientRect()
+
+            // Calculate scroll offset to center the line in the visible area
+            const relativeTop = lineRect.top - containerRect.top
+            const scrollOffset = scrollContainer.scrollTop + relativeTop - containerRect.height / 3
+
+            // Smooth scroll to position
+            scrollContainer.scrollTo({
+              top: Math.max(0, scrollOffset),
+              behavior: 'smooth',
+            })
+          }
+        }
       }
 
       // Highlight code for the active step

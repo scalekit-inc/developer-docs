@@ -2,8 +2,7 @@
 title: Authentication Walkthrough Demo
 description: Step-by-step guide to implementing authentication with Scalekit
 tableOfContents: false
-sidebar:
-  order: 10
+sidebar: none
 ---
 
 import CodeWalkthrough from '@components/ui/CodeWalkthrough.astro';
@@ -13,14 +12,19 @@ This interactive walkthrough shows you how to implement end-to-end authenticatio
 
 <CodeWalkthrough
   languages={[
-    { id: "typescript", label: "Node.js", codeFile: "authentication/full-auth-flow.ts" },
-    { id: "python", label: "Python", codeFile: "authentication/full-auth-flow.py" },
-    { id: "go", label: "Go", codeFile: "authentication/full-auth-flow.go" },
-    { id: "java", label: "Java", codeFile: "authentication/full-auth-flow.java" }
+    { id: "typescript", label: "Node.js", codeDir: "authentication/nodejs" },
+    { id: "python", label: "Python", codeDir: "authentication/python" },
+    { id: "go", label: "Go", codeDir: "authentication/golang" },
+    { id: "java", label: "Java", codeDir: "authentication/java" }
   ]}
   title="Complete Authentication Flow"
 >
-  <WalkthroughStep stepNumber={1} lines="1-8">
+  <WalkthroughStep stepNumber={1} files={{
+    typescript: { file: "config.js", lines: "1-11" },
+    python: { file: "config.py", lines: "1-9" },
+    go: { file: "config.go", lines: "1-17" },
+    java: { file: "ScalekitConfig.java", lines: "1-20" }
+  }}>
     ## Initialize Scalekit Client
 
     First, import the Scalekit SDK and create a new client instance with your credentials.
@@ -28,7 +32,12 @@ This interactive walkthrough shows you how to implement end-to-end authenticatio
     Store your environment URL, client ID, and client secret securely in environment variables.
   </WalkthroughStep>
 
-  <WalkthroughStep stepNumber={2} lines="10-25">
+  <WalkthroughStep stepNumber={2} files={{
+    typescript: { file: "auth.js", lines: "6-16" },
+    python: { file: "auth.py", lines: "6-19" },
+    go: { file: "auth.go", lines: "8-22" },
+    java: { file: "AuthController.java", lines: "18-31" }
+  }}>
     ## Generate Authorization URL
 
     Create an endpoint that generates the OAuth authorization URL. This URL redirects users to their organization's identity provider for authentication.
@@ -36,7 +45,12 @@ This interactive walkthrough shows you how to implement end-to-end authenticatio
     The `state` parameter should be a secure random string to prevent CSRF attacks.
   </WalkthroughStep>
 
-  <WalkthroughStep stepNumber={3} lines="27-49">
+  <WalkthroughStep stepNumber={3} files={{
+    typescript: { file: "auth.js", lines: "18-38" },
+    python: { file: "auth.py", lines: "21-42" },
+    go: { file: "auth.go", lines: "24-44" },
+    java: { file: "AuthController.java", lines: "33-57" }
+  }}>
     ## Handle OAuth Callback
 
     After successful authentication, the identity provider redirects back to your callback URL with an authorization code.
@@ -44,7 +58,12 @@ This interactive walkthrough shows you how to implement end-to-end authenticatio
     Exchange this code for access tokens and user information using `authenticateWithCode()`.
   </WalkthroughStep>
 
-  <WalkthroughStep stepNumber={4} lines="40-47">
+  <WalkthroughStep stepNumber={4} files={{
+    typescript: { file: "auth.js", lines: "28-31" },
+    python: { file: "auth.py", lines: "34-37" },
+    go: { file: "auth.go", lines: "36-40" },
+    java: { file: "AuthController.java", lines: "46-49" }
+  }}>
     ## Create User Session
 
     Store the authenticated user's information in a session. This typically includes:
@@ -55,7 +74,12 @@ This interactive walkthrough shows you how to implement end-to-end authenticatio
     After creating the session, redirect the user to your application dashboard.
   </WalkthroughStep>
 
-  <WalkthroughStep stepNumber={5} lines="51-59">
+  <WalkthroughStep stepNumber={5} files={{
+    typescript: { file: "app.js", lines: "13-16" },
+    python: { file: "app.py", lines: "16-21" },
+    go: { file: "auth.go", lines: "53-68" },
+    java: { file: "AuthController.java", lines: "67-74" }
+  }}>
     ## Protect Routes
 
     Create middleware to protect routes that require authentication.
@@ -63,7 +87,12 @@ This interactive walkthrough shows you how to implement end-to-end authenticatio
     Check if the user has a valid session, and redirect to login if not authenticated.
   </WalkthroughStep>
 
-  <WalkthroughStep stepNumber={6} lines="65-69">
+  <WalkthroughStep stepNumber={6} files={{
+    typescript: { file: "auth.js", lines: "40-44" },
+    python: { file: "auth.py", lines: "44-48" },
+    go: { file: "auth.go", lines: "46-51" },
+    java: { file: "AuthController.java", lines: "59-63" }
+  }}>
     ## Handle Logout
 
     Provide a logout endpoint that clears the user session and redirects to the login page.
@@ -91,4 +120,3 @@ Now that you understand the authentication flow, you can:
     max-width: none !important;
   }
 `}</style>
-
