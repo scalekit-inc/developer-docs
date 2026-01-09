@@ -800,6 +800,47 @@ async def pre_session_creation(request: Request):
 </TabItem>
 </Tabs>
 
+After the interceptor returns custom claims, Scalekit includes them in the access token. When you decode the access token, it contains your custom claims in the `custom_claims` object along with standard JWT fields:
+
+```json title="Decoded access token" showLineNumbers=false
+{
+  "aud": [
+    "prd_skc_96736847635480854"
+  ],
+  "client_id": "prd_skc_96736847635480854",
+  "custom_claims": {
+    "cost_center": "R&D-001",
+    "department": "Engineering",
+    "features": [
+      "analytics",
+      "api_access",
+      "advanced_reports"
+    ],
+    "org_role": "admin",
+    "plan": "pro",
+    "plan_expires_at": "2025-12-31T23:59:59Z"
+  },
+  "exp": 1767964824,
+  "iat": 1767964524,
+  "iss": "https://auth.coffeedesk.app",
+  "jti": "tkn_107201921814692618",
+  "nbf": 1767964524,
+  "oid": "org_97926637244383515",
+  "permissions": [
+    "data:read",
+    "data:write",
+    "organization:settings"
+  ],
+  "roles": [
+    "admin"
+  ],
+  "sid": "ses_107201917586768386",
+  "sub": "usr_97931091561677319",
+  "xoid": "wspace_97926637244383515",
+  "xuid": "0a749c69-1153-4a8b-b56d-94ebde9da8de"
+}
+```
+
 <Aside type='note' title='Token size considerations'>
   Keep custom claims minimal to avoid exceeding JWT size limits. Store large datasets in your database and use claims only for frequently-accessed metadata that needs to be available in the token.
 </Aside>
