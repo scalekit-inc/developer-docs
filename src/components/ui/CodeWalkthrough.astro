@@ -121,43 +121,45 @@ const defaultLanguage = languages[0].id
         )
       }
 
+      <!-- Render code for each language -->
       {
-        languages.map((lang, index) => (
+        languages.map((lang, langIndex) => (
           <div
-            class={`walkthrough-language-container ${index === 0 ? 'active' : ''}`}
+            class={`walkthrough-language-container ${langIndex === 0 ? 'active' : ''}`}
             data-language-container
             data-language={lang.id}
           >
-            {/* File Tabs */}
-            <div class="file-tabs" data-file-tabs>
-              {filesByLanguage[lang.id].map((file, fileIndex) => (
-                <button
-                  type="button"
-                  class={`file-tab ${fileIndex === 0 ? 'active' : ''}`}
-                  data-file={file}
-                  data-language={lang.id}
-                >
-                  {file}
-                </button>
-              ))}
-            </div>
-
-            {/* Code Containers for each file */}
-            {filesByLanguage[lang.id].map((file, fileIndex) => (
-              <div
-                class={`walkthrough-code-container ${fileIndex === 0 ? 'active' : ''}`}
-                data-code-container
-                data-language={lang.id}
-                data-file={file}
-                role="tabpanel"
-              >
-                <Code
-                  code={codeByLanguage[lang.id][file]}
-                  lang={lang.id}
-                  showLineNumbers={showLineNumbers}
-                />
+            {filesByLanguage[lang.id] && filesByLanguage[lang.id].length > 1 && (
+              <div class="file-tabs">
+                {filesByLanguage[lang.id].map((file, fileIndex) => (
+                  <button
+                    type="button"
+                    class={`file-tab ${fileIndex === 0 ? 'active' : ''}`}
+                    data-file={file}
+                    data-language={lang.id}
+                  >
+                    {file}
+                  </button>
+                ))}
               </div>
-            ))}
+            )}
+
+            {filesByLanguage[lang.id] &&
+              filesByLanguage[lang.id].map((file, fileIndex) => (
+                <div
+                  class={`walkthrough-code-container ${fileIndex === 0 ? 'active' : ''}`}
+                  data-code-container
+                  data-language={lang.id}
+                  data-file={file}
+                  role="tabpanel"
+                >
+                  <Code
+                    code={codeByLanguage[lang.id][file]}
+                    lang={lang.id}
+                    showLineNumbers={showLineNumbers}
+                  />
+                </div>
+              ))}
           </div>
         ))
       }
@@ -330,14 +332,14 @@ const defaultLanguage = languages[0].id
     flex-direction: column;
   }
 
-  .walkthrough-code-container .expressive-code {
+  .walkthrough-code-container :global(.expressive-code) {
     flex: 1;
     display: flex;
     flex-direction: column;
     min-height: 0;
   }
 
-  .walkthrough-code-container .expressive-code figure {
+  .walkthrough-code-container :global(.expressive-code figure) {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -345,11 +347,22 @@ const defaultLanguage = languages[0].id
     min-height: 0;
   }
 
-  .walkthrough-code-container .expressive-code pre {
+  .walkthrough-code-container :global(.expressive-code pre) {
     flex: 1;
     margin: 0;
     max-height: none !important;
     min-height: 0;
+  }
+
+  /* Code highlighting classes */
+  .walkthrough-code-container :global(.ec-line.walkthrough-highlight) {
+    background: linear-gradient(90deg, var(--sl-color-accent-low) 0%, transparent 100%);
+    border-left: 3px solid var(--sl-color-accent);
+  }
+
+  .walkthrough-code-container :global(.ec-line.walkthrough-fade) {
+    opacity: 0.4;
+    transition: opacity 0.3s ease;
   }
 
   /* Mobile responsive: stack vertically */
@@ -368,14 +381,14 @@ const defaultLanguage = languages[0].id
       max-height: 600px;
     }
 
-    .walkthrough-code-container .expressive-code pre {
+    .walkthrough-code-container :global(.expressive-code pre) {
       max-height: 600px !important;
     }
   }
 
   /* Smooth scrolling */
   @media (prefers-reduced-motion: no-preference) {
-    .walkthrough-code-panel.sticky {
+    .walkthrough-code-container {
       scroll-behavior: smooth;
     }
   }
@@ -403,6 +416,32 @@ const defaultLanguage = languages[0].id
       let currentLanguage = languageButtons[0]?.getAttribute('data-language') || 'typescript'
       let activeStepNumber = 0
       let isManualClick = false
+      let currentObserver = null
+
+      // Show steps for a specific language and renumber them
+      function showStepsForLanguage(language) {
+        let displayNumber = 1
+
+        steps.forEach((step) => {
+          const stepLanguage = step.element.getAttribute('data-step-language')
+
+          if (stepLanguage === language) {
+            step.element.style.display = 'flex'
+            // Update the display number
+            const displayNumberEl = step.element.querySelector('[data-step-display-number]')
+            if (displayNumberEl) {
+              displayNumberEl.textContent = displayNumber.toString()
+            }
+            displayNumber++
+          } else {
+            step.element.style.display = 'none'
+            step.element.classList.remove('active')
+          }
+        })
+
+        // Return visible steps for the current language
+        return steps.filter((s) => s.element.getAttribute('data-step-language') === language)
+      }
 
       // Language switching
       languageButtons.forEach((button) => {
@@ -425,18 +464,28 @@ const defaultLanguage = languages[0].id
             const containerLang = container.getAttribute('data-language')
             if (containerLang === language) {
               container.classList.add('active')
-
-              // Re-highlight current step in new language
-              if (activeStepNumber > 0) {
-                const step = steps.find((s) => s.stepNumber === activeStepNumber)
-                if (step) {
-                  switchToFileForStep(step, language)
-                }
-              }
             } else {
               container.classList.remove('active')
             }
           })
+
+          // Show steps for the new language
+          const visibleSteps = showStepsForLanguage(language)
+
+          // Disconnect old observer
+          if (currentObserver) {
+            currentObserver.disconnect()
+          }
+
+          // Set up new observer for visible steps
+          setupObserver(visibleSteps)
+
+          // Highlight first step of the new language
+          if (visibleSteps.length > 0) {
+            setTimeout(() => {
+              highlightStep(visibleSteps[0].stepNumber, language)
+            }, 100)
+          }
         })
       })
 
@@ -481,21 +530,23 @@ const defaultLanguage = languages[0].id
       const steps = []
       stepsContainer.querySelectorAll('[data-walkthrough-step]').forEach((stepEl) => {
         const stepNumber = parseInt(stepEl.getAttribute('data-step-number') || '0', 10)
-        const filesData = stepEl.getAttribute('data-step-files')
+        const stepLanguage = stepEl.getAttribute('data-step-language')
+        const fileData = stepEl.getAttribute('data-step-file')
 
-        if (stepNumber > 0 && filesData) {
-          let files
+        if (stepNumber > 0 && stepLanguage && fileData) {
+          let file
           try {
-            files = JSON.parse(filesData)
+            file = JSON.parse(fileData)
           } catch (e) {
-            console.error('Failed to parse files data:', filesData)
+            console.error('Failed to parse file data:', fileData)
             return
           }
 
           steps.push({
             element: stepEl,
             stepNumber: stepNumber,
-            files: files,
+            language: stepLanguage,
+            file: file,
           })
 
           // Make steps clickable
@@ -503,7 +554,7 @@ const defaultLanguage = languages[0].id
           stepEl.addEventListener('click', () => {
             isManualClick = true
             stepEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
-            highlightStep(stepNumber)
+            highlightStep(stepNumber, stepLanguage)
             setTimeout(() => {
               isManualClick = false
             }, 800)
@@ -540,8 +591,10 @@ const defaultLanguage = languages[0].id
       }
 
       // Switch to the file for a given step
-      function switchToFileForStep(step, language) {
-        const fileInfo = step.files[language]
+      function switchToFileForStep(step) {
+        const fileInfo = step.file
+        const language = step.language
+
         if (!fileInfo || !fileInfo.file) return
 
         switchToFile(language, fileInfo.file)
@@ -593,7 +646,6 @@ const defaultLanguage = languages[0].id
 
         // Scroll the first highlighted line into view
         if (firstHighlightedLine) {
-          // Find the scrollable code container
           const scrollContainer = container.closest('.walkthrough-code-container')
           if (scrollContainer) {
             // Get positions
@@ -614,26 +666,28 @@ const defaultLanguage = languages[0].id
       }
 
       // Highlight code for the active step
-      function highlightStep(stepNumber) {
-        if (activeStepNumber === stepNumber) return
+      function highlightStep(stepNumber, language) {
+        if (activeStepNumber === stepNumber && currentLanguage === language) return
 
         activeStepNumber = stepNumber
 
-        // Find the step
-        const step = steps.find((s) => s.stepNumber === stepNumber)
+        // Find the step for the current language
+        const step = steps.find((s) => s.stepNumber === stepNumber && s.language === language)
         if (!step) return
 
-        // Switch to the file for current language
-        switchToFileForStep(step, currentLanguage)
+        // Switch to the file for this step
+        switchToFileForStep(step)
 
-        // Update active step indicator
+        // Update active step indicator (only for steps of the current language)
         steps.forEach((s) => {
-          if (s.stepNumber === stepNumber) {
-            s.element.classList.add('active')
-            s.element.setAttribute('aria-current', 'step')
-          } else {
-            s.element.classList.remove('active')
-            s.element.removeAttribute('aria-current')
+          if (s.language === language) {
+            if (s.stepNumber === stepNumber) {
+              s.element.classList.add('active')
+              s.element.setAttribute('aria-current', 'step')
+            } else {
+              s.element.classList.remove('active')
+              s.element.removeAttribute('aria-current')
+            }
           }
         })
       }
@@ -641,45 +695,84 @@ const defaultLanguage = languages[0].id
       // Set up Intersection Observer for scroll synchronization
       const observerOptions = {
         root: null,
-        rootMargin: '-10% 0px -70% 0px',
-        threshold: [0, 0.25, 0.5, 0.75, 1],
+        rootMargin: '-20% 0px -50% 0px',
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
       }
 
       let lastIntersectingStep = null
+      let intersectionDebounce = null
 
-      const observer = new IntersectionObserver((entries) => {
-        if (isManualClick) return
+      function setupObserver(visibleSteps) {
+        lastIntersectingStep = null
 
-        let mostVisibleEntry = null
-        let maxRatio = 0
+        // Track all visible step ratios
+        const stepRatios = new Map()
 
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
-            maxRatio = entry.intersectionRatio
-            mostVisibleEntry = entry
-          }
+        const observer = new IntersectionObserver((entries) => {
+          if (isManualClick) return
+
+          // Update the ratios for all entries
+          entries.forEach((entry) => {
+            const stepEl = entry.target
+            const stepNumber = parseInt(stepEl.getAttribute('data-step-number') || '0', 10)
+
+            if (entry.isIntersecting) {
+              stepRatios.set(stepNumber, entry.intersectionRatio)
+            } else {
+              stepRatios.delete(stepNumber)
+            }
+          })
+
+          // Clear previous debounce
+          clearTimeout(intersectionDebounce)
+
+          // Debounce the selection to prevent flickering
+          intersectionDebounce = setTimeout(() => {
+            // Find the step with the highest intersection ratio
+            let maxRatio = 0
+            let selectedStepNumber = null
+
+            stepRatios.forEach((ratio, stepNumber) => {
+              if (ratio > maxRatio) {
+                maxRatio = ratio
+                selectedStepNumber = stepNumber
+              }
+            })
+
+            // Only update if we have a clear winner and it's different from current
+            if (
+              selectedStepNumber &&
+              selectedStepNumber !== lastIntersectingStep &&
+              maxRatio > 0.3
+            ) {
+              lastIntersectingStep = selectedStepNumber
+
+              // Find the step element to get its language
+              const step = visibleSteps.find((s) => s.stepNumber === selectedStepNumber)
+              if (step) {
+                highlightStep(selectedStepNumber, step.language)
+              }
+            }
+          }, 100)
+        }, observerOptions)
+
+        // Observe visible steps
+        visibleSteps.forEach((step) => {
+          observer.observe(step.element)
         })
 
-        if (mostVisibleEntry) {
-          const stepEl = mostVisibleEntry.target
-          const stepNumber = parseInt(stepEl.getAttribute('data-step-number') || '0', 10)
+        currentObserver = observer
+        return observer
+      }
 
-          if (stepNumber > 0 && stepNumber !== lastIntersectingStep) {
-            lastIntersectingStep = stepNumber
-            highlightStep(stepNumber)
-          }
-        }
-      }, observerOptions)
+      // Initialize: Show steps for the initial language
+      const initialVisibleSteps = showStepsForLanguage(currentLanguage)
+      setupObserver(initialVisibleSteps)
 
-      // Observe all steps
-      steps.forEach((step) => {
-        observer.observe(step.element)
-      })
-
-      // Initialize with first step
-      if (steps.length > 0) {
+      // Highlight first step
+      if (initialVisibleSteps.length > 0) {
         setTimeout(() => {
-          highlightStep(steps[0].stepNumber)
+          highlightStep(initialVisibleSteps[0].stepNumber, currentLanguage)
         }, 100)
       }
     })
@@ -691,41 +784,4 @@ const defaultLanguage = languages[0].id
   } else {
     initializeWalkthrough()
   }
-
-  // Re-initialize on navigation (for SPAs)
-  document.addEventListener('astro:page-load', initializeWalkthrough)
 </script>
-
-<style is:global>
-  /* Global styles for code highlighting with Expressive Code */
-  .ec-line.walkthrough-highlight {
-    opacity: 1 !important;
-    background: linear-gradient(90deg, rgba(56, 189, 248, 0.15) 0%, transparent 100%) !important;
-    border-left: 3px solid var(--sl-color-accent) !important;
-  }
-
-  .ec-line.walkthrough-fade {
-    opacity: 0.35 !important;
-    transition:
-      opacity 0.3s ease,
-      background 0.3s ease;
-  }
-
-  /* Respect reduced motion preference */
-  @media (prefers-reduced-motion: reduce) {
-    .ec-line.walkthrough-highlight,
-    .ec-line.walkthrough-fade {
-      transition: none !important;
-    }
-  }
-
-  /* Make content full width for walkthrough pages */
-  :root:has(.code-walkthrough-wrapper) .main-frame {
-    max-width: none !important;
-    padding-inline: 2rem !important;
-  }
-
-  :root:has(.code-walkthrough-wrapper) .sl-container {
-    max-width: none !important;
-  }
-</style>

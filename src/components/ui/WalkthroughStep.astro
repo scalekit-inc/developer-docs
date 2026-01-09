@@ -11,15 +11,20 @@ export interface FileInfo {
 
 export interface Props {
   /**
-   * Step number (must be sequential)
+   * Language this step belongs to (e.g., "typescript", "python", "go", "java")
+   */
+  language: string
+
+  /**
+   * Step number (will be renumbered automatically per language)
    */
   stepNumber: number
 
   /**
-   * Files to highlight per language
-   * Format: { typescript: { file: "app.js", lines: "1-10" }, python: { file: "app.py", lines: "1-8" } }
+   * File information for this step
+   * Contains the filename and line ranges to highlight
    */
-  files: Record<string, FileInfo>
+  file: FileInfo
 
   /**
    * Optional class name for custom styling
@@ -27,21 +32,23 @@ export interface Props {
   class?: string
 }
 
-const { stepNumber, files, class: className = '' } = Astro.props
+const { language, stepNumber, file, class: className = '' } = Astro.props
 
-// Convert files object to JSON string for data attribute
-const filesData = JSON.stringify(files)
+// Serialize file data for data attribute
+const fileData = JSON.stringify(file)
 ---
 
 <div
   class={`walkthrough-step ${className}`}
   data-walkthrough-step
+  data-step-language={language}
   data-step-number={stepNumber}
-  data-step-files={filesData}
+  data-step-file={fileData}
   role="article"
-  aria-labelledby={`step-${stepNumber}-heading`}
+  aria-labelledby={`step-${language}-${stepNumber}-heading`}
+  style="display: none;"
 >
-  <div class="step-number">{stepNumber}</div>
+  <div class="step-number" data-step-display-number>{stepNumber}</div>
   <div class="walkthrough-step-content">
     <slot />
   </div>
