@@ -1,422 +1,256 @@
 ---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import CodeWalkthrough from '@components/ui/CodeWalkthrough.astro'
 import WalkthroughStep from '@components/ui/WalkthroughStep.astro'
 import '@/styles/tailwind.css'
 import '@/styles/custom.css'
+import '@/styles/codesamples.css'
 
 const title = 'Authentication Code Samples'
 const description = 'Step-by-step guide to implementing authentication with Scalekit'
+const frontmatter = {
+  title: 'Authentication Code Samples',
+  template: 'splash' as const,
+  description:
+    'This interactive walkthrough shows you how to implement end-to-end authentication with Scalekit. Select your preferred programming language and follow along',
+  tableOfContents: false,
+  prev: false,
+  next: false,
+}
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description} />
-    <title>{title} - Scalekit</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <style is:global>
-      /* Starlight CSS Variables - Light Theme */
-      :root {
-        --sl-color-accent: #0066cc;
-        --sl-color-accent-low: rgba(0, 102, 204, 0.15);
-        --sl-color-accent-high: #004999;
-        --sl-color-white: #ffffff;
-        --sl-color-gray-1: #f0f0f0;
-        --sl-color-gray-2: #4a4a4a;
-        --sl-color-gray-3: #696969;
-        --sl-color-gray-4: #8c8c8c;
-        --sl-color-gray-5: #c0c0c0;
-        --sl-color-gray-6: #e8e8e8;
-        --sl-color-bg: #ffffff;
-        --sl-color-black: #1a1a1a;
-
-        --sl-font-mono: 'JetBrains Mono', 'Courier New', monospace;
-        --sl-spacing-lg: 1rem;
-      }
-
-      /* Dark Theme */
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --sl-color-accent: #38bdf8;
-          --sl-color-accent-low: rgba(56, 189, 248, 0.15);
-          --sl-color-accent-high: #0ea5e9;
-          --sl-color-white: #ffffff;
-          --sl-color-gray-1: #2a2a2a;
-          --sl-color-gray-2: #e0e0e0;
-          --sl-color-gray-3: #b0b0b0;
-          --sl-color-gray-4: #707070;
-          --sl-color-gray-5: #4a4a4a;
-          --sl-color-gray-6: #2a2a2a;
-          --sl-color-bg: #1a1a1a;
-          --sl-color-black: #ffffff;
-        }
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        width: 100%;
-        height: 100%;
-        overflow-x: hidden;
-        overflow-y: auto;
-      }
-
-      body {
-        font-family:
-          system-ui,
-          -apple-system,
-          sans-serif;
-        line-height: 1.6;
-        color: var(--sl-color-gray-2);
-        background: var(--sl-color-bg);
-      }
-
-      .page-container {
-        width: 100%;
-        min-height: 100vh;
-        overflow: visible;
-      }
-
-      .page-header {
-        padding: 2rem;
-        background: var(--sl-color-gray-6);
-        border-bottom: 1px solid var(--sl-color-gray-5);
-      }
-
-      .page-header h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: var(--sl-color-black);
-      }
-
-      .page-header p {
-        font-size: 1rem;
-        color: var(--sl-color-gray-3);
-      }
-
-      .page-content {
-        max-width: 1600px;
-        margin: 0 auto;
-        padding: 2rem;
-        overflow: visible;
-      }
-
-      .intro {
-        margin-bottom: 2rem;
-        font-size: 1.1rem;
-        color: var(--sl-color-gray-2);
-      }
-
-      .next-steps {
-        margin-top: 3rem;
-        padding: 2rem;
-        background: var(--sl-color-gray-6);
-        border-radius: 0.5rem;
-      }
-
-      .next-steps h2 {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-        color: var(--sl-color-black);
-      }
-
-      .next-steps ul {
-        list-style: none;
-        padding-left: 0;
-      }
-
-      .next-steps li {
-        padding: 0.5rem 0;
-        padding-left: 1.5rem;
-        position: relative;
-        color: var(--sl-color-gray-2);
-      }
-
-      .next-steps li::before {
-        content: '→';
-        position: absolute;
-        left: 0;
-        color: var(--sl-color-accent);
-        font-weight: bold;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="page-container">
-      <header class="page-header">
-        <h1>{title}</h1>
-        <p>{description}</p>
-      </header>
-
-      <main class="page-content">
-        <p class="intro">
-          This interactive walkthrough shows you how to implement end-to-end authentication with
-          Scalekit. Select your preferred programming language and follow along.
-        </p>
-
-        <CodeWalkthrough
-          languages={[
-            { id: 'typescript', label: 'Node.js', codeDir: 'authentication/nodejs' },
-            { id: 'python', label: 'Python', codeDir: 'authentication/python' },
-            { id: 'go', label: 'Go', codeDir: 'authentication/golang' },
-            { id: 'java', label: 'Java', codeDir: 'authentication/java' },
-          ]}
-          title="Complete Authentication Flow"
+<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
+  <div class="page-container">
+    <main class="page-content">
+      <CodeWalkthrough
+        languages={[
+          { id: 'typescript', label: 'Node.js', codeDir: 'authentication/nodejs' },
+          { id: 'python', label: 'Python', codeDir: 'authentication/python' },
+          { id: 'go', label: 'Go', codeDir: 'authentication/golang' },
+          { id: 'java', label: 'Java', codeDir: 'authentication/java' },
+        ]}
+        title="Complete Authentication Flow"
+      >
+        <!-- Node.js Steps -->
+        <WalkthroughStep
+          language="typescript"
+          stepNumber={1}
+          file={{ file: 'config.js', lines: '1-8' }}
         >
-          <!-- Node.js Steps -->
-          <WalkthroughStep
-            language="typescript"
-            stepNumber={1}
-            file={{ file: 'config.js', lines: '1-8' }}
-          >
-            <h2>Initialize Scalekit Client</h2>
-            <p>
-              First, import the Scalekit SDK and create a new client instance with your credentials.
-            </p>
-            <p>
-              Store your environment URL, client ID, and client secret securely in environment
-              variables.
-            </p>
-          </WalkthroughStep>
+          <h2>Initialize Scalekit Client</h2>
+          <p>
+            First, import the Scalekit SDK and create a new client instance with your credentials.
+          </p>
+          <p>
+            Store your environment URL, client ID, and client secret securely in environment
+            variables.
+          </p>
+        </WalkthroughStep>
 
-          <WalkthroughStep
-            language="typescript"
-            stepNumber={2}
-            file={{ file: 'auth.js', lines: '6-16' }}
-          >
-            <h2>Generate Authorization URL</h2>
-            <p>
-              Create an endpoint that generates the OAuth authorization URL. This URL redirects
-              users to their organization's identity provider for authentication.
-            </p>
-            <p>
-              The <code>state</code> parameter should be a secure random string to prevent CSRF attacks.
-            </p>
-          </WalkthroughStep>
+        <WalkthroughStep
+          language="typescript"
+          stepNumber={2}
+          file={{ file: 'auth.js', lines: '6-16' }}
+        >
+          <h2>Generate Authorization URL</h2>
+          <p>
+            Create an endpoint that generates the OAuth authorization URL. This URL redirects users
+            to their organization's identity provider for authentication.
+          </p>
+          <p>
+            The <code>state</code> parameter should be a secure random string to prevent CSRF attacks.
+          </p>
+        </WalkthroughStep>
 
-          <WalkthroughStep
-            language="typescript"
-            stepNumber={3}
-            file={{ file: 'auth.js', lines: '18-38' }}
-          >
-            <h2>Handle OAuth Callback</h2>
-            <p>
-              After successful authentication, the identity provider redirects back to your callback
-              URL with an authorization code.
-            </p>
-            <p>
-              Exchange this code for access tokens and user information using
-              <code>authenticateWithCode()</code>.
-            </p>
-          </WalkthroughStep>
+        <WalkthroughStep
+          language="typescript"
+          stepNumber={3}
+          file={{ file: 'auth.js', lines: '18-38' }}
+        >
+          <h2>Handle OAuth Callback</h2>
+          <p>
+            After successful authentication, the identity provider redirects back to your callback
+            URL with an authorization code.
+          </p>
+          <p>
+            Exchange this code for access tokens and user information using
+            <code>authenticateWithCode()</code>.
+          </p>
+        </WalkthroughStep>
 
-          <WalkthroughStep
-            language="typescript"
-            stepNumber={4}
-            file={{ file: 'auth.js', lines: '28-31' }}
-          >
-            <h2>Create User Session</h2>
-            <p>Store the authenticated user's information in a session. This typically includes:</p>
-            <ul>
-              <li>User ID</li>
-              <li>Email address</li>
-              <li>Organization ID</li>
-            </ul>
-            <p>After creating the session, redirect the user to your application dashboard.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep
-            language="typescript"
-            stepNumber={5}
-            file={{ file: 'app.js', lines: '13-16' }}
-          >
-            <h2>Protect Routes</h2>
-            <p>Create middleware to protect routes that require authentication.</p>
-            <p>
-              Check if the user has a valid session, and redirect to login if not authenticated.
-            </p>
-          </WalkthroughStep>
-
-          <WalkthroughStep
-            language="typescript"
-            stepNumber={6}
-            file={{ file: 'auth.js', lines: '40-44' }}
-          >
-            <h2>Handle Logout</h2>
-            <p>
-              Provide a logout endpoint that clears the user session and redirects to the login
-              page.
-            </p>
-            <p>This ensures users can securely sign out of your application.</p>
-          </WalkthroughStep>
-
-          <!-- Python Steps -->
-          <WalkthroughStep
-            language="python"
-            stepNumber={1}
-            file={{ file: 'config.py', lines: '1-9' }}
-          >
-            <h2>Initialize Scalekit Client</h2>
-            <p>Import the Scalekit SDK and create a client instance with your credentials.</p>
-            <p>Configure your environment variables for security.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep
-            language="python"
-            stepNumber={2}
-            file={{ file: 'auth.py', lines: '6-19' }}
-          >
-            <h2>Generate Authorization URL</h2>
-            <p>
-              Create a Flask route that generates the OAuth authorization URL for SSO
-              authentication.
-            </p>
-          </WalkthroughStep>
-
-          <WalkthroughStep
-            language="python"
-            stepNumber={3}
-            file={{ file: 'auth.py', lines: '21-42' }}
-          >
-            <h2>Handle OAuth Callback</h2>
-            <p>Exchange the authorization code for access tokens and user information.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep
-            language="python"
-            stepNumber={4}
-            file={{ file: 'auth.py', lines: '34-37' }}
-          >
-            <h2>Store User Session</h2>
-            <p>Save the authenticated user information in the Flask session.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep
-            language="python"
-            stepNumber={5}
-            file={{ file: 'app.py', lines: '16-21' }}
-          >
-            <h2>Protect Routes</h2>
-            <p>Add authentication checks to protected routes.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep
-            language="python"
-            stepNumber={6}
-            file={{ file: 'auth.py', lines: '44-48' }}
-          >
-            <h2>Handle Logout</h2>
-            <p>Clear the session and redirect to login page.</p>
-          </WalkthroughStep>
-
-          <!-- Go Steps -->
-          <WalkthroughStep language="go" stepNumber={1} file={{ file: 'config.go', lines: '1-17' }}>
-            <h2>Initialize Scalekit Client</h2>
-            <p>Set up the Scalekit client in Go using environment variables.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep language="go" stepNumber={2} file={{ file: 'auth.go', lines: '8-22' }}>
-            <h2>Generate Authorization URL</h2>
-            <p>Create a Gin handler to generate the OAuth authorization URL.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep language="go" stepNumber={3} file={{ file: 'auth.go', lines: '24-44' }}>
-            <h2>Handle OAuth Callback</h2>
-            <p>Process the callback and exchange the code for user tokens.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep language="go" stepNumber={4} file={{ file: 'auth.go', lines: '36-40' }}>
-            <h2>Store User Session</h2>
-            <p>Save user information in the session using Gin session middleware.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep language="go" stepNumber={5} file={{ file: 'auth.go', lines: '53-68' }}>
-            <h2>Protect Routes with Middleware</h2>
-            <p>Create authentication middleware to protect routes.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep language="go" stepNumber={6} file={{ file: 'auth.go', lines: '46-51' }}>
-            <h2>Handle Logout</h2>
-            <p>Clear the session and redirect to login.</p>
-          </WalkthroughStep>
-
-          <!-- Java Steps -->
-          <WalkthroughStep
-            language="java"
-            stepNumber={1}
-            file={{ file: 'ScalekitConfig.java', lines: '1-20' }}
-          >
-            <h2>Initialize Scalekit Client</h2>
-            <p>Configure the Scalekit client in your Spring Boot application.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep
-            language="java"
-            stepNumber={2}
-            file={{ file: 'AuthController.java', lines: '18-31' }}
-          >
-            <h2>Generate Authorization URL</h2>
-            <p>Create a Spring controller endpoint for OAuth authorization.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep
-            language="java"
-            stepNumber={3}
-            file={{ file: 'AuthController.java', lines: '33-57' }}
-          >
-            <h2>Handle OAuth Callback</h2>
-            <p>Process the OAuth callback and authenticate the user.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep
-            language="java"
-            stepNumber={4}
-            file={{ file: 'AuthController.java', lines: '46-49' }}
-          >
-            <h2>Store User Session</h2>
-            <p>Save user information in HttpSession.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep
-            language="java"
-            stepNumber={5}
-            file={{ file: 'AuthController.java', lines: '67-74' }}
-          >
-            <h2>Protect Routes</h2>
-            <p>Check session for authentication before serving protected resources.</p>
-          </WalkthroughStep>
-
-          <WalkthroughStep
-            language="java"
-            stepNumber={6}
-            file={{ file: 'AuthController.java', lines: '59-63' }}
-          >
-            <h2>Handle Logout</h2>
-            <p>Invalidate the session on logout.</p>
-          </WalkthroughStep>
-        </CodeWalkthrough>
-
-        <div class="next-steps">
-          <h2>Next Steps</h2>
-
-          <p>Now that you understand the authentication flow, you can:</p>
-
+        <WalkthroughStep
+          language="typescript"
+          stepNumber={4}
+          file={{ file: 'auth.js', lines: '28-31' }}
+        >
+          <h2>Create User Session</h2>
+          <p>Store the authenticated user's information in a session. This typically includes:</p>
           <ul>
-            <li>Add error handling and logging</li>
-            <li>Implement session management with a database</li>
-            <li>Add support for multiple identity providers</li>
-            <li>Customize the redirect URLs for your application</li>
+            <li>User ID</li>
+            <li>Email address</li>
+            <li>Organization ID</li>
           </ul>
-        </div>
-      </main>
-    </div>
-  </body>
-</html>
+          <p>After creating the session, redirect the user to your application dashboard.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep
+          language="typescript"
+          stepNumber={5}
+          file={{ file: 'app.js', lines: '13-16' }}
+        >
+          <h2>Protect Routes</h2>
+          <p>Create middleware to protect routes that require authentication.</p>
+          <p>Check if the user has a valid session, and redirect to login if not authenticated.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep
+          language="typescript"
+          stepNumber={6}
+          file={{ file: 'auth.js', lines: '40-44' }}
+        >
+          <h2>Handle Logout</h2>
+          <p>
+            Provide a logout endpoint that clears the user session and redirects to the login page.
+          </p>
+          <p>This ensures users can securely sign out of your application.</p>
+        </WalkthroughStep>
+
+        <!-- Python Steps -->
+        <WalkthroughStep
+          language="python"
+          stepNumber={1}
+          file={{ file: 'config.py', lines: '1-9' }}
+        >
+          <h2>Initialize Scalekit Client</h2>
+          <p>Import the Scalekit SDK and create a client instance with your credentials.</p>
+          <p>Configure your environment variables for security.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep language="python" stepNumber={2} file={{ file: 'auth.py', lines: '6-19' }}>
+          <h2>Generate Authorization URL</h2>
+          <p>
+            Create a Flask route that generates the OAuth authorization URL for SSO authentication.
+          </p>
+        </WalkthroughStep>
+
+        <WalkthroughStep
+          language="python"
+          stepNumber={3}
+          file={{ file: 'auth.py', lines: '21-42' }}
+        >
+          <h2>Handle OAuth Callback</h2>
+          <p>Exchange the authorization code for access tokens and user information.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep
+          language="python"
+          stepNumber={4}
+          file={{ file: 'auth.py', lines: '34-37' }}
+        >
+          <h2>Store User Session</h2>
+          <p>Save the authenticated user information in the Flask session.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep language="python" stepNumber={5} file={{ file: 'app.py', lines: '16-21' }}>
+          <h2>Protect Routes</h2>
+          <p>Add authentication checks to protected routes.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep
+          language="python"
+          stepNumber={6}
+          file={{ file: 'auth.py', lines: '44-48' }}
+        >
+          <h2>Handle Logout</h2>
+          <p>Clear the session and redirect to login page.</p>
+        </WalkthroughStep>
+
+        <!-- Go Steps -->
+        <WalkthroughStep language="go" stepNumber={1} file={{ file: 'config.go', lines: '1-17' }}>
+          <h2>Initialize Scalekit Client</h2>
+          <p>Set up the Scalekit client in Go using environment variables.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep language="go" stepNumber={2} file={{ file: 'auth.go', lines: '8-22' }}>
+          <h2>Generate Authorization URL</h2>
+          <p>Create a Gin handler to generate the OAuth authorization URL.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep language="go" stepNumber={3} file={{ file: 'auth.go', lines: '24-44' }}>
+          <h2>Handle OAuth Callback</h2>
+          <p>Process the callback and exchange the code for user tokens.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep language="go" stepNumber={4} file={{ file: 'auth.go', lines: '36-40' }}>
+          <h2>Store User Session</h2>
+          <p>Save user information in the session using Gin session middleware.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep language="go" stepNumber={5} file={{ file: 'auth.go', lines: '53-68' }}>
+          <h2>Protect Routes with Middleware</h2>
+          <p>Create authentication middleware to protect routes.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep language="go" stepNumber={6} file={{ file: 'auth.go', lines: '46-51' }}>
+          <h2>Handle Logout</h2>
+          <p>Clear the session and redirect to login.</p>
+        </WalkthroughStep>
+
+        <!-- Java Steps -->
+        <WalkthroughStep
+          language="java"
+          stepNumber={1}
+          file={{ file: 'ScalekitConfig.java', lines: '1-20' }}
+        >
+          <h2>Initialize Scalekit Client</h2>
+          <p>Configure the Scalekit client in your Spring Boot application.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep
+          language="java"
+          stepNumber={2}
+          file={{ file: 'AuthController.java', lines: '18-31' }}
+        >
+          <h2>Generate Authorization URL</h2>
+          <p>Create a Spring controller endpoint for OAuth authorization.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep
+          language="java"
+          stepNumber={3}
+          file={{ file: 'AuthController.java', lines: '33-57' }}
+        >
+          <h2>Handle OAuth Callback</h2>
+          <p>Process the OAuth callback and authenticate the user.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep
+          language="java"
+          stepNumber={4}
+          file={{ file: 'AuthController.java', lines: '46-49' }}
+        >
+          <h2>Store User Session</h2>
+          <p>Save user information in HttpSession.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep
+          language="java"
+          stepNumber={5}
+          file={{ file: 'AuthController.java', lines: '67-74' }}
+        >
+          <h2>Protect Routes</h2>
+          <p>Check session for authentication before serving protected resources.</p>
+        </WalkthroughStep>
+
+        <WalkthroughStep
+          language="java"
+          stepNumber={6}
+          file={{ file: 'AuthController.java', lines: '59-63' }}
+        >
+          <h2>Handle Logout</h2>
+          <p>Invalidate the session on logout.</p>
+        </WalkthroughStep>
+      </CodeWalkthrough>
+    </main>
+  </div>
+</StarlightPage>

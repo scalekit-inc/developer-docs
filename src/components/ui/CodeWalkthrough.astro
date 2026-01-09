@@ -190,12 +190,6 @@ const defaultLanguage = languages[0].id
     color: var(--sl-color-gray-2);
   }
 
-  .language-buttons {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
   .language-button {
     padding: 0.5rem 1.25rem;
     border-radius: 0.375rem;
@@ -236,7 +230,6 @@ const defaultLanguage = languages[0].id
 
   .walkthrough-steps {
     min-width: 0;
-    padding-bottom: 40vh;
     overflow: visible;
     position: relative;
     z-index: 1;
@@ -404,6 +397,23 @@ const defaultLanguage = languages[0].id
     const wrappers = document.querySelectorAll('.code-walkthrough-wrapper')
 
     wrappers.forEach((wrapper) => {
+      // Fix parent overflow to enable sticky positioning
+      let parent = wrapper.parentElement
+      while (parent && parent !== document.body) {
+        const styles = window.getComputedStyle(parent)
+        if (styles.overflow !== 'visible' || styles.overflowY !== 'visible') {
+          parent.style.overflow = 'visible'
+          parent.style.contain = 'none'
+        }
+        if (styles.height && styles.height !== 'auto' && !styles.height.includes('100%')) {
+          parent.style.height = 'auto'
+        }
+        if (styles.maxHeight && styles.maxHeight !== 'none') {
+          parent.style.maxHeight = 'none'
+        }
+        parent = parent.parentElement
+      }
+
       const languageButtons = wrapper.querySelectorAll('.language-button')
       const languageContainers = wrapper.querySelectorAll('[data-language-container]')
       const walkthrough = wrapper.querySelector('[data-walkthrough]')
