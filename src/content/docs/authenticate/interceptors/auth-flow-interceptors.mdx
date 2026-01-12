@@ -844,3 +844,101 @@ After the interceptor returns custom claims, Scalekit includes them in the acces
 <Aside type='note' title='Token size considerations'>
   Keep custom claims minimal to avoid exceeding JWT size limits. Store large datasets in your database and use claims only for frequently-accessed metadata that needs to be available in the token.
 </Aside>
+
+### Provision a user into an existing organization
+Use the **Pre-signup** interceptor to provision a user into an existing organization instead of creating a new one during signup. This is useful when you want users from specific email domains to always join a pre-defined organization, avoiding duplicate organization creation. 
+
+In the following example, the B2B application provisions users into an existing organization based on their email domain. If no matching domain is found, the signup flow falls back to the default behavior and creates a new organization.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Express.js"
+app.post('/auth/interceptors/pre-signup', async (req, res) => {
+  const { interceptor_context } = req.body;
+
+  // Email attempting to sign up
+  const userEmail = interceptor_context.user_email;
+  const emailDomain = userEmail?.split('@')[1];
+
+  // Map email domains to organizations
+  const domainOrgMappings = [
+    {
+      domain: 'acmecorp.com',
+      organization_id: 'org_acmecorp_123'
+    },
+    {
+      domain: 'megacorp.com',
+      external_organization_id: 'ext_megacorp_456'
+    }
+  ];
+
+  const match = domainOrgMappings.find(
+    (entry) => entry.domain === emailDomain
+  );
+
+  // Fallback to default signup behavior
+  if (!match) {
+    return res.json({ decision: 'ALLOW' });
+  }
+
+  return res.json({
+    decision: 'ALLOW',
+    response: {
+      create_organization_membership: {
+        // Either external_organization_id or organization_id is required
+        organization_id: match.organization_id,
+        external_organization_id: match.external_organization_id
+      }
+    }
+  });
+});
+```
+</TabItem>
+<TabItem value="python" label="Python">
+```python
+@app.post('/auth/interceptors/pre-signup')
+def pre_signup():
+    body = request.get_json()
+
+    interceptor_context = body.get('interceptor_context', {})
+
+    # Email attempting to sign up
+    user_email = interceptor_context.get('user_email')
+    email_domain = user_email.split('@')[1] if user_email else None
+
+    # Map email domains to organizations
+    domain_org_mappings = [
+        {
+            'domain': 'acmecorp.com',
+            'organization_id': 'org_acmecorp_123'
+        },
+        {
+            'domain': 'megacorp.com',
+            'external_organization_id': 'ext_megacorp_456'
+        }
+    ]
+
+    match = next(
+        (entry for entry in domain_org_mappings if entry['domain'] == email_domain),
+        None
+    )
+
+    # Fallback to default signup behavior
+    if not match:
+        return {'decision': 'ALLOW'}
+
+    return {
+        'decision': 'ALLOW',
+        'response': {
+            'create_organization_membership': {
+                # Either external_organization_id or organization_id is required
+                'organization_id': match.get('organization_id'),
+                'external_organization_id': match.get('external_organization_id')
+            }
+        }
+    }
+```
+</TabItem>
+</Tabs>
+
