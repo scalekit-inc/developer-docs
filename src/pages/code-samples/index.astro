@@ -1,0 +1,24 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import SandboxHomeWrapper from '../../components/code-samples/SandboxHomeWrapper.tsx'
+import '../../styles/sandbox.css'
+
+// Get API key and orgid from environment variables
+const apiKey = import.meta.env.PUBLIC_SAMPLEAPP_API_KEY || ''
+const orgid = import.meta.env.PUBLIC_SAMPLEAPP_ORGID || 'gatewayz'
+
+const frontmatter = {
+  title: 'Code Samples',
+  template: 'splash' as const,
+  description: 'Interactive code samples and sandboxes',
+  tableOfContents: false,
+  prev: false,
+  next: false,
+}
+---
+
+<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
+  <div class="sandbox-home-container">
+    <SandboxHomeWrapper client:load apiKey={apiKey} orgid={orgid} />
+  </div>
+</StarlightPage>
