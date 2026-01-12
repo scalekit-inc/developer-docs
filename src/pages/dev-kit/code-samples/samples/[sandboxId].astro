@@ -1,0 +1,55 @@
+---
+export const prerender = false
+
+import SandboxWrapper from '@components/SandboxWrapper.tsx'
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import '@styles/sandbox.css'
+
+interface Props {
+  sandboxId: string
+}
+
+const { sandboxId } = Astro.params as Props
+---
+
+<StarlightPage
+  frontmatter={{
+    title: '',
+    description: `Interactive sandbox: ${sandboxId}`,
+    tableOfContents: false,
+    head: [
+      {
+        tag: 'style',
+        content: `
+          /* Hide only Starlight page title, not SDK headers */
+          .page-title,
+          h1[class*="title"][id="_top"],
+          .sl-page-title,
+          header.hero h1,
+          .content-panel > h1:first-child {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-size: 0 !important;
+          }
+        `,
+      },
+    ],
+  }}
+>
+  <div
+    style="width: 100%; max-width: 100%; margin: 0; padding: 0; overflow: hidden; box-sizing: border-box;"
+  >
+    <SandboxWrapper
+      client:only="react"
+      apiKey={import.meta.env.PUBLIC_SAMPLEAPP_API_KEY}
+      sandboxId={sandboxId}
+      env={{
+        SCALEKIT_API_KEY: 'example',
+      }}
+    />
+  </div>
+</StarlightPage>

@@ -24,7 +24,13 @@ import netlify from '@astrojs/netlify'
 export default defineConfig({
   site: 'https://docs.scalekit.com',
   redirects,
+  server: {
+    port: 3000,
+  },
   integrations: [
+    react({
+      include: ['**/*.tsx', '**/*.jsx'],
+    }),
     starlight({
       title: 'Scalekit Docs',
       routeMiddleware: './src/routeData.ts',
@@ -203,9 +209,9 @@ export default defineConfig({
         },
       ],
     }),
-    react(),
     vue({
-      jsx: true,
+      include: ['**/*.vue'],
+      jsx: false,
       template: {
         compilerOptions: {
           isCustomElement: (tag) => tag.includes('-'),
@@ -234,10 +240,11 @@ export default defineConfig({
       alias: {
         '@': path.resolve('./src'),
         '@components': path.resolve('./src/components'),
+        '@styles': path.resolve('./src/styles'),
       },
     },
     optimizeDeps: {
-      include: ['vue'],
+      include: ['vue', '@sampleapp.ai/sdk', 'react', 'react-dom'],
       exclude: [],
     },
     // Provide a safe fallback for libraries that reference the CommonJS
