@@ -1,15 +1,17 @@
 /* Sandbox Pages Styles - Clean Full-Screen Implementation */
 
-/* Hide sidebar on sandbox pages */
-right-sidebar-panel {
+/* Hide sidebar only on sandbox home page, not on individual pages */
+.sandbox-home-container ~ * right-sidebar-panel,
+body:has(.sandbox-home-container) right-sidebar-panel {
   display: none !important;
 }
 
-/* Hide hero section completely */
-.hero,
-header.hero,
-.sl-page header,
-.sl-page > header {
+/* Hide hero section on sandbox pages */
+body:has(.sandbox-page-container) .hero,
+body:has(.sandbox-page-container) header.hero,
+body:has(.sandbox-page-container) .sl-page header,
+body:has(.sandbox-home-container) .hero,
+body:has(.sandbox-home-container) header.hero {
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
@@ -161,26 +163,20 @@ body {
   overflow-x: hidden;
 }
 
-/* For individual sandbox pages - full screen, full viewport */
+/* For individual sandbox pages - full height within content area, sidebar visible */
 .sandbox-page-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100vh;
-  max-width: 100vw;
-  max-height: 100vh;
+  width: 100%;
+  max-width: 100%;
   margin: 0;
   padding: 0;
+  min-height: calc(100vh - var(--sl-nav-height));
   overflow: hidden;
-  background: #0a0a0a;
 }
 
 .sandbox-page-container .sandbox-wrapper-container {
   width: 100%;
   height: 100%;
+  min-height: calc(100vh - var(--sl-nav-height));
   overflow: auto;
   overflow-x: hidden;
   display: flex;
@@ -206,7 +202,42 @@ body {
   flex-direction: column;
 }
 
-/* Individual sandbox pages don't use Starlight, so no need for these selectors */
+/* Remove padding from content panel on sandbox pages */
+body:has(.sandbox-page-container) .content-panel {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Ensure content area fills available space with sidebar */
+body:has(.sandbox-page-container) .sl-page {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+body:has(.sandbox-page-container) .sl-page > article {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Hide page title on individual sandbox pages */
+body:has(.sandbox-page-container) .sl-page-title,
+body:has(.sandbox-page-container) h1[id='_top'],
+body:has(.sandbox-page-container) .content-panel > h1:first-child,
+body:has(.sandbox-page-container) .sl-markdown-content > h1:first-child {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ensure sandbox container fills the content area */
+body:has(.sandbox-page-container) .sl-markdown-content {
+  padding: 0 !important;
+  margin: 0 !important;
+  height: 100%;
+}
 
 /* For home page - allow normal scrolling but full width, start right after nav */
 .sandbox-home-container {

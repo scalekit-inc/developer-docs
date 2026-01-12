@@ -1,6 +1,7 @@
 ---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import SandboxWrapper from '../../../components/code-samples/SandboxWrapper.tsx'
-import '../../../styles/sandbox.css'
+// import '../../../styles/sandbox.css'
 
 // This route needs to be server-rendered because sandboxId is dynamic
 export const prerender = false
@@ -14,39 +15,20 @@ const { sandboxId } = Astro.params
 // Get API key and orgid from environment variables
 const apiKey = import.meta.env.PUBLIC_SAMPLEAPP_API_KEY || ''
 const orgid = import.meta.env.PUBLIC_SAMPLEAPP_ORGID || 'gatewayz'
+
+const frontmatter = {
+  title: `Code Sample: ${sandboxId}`,
+  template: 'doc' as const,
+  description: `Interactive code sample for ${sandboxId}`,
+  tableOfContents: false,
+  editUrl: false as const,
+  prev: false,
+  next: false,
+}
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={`Interactive code sample for ${sandboxId}`} />
-    <title>Code Sample: {sandboxId}</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
-          sans-serif;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="sandbox-page-container">
-      <SandboxWrapper client:load apiKey={apiKey} orgid={orgid} sandboxId={sandboxId} />
-    </div>
-  </body>
-</html>
+<!-- <StarlightPage frontmatter={frontmatter}> -->
+<div class="sandbox-page-container">
+  <SandboxWrapper client:load apiKey={apiKey} orgid={orgid} sandboxId={sandboxId} />
+</div>
+<!-- </StarlightPage> -->
