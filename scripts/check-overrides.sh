@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to check if pnpm overrides are still needed. This is introduced to be proactive with dependabot security vulnerabilities.
+# Script to check if pnpm overrides are still needed. This is introduced to be proactive with the dependabort security vulnerabilities.
 # Usage: ./scripts/check-overrides.sh
 
 set -e
