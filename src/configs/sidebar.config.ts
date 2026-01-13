@@ -396,6 +396,10 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Go live',
+        items: ['sso/guides/launch-checklist'],
+      },
+      {
         label: 'View all SSO integrations',
         link: 'https://docs.scalekit.com/guides/integrations/sso-integrations/',
         attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
@@ -434,6 +438,10 @@ export const sidebar = [
             link: 'directory/reference/directory-events',
           },
         ],
+      },
+      {
+        label: 'Go live',
+        items: ['directory/guides/launch-checklist'],
       },
       {
         label: 'View all SCIM integrations',
