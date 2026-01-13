@@ -94,6 +94,10 @@ export const sidebar = [
         ],
       },
       {
+        label: 'View auth integrations',
+        link: 'guides/integrations',
+      },
+      {
         label: 'Go Live',
         items: [
           'guides/dashboard/auth-logs',
