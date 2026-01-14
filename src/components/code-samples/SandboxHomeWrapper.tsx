@@ -3,9 +3,16 @@ import { useEffect, useState } from 'react'
 interface SandboxHomeWrapperProps {
   apiKey: string
   orgid: string
+  sandboxId?: string
+  env?: Record<string, any>
 }
 
-export default function SandboxHomeWrapper({ apiKey, orgid }: SandboxHomeWrapperProps) {
+export default function SandboxHomeWrapper({
+  apiKey,
+  orgid,
+  sandboxId,
+  env = {},
+}: SandboxHomeWrapperProps) {
   const [SandboxHome, setSandboxHome] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -104,7 +111,7 @@ export default function SandboxHomeWrapper({ apiKey, orgid }: SandboxHomeWrapper
           boxSizing: 'border-box',
         }}
       >
-        <SandboxHome apiKey={apiKey} orgid={orgid} />
+        <SandboxHome apiKey={apiKey} orgid={orgid} sandboxId={sandboxId} env={env} />
       </div>
     </div>
   )

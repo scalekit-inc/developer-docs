@@ -104,7 +104,7 @@ export default function SandboxWrapper({ apiKey, orgid, sandboxId }: SandboxWrap
           flexDirection: 'column',
         }}
       >
-        <Sandbox apiKey={apiKey} orgid={orgid} sandboxId={sandboxId} />
+        <Sandbox apiKey={apiKey} orgid={orgid} sandboxId={sandboxId} env={{}} />
       </div>
     </div>
   )
