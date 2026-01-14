@@ -800,6 +800,149 @@ async def pre_session_creation(request: Request):
 </TabItem>
 </Tabs>
 
+After the interceptor returns custom claims, Scalekit includes them in the access token. When you decode the access token, it contains your custom claims in the `custom_claims` object along with standard JWT fields:
+
+```json title="Decoded access token" showLineNumbers=false ins={6-17} collapse={24-35}
+{
+  "aud": [
+    "prd_skc_96736847635480854"
+  ],
+  "client_id": "prd_skc_96736847635480854",
+  "custom_claims": {
+    "cost_center": "R&D-001",
+    "department": "Engineering",
+    "features": [
+      "analytics",
+      "api_access",
+      "advanced_reports"
+    ],
+    "org_role": "admin",
+    "plan": "pro",
+    "plan_expires_at": "2025-12-31T23:59:59Z"
+  },
+  "exp": 1767964824,
+  "iat": 1767964524,
+  "iss": "https://auth.coffeedesk.app",
+  "jti": "tkn_107201921814692618",
+  "nbf": 1767964524,
+  "oid": "org_97926637244383515",
+  "permissions": [
+    "data:read",
+    "data:write",
+    "organization:settings"
+  ],
+  "roles": [
+    "admin"
+  ],
+  "sid": "ses_107201917586768386",
+  "sub": "usr_97931091561677319",
+  "xoid": "wspace_97926637244383515",
+  "xuid": "0a749c69-1153-4a8b-b56d-94ebde9da8de"
+}
+```
+
 <Aside type='note' title='Token size considerations'>
   Keep custom claims minimal to avoid exceeding JWT size limits. Store large datasets in your database and use claims only for frequently-accessed metadata that needs to be available in the token.
 </Aside>
+
+### Provision a user into an existing organization
+Use the **Pre-signup** interceptor to provision a user into an existing organization instead of creating a new one during signup. This is useful when you want users from specific email domains to always join a pre-defined organization, avoiding duplicate organization creation. 
+
+In the following example, the B2B application provisions users into an existing organization based on their email domain. If no matching domain is found, the signup flow falls back to the default behavior and creates a new organization.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Express.js"
+app.post('/auth/interceptors/pre-signup', async (req, res) => {
+  const { interceptor_context } = req.body;
+
+  // Email attempting to sign up
+  const userEmail = interceptor_context.user_email;
+  const emailDomain = userEmail?.split('@')[1];
+
+  // Map email domains to organizations
+  const domainOrgMappings = [
+    {
+      domain: 'acmecorp.com',
+      organization_id: 'org_123456789',
+      external_organization_id: 'ext_acmecorp_123'
+    },
+    {
+      domain: 'megacorp.com',
+      organization_id: 'org_987654321',
+      external_organization_id: 'ext_megacorp_456'
+    }
+  ];
+
+  const match = domainOrgMappings.find(
+    (entry) => entry.domain === emailDomain
+  );
+
+  // Fallback to default signup behavior
+  if (!match) {
+    return res.json({ decision: 'ALLOW' });
+  }
+
+  return res.json({
+    decision: 'ALLOW',
+    response: {
+      create_organization_membership: {
+        // Either external_organization_id or organization_id is required
+        organization_id: match.organization_id,
+        external_organization_id: match.external_organization_id
+      }
+    }
+  });
+});
+```
+</TabItem>
+<TabItem value="python" label="Python">
+```python
+@app.post('/auth/interceptors/pre-signup')
+def pre_signup():
+    body = request.get_json()
+
+    interceptor_context = body.get('interceptor_context', {})
+
+    # Email attempting to sign up
+    user_email = interceptor_context.get('user_email')
+    email_domain = user_email.split('@')[1] if user_email else None
+
+    # Map email domains to organizations
+    domain_org_mappings = [
+        {
+            domain: 'acmecorp.com',
+            organization_id: 'org_123456789',
+            external_organization_id: 'ext_acmecorp_123'
+        },
+        {
+            domain: 'megacorp.com',
+            organization_id: 'org_987654321',
+            external_organization_id: 'ext_megacorp_456'
+        }
+    ]
+
+    match = next(
+        (entry for entry in domain_org_mappings if entry['domain'] == email_domain),
+        None
+    )
+
+    # Fallback to default signup behavior
+    if not match:
+        return {'decision': 'ALLOW'}
+
+    return {
+        'decision': 'ALLOW',
+        'response': {
+            'create_organization_membership': {
+                # Either external_organization_id or organization_id is required
+                'organization_id': match.get('organization_id'),
+                'external_organization_id': match.get('external_organization_id')
+            }
+        }
+    }
+```
+</TabItem>
+</Tabs>
+

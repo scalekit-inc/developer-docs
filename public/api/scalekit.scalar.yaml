@@ -2990,17 +2990,18 @@ paths:
   /api/v1/organizations/{organization_id}/domains:
     get:
       description: >+
-        Retrieves a paginated list of all allowed email domains and organization
-        domains configured for the specified organization.Use this endpoint to
-        view and manage domain configurations.
-
-
-        ALLOWED_EMAIL_DOMAIN enables users to join an organization with
-        automatic suggestions in the organization switcher.
-
-
-        ORGANIZATION_DOMAIN is used to identify the SSO connection for the
+        Retrieves a paginated list of all domains configured for the specified
         organization.
+
+
+        Domain types:
+
+        - ALLOWED_EMAIL_DOMAIN: Trusted domains used to suggest the organization
+        in the organization switcher during sign-in/sign-up (auth-method
+        agnostic).
+
+        - ORGANIZATION_DOMAIN: SSO discovery domains used to route users to the
+        correct SSO provider and enforce SSO.
 
       tags:
         - Domains
@@ -3040,14 +3041,14 @@ paths:
             enum:
               - ALLOWED_EMAIL_DOMAIN
               - ORGANIZATION_DOMAIN
-          description: >+
-            ALLOWED_EMAIL_DOMAIN enables users to join an organization with
-            automatic suggestions in the organization switcher.
+          description: >
+            The domain type.
 
+            - ALLOWED_EMAIL_DOMAIN: trusted domain used to suggest the
+            organization in the organization switcher during sign-in/sign-up.
 
-            ORGANIZATION_DOMAIN is used to identify the SSO connection for the
-            organization.
-
+            - ORGANIZATION_DOMAIN: SSO discovery domain used to route users to
+            the correct SSO provider and enforce SSO.
           name: domain_type
           in: query
       responses:
@@ -3097,15 +3098,22 @@ paths:
             "ORGANIZATION_DOMAIN");
     post:
       description: >+
-        Creates a new domain and associates it with the specified organization.
-        The domain can be configured as either an ALLOWED_EMAIL_DOMAIN for
-        automatic organization suggestions during user sign-in/sign-up, or as an
-        ORGANIZATION_DOMAIN for SSO connection identification.
+        Creates and associates a domain with an organization.
 
 
-        The domain must be a valid, business email domain that you control.
-        Public disposable domains (gmail.com, outlook.com, etc.) are
-        automatically blocked for security.
+        Use one of the following domain types:
+
+        - ALLOWED_EMAIL_DOMAIN: Adds a trusted email domain for organization
+        suggestions in the organization switcher during sign-in/sign-up
+        (auth-method agnostic).
+
+        - ORGANIZATION_DOMAIN: Enables SSO domain discovery. If a user signs in
+        with a matching email domain, Scalekit redirects them to the
+        organization’s SSO provider and enforces SSO.
+
+
+        The domain must be a valid business domain that you control.
+        Public/disposable domains (e.g., gmail.com) are blocked for security.
 
       tags:
         - Domains
@@ -3190,9 +3198,8 @@ paths:
   /api/v1/organizations/{organization_id}/domains/{id}:
     get:
       description: >+
-        Retrieves complete details for a specific allowed email domain or
-        organization domain, including timestamps, and configuration
-        information.
+        Retrieves complete details for a domain including domain type,
+        timestamps, and configuration information.
 
       tags:
         - Domains
@@ -3258,13 +3265,14 @@ paths:
             scalekitClient.domains().getDomainById("org_123", "dom_123");
     delete:
       description: >+
-        Permanently removes an allowed email domain or organization domain from
-        the organization configuration.
+        Permanently removes a domain record from an organization.
 
 
-        Use this endpoint when you need to remove a domain that is no longer
-        trusted or when consolidating multiple domains. Note that this action
-        cannot be undone.
+        - Deleting an ORGANIZATION_DOMAIN disables SSO routing/enforcement for
+        that domain.
+
+        - Deleting an ALLOWED_EMAIL_DOMAIN stops organization suggestions for
+        users with that email domain.
 
       tags:
         - Domains
@@ -5631,6 +5639,22 @@ paths:
           lang: java
           source: RevokeAllUserSessionsResponse res =
             scalekitClient.sessions().revokeAllUserSessions("user_123");
+  /api/v1/users:this:
+    get:
+      description: Retrieves details for the currently authenticated user.
+        Returns the same user object as GetUser but uses the authenticated
+        user's ID from the session context.
+      tags:
+        - Users
+      summary: Get authenticated user
+      operationId: UserService_GetCurrentUser
+      responses:
+        '200':
+          description: Current user details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/usersGetUserResponse'
   /api/v1/webauthn/credentials:
     get:
       description: Retrieves all registered passkeys for the current user,
@@ -5657,16 +5681,25 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: // Coming soon
+          source: const res = await
+            scalekit.webauthn.listCredentials("user_123");
         - label: Python SDK
           lang: python
-          source: '# Coming soon'
+          source: res =
+            scalekit_client.webauthn.list_credentials(user_id="user_123")
         - label: Go SDK
           lang: go
-          source: // Coming soon
+          source: >-
+            resp, err := scalekitClient.WebAuthn().ListCredentials(ctx,
+            "user_123")
+
+            if err != nil { /* handle err */ }
+
+            _ = resp
         - label: Java SDK
           lang: java
-          source: // Coming soon
+          source: ListCredentialsResponse res =
+            scalekitClient.webauthn().listCredentials("user_123");
   /api/v1/webauthn/credentials/{credential_id}:
     delete:
       description: Deletes a specific passkey credential for the current user.
@@ -5693,16 +5726,25 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: // Coming soon
+          source: const res = await
+            scalekit.webauthn.deleteCredential("wac_123");
         - label: Python SDK
           lang: python
-          source: '# Coming soon'
+          source: res =
+            scalekit_client.webauthn.delete_credential(credential_id="wac_123")
         - label: Go SDK
           lang: go
-          source: // Coming soon
+          source: >-
+            resp, err := scalekitClient.WebAuthn().DeleteCredential(ctx,
+            "wac_123")
+
+            if err != nil { /* handle err */ }
+
+            _ = resp
         - label: Java SDK
           lang: java
-          source: // Coming soon
+          source: DeleteCredentialResponse res =
+            scalekitClient.webauthn().deleteCredential("wac_123");
     patch:
       description: Updates the display name of a passkey credential to help
         users identify their authenticators. Only the display name can be
@@ -5728,16 +5770,33 @@ paths:
       x-codeSamples:
         - label: Node.js SDK
           lang: javascript
-          source: // Coming soon
+          source: |-
+            const res = await scalekit.webauthn.updateCredential(
+              "wac_123",
+              "Work Laptop Passkey"
+            );
         - label: Python SDK
           lang: python
-          source: '# Coming soon'
+          source: |-
+            res = scalekit_client.webauthn.update_credential(
+                credential_id="wac_123",
+                display_name="Work Laptop Passkey"
+            )
         - label: Go SDK
           lang: go
-          source: // Coming soon
+          source: |-
+            resp, err := scalekitClient.WebAuthn().UpdateCredential(
+                ctx,
+                "wac_123",
+                "Work Laptop Passkey",
+            )
+            if err != nil { /* handle err */ }
+            _ = resp
         - label: Java SDK
           lang: java
-          source: // Coming soon
+          source: |-
+            UpdateCredentialResponse res = scalekitClient.webauthn()
+                .updateCredential("wac_123", "Work Laptop Passkey");
       requestBody:
         content:
           application/json:
@@ -5799,12 +5858,18 @@ tags:
       session metadata including device information, IP geolocation, and
       activity timestamps.
     name: Sessions
-  - description: Domain management for organization email domains and SSO
-      configurations. This service provides endpoints for creating, retrieving,
-      listing, and deleting domains that are associated with organizations. It
-      supports domain type configuration for email domain allowlists and SSO
-      identification, and provides comprehensive domain metadata including
-      status and connection associations.
+  - description: >
+      Manage organization-level domains. Scalekit supports two domain types:
+
+
+      - ORGANIZATION_DOMAIN: Used for SSO domain discovery. When a user signs in
+      with a matching email domain, Scalekit routes them to the organization’s
+      SSO provider and enforces SSO.
+
+      - ALLOWED_EMAIL_DOMAIN: Used to mark trusted email domains for an
+      organization. When a user signs in or signs up with a matching domain,
+      Scalekit suggests the organization in the organization switcher
+      (authentication-method agnostic).
     name: Domains
   - description: Endpoints for managing API client applications. API clients
       enable secure, automated interactions between software systems without
@@ -6593,6 +6658,17 @@ components:
           type: string
           examples:
             - org_1234abcd5678efgh
+        permissions:
+          description: Effective permissions granted to the user within the
+            organization (including inherited permissions from assigned roles).
+            Lists the specific actions and access rights the user can perform.
+          type: array
+          items:
+            type: string
+          examples:
+            - - read_projects
+              - write_tasks
+              - manage_users
         provisioning_method:
           description: >-
             How the user was provisioned. 
@@ -8358,7 +8434,7 @@ components:
       properties:
         domain:
           description: The requested domain object with complete details
-            including timestamps, and configuration.
+            including domain type, timestamps and configuration.
           $ref: '#/components/schemas/domainsDomain'
     domainsListDomainResponse:
       type: object
@@ -8468,9 +8544,14 @@ components:
           type: string
         owner:
           type: string
+        required_permissions:
+          description: The required permissions needed to access the resource.
+          type: array
+          items:
+            type: string
         resource_name:
           type: string
-        resource_type:
+        user:
           type: string
     errdetailsToolErrorInfo:
       type: object
@@ -9030,6 +9111,12 @@ components:
           type: string
         id:
           type: string
+        is_scalekit_permission:
+          description: Indicates whether this permission is predefined by
+            Scalekit
+          type: boolean
+          examples:
+            - true
         name:
           type: string
         update_time:
@@ -10087,16 +10174,21 @@ components:
       properties:
         domain:
           description: The domain name to be configured. Must be a valid
-            business domain you control. Public disposable domains (gmail.com,
-            outlook.com, etc.) are automatically blocked for security.
+            business domain you control. Public and disposable domains
+            (gmail.com, outlook.com, etc.) are automatically blocked for
+            security.
           type: string
           examples:
             - customerdomain.com
         domain_type:
-          description: The type of domain configuration. ALLOWED_EMAIL_DOMAIN
-            enables automatic organization suggestions for users with matching
-            email domains during sign-in/sign-up. ORGANIZATION_DOMAIN is for
-            primary organization domains.
+          description: >
+            The domain type.
+
+            - ALLOWED_EMAIL_DOMAIN: trusted domain used to suggest the
+            organization in the organization switcher during sign-in/sign-up.
+
+            - ORGANIZATION_DOMAIN: SSO discovery domain used to route users to
+            the correct SSO provider and enforce SSO.
           $ref: '#/components/schemas/domainsDomainType'
           examples:
             - ORGANIZATION_DOMAIN
