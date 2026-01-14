@@ -79,13 +79,10 @@ export default function SandboxWrapper({ apiKey, orgid, sandboxId }: SandboxWrap
       className="sandbox-wrapper-container"
       style={{
         width: '100%',
-        height: '100%',
         maxWidth: '100%',
-        maxHeight: '100%',
         margin: 0,
         padding: 0,
-        display: 'flex',
-        flexDirection: 'column',
+        display: 'block',
         overflow: 'hidden',
         boxSizing: 'border-box',
       }}
@@ -94,14 +91,9 @@ export default function SandboxWrapper({ apiKey, orgid, sandboxId }: SandboxWrap
         className="sandbox-container"
         style={{
           width: '100%',
-          height: '100%',
           maxWidth: '100%',
-          maxHeight: '100%',
-          flex: 1,
           overflow: 'hidden',
           boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'column',
         }}
       >
         <Sandbox apiKey={apiKey} orgid={orgid} sandboxId={sandboxId} env={{}} />
