@@ -50,6 +50,7 @@ import IconTeenyiconsNextjsOutline from '~icons/teenyicons/nextjs-outline'
 import IconSpringboot from '~icons/simple-icons/springboot'
 import IconFlask from '~icons/simple-icons/flask'
 import IconDjango from '~icons/simple-icons/django'
+import IconBxBxlDjango from '~icons/bx/bxl-django'
 import IconExpress from '~icons/simple-icons/express'
 
 // Tool and service icons
@@ -169,7 +170,7 @@ export const iconMap = {
   springboot: IconSpringboot,
   spring: IconSpringboot,
   flask: IconFlask,
-  django: IconDjango,
+  django: IconBxBxlDjango,
   express: IconExpress,
   expressjs: IconExpress,
 

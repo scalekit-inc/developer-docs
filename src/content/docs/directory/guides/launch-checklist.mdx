@@ -1,63 +1,40 @@
 ---
 title: Production launch checklist
-description: "A comprehensive checklist to ensure your Scalekit integration is production-ready, covering environment variables, security, webhooks, and more."
+description: "A focused checklist for launching your Scalekit SCIM provisioning integration, based on the core enterprise authentication launch checks."
 sidebar:
   label: "Launch checklist"
 prev: false
 next: false
 tableOfContents: false
-pagefind: false
-head:
-  - tag: meta
-    attrs:
-      name: robots
-      content: noindex
 ---
 
 import { Steps } from "@astrojs/starlight/components"
 import CheckItem from '@components/ui/CheckItem.astro';
 
 
-As you prepare to deploy your Scalekit integration to production, it's crucial to verify that all configurations are optimized for security and user experience.
+As you prepare to launch SCIM provisioning to production, you should confirm that your configuration satisfies the SCIM-specific items from the authentication launch checklist.
 
-The following checklists help ensure your implementation is production-ready and efficient.
+This page extracts the SCIM provisioning items from the main authentication [production readiness checklist](/authenticate/launch-checklist/) and organizes them for your directory rollout.
 
-As you prepare to deploy SCIM Provisioning, verify that all configurations are optimized for security and user experience. The following checklist helps ensure your implementation is production-ready and efficient.
 
-<Steps>
+<CheckItem iconName="approve-check-circle"> **Configure SCIM webhook endpoints** </CheckItem>
+Configure webhook endpoints to receive SCIM events in your production environment, and ensure they use HTTPS and correct domain configuration.
 
-1. <CheckItem iconName="approve-check-circle"> **Use appropriate environment variables** </CheckItem>
+<CheckItem iconName="approve-check-circle"> **Verify webhook security with signature validation** </CheckItem>
+Implement signature validation for incoming SCIM webhooks so only Scalekit can trigger provisioning changes. See [webhook best practices](/guides/webhooks-best-practices/) for guidance.
 
-    Switch from development to production credentials, including the client ID, client secret, and environment URL.
+<CheckItem iconName="approve-check-circle"> **Test user provisioning, updates, and deprovisioning** </CheckItem>
+   Test user provisioning flows (create), deprovisioning flows (deactivate or delete), and user profile updates to ensure your application responds correctly to each event type.
 
-2. <CheckItem iconName="approve-check-circle"> **Secure the client secret** </CheckItem>
+<CheckItem iconName="approve-check-circle"> **Validate group-based role assignment** </CheckItem>
 
-    Your client secret is akin to a key to your application. Secure it with the utmost care. Go through our [best practices guide](/guides/client-credentials-practices/) to learn how to manage the client secrets safely and securely.
+Set up group-based role assignment and synchronization, and verify that group membership changes in the identity provider correctly map to roles and permissions in your application.
 
-3. <CheckItem iconName="approve-check-circle"> **Configure webhooks** </CheckItem>
+<CheckItem iconName="approve-check-circle"> **Handle duplicate and invalid data scenarios** </CheckItem>
+Test error scenarios such as duplicate users, conflicting identifiers, and invalid data payloads so your integration fails safely and surfaces actionable errors.
 
-    Setup webhooks for receiving real-time updates on user and group changes. Follow our [webhook security guide](/guides/webhooks-best-practices/) to learn how to secure your webhooks.
+<CheckItem iconName="approve-check-circle"> **Align SCIM with user and organization models** </CheckItem>
+Confirm that your SCIM implementation matches your user and organization data model, including how you represent organizations, teams, and role assignments in your system.
 
-4. <CheckItem iconName="approve-check-circle"> **Test provisioning flows** </CheckItem>
-
-    Ensure that you have implemented and tested all possible SCIM Provisioning workflows such as:
-
-    - User provisioning
-    - User de-provisioning
-    - User profile update
-    - Group membership changes
-    - Role assignments
-
-5. <CheckItem iconName="approve-check-circle"> **Finalize branding & theming** </CheckItem>
-
-    For a consistent user experience, ensure your branding (logo, colors) are added to the Admin Portal.
-
-6. <CheckItem iconName="approve-check-circle"> **Review Admin Portal URL** </CheckItem>
-
-    Customize the Admin Portal URL to match your domain (for example, `https://admin.hero-saas.app`) for a seamless brand experience. Also, remember to update `.env` file post CNAME configuration. Learn about [customizing the admin portal](/guides/admin-portal/#customize-the-admin-portal) to match your brand.
-
-7. <CheckItem iconName="approve-check-circle"> **Graceful error handling** </CheckItem>
-
-    Test thoroughly across all possible edge cases, including incomplete, invalid, or duplicate data.
-
-</Steps>
+<CheckItem iconName="approve-check-circle"> **Finalize admin portal configuration for directory admins** </CheckItem>
+Ensure directory admins can configure SCIM connections in the admin portal, and that your branding and access controls are correct for enterprise customers.
