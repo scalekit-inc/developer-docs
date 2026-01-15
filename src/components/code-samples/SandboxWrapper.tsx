@@ -49,7 +49,7 @@ export default function SandboxWrapper({ apiKey, orgid, sandboxId }: SandboxWrap
           boxSizing: 'border-box',
         }}
       >
-        <Sandbox apiKey={apiKey} orgid={orgid} sandboxId={sandboxId} env={{}} />
+        <Sandbox apiKey={apiKey} orgid={orgid} sandboxId={sandboxId} env={{}} theme="light" />
       </div>
     </div>
   )
