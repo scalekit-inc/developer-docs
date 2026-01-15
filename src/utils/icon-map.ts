@@ -48,6 +48,7 @@ import IconJava from '~icons/ri/java-line'
 import IconHugeiconsPhp from '~icons/hugeicons/php'
 import IconTeenyiconsNextjsOutline from '~icons/teenyicons/nextjs-outline'
 import IconSpringboot from '~icons/simple-icons/springboot'
+import IconFastapi from '~icons/devicon-plain/fastapi'
 import IconFlask from '~icons/simple-icons/flask'
 import IconDjango from '~icons/simple-icons/django'
 import IconBxBxlDjango from '~icons/bx/bxl-django'
@@ -169,6 +170,7 @@ export const iconMap = {
   next: IconTeenyiconsNextjsOutline,
   springboot: IconSpringboot,
   spring: IconSpringboot,
+  fastapi: IconFastapi,
   flask: IconFlask,
   django: IconBxBxlDjango,
   express: IconExpress,
