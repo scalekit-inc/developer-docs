@@ -25,7 +25,7 @@ const validEntries = entries.filter((entry) => {
 const pages = Object.fromEntries(validEntries.map(({ id, data }) => [id, { data }]))
 
 // Export the `GET` handler and static paths generator expected by Astro
-export const { getStaticPaths, GET } = OGImageRoute({
+export const { getStaticPaths, GET } = await OGImageRoute({
   pages,
   // matches the `[...slug].ts` filename
   param: 'slug',

@@ -1,5 +1,5 @@
 ---
-title: Launch checklist
+title: Production readiness checklist
 description: A focused checklist for delivering a production-ready authentication system that's secure, reliable, and compliant
 tableOfContents: true
 prev: false
@@ -28,14 +28,26 @@ head:
 
 import { Card, Steps, Aside, Badge } from '@astrojs/starlight/components'
 
-Before launching your authentication system to production, you need to ensure that every aspect of your implementation is secure, tested, and ready for real users. This comprehensive checklist covers security configuration, authentication flows, user management, monitoring, and compliance requirements.
+Before launching your authentication system to production, you need to ensure that every aspect of your implementation is secure, tested, and ready for real users. This checklist is organized in the order teams typically implement features when going live, starting with defining your requirements and moving through core flows to advanced features.
 
 Use this checklist systematically to verify that your authentication implementation meets production standards. Each section addresses critical aspects of a production-ready authentication system, from security hardening to user experience testing.
 
+## Define your auth surface
 
-## User authentication
+Determine which authentication methods and features you need at launch. This prevents enabling features you don't need and helps focus your testing efforts.
 
-Ensure your authentication system is hardened against common security threats and all core flows work correctly.
+- [ ] Decide which login methods to enable (email/password, magic links, social logins, passkeys)
+- [ ] Test all enabled authentication methods from initiation to completion
+- [ ] Verify social login integrations with your configured providers (Google, Microsoft, GitHub, etc.)
+- [ ] Test passkey authentication flows (if enabled)
+- [ ] Verify auth method selection UI works correctly
+- [ ] Test fallback scenarios when auth methods fail
+- [ ] Determine if you're supporting enterprise customers at launch (SSO, SCIM, admin portal)
+- [ ] Configure proper CORS settings (restrict allowed origins to your domains)
+
+## Core authentication flows
+
+Verify that your core authentication flows work correctly and handle errors gracefully. These are the essential flows every application needs.
 
 - [ ] Enable HTTPS for all authentication endpoints (prevents token interception)
 - [ ] Test login initiation with authorization URL
@@ -43,66 +55,15 @@ Ensure your authentication system is hardened against common security threats an
 - [ ] Test authentication completion and code exchange
 - [ ] Validate `state` parameter in callbacks to prevent CSRF attacks
 - [ ] Verify session token storage with `httpOnly`, `secure`, and `sameSite` flags as required
+- [ ] Configure token lifetimes appropriate for your security requirements
 - [ ] Test session timeout and automatic token refresh
 - [ ] Verify logout functionality clears sessions completely
 - [ ] Test error handling for expired tokens, invalid codes, and network failures
 - [ ] Test the complete flow end-to-end in a staging environment
 
-## Manage auth methods
+## Network and firewall configuration
 
-Verify all configured authentication methods work correctly from initiation to completion.
-
-- [ ] Test all enabled authentication methods (email/password, magic links, social logins)
-- [ ] Verify social login integrations with your configured providers (Google, Microsoft, GitHub, etc.)
-- [ ] Test passkey authentication flows (if enabled)
-- [ ] Test enterprise SSO connections (if configured)
-- [ ] Verify auth method selection UI works correctly
-- [ ] Test fallback scenarios when auth methods fail
-- [ ] Configure proper CORS settings (restrict allowed origins to your domains)
-
-## Manage users & orgs
-
-Configure how users and organizations are managed in your application.
-
-- [ ] Configure user profile fields you need to collect during sign-up
-- [ ] Set up organization management (workspaces, teams, tenants)
-- [ ] Test organization creation flow
-- [ ] Test adding users to organizations
-- [ ] Test removing users from organizations
-- [ ] Test user invitation flow and email templates
-- [ ] Set allowed email domains for organization sign-ups (if applicable)
-- [ ] Verify organization switching works for users in multiple organizations
-- [ ] Test user and organization deletion flows
-- [ ] Review [user management settings](/authenticate/fsa/user-management-settings) in your dashboard
-
-If you're implementing role-based access control (RBAC), verify these authorization items:
-
-- [ ] Define and create roles and permissions
-- [ ] Configure default roles for new users
-- [ ] Test role assignment to users
-- [ ] Test role assignment to organization members
-- [ ] Verify permission checks in application code
-- [ ] Test access control for different role levels
-- [ ] Validate permission enforcement at API endpoints
-
-## Customize
-
-Ensure your authentication experience matches your brand identity and custom requirements.
-
-- [ ] Brand your login page with your logo, colors, and styling
-- [ ] Customize email templates for sign-up, password reset, and invitations
-- [ ] Configure custom domain for authentication pages (if applicable)
-- [ ] Set up your preferred email provider in **Dashboard > Customization > Emails**
-- [ ] Test email deliverability and check spam folders
-- [ ] Configure custom user attributes (if needed)
-- [ ] Set up auth flow interceptors (if using)
-- [ ] Configure webhooks for auth events (if using)
-- [ ] Verify webhook security with signature validation
-- [ ] Review and rotate API credentials (store in environment variables, never commit to code)
-
-## Network configuration for enterprise features
-
-If you're enabling enterprise SSO or SCIM provisioning for your customers, verify these items.
+If you're enabling enterprise SSO or SCIM provisioning for your customers, verify network access early to avoid deployment blockers.
 
 - [ ] Verify customer firewalls allow Scalekit domains
 - [ ] Test authentication from customer's network environment
@@ -114,12 +75,16 @@ If your customers deploy Scalekit behind a corporate firewall or VPN, they need 
 
 | Domain | Purpose |
 |--------|---------|
-| `your-app.scalekit.com` | Your Scalekit environment URL (admin portal and authentication) |
+| `<your-environment>.scalekit.com` | Your Scalekit environment URL (admin portal and authentication; replace this with your actual Scalekit environment URL) |
 | `cdn.scalekit.com` | Content delivery network for static assets |
 | `docs.scalekit.com` | Documentation portal |
 | `fonts.googleapis.com` | Font resources |
 
+Replace `<your-environment>.scalekit.com` with your actual Scalekit environment URL from the Scalekit dashboard.
 
+## Enterprise auth
+
+If you're supporting enterprise customers, configure SSO, SCIM provisioning, and the admin portal.
 
 ### SSO flows
 
@@ -146,6 +111,52 @@ If your customers deploy Scalekit behind a corporate firewall or VPN, they need 
 - [ ] Set up group-based role assignment and synchronization
 - [ ] Test error scenarios (duplicate users, invalid data)
 
+### Admin portal
+
+- [ ] Configure admin portal access for enterprise customers
+- [ ] Test admin portal SSO configuration flows
+- [ ] Verify admin portal user management features
+
+## Customization
+
+Ensure your authentication experience matches your brand identity and custom requirements.
+
+- [ ] Brand your login page with your logo, colors, and styling
+- [ ] Customize email templates for sign-up, password reset, and invitations
+- [ ] Configure custom domain for authentication pages (if applicable)
+- [ ] Set up your preferred email provider in **Dashboard > Customization > Emails**
+- [ ] Test email deliverability and check spam folders
+- [ ] Configure custom user attributes (if needed)
+- [ ] Set up auth flow interceptors (if using)
+- [ ] Configure webhooks for auth events (if using)
+- [ ] Verify webhook security with signature validation
+- [ ] Review and rotate API credentials (store in environment variables, never commit to code)
+
+## User and organization management
+
+Configure how users and organizations are managed in your application.
+
+- [ ] Configure user profile fields you need to collect during sign-up
+- [ ] Set up organization management (workspaces, teams, tenants)
+- [ ] Test organization creation flow
+- [ ] Test adding users to organizations
+- [ ] Test removing users from organizations
+- [ ] Test user invitation flow and email templates
+- [ ] Set allowed email domains for organization sign-ups (if applicable)
+- [ ] Verify organization switching works for users in multiple organizations
+- [ ] Test user and organization deletion flows
+- [ ] Review [user management settings](/authenticate/fsa/user-management-settings) in your dashboard
+
+If you're implementing role-based access control (RBAC), verify these authorization items:
+
+- [ ] Define and create roles and permissions
+- [ ] Configure default roles for new users
+- [ ] Test role assignment to users
+- [ ] Test role assignment to organization members
+- [ ] Verify permission checks in application code
+- [ ] Test access control for different role levels
+- [ ] Validate permission enforcement at API endpoints
+
 ## MCP authentication
 
 If you're implementing MCP authentication for AI agents, verify these items.
@@ -157,7 +168,7 @@ If you're implementing MCP authentication for AI agents, verify these items.
 - [ ] Test MCP session management
 - [ ] Review [MCP troubleshooting](/authenticate/mcp/troubleshooting/) documentation
 
-## Monitoring & observability
+## Monitoring, logs, and incident readiness
 
 Set up monitoring to track authentication activity and troubleshoot issues quickly.
 
