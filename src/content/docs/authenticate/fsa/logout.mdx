@@ -188,3 +188,60 @@ This guide shows you how to clear the application session layer and invalidate t
 - Redirect to Scalekit's logout endpoint to invalidate the session server-side
 - Ensure your post-logout redirect URI is registered in the Scalekit dashboard
 </Aside>
+
+## Common logout scenarios
+
+<details>
+<summary>Which endpoint should I use for logout?</summary>
+
+Use `/oidc/logout` for user logout functionality. This endpoint requires a browser redirect and clears the user's session server-side.
+
+The `/oauth/revoke` endpoint is different—it's an authenticated API call for programmatic token invalidation and requires client authentication (client_id + client_secret).
+
+| Scenario | Endpoint | Method |
+|----------|----------|--------|
+| **User logout** (terminate session) | `/oidc/logout` | Browser redirect |
+| **Revoke specific tokens** | `/oauth/revoke` | Authenticated API call |
+
+</details>
+
+<details>
+<summary>Why must logout be a browser redirect?</summary>
+
+The `/oidc/logout` endpoint must be accessed via **browser redirect**, not an API call. When you redirect the browser to Scalekit's logout URL, the browser automatically includes the session cookie in the request, allowing Scalekit to identify and terminate the correct session.
+
+**❌ Doesn't work - API call from frontend:**
+```javascript
+fetch('https://your-env.scalekit.dev/oidc/logout', {
+  method: 'POST',
+  body: JSON.stringify({ id_token_hint: idToken })
+});
+// Session cookie is NOT included, Scalekit can't identify the session
+```
+
+**✅ Works - Browser redirect:**
+```javascript
+const logoutUrl = scalekit.getLogoutUrl(idToken, postLogoutRedirectUri);
+window.location.href = logoutUrl;
+// Browser includes session cookies automatically
+```
+
+**Why:** Your user session is stored in an HttpOnly cookie. API requests from JavaScript or backend servers don't include this cookie, so Scalekit can't identify which session to terminate.
+
+</details>
+
+<details>
+<summary>Session not clearing after logout?</summary>
+
+If clicking login after logout bypasses the login screen and logs you back in automatically, check the following:
+
+1. **Verify the logout method** - Open browser DevTools → Network tab and trigger logout:
+   - ✅ Type should show **"document"** (navigation)
+   - ❌ Type should **NOT** show "fetch" or "xhr"
+   - Check that the `Cookie` header is present in the request
+
+2. **Confirm you're using `/oidc/logout`** - The `/oauth/revoke` endpoint is for token invalidation, not user logout.
+
+3. **Check post-logout redirect URI** - Ensure it's registered in **Dashboard > Authentication > Redirects > Post Logout URL**.
+
+</details>
