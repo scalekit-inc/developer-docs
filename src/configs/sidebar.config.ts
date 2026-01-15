@@ -100,8 +100,8 @@ export const sidebar = [
       {
         label: 'Go Live',
         items: [
-          'guides/dashboard/auth-logs',
           'authenticate/launch-checklist',
+          'guides/dashboard/auth-logs',
           'fsa/guides/migration-guide',
         ],
       },
