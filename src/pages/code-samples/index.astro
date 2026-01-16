@@ -1,0 +1,47 @@
+---
+// Import the `<StarlightPage>` component first to set up cascade layers
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import SandboxHomeWrapper from '../../components/code-samples/SandboxHomeWrapper.tsx'
+
+// Get API key and orgid from environment variables
+const apiKey = import.meta.env.PUBLIC_SAMPLEAPP_API_KEY || ''
+const orgid = import.meta.env.PUBLIC_SAMPLEAPP_ORGID || 'scalekit'
+
+// Page metadata
+const template = 'splash' as const
+const frontmatter = {
+  title: 'Code Samples',
+  description: 'Interactive code samples and sandboxes',
+  template,
+  editUrl: false as const,
+  head: [
+    {
+      tag: 'style' as const,
+      content: `
+        footer {
+          display: none !important;
+        }
+        .full-page-app {
+          width: 100%;
+          max-width: 100%;
+          margin: 0;
+          padding: 0;
+          position: sticky;
+          top: var(--sl-nav-height);
+          height: calc(100vh - var(--sl-nav-height));
+          overflow: auto;
+        }
+      `,
+    },
+  ],
+}
+---
+
+<div class="full-page-app">
+  <SandboxHomeWrapper client:load apiKey={apiKey} orgid={orgid} theme="light" />
+</div>
+
+<StarlightPage frontmatter={frontmatter}>
+  <!-- Hidden content to initialize Starlight page structure -->
+  <div style="display: none;"></div>
+</StarlightPage>
