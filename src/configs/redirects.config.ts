@@ -19,6 +19,7 @@ export const redirects = {
   '/fsa/guides/signup-restrictions': '/authenticate/manage-users-orgs/email-domain-rules/',
   '/fsa/guides/allowed-email-domains': '/authenticate/manage-users-orgs/email-domain-rules/',
   '/fsa/guides/merge-identities': '/authenticate/manage-users-orgs/merge-identities/',
+  '/fsa/guides/organization-switching': '/authenticate/manage-users-orgs/organization-switching/',
   '/fsa/guides/onboard-enterprise-customers': '/sso/guides/onboard-enterprise-customers/',
   '/fsa/guides/enterprise-sso/': '/authenticate/auth-methods/enterprise-sso/',
   '/fsa/guides/auth-methods/': '/authenticate/auth-methods/passwordless/',

@@ -45,6 +45,7 @@ export const sidebar = [
           'authenticate/manage-users-orgs/email-domain-rules',
           'authenticate/manage-users-orgs/jit-provisioning',
           'authenticate/manage-users-orgs/merge-identities',
+          'authenticate/manage-users-orgs/organization-switching',
           'authenticate/manage-organizations/remove-users-from-organization',
           'authenticate/manage-users-orgs/delete-users-and-organizations',
           'authenticate/fsa/user-management-settings',
