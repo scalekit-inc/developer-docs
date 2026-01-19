@@ -53,6 +53,7 @@ import IconFlask from '~icons/simple-icons/flask'
 import IconDjango from '~icons/simple-icons/django'
 import IconBxBxlDjango from '~icons/bx/bxl-django'
 import IconExpress from '~icons/simple-icons/express'
+import IconLaravel from '~icons/simple-icons/laravel'
 
 // Tool and service icons
 import IconLucideSlack from '~icons/lucide/slack'
@@ -175,6 +176,7 @@ export const iconMap = {
   django: IconBxBxlDjango,
   express: IconExpress,
   expressjs: IconExpress,
+  laravel: IconLaravel,
 
   // Tool and service icons
   slack: IconLucideSlack,
