@@ -12,6 +12,7 @@ import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
 import starlightLinksValidator from 'starlight-links-validator'
+import starlightBlog from 'starlight-blog'
 import { sidebar as sidebarConfig, topics, exclude } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import tailwindcss from '@tailwindcss/vite'
@@ -89,6 +90,12 @@ export default defineConfig({
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude'],
           hideMainActionLabel: true,
+        }),
+        starlightBlog({
+          metrics: {
+            readingTime: true,
+            words: 'total',
+          },
         }),
       ],
       head: [
