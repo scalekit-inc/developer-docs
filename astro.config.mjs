@@ -92,6 +92,7 @@ export default defineConfig({
           hideMainActionLabel: true,
         }),
         starlightBlog({
+          prefix: 'cookbooks',
           metrics: {
             readingTime: true,
             words: 'total',
