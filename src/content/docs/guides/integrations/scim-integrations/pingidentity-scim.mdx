@@ -1,0 +1,107 @@
+---
+title: PingIdentity Directory
+description: "Learn how to sync your PingIdentity Directory with your application for automated user provisioning and management using SCIM"
+sidebar:
+  order: 6
+  label: "PingIdentity"
+  badge:
+    variant: note
+    text: SCIM
+prev: false
+next: false
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+This guide helps administrators sync their PingIdentity directory with an application they want to onboard to their organization. Integrating your application with PingIdentity automates user management tasks and ensures access rights stay up-to-date.
+
+Setting up the integration involves two key components:
+
+1. **Endpoint**: This is the URL where PingIdentity sends requests to the application you are onboarding. It acts as a communication point between PingIdentity and your application.
+2. **Bearer Token**: This token is used by PingIdentity to authenticate its requests to the endpoint. It ensures that the requests are secure and authorized.
+
+By setting up these components, you enable seamless synchronization between your application and the PingIdentity directory.
+
+<Steps>
+1. ## Generate SCIM credentials
+
+   Open the Admin Portal from the application being onboarded and navigate to the **SCIM Provisioning** tab. Choose **PingIdentity** as your Directory Provider and click **Configure**.
+
+   The Admin Portal automatically generates and displays an **Endpoint URL** and a **Bearer token**. Copy these values as you will need them to configure PingIdentity.
+
+   ![Endpoint URL and Bearer token generated for the organization](@/assets/docs/pingidentity-scim/1-generate-creds.png)
+
+   <Aside type="note">
+   If the "SCIM Provisioning" tab is not visible, contact the app owner to enable it for your organization.
+   </Aside>
+
+2. ## Navigate to PingIdentity Provisioning
+
+   Log in to your PingIdentity admin console (typically at `console.pingone.com`). Navigate to the **Integrations** dropdown in the main menu and select **Provisioning**.
+
+   ![PingIdentity console showing Integrations > Provisioning selection](@/assets/docs/pingidentity-scim/2-integrations-section.png)
+
+3. ## Create a new connection
+
+   Click the **+ (plus)** icon at the top of the dashboard and select **New Connection**.
+
+   ![Clicking the + icon to create a new connection in PingIdentity](@/assets/docs/pingidentity-scim/3-new-connection.png)
+
+4. ## Select SCIM Outbound connector
+
+   In the modal that appears:
+
+   1. **Select Identity Store**: Click **Select** to choose an identity store.
+      ![](@/assets/docs/pingidentity-scim/select-identity-store.png)
+   2. **Choose SCIM Outbound**: From the catalog, select **SCIM Outbound**.
+      ![](@/assets/docs/pingidentity-scim/scim-outbound-catalog.png)
+   3. **Name and Description**: Provide a name for the application you are onboarding (e.g., "Hero SaaS") and add an optional description. Click **Next**.
+       ![](@/assets/docs/pingidentity-scim/name-descriptionpng.png)
+
+5. ## Configure connection settings
+
+   In the connection settings screen:
+
+   - **SCIM Endpoint URL**: Paste the **Endpoint URL** from the Admin Portal
+   - **Authentication Method**: Select **OAuth 2 Bearer Token**
+   - **Bearer Token**: Paste the **Bearer Token** from the Admin Portal
+   - Click **Test Connection** to verify the connection works correctly
+
+   ![](@/assets/docs/pingidentity-scim/config-setuppng.png)
+
+   After successful testing, click **Next** to proceed.
+
+6. ## Configure preferences and save
+
+   Leave all preferences at their default settings and click **Save** to finish creating the connection.
+
+   ![](@/assets/docs/pingidentity-scim/configure-pref.png)
+
+7. ## Configure provisioning rules
+
+   After creating the connection, you must define the rules for data synchronization. Click the **+ (plus)** icon again and select **New Rule** from the dropdown menu.
+
+   ![](@/assets/docs/pingidentity-scim/create-rule.png)
+
+   In the rule configuration modal, set the following:
+
+   - **Source**: Select **PingOne**
+   - **Connection**: Choose the connection you created in the previous step
+   - **Name**: Provide a meaningful name, such as the name of the application you are onboarding (e.g., "Hero SaaS")
+
+   Click **Save** to finalize the provisioning setup.
+
+   ![](@/assets/docs/pingidentity-scim/setup-rule.png)
+
+8. ## Verify the integration
+
+   With the setup complete, verify that users and groups are synchronizing correctly:
+
+   1. **Sync a Group**: In PingIdentity, create or select a group. This group should appear in the Admin Portal under **SCIM Provisioning** almost immediately.
+   2. **Sync User Data**: Add users to that group. Their profile data will be sent to your application and synchronized in real-time.
+
+   ![](@/assets/docs/pingidentity-scim/synced-users.png)
+
+   Confirm the synchronization by visiting the Users/Groups tab in the Admin Portal.
+
+</Steps>
