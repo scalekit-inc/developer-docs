@@ -14,6 +14,7 @@ import starlightVideos from 'starlight-videos'
 import starlightCopyInlineCode from 'starlight-copy-inline-code'
 import starlightLinksValidator from 'starlight-links-validator'
 import starlightLlmsTxt from 'starlight-llms-txt'
+import starlightBlog from 'starlight-blog'
 import { sidebar as sidebarConfig, topics, exclude } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import { llmsConfig } from './src/configs/llms.config.ts'
@@ -109,6 +110,12 @@ export default defineConfig({
 
           // CSS selector for inline code elements (default: ':not(pre) > code')
           selector: ':not(pre) > code',
+        }),
+        starlightBlog({
+          metrics: {
+            readingTime: true,
+            words: 'total',
+          },
         }),
       ],
       head: [
