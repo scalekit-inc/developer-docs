@@ -103,8 +103,23 @@ export function isCurrentPage(pathname: string, item: NavItem): boolean {
 }
 
 export function getDisplayLabel(pathname: string, item: NavItem): string {
-  // Special case: Show "Choose a solution" for authenticate nav item when on home page
-  if (item.id === 'authenticate' && (pathname === '/' || pathname === '')) {
+  // Authenticate dropdown: keep the "Choose product" placeholder unless a child is active.
+  // This prevents the label from implicitly changing to "Full stack auth" when users land
+  // directly on non-auth sections (e.g. SDKs, APIs, Developer Resources).
+  if (item.id === 'authenticate') {
+    if (item.children && item.children.length > 0) {
+      const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
+
+      // No active child => user hasn't selected a specific product via the current section.
+      if (!activeChild) return 'Choose product'
+
+      // For right column items (Full-stack Auth shortcuts), always use parent label.
+      if (activeChild.columnGroup === 'right') return item.label
+
+      // For left column items (Modular Auth), use child label.
+      return activeChild.label
+    }
+
     return 'Choose product'
   }
 
@@ -121,8 +136,21 @@ export function getDisplayLabel(pathname: string, item: NavItem): string {
 }
 
 export function getDisplayIcon(pathname: string, item: NavItem): any {
-  // Special case: Show IconLucideLayoutGrid for authenticate nav item when on home page
-  if (item.id === 'authenticate' && (pathname === '/' || pathname === '')) {
+  // Authenticate dropdown: keep the grid icon placeholder unless a child is active.
+  if (item.id === 'authenticate') {
+    if (item.children && item.children.length > 0) {
+      const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
+
+      // No active child => show placeholder icon.
+      if (!activeChild) return IconLucideLayoutGrid
+
+      // For right column items (Full-stack Auth shortcuts), always use parent icon.
+      if (activeChild.columnGroup === 'right') return item.iconComponent
+
+      // For left column items (Modular Auth), use child icon.
+      if (activeChild.iconComponent) return activeChild.iconComponent
+    }
+
     return IconLucideLayoutGrid
   }
 
