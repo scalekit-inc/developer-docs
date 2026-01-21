@@ -1,0 +1,255 @@
+---
+title: 'Building a Custom Organization Switcher'
+description: 'Learn how to build your own organization switcher UI for complete control over multi-tenant user experiences.'
+date: 2025-01-21
+tags: ['Full stack auth']
+excerpt: When users belong to multiple organizations, the default Scalekit organization switcher handles most use cases. However, some applications require deeper integration—a custom switcher embedded directly in your app's navigation, or a specialized UI that matches your design system.
+featured: true
+cover:
+  alt: 'Modern desk setup with laptop and workspace accessories'
+  image: ../../../../assets/blog/covers/custom-org-switcher.jpg
+authors:
+  - name: 'Hashirr'
+    title: 'Hero developer'
+    url: 'https://www.linkedin.com/in/hashirr-lukmahn/'
+    picture: '/images/blog/authors/hashirr-lukmahn.jpg'
+---
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+When users belong to multiple organizations, the default Scalekit organization switcher handles most use cases. However, some applications require deeper integration—a custom switcher embedded directly in your app's navigation, or a specialized UI that matches your design system.
+
+This guide shows you how to build your own organization switcher using Scalekit's APIs.
+
+## Why build a custom switcher?
+
+The default Scalekit-hosted switcher works well for most scenarios. Build a custom switcher when you need:
+
+- **In-app navigation**: Users switch organizations without leaving your application
+- **Custom branding**: The switcher matches your application's design language
+- **Specialized workflows**: Your app needs org-specific logic during switches
+- **Reduced redirects**: Avoid sending users through the authentication flow for every switch
+
+## How the custom switcher works
+
+Your application handles the entire switching flow:
+
+1. User authenticates through Scalekit and receives a session
+2. Your app fetches the user's organizations via the User Sessions API
+3. You render your own organization selector UI
+4. When a user selects an organization, your app updates the active context
+
+This approach gives you full control over the UI and routing, but requires you to manage session state and organization context within your application.
+
+## Fetch user organizations
+
+The User Sessions API returns the `authenticated_organizations` field containing all organizations the user can access. Use this data to populate your switcher UI.
+
+<Tabs>
+  <TabItem value="node" label="Node.js">
+    ```javascript title="Express.js"
+    // Use case: Get user's organizations for your switcher UI
+    // Security: Always validate session ownership before returning org data
+    const session = await scalekit.session.getSession(sessionId);
+
+    // Extract organizations from the session response
+    const organizations = session.authenticated_organizations || [];
+
+    // Render your organization switcher with this data
+    res.json({ organizations });
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python title="Flask"
+    # Use case: Get user's organizations for your switcher UI
+    # Security: Always validate session ownership before returning org data
+    session = scalekit_client.session.get_session(session_id)
+
+    # Extract organizations from the session response
+    organizations = session.get('authenticated_organizations', [])
+
+    # Render your organization switcher with this data
+    return jsonify({'organizations': organizations})
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="Gin"
+    // Use case: Get user's organizations for your switcher UI
+    // Security: Always validate session ownership before returning org data
+    session, err := scalekitClient.Session().GetSession(ctx, sessionId)
+    if err != nil {
+        return err
+    }
+
+    // Extract organizations from the session response
+    organizations := session.AuthenticatedOrganizations
+
+    // Render your organization switcher with this data
+    c.JSON(http.StatusOK, gin.H{"organizations": organizations})
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java title="Spring"
+    // Use case: Get user's organizations for your switcher UI
+    // Security: Always validate session ownership before returning org data
+    Session session = scalekitClient.sessions().getSession(sessionId);
+
+    // Extract organizations from the session response
+    List<Organization> organizations = session.getAuthenticatedOrganizations();
+
+    // Render your organization switcher with this data
+    return ResponseEntity.ok(Map.of("organizations", organizations));
+    ```
+  </TabItem>
+</Tabs>
+
+The response includes organization IDs, names, and metadata for each organization the user can access.
+
+## Add domain context
+
+Enhance your switcher by displaying which domains are associated with each organization. Use the Domains API to fetch this information.
+
+```javascript
+// Example: Fetch domains for an organization
+const domains = await scalekit.domains.list({ organizationId: 'org_123' });
+
+// Display "@acme.com" next to the organization name in your UI
+```
+
+This helps users quickly identify the correct organization, especially when they belong to organizations with similar names.
+
+## Handle organization selection
+
+When a user selects an organization in your custom switcher, update your application's context. Store the active organization ID in session storage or a cookie, then use it for subsequent API calls.
+
+<Tabs>
+  <TabItem value="node" label="Node.js">
+    ```javascript title="Express.js"
+    // Use case: Store selected organization and fetch org-specific data
+    app.post('/api/select-organization', async (req, res) => {
+      const { organizationId } = req.body;
+      const sessionId = req.session.scalekitSessionId;
+
+      // Security: Verify the user belongs to this organization
+      const session = await scalekit.session.getSession(sessionId);
+      const hasAccess = session.authenticated_organizations.some(
+        org => org.id === organizationId
+      );
+
+      if (!hasAccess) {
+        return res.status(403).json({ error: 'Unauthorized' });
+      }
+
+      // Store the active organization in the user's session
+      req.session.activeOrganizationId = organizationId;
+
+      res.json({ success: true });
+    });
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python title="Flask"
+    # Use case: Store selected organization and fetch org-specific data
+    @app.route('/api/select-organization', methods=['POST'])
+    def select_organization():
+      data = request.get_json()
+      organization_id = data.get('organizationId')
+      session_id = session.get('scalekit_session_id')
+
+      # Security: Verify the user belongs to this organization
+      user_session = scalekit_client.session.get_session(session_id)
+      has_access = any(
+        org['id'] == organization_id
+        for org in user_session.get('authenticated_organizations', [])
+      )
+
+      if not has_access:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+      # Store the active organization in the user's session
+      session['active_organization_id'] = organization_id
+
+      return jsonify({'success': True})
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="Gin"
+    // Use case: Store selected organization and fetch org-specific data
+    func SelectOrganization(c *gin.Context) {
+      var req struct {
+        OrganizationID string `json:"organizationId"`
+      }
+      if err := c.BindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+        return
+      }
+
+      sessionID := c.GetString("scalekitSessionID")
+
+      // Security: Verify the user belongs to this organization
+      session, err := scalekitClient.Session().GetSession(ctx, sessionID)
+      if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Session error"})
+        return
+      }
+
+      hasAccess := false
+      for _, org := range session.AuthenticatedOrganizations {
+        if org.ID == req.OrganizationID {
+          hasAccess = true
+          break
+        }
+      }
+
+      if !hasAccess {
+        c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized"})
+        return
+      }
+
+      // Store the active organization in the user's session
+      c.SetCookie("activeOrganizationID", req.OrganizationID, 3600, "/", "", true, true)
+
+      c.JSON(http.StatusOK, gin.H{"success": true})
+    }
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java title="Spring"
+    // Use case: Store selected organization and fetch org-specific data
+    @PostMapping("/api/select-organization")
+    public ResponseEntity<?> selectOrganization(
+      @RequestBody Map<String, String> request,
+      HttpSession httpSession
+    ) {
+      String organizationId = request.get("organizationId");
+      String sessionId = (String) httpSession.getAttribute("scalekitSessionId");
+
+      // Security: Verify the user belongs to this organization
+      Session session = scalekitClient.sessions().getSession(sessionId);
+      boolean hasAccess = session.getAuthenticatedOrganizations().stream()
+        .anyMatch(org -> org.getId().equals(organizationId));
+
+      if (!hasAccess) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+          .body(Map.of("error", "Unauthorized"));
+      }
+
+      // Store the active organization in the user's session
+      httpSession.setAttribute("activeOrganizationId", organizationId);
+
+      return ResponseEntity.ok(Map.of("success", true));
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+Always verify that the user actually belongs to the organization they're attempting to switch to. The `authenticated_organizations` array from the session is your source of truth for access control.
+
+## When to use the hosted switcher instead
+
+The default Scalekit-hosted switcher is the right choice when:
+
+- You want the quickest implementation with minimal code
+- Your application doesn't require in-app organization switching
+- You're okay with users navigating through the authentication flow to switch organizations
+
+Build a custom switcher when user experience requirements demand deeper integration with your application's UI and routing.
