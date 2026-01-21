@@ -112,6 +112,7 @@ export default defineConfig({
           selector: ':not(pre) > code',
         }),
         starlightBlog({
+          prefix: 'cookbooks',
           metrics: {
             readingTime: true,
             words: 'total',
