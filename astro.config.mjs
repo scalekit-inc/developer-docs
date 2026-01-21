@@ -13,6 +13,7 @@ import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
 import starlightLinksValidator from 'starlight-links-validator'
 import starlightLlmsTxt from 'starlight-llms-txt'
+import starlightBlog from 'starlight-blog'
 import { sidebar as sidebarConfig, topics, exclude } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import { llmsConfig } from './src/configs/llms.config.ts'
@@ -93,6 +94,12 @@ export default defineConfig({
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude'],
           hideMainActionLabel: true,
+        }),
+        starlightBlog({
+          metrics: {
+            readingTime: true,
+            words: 'total',
+          },
         }),
       ],
       head: [
