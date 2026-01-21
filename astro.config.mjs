@@ -111,45 +111,23 @@ export default defineConfig({
         {
           tag: 'script',
           content: `
+            (function(){var e=window;var t=document;var n=function(){n.e(arguments)};n.q=[];n.e=function(e){n.q.push(e)};e.Pylon=n;var r=function(){var e=t.createElement("script");e.setAttribute("type","text/javascript");e.setAttribute("async","true");e.setAttribute("src","https://widget.usepylon.com/widget/32a58676-d739-4f5c-9d97-2f28f9deb8a6");var n=t.getElementsByTagName("script")[0];n.parentNode.insertBefore(e,n)};if(t.readyState==="complete"){r()}else if(e.addEventListener){e.addEventListener("load",r,false)}})()
+          `,
+        },
+        {
+          tag: 'script',
+          content: `
             // Configure Pylon before the widget script loads
             // Add identity fields (email, name, etc.) once you have user context available.
             console.log('Configuring Pylon...')
             window.pylon = {
               chat_settings: {
                 app_id: '32a58676-d739-4f5c-9d97-2f28f9deb8a6',
+                email: 'asdf@example.com',
+                name: 'fasdf'
               },
             }
             console.log('Pylon configured')
-          `,
-        },
-        {
-          tag: 'script',
-          content: `
-            ;(function () {
-              var e = window
-              var t = document
-              var n = function () {
-                n.e(arguments)
-              }
-              n.q = []
-              n.e = function (e) {
-                n.q.push(e)
-              }
-              e.Pylon = n
-              var r = function () {
-                var e = t.createElement('script')
-                e.setAttribute('type', 'text/javascript')
-                e.setAttribute('async', 'true')
-                e.setAttribute('src', 'https://widget.usepylon.com/widget/32a58676-d739-4f5c-9d97-2f28f9deb8a6')
-                var n = t.getElementsByTagName('script')[0]
-                n.parentNode.insertBefore(e, n)
-              }
-              if (t.readyState === 'complete') {
-                r()
-              } else if (e.addEventListener) {
-                e.addEventListener('load', r, false)
-              }
-            })()
           `,
         },
         {
