@@ -464,6 +464,7 @@ export const sidebar = [
           { label: 'Python SDK', link: '/sdks/python/' },
           { label: 'Go SDK', link: '/sdks/go/' },
           { label: 'Java SDK', link: '/sdks/java/' },
+          { label: 'Expo SDK', link: '/sdks/expo/' },
         ],
       },
       {

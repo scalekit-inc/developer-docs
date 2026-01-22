@@ -69,6 +69,7 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
   const pythonRelease = getLatestRelease(releases, 'scalekit-inc/scalekit-sdk-python')
   const goRelease = getLatestRelease(releases, 'scalekit-inc/scalekit-sdk-go')
   const javaRelease = getLatestRelease(releases, 'scalekit-inc/scalekit-sdk-java')
+  const expoRelease = getLatestRelease(releases, 'scalekit-inc/scalekit-expo-sdk')
 
   return {
     node: {
@@ -107,6 +108,16 @@ export function getSDKConfigs(releases: any[]): Record<string, SDKConfig> {
       description: 'Enterprise-ready SDK with seamless Spring Boot integration',
       features: ['Spring Boot integrated', 'Maven Central published'],
       release: javaRelease,
+    },
+    expo: {
+      title: 'Expo',
+      showTitle: false,
+      icon: 'expo',
+      href: '/sdks/expo/',
+      repo: 'scalekit-inc/scalekit-expo-sdk',
+      description: 'Official Expo SDK with React Hooks for enterprise-ready mobile authentication',
+      features: ['React Hooks & TypeScript', 'OAuth 2.0 with PKCE'],
+      release: expoRelease,
     },
   }
 }
