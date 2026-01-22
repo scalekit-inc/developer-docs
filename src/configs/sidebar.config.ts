@@ -458,37 +458,43 @@ export const sidebar = [
     icon: 'seti:webpack',
     items: [
       {
-        label: 'SDKs',
+        label: 'Node.js SDK',
         items: [
-          { label: 'Node.js SDK', link: '/sdks/node/' },
-          { label: 'Python SDK', link: '/sdks/python/' },
-          { label: 'Go SDK', link: '/sdks/go/' },
-          { label: 'Java SDK', link: '/sdks/java/' },
-          { label: 'Expo SDK', link: '/sdks/expo/' },
+          { label: 'Overview', link: '/sdks/node/' },
+          { label: 'SDK reference', link: '/sdks/node/reference/' },
         ],
+      },
+      {
+        label: 'Python SDK',
+        items: [
+          { label: 'Overview', link: '/sdks/python/' },
+          { label: 'SDK reference', link: '/sdks/python/reference/' },
+        ],
+      },
+      {
+        label: 'Go SDK',
+        items: [
+          { label: 'Overview', link: '/sdks/go/' },
+          { label: 'SDK reference', link: '/sdks/go/reference/' },
+        ],
+      },
+      {
+        label: 'Java SDK',
+        items: [
+          { label: 'Overview', link: '/sdks/java/' },
+          { label: 'SDK reference', link: '/sdks/java/reference/' },
+        ],
+      },
+      {
+        label: 'Expo SDK',
+        link: '/sdks/expo/',
+        // Note: No SDK reference yet - only Overview page
       },
       {
         label: 'APIs',
         link: '/apis/#description/overview',
         attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
       },
-      // {
-      //   label: 'API Reference',
-      //   collapsed: false,
-      //   items: [
-      //     // TODO: Verify internally if it makes sense
-      //     // {
-      //     //   label: 'Webhooks',
-      //     //   link: '/apis/#webhook/organizationcreated',
-      //     //   attrs: { target: '_blank', rel: 'noopener noreferrer' },
-      //     // },
-      //     // {
-      //     //   label: 'Interceptors',
-      //     //   link: '/reference/interceptors/triggers',
-      //     //   attrs: { target: '_blank', rel: 'noopener noreferrer' },
-      //     // },
-      //   ],
-      // },
     ],
   },
 ]
