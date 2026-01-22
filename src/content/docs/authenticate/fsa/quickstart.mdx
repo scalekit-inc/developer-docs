@@ -934,21 +934,18 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
 </Steps>
 
-<details>
-<summary>Common questions</summary>
-
-### Configure HTTP timeouts (Spring Boot 4.x)
-
-<Aside type="caution" title="Spring Boot 4.x timeout configuration">
-Spring Boot 4.x versions require explicit timeout configuration for OAuth2 resource server JWT validation. Without this configuration, your application may hang during startup if the issuer is unreachable.
-</Aside>
-
-When using Spring Security's OAuth2 resource server with JWT validation, the underlying `WebClient` (reactive HTTP client) uses default timeout settings that may cause issues. If Scalekit's authorization server is temporarily unreachable, your application startup can hang indefinitely while waiting for the JWKS endpoint response.
-
-To prevent this, configure explicit HTTP timeouts in your Spring Boot application. See the [Spring Security documentation on JWT timeouts](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html#oauth2resourceserver-jwt-timeouts) for the recommended 1-second timeout configuration.
-
-This configuration applies specifically to reactive `WebClient`-based setups used by Spring Security's JWT decoder to fetch the JSON Web Key Set (JWKS) from the issuer.
-
-</details>
 
  This single integration unlocks multiple authentication methods, including Magic Link & OTP, social sign-ins, enterprise single sign-on (SSO), and robust user management features. As you continue working with Scalekit, you'll discover even more features that enhance your authentication workflows.
+
+
+
+## Common integration scenarios
+
+<details>
+<summary>How do I configure HTTP timeouts in Spring Boot?</summary>
+
+Spring Security’s OAuth2 resource server fetches the JWKS from the issuer URL during JWT validation. If the issuer is unreachable, authentication requests will time out.
+
+Use the Spring Security JWT timeout settings for your Spring Boot version. Follow the recommended configuration in the Spring docs: [JWT decoder timeouts](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html#oauth2resourceserver-jwt-timeouts)
+
+</details>
