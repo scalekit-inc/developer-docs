@@ -163,7 +163,9 @@ Before you begin, create a Scalekit account if you haven't already. After creati
 
    <TabItem value="nodejs" label="Node.js">
 
-   ```javascript collapse={1-8} wrap showLineNumbers=false
+   Create a file `verify.js` with the following code:
+
+   ```javascript collapse={1-8} wrap showLineNumbers=false title="verify.js"
    import { ScalekitClient } from '@scalekit-sdk/node';
 
    const scalekit = new ScalekitClient(
@@ -179,58 +181,99 @@ Before you begin, create a Scalekit account if you haven't already. After creati
    console.log(`Name of the first organization: ${organizations[0].display_name}`);
    ```
 
+   Run the verification script:
+
+   ```bash title="Run verification" showLineNumbers=false
+   node verify.js
+   ```
+
    </TabItem>
 
    <TabItem value="python" label="Python">
 
-   ```python collapse={1-9} wrap showLineNumbers=false
+   Create a file `verify.py` with the following code:
+
+   ```python collapse={1-9} wrap showLineNumbers=false title="verify.py"
    from scalekit import ScalekitClient
+   import os
 
    # Initialize the SDK client
    scalekit_client = ScalekitClient(
-     '<SCALEKIT_ENVIRONMENT_URL>',
-     '<SCALEKIT_CLIENT_ID>',
-     '<SCALEKIT_CLIENT_SECRET>'
+     os.getenv('SCALEKIT_ENVIRONMENT_URL'),
+     os.getenv('SCALEKIT_CLIENT_ID'),
+     os.getenv('SCALEKIT_CLIENT_SECRET')
    )
 
-   org_list = scalekit_client.organization.list_organizations(page_size=100)
+   org_list = scalekit_client.organization.list_organizations(page_size=5)
 
-   print(f'Organisation details: {org_list[0]}')
+   print(f'Name of the first organization: {org_list[0].display_name}')
+   ```
+
+   Run the verification script:
+
+   ```bash title="Run verification" showLineNumbers=false
+   python verify.py
    ```
 
    </TabItem>
 
    <TabItem value="go" label="Go">
 
-   ```go collapse={1-5} wrap showLineNumbers=false
-   scalekitClient := scalekit.NewScalekitClient(
-     <SCALEKIT_ENVIRONMENT_URL>,
-     <SCALEKIT_CLIENT_ID>,
-     <SCALEKIT_CLIENT_SECRET>
+   Create a file `verify.go` with the following code:
+
+   ```go collapse={1-18, 23-26} wrap showLineNumbers=false title="verify.go"
+   package main
+
+   import (
+     "context"
+     "fmt"
+     "os"
+     "github.com/scalekit-inc/scalekit-sdk-go"
    )
 
-   organization, err := scalekitClient.Organization.GetOrganization(
-     ctx,
-     organizationId
-   )
+   func main() {
+     ctx := context.Background()
+
+     scalekitClient := scalekit.NewScalekitClient(
+       os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+       os.Getenv("SCALEKIT_CLIENT_ID"),
+       os.Getenv("SCALEKIT_CLIENT_SECRET"),
+     )
+
+     organizations, err := scalekitClient.Organization.ListOrganizations(ctx, &scalekit.ListOrganizationsParams{
+       PageSize: 5,
+     })
+
+     if err != nil {
+       panic(err)
+     }
+
+     fmt.Printf("Name of the first organization: %s\n", organizations[0].DisplayName)
+   }
    ```
-
    </TabItem>
 
    <TabItem value="java" label="Java">
 
-   ```java collapse={1-7} wrap showLineNumbers=false
+   Create a file `Verify.java` with the following code:
+
+   ```java collapse={1-7} wrap showLineNumbers=false title="Verify.java"
    import com.scalekit.ScalekitClient;
+   import com.scalekit.models.ListOrganizationsResponse;
 
-   ScalekitClient scalekitClient = new ScalekitClient(
-     "<SCALEKIT_ENVIRONMENT_URL>",
-     "<SCALEKIT_CLIENT_ID>",
-     "<SCALEKIT_CLIENT_SECRET>"
-   );
+   public class Verify {
+     public static void main(String[] args) {
+       ScalekitClient scalekitClient = new ScalekitClient(
+         System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+         System.getenv("SCALEKIT_CLIENT_ID"),
+         System.getenv("SCALEKIT_CLIENT_SECRET")
+       );
 
-   ListOrganizationsResponse organizations = scalekitClient.organizations().listOrganizations(5, "");
+       ListOrganizationsResponse organizations = scalekitClient.organizations().listOrganizations(5, "");
+       System.out.println("Name of the first organization: " + organizations.getOrganizations()[0].getDisplayName());
+     }
+   }
    ```
-
    </TabItem>
    </Tabs>
 
