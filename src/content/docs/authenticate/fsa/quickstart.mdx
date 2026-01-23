@@ -105,16 +105,21 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
    An authorization URL is an endpoint that redirects users to Scalekit's sign-in page. Use the Scalekit SDK to construct this URL with your redirect URI and required scopes.
 
+   <details>
+   <summary>Register redirect URLs in your Scalekit dashboard</summary>
+
    Before creating the authorization URL, register redirect URLs in your Scalekit dashboard. Go to **Scalekit dashboard** → **Authentication** → **Redirect URLs** and configure:
 
    - **Allowed callback URL**: The endpoint where Scalekit sends users after successful authentication. The `redirect_uri` in your code must match this URL exactly. [Learn more](/guides/dashboard/redirects/#allowed-callback-urls)
    - **Initiate-login URL**: Required when authentication is not initiated from your app-for example, when a user accepts an organization invitation or starts sign-in directly from their identity provider (IdP-initiated SSO). [Learn more](/guides/dashboard/redirects/#initiate-login-url)
 
-   Now, you can create an authorization URL to redirect users to the login  page.
+   </details>
+
+   Now, you can **create an authorization URL** to redirect users to the login  page.
 
    <Tabs syncKey="tech-stack">
    <TabItem value="node" label="Node.js">
-   ```javascript wrap title="Express.js"
+   ```javascript wrap title="routes/auth.ts"
    // Must match the allowed callback URL you registered in the dashboard
    const redirectUri = 'http://localhost:3000/auth/callback';
 
@@ -132,7 +137,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    ```
    </TabItem>
    <TabItem value="python" label="Python">
-   ```python wrap title="Flask"
+   ```python wrap title="app/auth/routes.py"
    from scalekit import AuthorizationUrlOptions
 
    # Must match the allowed callback URL you registered in the dashboard
@@ -152,7 +157,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    ```
    </TabItem>
    <TabItem value="go" label="Go">
-   ```go wrap title="Gin"
+   ```go wrap title="internal/http/auth.go"
    // Must match the allowed callback URL you registered in the dashboard
    redirectUri := "http://localhost:3000/auth/callback"
 
@@ -174,7 +179,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
    ```
    </TabItem>
    <TabItem value="java" label="Java">
-   ```java wrap title="Spring"
+   ```java wrap title="AuthController.java"
    import com.scalekit.internal.http.AuthorizationUrlOptions;
    import java.net.URL;
    import java.util.Arrays;
