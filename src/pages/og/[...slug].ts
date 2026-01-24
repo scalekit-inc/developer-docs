@@ -8,8 +8,21 @@ import { OGImageRoute } from 'astro-og-canvas'
 // Fetch all entries from the `docs` content collection
 const entries = await getCollection('docs')
 
+// Filter out entries that don't have valid data (like the 404 page which is handled by Starlight)
+const validEntries = entries.filter((entry) => {
+  // Skip entries without required frontmatter
+  if (!entry.data?.title || !entry.data?.description) {
+    return false
+  }
+  // Skip the 404 page as it's handled by Starlight's built-in 404 route
+  if (entry.id === '404') {
+    return false
+  }
+  return true
+})
+
 // Map entries to an object keyed by id for quick lookup
-const pages = Object.fromEntries(entries.map(({ id, data }) => [id, { data }]))
+const pages = Object.fromEntries(validEntries.map(({ id, data }) => [id, { data }]))
 
 // Export the `GET` handler and static paths generator expected by Astro
 export const { getStaticPaths, GET } = await OGImageRoute({
