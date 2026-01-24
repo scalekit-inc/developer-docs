@@ -27,6 +27,9 @@ Before you begin, create a Scalekit account if you haven't already. After creati
 
 <LinkButton href="https://app.scalekit.com/ws/signup" variant="secondary" class='sk-secondary' icon='right-arrow'>Create a Scalekit account</LinkButton>
 
+<br />
+<br />
+
 <Steps>
 1. ## Get your API credentials
 
@@ -163,7 +166,9 @@ Before you begin, create a Scalekit account if you haven't already. After creati
 
    <TabItem value="nodejs" label="Node.js">
 
-   ```javascript collapse={1-8} wrap showLineNumbers=false
+   Create a file `verify.js` with the following code:
+
+   ```javascript collapse={1-8} wrap showLineNumbers=false title="verify.js"
    import { ScalekitClient } from '@scalekit-sdk/node';
 
    const scalekit = new ScalekitClient(
@@ -179,225 +184,266 @@ Before you begin, create a Scalekit account if you haven't already. After creati
    console.log(`Name of the first organization: ${organizations[0].display_name}`);
    ```
 
+   Run the verification script:
+
+   ```bash title="Run verification" showLineNumbers=false
+   node verify.js
+   ```
+
    </TabItem>
 
    <TabItem value="python" label="Python">
 
-   ```python collapse={1-9} wrap showLineNumbers=false
+   Create a file `verify.py` with the following code:
+
+   ```python collapse={1-9} wrap showLineNumbers=false title="verify.py"
    from scalekit import ScalekitClient
+   import os
 
    # Initialize the SDK client
    scalekit_client = ScalekitClient(
-     '<SCALEKIT_ENVIRONMENT_URL>',
-     '<SCALEKIT_CLIENT_ID>',
-     '<SCALEKIT_CLIENT_SECRET>'
+     os.getenv('SCALEKIT_ENVIRONMENT_URL'),
+     os.getenv('SCALEKIT_CLIENT_ID'),
+     os.getenv('SCALEKIT_CLIENT_SECRET')
    )
 
-   org_list = scalekit_client.organization.list_organizations(page_size=100)
+   org_list = scalekit_client.organization.list_organizations(page_size=5)
 
-   print(f'Organisation details: {org_list[0]}')
+   print(f'Name of the first organization: {org_list[0].display_name}')
+   ```
+
+   Run the verification script:
+
+   ```bash title="Run verification" showLineNumbers=false
+   python verify.py
    ```
 
    </TabItem>
 
    <TabItem value="go" label="Go">
 
-   ```go collapse={1-5} wrap showLineNumbers=false
-   scalekitClient := scalekit.NewScalekitClient(
-     <SCALEKIT_ENVIRONMENT_URL>,
-     <SCALEKIT_CLIENT_ID>,
-     <SCALEKIT_CLIENT_SECRET>
+   Create a file `verify.go` with the following code:
+
+   ```go collapse={1-18, 23-26} wrap showLineNumbers=false title="verify.go"
+   package main
+
+   import (
+     "context"
+     "fmt"
+     "os"
+     "github.com/scalekit-inc/scalekit-sdk-go"
    )
 
-   organization, err := scalekitClient.Organization.GetOrganization(
-     ctx,
-     organizationId
-   )
+   func main() {
+     ctx := context.Background()
+
+     scalekitClient := scalekit.NewScalekitClient(
+       os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+       os.Getenv("SCALEKIT_CLIENT_ID"),
+       os.Getenv("SCALEKIT_CLIENT_SECRET"),
+     )
+
+     organizations, err := scalekitClient.Organization.ListOrganizations(ctx, &scalekit.ListOrganizationsParams{
+       PageSize: 5,
+     })
+
+     if err != nil {
+       panic(err)
+     }
+
+     fmt.Printf("Name of the first organization: %s\n", organizations[0].DisplayName)
+   }
    ```
-
    </TabItem>
 
    <TabItem value="java" label="Java">
 
-   ```java collapse={1-7} wrap showLineNumbers=false
+   Create a file `Verify.java` with the following code:
+
+   ```java collapse={1-7} wrap showLineNumbers=false title="Verify.java"
    import com.scalekit.ScalekitClient;
+   import com.scalekit.models.ListOrganizationsResponse;
 
-   ScalekitClient scalekitClient = new ScalekitClient(
-     "<SCALEKIT_ENVIRONMENT_URL>",
-     "<SCALEKIT_CLIENT_ID>",
-     "<SCALEKIT_CLIENT_SECRET>"
-   );
+   public class Verify {
+     public static void main(String[] args) {
+       ScalekitClient scalekitClient = new ScalekitClient(
+         System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+         System.getenv("SCALEKIT_CLIENT_ID"),
+         System.getenv("SCALEKIT_CLIENT_SECRET")
+       );
 
-   ListOrganizationsResponse organizations = scalekitClient.organizations().listOrganizations(5, "");
+       ListOrganizationsResponse organizations = scalekitClient.organizations().listOrganizations(5, "");
+       System.out.println("Name of the first organization: " + organizations.getOrganizations()[0].getDisplayName());
+     }
+   }
    ```
-
    </TabItem>
    </Tabs>
 
    If you see organization data, your setup is complete! You're now ready to implement authentication in your application.
 
-4. ## Set up Scalekit MCP Server <Badge text="Optional" />
-
-   Scalekit's Model Context Protocol (MCP) server connects your AI coding assistants to Scalekit. Manage environments, organizations, users, and authentication through natural language queries in Claude, Cursor, Windsurf, and other MCP-compatible tools.
-
-   The MCP server provides AI assistants with tools for environment management, organization and user management, authentication connection setup, role administration, and admin portal access. It uses OAuth 2.1 authentication to securely connect your AI tools to your Scalekit workspace.
-
-   <Aside type="tip" title="Building your own MCP server?">
-   If you're building your own MCP server and need to add OAuth-based authorization, check out our guide: [Add auth to your MCP server](/authenticate/mcp/quickstart/).
-   </Aside>
-
-   ### Configure your MCP client
-
-   Based on your MCP client, follow the configuration instructions below:
-
-   <Tabs>
-   <TabItem value="claude" label="Claude Desktop">
-
-   1. Open the Claude Desktop app, go to Settings, then Developer
-   2. Click Edit Config
-   3. Open the `claude_desktop_config.json` file
-   4. Copy and paste the server config to your existing file, then save
-   5. Restart Claude
-
-   ```json
-   {
-     "mcpServers": {
-       "scalekit": {
-         "command": "npx",
-         "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
-       }
-     }
-   }
-   ```
-
-   </TabItem>
-
-   <TabItem value="cursor" label="Cursor">
-
-   1. Open Cursor, go to Settings, then Cursor Settings
-   2. Select MCP on the left
-   3. Click Add "New Global MCP Server" at the top right
-   4. Copy and paste the server config to your existing file, then save
-   5. Restart Cursor
-
-   ```json
-   {
-     "mcpServers": {
-       "scalekit": {
-         "command": "npx",
-         "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
-       }
-     }
-   }
-   ```
-
-   </TabItem>
-
-   <TabItem value="windsurf" label="Windsurf">
-
-   1. Open Windsurf, go to Settings, then Developer
-   2. Click Edit Config
-   3. Open the `windsurf_config.json` file
-   4. Copy and paste the server config to your existing file, then save
-   5. Restart Windsurf
-
-   ```json
-   {
-     "mcpServers": {
-       "scalekit": {
-         "command": "npx",
-         "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
-       }
-     }
-   }
-   ```
-
-   </TabItem>
-
-   <TabItem value="vscode" label="VS Code (1.101+)">
-
-   VS Code version 1.101 or greater supports OAuth natively. Configure the MCP server directly without the `mcp-remote` proxy:
-
-   ```json
-   {
-     "servers": {
-       "scalekit": {
-         "type": "http",
-         "url": "https://mcp.scalekit.com/"
-       }
-     }
-   }
-   ```
-
-   </TabItem>
-   </Tabs>
-
-   After configuration, your MCP client will initiate an OAuth authorization workflow to securely connect to Scalekit's MCP server.
-
-   <Aside type="note">
-   The Scalekit MCP server source code is available on [GitHub](https://github.com/scalekit-inc/mcp). Feel free to explore the code, raise issues, or contribute new tools.
-   </Aside>
-5. ## Configure code editors for Scalekit documentation
-
-    In-code editor chat features are powered by models that understand your codebase and project context. These models search the web for relevant information to help you. However, they may not always have the latest information. Follow the instructions below to configure your code editors to explicitly index for up-to-date information.
-
-
-    ### Set up Cursor
-
-    <VideoPlayer link="https://youtu.be/oMMG1k_9fmU" />
-
-    To enable Cursor to access up-to-date Scalekit documentation:
-
-    1. Open Cursor settings (Cmd/Ctrl + ,)
-    2. Navigate to **Indexing & Docs** section
-    3. Click on **Add**
-    4. Add `https://docs.scalekit.com/llms-full.txt` to the indexable URLs
-    5. Click on **Save**
-
-    Once configured, use `@Scalekit Docs` in your chat to ask questions about Scalekit features, APIs, and integration guides. Cursor will search the latest documentation to provide accurate, up-to-date answers.
-
-    ### Use Windsurf
-
-    ![](@/assets/docs/dev-kit/ai-assisted-setup/windsurf.png)
-
-    Windsurf enables `@docs` mentions within the Cascade chat to search for the best answers to your questions.
-
-
-    <Tabs>
-      <TabItem label="Full Documentation">
-        ```
-        @docs:https://docs.scalekit.com/llms-full.txt
-        <your question here>
-        ```
-        Costs more tokens.
-      </TabItem>
-      <TabItem label="Specific Section">
-        ```
-        @docs:https://docs.scalekit.com/your-specific-section-or-file
-        <your question here>
-        ```
-        Costs less tokens.
-      </TabItem>
-      <TabItem label="Let AI decide">
-        ```
-        @docs:https://docs.scalekit.com/llms.txt
-        <your question here>
-        ```
-        Costs tokens as per the model decisions.
-      </TabItem>
-    </Tabs>
-
-
-    ## Use AI assistants
-
-    Assistants like **Anthropic Claude**, **Ollama**, **Google Gemini**, **Vercel v0**, **OpenAI's ChatGPT**, or your own models can help you with Scalekit projects.
-
-    <VideoPlayer link="https://youtu.be/ZDAI32I6s-I" description="AI assistants" />
-
-    <Aside type="note" title="Need help with a specific AI tool?">
-
-      Don't see instructions for your favorite AI assistant? We'd love to add support for more tools! [Raise an issue](https://github.com/scalekit-inc/developer-docs/issues) on our GitHub repository and let us know which AI tool you'd like us to document.
-    </Aside>
-
-
 </Steps>
+
+## Set up Scalekit MCP Server <Badge text="Optional" />
+
+Scalekit's Model Context Protocol (MCP) server connects your AI coding assistants to Scalekit. Manage environments, organizations, users, and authentication through natural language queries in Claude, Cursor, Windsurf, and other MCP-compatible tools.
+
+The MCP server provides AI assistants with tools for environment management, organization and user management, authentication connection setup, role administration, and admin portal access. It uses OAuth 2.1 authentication to securely connect your AI tools to your Scalekit workspace.
+
+<Aside type="tip" title="Building your own MCP server?">
+If you're building your own MCP server and need to add OAuth-based authorization, check out our guide: [Add auth to your MCP server](/authenticate/mcp/quickstart/).
+</Aside>
+
+### Configure your MCP client
+
+Based on your MCP client, follow the configuration instructions below:
+
+<Tabs>
+<TabItem value="claude" label="Claude Desktop">
+
+1. Open the Claude Desktop app, go to Settings, then Developer
+2. Click Edit Config
+3. Open the `claude_desktop_config.json` file
+4. Copy and paste the server config to your existing file, then save
+5. Restart Claude
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
+    }
+  }
+}
+```
+
+</TabItem>
+
+<TabItem value="cursor" label="Cursor">
+
+1. Open Cursor, go to Settings, then Cursor Settings
+2. Select MCP on the left
+3. Click Add "New Global MCP Server" at the top right
+4. Copy and paste the server config to your existing file, then save
+5. Restart Cursor
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
+    }
+  }
+}
+```
+
+</TabItem>
+
+<TabItem value="windsurf" label="Windsurf">
+
+1. Open Windsurf, go to Settings, then Developer
+2. Click Edit Config
+3. Open the `windsurf_config.json` file
+4. Copy and paste the server config to your existing file, then save
+5. Restart Windsurf
+
+```json
+{
+  "mcpServers": {
+    "scalekit": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.scalekit.com/"]
+    }
+  }
+}
+```
+
+</TabItem>
+
+<TabItem value="vscode" label="VS Code (1.101+)">
+
+VS Code version 1.101 or greater supports OAuth natively. Configure the MCP server directly without the `mcp-remote` proxy:
+
+```json
+{
+  "servers": {
+    "scalekit": {
+      "type": "http",
+      "url": "https://mcp.scalekit.com/"
+    }
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+After configuration, your MCP client will initiate an OAuth authorization workflow to securely connect to Scalekit's MCP server.
+
+<Aside type="note">
+The Scalekit MCP server source code is available on [GitHub](https://github.com/scalekit-inc/mcp). Feel free to explore the code, raise issues, or contribute new tools.
+</Aside>
+
+## Configure code editors for Scalekit documentation
+
+In-code editor chat features are powered by models that understand your codebase and project context. These models search the web for relevant information to help you. However, they may not always have the latest information. Follow the instructions below to configure your code editors to explicitly index for up-to-date information.
+
+
+### Set up Cursor
+
+<VideoPlayer link="https://youtu.be/oMMG1k_9fmU" />
+
+To enable Cursor to access up-to-date Scalekit documentation:
+
+1. Open Cursor settings (Cmd/Ctrl + ,)
+2. Navigate to **Indexing & Docs** section
+3. Click on **Add**
+4. Add `https://docs.scalekit.com/llms-full.txt` to the indexable URLs
+5. Click on **Save**
+
+Once configured, use `@Scalekit Docs` in your chat to ask questions about Scalekit features, APIs, and integration guides. Cursor will search the latest documentation to provide accurate, up-to-date answers.
+
+### Use Windsurf
+
+![](@/assets/docs/dev-kit/ai-assisted-setup/windsurf.png)
+
+Windsurf enables `@docs` mentions within the Cascade chat to search for the best answers to your questions.
+
+
+<Tabs>
+  <TabItem label="Full Documentation">
+    ```
+    @docs:https://docs.scalekit.com/llms-full.txt
+    <your question here>
+    ```
+    Costs more tokens.
+  </TabItem>
+  <TabItem label="Specific Section">
+    ```
+    @docs:https://docs.scalekit.com/your-specific-section-or-file
+    <your question here>
+    ```
+    Costs less tokens.
+  </TabItem>
+  <TabItem label="Let AI decide">
+    ```
+    @docs:https://docs.scalekit.com/llms.txt
+    <your question here>
+    ```
+    Costs tokens as per the model decisions.
+  </TabItem>
+</Tabs>
+
+
+## Use AI assistants
+
+Assistants like **Anthropic Claude**, **Ollama**, **Google Gemini**, **Vercel v0**, **OpenAI's ChatGPT**, or your own models can help you with Scalekit projects.
+
+<VideoPlayer link="https://youtu.be/ZDAI32I6s-I" description="AI assistants" />
+
+<Aside type="note" title="Need help with a specific AI tool?">
+
+  Don't see instructions for your favorite AI assistant? We'd love to add support for more tools! [Raise an issue](https://github.com/scalekit-inc/developer-docs/issues) on our GitHub repository and let us know which AI tool you'd like us to document.
+</Aside>
