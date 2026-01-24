@@ -42,6 +42,7 @@ import IconProiconsJavascript from '~icons/proicons/javascript'
 import IconHugeiconsTypescript01 from '~icons/hugeicons/typescript-01'
 import IconNodejs from '~icons/simple-icons/nodedotjs'
 import IconPython from '~icons/proicons/python'
+import IconExpo from '~icons/simple-icons/expo'
 
 import IconGo from '~icons/simple-icons/go'
 import IconJava from '~icons/ri/java-line'
@@ -165,6 +166,7 @@ export const iconMap = {
   py: IconPython,
   golang: IconGo,
   go: IconGo,
+  expo: IconExpo,
   java: IconJava,
   php: IconHugeiconsPhp,
   nextjs: IconTeenyiconsNextjsOutline,
