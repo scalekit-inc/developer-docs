@@ -48,6 +48,12 @@ export function getAlgoliaConfig(): AlgoliaConfig {
   const baseUrl = process.env.ALGOLIA_ASKAI_BASE_URL ?? 'https://askai.algolia.com'
 
   console.info('[askai] Using assistant ID:', assistantId)
+  console.info('[askai] AskAI config.', {
+    baseUrl,
+    indexName,
+    origin,
+    hasReferer: Boolean(referer),
+  })
   return { appId, apiKey, assistantId, indexName, origin, referer, baseUrl }
 }
 
@@ -58,6 +64,7 @@ export function getAlgoliaConfig(): AlgoliaConfig {
  * @returns {Promise<string>} Conversation token.
  */
 export async function fetchConversationToken(config: AlgoliaConfig): Promise<string> {
+  console.info('[askai] Fetching conversation token.')
   const response = await fetch(`${config.baseUrl}/chat/token`, {
     method: 'POST',
     headers: buildAlgoliaTokenHeaders(config),
@@ -91,6 +98,7 @@ export async function streamAskAiAnswer(
   config: AlgoliaConfig,
   question: string,
 ): Promise<AlgoliaAnswer> {
+  console.info('[askai] Starting AskAI request.', { questionLength: question.length })
   const conversationToken = await fetchConversationToken(config)
 
   const requestBody = {
