@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2026 Scalekit Inc.
+ * SPDX-License-Identifier: MIT
+ *
+ * Author: Scalekit documentation team
+ *
+ * Algolia-related helpers and types for the Slack bot Netlify function.
+ *
+ * External dependencies:
+ * - node:crypto
+ * - ./types: AlgoliaConversationTokenResponse, AlgoliaSource
+ */
 import crypto from 'node:crypto'
 import type { AlgoliaConversationTokenResponse, AlgoliaSource } from './types'
 

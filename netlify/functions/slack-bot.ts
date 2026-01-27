@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) 2026 Scalekit Inc.
+ * SPDX-License-Identifier: MIT
+ *
+ * Author: Scalekit documentation team
+ *
+ * Slack bot handler for Algolia AskAI, wiring together Algolia configuration,
+ * AskAI answer streaming, and Slack messaging/signature verification.
+ *
+ * Key dependencies:
+ * - ./lib/algolia: getAlgoliaConfig, streamAskAiAnswer
+ * - ./lib/slack: postSlackMessage, stripSlackMentions, verifySlackSignature
+ */
 import { getAlgoliaConfig, streamAskAiAnswer } from './lib/algolia'
 import { postSlackMessage, stripSlackMentions, verifySlackSignature } from './lib/slack'
 import type {
@@ -10,6 +23,13 @@ import type {
 
 /**
  * Slack event handler for Algolia AskAI answers.
+ *
+ * Handles Slack Events API payloads, including the special-case
+ * `url_verification` flow where Slack expects the `challenge` token
+ * to be returned as plain text.
+ *
+ * See Slack Events API documentation:
+ * https://api.slack.com/apis/events-api#url_verification
  *
  * @param {NetlifyFunctionEvent} event - Netlify function event.
  * @param {NetlifyFunctionContext} context - Netlify function context.
@@ -35,6 +55,25 @@ export async function handler(event: NetlifyFunctionEvent, context: NetlifyFunct
 
   if (!signatureCheck.isValid) {
     return { statusCode: 401, body: signatureCheck.reason ?? 'Invalid signature.' }
+  }
+
+  // Preflight configuration check to avoid acknowledging Slack when required
+  // environment variables are missing. This ensures we do not return 200 OK
+  // for Events API requests (including url_verification) if the function is
+  // misconfigured.
+  const missingEnvVars = [
+    'SLACK_BOT_TOKEN',
+    'ALGOLIA_APP_ID',
+    'ALGOLIA_API_KEY',
+    'ALGOLIA_ASKAI_ASSISTANT_ID',
+    'ALGOLIA_INDEX_NAME',
+  ].filter((name) => !process.env[name])
+
+  if (missingEnvVars.length > 0) {
+    return {
+      statusCode: 500,
+      body: `Missing required environment variables: ${missingEnvVars.join(', ')}`,
+    }
   }
 
   const payload = parseSlackPayload(body)
@@ -154,6 +193,8 @@ function formatSlackAnswer(
  * Resolves the Slack bot token from environment variables.
  *
  * @returns {string} Slack bot token.
+ * @throws {Error} Throws an Error if the Slack bot token is missing from
+ * environment variables.
  */
 function getSlackToken(): string {
   const token = process.env.SLACK_BOT_TOKEN

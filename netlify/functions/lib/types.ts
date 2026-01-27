@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) 2026 Scalekit Inc.
+ * SPDX-License-Identifier: MIT
+ *
+ * Author: Scalekit documentation team
+ *
+ * Shared TypeScript types for Netlify functions used by the Slack bot and
+ * Algolia AskAI integration, including Netlify event/context and Slack payloads.
+ *
+ * Dependency notes:
+ * - Pure type definitions, no runtime dependencies.
+ * - Referenced by Netlify function handlers and helper libraries in this folder.
+ */
 export interface NetlifyFunctionEvent {
   body: string | null
   headers: Record<string, string | undefined>
