@@ -228,10 +228,6 @@ function isEventCallback(payload: SlackEventPayload): payload is SlackEventCallb
   return payload.type === 'event_callback' && 'event' in payload
 }
 
-/**
- * Netlify Functions 2.0 configuration.
- * Explicitly sets the endpoint path.
- */
-export const config = {
-  path: '/.netlify/functions/slack-bot',
-}
+// Netlify automatically creates the endpoint path from the filename:
+// /.netlify/functions/slack-bot
+// No explicit config needed - Netlify derives the path automatically.
