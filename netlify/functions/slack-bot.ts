@@ -126,8 +126,14 @@ export default async function handler(request: Request, context: NetlifyContext)
     // This returns 200 to Slack immediately while processing continues
     // See: https://docs.netlify.com/build/functions/get-started/#synchronous-function
     context.waitUntil(processAskAiRequest(channel, threadTs, question))
+
+    // Return immediately to Slack (< 3 seconds requirement)
+    console.info('[slack] Returning 200 OK to Slack, processing continues in background.')
+    return new Response('OK', { status: 200 })
   }
 
+  // Handle other event types
+  console.info('[slack] Event type not handled, returning OK.')
   return new Response('OK', { status: 200 })
 }
 
@@ -145,18 +151,33 @@ async function processAskAiRequest(
   question: string,
 ): Promise<void> {
   const startTime = Date.now()
+  console.info('[slack] Background processing started.', {
+    channel,
+    threadTs,
+    questionLength: question.length,
+  })
 
   try {
     const algoliaConfig = getAlgoliaConfig()
+    console.info('[slack] Fetching answer from Algolia AskAI...')
     const answer = await streamAskAiAnswer(algoliaConfig, question)
     const elapsedMs = Date.now() - startTime
 
     const message = formatSlackAnswer(answer.answer, answer.sources)
+    console.info('[slack] Posting answer to Slack...', {
+      messageLength: message.length,
+      elapsedMs,
+    })
     await postSlackMessage(getSlackToken(), channel, message, threadTs)
 
-    console.info('[slack] Posted AskAI response to Slack.', { elapsedMs })
+    console.info('[slack] Successfully posted AskAI response to Slack.', { elapsedMs })
   } catch (error) {
-    console.error('[slack] Error during AskAI processing:', error)
+    const elapsedMs = Date.now() - startTime
+    console.error('[slack] Error during AskAI processing:', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      elapsedMs,
+    })
 
     const errorMessage =
       error instanceof Error
@@ -164,9 +185,14 @@ async function processAskAiRequest(
         : 'Sorry, I ran into an unexpected error while fetching that answer.'
 
     try {
+      console.info('[slack] Posting error message to Slack...')
       await postSlackMessage(getSlackToken(), channel, errorMessage, threadTs)
+      console.info('[slack] Error message posted to Slack.')
     } catch (postError) {
-      console.error('[slack] Failed to post error message to Slack:', postError)
+      console.error('[slack] Failed to post error message to Slack:', {
+        error: postError instanceof Error ? postError.message : String(postError),
+        stack: postError instanceof Error ? postError.stack : undefined,
+      })
     }
   }
 }
