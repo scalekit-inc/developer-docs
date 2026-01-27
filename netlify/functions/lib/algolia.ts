@@ -7,6 +7,7 @@ interface AlgoliaConfig {
   assistantId: string
   indexName: string
   origin: string
+  referer?: string
   baseUrl: string
 }
 
@@ -26,6 +27,7 @@ export function getAlgoliaConfig(): AlgoliaConfig {
   const assistantId = process.env.ALGOLIA_ASKAI_ASSISTANT_ID ?? ''
   const indexName = process.env.ALGOLIA_INDEX_NAME ?? ''
   const origin = process.env.ALGOLIA_ASKAI_ORIGIN ?? 'docs.scalekit.com'
+  const referer = process.env.ALGOLIA_ASKAI_REFERER
 
   if (!appId || !apiKey || !assistantId || !indexName) {
     throw new Error('Missing Algolia AskAI environment variables.')
@@ -33,7 +35,7 @@ export function getAlgoliaConfig(): AlgoliaConfig {
 
   const baseUrl = process.env.ALGOLIA_ASKAI_BASE_URL ?? 'https://askai.algolia.com'
 
-  return { appId, apiKey, assistantId, indexName, origin, baseUrl }
+  return { appId, apiKey, assistantId, indexName, origin, referer, baseUrl }
 }
 
 /**
@@ -45,7 +47,7 @@ export function getAlgoliaConfig(): AlgoliaConfig {
 export async function fetchConversationToken(config: AlgoliaConfig): Promise<string> {
   const response = await fetch(`${config.baseUrl}/chat/token`, {
     method: 'POST',
-    headers: buildAlgoliaHeaders(config),
+    headers: buildAlgoliaTokenHeaders(config),
     body: JSON.stringify({}),
   })
 
@@ -78,25 +80,23 @@ export async function streamAskAiAnswer(
 ): Promise<AlgoliaAnswer> {
   const conversationToken = await fetchConversationToken(config)
 
+  const requestBody = {
+    id: crypto.randomUUID(),
+    messages: [
+      {
+        role: 'user',
+        content: question,
+        id: `msg-${crypto.randomUUID()}`,
+        createdAt: new Date().toISOString(),
+        parts: [{ type: 'text', text: question }],
+      },
+    ],
+  }
+
   const response = await fetch(`${config.baseUrl}/chat`, {
     method: 'POST',
     headers: buildAlgoliaChatHeaders(config, conversationToken),
-    body: JSON.stringify({
-      id: crypto.randomUUID(),
-      messages: [
-        {
-          role: 'user',
-          content: question,
-          id: `msg-${crypto.randomUUID()}`,
-          createdAt: new Date().toISOString(),
-          parts: [{ type: 'text', text: question }],
-        },
-      ],
-      searchParameters: {
-        facetFilters: ['language:en', 'version:latest'],
-      },
-      stream: true,
-    }),
+    body: JSON.stringify(requestBody),
   })
 
   if (!response.ok) {
@@ -124,6 +124,9 @@ async function consumeSseStream(stream: ReadableStream<Uint8Array>): Promise<Alg
   let answer = ''
   let sources: AlgoliaSource[] = []
 
+  // Vercel AI SDK Data Stream Protocol prefixes:
+  // 0: text delta, 2: data, 9: tool call start, a: tool call result, d: finish, e: error, f: metadata
+
   while (true) {
     const { done, value } = await reader.read()
     if (done) break
@@ -134,21 +137,38 @@ async function consumeSseStream(stream: ReadableStream<Uint8Array>): Promise<Alg
 
     for (const line of lines) {
       const trimmed = line.trim()
-      if (!trimmed.startsWith('data:')) continue
+      if (!trimmed) continue
 
-      const data = trimmed.slice(5).trim()
-      if (!data || data === '[DONE]') continue
+      // Parse Vercel AI SDK format: "PREFIX:JSON_DATA"
+      const colonIndex = trimmed.indexOf(':')
+      if (colonIndex === -1) continue
+
+      const prefix = trimmed.slice(0, colonIndex)
+      const jsonData = trimmed.slice(colonIndex + 1)
 
       try {
-        const chunk = JSON.parse(data) as Record<string, unknown>
-        answer += extractChunkText(chunk)
-
-        const chunkSources = extractChunkSources(chunk)
-        if (chunkSources.length) {
-          sources = chunkSources
+        if (prefix === '0') {
+          // Text content chunk - parse the JSON string
+          const text = JSON.parse(jsonData) as string
+          answer += text
+        } else if (prefix === 'a') {
+          // Tool call result - may contain search hits (sources)
+          const toolResult = JSON.parse(jsonData) as {
+            toolCallId?: string
+            result?: {
+              hits?: Array<{ url?: string; hierarchy?: { lvl0?: string; lvl1?: string } }>
+            }
+          }
+          if (toolResult.result?.hits) {
+            sources = toolResult.result.hits.map((hit) => ({
+              url: hit.url,
+              title: hit.hierarchy?.lvl1 ?? hit.hierarchy?.lvl0 ?? hit.url,
+            }))
+          }
         }
+        // Ignore other prefixes (f: metadata, 9: tool call start, d: finish, e: error)
       } catch {
-        // Ignore malformed SSE chunks and continue streaming.
+        // Ignore malformed chunks
       }
     }
   }
@@ -157,44 +177,6 @@ async function consumeSseStream(stream: ReadableStream<Uint8Array>): Promise<Alg
     answer: answer.trim(),
     sources,
   }
-}
-
-/**
- * Extracts user-visible text from an AskAI stream chunk.
- *
- * @param {Record<string, unknown>} chunk - Parsed chunk payload.
- * @returns {string} Text content for this chunk.
- */
-function extractChunkText(chunk: Record<string, unknown>): string {
-  if (typeof chunk.content === 'string') return chunk.content
-  if (typeof chunk.answer === 'string') return chunk.answer
-
-  const message = chunk.message as { content?: unknown } | undefined
-  if (typeof message?.content === 'string') return message.content
-
-  const delta = chunk.delta as { content?: unknown } | undefined
-  if (typeof delta?.content === 'string') return delta.content
-
-  const choices = chunk.choices as Array<{ delta?: { content?: string } }> | undefined
-  if (choices?.[0]?.delta?.content) return choices[0].delta.content
-
-  return ''
-}
-
-/**
- * Extracts related sources from an AskAI stream chunk.
- *
- * @param {Record<string, unknown>} chunk - Parsed chunk payload.
- * @returns {AlgoliaSource[]} Sources if present, otherwise an empty array.
- */
-function extractChunkSources(chunk: Record<string, unknown>): AlgoliaSource[] {
-  const sources =
-    (chunk.sources as AlgoliaSource[] | undefined) ??
-    (chunk.relatedSources as AlgoliaSource[] | undefined) ??
-    (chunk.result as { sources?: AlgoliaSource[] } | undefined)?.sources ??
-    undefined
-
-  return Array.isArray(sources) ? sources : []
 }
 
 /**
@@ -218,5 +200,14 @@ function buildAlgoliaChatHeaders(config: AlgoliaConfig, token: string): Record<s
   return {
     ...buildAlgoliaHeaders(config),
     Authorization: `TOKEN ${token}`,
+  }
+}
+
+function buildAlgoliaTokenHeaders(config: AlgoliaConfig): Record<string, string> {
+  return {
+    'Content-Type': 'application/json; charset=utf-8',
+    'X-Algolia-Assistant-Id': config.assistantId,
+    origin: config.origin,
+    ...(config.referer ? { referer: config.referer } : {}),
   }
 }
