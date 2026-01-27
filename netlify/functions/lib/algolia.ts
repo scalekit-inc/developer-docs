@@ -35,6 +35,7 @@ export function getAlgoliaConfig(): AlgoliaConfig {
 
   const baseUrl = process.env.ALGOLIA_ASKAI_BASE_URL ?? 'https://askai.algolia.com'
 
+  console.info('[askai] Using assistant ID:', assistantId)
   return { appId, apiKey, assistantId, indexName, origin, referer, baseUrl }
 }
 
