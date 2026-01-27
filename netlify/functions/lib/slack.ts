@@ -89,6 +89,8 @@ export function stripSlackMentions(text: string): string {
  * @param {string} text - Message text.
  * @param {string} threadTs - Thread timestamp to reply to.
  * @returns {Promise<void>} Resolves when Slack acknowledges.
+ * @throws {Error} When the Slack API returns an error or the request fails.
+ * @see https://api.slack.com/methods/chat.postMessage
  */
 export async function postSlackMessage(
   token: string,
@@ -96,22 +98,30 @@ export async function postSlackMessage(
   text: string,
   threadTs?: string,
 ): Promise<void> {
-  const response = await fetch('https://slack.com/api/chat.postMessage', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json; charset=utf-8',
-    },
-    body: JSON.stringify({
-      channel,
-      text,
-      thread_ts: threadTs,
-    }),
-  })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 5000)
 
-  const payload = (await response.json()) as { ok: boolean; error?: string }
+  try {
+    const response = await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+      body: JSON.stringify({
+        channel,
+        text,
+        thread_ts: threadTs,
+      }),
+      signal: controller.signal,
+    })
 
-  if (!response.ok || !payload.ok) {
-    throw new Error(payload.error ?? `Slack API error (${response.status})`)
+    const payload = (await response.json()) as { ok: boolean; error?: string }
+
+    if (!response.ok || !payload.ok) {
+      throw new Error(payload.error ?? `Slack API error (${response.status})`)
+    }
+  } finally {
+    clearTimeout(timeout)
   }
 }
