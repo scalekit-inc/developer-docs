@@ -17,6 +17,7 @@ import type {
   NetlifyFunctionContext,
   NetlifyFunctionEvent,
   SlackAppMentionEvent,
+  SlackEventCallbackPayload,
   SlackEventPayload,
   SlackUrlVerificationPayload,
 } from './lib/types'
@@ -41,9 +42,15 @@ export async function handler(event: NetlifyFunctionEvent, context: NetlifyFunct
   }
 
   const body = getRawBody(event)
+  console.info('[slack] Received request.', {
+    path: event.path,
+    isBase64Encoded: Boolean(event.isBase64Encoded),
+    bodyLength: body.length,
+  })
   const signingSecret = process.env.SLACK_SIGNING_SECRET ?? ''
 
   if (!signingSecret) {
+    console.error('[slack] Missing Slack signing secret.')
     return { statusCode: 500, body: 'Missing Slack signing secret.' }
   }
 
@@ -54,6 +61,7 @@ export async function handler(event: NetlifyFunctionEvent, context: NetlifyFunct
   })
 
   if (!signatureCheck.isValid) {
+    console.warn('[slack] Signature verification failed:', signatureCheck.reason)
     return { statusCode: 401, body: signatureCheck.reason ?? 'Invalid signature.' }
   }
 
@@ -70,6 +78,7 @@ export async function handler(event: NetlifyFunctionEvent, context: NetlifyFunct
   ].filter((name) => !process.env[name])
 
   if (missingEnvVars.length > 0) {
+    console.error('[slack] Missing required environment variables:', missingEnvVars)
     return {
       statusCode: 500,
       body: `Missing required environment variables: ${missingEnvVars.join(', ')}`,
@@ -78,19 +87,26 @@ export async function handler(event: NetlifyFunctionEvent, context: NetlifyFunct
 
   const payload = parseSlackPayload(body)
   if (!payload) {
+    console.warn('[slack] Failed to parse JSON payload.')
     return { statusCode: 400, body: 'Invalid JSON payload.' }
   }
 
   if (isUrlVerification(payload)) {
+    console.info('[slack] URL verification challenge received.')
     return { statusCode: 200, body: payload.challenge }
   }
 
+  console.info('[slack] Payload type received:', payload.type)
   const processingPromise = handleSlackEvent(payload).catch(async (error) => {
+    console.error('[slack] Error while handling Slack event:', error)
     await postFailureMessage(payload, error)
   })
 
   if (typeof context.waitUntil === 'function') {
+    console.info('[slack] Using context.waitUntil for background work.')
     context.waitUntil(processingPromise)
+  } else {
+    console.warn('[slack] context.waitUntil unavailable; background work may terminate early.')
   }
 
   return { statusCode: 200, body: 'OK' }
@@ -120,6 +136,10 @@ function isUrlVerification(payload: SlackEventPayload): payload is SlackUrlVerif
   return payload.type === 'url_verification'
 }
 
+function isEventCallback(payload: SlackEventPayload): payload is SlackEventCallbackPayload {
+  return payload.type === 'event_callback' && 'event' in payload
+}
+
 /**
  * Executes the AskAI flow for app mention events.
  *
@@ -127,20 +147,32 @@ function isUrlVerification(payload: SlackEventPayload): payload is SlackUrlVerif
  * @returns {Promise<void>} Resolves after posting a response.
  */
 async function handleSlackEvent(payload: SlackEventPayload): Promise<void> {
-  if (payload.type !== 'event_callback') return
+  if (!isEventCallback(payload)) return
   if (!payload.event || payload.event.type !== 'app_mention') return
 
   const event = payload.event as SlackAppMentionEvent
   if (event.subtype === 'bot_message' || event.bot_id) return
 
   const question = stripSlackMentions(event.text)
-  if (!question) return
+  if (!question) {
+    console.info('[slack] No question provided after mention.')
+    return
+  }
 
+  console.info('[slack] Processing app_mention question.', {
+    channel: event.channel,
+    threadTs: event.thread_ts ?? event.ts,
+    user: event.user,
+    questionLength: question.length,
+  })
+  const startTime = Date.now()
   const config = getAlgoliaConfig()
   const answer = await streamAskAiAnswer(config, question)
+  const elapsedMs = Date.now() - startTime
 
   const message = formatSlackAnswer(answer.answer, answer.sources)
   await postSlackMessage(getSlackToken(), event.channel, message, event.thread_ts ?? event.ts)
+  console.info('[slack] Posted AskAI response to Slack.', { elapsedMs })
 }
 
 /**
@@ -151,7 +183,7 @@ async function handleSlackEvent(payload: SlackEventPayload): Promise<void> {
  * @returns {Promise<void>} Resolves when message is posted.
  */
 async function postFailureMessage(payload: SlackEventPayload, error: unknown): Promise<void> {
-  if (payload.type !== 'event_callback' || payload.event?.type !== 'app_mention') return
+  if (!isEventCallback(payload) || payload.event?.type !== 'app_mention') return
 
   const event = payload.event as SlackAppMentionEvent
   if (!event.channel) return
