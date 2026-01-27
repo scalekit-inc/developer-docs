@@ -69,7 +69,7 @@ export async function handler(event: NetlifyFunctionEvent, _context: NetlifyFunc
 
     const errorMessage =
       error instanceof Error
-        ? \`Sorry, I ran into an error: \${error.message}\`
+        ? `Sorry, I ran into an error: ${error.message}`
         : 'Sorry, I ran into an unexpected error while fetching that answer.'
 
     await postSlackMessage(getSlackToken(), channel, errorMessage, threadTs)
@@ -92,11 +92,11 @@ function formatSlackAnswer(
   const sourceLines = sources
     .filter((source) => source.url)
     .slice(0, 4)
-    .map((source) => \`• <\${source.url}|\${source.title ?? source.url}>\`)
+    .map((source) => `• <${source.url}|${source.title ?? source.url}>`)
     .join('\n')
 
-  const sourcesSection = sourceLines ? \`\n\nSources:\n\${sourceLines}\` : ''
-  return \`\${answer}\n\${sourcesSection}\`.trim()
+  const sourcesSection = sourceLines ? `\n\nSources:\n${sourceLines}` : ''
+  return `${answer}\n${sourcesSection}`.trim()
 }
 
 /**
