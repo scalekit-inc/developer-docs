@@ -126,15 +126,21 @@ export async function handler(event: NetlifyFunctionEvent, _context: NetlifyFunc
       questionLength: question.length,
     })
 
-    // Fire-and-forget: invoke background function
+    // Invoke background function and log response
     // Background functions return 202 immediately and process asynchronously
-    fetch(workerUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(workerPayload),
-    }).catch((error) => {
+    try {
+      const response = await fetch(workerUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(workerPayload),
+      })
+      console.info('[slack] Background worker response:', {
+        status: response.status,
+        statusText: response.statusText,
+      })
+    } catch (error) {
       console.error('[slack] Failed to invoke background worker:', error)
-    })
+    }
   }
 
   return { statusCode: 200, body: 'OK' }

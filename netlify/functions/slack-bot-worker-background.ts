@@ -26,6 +26,11 @@ interface WorkerPayload {
  * @returns {Promise<{ statusCode: number }>} Response object.
  */
 export async function handler(event: NetlifyFunctionEvent, _context: NetlifyFunctionContext) {
+  console.info('[worker] Background worker invoked.', {
+    method: event.httpMethod,
+    path: event.path,
+  })
+
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405 }
   }
