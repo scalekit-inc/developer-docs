@@ -4,15 +4,13 @@
  *
  * Author: Scalekit documentation team
  *
- * Slack bot handler for Algolia AskAI, wiring together Algolia configuration,
- * AskAI answer streaming, and Slack messaging/signature verification.
+ * Slack bot handler that receives Slack Events API payloads, validates them,
+ * and triggers a background worker for AskAI processing.
  *
  * Key dependencies:
- * - ./lib/algolia: getAlgoliaConfig, streamAskAiAnswer
- * - ./lib/slack: postSlackMessage, stripSlackMentions, verifySlackSignature
+ * - ./lib/slack: stripSlackMentions, verifySlackSignature
  */
-import { getAlgoliaConfig, streamAskAiAnswer } from './lib/algolia'
-import { postSlackMessage, stripSlackMentions, verifySlackSignature } from './lib/slack'
+import { stripSlackMentions, verifySlackSignature } from './lib/slack'
 import type {
   NetlifyFunctionContext,
   NetlifyFunctionEvent,
@@ -23,7 +21,7 @@ import type {
 } from './lib/types'
 
 /**
- * Slack event handler for Algolia AskAI answers.
+ * Slack event handler that validates requests and triggers background processing.
  *
  * Handles Slack Events API payloads, including the special-case
  * `url_verification` flow where Slack expects the `challenge` token
@@ -33,10 +31,10 @@ import type {
  * https://api.slack.com/apis/events-api#url_verification
  *
  * @param {NetlifyFunctionEvent} event - Netlify function event.
- * @param {NetlifyFunctionContext} context - Netlify function context.
+ * @param {NetlifyFunctionContext} _context - Netlify function context.
  * @returns {Promise<{ statusCode: number; body?: string }>} Response object.
  */
-export async function handler(event: NetlifyFunctionEvent, context: NetlifyFunctionContext) {
+export async function handler(event: NetlifyFunctionEvent, _context: NetlifyFunctionContext) {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' }
   }
@@ -47,8 +45,8 @@ export async function handler(event: NetlifyFunctionEvent, context: NetlifyFunct
     isBase64Encoded: Boolean(event.isBase64Encoded),
     bodyLength: body.length,
   })
-  const signingSecret = process.env.SLACK_SIGNING_SECRET ?? ''
 
+  const signingSecret = process.env.SLACK_SIGNING_SECRET ?? ''
   if (!signingSecret) {
     console.error('[slack] Missing Slack signing secret.')
     return { statusCode: 500, body: 'Missing Slack signing secret.' }
@@ -65,10 +63,7 @@ export async function handler(event: NetlifyFunctionEvent, context: NetlifyFunct
     return { statusCode: 401, body: signatureCheck.reason ?? 'Invalid signature.' }
   }
 
-  // Preflight configuration check to avoid acknowledging Slack when required
-  // environment variables are missing. This ensures we do not return 200 OK
-  // for Events API requests (including url_verification) if the function is
-  // misconfigured.
+  // Preflight configuration check
   const missingEnvVars = [
     'SLACK_BOT_TOKEN',
     'ALGOLIA_APP_ID',
@@ -97,16 +92,49 @@ export async function handler(event: NetlifyFunctionEvent, context: NetlifyFunct
   }
 
   console.info('[slack] Payload type received:', payload.type)
-  const processingPromise = handleSlackEvent(payload).catch(async (error) => {
-    console.error('[slack] Error while handling Slack event:', error)
-    await postFailureMessage(payload, error)
-  })
 
-  if (typeof context.waitUntil === 'function') {
-    console.info('[slack] Using context.waitUntil for background work.')
-    context.waitUntil(processingPromise)
-  } else {
-    console.warn('[slack] context.waitUntil unavailable; background work may terminate early.')
+  // Handle app_mention events by triggering background worker
+  if (isEventCallback(payload) && payload.event?.type === 'app_mention') {
+    const slackEvent = payload.event as SlackAppMentionEvent
+
+    // Skip bot messages
+    if (slackEvent.subtype === 'bot_message' || slackEvent.bot_id) {
+      console.info('[slack] Ignoring bot message.')
+      return { statusCode: 200, body: 'OK' }
+    }
+
+    const question = stripSlackMentions(slackEvent.text)
+    if (!question) {
+      console.info('[slack] No question provided after mention.')
+      return { statusCode: 200, body: 'OK' }
+    }
+
+    // Trigger background worker
+    const workerPayload = {
+      channel: slackEvent.channel,
+      threadTs: slackEvent.thread_ts ?? slackEvent.ts,
+      question,
+    }
+
+    const siteUrl = getSiteUrl(event)
+    const workerUrl = `${siteUrl}/.netlify/functions/slack-bot-worker-background`
+
+    console.info('[slack] Triggering background worker.', {
+      workerUrl,
+      channel: workerPayload.channel,
+      threadTs: workerPayload.threadTs,
+      questionLength: question.length,
+    })
+
+    // Fire-and-forget: invoke background function
+    // Background functions return 202 immediately and process asynchronously
+    fetch(workerUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(workerPayload),
+    }).catch((error) => {
+      console.error('[slack] Failed to invoke background worker:', error)
+    })
   }
 
   return { statusCode: 200, body: 'OK' }
@@ -114,9 +142,6 @@ export async function handler(event: NetlifyFunctionEvent, context: NetlifyFunct
 
 /**
  * Parses the Slack payload, safely handling JSON errors.
- *
- * @param {string} body - Raw request body.
- * @returns {SlackEventPayload | null} Parsed payload or null.
  */
 function parseSlackPayload(body: string): SlackEventPayload | null {
   try {
@@ -128,119 +153,39 @@ function parseSlackPayload(body: string): SlackEventPayload | null {
 
 /**
  * Determines whether the payload is a URL verification challenge.
- *
- * @param {SlackEventPayload} payload - Slack payload.
- * @returns {payload is SlackUrlVerificationPayload} True if URL verification.
  */
 function isUrlVerification(payload: SlackEventPayload): payload is SlackUrlVerificationPayload {
   return payload.type === 'url_verification'
 }
 
+/**
+ * Determines whether the payload is an event callback.
+ */
 function isEventCallback(payload: SlackEventPayload): payload is SlackEventCallbackPayload {
   return payload.type === 'event_callback' && 'event' in payload
 }
 
 /**
- * Executes the AskAI flow for app mention events.
- *
- * @param {SlackEventPayload} payload - Slack payload.
- * @returns {Promise<void>} Resolves after posting a response.
+ * Gets the site URL from environment or request headers.
  */
-async function handleSlackEvent(payload: SlackEventPayload): Promise<void> {
-  if (!isEventCallback(payload)) return
-  if (!payload.event || payload.event.type !== 'app_mention') return
-
-  const event = payload.event as SlackAppMentionEvent
-  if (event.subtype === 'bot_message' || event.bot_id) return
-
-  const question = stripSlackMentions(event.text)
-  if (!question) {
-    console.info('[slack] No question provided after mention.')
-    return
+function getSiteUrl(event: NetlifyFunctionEvent): string {
+  // Netlify provides URL env var in production
+  if (process.env.URL) {
+    return process.env.URL
   }
 
-  console.info('[slack] Processing app_mention question.', {
-    channel: event.channel,
-    threadTs: event.thread_ts ?? event.ts,
-    user: event.user,
-    questionLength: question.length,
-  })
-  const startTime = Date.now()
-  const config = getAlgoliaConfig()
-  const answer = await streamAskAiAnswer(config, question)
-  const elapsedMs = Date.now() - startTime
-
-  const message = formatSlackAnswer(answer.answer, answer.sources)
-  await postSlackMessage(getSlackToken(), event.channel, message, event.thread_ts ?? event.ts)
-  console.info('[slack] Posted AskAI response to Slack.', { elapsedMs })
-}
-
-/**
- * Sends a failure response back to Slack when AskAI fails.
- *
- * @param {SlackEventPayload} payload - Slack payload.
- * @param {unknown} error - Error encountered while processing.
- * @returns {Promise<void>} Resolves when message is posted.
- */
-async function postFailureMessage(payload: SlackEventPayload, error: unknown): Promise<void> {
-  if (!isEventCallback(payload) || payload.event?.type !== 'app_mention') return
-
-  const event = payload.event as SlackAppMentionEvent
-  if (!event.channel) return
-
-  const message =
-    error instanceof Error
-      ? `Sorry, I ran into an error: ${error.message}`
-      : 'Sorry, I ran into an unexpected error while fetching that answer.'
-
-  await postSlackMessage(getSlackToken(), event.channel, message, event.thread_ts ?? event.ts)
-}
-
-/**
- * Builds the Slack answer text with optional sources.
- *
- * @param {string} answer - Answer text from AskAI.
- * @param {Array<{ url?: string; title?: string }>} sources - Related sources.
- * @returns {string} Slack formatted message.
- */
-function formatSlackAnswer(
-  answer: string,
-  sources: Array<{ url?: string; title?: string }>,
-): string {
-  if (!sources.length) {
-    return answer || 'I could not find an answer for that question.'
+  // Fallback: construct from host header
+  const host = event.headers['host'] ?? event.headers['Host']
+  if (host) {
+    const protocol = host.includes('localhost') ? 'http' : 'https'
+    return `${protocol}://${host}`
   }
 
-  const sourceLines = sources
-    .filter((source) => source.url)
-    .slice(0, 4)
-    .map((source) => `• <${source.url}|${source.title ?? source.url}>`)
-    .join('\n')
-
-  const sourcesSection = sourceLines ? `\n\nSources:\n${sourceLines}` : ''
-  return `${answer}\n${sourcesSection}`.trim()
-}
-
-/**
- * Resolves the Slack bot token from environment variables.
- *
- * @returns {string} Slack bot token.
- * @throws {Error} Throws an Error if the Slack bot token is missing from
- * environment variables.
- */
-function getSlackToken(): string {
-  const token = process.env.SLACK_BOT_TOKEN
-  if (!token) {
-    throw new Error('Missing Slack bot token.')
-  }
-  return token
+  throw new Error('Cannot determine site URL for background worker invocation.')
 }
 
 /**
  * Returns the raw request body, decoding base64 if needed.
- *
- * @param {NetlifyFunctionEvent} event - Netlify function event.
- * @returns {string} Raw body string.
  */
 function getRawBody(event: NetlifyFunctionEvent): string {
   if (!event.body) return ''
