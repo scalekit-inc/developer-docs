@@ -4,18 +4,15 @@
  *
  * Author: Scalekit documentation team
  *
- * Slack bot handler for Algolia AskAI, wiring together Algolia configuration,
- * AskAI answer streaming, and Slack messaging/signature verification.
+ * Slack bot handler that receives Slack Events API payloads, validates them,
+ * and processes AskAI requests using context.waitUntil for background processing.
  *
- * Key dependencies:
- * - ./lib/algolia: getAlgoliaConfig, streamAskAiAnswer
- * - ./lib/slack: postSlackMessage, stripSlackMentions, verifySlackSignature
+ * Uses Netlify Functions 2.0 format with native Request/Response and Context.
+ * See: https://docs.netlify.com/build/functions/get-started/
  */
 import { getAlgoliaConfig, streamAskAiAnswer } from './lib/algolia'
 import { postSlackMessage, stripSlackMentions, verifySlackSignature } from './lib/slack'
 import type {
-  NetlifyFunctionContext,
-  NetlifyFunctionEvent,
   SlackAppMentionEvent,
   SlackEventCallbackPayload,
   SlackEventPayload,
@@ -23,52 +20,55 @@ import type {
 } from './lib/types'
 
 /**
- * Slack event handler for Algolia AskAI answers.
- *
- * Handles Slack Events API payloads, including the special-case
- * `url_verification` flow where Slack expects the `challenge` token
- * to be returned as plain text.
- *
- * See Slack Events API documentation:
- * https://api.slack.com/apis/events-api#url_verification
- *
- * @param {NetlifyFunctionEvent} event - Netlify function event.
- * @param {NetlifyFunctionContext} context - Netlify function context.
- * @returns {Promise<{ statusCode: number; body?: string }>} Response object.
+ * Netlify Functions 2.0 Context type.
+ * Provides waitUntil for background task processing.
  */
-export async function handler(event: NetlifyFunctionEvent, context: NetlifyFunctionContext) {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' }
+interface NetlifyContext {
+  waitUntil: (promise: Promise<unknown>) => void
+}
+
+/**
+ * Slack event handler using Netlify Functions 2.0 format.
+ * Uses context.waitUntil for background AskAI processing.
+ *
+ * This ensures Slack receives a 200 response immediately (< 3 seconds)
+ * while the AI processing continues in the background.
+ */
+export default async function handler(request: Request, context: NetlifyContext) {
+  if (request.method !== 'POST') {
+    return new Response('Method Not Allowed', { status: 405 })
   }
 
-  const body = getRawBody(event)
+  const body = await request.text()
   console.info('[slack] Received request.', {
-    path: event.path,
-    isBase64Encoded: Boolean(event.isBase64Encoded),
+    url: request.url,
     bodyLength: body.length,
   })
-  const signingSecret = process.env.SLACK_SIGNING_SECRET ?? ''
 
+  const signingSecret = process.env.SLACK_SIGNING_SECRET ?? ''
   if (!signingSecret) {
     console.error('[slack] Missing Slack signing secret.')
-    return { statusCode: 500, body: 'Missing Slack signing secret.' }
+    return new Response('Missing Slack signing secret.', { status: 500 })
   }
+
+  // Convert Request headers to plain object for verification
+  const headers: Record<string, string | undefined> = {}
+  request.headers.forEach((value, key) => {
+    headers[key] = value
+  })
 
   const signatureCheck = verifySlackSignature({
     body,
-    headers: event.headers,
+    headers,
     signingSecret,
   })
 
   if (!signatureCheck.isValid) {
     console.warn('[slack] Signature verification failed:', signatureCheck.reason)
-    return { statusCode: 401, body: signatureCheck.reason ?? 'Invalid signature.' }
+    return new Response(signatureCheck.reason ?? 'Invalid signature.', { status: 401 })
   }
 
-  // Preflight configuration check to avoid acknowledging Slack when required
-  // environment variables are missing. This ensures we do not return 200 OK
-  // for Events API requests (including url_verification) if the function is
-  // misconfigured.
+  // Preflight configuration check
   const missingEnvVars = [
     'SLACK_BOT_TOKEN',
     'ALGOLIA_APP_ID',
@@ -79,129 +79,126 @@ export async function handler(event: NetlifyFunctionEvent, context: NetlifyFunct
 
   if (missingEnvVars.length > 0) {
     console.error('[slack] Missing required environment variables:', missingEnvVars)
-    return {
-      statusCode: 500,
-      body: `Missing required environment variables: ${missingEnvVars.join(', ')}`,
-    }
+    return new Response(`Missing required environment variables: ${missingEnvVars.join(', ')}`, {
+      status: 500,
+    })
   }
 
   const payload = parseSlackPayload(body)
   if (!payload) {
     console.warn('[slack] Failed to parse JSON payload.')
-    return { statusCode: 400, body: 'Invalid JSON payload.' }
+    return new Response('Invalid JSON payload.', { status: 400 })
   }
 
   if (isUrlVerification(payload)) {
     console.info('[slack] URL verification challenge received.')
-    return { statusCode: 200, body: payload.challenge }
+    return new Response(payload.challenge, { status: 200 })
   }
 
   console.info('[slack] Payload type received:', payload.type)
-  const processingPromise = handleSlackEvent(payload).catch(async (error) => {
-    console.error('[slack] Error while handling Slack event:', error)
-    await postFailureMessage(payload, error)
-  })
 
-  if (typeof context.waitUntil === 'function') {
-    console.info('[slack] Using context.waitUntil for background work.')
-    context.waitUntil(processingPromise)
-  } else {
-    console.warn('[slack] context.waitUntil unavailable; background work may terminate early.')
+  // Handle app_mention events
+  if (isEventCallback(payload) && payload.event?.type === 'app_mention') {
+    const slackEvent = payload.event as SlackAppMentionEvent
+
+    // Skip bot messages
+    if (slackEvent.subtype === 'bot_message' || slackEvent.bot_id) {
+      console.info('[slack] Ignoring bot message.')
+      return new Response('OK', { status: 200 })
+    }
+
+    const question = stripSlackMentions(slackEvent.text)
+    if (!question) {
+      console.info('[slack] No question provided after mention.')
+      return new Response('OK', { status: 200 })
+    }
+
+    const channel = slackEvent.channel
+    const threadTs = slackEvent.thread_ts ?? slackEvent.ts
+
+    console.info('[slack] Processing AskAI request.', {
+      channel,
+      threadTs,
+      questionLength: question.length,
+    })
+
+    // Use waitUntil for background processing
+    // This returns 200 to Slack immediately while processing continues
+    // See: https://docs.netlify.com/build/functions/get-started/#synchronous-function
+    context.waitUntil(processAskAiRequest(channel, threadTs, question))
+
+    // Return immediately to Slack (< 3 seconds requirement)
+    console.info('[slack] Returning 200 OK to Slack, processing continues in background.')
+    return new Response('OK', { status: 200 })
   }
 
-  return { statusCode: 200, body: 'OK' }
+  // Handle other event types
+  console.info('[slack] Event type not handled, returning OK.')
+  return new Response('OK', { status: 200 })
 }
 
 /**
- * Parses the Slack payload, safely handling JSON errors.
+ * Processes the AskAI request and posts the response to Slack.
+ * This runs in the background via context.waitUntil.
  *
- * @param {string} body - Raw request body.
- * @returns {SlackEventPayload | null} Parsed payload or null.
+ * @param channel - Slack channel ID
+ * @param threadTs - Thread timestamp to reply to
+ * @param question - User's question
  */
-function parseSlackPayload(body: string): SlackEventPayload | null {
-  try {
-    return JSON.parse(body) as SlackEventPayload
-  } catch {
-    return null
-  }
-}
-
-/**
- * Determines whether the payload is a URL verification challenge.
- *
- * @param {SlackEventPayload} payload - Slack payload.
- * @returns {payload is SlackUrlVerificationPayload} True if URL verification.
- */
-function isUrlVerification(payload: SlackEventPayload): payload is SlackUrlVerificationPayload {
-  return payload.type === 'url_verification'
-}
-
-function isEventCallback(payload: SlackEventPayload): payload is SlackEventCallbackPayload {
-  return payload.type === 'event_callback' && 'event' in payload
-}
-
-/**
- * Executes the AskAI flow for app mention events.
- *
- * @param {SlackEventPayload} payload - Slack payload.
- * @returns {Promise<void>} Resolves after posting a response.
- */
-async function handleSlackEvent(payload: SlackEventPayload): Promise<void> {
-  if (!isEventCallback(payload)) return
-  if (!payload.event || payload.event.type !== 'app_mention') return
-
-  const event = payload.event as SlackAppMentionEvent
-  if (event.subtype === 'bot_message' || event.bot_id) return
-
-  const question = stripSlackMentions(event.text)
-  if (!question) {
-    console.info('[slack] No question provided after mention.')
-    return
-  }
-
-  console.info('[slack] Processing app_mention question.', {
-    channel: event.channel,
-    threadTs: event.thread_ts ?? event.ts,
-    user: event.user,
+async function processAskAiRequest(
+  channel: string,
+  threadTs: string,
+  question: string,
+): Promise<void> {
+  const startTime = Date.now()
+  console.info('[slack] Background processing started.', {
+    channel,
+    threadTs,
     questionLength: question.length,
   })
-  const startTime = Date.now()
-  const config = getAlgoliaConfig()
-  const answer = await streamAskAiAnswer(config, question)
-  const elapsedMs = Date.now() - startTime
 
-  const message = formatSlackAnswer(answer.answer, answer.sources)
-  await postSlackMessage(getSlackToken(), event.channel, message, event.thread_ts ?? event.ts)
-  console.info('[slack] Posted AskAI response to Slack.', { elapsedMs })
+  try {
+    const algoliaConfig = getAlgoliaConfig()
+    console.info('[slack] Fetching answer from Algolia AskAI...')
+    const answer = await streamAskAiAnswer(algoliaConfig, question)
+    const elapsedMs = Date.now() - startTime
+
+    const message = formatSlackAnswer(answer.answer, answer.sources)
+    console.info('[slack] Posting answer to Slack...', {
+      messageLength: message.length,
+      elapsedMs,
+    })
+    await postSlackMessage(getSlackToken(), channel, message, threadTs)
+
+    console.info('[slack] Successfully posted AskAI response to Slack.', { elapsedMs })
+  } catch (error) {
+    const elapsedMs = Date.now() - startTime
+    console.error('[slack] Error during AskAI processing:', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      elapsedMs,
+    })
+
+    const errorMessage =
+      error instanceof Error
+        ? `Sorry, I ran into an error: ${error.message}`
+        : 'Sorry, I ran into an unexpected error while fetching that answer.'
+
+    try {
+      console.info('[slack] Posting error message to Slack...')
+      await postSlackMessage(getSlackToken(), channel, errorMessage, threadTs)
+      console.info('[slack] Error message posted to Slack.')
+    } catch (postError) {
+      console.error('[slack] Failed to post error message to Slack:', {
+        error: postError instanceof Error ? postError.message : String(postError),
+        stack: postError instanceof Error ? postError.stack : undefined,
+      })
+    }
+  }
 }
 
 /**
- * Sends a failure response back to Slack when AskAI fails.
- *
- * @param {SlackEventPayload} payload - Slack payload.
- * @param {unknown} error - Error encountered while processing.
- * @returns {Promise<void>} Resolves when message is posted.
- */
-async function postFailureMessage(payload: SlackEventPayload, error: unknown): Promise<void> {
-  if (!isEventCallback(payload) || payload.event?.type !== 'app_mention') return
-
-  const event = payload.event as SlackAppMentionEvent
-  if (!event.channel) return
-
-  const message =
-    error instanceof Error
-      ? `Sorry, I ran into an error: ${error.message}`
-      : 'Sorry, I ran into an unexpected error while fetching that answer.'
-
-  await postSlackMessage(getSlackToken(), event.channel, message, event.thread_ts ?? event.ts)
-}
-
-/**
- * Builds the Slack answer text with optional sources.
- *
- * @param {string} answer - Answer text from AskAI.
- * @param {Array<{ url?: string; title?: string }>} sources - Related sources.
- * @returns {string} Slack formatted message.
+ * Formats the AskAI answer with sources for Slack.
  */
 function formatSlackAnswer(
   answer: string,
@@ -223,10 +220,6 @@ function formatSlackAnswer(
 
 /**
  * Resolves the Slack bot token from environment variables.
- *
- * @returns {string} Slack bot token.
- * @throws {Error} Throws an Error if the Slack bot token is missing from
- * environment variables.
  */
 function getSlackToken(): string {
   const token = process.env.SLACK_BOT_TOKEN
@@ -237,15 +230,30 @@ function getSlackToken(): string {
 }
 
 /**
- * Returns the raw request body, decoding base64 if needed.
- *
- * @param {NetlifyFunctionEvent} event - Netlify function event.
- * @returns {string} Raw body string.
+ * Parses the Slack payload, safely handling JSON errors.
  */
-function getRawBody(event: NetlifyFunctionEvent): string {
-  if (!event.body) return ''
-  if (event.isBase64Encoded) {
-    return Buffer.from(event.body, 'base64').toString('utf8')
+function parseSlackPayload(body: string): SlackEventPayload | null {
+  try {
+    return JSON.parse(body) as SlackEventPayload
+  } catch {
+    return null
   }
-  return event.body
 }
+
+/**
+ * Determines whether the payload is a URL verification challenge.
+ */
+function isUrlVerification(payload: SlackEventPayload): payload is SlackUrlVerificationPayload {
+  return payload.type === 'url_verification'
+}
+
+/**
+ * Determines whether the payload is an event callback.
+ */
+function isEventCallback(payload: SlackEventPayload): payload is SlackEventCallbackPayload {
+  return payload.type === 'event_callback' && 'event' in payload
+}
+
+// Netlify automatically creates the endpoint path from the filename:
+// /.netlify/functions/slack-bot
+// No explicit config needed - Netlify derives the path automatically.
