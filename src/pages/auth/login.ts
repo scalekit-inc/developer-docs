@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro'
 import { genCodeChallenge, genCodeVerifier, genRandomString } from '@/utils/auth/pkce'
 
+export const prerender = false
+
 export const GET: APIRoute = async (context) => {
   const authorizeUrl =
     import.meta.env.SCALEKIT_AUTHORIZE_URL ?? 'https://placeholder.scalekit.com/oauth/authorize'

@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro'
 import { verifyJwt } from '@/utils/auth/jwt'
 
+export const prerender = false
+
 export const GET: APIRoute = async (context) => {
   const accessToken = context.cookies.get('sk_access_token')?.value
   const idToken = context.cookies.get('sk_id_token')?.value
