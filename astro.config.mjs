@@ -194,6 +194,58 @@ export default defineConfig({
         },
         {
           tag: 'script',
+          content: `
+            (function(){var e=window;var t=document;var n=function(){n.e(arguments)};n.q=[];n.e=function(e){n.q.push(e)};e.Pylon=n;var r=function(){var e=t.createElement("script");e.setAttribute("type","text/javascript");e.setAttribute("async","true");e.setAttribute("src","https://widget.usepylon.com/widget/32a58676-d739-4f5c-9d97-2f28f9deb8a6");var n=t.getElementsByTagName("script")[0];n.parentNode.insertBefore(e,n)};if(t.readyState==="complete"){r()}else if(e.addEventListener){e.addEventListener("load",r,false)}})()
+          `,
+        },
+        {
+          tag: 'script',
+          attrs: {
+            type: 'text/javascript',
+          },
+          content: `
+            ;(function () {
+              try {
+                var raw = localStorage.getItem('sk_auth_session')
+                console.log('[pylon] raw sk_auth_session present:', !!raw)
+
+                if (!raw) return
+
+                var session = JSON.parse(raw)
+                var claims = session.idTokenClaims || {}
+                var user = session.user || {}
+
+                var email =
+                  user.email ||
+                  claims.email ||
+                  null
+
+                var name =
+                  user.name ||
+                  [claims.given_name, claims.family_name].filter(Boolean).join(' ') ||
+                  claims.name ||
+                  null
+
+                console.log('[pylon] derived user for widget', {
+                  hasEmail: !!email,
+                  hasName: !!name,
+                })
+
+                window.pylon = {
+                  chat_settings: {
+                    app_id: '32a58676-d739-4f5c-9d97-2f28f9deb8a6',
+                    email: email || undefined,
+                    name: name || undefined,
+                  },
+                }
+              } catch (e) {
+                console.error('[pylon] error deriving user from sk_auth_session', e)
+              }
+            })()
+          `,
+        },
+        {
+          tag: 'script',
           attrs: {
             type: 'text/javascript',
             id: 'hs-script-loader',
