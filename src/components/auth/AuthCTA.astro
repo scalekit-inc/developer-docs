@@ -1,0 +1,66 @@
+---
+import { LinkButton } from '@astrojs/starlight/components'
+
+const loginHref = '/auth/login'
+const dashboardHref = 'https://app.scalekit.com/'
+---
+
+<div class="auth-cta" data-auth-cta>
+  <LinkButton
+    href={loginHref}
+    variant="primary"
+    icon="right-arrow"
+    iconPlacement="end"
+    class="sk-primary"
+  >
+    Sign up / Sign in
+  </LinkButton>
+  <LinkButton
+    href={dashboardHref}
+    variant="primary"
+    icon="right-arrow"
+    iconPlacement="end"
+    class="sk-primary"
+  >
+    Dashboard
+  </LinkButton>
+</div>
+
+<script is:inline>
+  const ctas = document.querySelectorAll('[data-auth-cta]')
+
+  const updateCta = async (cta) => {
+    try {
+      const response = await fetch('/auth/session', { credentials: 'include' })
+      if (!response.ok) return
+
+      const data = await response.json()
+      if (data && data.authenticated) {
+        cta.classList.add('is-authenticated')
+      }
+    } catch {
+      // Leave default logged-out state when session lookup fails
+    }
+  }
+
+  ctas.forEach(updateCta)
+</script>
+
+<style>
+  .auth-cta :global(.sk-primary) {
+    padding: 0.3rem 1.5rem;
+    font-size: var(--sl-text-sm);
+  }
+
+  .auth-cta > :global(a):nth-child(2) {
+    display: none;
+  }
+
+  .auth-cta.is-authenticated > :global(a):nth-child(1) {
+    display: none;
+  }
+
+  .auth-cta.is-authenticated > :global(a):nth-child(2) {
+    display: inline-flex;
+  }
+</style>

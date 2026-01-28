@@ -1,0 +1,37 @@
+---
+const { when = 'authenticated' } = Astro.props
+---
+
+<div class="auth-gate is-hidden" data-auth-gate={when}>
+  <slot />
+</div>
+
+<script is:inline>
+  const gates = document.querySelectorAll('[data-auth-gate]')
+
+  const fetchSession = async () => {
+    try {
+      const response = await fetch('/auth/session', { credentials: 'include' })
+      if (!response.ok) return { authenticated: false }
+      return await response.json()
+    } catch {
+      return { authenticated: false }
+    }
+  }
+
+  fetchSession().then((data) => {
+    gates.forEach((gate) => {
+      const when = gate.getAttribute('data-auth-gate')
+      const shouldShow = when === 'unauthenticated' ? !data.authenticated : data.authenticated
+      if (shouldShow) {
+        gate.classList.remove('is-hidden')
+      }
+    })
+  })
+</script>
+
+<style>
+  .auth-gate.is-hidden {
+    display: none;
+  }
+</style>

@@ -22,6 +22,7 @@ import netlify from '@astrojs/netlify'
 
 // https://astro.build/config
 export default defineConfig({
+  output: 'static',
   site: 'https://docs.scalekit.com',
   redirects,
   integrations: [
@@ -261,5 +262,6 @@ export default defineConfig({
     },
   },
 
-  adapter: netlify(),
+  // @ts-expect-error Netlify adapter supports middleware mode.
+  adapter: netlify({ mode: 'middleware' }),
 })
