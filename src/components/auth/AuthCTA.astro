@@ -13,7 +13,7 @@ const dashboardHref = 'https://app.scalekit.com/'
     iconPlacement="end"
     class="sk-primary"
   >
-    Sign up / Sign in
+    Sign in
   </LinkButton>
   <LinkButton
     href={dashboardHref}
@@ -26,20 +26,70 @@ const dashboardHref = 'https://app.scalekit.com/'
   </LinkButton>
 </div>
 
-<script is:inline>
+<script>
+  const STORAGE_KEY = 'sk_auth_session'
+
+  const readCache = () => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return null
+      return JSON.parse(raw)
+    } catch {
+      return null
+    }
+  }
+
+  const writeCache = (session) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
+    } catch {}
+  }
+
+  const clearCache = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {}
+  }
+
+  const isExpired = (expiresAt) => {
+    if (!expiresAt) return false
+    return Date.now() >= expiresAt
+  }
+
+  const getSession = async () => {
+    const cached = readCache()
+    if (cached?.authenticated && !isExpired(cached.expiresAt)) {
+      return cached
+    }
+
+    clearCache()
+
+    try {
+      const response = await fetch('/auth/session', { credentials: 'include' })
+      if (!response.ok) {
+        clearCache()
+        return { authenticated: false }
+      }
+
+      const data = await response.json()
+      if (data?.authenticated) {
+        writeCache(data)
+      } else {
+        clearCache()
+      }
+      return data
+    } catch {
+      clearCache()
+      return { authenticated: false }
+    }
+  }
+
   const ctas = document.querySelectorAll('[data-auth-cta]')
 
   const updateCta = async (cta) => {
-    try {
-      const response = await fetch('/auth/session', { credentials: 'include' })
-      if (!response.ok) return
-
-      const data = await response.json()
-      if (data && data.authenticated) {
-        cta.classList.add('is-authenticated')
-      }
-    } catch {
-      // Leave default logged-out state when session lookup fails
+    const data = await getSession()
+    if (data && data.authenticated) {
+      cta.classList.add('is-authenticated')
     }
   }
 

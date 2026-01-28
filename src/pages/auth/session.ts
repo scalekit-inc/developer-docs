@@ -31,11 +31,16 @@ export const GET: APIRoute = async (context) => {
   }
 
   let idTokenClaims: Record<string, unknown> | null = null
+  let expiresAt: number | null = null
 
   if (idToken) {
     try {
       const verified = await verifyJwt(idToken)
       idTokenClaims = (verified?.payload as Record<string, unknown>) ?? null
+      const exp = (idTokenClaims?.exp as number | undefined) ?? undefined
+      if (typeof exp === 'number') {
+        expiresAt = exp * 1000
+      }
     } catch {
       return new Response(JSON.stringify({ authenticated: false }), {
         status: 401,
@@ -49,6 +54,7 @@ export const GET: APIRoute = async (context) => {
       authenticated: true,
       user: userInfo,
       idTokenClaims,
+      expiresAt,
     }),
     { headers: { 'Content-Type': 'application/json' } },
   )

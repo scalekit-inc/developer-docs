@@ -4,23 +4,70 @@ const { path = '' } = Astro.props
 
 <span class="auth-value" data-auth-value={path}></span>
 
-<script is:inline>
-  const nodes = document.querySelectorAll('[data-auth-value]')
+<script>
+  const STORAGE_KEY = 'sk_auth_session'
 
-  const fetchSession = async () => {
+  const readCache = () => {
     try {
-      const response = await fetch('/auth/session', { credentials: 'include' })
-      if (!response.ok) return null
-      return await response.json()
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return null
+      return JSON.parse(raw)
     } catch {
       return null
     }
   }
 
+  const writeCache = (session) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
+    } catch {}
+  }
+
+  const clearCache = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {}
+  }
+
+  const isExpired = (expiresAt) => {
+    if (!expiresAt) return false
+    return Date.now() >= expiresAt
+  }
+
+  const getSession = async () => {
+    const cached = readCache()
+    if (cached?.authenticated && !isExpired(cached.expiresAt)) {
+      return cached
+    }
+
+    clearCache()
+
+    try {
+      const response = await fetch('/auth/session', { credentials: 'include' })
+      if (!response.ok) {
+        clearCache()
+        return { authenticated: false }
+      }
+
+      const data = await response.json()
+      if (data?.authenticated) {
+        writeCache(data)
+      } else {
+        clearCache()
+      }
+      return data
+    } catch {
+      clearCache()
+      return { authenticated: false }
+    }
+  }
+
+  const nodes = document.querySelectorAll('[data-auth-value]')
+
   const resolvePath = (data, path) =>
     path.split('.').reduce((value, key) => (value ? value[key] : undefined), data)
 
-  fetchSession().then((data) => {
+  getSession().then((data) => {
     if (!data || !data.authenticated) return
 
     nodes.forEach((node) => {

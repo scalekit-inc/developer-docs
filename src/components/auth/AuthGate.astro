@@ -6,20 +6,67 @@ const { when = 'authenticated' } = Astro.props
   <slot />
 </div>
 
-<script is:inline>
-  const gates = document.querySelectorAll('[data-auth-gate]')
+<script>
+  const STORAGE_KEY = 'sk_auth_session'
 
-  const fetchSession = async () => {
+  const readCache = () => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return null
+      return JSON.parse(raw)
+    } catch {
+      return null
+    }
+  }
+
+  const writeCache = (session) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
+    } catch {}
+  }
+
+  const clearCache = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {}
+  }
+
+  const isExpired = (expiresAt) => {
+    if (!expiresAt) return false
+    return Date.now() >= expiresAt
+  }
+
+  const getSession = async () => {
+    const cached = readCache()
+    if (cached?.authenticated && !isExpired(cached.expiresAt)) {
+      return cached
+    }
+
+    clearCache()
+
     try {
       const response = await fetch('/auth/session', { credentials: 'include' })
-      if (!response.ok) return { authenticated: false }
-      return await response.json()
+      if (!response.ok) {
+        clearCache()
+        return { authenticated: false }
+      }
+
+      const data = await response.json()
+      if (data?.authenticated) {
+        writeCache(data)
+      } else {
+        clearCache()
+      }
+      return data
     } catch {
+      clearCache()
       return { authenticated: false }
     }
   }
 
-  fetchSession().then((data) => {
+  const gates = document.querySelectorAll('[data-auth-gate]')
+
+  getSession().then((data) => {
     gates.forEach((gate) => {
       const when = gate.getAttribute('data-auth-gate')
       const shouldShow = when === 'unauthenticated' ? !data.authenticated : data.authenticated
