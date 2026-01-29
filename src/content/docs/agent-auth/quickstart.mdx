@@ -11,9 +11,9 @@ banner:
 
 import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-Agent Auth will help enable your AI Agents to take actions in real world applications on behalf of your users. Scalekit automatically handles authorizing your users to grant access to third party applications like Gmail, Calendar, Slack, Notion etc and using our pre-built connectors and tool, lets your AI Agent execute actions like fetching emails, creating calendar events, updating notion pages, sending alerts via Slack etc.
+Agent Auth will help enable your AI Agents to take actions in real world applications on behalf of your users. Scalekit automatically handles authorizing your users to grant access to third party applications like Gmail, Calendar, Slack, Notion etc and using our pre-built connectors, lets your AI Agent execute actions like fetching emails, creating calendar events, updating notion pages, sending alerts via Slack etc.
 
-This quickstart guide will show you how to get started with Agent Auth in just a few minutes. You'll learn how to set up connections, authenticate users, and run your first tools.
+This quickstart guide will show you how to get started with Agent Auth in just a few minutes. You'll learn how to set up connections, authenticate users, and fetch tokens for your users
 
 ## What you'll build
 
@@ -91,33 +91,69 @@ if(connected_account.status != "ACTIVE"):
 # In a real app, redirect the user to this URL so that the user can complete the authentication process for their gmail account
 ```
 
-## Step 4: Execute a tool - Send an email
+## Step 4: Fetch oauth tokens for your user
 
-Now that the user has successfully authorized the gmail connection, you can execute tools on their behalf. For this example, let's fetch the last 5 unread emails from the user's inbox.
+Now that the user has successfully authorized the gmail connection, You can fetch the latest access token and refresh token for the user's connected account anytime you want.
+scalekit will keep the token refreshed periodically so that you always have the latest valid access token to make API calls on behalf of the user.
 
 ```python
 # Fetch recent emails
-emails = actions.execute_tool(
-    #connected_account_id= connected_account.id      if using multiple connectors
-    identifier="user_123",
-    tool_name='gmail_fetch_mails',
-    tool_input={
-        'query': 'is:unread',
-        'max_results': 5
-    }
+response = actions.get_connected_account(
+        connection_name="gmail",
+        identifier="user_123"
 )
 
-print(f'Recent emails: {emails.result}')
+connected_account = response.connected_account
+
+tokens = connected_account.authorization_details["oauth_token"]
+access_token = tokens["access_token"]
+refresh_token = tokens["refresh_token"]
+
+print("access token:",access_token)
+print("refresh token:",refresh_token)
 ```
 
-## Next steps
+## Step 4: Call the Google Gmail API to fetch last 5 unread emails
 
-Congratulations! You've successfully implemented a program that executes action in real world applications on behalf of a user.
+Now that the user is authenticated and you have the access token, you can execute the Gmail API to fetch the last 5 unread emails from the user's inbox.
 
-Let's make it more interesting by implementing an AI agent that uses large language models from OpenAI or Anthropic and actually help determine which tool to be called with what parameters.  Go through our Agentic Tool Calling guide to implement the same usecase using Langchain and Agent Auth.
+```python
+# Fetch 5 unread emails using Gmail API
+headers = {
+    "Authorization": f"Bearer {access_token}", #use the access token obtained above
+}
 
-<CardGrid>
-  <LinkCard title="Agentic Tool Calling" icon="star" href="/agent-auth/frameworks/langchain">
-    Implement a simple agent with langchain that can fetch the last 5 unread emails from the user's inbox and generate a summary of the emails.
-  </LinkCard>
-</CardGrid>
+list_url = "https://gmail.googleapis.com/gmail/v1/users/me/messages"
+params = {
+    "q": "is:unread",
+    "maxResults": 5,
+}
+
+list_response = requests.get(list_url, headers=headers, params=params)
+messages = list_response.json().get("messages", [])
+
+print(f"\nFound {len(messages)} unread emails:\n")
+
+#fetch details for each email and print them
+for msg in messages:
+    msg_url = f"{list_url}/{msg['id']}"
+    msg_response = requests.get(msg_url, headers=headers, params={"format": "metadata", "metadataHeaders": ["From", "Subject", "Date"]})
+    msg_data = msg_response.json()
+
+    headers_list = msg_data.get("payload", {}).get("headers", [])
+    subject = next((h["value"] for h in headers_list if h["name"] == "Subject"), "No Subject")
+    sender = next((h["value"] for h in headers_list if h["name"] == "From"), "Unknown")
+    date = next((h["value"] for h in headers_list if h["name"] == "Date"), "Unknown")
+
+    print(f"From: {sender}")
+    print(f"Subject: {subject}")
+    print(f"Date: {date}")
+    print(f"Snippet: {msg_data.get('snippet', '')}")
+    print("-" * 50)
+```
+
+## Congratulations!
+
+Congratulations! You've successfully implemented a program that executes API on behalf of a user using Agent Auth.
+This can be extended to any number of connections and scalekit will handle the authentication and token management for you.
+
