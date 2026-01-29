@@ -1,0 +1,150 @@
+---
+title: Overview
+description: "Enable seamless Single Sign-On (SSO) across all your applications using a shared Scalekit session"
+sidebar:
+  label: "Overview"
+tableOfContents: true
+next:
+  label: "Manage users"
+  link: "/fsa/data-modelling/"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+seeAlso:
+  items:
+    - title: "Browse example apps"
+      icon: "app"
+      url: "https://github.com/scalekit-inc/multiapp-demo"
+  expanded: true
+  label: "See also"
+---
+
+import { Steps, LinkCard } from '@astrojs/starlight/components';
+import Subtitle from '@/components/ui/Subtitle.astro'
+
+Modern products rarely ship as a single application. Most products operate a mix of traditional web apps, single page apps, desktop clients, and mobile apps - yet users expect a single, consistent login experience across all of them.
+
+Scalekit’s **Multi Application SSO** lets every app authenticate independently while sharing the same underlying user session, so users sign in once and stay signed in everywhere.
+
+:::tip
+👉 [**Check out the example apps on GitHub**](https://github.com/scalekit-inc/multiapp-demo) to see Web, Single page, Desktop, and Mobile apps sharing a single Scalekit session.
+:::
+
+## How SSO works
+
+Consider a company operating multiple applications - a traditional web app (frontend + backend), a single-page app (SPA), a desktop app, and a mobile app.  
+
+Each application is registered separately in Scalekit and receives its own OAuth client, with credentials based on the application type:
+- **Web app** → `client_id: webc_xxx` + `client_secret`
+- **Single page app** → `client_id: spac_xxx`
+- **Desktop app** → `client_id: ntvc_xxx`
+- **Mobile app** → `client_id: ntvc_xxx`
+
+Even though each app has a **different** `client_id`, they all rely on the **same Scalekit user session**, enabling true SSO. Using separate clients per app gives you clearer audit logs, safer scope boundaries, and easier long-term maintenance.
+
+A session is established when a user logs into any one of the applications. Subsequent apps reuse that existing session, avoiding repeated authentication prompts.
+
+```d2
+shape: sequence_diagram
+
+User
+"App A"
+"App B"
+Scalekit
+
+User -> "App A": Click "Login"
+"App A" -> Scalekit: /oauth/authorize
+Scalekit -> "App A": Authorization code
+"App A" -> Scalekit: /oauth/token
+Scalekit -> "App A": access_token, refresh_token, id_token
+
+User -> "App B": Open app
+"App B" -> Scalekit: /oauth/authorize
+Scalekit -> "App B": Authorization code \n (Session already exists)
+"App B" -> Scalekit: /oauth/token
+Scalekit -> "App B": access_token, refresh_token, id_token
+
+User -> "App B": Logout
+"App B" -> Scalekit: /oidc/logout
+Scalekit -> "App A": Session revoked
+```
+
+Revoking the Scalekit session does not automatically clear your application’s local state. Each application is responsible for terminating its own session and clearing stored tokens. A common and reliable signal for logout is a failed refresh token exchange, which indicates that the session has been revoked at the Scalekit side.
+
+For proactive sign-out across all applications, configure backchannel logout URIs so Scalekit can notify each app when a shared session is terminated.
+
+## High-level implementation flow
+
+Once your applications are registered, each app follows the same OAuth-based authentication flow.
+
+### 1. Initiate login or signup
+
+Begin authentication by redirecting the user to the `/oauth/authorize` endpoint with the appropriate parameters.  
+Typical scopes include `openid`, `email`, `profile`, and `offline_access` (if refresh tokens are required). Scalekit handles user authentication.
+
+### 2. Handle the callback
+
+After authentication completes, Scalekit redirects the user to your `/callback` endpoint with `code` and `state`.  
+Your application exchanges the authorization code at the `/oauth/token` endpoint to obtain tokens.
+
+### 3. Manage sessions and token refresh
+
+After receiving the access token, validate it by checking the issuer, audience (which must include the application’s `client_id`), `iat`, and `exp`.  
+Store tokens securely and use the `/oauth/token` endpoint with the `refresh_token` grant to obtain new access, refresh, and ID tokens when needed.
+
+### 4. Implement logout
+
+Initiate logout by calling the `/oidc/logout` endpoint with the relevant parameters. Clear your local application session when refresh token exchange fails or configure backchannel logout to proactively sign users out from all applications sharing the same session.
+
+## Detailed implementation guides
+
+Choose your application type to dive into step-by-step implementation details, best practices, and app-specific considerations.
+
+<div>
+  <LinkCard
+    href="/authenticate/fsa/web-app"
+    title="Web application"
+    description="Server-rendered or backend-driven apps using client_id and client_secret."
+  />
+
+  <LinkCard
+    href="/authenticate/fsa/single-page-app"
+    title="Single page application"
+    description="Frontend-only apps using Authorization Code with PKCE."
+  />
+
+  <LinkCard
+    href="/authenticate/fsa/native"
+    title="Mobile application"
+    description="iOS and Android apps using PKCE-based OAuth flows."
+  />
+
+  <LinkCard
+    href="/authenticate/fsa/native"
+    title="Desktop application"
+    description="Native desktop apps sharing SSO using public OAuth clients."
+  />
+</div>
+
+## Create apps in Scalekit
+
+To enable multi-application SSO, each application must be registered in Scalekit. You can create and manage applications from the Scalekit dashboard:
+
+<LinkCard
+  href="/authenticate/fsa/multiapp/manage-apps"
+  title="Manage applications"
+  description="Create and manage multiple applications that share a single user session."
+/>
+
+Note: Public clients such as SPAs and native apps must never embed client secrets. These applications rely on Authorization Code with PKCE instead.
+
+## Key takeaways
+
+- Each application has its own OAuth client but shares a single Scalekit user session
+- Any application can initiate login or logout
+- OAuth scopes and token validation rules remain consistent across apps
+- Refresh token failure is a reliable signal of session revocation
+- Backchannel logout enables proactive sign-out across all connected applications
