@@ -1,0 +1,161 @@
+---
+title: Web application
+description: "Implement Multi Application SSO for web apps using Authorization Code flow with client_id and client_secret"
+sidebar:
+  label: "Web App"
+tableOfContents: true
+prev:
+  label: "Overview"
+  link: "/authenticate/fsa/overview/"
+next:
+  label: "Single page application"
+  link: "/authenticate/fsa/single-page-app"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+seeAlso:
+  items:
+    - title: "Browse example apps"
+      icon: "app"
+      url: "https://github.com/scalekit-inc/multiapp-demo"
+  expanded: true
+  label: "See also"
+---
+
+import { Steps, Aside, LinkCard } from '@astrojs/starlight/components';
+
+A web application typically has both a frontend and a backend. In this model, the backend initiates authentication, handles the callback, exchanges the authorization code for tokens, and manages user sessions securely.
+
+:::tip
+👉 [**Check out the example apps on GitHub**](https://github.com/scalekit-inc/multiapp-demo) to see Web, Single page, Desktop, and Mobile apps sharing a single Scalekit session.
+:::
+
+This guide expands the four-step flow from the overview specifically for **web applications**. Web apps use a `client_id` and `client_secret`, and complete the authorization code exchange on the server.
+
+
+Note: This guide assumes you already have your `ENV_URL`, `client_id`, and `client_secret`. If not, see how to create and manage applications [here](/authenticate/fsa/multiapp/manage-apps)
+
+## High-level flow
+
+```d2
+shape: sequence_diagram
+
+User
+"Web app (frontend)"
+"Web app (backend)"
+Scalekit
+
+User -> "Web app (frontend)": Click "Login"
+"Web app (frontend)" -> "Web app (backend)": GET /login
+"Web app (backend)" -> Scalekit: Redirect to /oauth/authorize
+Scalekit -> "Web app (backend)": Redirect to /callback with code + state
+"Web app (backend)" -> Scalekit: POST /oauth/token
+Scalekit -> "Web app (backend)": access_token, refresh_token, id_token
+"Web app (backend)" -> "Web app (frontend)": Set session cookies + redirect
+```
+
+## Step-by-step implementation
+
+<Steps>
+
+1. ## Initiate login or signup
+
+   Login begins when your backend redirects the user to Scalekit's hosted login page using the authorization endpoint.
+
+   ```sh
+   <ENV_URL>/oauth/authorize?
+     response_type=code&
+     client_id=<CLIENT_ID>&
+     redirect_uri=<CALLBACK_URL>&
+     scope=openid+profile+email+offline_access&
+     state=<RANDOM_STATE>
+   ```
+
+   For detailed definition of the parameters, refer [here](/authenticate/fsa/implement-login)
+
+2. ## Handle the callback and complete login
+
+   After authentication, Scalekit redirects the user back to your callback endpoint with `code` and `state`.
+
+   Your backend must:
+   - Validate the returned `state`
+   - Handle any error parameters
+   - Exchange the authorization code for tokens
+
+   ```sh
+   POST <ENV_URL>/oauth/token
+   Content-Type: application/x-www-form-urlencoded
+
+   grant_type=authorization_code&
+   client_id=<CLIENT_ID>&
+   client_secret=<CLIENT_SECRET>&
+   code=<CODE>&
+   redirect_uri=<CALLBACK_URL>
+   ```
+
+   ```json
+   {
+     "access_token": "...",
+     "refresh_token": "...",
+     "id_token": "...",
+     "expires_in": 299
+   }
+   ```
+
+   Note: Authorization codes are single-use and short-lived.
+
+3. ## Manage sessions and token refresh
+
+   Once tokens are issued, your web app is responsible for session management.
+
+   **Token roles**
+   - **Access token**: short-lived, used for authenticated requests
+   - **Refresh token**: used to obtain new tokens
+   - **ID token**: user identity claims and required for logout
+
+   Typical web apps store tokens in secure cookies and validate the access token on every protected request.
+
+   When an access token expires, request new tokens using the refresh token:
+
+   ```sh
+   POST <ENV_URL>/oauth/token
+   Content-Type: application/x-www-form-urlencoded
+
+   grant_type=refresh_token&
+   client_id=<CLIENT_ID>&
+   client_secret=<CLIENT_SECRET>&
+   refresh_token=<REFRESH_TOKEN>
+   ```
+
+   Validate access tokens by checking:
+   - Verify the token signature using Scalekit’s public keys (JWKS).
+   - `iss` matches your Scalekit environment
+   - `aud` matches your `client_id`
+   - `exp` and `iat` are valid
+
+   Public keys for verification are available at:
+
+   ```sh
+   https://<ENV_URL>/keys
+   ```
+
+4. ## Implement logout
+
+   Logging out requires clearing your application session and invalidating the Scalekit session.
+
+   Your logout endpoint should:
+   - Extract the ID token
+   - Clear application session cookies
+   - Redirect the browser to Scalekit's logout endpoint
+
+   ```sh
+   <ENV_URL>/oidc/logout?
+     id_token_hint=<ID_TOKEN>&
+     post_logout_redirect_uri=<POST_LOGOUT_REDIRECT_URI>
+   ```
+
+   Logout must be performed via a **browser redirect** so that Scalekit can identify and terminate the session. Additionally, configure [backchannel logout](/guides/dashboard/redirects/#back-channel-logout-url) URIs to get notified when a logout is performed from another application sharing the same user session.
+
+</Steps>
