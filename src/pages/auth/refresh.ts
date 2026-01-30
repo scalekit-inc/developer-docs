@@ -7,7 +7,6 @@ export const POST: APIRoute = async (context) => {
   const tokenUrl =
     import.meta.env.SCALEKIT_TOKEN_URL ?? 'https://placeholder.scalekit.com/oauth/token'
   const clientId = import.meta.env.SCALEKIT_CLIENT_ID ?? ''
-  const clientSecret = import.meta.env.SCALEKIT_CLIENT_SECRET ?? ''
 
   const refreshToken = context.cookies.get('sk_refresh_token')?.value
 
@@ -26,7 +25,6 @@ export const POST: APIRoute = async (context) => {
       grant_type: 'refresh_token',
       refresh_token: refreshToken,
       client_id: clientId,
-      client_secret: clientSecret,
     }).toString(),
   })
 

@@ -6,7 +6,6 @@ export const GET: APIRoute = async (context) => {
   const tokenUrl =
     import.meta.env.SCALEKIT_TOKEN_URL ?? 'https://placeholder.scalekit.com/oauth/token'
   const clientId = import.meta.env.SCALEKIT_CLIENT_ID ?? ''
-  const clientSecret = import.meta.env.SCALEKIT_CLIENT_SECRET ?? ''
   const redirectUri =
     import.meta.env.SCALEKIT_REDIRECT_URI ?? new URL('/auth/callback', context.url).toString()
 
@@ -35,7 +34,6 @@ export const GET: APIRoute = async (context) => {
       code,
       redirect_uri: redirectUri,
       client_id: clientId,
-      client_secret: clientSecret,
       code_verifier: codeVerifier,
     }).toString(),
   })
