@@ -178,8 +178,13 @@ scalekit will keep the token refreshed periodically so that you always have the 
       identifier: 'user@example.com',
     });
 
-    const accessToken = accountResponse.connectedAccount?.authorizationDetails?.oauthToken?.accessToken;
-    const refreshToken = accountResponse.connectedAccount?.authorizationDetails?.oauthToken?.refreshToken;
+    const authDetails = accountResponse?.connectedAccount?.authorizationDetails;
+    const accessToken = (authDetails && authDetails.details?.case === "oauthToken")
+      ? authDetails.details.value?.accessToken
+      : undefined;
+    const refreshToken = (authDetails && authDetails.details?.case === "oauthToken")
+      ? authDetails.details.value?.refreshToken
+      : undefined;
 
     console.log('Connected account:', accountResponse);
     console.log('accessToken:', accessToken);
