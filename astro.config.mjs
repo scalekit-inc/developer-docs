@@ -198,51 +198,63 @@ export default defineConfig({
         {
           tag: 'script',
           content: `
-            (function(){var e=window;var t=document;var n=function(){n.e(arguments)};n.q=[];n.e=function(e){n.q.push(e)};e.Pylon=n;var r=function(){var e=t.createElement("script");e.setAttribute("type","text/javascript");e.setAttribute("async","true");e.setAttribute("src","https://widget.usepylon.com/widget/32a58676-d739-4f5c-9d97-2f28f9deb8a6");var n=t.getElementsByTagName("script")[0];n.parentNode.insertBefore(e,n)};if(t.readyState==="complete"){r()}else if(e.addEventListener){e.addEventListener("load",r,false)}})()
-          `,
-        },
-        {
-          tag: 'script',
-          attrs: {
-            type: 'text/javascript',
-          },
-          content: `
-            ;(function () {
+            ;(async function () {
               try {
                 var raw = localStorage.getItem('sk_auth_session')
+
+                // If no cached session, try fetching from server
+                if (!raw) {
+                  try {
+                    var response = await fetch('/auth/session', { credentials: 'include' })
+                    if (response.ok) {
+                      var sessionData = await response.json()
+                      if (sessionData?.authenticated) {
+                        localStorage.setItem('sk_auth_session', JSON.stringify(sessionData))
+                        raw = localStorage.getItem('sk_auth_session')
+                      }
+                    }
+                  } catch (fetchError) {
+                    console.warn('[pylon] Could not fetch session:', fetchError)
+                  }
+                }
+
                 console.log('[pylon] raw sk_auth_session present:', !!raw)
 
-                if (!raw) return
+                if (raw) {
+                  var session = JSON.parse(raw)
+                  var claims = session.idTokenClaims || {}
+                  var user = session.user || {}
 
-                var session = JSON.parse(raw)
-                var claims = session.idTokenClaims || {}
-                var user = session.user || {}
+                  var email =
+                    user.email ||
+                    claims.email ||
+                    null
 
-                var email =
-                  user.email ||
-                  claims.email ||
-                  null
+                  var name =
+                    user.name ||
+                    [claims.given_name, claims.family_name].filter(Boolean).join(' ') ||
+                    claims.name ||
+                    null
 
-                var name =
-                  user.name ||
-                  [claims.given_name, claims.family_name].filter(Boolean).join(' ') ||
-                  claims.name ||
-                  null
+                  console.log('[pylon] derived user for widget', {
+                    hasEmail: !!email,
+                    hasName: !!name,
+                  })
 
-                console.log('[pylon] derived user for widget', {
-                  hasEmail: !!email,
-                  hasName: !!name,
-                })
-
-                window.pylon = {
-                  chat_settings: {
-                    app_id: '32a58676-d739-4f5c-9d97-2f28f9deb8a6',
-                    email: email || undefined,
-                    name: name || undefined,
-                  },
+                  window.pylon = {
+                    chat_settings: {
+                      app_id: '32a58676-d739-4f5c-9d97-2f28f9deb8a6',
+                      email: email || undefined,
+                      name: name || undefined,
+                    },
+                  }
                 }
+
+                // Load Pylon widget after config is set
+                (function(){var e=window;var t=document;var n=function(){n.e(arguments)};n.q=[];n.e=function(e){n.q.push(e)};e.Pylon=n;var r=function(){var e=t.createElement("script");e.setAttribute("type","text/javascript");e.setAttribute("async","true");e.setAttribute("src","https://widget.usepylon.com/widget/32a58676-d739-4f5c-9d97-2f28f9deb8a6");var n=t.getElementsByTagName("script")[0];n.parentNode.insertBefore(e,n)};if(t.readyState==="complete"){r()}else if(e.addEventListener){e.addEventListener("load",r,false)}})()
+
               } catch (e) {
-                console.error('[pylon] error deriving user from sk_auth_session', e)
+                console.error('[pylon] error in pylon widget initialization', e)
               }
             })()
           `,
