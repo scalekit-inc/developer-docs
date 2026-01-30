@@ -221,32 +221,69 @@ export default defineConfig({
                 console.log('[pylon] raw sk_auth_session present:', !!raw)
 
                 if (raw) {
-                  var session = JSON.parse(raw)
-                  var claims = session.idTokenClaims || {}
-                  var user = session.user || {}
+                  try {
+                    var session = JSON.parse(raw)
 
-                  var email =
-                    user.email ||
-                    claims.email ||
-                    null
+                    // Validate session structure to prevent injection of malicious properties
+                    if (!session || typeof session !== 'object') {
+                      throw new Error('Invalid session format')
+                    }
 
-                  var name =
-                    user.name ||
-                    [claims.given_name, claims.family_name].filter(Boolean).join(' ') ||
-                    claims.name ||
-                    null
+                    // Safely extract nested objects with validation
+                    var claims = (session.idTokenClaims && typeof session.idTokenClaims === 'object') ? session.idTokenClaims : {}
+                    var user = (session.user && typeof session.user === 'object') ? session.user : {}
 
-                  console.log('[pylon] derived user for widget', {
-                    hasEmail: !!email,
-                    hasName: !!name,
-                  })
+                    // Sanitize email: must be a string, max 254 chars (RFC 5321), basic format validation
+                    var email = null
+                    var emailCandidates = [user.email, claims.email]
+                    for (var i = 0; i < emailCandidates.length; i++) {
+                      var candidate = emailCandidates[i]
+                      if (typeof candidate === 'string' && candidate.length > 0 && candidate.length <= 254) {
+                        // Basic email validation: contains @ and no script tags
+                        if (candidate.indexOf('@') > 0 && candidate.indexOf('@') < candidate.length - 1 &&
+                            candidate.indexOf('<') === -1 && candidate.indexOf('>') === -1) {
+                          email = candidate.trim()
+                          break
+                        }
+                      }
+                    }
 
-                  window.pylon = {
-                    chat_settings: {
-                      app_id: '32a58676-d739-4f5c-9d97-2f28f9deb8a6',
-                      email: email || undefined,
-                      name: name || undefined,
-                    },
+                    // Sanitize name: must be a string, max 200 chars, no HTML/script tags
+                    var name = null
+                    var nameCandidates = [
+                      user.name,
+                      (claims.given_name && claims.family_name) ?
+                        (String(claims.given_name) + ' ' + String(claims.family_name)) : null,
+                      claims.name
+                    ]
+                    for (var j = 0; j < nameCandidates.length; j++) {
+                      var nameCandidate = nameCandidates[j]
+                      if (typeof nameCandidate === 'string' && nameCandidate.length > 0 && nameCandidate.length <= 200) {
+                        // Remove HTML tags and script content
+                        var sanitized = nameCandidate.replace(/<[^>]*>/g, '').trim()
+                        if (sanitized.length > 0) {
+                          name = sanitized
+                          break
+                        }
+                      }
+                    }
+
+                    console.log('[pylon] derived user for widget', {
+                      hasEmail: !!email,
+                      hasName: !!name,
+                    })
+
+                    // Only assign validated, sanitized values to window.pylon
+                    window.pylon = {
+                      chat_settings: {
+                        app_id: '32a58676-d739-4f5c-9d97-2f28f9deb8a6',
+                        email: email || undefined,
+                        name: name || undefined,
+                      },
+                    }
+                  } catch (parseError) {
+                    console.warn('[pylon] Failed to parse or validate session data:', parseError)
+                    // Don't initialize widget if session data is invalid
                   }
                 }
 

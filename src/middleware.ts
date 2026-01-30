@@ -39,7 +39,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
 
     try {
-      await verifyJwt(accessToken)
+      const verified = await verifyJwt(accessToken)
+      // If verification is not configured (returns null), deny access
+      // This prevents bypassing authentication when JWT verification is disabled
+      if (!verified) {
+        context.cookies.delete('sk_access_token', { path: '/' })
+        context.cookies.delete('sk_id_token', { path: '/' })
+        return context.redirect(`/auth/login?redirect=${encodeURIComponent(pathname)}`)
+      }
     } catch {
       context.cookies.delete('sk_access_token', { path: '/' })
       context.cookies.delete('sk_id_token', { path: '/' })
