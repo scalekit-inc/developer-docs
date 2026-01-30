@@ -71,12 +71,31 @@ export const GET: APIRoute = async (context) => {
     }
   }
 
+  // Extract uid (sub) and xoid from ID token or access token
+  let uid: string | null = null
+  let xoid: string | null = null
+
+  // First try ID token claims
+  if (idTokenClaims) {
+    uid = (idTokenClaims.sub as string | undefined) ?? null
+    xoid = (idTokenClaims.xoid as string | undefined) ?? null
+  }
+
+  // Fallback to access token claims if not found
+  if (!uid || !xoid) {
+    const accessTokenPayload = verifiedAccessToken.payload as Record<string, unknown>
+    if (!uid) uid = (accessTokenPayload.sub as string | undefined) ?? null
+    if (!xoid) xoid = (accessTokenPayload.xoid as string | undefined) ?? null
+  }
+
   return new Response(
     JSON.stringify({
       authenticated: true,
       user: userInfo,
       idTokenClaims,
       idToken, // Include raw JWT for logout
+      uid, // User ID (from sub claim)
+      xoid, // Workspace ID
       expiresAt,
     }),
     { headers: { 'Content-Type': 'application/json' } },

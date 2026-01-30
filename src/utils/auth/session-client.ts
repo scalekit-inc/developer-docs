@@ -3,6 +3,8 @@ type AuthSession = {
   user?: Record<string, unknown> | null
   idTokenClaims?: Record<string, unknown> | null
   idToken?: string | null
+  uid?: string | null // User ID (sub claim)
+  xoid?: string | null // Workspace ID
   expiresAt?: number | null
 }
 
