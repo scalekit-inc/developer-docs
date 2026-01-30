@@ -1,10 +1,10 @@
 ---
-title: Test your Scalekit authentication setup
-description: scalekit-dryrun is an NPX-runnable CLI tool for testing Scalekit authentication flows without writing code.
+title: Scalekit one-command smoke test
+description: Powered by @scalekit-sdk/dryrun, this is an NPX-runnable CLI tool for testing Scalekit authentication flows without writing code.
 tableOfContents: true
 prev: false
 sidebar:
-  label: Scalekit dryrun
+  label: Login smoke test
   badge: npx
 head:
   - tag: style
@@ -28,112 +28,56 @@ import { Steps, TabItem, Tabs, Aside, Badge } from '@astrojs/starlight/component
 
 `scalekit-dryrun` lets you verify your Scalekit authentication configuration **before** you write any application code. Run it from your terminal with following command to test your authentication setup without integrating the SDK into your application.
 
- ```bash showLineNumbers=false wrap
-   npx @scalekit-sdk/dryrun --env_url=<url> --client_id=<id> [--mode=<sso|fsa>] [--organization_id=<id>]
-   ```
-
 The CLI creates a complete PKCE-based OAuth flow, starts a local server, opens your browser, and displays a dashboard with authenticated user information and tokens. This mirrors the flow your application will implement, so you can confirm that your environment and OAuth client are configured correctly before writing any code.
-
-<details>
-<summary>Show prerequisites</summary>
 
 Before you run `scalekit-dryrun`, make sure you have:
 
 - **Node.js 20 or higher** installed locally.
 - **A Scalekit environment** already created.
 - **An OAuth client** configured in the Scalekit Dashboard.
-- **A redirect URI** registered as described in the next section.
+- **A redirect URI** (`http://localhost:12456/auth/callback`) registered in the Scalekit Dashboard under **Authentication > Redirect URIs** before running the CLI.
 
-</details>
+## Run the `npx @scalekit-sdk/dryrun`
 
-<Steps>
+After you have registered the redirect URI, run the CLI from any directory:
 
-1. ## Register the redirect URI
-
-   `scalekit-dryrun` runs a local server on port `12456` and uses a fixed callback path. You must register this redirect URI in the Scalekit Dashboard **before** running the CLI.
-
-   1. Open the <a href="https://app.scalekit.com" target="_blank" rel="noopener">Scalekit Dashboard</a>.
-   2. Go to **Authentication > Redirect URIs**.
-   3. Add this redirect URI:
-      ```bash showLineNumbers=false wrap frame=none
-      http://localhost:12456/auth/callback
-      ```
-   4. Save your changes.
-
-   If this redirect URI is not registered, the CLI flow will fail with a `redirect_uri mismatch` error.
-
-2. ## Run the CLI command
-
-   After you have registered the redirect URI, run the CLI from any directory:
-
-   ```bash showLineNumbers=false wrap
-   # Refer to prerequisites before running the command
-   npx @scalekit-sdk/dryrun --env_url=<url> --client_id=<id> [--mode=<sso|fsa>] [--organization_id=<id>]
-   ```
-
-   | Option              | Description                                                                 |
-   | ------------------- | --------------------------------------------------------------------------- |
-   | `--env_url`         | Scalekit environment URL, for example `https://env-abc123.scalekit.cloud`. <Badge text="Required" /> |
-   | `--client_id`       | OAuth client ID from the Scalekit Dashboard (starts with `skc_`). <Badge text="Required" /> |
-   | `--mode`            | `fsa` for full-stack auth, `sso` for SSO. Defaults to `fsa`. <Badge text="Optional" /> |
-   | `--organization_id` | Organization ID to authenticate against when `--mode=sso`. <Badge text="Required (SSO only)" /> |
-   | `--help`            | Show CLI usage help. <Badge text="Optional" /> |
-
-   <Aside type="tip" title="Get your credentials">
-   Find your environment URL and client ID in **Dashboard > Developers > Settings > API Credentials**.
-   </Aside>
-
-3. ## Review the authentication results
-
-   After successful authentication, the browser shows a local dashboard with:
-
-   - **User profile**: Name, email, avatar (when available).
-   - **ID token claims**: All claims returned in the ID token.
-   - **Token details**: A view of the raw token response.
-
-   ![User profile details screenshot](@/assets/docs/scalekit-dryrun/user-profile-details.png)
-
-   Use this view to confirm:
-
-   - The correct user is returned for your test login.
-   - Claims such as `email`, `sub`, and any custom claims are present as expected.
-   - The flow works for both `fsa` and `sso` modes when configured.
-
-</Steps>
-
-## Understanding the `scalekit-dryrun` authentication flow
-
-`scalekit-dryrun` simulates the complete OAuth authorization code flow with PKCE that your application uses. It starts a local server, opens your browser for authentication, and displays the results in a dashboard.
-
-```d2 pad=50
-title: "scalekit-dryrun authentication flow" {
-  near: top-center
-  shape: text
-  style.font-size: 20
-}
-
-shape: sequence_diagram
-
-CLI -> Browser: Open authorization URL
-Browser -> Scalekit: Redirect to login page
-User -> Scalekit: Authenticate
-Scalekit -> Browser: Redirect with auth code
-Browser -> CLI: Callback with code
-CLI -> Scalekit: Exchange code for tokens
-Scalekit -> CLI: Return tokens
-CLI -> Browser: Display dashboard with results
+```bash wrap title="Terminal" showLineNumbers=false
+# Refer to prerequisites before running the command
+npx @scalekit-sdk/dryrun \
+  --env_url=<url> \
+  --client_id=<id> \
+  [--mode=<sso|fsa>] \
+  [--organization_id=<id>]
 ```
 
-Behind the scenes, the CLI:
+| Option              | Description                                                                 |
+| ------------------- | --------------------------------------------------------------------------- |
+| `--env_url`         | Scalekit environment URL, for example `https://env-abc123.scalekit.cloud`. <Badge text="Required" /> |
+| `--client_id`       | OAuth client ID from the Scalekit Dashboard (starts with `skc_`). <Badge text="Required" /> |
+| `--mode`            | `fsa` for full-stack auth, `sso` for SSO. Defaults to `fsa`. <Badge text="Optional" /> |
+| `--organization_id` | Organization ID to authenticate against when `--mode=sso`. <Badge text="Required (SSO only)" /> |
+| `--help`            | Show CLI usage help. <Badge text="Optional" /> |
 
-1. Fetches your OIDC configuration from Scalekit
-2. Generates PKCE parameters for secure authorization
-3. Starts a local HTTP server on port `12456` to receive the callback
-4. Opens your browser to Scalekit's login page
-5. Handles the callback and exchanges the authorization code for tokens
-6. Displays a dashboard with user information and token details
+<Aside type="tip" title="Get your credentials">
+Find your environment URL and client ID in **Dashboard > Developers > Settings > API Credentials**.
+</Aside>
 
-Since this mirrors your application's authentication flow, you can verify your environment and OAuth client configuration before integrating the SDK.
+## Review the authentication results
+
+After successful authentication, the browser shows a local dashboard with:
+
+- **User profile**: Name, email, avatar (when available).
+- **ID token claims**: All claims returned in the ID token.
+- **Token details**: A view of the raw token response.
+
+![User profile details screenshot](@/assets/docs/scalekit-dryrun/user-profile-details.png)
+
+Use this view to confirm:
+
+- The correct user is returned for your test login.
+- Claims such as `email`, `sub`, and any custom claims are present as expected.
+- The flow works for both `fsa` and `sso` modes when configured.
+
 
 ## Common error scenarios
 
@@ -181,7 +125,7 @@ If you see errors related to `--organization_id`:
 
 
 <Aside type="caution" title="Local testing only">
-`scalekit-dryrun` is designed for **local testing only**:
+`@scalekit-sdk/dryrun` is designed for **local testing only**:
 
 - It runs entirely on `localhost` and does not expose any public endpoints.
 - It does not persist tokens or credentials after the process exits.
