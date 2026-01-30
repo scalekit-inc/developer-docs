@@ -47,7 +47,9 @@ export const GET: APIRoute = async (context) => {
   const tokenData = (await tokenResponse.json()) as {
     access_token?: string
     id_token?: string
+    refresh_token?: string
     expires_in?: number
+    refresh_token_expires_in?: number
   }
 
   // Verify that at least one token was received
@@ -57,6 +59,10 @@ export const GET: APIRoute = async (context) => {
   }
 
   const maxAge = tokenData.expires_in ? Number(tokenData.expires_in) : 60 * 60
+  // Refresh tokens typically live longer (30 days default, or use provider's value)
+  const refreshMaxAge = tokenData.refresh_token_expires_in
+    ? Number(tokenData.refresh_token_expires_in)
+    : 30 * 24 * 60 * 60
   const secureCookie = !import.meta.env.DEV
 
   if (tokenData.access_token) {
@@ -76,6 +82,17 @@ export const GET: APIRoute = async (context) => {
       sameSite: 'lax',
       path: '/',
       maxAge,
+    })
+  }
+
+  // Store refresh token with stricter security (longer-lived, more sensitive)
+  if (tokenData.refresh_token) {
+    context.cookies.set('sk_refresh_token', tokenData.refresh_token, {
+      httpOnly: true,
+      secure: secureCookie,
+      sameSite: 'strict', // Stricter for refresh token
+      path: '/',
+      maxAge: refreshMaxAge,
     })
   }
 

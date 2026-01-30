@@ -47,7 +47,25 @@ export const getSession = async (): Promise<AuthSession> => {
   clearCache()
 
   try {
-    const response = await fetch('/auth/session', { credentials: 'include' })
+    let response = await fetch('/auth/session', { credentials: 'include' })
+
+    // If access token is expired (401), try to refresh
+    if (response.status === 401) {
+      const refreshResponse = await fetch('/auth/refresh', {
+        method: 'POST',
+        credentials: 'include',
+      })
+
+      if (refreshResponse.ok) {
+        // Refresh succeeded - retry session fetch
+        response = await fetch('/auth/session', { credentials: 'include' })
+      } else {
+        // Refresh failed - user needs to re-login
+        clearCache()
+        return { authenticated: false }
+      }
+    }
+
     if (!response.ok) {
       clearCache()
       return { authenticated: false }
