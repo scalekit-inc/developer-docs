@@ -18,6 +18,7 @@ import IconLucideRocket from '~icons/lucide/rocket'
 import IconSimpleIconsLangchain from '~icons/simple-icons/langchain'
 import IconSimpleIconsDotnet from '~icons/simple-icons/dotnet'
 import IconApiAuth from '~icons/flowbite/api-key-outline'
+import IconLucideUser from '~icons/lucide/user'
 import IconLucideUserLock from '~icons/lucide/user-lock'
 import IconLucideUserCheck from '~icons/lucide/user-check'
 import IconHugeiconsAuthorized from '~icons/hugeicons/authorized'
@@ -138,6 +139,7 @@ export const iconMap = {
   rocket: IconLucideRocket,
   langchain: IconSimpleIconsLangchain,
   dotnet: IconSimpleIconsDotnet,
+  user: IconLucideUser,
   userlock: IconLucideUserLock,
   usercheck: IconLucideUserCheck,
   authmethods: IconHugeiconsAuthorized,
@@ -266,6 +268,7 @@ export {
   IconLucideBell,
   IconLucideCode,
   IconLucideWrench,
+  IconLucideUser,
   IconSdk,
   IconApi,
   IconMdiCubeOutline,

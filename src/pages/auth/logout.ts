@@ -1,0 +1,31 @@
+import type { APIRoute } from 'astro'
+
+export const prerender = false
+
+export const GET: APIRoute = async (context) => {
+  // Prefer ID token from query parameter (localStorage) over cookie
+  // Cookie may be cleared by middleware before we get here
+  const idToken =
+    context.url.searchParams.get('id_token') || context.cookies.get('sk_id_token')?.value || ''
+
+  // Scalekit base URL from authorize URL
+  const scalekitUrl = import.meta.env.SCALEKIT_AUTHORIZE_URL
+    ? new URL(import.meta.env.SCALEKIT_AUTHORIZE_URL).origin
+    : 'https://weekendr-dev.scalekit.cloud'
+
+  // Step 2: Build logout URL with id_token_hint and post_logout_redirect_uri
+  const logoutUrl = new URL(`${scalekitUrl}/oidc/logout`)
+  logoutUrl.searchParams.set('id_token_hint', idToken || '')
+  logoutUrl.searchParams.set('post_logout_redirect_uri', context.url.origin + '/')
+
+  // Step 3: Clear all session cookies
+  context.cookies.delete('sk_access_token', { path: '/' })
+  context.cookies.delete('sk_id_token', { path: '/' })
+  context.cookies.delete('sk_refresh_token', { path: '/' })
+  context.cookies.delete('sk_pkce_verifier', { path: '/' })
+  context.cookies.delete('sk_pkce_state', { path: '/' })
+  context.cookies.delete('sk_post_login_redirect', { path: '/' })
+
+  // Step 4: Redirect to Scalekit to invalidate their session
+  return context.redirect(logoutUrl.toString())
+}

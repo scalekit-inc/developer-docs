@@ -1,0 +1,268 @@
+---
+import { LinkButton } from '@astrojs/starlight/components'
+// @ts-ignore: icon-map is a local utility module without TS types
+import { IconLucideUser as IconUser } from '../../utils/icon-map'
+import { getSession, clearSessionCache } from '../../utils/auth/session-client'
+
+const loginHref = '/auth/login'
+---
+
+<div class="auth-cta" data-auth-cta>
+  <!-- Sign in (hidden when logged in) -->
+  <LinkButton
+    href={loginHref}
+    variant="primary"
+    icon="right-arrow"
+    iconPlacement="end"
+    class="sk-primary sign-in-btn"
+  >
+    Sign in
+  </LinkButton>
+
+  <!-- Profile menu (only when logged in) -->
+  <div class="profile-menu" data-profile-menu>
+    <button class="profile-trigger" data-profile-trigger aria-haspopup="menu" aria-expanded="false">
+      <IconUser aria-hidden="true" />
+    </button>
+    <div class="profile-popover" data-profile-popover role="menu">
+      <div class="profile-email" data-profile-email role="none">
+        <!-- Email populated by JS -->
+      </div>
+      <div class="profile-divider" role="separator"></div>
+      <a href="/auth/logout" data-sign-out role="menuitem">Sign out</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // @ts-nocheck
+  const STORAGE_KEY = 'sk_auth_session'
+
+  const readCache = () => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return null
+      return JSON.parse(raw)
+    } catch {
+      return null
+    }
+  }
+
+  /** @param {any} session */
+  const writeCache = (session) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
+    } catch {}
+  }
+
+  const clearCache = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {}
+  }
+
+  /** @param {any} expiresAt */
+  const isExpired = (expiresAt) => {
+    if (!expiresAt) return false
+    return Date.now() >= expiresAt
+  }
+
+  const getSession = async () => {
+    const cached = readCache()
+    if (cached?.authenticated && !isExpired(cached.expiresAt)) {
+      return cached
+    }
+
+    clearCache()
+
+    try {
+      const response = await fetch('/auth/session', { credentials: 'include' })
+      if (!response.ok) {
+        clearCache()
+        return { authenticated: false }
+      }
+
+      const data = await response.json()
+      if (data?.authenticated) {
+        writeCache(data)
+      } else {
+        clearCache()
+      }
+      return data
+    } catch {
+      clearCache()
+      return { authenticated: false }
+    }
+  }
+
+  const ctas = document.querySelectorAll('[data-auth-cta]')
+
+  /** @param {Element} cta */
+  const updateCta = async (cta) => {
+    const data = await getSession()
+    if (data && data.authenticated) {
+      cta.classList.add('is-authenticated')
+    } else {
+      cta.classList.remove('is-authenticated')
+    }
+
+    const profileMenu = cta.querySelector('[data-profile-menu]')
+    if (!profileMenu) return
+
+    const trigger = profileMenu.querySelector('[data-profile-trigger]')
+    const popover = profileMenu.querySelector('[data-profile-popover]')
+    const emailElement = profileMenu.querySelector('[data-profile-email]')
+    const signOutLink = profileMenu.querySelector('[data-sign-out]')
+    if (!trigger || !popover) return
+
+    // Populate email when authenticated
+    if (data?.authenticated && emailElement) {
+      const email = data.user?.email || data.idTokenClaims?.email
+      emailElement.textContent = email || 'Account'
+    }
+
+    const closeMenu = () => {
+      profileMenu.classList.remove('is-open')
+      trigger.setAttribute('aria-expanded', 'false')
+    }
+
+    const openMenu = () => {
+      profileMenu.classList.add('is-open')
+      trigger.setAttribute('aria-expanded', 'true')
+    }
+
+    trigger.addEventListener('click', (event) => {
+      event.preventDefault()
+      event.stopPropagation()
+      if (profileMenu.classList.contains('is-open')) closeMenu()
+      else openMenu()
+    })
+
+    // Handle sign out - extract ID token, clear localStorage, then navigate
+    if (signOutLink) {
+      signOutLink.addEventListener('click', (event) => {
+        event.preventDefault()
+
+        // Extract raw ID token from localStorage BEFORE clearing
+        const session = readCache()
+        const idToken = session?.idToken || ''
+
+        clearCache()
+
+        // Pass ID token via query parameter
+        window.location.href = `/auth/logout?id_token=${encodeURIComponent(idToken)}`
+      })
+    }
+
+    document.addEventListener('click', (event) => {
+      if (!profileMenu.classList.contains('is-open')) return
+      if (profileMenu.contains(event.target)) return
+      closeMenu()
+    })
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return
+      closeMenu()
+    })
+  }
+
+  ctas.forEach(updateCta)
+</script>
+
+<style>
+  .auth-cta :global(.sk-primary) {
+    padding: 0.3rem 1.5rem;
+    font-size: var(--sl-text-sm);
+  }
+
+  /* Sign in button: hidden when logged in */
+  .sign-in-btn {
+    display: inline-flex;
+  }
+
+  .auth-cta.is-authenticated .sign-in-btn {
+    display: none;
+  }
+
+  /* Profile menu: hidden by default, visible when logged in */
+  .profile-menu {
+    display: none;
+    position: relative;
+  }
+
+  .auth-cta.is-authenticated .profile-menu {
+    display: inline-flex;
+  }
+
+  .profile-trigger {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sk-color-secondary-bg);
+    border: 1px solid var(--sk-color-secondary-border);
+    color: var(--sk-color-secondary-text);
+    cursor: pointer;
+    font-size: var(--sl-text-sm);
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .profile-trigger:hover {
+    background: var(--sk-color-secondary-bg-hover);
+    border-color: var(--sk-color-secondary-border-hover);
+  }
+
+  .profile-popover {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    min-width: 14rem;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    padding: 0.25rem;
+    /* Similar feel to SecondaryNav dropdowns */
+    box-shadow:
+      0 1px 2px 0 rgba(10, 10, 10, 0.05),
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+  }
+
+  .profile-menu.is-open .profile-popover {
+    display: block;
+  }
+
+  .profile-email {
+    padding: 0.5rem 0.75rem;
+    color: var(--sl-color-text);
+    font-size: var(--sl-text-sm);
+    font-weight: 500;
+    cursor: default;
+    user-select: none;
+  }
+
+  .profile-divider {
+    height: 1px;
+    background: var(--sl-color-gray-5);
+    margin: 0.25rem 0;
+  }
+
+  .profile-popover a {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    color: var(--sl-color-text);
+  }
+
+  .profile-popover a:hover {
+    background: var(--sl-color-gray-6);
+  }
+</style>
