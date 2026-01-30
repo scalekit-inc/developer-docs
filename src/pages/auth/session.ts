@@ -14,6 +14,22 @@ export const GET: APIRoute = async (context) => {
     })
   }
 
+  // Verify the accessToken cryptographically before proceeding
+  try {
+    const verifiedAccessToken = await verifyJwt(accessToken)
+    if (!verifiedAccessToken) {
+      return new Response(JSON.stringify({ authenticated: false }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+  } catch {
+    return new Response(JSON.stringify({ authenticated: false }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
   const userinfoUrl = import.meta.env.SCALEKIT_USERINFO_URL ?? ''
   let userInfo: Record<string, unknown> | null = null
 

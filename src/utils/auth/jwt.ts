@@ -12,7 +12,11 @@ try {
     jwks = createRemoteJWKSet(new URL(jwksUrl))
   }
 } catch (error) {
-  throw error
+  // Gracefully handle JWKS initialization errors
+  // If configuration is invalid, JWT verification will be disabled
+  // (verifyJwt will return null when jwks is null)
+  console.error('[JWT] Failed to initialize JWKS:', error instanceof Error ? error.message : error)
+  jwks = null
 }
 
 /**

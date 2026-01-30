@@ -50,6 +50,12 @@ export const GET: APIRoute = async (context) => {
     expires_in?: number
   }
 
+  // Verify that at least one token was received
+  // An incomplete OAuth response without tokens should not be treated as successful
+  if (!tokenData.access_token && !tokenData.id_token) {
+    return context.redirect('/auth/login?error=token_exchange_failed')
+  }
+
   const maxAge = tokenData.expires_in ? Number(tokenData.expires_in) : 60 * 60
   const secureCookie = !import.meta.env.DEV
 
