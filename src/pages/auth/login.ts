@@ -29,7 +29,17 @@ export const GET: APIRoute = async (context) => {
 
   const redirectTarget = context.url.searchParams.get('redirect')
   if (redirectTarget) {
-    context.cookies.set('sk_post_login_redirect', redirectTarget, pkceCookieOptions)
+    // Validate redirect URL to prevent open redirect attacks
+    // Only allow relative paths (starting with /) or same-origin URLs
+    try {
+      const redirectUrl = new URL(redirectTarget, context.url.origin)
+      // Only allow same-origin redirects
+      if (redirectUrl.origin === context.url.origin && redirectUrl.pathname.startsWith('/')) {
+        context.cookies.set('sk_post_login_redirect', redirectUrl.pathname, pkceCookieOptions)
+      }
+    } catch {
+      // Invalid URL, ignore redirect parameter
+    }
   }
 
   const authUrl = new URL(authorizeUrl)

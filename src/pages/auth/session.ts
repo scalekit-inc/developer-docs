@@ -36,7 +36,13 @@ export const GET: APIRoute = async (context) => {
   if (idToken) {
     try {
       const verified = await verifyJwt(idToken)
-      idTokenClaims = (verified?.payload as Record<string, unknown>) ?? null
+      if (!verified) {
+        return new Response(JSON.stringify({ authenticated: false }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      idTokenClaims = (verified.payload as Record<string, unknown>) ?? null
       const exp = (idTokenClaims?.exp as number | undefined) ?? undefined
       if (typeof exp === 'number') {
         expiresAt = exp * 1000

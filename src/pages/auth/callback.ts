@@ -15,10 +15,16 @@ export const GET: APIRoute = async (context) => {
 
   const storedState = context.cookies.get('sk_pkce_state')?.value
   const codeVerifier = context.cookies.get('sk_pkce_verifier')?.value
-  const postLoginRedirect = context.cookies.get('sk_post_login_redirect')?.value ?? '/'
+  let postLoginRedirect = context.cookies.get('sk_post_login_redirect')?.value ?? '/'
 
   if (!code || !returnedState || !storedState || returnedState !== storedState || !codeVerifier) {
     return context.redirect('/auth/login?error=invalid_state')
+  }
+
+  // Validate redirect URL to prevent open redirect attacks
+  // Only allow relative paths (starting with /)
+  if (postLoginRedirect && !postLoginRedirect.startsWith('/')) {
+    postLoginRedirect = '/'
   }
 
   const tokenResponse = await fetch(tokenUrl, {
