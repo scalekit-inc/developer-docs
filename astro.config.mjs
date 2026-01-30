@@ -195,103 +195,83 @@ export default defineConfig({
             src: '/js/sidebar-scroll.js',
           },
         },
+        // Pylon widget configuration (must run in head before widget loads)
+        {
+          tag: 'script',
+          attrs: {
+            src: '/js/pylon-widget.js',
+          },
+        },
+        // PostHog user identification
         {
           tag: 'script',
           content: `
-            ;(async function () {
+            ;(function () {
               try {
                 var raw = localStorage.getItem('sk_auth_session')
+                if (!raw) return
 
-                // If no cached session, try fetching from server
-                if (!raw) {
-                  try {
-                    var response = await fetch('/auth/session', { credentials: 'include' })
-                    if (response.ok) {
-                      var sessionData = await response.json()
-                      if (sessionData?.authenticated) {
-                        localStorage.setItem('sk_auth_session', JSON.stringify(sessionData))
-                        raw = localStorage.getItem('sk_auth_session')
-                      }
+                var session = JSON.parse(raw)
+                if (!session || !session.authenticated) return
+
+                // Extract uid (sub) and xoid from session
+                var uid = session.uid
+                var xoid = session.xoid
+                var email = null
+
+                // Safely extract from claims as fallback
+                if (!uid && session.idTokenClaims && typeof session.idTokenClaims === 'object') {
+                  uid = session.idTokenClaims.sub || null
+                }
+                if (!xoid && session.idTokenClaims && typeof session.idTokenClaims === 'object') {
+                  xoid = session.idTokenClaims.xoid || null
+                }
+                if (!email && session.idTokenClaims && typeof session.idTokenClaims === 'object') {
+                  email = session.idTokenClaims.email || null
+                }
+                if (!email && session.user && typeof session.user === 'object') {
+                  email = session.user.email || null
+                }
+
+                // Wait for PostHog to be ready (up to 5 seconds)
+                var checkPostHog = function () {
+                  if (typeof window.posthog !== 'undefined') {
+                    // Identify user with uid
+                    if (uid && window.posthog) {
+                      window.posthog.identify(uid, {
+                        email: email,
+                      })
                     }
-                  } catch (fetchError) {
-                    console.warn('[pylon] Could not fetch session:', fetchError)
+
+                    // Group by workspace (xoid)
+                    if (xoid && window.posthog) {
+                      window.posthog.group('workspace', xoid)
+                    }
+
+                    console.log('[posthog] user identified:', { uid: uid, xoid: xoid })
+                  } else {
+                    // PostHog not ready yet, retry
+                    setTimeout(checkPostHog, 100)
                   }
                 }
 
-                console.log('[pylon] raw sk_auth_session present:', !!raw)
-
-                if (raw) {
-                  try {
-                    var session = JSON.parse(raw)
-
-                    // Validate session structure to prevent injection of malicious properties
-                    if (!session || typeof session !== 'object') {
-                      throw new Error('Invalid session format')
-                    }
-
-                    // Safely extract nested objects with validation
-                    var claims = (session.idTokenClaims && typeof session.idTokenClaims === 'object') ? session.idTokenClaims : {}
-                    var user = (session.user && typeof session.user === 'object') ? session.user : {}
-
-                    // Sanitize email: must be a string, max 254 chars (RFC 5321), basic format validation
-                    var email = null
-                    var emailCandidates = [user.email, claims.email]
-                    for (var i = 0; i < emailCandidates.length; i++) {
-                      var candidate = emailCandidates[i]
-                      if (typeof candidate === 'string' && candidate.length > 0 && candidate.length <= 254) {
-                        // Basic email validation: contains @ and no script tags
-                        if (candidate.indexOf('@') > 0 && candidate.indexOf('@') < candidate.length - 1 &&
-                            candidate.indexOf('<') === -1 && candidate.indexOf('>') === -1) {
-                          email = candidate.trim()
-                          break
-                        }
-                      }
-                    }
-
-                    // Sanitize name: must be a string, max 200 chars, no HTML/script tags
-                    var name = null
-                    var nameCandidates = [
-                      user.name,
-                      (claims.given_name && claims.family_name) ?
-                        (String(claims.given_name) + ' ' + String(claims.family_name)) : null,
-                      claims.name
-                    ]
-                    for (var j = 0; j < nameCandidates.length; j++) {
-                      var nameCandidate = nameCandidates[j]
-                      if (typeof nameCandidate === 'string' && nameCandidate.length > 0 && nameCandidate.length <= 200) {
-                        // Remove HTML tags and script content
-                        var sanitized = nameCandidate.replace(/<[^>]*>/g, '').trim()
-                        if (sanitized.length > 0) {
-                          name = sanitized
-                          break
-                        }
-                      }
-                    }
-
-                    console.log('[pylon] derived user for widget', {
-                      hasEmail: !!email,
-                      hasName: !!name,
-                    })
-
-                    // Only assign validated, sanitized values to window.pylon
-                    window.pylon = {
-                      chat_settings: {
-                        app_id: '32a58676-d739-4f5c-9d97-2f28f9deb8a6',
-                        email: email || undefined,
-                        name: name || undefined,
-                      },
-                    }
-                  } catch (parseError) {
-                    console.warn('[pylon] Failed to parse or validate session data:', parseError)
-                    // Don't initialize widget if session data is invalid
+                // Start checking for PostHog
+                var attempts = 0
+                var maxAttempts = 50 // 5 seconds
+                var originalCheck = checkPostHog
+                checkPostHog = function () {
+                  if (typeof window.posthog !== 'undefined') {
+                    originalCheck()
+                  } else if (attempts < maxAttempts) {
+                    attempts++
+                    setTimeout(checkPostHog, 100)
+                  } else {
+                    console.warn('[posthog] timed out waiting for PostHog to load')
                   }
                 }
-
-                // Load Pylon widget after config is set
-                (function(){var e=window;var t=document;var n=function(){n.e(arguments)};n.q=[];n.e=function(e){n.q.push(e)};e.Pylon=n;var r=function(){var e=t.createElement("script");e.setAttribute("type","text/javascript");e.setAttribute("async","true");e.setAttribute("src","https://widget.usepylon.com/widget/32a58676-d739-4f5c-9d97-2f28f9deb8a6");var n=t.getElementsByTagName("script")[0];n.parentNode.insertBefore(e,n)};if(t.readyState==="complete"){r()}else if(e.addEventListener){e.addEventListener("load",r,false)}})()
-
+                checkPostHog()
               } catch (e) {
-                console.error('[pylon] error in pylon widget initialization', e)
+                console.warn('[posthog] failed to identify user:', e)
               }
             })()
           `,
