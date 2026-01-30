@@ -253,6 +253,7 @@ export const sidebar = [
           // 'dev-kit/ai-assisted-development/vscode',
         ],
       },
+      'dev-kit/tools/scalekit-dryrun',
       createSpacing(),
       createSectionHeader('Workflows'),
       {
