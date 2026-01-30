@@ -76,6 +76,7 @@ export const GET: APIRoute = async (context) => {
       authenticated: true,
       user: userInfo,
       idTokenClaims,
+      idToken, // Include raw JWT for logout
       expiresAt,
     }),
     { headers: { 'Content-Type': 'application/json' } },

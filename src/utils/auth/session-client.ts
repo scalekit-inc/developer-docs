@@ -2,6 +2,7 @@ type AuthSession = {
   authenticated: boolean
   user?: Record<string, unknown> | null
   idTokenClaims?: Record<string, unknown> | null
+  idToken?: string | null
   expiresAt?: number | null
 }
 

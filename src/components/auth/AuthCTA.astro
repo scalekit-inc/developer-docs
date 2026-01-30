@@ -2,6 +2,7 @@
 import { LinkButton } from '@astrojs/starlight/components'
 // @ts-ignore: icon-map is a local utility module without TS types
 import { IconLucideUser as IconUser } from '../../utils/icon-map'
+import { getSession, clearSessionCache } from '../../utils/auth/session-client'
 
 const loginHref = '/auth/login'
 ---
@@ -137,12 +138,19 @@ const loginHref = '/auth/login'
       else openMenu()
     })
 
-    // Handle sign out - clear localStorage first, then navigate
+    // Handle sign out - extract ID token, clear localStorage, then navigate
     if (signOutLink) {
       signOutLink.addEventListener('click', (event) => {
         event.preventDefault()
+
+        // Extract raw ID token from localStorage BEFORE clearing
+        const session = readCache()
+        const idToken = session?.idToken || ''
+
         clearCache()
-        window.location.href = '/auth/logout'
+
+        // Pass ID token via query parameter
+        window.location.href = `/auth/logout?id_token=${encodeURIComponent(idToken)}`
       })
     }
 
