@@ -52,14 +52,14 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Multiple Application SSO',
+        label: 'Multi-App Authentication',
         collapsed: false,
         items: [
           'authenticate/fsa/multiapp/overview',
-          'authenticate/fsa/multiapp/manage-apps',
           'authenticate/fsa/multiapp/web-app',
           'authenticate/fsa/multiapp/single-page-app',
           'authenticate/fsa/multiapp/native-app',
+          'authenticate/fsa/multiapp/manage-apps',
         ],
       },
       {
