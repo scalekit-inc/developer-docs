@@ -1,6 +1,6 @@
 ---
 title: Web application
-description: "Implement Multi Application SSO for web apps using Authorization Code flow with client_id and client_secret"
+description: "Implement Multi-App Authentication for web apps using Authorization Code flow with client_id and client_secret"
 sidebar:
   label: "Web App"
 tableOfContents: true
@@ -29,13 +29,19 @@ import { Steps, Aside, LinkCard } from '@astrojs/starlight/components';
 A web application typically has both a frontend and a backend. In this model, the backend initiates authentication, handles the callback, exchanges the authorization code for tokens, and manages user sessions securely.
 
 :::tip
-👉 [**Check out the example apps on GitHub**](https://github.com/scalekit-inc/multiapp-demo) to see Web, Single page, Desktop, and Mobile apps sharing a single Scalekit session.
+👉 [**Check out the example apps on GitHub**](https://github.com/scalekit-inc/multiapp-demo) to see Web, SPA, Desktop, and Mobile apps sharing a single Scalekit session.
 :::
 
-This guide expands the four-step flow from the overview specifically for **web applications**. Web apps use a `client_id` and `client_secret`, and complete the authorization code exchange on the server.
+This guide covers the authorization code flow for **web applications** that use a `client_id` and `client_secret`.
 
+## Prerequisites
 
-Note: This guide assumes you already have your `ENV_URL`, `client_id`, and `client_secret`. If not, see how to create and manage applications [here](/authenticate/fsa/multiapp/manage-apps)
+Before you begin, ensure you have:
+
+- A Scalekit account with an environment configured
+- Your environment URL (`ENV_URL`), e.g., `https://yourenv.scalekit.com`
+- A web application registered in Scalekit with `client_id` and `client_secret` ([Create one →](/authenticate/fsa/multiapp/manage-apps))
+- At least one redirect URL configured in **Dashboard > Developers > Applications > [Your App] > Redirects**
 
 ## High-level flow
 
@@ -160,6 +166,29 @@ Scalekit -> "Web app (backend)": access_token, refresh_token, id_token
 
 </Steps>
 
+## Handle errors
+
+When authentication fails, Scalekit redirects to your callback URL with error parameters instead of an authorization code:
+
+```
+/callback?error=access_denied&error_description=User+denied+access&state=<STATE>
+```
+
+Your callback handler should check for errors before processing the authorization code:
+
+1. Check if the `error` parameter exists
+2. Log the `error` and `error_description` for debugging
+3. Display a user-friendly message
+4. Provide an option to retry login
+
+Common error codes:
+
+| Error | Description |
+|-------|-------------|
+| `access_denied` | User denied the authorization request |
+| `invalid_request` | Missing or invalid parameters |
+| `server_error` | Scalekit encountered an unexpected error |
+
 ## (Optional) Use Scalekit Management APIs
 
 In addition to handling user authentication, **web applications can also call Scalekit’s Management APIs** from the backend. These APIs allow your application to interact with Scalekit-managed resources such as users, organizations, memberships, and roles.
@@ -176,4 +205,10 @@ Management APIs are **Scalekit-owned APIs** and are intended to be called **serv
 3. Select your **Web Application**
 4. Enable **Allow Scalekit Management API Access**
 
-This option is available **only for web applications**, since they can securely store credentials. When enabled, your backend can authenticate to Scalekit’s Management APIs using the application’s credentials and SDKs provided by Scalekit. These calls are **independent of end-user access tokens** and are designed for trusted, server-side workflows.
+This option is available **only for web applications**, since they can securely store credentials. When enabled, your backend can authenticate to Scalekit's Management APIs using the application's credentials and SDKs provided by Scalekit. These calls are **independent of end-user access tokens** and are designed for trusted, server-side workflows.
+
+## What's next
+
+- [Configure backchannel logout](/guides/dashboard/redirects/#back-channel-logout-url) to receive notifications when a user logs out from another app
+- [Set up a custom domain](/guides/custom-domain) for your authentication pages
+- [Add enterprise SSO](/sso/quickstart) to support SAML and OIDC with your customers' identity providers
