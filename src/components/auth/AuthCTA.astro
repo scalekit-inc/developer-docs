@@ -76,7 +76,20 @@ const loginHref = '/auth/login'
     clearCache()
 
     try {
-      const response = await fetch('/auth/session', { credentials: 'include' })
+      let response = await fetch('/auth/session', { credentials: 'include' })
+      // Attempt refresh when access token has expired
+      if (response.status === 401) {
+        const refreshResponse = await fetch('/auth/refresh', {
+          method: 'POST',
+          credentials: 'include',
+        })
+        if (refreshResponse.ok) {
+          response = await fetch('/auth/session', { credentials: 'include' })
+        } else {
+          clearCache()
+          return { authenticated: false }
+        }
+      }
       if (!response.ok) {
         clearCache()
         return { authenticated: false }
@@ -97,14 +110,25 @@ const loginHref = '/auth/login'
 
   const ctas = document.querySelectorAll('[data-auth-cta]')
 
-  /** @param {Element} cta */
-  const updateCta = async (cta) => {
+  // Periodically refresh CTA state without re-attaching listeners
+  const refreshCtaState = async (cta) => {
     const data = await getSession()
     if (data && data.authenticated) {
       cta.classList.add('is-authenticated')
     } else {
       cta.classList.remove('is-authenticated')
     }
+    const profileMenu = cta.querySelector('[data-profile-menu]')
+    const emailElement = profileMenu?.querySelector('[data-profile-email]')
+    if (data?.authenticated && emailElement) {
+      const email = data.user?.email || data.idTokenClaims?.email
+      emailElement.textContent = email || 'Account'
+    }
+  }
+
+  /** @param {Element} cta */
+  const updateCta = async (cta) => {
+    await refreshCtaState(cta)
 
     const profileMenu = cta.querySelector('[data-profile-menu]')
     if (!profileMenu) return
@@ -116,10 +140,7 @@ const loginHref = '/auth/login'
     if (!trigger || !popover) return
 
     // Populate email when authenticated
-    if (data?.authenticated && emailElement) {
-      const email = data.user?.email || data.idTokenClaims?.email
-      emailElement.textContent = email || 'Account'
-    }
+    // (Handled by refreshCtaState)
 
     const closeMenu = () => {
       profileMenu.classList.remove('is-open')
@@ -164,6 +185,11 @@ const loginHref = '/auth/login'
       if (event.key !== 'Escape') return
       closeMenu()
     })
+
+    // Keep UI in sync with token state (checks every 60s)
+    setInterval(() => {
+      refreshCtaState(cta)
+    }, 60 * 1000)
   }
 
   ctas.forEach(updateCta)

@@ -15,8 +15,9 @@ export const GET: APIRoute = async (context) => {
   }
 
   // Verify the accessToken cryptographically before proceeding
+  let verifiedAccessToken: { payload: Record<string, unknown> } | null = null
   try {
-    const verifiedAccessToken = await verifyJwt(accessToken)
+    verifiedAccessToken = await verifyJwt(accessToken)
     if (!verifiedAccessToken) {
       return new Response(JSON.stringify({ authenticated: false }), {
         status: 401,
@@ -47,7 +48,16 @@ export const GET: APIRoute = async (context) => {
   }
 
   let idTokenClaims: Record<string, unknown> | null = null
-  let expiresAt: number | null = null
+  let accessExpMs: number | null = null
+  let idExpMs: number | null = null
+
+  // Access token expiry (prefer for session freshness)
+  if (verifiedAccessToken) {
+    const atExp = (verifiedAccessToken.payload?.exp as number | undefined) ?? undefined
+    if (typeof atExp === 'number') {
+      accessExpMs = atExp * 1000
+    }
+  }
 
   if (idToken) {
     try {
@@ -61,7 +71,7 @@ export const GET: APIRoute = async (context) => {
       idTokenClaims = (verified.payload as Record<string, unknown>) ?? null
       const exp = (idTokenClaims?.exp as number | undefined) ?? undefined
       if (typeof exp === 'number') {
-        expiresAt = exp * 1000
+        idExpMs = exp * 1000
       }
     } catch {
       return new Response(JSON.stringify({ authenticated: false }), {
@@ -82,11 +92,15 @@ export const GET: APIRoute = async (context) => {
   }
 
   // Fallback to access token claims if not found
-  if (!uid || !xoid) {
+  if ((!uid || !xoid) && verifiedAccessToken) {
     const accessTokenPayload = verifiedAccessToken.payload as Record<string, unknown>
     if (!uid) uid = (accessTokenPayload.sub as string | undefined) ?? null
     if (!xoid) xoid = (accessTokenPayload.xoid as string | undefined) ?? null
   }
+
+  // Use earliest expiry to drive UI/session cache
+  const expiresAt =
+    accessExpMs && idExpMs ? Math.min(accessExpMs, idExpMs) : (accessExpMs ?? idExpMs ?? null)
 
   return new Response(
     JSON.stringify({
