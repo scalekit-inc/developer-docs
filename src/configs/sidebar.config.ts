@@ -216,6 +216,8 @@ export const sidebar = [
           'dev-kit/code-samples/full-stack-auth',
         ],
       },
+      createSectionHeader('Testing Utilities'),
+      'dev-kit/tools/scalekit-dryrun',
       createSpacing(),
       createSectionHeader('DEV TOOLS'),
       {
@@ -253,12 +255,11 @@ export const sidebar = [
           // 'dev-kit/ai-assisted-development/vscode',
         ],
       },
-      'dev-kit/tools/scalekit-dryrun',
       createSpacing(),
       createSectionHeader('Workflows'),
       {
         label: 'Webhooks',
-        collapsed: false,
+        collapsed: true,
         items: [
           'authenticate/implement-workflows/implement-webhooks',
           'guides/webhooks-best-practices',
@@ -266,7 +267,7 @@ export const sidebar = [
       },
       {
         label: 'Interceptors',
-        collapsed: false,
+        collapsed: true,
         items: [
           'authenticate/interceptors/auth-flow-interceptors',
           'reference/interceptors/triggers',
