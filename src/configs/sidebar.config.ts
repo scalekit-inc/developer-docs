@@ -220,6 +220,7 @@ export const sidebar = [
       createSectionHeader('Testing Utilities'),
       'dev-kit/tools/scalekit-dryrun',
       'sso/guides/test-sso',
+      'dev-kit/tools/use-scalekit-credentials',
       createSpacing(),
       createSectionHeader('DEV TOOLS'),
       {
