@@ -216,8 +216,10 @@ export const sidebar = [
           'dev-kit/code-samples/full-stack-auth',
         ],
       },
+      createSpacing(),
       createSectionHeader('Testing Utilities'),
       'dev-kit/tools/scalekit-dryrun',
+      'sso/guides/test-sso',
       createSpacing(),
       createSectionHeader('DEV TOOLS'),
       {
@@ -382,7 +384,6 @@ export const sidebar = [
           'sso/guides/idp-init-sso',
           'guides/user-auth/check-sso-domain',
           'sso/guides/sso-user-attributes',
-          'sso/guides/test-sso',
           'sso/guides/onboard-enterprise-customers',
           'guides/sso/sso-migration-strategy',
         ],
