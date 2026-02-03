@@ -26,6 +26,26 @@ export const GET: APIRoute = async (context) => {
   context.cookies.delete('sk_pkce_state', { path: '/' })
   context.cookies.delete('sk_post_login_redirect', { path: '/' })
 
-  // Step 4: Redirect to Scalekit to invalidate their session
-  return context.redirect(logoutUrl.toString())
+  // Step 4: Return intermediate page that clears localStorage and redirects to Scalekit
+  return new Response(
+    `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Signing out...</title>
+        <script>
+          // Clear localStorage after server-side cookie clearing
+          localStorage.removeItem('sk_auth_session')
+
+          // Redirect to Scalekit logout
+          window.location.href = '${logoutUrl.toString()}'
+        </script>
+      </head>
+      <body>Completing logout...</body>
+    </html>
+  `,
+    {
+      headers: { 'Content-Type': 'text/html' },
+    },
+  )
 }

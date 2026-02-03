@@ -32,7 +32,7 @@ export const POST: APIRoute = async (context) => {
     // Refresh token expired or invalid - clear all auth cookies
     context.cookies.delete('sk_access_token', { path: '/' })
     context.cookies.delete('sk_id_token', { path: '/' })
-    context.cookies.delete('sk_refresh_token', { path: '/' })
+    context.cookies.delete('sk_refresh_token', { path: '/auth/refresh' })
 
     return new Response(JSON.stringify({ error: 'Refresh token failed' }), {
       status: 401,
@@ -90,7 +90,7 @@ export const POST: APIRoute = async (context) => {
       httpOnly: true,
       secure: secureCookie,
       sameSite: 'strict',
-      path: '/',
+      path: '/auth/refresh',
       maxAge: refreshMaxAge,
     })
   }

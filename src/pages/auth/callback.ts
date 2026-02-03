@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro'
+import { verifyJwt } from '@/utils/auth/jwt'
 
 export const prerender = false
 
@@ -89,7 +90,7 @@ export const GET: APIRoute = async (context) => {
       httpOnly: true,
       secure: secureCookie,
       sameSite: 'strict', // Stricter for refresh token
-      path: '/',
+      path: '/auth/refresh', // Scope to refresh endpoint only
       maxAge: refreshMaxAge,
     })
   }
