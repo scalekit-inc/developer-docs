@@ -422,6 +422,7 @@ export const sidebar = [
         label: 'How to...',
         items: [
           'directory/guides/group-based-role-assignment',
+          'guides/user-management/scim-provisioning',
           'directory/guides/onboard-enterprise-customers',
         ],
       },
