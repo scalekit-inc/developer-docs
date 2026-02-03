@@ -1,5 +1,6 @@
 // Core UI icons
 import IconLucideChevronDown from '~icons/lucide/chevron-down'
+import IconLucideLogOut from '~icons/lucide/log-out'
 import IconOcticonTabExternal from '~icons/octicon/tab-external-24'
 import IconCarbonMigrate from '~icons/carbon/migrate'
 import IconGardenShapes26 from '~icons/garden/shapes-26'
@@ -117,6 +118,8 @@ import IconMingcuteUserSecurityLine from '~icons/mingcute/user-security-line'
 export const iconMap = {
   // Core UI icons
   'chevron-down': IconLucideChevronDown,
+  'log-out': IconLucideLogOut,
+  logout: IconLucideLogOut,
   migrate: IconCarbonMigrate,
   'encrypted-add': IconMaterialSymbolsEncryptedAddOutline,
 
@@ -256,6 +259,7 @@ export function getIconComponent(key?: string) {
 export {
   // Core UI icons
   IconLucideChevronDown,
+  IconLucideLogOut,
   IconOcticonTabExternal,
   IconCarbonMigrate,
   IconGardenShapes26,
