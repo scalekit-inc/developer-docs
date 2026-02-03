@@ -1,0 +1,155 @@
+---
+title: SSO simulator
+description: Test SSO flows end to end using Scalekit’s built-in IdP simulator and a pre-configured test organization.
+tableOfContents:
+  maxHeadingLevel: 3
+prev: false
+next: false
+sidebar:
+  label: SSO simulator
+seeAlso:
+  label: Related guides
+  expanded: true
+  items:
+    - title: 'Add SSO with Scalekit'
+      icon: 'book'
+      url: '/authenticate/sso/add-modular-sso/'
+    - title: 'SSO integration errors'
+      icon: 'book'
+      url: '/sso/reference/sso-integration-errors/'
+---
+
+import { Aside, Steps, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
+
+Scalekit provides an **SSO simulator** so you can test SSO flows before you connect to real enterprise identity providers. You use it when you are implementing SSO with Scalekit and want to verify your application’s behavior end to end.
+
+Without the simulator, you often need to configure multiple providers—such as Microsoft Entra ID, PingIdentity, and Okta—and create test tenants and users just to prove that your SSO flow works. Instead, the SSO simulator lets you trigger the authentication flow with test email domains like `@example.com` and verify how your application handles successful logins and failures, without doing any external IdP configuration.
+
+Before you use the SSO simulator, make sure you have:
+
+- SSO flow integrated in your app with Scalekit. For example, you have completed setup that generates an authorization URL and handles the callback either with [Modular SSO](authenticate/sso/add-modular-sso) or [Full stack Authentication](authenticate/auth-methods/enterprise-sso).
+- Access to the [Scalekit Dashboard](https://app.scalekit.com) for viewing organizations and connection details.
+
+Your development environment includes a **Test Organization** that has connection already setup to the SSO simulator. This organization is safe to use for SSO testing and does not affect real customers.
+
+<Steps>
+
+1. **Locate the test organization**
+
+   Open **Dashboard → Organizations** and look for an entry named **Test Organization**.
+
+   The details page shows the test organization's identifier (for example, `org_32656XXXXXX0438`) and any connected SSO integrations.
+
+   ![Test Organization](@/assets/docs/sso/testing-sso/2.png)
+
+2. **Copy the organization ID**
+
+   From the **Test Organization** details page, copy the **Organization ID**. You pass this value to the SDK when you generate an SSO authorization URL.
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+
+   ```javascript title="Express.js" wrap "org_32656XXXXXX0438"
+   const options = {
+     organizationId: 'org_32656XXXXXX0438',
+   }
+
+   const authorizationUrl = await scalekit.getAuthorizationUrl(
+     'https://your-app.example.com/auth/callback',
+     options,
+   )
+   ```
+
+   </TabItem>
+
+   <TabItem value="python" label="Python">
+
+   ```python title="Flask" wrap "org_32656XXXXXX0438"
+   options = {
+       "organizationId": "org_32656XXXXXX0438",
+   }
+
+   authorization_url = scalekit_client.get_authorization_url(
+       "https://your-app.example.com/auth/callback",
+       options,
+   )
+   ```
+
+   </TabItem>
+
+   <TabItem value="go" label="Go">
+
+   ```go title="Gin" wrap "org_32656XXXXXX0438"
+   options := scalekit.AuthorizationUrlOptions{
+     OrganizationId: "org_32656XXXXXX0438",
+   }
+
+   authorizationURL, err := scalekitClient.GetAuthorizationUrl(
+     "https://your-app.example.com/auth/callback",
+     options,
+   )
+   ```
+
+   </TabItem>
+
+   <TabItem value="java" label="Java">
+
+   ```java title="Spring Boot" wrap "org_32656XXXXXX0438"
+   AuthorizationUrlOptions options = new AuthorizationUrlOptions();
+   options.setOrganizationId("org_32656XXXXXX0438");
+
+   URI authorizationUrl = scalekitClient
+     .authentication()
+     .getAuthorizationUrl("https://your-app.example.com/auth/callback", options);
+   ```
+
+   </TabItem>
+
+   <TabItem value="direct" label="Direct URL (no SDK)">
+
+   ```sh title="Authorization URL" showLineNumbers=false "org_32656XXXXXX0438"
+   <SCALEKIT_ENVIRONMENT_URL>/oauth/authorize?
+     response_type=code&
+     client_id=<SCALEKIT_CLIENT_ID>&
+     redirect_uri=<REDIRECT_URI>&
+     scope=openid%20profile%20email&
+     organization_id=org_32656XXXXXX0438
+   ```
+
+   <Aside title="example email addresses">
+    In developer environments, SSO simulator can be accessed by passing an `example.org` or an `example.com` email addresses. This is useful for starting a SSO simulator
+   </Aside>
+
+   </TabItem>
+   </Tabs>
+3. **Simulate a SSO login**
+
+    Generated authorization URL redirects the users to SSO simulator.
+
+    1. Select **User login via SSO** from the dropdown menu
+    2. Enter test user details (email, name, etc.) to simulate authentication
+    3. Click **Submit** to complete the simulation
+
+
+    <figure>
+      ![SSO Simulator form](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/2.1.png)
+    </figure>
+
+    After submitting the form, your application receives an `idToken` containing the user details you entered:
+
+    <figure>
+      ![ID token response](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/2.2.png)
+    </figure>
+
+</Steps>
+
+<Aside type="note" title="Custom user attributes">
+      To test custom attributes from the SSO Simulator, first register them at **Dashboard > Development > Single Sign-On > Custom Attributes**.
+</Aside>
+
+### Full stack authentication vs modular SSO
+
+How you reach the SSO simulator depends on how you use Scalekit:
+
+- **Modular SSO:** You can route users to the SSO simulator by including `login_hint=name@example.com` (or another `@example.com` / `@example.org` address) in the authorization URL. You are not limited to passing only the organization ID.
+- **Full stack authentication:** You do not need to pass any parameters when creating the authorization URL. Redirect users to Scalekit’s hosted login page; when they enter an email with a domain such as `example.com` or `example.org`, the login screen automatically sends them to the SSO simulator.

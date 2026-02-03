@@ -1,6 +1,6 @@
 ---
-title: IdP Simulator
-description: Test Enterprise SSO based authentication using our IdP Simulator without configuring SAML or OIDC based SSO with a real IdP
+title: SSO Simulator
+description: Test Enterprise SSO based authentication using our SSO Simulator without configuring SAML or OIDC based SSO with a real IdP
 browseCentral:
   label: "Test enterprise SSO flows"
   filterType:
@@ -9,7 +9,7 @@ browseCentral:
     - "Enterprise authentication"
   icon: "book"
 sidebar:
-  label: IdP Simulator
+  label: SSO simulator
 tableOfContents:
   maxHeadingLevel: 3
 prev:
@@ -38,14 +38,14 @@ import { Aside, TabItem, Tabs, Steps, Badge } from "@astrojs/starlight/component
 
 After implementing Single Sign-On using our [Quickstart guide](/authenticate/sso/add-modular-sso/), you need to validate your integration for all possible scenarios. This guide shows you how to test your SSO implementation using two approaches:
 
-1. **IdP Simulator (quick testing):** Test all SSO scenarios without external services. Your development environment includes a pre-configured test organization with an SSO connection to our IdP Simulator.
+1. **SSO Simulator (quick testing):** Test all SSO scenarios without external services. Your development environment includes a pre-configured test organization with an SSO connection to our SSO Simulator.
 2. **Real identity provider (production-ready testing):** Test with actual identity providers like Okta or Microsoft Entra ID to simulate real customer scenarios.
 
 To ensure a successful SSO implementation, test all three scenarios described in this guide before deploying to production: SP-initiated SSO, IdP-initiated SSO, and error handling.
 
-## Testing with IdP Simulator <Badge text="Quick testing" variant="tip" />
+## Testing with SSO Simulator <Badge text="Quick testing" variant="tip" />
 
-The IdP Simulator allows you to test all SSO scenarios without requiring external services. Your development environment includes a pre-configured test organization with an SSO connection to our IdP Simulator and test domains like `@example.com` or `@example.org`.
+The SSO Simulator allows you to test all SSO scenarios without requiring external services. Your development environment includes a pre-configured test organization with an SSO connection to our SSO Simulator and test domains like `@example.com` or `@example.org`.
 
 To locate the test organization, navigate to **Dashboard > Organizations** and select **Test Organization**.
 
@@ -61,7 +61,7 @@ In this common scenario, users start the Single Sign-On process from your applic
 
 #### Generate authorization URL
 
-Generate an authorization URL with your test organization ID. This redirects users to Scalekit's hosted login page, which will then redirect to the IdP Simulator.
+Generate an authorization URL with your test organization ID. This redirects users to Scalekit's hosted login page, which will then redirect to the SSO Simulator.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
@@ -72,7 +72,7 @@ const options = {
   organizationId: 'org_32656XXXXXX0438' // Replace with your test organization ID
 };
 
-// Generate Authorization URL that redirects to IdP Simulator
+// Generate Authorization URL that redirects to SSO Simulator
 const authorizationURL = scalekit.getAuthorizationUrl(redirectUrl, options);
 
 // Redirect user to start SSO flow
@@ -89,7 +89,7 @@ options = {
     "organizationId": 'org_32656XXXXXX0438'  # Replace with your test organization ID
 }
 
-# Generate Authorization URL that redirects to IdP Simulator
+# Generate Authorization URL that redirects to SSO Simulator
 authorization_url = scalekit_client.get_authorization_url(
     redirect_url,
     options,
@@ -109,7 +109,7 @@ options := scalekit.AuthorizationUrlOptions{
     OrganizationId: "org_32656XXXXXX0438", // Replace with your test organization ID
 }
 
-// Generate Authorization URL that redirects to IdP Simulator
+// Generate Authorization URL that redirects to SSO Simulator
 authorizationURL := scalekitClient.GetAuthorizationUrl(
     redirectUrl,
     options,
@@ -127,7 +127,7 @@ c.Redirect(http.StatusFound, authorizationURL)
 AuthorizationUrlOptions options = new AuthorizationUrlOptions();
 options.setOrganizationId("org_32656XXXXXX0438"); // Replace with your test organization ID
 
-// Generate Authorization URL that redirects to IdP Simulator
+// Generate Authorization URL that redirects to SSO Simulator
 String authorizationURL = scalekitClient
         .authentication()
         .getAuthorizationUrl(redirectUrl, options)
@@ -146,7 +146,7 @@ return "redirect:" + authorizationURL;
 
 #### Test the SSO flow
 
-After generating the authorization URL, users are redirected to the IdP Simulator:
+After generating the authorization URL, users are redirected to the SSO Simulator:
 
 <Steps>
 1. Select **User login via SSO** from the dropdown menu
@@ -155,7 +155,7 @@ After generating the authorization URL, users are redirected to the IdP Simulato
 </Steps>
 
 <figure>
-  ![IdP Simulator form](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/2.1.png)
+  ![SSO Simulator form](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/2.1.png)
 </figure>
 
 After submitting the form, your application receives an `idToken` containing the user details you entered:
@@ -165,7 +165,7 @@ After submitting the form, your application receives an `idToken` containing the
 </figure>
 
 <Aside type="note" title="Custom user attributes">
-  To test custom attributes from the IdP Simulator, first register them at **Dashboard > Development > Single Sign-On > Custom Attributes**.
+  To test custom attributes from the SSO Simulator, first register them at **Dashboard > Development > Single Sign-On > Custom Attributes**.
 </Aside>
 
 ### Identity provider (IdP) initiated SSO <Badge text="Scenario 2" variant="note" />
@@ -180,7 +180,7 @@ If you haven't implemented IdP-initiated SSO yet, follow our [IdP-initiated SSO 
 
 <Steps>
 1. Generate the authorization URL using your test organization
-2. When redirected to the IdP Simulator, select **IdP initiated SSO** from the dropdown menu
+2. When redirected to the SSO Simulator, select **IdP initiated SSO** from the dropdown menu
 3. Enter test user details to simulate the login
 4. Click **Submit** to complete the simulation
 </Steps>
@@ -204,7 +204,7 @@ Your application should:
 4. Complete the authentication flow
 
 <Aside type="tip" title="Testing notes">
-- The IdP Simulator uses your default redirect URL as the callback URL. Ensure this is correctly configured at **Dashboard > Developers > Redirect URLs**.
+- The SSO Simulator uses your default redirect URL as the callback URL. Ensure this is correctly configured at **Dashboard > Developers > Redirect URLs**.
 - In production, users would select your application from their identity provider's app catalog to initiate this flow.
 </Aside>
 
@@ -216,13 +216,13 @@ Your application should gracefully handle error scenarios to provide a good user
 
 <Steps>
 1. Generate and redirect to the authorization URL
-2. In the IdP Simulator, select **Error** from the dropdown menu
+2. In the SSO Simulator, select **Error** from the dropdown menu
 3. Verify your callback handler processes the error correctly
 4. Ensure users see an appropriate error message
 </Steps>
 
 <figure>
-  ![Error scenario in IdP Simulator](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/5.png)
+  ![Error scenario in SSO Simulator](@/assets/docs/manual/fundamentals/testing-sso/with-idp-simulator/5.png)
 </figure>
 
 <Aside type="note" title="Error handling best practices">
@@ -231,7 +231,7 @@ Your application should gracefully handle error scenarios to provide a good user
 
 ## Testing with real identity providers <Badge text="Production-ready" variant="tip" />
 
-After validating your SSO implementation with the IdP Simulator, test with real identity providers like Okta or Microsoft Entra ID to simulate actual customer scenarios. This ensures your integration works correctly with production identity systems.
+After validating your SSO implementation with the SSO Simulator, test with real identity providers like Okta or Microsoft Entra ID to simulate actual customer scenarios. This ensures your integration works correctly with production identity systems.
 
 ### Setup your test environment
 
