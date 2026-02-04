@@ -1,18 +1,16 @@
 ---
-// Import the `<StarlightPage>` component first to set up cascade layers
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import SandboxHomeWrapper from '../../components/code-samples/SandboxHomeWrapper.tsx'
 
-// Get API key and orgid from environment variables
 const apiKey = import.meta.env.PUBLIC_SAMPLEAPP_API_KEY || ''
 const orgid = import.meta.env.PUBLIC_SAMPLEAPP_ORGID || 'scalekit'
 
-// Page metadata
 const template = 'splash' as const
 const frontmatter = {
   title: 'Code Samples',
   description: 'Interactive code samples and sandboxes',
   template,
+  tableOfContents: false,
   editUrl: false as const,
   head: [
     {
@@ -21,15 +19,39 @@ const frontmatter = {
         footer {
           display: none !important;
         }
-        .full-page-app {
-          width: 100%;
-          max-width: 100%;
-          margin: 0;
-          padding: 0;
-          position: sticky;
-          top: var(--sl-nav-height);
-          height: calc(100vh - var(--sl-nav-height));
-          overflow: auto;
+        /* Hide right sidebar (TOC) */
+        right-sidebar-panel {
+          display: none !important;
+        }
+        /* Hide first content-panel (title) */
+        main > .content-panel:first-of-type {
+          display: none !important;
+        }
+        /* Remove all padding from second content-panel and children */
+        main > .content-panel:last-of-type,
+        main > .content-panel:last-of-type .sl-container,
+        main > .content-panel:last-of-type .sl-markdown-content {
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+        /* Remove content width constraints */
+        :root {
+          --sl-content-width: 100% !important;
+          --sl-content-margin-inline: 0 !important;
+        }
+        /* Make sandbox fill the space */
+        .sandbox-wrapper-container {
+          height: calc(100vh - var(--sl-nav-height)) !important;
+          width: 100% !important;
+        }
+        /* Expand main content area to fill available space */
+        .main-pane {
+          max-width: 100% !important;
+          width: 100% !important;
+        }
+        .sl-container,
+        .sl-markdown-content {
+          max-width: 100% !important;
         }
       `,
     },
@@ -37,11 +59,6 @@ const frontmatter = {
 }
 ---
 
-<div class="full-page-app">
-  <SandboxHomeWrapper client:load apiKey={apiKey} orgid={orgid} theme="light" />
-</div>
-
-<StarlightPage frontmatter={frontmatter}>
-  <!-- Hidden content to initialize Starlight page structure -->
-  <div style="display: none;"></div>
+<StarlightPage frontmatter={frontmatter} hasSidebar={true}>
+  <SandboxHomeWrapper client:load apiKey={apiKey} orgid={orgid} />
 </StarlightPage>
