@@ -1,28 +1,8 @@
 import type { APIRoute } from 'astro'
-import { verifyJwt } from '@/utils/auth/jwt'
 
 export const prerender = false
 
 export const GET: APIRoute = async (context) => {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/18f42a52-d518-4397-98e5-b904bddd7feb', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      location: 'callback.ts:entry',
-      message: 'Callback handler entry',
-      data: {
-        fullUrl: context.url.toString(),
-        origin: context.url.origin,
-        pathname: context.url.pathname,
-        search: context.url.search,
-      },
-      timestamp: Date.now(),
-      sessionId: 'debug-session',
-      hypothesisId: 'A',
-    }),
-  }).catch(() => {})
-  // #endregion
   const tokenUrl =
     import.meta.env.SCALEKIT_TOKEN_URL ?? 'https://placeholder.scalekit.com/oauth/token'
   const clientId = import.meta.env.SCALEKIT_CLIENT_ID ?? ''
@@ -35,47 +15,8 @@ export const GET: APIRoute = async (context) => {
   const storedState = context.cookies.get('sk_pkce_state')?.value
   const codeVerifier = context.cookies.get('sk_pkce_verifier')?.value
   let postLoginRedirect = context.cookies.get('sk_post_login_redirect')?.value ?? '/'
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/18f42a52-d518-4397-98e5-b904bddd7feb', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      location: 'callback.ts:cookies',
-      message: 'Cookie values read',
-      data: {
-        postLoginRedirect,
-        storedState: !!storedState,
-        codeVerifier: !!codeVerifier,
-        hasCode: !!code,
-      },
-      timestamp: Date.now(),
-      sessionId: 'debug-session',
-      hypothesisId: 'B',
-    }),
-  }).catch(() => {})
-  // #endregion
 
   if (!code || !returnedState || !storedState || returnedState !== storedState || !codeVerifier) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/18f42a52-d518-4397-98e5-b904bddd7feb', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        location: 'callback.ts:error-invalid-state',
-        message: 'Early return: invalid state',
-        data: {
-          hasCode: !!code,
-          hasReturnedState: !!returnedState,
-          hasStoredState: !!storedState,
-          stateMatch: returnedState === storedState,
-          hasVerifier: !!codeVerifier,
-        },
-        timestamp: Date.now(),
-        sessionId: 'debug-session',
-        hypothesisId: 'E',
-      }),
-    }).catch(() => {})
-    // #endregion
     return context.redirect('/auth/login?error=invalid_state')
   }
 
@@ -122,96 +63,23 @@ export const GET: APIRoute = async (context) => {
     : 30 * 24 * 60 * 60
   const secureCookie = !import.meta.env.DEV
 
-  if (tokenData.access_token) {
-    context.cookies.set('sk_access_token', tokenData.access_token, {
-      httpOnly: true,
-      secure: secureCookie,
-      sameSite: 'lax',
-      path: '/',
-      maxAge,
-    })
-  }
-
-  if (tokenData.id_token) {
-    context.cookies.set('sk_id_token', tokenData.id_token, {
-      httpOnly: true,
-      secure: secureCookie,
-      sameSite: 'lax',
-      path: '/',
-      maxAge,
-    })
-  }
-
-  // Store refresh token with stricter security (longer-lived, more sensitive)
-  if (tokenData.refresh_token) {
-    context.cookies.set('sk_refresh_token', tokenData.refresh_token, {
-      httpOnly: true,
-      secure: secureCookie,
-      sameSite: 'strict', // Stricter for refresh token
-      path: '/auth/refresh', // Scope to refresh endpoint only
-      maxAge: refreshMaxAge,
-    })
-  }
-
-  context.cookies.delete('sk_pkce_verifier', { path: '/' })
-  context.cookies.delete('sk_pkce_state', { path: '/' })
-  context.cookies.delete('sk_post_login_redirect', { path: '/' })
-
-  // Ensure redirect URL is clean and absolute (required for Netlify middleware mode)
-  // Netlify middleware mode may preserve query params on relative redirects
-  let cleanRedirect = postLoginRedirect
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/18f42a52-d518-4397-98e5-b904bddd7feb', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      location: 'callback.ts:pre-clean',
-      message: 'Before cleaning redirect',
-      data: { postLoginRedirect, cleanRedirect },
-      timestamp: Date.now(),
-      sessionId: 'debug-session',
-      hypothesisId: 'B',
-    }),
-  }).catch(() => {})
-  // #endregion
-
+  // Build clean redirect URL
   // Remove any query parameters or fragments from the redirect path
-  const pathnameOnly = cleanRedirect.split('?')[0].split('#')[0]
-  cleanRedirect = pathnameOnly || '/'
+  const pathnameOnly = postLoginRedirect.split('?')[0].split('#')[0]
+  let cleanRedirect = pathnameOnly || '/'
 
   // Ensure it starts with /
   if (!cleanRedirect.startsWith('/')) {
     cleanRedirect = '/'
   }
 
-  // Use absolute URL to prevent Netlify from preserving query parameters
+  // Use absolute URL for the redirect
   const redirectUrl = new URL(cleanRedirect, context.url.origin)
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/18f42a52-d518-4397-98e5-b904bddd7feb', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      location: 'callback.ts:final-redirect',
-      message: 'Final redirect URL constructed',
-      data: {
-        cleanRedirect,
-        pathnameOnly,
-        origin: context.url.origin,
-        redirectUrlFull: redirectUrl.toString(),
-        redirectUrlHref: redirectUrl.href,
-        redirectUrlSearch: redirectUrl.search,
-      },
-      timestamp: Date.now(),
-      sessionId: 'debug-session',
-      hypothesisId: 'A,C',
-    }),
-  }).catch(() => {})
-  // #endregion
-
-  // #region agent log - Use client-side redirect to bypass Netlify query param merging
   const finalRedirectUrl = redirectUrl.toString()
 
   // Create cookies as Set-Cookie headers
+  // Using manual headers because we return a custom Response (not context.redirect)
+  // to work around Netlify middleware mode merging query params into Location header
   const cookieHeaders: string[] = []
   if (tokenData.access_token) {
     cookieHeaders.push(
@@ -228,7 +96,7 @@ export const GET: APIRoute = async (context) => {
       `sk_refresh_token=${tokenData.refresh_token}; HttpOnly; ${secureCookie ? 'Secure;' : ''} SameSite=Strict; Path=/auth/refresh; Max-Age=${refreshMaxAge}`,
     )
   }
-  // Delete cookies
+  // Delete PKCE cookies
   cookieHeaders.push('sk_pkce_verifier=; Path=/; Max-Age=0')
   cookieHeaders.push('sk_pkce_state=; Path=/; Max-Age=0')
   cookieHeaders.push('sk_post_login_redirect=; Path=/; Max-Age=0')
@@ -236,12 +104,11 @@ export const GET: APIRoute = async (context) => {
   const headers = new Headers()
   headers.set('Content-Type', 'text/html; charset=utf-8')
   headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
-  headers.set('X-Debug-CleanRedirect', cleanRedirect)
-  headers.set('X-Debug-PostLoginRedirect', postLoginRedirect)
-  headers.set('X-Debug-FinalUrl', finalRedirectUrl)
   cookieHeaders.forEach((cookie) => headers.append('Set-Cookie', cookie))
 
-  // Return HTML page with client-side redirect to bypass Netlify's redirect query param merging
+  // Return HTML page with client-side redirect
+  // This bypasses Netlify middleware mode's behavior of merging the original
+  // request's query params (?code=...&state=...) into 302 redirect Location headers
   const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -256,5 +123,4 @@ export const GET: APIRoute = async (context) => {
 </html>`
 
   return new Response(html, { status: 200, headers })
-  // #endregion
 }
