@@ -12,6 +12,7 @@
 
   // Pylon App ID
   var PYLON_APP_ID = '32a58676-d739-4f5c-9d97-2f28f9deb8a6'
+  var SUPPORT_HASH_KEY = 'sk_support_hash'
 
   /**
    * Helper to safely get session from localStorage
@@ -70,11 +71,29 @@
         return response.json()
       })
       .then(function (data) {
-        return data && data.email_hash ? data.email_hash : null
+        if (!data) return null
+        return data.support_hash || data.email_hash || null
       })
       .catch(function () {
         return null
       })
+  }
+
+  var getCachedSupportHash = function () {
+    try {
+      var cached = localStorage.getItem(SUPPORT_HASH_KEY)
+      if (!cached) return null
+      return cached
+    } catch (e) {
+      return null
+    }
+  }
+
+  var setCachedSupportHash = function (supportHash) {
+    try {
+      if (!supportHash) return
+      localStorage.setItem(SUPPORT_HASH_KEY, supportHash)
+    } catch (e) {}
   }
 
   /**
@@ -84,14 +103,7 @@
     var session = getSession()
 
     if (!session || !session.authenticated) {
-      console.log('[pylon] no authenticated session found')
-      // Initialize widget for anonymous users
-      window.pylon = {
-        chat_settings: {
-          app_id: PYLON_APP_ID,
-        },
-      }
-      return
+      return false
     }
 
     var claims =
@@ -163,24 +175,52 @@
       pylonConfig.user_id = uid
     }
 
-    // Fetch and add email_hash from backend API for identity verification
+    // Fetch and add support_hash from backend API for identity verification
     if (email) {
-      fetchEmailHash().then(function (emailHash) {
-        if (emailHash) {
-          pylonConfig.chat_settings.email_hash = emailHash
-          console.log('[pylon] email_hash fetched from API')
-        }
-        // Set config (update if already set)
+      var cachedSupportHash = getCachedSupportHash()
+      if (cachedSupportHash) {
+        pylonConfig.chat_settings.email_hash = cachedSupportHash
         window.pylon = pylonConfig
-        console.log('[pylon] config set:', window.pylon)
-      })
+        console.log('[pylon] support_hash loaded from cache')
+      } else {
+        fetchEmailHash().then(function (supportHash) {
+          if (supportHash) {
+            pylonConfig.chat_settings.email_hash = supportHash
+            setCachedSupportHash(supportHash)
+            console.log('[pylon] support_hash fetched from API')
+          }
+          // Set config (update if already set)
+          window.pylon = pylonConfig
+          console.log('[pylon] config set:', window.pylon)
+        })
+      }
     } else {
       // Set config immediately if no email
       window.pylon = pylonConfig
       console.log('[pylon] config set:', window.pylon)
     }
+
+    return true
+  }
+
+  /**
+   * Wait for authenticated session before configuring Pylon
+   */
+  var waitForAuthenticatedSession = function (attempts) {
+    attempts = attempts || 0
+    if (initializePylonConfig()) {
+      return
+    }
+
+    if (attempts < 50) {
+      setTimeout(function () {
+        waitForAuthenticatedSession(attempts + 1)
+      }, 100)
+    } else {
+      console.log('[pylon] no authenticated session found after wait')
+    }
   }
 
   // Initialize when script loads
-  initializePylonConfig()
+  waitForAuthenticatedSession()
 })()

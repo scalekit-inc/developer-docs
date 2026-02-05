@@ -35,12 +35,14 @@ export const GET: APIRoute = async (context) => {
   const supportHashUrl = `${baseUrl}/api/v1/users/support-hash`
 
   try {
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    }
+
     const response = await fetch(supportHashUrl, {
       method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
+      headers,
     })
 
     if (!response.ok) {
@@ -51,7 +53,8 @@ export const GET: APIRoute = async (context) => {
     }
 
     const data = await response.json()
-    return new Response(JSON.stringify({ email_hash: data.email_hash }), {
+    const supportHash = data?.support_hash || data?.email_hash || null
+    return new Response(JSON.stringify({ support_hash: supportHash, email_hash: supportHash }), {
       headers: { 'Content-Type': 'application/json' },
     })
   } catch {

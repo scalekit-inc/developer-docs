@@ -36,6 +36,7 @@ export const GET: APIRoute = async (context) => {
         <script>
           // Clear localStorage after server-side cookie clearing
           localStorage.removeItem('sk_auth_session')
+          localStorage.removeItem('sk_support_hash')
 
           // Redirect to Scalekit logout
           window.location.href = '${logoutUrl.toString()}'
