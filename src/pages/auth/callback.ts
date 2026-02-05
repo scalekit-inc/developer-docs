@@ -4,6 +4,25 @@ import { verifyJwt } from '@/utils/auth/jwt'
 export const prerender = false
 
 export const GET: APIRoute = async (context) => {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/18f42a52-d518-4397-98e5-b904bddd7feb', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      location: 'callback.ts:entry',
+      message: 'Callback handler entry',
+      data: {
+        fullUrl: context.url.toString(),
+        origin: context.url.origin,
+        pathname: context.url.pathname,
+        search: context.url.search,
+      },
+      timestamp: Date.now(),
+      sessionId: 'debug-session',
+      hypothesisId: 'A',
+    }),
+  }).catch(() => {})
+  // #endregion
   const tokenUrl =
     import.meta.env.SCALEKIT_TOKEN_URL ?? 'https://placeholder.scalekit.com/oauth/token'
   const clientId = import.meta.env.SCALEKIT_CLIENT_ID ?? ''
@@ -16,8 +35,47 @@ export const GET: APIRoute = async (context) => {
   const storedState = context.cookies.get('sk_pkce_state')?.value
   const codeVerifier = context.cookies.get('sk_pkce_verifier')?.value
   let postLoginRedirect = context.cookies.get('sk_post_login_redirect')?.value ?? '/'
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/18f42a52-d518-4397-98e5-b904bddd7feb', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      location: 'callback.ts:cookies',
+      message: 'Cookie values read',
+      data: {
+        postLoginRedirect,
+        storedState: !!storedState,
+        codeVerifier: !!codeVerifier,
+        hasCode: !!code,
+      },
+      timestamp: Date.now(),
+      sessionId: 'debug-session',
+      hypothesisId: 'B',
+    }),
+  }).catch(() => {})
+  // #endregion
 
   if (!code || !returnedState || !storedState || returnedState !== storedState || !codeVerifier) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/18f42a52-d518-4397-98e5-b904bddd7feb', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        location: 'callback.ts:error-invalid-state',
+        message: 'Early return: invalid state',
+        data: {
+          hasCode: !!code,
+          hasReturnedState: !!returnedState,
+          hasStoredState: !!storedState,
+          stateMatch: returnedState === storedState,
+          hasVerifier: !!codeVerifier,
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        hypothesisId: 'E',
+      }),
+    }).catch(() => {})
+    // #endregion
     return context.redirect('/auth/login?error=invalid_state')
   }
 
@@ -102,6 +160,20 @@ export const GET: APIRoute = async (context) => {
   // Ensure redirect URL is clean and absolute (required for Netlify middleware mode)
   // Netlify middleware mode may preserve query params on relative redirects
   let cleanRedirect = postLoginRedirect
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/18f42a52-d518-4397-98e5-b904bddd7feb', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      location: 'callback.ts:pre-clean',
+      message: 'Before cleaning redirect',
+      data: { postLoginRedirect, cleanRedirect },
+      timestamp: Date.now(),
+      sessionId: 'debug-session',
+      hypothesisId: 'B',
+    }),
+  }).catch(() => {})
+  // #endregion
 
   // Remove any query parameters or fragments from the redirect path
   const pathnameOnly = cleanRedirect.split('?')[0].split('#')[0]
@@ -114,5 +186,59 @@ export const GET: APIRoute = async (context) => {
 
   // Use absolute URL to prevent Netlify from preserving query parameters
   const redirectUrl = new URL(cleanRedirect, context.url.origin)
-  return context.redirect(redirectUrl.toString())
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/18f42a52-d518-4397-98e5-b904bddd7feb', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      location: 'callback.ts:final-redirect',
+      message: 'Final redirect URL constructed',
+      data: {
+        cleanRedirect,
+        pathnameOnly,
+        origin: context.url.origin,
+        redirectUrlFull: redirectUrl.toString(),
+        redirectUrlHref: redirectUrl.href,
+        redirectUrlSearch: redirectUrl.search,
+      },
+      timestamp: Date.now(),
+      sessionId: 'debug-session',
+      hypothesisId: 'A,C',
+    }),
+  }).catch(() => {})
+  // #endregion
+
+  // #region agent log - Return manual Response to bypass potential context.redirect() issues
+  const finalRedirectUrl = redirectUrl.toString()
+  // Create cookies as Set-Cookie headers
+  const cookieHeaders = []
+  if (tokenData.access_token) {
+    cookieHeaders.push(
+      `sk_access_token=${tokenData.access_token}; HttpOnly; ${secureCookie ? 'Secure;' : ''} SameSite=Lax; Path=/; Max-Age=${maxAge}`,
+    )
+  }
+  if (tokenData.id_token) {
+    cookieHeaders.push(
+      `sk_id_token=${tokenData.id_token}; HttpOnly; ${secureCookie ? 'Secure;' : ''} SameSite=Lax; Path=/; Max-Age=${maxAge}`,
+    )
+  }
+  if (tokenData.refresh_token) {
+    cookieHeaders.push(
+      `sk_refresh_token=${tokenData.refresh_token}; HttpOnly; ${secureCookie ? 'Secure;' : ''} SameSite=Strict; Path=/auth/refresh; Max-Age=${refreshMaxAge}`,
+    )
+  }
+  // Delete cookies
+  cookieHeaders.push('sk_pkce_verifier=; Path=/; Max-Age=0')
+  cookieHeaders.push('sk_pkce_state=; Path=/; Max-Age=0')
+  cookieHeaders.push('sk_post_login_redirect=; Path=/; Max-Age=0')
+
+  const headers = new Headers()
+  headers.set('Location', finalRedirectUrl)
+  headers.set('X-Debug-CleanRedirect', cleanRedirect)
+  headers.set('X-Debug-PostLoginRedirect', postLoginRedirect)
+  headers.set('X-Debug-FinalUrl', finalRedirectUrl)
+  cookieHeaders.forEach((cookie) => headers.append('Set-Cookie', cookie))
+
+  return new Response(null, { status: 302, headers })
+  // #endregion
 }
