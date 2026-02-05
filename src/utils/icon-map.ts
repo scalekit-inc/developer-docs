@@ -71,6 +71,7 @@ import IconSdk from '~icons/material-symbols/sdk-outline-rounded'
 import IconMdiCubeOutline from '~icons/mdi/cube-outline'
 
 import IconPostman from '~icons/lineicons/postman'
+import IconNpm from '~icons/hugeicons/npm'
 import IconTablerServerSpark from '~icons/tabler/server-spark'
 import IconStreamlineUserSyncOnlineInPersonRemix from '~icons/streamline/user-sync-online-in-person-remix'
 import IconFluentPeopleCommunity16Regular from '~icons/fluent/people-community-16-regular'
@@ -197,6 +198,7 @@ export const iconMap = {
   api: IconApi,
   sdk: IconSdk,
   postman: IconPostman,
+  npm: IconNpm,
   'mcp-server': IconTablerServerSpark,
   server: IconTablerServerSpark,
   sync: IconStreamlineUserSyncOnlineInPersonRemix,
