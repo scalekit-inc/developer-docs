@@ -60,23 +60,28 @@
   /**
    * Fetch email_hash from backend API
    * The email_hash is calculated server-side by ScaleKit for identity verification
+   * TODO: Uncomment when API is ready for deployment
    */
   var fetchEmailHash = function () {
-    return fetch('/api/v1/users/support-hash', {
-      method: 'GET',
-      credentials: 'include',
-    })
-      .then(function (response) {
-        if (!response.ok) return null
-        return response.json()
-      })
-      .then(function (data) {
-        if (!data) return null
-        return data.support_hash || data.email_hash || null
-      })
-      .catch(function () {
-        return null
-      })
+    // TODO: Uncomment when API is ready for deployment
+    // return fetch('/api/v1/users/support-hash', {
+    //   method: 'GET',
+    //   credentials: 'include',
+    // })
+    //   .then(function (response) {
+    //     if (!response.ok) return null
+    //     return response.json()
+    //   })
+    //   .then(function (data) {
+    //     if (!data) return null
+    //     return data.support_hash || data.email_hash || null
+    //   })
+    //   .catch(function () {
+    //     return null
+    //   })
+
+    // Temporarily disabled - returns null until API is ready
+    return Promise.resolve(null)
   }
 
   var getCachedSupportHash = function () {

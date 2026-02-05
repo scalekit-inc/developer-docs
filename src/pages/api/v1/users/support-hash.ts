@@ -29,12 +29,13 @@ export const GET: APIRoute = async (context) => {
     })
   }
 
+  // TODO: Uncomment when API is ready for deployment
   // Build API URL from SCALEKIT_AUTHORIZE_URL (remove /oauth/authorize suffix)
-  const authorizeUrl = import.meta.env.SCALEKIT_AUTHORIZE_URL ?? ''
-  const baseUrl = authorizeUrl.replace('/oauth/authorize', '')
-  const supportHashUrl = `${baseUrl}/api/v1/users/support-hash`
+  // const authorizeUrl = import.meta.env.SCALEKIT_AUTHORIZE_URL ?? ''
+  // const baseUrl = authorizeUrl.replace('/oauth/authorize', '')
+  // const supportHashUrl = `${baseUrl}/api/v1/users/support-hash`
 
-  // TODO: Uncomment this when we have a way to get the support hash on auth.scalekit.com
+  // TODO: Uncomment when API is ready for deployment
   // try {
   //   const headers: Record<string, string> = {
   //     Authorization: `Bearer ${accessToken}`,
@@ -64,4 +65,10 @@ export const GET: APIRoute = async (context) => {
   //     headers: { 'Content-Type': 'application/json' },
   //   })
   // }
+
+  // Temporarily disabled - returns 503 until API is ready
+  return new Response(JSON.stringify({ error: 'Service temporarily unavailable' }), {
+    status: 503,
+    headers: { 'Content-Type': 'application/json' },
+  })
 }
