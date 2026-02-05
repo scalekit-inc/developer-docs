@@ -99,5 +99,20 @@ export const GET: APIRoute = async (context) => {
   context.cookies.delete('sk_pkce_state', { path: '/' })
   context.cookies.delete('sk_post_login_redirect', { path: '/' })
 
-  return context.redirect(postLoginRedirect)
+  // Ensure redirect URL is clean and absolute (required for Netlify middleware mode)
+  // Netlify middleware mode may preserve query params on relative redirects
+  let cleanRedirect = postLoginRedirect
+
+  // Remove any query parameters or fragments from the redirect path
+  const pathnameOnly = cleanRedirect.split('?')[0].split('#')[0]
+  cleanRedirect = pathnameOnly || '/'
+
+  // Ensure it starts with /
+  if (!cleanRedirect.startsWith('/')) {
+    cleanRedirect = '/'
+  }
+
+  // Use absolute URL to prevent Netlify from preserving query parameters
+  const redirectUrl = new URL(cleanRedirect, context.url.origin)
+  return context.redirect(redirectUrl.toString())
 }
