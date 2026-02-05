@@ -26,47 +26,9 @@ function isProtectedPath(pathname: string): boolean {
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url
 
-  // #region agent log
-  if (pathname.startsWith('/auth/callback')) {
-    fetch('http://127.0.0.1:7242/ingest/18f42a52-d518-4397-98e5-b904bddd7feb', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        location: 'middleware.ts:callback-entry',
-        message: 'Middleware handling callback',
-        data: { pathname, fullUrl: context.url.toString(), search: context.url.search },
-        timestamp: Date.now(),
-        sessionId: 'debug-session',
-        hypothesisId: 'D',
-      }),
-    }).catch(() => {})
-  }
-  // #endregion
-
   // Only allow access to public paths without authentication
   if (isPublicPath(pathname)) {
-    const response = await next()
-    // #region agent log
-    if (pathname.startsWith('/auth/callback')) {
-      fetch('http://127.0.0.1:7242/ingest/18f42a52-d518-4397-98e5-b904bddd7feb', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: 'middleware.ts:callback-response',
-          message: 'Middleware got response from callback',
-          data: {
-            status: response.status,
-            locationHeader: response.headers.get('location'),
-            responseHeaders: Object.fromEntries(response.headers.entries()),
-          },
-          timestamp: Date.now(),
-          sessionId: 'debug-session',
-          hypothesisId: 'D',
-        }),
-      }).catch(() => {})
-    }
-    // #endregion
-    return response
+    return next()
   }
 
   // Require authentication for protected paths

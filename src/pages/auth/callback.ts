@@ -208,10 +208,11 @@ export const GET: APIRoute = async (context) => {
   }).catch(() => {})
   // #endregion
 
-  // #region agent log - Return manual Response to bypass potential context.redirect() issues
+  // #region agent log - Use client-side redirect to bypass Netlify query param merging
   const finalRedirectUrl = redirectUrl.toString()
+
   // Create cookies as Set-Cookie headers
-  const cookieHeaders = []
+  const cookieHeaders: string[] = []
   if (tokenData.access_token) {
     cookieHeaders.push(
       `sk_access_token=${tokenData.access_token}; HttpOnly; ${secureCookie ? 'Secure;' : ''} SameSite=Lax; Path=/; Max-Age=${maxAge}`,
@@ -233,12 +234,27 @@ export const GET: APIRoute = async (context) => {
   cookieHeaders.push('sk_post_login_redirect=; Path=/; Max-Age=0')
 
   const headers = new Headers()
-  headers.set('Location', finalRedirectUrl)
+  headers.set('Content-Type', 'text/html; charset=utf-8')
+  headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
   headers.set('X-Debug-CleanRedirect', cleanRedirect)
   headers.set('X-Debug-PostLoginRedirect', postLoginRedirect)
   headers.set('X-Debug-FinalUrl', finalRedirectUrl)
   cookieHeaders.forEach((cookie) => headers.append('Set-Cookie', cookie))
 
-  return new Response(null, { status: 302, headers })
+  // Return HTML page with client-side redirect to bypass Netlify's redirect query param merging
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="0;url=${finalRedirectUrl}">
+  <title>Redirecting...</title>
+  <script>window.location.replace("${finalRedirectUrl}");</script>
+</head>
+<body>
+  <p>Redirecting to <a href="${finalRedirectUrl}">${finalRedirectUrl}</a>...</p>
+</body>
+</html>`
+
+  return new Response(html, { status: 200, headers })
   // #endregion
 }
