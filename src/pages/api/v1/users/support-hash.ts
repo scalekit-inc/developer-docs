@@ -34,33 +34,34 @@ export const GET: APIRoute = async (context) => {
   const baseUrl = authorizeUrl.replace('/oauth/authorize', '')
   const supportHashUrl = `${baseUrl}/api/v1/users/support-hash`
 
-  try {
-    const headers: Record<string, string> = {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    }
+  // TODO: Uncomment this when we have a way to get the support hash on auth.scalekit.com
+  // try {
+  //   const headers: Record<string, string> = {
+  //     Authorization: `Bearer ${accessToken}`,
+  //     'Content-Type': 'application/json',
+  //   }
 
-    const response = await fetch(supportHashUrl, {
-      method: 'GET',
-      headers,
-    })
+  //   const response = await fetch(supportHashUrl, {
+  //     method: 'GET',
+  //     headers,
+  //   })
 
-    if (!response.ok) {
-      return new Response(JSON.stringify({ error: 'Failed to get support hash' }), {
-        status: response.status,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
+  //   if (!response.ok) {
+  //     return new Response(JSON.stringify({ error: 'Failed to get support hash' }), {
+  //       status: response.status,
+  //       headers: { 'Content-Type': 'application/json' },
+  //     })
+  //   }
 
-    const data = await response.json()
-    const supportHash = data?.support_hash || data?.email_hash || null
-    return new Response(JSON.stringify({ support_hash: supportHash, email_hash: supportHash }), {
-      headers: { 'Content-Type': 'application/json' },
-    })
-  } catch {
-    return new Response(JSON.stringify({ error: 'Failed to fetch support hash' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
+  //   const data = await response.json()
+  //   const supportHash = data?.support_hash || data?.email_hash || null
+  //   return new Response(JSON.stringify({ support_hash: supportHash, email_hash: supportHash }), {
+  //     headers: { 'Content-Type': 'application/json' },
+  //   })
+  // } catch {
+  //   return new Response(JSON.stringify({ error: 'Failed to fetch support hash' }), {
+  //     status: 500,
+  //     headers: { 'Content-Type': 'application/json' },
+  //   })
+  // }
 }
