@@ -218,6 +218,11 @@ export const sidebar = [
         ],
       },
       createSpacing(),
+      createSectionHeader('Testing Utilities'),
+      'dev-kit/tools/scalekit-dryrun',
+      'dev-kit/tools/sso-simulator',
+      'dev-kit/tools/use-scalekit-credentials',
+      createSpacing(),
       createSectionHeader('DEV TOOLS'),
       {
         label: 'SDKs',
@@ -258,7 +263,7 @@ export const sidebar = [
       createSectionHeader('Workflows'),
       {
         label: 'Webhooks',
-        collapsed: false,
+        collapsed: true,
         items: [
           'authenticate/implement-workflows/implement-webhooks',
           'guides/webhooks-best-practices',
@@ -266,7 +271,7 @@ export const sidebar = [
       },
       {
         label: 'Interceptors',
-        collapsed: false,
+        collapsed: true,
         items: [
           'authenticate/interceptors/auth-flow-interceptors',
           'reference/interceptors/triggers',
