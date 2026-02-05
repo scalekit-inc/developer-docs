@@ -11,7 +11,7 @@
  * See: https://docs.netlify.com/build/functions/get-started/
  */
 import { getAlgoliaConfig, streamAskAiAnswer } from './lib/algolia'
-import { postSlackMessage, stripSlackMentions, verifySlackSignature } from './lib/slack'
+import { getHeader, postSlackMessage, stripSlackMentions, verifySlackSignature } from './lib/slack'
 import type {
   SlackAppMentionEvent,
   SlackEventCallbackPayload,
@@ -25,6 +25,32 @@ import type {
  */
 interface NetlifyContext {
   waitUntil: (promise: Promise<unknown>) => void
+}
+
+const processedEventIds = new Map<string, number>()
+const EVENT_ID_TTL_MS = 10 * 60 * 1000
+
+/**
+ * Checks whether a Slack event ID has already been processed.
+ *
+ * @param {string} eventId - Slack event ID to verify.
+ * @returns {boolean} True when the event has already been handled.
+ */
+function isDuplicateEvent(eventId: string): boolean {
+  const now = Date.now()
+
+  for (const [id, timestamp] of processedEventIds) {
+    if (now - timestamp > EVENT_ID_TTL_MS) {
+      processedEventIds.delete(id)
+    }
+  }
+
+  if (processedEventIds.has(eventId)) {
+    return true
+  }
+
+  processedEventIds.set(eventId, now)
+  return false
 }
 
 /**
@@ -68,6 +94,13 @@ export default async function handler(request: Request, context: NetlifyContext)
     return new Response(signatureCheck.reason ?? 'Invalid signature.', { status: 401 })
   }
 
+  const retryNum = getHeader(headers, 'x-slack-retry-num')
+  if (retryNum) {
+    const retryReason = getHeader(headers, 'x-slack-retry-reason')
+    console.info('[slack] Ignoring Slack retry request.', { retryNum, retryReason })
+    return new Response('OK', { status: 200 })
+  }
+
   // Preflight configuration check
   const missingEnvVars = [
     'SLACK_BOT_TOKEN',
@@ -99,6 +132,13 @@ export default async function handler(request: Request, context: NetlifyContext)
 
   // Handle app_mention events
   if (isEventCallback(payload) && payload.event?.type === 'app_mention') {
+    if (payload.event_id && isDuplicateEvent(payload.event_id)) {
+      console.info('[slack] Duplicate Slack event received, skipping.', {
+        eventId: payload.event_id,
+      })
+      return new Response('OK', { status: 200 })
+    }
+
     const slackEvent = payload.event as SlackAppMentionEvent
 
     // Skip bot messages
