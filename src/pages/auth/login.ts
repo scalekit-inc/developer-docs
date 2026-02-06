@@ -5,7 +5,7 @@ export const prerender = false
 
 export const GET: APIRoute = async (context) => {
   const authorizeUrl =
-    import.meta.env.SCALEKIT_AUTHORIZE_URL ?? 'https://placeholder.scalekit.com/oauth/authorize'
+    import.meta.env.SCALEKIT_AUTHORIZE_URL ?? 'https://auth.scalekit.com/oauth/authorize'
   const clientId = import.meta.env.SCALEKIT_CLIENT_ID ?? ''
   const redirectUri =
     import.meta.env.SCALEKIT_REDIRECT_URI ?? new URL('/auth/callback', context.url).toString()
@@ -50,6 +50,7 @@ export const GET: APIRoute = async (context) => {
   authUrl.searchParams.set('state', state)
   authUrl.searchParams.set('code_challenge', codeChallenge)
   authUrl.searchParams.set('code_challenge_method', 'S256')
+  authUrl.searchParams.set('prompt', 'none')
 
   return context.redirect(authUrl.toString())
 }

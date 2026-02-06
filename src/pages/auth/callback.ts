@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro'
+import { genCodeChallenge, genCodeVerifier, genRandomString } from '@/utils/auth/pkce'
 
 export const prerender = false
 
@@ -11,6 +12,42 @@ export const GET: APIRoute = async (context) => {
 
   const code = context.url.searchParams.get('code')
   const returnedState = context.url.searchParams.get('state')
+  const error = context.url.searchParams.get('error')
+
+  // Handle OAuth error responses (like prompt=none failures)
+  if (error === 'login_required') {
+    // User is not logged in, construct login URL without prompt=none and redirect
+    const authorizeUrl =
+      import.meta.env.SCALEKIT_AUTHORIZE_URL ?? 'https://auth.scalekit.com/oauth/authorize'
+    const scope = import.meta.env.SCALEKIT_SCOPES ?? 'openid email profile offline_access'
+
+    const codeVerifier = genCodeVerifier()
+    const state = genRandomString()
+    const codeChallenge = await genCodeChallenge(codeVerifier)
+
+    const secureCookie = !import.meta.env.DEV
+    const pkceCookieOptions = {
+      httpOnly: true,
+      secure: secureCookie,
+      sameSite: 'lax' as const,
+      path: '/',
+      maxAge: 60 * 10, // 10 minutes
+    }
+
+    context.cookies.set('sk_pkce_verifier', codeVerifier, pkceCookieOptions)
+    context.cookies.set('sk_pkce_state', state, pkceCookieOptions)
+
+    const authUrl = new URL(authorizeUrl)
+    authUrl.searchParams.set('client_id', clientId)
+    authUrl.searchParams.set('redirect_uri', redirectUri)
+    authUrl.searchParams.set('response_type', 'code')
+    authUrl.searchParams.set('scope', scope)
+    authUrl.searchParams.set('state', state)
+    authUrl.searchParams.set('code_challenge', codeChallenge)
+    authUrl.searchParams.set('code_challenge_method', 'S256')
+
+    return context.redirect(authUrl.toString())
+  }
 
   const storedState = context.cookies.get('sk_pkce_state')?.value
   const codeVerifier = context.cookies.get('sk_pkce_verifier')?.value
