@@ -21,11 +21,11 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 import { Aside } from '@astrojs/starlight/components';
 
 
-Manually assigning roles to users in your application can consume significant time for your customers (usually, administrators). Scalekit notifies your app through webhooks regarding the role changes in the directory. Your can use the event payload to update user's role in your application real-time.
+Manually assigning roles to users in your application consumes time and creates room for errors for your customers (usually, administrators). Scalekit monitors role changes in connected directories and notifies your application through webhooks. You use the event payload to keep user roles in your application in sync with directory groups in near real time.
 
 ## How group-based role assignment works
 
-Organization administrators commonly manage varying access levels by grouping users in their directory.  For example, to manage access levels to Github, they would create groups for each role and assign users to those groups. In this case an "Maintainer" group will have all ther users who should have maintainer access to the repository.
+Organization administrators commonly manage varying access levels by grouping users in their directory. For example, to manage access levels to GitHub, they create groups for each role and assign users to those groups. In this case a **Maintainer** group includes all the users who should have maintainer access to the repository.
 
 ```d2
 title: "Group-based role assignment" {
@@ -48,7 +48,7 @@ DP.Engineering Group -> Scalekit -> YA.Editor Role
 DP.Managers Group -> Scalekit -> YA.Admin Role
 ```
 
- This enables your app to take necessary actions such as creating or modifying user roles as directed by the organization's administrator.
+This enables your application to take necessary actions such as creating or modifying user roles as directed by the organization's administrators.
 
 <Aside>
 Scalekit delivers **normalized** information regardless of which directory provider your customers use. This eliminates the need for you to transform data across different providers. Users can belong to multiple groups and may receive multiple roles in your application, depending on how you handle roles.
@@ -56,63 +56,70 @@ Scalekit delivers **normalized** information regardless of which directory provi
 
 ## Set up automatic role assignment
 
-To enable administrators to map groups to roles in your app, complete these steps:
+To enable administrators to map directory groups to roles in your app, complete these steps:
 
-1. Open Scalekit dashboard
-2. Go to **Roles & Permissions**
-3. Manage in the **Roles** and **Permissions**
-4. Register your app's roles and permissions
+1. Open the Scalekit dashboard.
+2. Go to **Roles & Permissions**.
+3. Use the **Roles** and **Permissions** sections to configure your application's authorization model.
+4. Register your app's roles and permissions so Scalekit can reference them in mappings and webhook events.
 
-![](@/assets/docs/group-based-role-assignment/2026-02-06-16-15-49.png)
+Select **Add role** to create a new role.
 
-Specify the default roles your app wants to assign who creates an workspace/organization (creator) and members who belong to the same organization. All the added roles are available for you to set them as default roles that can be assigned.
+Choose clear display names and descriptions for your roles. This helps customers understand and align the roles with the access levels they already maintain in their directory.
 
-![](@/assets/docs/group-based-role-assignment/default-roles.png)
+![Scalekit roles configuration page showing list of application roles](@/assets/docs/group-based-role-assignment/add-role-page.png)
 
-Choose clear display names and descriptions for your roles. This helps customers understand and align with the access levels in the admin portal.
+The roles page lists a couple of sample roles by default. You can edit or remove these and add new roles that match your application's authorization model.
 
-![](@/assets/docs/group-based-role-assignment/add-role-page.png)
+![Scalekit roles list showing default and custom roles](@/assets/docs/group-based-role-assignment/2026-02-06-16-15-49.png)
+
+Specify the default roles your app wants to assign to the organization creator and to members who belong to the same organization. All added roles are available for you to select as default roles.
+
+![Scalekit default roles configuration for creators and members](@/assets/docs/group-based-role-assignment/default-roles.png)
 
 ### Connect organization groups to app roles
 
-After you create the roles, they reflect the roles in your app. Users receive role assignments based on the groups they belong to.
+After you create roles, they represent the roles in your app that you want directory groups to control. Users receive role assignments in your app based on the groups they belong to in their directory.
 
 You can set up this mapping in two ways:
 
-1. Set up mapping in the Scalekit dashboard on behalf of organization administrators. Select the 'Organization' and go to 'SCIM Provisioning' tab.
-2. Share the [admin portal link](/guides/admin-portal#generate-shareable-portal-link) with organization administrators so they can set up the mapping themselves
+1. Configure mappings in the Scalekit dashboard on behalf of organization administrators. Select the organization and go to the **SCIM provisioning** tab.
+2. Share the [admin portal link](/guides/admin-portal#generate-shareable-portal-link) with organization administrators so they can configure the mappings themselves.
 
-Scalekit automatically displays mapping options in both the Scalekit dashboard and the admin portal. This allows administrators to connect organization groups to app roles.
+Scalekit automatically displays mapping options in both the Scalekit dashboard and the admin portal. This allows administrators to connect organization groups to app roles without custom logic in your application.
 
-![](@/assets/docs/automatically-assign-roles/mapping/2.png)
+![Mapping directory groups to application roles in Scalekit](@/assets/docs/automatically-assign-roles/mapping/2.png)
 
 ## Handle role update events
 
-Scalekit continuously monitors updates from your customers' directory providers and sends event payloads to your application through a registered webhook endpoint. To set up these endpoints and manage subscriptions, note the 'Webhooks' option in the Scalekit dashboard.
+Scalekit continuously monitors updates from your customers' directory providers and sends event payloads to your application through a registered webhook endpoint. To set up these endpoints and manage subscriptions, use the **Webhooks** option in the Scalekit dashboard.
 
-Listen for the `organization.directory.user_updated` event to determine a user's role from the payload. Scalekit automatically includes a role property relevant to your app, based on the role information you configured in the Scalekit dashboard.
+Listen for the `organization.directory.user_updated` event to determine a user's roles from the payload. Scalekit automatically includes role information that is relevant to your app, based on the roles you configured in the Scalekit dashboard.
 
 
 <Tabs>
   <TabItem label="Node.js">
     ```javascript title="Create a webhook endpoint for role updates"
-    // Webhook endpoint
+    // Webhook endpoint to receive directory role updates
     app.post('/webhook', async (req, res) => {
-      // Extract event data
+      // Extract event data from the webhook payload
       const event = req.body;
-      const { email, name, roles } = event.data;
-      console.log('Admin added user to Viewer Group -> Scalekit informs Your App\n');
+      const { email, roles } = event.data;
 
-      // Destructure role_name from roles array
-      const roleName = roles.length > 0 ? roles[0].role_name : null;
+      console.log('Received directory role update for:', email);
+
+      // Extract role_name from the roles array, if present
+      const roleName = Array.isArray(roles) && roles.length > 0 ? roles[0].role_name : null;
       console.log('Role name received:', roleName);
 
-      // Logic to update user role and permissions
-      await assignRole(roleName, email);
-      console.log('App updated access for user:', email);
+      // Business logic: update user role and permissions in your app
+      if (roleName) {
+        await assignRole(roleName, email);
+        console.log('Updated access for user:', email);
+      }
 
       res.status(201).json({
-        message: 'Role assigned',
+        message: 'Role processed',
       });
     });
     ```
@@ -120,29 +127,33 @@ Listen for the `organization.directory.user_updated` event to determine a user's
 
   <TabItem label="Python">
     ```python title="Create a webhook endpoint for role updates"
+    import json
     from fastapi import FastAPI, Request
+    from fastapi.responses import JSONResponse
 
     app = FastAPI()
 
+
     @app.post("/webhook")
     async def api_webhook(request: Request):
-        # Parse request body
+        # Parse request body from the webhook payload
         body = await request.body()
         payload = json.loads(body.decode())
 
         # Extract user data
-        user_roles = payload['data']['roles']
-        user_email = payload['data']['email']
+        user_roles = payload["data"].get("roles", [])
+        user_email = payload["data"].get("email")
 
-        print("User Roles:", str(roles))
-        print("User email:", str(email))
+        print("User roles:", user_roles)
+        print("User email:", user_email)
 
-        # Business logic to assign role
-        await assign_role(roles[0], email)
+        # Business logic: assign role in your app
+        if user_roles and user_email:
+            await assign_role(user_roles[0], user_email)
 
         return JSONResponse(
             status_code=201,
-            content=''
+            content={"message": "Role processed"},
         )
     ```
   </TabItem>
@@ -150,7 +161,7 @@ Listen for the `organization.directory.user_updated` event to determine a user's
   <TabItem label="Java">
     ```java title="Create a webhook endpoint for role updates"
     @PostMapping("/webhook")
-    public String webhook(@RequestBody String body, @RequestHeader Map<String, String> headers) {
+    public ResponseEntity<Map<String, String>> webhook(@RequestBody String body, @RequestHeader Map<String, String> headers) {
       ObjectMapper mapper = new ObjectMapper();
 
       try {
@@ -158,15 +169,17 @@ Listen for the `organization.directory.user_updated` event to determine a user's
         JsonNode roles = node.get("data").get("roles");
         String email = node.get("data").get("email").asText();
 
-        System.out.println(roles);
-        System.out.println(email);
-        // Add role to user
+        System.out.println("Roles: " + roles);
+        System.out.println("Email: " + email);
 
+        // TODO: Add role to user in your application
+
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("message", "Role processed");
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
       } catch (IOException e) {
-        return "error";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
       }
-
-      return "ok";
     }
     ```
   </TabItem>
@@ -174,7 +187,7 @@ Listen for the `organization.directory.user_updated` event to determine a user's
   <TabItem label="Go">
     ```go title="Create a webhook endpoint for role updates"
     mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
-        // Read request body
+        // Read request body from the webhook payload
         bodyBytes, err := io.ReadAll(r.Body)
         if err != nil {
             http.Error(w, err.Error(), http.StatusBadRequest)
@@ -186,23 +199,23 @@ Listen for the `organization.directory.user_updated` event to determine a user's
             Data map[string]interface{} `json:"data"`
         }
 
-        err = json.Unmarshal(bodyBytes, &body)
-        if err != nil {
+        if err := json.Unmarshal(bodyBytes, &body); err != nil {
             http.Error(w, err.Error(), http.StatusBadRequest)
             return
         }
 
         // Extract user data
-        roles := body.Data["roles"]
-        email := body.Data["email"]
+        roles, _ := body.Data["roles"]
+        email, _ := body.Data["email"]
 
-        fmt.Println("Roles: ", roles)
-        fmt.Println("Email: ", email)
+        fmt.Println("Roles:", roles)
+        fmt.Println("Email:", email)
 
-        w.WriteHeader(http.StatusOK)
+        w.WriteHeader(http.StatusCreated)
+        _, _ = w.Write([]byte(`{"message":"Role processed"}`))
     })
     ```
   </TabItem>
 </Tabs>
 
-Refer to all the [directory webhooks](/directory/reference/directory-events/) you can subscribe.
+Refer to the list of [directory webhook events](/directory/reference/directory-events/) you can subscribe to for more event types.
