@@ -1,0 +1,157 @@
+---
+title: "Provision users and groups with SCIM"
+description: Automate user and group lifecycle management using SCIM provisioning
+sidebar:
+  label: "SCIM provisioning"
+  order: 4
+  tableOfContents: true
+tags: [scim, provisioning, users, groups, organizations, sso, automation]
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-lg);
+      }
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+---
+
+import {
+  Steps, Aside,
+} from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence';
+
+Scalekit supports user and group provisioning using the [SCIM protocol](/directory/guides/user-provisioning-basics/), allowing your customers to manage access to their organization in your app directly from their directory provider. With SCIM, the directory becomes the source of truth for organization membership, user profile attributes, and access — eliminating manual invites, role drift, and delayed deprovisioning.
+SCIM ensures that access to your application always reflects the organization’s directory state, from onboarding to offboarding.
+
+Using SCIM, your customers can:
+
+- Add users to their organization
+- Keep user attributes (like name, email or role) in sync
+- Remove users from their organization
+- Control application roles through directory group membership
+
+SCIM provisioning enables end-to-end lifecycle management, ensuring access is granted, updated, and revoked automatically as users move through the organization.
+
+---
+
+### Who should use SCIM provisioning?
+
+SCIM provisioning is recommended for:
+
+- Enterprise customers that require **centralized identity management**
+- Teams already using a directory provider like Okta, Azure AD (Entra ID), or Google Workspace
+- Customers that need **group-based access control** and automated deprovisioning
+
+---
+
+<details>
+<summary> <IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the SCIM provisioning flow </summary>
+
+```d2 pad=50
+title: "SCIM Provisioning Flow" {
+  near: top-center
+  shape: text
+  style.font-size: 20
+}
+
+shape: sequence_diagram
+
+Admin -> Directory Provider: Configure SCIM integration
+Directory Provider -> Scalekit: SCIM API calls (Users, Groups)
+Scalekit -> Scalekit: Validate and authorize request
+Scalekit -> Scalekit: Sync users and group memberships
+Scalekit -> Scalekit: Assign user roles based on groups
+Scalekit -> Your App: Reflect updated users, organization memberships and access
+```
+
+</details>
+
+### Manage SCIM provisioning
+
+<Steps>
+1. ## Register organization-owned domains
+   
+   Register the email domains owned by the organization. SCIM provisioning only works for users whose email domain matches one of the organization's registered **Organization domains**. This ensures that only verified members of the organization can be automatically provisioned.
+
+   **Contractors and external users** with non-matching domains (e.g., `joe@ext.yourapp.com`) cannot be automatically provisioned via SCIM. These users must be [manually invited](/fsa/guides/user-invitations/) to join the organization. This ensures that unauthorized users cannot obtain access automatically.
+
+   Navigate to **Dashboard** > **Organizations** and select the target organization > **Overview** > **Organization Domains** section to register organization domains.
+
+2. ## Enable SCIM provisioning for the organization
+
+   SCIM provisioning should be enabled for the target organization either through the Scalekit Dashboard or the self-service [Admin Portal](/guides/admin-portal/). Follow the detailed setup instructions [here](/guides/user-management/scim-provisioning/).
+   
+3. ## Provision users and groups from the directory
+   
+   Once SCIM provisioning is enabled for the organization, the directory becomes the system of record for that organization in your app. Organization administrators can manage access directly from their IdP by:
+   - Assigning users or groups to your application
+   - Updating user profile attributes
+   - Removing users or groups to revoke access
+
+4. ## Group-based role assignment
+
+   Scalekit supports assigning roles to users in your app based on directory group membership. This enables consistent, policy-driven access control managed entirely from the directory provider.
+   - Map directory groups to application roles in Scalekit
+   - Users receive roles automatically when added to mapped groups
+   - Roles are revoked when users are removed from those groups
+
+    <Aside type="note">
+   Users without an explicit role mapping are assigned the organization’s default member role. This applies when:
+    - A directory group is not mapped to a role, or 
+    - A provisioned user is not a member of any mapped group 
+    </Aside>
+   
+5. ## User attribute mapping
+   
+   Scalekit automatically maps the following user attributes from the directory to the Scalekit user profile:
+   - `email`
+   - `preferred_username`
+   - `name`
+   - `given_name`
+   - `family_name`
+   - `picture`
+   - `phone_number`
+   - `locale`
+   - `custom_attributes`
+   
+   When attributes change in the directory, Scalekit updates the user profile automatically during SCIM synchronization.
+</Steps>
+---
+
+### Supported directory providers
+
+Scalekit supports SCIM provisioning with common enterprise directory providers including Okta, Entra ID (Azure AD), and Google Workspace. See the full list of supported providers [here](/guides/integrations/scim-integrations/).
+
+---
+
+### Common SCIM provisioning scenarios
+
+<details>
+<summary>Why isn't a user appearing in Scalekit after SCIM sync?</summary>
+Check the following:
+- The user is assigned to the Scalekit application in the directory
+- The user has an email address defined in the directory
+- The user’s email domain matches a registered organization domain
+- The SCIM bearer token is valid and active
+</details>
+
+<details>
+<summary>If a user’s email is changed in the directory, will this be reflected on the user’s email in Scalekit?</summary>
+No. Scalekit treats email as an immutable, unique identifier. If a directory attempts to update a user’s email, the SCIM update request will be rejected.
+</details>
+
+<details>
+<summary>Can user lifecycle management happen only via SCIM if a user is provisioned through a SCIM connection?</summary>
+No. SCIM is not an exclusive control plane. Even if a user is provisioned via a SCIM connection, you can still manage that user using Scalekit APIs or SDKs. Scalekit follows a **last-write-wins** model. The most recent action — whether it comes from SCIM or from an API/SDK call — will be reflected on the user.
+This model gives you flexibility to:
+- Perform administrative or break-glass actions from your application
+- Run migrations or bulk updates using APIs
+- Rely on SCIM for ongoing, automated lifecycle management
+</details>
+
+<details>
+<summary>Can both SSO and SCIM work for an organization?</summary>
+Yes. SSO handles authentication (how users log in), while SCIM handles lifecycle management (how users are created, updated, and removed). They are complementary and commonly used together.
+</details>
