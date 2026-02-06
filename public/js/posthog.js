@@ -35,7 +35,9 @@ const identifyFromSession = () => {
     window.posthog.__sk_last_uid = uid
   }
   if (xoid && xoid !== lastXoid && typeof window.posthog.group === 'function') {
-    window.posthog.group('workspace', xoid)
+    window.posthog.group('workspace', xoid, {
+      workspaceId: xoid,
+    })
     window.posthog.__sk_last_xoid = xoid
   }
 
