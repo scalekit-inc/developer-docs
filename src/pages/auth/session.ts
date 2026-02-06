@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro'
+import { getUserinfoUrl } from '@/utils/auth/auth-config'
 import { verifyJwt } from '@/utils/auth/jwt'
 
 export const prerender = false
@@ -31,7 +32,7 @@ export const GET: APIRoute = async (context) => {
     })
   }
 
-  const userinfoUrl = import.meta.env.SCALEKIT_USERINFO_URL ?? ''
+  const userinfoUrl = getUserinfoUrl()
   let userInfo: Record<string, unknown> | null = null
 
   if (userinfoUrl) {

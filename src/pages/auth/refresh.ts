@@ -1,12 +1,19 @@
 import type { APIRoute } from 'astro'
+import { getClientId, getTokenUrl } from '@/utils/auth/auth-config'
+import {
+  clearSessionCookies,
+  getSecureCookieFlag,
+  getTokenMaxAges,
+  setAuthCookies,
+} from '@/utils/auth/auth-cookies'
+import { requestToken, parseTokenResponse } from '@/utils/auth/auth-tokens'
 import { verifyJwt } from '@/utils/auth/jwt'
 
 export const prerender = false
 
 export const POST: APIRoute = async (context) => {
-  const tokenUrl =
-    import.meta.env.SCALEKIT_TOKEN_URL ?? 'https://placeholder.scalekit.com/oauth/token'
-  const clientId = import.meta.env.SCALEKIT_CLIENT_ID ?? ''
+  const tokenUrl = getTokenUrl()
+  const clientId = getClientId()
 
   const refreshToken = context.cookies.get('sk_refresh_token')?.value
 
@@ -18,21 +25,18 @@ export const POST: APIRoute = async (context) => {
   }
 
   // Exchange refresh token for new access token
-  const tokenResponse = await fetch(tokenUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
+  const tokenResponse = await requestToken(
+    tokenUrl,
+    new URLSearchParams({
       grant_type: 'refresh_token',
       refresh_token: refreshToken,
       client_id: clientId,
-    }).toString(),
-  })
+    }),
+  )
 
   if (!tokenResponse.ok) {
     // Refresh token expired or invalid - clear all auth cookies
-    context.cookies.delete('sk_access_token', { path: '/' })
-    context.cookies.delete('sk_id_token', { path: '/' })
-    context.cookies.delete('sk_refresh_token', { path: '/auth/refresh' })
+    clearSessionCookies(context)
 
     return new Response(JSON.stringify({ error: 'Refresh token failed' }), {
       status: 401,
@@ -40,13 +44,7 @@ export const POST: APIRoute = async (context) => {
     })
   }
 
-  const tokenData = (await tokenResponse.json()) as {
-    access_token?: string
-    id_token?: string
-    refresh_token?: string
-    expires_in?: number
-    refresh_token_expires_in?: number
-  }
+  const tokenData = await parseTokenResponse(tokenResponse)
 
   // Verify we received new tokens
   if (!tokenData.access_token && !tokenData.id_token) {
@@ -56,44 +54,10 @@ export const POST: APIRoute = async (context) => {
     })
   }
 
-  const maxAge = tokenData.expires_in ? Number(tokenData.expires_in) : 60 * 60
-  const refreshMaxAge = tokenData.refresh_token_expires_in
-    ? Number(tokenData.refresh_token_expires_in)
-    : 30 * 24 * 60 * 60
-  const secureCookie = !import.meta.env.DEV
+  const { maxAge, refreshMaxAge } = getTokenMaxAges(tokenData)
+  const secureCookie = getSecureCookieFlag()
 
-  // Update access token
-  if (tokenData.access_token) {
-    context.cookies.set('sk_access_token', tokenData.access_token, {
-      httpOnly: true,
-      secure: secureCookie,
-      sameSite: 'lax',
-      path: '/',
-      maxAge,
-    })
-  }
-
-  // Update ID token
-  if (tokenData.id_token) {
-    context.cookies.set('sk_id_token', tokenData.id_token, {
-      httpOnly: true,
-      secure: secureCookie,
-      sameSite: 'lax',
-      path: '/',
-      maxAge,
-    })
-  }
-
-  // Update refresh token (rotation - provider may return new one)
-  if (tokenData.refresh_token) {
-    context.cookies.set('sk_refresh_token', tokenData.refresh_token, {
-      httpOnly: true,
-      secure: secureCookie,
-      sameSite: 'strict',
-      path: '/auth/refresh',
-      maxAge: refreshMaxAge,
-    })
-  }
+  setAuthCookies(context, tokenData, secureCookie, maxAge, refreshMaxAge)
 
   // Return new session data
   let idTokenClaims: Record<string, unknown> | null = null

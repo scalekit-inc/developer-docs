@@ -1,4 +1,6 @@
 import type { APIRoute } from 'astro'
+import { getScalekitBaseUrl } from '@/utils/auth/auth-config'
+import { clearAllAuthCookies } from '@/utils/auth/auth-cookies'
 
 export const prerender = false
 
@@ -9,9 +11,7 @@ export const GET: APIRoute = async (context) => {
     context.url.searchParams.get('id_token') || context.cookies.get('sk_id_token')?.value || ''
 
   // Scalekit base URL from authorize URL
-  const scalekitUrl = import.meta.env.SCALEKIT_AUTHORIZE_URL
-    ? new URL(import.meta.env.SCALEKIT_AUTHORIZE_URL).origin
-    : 'https://weekendr-dev.scalekit.cloud'
+  const scalekitUrl = getScalekitBaseUrl()
 
   // Step 2: Build logout URL with id_token_hint and post_logout_redirect_uri
   const logoutUrl = new URL(`${scalekitUrl}/oidc/logout`)
@@ -19,12 +19,7 @@ export const GET: APIRoute = async (context) => {
   logoutUrl.searchParams.set('post_logout_redirect_uri', context.url.origin + '/')
 
   // Step 3: Clear all session cookies
-  context.cookies.delete('sk_access_token', { path: '/' })
-  context.cookies.delete('sk_id_token', { path: '/' })
-  context.cookies.delete('sk_refresh_token', { path: '/' })
-  context.cookies.delete('sk_pkce_verifier', { path: '/' })
-  context.cookies.delete('sk_pkce_state', { path: '/' })
-  context.cookies.delete('sk_post_login_redirect', { path: '/' })
+  clearAllAuthCookies(context)
 
   // Step 4: Return intermediate page that clears localStorage and redirects to Scalekit
   return new Response(

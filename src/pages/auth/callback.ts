@@ -1,14 +1,28 @@
 import type { APIRoute } from 'astro'
+import {
+  getAuthorizeUrl,
+  getClientId,
+  getRedirectUri,
+  getScopes,
+  getTokenUrl,
+} from '@/utils/auth/auth-config'
+import {
+  buildAuthCookieHeaders,
+  buildPkceClearCookieHeaders,
+  getSecureCookieFlag,
+  getTokenMaxAges,
+  setPkceCookies,
+} from '@/utils/auth/auth-cookies'
+import { normalizePostLoginRedirect, toAbsoluteRedirectUrl } from '@/utils/auth/auth-redirects'
+import { parseTokenResponse, requestToken } from '@/utils/auth/auth-tokens'
 import { genCodeChallenge, genCodeVerifier, genRandomString } from '@/utils/auth/pkce'
 
 export const prerender = false
 
 export const GET: APIRoute = async (context) => {
-  const tokenUrl =
-    import.meta.env.SCALEKIT_TOKEN_URL ?? 'https://placeholder.scalekit.com/oauth/token'
-  const clientId = import.meta.env.SCALEKIT_CLIENT_ID ?? ''
-  const redirectUri =
-    import.meta.env.SCALEKIT_REDIRECT_URI ?? new URL('/auth/callback', context.url).toString()
+  const tokenUrl = getTokenUrl()
+  const clientId = getClientId()
+  const redirectUri = getRedirectUri(context.url)
 
   const code = context.url.searchParams.get('code')
   const returnedState = context.url.searchParams.get('state')
@@ -17,25 +31,14 @@ export const GET: APIRoute = async (context) => {
   // Handle OAuth error responses (like prompt=none failures)
   if (error === 'login_required') {
     // User is not logged in, construct login URL without prompt=none and redirect
-    const authorizeUrl =
-      import.meta.env.SCALEKIT_AUTHORIZE_URL ?? 'https://auth.scalekit.com/oauth/authorize'
-    const scope = import.meta.env.SCALEKIT_SCOPES ?? 'openid email profile offline_access'
+    const authorizeUrl = getAuthorizeUrl()
+    const scope = getScopes()
 
     const codeVerifier = genCodeVerifier()
     const state = genRandomString()
     const codeChallenge = await genCodeChallenge(codeVerifier)
 
-    const secureCookie = !import.meta.env.DEV
-    const pkceCookieOptions = {
-      httpOnly: true,
-      secure: secureCookie,
-      sameSite: 'lax' as const,
-      path: '/',
-      maxAge: 60 * 10, // 10 minutes
-    }
-
-    context.cookies.set('sk_pkce_verifier', codeVerifier, pkceCookieOptions)
-    context.cookies.set('sk_pkce_state', state, pkceCookieOptions)
+    setPkceCookies(context, codeVerifier, state)
 
     const authUrl = new URL(authorizeUrl)
     authUrl.searchParams.set('client_id', clientId)
@@ -51,41 +54,28 @@ export const GET: APIRoute = async (context) => {
 
   const storedState = context.cookies.get('sk_pkce_state')?.value
   const codeVerifier = context.cookies.get('sk_pkce_verifier')?.value
-  let postLoginRedirect = context.cookies.get('sk_post_login_redirect')?.value ?? '/'
+  const postLoginRedirect = context.cookies.get('sk_post_login_redirect')?.value ?? '/'
 
   if (!code || !returnedState || !storedState || returnedState !== storedState || !codeVerifier) {
     return context.redirect('/auth/login?error=invalid_state')
   }
 
-  // Validate redirect URL to prevent open redirect attacks
-  // Only allow relative paths (starting with /)
-  if (postLoginRedirect && !postLoginRedirect.startsWith('/')) {
-    postLoginRedirect = '/'
-  }
-
-  const tokenResponse = await fetch(tokenUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
+  const tokenResponse = await requestToken(
+    tokenUrl,
+    new URLSearchParams({
       grant_type: 'authorization_code',
       code,
       redirect_uri: redirectUri,
       client_id: clientId,
       code_verifier: codeVerifier,
-    }).toString(),
-  })
+    }),
+  )
 
   if (!tokenResponse.ok) {
     return context.redirect('/auth/login?error=token_exchange_failed')
   }
 
-  const tokenData = (await tokenResponse.json()) as {
-    access_token?: string
-    id_token?: string
-    refresh_token?: string
-    expires_in?: number
-    refresh_token_expires_in?: number
-  }
+  const tokenData = await parseTokenResponse(tokenResponse)
 
   // Verify that at least one token was received
   // An incomplete OAuth response without tokens should not be treated as successful
@@ -93,50 +83,19 @@ export const GET: APIRoute = async (context) => {
     return context.redirect('/auth/login?error=token_exchange_failed')
   }
 
-  const maxAge = tokenData.expires_in ? Number(tokenData.expires_in) : 60 * 60
-  // Refresh tokens typically live longer (30 days default, or use provider's value)
-  const refreshMaxAge = tokenData.refresh_token_expires_in
-    ? Number(tokenData.refresh_token_expires_in)
-    : 30 * 24 * 60 * 60
-  const secureCookie = !import.meta.env.DEV
+  const { maxAge, refreshMaxAge } = getTokenMaxAges(tokenData)
+  const secureCookie = getSecureCookieFlag()
 
-  // Build clean redirect URL
-  // Remove any query parameters or fragments from the redirect path
-  const pathnameOnly = postLoginRedirect.split('?')[0].split('#')[0]
-  let cleanRedirect = pathnameOnly || '/'
-
-  // Ensure it starts with /
-  if (!cleanRedirect.startsWith('/')) {
-    cleanRedirect = '/'
-  }
-
-  // Use absolute URL for the redirect
-  const redirectUrl = new URL(cleanRedirect, context.url.origin)
-  const finalRedirectUrl = redirectUrl.toString()
+  const cleanRedirect = normalizePostLoginRedirect(postLoginRedirect)
+  const finalRedirectUrl = toAbsoluteRedirectUrl(context.url.origin, cleanRedirect)
 
   // Create cookies as Set-Cookie headers
   // Using manual headers because we return a custom Response (not context.redirect)
   // to work around Netlify middleware mode merging query params into Location header
-  const cookieHeaders: string[] = []
-  if (tokenData.access_token) {
-    cookieHeaders.push(
-      `sk_access_token=${tokenData.access_token}; HttpOnly; ${secureCookie ? 'Secure;' : ''} SameSite=Lax; Path=/; Max-Age=${maxAge}`,
-    )
-  }
-  if (tokenData.id_token) {
-    cookieHeaders.push(
-      `sk_id_token=${tokenData.id_token}; HttpOnly; ${secureCookie ? 'Secure;' : ''} SameSite=Lax; Path=/; Max-Age=${maxAge}`,
-    )
-  }
-  if (tokenData.refresh_token) {
-    cookieHeaders.push(
-      `sk_refresh_token=${tokenData.refresh_token}; HttpOnly; ${secureCookie ? 'Secure;' : ''} SameSite=Strict; Path=/auth/refresh; Max-Age=${refreshMaxAge}`,
-    )
-  }
-  // Delete PKCE cookies
-  cookieHeaders.push('sk_pkce_verifier=; Path=/; Max-Age=0')
-  cookieHeaders.push('sk_pkce_state=; Path=/; Max-Age=0')
-  cookieHeaders.push('sk_post_login_redirect=; Path=/; Max-Age=0')
+  const cookieHeaders = [
+    ...buildAuthCookieHeaders(tokenData, secureCookie, maxAge, refreshMaxAge),
+    ...buildPkceClearCookieHeaders(),
+  ]
 
   const headers = new Headers()
   headers.set('Content-Type', 'text/html; charset=utf-8')
