@@ -1,5 +1,6 @@
 // Core UI icons
 import IconLucideChevronDown from '~icons/lucide/chevron-down'
+import IconLucideLogOut from '~icons/lucide/log-out'
 import IconOcticonTabExternal from '~icons/octicon/tab-external-24'
 import IconCarbonMigrate from '~icons/carbon/migrate'
 import IconGardenShapes26 from '~icons/garden/shapes-26'
@@ -18,6 +19,7 @@ import IconLucideRocket from '~icons/lucide/rocket'
 import IconSimpleIconsLangchain from '~icons/simple-icons/langchain'
 import IconSimpleIconsDotnet from '~icons/simple-icons/dotnet'
 import IconApiAuth from '~icons/flowbite/api-key-outline'
+import IconLucideUser from '~icons/lucide/user'
 import IconLucideUserLock from '~icons/lucide/user-lock'
 import IconLucideUserCheck from '~icons/lucide/user-check'
 import IconHugeiconsAuthorized from '~icons/hugeicons/authorized'
@@ -117,6 +119,8 @@ import IconMingcuteUserSecurityLine from '~icons/mingcute/user-security-line'
 export const iconMap = {
   // Core UI icons
   'chevron-down': IconLucideChevronDown,
+  'log-out': IconLucideLogOut,
+  logout: IconLucideLogOut,
   migrate: IconCarbonMigrate,
   'encrypted-add': IconMaterialSymbolsEncryptedAddOutline,
 
@@ -139,6 +143,7 @@ export const iconMap = {
   rocket: IconLucideRocket,
   langchain: IconSimpleIconsLangchain,
   dotnet: IconSimpleIconsDotnet,
+  user: IconLucideUser,
   userlock: IconLucideUserLock,
   usercheck: IconLucideUserCheck,
   authmethods: IconHugeiconsAuthorized,
@@ -256,6 +261,7 @@ export function getIconComponent(key?: string) {
 export {
   // Core UI icons
   IconLucideChevronDown,
+  IconLucideLogOut,
   IconOcticonTabExternal,
   IconCarbonMigrate,
   IconGardenShapes26,
@@ -268,6 +274,7 @@ export {
   IconLucideBell,
   IconLucideCode,
   IconLucideWrench,
+  IconLucideUser,
   IconSdk,
   IconApi,
   IconMdiCubeOutline,
