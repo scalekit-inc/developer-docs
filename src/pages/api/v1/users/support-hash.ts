@@ -29,46 +29,38 @@ export const GET: APIRoute = async (context) => {
     })
   }
 
-  // TODO: Uncomment when API is ready for deployment
   // Build API URL from SCALEKIT_AUTHORIZE_URL (remove /oauth/authorize suffix)
-  // const authorizeUrl = import.meta.env.SCALEKIT_AUTHORIZE_URL ?? ''
-  // const baseUrl = authorizeUrl.replace('/oauth/authorize', '')
-  // const supportHashUrl = `${baseUrl}/api/v1/users/support-hash`
+  const authorizeUrl = import.meta.env.SCALEKIT_AUTHORIZE_URL ?? ''
+  const baseUrl = authorizeUrl.replace('/oauth/authorize', '')
+  const supportHashUrl = `${baseUrl}/api/v1/users/support-hash`
 
-  // TODO: Uncomment when API is ready for deployment
-  // try {
-  //   const headers: Record<string, string> = {
-  //     Authorization: `Bearer ${accessToken}`,
-  //     'Content-Type': 'application/json',
-  //   }
+  try {
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    }
 
-  //   const response = await fetch(supportHashUrl, {
-  //     method: 'GET',
-  //     headers,
-  //   })
+    const response = await fetch(supportHashUrl, {
+      method: 'GET',
+      headers,
+    })
 
-  //   if (!response.ok) {
-  //     return new Response(JSON.stringify({ error: 'Failed to get support hash' }), {
-  //       status: response.status,
-  //       headers: { 'Content-Type': 'application/json' },
-  //     })
-  //   }
+    if (!response.ok) {
+      return new Response(JSON.stringify({ error: 'Failed to get support hash' }), {
+        status: response.status,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
 
-  //   const data = await response.json()
-  //   const supportHash = data?.support_hash || data?.email_hash || null
-  //   return new Response(JSON.stringify({ support_hash: supportHash, email_hash: supportHash }), {
-  //     headers: { 'Content-Type': 'application/json' },
-  //   })
-  // } catch {
-  //   return new Response(JSON.stringify({ error: 'Failed to fetch support hash' }), {
-  //     status: 500,
-  //     headers: { 'Content-Type': 'application/json' },
-  //   })
-  // }
-
-  // Temporarily disabled - returns 503 until API is ready
-  return new Response(JSON.stringify({ error: 'Service temporarily unavailable' }), {
-    status: 503,
-    headers: { 'Content-Type': 'application/json' },
-  })
+    const data = await response.json()
+    const supportHash = data?.support_hash || data?.email_hash || null
+    return new Response(JSON.stringify({ support_hash: supportHash, email_hash: supportHash }), {
+      headers: { 'Content-Type': 'application/json' },
+    })
+  } catch {
+    return new Response(JSON.stringify({ error: 'Failed to fetch support hash' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
 }

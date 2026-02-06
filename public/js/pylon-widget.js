@@ -58,30 +58,25 @@
   }
 
   /**
-   * Fetch email_hash from backend API
-   * The email_hash is calculated server-side by ScaleKit for identity verification
-   * TODO: Uncomment when API is ready for deployment
+   * Fetch email_hash from backend API.
+   * The email_hash is calculated server-side by ScaleKit for identity verification.
    */
   var fetchEmailHash = function () {
-    // TODO: Uncomment when API is ready for deployment
-    // return fetch('/api/v1/users/support-hash', {
-    //   method: 'GET',
-    //   credentials: 'include',
-    // })
-    //   .then(function (response) {
-    //     if (!response.ok) return null
-    //     return response.json()
-    //   })
-    //   .then(function (data) {
-    //     if (!data) return null
-    //     return data.support_hash || data.email_hash || null
-    //   })
-    //   .catch(function () {
-    //     return null
-    //   })
-
-    // Temporarily disabled - returns null until API is ready
-    return Promise.resolve(null)
+    return fetch('/api/v1/users/support-hash', {
+      method: 'GET',
+      credentials: 'include',
+    })
+      .then(function (response) {
+        if (!response.ok) return null
+        return response.json()
+      })
+      .then(function (data) {
+        if (!data) return null
+        return data.support_hash || data.email_hash || null
+      })
+      .catch(function () {
+        return null
+      })
   }
 
   var getCachedSupportHash = function () {
@@ -180,32 +175,52 @@
       pylonConfig.user_id = uid
     }
 
-    // Fetch and add support_hash from backend API for identity verification
+    // Set config immediately so widget can start loading
+    window.pylon = pylonConfig
+    console.log('[pylon] config set initially:', window.pylon)
+
+    // Fetch and add support_hash (email_hash) for Pylon identity verification
     if (email) {
       var cachedSupportHash = getCachedSupportHash()
       if (cachedSupportHash) {
         pylonConfig.chat_settings.email_hash = cachedSupportHash
         window.pylon = pylonConfig
-        console.log('[pylon] support_hash loaded from cache')
+        console.log(
+          '[pylon] support_hash passed to widget (from cache), email_hash:',
+          !!pylonConfig.chat_settings.email_hash,
+        )
       } else {
+        // Fetch hash asynchronously and update config when available
         fetchEmailHash().then(function (supportHash) {
           if (supportHash) {
             pylonConfig.chat_settings.email_hash = supportHash
             setCachedSupportHash(supportHash)
-            console.log('[pylon] support_hash fetched from API')
+            // Update the existing config object
+            window.pylon = pylonConfig
+            console.log(
+              '[pylon] support_hash fetched and added, email_hash:',
+              !!pylonConfig.chat_settings.email_hash,
+            )
+          } else {
+            console.log('[pylon] support_hash not available from API')
           }
-          // Set config (update if already set)
-          window.pylon = pylonConfig
-          console.log('[pylon] config set:', window.pylon)
         })
       }
-    } else {
-      // Set config immediately if no email
-      window.pylon = pylonConfig
-      console.log('[pylon] config set:', window.pylon)
     }
 
     return true
+  }
+
+  /**
+   * Initialize minimal config for anonymous users
+   */
+  var initializeMinimalConfig = function () {
+    window.pylon = {
+      chat_settings: {
+        app_id: PYLON_APP_ID,
+      },
+    }
+    console.log('[pylon] minimal config set for anonymous user')
   }
 
   /**
@@ -222,7 +237,9 @@
         waitForAuthenticatedSession(attempts + 1)
       }, 100)
     } else {
-      console.log('[pylon] no authenticated session found after wait')
+      console.log('[pylon] no authenticated session found after wait, setting minimal config')
+      // Set minimal config for anonymous users so widget can still load
+      initializeMinimalConfig()
     }
   }
 
