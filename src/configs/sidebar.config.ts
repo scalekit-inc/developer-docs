@@ -1,4 +1,4 @@
-import { createDivider, createSectionHeader, createSpacing } from './sidebar-utils'
+import { createSectionHeader, createSpacing } from './sidebar-utils'
 
 export const sidebar = [
   {
@@ -50,6 +50,17 @@ export const sidebar = [
           'authenticate/manage-organizations/remove-users-from-organization',
           'authenticate/manage-users-orgs/delete-users-and-organizations',
           'authenticate/fsa/user-management-settings',
+        ],
+      },
+      {
+        label: 'Multi-App Authentication',
+        collapsed: false,
+        items: [
+          'authenticate/fsa/multiapp/overview',
+          'authenticate/fsa/multiapp/web-app',
+          'authenticate/fsa/multiapp/single-page-app',
+          'authenticate/fsa/multiapp/native-app',
+          'authenticate/fsa/multiapp/manage-apps',
         ],
       },
       {
