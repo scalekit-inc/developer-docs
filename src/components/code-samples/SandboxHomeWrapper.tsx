@@ -48,7 +48,7 @@ export default function SandboxHomeWrapper({ apiKey, orgid }: SandboxHomeWrapper
           boxSizing: 'border-box',
         }}
       >
-        <SandboxHome apiKey={apiKey} orgid={orgid} />
+        <SandboxHome apiKey={apiKey} orgid={orgid} theme="light" />
       </div>
     </div>
   )
