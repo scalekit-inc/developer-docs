@@ -321,6 +321,7 @@ export const sidebar = [
         items: [
           'authenticate/mcp/overview',
           'authenticate/mcp/quickstart',
+          { label: 'Quickstart v2', link: '/uxi/authenticate/mcp/quickstart/' },
           'authenticate/mcp/managing-mcp-clients',
           'authenticate/mcp/code-samples',
         ],
