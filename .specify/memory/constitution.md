@@ -1,10 +1,13 @@
 <!--
 Sync Impact Report:
-- Version change: 1.1.0 → 1.1.1 (PATCH: Expanded writing standards from ted-docs philosophy for skimmability and clarity)
+- Version change: 1.1.2 → 1.2.0 (MINOR: Inlined writing-standards guidance into constitution; CLAUDE.md now points to constitution as single source of truth)
 - Modified principles:
-  - III. Content Structure and Standards - Expanded Writing Standards to encode skim-friendly, simple, broadly helpful writing
+  - III. Content Structure and Standards - Expanded Writing Standards with style, content, and template rules previously stored in src/writing-standards/*
+  - Development Workflow - Clarified environment, architecture, and content organization based on workflows.md
 - Added sections:
-  - Detailed Writing Standards bullets (make docs easy to skim, write well, be broadly helpful, intentional rule-breaking)
+  - Document types and templates (how-to, API reference, concept, release notes)
+  - Frontmatter and content structure rules (opening paragraphs, headings, lists, markdown conventions)
+  - Code example technical standards (multi-language tabs, Expressive Code usage, security documentation)
 - Removed sections: None
 - Templates requiring updates:
   ✅ plan-template.md - No changes needed (constitution check remains valid)
@@ -55,9 +58,9 @@ Build processes must succeed without errors or warnings. Formatting and linting 
 
 ### Writing Standards
 
-All content must adhere to the modular writing standards located in `src/writing-standards/`. These standards cover style guide, technical guidelines, content structure, and document templates. Style checks must pass before publication.
+All content must follow the writing, content, and technical standards defined in this constitution. External helper files in `src/writing-standards/` are optional references, not additional sources of truth. Style checks must pass before publication.
 
-The writing philosophy follows the principles in “What makes documentation good” (ted-docs philosophy). The following rules are NON-NEGOTIABLE for authored docs:
+The writing philosophy follows the principles in “What makes documentation good” (ted-docs philosophy) and the internal tw-guide. The following rules are NON-NEGOTIABLE for authored docs:
 
 - **Make docs easy to skim**:
   - Split content into clear sections with descriptive, sentence-style titles that convey meaning without requiring the following paragraph.
@@ -88,6 +91,46 @@ The writing philosophy follows the principles in “What makes documentation goo
   - Authors MAY deviate from the above patterns only when doing so clearly improves reader comprehension or solves a specific user problem.
   - Any deviation should still respect clarity, security, and consistency with the overall documentation system.
 
+- **Google tw-guide alignment**:
+  - Use terms consistently across documents; do not introduce multiple names for the same concept.
+  - Avoid ambiguous pronouns; prefer repeating the concrete noun when needed for clarity.
+  - Prefer active voice to passive voice and pick specific, concrete verbs over vague ones.
+  - Focus each sentence on a single idea and convert overloaded sentences into lists where appropriate.
+  - Use numbered lists for ordered procedures and bulleted lists when order is not important; keep list items grammatically parallel and start numbered items with imperative verbs.
+  - Introduce lists and tables with a clear lead-in sentence that ends with a colon.
+  - Craft opening sentences for paragraphs that clearly establish the central point and keep each paragraph focused on a single topic.
+  - Define the document’s scope and, when useful, non-scope so readers know what is and is not covered.
+  - State the intended audience and prerequisites explicitly, and ensure content is tailored to that audience’s needs and goals.
+  - Prefer task-based headings and disclose information progressively, especially in longer or more complex documents.
+
+- **Document types and templates**:
+  - Every documentation page MUST fit one primary type and follow its recommended structure (flexibly where noted):
+    - **How-to guide**: Task-oriented; includes Overview, Prerequisites, Procedure (with `<Steps>`), Verify, Next Steps, and optional FAQs.
+    - **API reference**: Endpoint-focused; includes Endpoint Summary, Authentication, Base URL, Parameters, Request, Response, and Errors (with tables).
+    - **Concept page**: Explanatory; includes Overview, How it works, Key concepts, Use cases, Trade-offs (where relevant), Best practices, and Related guides.
+    - **Release notes / change log**: Versioned changes; includes Summary, detailed change sections (Added/Changed/Deprecated/Removed/Fixed/Security), Breaking changes, Migration guide, and Upgrade instructions.
+  - Use tables for parameters and error formats in API reference pages with consistent column sets and concise descriptions.
+  - For concept pages, define key terms explicitly under a “Key concepts” section when terminology is central to understanding.
+
+- **Frontmatter and content structure**:
+  - Every page MUST include frontmatter with at least: `title`, `description`, and `sidebar.label`; `title` ≤ 60 characters and `description` ≤ 160 characters.
+  - Use `sidebar.order` only when navigation ordering matters; keep labels shorter than titles.
+  - Use `prev`/`next` for sequential guides to create explicit learning paths; use `seeAlso` for related guides without interrupting main flow.
+  - Enable `tableOfContents` for longer pages with multiple major sections.
+  - Opening paragraphs (1–3) MUST state what users will accomplish, when/why they need it, and preview the workflow using direct instructional language.
+  - Page organization SHOULD follow: opening context, optional collapsible supplementary sections, main content sections, and a closing “next steps” or summary.
+  - Use H2 for major sections, H3 for subsections, and H4 only inside `<Steps>`; never use H1 in body content and avoid nesting beyond H4.
+  - Use numbered lists only inside `<Steps>` for ordered procedures; use bulleted lists for unordered information and keep list items grammatically parallel.
+  - Introduce lists and tables with a clear lead-in sentence ending with a colon.
+
+- **Markdown and formatting conventions**:
+  - Use bold for first mention of important terms, UI elements, and dashboard paths (for example, **Dashboard > Authentication > Session Policy**), not for general emphasis.
+  - Use inline code for technical identifiers: variables, functions, endpoints, scopes, environment variables, file paths, and placeholders.
+  - Use meaningful link text; never use “click here” or “this” as link labels.
+  - Always include headers in tables; keep cell content concise and readable.
+  - Prefer fenced code blocks with language identifiers for all code; never use screenshots of code.
+  - Ensure code examples are runnable (or clearly marked as placeholders) and include error handling where appropriate.
+
 ### Variable Naming Conventions
 
 - Node.js: `scalekit`
@@ -99,7 +142,16 @@ These naming conventions are NON-NEGOTIABLE across all documentation and example
 
 ### Code Examples
 
-All code examples must use `<Tabs syncKey="tech-stack">` format and include security comments explaining potential threats. Both success and error paths must be demonstrated.
+All code examples must use `<Tabs syncKey="tech-stack">` format for multi-language SDK samples and include security comments explaining potential threats. Both success and error paths must be demonstrated.
+
+Code example standards:
+
+- Authors MUST provide examples in Node.js, Python, Go, and Java for at least 90% of SDK-related snippets; remaining examples MUST still be accurate and justified (for example, cURL-only API reference samples).
+- Use language tabs with clear framework titles (for example, `title="Express.js"`, `title="Flask"`, `title="Gin"`, `title="Spring Boot"`).
+- Use Expressive Code features (line highlighting, `collapse`, `wrap`, `frame="terminal"`, and markers) to emphasize key lines while hiding boilerplate.
+- Keep examples full and working: include imports (collapsible if noisy), realistic data, success and error paths, and environment-aware configuration.
+- Security comments MUST state the threat, why the pattern is required, and what can go wrong if omitted.
+- Token examples SHOULD use tabs to separate decoded ID token and access token payloads and clearly label claims such as organization ID, user ID, and permissions.
 
 ## Development Workflow
 
@@ -191,4 +243,4 @@ Constitution changes require:
 
 All feature specifications and implementation plans must verify constitutional compliance. Violations require explicit justification in the "Complexity Tracking" section with simpler alternatives documented.
 
-**Version**: 1.1.1 | **Ratified**: 2026-02-06 | **Last Amended**: 2026-02-09
+**Version**: 1.2.0 | **Ratified**: 2026-02-06 | **Last Amended**: 2026-02-09

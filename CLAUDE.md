@@ -2,34 +2,18 @@
 
 ## Overview
 
-This file has been optimized and split into modular guides. The content has been reorganized into focused files for better performance and maintainability.
+This file is a quick reference for how the AI assistant should work in this repo. The **single source of truth** for documentation rules is the project constitution at `.specify/memory/constitution.md`. The older modular guides under `src/writing-standards/` are now optional references only; all enforceable standards have been inlined into the constitution.
 
-## New Modular Structure
+## Primary source of truth
 
-The documentation guidelines have been split into:
+- **Constitution**: `.specify/memory/constitution.md`
+  - Core principles (documentation-first, multi-language SDK consistency, technical accuracy, performance)
+  - Writing and content standards (ted-docs philosophy, tw-guide alignment, style, headings, lists, formatting)
+  - Document types and templates (how-to, API reference, concept, release notes)
+  - Code example standards (multi-language tabs, Expressive Code usage, security comments, SDK variable naming)
+  - Development workflow and architecture (commands, toolchain, content organization, navigation)
 
-1. **`src/writing-standards/.claude-core.md`** - Essential Claude Code instructions (personal)
-2. **`src/writing-standards/style-guide.md`** - Writing style and voice guidelines
-3. **`src/writing-standards/workflows.md`** - Development environment and architecture
-4. **`src/writing-standards/document-templates.md`** - Document type categories and templates
-5. **`src/writing-standards/content-standards.md`** - Content structure and formatting
-6. **`src/writing-standards/technical-guidelines.md`** - Code examples and technical standards
-
-## Quick Access
-
-### For Claude Code Users
-
-- Load the essential guide: `src/writing-standards/.claude-core.md`
-
-### Detailed Guidelines
-
-When you need specific guidance, read these files directly:
-
-- **Writing Style**: `src/writing-standards/style-guide.md`
-- **Document Templates**: `src/writing-standards/document-templates.md`
-- **Technical Standards**: `src/writing-standards/technical-guidelines.md`
-- **Content Structure**: `src/writing-standards/content-standards.md`
-- **Development Workflows**: `src/writing-standards/workflows.md`
+When in doubt, follow the constitution exactly. Do not introduce new rules that conflict with it.
 
 ## Key Reminders
 
