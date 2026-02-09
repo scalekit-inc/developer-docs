@@ -1,5 +1,5 @@
 ---
-title: Federated Auth Integration Guide
+title: Bring Your Own Auth 
 description: Using Scalekit as a drop-in OAuth 2.1 authorization layer for your MCP Servers with federated authentication to your existing auth layer.
 sidebar:
   label: 'Bring your own auth'
@@ -19,11 +19,39 @@ This document explains how to integrate your existing authentication system with
 
 ---
 
+## Overview
+
+Scalekit also offers the option to integrate your existing authentication infrastructure with Scalekit's OAuth layer for MCP servers. **Use this when you have an existing auth system and want to add MCP OAuth without migrating users.** This approach is ideal when you want to provide a unified authentication experience across your application.
+
+**Why use this integration?**
+
+When your B2B application already has an established authentication system, you can connect it to your MCP server through Scalekit. This ensures that:
+- Users see the same familiar login screen whether accessing your application or your MCP server
+- Sessions are shared between your application and MCP server, eliminating duplicate logins
+- You maintain control over your authentication logic while gaining MCP OAuth 2.1 compliance
+
+This "bring your own auth" approach standardizes the authorization layer without requiring you to rebuild your existing authentication infrastructure from scratch.
+
 ## Step-by-Step Workflow
 
 When an MCP client initiates an authentication flow, Scalekit redirects to your login endpoint. You then provide user details to Scalekit via a secure backend call, and finally redirect back to Scalekit to complete the process.
 
-![MCP Federated Auth - Sequence Diagram](@/assets/docs/m2m/mcp/mcp_federated_auth_sequence.png)
+```d2 pad=36
+title: "Scalekit MCP Bring you own Auth flow" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client -> Scalekit Auth Server: Initiate /oauth/authorize (Dynamic Client Registration)
+Scalekit Auth Server ->  Your B2B App: Redirect to /login?login_request_id&state
+Your B2B App -> Scalekit Auth Server: POST user details (Machine-to-Machine)
+Scalekit Auth Server ->  Your B2B App: 200 Success Response (Upon Successful Login)
+Your B2B App -> Scalekit Auth Server: Redirect to /partner:callback?state
+Scalekit Auth Server -> MCP Client: Continue Consent, token exchange and permissions delegation.
+```
 
 ### 1. Initiate Authentication
 

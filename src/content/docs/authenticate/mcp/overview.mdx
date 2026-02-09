@@ -69,25 +69,114 @@ Here's how the MCP OAuth 2.1 flow unfolds step-by-step::
 
 ![MCP OAuth 2.1 Authorization Flow](@/assets/docs/guides/mcp/overview-mcp-seq-diag.png)
 
+{/* 
+This section is intentionally left commented out in case there needs to be updates to the existing d2 Diagram for the MCP Flow for
+future updates or implemenation.
+
+```d2 pad=36
+
+title: "MCP OAuth 2.1 Authorization Code Flow with PKCE" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+# ============ Discovery Phase ============
+MCP Client -> MCP Server: Fetch MCP session capabilities/auth/session
+MCP Server -> MCP Client: Get description
+MCP Client -> MCP Server: Fetch server capabilities/scopes/permissions
+MCP Server -> MCP Client: API capabilities, authentication scopes, authorization server metadata
+MCP Client -> MCP Server: Request available auth configuration options
+MCP Server -> Authorization Server: GET /.well-known/oauth-authorization-server
+Authorization Server -> MCP Server: Authorization server metadata (endpoints, OAuth support)
+MCP Server -> MCP Client: Returns OAuth server configuration
+
+# ============ Authorization Phase ============
+MCP Client -> MCP Server: Initiate OAuth flow (PKCE)
+MCP Client -> MCP Server: GET /api/authorize
+MCP Server -> Authorization Server: Redirect to /oauth/authorize with PKCE challenge
+Authorization Server -> User: Display login/consent prompt
+User -> Authorization Server: Authenticate & grant consent
+Authorization Server -> MCP Server: Redirect with authorization code & state
+MCP Server -> MCP Client: Return authorization code
+MCP Client -> Authorization Server: POST /oauth/token with PKCE verifier
+Authorization Server -> MCP Client: Issue access token (PKCE verified)
+MCP Client -> MCP Server: Store token
+MCP Server -> MCP Client: Success response
+
+# ============ Use Phase ============
+MCP Client -> MCP Server: API call with Bearer token
+MCP Server -> MCP Server: Validate token
+MCP Server -> MCP Client: Authorized response
+
+# ============ Token Refresh Phase ============
+MCP Client -> Authorization Server: POST /oauth/token (grant_type=refresh_token)
+Authorization Server -> MCP Client: New access token & refresh token
+``` */}
+
 
 **Discovery phase**
 <Steps>
 
 1. **MCP client** encounters a protected MCP server
-2. **Server** responds with `401 Unauthorized` and `WWW-Authenticate` header pointing to authorization server
-3. **Client** discovers authorization server capabilities through metadata endpoints
+2. **Server** responds with `401 Unauthorized` and `WWW-Authenticate` header pointing to Scalekit Auth Server
+3. **Client** discovers Scalekit Auth Server capabilities through metadata endpoints
 
 </Steps>
+
+```d2 pad=36
+title: "MCP Login Discovery Phase" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client -> Your MCP Server: POST /mcp/session\n(Initialize session)
+Your MCP Server ->  MCP Client: Session capabilities
+MCP Client -> Your MCP Server: GET /capabilities\n(Fetch server capabilities/scopes/permissions/metadata)
+Your MCP Server ->  MCP Client: Returns available API capabilities/authentication_scopes,\nauthorization_server_metadata with authorization_scopes
+MCP Client -> Your MCP Server: GET /auth/options\n(Request available auth configuration options/auth_protocol)
+Your MCP Server -> Scalekit Auth Server: GET /.well-known/oauth-authorization-server
+Scalekit Auth Server -> Your MCP Server: Scalekit Auth Server metadata\n(endpoints, OAuth support)
+Your MCP Server -> MCP Client: Returns OAuth server metadata
+```
 
 **Authorization phase**
 
 <Steps>
-4. **Client** registers with authorization server (if using DCR)
-5. **Authorization server** issues client credentials (if using DCR)
+4. **Client** registers with Scalekit Auth Server (if using DCR)
+5. **Scalekit Auth Server** issues client credentials (if using DCR)
 6. **Client** initiates appropriate OAuth flow
 7. **User** grants consent (for Authorization Code flow)
-8. **Authorization server** issues access token with appropriate scopes
+8. **Scalekit Auth Server** issues access token with appropriate scopes
 </Steps>
+
+
+```d2 pad=36
+title: "MCP Login Authorization Phase" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client -> Your MCP Server: Initiate OAuth flow (PKCE)
+MCP Client -> Your MCP Server: GET /api/authorize
+Your MCP Server -> Scalekit Auth Server: Redirect to /oauth/authorize with PKCE challenge
+Scalekit Auth Server -> Your Customer's User: Display login/consent prompt
+Your Customer's User -> Scalekit Auth Server: Authenticate & grant consent
+Scalekit Auth Server -> Your MCP Server: Redirect with authorization code & state
+Your MCP Server -> MCP Client: Return authorization code
+MCP Client -> Scalekit Auth Server: POST /oauth/token with PKCE verifier
+Scalekit Auth Server -> MCP Client: Issue access token (PKCE verified)
+MCP Client -> Your MCP Server: Store token
+Your MCP Server -> MCP Client: Success response
+```
 
 **Access phase**
 
@@ -97,6 +186,40 @@ Here's how the MCP OAuth 2.1 flow unfolds step-by-step::
 11. **Server** processes request and returns response
 12. **All interactions** are logged for audit and compliance
 </Steps>
+
+
+```d2 pad=36
+
+title: "Human and MCP Server (OAuth 2.1 Authorization Code Flow)" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client
+Your MCP Server
+Scalekit Auth Server
+
+access_phase: {
+  style.fill: "#a29696"
+  
+  MCP Client -> Your MCP Server: API call with Bearer token
+  Your MCP Server -> Your MCP Server: Validate token
+  Your MCP Server -> MCP Client: Authorized response
+}
+
+if session expires: {
+  style.fill: "#a29696"
+  
+  MCP Client -> Scalekit Auth Server: POST /oauth/token\n(grant_type=refresh_token)
+  Scalekit Auth Server -> MCP Client: New access token & refresh token
+}
+    
+  
+```
+
 
 
 ## Key security enhancements in MCP OAuth 2.1
