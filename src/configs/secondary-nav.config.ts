@@ -14,6 +14,7 @@ import {
   IconLucideChevronDown as IconChevronDown,
   IconHugeiconsResourcesAdd,
   IconLucideBlocks,
+  IconLucideCode,
 } from '../utils/icon-map'
 import IconLucideRocket from '~icons/lucide/rocket'
 import IconLucideLogIn from '~icons/lucide/log-in'
@@ -140,9 +141,25 @@ export const secondaryNavItems: NavItem[] = [
   },
   {
     id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit']
-    href: '/dev-kit/code-samples/',
+    href: '#developer-resources',
     label: 'Developer Resources',
     iconComponent: IconHugeiconsResourcesAdd,
+    children: [
+      {
+        id: 'developer-resources',
+        href: '/dev-kit/code-samples/',
+        label: 'Developer Resources',
+        iconComponent: IconHugeiconsResourcesAdd,
+        description: 'Browse developer resources and guides',
+      },
+      {
+        id: 'code-samples',
+        href: '/code-samples',
+        label: 'Code samples',
+        iconComponent: IconLucideCode,
+        description: 'Interactive code samples and sandboxes',
+      },
+    ],
   },
   {
     id: 'api-reference',

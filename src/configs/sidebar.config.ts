@@ -210,6 +210,7 @@ export const sidebar = [
         label: 'Code samples',
         items: [
           { label: 'Overview', link: 'dev-kit/code-samples' },
+          { label: 'Interactive sandbox', link: '/code-samples/' },
           'dev-kit/code-samples/mcp-auth',
           'dev-kit/code-samples/agent-auth',
           'dev-kit/code-samples/modular-sso',
@@ -327,6 +328,7 @@ export const sidebar = [
         items: [
           'authenticate/mcp/overview',
           'authenticate/mcp/quickstart',
+          { label: 'Quickstart v2', link: '/uxi/authenticate/mcp/quickstart/' },
           'authenticate/mcp/managing-mcp-clients',
           'authenticate/mcp/code-samples',
         ],

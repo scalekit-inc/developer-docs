@@ -27,6 +27,10 @@ export default defineConfig({
   site: 'https://docs.scalekit.com',
   redirects,
   integrations: [
+    react({
+      include: ['**/*.tsx', '**/*.jsx'],
+      experimentalReactChildren: true,
+    }),
     starlight({
       title: 'Scalekit Docs',
       routeMiddleware: './src/routeData.ts',
@@ -206,9 +210,9 @@ export default defineConfig({
         },
       ],
     }),
-    react(),
     vue({
-      jsx: true,
+      include: ['**/*.vue'],
+      jsx: false,
       template: {
         compilerOptions: {
           isCustomElement: (tag) => tag.includes('-'),
@@ -237,11 +241,16 @@ export default defineConfig({
       alias: {
         '@': path.resolve('./src'),
         '@components': path.resolve('./src/components'),
+        '@styles': path.resolve('./src/styles'),
       },
+      dedupe: ['react', 'react-dom'],
+      conditions: ['import', 'module', 'browser', 'default'],
     },
     optimizeDeps: {
-      include: ['vue'],
-      exclude: [],
+      include: ['vue', 'react', 'react-dom', '@sampleapp.ai/sdk'],
+      esbuildOptions: {
+        jsx: 'automatic',
+      },
     },
     // Provide a safe fallback for libraries that reference the CommonJS
     // global `__dirname` (e.g. canvaskit-wasm used by astro-og-canvas).
@@ -258,6 +267,7 @@ export default defineConfig({
         output: {
           manualChunks(id) {
             if (id.includes('@scalar')) return 'scalar'
+            if (id.includes('react') || id.includes('react-dom')) return 'react-vendor'
           },
         },
       },

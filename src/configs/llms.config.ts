@@ -1,6 +1,7 @@
 import type { LlmsTxtConfig } from 'starlight-llms-txt'
 
 export const llmsConfig: LlmsTxtConfig = {
+  rawContent: true,
   projectName: 'Scalekit',
   description:
     'Scalekit is a developer platform for enterprise authentication, providing Full Stack Auth (FSA), Single Sign-On (SSO), SCIM provisioning, and API authentication solutions for B2B applications.',
