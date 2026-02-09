@@ -41,7 +41,7 @@ This guide shows you how to clear the application session layer and invalidate t
 
 1. ## Create a logout endpoint
 
-   Create a `/logout` endpoint in your application that handles the complete logout flow: extracting the ID token, generating the Scalekit logout URL, clearing session cookies, and redirecting to Scalekit.
+   Create a `/logout` endpoint in your application that handles the complete logout flow: extracting the ID token, generating the Scalekit logout URL (which points to Scalekit's `/oidc/logout` endpoint), clearing session cookies, and redirecting to Scalekit.
 
     <Tabs syncKey="tech-stack">
       <TabItem label="Node.js">
@@ -51,7 +51,7 @@ This guide shows you how to clear the application session layer and invalidate t
           const idTokenHint = req.cookies.idToken;
           const postLogoutRedirectUri = 'http://localhost:3000/login';
 
-          // Step 2: Generate the Scalekit logout URL
+          // Step 2: Generate the Scalekit logout URL (points to /oidc/logout endpoint)
           const logoutUrl = scalekit.getLogoutUrl(
             idTokenHint, // ID token to invalidate
             postLogoutRedirectUri // URL that scalekit redirects after session invalidation
@@ -78,7 +78,7 @@ This guide shows you how to clear the application session layer and invalidate t
             id_token = request.cookies.get('idToken')
             post_logout_redirect_uri = 'http://localhost:3000/login'
 
-            # Step 2: Generate the Scalekit logout URL
+            # Step 2: Generate the Scalekit logout URL (points to /oidc/logout endpoint)
             logout_url = scalekit_client.get_logout_url(
                 LogoutUrlOptions(
                     id_token_hint=id_token,
@@ -103,7 +103,7 @@ This guide shows you how to clear the application session layer and invalidate t
             idToken, _ := c.Cookie("idToken")
             postLogoutRedirectURI := "http://localhost:3000/login"
 
-            // Step 2: Generate the Scalekit logout URL
+            // Step 2: Generate the Scalekit logout URL (points to /oidc/logout endpoint)
             logoutURL, err := scalekit.GetLogoutUrl(LogoutUrlOptions{
                 IdTokenHint: idToken,
                 PostLogoutRedirectUri: postLogoutRedirectURI,
@@ -137,7 +137,7 @@ This guide shows you how to clear the application session layer and invalidate t
 
             String postLogoutRedirectUri = "http://localhost:3000/login";
 
-            // Step 2: Generate the Scalekit logout URL
+            // Step 2: Generate the Scalekit logout URL (points to /oidc/logout endpoint)
             LogoutUrlOptions options = new LogoutUrlOptions();
             options.setIdTokenHint(idToken);
             options.setPostLogoutRedirectUri(postLogoutRedirectUri);
@@ -172,7 +172,13 @@ This guide shows you how to clear the application session layer and invalidate t
       </TabItem>
     </Tabs>
 
-    **Important**: The logout flow clears cookies AFTER extracting the ID token and generating the logout URL. This ensures the ID token is available for Scalekit's logout endpoint.
+    The logout flow clears cookies **AFTER** extracting the ID token and generating the logout URL. This ensures the ID token is available for Scalekit's logout endpoint.
+
+   <Aside type="note" title="Why must logout be a browser redirect?">
+
+   You must redirect to the `/oidc/logout` endpoint using a **browser redirect**, not through an API call. Redirecting the browser to Scalekit's logout URL ensures the session cookie is automatically sent with the request, allowing Scalekit to correctly identify and end the user's session.
+
+   </Aside>
 
 2.  ## Configure post-logout redirect URL
 
@@ -188,3 +194,51 @@ This guide shows you how to clear the application session layer and invalidate t
 - Redirect to Scalekit's logout endpoint to invalidate the session server-side
 - Ensure your post-logout redirect URI is registered in the Scalekit dashboard
 </Aside>
+
+## Common logout scenarios
+
+<details>
+<summary>Which endpoint should I use for logout?</summary>
+
+Use `/oidc/logout` (end_session_endpoint) for user logout functionality. This endpoint requires a browser redirect and clears the user's session server-side.
+
+</details>
+
+<details>
+<summary>Why must logout be a browser redirect?</summary>
+
+You need to route to the `/oidc/logout` endpoint through a **browser redirect**, not with an API request. Redirecting the browser to Scalekit's logout URL ensures the session cookie is sent automatically, so Scalekit can correctly locate and end the user's session.
+
+**❌ Doesn't work - API call from frontend:**
+```javascript
+fetch('https://your-env.scalekit.dev/oidc/logout', {
+  method: 'POST',
+  body: JSON.stringify({ id_token_hint: idToken })
+});
+// Session cookie is NOT included, Scalekit can't identify the session
+```
+
+**✅ Works - Browser redirect:**
+```javascript
+const logoutUrl = scalekit.getLogoutUrl(idToken, postLogoutRedirectUri);
+window.location.href = logoutUrl;
+// Browser includes session cookies automatically
+```
+
+**Why:** Your user session is stored in an HttpOnly cookie. API requests from JavaScript or backend servers don't include this cookie, so Scalekit can't identify which session to terminate.
+
+</details>
+
+<details>
+<summary>Session not clearing after logout?</summary>
+
+If clicking login after logout bypasses the login screen and logs you back in automatically, check the following:
+
+1. **Verify the logout method** - Open browser DevTools → Network tab and trigger logout:
+   - ✅ Type should show **"document"** (navigation)
+   - ❌ Type should **NOT** show "fetch" or "xhr"
+   - Check that the `Cookie` header is present in the request
+
+2. **Check post-logout redirect URI** - Ensure it's registered in **Dashboard > Authentication > Redirects > Post Logout URL**.
+
+</details>

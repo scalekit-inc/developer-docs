@@ -1,0 +1,136 @@
+---
+title: Dryrun
+description: Try your authentication flows locally before any integration code is written
+tableOfContents: true
+prev: false
+sidebar:
+  label: Dryrun
+tags: [scalekit, tools, testing, oauth, dev-kit, dryrun, cli]
+head:
+  - tag: style
+    content: |
+      table td:not(:last-child), table th:not(:last-child) {
+        white-space: nowrap;
+      }
+      .sl-markdown-content h2 { font-size: var(--sl-text-lg); }
+seeAlso:
+  expanded: true
+  items:
+    - title: "Dryrun on GitHub"
+      icon: "github"
+      url: "https://github.com/scalekit-inc/scalekit-dryrun"
+    - title: "@scalekit-sdk/dryrun on npm"
+      icon: "npm"
+      url: "https://www.npmjs.com/package/@scalekit-sdk/dryrun"
+---
+
+import { Steps, TabItem, Tabs, Aside, Badge } from '@astrojs/starlight/components';
+
+Use `npx @scalekit-sdk/dryrun` when you want to confirm your Scalekit authentication configuration works end-to-end before implementing auth integration into your app.
+
+Dryrun command executes a complete authentication flow locally - spinning up a server, opening your browser, and displaying the authenticated user's profile and tokens, so you can catch configuration errors early.
+
+Works with Full Stack Authentication and Modular SSO.
+
+## Prerequisites
+
+Before running Dryrun, ensure you have:
+
+- **Node.js 20 or higher** installed locally.
+- **A Scalekit environment** with an OAuth client configured.
+- **A redirect URI** (`http://localhost:12456/auth/callback`) added in the Scalekit Dashboard under **Authentication > Redirect URIs**.
+
+## Run Dryrun
+
+From any directory:
+
+```bash wrap title="Terminal" showLineNumbers=false
+# Refer to prerequisites before running the command
+npx @scalekit-sdk/dryrun \
+  --env_url=<url> \
+  --client_id=<id> \
+  [--mode=<sso|fsa>] \
+  [--organization_id=<id>]
+```
+
+| Option              | Description                                                                 |
+| ------------------- | --------------------------------------------------------------------------- |
+| `--env_url`         | Scalekit environment URL, for example `https://env-abc123.scalekit.cloud`. <Badge text="Required" /> |
+| `--client_id`       | OAuth client ID from the Scalekit Dashboard (starts with `skc_`). <Badge text="Required" /> |
+| `--mode`            | `fsa` for full-stack auth, `sso` for SSO. Defaults to `fsa`. <Badge text="Optional" /> |
+| `--organization_id` | Organization ID to authenticate against when `--mode=sso`. <Badge text="Required (SSO only)" /> |
+| `--help`            | Show CLI usage help. <Badge text="Optional" /> |
+
+<Aside type="tip" title="Get your credentials">
+Find your environment URL and client ID in **Dashboard > Developers > Settings > API Credentials**.
+</Aside>
+
+<Aside type="caution" title="Local testing only">
+Dryrun is designed for **local testing only**:
+
+- It runs entirely on `localhost` and does not expose any public endpoints.
+- It does not persist tokens or credentials after the process exits.
+- The CLI stops when you press `Ctrl+C`, which shuts down the local server.
+
+Use this tool only in trusted local environments and never expose the local callback URL to the internet.
+</Aside>
+
+## Review authentication results
+
+After successful authentication, the browser shows a local dashboard with:
+
+- **User profile**: Name, email, avatar (when available).
+- **ID token claims**: All claims returned in the ID token.
+- **Token details**: A view of the raw token response.
+
+![User profile details screenshot](@/assets/docs/scalekit-dryrun/user-profile-details.png)
+
+Use this view to confirm:
+
+- The correct user is returned for your test login.
+- Claims such as `email`, `sub`, and any custom claims are present as expected.
+- The flow works for both `fsa` and `sso` modes when configured.
+
+
+## Common error scenarios
+
+<details>
+<summary>How do I fix redirect_uri mismatch errors?</summary>
+
+If you see a `redirect_uri mismatch` error:
+
+- Verify that `http://localhost:12456/auth/callback` is added in the Scalekit Dashboard under **Authentication > Redirect URIs**.
+- Confirm that you spelled the URI exactly, including the port and path.
+
+</details>
+
+<details>
+<summary>How do I fix invalid client_id errors?</summary>
+
+If the CLI reports an invalid client ID:
+
+- Copy the client ID directly from the dashboard to avoid typos.
+- Make sure you are using a client from the same environment as `--env_url`.
+
+</details>
+
+<details>
+<summary>How do I resolve port conflicts?</summary>
+
+If port `12456` is already in use:
+
+- Stop any process that is already listening on port `12456`.
+- Close other local tools or frameworks that use `http://localhost:12456` and try again.
+
+</details>
+
+<details>
+<summary>How do I fix organization issues in SSO mode?</summary>
+
+If you see errors related to `--organization_id`:
+
+- Confirm that the organization exists in your Scalekit environment.
+- Verify that SSO is configured for that organization in the dashboard.
+- Ensure you are using the correct `org_...` identifier.
+
+</details>

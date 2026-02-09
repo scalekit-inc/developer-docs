@@ -917,10 +917,31 @@ Allow only same-origin paths (e.g., `/billing`). Do not accept absolute URLs or 
 
 </details>
 
-<Aside type="note" title="Routing precedence">
-Scalekit applies connection selection in this order: `connection_id` → `organizationId` → `loginHint` (domain extraction). Prefer the highest confidence signal you have.
-</Aside>
+<details>
+<summary>How do I configure access token lifetime?</summary>
 
-<Aside type="caution" title="Always send state">
-Include a cryptographically strong `state` parameter and validate it on callback to prevent CSRF and session fixation attacks. See our guide on CSRF protection for details.
-</Aside>
+Access tokens have a default expiration time, but you can adjust this based on your security requirements. Shorter lifetimes provide better security by limiting the window of exposure if a token is compromised, while longer lifetimes reduce the frequency of token refresh operations.
+
+To configure the access token lifetime:
+
+1. Navigate to the **Scalekit Dashboard**
+2. Go to **Authentication** > **Session Policy**
+3. Adjust the **Access Token Lifetime** setting to your preferred duration
+
+The `expiresIn` value in the authentication response reflects this configured lifetime in seconds. When the access token expires, use the refresh token to obtain a new access token without requiring the user to re-authenticate.
+
+</details>
+
+<details>
+<summary>What is the routing precedence for login?</summary>
+
+Scalekit applies connection selection in this order: `connectionId` (or `connection_id`) → `organizationId` → `loginHint` (domain extraction). Prefer the highest confidence signal you have.
+
+</details>
+
+<details>
+<summary>Why should I always send a state parameter?</summary>
+
+Include a cryptographically strong `state` parameter and validate it on callback to prevent CSRF and session fixation attacks. See [our CSRF protection guide](/guides/security/authentication-best-practices/) for details.
+
+</details>

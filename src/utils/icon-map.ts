@@ -42,16 +42,19 @@ import IconProiconsJavascript from '~icons/proicons/javascript'
 import IconHugeiconsTypescript01 from '~icons/hugeicons/typescript-01'
 import IconNodejs from '~icons/simple-icons/nodedotjs'
 import IconPython from '~icons/proicons/python'
+import IconExpo from '~icons/simple-icons/expo'
 
 import IconGo from '~icons/simple-icons/go'
 import IconJava from '~icons/ri/java-line'
 import IconHugeiconsPhp from '~icons/hugeicons/php'
 import IconTeenyiconsNextjsOutline from '~icons/teenyicons/nextjs-outline'
 import IconSpringboot from '~icons/simple-icons/springboot'
+import IconFastapi from '~icons/devicon-plain/fastapi'
 import IconFlask from '~icons/simple-icons/flask'
 import IconDjango from '~icons/simple-icons/django'
 import IconBxBxlDjango from '~icons/bx/bxl-django'
 import IconExpress from '~icons/simple-icons/express'
+import IconLaravel from '~icons/simple-icons/laravel'
 
 // Tool and service icons
 import IconLucideSlack from '~icons/lucide/slack'
@@ -68,6 +71,7 @@ import IconSdk from '~icons/material-symbols/sdk-outline-rounded'
 import IconMdiCubeOutline from '~icons/mdi/cube-outline'
 
 import IconPostman from '~icons/lineicons/postman'
+import IconNpm from '~icons/hugeicons/npm'
 import IconTablerServerSpark from '~icons/tabler/server-spark'
 import IconStreamlineUserSyncOnlineInPersonRemix from '~icons/streamline/user-sync-online-in-person-remix'
 import IconFluentPeopleCommunity16Regular from '~icons/fluent/people-community-16-regular'
@@ -163,16 +167,19 @@ export const iconMap = {
   py: IconPython,
   golang: IconGo,
   go: IconGo,
+  expo: IconExpo,
   java: IconJava,
   php: IconHugeiconsPhp,
   nextjs: IconTeenyiconsNextjsOutline,
   next: IconTeenyiconsNextjsOutline,
   springboot: IconSpringboot,
   spring: IconSpringboot,
+  fastapi: IconFastapi,
   flask: IconFlask,
   django: IconBxBxlDjango,
   express: IconExpress,
   expressjs: IconExpress,
+  laravel: IconLaravel,
 
   // Tool and service icons
   slack: IconLucideSlack,
@@ -191,6 +198,7 @@ export const iconMap = {
   api: IconApi,
   sdk: IconSdk,
   postman: IconPostman,
+  npm: IconNpm,
   'mcp-server': IconTablerServerSpark,
   server: IconTablerServerSpark,
   sync: IconStreamlineUserSyncOnlineInPersonRemix,
