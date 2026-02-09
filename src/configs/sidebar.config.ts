@@ -523,6 +523,7 @@ export const sidebar = [
  */
 export const exclude = [
   '/', // Home page
+  '/cookbooks',
   '/404', // Error page
   '/apis/**/*', // REST API reference has Scalar-powered navigation
 ]

@@ -12,6 +12,7 @@ import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
 import starlightLinksValidator from 'starlight-links-validator'
+import starlightBlog from 'starlight-blog'
 import starlightLlmsTxt from 'starlight-llms-txt'
 import { sidebar as sidebarConfig, topics, exclude } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
@@ -92,6 +93,13 @@ export default defineConfig({
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude'],
           hideMainActionLabel: true,
+        }),
+        starlightBlog({
+          prefix: 'cookbooks',
+          metrics: {
+            readingTime: true,
+            words: 'total',
+          },
         }),
       ],
       head: [
