@@ -1,15 +1,10 @@
 <!--
 Sync Impact Report:
-- Version change: 1.0.0 → 1.1.0 (MINOR: Added navigation structure, journey-focused writing, API reference workflow, integration guides maintenance)
+- Version change: 1.1.0 → 1.1.1 (PATCH: Expanded writing standards from ted-docs philosophy for skimmability and clarity)
 - Modified principles:
-  - II. Multi-Language SDK Consistency - Clarified 90% rule and API reference exceptions
-  - III. Content Structure and Standards - Added journey-focused documentation requirement
+  - III. Content Structure and Standards - Expanded Writing Standards to encode skim-friendly, simple, broadly helpful writing
 - Added sections:
-  - Navigation Structure and Configuration
-  - Journey-Focused Documentation Approach
-  - API Reference Workflow
-  - Adding New Concepts Process
-  - Integration Guides Maintenance
+  - Detailed Writing Standards bullets (make docs easy to skim, write well, be broadly helpful, intentional rule-breaking)
 - Removed sections: None
 - Templates requiring updates:
   ✅ plan-template.md - No changes needed (constitution check remains valid)
@@ -61,6 +56,37 @@ Build processes must succeed without errors or warnings. Formatting and linting 
 ### Writing Standards
 
 All content must adhere to the modular writing standards located in `src/writing-standards/`. These standards cover style guide, technical guidelines, content structure, and document templates. Style checks must pass before publication.
+
+The writing philosophy follows the principles in “What makes documentation good” (ted-docs philosophy). The following rules are NON-NEGOTIABLE for authored docs:
+
+- **Make docs easy to skim**:
+  - Split content into clear sections with descriptive, sentence-style titles that convey meaning without requiring the following paragraph.
+  - Include a table of contents for documents with multiple sections to help readers locate information quickly.
+  - Keep paragraphs short; isolate critical points in their own short paragraphs where helpful.
+  - Begin sections and paragraphs with standalone topic sentences that preview the content and do not depend on prior text.
+  - Put the topic words at the beginning of topic sentences to support fast skimming.
+  - Put the key takeaways and results at the top of documents and sections rather than building up slowly.
+  - Use bullets and tables generously to structure information.
+  - Bold important text to highlight key concepts and decisions.
+
+- **Write well**:
+  - Keep sentences simple, right-branching, and unambiguous; avoid complex left-branching structures.
+  - Avoid ambiguous noun stacks and demonstrative pronouns like “this” or “that” when the referent is not explicit in the same sentence.
+  - Maintain strict consistency in terminology, formatting, and style so readers do not get distracted by anomalies.
+  - Do not presume the reader’s state of mind or intentions; avoid phrases like “Now you probably want to…” and instead use direct, instructional language.
+
+- **Be broadly helpful**:
+  - Write more simply than you think you need to; optimize for readers who are new to the domain or not native English speakers.
+  - Avoid abbreviations and jargon unless they are clearly defined on first use; prefer specific, accurate terminology.
+  - Proactively address common setup and configuration problems (for example, installing SDKs, configuring environment variables) even if many readers already know how.
+  - Keep code examples simple, self-contained, and exportable; minimize dependencies and cross-references to other documents.
+  - Prioritize topics and explanations by value and frequency of use; avoid investing heavily in rare-edge-case topics while common questions remain under-documented.
+  - Never teach bad habits or insecure patterns (for example, never hard-code secrets or API keys in examples).
+  - Introduce narrow topics with a brief, broad opening that grounds the concept in familiar real-world scenarios when this improves comprehension.
+
+- **Break rules intentionally**:
+  - Authors MAY deviate from the above patterns only when doing so clearly improves reader comprehension or solves a specific user problem.
+  - Any deviation should still respect clarity, security, and consistency with the overall documentation system.
 
 ### Variable Naming Conventions
 
@@ -165,4 +191,4 @@ Constitution changes require:
 
 All feature specifications and implementation plans must verify constitutional compliance. Violations require explicit justification in the "Complexity Tracking" section with simpler alternatives documented.
 
-**Version**: 1.1.0 | **Ratified**: 2026-02-06 | **Last Amended**: 2026-01-27
+**Version**: 1.1.1 | **Ratified**: 2026-02-06 | **Last Amended**: 2026-02-09
