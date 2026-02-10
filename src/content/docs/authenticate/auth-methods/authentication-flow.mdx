@@ -3,6 +3,7 @@ title: "User authentication flow"
 description: Learn how Scalekit routes users through authentication based on login method and organization SSO policies.
 sidebar:
   label: "Authentication flow"
+tableOfContents: true
 tags:
   - authentication
   - sso
@@ -58,7 +59,7 @@ Passkeys authenticate the user, but do not override organization SSO policy.
 
 ### Authentication flow
 
-This diagram shows the different variations of user's authentication journey on hosted login page.
+This diagram shows the different variations of user's authentication journey on the hosted login page.
 
 ```d2
 Start: B2B App initiates login
@@ -110,14 +111,12 @@ Scalekit depends on the application’s [Magic Link & OTP](/authenticate/auth-me
 
 Your app can override Home Realm Discovery (HRD) by passing `organization_id` or `connection_id` in the [authentication request](/authenticate/fsa/implement-login/) to Scalekit.
 In this case, Scalekit skips Home Realm Discovery entirely and directly routes the user to the specified SSO IdP.
-
-<Steps>
 1. Scalekit redirects the user directly to the specified SSO IdP (no HRD)
 2. SSO authentication completes
 3. Scalekit checks whether the user’s organization email domain matches the organization domain of the SSO connection.
 4. If the organization domain matches, authentication completes.
 5. If it does not match, Scalekit requires additional verification (OTP or magic link) before completing authentication.
-</Steps>
+
 
 ---
 ## IdP‑initiated SSO
@@ -130,7 +129,7 @@ In IdP‑initiated SSO, authentication starts at the identity provider instead o
 This ensures that IdP‑initiated flows follow the same email ownership and trust guarantees as app‑initiated SSO.
 
 ---
-## Account Linking
+## Account linking
 
 ### What happens
 
