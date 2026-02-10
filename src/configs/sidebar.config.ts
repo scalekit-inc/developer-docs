@@ -33,6 +33,7 @@ export const sidebar = [
           'authenticate/auth-methods/social-logins',
           'authenticate/auth-methods/passkeys',
           'authenticate/auth-methods/enterprise-sso',
+          'authenticate/auth-methods/authentication-flow',
         ],
       },
       {
