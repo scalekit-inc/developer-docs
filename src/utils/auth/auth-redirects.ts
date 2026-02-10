@@ -16,6 +16,12 @@ export const getSafeRedirectPath = (requestUrl: URL, redirectTarget: string | nu
 export const normalizePostLoginRedirect = (redirectPath: string | null | undefined) => {
   let postLoginRedirect = redirectPath ?? '/'
 
+  // Security: Block protocol-relative URLs (//evil.com) and empty strings
+  // Protocol-relative URLs can bypass origin checks by using the current page's protocol
+  if (postLoginRedirect === '' || postLoginRedirect.startsWith('//')) {
+    postLoginRedirect = '/'
+  }
+
   if (postLoginRedirect && !postLoginRedirect.startsWith('/')) {
     postLoginRedirect = '/'
   }
