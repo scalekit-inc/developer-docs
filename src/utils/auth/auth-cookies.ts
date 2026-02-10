@@ -118,7 +118,7 @@ export const clearSessionCookies = (context: APIContext) => {
 export const clearAllAuthCookies = (context: APIContext) => {
   context.cookies.delete('sk_access_token', { path: '/' })
   context.cookies.delete('sk_id_token', { path: '/' })
-  context.cookies.delete('sk_refresh_token', { path: '/' })
+  context.cookies.delete('sk_refresh_token', { path: '/auth/refresh' })
   context.cookies.delete('sk_pkce_verifier', { path: '/' })
   context.cookies.delete('sk_pkce_state', { path: '/' })
   context.cookies.delete('sk_post_login_redirect', { path: '/' })

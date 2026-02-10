@@ -17,6 +17,36 @@ import { normalizePostLoginRedirect, toAbsoluteRedirectUrl } from '@/utils/auth/
 import { parseTokenResponse, requestToken } from '@/utils/auth/auth-tokens'
 import { genCodeChallenge, genCodeVerifier, genRandomString } from '@/utils/auth/pkce'
 
+/**
+ * Escapes HTML special characters to prevent XSS attacks.
+ * Converts &, <, >, ", ', and / into safe HTML entities.
+ */
+function htmlEscape(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;')
+}
+
+/**
+ * Escapes JavaScript string special characters to prevent XSS attacks.
+ * Escapes quotes, backslashes, and control characters for use in JavaScript string literals.
+ */
+function jsEscape(str: string): string {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t')
+    .replace(/\u2028/g, '\\u2028') // Line separator
+    .replace(/\u2029/g, '\\u2029') // Paragraph separator
+}
+
 export const prerender = false
 
 export const GET: APIRoute = async (context) => {
@@ -105,16 +135,19 @@ export const GET: APIRoute = async (context) => {
   // Return HTML page with client-side redirect
   // This bypasses Netlify middleware mode's behavior of merging the original
   // request's query params (?code=...&state=...) into 302 redirect Location headers
+  // Security: Escape finalRedirectUrl to prevent XSS attacks
+  const htmlEscapedUrl = htmlEscape(finalRedirectUrl)
+  const jsEscapedUrl = jsEscape(finalRedirectUrl)
   const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="refresh" content="0;url=${finalRedirectUrl}">
+  <meta http-equiv="refresh" content="0;url=${htmlEscapedUrl}">
   <title>Redirecting...</title>
-  <script>window.location.replace("${finalRedirectUrl}");</script>
+  <script>window.location.replace("${jsEscapedUrl}");</script>
 </head>
 <body>
-  <p>Redirecting to <a href="${finalRedirectUrl}">${finalRedirectUrl}</a>...</p>
+  <p>Redirecting to <a href="${htmlEscapedUrl}">${htmlEscapedUrl}</a>...</p>
 </body>
 </html>`
 

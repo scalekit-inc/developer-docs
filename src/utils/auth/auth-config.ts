@@ -6,7 +6,13 @@ export const getTokenUrl = () =>
 
 export const getUserinfoUrl = () => import.meta.env.SCALEKIT_USERINFO_URL ?? ''
 
-export const getClientId = () => import.meta.env.SCALEKIT_CLIENT_ID ?? ''
+export const getClientId = () => {
+  const clientId = import.meta.env.SCALEKIT_CLIENT_ID
+  if (!clientId || clientId.trim() === '') {
+    throw new Error('Missing SCALEKIT_CLIENT_ID environment variable')
+  }
+  return clientId
+}
 
 export const getRedirectUri = (requestUrl: URL) =>
   import.meta.env.SCALEKIT_REDIRECT_URI ?? new URL('/auth/callback', requestUrl).toString()
