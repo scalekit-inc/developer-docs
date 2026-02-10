@@ -345,7 +345,5 @@ export default defineConfig({
       },
     },
   },
-
-  // @ts-expect-error Netlify adapter supports middleware mode.
-  adapter: netlify({ mode: 'middleware' }),
+  adapter: netlify({ edgeMiddleware: true }),
 })
