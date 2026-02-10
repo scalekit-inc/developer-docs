@@ -289,3 +289,82 @@ const footerClass = 'footer'
     })
   }
 </script>
+
+<!-- Pylon widget loader - must be in body per Pylon docs -->
+<script is:inline>
+  ;(function () {
+    'use strict'
+
+    var PYLON_APP_ID = '32a58676-d739-4f5c-9d97-2f28f9deb8a6'
+
+    /**
+     * Load Pylon widget script
+     */
+    var loadPylonWidget = function () {
+      var e = window
+      var t = document
+      var n = function () {
+        n.e(arguments)
+      }
+      n.q = []
+      n.e = function (e) {
+        n.q.push(e)
+      }
+      e.Pylon = n
+
+      var r = function () {
+        var scriptEl = t.createElement('script')
+        scriptEl.setAttribute('type', 'text/javascript')
+        scriptEl.setAttribute('async', 'true')
+        scriptEl.setAttribute('src', 'https://widget.usepylon.com/widget/' + PYLON_APP_ID)
+
+        scriptEl.onload = function () {
+          console.log('[pylon] widget script loaded successfully')
+        }
+
+        scriptEl.onerror = function (err) {
+          console.error('[pylon] widget script failed to load:', err)
+        }
+
+        var firstScript = t.getElementsByTagName('script')[0]
+        firstScript.parentNode.insertBefore(scriptEl, firstScript)
+      }
+
+      if (t.readyState === 'complete') {
+        r()
+      } else if (e.addEventListener) {
+        e.addEventListener('load', r, false)
+      }
+    }
+
+    /**
+     * Wait for window.pylon config to be set (from pylon-widget.js in head)
+     */
+    var waitForPylonConfig = function (attempts) {
+      attempts = attempts || 0
+
+      if (window.pylon) {
+        console.log('[pylon] config found, loading widget')
+        loadPylonWidget()
+      } else if (attempts < 50) {
+        // Retry up to 5 seconds (50 * 100ms)
+        setTimeout(function () {
+          waitForPylonConfig(attempts + 1)
+        }, 100)
+      } else {
+        console.warn('[pylon] window.pylon config not found after 5 seconds, loading widget anyway')
+        // Load widget anyway (for anonymous users or if config script failed)
+        loadPylonWidget()
+      }
+    }
+
+    // Start waiting for config
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () {
+        waitForPylonConfig()
+      })
+    } else {
+      waitForPylonConfig()
+    }
+  })()
+</script>
