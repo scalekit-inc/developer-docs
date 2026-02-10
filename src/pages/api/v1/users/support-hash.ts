@@ -31,7 +31,42 @@ export const GET: APIRoute = async (context) => {
 
   // Build API URL from SCALEKIT_AUTHORIZE_URL (remove /oauth/authorize suffix)
   const authorizeUrl = import.meta.env.SCALEKIT_AUTHORIZE_URL ?? ''
-  const baseUrl = authorizeUrl.replace('/oauth/authorize', '')
+
+  // Validate SCALEKIT_AUTHORIZE_URL is provided and properly formatted
+  if (!authorizeUrl) {
+    console.error('[support-hash] SCALEKIT_AUTHORIZE_URL is not configured')
+    return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  // Validate URL format and ensure it ends with /oauth/authorize
+  let baseUrl: string
+  try {
+    const url = new URL(authorizeUrl)
+    if (!url.pathname.endsWith('/oauth/authorize')) {
+      console.error('[support-hash] SCALEKIT_AUTHORIZE_URL must end with /oauth/authorize')
+      return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+    // Remove /oauth/authorize from pathname and reconstruct base URL
+    url.pathname = url.pathname.slice(0, -'/oauth/authorize'.length)
+    baseUrl = url.toString().replace(/\/$/, '') // Remove trailing slash if present
+  } catch {
+    // Fallback: if URL parsing fails, use string manipulation
+    if (!authorizeUrl.endsWith('/oauth/authorize')) {
+      console.error('[support-hash] SCALEKIT_AUTHORIZE_URL must end with /oauth/authorize')
+      return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+    baseUrl = authorizeUrl.slice(0, -'/oauth/authorize'.length)
+  }
+
   const supportHashUrl = `${baseUrl}/api/v1/users/support-hash`
 
   try {

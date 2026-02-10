@@ -44,6 +44,32 @@ const { path = '' } = Astro.props
 
     try {
       const response = await fetch('/auth/session', { credentials: 'include' })
+
+      // Handle 401 by attempting token refresh
+      if (response.status === 401) {
+        const refreshResponse = await fetch('/auth/refresh', { credentials: 'include' })
+
+        if (!refreshResponse.ok) {
+          clearCache()
+          return { authenticated: false }
+        }
+
+        // Retry session fetch after successful refresh
+        const retryResponse = await fetch('/auth/session', { credentials: 'include' })
+        if (!retryResponse.ok) {
+          clearCache()
+          return { authenticated: false }
+        }
+
+        const data = await retryResponse.json()
+        if (data?.authenticated) {
+          writeCache(data)
+        } else {
+          clearCache()
+        }
+        return data
+      }
+
       if (!response.ok) {
         clearCache()
         return { authenticated: false }
