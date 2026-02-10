@@ -12,7 +12,70 @@ import { Tabs, TabItem } from '@astrojs/starlight/components'
 
 Scalekit automatically handles identity verification via any authentication method, including but not limited to social providers like Google and Microsoft. It also supports authentication with your enterprise identity provider, such as Okta, Microsoft Entra AD, or ADFS, via SAML or OIDC.
 
-In this article, we will explain how to configure an Enterprise SSO connection with Okta as an identity provider. You can follow the same steps to configure any other identity provider.
+In this article, we will explain how to configure an Enterprise SSO connection with Okta as an identity provider. You can follow the same steps to configure any other identity provider. The steps with **blue arrows indicate that the step occurs during the browser redirects** and the steps with the **red arrows are Headless or Machine-to-Machine operations happening in the background.**
+
+```d2 pad=36
+title: "MCP SSO Authorization Phase" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client
+Scalekit Auth Server
+Your Customer's IdP \n Okta, EntraID etc.
+
+# Browser redirects (blue)
+MCP Client -> Scalekit Auth Server: Redirect using /oauth/authorize URL {
+  style.stroke: "#4A90E2"
+  style.stroke-width: 2
+}
+Scalekit Auth Server -> Your Customer's IdP \n Okta, EntraID etc.: redirects using /authorize URL {
+  style.stroke: "#4A90E2"
+  style.stroke-width: 2
+}
+
+Your Customer's IdP \n Okta, EntraID etc. -> Scalekit Auth Server: returns authorization code {
+  style.stroke: "#4A90E2"
+  style.stroke-width: 2
+}
+
+# Machine-to-machine operations (orange/red)
+Scalekit Auth Server -> Your Customer's IdP \n Okta, EntraID etc.: /token endpoint to get tokens with the auth code {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+
+Your Customer's IdP \n Okta, EntraID etc. -> Scalekit Auth Server: Returns with relevant information inside access_token and id_token {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+
+# Browser redirect (blue)
+Scalekit Auth Server -> MCP Client: returns with authorization code {
+  style.stroke: "#4A90E2"
+  style.stroke-width: 2
+}
+
+# Machine-to-machine operations (orange/red)
+MCP Client -> Scalekit Auth Server: /oauth/token/ using auth code {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+
+Scalekit Auth Server -> MCP Client: Issues access_token, id_token, refresh_token {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+```
+
+## Understanding the MCP SSO Flow at a high level
 
 ## Before you start
 
