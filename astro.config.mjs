@@ -337,7 +337,6 @@ export default defineConfig({
     build: {
       chunkSizeWarningLimit: 2000,
       rollupOptions: {
-        external: ['fs', 'path', 'url', 'util', 'module', 'stream', 'crypto'],
         output: {
           manualChunks(id) {
             if (id.includes('@scalar')) return 'scalar'
@@ -346,5 +345,5 @@ export default defineConfig({
       },
     },
   },
-  adapter: netlify({ edgeMiddleware: true }),
+  adapter: netlify(),
 })
