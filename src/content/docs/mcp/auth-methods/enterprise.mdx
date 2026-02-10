@@ -12,7 +12,119 @@ import { Tabs, TabItem } from '@astrojs/starlight/components'
 
 Scalekit automatically handles identity verification via any authentication method, including but not limited to social providers like Google and Microsoft. It also supports authentication with your enterprise identity provider, such as Okta, Microsoft Entra AD, or ADFS, via SAML or OIDC.
 
-In this article, we will explain how to configure an Enterprise SSO connection with Okta as an identity provider. You can follow the same steps to configure any other identity provider.
+In this article, we will explain how to configure an Enterprise SSO connection with Okta as an identity provider. You can follow the same steps to configure any other identity provider. The steps with **blue arrows indicate that the step occurs during the browser redirects** and the steps with the **red arrows are Headless or Machine-to-Machine operations happening in the background.**
+
+```d2 pad=36
+title: "MCP SSO Authorization Phase" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client
+Scalekit Auth Server
+Your Customer's IdP \n (Okta, EntraID etc.)
+
+# Browser redirects (blue)
+MCP Client -> Scalekit Auth Server: Redirect using /oauth/authorize URL {
+  style.stroke: "#4A90E2"
+  style.stroke-width: 2
+}
+Scalekit Auth Server -> Your Customer's IdP \n (Okta, EntraID etc.): redirects using /authorize URL {
+  style.stroke: "#4A90E2"
+  style.stroke-width: 2
+}
+
+Your Customer's IdP \n (Okta, EntraID etc.) -> Scalekit Auth Server: returns authorization code {
+  style.stroke: "#4A90E2"
+  style.stroke-width: 2
+}
+
+# Machine-to-machine operations (orange/red)
+Scalekit Auth Server -> Your Customer's IdP \n (Okta, EntraID etc.): uses code and redirects to /token endpoint to get tokens with the auth code {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+
+Your Customer's IdP \n (Okta, EntraID etc.) -> Scalekit Auth Server: Returns with relevant information inside access_token and id_token {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+
+# Browser redirect (blue)
+Scalekit Auth Server -> MCP Client: returns with authorization code {
+  style.stroke: "#4A90E2"
+  style.stroke-width: 2
+}
+
+# Machine-to-machine operations (orange/red)
+MCP Client -> Scalekit Auth Server: redirects to /oauth/token/ to request access to tokens using auth code {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+
+Scalekit Auth Server -> MCP Client: Issue access token, id_token, refresh_token {
+  style.stroke: "#E85D00"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+```
+
+## Understanding the MCP SSO Flow at a high level
+
+{/* 
+This section is intentionally left commented out in case there needs to be updates to the existing d2 Diagram for the MCP Flow for
+future updates or implemenation.
+
+```d2 pad=36
+
+title: "MCP OAuth 2.1 Authorization Code Flow with PKCE" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+# ============ Discovery Phase ============
+MCP Client -> MCP Server: Fetch MCP session capabilities/auth/session
+MCP Server -> MCP Client: Get description
+MCP Client -> MCP Server: Fetch server capabilities/scopes/permissions
+MCP Server -> MCP Client: API capabilities, authentication scopes, authorization server metadata
+MCP Client -> MCP Server: Request available auth configuration options
+MCP Server -> Authorization Server: GET /.well-known/oauth-authorization-server
+Authorization Server -> MCP Server: Authorization server metadata (endpoints, OAuth support)
+MCP Server -> MCP Client: Returns OAuth server configuration
+
+# ============ Authorization Phase ============
+MCP Client -> MCP Server: Initiate OAuth flow (PKCE)
+MCP Client -> MCP Server: GET /api/authorize
+MCP Server -> Authorization Server: Redirect to /oauth/authorize with PKCE challenge
+Authorization Server -> User: Display login/consent prompt
+User -> Authorization Server: Authenticate & grant consent
+Authorization Server -> MCP Server: Redirect with authorization code & state
+MCP Server -> MCP Client: Return authorization code
+MCP Client -> Authorization Server: POST /oauth/token with PKCE verifier
+Authorization Server -> MCP Client: Issue access token (PKCE verified)
+MCP Client -> MCP Server: Store token
+MCP Server -> MCP Client: Success response
+
+# ============ Use Phase ============
+MCP Client -> MCP Server: API call with Bearer token
+MCP Server -> MCP Server: Validate token
+MCP Server -> MCP Client: Authorized response
+
+# ============ Token Refresh Phase ============
+MCP Client -> Authorization Server: POST /oauth/token (grant_type=refresh_token)
+Authorization Server -> MCP Client: New access token & refresh token
+``` */}
+
+
 
 ## Before you start
 
