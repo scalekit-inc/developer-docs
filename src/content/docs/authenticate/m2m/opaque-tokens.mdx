@@ -1,0 +1,626 @@
+---
+title: Opaque API tokens
+description: "Issue long-lived, revocable API tokens scoped to organizations and users for programmatic access to your APIs"
+sidebar:
+  label: "Opaque tokens"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+---
+
+import { Aside, Steps, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+
+Opaque API tokens are long-lived bearer credentials that grant programmatic access to your application's APIs. Each token is scoped to an organization and optionally to a specific user within that organization. Unlike [JWT-based M2M authentication](/authenticate/m2m/api-auth-quickstart/), opaque tokens are simple strings with no embedded claims — all validation happens server-side through Scalekit's API.
+
+This server-side validation model provides two key security advantages. First, tokens can be **validated immediately** after creation — there is no propagation delay. Second, tokens can be **revoked instantly** — once you call invalidate, the very next validation request will reject the token. With JWTs, you must wait for the token to expire or maintain a revocation list. Opaque tokens give you real-time control over access.
+
+While opaque tokens are commonly used for machine-to-machine access, they also support **user-level authentication**. By scoping a token to a specific user within an organization, you can issue personal API keys that carry the user's identity. Your API middleware can then extract the `userId` from the validated token to enforce user-specific authorization — enabling use cases like personal access tokens, per-user rate limiting, and audit trails tied to individual users.
+
+Use opaque tokens when your customers need persistent API keys for integrations, CI/CD pipelines, service accounts, or any automation that calls your APIs. Use M2M client credentials when you need short-lived JWTs with scopes and audience restrictions.
+
+<Aside type="tip">
+  The plain-text token value is returned **only at creation time**. Scalekit does not store the token and cannot retrieve it later. Instruct your users to copy and store the token securely before closing the creation dialog.
+</Aside>
+
+## Install the SDK
+
+<InstallSDK />
+
+Initialize the Scalekit client with your environment credentials:
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Express.js"
+import { ScalekitClient } from '@scalekit-sdk/node';
+
+const scalekit = new ScalekitClient(
+  process.env.SCALEKIT_ENVIRONMENT_URL,
+  process.env.SCALEKIT_CLIENT_ID,
+  process.env.SCALEKIT_CLIENT_SECRET
+);
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Flask"
+from scalekit import ScalekitClient
+
+scalekit_client = ScalekitClient(
+    env_url=os.environ["SCALEKIT_ENVIRONMENT_URL"],
+    client_id=os.environ["SCALEKIT_CLIENT_ID"],
+    client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Gin"
+import scalekit "github.com/scalekit-inc/scalekit-sdk-go/v2"
+
+scalekitClient := scalekit.NewScalekitClient(
+  os.Getenv("SCALEKIT_ENVIRONMENT_URL"),
+  os.Getenv("SCALEKIT_CLIENT_ID"),
+  os.Getenv("SCALEKIT_CLIENT_SECRET"),
+)
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Spring Boot"
+import com.scalekit.ScalekitClient;
+
+ScalekitClient scalekitClient = new ScalekitClient(
+    System.getenv("SCALEKIT_ENVIRONMENT_URL"),
+    System.getenv("SCALEKIT_CLIENT_ID"),
+    System.getenv("SCALEKIT_CLIENT_SECRET")
+);
+```
+
+</TabItem>
+</Tabs>
+
+## Create a token
+
+Create an opaque token scoped to an organization. You can optionally scope it to a specific user, attach custom claims as key-value metadata, set an expiry, and add a human-readable description.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Express.js"
+// Create a basic organization-scoped token
+const response = await scalekit.token.createToken(organizationId, {
+  description: 'CI/CD pipeline token',
+});
+
+// The opaque token string — store this securely
+const opaqueToken = response.token;
+// The token identifier (format: apit_xxxxx)
+const tokenId = response.tokenId;
+
+// Create a user-scoped token with custom claims
+const userToken = await scalekit.token.createToken(organizationId, {
+  userId: 'usr_12345',
+  customClaims: {
+    team: 'engineering',
+    environment: 'production',
+  },
+  description: 'Deployment service token',
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Flask"
+# Create a basic organization-scoped token
+response = scalekit_client.tokens.create_token(
+    organization_id=organization_id,
+    description="CI/CD pipeline token",
+)
+
+# The opaque token string — store this securely
+opaque_token = response[0].token
+# The token identifier (format: apit_xxxxx)
+token_id = response[0].token_id
+
+# Create a user-scoped token with custom claims
+user_token = scalekit_client.tokens.create_token(
+    organization_id=organization_id,
+    user_id="usr_12345",
+    custom_claims={
+        "team": "engineering",
+        "environment": "production",
+    },
+    description="Deployment service token",
+)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Gin"
+// Create a basic organization-scoped token
+response, err := scalekitClient.Token().CreateToken(
+  ctx, organizationId, scalekit.CreateTokenOptions{
+    Description: "CI/CD pipeline token",
+  },
+)
+
+// The opaque token string — store this securely
+opaqueToken := response.Token
+// The token identifier (format: apit_xxxxx)
+tokenId := response.TokenId
+
+// Create a user-scoped token with custom claims
+userToken, err := scalekitClient.Token().CreateToken(
+  ctx, organizationId, scalekit.CreateTokenOptions{
+    UserId:      "usr_12345",
+    CustomClaims: map[string]string{
+      "team":        "engineering",
+      "environment": "production",
+    },
+    Description: "Deployment service token",
+  },
+)
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Spring Boot"
+// Create a basic organization-scoped token
+CreateTokenResponse response = scalekitClient.tokens().create(organizationId);
+
+// The opaque token string — store this securely
+String opaqueToken = response.getToken();
+// The token identifier (format: apit_xxxxx)
+String tokenId = response.getTokenId();
+
+// Create a user-scoped token with custom claims
+Map<String, String> customClaims = Map.of(
+    "team", "engineering",
+    "environment", "production"
+);
+
+CreateTokenResponse userToken = scalekitClient.tokens().create(
+    organizationId, "usr_12345", customClaims, null, "Deployment service token"
+);
+```
+
+</TabItem>
+</Tabs>
+
+The response contains three fields:
+
+| Field | Description |
+|-------|-------------|
+| `token` | The opaque token string. **Returned only at creation.** |
+| `token_id` | A stable identifier (format: `apit_xxxxx`) for referencing the token in management operations. |
+| `token_info` | Metadata including organization, user, custom claims, and timestamps. |
+
+## Validate a token
+
+Validate an incoming token to verify it is active and retrieve its associated context. You can pass either the opaque token string or the `token_id`.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Express.js"
+// Validate using the opaque token from the Authorization header
+const result = await scalekit.token.validateToken(opaqueToken);
+
+// Access the token context
+const orgId = result.tokenInfo.organizationId;
+const userId = result.tokenInfo.userId;
+const claims = result.tokenInfo.customClaims;
+
+// You can also validate by token_id
+const resultById = await scalekit.token.validateToken(tokenId);
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Flask"
+# Validate using the opaque token from the Authorization header
+result = scalekit_client.tokens.validate_token(token=opaque_token)
+
+# Access the token context
+org_id = result[0].token_info.organization_id
+user_id = result[0].token_info.user_id
+claims = result[0].token_info.custom_claims
+
+# You can also validate by token_id
+result_by_id = scalekit_client.tokens.validate_token(token=token_id)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Gin"
+// Validate using the opaque token from the Authorization header
+result, err := scalekitClient.Token().ValidateToken(ctx, opaqueToken)
+
+// Access the token context
+orgId := result.TokenInfo.OrganizationId
+userId := result.TokenInfo.UserId
+claims := result.TokenInfo.CustomClaims
+
+// You can also validate by token_id
+resultById, err := scalekitClient.Token().ValidateToken(ctx, tokenId)
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Spring Boot"
+// Validate using the opaque token from the Authorization header
+ValidateTokenResponse result = scalekitClient.tokens().validate(opaqueToken);
+
+// Access the token context
+String orgId = result.getTokenInfo().getOrganizationId();
+String userId = result.getTokenInfo().getUserId();
+Map<String, String> claims = result.getTokenInfo().getCustomClaimsMap();
+
+// You can also validate by token_id
+ValidateTokenResponse resultById = scalekitClient.tokens().validate(tokenId);
+```
+
+</TabItem>
+</Tabs>
+
+Validation fails with an error if the token is invalid, expired, or has been revoked. Use this behavior to reject unauthorized requests in your API middleware.
+
+## List tokens
+
+Retrieve all active tokens for an organization. Use pagination to handle large result sets, and filter by `userId` to find tokens scoped to a specific user.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Express.js"
+// List tokens for an organization
+const response = await scalekit.token.listTokens(organizationId, {
+  pageSize: 10,
+});
+
+for (const token of response.tokens) {
+  console.log(token.tokenId, token.description);
+}
+
+// Paginate through results
+if (response.nextPageToken) {
+  const nextPage = await scalekit.token.listTokens(organizationId, {
+    pageSize: 10,
+    pageToken: response.nextPageToken,
+  });
+}
+
+// Filter tokens by user
+const userTokens = await scalekit.token.listTokens(organizationId, {
+  userId: 'usr_12345',
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Flask"
+# List tokens for an organization
+response = scalekit_client.tokens.list_tokens(
+    organization_id=organization_id,
+    page_size=10,
+)
+
+for token in response[0].tokens:
+    print(token.token_id, token.description)
+
+# Paginate through results
+if response[0].next_page_token:
+    next_page = scalekit_client.tokens.list_tokens(
+        organization_id=organization_id,
+        page_size=10,
+        page_token=response[0].next_page_token,
+    )
+
+# Filter tokens by user
+user_tokens = scalekit_client.tokens.list_tokens(
+    organization_id=organization_id,
+    user_id="usr_12345",
+)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Gin"
+// List tokens for an organization
+response, err := scalekitClient.Token().ListTokens(
+  ctx, organizationId, scalekit.ListTokensOptions{
+    PageSize: 10,
+  },
+)
+
+for _, token := range response.Tokens {
+  fmt.Println(token.TokenId, token.GetDescription())
+}
+
+// Paginate through results
+if response.NextPageToken != "" {
+  nextPage, err := scalekitClient.Token().ListTokens(
+    ctx, organizationId, scalekit.ListTokensOptions{
+      PageSize:  10,
+      PageToken: response.NextPageToken,
+    },
+  )
+}
+
+// Filter tokens by user
+userTokens, err := scalekitClient.Token().ListTokens(
+  ctx, organizationId, scalekit.ListTokensOptions{
+    UserId: "usr_12345",
+  },
+)
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Spring Boot"
+// List tokens for an organization
+ListTokensResponse response = scalekitClient.tokens().list(organizationId, 10, null);
+
+for (Token token : response.getTokensList()) {
+    System.out.println(token.getTokenId() + " " + token.getDescription());
+}
+
+// Paginate through results
+if (!response.getNextPageToken().isEmpty()) {
+    ListTokensResponse nextPage = scalekitClient.tokens().list(
+        organizationId, 10, response.getNextPageToken()
+    );
+}
+
+// Filter tokens by user
+ListTokensResponse userTokens = scalekitClient.tokens().list(
+    organizationId, "usr_12345", 10, null
+);
+```
+
+</TabItem>
+</Tabs>
+
+The response includes `totalCount` for the total number of matching tokens and `nextPageToken` / `prevPageToken` cursors for navigating pages.
+
+## Invalidate a token
+
+Revoke a token to immediately prevent it from being used. Invalidation takes effect instantly — any subsequent validation request for this token will fail.
+
+This operation is **idempotent**: calling invalidate on an already-revoked token succeeds without error.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Express.js"
+// Invalidate by token_id
+await scalekit.token.invalidateToken(tokenId);
+
+// Or invalidate by opaque token string
+await scalekit.token.invalidateToken(opaqueToken);
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Flask"
+# Invalidate by token_id
+scalekit_client.tokens.invalidate_token(token=token_id)
+
+# Or invalidate by opaque token string
+scalekit_client.tokens.invalidate_token(token=opaque_token)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Gin"
+// Invalidate by token_id
+err := scalekitClient.Token().InvalidateToken(ctx, tokenId)
+
+// Or invalidate by opaque token string
+err = scalekitClient.Token().InvalidateToken(ctx, opaqueToken)
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Spring Boot"
+// Invalidate by token_id
+scalekitClient.tokens().invalidate(tokenId);
+
+// Or invalidate by opaque token string
+scalekitClient.tokens().invalidate(opaqueToken);
+```
+
+</TabItem>
+</Tabs>
+
+## Protect your API endpoints
+
+Add token validation as middleware in your API server. Extract the Bearer token from the `Authorization` header, validate it through Scalekit, and use the returned `token_info` for authorization decisions.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript title="Express.js"
+async function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Missing authorization token' });
+  }
+
+  try {
+    const result = await scalekit.token.validateToken(token);
+    // Attach token context to the request for downstream handlers
+    req.tokenInfo = result.tokenInfo;
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}
+
+// Apply to protected routes
+app.get('/api/resources', authenticateToken, (req, res) => {
+  const orgId = req.tokenInfo.organizationId;
+  // Serve resources scoped to this organization
+});
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="Flask"
+from functools import wraps
+from flask import request, jsonify, g
+
+def authenticate_token(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth_header = request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            return jsonify({"error": "Missing authorization token"}), 401
+
+        token = auth_header.split(" ")[1]
+
+        try:
+            result = scalekit_client.tokens.validate_token(token=token)
+            # Attach token context for downstream handlers
+            g.token_info = result[0].token_info
+        except Exception:
+            return jsonify({"error": "Invalid or expired token"}), 401
+
+        return f(*args, **kwargs)
+    return decorated
+
+# Apply to protected routes
+@app.route("/api/resources")
+@authenticate_token
+def get_resources():
+    org_id = g.token_info.organization_id
+    # Serve resources scoped to this organization
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="Gin"
+func AuthenticateToken(scalekitClient scalekit.Scalekit) gin.HandlerFunc {
+  return func(c *gin.Context) {
+    authHeader := c.GetHeader("Authorization")
+    if !strings.HasPrefix(authHeader, "Bearer ") {
+      c.JSON(401, gin.H{"error": "Missing authorization token"})
+      c.Abort()
+      return
+    }
+
+    token := strings.TrimPrefix(authHeader, "Bearer ")
+
+    result, err := scalekitClient.Token().ValidateToken(c.Request.Context(), token)
+    if err != nil {
+      c.JSON(401, gin.H{"error": "Invalid or expired token"})
+      c.Abort()
+      return
+    }
+
+    // Attach token context for downstream handlers
+    c.Set("tokenInfo", result.TokenInfo)
+    c.Next()
+  }
+}
+
+// Apply to protected routes
+r.GET("/api/resources", AuthenticateToken(scalekitClient), func(c *gin.Context) {
+  tokenInfo := c.MustGet("tokenInfo").(*scalekit.TokenInfo)
+  orgId := tokenInfo.OrganizationId
+  // Serve resources scoped to this organization
+})
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java title="Spring Boot"
+@Component
+public class TokenAuthFilter extends OncePerRequestFilter {
+    private final ScalekitClient scalekitClient;
+
+    public TokenAuthFilter(ScalekitClient scalekitClient) {
+        this.scalekitClient = scalekitClient;
+    }
+
+    @Override
+    protected void doFilterInternal(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        FilterChain filterChain
+    ) throws ServletException, IOException {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response.sendError(401, "Missing authorization token");
+            return;
+        }
+
+        String token = authHeader.substring(7);
+
+        try {
+            ValidateTokenResponse result = scalekitClient.tokens().validate(token);
+            // Attach token context for downstream handlers
+            request.setAttribute("tokenInfo", result.getTokenInfo());
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            response.sendError(401, "Invalid or expired token");
+        }
+    }
+}
+
+// Access in your controller
+@GetMapping("/api/resources")
+public ResponseEntity<?> getResources(HttpServletRequest request) {
+    Token tokenInfo = (Token) request.getAttribute("tokenInfo");
+    String orgId = tokenInfo.getOrganizationId();
+    // Serve resources scoped to this organization
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Best practices
+
+<CardGrid>
+  <Card title="Store tokens securely">
+    Treat opaque tokens like passwords. Store them in encrypted secrets managers or environment variables. Never log tokens, commit them to version control, or expose them in client-side code.
+  </Card>
+  <Card title="Set expiry for time-limited access">
+    Use the `expiry` parameter for tokens that should automatically become invalid after a set period. This limits the blast radius if a token is compromised.
+  </Card>
+  <Card title="Use custom claims for context">
+    Attach metadata like `team`, `environment`, or `service` as custom claims. Your API middleware can use these claims for fine-grained authorization without additional database lookups.
+  </Card>
+  <Card title="Rotate tokens safely">
+    To rotate a token: create a new token, update the consuming service to use the new token, verify the new token works, then invalidate the old token. This avoids downtime during rotation.
+  </Card>
+</CardGrid>
