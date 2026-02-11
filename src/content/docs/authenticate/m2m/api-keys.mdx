@@ -18,12 +18,11 @@ head:
 import { Aside, Steps, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-Scalekit API keys are long-lived, revocable bearer credentials for programmatic access to your APIs. Unlike [JWT-based M2M authentication](/authenticate/m2m/api-auth-quickstart/), API keys have no embedded claims — Scalekit handles all validation server-side.
+When your customers need to integrate with your APIs — whether for CI/CD pipelines, partner integrations, or internal tooling — they need a straightforward way to authenticate. Scalekit API keys gives you long-lived, revocable bearer credentials that can be issued to your customers for Organizational or User Level access to your APIs.
 
-- **Organization and user scoping** — Each key is scoped to an organization and optionally to a specific user, enabling personal access tokens, per-user rate limiting, and audit trails.
-- **Real-time validation** — Keys are validated immediately after creation with no propagation delay.
-- **Instant revocation** — Once invalidated, the very next validation request rejects the key. No expiry windows or revocation lists.
-- **Best for** — Integrations, CI/CD pipelines, service accounts, and any automation that calls your APIs. For short-lived JWTs with scopes, use [M2M client credentials](/authenticate/m2m/api-auth-quickstart/) instead.
+Unlike [JWT-based M2M authentication](/authenticate/m2m/api-auth-quickstart/), API keys do not carry embedded claims and cannot be validated on the client side. The API Keys can be validated via APIs with Scalekit and after server side validation, the claims are sent when a valid API Key is presented. Revocation of API keys takes effect immediately with no expiry windows or propagation delays. Each key is scoped to an organization and optionally to a specific user, making it easy to build personal access tokens, per-user rate limiting, and audit trails.
+
+In this guide, you'll learn how to create, validate, list, and revoke API keys using the Scalekit SDK.
 
 ```d2 pad=36
 shape: sequence_diagram
@@ -112,6 +111,8 @@ ScalekitClient scalekitClient = new ScalekitClient(
 </Tabs>
 
 ## Create a token
+
+To get started, create an API key scoped to an organization. You can optionally scope it to a specific user and attach custom metadata.
 
 ### Organization-scoped API key
 
@@ -289,12 +290,12 @@ The response contains three fields:
 | Field | Description |
 |-------|-------------|
 | `token` | The API key string. **Returned only at creation.** |
-| `token_id` | A stable identifier (format: `apit_xxxxx`) for referencing the token in management operations. |
+| `token_id` | An identifier (format: `apit_xxxxx`) for referencing the token in management operations. |
 | `token_info` | Metadata including organization, user, custom claims, and timestamps. |
 
 ## Validate a token
 
-Scalekit validates the API key server-side and returns its associated context.
+When your API server receives a request with an API key, you'll want to verify it's legitimate before processing the request. Pass the key to Scalekit — it validates the key server-side and returns the associated organization, user, and metadata context.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
@@ -370,11 +371,11 @@ try {
 </TabItem>
 </Tabs>
 
-Validation fails with an error if the API key is invalid, expired, or has been revoked. Use this behavior to reject unauthorized requests in your API middleware.
+If the API key is invalid, expired, or has been revoked, validation fails with a specific error that you can catch and handle in your code. This makes it easy to reject unauthorized requests in your API middleware.
 
 ### Access roles and organization details
 
-The validated token also includes roles assigned to the user and external identifiers for the organization. Use these to make authorization decisions without additional lookups.
+Beyond the basic organization and user information, the validation response also includes any roles assigned to the user and external identifiers you've configured for the organization. These are useful for making authorization decisions without additional database lookups.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
@@ -458,7 +459,7 @@ try {
 
 ### Access custom metadata
 
-Custom claims attached during token creation are returned in the validation response. Use them for fine-grained authorization decisions without additional database lookups.
+If you attached custom claims when creating the API key, they come back in every validation response. This is a convenient way to make fine-grained authorization decisions — like restricting access by team or environment — without hitting your database.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
@@ -542,7 +543,7 @@ try {
 
 ## List tokens
 
-Retrieve all active API keys for an organization. Use pagination to handle large result sets, and filter by `userId` to find keys scoped to a specific user.
+You can retrieve all active API keys for an organization at any time. The response supports pagination for large result sets, and you can filter by user to find keys scoped to a specific person.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
@@ -663,9 +664,9 @@ The response includes `totalCount` for the total number of matching tokens and `
 
 ## Invalidate a token
 
-Revoke an API key to immediately prevent it from being used. Invalidation takes effect instantly — any subsequent validation request for this key will fail.
+When you need to revoke an API key — for example, when an employee leaves or you suspect credentials have been compromised — you can invalidate it through Scalekit. Revocation takes effect instantly: the very next validation request for that key will fail.
 
-This operation is **idempotent**: calling invalidate on an already-revoked key succeeds without error.
+This operation is **idempotent**, so calling invalidate on an already-revoked key succeeds without error.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
@@ -716,7 +717,7 @@ scalekitClient.tokens().invalidate(tokenId);
 
 ## Protect your API endpoints
 
-Add API key validation as middleware in your API server. Extract the Bearer token from the `Authorization` header, validate it through Scalekit, and use the returned `token_info` for authorization decisions.
+Now let's put it all together. The most common pattern is to add API key validation as middleware in your API server. Extract the Bearer token from the `Authorization` header, validate it through Scalekit, and use the returned context for authorization decisions.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
@@ -888,9 +889,11 @@ public ResponseEntity<?> getResources(HttpServletRequest request) {
 
 ## Best practices
 
+Here are a few tips to help you get the most out of API keys in production.
+
 <CardGrid>
   <Card title="Store API keys securely">
-    We recommend treating API keys like passwords. Store them in encrypted secrets managers or environment variables. Never log keys, commit them to version control, or expose them in client-side code.
+     Recommend your Clients to treat API keys like passwords.  They should be stored in encrypted secrets managers or environment variables. Never log keys, commit them to version control, or expose them in client-side code.
   </Card>
   <Card title="Set expiry for time-limited access">
     Use the `expiry` parameter for keys that should automatically become invalid after a set period. This limits the blast radius if a key is compromised.
@@ -905,4 +908,4 @@ public ResponseEntity<?> getResources(HttpServletRequest request) {
 
 ## Next steps
 
-You now have the building blocks to issue, validate, and manage API keys in your application. For short-lived, scoped authentication between services, see [M2M authentication with client credentials](/authenticate/m2m/api-auth-quickstart/). To control what each key can access, configure [scopes for your M2M clients](/guides/m2m/scopes/).
+You now have everything you need to issue, validate, and manage API keys in your application. For short-lived, scoped authentication between services, see [M2M authentication with client credentials](/authenticate/m2m/api-auth-quickstart/). To control what each key can access, configure [scopes for your M2M clients](/guides/m2m/scopes/).
