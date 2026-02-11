@@ -83,7 +83,7 @@ User -> "App B": Logout
 
 Revoking the Scalekit session does not automatically clear your application’s local state. Each app must clear its own session and stored tokens. A failed **refresh token exchange** is a reliable signal that the shared session has been revoked.
 
-For proactive sign-out across all applications, configure [backchannel logout URLs](/authenticate/fsa/multiapp/manage-apps/#configure-redirect-urls) so Scalekit can notify each app when the shared session is terminated.
+For proactive sign-out across all applications, configure [back-channel logout URLs](/authenticate/fsa/multiapp/manage-apps/#configure-redirect-urls) so Scalekit can notify each app when the shared session is terminated.
 
 ## How session sharing works
 
@@ -113,7 +113,7 @@ Even though each app has a different `client_id`, they all rely on the same Scal
     As part of the auth flow, your app will receive an access token. Validate it by checking the issuer, audience (which must include the application’s `client_id`), `iat`, and `exp`. Store tokens securely, and use the `/oauth/token` endpoint with the `refresh_token` grant to obtain new access, refresh, and ID tokens when needed. 
     </Aside>
 5. ### Implement logout
-    Initiate logout by calling the `/oidc/logout` endpoint with the relevant parameters. Clear your local application session when refresh token exchange fails, or configure backchannel logout to proactively sign users out across all applications sharing the same session. 
+    Initiate logout by calling the `/oidc/logout` endpoint with the relevant parameters. Clear your local application session when refresh token exchange fails, or configure back-channel logout to proactively sign users out across all applications sharing the same session. 
     
     You can follow this [detailed guide](/authenticate/fsa/logout/) to implement logout in your apps.
 </Steps>
@@ -134,7 +134,7 @@ Even though each app has a different `client_id`, they all rely on the same Scal
 - Any application can initiate login or logout
 - OAuth scopes and token validation rules remain consistent across apps
 - Refresh token failure is a reliable signal of session revocation
-- Backchannel logout enables proactive sign-out across all connected applications
+- Back-channel logout enables proactive sign-out across all connected applications
 
 ## Troubleshooting
 
