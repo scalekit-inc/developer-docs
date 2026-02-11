@@ -9,6 +9,7 @@ import SecondaryNav from '../SecondaryNav.astro'
 import ThemeSelect from 'starlight-theme-nova/components/ThemeSelect.astro'
 import { LinkButton } from '@astrojs/starlight/components'
 import MobileMenuToggle from '@astrojs/starlight/components/MobileMenuToggle.astro'
+import AuthCTA from '../auth/AuthCTA.astro'
 
 const { dir, entry, lang, locale } = Astro.props
 ---
@@ -39,14 +40,13 @@ const { dir, entry, lang, locale } = Astro.props
         </LinkButton>
         <LinkButton
           href="https://app.scalekit.com/"
-          target="_blank"
-          variant="primary"
-          icon="right-arrow"
-          iconPlacement="end"
-          class="sk-primary"
+          variant="secondary"
+          class="sk-secondary dashboard-btn"
+          data-dashboard-btn
         >
-          Start implementing
+          Dashboard
         </LinkButton>
+        <AuthCTA />
         <!-- <div class="ml-4">
           <ThemeSelect />
         </div> -->
@@ -56,6 +56,100 @@ const { dir, entry, lang, locale } = Astro.props
 
   <SecondaryNav entry={entry} />
 </div>
+
+<script>
+  // @ts-nocheck
+  const STORAGE_KEY = 'sk_auth_session'
+
+  const readCache = () => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return null
+      return JSON.parse(raw)
+    } catch {
+      return null
+    }
+  }
+
+  /** @param {any} session */
+  const writeCache = (session) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
+    } catch {}
+  }
+
+  const clearCache = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {}
+  }
+
+  /** @param {any} expiresAt */
+  const isExpired = (expiresAt) => {
+    if (!expiresAt) return false
+    return Date.now() >= expiresAt
+  }
+
+  const getSession = async () => {
+    const cached = readCache()
+    if (cached?.authenticated && !isExpired(cached.expiresAt)) {
+      return cached
+    }
+
+    clearCache()
+
+    try {
+      let response = await fetch('/auth/session', { credentials: 'include' })
+      // Attempt refresh when access token has expired
+      if (response.status === 401) {
+        const refreshResponse = await fetch('/auth/refresh', {
+          method: 'POST',
+          credentials: 'include',
+        })
+        if (refreshResponse.ok) {
+          response = await fetch('/auth/session', { credentials: 'include' })
+        } else {
+          clearCache()
+          return { authenticated: false }
+        }
+      }
+      if (!response.ok) {
+        clearCache()
+        return { authenticated: false }
+      }
+
+      const data = await response.json()
+      if (data?.authenticated) {
+        writeCache(data)
+      } else {
+        clearCache()
+      }
+      return data
+    } catch {
+      clearCache()
+      return { authenticated: false }
+    }
+  }
+
+  const dashboardButtons = document.querySelectorAll('[data-dashboard-btn]')
+
+  // Periodically refresh Dashboard button state without re-attaching listeners
+  const refreshDashboardState = async (btn) => {
+    const data = await getSession()
+    if (data && data.authenticated) {
+      btn.classList.add('is-authenticated')
+    } else {
+      btn.classList.remove('is-authenticated')
+    }
+  }
+
+  /** @param {Element} btn */
+  const updateDashboardButton = async (btn) => {
+    await refreshDashboardState(btn)
+  }
+
+  dashboardButtons.forEach(updateDashboardButton)
+</script>
 
 <style>
   /* Layer declarations */
@@ -130,6 +224,15 @@ const { dir, entry, lang, locale } = Astro.props
     .right-actions :global(.sk-primary),
     .right-actions :global(.sk-secondary) {
       font-size: var(--sl-text-sm); /* Match other site buttons (14.4px) */
+    }
+
+    /* Dashboard button: hidden by default, shown when authenticated */
+    .dashboard-btn {
+      display: none;
+    }
+
+    .dashboard-btn.is-authenticated {
+      display: inline-flex;
     }
   }
 
