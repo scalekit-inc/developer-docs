@@ -18,13 +18,12 @@ head:
 import { Aside, Steps, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-Scalekit API keys let you give your customers long-lived, revocable credentials for programmatic access to your APIs. Each API key is scoped to an organization and optionally to a specific user, so you have fine-grained control over who can access what. Unlike [JWT-based M2M authentication](/authenticate/m2m/api-auth-quickstart/), API keys are simple bearer strings with no embedded claims — Scalekit handles all validation server-side.
+Scalekit API keys are long-lived, revocable bearer credentials for programmatic access to your APIs. Unlike [JWT-based M2M authentication](/authenticate/m2m/api-auth-quickstart/), API keys have no embedded claims — Scalekit handles all validation server-side.
 
-Scalekit validates every API key in real time, which gives you two security advantages out of the box. Keys can be **validated immediately** after creation — there is no propagation delay. And keys can be **revoked instantly** — once you call invalidate, the very next validation request rejects the key. No waiting for expiry windows or maintaining revocation lists.
-
-Scalekit API keys also support **user-level scoping**, which enables you to issue personal API keys tied to a specific user within an organization. Your API middleware can extract the `userId` from the validated key to enforce user-specific authorization — enabling personal access tokens, per-user rate limiting, and audit trails tied to individual users.
-
-We recommend API keys when your customers need persistent credentials for integrations, CI/CD pipelines, service accounts, or any automation that calls your APIs. For short-lived JWTs with scopes and audience restrictions, use [M2M client credentials](/authenticate/m2m/api-auth-quickstart/) instead.
+- **Organization and user scoping** — Each key is scoped to an organization and optionally to a specific user, enabling personal access tokens, per-user rate limiting, and audit trails.
+- **Real-time validation** — Keys are validated immediately after creation with no propagation delay.
+- **Instant revocation** — Once invalidated, the very next validation request rejects the key. No expiry windows or revocation lists.
+- **Best for** — Integrations, CI/CD pipelines, service accounts, and any automation that calls your APIs. For short-lived JWTs with scopes, use [M2M client credentials](/authenticate/m2m/api-auth-quickstart/) instead.
 
 ```d2 pad=36
 shape: sequence_diagram
@@ -301,6 +300,8 @@ Scalekit validates the API key server-side and returns its associated context.
 <TabItem value="node" label="Node.js">
 
 ```javascript
+import { ScalekitValidateTokenFailureException } from '@scalekit-sdk/node';
+
 try {
   const result = await scalekit.token.validateToken(opaqueToken);
 
@@ -308,8 +309,10 @@ try {
   const userId = result.tokenInfo.userId;
   const claims = result.tokenInfo.customClaims;
 } catch (error) {
-  // Token is invalid, expired, or revoked
-  console.error('Token validation failed:', error.message);
+  if (error instanceof ScalekitValidateTokenFailureException) {
+    // Token is invalid, expired, or revoked
+    console.error('Token validation failed:', error.message);
+  }
 }
 ```
 
@@ -317,13 +320,15 @@ try {
 <TabItem value="python" label="Python">
 
 ```python
+from scalekit import ScalekitValidateTokenFailureException
+
 try:
     result = scalekit_client.tokens.validate_token(token=opaque_token)
 
     org_id = result[0].token_info.organization_id
     user_id = result[0].token_info.user_id
     claims = result[0].token_info.custom_claims
-except Exception:
+except ScalekitValidateTokenFailureException:
     # Token is invalid, expired, or revoked
     print("Token validation failed")
 ```
@@ -333,7 +338,7 @@ except Exception:
 
 ```go
 result, err := scalekitClient.Token().ValidateToken(ctx, opaqueToken)
-if err != nil {
+if errors.Is(err, scalekit.ErrTokenValidationFailed) {
   // Token is invalid, expired, or revoked
   log.Printf("Token validation failed: %v", err)
   return
@@ -348,13 +353,15 @@ claims := result.TokenInfo.CustomClaims
 <TabItem value="java" label="Java">
 
 ```java
+import com.scalekit.exceptions.TokenInvalidException;
+
 try {
     ValidateTokenResponse result = scalekitClient.tokens().validate(opaqueToken);
 
     String orgId = result.getTokenInfo().getOrganizationId();
     String userId = result.getTokenInfo().getUserId();
     Map<String, String> claims = result.getTokenInfo().getCustomClaimsMap();
-} catch (Exception e) {
+} catch (TokenInvalidException e) {
     // Token is invalid, expired, or revoked
     System.err.println("Token validation failed: " + e.getMessage());
 }
@@ -373,28 +380,37 @@ The validated token also includes roles assigned to the user and external identi
 <TabItem value="node" label="Node.js">
 
 ```javascript
-const result = await scalekit.token.validateToken(opaqueToken);
+try {
+  const result = await scalekit.token.validateToken(opaqueToken);
 
-// Roles assigned to the user
-const roles = result.tokenInfo.roles;
+  // Roles assigned to the user
+  const roles = result.tokenInfo.roles;
 
-// External identifiers for mapping to your system
-const externalOrgId = result.tokenInfo.organizationExternalId;
-const externalUserId = result.tokenInfo.userExternalId;
+  // External identifiers for mapping to your system
+  const externalOrgId = result.tokenInfo.organizationExternalId;
+  const externalUserId = result.tokenInfo.userExternalId;
+} catch (error) {
+  if (error instanceof ScalekitValidateTokenFailureException) {
+    console.error('Token validation failed:', error.message);
+  }
+}
 ```
 
 </TabItem>
 <TabItem value="python" label="Python">
 
 ```python
-result = scalekit_client.tokens.validate_token(token=opaque_token)
+try:
+    result = scalekit_client.tokens.validate_token(token=opaque_token)
 
-# Roles assigned to the user
-roles = result[0].token_info.roles
+    # Roles assigned to the user
+    roles = result[0].token_info.roles
 
-# External identifiers for mapping to your system
-external_org_id = result[0].token_info.organization_external_id
-external_user_id = result[0].token_info.user_external_id
+    # External identifiers for mapping to your system
+    external_org_id = result[0].token_info.organization_external_id
+    external_user_id = result[0].token_info.user_external_id
+except ScalekitValidateTokenFailureException:
+    print("Token validation failed")
 ```
 
 </TabItem>
@@ -402,7 +418,7 @@ external_user_id = result[0].token_info.user_external_id
 
 ```go
 result, err := scalekitClient.Token().ValidateToken(ctx, opaqueToken)
-if err != nil {
+if errors.Is(err, scalekit.ErrTokenValidationFailed) {
   log.Printf("Token validation failed: %v", err)
   return
 }
@@ -419,14 +435,18 @@ externalUserId := result.TokenInfo.UserExternalId
 <TabItem value="java" label="Java">
 
 ```java
-ValidateTokenResponse result = scalekitClient.tokens().validate(opaqueToken);
+try {
+    ValidateTokenResponse result = scalekitClient.tokens().validate(opaqueToken);
 
-// Roles assigned to the user
-List<String> roles = result.getTokenInfo().getRolesList();
+    // Roles assigned to the user
+    List<String> roles = result.getTokenInfo().getRolesList();
 
-// External identifiers for mapping to your system
-String externalOrgId = result.getTokenInfo().getOrganizationExternalId();
-String externalUserId = result.getTokenInfo().getUserExternalId();
+    // External identifiers for mapping to your system
+    String externalOrgId = result.getTokenInfo().getOrganizationExternalId();
+    String externalUserId = result.getTokenInfo().getUserExternalId();
+} catch (TokenInvalidException e) {
+    System.err.println("Token validation failed: " + e.getMessage());
+}
 ```
 
 </TabItem>
@@ -444,14 +464,20 @@ Custom claims attached during token creation are returned in the validation resp
 <TabItem value="node" label="Node.js">
 
 ```javascript
-const result = await scalekit.token.validateToken(opaqueToken);
+try {
+  const result = await scalekit.token.validateToken(opaqueToken);
 
-const team = result.tokenInfo.customClaims?.team;
-const environment = result.tokenInfo.customClaims?.environment;
+  const team = result.tokenInfo.customClaims?.team;
+  const environment = result.tokenInfo.customClaims?.environment;
 
-// Use metadata for authorization
-if (environment !== 'production') {
-  return res.status(403).json({ error: 'Production access required' });
+  // Use metadata for authorization
+  if (environment !== 'production') {
+    return res.status(403).json({ error: 'Production access required' });
+  }
+} catch (error) {
+  if (error instanceof ScalekitValidateTokenFailureException) {
+    console.error('Token validation failed:', error.message);
+  }
 }
 ```
 
@@ -459,14 +485,17 @@ if (environment !== 'production') {
 <TabItem value="python" label="Python">
 
 ```python
-result = scalekit_client.tokens.validate_token(token=opaque_token)
+try:
+    result = scalekit_client.tokens.validate_token(token=opaque_token)
 
-team = result[0].token_info.custom_claims.get("team")
-environment = result[0].token_info.custom_claims.get("environment")
+    team = result[0].token_info.custom_claims.get("team")
+    environment = result[0].token_info.custom_claims.get("environment")
 
-# Use metadata for authorization
-if environment != "production":
-    return jsonify({"error": "Production access required"}), 403
+    # Use metadata for authorization
+    if environment != "production":
+        return jsonify({"error": "Production access required"}), 403
+except ScalekitValidateTokenFailureException:
+    print("Token validation failed")
 ```
 
 </TabItem>
@@ -474,7 +503,7 @@ if environment != "production":
 
 ```go
 result, err := scalekitClient.Token().ValidateToken(ctx, opaqueToken)
-if err != nil {
+if errors.Is(err, scalekit.ErrTokenValidationFailed) {
   log.Printf("Token validation failed: %v", err)
   return
 }
@@ -493,14 +522,18 @@ if environment != "production" {
 <TabItem value="java" label="Java">
 
 ```java
-ValidateTokenResponse result = scalekitClient.tokens().validate(opaqueToken);
+try {
+    ValidateTokenResponse result = scalekitClient.tokens().validate(opaqueToken);
 
-String team = result.getTokenInfo().getCustomClaimsMap().get("team");
-String environment = result.getTokenInfo().getCustomClaimsMap().get("environment");
+    String team = result.getTokenInfo().getCustomClaimsMap().get("team");
+    String environment = result.getTokenInfo().getCustomClaimsMap().get("environment");
 
-// Use metadata for authorization
-if (!"production".equals(environment)) {
-    return ResponseEntity.status(403).body(Map.of("error", "Production access required"));
+    // Use metadata for authorization
+    if (!"production".equals(environment)) {
+        return ResponseEntity.status(403).body(Map.of("error", "Production access required"));
+    }
+} catch (TokenInvalidException e) {
+    System.err.println("Token validation failed: " + e.getMessage());
 }
 ```
 
@@ -689,6 +722,8 @@ Add API key validation as middleware in your API server. Extract the Bearer toke
 <TabItem value="node" label="Node.js">
 
 ```javascript title="Express.js"
+import { ScalekitValidateTokenFailureException } from '@scalekit-sdk/node';
+
 async function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -705,8 +740,11 @@ async function authenticateToken(req, res, next) {
     req.tokenInfo = result.tokenInfo;
     next();
   } catch (error) {
-    // Revoked, expired, or malformed tokens are rejected immediately
-    return res.status(401).json({ error: 'Invalid or expired token' });
+    if (error instanceof ScalekitValidateTokenFailureException) {
+      // Revoked, expired, or malformed tokens are rejected immediately
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+    throw error;
   }
 }
 
@@ -723,6 +761,7 @@ app.get('/api/resources', authenticateToken, (req, res) => {
 ```python title="Flask"
 from functools import wraps
 from flask import request, jsonify, g
+from scalekit import ScalekitValidateTokenFailureException
 
 def authenticate_token(f):
     @wraps(f)
@@ -739,7 +778,7 @@ def authenticate_token(f):
             result = scalekit_client.tokens.validate_token(token=token)
             # Attach token context for downstream handlers
             g.token_info = result[0].token_info
-        except Exception:
+        except ScalekitValidateTokenFailureException:
             # Revoked, expired, or malformed tokens are rejected immediately
             return jsonify({"error": "Invalid or expired token"}), 401
 
@@ -772,7 +811,7 @@ func AuthenticateToken(scalekitClient scalekit.Scalekit) gin.HandlerFunc {
 
     // Server-side validation — Scalekit checks token status in real time
     result, err := scalekitClient.Token().ValidateToken(c.Request.Context(), token)
-    if err != nil {
+    if errors.Is(err, scalekit.ErrTokenValidationFailed) {
       // Revoked, expired, or malformed tokens are rejected immediately
       c.JSON(401, gin.H{"error": "Invalid or expired token"})
       c.Abort()
@@ -797,6 +836,8 @@ r.GET("/api/resources", AuthenticateToken(scalekitClient), func(c *gin.Context) 
 <TabItem value="java" label="Java">
 
 ```java title="Spring Boot"
+import com.scalekit.exceptions.TokenInvalidException;
+
 @Component
 public class TokenAuthFilter extends OncePerRequestFilter {
     private final ScalekitClient scalekitClient;
@@ -826,7 +867,7 @@ public class TokenAuthFilter extends OncePerRequestFilter {
             // Attach token context for downstream handlers
             request.setAttribute("tokenInfo", result.getTokenInfo());
             filterChain.doFilter(request, response);
-        } catch (Exception e) {
+        } catch (TokenInvalidException e) {
             // Revoked, expired, or malformed tokens are rejected immediately
             response.sendError(401, "Invalid or expired token");
         }
