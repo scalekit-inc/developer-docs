@@ -63,31 +63,101 @@ This authorization mechanism is based on established specifications listed below
 - **OAuth 2.0 Protected Resource Metadata (RFC9728)**: Resource server discovery
 - **Client ID Metadata Document (CIMD)**: Lets authorization servers fetch client metadata directly from a client-hosted document for authorization
 
-## The authorization flow in practice
-
-Here's how the MCP OAuth 2.1 flow unfolds step-by-step::
-
 ![MCP OAuth 2.1 Authorization Flow](@/assets/docs/guides/mcp/overview-mcp-seq-diag.png)
 
+## The authorization flow in practice
+
+Now let's zoom in and see how the MCP OAuth 2.1 flow unfolds step-by-step:
 
 **Discovery phase**
 <Steps>
 
 1. **MCP client** encounters a protected MCP server
-2. **Server** responds with `401 Unauthorized` and `WWW-Authenticate` header pointing to authorization server
-3. **Client** discovers authorization server capabilities through metadata endpoints
+2. **Server** responds with `401 Unauthorized` and `WWW-Authenticate` header pointing to Scalekit Auth Server
+3. **Client** discovers Scalekit Auth Server capabilities through metadata endpoints
 
 </Steps>
+
+```d2 pad=36
+
+title: "MCP Login Discovery Phase" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client
+Your MCP Server
+Scalekit Auth Server
+Your Customer's User
+
+MCP Client -> Your MCP Server: POST /mcp\n(Without Authorization Header)
+Your MCP Server -> MCP Client: 401 Unauthorized\n(WWW-Authenticate: resource_metadata="...")
+MCP Client -> Your MCP Server: GET /.well-known/oauth-protected-resource\n(Fetch protected MCP Server's metadata)
+Your MCP Server -> MCP Client: Returns resource metadata\n(authorization server URL, scopes)
+MCP Client -> Scalekit Auth Server: GET /.well-known/oauth-authorization-server
+Scalekit Auth Server -> MCP client: Scalekit Auth Server metadata\n
+```
 
 **Authorization phase**
 
 <Steps>
-4. **Client** registers with authorization server (if using DCR)
-5. **Authorization server** issues client credentials (if using DCR)
+4. **Client** registers with Scalekit Auth Server (if using DCR)
+5. **Scalekit Auth Server** issues client credentials (if using DCR)
 6. **Client** initiates appropriate OAuth flow
 7. **User** grants consent (for Authorization Code flow)
-8. **Authorization server** issues access token with appropriate scopes
+8. **Scalekit Auth Server** issues access token with appropriate scopes
 </Steps>
+
+
+```d2 pad=36
+title: "MCP DCR Authorization Phase" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client
+Your MCP Server
+Scalekit Auth Server
+Your Customer's User
+
+MCP Client -> Scalekit Auth Server: POST /res_123../client_register
+Scalekit Auth Server -> MCP Client: return with client_id and client_secret
+MCP Client -> Scalekit Auth Server: redirect to oauth/authorize
+Scalekit Auth Server -> Your Customer's User: Prompt to Authenticate & Consent
+Your Customer's User -> Scalekit Auth Server: Authenticates & Consents
+Scalekit Auth Server -> MCP Client: Returns authorization code
+MCP Client -> Scalekit Auth Server: POST /oauth/token
+Scalekit Auth Server -> MCP Client: Issues access_token, id_token, scopes 
+```
+
+```d2 pad=36
+title: "MCP CIMD Authorization Phase" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client
+Your MCP Server
+Scalekit Auth Server
+Your Customer's User
+
+MCP Client -> Scalekit Auth Server: Redirect to oauth/authorize with PKCE Challenge
+MCP Client <-> Scalekit Auth Server: Authorization server fetches client metadata 
+Scalekit Auth Server -> Your Customer's User: Prompt to Authenticate & Consent
+Your Customer's User -> Scalekit Auth Server: Authenticates & Consents
+Scalekit Auth Server -> MCP Client: Returns authorization code
+MCP Client -> Scalekit Auth Server: POST /oauth/token with PKCE verifier and auth code
+Scalekit Auth Server -> MCP Client: Issues access_token, id_token, scopes 
+```
 
 **Access phase**
 
@@ -97,6 +167,36 @@ Here's how the MCP OAuth 2.1 flow unfolds step-by-step::
 11. **Server** processes request and returns response
 12. **All interactions** are logged for audit and compliance
 </Steps>
+
+
+```d2 pad=36
+
+title: "Human and MCP Server (OAuth 2.1 Authorization Code Flow)" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+MCP Client
+Your MCP Server
+Scalekit Auth Server
+
+access_phase: {
+  MCP Client -> Your MCP Server: Tool call with Bearer token
+  Your MCP Server -> Your MCP Server: Validate token
+  Your MCP Server -> MCP Client: Authorized response
+}
+
+refresh_phase: {
+  MCP Client -> Scalekit Auth Server: POST /oauth/token\n(grant_type=refresh_token)
+  Scalekit Auth Server -> MCP Client: New access token & refresh token
+}
+    
+  
+```
+
 
 
 ## Key security enhancements in MCP OAuth 2.1

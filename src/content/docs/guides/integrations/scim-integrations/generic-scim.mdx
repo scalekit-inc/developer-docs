@@ -1,0 +1,71 @@
+---
+title: "Generic SCIM"
+description: "Learn how to configure a generic SCIM identity provider for automated user provisioning and management with your application."
+prev: false
+next: false
+sidebar:
+  order: 8
+  label: "Generic provider"
+  badge:
+    variant: note
+    text: SCIM
+---
+
+import { Steps, Aside } from "@astrojs/starlight/components";
+
+This guide walks you through configuring a generic SCIM identity provider for your application, enabling automated user provisioning and management for your users. You'll learn how to set up SCIM integration, configure endpoint credentials, assign users and groups, and map roles.
+
+<Steps>
+1. ## Directory details
+
+   Open the Admin Portal from the app being onboarded and select the "SCIM Provisioning" tab. A list of Directory Providers will be displayed. Choose "Custom Provider" as your Directory Provider. If the Admin Portal is not accessible from the app, request instructions from the app owner.
+
+   After selecting "Custom Provider," click "Configure." This action will generate an Endpoint URL and Bearer token for your organization, allowing the app to listen to events and maintain synchronization with your organization.
+
+   Copy and paste the **Endpoint URL** and the **Bearer Token** into your Custom Provider. Use the copy icons next to each field to copy the credentials.
+
+   <Aside type="caution" title="Important">
+   Make sure to copy your new bearer token now. You won't be able to see it again.
+   </Aside>
+
+2. ## Configure SCIM application in your identity provider
+
+   Log in to your identity provider's admin dashboard and navigate to the Applications or Integrations section.
+
+   Create a new SCIM application or integration. Select SCIM 2.0 as the provisioning protocol.
+
+   Enter the **Endpoint URL** and **Bearer Token** you copied from the SCIM Configuration Portal into the appropriate fields in your identity provider. This typically includes:
+
+   - SCIM 2.0 Base URL (paste the Endpoint URL)
+   - OAuth Bearer Token or API Token (paste the Bearer Token)
+
+   Test the API credentials if your identity provider provides this option to verify the connection.
+
+3. ## Assign users and groups
+
+   Assign appropriate users and groups you wish to provision with your application in your Custom Provider account.
+
+   Complete the provisioning setup and assign users or groups according to your identity provider's interface. This typically involves:
+
+   - Navigating to the Assignments or Users section
+   - Selecting individual users or groups to provision
+   - Configuring any user attribute mappings if required
+
+   After assigning users and groups, your identity provider will begin sending provisioning requests to your application's SCIM endpoint.
+
+4. ## Group based role assignment
+
+   Map directory groups to your application's roles. Users without an explicit role assignment will be assigned the default Administrator role.
+
+   In the SCIM Configuration Portal, navigate to the Group Based Role Assignment section. Once groups are synced from your directory, you can map each directory group to a specific role in your application.
+
+   This allows you to automatically assign roles to users based on their group membership in your identity provider, ensuring users receive the appropriate permissions when they are provisioned.
+
+5. ## Verify successful connection
+
+   After completing these steps, verify that the users and groups are successfully synced by visiting the Users and Groups tabs in the Admin Portal.
+
+   You can also check the Events tab to monitor provisioning activities and ensure that user creation, updates, and deactivations are being processed correctly.
+
+   With this, we are done configuring your application for SCIM-based user provisioning with a generic SCIM identity provider.
+</Steps>

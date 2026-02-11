@@ -1,20 +1,20 @@
 import { Steps, Aside, Badge, LinkCard, CardGrid, Tabs, TabItem } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-Enterprise SSO enables users to authenticate to your application using their organization's identity provider (IdP) such as Okta, Microsoft Entra ID, or Google Workspace. This provides enterprise customers with a secure, centralized authentication experience while reducing password management overhead.
+Enterprise provisioning with SCIM enables you to automatically create, update, and deactivate users in your application based on changes in your customers' directory providers such as Okta, Microsoft Entra ID, or Google Workspace. This gives enterprise customers centralized user lifecycle management while reducing manual administration and access drift.
 
-![How Scalekit connects your application to enterprise identity providers](@/assets/docs/sso-quickstart/how-scalekit-connects.png)
+![How Scalekit connects your application to enterprise directories and identity providers](@/assets/docs/sso-quickstart/how-scalekit-connects.png)
 
-This guide walks you through the complete workflow for onboarding enterprise customers with SSO. You'll learn how to create organizations, provide admin portal access, enable domain-based SSO, and verify the integration.
+This guide walks you through the complete workflow for onboarding enterprise customers with SCIM provisioning. You'll learn how to create organizations, provide admin portal access, enable directory sync, and verify that provisioning works end to end.
 
-Before onboarding enterprise customers, ensure you have completed the [Full Stack Auth quickstart](/authenticate/fsa/quickstart/) to set up basic authentication in your application.
+Before onboarding enterprise customers with provisioning, ensure you have completed the [SCIM quickstart](/directory/scim/quickstart/) to set up basic directory sync in your application.
 
 ## Table of contents
 
 - [Create organization](#create-organization)
 - [Provide admin portal access](#provide-admin-portal-access)
-- [Customer configures SSO](#customer-configures-sso)
-- [Verify domain ownership](#verify-domain-ownership)
+- [Customer configures SCIM provisioning](#customer-configures-scim-provisioning)
+- [Verify provisioning and run test sync](#verify-provisioning-and-run-test-sync)
 
 
 <br />
@@ -31,11 +31,11 @@ Before onboarding enterprise customers, ensure you have completed the [Full Stac
    - Enter the organization name and relevant details
    - Save the organization
 
-   Each organization in Scalekit represents one of your enterprise customers and can have its own SSO configuration, directory sync settings, and domain associations.
+   Each organization in Scalekit represents one of your enterprise customers and can have its own directory sync settings, SSO configuration, and domain associations.
 
 2. ## Provide admin portal access
 
-   Give your customer's IT administrator access to the self-serve admin portal to configure their identity provider. Scalekit provides two integration methods:
+   Give your customer's IT administrator access to the self-serve admin portal to configure their directory and SCIM connection. Scalekit provides two integration methods:
 
    **Option 1: Share a no-code link** <Badge text="Quick setup" variant="tip" />
 
@@ -68,7 +68,7 @@ Before onboarding enterprise customers, ensure you have completed the [Full Stac
 
    **Option 2: Embed the portal** <Badge text="Seamless experience" variant="note" />
 
-   Embed the admin portal directly in your application so customers can configure SSO without leaving your interface. The portal link must be generated programmatically on each page load for security. Each generated link is single-use and expires after 1 minute, though once loaded, the session remains active for up to 6 hours.
+   Embed the admin portal directly in your application so customers can configure SCIM provisioning and SSO without leaving your interface. The portal link must be generated programmatically on each page load for security. Each generated link is single-use and expires after 1 minute, though once loaded, the session remains active for up to 6 hours.
 
    <InstallSDK />
 
@@ -186,7 +186,7 @@ Before onboarding enterprise customers, ensure you have completed the [Full Stac
 
    Embed the portal in your application's settings or admin section where customers manage authentication configuration.
 
-   Listen for UI events from the embedded portal to respond to configuration changes, such as when SSO is enabled or the session expires. See the [Admin portal UI events reference](/reference/admin-portal/ui-events/) for details on handling these events.
+   Listen for UI events from the embedded portal to respond to configuration changes, such as when directory sync is enabled, provisioning is tested, or the session expires. See the [Admin portal UI events reference](/reference/admin-portal/ui-events/) for details on handling these events.
 
    ### Configuration and session
 
@@ -203,45 +203,36 @@ Before onboarding enterprise customers, ensure you have completed the [Full Stac
    Generate a new portal link on each page load rather than caching the URL. This ensures security and prevents expired link errors.
    </Aside>
 
-3. ## Customer configures SSO
+3. ## Customer configures SCIM provisioning
 
    After receiving admin portal access, your customer's IT administrator:
 
    - Opens the admin portal (via shared link or embedded iframe)
-   - Selects their identity provider (Okta, Microsoft Entra ID, Google Workspace, etc.)
-   - Follows the provider-specific setup guide
-   - Enters the required configuration (metadata URL, certificates, etc.)
-   - Tests the connection
-   - Activates the SSO connection
+   - Selects their directory integration (Okta, Microsoft Entra ID, Google Workspace, etc.)
+   - Follows the provider-specific SCIM or directory sync setup guide
+   - Enters the required configuration (SCIM endpoint URL, access token, and any required headers)
+   - Tests user provisioning from their directory to your application
+   - Activates the SCIM connection
 
-   Once configured, the SSO connection appears as active in your organization's settings:
+   Once configured, the directory sync or SCIM connection appears as active in your organization's settings.
 
-   ![Active enterprise SSO connection](@/assets/docs/fsa/auth-methods/enterpise-sso-1.png)
-
-   <Aside type="tip" title="IdP configuration guides">
-   Share the appropriate [SSO integration guide](/guides/integrations/sso-integrations/) with your customer's IT team to help them configure their identity provider correctly.
+   <Aside type="tip" title="SCIM configuration guides">
+   Share the appropriate [SCIM integration guide](/guides/integrations/scim-integrations/) with your customer's IT team to help them configure their directory correctly.
    </Aside>
 
-4. ## Verify domain ownership
+4. ## Verify provisioning and run test sync
 
-   After SSO is configured, verify the organization's email domains to enable automatic SSO routing. When domains are verified, users with matching email addresses are automatically redirected to their organization's SSO login.
+   After SCIM provisioning is configured, verify that user and group changes flow correctly from the customer's directory into your application. This ensures your enterprise onboarding is reliable before rolling out broadly.
 
-   **Verification methods:**
+   To verify provisioning:
 
-   - **DNS verification** <Badge text="Coming soon" variant="note" />: Organization admins add a DNS TXT record to prove domain ownership through the admin portal
-   - **Manual verification**: Request domain verification through the Scalekit dashboard when domain ownership is already established
+   - Create a test user in the customer's directory and assign them to the appropriate groups or applications
+   - Confirm that the user appears in your application's organization with the expected attributes (name, email, roles, and status)
+   - Update the user's attributes or group memberships in the directory and verify that changes propagate to your application
+   - Deactivate or delete the test user in the directory and ensure their access is revoked in your application
 
-   To manually verify a domain:
-
-   - Navigate to **Dashboard > Organizations** and select the organization
-   - Go to **Single Sign-On** settings
-   - Add the domain (e.g., `megacorp.com`)
-   - Verify the domain through the dashboard
-
-   Once verified, users with email addresses from that domain (e.g., `user@megacorp.com`) can authenticate using their organization's SSO.
-
-   <Aside type="note" title="Home realm discovery">
-   Domain verification enables home realm discovery, where Scalekit automatically determines which identity provider to use based on the user's email domain.
+   <Aside type="note" title="Home realm discovery and SSO (optional)">
+   You can optionally combine SCIM provisioning with SSO and domain verification so that users are both automatically provisioned and routed to the correct identity provider at sign-in. See the SSO onboarding guides if you want to add SSO on top of SCIM.
    </Aside>
 
 </Steps>

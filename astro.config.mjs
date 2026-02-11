@@ -12,8 +12,10 @@ import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
 import starlightLinksValidator from 'starlight-links-validator'
+import starlightLlmsTxt from 'starlight-llms-txt'
 import { sidebar as sidebarConfig, topics, exclude } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
+import { llmsConfig } from './src/configs/llms.config.ts'
 import tailwindcss from '@tailwindcss/vite'
 import d2 from 'astro-d2' // https://astro-d2.vercel.app/configuration/
 import Icons from 'unplugin-icons/vite'
@@ -22,6 +24,7 @@ import netlify from '@astrojs/netlify'
 
 // https://astro.build/config
 export default defineConfig({
+  output: 'server',
   site: 'https://docs.scalekit.com',
   redirects,
   integrations: [
@@ -86,6 +89,7 @@ export default defineConfig({
         starlightLinksValidator({
           exclude: ['/apis/**'],
         }),
+        starlightLlmsTxt(llmsConfig),
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude'],
           hideMainActionLabel: true,
@@ -191,6 +195,87 @@ export default defineConfig({
             src: '/js/sidebar-scroll.js',
           },
         },
+        // Pylon widget configuration (must run in head before widget loads)
+        {
+          tag: 'script',
+          attrs: {
+            src: '/js/pylon-widget.js',
+          },
+        },
+        // PostHog user identification
+        {
+          tag: 'script',
+          content: `
+            ;(function () {
+              try {
+                var raw = localStorage.getItem('sk_auth_session')
+                if (!raw) return
+
+                var session = JSON.parse(raw)
+                if (!session || !session.authenticated) return
+
+                // Extract uid (sub) and xoid from session
+                var uid = session.uid
+                var xoid = session.xoid
+                var email = null
+
+                // Safely extract from claims as fallback
+                if (!uid && session.idTokenClaims && typeof session.idTokenClaims === 'object') {
+                  uid = session.idTokenClaims.sub || null
+                }
+                if (!xoid && session.idTokenClaims && typeof session.idTokenClaims === 'object') {
+                  xoid = session.idTokenClaims.xoid || null
+                }
+                if (!email && session.idTokenClaims && typeof session.idTokenClaims === 'object') {
+                  email = session.idTokenClaims.email || null
+                }
+                if (!email && session.user && typeof session.user === 'object') {
+                  email = session.user.email || null
+                }
+
+                // Wait for PostHog to be ready (up to 5 seconds)
+                var checkPostHog = function () {
+                  if (typeof window.posthog !== 'undefined') {
+                    // Identify user with uid
+                    if (uid && window.posthog) {
+                      window.posthog.identify(uid, {
+                        email: email,
+                      })
+                    }
+
+                    // Group by workspace (xoid)
+                    if (xoid && window.posthog) {
+                      window.posthog.group('workspace', xoid)
+                    }
+
+                    console.log('[posthog] user identified:', { uid: uid, xoid: xoid })
+                  } else {
+                    // PostHog not ready yet, retry
+                    setTimeout(checkPostHog, 100)
+                  }
+                }
+
+                // Start checking for PostHog
+                var attempts = 0
+                var maxAttempts = 50 // 5 seconds
+                var originalCheck = checkPostHog
+                checkPostHog = function () {
+                  if (typeof window.posthog !== 'undefined') {
+                    originalCheck()
+                  } else if (attempts < maxAttempts) {
+                    attempts++
+                    setTimeout(checkPostHog, 100)
+                  } else {
+                    console.warn('[posthog] timed out waiting for PostHog to load')
+                  }
+                }
+                checkPostHog()
+              } catch (e) {
+                console.warn('[posthog] failed to identify user:', e)
+              }
+            })()
+          `,
+        },
         {
           tag: 'script',
           attrs: {
@@ -260,6 +345,5 @@ export default defineConfig({
       },
     },
   },
-
   adapter: netlify(),
 })
