@@ -52,17 +52,6 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Multi-App Authentication',
-        collapsed: false,
-        items: [
-          'authenticate/fsa/multiapp/overview',
-          'authenticate/fsa/multiapp/web-app',
-          'authenticate/fsa/multiapp/single-page-app',
-          'authenticate/fsa/multiapp/native-app',
-          'authenticate/fsa/multiapp/manage-apps',
-        ],
-      },
-      {
         label: 'Authorization',
         collapsed: false,
         items: [
@@ -70,6 +59,17 @@ export const sidebar = [
           'authenticate/authz/create-roles-permissions',
           'authenticate/authz/assign-roles',
           'authenticate/authz/implement-access-control',
+        ],
+      },
+      {
+        label: 'Multi-App Authentication',
+        collapsed: false,
+        items: [
+          'authenticate/fsa/multiapp/overview',
+          'authenticate/fsa/multiapp/manage-apps',
+          'authenticate/fsa/multiapp/web-app',
+          'authenticate/fsa/multiapp/single-page-app',
+          'authenticate/fsa/multiapp/native-app',
         ],
       },
       {
