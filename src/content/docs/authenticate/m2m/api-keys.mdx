@@ -1,9 +1,9 @@
 ---
-title: Opaque API tokens
-description: "Issue long-lived, revocable API tokens scoped to organizations and users for programmatic access to your APIs"
+title: API keys
+description: "Issue long-lived, revocable API keys scoped to organizations and users for programmatic access to your APIs"
 sidebar:
-  label: "Opaque tokens"
-tags: [api-tokens, opaque-tokens, m2m, authentication, bearer-tokens]
+  label: "API keys"
+tags: [api-tokens, api-keys, m2m, authentication, bearer-tokens]
 head:
   - tag: style
     content: |
@@ -18,16 +18,36 @@ head:
 import { Aside, Steps, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-Opaque API tokens are long-lived bearer credentials that grant programmatic access to your application's APIs. Each token is scoped to an organization and optionally to a specific user within that organization. Unlike [JWT-based M2M authentication](/authenticate/m2m/api-auth-quickstart/), opaque tokens are simple strings with no embedded claims — all validation happens server-side through Scalekit's API.
+Scalekit API keys let you give your customers long-lived, revocable credentials for programmatic access to your APIs. Each API key is scoped to an organization and optionally to a specific user, so you have fine-grained control over who can access what. Unlike [JWT-based M2M authentication](/authenticate/m2m/api-auth-quickstart/), API keys are simple bearer strings with no embedded claims — Scalekit handles all validation server-side.
 
-This server-side validation model provides two key security advantages. First, tokens can be **validated immediately** after creation — there is no propagation delay. Second, tokens can be **revoked instantly** — once you call invalidate, the very next validation request will reject the token. With JWTs, you must wait for the token to expire or maintain a revocation list. Opaque tokens give you real-time control over access.
+Scalekit validates every API key in real time, which gives you two security advantages out of the box. Keys can be **validated immediately** after creation — there is no propagation delay. And keys can be **revoked instantly** — once you call invalidate, the very next validation request rejects the key. No waiting for expiry windows or maintaining revocation lists.
 
-While opaque tokens are commonly used for machine-to-machine access, they also support **user-level authentication**. By scoping a token to a specific user within an organization, you can issue personal API keys that carry the user's identity. Your API middleware can then extract the `userId` from the validated token to enforce user-specific authorization — enabling use cases like personal access tokens, per-user rate limiting, and audit trails tied to individual users.
+Scalekit API keys also support **user-level scoping**, which enables you to issue personal API keys tied to a specific user within an organization. Your API middleware can extract the `userId` from the validated key to enforce user-specific authorization — enabling personal access tokens, per-user rate limiting, and audit trails tied to individual users.
 
-Use opaque tokens when your customers need persistent API keys for integrations, CI/CD pipelines, service accounts, or any automation that calls your APIs. Use M2M client credentials when you need short-lived JWTs with scopes and audience restrictions.
+We recommend API keys when your customers need persistent credentials for integrations, CI/CD pipelines, service accounts, or any automation that calls your APIs. For short-lived JWTs with scopes and audience restrictions, use [M2M client credentials](/authenticate/m2m/api-auth-quickstart/) instead.
+
+```d2 pad=36
+shape: sequence_diagram
+
+API Client
+User
+Your App
+Scalekit
+
+User -> Your App: Request API key
+Your App -> Scalekit: Create token (organizationId, userId)
+Scalekit -> Your App: API key + tokenId
+Your App -> User: API key
+User -> API Client: Configure API key
+API Client -> Your App: Request with Authorization header
+Your App -> Scalekit: Validate token
+Scalekit -> Your App: Organization, user, and role info
+Your App -> Your App: Process request
+Your App -> API Client: Response
+```
 
 <Aside type="tip">
-  The plain-text token value is returned **only at creation time**. Scalekit does not store the token and cannot retrieve it later. Instruct your users to copy and store the token securely before closing the creation dialog.
+  The plain-text API key is returned **only at creation time**. Scalekit does not store the key and cannot retrieve it later. Instruct your users to copy and store the key securely before closing the creation dialog.
 </Aside>
 
 ## Install the SDK
@@ -94,14 +114,15 @@ ScalekitClient scalekitClient = new ScalekitClient(
 
 ## Create a token
 
-Create an opaque token scoped to an organization. You can optionally scope it to a specific user, attach custom claims as key-value metadata, set an expiry, and add a human-readable description.
+### Organization-scoped API key
+
+Create an API key scoped to an organization. This is the most common pattern for service-to-service integrations where the API key represents access on behalf of an entire organization.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
 
-```javascript title="Express.js"
+```javascript
 try {
-  // Create a basic organization-scoped token
   const response = await scalekit.token.createToken(organizationId, {
     description: 'CI/CD pipeline token',
   });
@@ -110,16 +131,6 @@ try {
   const opaqueToken = response.token;
   // Stable identifier for management operations (format: apit_xxxxx)
   const tokenId = response.tokenId;
-
-  // Create a user-scoped token with custom claims
-  const userToken = await scalekit.token.createToken(organizationId, {
-    userId: 'usr_12345',
-    customClaims: {
-      team: 'engineering',
-      environment: 'production',
-    },
-    description: 'Deployment service token',
-  });
 } catch (error) {
   console.error('Failed to create token:', error.message);
 }
@@ -128,9 +139,8 @@ try {
 </TabItem>
 <TabItem value="python" label="Python">
 
-```python title="Flask"
+```python
 try:
-    # Create a basic organization-scoped token
     response = scalekit_client.tokens.create_token(
         organization_id=organization_id,
         description="CI/CD pipeline token",
@@ -139,8 +149,79 @@ try:
     # SDK returns (response, metadata) tuple — access response at index 0
     opaque_token = response[0].token  # store this securely
     token_id = response[0].token_id   # format: apit_xxxxx
+except Exception as e:
+    print(f"Failed to create token: {e}")
+```
 
-    # Create a user-scoped token with custom claims
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+response, err := scalekitClient.Token().CreateToken(
+  ctx, organizationId, scalekit.CreateTokenOptions{
+    Description: "CI/CD pipeline token",
+  },
+)
+if err != nil {
+  log.Printf("Failed to create token: %v", err)
+  return
+}
+
+// Store securely — this value cannot be retrieved again after creation
+opaqueToken := response.Token
+// Stable identifier for management operations (format: apit_xxxxx)
+tokenId := response.TokenId
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+try {
+    CreateTokenResponse response = scalekitClient.tokens().create(organizationId);
+
+    // Store securely — this value cannot be retrieved again after creation
+    String opaqueToken = response.getToken();
+    // Stable identifier for management operations (format: apit_xxxxx)
+    String tokenId = response.getTokenId();
+} catch (Exception e) {
+    System.err.println("Failed to create token: " + e.getMessage());
+}
+```
+
+</TabItem>
+</Tabs>
+
+### User-scoped API key
+
+Scope an API key to a specific user within an organization to enable personal access tokens, per-user audit trails, and user-level rate limiting. You can also attach custom claims as key-value metadata.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript
+try {
+  const userToken = await scalekit.token.createToken(organizationId, {
+    userId: 'usr_12345',
+    customClaims: {
+      team: 'engineering',
+      environment: 'production',
+    },
+    description: 'Deployment service token',
+  });
+
+  const opaqueToken = userToken.token;
+  const tokenId = userToken.tokenId;
+} catch (error) {
+  console.error('Failed to create token:', error.message);
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+try:
     user_token = scalekit_client.tokens.create_token(
         organization_id=organization_id,
         user_id="usr_12345",
@@ -150,6 +231,9 @@ try:
         },
         description="Deployment service token",
     )
+
+    opaque_token = user_token[0].token
+    token_id = user_token[0].token_id
 except Exception as e:
     print(f"Failed to create token: {e}")
 ```
@@ -157,23 +241,7 @@ except Exception as e:
 </TabItem>
 <TabItem value="go" label="Go">
 
-```go title="Gin"
-// Create a basic organization-scoped token
-response, err := scalekitClient.Token().CreateToken(
-  ctx, organizationId, scalekit.CreateTokenOptions{
-    Description: "CI/CD pipeline token",
-  },
-)
-if err != nil {
-  log.Fatalf("Failed to create token: %v", err)
-}
-
-// Store securely — this value cannot be retrieved again after creation
-opaqueToken := response.Token
-// Stable identifier for management operations (format: apit_xxxxx)
-tokenId := response.TokenId
-
-// Create a user-scoped token with custom claims
+```go
 userToken, err := scalekitClient.Token().CreateToken(
   ctx, organizationId, scalekit.CreateTokenOptions{
     UserId:      "usr_12345",
@@ -185,24 +253,19 @@ userToken, err := scalekitClient.Token().CreateToken(
   },
 )
 if err != nil {
-  log.Fatalf("Failed to create user token: %v", err)
+  log.Printf("Failed to create user token: %v", err)
+  return
 }
+
+opaqueToken := userToken.Token
+tokenId := userToken.TokenId
 ```
 
 </TabItem>
 <TabItem value="java" label="Java">
 
-```java title="Spring Boot"
+```java
 try {
-    // Create a basic organization-scoped token
-    CreateTokenResponse response = scalekitClient.tokens().create(organizationId);
-
-    // Store securely — this value cannot be retrieved again after creation
-    String opaqueToken = response.getToken();
-    // Stable identifier for management operations (format: apit_xxxxx)
-    String tokenId = response.getTokenId();
-
-    // Create a user-scoped token with custom claims
     Map<String, String> customClaims = Map.of(
         "team", "engineering",
         "environment", "production"
@@ -211,6 +274,9 @@ try {
     CreateTokenResponse userToken = scalekitClient.tokens().create(
         organizationId, "usr_12345", customClaims, null, "Deployment service token"
     );
+
+    String opaqueToken = userToken.getToken();
+    String tokenId = userToken.getTokenId();
 } catch (Exception e) {
     System.err.println("Failed to create token: " + e.getMessage());
 }
@@ -223,29 +289,24 @@ The response contains three fields:
 
 | Field | Description |
 |-------|-------------|
-| `token` | The opaque token string. **Returned only at creation.** |
+| `token` | The API key string. **Returned only at creation.** |
 | `token_id` | A stable identifier (format: `apit_xxxxx`) for referencing the token in management operations. |
 | `token_info` | Metadata including organization, user, custom claims, and timestamps. |
 
 ## Validate a token
 
-Validate an incoming token to verify it is active and retrieve its associated context. You can pass either the opaque token string or the `token_id`.
+Scalekit validates the API key server-side and returns its associated context.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
 
-```javascript title="Express.js"
+```javascript
 try {
-  // Validate using the opaque token from the Authorization header
   const result = await scalekit.token.validateToken(opaqueToken);
 
-  // Access the token context
   const orgId = result.tokenInfo.organizationId;
   const userId = result.tokenInfo.userId;
   const claims = result.tokenInfo.customClaims;
-
-  // You can also validate by token_id
-  const resultById = await scalekit.token.validateToken(tokenId);
 } catch (error) {
   // Token is invalid, expired, or revoked
   console.error('Token validation failed:', error.message);
@@ -255,18 +316,13 @@ try {
 </TabItem>
 <TabItem value="python" label="Python">
 
-```python title="Flask"
+```python
 try:
-    # Validate using the opaque token from the Authorization header
     result = scalekit_client.tokens.validate_token(token=opaque_token)
 
-    # Access the token context
     org_id = result[0].token_info.organization_id
     user_id = result[0].token_info.user_id
     claims = result[0].token_info.custom_claims
-
-    # You can also validate by token_id
-    result_by_id = scalekit_client.tokens.validate_token(token=token_id)
 except Exception:
     # Token is invalid, expired, or revoked
     print("Token validation failed")
@@ -275,41 +331,29 @@ except Exception:
 </TabItem>
 <TabItem value="go" label="Go">
 
-```go title="Gin"
-// Validate using the opaque token from the Authorization header
+```go
 result, err := scalekitClient.Token().ValidateToken(ctx, opaqueToken)
 if err != nil {
   // Token is invalid, expired, or revoked
-  log.Fatalf("Token validation failed: %v", err)
+  log.Printf("Token validation failed: %v", err)
+  return
 }
 
-// Access the token context
 orgId := result.TokenInfo.OrganizationId
 userId := result.TokenInfo.UserId
 claims := result.TokenInfo.CustomClaims
-
-// You can also validate by token_id
-resultById, err := scalekitClient.Token().ValidateToken(ctx, tokenId)
-if err != nil {
-  log.Fatalf("Token validation failed: %v", err)
-}
 ```
 
 </TabItem>
 <TabItem value="java" label="Java">
 
-```java title="Spring Boot"
+```java
 try {
-    // Validate using the opaque token from the Authorization header
     ValidateTokenResponse result = scalekitClient.tokens().validate(opaqueToken);
 
-    // Access the token context
     String orgId = result.getTokenInfo().getOrganizationId();
     String userId = result.getTokenInfo().getUserId();
     Map<String, String> claims = result.getTokenInfo().getCustomClaimsMap();
-
-    // You can also validate by token_id
-    ValidateTokenResponse resultById = scalekitClient.tokens().validate(tokenId);
 } catch (Exception e) {
     // Token is invalid, expired, or revoked
     System.err.println("Token validation failed: " + e.getMessage());
@@ -319,16 +363,158 @@ try {
 </TabItem>
 </Tabs>
 
-Validation fails with an error if the token is invalid, expired, or has been revoked. Use this behavior to reject unauthorized requests in your API middleware.
+Validation fails with an error if the API key is invalid, expired, or has been revoked. Use this behavior to reject unauthorized requests in your API middleware.
 
-## List tokens
+### Access roles and organization details
 
-Retrieve all active tokens for an organization. Use pagination to handle large result sets, and filter by `userId` to find tokens scoped to a specific user.
+The validated token also includes roles assigned to the user and external identifiers for the organization. Use these to make authorization decisions without additional lookups.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
 
-```javascript title="Express.js"
+```javascript
+const result = await scalekit.token.validateToken(opaqueToken);
+
+// Roles assigned to the user
+const roles = result.tokenInfo.roles;
+
+// External identifiers for mapping to your system
+const externalOrgId = result.tokenInfo.organizationExternalId;
+const externalUserId = result.tokenInfo.userExternalId;
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+result = scalekit_client.tokens.validate_token(token=opaque_token)
+
+# Roles assigned to the user
+roles = result[0].token_info.roles
+
+# External identifiers for mapping to your system
+external_org_id = result[0].token_info.organization_external_id
+external_user_id = result[0].token_info.user_external_id
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+result, err := scalekitClient.Token().ValidateToken(ctx, opaqueToken)
+if err != nil {
+  log.Printf("Token validation failed: %v", err)
+  return
+}
+
+// Roles assigned to the user
+roles := result.TokenInfo.Roles
+
+// External identifiers for mapping to your system
+externalOrgId := result.TokenInfo.OrganizationExternalId
+externalUserId := result.TokenInfo.UserExternalId
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+ValidateTokenResponse result = scalekitClient.tokens().validate(opaqueToken);
+
+// Roles assigned to the user
+List<String> roles = result.getTokenInfo().getRolesList();
+
+// External identifiers for mapping to your system
+String externalOrgId = result.getTokenInfo().getOrganizationExternalId();
+String externalUserId = result.getTokenInfo().getUserExternalId();
+```
+
+</TabItem>
+</Tabs>
+
+<Aside type="note">
+  Roles are available when you use [Full Stack Authentication](/authenticate/fsa/quickstart/) with [role-based access control](/authenticate/authz/overview/). Assign roles to users through the Scalekit dashboard or API.
+</Aside>
+
+### Access custom metadata
+
+Custom claims attached during token creation are returned in the validation response. Use them for fine-grained authorization decisions without additional database lookups.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript
+const result = await scalekit.token.validateToken(opaqueToken);
+
+const team = result.tokenInfo.customClaims?.team;
+const environment = result.tokenInfo.customClaims?.environment;
+
+// Use metadata for authorization
+if (environment !== 'production') {
+  return res.status(403).json({ error: 'Production access required' });
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+result = scalekit_client.tokens.validate_token(token=opaque_token)
+
+team = result[0].token_info.custom_claims.get("team")
+environment = result[0].token_info.custom_claims.get("environment")
+
+# Use metadata for authorization
+if environment != "production":
+    return jsonify({"error": "Production access required"}), 403
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+result, err := scalekitClient.Token().ValidateToken(ctx, opaqueToken)
+if err != nil {
+  log.Printf("Token validation failed: %v", err)
+  return
+}
+
+team := result.TokenInfo.CustomClaims["team"]
+environment := result.TokenInfo.CustomClaims["environment"]
+
+// Use metadata for authorization
+if environment != "production" {
+  c.JSON(403, gin.H{"error": "Production access required"})
+  return
+}
+```
+
+</TabItem>
+<TabItem value="java" label="Java">
+
+```java
+ValidateTokenResponse result = scalekitClient.tokens().validate(opaqueToken);
+
+String team = result.getTokenInfo().getCustomClaimsMap().get("team");
+String environment = result.getTokenInfo().getCustomClaimsMap().get("environment");
+
+// Use metadata for authorization
+if (!"production".equals(environment)) {
+    return ResponseEntity.status(403).body(Map.of("error", "Production access required"));
+}
+```
+
+</TabItem>
+</Tabs>
+
+## List tokens
+
+Retrieve all active API keys for an organization. Use pagination to handle large result sets, and filter by `userId` to find keys scoped to a specific user.
+
+<Tabs syncKey="tech-stack">
+<TabItem value="node" label="Node.js">
+
+```javascript
 // List tokens for an organization
 const response = await scalekit.token.listTokens(organizationId, {
   pageSize: 10,
@@ -355,7 +541,7 @@ const userTokens = await scalekit.token.listTokens(organizationId, {
 </TabItem>
 <TabItem value="python" label="Python">
 
-```python title="Flask"
+```python
 # List tokens for an organization
 response = scalekit_client.tokens.list_tokens(
     organization_id=organization_id,
@@ -383,7 +569,7 @@ user_tokens = scalekit_client.tokens.list_tokens(
 </TabItem>
 <TabItem value="go" label="Go">
 
-```go title="Gin"
+```go
 // List tokens for an organization
 response, err := scalekitClient.Token().ListTokens(
   ctx, organizationId, scalekit.ListTokensOptions{
@@ -416,7 +602,7 @@ userTokens, err := scalekitClient.Token().ListTokens(
 </TabItem>
 <TabItem value="java" label="Java">
 
-```java title="Spring Boot"
+```java
 // List tokens for an organization
 ListTokensResponse response = scalekitClient.tokens().list(organizationId, 10, null);
 
@@ -444,52 +630,52 @@ The response includes `totalCount` for the total number of matching tokens and `
 
 ## Invalidate a token
 
-Revoke a token to immediately prevent it from being used. Invalidation takes effect instantly — any subsequent validation request for this token will fail.
+Revoke an API key to immediately prevent it from being used. Invalidation takes effect instantly — any subsequent validation request for this key will fail.
 
-This operation is **idempotent**: calling invalidate on an already-revoked token succeeds without error.
+This operation is **idempotent**: calling invalidate on an already-revoked key succeeds without error.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
 
-```javascript title="Express.js"
-// Invalidate by token_id
-await scalekit.token.invalidateToken(tokenId);
-
-// Or invalidate by opaque token string
+```javascript
+// Invalidate by API key string
 await scalekit.token.invalidateToken(opaqueToken);
+
+// Or invalidate by token_id (useful when you store tokenId for lifecycle management)
+await scalekit.token.invalidateToken(tokenId);
 ```
 
 </TabItem>
 <TabItem value="python" label="Python">
 
-```python title="Flask"
-# Invalidate by token_id
-scalekit_client.tokens.invalidate_token(token=token_id)
-
-# Or invalidate by opaque token string
+```python
+# Invalidate by API key string
 scalekit_client.tokens.invalidate_token(token=opaque_token)
+
+# Or invalidate by token_id (useful when you store token_id for lifecycle management)
+scalekit_client.tokens.invalidate_token(token=token_id)
 ```
 
 </TabItem>
 <TabItem value="go" label="Go">
 
-```go title="Gin"
-// Invalidate by token_id
-err := scalekitClient.Token().InvalidateToken(ctx, tokenId)
+```go
+// Invalidate by API key string
+err := scalekitClient.Token().InvalidateToken(ctx, opaqueToken)
 
-// Or invalidate by opaque token string
-err = scalekitClient.Token().InvalidateToken(ctx, opaqueToken)
+// Or invalidate by token_id (useful when you store tokenId for lifecycle management)
+err = scalekitClient.Token().InvalidateToken(ctx, tokenId)
 ```
 
 </TabItem>
 <TabItem value="java" label="Java">
 
-```java title="Spring Boot"
-// Invalidate by token_id
-scalekitClient.tokens().invalidate(tokenId);
-
-// Or invalidate by opaque token string
+```java
+// Invalidate by API key string
 scalekitClient.tokens().invalidate(opaqueToken);
+
+// Or invalidate by token_id (useful when you store tokenId for lifecycle management)
+scalekitClient.tokens().invalidate(tokenId);
 ```
 
 </TabItem>
@@ -497,7 +683,7 @@ scalekitClient.tokens().invalidate(opaqueToken);
 
 ## Protect your API endpoints
 
-Add token validation as middleware in your API server. Extract the Bearer token from the `Authorization` header, validate it through Scalekit, and use the returned `token_info` for authorization decisions.
+Add API key validation as middleware in your API server. Extract the Bearer token from the `Authorization` header, validate it through Scalekit, and use the returned `token_info` for authorization decisions.
 
 <Tabs syncKey="tech-stack">
 <TabItem value="node" label="Node.js">
@@ -662,20 +848,20 @@ public ResponseEntity<?> getResources(HttpServletRequest request) {
 ## Best practices
 
 <CardGrid>
-  <Card title="Store tokens securely">
-    Treat opaque tokens like passwords. Store them in encrypted secrets managers or environment variables. Never log tokens, commit them to version control, or expose them in client-side code.
+  <Card title="Store API keys securely">
+    We recommend treating API keys like passwords. Store them in encrypted secrets managers or environment variables. Never log keys, commit them to version control, or expose them in client-side code.
   </Card>
   <Card title="Set expiry for time-limited access">
-    Use the `expiry` parameter for tokens that should automatically become invalid after a set period. This limits the blast radius if a token is compromised.
+    Use the `expiry` parameter for keys that should automatically become invalid after a set period. This limits the blast radius if a key is compromised.
   </Card>
   <Card title="Use custom claims for context">
     Attach metadata like `team`, `environment`, or `service` as custom claims. Your API middleware can use these claims for fine-grained authorization without additional database lookups.
   </Card>
-  <Card title="Rotate tokens safely">
-    To rotate a token: create a new token, update the consuming service to use the new token, verify the new token works, then invalidate the old token. This avoids downtime during rotation.
+  <Card title="Rotate keys safely">
+    To rotate an API key: create a new key, update the consuming service to use the new key, verify the new key works, then invalidate the old key. This avoids downtime during rotation.
   </Card>
 </CardGrid>
 
 ## Next steps
 
-You now have the building blocks to issue, validate, and manage opaque API tokens in your application. For short-lived, scoped authentication between services, see [M2M authentication with client credentials](/authenticate/m2m/api-auth-quickstart/). To control what each token can access, configure [scopes for your M2M clients](/guides/m2m/scopes/).
+You now have the building blocks to issue, validate, and manage API keys in your application. For short-lived, scoped authentication between services, see [M2M authentication with client credentials](/authenticate/m2m/api-auth-quickstart/). To control what each key can access, configure [scopes for your M2M clients](/guides/m2m/scopes/).
