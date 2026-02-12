@@ -887,23 +887,11 @@ public ResponseEntity<?> getResources(HttpServletRequest request) {
 </TabItem>
 </Tabs>
 
-## Best practices
+Here are a few tips to help you get the most out of API keys in production:
 
-Here are a few tips to help you get the most out of API keys in production.
+- **Store API keys securely**: Treat API keys like passwords. Store them in encrypted secrets managers or environment variables. Never log keys, commit them to version control, or expose them in client-side code.
+- **Set expiry for time-limited access**: Use the `expiry` parameter for keys that should automatically become invalid after a set period. This limits the blast radius if a key is compromised.
+- **Use custom claims for context**: Attach metadata like `team`, `environment`, or `service` as custom claims. Your API middleware can use these claims for fine-grained authorization without additional database lookups.
+- **Rotate keys safely**: To rotate an API key, create a new key, update the consuming service to use the new key, verify the new key works, then invalidate the old key. This avoids downtime during rotation.
 
-<CardGrid>
-  <Card title="Store API keys securely">
-     Recommend your Clients to treat API keys like passwords.  They should be stored in encrypted secrets managers or environment variables. Never log keys, commit them to version control, or expose them in client-side code.
-  </Card>
-  <Card title="Set expiry for time-limited access">
-    Use the `expiry` parameter for keys that should automatically become invalid after a set period. This limits the blast radius if a key is compromised.
-  </Card>
-  <Card title="Use custom claims for context">
-    Attach metadata like `team`, `environment`, or `service` as custom claims. Your API middleware can use these claims for fine-grained authorization without additional database lookups.
-  </Card>
-  <Card title="Rotate keys safely">
-    To rotate an API key: create a new key, update the consuming service to use the new key, verify the new key works, then invalidate the old key. This avoids downtime during rotation.
-  </Card>
-</CardGrid>
-
-You now have everything you need to issue, validate, and manage API keys in your application. For short-lived, scoped authentication between services, see [M2M authentication with client credentials](/authenticate/m2m/api-auth-quickstart/). To control what each key can access, configure [scopes for your M2M clients](/guides/m2m/scopes/).
+You now have everything you need to issue, validate, and manage API keys in your application. 
