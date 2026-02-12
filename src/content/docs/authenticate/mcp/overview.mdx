@@ -63,8 +63,6 @@ This authorization mechanism is based on established specifications listed below
 - **OAuth 2.0 Protected Resource Metadata (RFC9728)**: Resource server discovery
 - **Client ID Metadata Document (CIMD)**: Lets authorization servers fetch client metadata directly from a client-hosted document for authorization
 
-![MCP OAuth 2.1 Authorization Flow](@/assets/docs/guides/mcp/overview-mcp-seq-diag.png)
-
 ## The authorization flow in practice
 
 Now let's zoom in and see how the MCP OAuth 2.1 flow unfolds step-by-step:
@@ -111,6 +109,9 @@ Scalekit Auth Server -> MCP client: Scalekit Auth Server metadata\n
 8. **Scalekit Auth Server** issues access token with appropriate scopes
 </Steps>
 
+#### Dynamic client registration
+
+MCP clients and authorization servers SHOULD support the OAuth 2.1 Dynamic Client Registration Protocol to allow MCP clients to obtain OAuth client IDs without user interaction. This enables seamless onboarding of new AI agents without manual configuration.
 
 ```d2 pad=36
 title: "MCP DCR Authorization Phase" {
@@ -135,6 +136,10 @@ Scalekit Auth Server -> MCP Client: Returns authorization code
 MCP Client -> Scalekit Auth Server: POST /oauth/token
 Scalekit Auth Server -> MCP Client: Issues access_token, id_token, scopes 
 ```
+
+#### Client ID Metadata Document (CIMD)
+
+MCP clients SHOULD support the Client ID Metadata Document (CIMD) specification, which allows clients to publish their OAuth client metadata at a well-known URL under their control. This enables authorization servers to automatically retrieve and validate client metadata without requiring an explicit dynamic registration request, simplifying onboarding for new AI agents while maintaining secure, decentralized client configuration.
 
 ```d2 pad=36
 title: "MCP CIMD Authorization Phase" {
@@ -171,7 +176,7 @@ Scalekit Auth Server -> MCP Client: Issues access_token, id_token, scopes
 
 ```d2 pad=36
 
-title: "Human and MCP Server (OAuth 2.1 Authorization Code Flow)" {
+title: "Access and Refresh Token Phase" {
   near: top-center
   shape: text
   style.font-size: 18
@@ -197,8 +202,6 @@ refresh_phase: {
   
 ```
 
-
-
 ## Key security enhancements in MCP OAuth 2.1
 
 The current MCP authorization specification incorporates several critical security improvements:
@@ -223,39 +226,6 @@ MCP OAuth 2.1 supports granular permissions through scopes like:
 |-------------------------------------|--------------------------------------|
 | `todo:read`                         | Read todo tasks                      |
 | `todo:write`                        | Create and edit todo tasks           |
-
-#### Client ID Metadata Document (CIMD)
-
-MCP clients SHOULD support the Client ID Metadata Document (CIMD) specification, which allows clients to publish their OAuth client metadata at a well-known URL under their control. This enables authorization servers to automatically retrieve and validate client metadata without requiring an explicit dynamic registration request, simplifying onboarding for new AI agents while maintaining secure, decentralized client configuration.
-
-#### Dynamic client registration
-
-MCP clients and authorization servers SHOULD support the OAuth 2.1 Dynamic Client Registration Protocol to allow MCP clients to obtain OAuth client IDs without user interaction. This enables seamless onboarding of new AI agents without manual configuration.
-
-## Why authorization matters more than ever
-
-As AI applications become more sophisticated and handle increasingly sensitive operations, proper authorization is no longer optional ? it's essential for several reasons:
-
-#### Regulatory compliance
-
-Many industries require strict access controls and audit trails. Healthcare organizations must comply with HIPAA, financial services with SOX and PCI DSS, and global companies with GDPR. <a href="https://www.scalekit.com/blog/oauth-2-1-mcp-secure-ai-integrations" target="_blank">OAuth 2.1 and MCP provide the security framework needed for regulatory compliance</a>.
-
-#### Enterprise adoption
-
-Enterprises won't deploy AI systems that can't integrate with their existing identity and access management infrastructure. OAuth 2.1 compatibility makes MCP servers enterprise-ready.
-
-#### Risk management
-
-As AI agents gain the ability to perform real-world actions ? sending emails, making purchases, modifying databases ? the potential impact of unauthorized access grows exponentially. Proper authorization limits the blast radius of security incidents.
-
-#### Trust and transparency
-
-Users and organizations need to understand what AI systems can access and how that access is controlled. OAuth scopes provide clear, granular permissions that can be communicated to stakeholders.
-
-#### Future-proofing
-
-As AI capabilities expand, authorization frameworks must be able to evolve. OAuth 2.1's extensible scope model and standards-based approach provide a foundation for future security enhancements.
-
 
 ### Next steps
 
