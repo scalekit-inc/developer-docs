@@ -1,0 +1,229 @@
+---
+title: Mobile & desktop applications
+description: "Implement Multi-App Authentication for mobile and desktop apps using Authorization Code with PKCE"
+sidebar:
+  label: "Mobile & Desktop"
+tableOfContents: true
+prev:
+  label: "Single page application"
+  link: "/authenticate/fsa/multiapp/single-page-app"
+next:
+  label: "Manage applications"
+  link: "/authenticate/fsa/multiapp/manage-apps"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+seeAlso:
+  items:
+    - title: "Browse example apps"
+      icon: "app"
+      url: "https://github.com/scalekit-inc/multiapp-demo"
+  expanded: true
+  label: "See also"
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+Mobile and desktop applications are **native clients**. Like SPAs, they are **public OAuth clients** and do **not** use a `client_secret`. These applications initiate login, handle the callback, and perform the authorization code exchange using **Authorization Code with PKCE**.
+
+:::tip
+👉 [**Check out the example apps on GitHub**](https://github.com/scalekit-inc/multiapp-demo) to see Web, SPA, Desktop, and Mobile apps sharing a single Scalekit session.
+:::
+
+This guide covers the authorization code flow with PKCE for **mobile and desktop applications**.
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- A Scalekit account with an environment configured
+- Your environment URL (`ENV_URL`), e.g., `https://yourenv.scalekit.com`
+- A native application registered in Scalekit with a `client_id` ([Create one →](/authenticate/fsa/multiapp/manage-apps))
+- A callback URI configured:
+  - **Mobile**: Custom URI scheme (e.g., `myapp://callback`) or universal/app links
+  - **Desktop**: Custom URI scheme or loopback address (e.g., `http://127.0.0.1:PORT/callback`)
+
+## High-level flow
+
+```d2
+shape: sequence_diagram
+
+User
+"Desktop / Mobile app"
+"System browser"
+Scalekit
+
+User -> "Desktop / Mobile app": Click "Login"
+"Desktop / Mobile app" -> "System browser": Open authorize URL
+"System browser" -> Scalekit: Redirect to /oauth/authorize 
+ (+ state + PKCE challenge)
+Scalekit -> "System browser": Redirect to callback URI with code + state
+"System browser" -> "Desktop / Mobile app": Return control via deep link / loopback
+"Desktop / Mobile app" -> Scalekit: POST /oauth/token 
+ (+ code_verifier)
+Scalekit -> "Desktop / Mobile app": access_token, refresh_token, id_token
+"Desktop / Mobile app" -> "Desktop / Mobile app": Store tokens + continue
+```
+
+## Step-by-step implementation
+
+<Steps>
+
+1. ## Initiate login or signup
+
+   Login begins when your application opens the system browser and redirects the user to Scalekit's hosted login page.
+
+   ```sh
+   <ENV_URL>/oauth/authorize?
+     response_type=code&
+     client_id=<CLIENT_ID>&
+     redirect_uri=<CALLBACK_URI>&
+     scope=openid+profile+email+offline_access&
+     state=<RANDOM_STATE>&
+     code_challenge=<PKCE_CODE_CHALLENGE>&
+     code_challenge_method=S256
+   ```
+
+   Native applications should generate and store:
+   - `state` (to validate the callback)
+   - `code_verifier` (kept locally), and the derived `code_challenge` (sent on `/oauth/authorize`)
+
+   The authorization request is always opened in the **system browser**.
+   
+   For detailed definition of the base parameters, refer [here](/authenticate/fsa/implement-login)
+
+2. ## Handle the callback and complete login
+
+   After authentication, Scalekit redirects the user back to your application using the registered callback mechanism.
+
+   Common patterns include:
+   - **Mobile apps**: custom URI schemes or universal links
+   - **Desktop apps**: custom URI schemes or a loopback HTTP server on `localhost`
+
+   Your application must:
+   - Validate the returned `state`
+   - Handle any error parameters
+   - Exchange the authorization code for tokens using the stored `code_verifier`
+
+   ```sh
+   POST <ENV_URL>/oauth/token
+   Content-Type: application/x-www-form-urlencoded
+
+   grant_type=authorization_code&
+   client_id=<CLIENT_ID>&
+   code=<CODE>&
+   redirect_uri=<CALLBACK_URI>&
+   code_verifier=<PKCE_CODE_VERIFIER>
+   ```
+
+   ```json
+   {
+     "access_token": "...",
+     "refresh_token": "...",
+     "id_token": "...",
+     "expires_in": 299
+   }
+   ```
+
+   Note: Authorization codes are single-use and short-lived.
+
+3. ## Manage sessions and token refresh
+
+   Once tokens are issued, your native application is responsible for session management.
+
+   **Token roles**
+   - **Access token**: short-lived, used for authenticated requests
+   - **Refresh token**: used to obtain new tokens
+   - **ID token**: user identity claims and required for logout
+
+   Tokens should be stored using **secure, OS-backed storage** appropriate for the platform.
+
+   When an access token expires, request new tokens using the refresh token:
+
+   ```sh
+   POST <ENV_URL>/oauth/token
+   Content-Type: application/x-www-form-urlencoded
+
+   grant_type=refresh_token&
+   client_id=<CLIENT_ID>&
+   refresh_token=<REFRESH_TOKEN>
+   ```
+
+   Validate access tokens by checking:
+   - Verify the token signature using Scalekit’s public keys (JWKS).
+   - `iss` matches your Scalekit environment
+   - `aud` matches your `client_id`
+   - `exp` and `iat` are valid
+
+   Public keys for verification are available at:
+
+   ```sh
+   <ENV_URL>/keys
+   ```
+
+4. ## Implement logout
+
+   Logging out requires clearing your local session and invalidating the Scalekit session.
+
+   Your logout action should:
+   - Extract the ID token (if available)
+   - Clear locally stored tokens
+   - Redirect the system browser to Scalekit's logout endpoint
+
+   ```sh
+   <ENV_URL>/oidc/logout?
+     id_token_hint=<ID_TOKEN>&
+     post_logout_redirect_uri=<POST_LOGOUT_REDIRECT_URI>
+   ```
+
+   Logout must be performed via a **browser redirect** so that Scalekit can identify and terminate the session.
+
+</Steps>
+
+## Handle errors
+
+When authentication fails, Scalekit redirects to your callback URI with error parameters instead of an authorization code:
+
+```
+myapp://callback?error=access_denied&error_description=User+denied+access&state=<STATE>
+```
+
+Your callback handler should check for errors before processing the authorization code:
+
+1. Check if the `error` parameter exists in the callback URI
+2. Log the `error` and `error_description` for debugging
+3. Display a user-friendly message in your app
+4. Provide an option to retry login
+
+Common error codes:
+
+| Error | Description |
+|-------|-------------|
+| `access_denied` | User denied the authorization request |
+| `invalid_request` | Missing or invalid parameters (e.g., invalid PKCE challenge) |
+| `server_error` | Scalekit encountered an unexpected error |
+
+## Token storage security
+
+Native apps should use platform-specific secure storage mechanisms:
+
+| Platform | Recommended Storage |
+|----------|---------------------|
+| iOS | Keychain Services |
+| Android | EncryptedSharedPreferences or Keystore |
+| macOS | Keychain |
+| Windows | Windows Credential Manager or DPAPI |
+| Linux | Secret Service API (libsecret) |
+
+**Recommendations:**
+
+- Never store tokens in plain text files or unencrypted databases
+- Use biometric or device PIN protection for sensitive token access when available
+- Clear tokens from secure storage on logout
+
+## What's next
+
+- [Set up a custom domain](/guides/custom-domain) for your authentication pages
+- [Add enterprise SSO](/sso/quickstart) to support SAML and OIDC with your customers' identity providers
