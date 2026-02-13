@@ -78,3 +78,12 @@ STYLE-CHECK: [PASSED | TODO]
 ---
 
 **This optimized file serves as a quick reference. For detailed guidelines, see the modular files in `src/writing-standards/`.**
+
+## Active Technologies
+
+- MDX (Markdown + JSX), TypeScript 5.x + Astro + Starlight framework, Tailwind CSS (001-mcp-auth-quickstart)
+- N/A (static documentation files) (001-mcp-auth-quickstart)
+
+## Recent Changes
+
+- 001-mcp-auth-quickstart: Added MDX (Markdown + JSX), TypeScript 5.x + Astro + Starlight framework, Tailwind CSS
