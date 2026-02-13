@@ -6,13 +6,70 @@ sidebar:
 tableOfContents: true
 ---
 
-import { Steps, Aside } from '@astrojs/starlight/components'
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+import { Image } from 'astro:assets'
+import enableClaudePluginGif from '@/assets/docs/ai-assisted-mcp-quickstart/2.gif'
 
 Use the AI development tools to speed of integrating auth stack into your MCP servers. Following this guide, you will learn how to best your AI coding agents such as Claude finish your integration end to end.
-
-<Aside>
 
 - Scalekit's Auth Stack marketplace is in public beta and we'd love for your chime into our slack community and share feedback!
 - We are building more of these plugins beyond Claude Code. Let us knw what use use through our Slack community.
 
-</Aside>
+<Steps>
+
+1. ### Setup coding agent
+
+    New to using coding agents? Install them onto your system
+   <Tabs>
+   <TabItem value="claude" label="Claude Code">
+     ```bash showLineNumbers=false
+     curl -fsSL https://claude.ai/install.sh | bash
+     ```
+     Learn more about [Claude Code](https://code.claude.com/docs/en/quickstart)
+   </TabItem>
+   </Tabs>
+
+2. ### Add AuthStack marketplace
+
+   <Tabs>
+   <TabItem value="claude" label="Claude Code">
+     ```bash showLineNumbers=false
+     # Start Claude REPL
+     /plugin marketplace add saif-at-scalekit/claude-code-authstack
+     ```
+     You will notice the marketplace is added to your claude code
+     ```bash showLineNumbers=false
+     ❯ /plugin marketplace add saif-at-scalekit/claude-code-authstack
+        ⎿  Successfully added marketplace: scalekit-auth-stack
+     ```
+   </TabItem>
+   </Tabs>
+3. ### Choose the plugins you want to add to your auth stack
+
+   Once the marketplace is added, you can go through `/plugins` wizard within claude code.
+
+   <Image src={enableClaudePluginGif}
+            loading="eager"
+            priority={true}
+            alt="Image loading..."
+            data-zoom-off />
+
+
+   <Aside type="tip">
+   Enable Auto Updates to as incorporate active feedback into the plugin regularly.
+   </Aside>
+4. ### Prompt to start adding auth
+
+    ```md wrap showLineNumbers=false
+    Add OAuth 2.1 authentication to my FastMCP MCP server using Scalekit. Initialize ScalekitClient with environment credentials, implement /.well-known/ metadata endpoint for discovery, and add authentication middleware that validates JWT bearer tokens on all MCP requests. Code only.
+    ```
+
+    Claude Code will automatically load the skill and start guiding towards completion.
+
+    ![](@/assets/docs/ai-assisted-mcp-quickstart/skill-activation.png)
+
+
+
+
+
+</Steps>
