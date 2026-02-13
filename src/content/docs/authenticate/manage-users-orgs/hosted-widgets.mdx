@@ -1,0 +1,133 @@
+---
+title: Hosted Widgets
+description: Use Scalekit Hosted Widgets for organization and user management without building custom UI.
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+Scalekit **Hosted Widgets** provide a hosted organization and user management portal for your B2B application. Instead of building UI for user and organization settings, you can redirect users to a fully managed interface hosted by Scalekit.
+
+Hosted Widgets use the same Scalekit session as your app. If a user is authenticated and has a valid session, they can access Hosted Widgets directly. Visibility is controlled by [Scalekit permissions](/authenticate/manage-users-orgs/hosted-widgets/#access-management) and the features enabled for the organization.
+
+**Hosted Widgets are available at:**
+
+   ```js title="Hosted Widgets URL" showLineNumbers=false
+   <SCALEKIT_ENVIRONMENT_URL>/ui/
+   ```
+- Easy integration: redirect users to the Hosted Widgets URL.
+- Inherits your application [branding](/fsa/guides/login-page-branding/).
+- Supports your application's [custom domain](/guides/custom-domain/).  
+- Enforces roles and permissions automatically.  
+
+```d2 pad=36
+direction: down
+
+your_app: "B2B App"
+
+hosted: "Hosted Widgets"
+
+your_app -> hosted: "Redirect users"
+hosted -> Organization widgets
+hosted -> User widgets
+Organization widgets -> Organization settings
+Organization widgets -> Member management
+Organization widgets -> SSO configuration
+Organization widgets -> SCIM configuration
+User widgets -> User profile
+User widgets -> User security
+```
+---
+## Organization widgets
+
+Organization widgets are access-controlled using Scalekit permissions and feature entitlements. An organization widget appears only if the user has the required permissions and the organization has the corresponding feature enabled.
+
+### Organization settings
+
+The organization settings widget lets users view and manage the organization profile, including allowed email domains.
+
+![](@/assets/docs/hosted-widgets/org_settings.png)
+
+### Member management
+
+The member management widget lets users view organization members, invite new members, manage roles, and remove members from an organization.
+
+![](@/assets/docs/hosted-widgets/org_member.png)
+
+### SSO configuration
+
+The SSO configuration widget lets users set up and manage Single Sign-On for their organization. It includes a setup guide tailored to the customer's identity provider.
+<Aside>
+SSO widget visibility depends on the organization's feature entitlements. It appears only if SSO feature is enabled for the organization. You can enable SSO in the Scalekit dashboard or using the [SDK](/authenticate/auth-methods/enterprise-sso/#enable-sso-for-the-organization).
+</Aside>
+
+![](@/assets/docs/hosted-widgets/org_sso.png)
+
+### SCIM configuration
+
+The SCIM configuration widget lets users set up and manage SCIM provisioning for their organization. It includes a setup guide tailored to the customer's identity provider.
+<Aside>
+SCIM widget visibility depends on the organization's feature entitlements. It appears only if SCIM feature is enabled for the organization. You can enable SCIM in the Scalekit dashboard or using the [SDK](/guides/user-management/scim-provisioning/#enable-scim-provisioning-for-the-organization).
+</Aside>
+
+![](@/assets/docs/hosted-widgets/org_scim.png)
+
+---
+## User widgets
+User widgets let end users manage their profile and security settings. These widgets are accessible to all authenticated users and are not controlled by organization-level feature entitlements or Scalekit permissions.
+
+### User profile
+
+The user profile widget lets end users view and manage their profile.
+
+![](@/assets/docs/hosted-widgets/user_profile.png)
+
+### User security
+
+The user security widget lets end users register and manage passkeys, view active sessions, and revoke sessions.
+
+![](@/assets/docs/hosted-widgets/user_security.png)
+
+---
+## Access management
+
+Hosted Widgets enforce access using **Scalekit permissions**. You can map these permissions to any application roles assigned to the end user. When a user accesses Hosted Widgets, Scalekit checks their permissions and shows the available widgets.
+
+| Permission | Purpose |
+|---|---|
+| `sk_org_settings_read` | View organization profile and settings |
+| `sk_org_settings_manage` | View and modify organization profile and settings |
+| `sk_org_users_read` | View users in an organization |
+| `sk_org_users_invite` | Invite new users to an organization |
+| `sk_org_users_delete` | Remove users from an organization |
+| `sk_org_users_role_change` | Change roles of users in an organization |
+| `sk_org_sso_read` | View SSO configuration for an organization |
+| `sk_org_sso_manage` | View and modify SSO configuration for an organization |
+| `sk_org_scim_read` | View SCIM configuration for an organization |
+| `sk_org_scim_manage` | View and modify SCIM configuration for an organization |
+
+<Aside>
+Scalekit creates **Admin** and **Member** roles for every environment by default. Scalekit permissions are mapped to these two roles by default. The Admin role has all Scalekit permissions and can access all Hosted Widgets. The Member role has limited access to organization widgets and can only view organization settings and organization members. Both roles have access to user widgets.
+
+You can customize the permission mapping for these roles or create a [custom role](/authenticate/authz/create-roles-permissions/) and assign Scalekit permissions to control access to Hosted Widgets.
+</Aside>
+---
+## Branding & customization
+
+Hosted Widgets can be customized to match your application's [branding](/fsa/guides/login-page-branding/). Hosted Widgets use your application logo, favicon, primary color, and more to look like an extension of your app.
+
+You can also change the Hosted Widgets URL to match your application URL by setting up a [custom domain](/guides/custom-domain/).
+
+## Common Hosted Widgets scenarios
+
+<details>
+<summary>What happens if a user does not have a session?</summary>
+If no session exists, the user is redirected automatically to the hosted login page of your application.
+</details>
+
+<details>
+<summary>What happens when a user logs out from Hosted Widgets?</summary>
+When a user logs out from Hosted Widgets, they are redirected to the hosted login page of your application. This can cause your app session and the Scalekit session to fall out of sync. We recommend one of the following approaches:
+- Implementing [back-channel logout](/guides/dashboard/redirects/#back-channel-logout-url) so Scalekit can notify your app about session termination.
+- Listening for the [user logout webhook](/apis/#webhook/userlogout) to get notified about session termination.
+</details>
+---
