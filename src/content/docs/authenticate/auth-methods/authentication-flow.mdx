@@ -1,0 +1,149 @@
+---
+title: "User authentication flow"
+description: Learn how Scalekit routes users through authentication based on login method and organization SSO policies.
+sidebar:
+  label: "Authentication flow"
+tableOfContents: true
+tags:
+  - authentication
+  - sso
+  - organization domains
+  - concepts
+  - enterprise
+---
+
+The user's authentication journey on the hosted login page can differ based on the **login method** they choose and the **organization policies** configured in Scalekit.
+
+## Organization policies
+
+Organizations can enforce Enterprise SSO for their users. An organization must create an enabled [SSO connection](/authenticate/auth-methods/enterprise-sso/) and add [organization domains](/authenticate/auth-methods/enterprise-sso/#identify-and-enforce-sso-for-organization-users).
+
+Scalekit uses **Home Realm Discovery (HRD)** to determine whether a user's email domain matches a configured organization domain. When a match is found, the user is routed to that organization's SSO identity provider.
+
+**Examples**
+
+- A user tries to log in as `user@samecorp.com` on the hosted login page. If `samecorp.com` is registered as an organization domain with SSO enabled, the user is redirected to that organization’s IdP to complete authentication.
+- A user tries to log in with Google as `user@samecorp.com` on the hosted login page. If `samecorp.com` is registered as an organization domain with SSO enabled, the user is redirected to that organization’s IdP after returning from Google.
+
+## Login method–specific behavior
+
+Scalekit allows users to choose different login methods on the hosted login page. The timing of organization domain checks differs slightly by method, but the rules remain consistent.
+
+### Social login
+
+- User authenticates with a social IdP (e.g., Google, GitHub).
+- Scalekit evaluates the user's email after social auth completes.
+- Home Realm Discovery (HRD) checks whether the email domain matches an organization domain.
+- **Domain match:** User is redirected to the organization's SSO IdP.
+- **No match:** Authentication completes.
+
+This ensures that enterprise users must complete SSO authentication even if they initially choose social login.
+
+### Passkey login
+
+- User authenticates using a passkey.
+- Authentication succeeds immediately.
+- Scalekit performs Home Realm Discovery (HRD) to check the email domain.
+- **Domain match:** User is redirected to SSO.
+- **No match:** Authentication completes.
+
+Passkeys authenticate the user, but do not override organization SSO policy.
+
+### Email-based login
+
+- User enters their email address.
+- Home Realm Discovery (HRD) runs **before authentication** to check the email domain.
+- **Domain match:** User is redirected to SSO.
+- **No match:** Scalekit performs OTP or magic link verification, then authentication completes.
+
+### Authentication flow
+
+This diagram shows the different variations of user's authentication journey on the hosted login page.
+
+```d2
+Start: B2B App initiates login
+Method: User selects login method
+
+Social: Social auth
+Passkey: Passkey auth
+Email: Email entered
+
+HRD: HRD check
+
+SSO: Redirect to SSO
+SSOAuth: SSO auth
+Passwordless: OTP / Magic link
+Complete: Auth complete
+
+Start -> Method
+
+Method -> Social: Social login
+Method -> Passkey: Passkey login
+Method -> Email: Email login
+
+# Social and Passkey: authenticate first, then HRD
+Social -> HRD: Auth completes
+Passkey -> HRD: Auth completes
+
+# Email: HRD runs before authentication
+Email -> HRD: Before auth
+
+HRD -> SSO: Domain match
+HRD -> Passwordless: No match (email)
+HRD -> Complete: No match (social/passkey)
+
+SSO -> SSOAuth -> Complete
+Passwordless -> Complete
+```
+
+---
+
+## Enterprise SSO Trust model
+
+Most enterprise identity providers (IdPs) like Okta or Microsoft Entra do not prove that a user actually controls the email inbox they sign in with. They only assert an email address in the SAML/OIDC token. Because of this, when a user logs in via Enterprise SSO, Scalekit does not automatically treat that SSO connection as a trusted source of email ownership.
+
+Since Scalekit cannot be sure that the SSO user truly owns the email address, the user is taken through an email ownership check (magic link or OTP) to prove control of that inbox. After the user successfully verifies their email, that SSO connection is marked as a verified channel for that specific user, and they do not need to verify email ownership again on subsequent logins via the same connection.
+
+If you want an Enterprise SSO connection to be treated as a trusted provider for a specific domain, you can assign one or more domains to the organization. Then, for users logging in via that Enterprise SSO connection whose email address matches one of the configured domains, Scalekit skips additional email ownership verification.
+
+| SSO trust case | Example | Result |
+| --- | --- | --- |
+| Trusted SSO | Org has added `acmecorp.com` in organization domain. User authenticates as `user@acmecorp.com` with organization SSO. | Email ownership trusted |
+| Untrusted SSO | Org has added `acmecorp.com` in organization domain and user authenticates as `user@foocorp.com` with organization SSO. | Email ownership not trusted → Additional verification required |
+
+---
+
+## Forcing SSO from your application
+
+Your app can override Home Realm Discovery (HRD) by passing ‎`organization_id` or ‎`connection_id` in the authentication request ↗ to Scalekit. When you do this:
+
+- Scalekit skips HRD and redirects the user directly to the specified SSO IdP.
+- After SSO authentication completes, Scalekit checks whether the user’s email domain matches one of the organization domains configured on that SSO connection.
+- **Domain match**: authentication completes.
+- **No match**: Scalekit requires additional verification (OTP or magic link) before completing authentication.
+
+## IdP‑initiated SSO
+
+In IdP‑initiated SSO, authentication starts at the identity provider instead of your application or the hosted login page. After the IdP authenticates the user and redirects to Scalekit, Scalekit evaluates email ownership trust:
+
+- If the user’s email domain matches one of the organization domains configured on the SSO connection, authentication completes.
+- If the email domain does not match, Scalekit requires additional verification (OTP or magic link) before completing authentication.
+
+This workflow ensures IdP‑initiated flows follow the same email ownership and trust guarantees as app‑initiated SSO
+
+---
+
+## Account linking
+
+### What happens
+
+Scalekit maintains a single user record per email address. For example, if a user first authenticates with passwordless login (magic link/OTP) and later uses Google or Enterprise SSO, Scalekit links both identities to the same user record. These identities are stored on the user object for your app to read if needed. This avoids duplicate users when people switch authentication methods.
+
+### Why it is safe
+
+Scalekit only treats an SSO IdP as a trusted source of email ownership when:
+
+- the authenticated email domain matches one of the organization domains configured on the SSO connection, or
+- the user has previously proven email ownership via magic link or OTP.
+
+Because the organization has proven domain ownership, and/or the user has proven inbox control, emails from that SSO connection are treated as valid. This prevents attackers from linking identities unless email ownership has been verified through trusted mechanisms.
