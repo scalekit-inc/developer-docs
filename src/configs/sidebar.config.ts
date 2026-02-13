@@ -340,6 +340,7 @@ export const sidebar = [
         items: [
           'authenticate/mcp/overview',
           'authenticate/mcp/quickstart',
+          'authenticate/mcp/ai-assisted-mcp-quickstart',
           'authenticate/mcp/managing-mcp-clients',
           'authenticate/mcp/code-samples',
         ],
