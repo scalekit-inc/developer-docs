@@ -5,6 +5,17 @@ import fs from 'fs'
 import path from 'path'
 
 try {
+  // Auto-create .env from .env.example if it doesn't exist
+  const envPath = path.join(process.cwd(), '.env')
+  const envExamplePath = path.join(process.cwd(), '.env.example')
+
+  if (!fs.existsSync(envPath) && fs.existsSync(envExamplePath)) {
+    fs.copyFileSync(envExamplePath, envPath)
+    console.log('✅ .env created from .env.example')
+  } else if (fs.existsSync(envPath)) {
+    console.log('ℹ️  .env already exists, skipping')
+  }
+
   // Check if we're in a git repository
   try {
     execSync('git rev-parse --git-dir', { stdio: 'ignore' })

@@ -1,8 +1,8 @@
 ---
-title: Auth for MCP servers - Overview
+title: "Overview: MCP server authentication"
 description: Secure your Model Context Protocol (MCP) servers with Scalekit's drop-in OAuth 2.1 authorization solution
 tableOfContents:
-  maxHeadingLevel: 2
+  maxHeadingLevel: 4
 sidebar:
   label: Overview
 prev: false
@@ -15,19 +15,7 @@ banner:
 import { Steps, LinkCard } from '@astrojs/starlight/components';
 import Subtitle from '@/components/ui/Subtitle.astro'
 
-<Subtitle>How MCP is transforming AI application architecture and why authorization matters more than ever</Subtitle>
-
-The artificial intelligence landscape is rapidly evolving from simple chatbots to sophisticated agents capable of interacting with real-world systems, accessing sensitive data, and performing complex workflows. As AI applications become more powerful and integrated into business-critical processes, the need for standardized, secure communication protocols has never been more urgent.
-
-Enter the Model Context Protocol (MCP) ? a breakthrough standard that's reshaping how AI models interact with external systems while introducing new security challenges that demand careful attention.
-
-## What is Model Context Protocol (MCP)?
-
-Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect your devices to various peripherals and accessories, MCP provides a standardized way to connect AI models to different data sources and tools.
-
-The Model Context Protocol is an open standard that defines how AI applications can safely and efficiently access external resources, tools, and data sources. Instead of each AI system requiring custom integrations for every service it needs to access, MCP creates a universal interface that works across different AI models, platforms, and data sources.
-
-### The MCP architecture
+Model Context Protocol (MCP) is an open standard that gives AI apps a consistent, secure way to connect to external tools and data sources. A helpful way to picture it is USB‑C for AI integrations: instead of building a custom connector for every service, MCP provides one interface that works across different models, platforms, and backends. That makes it much easier to build agent-style apps that can actually do work, but it also makes authorization a bigger deal, because once an agent can act on your behalf, you need clear, tight control over what it can access and what actions it’s allowed to take.
 
 At its core, MCP follows a client-server architecture where a host application can connect to multiple servers:
 
@@ -36,15 +24,13 @@ At its core, MCP follows a client-server architecture where a host application c
 - **MCP servers**: Lightweight programs that expose specific capabilities (tools, data, or services) through the standardized protocol
 - **Data sources**: Local files, databases, APIs, and services that MCP servers can access
 
-This architecture enables a plugin ecosystem where AI models can seamlessly integrate with hundreds of different services without requiring custom code for each integration.
+This architecture enables a ecosystem where AI models can seamlessly integrate with hundreds of different services without requiring custom code for each integration.
 
 ## The path to secure MCP: OAuth 2.1 integration
 
 Recognizing these challenges, the MCP specification evolved to incorporate robust authorization mechanisms. The Model Context Protocol provides authorization capabilities at the transport level, enabling MCP clients to make requests to restricted MCP servers on behalf of resource owners.
 
-### Why OAuth 2.1 for MCP?
-
-The MCP specification chose OAuth 2.1 as its authorization framework for several compelling reasons
+The **MCP specification chose OAuth 2.1 as its authorization framework** for several compelling reasons
 
 |  |  |
 |---------|-------------|
@@ -52,8 +38,6 @@ The MCP specification chose OAuth 2.1 as its authorization framework for several
 | Security best practices | OAuth 2.1 incorporates lessons learned from OAuth 2.0, removing deprecated flows and enforcing security measures like PKCE (Proof Key for Code Exchange). |
 | Flexibility | Supports multiple grant types suitable for different MCP use cases:<br/> **Authorization code**: When AI agents act on behalf of human users<br/> **Client credentials**: For machine-to-machine integrations |
 | Ecosystem compatibility | Works with existing identity providers and authorization servers, making it easier for enterprises to integrate MCP into their existing security infrastructure. |
-
-### MCP authorization specification overview
 
 This authorization mechanism is based on established specifications listed below, but implements a selected subset of their features to ensure security and interoperability while maintaining simplicity:
 
@@ -67,14 +51,13 @@ This authorization mechanism is based on established specifications listed below
 
 Now let's zoom in and see how the MCP OAuth 2.1 flow unfolds step-by-step:
 
-**Discovery phase**
-<Steps>
+### Discovery phase
+
 
 1. **MCP client** encounters a protected MCP server
 2. **Server** responds with `401 Unauthorized` and `WWW-Authenticate` header pointing to Scalekit Auth Server
 3. **Client** discovers Scalekit Auth Server capabilities through metadata endpoints
 
-</Steps>
 
 ```d2 pad=36
 
@@ -99,16 +82,15 @@ MCP Client -> Scalekit Auth Server: GET /.well-known/oauth-authorization-server
 Scalekit Auth Server -> MCP client: Scalekit Auth Server metadata\n
 ```
 
-**Authorization phase**
+### Authorization phase
 
-<Steps>
 4. **Client** registers with Scalekit Auth Server (if using DCR)
 5. **Scalekit Auth Server** issues client credentials (if using DCR)
 6. **Client** initiates appropriate OAuth flow
 7. **User** grants consent (for Authorization Code flow)
 8. **Scalekit Auth Server** issues access token with appropriate scopes
-</Steps>
 
+### Client registration
 #### Dynamic client registration
 
 MCP clients and authorization servers SHOULD support the OAuth 2.1 Dynamic Client Registration Protocol to allow MCP clients to obtain OAuth client IDs without user interaction. This enables seamless onboarding of new AI agents without manual configuration.
@@ -134,7 +116,7 @@ Scalekit Auth Server -> Your Customer's User: Prompt to Authenticate & Consent
 Your Customer's User -> Scalekit Auth Server: Authenticates & Consents
 Scalekit Auth Server -> MCP Client: Returns authorization code
 MCP Client -> Scalekit Auth Server: POST /oauth/token
-Scalekit Auth Server -> MCP Client: Issues access_token, id_token, scopes 
+Scalekit Auth Server -> MCP Client: Issues access_token, id_token, scopes
 ```
 
 #### Client ID Metadata Document (CIMD)
@@ -156,22 +138,22 @@ Scalekit Auth Server
 Your Customer's User
 
 MCP Client -> Scalekit Auth Server: Redirect to oauth/authorize with PKCE Challenge
-MCP Client <-> Scalekit Auth Server: Authorization server fetches client metadata 
+MCP Client <-> Scalekit Auth Server: Authorization server fetches client metadata
 Scalekit Auth Server -> Your Customer's User: Prompt to Authenticate & Consent
 Your Customer's User -> Scalekit Auth Server: Authenticates & Consents
 Scalekit Auth Server -> MCP Client: Returns authorization code
 MCP Client -> Scalekit Auth Server: POST /oauth/token with PKCE verifier and auth code
-Scalekit Auth Server -> MCP Client: Issues access_token, id_token, scopes 
+Scalekit Auth Server -> MCP Client: Issues access_token, id_token, scopes
 ```
 
-**Access phase**
+### Access phase
 
-<Steps>
+
 9. **Client** includes access token in requests to MCP server
 10. **MCP server** validates token and enforces scope-based permissions
 11. **Server** processes request and returns response
 12. **All interactions** are logged for audit and compliance
-</Steps>
+
 
 
 ```d2 pad=36
@@ -198,35 +180,15 @@ refresh_phase: {
   MCP Client -> Scalekit Auth Server: POST /oauth/token\n(grant_type=refresh_token)
   Scalekit Auth Server -> MCP Client: New access token & refresh token
 }
-    
-  
+
+
 ```
 
 ## Key security enhancements in MCP OAuth 2.1
 
-The current MCP authorization specification incorporates several critical security improvements:
+MCP’s OAuth 2.1 profile reduces a few common risks in the authorization code flow. The key enhancements are:
 
-#### Mandatory PKCE
-
-MCP clients MUST implement PKCE according to OAuth 2.1 Section 7.5.2. PKCE helps prevent authorization code interception and injection attacks by requiring clients to create a secret verifier-challenge pair, ensuring that only the original requestor can exchange an authorization code for tokens.
-
-#### Strict redirect URI validation
-
-MCP clients MUST pre-register exact redirect URIs with the authorization server. During authorization, the server MUST enforce an exact match to prevent redirection attacks.
-
-#### Short-lived tokens
-
-MCP authorization servers SHOULD issue short-lived access tokens to reduce the impact of leaked tokens. This minimizes the window of exposure if tokens are compromised.
-
-#### Comprehensive scope model
-
-MCP OAuth 2.1 supports granular permissions through scopes like:
-
-| Scope                               | Description                          |
-|-------------------------------------|--------------------------------------|
-| `todo:read`                         | Read todo tasks                      |
-| `todo:write`                        | Create and edit todo tasks           |
-
-### Next steps
-
-<LinkCard href="/authenticate/mcp/quickstart" title="MCP OAuth 2.1 implementation guide" description="Step-by-step instructions for setting up production-ready authorization for your MCP server, including code examples and best practices." />
+- **Mandatory PKCE**: Clients must use PKCE to help prevent authorization code interception.
+- **Strict redirect URI validation**: Servers must only allow pre-registered redirect URIs and enforce an exact match to reduce redirect attacks.
+- **Short-lived tokens**: Authorization servers should issue short-lived access tokens to limit impact if a token leaks.
+- **Granular scopes**: Use narrow scopes (for example, `todo:read`, `todo:write`) so apps request only what they need and users can understand what they’re granting.
