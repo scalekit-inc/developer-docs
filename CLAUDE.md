@@ -33,6 +33,10 @@ When you need specific guidance, read these files directly:
 
 ## Key Reminders
 
+### Git Commits
+
+- Do NOT include `Co-Authored-By` lines in commit messages
+
 ### SDK Variable Names (CRITICAL)
 
 - Node.js: `scalekit`
