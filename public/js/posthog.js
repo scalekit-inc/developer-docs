@@ -11,6 +11,7 @@ const INTERNAL_USER_EMAIL_PATTERNS = [
   /@scalekit\.com$/i,
   /@scalekit\.pro$/i,
   /testskit9/i,
+  /testskit/i,
   /\+sktest/i,
   /amit\.ash/i,
   /kuntal\+testutk/i,
