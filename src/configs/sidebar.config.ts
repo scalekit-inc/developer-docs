@@ -65,7 +65,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Multi-App Authentication',
+        label: 'Auth across multiple apps',
         collapsed: false,
         items: [
           'authenticate/fsa/multiapp/overview',
