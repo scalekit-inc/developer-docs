@@ -7,6 +7,68 @@ const SESSION_STORAGE_KEY = 'sk_auth_session'
 const SESSION_POLL_INTERVAL_MS = 1000
 const SESSION_POLL_MAX_ATTEMPTS = 30
 
+const INTERNAL_USER_EMAIL_PATTERNS = [
+  /@scalekit\.com$/i,
+  /@scalekit\.pro$/i,
+  /testskit9/i,
+  /\+sktest/i,
+  /amit\.ash/i,
+  /kuntal\+testutk/i,
+  /shrimithranr/i,
+  /avinashmkamath/i,
+  /satya\+test/i,
+  /anujsharma/i,
+  /avinashkam/i,
+  /saif\.shines/i,
+  /@infrasity\.com$/i,
+  /jitender\.rana/i,
+  /srinvaskarra/i,
+  /tamilram/i,
+  /banerjee\.kuntal/i,
+  /nityaypm/i,
+  /nityaprint19/i,
+  /intakshay03/i,
+  /kuntal\+testwidth1234/i,
+  /test\+nitya/i,
+  /nityashree\.y/i,
+  /dhaneshbabu/i,
+  /akshaypoetree/i,
+  /akshaysuresh49/i,
+  /akshay\.parihar/i,
+  /rachit_d/i,
+  /saravanasundar/i,
+  /^saravanan@gmail\.com$/i,
+  /^aadhisivaraj@gmail\.com$/i,
+  /^aathysiv@gmail\.com$/i,
+  /diwakarrachit84/i,
+  /saifshine7/i,
+  /mohit\.dalal/i,
+  /^vamsidhar\.test@gmail\.com$/i,
+  /nitya19\+test/i,
+  /nitya1print19/i,
+  /testskituser/i,
+  /rvamsidhar1302/i,
+  /rexlosthismind/i,
+  /^mabnuxr@gmail\.com$/i,
+  /^rjmohan535@gmail\.com$/i,
+]
+
+const isInternalUser = (function () {
+  var cache = new Map()
+
+  return function (email) {
+    if (!email) return false
+    if (cache.has(email)) {
+      return cache.get(email)
+    }
+    var result = INTERNAL_USER_EMAIL_PATTERNS.some(function (pattern) {
+      return pattern.test(email)
+    })
+    cache.set(email, result)
+    return result
+  }
+})()
+
 const readSession = () => {
   try {
     const raw = localStorage.getItem(SESSION_STORAGE_KEY)
@@ -25,8 +87,17 @@ const identifyFromSession = () => {
 
   const uid = typeof session.uid === 'string' ? session.uid : null
   const xoid = typeof session.xoid === 'string' ? session.xoid : null
+  const email = session.user?.email || session.idTokenClaims?.email || null
 
   if (!uid && !xoid) return false
+
+  if (isInternalUser(email)) {
+    if (typeof window.posthog.opt_out_capturing === 'function') {
+      window.posthog.opt_out_capturing()
+      console.log('[posthog] disabled for internal user')
+    }
+    return true
+  }
 
   const lastUid = window.posthog.__sk_last_uid || null
   const lastXoid = window.posthog.__sk_last_xoid || null
