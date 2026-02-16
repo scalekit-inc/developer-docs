@@ -80,7 +80,7 @@ export const sidebar = [
         items: [
           // 'guides/m2m/overview', TODO: It uses M2M context, and older context. Hiding it until we are sure to open it up
           'authenticate/m2m/api-auth-quickstart',
-          'guides/m2m/scopes',
+          'authenticate/m2m/api-keys',
           // 'guides/m2m/api-auth-m2m-clients', TODO: Translate this as guides for future
         ],
       },

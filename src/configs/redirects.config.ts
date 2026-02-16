@@ -256,6 +256,7 @@ export const redirects = {
   '/m2m/api-auth-for-m2m-clients': '/guides/m2m/api-auth-m2m-clients/',
   '/m2m/external-ids-and-metadata': '/guides/external-ids-and-metadata/',
   '/m2m/scopes': '/guides/m2m/scopes/',
+  '/guides/m2m/scopes/': '/authenticate/m2m/api-auth-quickstart/',
 
   // =============================================================================
   // INTEGRATIONS REDIRECTS
