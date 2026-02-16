@@ -64,21 +64,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase   | Status  |
 | ----------- | ------- | ------- |
-| OPEN-01     | Phase 1 | Pending |
-| OPEN-02     | Phase 1 | Pending |
-| OPEN-03     | Phase 1 | Pending |
-| QUAL-01     | Phase 1 | Pending |
-| QUAL-02     | Phase 1 | Pending |
+| OPEN-01     | Phase 2 | Pending |
+| OPEN-02     | Phase 2 | Pending |
+| OPEN-03     | Phase 2 | Pending |
+| QUAL-01     | Phase 2 | Pending |
+| QUAL-02     | Phase 2 | Pending |
 | STRUC-01    | Phase 1 | Pending |
 | STRUC-02    | Phase 1 | Pending |
-| STRUC-03    | Phase 2 | Pending |
-| STRUC-04    | Phase 1 | Pending |
+| STRUC-03    | Phase 3 | Pending |
+| STRUC-04    | Phase 3 | Pending |
 | FMT-01      | Phase 1 | Pending |
 | FMT-02      | Phase 1 | Pending |
 | FMT-03      | Phase 1 | Pending |
 | SEC-01      | Phase 1 | Pending |
 | SEC-02      | Phase 1 | Pending |
-| SEC-03      | Phase 1 | Pending |
+| SEC-03      | Phase 2 | Pending |
 
 **Coverage:**
 
@@ -86,7 +86,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 - Mapped to phases: 15
 - Unmapped: 0 ✓
 
+**Phase Distribution:**
+
+- Phase 1 (Pattern Discovery & Analysis): 7 requirements
+- Phase 2 (Opening Context & Content Quality): 6 requirements
+- Phase 3 (Navigation Integration): 2 requirements
+- Phase 4 (Validation & Polish): All requirements (validation)
+
 ---
 
 _Requirements defined: 2025-02-16_
-_Last updated: 2025-02-16 after initial definition_
+_Last updated: 2025-02-16 after roadmap creation_
