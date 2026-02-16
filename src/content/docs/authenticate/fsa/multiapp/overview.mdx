@@ -31,7 +31,7 @@ Your product likely spans multiple applications—a web app, a mobile app, maybe
 
 You likely need multi-app authentication if you ship multiple apps (web app, mobile app, desktop companion, or SPA), users expect to stay signed in across surfaces, or you want centralized session control and auditability across apps. Each app gets its own OAuth client and scopes for better security and maintenance.
 
-multi-app authentication eliminates friction from repeated logins across your product suite, closes security gaps from inconsistent session handling and token management, and reduces engineering overhead from maintaining multiple auth implementations.
+Multi-app authentication eliminates friction from repeated logins across your product suite, closes security gaps from inconsistent session handling and token management, and reduces engineering overhead from maintaining multiple auth implementations.
 
 Here's how multi-app authentication works:
 
@@ -42,7 +42,7 @@ Here's how multi-app authentication works:
 5. Logging out of any app terminates the shared session.
 
 
-```d2
+```d2 pad=50
 shape: sequence_diagram
 
 User
@@ -51,15 +51,11 @@ User
 "Scalekit (shared session)"
 
 User -> "App A": Click "Login"
-"App A" -> "Scalekit (shared session)": /oauth/authorize
-"Scalekit (shared session)" -> "App A": Redirect with code
-"App A" -> "Scalekit (shared session)": /oauth/token
+"App A" <> "Scalekit (shared session)": "/oauth/authorize \n Redirect with code \n /oauth/token"
 "Scalekit (shared session)" -> "App A": Tokens issued
 
 User -> "App B": Open app
-"App B" -> "Scalekit (shared session)": /oauth/authorize \n (Session detected)
-"Scalekit (shared session)" -> "App B": Redirect with code
-"App B" -> "Scalekit (shared session)": /oauth/token
+"App B" <> "Scalekit (shared session)": "/oauth/authorize \n Redirect with code \n /oauth/token"
 "Scalekit (shared session)" -> "App B": Tokens issued
 
 User -> "App B": Logout
