@@ -70,6 +70,10 @@ export const redirects = {
     '/guides/integrations/auth-systems/firebase/',
   '/sso/guides/integrate-with-your-auth-system/auth0': '/guides/integrations/auth-systems/auth0/',
 
+  // SSO paths incorrectly prefixed with /authenticate
+  '/authenticate/sso/onboard-enterprise-customers': '/sso/guides/onboard-enterprise-customers/',
+  '/authenticate/sso/quickstart': '/authenticate/sso/add-modular-sso/',
+
   // SSO social logins - moved to authenticate/auth-methods/social-logins
   '/sso/social-login': '/authenticate/auth-methods/social-logins/',
   '/sso/social-logins-quickstart': '/authenticate/auth-methods/social-logins/',
@@ -113,6 +117,9 @@ export const redirects = {
   '/scim/explore-sample-apps': '/directory/code-examples/',
   '/scim/domain-and-theme-customization': '/guides/custom-domain/',
   '/scim/in-product-quickstart': '/directory/scim/quickstart/',
+
+  '/scim/admin-portal': '/directory/guides/admin-portal/',
+  '/scim/overview': '/directory/guides/user-provisioning-basics/',
 
   // SCIM guides moved from /guides/directory to /directory/guides
   '/guides/directory/launch-checklist': '/directory/guides/launch-checklist',
@@ -167,6 +174,11 @@ export const redirects = {
   '/mcp/topologies/mcp-api': '/authenticate/mcp/topologies/mcp-api/',
   '/mcp/topologies/': '/authenticate/mcp/topologies/human-mcp/',
 
+  // MCP custom auth paths
+  '/guides/mcp/custom-auth': '/mcp/auth-methods/custom-auth/',
+  '/mcp/guides/custom-auth': '/mcp/auth-methods/custom-auth/',
+  '/authenticate/mcp': '/authenticate/mcp/quickstart/',
+
   // MCP integration examples already at /authenticate/mcp/ (keep existing redirects)
   '/mcp/managing-mcp-clients': '/authenticate/mcp/managing-mcp-clients/',
   '/mcp/integrations/fastmcp': '/authenticate/mcp/fastmcp-quickstart/',
@@ -185,6 +197,12 @@ export const redirects = {
   // =============================================================================
   // AGENT AUTH REDIRECTS
   // =============================================================================
+
+  // Agent auth shorthand paths
+  '/agent-auth': '/agent-auth/quickstart/',
+  '/apis/agent-auth': '/agent-auth/quickstart/',
+  '/integrations/agent-auth': '/agent-auth/quickstart/',
+
   // Agent Actions rebranded to Agent Auth (preserve all legacy URLs)
   //
   // Notes (Astro routing):
@@ -256,6 +274,7 @@ export const redirects = {
   '/m2m/api-auth-for-m2m-clients': '/guides/m2m/api-auth-m2m-clients/',
   '/m2m/external-ids-and-metadata': '/guides/external-ids-and-metadata/',
   '/m2m/scopes': '/guides/m2m/scopes/',
+  '/reference/api/m2m-clients': '/guides/m2m/api-auth-m2m-clients/',
 
   // =============================================================================
   // INTEGRATIONS REDIRECTS
@@ -303,6 +322,16 @@ export const redirects = {
   // =============================================================================
   // GENERAL / OTHER REDIRECTS
   // =============================================================================
+
+  // Webhook page rename
+  '/authenticate/implement-workflows/handle-webhooks':
+    '/authenticate/implement-workflows/implement-webhooks/',
+
+  // Authenticate shorthand paths
+  '/authenticate/quickstart': '/authenticate/fsa/quickstart/',
+  '/authenticate/oauth': '/authenticate/fsa/quickstart/',
+  '/authenticate/fsa/redirect-url': '/guides/dashboard/redirects/',
+
   '/examples': '/scenarios/',
   '/dev-kit/sdks/overview': '/authenticate/set-up-scalekit/',
   '/authenticate/installation': '/authenticate/set-up-scalekit/',
@@ -322,6 +351,13 @@ export const redirects = {
   '/guides/view-webhook-logs/': '/guides/dashboard/auth-logs/',
 
   // =============================================================================
+  // DEV KIT REDIRECTS
+  // =============================================================================
+  '/dev-kit/guides/testing/sso-simulator': '/dev-kit/tools/sso-simulator/',
+  '/dev-kit/nodejs': '/dev-kit/sdks/',
+  '/dev-kit/ui-widgets': '/authenticate/manage-users-orgs/hosted-widgets/',
+
+  // =============================================================================
   // CHANGELOG REDIRECTS - Redirect to SDK pages
   // =============================================================================
   '/dev-kit/changelogs/': '/sdks/',
@@ -329,4 +365,15 @@ export const redirects = {
   '/dev-kit/changelogs/python/': '/sdks/python/',
   '/dev-kit/changelogs/go/': '/sdks/go/',
   '/dev-kit/changelogs/java/': '/sdks/java/',
+
+  // Version-specific changelog paths
+  '/dev-kit/changelogs/java/version/v1-1-3': '/sdks/java/',
+  '/dev-kit/changelogs/java/version/v1-0-1': '/sdks/java/',
+  '/dev-kit/changelogs/go/version/v1-0-4': '/sdks/go/',
+
+  // Other redirects
+  '/connectors': '/reference/agent-connectors/',
+  '/fsa/data-modeling': '/fsa/data-modelling/',
+  '/guides': '/',
+  '/mcp': '/authenticate/mcp/quickstart/',
 }
