@@ -174,7 +174,7 @@ Scalekit's Auth Stack marketplace is in public beta. Join our [Slack community](
 
    After the coding agent completes, verify that all authentication components are properly configured:
 
-   **Check generated files:**
+   Check generated files:
    - Authentication middleware with JWT validation
    - Environment variable configuration (`.env.example`)
    - OAuth discovery endpoint (`/.well-known/oauth-authorization-server`)
@@ -183,6 +183,11 @@ Scalekit's Auth Stack marketplace is in public beta. Join our [Slack community](
    **Test the authentication flow:**
 
    <Tabs syncKey="tech-stack">
+   <TabItem value="claude" label="Claude Code">
+   ```md title="Claude REPL" showLineNumbers=false
+   Now that your MCP server has authentication integrated, let's verify it's working correctly by testing the flow step by step. First, start your MCP server using npm start (Node.js) or python server.py (Python) and confirm it's running without errors. Next, test the OAuth discovery endpoint by running curl http://localhost:3000/.well-known/oauth-authorization-server to verify your server exposes the correct authorization configuration. Then, verify authentication is enforced by calling curl http://localhost:3000/mcp without credentials—this should return a 401 Unauthorized response, confirming protected endpoints are secured. Finally, test with a valid token by running curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/mcp (replace YOUR_TOKEN with an actual access token from your auth provider) to confirm authenticated requests succeed and return the expected response—if all these steps work as described, your authentication implementation is functioning correctly.
+   ```
+   </TabItem>
    <TabItem value="node" label="Node.js">
    ```bash title="Terminal" frame="terminal"
    # Start your MCP server
@@ -221,11 +226,21 @@ Scalekit's Auth Stack marketplace is in public beta. Join our [Slack community](
 
 ## Next steps
 
-Your MCP server now validates OAuth 2.1 tokens on every request. To complete your authentication setup:
+Your MCP server now has OAuth 2.1 authentication integrated. Test the implementation with your MCP host to verify the authentication flow works correctly.
 
-- **Register your MCP server** in the Scalekit dashboard to issue tokens for testing
-- **Configure scopes** that match your MCP tools' access requirements
-- **Implement error handling** for expired tokens and scope violations
-- **Add refresh token support** for long-running MCP connections
+### Test with MCP hosts
 
-Review the [complete MCP OAuth 2.1 guide](/authenticate/mcp/quickstart/) for detailed implementation patterns, security considerations, and production deployment best practices.
+Connect your authenticated MCP server to any MCP-compatible host:
+
+- **Claude Desktop or Claude Code**: Configure the MCP server connection in settings
+- **Cursor**: Add the MCP server to your workspace configuration
+- **Windsurf**: Register the server in your MCP settings
+- **Other MCP hosts**: Follow your host's documentation for connecting authenticated MCP servers
+
+When you connect, the host authenticates using the OAuth 2.1 flow you configured. Verify that protected MCP resources require valid access tokens and that the discovery endpoint provides correct OAuth metadata.
+
+### Continue building
+
+<Aside type="tip" title="Ready for more?">
+For detailed implementation guidance, security best practices, and advanced configuration options, continue to the [MCP OAuth 2.1 implementation guide](/authenticate/mcp/quickstart/). This guide covers manual implementation patterns, token management, and production deployment considerations.
+</Aside>
