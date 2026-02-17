@@ -51,6 +51,7 @@ export const sidebar = [
           'authenticate/manage-organizations/remove-users-from-organization',
           'authenticate/manage-users-orgs/delete-users-and-organizations',
           'authenticate/fsa/user-management-settings',
+          'authenticate/manage-users-orgs/hosted-widgets',
         ],
       },
       {

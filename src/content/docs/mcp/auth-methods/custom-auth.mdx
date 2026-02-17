@@ -1,29 +1,24 @@
 ---
-title: Bring Your Own Auth 
+title: Bring Your Own Auth
+overviewTitle: "Bring your own auth"
 description: Using Scalekit as a drop-in OAuth 2.1 authorization layer for your MCP Servers with federated authentication to your existing auth layer.
 sidebar:
   label: 'Bring your own auth'
   order: 3
 topic: 'mcp'
 pagefind: false
-head:
-  - tag: meta
-    attrs:
-      name: robots
-      content: noindex
+seeAlso:
+  label: "Code samples"
+  expanded: true
+  items:
+    - title: "Browse the MCP Auth code samples"
+      icon: "code"
+      url: "https://github.com/scalekit-inc/mcp-auth-demos"
 ---
 import Subtitle from '@/components/ui/Subtitle.astro'
-import { CardGrid, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
-
-This document explains how to integrate your existing authentication system with Scalekit's drop-in OAuth 2.1 authorization layer. Follow the steps below to enable seamless and secure OAuth2.1 MCP layer for your users.
-
----
-
-## Overview
+import { CardGrid, Badge, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
 Scalekit also offers the option to integrate your existing authentication infrastructure with Scalekit's OAuth layer for MCP servers. **Use this when you have an existing auth system and want to add MCP OAuth without migrating users.**
-
-**Why use this integration?**
 
 When your B2B application already has an established authentication system, you can connect it to your MCP server through Scalekit. This ensures that:
 - Users see the same familiar login screen whether accessing your application or your MCP server
@@ -31,6 +26,11 @@ When your B2B application already has an established authentication system, you 
 - You maintain control over your authentication logic while gaining MCP OAuth 2.1 compliance
 
 This "bring your own auth" approach standardizes the authorization layer without requiring you to rebuild your existing authentication infrastructure from scratch.
+
+<Aside type='caution' title='Update your login endpoint for MCP token exchange
+'>
+The following changes will need to be made in your B2B apps's Login API Endpoint. The connection ID, User POST URL and Redirect URI allows your app to know that scalekit is attempting to perform the Token Exchange for MCP Auth, so the user should get redirected to the correct consent screen post MCP Login instead of your B2B app.
+</Aside>
 
 ## Step-by-Step Workflow
 
@@ -60,13 +60,9 @@ Scalekit Auth Server -> MCP Client: Continue Consent, token exchange and permiss
   - `login_request_id`: Unique identifier for the login request.
   - `state`: Value to maintain state between requests.
 
-**Example Redirect URL:**
-
-```
+```url wrap showLineNumbers=false title="Example Redirect URL"
 https://app.example.com/login?login_request_id=lri_86659065219908156&state=HntJ_ENB6y161i9_P1yzuZVv2SSTfD3aZH-Tej0_Y33_Fk8Z3g
 ```
-
----
 
 ### 2. Handle Authentication in Your Application
 
@@ -190,6 +186,7 @@ curl --location '{{env_url}}/oauth/token' \
 ```
 
 Scalekit responds with a JSON payload similar to:
+
 ```json
 {
   "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIn0...",
@@ -214,10 +211,10 @@ curl --location '{{env_url}}/api/v1/connections/{{connection_id}}/auth-requests/
 </Tabs>
 
 :::note
-- Replace placeholders like `{{env_url}}`, `{{connection_id}}`, `{{login_request_id}}`, and `{{access_token}}` with actual values.  
-- Only `sub` and `email` are required fields; all other properties are optional.  
+- Replace placeholders like `{{env_url}}`, `{{connection_id}}`, `{{login_request_id}}`, and `{{access_token}}` with actual values.
+- Only `sub` and `email` are required fields; all other properties are optional.
 
-You can get the `{{connection_id}}` from the User Info Post URL from Scalekit MCP server dashboard. 
+You can get the `{{connection_id}}` from the User Info Post URL from Scalekit MCP server dashboard.
 If the user info post url is `https://yourapp.scalekit.com/api/v1/connections/conn_1234567890/auth-requests/{{login_request_id}}/user`, your connection_id is `conn_1234567890`.
 
 :::
@@ -230,7 +227,7 @@ If the user info post url is `https://yourapp.scalekit.com/api/v1/connections/co
 
 **Example Redirect URL:**
 
-```
+``` wrap showLineNumbers=false frame="none"
 {{envurl}}/sso/v1/connections/{{connection_id}}/partner:callback?state={{state_value}}
 ```
 
@@ -248,7 +245,5 @@ If the user info post url is `https://yourapp.scalekit.com/api/v1/connections/co
 - The `login_request_id` and `state` parameters are essential for correlating requests and maintaining security.
 
 :::
-
-## Next Steps
 
 **Download our sample MCP Server:** We have put together a simple MCP server that you can check out and run it locally to test the end to end functionality of a working MCP server complete with authentication and authorization. You can download and execute a sample MCP server implementation from <a href="https://github.com/scalekit-inc/mcp-auth-demos" target="_blank" rel="noopener">GitHub</a>.
