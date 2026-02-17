@@ -1,75 +1,219 @@
 ---
-title: "MCP quickstart"
-description: "AI assisted MCP quickstart to add Scalekit's OAuth 2.1 to your MCP servers"
+title: 'MCP quickstart with AI coding agents'
+description: 'Use AI coding agents to add OAuth 2.1 authentication to your MCP servers in minutes'
 sidebar:
-  label: "Start with coding agents"
+  label: 'With coding agents'
 tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);star
+      }
+next:
+  label: 'MCP OAuth 2.1 implementation guide'
+  link: '/authenticate/mcp/quickstart/'
+seeAlso:
+  label: 'See also'
+  expanded: true
+  items:
+    - title: 'FastMCP quickstart'
+      icon: 'rocket'
+      url: '/authenticate/mcp/fastmcp-quickstart/'
+    - title: 'Browse MCP code samples'
+      icon: 'github'
+      url: 'https://github.com/scalekit-inc/mcp-demo'
 ---
 
-import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+import { Steps, Aside, Tabs, TabItem, Badge } from '@astrojs/starlight/components'
 import { Image } from 'astro:assets'
 import enableClaudePluginGif from '@/assets/docs/ai-assisted-mcp-quickstart/2.gif'
 
-Use the AI development tools to speed of integrating auth stack into your MCP servers. Following this guide, you will learn how to best your AI coding agents such as Claude finish your integration end to end.
+Use AI coding agents to accelerate your MCP authentication integration. This guide shows you how to configure and use coding agents like Claude Code to implement Scalekit's OAuth 2.1 authentication end-to-end in your MCP servers.
 
-- Scalekit's Auth Stack marketplace is in public beta and we'd love for your chime into our slack community and share feedback!
-- We are building more of these plugins beyond Claude Code. Let us knw what use use through our Slack community.
+AI-assisted development reduces implementation time from hours to minutes. The coding agent analyzes your codebase, applies authentication patterns, and generates production-ready code that follows security best practices.
+
+**Prerequisites**
+
+- A [Scalekit account](https://app.scalekit.com) with MCP server management access
+- Basic familiarity with OAuth 2.1 and MCP server architecture
+- Terminal access for installing coding agent tools
+
+<Aside type="note" title="Beta program feedback">
+Scalekit's Auth Stack marketplace is in public beta. Join our [Slack community](https://scalekit.com/slack) to share feedback and connect with other developers. We're actively expanding support beyond Claude Code—let us know which AI tools you use.
+</Aside>
 
 <Steps>
 
-1. ### Setup coding agent
+1. ## Install your coding agent
 
-    New to using coding agents? Install them onto your system
-   <Tabs>
-   <TabItem value="claude" label="Claude Code">
-     ```bash showLineNumbers=false
-     curl -fsSL https://claude.ai/install.sh | bash
-     ```
-     Learn more about [Claude Code](https://code.claude.com/docs/en/quickstart)
-   </TabItem>
-   </Tabs>
-
-2. ### Add AuthStack marketplace
+   Install an AI coding agent that supports plugin ecosystems. Claude Code provides native integration with Scalekit's authentication plugins.
 
    <Tabs>
    <TabItem value="claude" label="Claude Code">
-     ```bash showLineNumbers=false
-     # Start Claude REPL
-     /plugin marketplace add saif-at-scalekit/claude-code-authstack
-     ```
-     You will notice the marketplace is added to your claude code
-     ```bash showLineNumbers=false
-     ❯ /plugin marketplace add saif-at-scalekit/claude-code-authstack
-        ⎿  Successfully added marketplace: scalekit-auth-stack
-     ```
+
+   Run the installation script to set up Claude Code on your system:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   curl -fsSL https://claude.ai/install.sh | bash
+   ```
+
+   After installation completes, verify the setup by running:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   claude --version
+   ```
+
+   Learn more about Claude Code in the [official quickstart guide](https://code.claude.com/docs/en/quickstart).
+
    </TabItem>
    </Tabs>
-3. ### Choose the plugins you want to add to your auth stack
 
-   Once the marketplace is added, you can go through `/plugins` wizard within claude code.
-
-   <Image src={enableClaudePluginGif}
-            loading="eager"
-            priority={true}
-            alt="Image loading..."
-            data-zoom-off />
-
-
-   <Aside type="tip">
-   Enable Auto Updates to as incorporate active feedback into the plugin regularly.
+   <Aside type="tip" title="Other AI coding tools">
+   While this guide focuses on Claude Code, the same authentication patterns apply to other AI-assisted development tools. The implementation principles remain consistent regardless of your chosen coding agent.
    </Aside>
-4. ### Prompt to start adding auth
 
-    ```md wrap showLineNumbers=false
-    Add OAuth 2.1 authentication to my FastMCP MCP server using Scalekit. Initialize ScalekitClient with environment credentials, implement /.well-known/ metadata endpoint for discovery, and add authentication middleware that validates JWT bearer tokens on all MCP requests. Code only.
-    ```
+2. ## Add the Scalekit Auth Stack marketplace
 
-    Claude Code will automatically load the skill and start guiding towards completion.
+   Register Scalekit's plugin marketplace to access pre-configured authentication skills. This marketplace provides context-aware prompts and implementation guides that help coding agents generate correct authentication code.
 
-    ![](@/assets/docs/ai-assisted-mcp-quickstart/skill-activation.png)
+   <Tabs>
+   <TabItem value="claude" label="Claude Code">
 
-5.
+   Start the Claude Code REPL and add the marketplace:
 
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   # Start Claude REPL
+   claude
 
+   # Add Scalekit Auth Stack marketplace
+   /plugin marketplace add saif-at-scalekit/claude-code-authstack
+   ```
+
+   When the marketplace registers successfully, you'll see confirmation output:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   ❯ /plugin marketplace add saif-at-scalekit/claude-code-authstack
+      ⎿  Successfully added marketplace: scalekit-auth-stack
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   The marketplace provides specialized authentication plugins that understand MCP server architectures and OAuth 2.1 security requirements. These plugins guide the coding agent to generate implementation code that matches your project structure.
+
+3. ## Enable authentication plugins
+
+   Select which authentication capabilities to activate in your development environment. Each plugin provides specific skills that the coding agent uses to generate authentication code.
+
+   Run the plugin wizard to browse and enable available plugins:
+
+   <Tabs>
+   <TabItem value="claude" label="Claude Code">
+
+   ```bash title="Claude REPL" showLineNumbers=false
+   /plugins
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   Navigate through the visual interface to enable the MCP authentication plugin:
+
+   <Image
+     src={enableClaudePluginGif}
+     loading="eager"
+     priority={true}
+     alt="Enabling Scalekit MCP authentication plugin in Claude Code"
+     data-zoom-off
+   />
+
+   <Aside type="tip" title="Auto-update recommendations">
+   Enable auto-updates for authentication plugins to receive security patches and improvements. Scalekit regularly updates plugins based on community feedback and security best practices.
+   </Aside>
+
+4. ## Generate authentication implementation
+
+   Use a structured prompt to direct the coding agent. A well-formed prompt ensures the agent generates complete, production-ready authentication code that includes all required security components.
+
+   Copy the following prompt into your coding agent:
+
+   ```md wrap showLineNumbers=false title="Authentication implementation prompt"
+   Add OAuth 2.1 authentication to my MCP server using Scalekit. Initialize ScalekitClient with environment credentials, implement /.well-known/ metadata endpoint for discovery, and add authentication middleware that validates JWT bearer tokens on all MCP requests. Code only.
+   ```
+
+   When you submit this prompt, Claude Code:
+   1. Loads the MCP authentication skill from the marketplace
+   2. Analyzes your existing MCP server structure
+   3. Generates authentication middleware with token validation
+   4. Creates the OAuth discovery endpoint
+   5. Configures environment variable handling
+
+   ![Claude Code activating MCP authentication skill](@/assets/docs/ai-assisted-mcp-quickstart/skill-activation.png)
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
+   </Aside>
+
+5. ## Verify and test the implementation
+
+   After the coding agent completes, verify that all authentication components are properly configured:
+
+   **Check generated files:**
+   - Authentication middleware with JWT validation
+   - Environment variable configuration (`.env.example`)
+   - OAuth discovery endpoint (`/.well-known/oauth-authorization-server`)
+   - Error handling for invalid or expired tokens
+
+   **Test the authentication flow:**
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="node" label="Node.js">
+   ```bash title="Terminal" frame="terminal"
+   # Start your MCP server
+   npm start
+
+   # Test discovery endpoint
+   curl http://localhost:3000/.well-known/oauth-authorization-server
+
+   # Test protected endpoint (should return 401)
+   curl http://localhost:3000/mcp
+
+   # Test with valid token
+   curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/mcp
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```bash title="Terminal" frame="terminal"
+   # Start your MCP server
+   python server.py
+
+   # Test discovery endpoint
+   curl http://localhost:3000/.well-known/oauth-authorization-server
+
+   # Test protected endpoint (should return 401)
+   curl http://localhost:3000/mcp
+
+   # Test with valid token
+   curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/mcp
+   ```
+   </TabItem>
+   </Tabs>
+
+   The discovery endpoint should return OAuth configuration metadata. Protected endpoints should reject requests without valid tokens and accept requests with properly scoped access tokens.
 
 </Steps>
+
+## Next steps
+
+Your MCP server now validates OAuth 2.1 tokens on every request. To complete your authentication setup:
+
+- **Register your MCP server** in the Scalekit dashboard to issue tokens for testing
+- **Configure scopes** that match your MCP tools' access requirements
+- **Implement error handling** for expired tokens and scope violations
+- **Add refresh token support** for long-running MCP connections
+
+Review the [complete MCP OAuth 2.1 guide](/authenticate/mcp/quickstart/) for detailed implementation patterns, security considerations, and production deployment best practices.
