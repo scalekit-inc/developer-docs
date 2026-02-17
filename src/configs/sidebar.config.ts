@@ -341,7 +341,7 @@ export const sidebar = [
           'authenticate/mcp/overview',
           {
             label: 'Quickstarts',
-            collapse: false,
+            collapsed: false,
             items: ['authenticate/mcp/quickstart', 'authenticate/mcp/start-mcp-auth-coding-agents'],
           },
           'authenticate/mcp/managing-mcp-clients',
