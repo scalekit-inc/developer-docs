@@ -9,8 +9,14 @@ tableOfContents:
 head:
   - tag: style
     content: |
-      table td:not(:last-child), table th:not(:last-child) {
-        white-space: nowrap;
+      table {
+        word-wrap: break-word;
+        table-layout: fixed;
+      }
+      td {
+        word-wrap: break-word;
+        vertical-align: top;
+        padding: 8px;
       }
       .sl-markdown-content h2 {
           font-size: var(--sl-text-xl);
@@ -80,7 +86,12 @@ The OAuth Configuration details page helps you set up the connection:
 1. Open the <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Platform Console</a>. From the projects list, select an existing project or create a new one.
 
 2. Navigate to the <a href="https://console.cloud.google.com/auth/overview" target="_blank" rel="noopener">Google Auth Platform's overview page</a>.
-   - Click **Get Started** and provide details such as app information, audience, and contact information. Complete the process by clicking **Create**.
+   - Click **Get Started** and provide details such as app information, audience, and contact information.
+   - **Important**: Select **External** audience type. You must use External for social login because:
+     - **Internal** only works for whitelisted Google Workspace accounts (your own employees)
+     - **External** allows anyone with a Google account to sign in to your app
+     - **Internal** cannot be used for public-facing authentication
+   - Complete the process by clicking **Create**.
 
 3. On the "Overview" page, click the **Create OAuth Client** button to start setting up your app's OAuth client.
 
@@ -95,11 +106,25 @@ The OAuth Configuration details page helps you set up the connection:
 8. Click **Test Connection** to simulate and verify the Google Sign-In flow.
 </Steps>
 
-<Aside type="note">
-- Explore options like branding, audience, clients, and data access to customize your OAuth consent screen for your application's needs.
-- Ensure your app's verification status with Google is complete before enabling social login features for users to ensure trustworthiness.
+<Aside type="note" title="Google OAuth consent screen behavior">
+Before using custom credentials in production, understand what users will see on Google's consent screen:
+
+| Audience Type | Consent Screen Behavior | When To Use |
+|--------------|------------------------|-------------|
+| **Internal** | Shows your App Name and logo from Branding settings | Only for your own employees using whitelisted Google Workspace domains |
+| **External** | Shows `{env_name}.scalekit.dev` domain until Google verifies your app | For public users—anyone with a Google account can sign in |
+
+**Why you must use External for social login:**
+
+- **Internal** restricts access to pre-approved email domains you control. Public users with `@gmail.com` or other Google accounts cannot sign in.
+- **External** is required because social login is for anyone, not just your employees.
+- Until Google completes verification of your External app, users see `scalekit.dev` instead of your custom domain. After verification, your App Name and logo appear on the consent screen.
+
+**Note:** This is Google's OAuth behavior—not Scalekit's. The verification is separate from Scalekit's domain verification for Enterprise SSO.
+
 </Aside>
-For more details, refer to <a href="https://support.google.com/cloud/answer/6158849" target="_blank" rel="noopener">Google's OAuth guide</a>.
+
+For Google's verification requirements and timeline, refer to <a href="https://support.google.com/cloud/answer/6158849" target="_blank" rel="noopener">Google's OAuth consent screen verification guide</a>.
 
 ![Google OAuth configuration in Scalekit, showing redirect URI, client credentials, and scopes for social login setup.](@/assets/docs/common/social-connections/3-google-oauth-config.png)
 
