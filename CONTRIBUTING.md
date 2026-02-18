@@ -6,35 +6,35 @@ This guide covers everything you need to go from zero to a merged pull request.
 
 ---
 
-## Table of Contents
+## Table of contents
 
-- [Before You Start](#before-you-start)
-- [Setting Up Locally](#setting-up-locally)
-- [Environment Variables](#environment-variables)
-- [Git Hooks](#git-hooks)
-- [Project Architecture](#project-architecture)
-  - [Starlight Plugins](#starlight-plugins)
-  - [Overridden Components](#overridden-components)
-  - [Custom Components](#custom-components)
-- [Writing & Editing Docs](#writing--editing-docs)
-- [Raising a Pull Request](#raising-a-pull-request)
-- [Reporting an Issue](#reporting-an-issue)
-- [Getting Help](#getting-help)
+- [Before you start](#before-you-start)
+- [Set up locally](#set-up-locally)
+- [Configure environment variables](#configure-environment-variables)
+- [Run git hooks](#run-git-hooks)
+- [Describe project architecture](#describe-project-architecture)
+  - [Describe Starlight plugins](#describe-starlight-plugins)
+  - [Describe overridden components](#describe-overridden-components)
+  - [Describe custom components](#describe-custom-components)
+- [Write and edit docs](#write-and-edit-docs)
+- [Raise a pull request](#raise-a-pull-request)
+- [Report an issue](#report-an-issue)
+- [Get help](#get-help)
 
 ---
 
-## Before You Start
+## Before you start
 
 A few things worth knowing before you dive in:
 
 - All documentation lives as **MDX files** inside `src/content/`. That's the main place contributors work.
 - The site is built with **[Astro](https://astro.build) v5** and the **[Starlight](https://starlight.astro.build)** docs framework, deployed on Netlify in SSR mode.
 - We use **pnpm** as the package manager — not npm or yarn.
-- The writing style, frontmatter requirements, and code example rules are documented in `CLAUDE.md` and `.cursorrules` at the root. Read these before writing.
+- Follow the constitution at `.specify/memory/constitution.md` as the single source of truth for all documentation rules. The writing style, frontmatter requirements, and code example rules are also documented in `CLAUDE.md` and `.cursorrules` at the root as supplemental guidance. Read these before writing.
 
 ---
 
-## Setting Up Locally
+## Set up locally
 
 ### Prerequisites
 
@@ -45,7 +45,7 @@ A few things worth knowing before you dive in:
 npm install -g pnpm
 ```
 
-### Clone and Run
+### Clone and run
 
 ```bash
 # 1. Clone the repo
@@ -64,7 +64,7 @@ pnpm dev
 
 Open [http://localhost:4321](http://localhost:4321). Edits to MDX files in `src/content/` reflect immediately.
 
-### Useful Commands
+### Useful commands
 
 | Command                      | Description                                          |
 | ---------------------------- | ---------------------------------------------------- |
@@ -77,11 +77,11 @@ Open [http://localhost:4321](http://localhost:4321). Edits to MDX files in `src/
 
 ---
 
-## Environment Variables
+## Configure environment variables
 
 Copy `.env.example` to `.env` before running the project. Here's what each group controls:
 
-### GitHub Integration
+### GitHub integration
 
 | Variable       | Required | Description                                                                                                                                                                                                                                                                                           |
 | -------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -121,7 +121,7 @@ Running `pnpm install` automatically registers two git hooks via [simple-git-hoo
 
 ### `pre-commit` — Auto-format staged files
 
-```
+```bash
 pnpm pretty-quick --staged
 ```
 
@@ -129,7 +129,7 @@ Runs [Prettier](https://prettier.io) on every staged file before the commit land
 
 ### `pre-push` — Validate before push
 
-```
+```text
 1. Checks for uncommitted changes (blocks push if any exist)
 2. Runs pnpm generate-search-index
 3. Runs pnpm build (full production build)
