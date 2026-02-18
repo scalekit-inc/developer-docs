@@ -1,0 +1,225 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# ============================================================
+# Scalekit Developer Docs — CodeRabbit Configuration
+# Goal: Uphold documentation quality and ensure FSA (and all
+#       topic sections) reflect a coherent user journey as
+#       defined in src/configs/sidebar.config.ts
+# ============================================================
+
+language: 'en-US'
+early_access: false
+
+reviews:
+  profile: 'assertive'
+  request_changes_workflow: true
+  high_level_summary: true
+  high_level_summary_placeholder: '@coderabbitai summary'
+  poem: false
+  review_status: true
+  review_details: true
+  collapse_walkthrough: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - 'main'
+      - 'staging'
+
+  # ── Path-level instructions ──────────────────────────────
+  path_instructions:
+    # ── All MDX files (global baseline) ──────────────────
+    - path: '**/*.mdx'
+      instructions: |
+        You are reviewing Scalekit developer documentation written in MDX
+        (Astro + Starlight framework). Apply ALL of the following checks:
+
+        ## Frontmatter
+        - `title` MUST be ≤ 60 characters and clearly state what the page does.
+        - `description` MUST be ≤ 160 characters, action-oriented, unique per page.
+        - `sidebar.label` MUST be present and ≤ 30 characters.
+        - `sidebar.order` MUST be set on every page that lives inside a section
+          with siblings, to enforce the journey order in sidebar.config.ts.
+        - Flag any missing `prev` / `next` links on pages that are clearly
+          part of a sequential flow (e.g., quickstart → implement-login →
+          complete-login → manage-session → logout).
+
+        ## Voice & Style (CLAUDE.md standards)
+        - Voice: confident, direct, collaborative, instructional.
+        - Person: second person only ("you", "your application"). Reject "we",
+          "our", "the developer", "the user".
+        - Tense: present tense for descriptions; imperative mood for instructions.
+        - Flag weasel words: "simply", "just", "easy", "straightforward",
+          "obviously", "of course", "note that".
+        - Flag passive voice constructions where active voice is clearer.
+        - Headings must be sentence case, not Title Case (except proper nouns).
+        - No heading should end with a colon or period.
+
+        ## Content structure
+        - How-to guides MUST contain numbered `<Steps>` (Starlight component).
+        - Concept pages MUST NOT contain numbered steps — concepts explain, not instruct.
+        - API reference pages MUST list parameters in a table with Name / Type /
+          Required / Description columns.
+        - Every page MUST end with a clear "what's next" signal — either a
+          `next:` frontmatter link, a `<LinkCard>`, or an explicit paragraph
+          pointing the reader forward in the sidebar journey.
+
+        ## Code examples
+        - ALL code examples that show SDK usage MUST include all four language
+          tabs: Node.js, Python, Go, Java — using `<Tabs syncKey="tech-stack">`.
+        - SDK variable names are STRICTLY: `scalekit` (Node.js),
+          `scalekit_client` (Python), `scalekitClient` (Go), `scalekitClient` (Java).
+          Flag any deviation.
+        - Code blocks MUST have a `title=` attribute showing the file path
+          (e.g., `title="routes/auth.ts"`).
+        - Security-sensitive operations (tokens, cookies, secrets) MUST include
+          inline comments explaining the security implication or threat mitigated.
+        - Show both success path AND error path in every code example.
+
+        ## Links & References
+        - Internal links MUST use root-relative paths (e.g., `/authenticate/fsa/quickstart/`).
+        - Flag any hardcoded `https://docs.scalekit.com` links — use relative paths instead.
+        - Every `<LinkCard>` or `seeAlso` reference MUST point to a page that
+          actually exists in the repo or a confirmed external URL.
+
+        ## Accessibility & MDX hygiene
+        - All images MUST have descriptive alt text — not empty `![]()` syntax.
+        - Custom components (`<Aside>`, `<Steps>`, `<Tabs>`, `<Card>`) MUST be
+          imported at the top of the file if used.
+        - No raw HTML `<div>` blocks unless absolutely necessary and justified
+          by a code comment.
+
+    # ── FSA section — journey coherence ─────────────────
+    - path: 'src/content/docs/fsa/**/*.mdx'
+      instructions: |
+        This page is part of the Full Stack Auth (FSA) documentation section.
+        The FSA sidebar journey in sidebar.config.ts follows this sequence:
+
+          Getting started
+            1. authenticate/set-up-scalekit
+            2. authenticate/fsa/quickstart           ← entry point
+            3. authenticate/fsa/code-samples
+
+          User authentication
+            4. authenticate/fsa/implement-login
+            5. authenticate/fsa/complete-login
+            6. authenticate/fsa/manage-session
+            7. authenticate/fsa/logout
+            8. guides/dashboard/redirects
+
+          Manage users & orgs
+            9.  fsa/data-modelling                   ← THIS directory
+            10. authenticate/manage-users-orgs/...
+            11. fsa/guides/*
+
+          Customize → Go Live
+            12. fsa/guides/login-page-branding
+            13. fsa/guides/migration-guide
+
+        CHECK:
+        - Does this page have a `prev:` and `next:` that correctly links to
+          its neighbors in the above sequence?
+        - Does the page content "hand off" the reader — ending with a sentence
+          or component that makes the next step obvious?
+        - Does the page assume knowledge that should have been introduced in
+          an earlier page? If yes, flag it and suggest adding a cross-link.
+        - Does the page repeat foundational concepts already covered earlier
+          in the journey? If yes, replace repetition with a cross-link.
+        - For `fsa/data-modelling.mdx` specifically: verify it bridges the gap
+          between "user authenticated" (quickstart) and "now manage users/orgs"
+          without re-explaining the login flow.
+
+    - path: 'src/content/docs/fsa/guides/**/*.mdx'
+      instructions: |
+        These are FSA how-to guides — task-oriented pages for specific
+        user-management and customization scenarios. Verify:
+        - Each guide is clearly scoped to ONE task (single responsibility).
+        - The guide does not duplicate content from the parent FSA section;
+          it should extend it with specifics.
+        - `just-in-time-provisioning.mdx`: must explain JIT in the context of
+          organization-level auth policy enforcement.
+        - `login-page-branding.mdx`: must be placed in the "Customize" section
+          of the sidebar journey and have next/prev links accordingly.
+        - `migration-guide.mdx`: must be in "Go Live" and call out breaking
+          changes clearly with an `<Aside type="caution">` block.
+        - `user-invitations.mdx`: must reference the data model from
+          `fsa/data-modelling.mdx` for membership status (`pending`, `active`).
+
+    # ── authenticate/ section ────────────────────────────
+    - path: 'src/content/docs/authenticate/**/*.mdx'
+      instructions: |
+        This page lives in the primary authentication section.
+        - If it's a quickstart or step-based guide, it MUST use `<Steps>`.
+        - Auth method pages (passwordless, social, SSO, passkeys) MUST include
+          a brief "when to use this" section before the implementation steps.
+        - Any reference to tokens (idToken, accessToken, refreshToken) MUST
+          clarify: what it contains, its lifetime, and how to use it securely.
+        - The FSA quickstart (`authenticate/fsa/quickstart.mdx`) is the
+          canonical entry point — no other page should duplicate its 5-step
+          install→redirect→callback→session→logout structure.
+
+    # ── Sidebar & navigation config ─────────────────────
+    - path: 'src/configs/sidebar.config.ts'
+      instructions: |
+        This file defines the user journey across ALL documentation sections.
+        When reviewing changes to this file:
+        - Verify that reordered items do not break the logical learning sequence
+          (e.g., "complete-login" must always come after "implement-login").
+        - New items added to the FSA sidebar must follow the journey sequence:
+          Getting Started → User Auth → Auth Methods → Users & Orgs →
+          Authorization → Multi-App → APIs → Customize → Go Live.
+        - Commented-out items (TODO) are acceptable but must include a comment
+          explaining WHY they are hidden.
+        - `sidebarToSecondaryNav` mappings MUST be updated whenever a new
+          sidebar section (`id`) is added.
+        - External links MUST include the `attrs` block with
+          `target: '_blank'`, `rel: 'noopener noreferrer'`, `class: 'external-link'`.
+
+    # ── Content config & schema ──────────────────────────
+    - path: 'src/content.config.ts'
+      instructions: |
+        This defines Astro content collection schemas.
+        - New optional frontmatter fields MUST have `.optional()` and a
+          sensible `.default()` where applicable.
+        - SDK repository entries in `github-releases` and `sdk-references`
+          loaders must stay in sync — if a new SDK repo is added to one,
+          it must be added to the other.
+
+    # ── CLAUDE.md and constitution ───────────────────────
+    - path: 'CLAUDE.md'
+      instructions: |
+        CLAUDE.md is the quick-reference for AI assistant behavior in this repo.
+        - It MUST reference `.specify/memory/constitution.md` as the single
+          source of truth.
+        - SDK variable names section is CRITICAL — any change here must be
+          intentional and reflected across all code examples in the docs.
+        - The "Quality Checklist" section must end every AI-generated draft
+          with `STYLE-CHECK: [PASSED | TODO]`.
+
+    - path: '.specify/**/*.md'
+      instructions: |
+        These are the project constitution and speckit command files.
+        - Constitution changes must increment `CONSTITUTION_VERSION` per
+          semantic versioning (MAJOR/MINOR/PATCH rules as defined in the file).
+        - `LAST_AMENDED_DATE` must be updated to today's date on any change.
+        - No bracketed placeholder tokens (e.g., `[PROJECT_NAME]`) should
+          remain in the committed constitution — flag any that do.
+
+    # ── Astro config ─────────────────────────────────────
+    - path: 'astro.config.mjs'
+      instructions: |
+        - Sidebar config is imported from `src/configs/sidebar.config.ts` —
+          do NOT inline sidebar items here directly.
+        - Any new Starlight plugin added must be documented in a comment
+          explaining its purpose.
+        - `starlightLinksValidator` exclude patterns must stay minimal —
+          only exclude paths that genuinely can't be validated (e.g., `/apis/**`).
+
+  # ── Finishing touches ────────────────────────────────
+  finishing_touches:
+    docstrings:
+      enabled: false # This is a docs repo, not a code library
+
+chat:
+  auto_reply: true
