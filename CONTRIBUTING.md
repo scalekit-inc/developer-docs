@@ -209,14 +209,14 @@ All documentation pages live in `src/content/`. They are `.mdx` files (Markdown 
 Every page must have the following frontmatter:
 
 ```yaml
-***
+---
 title: 'Clear, descriptive title (≤ 60 characters)'
 description: 'Concise summary shown in search results (≤ 160 characters)'
 sidebar:
   label: 'Short label for the sidebar'
   order: 42
 tags: [auth, sso, api]
-***
+---
 ```
 
 ### Voice & Style
