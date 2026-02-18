@@ -3,10 +3,9 @@
 <img
   src="https://raw.githubusercontent.com/scalekit-inc/developer-docs/main/src/assets/images/logos-v4/sk-docs-light.svg"
   alt="Scalekit Docs"
-  height="64"
+  height="50"
+  style="background-color: white; padding: 8px; border-radius: 4px;"
 />
-
-<h3>Scalekit Developer Docs</h3>
 
 <p>The open-source documentation site for Scalekit — the enterprise auth platform for B2B SaaS teams.<br />
 Built with Astro + Starlight. Deployed on Netlify. Contributions very welcome.</p>
