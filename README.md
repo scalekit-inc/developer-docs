@@ -23,13 +23,13 @@ Built with Astro + Starlight. Deployed on Netlify. Contributions very welcome.</
 
 ---
 
-This repository is the source for **[docs.scalekit.com](https://docs.scalekit.com)** — the official developer documentation for [Scalekit](https://scalekit.com), an complete auth stack for AI apps; be it SSO, SCIM, MCP, Agents or Full Stack authentication.
+This repository is the source for **[docs.scalekit.com](https://docs.scalekit.com)** — the official developer documentation for [Scalekit](https://scalekit.com), a complete auth stack for AI apps; be it SSO, SCIM, MCP, Agents or full-stack authentication.
 
 Everything here — pages, guides, API references, SDK code examples, architecture concepts — lives as MDX files, rendered by the Astro + Starlight framework, and deployed continuously on Netlify. If you spot something wrong, incomplete, or missing, a pull request is always welcome.
 
 ---
 
-### ✨ Features
+### Features
 
 - **Multi-language SDK examples** — every code sample covers Node.js, Python, Go, and Java
 - **Interactive API Reference** — powered by Scalar, rendered live from the OpenAPI spec
@@ -41,9 +41,9 @@ Everything here — pages, guides, API references, SDK code examples, architectu
 
 ---
 
-### 🗂️ Project Structure
+### Project structure
 
-```
+```text
 developer-docs/
 ├── src/
 │   ├── content/         # All MDX documentation pages
@@ -60,7 +60,7 @@ developer-docs/
 
 ---
 
-### 🚀 Getting Started
+### Getting started
 
 #### Prerequisites
 
@@ -71,7 +71,7 @@ developer-docs/
 npm install -g pnpm
 ```
 
-#### Run Locally
+#### Run locally
 
 ```bash
 # 1. Clone the repository
