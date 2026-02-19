@@ -215,12 +215,17 @@
    * Initialize minimal config for anonymous users
    */
   var initializeMinimalConfig = function () {
-    window.pylon = {
-      chat_settings: {
-        app_id: PYLON_APP_ID,
-      },
+    // Anonymous user: show HubSpot instead of Pylon
+    console.log('[chat] anonymous user — loading HubSpot widget')
+    if (window.HubSpotConversations) {
+      window.HubSpotConversations.widget.load()
+    } else {
+      // HubSpot SDK not ready yet — wait for it
+      window.hsConversationsOnReady = window.hsConversationsOnReady || []
+      window.hsConversationsOnReady.push(function () {
+        window.HubSpotConversations.widget.load()
+      })
     }
-    console.log('[pylon] minimal config set for anonymous user')
   }
 
   /**
