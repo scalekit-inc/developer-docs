@@ -202,6 +202,11 @@ export default defineConfig({
             src: '/js/pylon-widget.js',
           },
         },
+        // Prevent HubSpot from auto-showing chat; we load it explicitly for anonymous users
+        {
+          tag: 'script',
+          content: `window.hsConversationsSettings = { loadImmediately: false };`,
+        },
         {
           tag: 'script',
           attrs: {
