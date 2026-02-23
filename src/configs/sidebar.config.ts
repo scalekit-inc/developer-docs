@@ -141,7 +141,7 @@ export const sidebar = [
           'agent-auth/connected-accounts',
           // 'agent-auth/authentication/auth-flows-comparison',
           'agent-auth/tools/authorize',
-          'agent-auth/authentication/token-management',
+          // 'agent-auth/authentication/token-management',
           'agent-auth/advanced/bring-your-own-oauth',
           'agent-auth/advanced/custom-domain',
           // 'agent-auth/authentication/scopes-permissions',
