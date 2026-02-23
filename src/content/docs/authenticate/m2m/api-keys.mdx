@@ -146,9 +146,8 @@ try:
         description="CI/CD pipeline token",
     )
 
-    # SDK returns (response, metadata) tuple — access response at index 0
-    opaque_token = response[0].token  # store this securely
-    token_id = response[0].token_id   # format: apit_xxxxx
+    opaque_token = response.token  # store this securely
+    token_id = response.token_id   # format: apit_xxxxx
 except Exception as e:
     print(f"Failed to create token: {e}")
 ```
@@ -234,8 +233,8 @@ try:
         description="Deployment service token",
     )
 
-    opaque_token = user_token[0].token
-    token_id = user_token[0].token_id
+    opaque_token = user_token.token
+    token_id = user_token.token_id
 except Exception as e:
     print(f"Failed to create token: {e}")
 ```
@@ -331,9 +330,9 @@ from scalekit import ScalekitValidateTokenFailureException
 try:
     result = scalekit_client.tokens.validate_token(token=opaque_token)
 
-    org_id = result[0].token_info.organization_id
-    user_id = result[0].token_info.user_id
-    claims = result[0].token_info.custom_claims
+    org_id = result.token_info.organization_id
+    user_id = result.token_info.user_id
+    claims = result.token_info.custom_claims
 except ScalekitValidateTokenFailureException:
     # Token is invalid, expired, or revoked
     print("Token validation failed")
@@ -412,11 +411,11 @@ try:
     result = scalekit_client.tokens.validate_token(token=opaque_token)
 
     # Roles assigned to the user
-    roles = result[0].token_info.roles
+    roles = result.token_info.roles
 
     # External identifiers for mapping to your system
-    external_org_id = result[0].token_info.organization_external_id
-    external_user_id = result[0].token_info.user_external_id
+    external_org_id = result.token_info.organization_external_id
+    external_user_id = result.token_info.user_external_id
 except ScalekitValidateTokenFailureException:
     print("Token validation failed")
 ```
@@ -500,8 +499,8 @@ try {
 try:
     result = scalekit_client.tokens.validate_token(token=opaque_token)
 
-    team = result[0].token_info.custom_claims.get("team")
-    environment = result[0].token_info.custom_claims.get("environment")
+    team = result.token_info.custom_claims.get("team")
+    environment = result.token_info.custom_claims.get("environment")
 
     # Use metadata for authorization
     if environment != "production":
@@ -602,15 +601,15 @@ try:
         page_size=10,
     )
 
-    for token in response[0].tokens:
+    for token in response.tokens:
         print(token.token_id, token.description)
 
     # Paginate through results
-    if response[0].next_page_token:
+    if response.next_page_token:
         next_page = scalekit_client.tokens.list_tokens(
             organization_id=organization_id,
             page_size=10,
-            page_token=response[0].next_page_token,
+            page_token=response.next_page_token,
         )
 
     # Filter tokens by user
@@ -832,7 +831,7 @@ def authenticate_token(f):
             # Server-side validation — Scalekit checks token status in real time
             result = scalekit_client.tokens.validate_token(token=token)
             # Attach token context for downstream handlers
-            g.token_info = result[0].token_info
+            g.token_info = result.token_info
         except ScalekitValidateTokenFailureException:
             # Revoked, expired, or malformed tokens are rejected immediately
             return jsonify({"error": "Invalid or expired token"}), 401
