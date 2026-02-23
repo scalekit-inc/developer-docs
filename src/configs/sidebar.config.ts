@@ -256,6 +256,10 @@ export const sidebar = [
         attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
       },
       {
+        label: 'Cookbooks',
+        link: '/cookbooks',
+      },
+      {
         label: 'API collections',
         collapsed: true,
         items: [
