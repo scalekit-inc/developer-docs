@@ -306,9 +306,9 @@ import { ScalekitValidateTokenFailureException } from '@scalekit-sdk/node';
 try {
   const result = await scalekit.token.validateToken(opaqueToken);
 
-  const orgId = result.tokenInfo.organizationId;
-  const userId = result.tokenInfo.userId;
-  const claims = result.tokenInfo.customClaims;
+  const orgId = result.tokenInfo?.organizationId;
+  const userId = result.tokenInfo?.userId;
+  const claims = result.tokenInfo?.customClaims;
 } catch (error) {
   if (error instanceof ScalekitValidateTokenFailureException) {
     // Token is invalid, expired, or revoked
@@ -346,7 +346,7 @@ if errors.Is(err, scalekit.ErrTokenValidationFailed) {
 }
 
 orgId := result.TokenInfo.OrganizationId
-userId := result.TokenInfo.UserId
+userId := result.TokenInfo.GetUserId()   // *string — nil for org-scoped tokens
 claims := result.TokenInfo.CustomClaims
 ```
 
@@ -385,11 +385,11 @@ try {
   const result = await scalekit.token.validateToken(opaqueToken);
 
   // Roles assigned to the user
-  const roles = result.tokenInfo.roles;
+  const roles = result.tokenInfo?.roles;
 
   // External identifiers for mapping to your system
-  const externalOrgId = result.tokenInfo.organizationExternalId;
-  const externalUserId = result.tokenInfo.userExternalId;
+  const externalOrgId = result.tokenInfo?.organizationExternalId;
+  const externalUserId = result.tokenInfo?.userExternalId;
 } catch (error) {
   if (error instanceof ScalekitValidateTokenFailureException) {
     console.error('Token validation failed:', error.message);
@@ -429,7 +429,7 @@ roles := result.TokenInfo.Roles
 
 // External identifiers for mapping to your system
 externalOrgId := result.TokenInfo.OrganizationExternalId
-externalUserId := result.TokenInfo.UserExternalId
+externalUserId := result.TokenInfo.GetUserExternalId()  // *string — nil if no external ID
 ```
 
 </TabItem>
@@ -468,8 +468,8 @@ If you attached custom claims when creating the API key, they come back in every
 try {
   const result = await scalekit.token.validateToken(opaqueToken);
 
-  const team = result.tokenInfo.customClaims?.team;
-  const environment = result.tokenInfo.customClaims?.environment;
+  const team = result.tokenInfo?.customClaims?.team;
+  const environment = result.tokenInfo?.customClaims?.environment;
 
   // Use metadata for authorization
   if (environment !== 'production') {
@@ -838,6 +838,7 @@ r.GET("/api/resources", AuthenticateToken(scalekitClient), func(c *gin.Context) 
 
 ```java title="Spring Boot"
 import com.scalekit.exceptions.TokenInvalidException;
+import com.scalekit.grpc.scalekit.v1.tokens.Token;
 
 @Component
 public class TokenAuthFilter extends OncePerRequestFilter {
