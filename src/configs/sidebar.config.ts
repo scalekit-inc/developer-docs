@@ -262,7 +262,23 @@ export const sidebar = [
         link: '/apis/#description/overview',
         attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
       },
-      'dev-kit/api-collections/openapi-spec',
+      {
+        label: 'Cookbooks',
+        link: '/cookbooks',
+      },
+      {
+        label: 'API collections',
+        collapsed: true,
+        items: [
+          // 'dev-kit/api-collections/postman-collections', TODO: Expand the guide for postman collections
+          {
+            label: 'Postman collections',
+            link: 'https://github.com/scalekit-inc/api-collections/tree/main/postman',
+            attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
+          },
+          'dev-kit/api-collections/openapi-spec',
+        ],
+      },
       {
         label: 'AI tools',
         collapsed: false,
