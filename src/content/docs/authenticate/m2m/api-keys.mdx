@@ -177,6 +177,8 @@ tokenId := response.TokenId
 <TabItem value="java" label="Java">
 
 ```java
+import com.scalekit.grpc.scalekit.v1.tokens.CreateTokenResponse;
+
 try {
     CreateTokenResponse response = scalekitClient.tokens().create(organizationId);
 
@@ -265,6 +267,9 @@ tokenId := userToken.TokenId
 <TabItem value="java" label="Java">
 
 ```java
+import java.util.Map;
+import com.scalekit.grpc.scalekit.v1.tokens.CreateTokenResponse;
+
 try {
     Map<String, String> customClaims = Map.of(
         "team", "engineering",
@@ -354,7 +359,9 @@ claims := result.TokenInfo.CustomClaims
 <TabItem value="java" label="Java">
 
 ```java
+import java.util.Map;
 import com.scalekit.exceptions.TokenInvalidException;
+import com.scalekit.grpc.scalekit.v1.tokens.ValidateTokenResponse;
 
 try {
     ValidateTokenResponse result = scalekitClient.tokens().validate(opaqueToken);
@@ -436,6 +443,10 @@ externalUserId := result.TokenInfo.GetUserExternalId()  // *string — nil if no
 <TabItem value="java" label="Java">
 
 ```java
+import java.util.List;
+import com.scalekit.exceptions.TokenInvalidException;
+import com.scalekit.grpc.scalekit.v1.tokens.ValidateTokenResponse;
+
 try {
     ValidateTokenResponse result = scalekitClient.tokens().validate(opaqueToken);
 
@@ -523,6 +534,10 @@ if environment != "production" {
 <TabItem value="java" label="Java">
 
 ```java
+import java.util.Map;
+import com.scalekit.exceptions.TokenInvalidException;
+import com.scalekit.grpc.scalekit.v1.tokens.ValidateTokenResponse;
+
 try {
     ValidateTokenResponse result = scalekitClient.tokens().validate(opaqueToken);
 
@@ -549,55 +564,62 @@ You can retrieve all active API keys for an organization at any time. The respon
 <TabItem value="node" label="Node.js">
 
 ```javascript
-// List tokens for an organization
-const response = await scalekit.token.listTokens(organizationId, {
-  pageSize: 10,
-});
-
-for (const token of response.tokens) {
-  console.log(token.tokenId, token.description);
-}
-
-// Paginate through results
-if (response.nextPageToken) {
-  const nextPage = await scalekit.token.listTokens(organizationId, {
+try {
+  // List tokens for an organization
+  const response = await scalekit.token.listTokens(organizationId, {
     pageSize: 10,
-    pageToken: response.nextPageToken,
   });
-}
 
-// Filter tokens by user
-const userTokens = await scalekit.token.listTokens(organizationId, {
-  userId: 'usr_12345',
-});
+  for (const token of response.tokens) {
+    console.log(token.tokenId, token.description);
+  }
+
+  // Paginate through results
+  if (response.nextPageToken) {
+    const nextPage = await scalekit.token.listTokens(organizationId, {
+      pageSize: 10,
+      pageToken: response.nextPageToken,
+    });
+  }
+
+  // Filter tokens by user
+  const userTokens = await scalekit.token.listTokens(organizationId, {
+    userId: 'usr_12345',
+  });
+} catch (error) {
+  console.error('Failed to list tokens:', error.message);
+}
 ```
 
 </TabItem>
 <TabItem value="python" label="Python">
 
 ```python
-# List tokens for an organization
-response = scalekit_client.tokens.list_tokens(
-    organization_id=organization_id,
-    page_size=10,
-)
-
-for token in response[0].tokens:
-    print(token.token_id, token.description)
-
-# Paginate through results
-if response[0].next_page_token:
-    next_page = scalekit_client.tokens.list_tokens(
+try:
+    # List tokens for an organization
+    response = scalekit_client.tokens.list_tokens(
         organization_id=organization_id,
         page_size=10,
-        page_token=response[0].next_page_token,
     )
 
-# Filter tokens by user
-user_tokens = scalekit_client.tokens.list_tokens(
-    organization_id=organization_id,
-    user_id="usr_12345",
-)
+    for token in response[0].tokens:
+        print(token.token_id, token.description)
+
+    # Paginate through results
+    if response[0].next_page_token:
+        next_page = scalekit_client.tokens.list_tokens(
+            organization_id=organization_id,
+            page_size=10,
+            page_token=response[0].next_page_token,
+        )
+
+    # Filter tokens by user
+    user_tokens = scalekit_client.tokens.list_tokens(
+        organization_id=organization_id,
+        user_id="usr_12345",
+    )
+except Exception as e:
+    print(f"Failed to list tokens: {e}")
 ```
 
 </TabItem>
@@ -610,6 +632,10 @@ response, err := scalekitClient.Token().ListTokens(
     PageSize: 10,
   },
 )
+if err != nil {
+  log.Printf("Failed to list tokens: %v", err)
+  return
+}
 
 for _, token := range response.Tokens {
   fmt.Println(token.TokenId, token.GetDescription())
@@ -623,6 +649,11 @@ if response.NextPageToken != "" {
       PageToken: response.NextPageToken,
     },
   )
+  if err != nil {
+    log.Printf("Failed to fetch next page: %v", err)
+    return
+  }
+  _ = nextPage // process nextPage.Tokens
 }
 
 // Filter tokens by user
@@ -631,12 +662,20 @@ userTokens, err := scalekitClient.Token().ListTokens(
     UserId: "usr_12345",
   },
 )
+if err != nil {
+  log.Printf("Failed to list user tokens: %v", err)
+  return
+}
+_ = userTokens // process userTokens.Tokens
 ```
 
 </TabItem>
 <TabItem value="java" label="Java">
 
 ```java
+import com.scalekit.grpc.scalekit.v1.tokens.ListTokensResponse;
+import com.scalekit.grpc.scalekit.v1.tokens.Token;
+
 // List tokens for an organization
 ListTokensResponse response = scalekitClient.tokens().list(organizationId, 10, null);
 
@@ -672,22 +711,29 @@ This operation is **idempotent**, so calling invalidate on an already-revoked ke
 <TabItem value="node" label="Node.js">
 
 ```javascript
-// Invalidate by API key string
-await scalekit.token.invalidateToken(opaqueToken);
+try {
+  // Invalidate by API key string
+  await scalekit.token.invalidateToken(opaqueToken);
 
-// Or invalidate by token_id (useful when you store tokenId for lifecycle management)
-await scalekit.token.invalidateToken(tokenId);
+  // Or invalidate by token_id (useful when you store tokenId for lifecycle management)
+  await scalekit.token.invalidateToken(tokenId);
+} catch (error) {
+  console.error('Failed to invalidate token:', error.message);
+}
 ```
 
 </TabItem>
 <TabItem value="python" label="Python">
 
 ```python
-# Invalidate by API key string
-scalekit_client.tokens.invalidate_token(token=opaque_token)
+try:
+    # Invalidate by API key string
+    scalekit_client.tokens.invalidate_token(token=opaque_token)
 
-# Or invalidate by token_id (useful when you store token_id for lifecycle management)
-scalekit_client.tokens.invalidate_token(token=token_id)
+    # Or invalidate by token_id (useful when you store token_id for lifecycle management)
+    scalekit_client.tokens.invalidate_token(token=token_id)
+except Exception as e:
+    print(f"Failed to invalidate token: {e}")
 ```
 
 </TabItem>
@@ -695,21 +741,29 @@ scalekit_client.tokens.invalidate_token(token=token_id)
 
 ```go
 // Invalidate by API key string
-err := scalekitClient.Token().InvalidateToken(ctx, opaqueToken)
+if err := scalekitClient.Token().InvalidateToken(ctx, opaqueToken); err != nil {
+  log.Printf("Failed to invalidate token: %v", err)
+}
 
 // Or invalidate by token_id (useful when you store tokenId for lifecycle management)
-err = scalekitClient.Token().InvalidateToken(ctx, tokenId)
+if err := scalekitClient.Token().InvalidateToken(ctx, tokenId); err != nil {
+  log.Printf("Failed to invalidate token: %v", err)
+}
 ```
 
 </TabItem>
 <TabItem value="java" label="Java">
 
 ```java
-// Invalidate by API key string
-scalekitClient.tokens().invalidate(opaqueToken);
+try {
+    // Invalidate by API key string
+    scalekitClient.tokens().invalidate(opaqueToken);
 
-// Or invalidate by token_id (useful when you store tokenId for lifecycle management)
-scalekitClient.tokens().invalidate(tokenId);
+    // Or invalidate by token_id (useful when you store tokenId for lifecycle management)
+    scalekitClient.tokens().invalidate(tokenId);
+} catch (Exception e) {
+    System.err.println("Failed to invalidate token: " + e.getMessage());
+}
 ```
 
 </TabItem>
@@ -812,9 +866,14 @@ func AuthenticateToken(scalekitClient scalekit.Scalekit) gin.HandlerFunc {
 
     // Server-side validation — Scalekit checks token status in real time
     result, err := scalekitClient.Token().ValidateToken(c.Request.Context(), token)
-    if errors.Is(err, scalekit.ErrTokenValidationFailed) {
-      // Revoked, expired, or malformed tokens are rejected immediately
-      c.JSON(401, gin.H{"error": "Invalid or expired token"})
+    if err != nil {
+      if errors.Is(err, scalekit.ErrTokenValidationFailed) {
+        // Revoked, expired, or malformed tokens are rejected immediately
+        c.JSON(401, gin.H{"error": "Invalid or expired token"})
+      } else {
+        // Surface transport or unexpected errors as 500
+        c.JSON(500, gin.H{"error": "Internal server error"})
+      }
       c.Abort()
       return
     }
@@ -839,6 +898,7 @@ r.GET("/api/resources", AuthenticateToken(scalekitClient), func(c *gin.Context) 
 ```java title="Spring Boot"
 import com.scalekit.exceptions.TokenInvalidException;
 import com.scalekit.grpc.scalekit.v1.tokens.Token;
+import com.scalekit.grpc.scalekit.v1.tokens.ValidateTokenResponse;
 
 @Component
 public class TokenAuthFilter extends OncePerRequestFilter {
