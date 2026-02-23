@@ -96,6 +96,14 @@
     } catch (e) {}
   }
 
+  var inIframe = function () {
+    try {
+      return window.self !== window.top
+    } catch (e) {
+      return true
+    }
+  }
+
   /**
    * Initialize Pylon configuration
    */
@@ -215,6 +223,11 @@
    * Initialize minimal config for anonymous users
    */
   var initializeMinimalConfig = function () {
+    if (inIframe()) {
+      console.log('[chat] iframe detected — skipping HubSpot widget')
+      return
+    }
+
     // Anonymous user: show HubSpot instead of Pylon
     console.log('[chat] anonymous user — loading HubSpot widget')
     if (window.HubSpotConversations) {

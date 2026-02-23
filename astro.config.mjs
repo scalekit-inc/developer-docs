@@ -209,13 +209,27 @@ export default defineConfig({
         },
         {
           tag: 'script',
-          attrs: {
-            type: 'text/javascript',
-            id: 'hs-script-loader',
-            async: true,
-            defer: true,
-            src: '//js-na2.hs-scripts.com/44204598.js',
-          },
+          content: `
+            ;(function () {
+              function inIframe() {
+                try {
+                  return window.self !== window.top
+                } catch (e) {
+                  return true
+                }
+              }
+
+              if (inIframe()) return
+
+              var script = document.createElement('script')
+              script.type = 'text/javascript'
+              script.id = 'hs-script-loader'
+              script.async = true
+              script.defer = true
+              script.src = '//js-na2.hs-scripts.com/44204598.js'
+              document.head.appendChild(script)
+            })()
+          `,
         },
       ],
     }),
