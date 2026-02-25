@@ -409,7 +409,7 @@ Choose Modular SSO when you:
    // When users start login from their IdP portal, convert to SP-initiated flow
    if idpInitiatedLogin != "" {
        // Decode the JWT to extract organization and connection information
-       claims, err := scalekit.GetIdpInitiatedLoginClaims(r.Context(), idpInitiatedLogin)
+       claims, err := scalekitClient.GetIdpInitiatedLoginClaims(r.Context(), idpInitiatedLogin)
        if err != nil {
            http.Error(w, err.Error(), http.StatusInternalServerError)
            return
@@ -422,7 +422,7 @@ Choose Modular SSO when you:
        }
 
        // Generate authorization URL and redirect to complete authentication
-       authUrl, err := scalekit.GetAuthorizationUrl(
+       authUrl, err := scalekitClient.GetAuthorizationUrl(
            "https://your-app.com/auth/callback",
            options
        )
@@ -570,7 +570,7 @@ Choose Modular SSO when you:
 
     // Recommended: Process IdP-initiated login flows (when users start from their SSO portal)
 
-    result, err := a.scalekit.AuthenticateWithCode(r.Context(), code, redirectUrl)
+    result, err := scalekitClient.AuthenticateWithCode(r.Context(), code, redirectUrl)
 
     if err != nil {
       // Handle token exchange or validation errors
