@@ -9,7 +9,7 @@ banner:
     Join our dev community to connect with Scalekit engineers for questions or feedback
 ---
 
-import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
 Users ask your app in natural language - "Show me last 5 unread emails" or "Create a calendar event for tomorrow" or "Send an alert to my team"
 
@@ -119,12 +119,12 @@ In this quickstart, you'll build a simple tool-calling program that:
         ```
       </TabItem>
     </Tabs>
-    <Aside title="Setup a connection">
-      The Gmail connector is enabled by default for quick getting started purposes. In case your app wants to connect to different 3rd party apps, you can setup a connection for each app in the Scalekit dashboard > Agent Auth > _+ Create Connection_
+    <Aside title="Set up a connection">
+      The Gmail connector is enabled by default for quick getting started purposes. In case your app wants to connect to different third-party apps, you can setup a connection for each app in the Scalekit dashboard > Agent Auth > _+ Create Connection_
     </Aside>
 3. ## Authenticate the user
 
-    Inorder to execute any tools on behalf of the user, the user first needs to grant authorization to access their gmail account. Scalekit automatically handles the entire OAuth workflow with the Gmail provider, gets the access token, refreshes the access token periodically based on the refresh token etc.
+    In order to execute any tools on behalf of the user, the user first needs to grant authorization to access their gmail account. Scalekit automatically handles the entire OAuth workflow with the Gmail provider, gets the access token, refreshes the access token periodically based on the refresh token etc.
 
     If the user's access token is expired, Scalekit will automatically refresh the access token using the refresh token. At any time, you can check the authorization status of the connected account and determine if the user needs to re-authorize the connection.
 
@@ -133,13 +133,13 @@ In this quickstart, you'll build a simple tool-calling program that:
         ```python showLineNumbers=false frame="none" wrap
         # Generate authorization link if user hasn't authorized or token is expired
         if(connected_account.status != "ACTIVE"):
-              print(f"gmail is not connected: {connected_account.status}")
+              print(f"Gmail is not connected: {connected_account.status}")
               link_response = actions.get_authorization_link(
                   connection_name="gmail",
                   identifier="user_123"
               )
-              print(f"🔗click on the link to authorize gmail", link_response.link)
-              input(f"⎆ Press Enter after authorizing gmail...")
+              print(f"🔗 click on the link to authorize Gmail", link_response.link)
+              input(f"⎆ Press Enter after authorizing Gmail...")
 
         # In production, redirect user to this URL to complete OAuth flow
         ```
@@ -162,7 +162,7 @@ In this quickstart, you'll build a simple tool-calling program that:
 
 4. ## Fetch OAuth tokens for the user
 
-    Now that the user has successfully authorized the gmail connection, You can fetch the latest access token and refresh token for the user's connected account anytime you want.
+     Now that the user has successfully authorized the Gmail connection, you can fetch the latest access token and refresh token for the user's connected account anytime you want.
     Scalekit will keep the token refreshed periodically so that you always have the latest valid access token to make API calls on behalf of the user.
 
     <Tabs syncKey="tech-stack">
@@ -181,8 +181,12 @@ In this quickstart, you'll build a simple tool-calling program that:
         access_token = tokens["access_token"]
         refresh_token = tokens["refresh_token"]
 
-        print("access token:", access_token)
-        print("refresh token:", refresh_token)
+        # Security Warning: Never log OAuth tokens in production. Token exposure in logs
+        # or aggregators creates credential leakage risks. Use safe redaction,
+        # conditional debug-only logging, or secure secret storage instead.
+        if os.getenv("DEBUG"):
+            print("access token:", access_token)
+            print("refresh token:", refresh_token)
         ```
       </TabItem>
       <TabItem label="Node.js">
@@ -207,12 +211,12 @@ In this quickstart, you'll build a simple tool-calling program that:
         ```
       </TabItem>
     </Tabs>
-    Refer to respective connector's API documentation for more details on how to use these tokens and consume their API. Scalekit provides tools for most of the connectors, so you can use them to call the API directly.
+    Refer to the respective connector's API documentation for more details on how to use these tokens and consume their API. Scalekit provides tools for most of the connectors, so you can use them to call the API directly.
 
 5. ## Call the Gmail API to fetch last 5 unread emails
 
-    Now that the user is authenticated and you have the access token, you can execute the Gmail API to fetch the last 5 unread emails from the user's inbox.
-    Below example directly calls the Gmail API. but use the gmail SDK or any other HTTP client of your choice to make the API calls.
+     Now that the user is authenticated and you have the access token, you can execute the Gmail API to fetch the last 5 unread emails from the user's inbox.
+     The example below directly calls the Gmail API. You can use the Gmail SDK or any other HTTP client of your choice to make the API calls.
 
     <Tabs syncKey="tech-stack">
       <TabItem label="Python">
