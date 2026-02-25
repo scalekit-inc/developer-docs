@@ -15,12 +15,12 @@ head:
       }
 ---
 
-import { Aside, Steps, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
+import { Aside, Steps, Tabs, TabItem, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 import InstallSDK from '@components/templates/_installsdk.mdx';
 
-When your customers need to integrate with your APIs — whether for CI/CD pipelines, partner integrations, or internal tooling — they need a straightforward way to authenticate. Scalekit API keys gives you long-lived, revocable bearer credentials that can be issued to your customers for Organizational or User Level access to your APIs.
+When your customers integrate with your APIs — whether for CI/CD pipelines, partner integrations, or internal tooling — they need a straightforward way to authenticate. Scalekit API keys give you long-lived, revocable bearer credentials for organization-level or user-level access to your APIs.
 
-Unlike [JWT-based M2M authentication](/authenticate/m2m/api-auth-quickstart/), API keys do not carry embedded claims and cannot be validated on the client side. The API Keys can be validated via APIs with Scalekit and after server-side validation, the claims are sent when a valid API Key is presented. Revocation of API keys takes effect immediately with no expiry windows or propagation delays. Each key is scoped to an organization and optionally to a specific user, making it easy to build personal access tokens, per-user rate limiting, and audit trails.
+Unlike [JWT-based M2M authentication](/authenticate/m2m/api-auth-quickstart/), API keys do not carry embedded claims and cannot be validated on the client side. Validate API keys server-side through Scalekit, then use the returned claims only when the key is valid. Revocation takes effect immediately with no expiry windows or propagation delays. Each key is scoped to an organization and optionally to a specific user, making it easy to build personal access tokens, per-user rate limiting, and audit trails.
 
 In this guide, you'll learn how to create, validate, list, and revoke API keys using the Scalekit SDK.
 
@@ -675,24 +675,28 @@ _ = userTokens // process userTokens.Tokens
 import com.scalekit.grpc.scalekit.v1.tokens.ListTokensResponse;
 import com.scalekit.grpc.scalekit.v1.tokens.Token;
 
-// List tokens for an organization
-ListTokensResponse response = scalekitClient.tokens().list(organizationId, 10, null);
+try {
+    // List tokens for an organization
+    ListTokensResponse response = scalekitClient.tokens().list(organizationId, 10, null);
 
-for (Token token : response.getTokensList()) {
-    System.out.println(token.getTokenId() + " " + token.getDescription());
-}
+    for (Token token : response.getTokensList()) {
+        System.out.println(token.getTokenId() + " " + token.getDescription());
+    }
 
-// Paginate through results
-if (!response.getNextPageToken().isEmpty()) {
-    ListTokensResponse nextPage = scalekitClient.tokens().list(
-        organizationId, 10, response.getNextPageToken()
+    // Paginate through results
+    if (!response.getNextPageToken().isEmpty()) {
+        ListTokensResponse nextPage = scalekitClient.tokens().list(
+            organizationId, 10, response.getNextPageToken()
+        );
+    }
+
+    // Filter tokens by user
+    ListTokensResponse userTokens = scalekitClient.tokens().list(
+        organizationId, "usr_12345", 10, null
     );
+} catch (Exception e) {
+    System.err.println("Failed to list tokens: " + e.getMessage());
 }
-
-// Filter tokens by user
-ListTokensResponse userTokens = scalekitClient.tokens().list(
-    organizationId, "usr_12345", 10, null
-);
 ```
 
 </TabItem>
@@ -954,4 +958,19 @@ Here are a few tips to help you get the most out of API keys in production:
 - **Use custom claims for context**: Attach metadata like `team`, `environment`, or `service` as custom claims. Your API middleware can use these claims for fine-grained authorization without additional database lookups.
 - **Rotate keys safely**: To rotate an API key, create a new key, update the consuming service to use the new key, verify the new key works, then invalidate the old key. This avoids downtime during rotation.
 
-You now have everything you need to issue, validate, and manage API keys in your application. 
+You now have everything you need to issue, validate, and manage API keys in your application.
+
+## What's next
+
+<CardGrid>
+  <LinkCard
+    title="OAuth 2.0 for M2M APIs"
+    description="Use short-lived JWTs instead of long-lived keys for machine-to-machine authentication."
+    href="/authenticate/m2m/api-auth-quickstart/"
+  />
+  <LinkCard
+    title="M2M API clients"
+    description="Register and manage API clients for your customers."
+    href="/guides/m2m/api-auth-m2m-clients/"
+  />
+</CardGrid>
