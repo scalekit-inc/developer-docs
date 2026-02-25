@@ -321,22 +321,22 @@ Your app -> User: "Create session and grant access"
 
     ```go showLineNumbers title="Fetch user profile"
     // Handle oauth redirect_url, fetch code and error_description from request params
-    code: = r.URL.Query().Get("code")
-    error: = r.URL.Query().Get("error")
-    errorDescription: = r.URL.Query().Get("error_description")
+    code := r.URL.Query().Get("code")
+    error := r.URL.Query().Get("error")
+    errorDescription := r.URL.Query().Get("error_description")
 
     if error != "" {
       // Handle errors
     }
 
-    result, err: = a.scalekit.AuthenticateWithCode(code,<redirectUrl>)
+    result, err := a.scalekit.AuthenticateWithCode(r.Context(), code, redirectUrl)
 
     if err != nil {
       // Handle errors
     }
 
     // result.User has the authenticated user's details
-    userEmail: = result.User.Email
+    userEmail := result.User.Email
 
     // Next step: create a session for this user and allow access
     ```

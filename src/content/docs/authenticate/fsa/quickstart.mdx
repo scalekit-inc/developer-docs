@@ -332,7 +332,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
             // Returns: User (profile info), IdToken (JWT with user claims), AccessToken (JWT with roles/permissions), RefreshToken
             options := scalekit.AuthenticationOptions{}
             authResult, err := scalekitClient.AuthenticateWithCode(
-                code, redirectUri, options,
+                c.Request.Context(), code, redirectUri, options,
             )
 
             if err != nil {
@@ -687,7 +687,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
                 }
 
                 // Validate the access token using the Scalekit SDK
-                isValid, err := scalekit.ValidateAccessToken(decryptedAccessToken)
+                isValid, err := scalekit.ValidateAccessToken(r.Context(), decryptedAccessToken)
                 if err != nil || !isValid {
                     // Access token is invalid or expired
 
@@ -700,7 +700,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
                     }
 
                     // Use the refresh token to obtain a new access token from Scalekit
-                    tokenResponse, err := scalekit.RefreshAccessToken(refreshToken)
+                    tokenResponse, err := scalekit.RefreshAccessToken(r.Context(), refreshToken)
                     if err != nil {
                         // Refresh attempt failed; likely an expired or invalid refresh token
                         http.Error(w, `{"message": "Token refresh failed"}`, http.StatusUnauthorized)
