@@ -223,7 +223,7 @@ func (a *App) handleLogin(c *gin.Context) {
 
 	// Decode the JWT and extract claims
 	if idpInitiatedLogin != "" {
-		claims, err := a.scalekitClient.GetIdpInitiatedLoginClaims(idpInitiatedLogin)
+		claims, err := scalekitClient.GetIdpInitiatedLoginClaims(c.Request.Context(), idpInitiatedLogin)
 		if err != nil {
 			http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
 			return
@@ -245,7 +245,7 @@ func (a *App) handleLogin(c *gin.Context) {
 		}
 
 		// Generate Authorization URL for SP-initiated flow
-		authUrl, err := a.scalekitClient.GetAuthorizationUrl(a.redirectUrl, options)
+		authUrl, err := scalekitClient.GetAuthorizationUrl(redirectUrl, options)
 		if err != nil {
 			http.Error(c.Writer, err.Error(), http.StatusInternalServerError)
 			return
