@@ -112,7 +112,7 @@ Choose Modular SSO when you:
    <TabItem value="nodejs" label="Node.js">
 
    ```javascript showLineNumbers wrap title="authorization-url.js" collapse={1-8} {"Generates URL to customer's identity provider for SSO login": 28-29}
-   import { Scalekit } from '@scalekit-sdk/node';
+   import { ScalekitClient } from '@scalekit-sdk/node';
 
    const scalekit = new ScalekitClient(
      '<SCALEKIT_ENVIRONMENT_URL>',    // Your Scalekit environment URL
@@ -150,7 +150,7 @@ Choose Modular SSO when you:
    ```python showLineNumbers wrap title="authorization_url.py" collapse={1-8} {"Generates URL to customer's identity provider for SSO login": 28-32}
    from scalekit import ScalekitClient, AuthorizationUrlOptions
 
-   scalekit = ScalekitClient(
+   scalekit_client = ScalekitClient(
      '<SCALEKIT_ENVIRONMENT_URL>',    # Your Scalekit environment URL
      '<SCALEKIT_CLIENT_ID>',          # Unique identifier for your app
      '<SCALEKIT_CLIENT_SECRET>'
@@ -195,10 +195,10 @@ Choose Modular SSO when you:
      scalekitClient := scalekit.NewScalekitClient(
        "<SCALEKIT_ENVIRONMENT_URL>",  // Your Scalekit environment URL
        "<SCALEKIT_CLIENT_ID>",        // Unique identifier for your app
-       "<SCALEKIT_CLIENT_SECRET>"
+       "<SCALEKIT_CLIENT_SECRET>",
      )
 
-     options := scalekitClient.AuthorizationUrlOptions{}
+     options := scalekit.AuthorizationUrlOptions{}
 
      // Specify which SSO connection to use (choose one based on your use case)
      // These identifiers are evaluated in order of precedence:
@@ -376,7 +376,7 @@ Choose Modular SSO when you:
    # When users start login from their IdP portal, convert to SP-initiated flow
    if idp_initiated_login:
        # Decode the JWT to extract organization and connection information
-       claims = await scalekit.get_idp_initiated_login_claims(idp_initiated_login)
+       claims = await scalekit_client.get_idp_initiated_login_claims(idp_initiated_login)
 
        options = AuthorizationUrlOptions()
        options.connection_id = claims.get('connection_id')      # Specific SSO connection
@@ -385,7 +385,7 @@ Choose Modular SSO when you:
        options.state = claims.get('relay_state')                # Preserve state from IdP
 
        # Generate authorization URL and redirect to complete authentication
-       authorization_url = scalekit.get_authorization_url(
+       authorization_url = scalekit_client.get_authorization_url(
            redirect_uri='https://your-app.com/auth/callback',
            options=options
        )
@@ -409,7 +409,7 @@ Choose Modular SSO when you:
    // When users start login from their IdP portal, convert to SP-initiated flow
    if idpInitiatedLogin != "" {
        // Decode the JWT to extract organization and connection information
-       claims, err := scalekit.GetIdpInitiatedLoginClaims(idpInitiatedLogin)
+       claims, err := scalekitClient.GetIdpInitiatedLoginClaims(idpInitiatedLogin)
        if err != nil {
            http.Error(w, err.Error(), http.StatusInternalServerError)
            return
@@ -422,7 +422,7 @@ Choose Modular SSO when you:
        }
 
        // Generate authorization URL and redirect to complete authentication
-       authUrl, err := scalekit.GetAuthorizationUrl(
+       authUrl, err := scalekitClient.GetAuthorizationUrl(
            "https://your-app.com/auth/callback",
            options
        )
@@ -457,7 +457,7 @@ Choose Modular SSO when you:
        // When users start login from their IdP portal, convert to SP-initiated flow
        if (idpInitiatedLoginToken != null) {
            // Decode the JWT to extract organization and connection information
-           IdpInitiatedLoginClaims claims = scalekit
+           IdpInitiatedLoginClaims claims = scalekitClient
                .authentication()
                .getIdpInitiatedLoginClaims(idpInitiatedLoginToken);
 
@@ -472,7 +472,7 @@ Choose Modular SSO when you:
            options.setLoginHint(claims.getLoginHint());            // User's email for context
 
            // Generate authorization URL and redirect to complete authentication
-           String authUrl = scalekit
+           String authUrl = scalekitClient
                .authentication()
                .getAuthorizationUrl("https://your-app.com/auth/callback", options)
                .toString();
@@ -544,7 +544,7 @@ Choose Modular SSO when you:
 
     # Recommended: Process IdP-initiated login flows (when users start from their SSO portal)
 
-    result = scalekit.authenticate_with_code(code, '<redirect_uri>')
+    result = scalekit_client.authenticate_with_code(code, '<redirect_uri>')
 
     # Access normalized user profile information
     user_email = result.user.email
@@ -603,7 +603,7 @@ Choose Modular SSO when you:
     // Recommended: Process IdP-initiated login flows (when users start from their SSO portal)
 
     try {
-        AuthenticationResponse result = scalekit.authentication().authenticateWithCode(code, redirectUrl);
+        AuthenticationResponse result = scalekitClient.authentication().authenticateWithCode(code, redirectUrl);
         String userEmail = result.getIdTokenClaims().getEmail();
 
         // Create a session for the authenticated user and grant appropriate access permissions
@@ -619,7 +619,7 @@ Choose Modular SSO when you:
     The `result` object
 
    <Tabs syncKey="tech-stack">
-   <TabItem value="node" label="Node.js">
+   <TabItem value="nodejs" label="Node.js">
 
    ```js title="Validate tokens"
    // Validate and decode the ID token from the authentication result
@@ -630,7 +630,7 @@ Choose Modular SSO when you:
    ```
 
    </TabItem>
-   <TabItem value="python" label="Python">
+   <TabItem value="py" label="Python">
 
    ```py title="Validate tokens"
     # Validate and decode the ID token from the authentication result
@@ -641,7 +641,7 @@ Choose Modular SSO when you:
    ```
 
    </TabItem>
-   <TabItem value="go" label="Go">
+   <TabItem value="golang" label="Go">
 
    ```go title="Validate tokens"
 
