@@ -326,7 +326,8 @@ Your app -> User: "Create session and grant access"
     errorDescription := r.URL.Query().Get("error_description")
 
     if errorCode != "" {
-      // Handle errors
+      // Handle errors - include errorDescription for context
+      return fmt.Errorf("OAuth error: %s - %s", errorCode, errorDescription)
     }
 
     result, err := scalekitClient.AuthenticateWithCode(r.Context(), code, redirectUrl)
