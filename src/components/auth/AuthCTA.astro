@@ -1,7 +1,7 @@
 ---
 import { LinkButton } from '@astrojs/starlight/components'
 // @ts-ignore: icon-map is a local utility module without TS types
-import { IconLucideLogOut as IconLogout } from '../../utils/icon-map'
+import { IconLucideLogOut as IconLogout, IconLucideUser as IconSignIn } from '../../utils/icon-map'
 import { getSession, clearSessionCache } from '../../utils/auth/session-client'
 
 const loginHref = '/auth/login'
@@ -18,6 +18,11 @@ const loginHref = '/auth/login'
   >
     Sign in
   </LinkButton>
+
+  <!-- Icon-only sign in for medium widths (768px–1100px) -->
+  <a href={loginHref} class="sign-in-icon-btn" aria-label="Sign in">
+    <IconSignIn aria-hidden="true" class="sign-in-icon" />
+  </a>
 
   <!-- Profile menu (only when logged in) -->
   <div class="profile-menu" data-profile-menu>
@@ -242,6 +247,47 @@ const loginHref = '/auth/login'
 
   .auth-cta.is-authenticated .sign-in-btn {
     display: none;
+  }
+
+  /* Icon-only sign in button */
+  .sign-in-icon-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    border-radius: 0.375rem;
+    border: 1px solid var(--sl-color-accent);
+    color: var(--sl-color-accent);
+    text-decoration: none;
+  }
+
+  .sign-in-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  /* Hidden when authenticated */
+  .auth-cta.is-authenticated .sign-in-icon-btn {
+    display: none;
+  }
+
+  /* At medium widths: swap to icon-only sign in */
+  @media (min-width: 48rem) and (max-width: 68.75rem) {
+    .sign-in-btn {
+      display: none;
+    }
+
+    .sign-in-icon-btn {
+      display: inline-flex;
+    }
+
+    /* Keep hidden when authenticated */
+    .auth-cta.is-authenticated .sign-in-icon-btn {
+      display: none;
+    }
   }
 
   /* Profile menu: hidden by default, visible when logged in */

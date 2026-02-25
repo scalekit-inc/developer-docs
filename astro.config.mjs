@@ -74,7 +74,7 @@ export default defineConfig({
         './src/styles/theme-priority.css',
       ],
       plugins: [
-        starlightThemeNova(),
+        starlightThemeNova({ stylingSystem: 'css' }),
         starlightImageZoom({
           showCaptions: true,
         }),
