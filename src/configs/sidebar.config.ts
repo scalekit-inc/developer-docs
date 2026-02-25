@@ -130,7 +130,15 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['agent-auth/overview', 'agent-auth/quickstart', 'agent-auth/code-samples'],
+        items: [
+          'agent-auth/overview',
+          {
+            label: 'Quickstarts',
+            collapsed: false,
+            items: ['agent-auth/quickstart', 'agent-auth/start-agent-auth-coding-agents'],
+          },
+          'agent-auth/code-samples',
+        ],
       },
       {
         label: 'Authentication',
