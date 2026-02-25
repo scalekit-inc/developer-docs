@@ -438,7 +438,7 @@ Choose Modular SSO when you:
 
     // Recommended: Process IdP-initiated login flows (when users start from their SSO portal)
 
-    result, err := a.scalekit.AuthenticateWithCode(code, redirectUrl)
+    result, err := scalekitClient.AuthenticateWithCode(r.Context(), code, redirectUrl)
 
     if err != nil {
       // Handle token exchange or validation errors
@@ -511,16 +511,13 @@ Choose Modular SSO when you:
    </TabItem>
    <TabItem value="go" label="Go">
 
-   ```go title="Validate tokens"
+    ```go title="Validate tokens"
 
-    // Validate and decode the ID token
-    idTokenClaims, err := scalekitClient.ValidateToken(result.IdToken)
-    if err != nil {
-        // handle error
-    }
+     // Create a background context for the API call
+     ctx := context.Background()
 
-    // Validate and decode the access token
-    accessTokenClaims, err := scalekitClient.ValidateToken(result.AccessToken)
+     // Validate and decode the access token (uses JWKS from the client)
+     accessTokenClaims, err := scalekitClient.GetAccessTokenClaims(ctx, result.AccessToken)
     if err != nil {
         // handle error
     }
@@ -689,7 +686,7 @@ Choose Modular SSO when you:
    // When users start login from their IdP portal, convert to SP-initiated flow
    if idpInitiatedLogin != "" {
        // Decode the JWT to extract organization and connection information
-       claims, err := scalekit.GetIdpInitiatedLoginClaims(idpInitiatedLogin)
+       claims, err := scalekitClient.GetIdpInitiatedLoginClaims(r.Context(), idpInitiatedLogin)
        if err != nil {
            http.Error(w, err.Error(), http.StatusInternalServerError)
            return
@@ -702,7 +699,7 @@ Choose Modular SSO when you:
        }
 
        // Generate authorization URL and redirect to complete authentication
-       authUrl, err := scalekit.GetAuthorizationUrl(
+       authUrl, err := scalekitClient.GetAuthorizationUrl(
            "https://your-app.com/auth/callback",
            options
        )

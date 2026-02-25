@@ -347,14 +347,14 @@ This guide shows you how to store these tokens securely with encryption and prop
          decryptedAccessToken := decrypt(accessToken)
 
          // Verify token validity using Scalekit's validation method
-         isValid, err := scalekitClient.ValidateAccessToken(decryptedAccessToken)
+         isValid, err := scalekitClient.ValidateAccessToken(c.Request.Context(), decryptedAccessToken)
 
          if (err != nil || !isValid) {
            // Token expired - attempt transparent refresh
            refreshToken, err := c.Cookie("refreshToken")
            if err == nil && refreshToken != "" {
              decryptedRefreshToken := decrypt(refreshToken)
-             authResult, err := scalekitClient.RefreshAccessToken(decryptedRefreshToken)
+             authResult, err := scalekitClient.RefreshAccessToken(c.Request.Context(), decryptedRefreshToken)
 
              if err == nil {
                // Encrypt and store new tokens
