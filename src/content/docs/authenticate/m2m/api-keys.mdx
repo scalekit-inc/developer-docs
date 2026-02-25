@@ -676,26 +676,31 @@ import com.scalekit.grpc.scalekit.v1.tokens.ListTokensResponse;
 import com.scalekit.grpc.scalekit.v1.tokens.Token;
 
 try {
-    // List tokens for an organization
     ListTokensResponse response = scalekitClient.tokens().list(organizationId, 10, null);
-
     for (Token token : response.getTokensList()) {
         System.out.println(token.getTokenId() + " " + token.getDescription());
     }
+} catch (Exception e) {
+    System.err.println("Failed to list tokens: " + e.getMessage());
+}
 
-    // Paginate through results
+try {
+    ListTokensResponse response = scalekitClient.tokens().list(organizationId, 10, null);
     if (!response.getNextPageToken().isEmpty()) {
         ListTokensResponse nextPage = scalekitClient.tokens().list(
             organizationId, 10, response.getNextPageToken()
         );
     }
+} catch (Exception e) {
+    System.err.println("Failed to paginate tokens: " + e.getMessage());
+}
 
-    // Filter tokens by user
+try {
     ListTokensResponse userTokens = scalekitClient.tokens().list(
         organizationId, "usr_12345", 10, null
     );
 } catch (Exception e) {
-    System.err.println("Failed to list tokens: " + e.getMessage());
+    System.err.println("Failed to list user tokens: " + e.getMessage());
 }
 ```
 
