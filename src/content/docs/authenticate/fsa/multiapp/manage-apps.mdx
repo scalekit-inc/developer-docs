@@ -1,0 +1,118 @@
+---
+title: Manage applications
+description: "Create and manage applications in Scalekit to enable Multi-App Authentication"
+sidebar:
+  label: "Manage applications"
+tableOfContents: true
+prev:
+  label: "Mobile & desktop apps"
+  link: "/authenticate/fsa/multiapp/native-app"
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+seeAlso:
+  items:
+    - title: "Browse example apps"
+      icon: "app"
+      url: "https://github.com/scalekit-inc/multiapp-demo"
+  expanded: true
+  label: "See also"
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+Applications in Scalekit represent individual apps that participate in authentication and Single Sign-On.  
+Each application gets its own OAuth client and configuration, while sharing the same underlying user session.
+
+Use this page to create new applications, manage credentials, and configure redirect URLs using the Scalekit dashboard.
+
+## Navigate to Applications
+
+1. Sign in to **https://app.scalekit.com**
+2. From the left sidebar, go to **Developers → Applications**
+
+You will see a list of applications already created for the selected environment. 
+<Aside>
+Scalekit creates a **default web application** for every environment at creation time to help developers get started quickly. This app is environment-scoped and **cannot be deleted**.
+</Aside>
+
+
+
+## Create a new application
+
+Click **Create Application** to add a new app. You’ll be asked to provide:
+- **Application name** – A human-readable name for identifying the app
+- **Application type** – Determines how authentication and credentials work
+
+Available application types:
+
+- **Web Application**: Server-side applications that can securely store secrets.
+- **Single Page Application (SPA)**: Browser-based applications. Public clients with PKCE enforced.
+- **Native Application**: Desktop or mobile apps. Public clients with PKCE enforced.
+
+![Add MCP server](@/assets/docs/guides/multi-app/web-modal.png)
+
+Once created, Scalekit generates a **Client ID**. Only Web Applications can generate **Client Secrets**.
+
+## Application configuration
+
+Open an application to view and edit its configuration.
+
+### Application details
+
+- **Allow Scalekit Management API access**  
+  Enables this application’s credentials to call Scalekit Management APIs. Applicable only to **Web Applications**.
+
+- **Enforce PKCE**  
+  Requires PKCE for authorization requests. Always enabled and not editable for **SPA** and **Native** applications.
+
+- **Access token expiry time**: Overrides the environment default access token lifetime for this application.
+
+Note: Access token expiry should always be **shorter than the idle session timeout** to ensure predictable session behavior.
+
+![Add MCP server](@/assets/docs/guides/multi-app/web-app-details.png)
+
+### Client credentials
+
+Each application has a unique **Client ID**. When a new client secret is generated, it is shown **only once**. Make sure to copy and store it securely.
+
+- **Web Applications**
+  - Can generate a **Client Secret**
+  - A maximum of **two active secrets** is allowed at a time
+  - Generating a new secret always creates a **new value**, enabling safe rotation
+
+![Add MCP server](@/assets/docs/guides/multi-app/web-client-creds.png)
+
+- **SPA and Native Applications**
+  - Do not have client secrets
+  - Authenticate using Authorization Code with PKCE only
+
+![Add MCP server](@/assets/docs/guides/multi-app/spa-client-id.png)
+
+## Configure redirect URLs
+
+Open the **Redirects** tab for an application to manage redirect endpoints. These URLs act as an allowlist and control where Scalekit can redirect users during authentication flows.
+
+### Redirect URL types
+
+- **Post login URLs**: Allowed values for `redirect_uri` used with `/oauth/authorize`.
+- **Initiate login URL**: Where Scalekit redirects users when authentication starts outside your app.
+- **Post logout URLs**: Where users are redirected after a successful logout.
+- **Back channel logout URL**: A secure endpoint that Scalekit calls to notify your application that a user session has been revoked.
+
+![Add MCP server](@/assets/docs/guides/multi-app/web-app-redirects.png)
+
+Back channel logout is applicable only to **Web Applications**.
+
+For definitions, validation rules, custom URI schemes, and environment-specific behavior, see [here](/guides/dashboard/redirects/)
+
+## Delete an application
+
+Applications can be deleted from the bottom of the configuration page.
+
+![Add MCP server](@/assets/docs/guides/multi-app/delete-app.png)
+
+- This action is **permanent and irreversible**.
+- Existing refresh tokens associated with the application will no longer be valid.

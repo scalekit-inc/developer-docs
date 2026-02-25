@@ -202,89 +202,34 @@ export default defineConfig({
             src: '/js/pylon-widget.js',
           },
         },
-        // PostHog user identification
+        // Prevent HubSpot from auto-showing chat; we load it explicitly for anonymous users
+        {
+          tag: 'script',
+          content: `window.hsConversationsSettings = { loadImmediately: false };`,
+        },
         {
           tag: 'script',
           content: `
             ;(function () {
-              try {
-                var raw = localStorage.getItem('sk_auth_session')
-                if (!raw) return
-
-                var session = JSON.parse(raw)
-                if (!session || !session.authenticated) return
-
-                // Extract uid (sub) and xoid from session
-                var uid = session.uid
-                var xoid = session.xoid
-                var email = null
-
-                // Safely extract from claims as fallback
-                if (!uid && session.idTokenClaims && typeof session.idTokenClaims === 'object') {
-                  uid = session.idTokenClaims.sub || null
+              function inIframe() {
+                try {
+                  return window.self !== window.top
+                } catch (e) {
+                  return true
                 }
-                if (!xoid && session.idTokenClaims && typeof session.idTokenClaims === 'object') {
-                  xoid = session.idTokenClaims.xoid || null
-                }
-                if (!email && session.idTokenClaims && typeof session.idTokenClaims === 'object') {
-                  email = session.idTokenClaims.email || null
-                }
-                if (!email && session.user && typeof session.user === 'object') {
-                  email = session.user.email || null
-                }
-
-                // Wait for PostHog to be ready (up to 5 seconds)
-                var checkPostHog = function () {
-                  if (typeof window.posthog !== 'undefined') {
-                    // Identify user with uid
-                    if (uid && window.posthog) {
-                      window.posthog.identify(uid, {
-                        email: email,
-                      })
-                    }
-
-                    // Group by workspace (xoid)
-                    if (xoid && window.posthog) {
-                      window.posthog.group('workspace', xoid)
-                    }
-
-                    console.log('[posthog] user identified:', { uid: uid, xoid: xoid })
-                  } else {
-                    // PostHog not ready yet, retry
-                    setTimeout(checkPostHog, 100)
-                  }
-                }
-
-                // Start checking for PostHog
-                var attempts = 0
-                var maxAttempts = 50 // 5 seconds
-                var originalCheck = checkPostHog
-                checkPostHog = function () {
-                  if (typeof window.posthog !== 'undefined') {
-                    originalCheck()
-                  } else if (attempts < maxAttempts) {
-                    attempts++
-                    setTimeout(checkPostHog, 100)
-                  } else {
-                    console.warn('[posthog] timed out waiting for PostHog to load')
-                  }
-                }
-                checkPostHog()
-              } catch (e) {
-                console.warn('[posthog] failed to identify user:', e)
               }
+
+              if (inIframe()) return
+
+              var script = document.createElement('script')
+              script.type = 'text/javascript'
+              script.id = 'hs-script-loader'
+              script.async = true
+              script.defer = true
+              script.src = '//js-na2.hs-scripts.com/44204598.js'
+              document.head.appendChild(script)
             })()
           `,
-        },
-        {
-          tag: 'script',
-          attrs: {
-            type: 'text/javascript',
-            id: 'hs-script-loader',
-            async: true,
-            defer: true,
-            src: '//js-na2.hs-scripts.com/44204598.js',
-          },
         },
       ],
     }),
