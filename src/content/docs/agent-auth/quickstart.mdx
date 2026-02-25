@@ -1,6 +1,6 @@
 ---
 title: "Quickstart: Add auth to your AI agents"
-description: Set up a connectors and get OAuth tokens and call tools on the fly using Scalekit's Agent Auth
+description: Set up connectors and get OAuth tokens and call tools on the fly using Scalekit's Agent Auth
 sidebar:
   order: 1
   label: "Code it yourself"
@@ -13,18 +13,18 @@ import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starli
 
 Users ask your app in natural language - "Show me last 5 unread emails" or "Create a calendar event for tomorrow" or "Send an alert to my team"
 
-All of these actions require your app to be able to securely connect to third party applications like Gmail, Calendar, Slack, Notion etc and execute actions on behalf of the user. Scalekit handles:
+All of these actions require your app to be able to securely connect to third-party applications like Gmail, Calendar, Slack, Notion etc. and execute actions on behalf of the user. Scalekit handles:
 - Authorizing your application with 3rd party apps.
 - Allows you to configure a connection with each 3rd party app using your own credentials or using Scalekit's credentials (for faster development).
 - Every connection would maintain token vault allowing you to fetch tokens and use them to make API calls.
-- Provides a unified API to call tools on behalf of the user. We add tools if your preferred connector is not supported.
+- Provides a unified API to call tools on behalf of the user. Scalekit provides tools if your preferred connector is not supported.
 - Manage each user account per connector through Scalekit dashboard or programmatically.
 
-Let's get started
+Get started
 
 ## Agent that fetches last 5 unread emails
 
-In this quickstart, you'll build a simple tool calling program that:
+In this quickstart, you'll build a simple tool-calling program that:
 
 1. **Authenticates a user with Gmail** to authenticate their Gmail account over OAuth 2.0
 2. **Fetches last 5 unread emails** from the user's inbox
@@ -47,6 +47,16 @@ In this quickstart, you'll build a simple tool calling program that:
         npm install @scalekit-sdk/node@2.2.0-beta.1
         ```
       </TabItem>
+      <TabItem label="Go">
+        ```sh showLineNumbers=false frame="none"
+        go get github.com/scalekit/scalekit-sdk-go
+        ```
+      </TabItem>
+      <TabItem label="Java">
+        ```sh showLineNumbers=false frame="none"
+        mvn dependency:get -Dartifact=com.scalekit:scalekit-sdk-java:1.0.0
+        ```
+      </TabItem>
     </Tabs>
     <Tabs syncKey="tech-stack">
       <TabItem label="Python">
@@ -56,12 +66,12 @@ In this quickstart, you'll build a simple tool calling program that:
         from dotenv import load_dotenv
         load_dotenv()
 
-        scalekit = scalekit.client.ScalekitClient(
+        scalekit_client = scalekit.client.ScalekitClient(
             client_id=os.getenv("SCALEKIT_CLIENT_ID"),
             client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
             env_url=os.getenv("SCALEKIT_ENV_URL"),
         )
-        actions = scalekit.actions
+        actions = scalekit_client.actions
         ```
       </TabItem>
       <TabItem label="Node.js">
@@ -152,8 +162,8 @@ In this quickstart, you'll build a simple tool calling program that:
 
 4. ## Fetch OAuth tokens for the user
 
-   Now that the user has successfully authorized the gmail connection, You can fetch the latest access token and refresh token for the user's connected account anytime you want.
-   scalekit will keep the token refreshed periodically so that you always have the latest valid access token to make API calls on behalf of the user.
+    Now that the user has successfully authorized the gmail connection, You can fetch the latest access token and refresh token for the user's connected account anytime you want.
+    Scalekit will keep the token refreshed periodically so that you always have the latest valid access token to make API calls on behalf of the user.
 
     <Tabs syncKey="tech-stack">
       <TabItem label="Python">
@@ -179,7 +189,7 @@ In this quickstart, you'll build a simple tool calling program that:
         ```typescript showLineNumbers=false frame="none" wrap
         const accountResponse = await connectedAccounts.getConnectedAccountByIdentifier({
           connector: 'gmail',
-          identifier: 'user@example.com',
+          identifier: 'user_123',
         });
 
         // Extract OAuth tokens from authorization details
@@ -197,7 +207,7 @@ In this quickstart, you'll build a simple tool calling program that:
         ```
       </TabItem>
     </Tabs>
-    Refer to respective connector's API documentation for more details on how to use these tokes and consume their API. Scalekit provides tools for most of the connectors, so you can use them to call the API directly.
+    Refer to respective connector's API documentation for more details on how to use these tokens and consume their API. Scalekit provides tools for most of the connectors, so you can use them to call the API directly.
 
 5. ## Call the Gmail API to fetch last 5 unread emails
 
@@ -284,6 +294,6 @@ In this quickstart, you'll build a simple tool calling program that:
 
 Congratulations!
 
-You've successfully implemented a program that executes API on behalf of a user using Agent Auth.
+You've successfully implemented a program that executes API calls on behalf of a user using Agent Auth.
 
-This can be extended to any number of connections and scalekit will handle the authentication and token management for you.
+This can be extended to any number of connections and Scalekit will handle the authentication and token management for you.
