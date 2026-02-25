@@ -1,9 +1,9 @@
 ---
-title: Snowflake
-description: Connect to Snowflake to manage and analyze your data warehouse workloads
+title: Google Docs
+description: Connect to Google Docs. Create, edit, and collaborate on documents
 tableOfContents: true
 sidebar:
-  order: 6
+  order: 16
 head:
   - tag: style
     content: |
@@ -78,12 +78,47 @@ import { Accordion, AccordionItem } from 'accessible-astro-components'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
-  Connect to Snowflake to manage and analyze your data warehouse workloads
+  Connect to Google Docs. Create, edit, and collaborate on documents
  </div>
  <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/snowflake.svg" width="64" height="64" alt="Snowflake logo" />
+  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/google_docs.svg" width="64" height="64" alt="Google Docs logo" />
  </div>
 </div>
 
 Supports authentication: <Badge text="OAuth 2.0" />
 
+
+## Tool list
+
+## `googledocs_create_document`
+
+Create a new blank Google Doc with an optional title. Returns the new document's ID and metadata.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `title` | Title of the new document | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+
+## `googledocs_read_document`
+
+Read the complete content and structure of a Google Doc including text, formatting, tables, and metadata.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `document_id` | The ID of the Google Doc to read | string |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `suggestions_view_mode` | How suggestions are rendered in the response | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+
+## `googledocs_update_document`
+
+Update the content of an existing Google Doc using batch update requests. Supports inserting and deleting text, formatting, tables, and other document elements.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `document_id` | The ID of the Google Doc to update | string |
+| `requests` | Array of update requests to apply to the document | `array<object>` |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+| `write_control` | Optional write control for revision management | `object` | null |

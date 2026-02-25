@@ -1,0 +1,143 @@
+---
+title: Google Sheets
+description: Connect to Google Sheets. Create, edit, and analyze spreadsheets with powerful data management capabilities
+tableOfContents: true
+sidebar:
+  order: 15
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+      /* Heading copy functionality */
+      .sl-markdown-content h2,
+      .sl-markdown-content h3,
+      .sl-markdown-content h4 {
+        position: relative;
+        cursor: pointer;
+      }
+      .sl-markdown-content h2:hover::after,
+      .sl-markdown-content h3:hover::after,
+      .sl-markdown-content h4:hover::after {
+        content: " 📋 ";
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+  - tag: script
+    content: |
+      // Using a self-executing function to avoid global namespace pollution
+      (function() {
+        // Function to initialize the copy functionality
+        function initHeadingCopy() {
+          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
+
+          headings.forEach(heading => {
+            // Skip if already initialized
+            if (heading.hasAttribute('data-copy-initialized')) return;
+            heading.setAttribute('data-copy-initialized', 'true');
+
+            heading.addEventListener('click', async () => {
+              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
+
+              try {
+                await navigator.clipboard.writeText(headingText);
+
+                // Visual feedback
+                const originalText = heading.textContent;
+                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
+
+                setTimeout(() => {
+                  heading.textContent = originalText;
+                }, 2000);
+              } catch (err) {
+                console.error('Failed to copy heading:', err);
+              }
+            });
+          });
+        }
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initHeadingCopy);
+
+        // Also initialize now in case the DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          setTimeout(initHeadingCopy, 1);
+        }
+
+        // For Astro's client-side navigation
+        document.addEventListener('astro:page-load', initHeadingCopy);
+      })();
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Google Sheets. Create, edit, and analyze spreadsheets with powerful data management capabilities
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/google_sheets.svg" width="64" height="64" alt="Google Sheets logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+
+## Tool list
+
+## `googlesheets_create_spreadsheet`
+
+Create a new Google Sheets spreadsheet with an optional title and initial sheet configuration. Returns the new spreadsheet ID and metadata.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `locale` | Locale of the spreadsheet | string | null |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `sheets` | Initial sheets to include in the spreadsheet | `array<object>` | null |
+| `time_zone` | Time zone for the spreadsheet | string | null |
+| `title` | Title of the new spreadsheet | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+
+## `googlesheets_get_values`
+
+Returns only the cell values from a specific range in a Google Sheet — no metadata, no formatting, just the data. For full spreadsheet metadata and formatting, use googlesheets_read_spreadsheet instead.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `major_dimension` | Whether values are returned by rows or columns | string | null |
+| `range` | Cell range to read in A1 notation | string |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `spreadsheet_id` | The ID of the Google Sheet | string |
+| `tool_version` | Optional tool version to use for execution | string | null |
+| `value_render_option` | How values should be rendered in the response | string | null |
+
+## `googlesheets_read_spreadsheet`
+
+Returns everything about a spreadsheet — including spreadsheet metadata, sheet properties, cell values, formatting, themes, and pixel sizes. If you only need cell values, use googlesheets_get_values instead.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `include_grid_data` | Include cell data in the response | boolean | null |
+| `ranges` | Cell range to read in A1 notation | string | null |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `spreadsheet_id` | The ID of the Google Sheet to read | string |
+| `tool_version` | Optional tool version to use for execution | string | null |
+
+## `googlesheets_update_values`
+
+Update cell values in a specific range of a Google Sheet. Supports writing single cells or multiple rows and columns at once.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `include_values_in_response` | Return the updated cell values in the response | boolean | null |
+| `range` | Cell range to update in A1 notation | string |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `spreadsheet_id` | The ID of the Google Sheet to update | string |
+| `tool_version` | Optional tool version to use for execution | string | null |
+| `value_input_option` | How input values should be interpreted | string | null |
+| `values` | 2D array of values to write to the range | `array<array>` |
