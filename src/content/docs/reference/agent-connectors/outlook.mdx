@@ -2,8 +2,6 @@
 title: Outlook
 description: Connect to Microsoft Outlook. Manage emails, calendar events, contacts, and tasks
 tableOfContents: true
-sidebar:
-  order: 7
 head:
   - tag: style
     content: |
@@ -87,3 +85,105 @@ import { Accordion, AccordionItem } from 'accessible-astro-components'
 
 Supports authentication: <Badge text="OAuth 2.0" />
 
+
+## Tool list
+
+## `outlook_create_calendar_event`
+
+Create a new calendar event in the user's Outlook calendar. Supports attendees, recurrence, reminders, online meetings, multiple locations, and event properties.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `attendees_optional` | string | No | Array of email addresses for optional attendees |
+| `attendees_required` | string | No | Array of email addresses for required attendees |
+| `attendees_resource` | string | No | Array of email addresses for resources (meeting rooms, equipment) |
+| `body_content` | string | No | No description |
+| `body_contentType` | string | No | No description |
+| `end_datetime` | string | Yes | No description |
+| `end_timezone` | string | Yes | No description |
+| `hideAttendees` | boolean | No | When true, each attendee only sees themselves |
+| `importance` | string | No | Event importance level |
+| `isAllDay` | boolean | No | Mark as all-day event |
+| `isOnlineMeeting` | boolean | No | Create an online meeting (Teams/Skype) |
+| `isReminderOn` | boolean | No | Enable or disable reminder |
+| `location` | string | No | No description |
+| `locations` | string | No | JSON array of location objects with displayName, address, coordinates |
+| `onlineMeetingProvider` | string | No | Online meeting provider |
+| `recurrence_days_of_week` | string | No | Days of week for weekly recurrence (comma-separated) |
+| `recurrence_end_date` | string | No | End date for recurrence (YYYY-MM-DD), required if range_type is endDate |
+| `recurrence_interval` | integer | No | How often the event recurs (e.g., every 2 weeks = 2) |
+| `recurrence_occurrences` | integer | No | Number of occurrences, required if range_type is numbered |
+| `recurrence_range_type` | string | No | How the recurrence ends |
+| `recurrence_start_date` | string | No | Start date for recurrence (YYYY-MM-DD) |
+| `recurrence_type` | string | No | Recurrence pattern type |
+| `reminderMinutesBeforeStart` | integer | No | Minutes before event start to show reminder |
+| `sensitivity` | string | No | Event sensitivity/privacy level |
+| `showAs` | string | No | Free/busy status |
+| `start_datetime` | string | Yes | No description |
+| `start_timezone` | string | Yes | No description |
+| `subject` | string | Yes | No description |
+
+## `outlook_delete_calendar_event`
+
+Delete a calendar event by ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `event_id` | string | Yes | No description |
+
+## `outlook_get_calendar_event`
+
+Retrieve an existing calendar event by ID from the user's Outlook calendar.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `event_id` | string | Yes | No description |
+
+## `outlook_list_calendar_events`
+
+List calendar events from the user's Outlook calendar with filtering, sorting, pagination, and field selection.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `filter` | string | No | OData filter expression to filter events (e.g., startsWith(subject,'All')) |
+| `orderby` | string | No | OData orderby expression to sort events (e.g., start/dateTime desc) |
+| `select` | string | No | Comma-separated list of properties to include in the response |
+| `skip` | number | No | Number of events to skip for pagination |
+| `top` | number | No | Maximum number of events to return |
+
+## `outlook_update_calendar_event`
+
+Update an existing Outlook calendar event. Only provided fields will be updated. Supports time, attendees, location, reminders, online meetings, recurrence, and event properties.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `attendees_optional` | string | No | Comma-separated optional attendee emails |
+| `attendees_required` | string | No | Comma-separated required attendee emails |
+| `attendees_resource` | string | No | Comma-separated resource emails (meeting rooms, equipment) |
+| `body_content` | string | No | Event description/body |
+| `body_contentType` | string | No | Content type of body |
+| `categories` | string | No | Comma-separated categories |
+| `end_datetime` | string | No | Event end time in RFC3339 format |
+| `end_timezone` | string | No | Timezone for end time |
+| `event_id` | string | Yes | The ID of the calendar event to update |
+| `hideAttendees` | boolean | No | When true, each attendee only sees themselves |
+| `importance` | string | No | Event importance level |
+| `isAllDay` | boolean | No | Mark as all-day event |
+| `isOnlineMeeting` | boolean | No | Create an online meeting (Teams/Skype) |
+| `isReminderOn` | boolean | No | Enable or disable reminder |
+| `location` | string | No | Physical or virtual location |
+| `locations` | string | No | JSON array of location objects with displayName, address, coordinates |
+| `onlineMeetingProvider` | string | No | Online meeting provider |
+| `recurrence_days_of_week` | string | No | Days of week for weekly recurrence (comma-separated) |
+| `recurrence_end_date` | string | No | End date for recurrence (YYYY-MM-DD) |
+| `recurrence_interval` | integer | No | How often the event recurs (e.g., every 2 weeks = 2) |
+| `recurrence_occurrences` | integer | No | Number of occurrences |
+| `recurrence_range_type` | string | No | How the recurrence ends |
+| `recurrence_start_date` | string | No | Start date for recurrence (YYYY-MM-DD) |
+| `recurrence_type` | string | No | Recurrence pattern type |
+| `reminderMinutesBeforeStart` | integer | No | Minutes before event start to show reminder |
+| `sensitivity` | string | No | Event sensitivity/privacy level |
+| `showAs` | string | No | Free/busy status |
+| `start_datetime` | string | No | Event start time in RFC3339 format |
+| `start_timezone` | string | No | Timezone for start time |
+| `subject` | string | No | Event title/summary |
