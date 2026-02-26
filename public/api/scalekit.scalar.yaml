@@ -2468,6 +2468,58 @@ paths:
           source: Connection connection =
             scalekitClient.connections().getConnectionById(connectionId,
             organizationId);
+    delete:
+      description: Deletes an SSO connection from the specified organization by
+        connection ID. Use this endpoint when an identity provider integration
+        is no longer needed for the organization. Returns an empty response
+        after the SSO connection is deleted successfully.
+      tags:
+        - Connections
+      summary: Delete SSO connection
+      operationId: ConnectionService_DeleteConnection
+      parameters:
+        - schema:
+            type: string
+          description: Organization ID for the Connection.
+          name: organization_id
+          in: path
+          required: true
+        - schema:
+            type: string
+          description: Connection ID. Unique ID for the connection
+          name: id
+          in: path
+          required: true
+      responses:
+        '200':
+          description: SSO connection deleted successfully
+          content:
+            application/json:
+              schema: {}
+      x-codeSamples:
+        - label: Node.js SDK
+          lang: javascript
+          source: await scalekit.connection.deleteConnection(organizationId,
+            connectionId);
+        - label: Python SDK
+          lang: python
+          source: |-
+            scalekit_client.connection.delete_connection(
+              organization_id,
+              connection_id
+            )
+        - label: Go SDK
+          lang: go
+          source: |-
+            err := scalekitClient.Connection.DeleteConnection(
+              ctx,
+              organizationId,
+              connectionId,
+            )
+        - label: Java SDK
+          lang: java
+          source: scalekitClient.connections().deleteConnection(connectionId,
+            organizationId);
   /api/v1/organizations/{organization_id}/connections/{id}:disable:
     patch:
       description: Deactivate an existing connection for the specified
@@ -2476,7 +2528,7 @@ paths:
         disabled without modifying other configuration settings
       tags:
         - Connections
-      summary: Disable organization connection
+      summary: Disable SSO connection
       operationId: ConnectionService_DisableConnection
       parameters:
         - schema:
@@ -2532,7 +2584,7 @@ paths:
         enabled without modifying other configuration settings
       tags:
         - Connections
-      summary: Enable organization connection
+      summary: Enable SSO connection
       operationId: ConnectionService_EnableConnection
       parameters:
         - schema:
