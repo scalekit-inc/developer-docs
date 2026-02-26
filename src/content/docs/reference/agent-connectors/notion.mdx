@@ -92,74 +92,74 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 Create a comment in Notion. Provide a comment object with rich_text content and either a parent object (with page_id) for a page-level comment or a discussion_id to reply in an existing thread.
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `comment` | Comment object containing a rich_text array. Example: `{"rich_text":[{"type":"text","text":{"content":"Hello"}}]}` | `object` |
-| `discussion_id` | Existing discussion thread ID to reply to. | string | null |
-| `notion_version` | Optional override for the Notion-Version header (e.g., 2022-06-28). | string | null |
-| `parent` | Parent object for a new top-level comment. Shape: `{"page_id":"<uuid>"}`. | `object` | null |
-| `schema_version` | Internal override for schema version. | string | null |
-| `tool_version` | Internal override for tool implementation version. | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `comment` | `object` | Yes | Comment object containing a rich_text array. Example: `{"rich_text":[{"type":"text","text":{"content":"Hello"}}]}` |
+| `discussion_id` | string | No | Existing discussion thread ID to reply to. |
+| `notion_version` | string | No | Optional override for the Notion-Version header (e.g., 2022-06-28). |
+| `parent` | `object` | No | Parent object for a new top-level comment. Shape: `{"page_id":"<uuid>"}`. |
+| `schema_version` | string | No | Internal override for schema version. |
+| `tool_version` | string | No | Internal override for tool implementation version. |
 
 ## `notion_comment_retrieve`
 
 Retrieve a single Notion comment by its `comment_id`. LLM tip: you typically obtain `comment_id` from the response of creating a comment or by first listing comments for a page/block and selecting the desired item’s `id`.
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `comment_id` | The identifier of the comment to retrieve (hyphenated UUID). Obtain it from Create-Comment responses or from a prior List-Comments call. | string |
-| `notion_version` | Optional Notion-Version header override (e.g., 2022-06-28). | string | null |
-| `schema_version` | Internal override for schema version. | string | null |
-| `tool_version` | Internal override for tool implementation version. | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `comment_id` | string | Yes | The identifier of the comment to retrieve (hyphenated UUID). Obtain it from Create-Comment responses or from a prior List-Comments call. |
+| `notion_version` | string | No | Optional Notion-Version header override (e.g., 2022-06-28). |
+| `schema_version` | string | No | Internal override for schema version. |
+| `tool_version` | string | No | Internal override for tool implementation version. |
 
 ## `notion_comments_fetch`
 
 Fetch comments for a given Notion block. Provide a `block_id` (the target page/block ID, hyphenated UUID). Supports pagination via `start_cursor` and `page_size` (1–100). LLM tip: extract `block_id` from a Notion URL’s trailing 32-char id, then insert hyphens (8-4-4-4-12).
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `block_id` | Target Notion block (or page) ID to fetch comments for. Use a hyphenated UUID. | string |
-| `notion_version` | Optional Notion-Version header override (e.g., 2022-06-28). | string | null |
-| `page_size` | Maximum number of comments to return (1–100). | integer | null |
-| `schema_version` | Internal override for schema version. | string | null |
-| `start_cursor` | Cursor to fetch the next page of results. | string | null |
-| `tool_version` | Internal override for tool implementation version. | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `block_id` | string | Yes | Target Notion block (or page) ID to fetch comments for. Use a hyphenated UUID. |
+| `notion_version` | string | No | Optional Notion-Version header override (e.g., 2022-06-28). |
+| `page_size` | integer | No | Maximum number of comments to return (1–100). |
+| `schema_version` | string | No | Internal override for schema version. |
+| `start_cursor` | string | No | Cursor to fetch the next page of results. |
+| `tool_version` | string | No | Internal override for tool implementation version. |
 
 ## `notion_data_fetch`
 
 Fetch data from Notion using the workspace search API (/search). Supports pagination via start_cursor.
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `page_size` | Max number of results to return (1–100) | integer | null |
-| `query` | Text query used by /search | string | null |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `start_cursor` | Cursor for pagination; pass the previous response's next_cursor | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page_size` | integer | No | Max number of results to return (1–100) |
+| `query` | string | No | Text query used by /search |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `start_cursor` | string | No | Cursor for pagination; pass the previous response's next_cursor |
+| `tool_version` | string | No | Optional tool version to use for execution |
 
 ## `notion_database_create`
 
 Create a new database in Notion under a parent page. Provide a parent object with page_id, a database title (rich_text array), and a properties object that defines the database schema (columns).
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `notion_version` | Optional override for the Notion-Version header (e.g., 2022-06-28). | string | null |
-| `parent` | Parent object specifying the page under which the database is created. Example: `{"page_id": "2561ab6c-418b-8072-beec-c4779fa811cf"}` | `object` |
-| `properties` | Database schema object defining properties (columns). Example: `{"Name": {"title": {}}, "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Doing"}, {"name": "Done"}]}}}` | `object` |
-| `schema_version` | Internal override for schema version. | string | null |
-| `title` | Database title as a Notion rich_text array. | `array<object>` |
-| `tool_version` | Internal override for tool implementation version. | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `notion_version` | string | No | Optional override for the Notion-Version header (e.g., 2022-06-28). |
+| `parent` | `object` | Yes | Parent object specifying the page under which the database is created. Example: `{"page_id": "2561ab6c-418b-8072-beec-c4779fa811cf"}` |
+| `properties` | `object` | Yes | Database schema object defining properties (columns). Example: `{"Name": {"title": {}}, "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Doing"}, {"name": "Done"}]}}}` |
+| `schema_version` | string | No | Internal override for schema version. |
+| `title` | `array<object>` | Yes | Database title as a Notion rich_text array. |
+| `tool_version` | string | No | Internal override for tool implementation version. |
 
 ## `notion_database_fetch`
 
 Retrieve a Notion database’s full definition, including title, properties, and schema. Required: `database_id` (hyphenated UUID). LLM tip: Extract the last 32 characters from a Notion database URL, then insert hyphens (8-4-4-4-12).
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `database_id` | The target database ID in UUID format with hyphens. | string |
-| `notion_version` | Optional override for the Notion-Version header. | string | null |
-| `schema_version` | Optional schema version override. | string | null |
-| `tool_version` | Optional tool version override. | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `database_id` | string | Yes | The target database ID in UUID format with hyphens. |
+| `notion_version` | string | No | Optional override for the Notion-Version header. |
+| `schema_version` | string | No | Optional schema version override. |
+| `tool_version` | string | No | Optional tool version override. |
 
 ## `notion_database_insert_row`
 
@@ -180,15 +180,15 @@ LLM guidance:
 - `cover` example (external): `{"type":"external","external":{"url":"https://example.com/image.jpg"}}`
 - Runtime note: the executor/host should synthesize `parent = {"database_id": database_id}` before sending to Notion.
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `_parent` | Computed by host: `{ "database_id": "<database_id>" }`. Do not supply manually. | `object` | null |
-| `child_blocks` | Optional array of Notion blocks to append as page content (paragraph, heading, to_do, etc.). | `array<unknown>` | null |
-| `cover` | Optional page cover object. Example external: `{"type":"external","external":{"url":"https://example.com/cover.jpg"}}`. | `object` | null |
-| `database_id` | Target database ID (hyphenated UUID). | string |
-| `icon` | Optional page icon object. Examples: `{"type":"emoji","emoji":"📝"}` or `{"type":"external","external":{"url":"https://..."}}`. | `object` | null |
-| `notion_version` | Optional Notion-Version header override (e.g., 2022-06-28). | string | null |
-| `properties` | Object mapping **column names (or property ids)** to **property values**.
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `_parent` | `object` | No | Computed by host: `{ "database_id": "<database_id>" }`. Do not supply manually. |
+| `child_blocks` | `array<unknown>` | No | Optional array of Notion blocks to append as page content (paragraph, heading, to_do, etc.). |
+| `cover` | `object` | No | Optional page cover object. Example external: `{"type":"external","external":{"url":"https://example.com/cover.jpg"}}`. |
+| `database_id` | string | Yes | Target database ID (hyphenated UUID). |
+| `icon` | `object` | No | Optional page icon object. Examples: `{"type":"emoji","emoji":"📝"}` or `{"type":"external","external":{"url":"https://..."}}`. |
+| `notion_version` | string | No | Optional Notion-Version header override (e.g., 2022-06-28). |
+| `properties` | `object` | Yes | Object mapping **column names (or property ids)** to **property values**.
 
 ️ **CRITICAL: Property Identification Rules:**
 - For title fields: ALWAYS use 'title' as the property key (not 'Name' or display names)
@@ -208,34 +208,34 @@ Example:
   "Status": { "select": { "name": "Todo" } },
   "Due": { "date": { "start": "2025-09-01" } }
 }
-``` | `object` |
-| `schema_version` | Optional schema version override. | string | null |
-| `tool_version` | Optional tool version override. | string | null |
+``` |
+| `schema_version` | string | No | Optional schema version override. |
+| `tool_version` | string | No | Optional tool version override. |
 
 ## `notion_database_property_retrieve`
 
 Query a Notion database and return only specific properties by supplying one or more property IDs. Use when you need page rows but want to limit the returned properties to reduce payload. Provide the database_id and an array of filter_properties (each item is a property id like "title")
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `database_id` | Target database ID (hyphenated UUID). | string |
-| `property_id` | property ID to filter results by a specific property. get the property id by querying database. | string | null |
-| `schema_version` | Optional schema version override. | string | null |
-| `tool_version` | Optional tool version override. | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `database_id` | string | Yes | Target database ID (hyphenated UUID). |
+| `property_id` | string | No | property ID to filter results by a specific property. get the property id by querying database. |
+| `schema_version` | string | No | Optional schema version override. |
+| `tool_version` | string | No | Optional tool version override. |
 
 ## `notion_database_query`
 
 Query a Notion database for rows (pages). Provide database_id (hyphenated UUID). Optional: page_size, start_cursor for pagination, and sorts (array of sort objects). LLM guidance: extract the last 32 characters from a Notion database URL and insert hyphens (8-4-4-4-12) to form database_id. Sort rules: each sort item MUST include either property OR timestamp (last_edited_time/created_time), not both.
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `database_id` | Target database ID (hyphenated UUID). | string |
-| `notion_version` | Optional Notion-Version header override. | string | null |
-| `page_size` | Maximum number of rows to return (1–100). | integer | null |
-| `schema_version` | Optional schema version override. | string | null |
-| `sorts` | Order the results. Each item must include either property or timestamp, plus direction. | `array<object>` | null |
-| `start_cursor` | Cursor to fetch the next page of results. | string | null |
-| `tool_version` | Optional tool version override. | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `database_id` | string | Yes | Target database ID (hyphenated UUID). |
+| `notion_version` | string | No | Optional Notion-Version header override. |
+| `page_size` | integer | No | Maximum number of rows to return (1–100). |
+| `schema_version` | string | No | Optional schema version override. |
+| `sorts` | `array<object>` | No | Order the results. Each item must include either property or timestamp, plus direction. |
+| `start_cursor` | string | No | Cursor to fetch the next page of results. |
+| `tool_version` | string | No | Optional tool version override. |
 
 ## `notion_page_create`
 
@@ -246,22 +246,22 @@ Target rules:
 - If database_id is provided → properties are required
 - If parent_page_id is provided → properties are optional
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `_parent` | Computed by the executor: `{"database_id": "..."}` OR `{"page_id": "..."}` derived from database_id/parent_page_id. | `object` | null |
-| `child_blocks` | Optional blocks to add as page content (children). | `array<unknown>` | null |
-| `cover` | Optional page cover object. | `object` | null |
-| `database_id` | Create a page as a new row in this database (hyphenated UUID). Extract from the database URL (last 32 chars → hyphenate 8-4-4-4-12). | string | null |
-| `icon` | Optional page icon object. | `object` | null |
-| `notion_version` | Optional Notion-Version header override. | string | null |
-| `parent_page_id` | Create a child page under this page (hyphenated UUID). Extract from the parent page URL. | string | null |
-| `properties` | For database rows, supply property values keyed by property name (or id). For title properties, the key must be "title".
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `_parent` | `object` | No | Computed by the executor: `{"database_id": "..."}` OR `{"page_id": "..."}` derived from database_id/parent_page_id. |
+| `child_blocks` | `array<unknown>` | No | Optional blocks to add as page content (children). |
+| `cover` | `object` | No | Optional page cover object. |
+| `database_id` | string | No | Create a page as a new row in this database (hyphenated UUID). Extract from the database URL (last 32 chars → hyphenate 8-4-4-4-12). |
+| `icon` | `object` | No | Optional page icon object. |
+| `notion_version` | string | No | Optional Notion-Version header override. |
+| `parent_page_id` | string | No | Create a child page under this page (hyphenated UUID). Extract from the parent page URL. |
+| `properties` | `object` | No | For database rows, supply property values keyed by property name (or id). For title properties, the key must be "title".
 
 Example (database row):
 {
   "title": { "title": [ { "text": { "content": "Task A" } } ] },
   "Status": { "select": { "name": "Todo" } },
   "Due": { "date": { "start": "2025-09-01" } }
-} | `object` | null |
-| `schema_version` | Optional schema version override. | string | null |
-| `tool_version` | Optional tool version override. | string | null |
+} |
+| `schema_version` | string | No | Optional schema version override. |
+| `tool_version` | string | No | Optional tool version override. |

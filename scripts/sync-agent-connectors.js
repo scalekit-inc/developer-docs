@@ -20,7 +20,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // ---------------------------------------------------------------------------
-// Env loader (no dotenv dependency)
+// Env loader (using dotenv)
 // ---------------------------------------------------------------------------
 
 function loadEnv() {
@@ -31,6 +31,8 @@ function loadEnv() {
 // API helpers
 // ---------------------------------------------------------------------------
 
+const FETCH_TIMEOUT_MS = 30_000
+
 async function getAccessToken(host, clientId, clientSecret) {
   const body = new URLSearchParams({
     grant_type: 'client_credentials',
@@ -38,14 +40,23 @@ async function getAccessToken(host, clientId, clientSecret) {
     client_secret: clientSecret,
   })
 
-  const response = await fetch(`${host}/oauth/token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Accept: 'application/json',
-    },
-    body: body.toString(),
-  })
+  let response
+  try {
+    response = await fetch(`${host}/oauth/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+      },
+      body: body.toString(),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    })
+  } catch (err) {
+    if (err.name === 'AbortError' || err.name === 'TimeoutError') {
+      throw new Error(`Token request timed out after ${FETCH_TIMEOUT_MS}ms`)
+    }
+    throw err
+  }
 
   if (!response.ok) {
     const text = await response.text()
@@ -262,7 +273,6 @@ function generateMdxContent(provider, tools) {
   const providerDescription = provider.description || 'No description available.'
   const authPatterns = provider.auth_patterns || []
   const comingSoon = provider.coming_soon || false
-  const displayPriority = provider.display_priority
 
   const authBadges = authPatterns.map((auth) => {
     const type = auth.type || 'UNKNOWN'
@@ -415,8 +425,8 @@ function generateMdxContent(provider, tools) {
 
     const propEntries = Object.entries(properties)
     if (propEntries.length > 0) {
-      lines.push('| Properties | Description | Type |')
-      lines.push('| --- | --- | --- |')
+      lines.push('| Name | Type | Required | Description |')
+      lines.push('| --- | --- | --- | --- |')
 
       for (const [propName, propInfo] of propEntries) {
         let propType = propInfo.type || 'string'
@@ -437,8 +447,8 @@ function generateMdxContent(provider, tools) {
           propType = '`object`'
         }
 
-        const typeSuffix = requiredFields.includes(propName) ? '' : ' | null'
-        lines.push(`| \`${propName}\` | ${propDescription} | ${propType}${typeSuffix} |`)
+        const isRequired = requiredFields.includes(propName) ? 'Yes' : 'No'
+        lines.push(`| \`${propName}\` | ${propType} | ${isRequired} | ${propDescription} |`)
       }
 
       lines.push('')
@@ -467,6 +477,7 @@ async function main() {
   }
 
   const outputDir = path.join(__dirname, '../src/content/docs/reference/agent-connectors')
+  fs.mkdirSync(outputDir, { recursive: true })
 
   console.log(`🔑 Authenticating with ${host}...`)
   const token = await getAccessToken(host, clientId, clientSecret)
@@ -487,9 +498,23 @@ async function main() {
     const identifier = provider.identifier || ''
     const providerTools = toolsByProvider.get(identifier) || []
 
+    const safeIdentifier =
+      identifier
+        .toLowerCase()
+        .replace(/[/\\]/g, '') // strip path separators
+        .replace(/[^a-z0-9_-]/g, '_') // replace remaining unsafe chars
+        .replace(/^_+|_+$/g, '') || // trim leading/trailing underscores
+      'unknown-provider'
+
     const mdxContent = generateMdxContent(provider, providerTools)
-    const fileName = identifier.toLowerCase() + '.mdx'
+    const fileName = safeIdentifier + '.mdx'
     const filePath = path.join(outputDir, fileName)
+
+    // Guard against directory traversal (belt-and-suspenders)
+    if (!filePath.startsWith(outputDir + path.sep)) {
+      console.warn(`  ⚠ Skipping unsafe path for identifier "${identifier}"`)
+      continue
+    }
 
     fs.writeFileSync(filePath, mdxContent, 'utf8')
     console.log(`  ✓ ${fileName} (${providerTools.length} tools)`)
