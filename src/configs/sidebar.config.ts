@@ -256,6 +256,10 @@ export const sidebar = [
         attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
       },
       {
+        label: 'Cookbooks',
+        link: '/cookbooks',
+      },
+      {
         label: 'API collections',
         collapsed: true,
         items: [
@@ -548,6 +552,7 @@ export const sidebar = [
  */
 export const exclude = [
   '/', // Home page
+  '/blog',
   '/404', // Error page
   '/apis/**/*', // REST API reference has Scalar-powered navigation
 ]
@@ -651,7 +656,17 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   connect: 'agent-auth',
 
   // Developer Resources sidebar → 'Developer Resources' tab
-  'dev-kit': 'scenarios',
+  'dev-kit': {
+    default: 'code-samples',
+    pathOverrides: {
+      '/dev-kit/code-samples': 'code-samples',
+      '/dev-kit/tools': 'testing-utilities',
+      '/dev-kit/sdks': 'dev-tools',
+      '/guides/integrations': 'integrations',
+      '/authenticate/implement-workflows': 'workflows',
+      '/cookbooks': 'cookbooks',
+    },
+  },
 
   // SDKs sidebar → 'SDKs' tab
   sdks: 'sdks',

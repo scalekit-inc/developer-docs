@@ -14,6 +14,8 @@ import {
   IconLucideChevronDown as IconChevronDown,
   IconHugeiconsResourcesAdd,
   IconLucideBlocks,
+  IconLucideCode,
+  IconLucideWorkflow,
 } from '../utils/icon-map'
 import IconLucideRocket from '~icons/lucide/rocket'
 import IconLucideLogIn from '~icons/lucide/log-in'
@@ -139,10 +141,69 @@ export const secondaryNavItems: NavItem[] = [
     ],
   },
   {
-    id: 'scenarios', // Maps to sidebarToSecondaryNav['dev-kit']
-    href: '/dev-kit/code-samples/',
+    id: 'developer-resources',
+    href: '#developer-resources',
     label: 'Developer Resources',
     iconComponent: IconHugeiconsResourcesAdd,
+    children: [
+      // LEFT COLUMN
+      {
+        id: 'code-samples',
+        href: '/dev-kit/code-samples/',
+        label: 'Code Samples',
+        iconComponent: IconLucideCode,
+        description: 'Browse code examples by language and framework',
+        sectionLabel: 'DEVELOPER KIT',
+        sectionDescription: 'Tools and examples to accelerate your integration',
+        columnGroup: 'left',
+      },
+      {
+        id: 'testing-utilities',
+        href: '/dev-kit/tools/scalekit-dryrun/',
+        label: 'Testing Utilities',
+        iconComponent: IconCodiconDebugStart,
+        description: 'Test and debug your integration locally',
+        columnGroup: 'left',
+      },
+      {
+        id: 'dev-tools',
+        href: '/dev-kit/sdks',
+        label: 'Dev Tools',
+        iconComponent: IconSdk,
+        description: 'SDKs and CLI tools to build and ship faster',
+        columnGroup: 'left',
+      },
+      // RIGHT COLUMN
+      {
+        id: 'integrations',
+        href: '/guides/integrations/social-connections/',
+        label: 'Developer Resources',
+        dropdownLabel: 'Integrations',
+        iconComponent: IconLucideBlocks,
+        description: 'Connect with your existing tools and platforms',
+        sectionLabel: 'RESOURCES',
+        sectionDescription: 'Guides, references, and community resources',
+        columnGroup: 'right',
+      },
+      {
+        id: 'workflows',
+        href: '/authenticate/implement-workflows/implement-webhooks/',
+        label: 'Developer Resources',
+        dropdownLabel: 'Workflows',
+        iconComponent: IconLucideWorkflow,
+        description: 'Automate workflows with webhooks and events',
+        columnGroup: 'right',
+      },
+      {
+        id: 'cookbooks',
+        href: '/cookbooks/',
+        label: 'Developer Resources',
+        dropdownLabel: 'Cookbooks',
+        iconComponent: IconLucideBookOpenText,
+        description: 'Recipes for common integration patterns',
+        columnGroup: 'right',
+      },
+    ],
   },
   {
     id: 'api-reference',
