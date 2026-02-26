@@ -6,9 +6,9 @@
  * MDX documentation files under src/content/docs/reference/agent-connectors/.
  *
  * Env vars (reads from .env or process.env):
- *   SCALEKIT_CLIENT_ID       – OAuth client ID
- *   SCALEKIT_CLIENT_SECRET   – OAuth client secret
- *   SCALEKIT_ENVIRONMENT_URL – API host URL
+ *   PROD_SCALEKIT_CLIENT_ID       – OAuth client ID (production)
+ *   PROD_SCALEKIT_CLIENT_SECRET   – OAuth client secret (production)
+ *   PROD_SCALEKIT_ENVIRONMENT_URL – API host URL (production)
  */
 
 import fs from 'fs'
@@ -455,13 +455,13 @@ function generateMdxContent(provider, tools) {
 async function main() {
   loadEnv()
 
-  const clientId = process.env.SCALEKIT_CLIENT_ID
-  const clientSecret = process.env.SCALEKIT_CLIENT_SECRET
-  const host = process.env.SCALEKIT_ENVIRONMENT_URL
+  const clientId = process.env.PROD_SCALEKIT_CLIENT_ID
+  const clientSecret = process.env.PROD_SCALEKIT_CLIENT_SECRET
+  const host = process.env.PROD_SCALEKIT_ENVIRONMENT_URL
 
   if (!clientId || !clientSecret || !host) {
     console.error(
-      '❌ Missing required env vars: SCALEKIT_CLIENT_ID, SCALEKIT_CLIENT_SECRET, SCALEKIT_ENVIRONMENT_URL',
+      '❌ Missing required env vars: PROD_SCALEKIT_CLIENT_ID, PROD_SCALEKIT_CLIENT_SECRET, PROD_SCALEKIT_ENVIRONMENT_URL',
     )
     process.exit(1)
   }
