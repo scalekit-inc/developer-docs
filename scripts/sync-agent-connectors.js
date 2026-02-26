@@ -278,14 +278,11 @@ function generateMdxContent(provider, tools) {
   lines.push(`description: ${providerDescription}`)
   lines.push('tableOfContents: true')
 
-  if (comingSoon || displayPriority != null) {
+  if (comingSoon) {
     lines.push('sidebar:')
-    if (displayPriority != null) lines.push(`  order: ${displayPriority}`)
-    if (comingSoon) {
-      lines.push('  badge:')
-      lines.push('    text: Soon')
-      lines.push('    variant: tip')
-    }
+    lines.push('  badge:')
+    lines.push('    text: Soon')
+    lines.push('    variant: tip')
   }
 
   // Static head boilerplate (CSS + JS) — matches existing MDX files exactly
