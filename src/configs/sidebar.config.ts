@@ -678,7 +678,17 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   connect: 'agent-auth',
 
   // Developer Resources sidebar → 'Developer Resources' tab
-  'dev-kit': 'scenarios',
+  'dev-kit': {
+    default: 'code-samples',
+    pathOverrides: {
+      '/dev-kit/code-samples': 'code-samples',
+      '/dev-kit/tools': 'testing-utilities',
+      '/dev-kit/sdks': 'dev-tools',
+      '/guides/integrations': 'integrations',
+      '/authenticate/implement-workflows': 'workflows',
+      '/cookbooks': 'cookbooks',
+    },
+  },
 
   // SDKs sidebar → 'SDKs' tab
   sdks: 'sdks',
