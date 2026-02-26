@@ -40,6 +40,7 @@ A few things worth knowing before you dive in:
 
 - **Node.js** ≥ 18
 - **pnpm** ≥ 10
+- **D2 CLI** — Diagramming tool for `.d2` files. Install with `pnpm install:d2` (supports macOS and Linux, both Intel and ARM)
 
 ```bash
 npm install -g pnpm
@@ -58,7 +59,10 @@ cp .env.example .env
 # 3. Install dependencies (this also sets up git hooks automatically)
 pnpm install
 
-# 4. Start the dev server
+# 4. Install D2 CLI (for diagram rendering)
+pnpm install:d2
+
+# 5. Start the dev server
 pnpm dev
 ```
 
@@ -71,6 +75,7 @@ Open [http://localhost:4321](http://localhost:4321). Edits to MDX files in `src/
 | `pnpm dev`                   | Start the local dev server                           |
 | `pnpm build`                 | Build the production site to `./dist`                |
 | `pnpm preview`               | Preview the production build locally                 |
+| `pnpm install:d2`            | Install D2 CLI tool for diagram rendering            |
 | `pnpm format`                | Auto-format all `.md`, `.mdx`, `.astro`, `.ts` files |
 | `pnpm format:check`          | Check formatting without writing changes             |
 | `pnpm generate-search-index` | Regenerate the Algolia API search index              |
@@ -132,11 +137,13 @@ Runs [Prettier](https://prettier.io) on every staged file before the commit land
 ```text
 1. Checks for uncommitted changes (blocks push if any exist)
 2. Runs pnpm generate-search-index
-3. Runs pnpm build (full production build)
+3. Runs pnpm build (full production build, requires D2 CLI)
 4. Logs a preview URL
 ```
 
 This hook ensures you never push something that breaks the build. It takes a few minutes — that's intentional. If the build fails, fix it before pushing. If you need to push despite a failure (e.g., a work-in-progress branch), you can bypass with `git push --no-verify`, but this is not recommended on `main`.
+
+> **Note:** The build step requires the D2 CLI to be installed. If you haven't installed it yet, run `pnpm install:d2`.
 
 ---
 
