@@ -120,6 +120,18 @@ async function fetchAllTools(host, token) {
   return tools
 }
 
+// Sanitize a raw provider identifier into a safe filename stem
+function toSafeIdentifier(identifier) {
+  return (
+    (identifier || '')
+      .toLowerCase()
+      .replace(/[/\\]/g, '') // strip path separators
+      .replace(/[^a-z0-9_-]/g, '_') // replace remaining unsafe chars
+      .replace(/^_+|_+$/g, '') || // trim leading/trailing underscores
+    'unknown-provider'
+  )
+}
+
 // Group tool definitions by provider identifier (e.g. "SLACK")
 function groupToolsByProvider(tools) {
   const map = new Map()
@@ -431,6 +443,11 @@ function generateMdxContent(provider, tools) {
       for (const [propName, propInfo] of propEntries) {
         let propType = propInfo.type || 'string'
         const propDescription = escapeMdx(propInfo.description || 'No description')
+          .replace(/```[\s\S]*?```/g, '[…]') // collapse fenced code blocks
+          .replace(/`([^`]*)`/g, '$1') // strip inline backticks
+          .replace(/\n+/g, ' ') // collapse newlines to a space
+          .replace(/\|/g, '\\|') // escape pipe characters
+          .trim()
 
         // Handle type arrays like ["string", "null"]
         if (Array.isArray(propType)) {
@@ -493,18 +510,27 @@ async function main() {
 
   const toolsByProvider = groupToolsByProvider(tools)
 
+  // Build the set of file names this run will produce
+  const expectedFiles = new Set(providers.map((p) => toSafeIdentifier(p.identifier || '') + '.mdx'))
+
+  // Remove orphaned .mdx files not in the expected set
+  let removed = 0
+  for (const existing of fs.readdirSync(outputDir)) {
+    if (!existing.endsWith('.mdx')) continue
+    if (expectedFiles.has(existing)) continue
+    const orphanPath = path.join(outputDir, existing)
+    if (!orphanPath.startsWith(outputDir + path.sep)) continue // safety check
+    fs.unlinkSync(orphanPath)
+    console.log(`  🗑 Removed orphan: ${existing}`)
+    removed++
+  }
+
   let written = 0
   for (const provider of providers) {
     const identifier = provider.identifier || ''
     const providerTools = toolsByProvider.get(identifier) || []
 
-    const safeIdentifier =
-      identifier
-        .toLowerCase()
-        .replace(/[/\\]/g, '') // strip path separators
-        .replace(/[^a-z0-9_-]/g, '_') // replace remaining unsafe chars
-        .replace(/^_+|_+$/g, '') || // trim leading/trailing underscores
-      'unknown-provider'
+    const safeIdentifier = toSafeIdentifier(identifier)
 
     const mdxContent = generateMdxContent(provider, providerTools)
     const fileName = safeIdentifier + '.mdx'
@@ -525,6 +551,7 @@ async function main() {
   console.log(`   Providers: ${providers.length}`)
   console.log(`   Tools: ${tools.length}`)
   console.log(`   Files written: ${written}`)
+  console.log(`   Orphans removed: ${removed}`)
   console.log(`   Output: src/content/docs/reference/agent-connectors/`)
   console.log('🎉 Done!')
 }
