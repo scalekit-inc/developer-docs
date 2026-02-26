@@ -46,12 +46,16 @@ esac
 
 echo "Installing D2 $VERSION for $OS $ARCH..."
 
+# Create a unique temp directory and ensure cleanup on exit
+TMPDIR=$(mktemp -d)
+trap 'rm -rf "$TMPDIR"' EXIT
+
 # Download the correct artifact
 TAR_FILE="d2-$VERSION-$OS-$ARCH.tar.gz"
 DOWNLOAD_URL="https://github.com/terrastruct/d2/releases/download/$VERSION/$TAR_FILE"
 
 echo "Downloading from $DOWNLOAD_URL..."
-if ! curl -fsSL "$DOWNLOAD_URL" -o /tmp/d2.tar.gz; then
+if ! curl -fsSL "$DOWNLOAD_URL" -o "$TMPDIR/d2.tar.gz"; then
   echo "Error: Failed to download D2"
   echo "Please verify the version and try again, or install manually from:"
   echo "https://github.com/terrastruct/d2/releases"
@@ -59,23 +63,20 @@ if ! curl -fsSL "$DOWNLOAD_URL" -o /tmp/d2.tar.gz; then
 fi
 
 # Extract
-tar -xz -C /tmp -f /tmp/d2.tar.gz
+tar -xz -C "$TMPDIR" -f "$TMPDIR/d2.tar.gz"
 
 # Install binary
 mkdir -p "$INSTALL_DIR"
-if [ -f "/tmp/d2-$VERSION/bin/d2" ]; then
-  cp "/tmp/d2-$VERSION/bin/d2" "$INSTALL_DIR/d2"
-elif [ -f "/tmp/d2-$VERSION/d2" ]; then
-  cp "/tmp/d2-$VERSION/d2" "$INSTALL_DIR/d2"
+if [ -f "$TMPDIR/d2-$VERSION/bin/d2" ]; then
+  cp "$TMPDIR/d2-$VERSION/bin/d2" "$INSTALL_DIR/d2"
+elif [ -f "$TMPDIR/d2-$VERSION/d2" ]; then
+  cp "$TMPDIR/d2-$VERSION/d2" "$INSTALL_DIR/d2"
 else
   echo "Error: Could not find d2 binary in release archive"
   exit 1
 fi
 
 chmod +x "$INSTALL_DIR/d2"
-
-# Cleanup
-rm -rf "/tmp/d2-$VERSION" /tmp/d2.tar.gz
 
 # Verify installation
 if [ ! -x "$INSTALL_DIR/d2" ]; then
