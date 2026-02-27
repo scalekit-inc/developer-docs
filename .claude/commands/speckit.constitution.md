@@ -80,3 +80,29 @@ If the user supplies partial updates (e.g., only one principle revision), still 
 If critical info missing (e.g., ratification date truly unknown), insert `TODO(<FIELD_NAME>): explanation` and include in the Sync Impact Report under deferred items.
 
 Do not create a new template; always operate on the existing `.specify/memory/constitution.md` file.
+
+---
+
+## Starlight <Steps> Indentation Rules
+
+The `<Steps>` component requires a single continuous `<ol>`. Any broken indentation splits it into multiple blocks and causes a build error.
+
+**Rules**:
+
+1. Numbered steps must start at column 0 — no leading spaces
+   - ❌ WRONG — creates a sub-list, breaks the `<ol>`
+   - ✅ CORRECT — steps at column 0
+
+2. Continuation content (images, text) must be indented with exactly 3 spaces
+   - ❌ WRONG — image at 4 spaces becomes a new block
+   - ✅ CORRECT — 3 spaces keeps it inside the list item
+
+3. Sub-bullet lists under a step use 3 spaces
+   - ❌ WRONG — 4 spaces, or blank line before the bullets
+   - ✅ CORRECT — 3 spaces, no blank line before bullets
+
+4. No blank line immediately after `<Steps>` opening tag
+   - ❌ WRONG — blank line after `<Steps>`
+   - ✅ CORRECT — content starts immediately after `<Steps>`
+
+**Quick mental model**: Treat the entire `<Steps>` block as a single continuous list. All content (steps, continuation text, images, sub-bullets) must be indented to stay within that list structure.
