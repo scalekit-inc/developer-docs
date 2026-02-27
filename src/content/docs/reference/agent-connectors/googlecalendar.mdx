@@ -73,6 +73,10 @@ head:
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
+import useOwnCredentialsImg from '@/assets/docs/agent-connectors/googlecalendar/use-own-credentials-redirect-uri.png'
+import oauthWebAppImg from '@/assets/docs/agent-connectors/gmail/oauth-web-app.png'
+import addRedirectUriImg from '@/assets/docs/agent-connectors/gmail/add-redirect-uri.png'
+import addCredentialsImg from '@/assets/docs/agent-connectors/gmail/add-credentials.png'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -86,8 +90,265 @@ import { Accordion, AccordionItem } from 'accessible-astro-components'
 Supports authentication: <Badge text="OAuth 2.0" />
 
 
+## Setup
+
+<Aside type="caution">
+  Google applications using scopes that permit access to certain user data must complete a verification process.
+</Aside>
+
+### Configure Redirect URL
+
+<Steps>
+1. In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+
+2. Find **Google Calendar** from the list of providers and click **Create**.
+
+   <Aside>
+     By default, a connection using Scalekit's credentials will be created. If you are testing, go directly to [Usage](#usage). Before going to production, update your connection by following the steps below.
+   </Aside>
+
+3. Click **Use your own credentials** and copy the redirect URI — it will look like `https://{your-env-url}/sso/v1/oauth/{connection_id}/callback`.
+
+   <img src={useOwnCredentialsImg.src} alt="Configure Google Calendar Connection with redirect URI" width="500" />
+
+4. Navigate to [Google Cloud Console's](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) **APIs & Services > Credentials**
+
+5. Select **+ Create Credentials**, then **OAuth client ID**
+
+6. Choose **Web application** from the Application type menu
+
+   <img src={oauthWebAppImg.src} alt="Selecting Web Application in Google OAuth" width="540" />
+
+7. Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and select **Create**.
+
+   <img src={addRedirectUriImg.src} alt="Adding Google redirect URI for OAuth" width="540" />
+</Steps>
+
+Google provides your Client ID and Client Secret credentials.
+
+### Enable Google Calendar API
+
+<Steps>
+1. In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services > Library**
+
+2. Search for "Google Calendar" in the API Library
+
+3. Select **Google Calendar API**
+
+4. Press the blue **Enable** button
+</Steps>
+
+### Add Credentials
+
+<Steps>
+1. In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+2. Enter your credentials:
+   - Client ID (from above)
+   - Client Secret (from above)
+   - Permissions (scopes — see [Google API Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes))
+
+   <img src={addCredentialsImg.src} alt="Add credentials" width="540" />
+
+3. Click **Save**
+</Steps>
+
+## Usage
+
+Connect a user's Google Calendar account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'googlecalendar'; // get your connection name from connection configurations
+    const identifier = 'user_123';           // your unique user identifier
+
+    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const { connectedAccounts, actions } = scalekit;
+
+    // Authenticate the user
+    const { link } = await connectedAccounts.getMagicLinkForConnectedAccount({
+      connector: connectionName,
+      identifier,
+    });
+    console.log('🔗 Authorize Google Calendar:', link); // present this link to your user for authorization, or click it yourself for testing
+    process.stdout.write('Press Enter after authorizing...');
+    await new Promise(r => process.stdin.once('data', r));
+
+    // Make a request via Scalekit proxy
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/calendar/v3/users/me/calendarList',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "googlecalendar"  # get your connection name from connection configurations
+    identifier = "user_123"             # your unique user identifier
+
+    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Authenticate the user
+    link_response = actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier=identifier
+    )
+    # present this link to your user for authorization, or click it yourself for testing
+    print("🔗 Authorize Google Calendar:", link_response.link)
+    input("Press Enter after authorizing...")
+
+    # Make a request via Scalekit proxy
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/calendar/v3/users/me/calendarList",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
 ## Tool list
 
+## `googlecalendar_create_event`
+
+Create a new event in a connected Google Calendar account. Supports meeting links, recurrence, attendees, and more.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `attendees_emails` | Attendee email addresses | `array<string>` | null |
+| `calendar_id` | Calendar ID to create the event in | string | null |
+| `create_meeting_room` | Generate a Google Meet link for this event | boolean | null |
+| `description` | Optional event description | string | null |
+| `event_duration_hour` | Duration of event in hours | integer | null |
+| `event_duration_minutes` | Duration of event in minutes | integer | null |
+| `event_type` | Event type for display purposes | string | null |
+| `guests_can_invite_others` | Allow guests to invite others | boolean | null |
+| `guests_can_modify` | Allow guests to modify the event | boolean | null |
+| `guests_can_see_other_guests` | Allow guests to see each other | boolean | null |
+| `location` | Location of the event | string | null |
+| `recurrence` | Recurrence rules (iCalendar RRULE format) | `array<string>` | null |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `send_updates` | Send update notifications to attendees | boolean | null |
+| `start_datetime` | Event start time in RFC3339 format | string |
+| `summary` | Event title/summary | string |
+| `timezone` | Timezone for the event (IANA time zone identifier) | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+| `transparency` | Calendar transparency (free/busy) | string | null |
+| `visibility` | Visibility of the event | string | null |
+
+## `googlecalendar_delete_event`
+
+Delete an event from a connected Google Calendar account. Requires the calendar ID and event ID.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `calendar_id` | The ID of the calendar from which the event should be deleted | string | null |
+| `event_id` | The ID of the calendar event to delete | string |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+
+## `googlecalendar_get_event_by_id`
+
+Retrieve a specific calendar event by its ID using optional filtering and list parameters.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `calendar_id` | The calendar ID to search in | string | null |
+| `event_id` | The unique identifier of the calendar event to fetch | string |
+| `event_types` | Filter by Google event types | `array<string>` | null |
+| `query` | Free text search query | string | null |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `show_deleted` | Include deleted events in results | boolean | null |
+| `single_events` | Expand recurring events into instances | boolean | null |
+| `time_max` | Upper bound for event start time (RFC3339) | string | null |
+| `time_min` | Lower bound for event start time (RFC3339) | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+| `updated_min` | Filter events updated after this time (RFC3339) | string | null |
+
+## `googlecalendar_list_calendars`
+
+List all accessible Google Calendar calendars for the authenticated user. Supports filters and pagination.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `max_results` | Maximum number of calendars to fetch | integer | null |
+| `min_access_role` | Minimum access role to include in results | string | null |
+| `page_token` | Token to retrieve the next page of results | string | null |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `show_deleted` | Include deleted calendars in the list | boolean | null |
+| `show_hidden` | Include calendars that are hidden from the calendar list | boolean | null |
+| `sync_token` | Token to get updates since the last sync | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+
+## `googlecalendar_list_events`
+
+List events from a connected Google Calendar account with filtering options. Requires a valid Google Calendar OAuth2 connection.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `calendar_id` | Calendar ID to list events from | string | null |
+| `max_results` | Maximum number of events to fetch | integer | null |
+| `order_by` | Order of events in the result | string | null |
+| `page_token` | Page token for pagination | string | null |
+| `query` | Free text search query | string | null |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `single_events` | Expand recurring events into single events | boolean | null |
+| `time_max` | Upper bound for event start time (RFC3339 timestamp) | string | null |
+| `time_min` | Lower bound for event start time (RFC3339 timestamp) | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+
+## `googlecalendar_update_event`
+
+Update an existing event in a connected Google Calendar account. Only provided fields will be updated. Supports updating time, attendees, location, meeting links, and more.
+
+| Properties | Description | Type |
+| --- | --- | --- |
+| `attendees_emails` | Attendee email addresses | `array<string>` | null |
+| `calendar_id` | Calendar ID containing the event | string |
+| `create_meeting_room` | Generate a Google Meet link for this event | boolean | null |
+| `description` | Optional event description | string | null |
+| `end_datetime` | Event end time in RFC3339 format | string | null |
+| `event_duration_hour` | Duration of event in hours | integer | null |
+| `event_duration_minutes` | Duration of event in minutes | integer | null |
+| `event_id` | The ID of the calendar event to update | string |
+| `event_type` | Event type for display purposes | string | null |
+| `guests_can_invite_others` | Allow guests to invite others | boolean | null |
+| `guests_can_modify` | Allow guests to modify the event | boolean | null |
+| `guests_can_see_other_guests` | Allow guests to see each other | boolean | null |
+| `location` | Location of the event | string | null |
+| `recurrence` | Recurrence rules (iCalendar RRULE format) | `array<string>` | null |
+| `schema_version` | Optional schema version to use for tool execution | string | null |
+| `send_updates` | Send update notifications to attendees | boolean | null |
+| `start_datetime` | Event start time in RFC3339 format | string | null |
+| `summary` | Event title/summary | string | null |
+| `timezone` | Timezone for the event (IANA time zone identifier) | string | null |
+| `tool_version` | Optional tool version to use for execution | string | null |
+| `transparency` | Calendar transparency (free/busy) | string | null |
+| `visibility` | Visibility of the event | string | null |
 ## `googlecalendar_create_event`
 
 Create a new event in a connected Google Calendar account. Supports meeting links, recurrence, attendees, and more.

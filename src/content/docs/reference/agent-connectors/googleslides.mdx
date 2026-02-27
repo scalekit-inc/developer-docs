@@ -73,6 +73,10 @@ head:
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
+import useOwnCredentialsImg from '@/assets/docs/agent-connectors/googleslides/use-own-credentials-redirect-uri.png'
+import oauthWebAppImg from '@/assets/docs/agent-connectors/gmail/oauth-web-app.png'
+import addRedirectUriImg from '@/assets/docs/agent-connectors/gmail/add-redirect-uri.png'
+import addCredentialsImg from '@/assets/docs/agent-connectors/gmail/add-credentials.png'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -85,6 +89,143 @@ import { Accordion, AccordionItem } from 'accessible-astro-components'
 
 Supports authentication: <Badge text="OAuth 2.0" />
 
+
+## Setup
+
+<Aside type="caution">
+  Google applications using scopes that permit access to certain user data must complete a verification process.
+</Aside>
+
+### Configure Redirect URL
+
+<Steps>
+1. In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+
+2. Find **Google Slides** from the list of providers and click **Create**.
+
+3. Click **Use your own credentials** and copy the redirect URI — it will look like `https://{your-env-url}/sso/v1/oauth/{connection_id}/callback`.
+
+   <img src={useOwnCredentialsImg.src} alt="Configure Google Slides Connection with redirect URI" width="500" />
+
+4. Navigate to [Google Cloud Console's](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) **APIs & Services > Credentials**
+
+5. Select **+ Create Credentials**, then **OAuth client ID**
+
+6. Choose **Web application** from the Application type menu
+
+   <img src={oauthWebAppImg.src} alt="Selecting Web Application in Google OAuth" width="540" />
+
+7. Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and select **Create**.
+
+   <img src={addRedirectUriImg.src} alt="Adding Google redirect URI for OAuth" width="540" />
+</Steps>
+
+Google provides your Client ID and Client Secret credentials.
+
+### Enable Google Slides API
+
+<Steps>
+1. In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services > Library**
+
+2. Search for "Google Slides" in the API Library
+
+3. Select **Google Slides API**
+
+4. Press the blue **Enable** button
+</Steps>
+
+### Add Credentials
+
+<Steps>
+1. In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+2. Enter your credentials:
+   - Client ID (from above)
+   - Client Secret (from above)
+   - Permissions (scopes — see [Google API Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes))
+
+   <img src={addCredentialsImg.src} alt="Add credentials" width="540" />
+
+3. Click **Save**
+</Steps>
+
+## Usage
+
+Connect a user's Google Slides account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'google_slides'; // get your connection name from connection configurations
+    const identifier = 'user_123';          // your unique user identifier
+
+    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const { connectedAccounts, actions } = scalekit;
+
+    // Authenticate the user
+    const { link } = await connectedAccounts.getMagicLinkForConnectedAccount({
+      connector: connectionName,
+      identifier,
+    });
+    console.log('🔗 Authorize Google Slides:', link); // present this link to your user for authorization, or click it yourself for testing
+    process.stdout.write('Press Enter after authorizing...');
+    await new Promise(r => process.stdin.once('data', r));
+
+    // Make a request via Scalekit proxy
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/v1/presentations',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "google_slides"  # get your connection name from connection configurations
+    identifier = "user_123"            # your unique user identifier
+
+    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Authenticate the user
+    link_response = actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier=identifier
+    )
+    # present this link to your user for authorization, or click it yourself for testing
+    print("🔗 Authorize Google Slides:", link_response.link)
+    input("Press Enter after authorizing...")
+
+    # Make a request via Scalekit proxy
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/v1/presentations",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
 
 ## Tool list
 
