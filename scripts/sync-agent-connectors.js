@@ -432,7 +432,10 @@ function generateMdxContent(provider, tools) {
     "import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'",
   )
   lines.push("import { Accordion, AccordionItem } from 'accessible-astro-components'")
-  const setupComponentName = getSetupComponent(SETUP_STEM_MAP, provider.name)
+  const setupComponentName = getSetupComponent(
+    SETUP_STEM_MAP,
+    toSafeIdentifier(provider.identifier),
+  )
   if (setupComponentName) {
     lines.push(`import { ${setupComponentName} } from '@components/templates'`)
   }
