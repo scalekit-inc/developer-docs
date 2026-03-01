@@ -1,0 +1,29 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Zendesk connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. You'll need your OAuth client credentials from your Zendesk Admin Center.
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Zendesk** and click **Create**. Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+    - In your Zendesk Admin Center, go to **Apps and integrations** → **APIs** → **Zendesk API** → **OAuth Clients** and click **Add OAuth Client**.
+
+    - Fill in a client name, set **Client Kind** to **Confidential**, paste the copied URI into the **Redirect URLs** field, and click **Save**.
+
+2. ### Get client credentials
+
+    After saving, open the OAuth client record:
+
+    - **Client ID** — listed under **Unique Identifier**
+    - **Client Secret** — displayed at the bottom of the page after saving
+
+3. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - **Client ID** (from your Zendesk OAuth client)
+      - **Client Secret** (from your Zendesk OAuth client)
+    - Click **Save**.
+</Steps>
