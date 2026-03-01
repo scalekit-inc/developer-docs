@@ -97,32 +97,46 @@ Supports authentication: <Badge text="OAuth 2.0" />
   Google applications using scopes that permit access to certain user data must complete a verification process.
 </Aside>
 
-### Configure Redirect URL
+### Configure redirect URL
 
 <Steps>
-1. In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+1. ## Open the Scalekit dashboard
+
+   In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
 
    {/* Screenshot: Agent Auth → Create Connection */}
 
-2. Find **Gmail** from the list of providers and click **Create**.
+2. ## Create a Gmail connection
+
+   Find **Gmail** from the list of providers and click **Create**.
 
    <Aside>
      By default, a connection using Scalekit's credentials will be created. If you are testing, go directly to [Usage](#usage). Before going to production, update your connection by following the steps below.
    </Aside>
 
-3. Click **Use your own credentials** and copy the redirect URI — it will look like `https://{your-env-url}/sso/v1/oauth/{connection_id}/callback`.
+3. ## Copy the redirect URI
+
+   Click **Use your own credentials** and copy the redirect URI — it will look like `https://{your-env-url}/sso/v1/oauth/{connection_id}/callback`.
 
    <img src={useOwnCredentialsImg.src} alt="Configure Gmail Connection with redirect URI" width="500" />
 
-4. Navigate to [Google Cloud Console's](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) **APIs & Services > Credentials**
+4. ## Open Google Cloud Console
 
-5. Select **+ Create Credentials**, then **OAuth client ID**
+   Navigate to [Google Cloud Console's](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) **APIs & Services > Credentials**
 
-6. Choose **Web application** from the Application type menu
+5. ## Create an OAuth client ID
+
+   Select **+ Create Credentials**, then **OAuth client ID**
+
+6. ## Select web application type
+
+   Choose **Web application** from the Application type menu
 
    <img src={oauthWebAppImg.src} alt="Selecting Web Application in Google OAuth" width="540" />
 
-7. Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and select **Create**.
+7. ## Add the redirect URI
+
+   Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and select **Create**.
 
    <img src={addRedirectUriImg.src} alt="Adding Google redirect URI for OAuth" width="540" />
 </Steps>
@@ -132,30 +146,44 @@ Google provides your Client ID and Client Secret credentials.
 ### Enable Gmail API
 
 <Steps>
-1. In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services > Library**
+1. ## Open the API Library
 
-2. Search for "Gmail" in the API Library
+   In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services > Library**
 
-3. Select **Gmail API**
+2. ## Search for the Gmail API
+
+   Search for "Gmail" in the API Library
+
+3. ## Select the Gmail API
+
+   Select **Gmail API**
 
    <img src={enableGmailApiImg.src} alt="Choosing the Gmail API in the Google Cloud Console Dashboard" width="540" />
 
-4. Press the blue **Enable** button
+4. ## Enable the API
+
+   Press the blue **Enable** button
 </Steps>
 
-### Add Credentials
+### Add credentials
 
 <Steps>
-1. In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+1. ## Open your connection settings
 
-2. Enter your credentials:
+   In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+2. ## Enter your credentials
+
+   Enter your credentials:
    - Client ID (from above)
    - Client Secret (from above)
    - Permissions (scopes beginning with `gmail` — see [Google API Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes))
 
    <img src={addCredentialsImg.src} alt="Add credentials" width="540" />
 
-3. Click **Save**
+3. ## Save the connection
+
+   Click **Save**
 </Steps>
 
 ## Usage
@@ -240,79 +268,6 @@ Connect a user's Gmail account and make API calls on their behalf — Scalekit h
 
 ## Tool list
 
-## `gmail_fetch_mails`
-
-Fetch emails from a connected Gmail account using search filters. Requires a valid Gmail OAuth2 connection.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `format` | Format of the returned message. | string | null |
-| `include_spam_trash` | Whether to fetch emails from spam and trash folders | boolean | null |
-| `label_ids` | Gmail label IDs to filter messages | `array<string>` | null |
-| `max_results` | Maximum number of emails to fetch | integer | null |
-| `page_token` | Page token for pagination | string | null |
-| `query` | Search query string using Gmail's search syntax (e.g., 'is:unread from:user@example.com') | string | null |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
-
-## `gmail_get_attachment_by_id`
-
-Retrieve a specific attachment from a Gmail message using the message ID and attachment ID.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `attachment_id` | Unique Gmail attachment ID | string |
-| `file_name` | Preferred filename to use when saving/returning the attachment | string | null |
-| `message_id` | Unique Gmail message ID that contains the attachment | string |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
-
-## `gmail_get_contacts`
-
-Fetch a list of contacts from the connected Gmail account. Supports pagination and field filtering.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `max_results` | Maximum number of contacts to fetch | integer | null |
-| `page_token` | Token to retrieve the next page of results | string | null |
-| `person_fields` | Fields to include for each person | `array<string>` | null |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
-
-## `gmail_get_message_by_id`
-
-Retrieve a specific Gmail message using its message ID. Optionally control the format of the returned data.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `format` | Format of the returned message. | string | null |
-| `message_id` | Unique Gmail message ID | string |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
-
-## `gmail_list_drafts`
-
-List draft emails from a connected Gmail account. Requires a valid Gmail OAuth2 connection.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `max_results` | Maximum number of drafts to fetch | integer | null |
-| `page_token` | Page token for pagination | string | null |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
-
-## `gmail_search_people`
-
-Search people or contacts in the connected Google account using a query. Requires a valid Google OAuth2 connection with People API scopes.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `other_contacts` | Whether to include people not in the user's contacts (from 'Other Contacts'). | boolean | null |
-| `page_size` | Maximum number of people to return. | integer | null |
-| `person_fields` | Fields to retrieve for each person. | `array<string>` | null |
-| `query` | Text query to search people (e.g., name, email address). | string |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
 ## `gmail_fetch_mails`
 
 Fetch emails from a connected Gmail account using search filters. Requires a valid Gmail OAuth2 connection.
