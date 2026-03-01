@@ -275,6 +275,49 @@ function escapeMdx(text) {
 }
 
 // ---------------------------------------------------------------------------
+// Setup section map — auto-discovered from src/components/templates/agent-connectors/
+// ---------------------------------------------------------------------------
+
+function buildSetupStemMap() {
+  const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
+  let files
+  try {
+    files = fs.readdirSync(templatesDir)
+  } catch {
+    return {}
+  }
+  const map = {}
+  for (const file of files) {
+    if (!file.startsWith('_setup-') || !file.endsWith('.mdx')) continue
+    const stem = file.replace('_setup-', '').replace('.mdx', '')
+    map[stem] =
+      'Setup' +
+      stem
+        .split('-')
+        .map((w) => w[0].toUpperCase() + w.slice(1))
+        .join('') +
+      'Section'
+  }
+  return map
+}
+
+function getSetupComponent(stemMap, providerSlug) {
+  if (!providerSlug) return null
+  return stemMap[providerSlug.replace(/_/g, '-')] || stemMap[providerSlug.replace(/_/g, '')] || null
+}
+
+const SETUP_STEM_MAP = buildSetupStemMap()
+
+function syncTemplateIndex(stemMap) {
+  const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
+  const indexPath = path.join(templatesDir, 'index.ts')
+  const lines = Object.entries(stemMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([stem, name]) => `export { default as ${name} } from './_setup-${stem}.mdx'`)
+  fs.writeFileSync(indexPath, lines.join('\n') + '\n', 'utf8')
+}
+
+// ---------------------------------------------------------------------------
 // MDX generation — port of Python MDXGenerator.generate_mdx_content()
 // ---------------------------------------------------------------------------
 
@@ -389,6 +432,10 @@ function generateMdxContent(provider, tools) {
     "import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'",
   )
   lines.push("import { Accordion, AccordionItem } from 'accessible-astro-components'")
+  const setupComponentName = getSetupComponent(SETUP_STEM_MAP, provider.name)
+  if (setupComponentName) {
+    lines.push(`import { ${setupComponentName} } from '@components/templates'`)
+  }
   lines.push('')
 
   // Provider description + icon grid
@@ -411,6 +458,14 @@ function generateMdxContent(provider, tools) {
   if (authBadges.length > 0) {
     lines.push(`Supports authentication: ${authBadges.join(' , ')}`)
     lines.push('')
+    lines.push('')
+  }
+
+  // Setup section
+  if (setupComponentName) {
+    lines.push('## Set up the agent connector')
+    lines.push('')
+    lines.push(`<${setupComponentName} />`)
     lines.push('')
   }
 
@@ -492,6 +547,9 @@ async function main() {
     )
     process.exit(1)
   }
+
+  syncTemplateIndex(SETUP_STEM_MAP)
+  console.log(`✓ Synced index.ts (${Object.keys(SETUP_STEM_MAP).length} templates)`)
 
   const outputDir = path.join(__dirname, '../src/content/docs/reference/agent-connectors')
   fs.mkdirSync(outputDir, { recursive: true })

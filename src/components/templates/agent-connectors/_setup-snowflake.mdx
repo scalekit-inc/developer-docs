@@ -1,0 +1,49 @@
+import { Steps } from '@astrojs/starlight/components'
+import useOwnCredentialsImg from '@/assets/docs/agent-connectors/snowflake/use-own-credentials-redirect-uri.png'
+
+Register your Scalekit environment with the Snowflake connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. You'll need to create an OAuth Security Integration in your Snowflake account.
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+
+    - Find **Snowflake** from the list of providers and click **Create**.
+
+    - Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+      <img src={useOwnCredentialsImg.src} alt="Configure Snowflake Connection with redirect URI" width="500" />
+
+    - Log into your Snowflake account (Snowsight) and run the following SQL to create an OAuth Security Integration, replacing `<redirect_uri>` with the URI you copied:
+
+      ```sql
+      CREATE OR REPLACE SECURITY INTEGRATION scalekit_oauth
+        TYPE = OAUTH
+        OAUTH_CLIENT = CUSTOM
+        OAUTH_CLIENT_TYPE = 'CONFIDENTIAL'
+        OAUTH_REDIRECT_URI = '<redirect_uri>'
+        ENABLED = TRUE;
+      ```
+
+2. ### Get client credentials
+
+    After creating the integration, run the following SQL to retrieve the client credentials:
+
+    ```sql
+    SELECT SYSTEM$SHOW_OAUTH_CLIENT_SECRETS('SCALEKIT_OAUTH');
+    ```
+
+    This returns a JSON object containing:
+
+    - **Client ID** — value of `OAUTH_CLIENT_ID`
+    - **Client Secret** — value of `OAUTH_CLIENT_SECRET_2` (or `OAUTH_CLIENT_SECRET_1`)
+
+3. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - **Client ID** (from the SQL output)
+      - **Client Secret** (from the SQL output)
+    - Click **Save**.
+</Steps>

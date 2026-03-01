@@ -1,0 +1,40 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the HubSpot connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **HubSpot** and click **Create**. Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+    - Log in to your [HubSpot developer dashboard](https://developers.hubspot.com/), click **Manage apps**, and open your app.
+
+    - Go to **Auth → Auth settings → Redirect URL**, paste the redirect URI, and click **Save**.
+
+      ![Adding redirect URL to HubSpot](@/assets/docs/agent-connectors/hubspot/add-redirect-url.png)
+
+    - Select the required scopes for your application under **Auth → Auth settings → Scopes**.
+
+      ![Adding HubSpot scopes](@/assets/docs/agent-connectors/hubspot/add-scopes.gif)
+
+2. ### Get client credentials
+
+    - In your HubSpot App, go to **Auth → Auth settings**.
+
+    - Copy your **Client ID** and **Client Secret**.
+
+3. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - Client ID (from above)
+      - Client Secret (from above)
+      - Permissions (scopes — see [HubSpot API Scopes reference](https://developers.hubspot.com/docs/api/overview))
+
+      <Aside type="caution">
+        The scopes selected in your HubSpot app must exactly match the scopes you enter here. A mismatch will break the OAuth flow.
+      </Aside>
+
+    - Click **Save**.
+</Steps>
