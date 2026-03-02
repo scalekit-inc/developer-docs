@@ -87,191 +87,201 @@ import { Accordion, AccordionItem } from 'accessible-astro-components'
 
 Supports authentication: <Badge text="OAuth 2.0" />
 
-
 ## Tool list
-
-## `slack_add_reaction`
-
-Add an emoji reaction to a message in Slack. Requires a valid Slack OAuth2 connection with reactions:write scope.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `channel` | Channel ID or channel name where the message exists | string |
-| `name` | Emoji name to react with (without colons) | string |
-| `timestamp` | Timestamp of the message to add reaction to | string |
-
-## `slack_create_channel`
-
-Creates a new public or private channel in a Slack workspace. Requires a valid Slack OAuth2 connection with channels:manage scope for public channels or groups:write scope for private channels.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `is_private` | Create a private channel instead of public | boolean | null |
-| `name` | Name of the channel to create (without # prefix) | string |
-| `team_id` | Encoded team ID to create channel in (if using org tokens) | string | null |
-
-## `slack_delete_message`
-
-Deletes a message from a Slack channel or direct message. Requires a valid Slack OAuth2 connection with chat:write scope.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `channel` | Channel ID, channel name (#general), or user ID for DM where the message was sent | string |
-| `ts` | Timestamp of the message to delete | string |
-
-## `slack_fetch_conversation_history`
-
-Fetches conversation history from a Slack channel or direct message with pagination support. Requires a valid Slack OAuth2 connection with channels:history scope.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `channel` | Channel ID, channel name (#general), or user ID for DM | string |
-| `cursor` | Paginate through collections by cursor for pagination | string | null |
-| `latest` | End of time range of messages to include in results | string | null |
-| `limit` | Number of messages to return (1-1000, default 100) | integer | null |
-| `oldest` | Start of time range of messages to include in results | string | null |
-
-## `slack_get_conversation_info`
-
-Retrieve information about a Slack channel, including metadata, settings, and member count. Requires a valid Slack OAuth2 connection with channels:read scope.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `channel` | Channel ID, channel name (#general), or user ID for DM | string |
-| `include_locale` | Set to true to include the locale for this conversation | boolean | null |
-| `include_num_members` | Set to true to include the member count for the conversation | boolean | null |
-
-## `slack_get_conversation_replies`
-
-Retrieve replies to a specific message thread in a Slack channel or direct message. Requires a valid Slack OAuth2 connection with channels:history or groups:history scope.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `channel` | Channel ID, channel name (#general), or user ID for DM | string |
-| `cursor` | Pagination cursor for retrieving next page of results | string | null |
-| `inclusive` | Include messages with latest or oldest timestamp in results | boolean | null |
-| `latest` | End of time range of messages to include in results | string | null |
-| `limit` | Number of messages to return (default 100, max 1000) | integer | null |
-| `oldest` | Start of time range of messages to include in results | string | null |
-| `ts` | Timestamp of the parent message to get replies for | string |
-
-## `slack_get_user_info`
-
-Retrieves detailed information about a specific Slack user, including profile data, status, and workspace information. Requires a valid Slack OAuth2 connection with users:read scope.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `include_locale` | Set to true to include locale information for the user | boolean | null |
-| `user` | User ID to get information about | string |
-
-## `slack_get_user_presence`
-
-Gets the current presence status of a Slack user (active, away, etc.). Indicates whether the user is currently online and available. Requires a valid Slack OAuth2 connection with users:read scope.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `user` | User ID to check presence for | string |
-
-## `slack_invite_users_to_channel`
-
-Invites one or more users to a Slack channel. Requires a valid Slack OAuth2 connection with channels:write scope for public channels or groups:write for private channels.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `channel` | Channel ID or channel name (#general) to invite users to | string |
-| `users` | Comma-separated list of user IDs to invite to the channel | string |
-
-## `slack_join_conversation`
-
-Joins an existing Slack channel. The authenticated user will become a member of the channel. Requires a valid Slack OAuth2 connection with channels:write scope for public channels.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `channel` | Channel ID or channel name (#general) to join | string |
-
-## `slack_leave_conversation`
-
-Leaves a Slack channel. The authenticated user will be removed from the channel and will no longer receive messages from it. Requires a valid Slack OAuth2 connection with channels:write scope for public channels or groups:write for private channels.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `channel` | Channel ID or channel name (#general) to leave | string |
-
-## `slack_list_channels`
-
-List all public and private channels in a Slack workspace that the authenticated user has access to. Requires a valid Slack OAuth2 connection with channels:read, groups:read, mpim:read, and/or im:read scopes depending on conversation types needed.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `cursor` | Pagination cursor for retrieving next page of results | string | null |
-| `exclude_archived` | Exclude archived channels from the list | boolean | null |
-| `limit` | Number of channels to return (default 100, max 1000) | integer | null |
-| `team_id` | Encoded team ID to list channels for (optional) | string | null |
-| `types` | Mix and match channel types (public_channel, private_channel, mpim, im) | string | null |
-
-## `slack_list_users`
-
-Lists all users in a Slack workspace, including information about their status, profile, and presence. Requires a valid Slack OAuth2 connection with users:read scope.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `cursor` | Pagination cursor for fetching additional pages of users | string | null |
-| `include_locale` | Set to true to include locale information for each user | boolean | null |
-| `limit` | Number of users to return (1-1000) | number | null |
-| `team_id` | Encoded team ID to list users for (if using org tokens) | string | null |
-
-## `slack_lookup_user_by_email`
-
-Find a user by their registered email address in a Slack workspace. Requires a valid Slack OAuth2 connection with users:read.email scope. Cannot be used by custom bot users.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `email` | Email address to search for users by | string |
-
-## `slack_pin_message`
-
-Pin a message to a Slack channel. Pinned messages are highlighted and easily accessible to channel members. Requires a valid Slack OAuth2 connection with pins:write scope.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `channel` | Channel ID or channel name where the message exists | string |
-| `timestamp` | Timestamp of the message to pin | string |
 
 ## `slack_send_message`
 
-Sends a message to a Slack channel or direct message. Requires a valid Slack OAuth2 connection with chat:write scope.
+Sends a message to a Slack channel or direct message. Requires a valid Slack OAuth2 connection with `chat:write` scope.
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `attachments` | JSON-encoded array of attachment objects for additional message formatting | string | null |
-| `blocks` | JSON-encoded array of Block Kit block elements for rich message formatting | string | null |
-| `channel` | Channel ID, channel name (#general), or user ID for DM | string |
-| `reply_broadcast` | Used in conjunction with thread_ts to broadcast reply to channel | boolean | null |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `text` | Message text content | string |
-| `thread_ts` | Timestamp of parent message to reply in thread | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
-| `unfurl_links` | Enable or disable link previews | boolean | null |
-| `unfurl_media` | Enable or disable media link previews | boolean | null |
-
-## `slack_set_user_status`
-
-Set the user's custom status with text and emoji. This appears in their profile and can include an expiration time. Requires a valid Slack OAuth2 connection with users.profile:write scope.
-
-| Properties | Description | Type |
-| --- | --- | --- |
-| `status_emoji` | Emoji to display with status (without colons) | string | null |
-| `status_expiration` | Unix timestamp when status should expire | integer | null |
-| `status_text` | Status text to display | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `channel` | string | Yes | Channel ID, channel name (e.g. `#general`), or user ID for DM |
+| `text` | string | Yes | Message text content |
+| `blocks` | string | No | JSON-encoded array of Block Kit block elements for rich message formatting |
+| `attachments` | string | No | JSON-encoded array of legacy attachment objects for additional message formatting |
+| `thread_ts` | string | No | Timestamp of parent message to reply in a thread |
+| `reply_broadcast` | boolean | No | When true, broadcasts a thread reply to the entire channel |
+| `unfurl_links` | boolean | No | Enable or disable link previews |
+| `unfurl_media` | boolean | No | Enable or disable media link previews |
 
 ## `slack_update_message`
 
-Updates/edits a previously sent message in a Slack channel or direct message. Requires a valid Slack OAuth2 connection with chat:write scope.
+Updates/edits a previously sent message in a Slack channel or direct message. Requires a valid Slack OAuth2 connection with `chat:write` scope.
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `attachments` | JSON-encoded array of attachment objects for additional message formatting | string | null |
-| `blocks` | JSON-encoded array of Block Kit block elements for rich message formatting | string | null |
-| `channel` | Channel ID, channel name (#general), or user ID for DM where the message was sent | string |
-| `text` | New message text content | string | null |
-| `ts` | Timestamp of the message to update | string |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `channel` | string | Yes | Channel ID, channel name (e.g. `#general`), or user ID for DM where the message was sent |
+| `ts` | string | Yes | Timestamp of the message to update |
+| `text` | string | No | New message text content |
+| `blocks` | string | No | JSON-encoded array of Block Kit block elements for rich message formatting |
+| `attachments` | string | No | JSON-encoded array of legacy attachment objects for additional message formatting |
+
+## `slack_delete_message`
+
+Deletes a message from a Slack channel or direct message. Requires a valid Slack OAuth2 connection with `chat:write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `channel` | string | Yes | Channel ID, channel name (e.g. `#general`), or user ID for DM where the message was sent |
+| `ts` | string | Yes | Timestamp of the message to delete |
+
+## `slack_add_reaction`
+
+Add an emoji reaction to a message in Slack. Requires a valid Slack OAuth2 connection with `reactions:write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `channel` | string | Yes | Channel ID or channel name where the message exists |
+| `name` | string | Yes | Emoji name to react with, without colons (e.g. `thumbsup`, `heart`, `fire`) |
+| `timestamp` | string | Yes | Timestamp of the message to add the reaction to |
+
+## `slack_pin_message`
+
+Pin a message to a Slack channel. Pinned messages are highlighted and easily accessible to channel members. Requires a valid Slack OAuth2 connection with `pins:write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `channel` | string | Yes | Channel ID or channel name where the message exists |
+| `timestamp` | string | Yes | Timestamp of the message to pin |
+
+## `slack_create_channel`
+
+Creates a new public or private channel in a Slack workspace. Requires a valid Slack OAuth2 connection with `channels:manage` scope for public channels or `groups:write` for private channels.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | Yes | Name of the channel to create, without `#` prefix. Must be lowercase, no spaces, 21 characters or fewer. |
+| `is_private` | boolean | No | Set to `true` to create a private channel (default: `false` for public) |
+| `team_id` | string | No | Encoded team ID for org-wide apps. Leave blank for regular workspace apps. |
+
+## `slack_fetch_conversation_history`
+
+Fetches conversation history from a Slack channel or direct message with pagination support. Requires a valid Slack OAuth2 connection with `channels:history` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `channel` | string | Yes | Channel ID, channel name (e.g. `#general`), or user ID for DM |
+| `oldest` | string | No | Start of time range — only messages after this timestamp are returned (e.g. `1715432100.123456`) |
+| `latest` | string | No | End of time range — only messages before this timestamp are returned (e.g. `1715432200.123456`) |
+| `limit` | integer | No | Number of messages to return, 1–1000 (default: 100) |
+| `cursor` | string | No | Pagination cursor from a previous response to fetch the next page |
+
+## `slack_get_conversation_info`
+
+Retrieve information about a Slack channel, including metadata, settings, and member count. Requires a valid Slack OAuth2 connection with `channels:read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `channel` | string | Yes | Channel ID, channel name (e.g. `#general`), or user ID for DM |
+| `include_locale` | boolean | No | Set to `true` to include locale information for this conversation |
+| `include_num_members` | boolean | No | Set to `true` to include the member count in the response |
+
+## `slack_get_conversation_replies`
+
+Retrieve replies to a specific message thread in a Slack channel or direct message. Requires a valid Slack OAuth2 connection with `channels:history` or `groups:history` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `channel` | string | Yes | Channel ID, channel name (e.g. `#general`), or user ID for DM |
+| `ts` | string | Yes | Timestamp of the parent message whose thread replies to retrieve |
+| `oldest` | string | No | Only include replies after this timestamp |
+| `latest` | string | No | Only include replies before this timestamp |
+| `inclusive` | boolean | No | Include messages with the `latest` or `oldest` timestamp in results |
+| `limit` | integer | No | Number of replies to return (default: 100, max: 1000) |
+| `cursor` | string | No | Pagination cursor from a previous response to fetch the next page |
+
+## `slack_invite_users_to_channel`
+
+Invites one or more users to a Slack channel. Requires a valid Slack OAuth2 connection with `channels:write` scope for public channels or `groups:write` for private channels.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `channel` | string | Yes | Channel ID or channel name (e.g. `#general`) to invite users to |
+| `users` | string | Yes | Comma-separated list of user IDs to invite (e.g. `U123456789,U987654321`) |
+
+## `slack_join_conversation`
+
+Joins an existing Slack channel. The authenticated user will become a member of the channel. Requires a valid Slack OAuth2 connection with `channels:write` scope for public channels.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `channel` | string | Yes | Channel ID or channel name (e.g. `#general`) to join |
+
+## `slack_leave_conversation`
+
+Leaves a Slack channel. The authenticated user will be removed from the channel and will no longer receive its messages. Requires a valid Slack OAuth2 connection with `channels:write` scope for public channels or `groups:write` for private channels.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `channel` | string | Yes | Channel ID or channel name (e.g. `#general`) to leave |
+
+## `slack_list_channels`
+
+List all public and private channels in a Slack workspace that the authenticated user has access to. Requires a valid Slack OAuth2 connection with `channels:read`, `groups:read`, `mpim:read`, and/or `im:read` scopes depending on the conversation types needed.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `types` | string | No | Comma-separated channel types to include: `public_channel`, `private_channel`, `mpim`, `im` |
+| `exclude_archived` | boolean | No | Set to `true` to exclude archived channels from results |
+| `limit` | integer | No | Number of channels to return (default: 100, max: 1000) |
+| `team_id` | string | No | Encoded team ID to list channels for a specific workspace |
+| `cursor` | string | No | Pagination cursor from a previous response to fetch the next page |
+
+## `slack_list_users`
+
+Lists all users in a Slack workspace, including information about their status, profile, and presence. Requires a valid Slack OAuth2 connection with `users:read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `limit` | number | No | Number of users to return, 1–1000 |
+| `include_locale` | boolean | No | Set to `true` to include locale information for each user |
+| `team_id` | string | No | Encoded team ID for org-wide apps. Leave blank for regular workspace apps. |
+| `cursor` | string | No | Pagination cursor from a previous response to fetch the next page |
+
+## `slack_lookup_user_by_email`
+
+Find a user by their registered email address in a Slack workspace. Requires a valid Slack OAuth2 connection with `users:read.email` scope. Cannot be used by custom bot users.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `email` | string | Yes | Email address to search for (e.g. `user@example.com`) |
+
+## `slack_get_user_info`
+
+Retrieves detailed information about a specific Slack user, including profile data, status, and workspace information. Requires a valid Slack OAuth2 connection with `users:read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `user` | string | Yes | User ID to get information about (e.g. `U123456789`) |
+| `include_locale` | boolean | No | Set to `true` to include locale information in the user profile |
+
+## `slack_get_user_presence`
+
+Gets the current presence status of a Slack user (active, away, etc.). Requires a valid Slack OAuth2 connection with `users:read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `user` | string | Yes | User ID to check presence for (e.g. `U123456789`) |
+
+## `slack_set_user_status`
+
+Set the authenticated user's custom status with text and emoji. The status appears in their profile and can include an optional expiration time. Requires a valid Slack OAuth2 connection with `users.profile:write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `status_text` | string | No | Custom status text to display (e.g. `In a meeting`) |
+| `status_emoji` | string | No | Emoji name without colons to display alongside the status (e.g. `calendar`, `house`) |
+| `status_expiration` | integer | No | Unix timestamp when the status should automatically clear |
+
+## `slack_upload_file`
+
+Upload a file to Slack using the modern `files.getUploadURLExternal` and `files.completeUploadExternal` API methods. Requires a valid Slack OAuth2 connection with `files:write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `filename` | string | Yes | Name of the file to upload (e.g. `document.pdf`) |
+| `file_data` | string | Yes | Base64-encoded file content or local file path to upload |
+| `length` | integer | Yes | Size of the file in bytes |
+| `channels` | string | No | Comma-separated list of channel IDs or names to share the file to |
+| `initial_comment` | string | No | Optional comment to add when sharing the file |
+| `thread_ts` | string | No | Timestamp of a parent message to share the file in a thread |

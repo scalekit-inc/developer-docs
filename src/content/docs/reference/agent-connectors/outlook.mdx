@@ -87,3 +87,176 @@ import { Accordion, AccordionItem } from 'accessible-astro-components'
 
 Supports authentication: <Badge text="OAuth 2.0" />
 
+## Tool list
+
+## `outlook_create_calendar_event`
+
+Create a new calendar event in the user's Outlook calendar. Supports attendees, recurrence, reminders, online meetings, multiple locations, and event properties.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `subject` | string | Yes | Event title/summary |
+| `start_datetime` | string | Yes | Event start time in RFC3339 format (e.g. 2026-01-27T14:00:00) |
+| `start_timezone` | string | Yes | Timezone for the start time (e.g. UTC) |
+| `end_datetime` | string | Yes | Event end time in RFC3339 format (e.g. 2026-01-27T15:00:00) |
+| `end_timezone` | string | Yes | Timezone for the end time (e.g. UTC) |
+| `attendees_required` | string | No | Comma-separated email addresses for required attendees |
+| `attendees_optional` | string | No | Comma-separated email addresses for optional attendees |
+| `attendees_resource` | string | No | Comma-separated email addresses for resources (meeting rooms, equipment) |
+| `body_content` | string | No | Event description/body content |
+| `body_contentType` | string | No | Content type of the body: `HTML` or `Text` |
+| `hideAttendees` | boolean | No | When true, each attendee only sees themselves in the attendee list |
+| `importance` | string | No | Event importance level: `low`, `normal`, or `high` |
+| `isAllDay` | boolean | No | Mark as all-day event |
+| `isOnlineMeeting` | boolean | No | Create an online meeting (Teams/Skype) |
+| `isReminderOn` | boolean | No | Enable or disable reminder (default: true) |
+| `location` | string | No | Physical or virtual location display name |
+| `locations` | string | No | JSON array of location objects with `displayName`, `address`, and coordinates |
+| `onlineMeetingProvider` | string | No | Online meeting provider: `teamsForBusiness`, `skypeForBusiness`, or `skypeForConsumer` |
+| `recurrence_type` | string | No | Recurrence pattern type: `daily`, `weekly`, `monthly`, or `yearly` |
+| `recurrence_interval` | integer | No | How often the event recurs (e.g. 2 for every 2 weeks) |
+| `recurrence_days_of_week` | string | No | Comma-separated days for weekly recurrence (e.g. `monday,wednesday,friday`) |
+| `recurrence_range_type` | string | No | How the recurrence ends: `endDate`, `noEnd`, or `numbered` |
+| `recurrence_start_date` | string | No | Start date for recurrence in YYYY-MM-DD format |
+| `recurrence_end_date` | string | No | End date for recurrence in YYYY-MM-DD format (required when `recurrence_range_type` is `endDate`) |
+| `recurrence_occurrences` | integer | No | Number of occurrences (required when `recurrence_range_type` is `numbered`) |
+| `reminderMinutesBeforeStart` | integer | No | Minutes before event start to show reminder (default: 15) |
+| `sensitivity` | string | No | Event sensitivity/privacy level: `normal`, `personal`, `private`, or `confidential` |
+| `showAs` | string | No | Free/busy status: `free`, `tentative`, `busy`, `oof`, or `workingElsewhere` |
+
+## `outlook_update_calendar_event`
+
+Update an existing Outlook calendar event. Only provided fields will be updated. Supports time, attendees, location, reminders, online meetings, recurrence, and event properties.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `event_id` | string | Yes | The ID of the calendar event to update |
+| `subject` | string | No | Event title/summary |
+| `start_datetime` | string | No | Event start time in RFC3339 format (e.g. 2026-01-27T09:00:00) |
+| `start_timezone` | string | No | Timezone for the start time |
+| `end_datetime` | string | No | Event end time in RFC3339 format (e.g. 2026-01-27T10:00:00) |
+| `end_timezone` | string | No | Timezone for the end time |
+| `attendees_required` | string | No | Comma-separated required attendee emails |
+| `attendees_optional` | string | No | Comma-separated optional attendee emails |
+| `attendees_resource` | string | No | Comma-separated resource emails (meeting rooms, equipment) |
+| `body_content` | string | No | Event description/body |
+| `body_contentType` | string | No | Content type of body: `HTML` or `Text` |
+| `categories` | string | No | Comma-separated categories to tag the event |
+| `hideAttendees` | boolean | No | When true, each attendee only sees themselves |
+| `importance` | string | No | Event importance level: `low`, `normal`, or `high` |
+| `isAllDay` | boolean | No | Mark as all-day event |
+| `isOnlineMeeting` | boolean | No | Create an online meeting (Teams/Skype) |
+| `isReminderOn` | boolean | No | Enable or disable reminder |
+| `location` | string | No | Physical or virtual location |
+| `locations` | string | No | JSON array of location objects with `displayName`, `address`, and coordinates |
+| `onlineMeetingProvider` | string | No | Online meeting provider: `teamsForBusiness`, `skypeForBusiness`, or `skypeForConsumer` |
+| `recurrence_type` | string | No | Recurrence pattern type: `daily`, `weekly`, `monthly`, or `yearly` |
+| `recurrence_interval` | integer | No | How often the event recurs (e.g. 2 for every 2 weeks) |
+| `recurrence_days_of_week` | string | No | Comma-separated days for weekly recurrence (e.g. `monday,wednesday,friday`) |
+| `recurrence_range_type` | string | No | How the recurrence ends: `endDate`, `noEnd`, or `numbered` |
+| `recurrence_start_date` | string | No | Start date for recurrence in YYYY-MM-DD format |
+| `recurrence_end_date` | string | No | End date for recurrence in YYYY-MM-DD format |
+| `recurrence_occurrences` | integer | No | Number of occurrences |
+| `reminderMinutesBeforeStart` | integer | No | Minutes before event start to show reminder |
+| `sensitivity` | string | No | Event sensitivity/privacy level: `normal`, `personal`, `private`, or `confidential` |
+| `showAs` | string | No | Free/busy status: `free`, `tentative`, `busy`, `oof`, or `workingElsewhere` |
+
+## `outlook_get_calendar_event`
+
+Retrieve an existing calendar event by ID from the user's Outlook calendar.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `event_id` | string | Yes | The ID of the calendar event to retrieve |
+
+## `outlook_list_calendar_events`
+
+List calendar events from the user's Outlook calendar with filtering, sorting, pagination, and field selection.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `filter` | string | No | OData filter expression to filter events (e.g. `startsWith(subject,'Meeting')`) |
+| `orderby` | string | No | OData orderby expression to sort events (e.g. `start/dateTime desc`) |
+| `select` | string | No | Comma-separated list of properties to include in the response (e.g. `subject,start,end,location`) |
+| `top` | number | No | Maximum number of events to return |
+| `skip` | number | No | Number of events to skip for pagination |
+
+## `outlook_delete_calendar_event`
+
+Delete a calendar event by ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `event_id` | string | Yes | The ID of the calendar event to delete |
+
+## `outlook_send_message`
+
+Send an email message. The message is saved in the Sent Items folder by default.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `subject` | string | Yes | Subject line of the email |
+| `body` | string | Yes | Body content of the email |
+| `toRecipients` | `array<string>` | Yes | Array of recipient email addresses |
+| `bodyType` | string | No | Content type of the body: `Text` or `HTML` |
+| `ccRecipients` | `array<string>` | No | Array of email addresses to CC |
+| `bccRecipients` | `array<string>` | No | Array of email addresses to BCC |
+| `saveToSentItems` | boolean | No | Save the message in Sent Items folder (default: true) |
+
+## `outlook_reply_to_message`
+
+Reply to an existing email message. The reply is automatically sent to the original sender and saved in the Sent Items folder.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `messageId` | string | Yes | The unique identifier of the message to reply to |
+| `comment` | string | Yes | Reply message content |
+
+## `outlook_list_messages`
+
+List all messages in the user's mailbox with support for filtering, pagination, and field selection. Returns 10 messages by default.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `$filter` | string | No | OData filter expression to narrow results (e.g. `isRead eq false`) |
+| `$orderby` | string | No | Property to sort by (e.g. `receivedDateTime desc`) |
+| `$select` | string | No | Comma-separated list of properties to return (e.g. `subject,from,receivedDateTime`) |
+| `$top` | integer | No | Number of messages to return, 1–1000 (default: 10) |
+| `$skip` | integer | No | Number of messages to skip for pagination |
+
+## `outlook_search_messages`
+
+Search messages by keywords across subject, body, sender, and other fields.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `query` | string | Yes | Search query string (searches across subject, body, from, to) |
+| `$select` | string | No | Comma-separated list of properties to return (e.g. `subject,from,receivedDateTime`) |
+| `$top` | integer | No | Number of messages to return, 1–1000 (default: 10) |
+| `$skip` | integer | No | Number of messages to skip for pagination |
+
+## `outlook_create_contact`
+
+Create a new contact in the user's mailbox.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `givenName` | string | Yes | First name of the contact |
+| `surname` | string | Yes | Last name of the contact |
+| `emailAddresses` | `array<object>` | No | Array of email address objects with `address` and optional `name` fields |
+| `businessPhones` | `array<string>` | No | Array of business phone numbers |
+| `mobilePhone` | string | No | Mobile phone number |
+| `jobTitle` | string | No | Job title |
+| `companyName` | string | No | Company name |
+
+## `outlook_list_contacts`
+
+List all contacts in the user's mailbox with support for filtering, pagination, and field selection.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `$filter` | string | No | OData filter expression to narrow results (e.g. `emailAddresses/any(a:a/address eq 'user@example.com')`) |
+| `$orderby` | string | No | Property to sort by (e.g. `displayName`) |
+| `$select` | string | No | Comma-separated list of properties to return (e.g. `displayName,emailAddresses,phoneNumbers`) |
+| `$top` | integer | No | Number of contacts to return (default: 10) |
+| `$skip` | integer | No | Number of contacts to skip for pagination |
