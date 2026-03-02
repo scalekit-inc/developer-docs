@@ -10,9 +10,22 @@ When in doubt, follow the constitution exactly. Do not introduce new rules that 
 
 ## Core Principles
 
-### Documentation-First Development
+### Documentation-first development
 
 Every feature must include comprehensive, user-focused documentation. Documentation is not an afterthought but a first-class deliverable that guides implementation. All code changes require corresponding documentation updates.
+
+### Git Commits
+
+- Do NOT include `Co-Authored-By` lines in commit messages
+
+### SDK variable names (critical)
+
+> **CRITICAL**: Use the exact variable names below in all documentation and code examples.
+
+- Node.js: `scalekit`
+- Python: `scalekit_client`
+- Go: `scalekitClient`
+- Java: `scalekitClient`
 
 ### Multi-Language SDK Consistency
 
