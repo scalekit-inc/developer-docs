@@ -1,7 +1,7 @@
 ---
-title: 'Coding agents: Add auth to your AI agents'
-description: 'Let your coding agents guide you into adding auth to your agent to handle OAuth tokens and call tools on behalf of the user'
-tags: [agent-auth, quickstart]
+title: 'Coding agents: Add full-stack auth to your app'
+description: 'Let your coding agents guide you into implementing Scalekit full-stack authentication in minutes'
+tags: [full-stack-auth, quickstart]
 sidebar:
   label: 'Start with coding agents'
   order: 2
@@ -16,25 +16,25 @@ head:
         font-size: var(--sl-text-lg);
       }
 next:
-  label: 'Agent Auth implementation guide'
-  link: '/agent-auth/quickstart/'
+  label: 'Full Stack Auth implementation guide'
+  link: '/authenticate/fsa/quickstart/'
 seeAlso:
   label: 'See also'
   expanded: true
   items:
-    - title: 'Agentic tool calling quickstart'
-      icon: 'rocket'
-      url: '/agent-auth/agentic-quickstart/'
-    - title: 'Browse Agent Auth code samples'
+    - title: 'Browse Full Stack Auth code samples'
       icon: 'github'
-      url: 'https://github.com/scalekit-inc/python-connect-demos'
+      url: 'https://github.com/scalekit-inc/scalekit-nextjs-auth-example'
+    - title: 'Full Stack Auth quickstart'
+      icon: 'rocket'
+      url: '/authenticate/fsa/quickstart/'
 ---
 
-import { Steps, Aside, Tabs, TabItem, Badge } from '@astrojs/starlight/components'
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
 
-Use AI coding agents to accelerate your Agent Auth integration. This guide shows you how to configure and use coding agents like Claude Code to implement Scalekit's Agent Auth end-to-end in your AI applications.
+Use AI coding agents to accelerate your Full Stack Auth integration. This guide shows you how to configure and use coding agents like Claude Code to implement Scalekit's full-stack authentication end-to-end in your web applications.
 
-AI-assisted development reduces implementation time from hours to minutes. The coding agent analyzes your codebase, applies authentication patterns, and generates production-ready code that follows security best practices for connecting AI agents to external services like Gmail, Calendar, Slack, and Notion.
+AI-assisted development reduces implementation time from hours to minutes. The coding agent analyzes your codebase, applies authentication patterns, and generates production-ready code that follows security best practices for login, session management, and logout.
 
 <Steps>
 
@@ -45,13 +45,13 @@ AI-assisted development reduces implementation time from hours to minutes. The c
    <Tabs>
    <TabItem value="claude" label="Claude Code">
 
-    Run the installation script to set up Claude Code on your system:
+   Run the installation script to set up Claude Code on your system:
 
-    > **Security Note**: Before piping to bash, verify the installer checksum or signature using the provider's verification method, or use a signed/package-manager alternative. See the [official quickstart guide](https://code.claude.com/docs/en/quickstart) for secure installation options.
+   > **Security Note**: Before piping to bash, verify the installer checksum or signature using the provider's verification method, or use a signed/package-manager alternative. See the [official quickstart guide](https://code.claude.com/docs/en/quickstart) for secure installation options.
 
-    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-    curl -fsSL https://claude.ai/install.sh | bash
-    ```
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   curl -fsSL https://claude.ai/install.sh | bash
+   ```
 
    After installation completes, verify setup by running:
 
@@ -70,7 +70,7 @@ AI-assisted development reduces implementation time from hours to minutes. The c
 
 2. ## Add the Scalekit Auth Stack marketplace
 
-   Register Scalekit's plugin marketplace to access pre-configured authentication skills. This marketplace provides context-aware prompts and implementation guides that help coding agents generate correct Agent Auth code.
+   Register Scalekit's plugin marketplace to access pre-configured authentication skills. This marketplace provides context-aware prompts and implementation guides that help coding agents generate correct Full Stack Auth code.
 
    <Tabs>
    <TabItem value="claude" label="Claude Code">
@@ -95,7 +95,7 @@ AI-assisted development reduces implementation time from hours to minutes. The c
    </TabItem>
    </Tabs>
 
-   The marketplace provides specialized authentication plugins that understand Agent Auth patterns and OAuth 2.0 security requirements. These plugins guide the coding agent to generate implementation code that matches your project structure.
+   The marketplace provides specialized authentication plugins that understand full-stack auth patterns and OAuth 2.0 security requirements. These plugins guide the coding agent to generate implementation code that matches your project structure.
 
    To remove the Scalekit Auth Stack marketplace, use the uninstall command:
 
@@ -125,7 +125,7 @@ AI-assisted development reduces implementation time from hours to minutes. The c
    </TabItem>
    </Tabs>
 
-   Navigate through the visual interface to enable the Agent Auth plugin.
+   Navigate through the visual interface to enable the Full Stack Auth plugin.
 
    <Aside type="tip" title="Auto-update recommendations">
    Enable auto-updates for authentication plugins to receive security patches and improvements. Scalekit regularly updates plugins based on community feedback and security best practices.
@@ -137,7 +137,7 @@ AI-assisted development reduces implementation time from hours to minutes. The c
    <TabItem value="claude" label="Claude Code">
 
    ```bash title="Claude REPL" showLineNumbers=false
-   /plugin install agent-auth@scalekit-auth-stack
+   /plugin install full-stack-auth@scalekit-auth-stack
    ```
 
    </TabItem>
@@ -149,7 +149,7 @@ AI-assisted development reduces implementation time from hours to minutes. The c
    <TabItem value="claude" label="Claude Code">
 
    ```bash title="Claude REPL" showLineNumbers=false
-   /plugin uninstall agent-auth@scalekit-auth-stack
+   /plugin uninstall full-stack-auth@scalekit-auth-stack
    ```
 
    </TabItem>
@@ -157,46 +157,42 @@ AI-assisted development reduces implementation time from hours to minutes. The c
 
 4. ## Generate authentication implementation
 
-   Use a structured prompt to direct the coding agent. A well-formed prompt ensures the agent generates complete, production-ready Agent Auth code that includes all required security components.
+   Use a structured prompt to direct the coding agent. A well-formed prompt ensures the agent generates complete, production-ready Full Stack Auth code that includes all required security components.
 
    Copy the following prompt into your coding agent:
 
    ```md wrap showLineNumbers=false title="Authentication implementation prompt"
-    Guide me through configuring the installed Scalekit marketplace plugin to handle agent authentication for Gmail. Provide the code to trigger the auth flow, retrieve the secure user token, and then use that authenticated session to fetch and list the last 5 unread emails. Add logging to verify the flow.
+   Guide the coding agent to implement Scalekit full-stack auth — initialize ScalekitClient with environment credentials, implement the login redirect, handle the OAuth callback to exchange the code for tokens, store the session securely, and add a logout endpoint that clears the session. Code only.
    ```
 
    When you submit this prompt, Claude Code:
-   1. Loads the Agent Auth skill from the marketplace
+   1. Loads the Full Stack Auth skill from the marketplace
    2. Analyzes your existing application structure
-   3. Generates Scalekit client initialization
-   4. Creates connected account management functions
-   5. Implements OAuth authorization link generation
-   6. Adds token fetching and refresh logic
+   3. Generates Scalekit client initialization with environment credentials
+   4. Creates the login redirect handler
+   5. Implements the OAuth callback to exchange the authorization code for tokens
+   6. Adds secure session storage and a logout endpoint
 
    <Aside type="caution" title="Review generated code">
    Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
    </Aside>
 
-5. ## Verify just-in-time implementation
+5. ## Verify the implementation
 
    After the coding agent completes, verify that all authentication components are properly configured:
 
    Check generated files:
-   - Scalekit client initialization with credentials. You may need to set up a `.env` file with your Scalekit API credentials.
-   - Connected account management functions
-   - Authorization link generation
-   - Token fetching and storage
-    - Error handling for expired tokens
+   - Scalekit client initialization with environment credentials (you may need to set up a `.env` file with your Scalekit API credentials)
+   - Login route that redirects to Scalekit's authorization endpoint
+   - OAuth callback route that exchanges the code for tokens
+   - Secure session storage with proper cookie attributes
+   - Logout endpoint that clears the session
 
-    The authorization flow should redirect users to the service's consent page, where they grant permissions. Your application should then be able to fetch OAuth tokens and execute actions on behalf of the authenticated user.
+   The login flow should redirect users to Scalekit's authorization page, where they authenticate. Your application should then exchange the returned authorization code for tokens, store the session, and redirect the user to the protected area of your app.
 
 </Steps>
 
-When you connect, the agent authenticates users through the OAuth 2.0 flow you configured. Verify that protected resources require valid access tokens and that the agent can successfully execute actions on behalf of authenticated users.
-
-<Aside type="tip" title="Explore available connectors">
-   Browse [Scalekit's connector library](https://app.scalekit.com) > Agent Auth to see all available services you can integrate with your AI agents. New connectors are added regularly.
-</Aside>
+When you connect, users authenticate through the OAuth 2.0 flow you configured. Verify that protected routes require a valid session and that the logout endpoint properly clears session state.
 
 <Aside type="note" title="Beta program feedback">
 Scalekit's Auth Stack marketplace is in public beta. Join the [Slack community](https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw) to share feedback and connect with other developers. Scalekit is actively expanding support beyond Claude Code—tell us which AI tools you use.

@@ -1,0 +1,195 @@
+---
+title: 'Coding agents: Add SCIM directory sync to your app'
+description: 'Let your coding agents guide you into adding Scalekit SCIM provisioning to your application in minutes'
+tags: [modular-scim, quickstart]
+sidebar:
+  label: 'Start with coding agents'
+  order: 2
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      .sl-markdown-content h3 {
+        font-size: var(--sl-text-lg);
+      }
+next:
+  label: 'Modular SCIM implementation guide'
+  link: '/directory/scim/quickstart/'
+seeAlso:
+  label: 'See also'
+  expanded: true
+  items:
+    - title: 'Browse SCIM code samples'
+      icon: 'github'
+      url: 'https://github.com/scalekit-inc/scalekit-express-example'
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Use AI coding agents to accelerate your Modular SCIM integration. This guide shows you how to configure and use coding agents like Claude Code to implement Scalekit's SCIM directory sync end-to-end in your application.
+
+AI-assisted development reduces implementation time from hours to minutes. The coding agent analyzes your codebase, applies SCIM patterns, and generates production-ready code that follows security best practices for user provisioning, deprovisioning, and lifecycle management.
+
+<Steps>
+
+1. ## Install your coding agent
+
+   Install an AI coding agent that supports plugin ecosystems. Claude Code provides native integration with Scalekit's authentication plugins.
+
+   <Tabs>
+   <TabItem value="claude" label="Claude Code">
+
+   Run the installation script to set up Claude Code on your system:
+
+   > **Security Note**: Before piping to bash, verify the installer checksum or signature using the provider's verification method, or use a signed/package-manager alternative. See the [official quickstart guide](https://code.claude.com/docs/en/quickstart) for secure installation options.
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   curl -fsSL https://claude.ai/install.sh | bash
+   ```
+
+   After installation completes, verify setup by running:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   claude --version
+   ```
+
+   Learn more about Claude Code in the [official quickstart guide](https://code.claude.com/docs/en/quickstart).
+
+   </TabItem>
+   </Tabs>
+
+   <Aside type="tip" title="Other AI coding tools">
+   While this guide focuses on Claude Code, the same SCIM patterns apply to other AI-assisted development tools. The implementation principles remain consistent regardless of your chosen coding agent.
+   </Aside>
+
+2. ## Add the Scalekit Auth Stack marketplace
+
+   Register Scalekit's plugin marketplace to access pre-configured SCIM skills. This marketplace provides context-aware prompts and implementation guides that help coding agents generate correct directory sync code.
+
+   <Tabs>
+   <TabItem value="claude" label="Claude Code">
+
+   Start the Claude Code REPL and add the marketplace:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   # Start Claude REPL
+   claude
+
+   # Add Scalekit Auth Stack marketplace
+   /plugin marketplace add scalekit-inc/claude-code-authstack
+   ```
+
+   When the marketplace registers successfully, you'll see confirmation output:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   ❯ /plugin marketplace add scalekit-inc/claude-code-authstack
+      ⎿  Successfully added marketplace: scalekit-auth-stack
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   The marketplace provides specialized SCIM plugins that understand directory sync patterns and webhook security requirements. These plugins guide the coding agent to generate implementation code that matches your project structure.
+
+   To remove the Scalekit Auth Stack marketplace, use the uninstall command:
+
+   <Tabs>
+   <TabItem value="claude" label="Claude Code">
+
+   ```bash title="Claude REPL" showLineNumbers=false
+   /plugin marketplace remove scalekit-auth-stack
+   ```
+
+   </TabItem>
+   </Tabs>
+
+3. ## Enable SCIM plugins
+
+   Select which directory sync capabilities to activate in your development environment. Each plugin provides specific skills that the coding agent uses to generate SCIM webhook handling code.
+
+   Run the plugin wizard to browse and enable available plugins:
+
+   <Tabs>
+   <TabItem value="claude" label="Claude Code">
+
+   ```bash title="Claude REPL" showLineNumbers=false
+   /plugins
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   Navigate through the visual interface to enable the Modular SCIM plugin.
+
+   <Aside type="tip" title="Auto-update recommendations">
+   Enable auto-updates for SCIM plugins to receive security patches and improvements. Scalekit regularly updates plugins based on community feedback and security best practices.
+   </Aside>
+
+   Or, directly install the specific plugin:
+
+   <Tabs>
+   <TabItem value="claude" label="Claude Code">
+
+   ```bash title="Claude REPL" showLineNumbers=false
+   /plugin install modular-scim@scalekit-auth-stack
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   To remove an installed plugin, use the uninstall command:
+
+   <Tabs>
+   <TabItem value="claude" label="Claude Code">
+
+   ```bash title="Claude REPL" showLineNumbers=false
+   /plugin uninstall modular-scim@scalekit-auth-stack
+   ```
+
+   </TabItem>
+   </Tabs>
+
+4. ## Generate SCIM implementation
+
+   Use a structured prompt to direct the coding agent. A well-formed prompt ensures the agent generates complete, production-ready SCIM code that includes all required security components.
+
+   Copy the following prompt into your coding agent:
+
+   ```md wrap showLineNumbers=false title="SCIM implementation prompt"
+   Guide the coding agent to add Scalekit SCIM directory sync to my app — set up the webhook endpoint to receive SCIM events, validate the webhook signature, and handle user provisioning and deprovisioning events to create, update, and delete users in my database. Code only.
+   ```
+
+   When you submit this prompt, Claude Code:
+   1. Loads the Modular SCIM skill from the marketplace
+   2. Analyzes your existing application structure
+   3. Generates a webhook endpoint to receive SCIM events from Scalekit
+   4. Implements webhook signature validation to prevent unauthorized requests
+   5. Creates handlers for user provisioning events (create and update)
+   6. Adds deprovisioning logic to delete or deactivate users in your database
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated SCIM code before deployment. Verify that webhook signature validation, event handling logic, and database operations match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
+   </Aside>
+
+5. ## Verify the implementation
+
+   After the coding agent completes, verify that all SCIM components are properly configured:
+
+   Check generated files:
+   - Webhook endpoint that receives SCIM events from Scalekit (you may need to set up a `.env` file with your Scalekit webhook secret)
+   - Webhook signature validation to authenticate incoming requests
+   - User provisioning handler that creates or updates users in your database
+   - Deprovisioning handler that deletes or deactivates users when they are removed from the identity provider
+
+   The SCIM flow should receive webhook events from Scalekit when users are added, updated, or removed in the connected identity provider. Your application should validate each event's signature, then apply the corresponding change to your user database.
+
+</Steps>
+
+When directory sync is active, user lifecycle changes in the identity provider propagate automatically to your application. Verify that provisioning events correctly create or update users, and that deprovisioning events properly remove or deactivate accounts.
+
+<Aside type="note" title="Beta program feedback">
+Scalekit's Auth Stack marketplace is in public beta. Join the [Slack community](https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw) to share feedback and connect with other developers. Scalekit is actively expanding support beyond Claude Code—tell us which AI tools you use.
+</Aside>
