@@ -1,90 +1,47 @@
 import { Steps, Aside } from '@astrojs/starlight/components'
-import useOwnCredentialsImg from '@/assets/docs/agent-connectors/googleslides/use-own-credentials-redirect-uri.png'
-import oauthWebAppImg from '@/assets/docs/agent-connectors/gmail/oauth-web-app.png'
-import addRedirectUriImg from '@/assets/docs/agent-connectors/gmail/add-redirect-uri.png'
-import addCredentialsImg from '@/assets/docs/agent-connectors/gmail/add-credentials.png'
+
+Register your Scalekit environment with the Google Slides connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
 
 <Aside type="caution">
   Google applications using scopes that permit access to certain user data must complete a verification process.
 </Aside>
 
-### Configure redirect URL
-
 <Steps>
-1. ## Open the Scalekit dashboard
+1. ### Set up auth redirects
 
-   In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Google Slides** and click **Create**.
 
-2. ## Create a Google Slides connection
+    - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
 
-   Find **Google Slides** from the list of providers and click **Create**.
+      ![](@/assets/docs/agent-connectors/googleslides/use-own-credentials-redirect-uri.png)
 
-3. ## Copy the redirect URI
+    - Navigate to [Google Cloud Console's](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) **APIs & Services > Credentials**. Select **+ Create Credentials**, then **OAuth client ID**. Choose **Web application** from the Application type menu.
 
-   Click **Use your own credentials** and copy the redirect URI — it will look like `https://{your-env-url}/sso/v1/oauth/{connection_id}/callback`.
+      ![](@/assets/docs/agent-connectors/gmail/oauth-web-app.png)
 
-   <img src={useOwnCredentialsImg.src} alt="Configure Google Slides Connection with redirect URI" width="500" />
+    - Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and select **Create**.
 
-4. ## Open Google Cloud Console
+      ![](@/assets/docs/agent-connectors/gmail/add-redirect-uri.png)
 
-   Navigate to [Google Cloud Console's](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) **APIs & Services > Credentials**
+2. ### Enable Google Slides API
 
-5. ## Create an OAuth client ID
+    - In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services > Library**. Search for "Google Slides" in the API Library and select **Google Slides API**.
 
-   Select **+ Create Credentials**, then **OAuth client ID**
+    - Press the blue **Enable** button.
 
-6. ## Select web application type
+3. ### Get client credentials
 
-   Choose **Web application** from the Application type menu
+    Google provides your Client ID and Client Secret credentials after you create the OAuth client ID in step 1.
 
-   <img src={oauthWebAppImg.src} alt="Selecting Web Application in Google OAuth" width="540" />
+4. ### Add credentials in Scalekit
 
-7. ## Add the redirect URI
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+    - Enter your credentials:
+      - Client ID (from above)
+      - Client Secret (from above)
+      - Permissions (scopes — see [Google API Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes))
 
-   Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and select **Create**.
+      ![](@/assets/docs/agent-connectors/gmail/add-credentials.png)
 
-   <img src={addRedirectUriImg.src} alt="Adding Google redirect URI for OAuth" width="540" />
-</Steps>
-
-Google provides your Client ID and Client Secret credentials.
-
-### Enable Google Slides API
-
-<Steps>
-1. ## Open the API Library
-
-   In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services > Library**
-
-2. ## Search for the Google Slides API
-
-   Search for "Google Slides" in the API Library
-
-3. ## Select the Google Slides API
-
-   Select **Google Slides API**
-
-4. ## Enable the API
-
-   Press the blue **Enable** button
-</Steps>
-
-### Add credentials
-
-<Steps>
-1. ## Open your connection settings
-
-   In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
-
-2. ## Enter your credentials
-
-   Enter your credentials:
-   - Client ID (from above)
-   - Client Secret (from above)
-   - Permissions (scopes — see [Google API Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes))
-
-   <img src={addCredentialsImg.src} alt="Add credentials" width="540" />
-
-3. ## Save the connection
-
-   Click **Save**
+    - Click **Save**.
 </Steps>
