@@ -273,7 +273,8 @@ export const redirects = {
   '/m2m/authenticate-scalekit-api': '/guides/authenticate-scalekit-api/',
   '/m2m/api-auth-for-m2m-clients': '/guides/m2m/api-auth-m2m-clients/',
   '/m2m/external-ids-and-metadata': '/guides/external-ids-and-metadata/',
-  '/m2m/scopes': '/guides/m2m/scopes/',
+  '/m2m/scopes': '/authenticate/m2m/api-auth-quickstart/',
+  '/guides/m2m/scopes/': '/authenticate/m2m/api-auth-quickstart/',
   '/reference/api/m2m-clients': '/guides/m2m/api-auth-m2m-clients/',
 
   // =============================================================================
