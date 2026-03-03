@@ -11,7 +11,14 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'authenticate/set-up-scalekit',
-          { label: 'Quickstart: Full stack auth', link: 'authenticate/fsa/quickstart' },
+          {
+            label: 'Quickstarts',
+            collapsed: false,
+            items: [
+              { label: 'Quickstart: Full stack auth', link: 'authenticate/fsa/quickstart' },
+              'authenticate/fsa/start-fsa-coding-agents',
+            ],
+          },
           'authenticate/fsa/code-samples',
         ],
       },
@@ -398,7 +405,14 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['authenticate/sso/add-modular-sso', 'authenticate/sso/code-samples'],
+        items: [
+          {
+            label: 'Quickstarts',
+            collapsed: false,
+            items: ['authenticate/sso/add-modular-sso', 'authenticate/sso/start-sso-coding-agents'],
+          },
+          'authenticate/sso/code-samples',
+        ],
       },
       {
         label: 'Integrate SSO with own auth',
@@ -446,7 +460,14 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['directory/scim/quickstart', 'directory/code-samples'],
+        items: [
+          {
+            label: 'Quickstarts',
+            collapsed: false,
+            items: ['directory/scim/quickstart', 'directory/scim/start-scim-coding-agents'],
+          },
+          'directory/code-samples',
+        ],
       },
       {
         label: 'How to...',
