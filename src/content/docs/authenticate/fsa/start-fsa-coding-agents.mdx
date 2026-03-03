@@ -30,181 +30,34 @@ seeAlso:
       url: '/authenticate/fsa/quickstart/'
 ---
 
-import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+import { Aside } from '@astrojs/starlight/components'
+import {
+  FSAClaudeCodeSection,
+  GitHubCopilotCLICodingAgentSection,
+  CursorCodingAgentSection,
+  OpenCodeCodingAgentSection
+} from '@/components/templates'
 
-Use AI coding agents to accelerate your Full Stack Auth integration. This guide shows you how to configure and use coding agents like Claude Code to implement Scalekit's full-stack authentication end-to-end in your web applications.
+Use AI coding agents to accelerate your Full Stack Auth integration. This guide shows you how to configure and use coding agents — including Claude Code, GitHub Copilot CLI, Cursor, and OpenCode — to implement Scalekit's full-stack authentication end-to-end in your web applications.
 
 AI-assisted development reduces implementation time from hours to minutes. The coding agent analyzes your codebase, applies authentication patterns, and generates production-ready code that follows security best practices for login, session management, and logout.
 
-<Steps>
-
-1. ## Install your coding agent
-
-   Install an AI coding agent that supports plugin ecosystems. Claude Code provides native integration with Scalekit's authentication plugins.
-
-   <Tabs>
-   <TabItem value="claude" label="Claude Code">
-
-   Run the installation script to set up Claude Code on your system:
-
-   > **Security Note**: Before piping to bash, verify the installer checksum or signature using the provider's verification method, or use a signed/package-manager alternative. See the [official quickstart guide](https://code.claude.com/docs/en/quickstart) for secure installation options.
-
-   ```bash title="Terminal" frame="terminal" showLineNumbers=false
-   curl -fsSL https://claude.ai/install.sh | bash
-   ```
-
-   After installation completes, verify setup by running:
-
-   ```bash title="Terminal" frame="terminal" showLineNumbers=false
-   claude --version
-   ```
-
-   Learn more about Claude Code in the [official quickstart guide](https://code.claude.com/docs/en/quickstart).
-
-   </TabItem>
-   </Tabs>
-
-   <Aside type="tip" title="Other AI coding tools">
-   While this guide focuses on Claude Code, the same authentication patterns apply to other AI-assisted development tools. The implementation principles remain consistent regardless of your chosen coding agent.
-   </Aside>
-
-2. ## Add the Scalekit Auth Stack marketplace
-
-   Register Scalekit's plugin marketplace to access pre-configured authentication skills. This marketplace provides context-aware prompts and implementation guides that help coding agents generate correct Full Stack Auth code.
-
-   <Tabs>
-   <TabItem value="claude" label="Claude Code">
-
-   Start the Claude Code REPL and add the marketplace:
-
-   ```bash title="Terminal" frame="terminal" showLineNumbers=false
-   # Start Claude REPL
-   claude
-
-   # Add Scalekit Auth Stack marketplace
-   /plugin marketplace add scalekit-inc/claude-code-authstack
-   ```
-
-   When the marketplace registers successfully, you'll see confirmation output:
-
-   ```bash title="Terminal" frame="terminal" showLineNumbers=false
-   ❯ /plugin marketplace add scalekit-inc/claude-code-authstack
-      ⎿  Successfully added marketplace: scalekit-auth-stack
-   ```
-
-   </TabItem>
-   </Tabs>
-
-   The marketplace provides specialized authentication plugins that understand full-stack auth patterns and OAuth 2.0 security requirements. These plugins guide the coding agent to generate implementation code that matches your project structure.
-
-   To remove the Scalekit Auth Stack marketplace, use the uninstall command:
-
-   <Tabs>
-   <TabItem value="claude" label="Claude Code">
-
-   ```bash title="Claude REPL" showLineNumbers=false
-   /plugin marketplace remove scalekit-auth-stack
-   ```
-
-   </TabItem>
-   </Tabs>
-
- 3. ## Enable authentication plugins
-
-    Select which authentication capabilities to activate in your development environment. Each plugin provides specific skills that the coding agent uses to generate authentication code.
-
-    Directly install the specific plugin:
-
-    <Tabs>
-    <TabItem value="claude" label="Claude Code">
-
-    ```bash title="Claude REPL" showLineNumbers=false
-    /plugin install full-stack-auth@scalekit-auth-stack
-    ```
-
-    </TabItem>
-    </Tabs>
-
-    <details>
-    <summary>Alternative: Enable authentication plugins via plugin wizard</summary>
-
-    Run the plugin wizard to browse and enable available plugins:
-
-    <Tabs>
-    <TabItem value="claude" label="Claude Code">
-
-    ```bash title="Claude REPL" showLineNumbers=false
-    /plugins
-    ```
-
-    </TabItem>
-    </Tabs>
-
-    Navigate through the visual interface to enable the Full Stack Auth plugin.
-
-    <Aside type="tip" title="Auto-update recommendations">
-    Enable auto-updates for authentication plugins to receive security patches and improvements. Scalekit regularly updates plugins based on community feedback and security best practices.
-    </Aside>
-
-    </details>
-
-    <details>
-    <summary>Remove an installed plugin</summary>
-
-    To remove an installed plugin, use the uninstall command:
-
-    <Tabs>
-    <TabItem value="claude" label="Claude Code">
-
-    ```bash title="Claude REPL" showLineNumbers=false
-    /plugin uninstall full-stack-auth@scalekit-auth-stack
-    ```
-
-    </TabItem>
-    </Tabs>
-
-    </details>
-
-4. ## Generate authentication implementation
-
-   Use a structured prompt to direct the coding agent. A well-formed prompt ensures the agent generates complete, production-ready Full Stack Auth code that includes all required security components.
-
-   Copy the following prompt into your coding agent:
-
-   ```md wrap showLineNumbers=false title="Authentication implementation prompt"
-   Guide the coding agent to implement Scalekit full-stack auth — initialize ScalekitClient with environment credentials, implement the login redirect, handle the OAuth callback to exchange the code for tokens, store the session securely, and add a logout endpoint that clears the session. Code only.
-   ```
-
-    When you submit this prompt, Claude Code:
-
-    - Loads the Full Stack Auth skill from the marketplace
-    - Analyzes your existing application structure
-    - Generates Scalekit client initialization with environment credentials
-    - Creates the login redirect handler
-    - Implements the OAuth callback to exchange the authorization code for tokens
-    - Adds secure session storage and a logout endpoint
-
-   <Aside type="caution" title="Review generated code">
-   Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
-   </Aside>
-
-5. ## Verify the implementation
-
-   After the coding agent completes, verify that all authentication components are properly configured:
-
-   Check generated files:
-   - Scalekit client initialization with environment credentials (you may need to set up a `.env` file with your Scalekit API credentials)
-   - Login route that redirects to Scalekit's authorization endpoint
-   - OAuth callback route that exchanges the code for tokens
-   - Secure session storage with proper cookie attributes
-   - Logout endpoint that clears the session
-
-   The login flow should redirect users to Scalekit's authorization page, where they authenticate. Your application should then exchange the returned authorization code for tokens, store the session, and redirect the user to the protected area of your app.
-
-</Steps>
-
-When you connect, users authenticate through the OAuth 2.0 flow you configured. Verify that protected routes require a valid session and that the logout endpoint properly clears session state.
+<Tabs syncKey="coding-agent">
+  <TabItem label="Claude Code">
+    <FSAClaudeCodeSection />
+  </TabItem>
+  <TabItem label="GitHub Copilot CLI">
+    <GitHubCopilotCLICodingAgentSection />
+  </TabItem>
+  <TabItem label="Cursor">
+    <CursorCodingAgentSection />
+  </TabItem>
+  <TabItem label="OpenCode">
+    <OpenCodeCodingAgentSection />
+  </TabItem>
+</Tabs>
 
 <Aside type="note" title="Beta program feedback">
-Scalekit's Auth Stack marketplace is in public beta. Join the [Slack community](https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw) to share feedback and connect with other developers. Scalekit is actively expanding support beyond Claude Code—tell us which AI tools you use.
+Scalekit's Auth Stack marketplace is in public beta. Join the [Slack community](https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw) to share feedback and connect with other developers. Support for GitHub Copilot CLI, Cursor, and OpenCode is coming soon.
 </Aside>
