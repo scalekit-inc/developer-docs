@@ -1,55 +1,94 @@
 import { Steps, Aside } from '@astrojs/starlight/components'
+import useOwnCredentialsImg from '@/assets/docs/agent-connectors/googlecalendar/use-own-credentials-redirect-uri.png'
 import oauthWebAppImg from '@/assets/docs/agent-connectors/gmail/oauth-web-app.png'
 import addRedirectUriImg from '@/assets/docs/agent-connectors/gmail/add-redirect-uri.png'
-
-Register your Scalekit environment with the Google Calendar connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+import addCredentialsImg from '@/assets/docs/agent-connectors/gmail/add-credentials.png'
 
 <Aside type="caution">
   Google applications using scopes that permit access to certain user data must complete a verification process.
 </Aside>
 
+### Configure redirect URL
+
 <Steps>
-1. ### Set up auth redirects
+1. ## Open the Scalekit dashboard
 
-    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+   In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
 
-    - Find **Google Calendar** from the list of providers and click **Create**.
+2. ## Create a Google Calendar connection
 
-    - Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+   Find **Google Calendar** from the list of providers and click **Create**.
 
-    - Navigate to [Google Cloud Console's](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) **APIs & Services > Credentials**
+   <Aside>
+     By default, a connection using Scalekit's credentials will be created. If you are testing, go directly to [Usage](#usage). Before going to production, update your connection by following the steps below.
+   </Aside>
 
-    - Select **+ Create Credentials**, then **OAuth client ID**
+3. ## Copy the redirect URI
 
-    - Choose **Web application** from the Application type menu
+   Click **Use your own credentials** and copy the redirect URI — it will look like `https://{your-env-url}/sso/v1/oauth/{connection_id}/callback`.
 
-      <img src={oauthWebAppImg.src} alt="Selecting Web Application in Google OAuth" width="540" />
+   <img src={useOwnCredentialsImg.src} alt="Configure Google Calendar Connection with redirect URI" width="500" />
 
-    - Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and select **Create**.
+4. ## Open Google Cloud Console
 
-      <img src={addRedirectUriImg.src} alt="Adding Google redirect URI for OAuth" width="540" />
+   Navigate to [Google Cloud Console's](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) **APIs & Services > Credentials**
 
-2. ### Enable the Google Calendar API
+5. ## Create an OAuth client ID
 
-    - In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services > Library**
+   Select **+ Create Credentials**, then **OAuth client ID**
 
-    - Search for "Google Calendar" in the API Library
+6. ## Select web application type
 
-    - Select **Google Calendar API**
+   Choose **Web application** from the Application type menu
 
-    - Press the blue **Enable** button
+   <img src={oauthWebAppImg.src} alt="Selecting Web Application in Google OAuth" width="540" />
 
-3. ### Get your client credentials
+7. ## Add the redirect URI
 
-    Google provides your Client ID and Client Secret credentials after you create the OAuth client ID in step 1.
+   Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and select **Create**.
 
-4. ### Add credentials in Scalekit
+   <img src={addRedirectUriImg.src} alt="Adding Google redirect URI for OAuth" width="540" />
+</Steps>
 
-    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+Google provides your Client ID and Client Secret credentials.
 
-    - Enter your credentials:
-      - Client ID (from above)
-      - Client Secret (from above)
-      - Permissions (scopes — see [Google API Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes))
-    - Click **Save**.
+### Enable Google Calendar API
+
+<Steps>
+1. ## Open the API Library
+
+   In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services > Library**
+
+2. ## Search for the Google Calendar API
+
+   Search for "Google Calendar" in the API Library
+
+3. ## Select the Google Calendar API
+
+   Select **Google Calendar API**
+
+4. ## Enable the API
+
+   Press the blue **Enable** button
+</Steps>
+
+### Add credentials
+
+<Steps>
+1. ## Open your connection settings
+
+   In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+2. ## Enter your credentials
+
+   Enter your credentials:
+   - Client ID (from above)
+   - Client Secret (from above)
+   - Permissions (scopes — see [Google API Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes))
+
+   <img src={addCredentialsImg.src} alt="Add credentials" width="540" />
+
+3. ## Save the connection
+
+   Click **Save**
 </Steps>
