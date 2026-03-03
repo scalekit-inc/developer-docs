@@ -109,39 +109,47 @@ AI-assisted development reduces implementation time from hours to minutes. The c
    </TabItem>
    </Tabs>
 
-3. ## Enable authentication plugins
+ 3. ## Enable authentication plugins
 
-   Select which authentication capabilities to activate in your development environment. Each plugin provides specific skills that the coding agent uses to generate authentication code.
+    Select which authentication capabilities to activate in your development environment. Each plugin provides specific skills that the coding agent uses to generate authentication code.
 
-   Run the plugin wizard to browse and enable available plugins:
+    Directly install the specific plugin:
 
-   <Tabs>
-   <TabItem value="claude" label="Claude Code">
+    <Tabs>
+    <TabItem value="claude" label="Claude Code">
 
-   ```bash title="Claude REPL" showLineNumbers=false
-   /plugins
-   ```
+    ```bash title="Claude REPL" showLineNumbers=false
+    /plugin install agent-auth@scalekit-auth-stack
+    ```
 
-   </TabItem>
-   </Tabs>
+    </TabItem>
+    </Tabs>
 
-   Navigate through the visual interface to enable the Agent Auth plugin.
+    <details>
+    <summary>Alternative: Enable authentication plugins via plugin wizard</summary>
 
-   <Aside type="tip" title="Auto-update recommendations">
-   Enable auto-updates for authentication plugins to receive security patches and improvements. Scalekit regularly updates plugins based on community feedback and security best practices.
-   </Aside>
+    Run the plugin wizard to browse and enable available plugins:
 
-   Or, directly install the specific plugin:
+    <Tabs>
+    <TabItem value="claude" label="Claude Code">
 
-   <Tabs>
-   <TabItem value="claude" label="Claude Code">
+    ```bash title="Claude REPL" showLineNumbers=false
+    /plugins
+    ```
 
-   ```bash title="Claude REPL" showLineNumbers=false
-   /plugin install agent-auth@scalekit-auth-stack
-   ```
+    </TabItem>
+    </Tabs>
 
-   </TabItem>
-   </Tabs>
+    Navigate through the visual interface to enable the Agent Auth plugin.
+
+    <Aside type="tip" title="Auto-update recommendations">
+    Enable auto-updates for authentication plugins to receive security patches and improvements. Scalekit regularly updates plugins based on community feedback and security best practices.
+    </Aside>
+
+    </details>
+
+   <details>
+   <summary>Remove an installed plugin</summary>
 
    To remove an installed plugin, use the uninstall command:
 
@@ -155,6 +163,8 @@ AI-assisted development reduces implementation time from hours to minutes. The c
    </TabItem>
    </Tabs>
 
+   </details>
+
 4. ## Generate authentication implementation
 
    Use a structured prompt to direct the coding agent. A well-formed prompt ensures the agent generates complete, production-ready Agent Auth code that includes all required security components.
@@ -165,13 +175,14 @@ AI-assisted development reduces implementation time from hours to minutes. The c
     Guide me through configuring the installed Scalekit marketplace plugin to handle agent authentication for Gmail. Provide the code to trigger the auth flow, retrieve the secure user token, and then use that authenticated session to fetch and list the last 5 unread emails. Add logging to verify the flow.
    ```
 
-   When you submit this prompt, Claude Code:
-   1. Loads the Agent Auth skill from the marketplace
-   2. Analyzes your existing application structure
-   3. Generates Scalekit client initialization
-   4. Creates connected account management functions
-   5. Implements OAuth authorization link generation
-   6. Adds token fetching and refresh logic
+    When you submit this prompt, Claude Code:
+
+    1. Loads the Agent Auth skill from the marketplace
+    2. Analyzes your existing application structure
+    3. Generates Scalekit client initialization
+    4. Creates connected account management functions
+    5. Implements OAuth authorization link generation
+    6. Adds token fetching and refresh logic
 
    <Aside type="caution" title="Review generated code">
    Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.

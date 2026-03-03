@@ -106,51 +106,61 @@ AI-assisted development reduces implementation time from hours to minutes. The c
    </TabItem>
    </Tabs>
 
-3. ## Enable SCIM plugins
+ 3. ## Enable SCIM plugins
 
-   Select which directory sync capabilities to activate in your development environment. Each plugin provides specific skills that the coding agent uses to generate SCIM webhook handling code.
+    Select which directory sync capabilities to activate in your development environment. Each plugin provides specific skills that the coding agent uses to generate SCIM webhook handling code.
 
-   Run the plugin wizard to browse and enable available plugins:
+    Directly install the specific plugin:
 
-   <Tabs>
-   <TabItem value="claude" label="Claude Code">
+    <Tabs>
+    <TabItem value="claude" label="Claude Code">
 
-   ```bash title="Claude REPL" showLineNumbers=false
-   /plugins
-   ```
+    ```bash title="Claude REPL" showLineNumbers=false
+    /plugin install modular-scim@scalekit-auth-stack
+    ```
 
-   </TabItem>
-   </Tabs>
+    </TabItem>
+    </Tabs>
 
-   Navigate through the visual interface to enable the Modular SCIM plugin.
+    <details>
+    <summary>Alternative: Enable SCIM plugins via plugin wizard</summary>
 
-   <Aside type="tip" title="Auto-update recommendations">
-   Enable auto-updates for SCIM plugins to receive security patches and improvements. Scalekit regularly updates plugins based on community feedback and security best practices.
-   </Aside>
+    Run the plugin wizard to browse and enable available plugins:
 
-   Or, directly install the specific plugin:
+    <Tabs>
+    <TabItem value="claude" label="Claude Code">
 
-   <Tabs>
-   <TabItem value="claude" label="Claude Code">
+    ```bash title="Claude REPL" showLineNumbers=false
+    /plugins
+    ```
 
-   ```bash title="Claude REPL" showLineNumbers=false
-   /plugin install modular-scim@scalekit-auth-stack
-   ```
+    </TabItem>
+    </Tabs>
 
-   </TabItem>
-   </Tabs>
+    Navigate through the visual interface to enable the Modular SCIM plugin.
 
-   To remove an installed plugin, use the uninstall command:
+    <Aside type="tip" title="Auto-update recommendations">
+    Enable auto-updates for SCIM plugins to receive security patches and improvements. Scalekit regularly updates plugins based on community feedback and security best practices.
+    </Aside>
 
-   <Tabs>
-   <TabItem value="claude" label="Claude Code">
+    </details>
 
-   ```bash title="Claude REPL" showLineNumbers=false
-   /plugin uninstall modular-scim@scalekit-auth-stack
-   ```
+    <details>
+    <summary>Remove an installed plugin</summary>
 
-   </TabItem>
-   </Tabs>
+    To remove an installed plugin, use the uninstall command:
+
+    <Tabs>
+    <TabItem value="claude" label="Claude Code">
+
+    ```bash title="Claude REPL" showLineNumbers=false
+    /plugin uninstall modular-scim@scalekit-auth-stack
+    ```
+
+    </TabItem>
+    </Tabs>
+
+    </details>
 
 4. ## Generate SCIM implementation
 
@@ -162,13 +172,14 @@ AI-assisted development reduces implementation time from hours to minutes. The c
    Guide the coding agent to add Scalekit SCIM directory sync to my app — set up the webhook endpoint to receive SCIM events, validate the webhook signature, and handle user provisioning and deprovisioning events to create, update, and delete users in my database. Code only.
    ```
 
-   When you submit this prompt, Claude Code:
-   1. Loads the Modular SCIM skill from the marketplace
-   2. Analyzes your existing application structure
-   3. Generates a webhook endpoint to receive SCIM events from Scalekit
-   4. Implements webhook signature validation to prevent unauthorized requests
-   5. Creates handlers for user provisioning events (create and update)
-   6. Adds deprovisioning logic to delete or deactivate users in your database
+    When you submit this prompt, Claude Code:
+
+    1. Loads the Modular SCIM skill from the marketplace
+    2. Analyzes your existing application structure
+    3. Generates a webhook endpoint to receive SCIM events from Scalekit
+    4. Implements webhook signature validation to prevent unauthorized requests
+    5. Creates handlers for user provisioning events (create and update)
+    6. Adds deprovisioning logic to delete or deactivate users in your database
 
    <Aside type="caution" title="Review generated code">
    Always review AI-generated SCIM code before deployment. Verify that webhook signature validation, event handling logic, and database operations match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
