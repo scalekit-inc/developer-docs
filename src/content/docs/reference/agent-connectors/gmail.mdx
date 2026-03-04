@@ -73,11 +73,7 @@ head:
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
-import useOwnCredentialsImg from '@/assets/docs/agent-connectors/gmail/use-own-credentials-redirect-uri.png'
-import oauthWebAppImg from '@/assets/docs/agent-connectors/gmail/oauth-web-app.png'
-import addRedirectUriImg from '@/assets/docs/agent-connectors/gmail/add-redirect-uri.png'
-import enableGmailApiImg from '@/assets/docs/agent-connectors/gmail/enable-gmail-api.png'
-import addCredentialsImg from '@/assets/docs/agent-connectors/gmail/add-credentials.png'
+import { SetupGmailSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -91,100 +87,9 @@ import addCredentialsImg from '@/assets/docs/agent-connectors/gmail/add-credenti
 Supports authentication: <Badge text="OAuth 2.0" />
 
 
-## Setup
+## Set up the agent connector
 
-<Aside type="caution">
-  Google applications using scopes that permit access to certain user data must complete a verification process.
-</Aside>
-
-### Configure redirect URL
-
-<Steps>
-1. ## Open the Scalekit dashboard
-
-   In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
-
-   {/* Screenshot: Agent Auth → Create Connection */}
-
-2. ## Create a Gmail connection
-
-   Find **Gmail** from the list of providers and click **Create**.
-
-   <Aside>
-     By default, a connection using Scalekit's credentials will be created. If you are testing, go directly to [Usage](#usage). Before going to production, update your connection by following the steps below.
-   </Aside>
-
-3. ## Copy the redirect URI
-
-   Click **Use your own credentials** and copy the redirect URI — it will look like `https://{your-env-url}/sso/v1/oauth/{connection_id}/callback`.
-
-   <img src={useOwnCredentialsImg.src} alt="Configure Gmail Connection with redirect URI" width="500" />
-
-4. ## Open Google Cloud Console
-
-   Navigate to [Google Cloud Console's](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) **APIs & Services > Credentials**
-
-5. ## Create an OAuth client ID
-
-   Select **+ Create Credentials**, then **OAuth client ID**
-
-6. ## Select web application type
-
-   Choose **Web application** from the Application type menu
-
-   <img src={oauthWebAppImg.src} alt="Selecting Web Application in Google OAuth" width="540" />
-
-7. ## Add the redirect URI
-
-   Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and select **Create**.
-
-   <img src={addRedirectUriImg.src} alt="Adding Google redirect URI for OAuth" width="540" />
-</Steps>
-
-Google provides your Client ID and Client Secret credentials.
-
-### Enable Gmail API
-
-<Steps>
-1. ## Open the API Library
-
-   In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services > Library**
-
-2. ## Search for the Gmail API
-
-   Search for "Gmail" in the API Library
-
-3. ## Select the Gmail API
-
-   Select **Gmail API**
-
-   <img src={enableGmailApiImg.src} alt="Choosing the Gmail API in the Google Cloud Console Dashboard" width="540" />
-
-4. ## Enable the API
-
-   Press the blue **Enable** button
-</Steps>
-
-### Add credentials
-
-<Steps>
-1. ## Open your connection settings
-
-   In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
-
-2. ## Enter your credentials
-
-   Enter your credentials:
-   - Client ID (from above)
-   - Client Secret (from above)
-   - Permissions (scopes beginning with `gmail` — see [Google API Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes))
-
-   <img src={addCredentialsImg.src} alt="Add credentials" width="540" />
-
-3. ## Save the connection
-
-   Click **Save**
-</Steps>
+<SetupGmailSection />
 
 ## Usage
 

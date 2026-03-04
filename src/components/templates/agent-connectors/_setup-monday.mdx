@@ -1,0 +1,40 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+import useOwnCredentialsImg from '@/assets/docs/agent-connectors/monday/use-own-credentials-redirect-uri.png'
+import addCredentialsImg from '@/assets/docs/agent-connectors/monday/add-credentials.png'
+
+Register your Scalekit environment with the Monday.com connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. You'll need your app credentials from the [Monday.com Developer Center](https://monday.com/developers/apps).
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+
+    - Find **Monday.com** from the list of providers and click **Create**.
+
+    - Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+      ![](@/assets/docs/_setup-monday/monday-redirect-copy.png)
+
+    - In the [Monday.com Developer Center](https://monday.com/developers/apps), open your app and go to the **OAuth** tab.
+
+    - Add the copied URI under **Redirect URLs** and save.
+
+2. ### Get client credentials
+
+    In the [Monday.com Developer Center](https://monday.com/developers/apps), open your app and go to the **Basic Information** tab:
+
+    - **Client ID** — listed under **Client ID**
+    - **Client Secret** — listed under **Client Secret**
+
+3. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - **Client ID** (from your Monday.com app)
+      - **Client Secret** (from your Monday.com app)
+      - **Permissions** — select the scopes your app needs (see [Monday.com OAuth scopes](https://developer.monday.com/apps/docs/oauth-scopes))
+
+      <img src={addCredentialsImg.src} alt="Adding credentials for Monday.com in Scalekit dashboard" width="540" />
+    - Click **Save**.
+</Steps>

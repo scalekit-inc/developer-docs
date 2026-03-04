@@ -1,0 +1,45 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Salesforce connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. You'll need your app credentials from the [Salesforce Developer Console](https://developer.salesforce.com/).
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+
+    - Find **Salesforce** from the list of providers and click **Create**.
+
+      <Aside>
+        By default, a connection using Scalekit's credentials will be created. If you are testing, go directly to the next section. Before going to production, update your connection by following the steps below.
+      </Aside>
+
+    - Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+    
+      ![](@/assets/docs/_setup-salesforce/copy-redirecturi.png)
+
+    - Log in to [Salesforce](https://login.salesforce.com) and go to **Setup**.
+
+    - In the Quick Find box, search for **App Manager** and click to open it.
+
+    - Click **New Connected App**.
+
+    - Enter a name for your app, check the **Enable OAuth Settings** checkbox, and paste the redirect URI in the **Callback URL** field.
+
+    - Select the required OAuth scopes for your application.
+
+2. ### Get client credentials
+
+    - In your Connected App settings, note the following:
+      - **Consumer Key** — listed under **OAuth Settings**
+      - **Consumer Secret** — click **Reveal** to view and copy
+
+3. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - Client ID (Consumer Key from above)
+      - Client Secret (Consumer Secret from above)
+      - Permissions (scopes — see [Salesforce OAuth Scopes documentation](https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_scopes.htm&type=5))
+    - Click **Save**.
+</Steps>

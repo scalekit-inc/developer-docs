@@ -1,0 +1,39 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Slack connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Slack** and click **Create**. Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+    
+      ![](@/assets/docs/_setup-slack/2026-03-03-18-46-21.png)
+
+    - Log in to [api.slack.com/apps](https://api.slack.com/apps) and click **Create New App**.
+
+    - Select **From scratch**, enter an app name, and select your workspace.
+
+    - Go to **OAuth & Permissions** and scroll to **Redirect URLs**.
+
+    - Click **Add New Redirect URL** and paste the redirect URI from Scalekit. Click **Add**.
+
+      ![Add redirect URL in Slack](@/assets/docs/agent-connectors/slack/add-redirect-url.gif)
+
+2. ### Enable distribution
+
+    - In your Slack app settings, go to **Manage Distribution** and enable it.
+
+      ![Enable Slack app distribution](@/assets/docs/agent-connectors/slack/enable-distribution.png)
+
+    - From **Basic Information**, copy the **Client ID** and **Client Secret**.
+
+3. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - Client ID
+      - Client Secret
+      - Permissions (scopes — see [Slack Scopes documentation](https://api.slack.com/scopes))
+    - Click **Save**.
+</Steps>

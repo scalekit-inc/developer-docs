@@ -1,0 +1,44 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+import useOwnCredentialsImg from '@/assets/docs/agent-connectors/gong/use-own-credentials-redirect-uri.png'
+import addCredentialsImg from '@/assets/docs/agent-connectors/gong/add-credentials.png'
+
+Register your Scalekit environment with the Gong connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. You'll need your app credentials from the Gong Developer Portal.
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+
+    - Find **Gong** from the list of providers and click **Create**.
+
+      <Aside>
+        By default, a connection using Scalekit's credentials will be created. If you are testing, go directly to the Usage section. Before going to production, update your connection by following the steps below.
+      </Aside>
+
+    - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+      <img src={useOwnCredentialsImg.src} alt="Configure Gong Connection with redirect URI" width="500" />
+
+    - In the [Gong Developer Portal](https://app.gong.io/settings/api/documentation#overview), open your app.
+
+    - Paste the copied URI into the **Redirect URL** field and click **Save**.
+
+2. ### Get client credentials
+
+    In the [Gong Developer Portal](https://app.gong.io/settings/api/documentation#overview), open your app:
+
+    - **Client ID** — listed under **Client ID**
+    - **Client Secret** — listed under **Client Secret**
+
+3. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - **Client ID** (from your Gong app)
+      - **Client Secret** (from your Gong app)
+      - **Permissions** — select the scopes your app needs
+
+      <img src={addCredentialsImg.src} alt="Adding credentials for Gong in Scalekit dashboard" width="540" />
+    - Click **Save**.
+</Steps>

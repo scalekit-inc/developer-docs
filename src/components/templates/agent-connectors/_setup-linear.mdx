@@ -1,0 +1,31 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Linear connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Linear** and click **Create**. Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+    ![](@/assets/docs/_setup-linear/linear-redirect-copy.png)
+
+    - Log in to [Linear](https://linear.app) and go to **Settings** → **API** → **OAuth applications**.
+
+    - Click **New application**, fill in the application name and description, then paste the redirect URI from Scalekit into the **Callback URLs** field.
+
+    - Click **Create application**.
+
+2. ### Get client credentials
+
+    - In your Linear OAuth application settings, copy the **Client ID** and **Client Secret**.
+
+3. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - Client ID (from above)
+      - Client Secret (from above)
+      - Permissions (scopes — see [Linear OAuth scopes reference](https://developers.linear.app/docs/oauth/authentication#oauth-2.0-scopes))
+    - Click **Save**.
+</Steps>

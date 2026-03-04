@@ -1,0 +1,48 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+import useOwnCredentialsImg from '@/assets/docs/agent-connectors/servicenow/use-own-credentials-redirect-uri.png'
+import manageInstanceImg from '@/assets/docs/agent-connectors/servicenow/manage-instance.png'
+import addCredentialsImg from '@/assets/docs/agent-connectors/servicenow/add-credentials.png'
+
+Register your Scalekit environment with the ServiceNow connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. You'll need a ServiceNow instance and OAuth credentials from your instance's Application Registry.
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+
+    - Find **ServiceNow** from the list of providers and click **Create**.
+
+      <Aside>
+        By default, a connection using Scalekit's credentials will be created. If you are testing, go directly to the Usage section. Before going to production, update your connection by following the steps below.
+      </Aside>
+
+    - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+      <img src={useOwnCredentialsImg.src} alt="Configure ServiceNow Connection with redirect URI" width="500" />
+
+    - In the [ServiceNow Developer Portal](https://developer.servicenow.com/), go to your instance and click **Manage instance password** to find your instance URL.
+
+      <img src={manageInstanceImg.src} alt="ServiceNow Developer Portal manage instance screen" width="540" />
+
+    - Log into your ServiceNow instance, navigate to **System OAuth** → **Application Registry**, and click **New** → **Create an OAuth API endpoint for external clients**.
+
+    - Fill in an app name and paste the copied URI into the **Redirect URL** field, then click **Submit**.
+
+2. ### Get client credentials
+
+    After submitting, open the newly created record in **System OAuth** → **Application Registry**:
+
+    - **Client ID** — auto-generated, listed under **Client ID**
+    - **Client Secret** — click the lock icon next to **Client Secret** to reveal it
+
+3. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - **Client ID** (from your ServiceNow Application Registry)
+      - **Client Secret** (from your ServiceNow Application Registry)
+
+      <img src={addCredentialsImg.src} alt="Adding credentials for ServiceNow in Scalekit dashboard" width="540" />
+    - Click **Save**.
+</Steps>
