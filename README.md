@@ -114,10 +114,9 @@ We welcome contributions from everyone — whether it's fixing a typo, improving
 
 #### Writing Standards
 
-Before writing or editing, check two files:
+Before writing or editing, check:
 
-- **`CLAUDE.md`** — quick reference for voice, structure, and document types
-- **`.cursorrules`** — detailed style, formatting, and content rules
+- **`CLAUDE.md`** — the single source of truth for voice, structure, document types, and all documentation standards
 
 **Key conventions at a glance:**
 

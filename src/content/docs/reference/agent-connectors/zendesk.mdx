@@ -138,7 +138,7 @@ Connect a user's Zendesk account and make API calls on their behalf — Scalekit
   </TabItem>
 */}
   <TabItem label="Python">
-    ```python
+    ```python title="zendesk_usage.py"
     import scalekit.client, os
     from dotenv import load_dotenv
     load_dotenv()
@@ -147,30 +147,45 @@ Connect a user's Zendesk account and make API calls on their behalf — Scalekit
     identifier = "user_123"     # your unique user identifier
 
     # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
-    scalekit_client = scalekit.client.ScalekitClient(
-        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-        env_url=os.getenv("SCALEKIT_ENV_URL"),
-    )
-    actions = scalekit_client.actions
+    try:
+        scalekit_client = scalekit.client.ScalekitClient(
+            client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+            client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+            env_url=os.getenv("SCALEKIT_ENV_URL"),
+        )
+        actions = scalekit_client.actions
+        print("✓ Scalekit client initialized")
+    except Exception as e:
+        print(f"✗ Failed to initialize Scalekit client: {e}")
+        exit(1)
 
     # Authenticate the user
-    link_response = actions.get_authorization_link(
-        connection_name=connection_name,
-        identifier=identifier
-    )
-    # present this link to your user for authorization, or click it yourself for testing
-    print("🔗 Authorize Zendesk:", link_response.link)
-    input("Press Enter after authorizing...")
+    try:
+        link_response = actions.get_authorization_link(
+            connection_name=connection_name,
+            identifier=identifier
+        )
+        # present this link to your user for authorization, or click it yourself for testing
+        print(f"✓ Authorization link generated successfully")
+        print("🔗 Authorize Zendesk:", link_response.link)
+        input("Press Enter after authorizing...")
+    except Exception as e:
+        print(f"✗ Failed to get authorization link: {e}")
+        exit(1)
 
     # Make a request via Scalekit proxy
-    result = actions.request(
-        connection_name=connection_name,
-        identifier=identifier,
-        path="/api/v2/users/me",
-        method="GET"
-    )
-    print(result)
+    try:
+        result = actions.request(
+            connection_name=connection_name,
+            identifier=identifier,
+            path="/api/v2/users/me",
+            method="GET"
+        )
+        print(f"✓ API request successful")
+        print(result)
+    except Exception as e:
+        print(f"✗ API request failed: {e}")
+        exit(1)
     ```
   </TabItem>
 </Tabs>

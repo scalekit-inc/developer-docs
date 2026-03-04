@@ -12,51 +12,39 @@ Register your Scalekit environment with the Google Sheets connector so Scalekit 
 <Steps>
 1. ### Set up auth redirects
 
-    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
-
-    - Find **Google Sheets** from the list of providers and click **Create**.
-
-      <Aside>
-        By default, a connection using Scalekit's credentials will be created. If you are testing, go directly to the  section. Before going to production, update your connection by following the steps below.
-      </Aside>
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Google Sheets** and click **Create**.
 
     - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
 
-      <img src={useOwnCredentialsImg.src} alt="Configure Google Sheets Connection with redirect URI" width="500" />
+      ![](@/assets/docs/agent-connectors/google_sheets/use-own-credentials-redirect-uri.png)
 
-    - Navigate to [Google Cloud Console's](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) **APIs & Services > Credentials**
+    - Navigate to [Google Cloud Console's](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) **APIs & Services > Credentials**. Select **+ Create Credentials**, then **OAuth client ID**. Choose **Web application** from the Application type menu.
 
-    - Select **+ Create Credentials**, then **OAuth client ID**
-
-    - Choose **Web application** from the Application type menu
-
-      <img src={oauthWebAppImg.src} alt="Selecting Web Application in Google OAuth" width="540" />
+      ![](@/assets/docs/agent-connectors/gmail/oauth-web-app.png)
 
     - Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and select **Create**.
 
-      <img src={addRedirectUriImg.src} alt="Adding Google redirect URI for OAuth" width="540" />
+      ![](@/assets/docs/agent-connectors/gmail/add-redirect-uri.png)
 
-2. ### Enable the Google Sheets API
+2. ### Enable Google Sheets API
 
-    - In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services > Library**
+    - In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services > Library**. Search for "Google Sheets" in the API Library and select **Google Sheets API**.
 
-    - Search for "Google Sheets" in the API Library
+    - Press the blue **Enable** button.
 
-    - Select **Google Sheets API**
-
-    - Press the blue **Enable** button
-
-3. ### Get the client credentials
+3. ### Get client credentials
 
     Google provides your Client ID and Client Secret credentials after you create the OAuth client ID in step 1.
 
 4. ### Add credentials in Scalekit
 
     - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
-
     - Enter your credentials:
       - Client ID (from above)
       - Client Secret (from above)
       - Permissions (scopes — see [Google API Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes))
+
+      ![](@/assets/docs/agent-connectors/gmail/add-credentials.png)
+
     - Click **Save**.
 </Steps>

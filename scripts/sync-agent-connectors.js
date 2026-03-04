@@ -294,6 +294,7 @@ function buildSetupStemMap() {
       'Setup' +
       stem
         .split('-')
+        .filter((w) => w.length > 0)
         .map((w) => w[0].toUpperCase() + w.slice(1))
         .join('') +
       'Section'
@@ -303,7 +304,12 @@ function buildSetupStemMap() {
 
 function getSetupComponent(stemMap, providerSlug) {
   if (!providerSlug) return null
-  return stemMap[providerSlug.replace(/_/g, '-')] || stemMap[providerSlug.replace(/_/g, '')] || null
+  return (
+    stemMap[providerSlug] ||
+    stemMap[providerSlug.replace(/_/g, '-')] ||
+    stemMap[providerSlug.replace(/_/g, '')] ||
+    null
+  )
 }
 
 const SETUP_STEM_MAP = buildSetupStemMap()

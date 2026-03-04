@@ -1,4 +1,4 @@
-# Agent Connectors Sync Script
+# Agent connectors sync script
 
 ## What it does
 
