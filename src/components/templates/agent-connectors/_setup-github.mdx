@@ -1,0 +1,46 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+import useOwnCredentialsImg from '@/assets/docs/agent-connectors/github/use-own-credentials-redirect-uri.png'
+import addRedirectUriImg from '@/assets/docs/agent-connectors/github/add-redirect-uri.gif'
+import addCredentialsImg from '@/assets/docs/agent-connectors/github/add-credentials.png'
+
+Register your Scalekit environment with the GitHub connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. You'll need your app credentials from GitHub's Developer Settings.
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+
+    - Find **GitHub** from the list of providers and click **Create**.
+
+      <Aside>
+        By default, a connection using Scalekit's credentials will be created. If you are testing, go directly to the Usage section. Before going to production, update your connection by following the steps below.
+      </Aside>
+
+    - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+      <img src={useOwnCredentialsImg.src} alt="Configure GitHub Connection with redirect URI" width="500" />
+
+    - Go to [GitHub Developer Settings](https://github.com/settings/developers) and open your OAuth app.
+
+    - Under **General**, paste the copied URI into the **Authorization callback URL** field and save.
+
+      <img src={addRedirectUriImg.src} alt="Adding callback URL in GitHub OAuth app settings" width="540" />
+
+2. ### Get client credentials
+
+    In [GitHub Developer Settings](https://github.com/settings/developers), open your OAuth app:
+
+    - **Client ID** — listed on the app's main settings page
+    - **Client Secret** — click **Generate a new client secret** if you don't have one
+
+3. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - **Client ID** (from your GitHub OAuth app)
+      - **Client Secret** (from your GitHub OAuth app)
+
+      <img src={addCredentialsImg.src} alt="Adding credentials for GitHub in Scalekit dashboard" width="540" />
+    - Click **Save**.
+</Steps>

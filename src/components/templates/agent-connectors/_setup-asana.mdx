@@ -1,0 +1,39 @@
+import { Steps, Aside, Badge } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Asana connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Asana** and click **Create**. Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+    
+      ![](@/assets/docs/_setup-asana/redirecturi-copy-asana.png)
+
+    - Go to [Asana Developer Console](https://app.asana.com/-/developer_console) and click **Create new app**. Enter an app name.
+    - In the left menu, go to **OAuth**. Under **Redirect URLs**, click **Add redirect URL**, paste the redirect URI from Scalekit, and click **Add**.
+
+      ![Adding Asana redirect URL](@/assets/docs/agent-connectors/asana/add-redirect-url.gif)
+
+2. ### Enable multi-workspace install <Badge text="Optional" />
+
+    Enable this if you want users outside your Asana workspace to install the app.
+
+    - In your app settings, go to **OAuth** → **App permissions**.
+    - Under **App install permissions**, enable **Allow users outside your workspace to install this app**.
+
+      ![Enable multi-workspace install](@/assets/docs/agent-connectors/asana/enable-distribution.png)
+
+3. ### Get client credentials
+
+    - In [Asana Developer Console](https://app.asana.com/-/developer_console), select your app.
+    - Under **OAuth**, copy your **Client ID** and **Client Secret**.
+
+4. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+    - Enter your credentials:
+      - Client ID (from above)
+      - Client Secret (from above)
+      - Permissions (scopes — see [Asana OAuth scopes reference](https://developers.asana.com/docs/oauth#scopes))
+    - Click **Save**.
+</Steps>
