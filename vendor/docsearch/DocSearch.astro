@@ -147,23 +147,36 @@ const docsearchTranslations: DocSearchTranslationProps = {
         // Rebuild the askAi prop as an object:
         // If the askAi prop is a string, treat it as the assistantId and use
         // the default indexName, apiKey and appId from the main options.
-        // If the askAi prop is an object, spread its explicit values.
+        // If the askAi prop is an object, preserve its properties while filling
+        // missing defaults, including searchParameters.
         const askAiProp = config.askAi
         const isAskAiString = typeof askAiProp === 'string'
 
         const askAi = askAiProp
-          ? {
-              indexName: isAskAiString ? config.indexName : askAiProp.indexName,
-              apiKey: isAskAiString ? config.apiKey : askAiProp.apiKey,
-              appId: isAskAiString ? config.appId : askAiProp.appId,
-              assistantId: isAskAiString ? askAiProp : askAiProp.assistantId,
-              searchParameters: {},
-            }
+          ? isAskAiString
+            ? {
+                indexName: config.indexName,
+                apiKey: config.apiKey,
+                appId: config.appId,
+                assistantId: askAiProp,
+                searchParameters: {},
+              }
+            : {
+                ...askAiProp,
+                indexName: askAiProp.indexName ?? config.indexName,
+                apiKey: askAiProp.apiKey ?? config.apiKey,
+                appId: askAiProp.appId ?? config.appId,
+                assistantId: askAiProp.assistantId,
+                searchParameters: askAiProp.searchParameters ?? {},
+              }
           : undefined
 
         const pageLang = document.documentElement.getAttribute('lang')
+
+        // Initialize searchParameters unconditionally
+        searchParameters = config.searchParameters || {}
+
         if (pageLang) {
-          searchParameters = config.searchParameters || {}
           const existingFilters = searchParameters?.facetFilters ?? []
           // Ensure facetFilters is always an array of strings for simplicity.
           searchParameters.facetFilters = Array.isArray(existingFilters)
@@ -175,16 +188,16 @@ const docsearchTranslations: DocSearchTranslationProps = {
             // Ask AI uses the same language filtering as the regular search.
             askAi.searchParameters = { facetFilters: searchParameters.facetFilters }
           }
-
-          const options = {
-            ...config,
-            container: 'sl-doc-search',
-            translations,
-            searchParameters,
-            askAi,
-          }
-          docsearch(options as DocSearchProps)
         }
+
+        const options = {
+          ...config,
+          container: 'sl-doc-search',
+          translations,
+          searchParameters,
+          askAi,
+        }
+        docsearch(options as DocSearchProps)
       })
     }
   }
