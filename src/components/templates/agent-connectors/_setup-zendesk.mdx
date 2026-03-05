@@ -1,36 +1,35 @@
 import { Steps, Aside } from '@astrojs/starlight/components'
-import enableTokenAccessImg from '@/assets/docs/agent-connectors/zendesk/enable-token-access.png'
-import addConnectedAccountImg from '@/assets/docs/agent-connectors/zendesk/add-connected-account.png'
+import useOwnCredentialsImg from '@/assets/docs/agent-connectors/zendesk/use-own-credentials-redirect-uri.png'
+import addCredentialsImg from '@/assets/docs/agent-connectors/zendesk/add-credentials.png'
 
-Register your Zendesk API credentials with Scalekit so it can authenticate requests on your behalf. You'll need your Zendesk subdomain, email address, and an API token from your Zendesk Admin Center.
+Register your Scalekit environment with the Zendesk connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. You'll need your OAuth client credentials from your Zendesk Admin Center.
 
 <Steps>
-1. ### Generate an API token
+1. ### Set up auth redirects
 
-    - In your Zendesk Admin Center, go to **Apps and integrations** → **APIs** → **Zendesk API**.
+    - In <a href="https://app.scalekit.com" target="_blank" rel="noopener">Scalekit dashboard</a>, go to **Agent Auth** → **Create Connection**. Find **Zendesk** and click **Create**. Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
 
-    - Under **Settings**, enable **Token access**.
+      <img src={useOwnCredentialsImg.src} alt="Configure Zendesk Connection with redirect URI" width="540" />
 
-      <img src={enableTokenAccessImg.src} alt="Zendesk API configuration page with Allow API token access enabled" width="540" />
+    - In your Zendesk Admin Center, go to **Apps and integrations** → **APIs** → **Zendesk API** → **OAuth Clients** and click **Add OAuth Client**.
 
-    - Click **Add API token**, enter a description, and click **Create**.
+    - Fill in a client name, set **Client Kind** to **Confidential**, paste the copied URI into the **Redirect URLs** field, and click **Save**.
 
-    - Copy the token — it is only shown once.
+2. ### Get client credentials
 
-2. ### Create a connection
+    After saving, open the OAuth client record:
 
-    In <a href="https://app.scalekit.com" target="_blank" rel="noopener">Scalekit dashboard</a>, go to **Agent Auth** → **Create Connection**. Find **Zendesk** and click **Create**.
+    - **Client ID** — listed under **Unique Identifier**
+    - **Client Secret** — displayed at the bottom of the page after saving
 
-3. ### Create a connected account
+3. ### Add credentials in Scalekit
 
-    Go to **Connected Accounts** for your Zendesk connection and click **Add account**. Fill in the required fields:
+    - In <a href="https://app.scalekit.com" target="_blank" rel="noopener">Scalekit dashboard</a>, go to **Agent Auth** → **Connections** and open the connection you created.
 
-    - **Your User's ID** — a unique identifier for the user in your system
-    - **Zendesk Domain** — your full Zendesk domain (e.g., `yourcompany.zendesk.com`)
-    - **Email Address** — the Zendesk account email address
-    - **API Token** — the token you copied in step 1
+    - Enter your credentials:
+      - **Client ID** (from your Zendesk OAuth client)
+      - **Client Secret** (from your Zendesk OAuth client)
 
+      <img src={addCredentialsImg.src} alt="Adding credentials for Zendesk in Scalekit dashboard" width="540" />
     - Click **Save**.
-
-      <img src={addConnectedAccountImg.src} alt="Add connected account form for Zendesk in Scalekit dashboard" width="540" />
 </Steps>
