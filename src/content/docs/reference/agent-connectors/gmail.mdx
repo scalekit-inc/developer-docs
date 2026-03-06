@@ -73,6 +73,7 @@ head:
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupGmailSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -85,6 +86,90 @@ import { Accordion, AccordionItem } from 'accessible-astro-components'
 
 Supports authentication: <Badge text="OAuth 2.0" />
 
+
+## Set up the agent connector
+
+<SetupGmailSection />
+
+## Usage
+
+Connect a user's Gmail account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
+
+<Tabs syncKey="tech-stack">
+{/* Node.js - commented out, uncomment when ready
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'gmail'; // get your connection name from connection configurations
+    const identifier = 'user_123';  // your unique user identifier
+
+    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const { connectedAccounts, actions } = scalekit;
+
+    // Authenticate the user
+    const { link } = await connectedAccounts.getMagicLinkForConnectedAccount({
+      connector: connectionName,
+      identifier,
+    });
+    console.log('🔗 Authorize Gmail:', link); // present this link to your user for authorization, or click it yourself for testing
+    process.stdout.write('Press Enter after authorizing...');
+    await new Promise(r => process.stdin.once('data', r));
+
+    // Make a request via Scalekit proxy
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/v1/users/me/profile',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+*/}
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "gmail"    # get your connection name from connection configurations
+    identifier = "user_123"      # your unique user identifier
+
+    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Authenticate the user
+    link_response = actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier=identifier
+    )
+    # present this link to your user for authorization, or click it yourself for testing
+    print("🔗 Authorize Gmail:", link_response.link)
+    input("Press Enter after authorizing...")
+
+    # Make a request via Scalekit proxy
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/v1/users/me/profile",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
 
 ## Tool list
 
@@ -138,6 +223,18 @@ Retrieve a specific Gmail message using its message ID. Optionally control the f
 | `schema_version` | string | No | Optional schema version to use for tool execution |
 | `tool_version` | string | No | Optional tool version to use for execution |
 
+## `gmail_get_thread_by_id`
+
+Retrieve a specific Gmail thread by thread ID. Optionally control message format and metadata headers. Requires a valid Gmail OAuth2 connection with read access.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `thread_id` | string | Yes | Unique Gmail thread ID |
+| `format` | string | No | Format of messages in the returned thread. Allowed values: `full`, `metadata`, `minimal`. |
+| `metadata_headers` | `array<string>` | No | Specific email headers to include when format is metadata |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `tool_version` | string | No | Optional tool version to use for execution |
+
 ## `gmail_list_drafts`
 
 List draft emails from a connected Gmail account. Requires a valid Gmail OAuth2 connection.
@@ -146,6 +243,20 @@ List draft emails from a connected Gmail account. Requires a valid Gmail OAuth2 
 | --- | --- | --- | --- |
 | `max_results` | integer | No | Maximum number of drafts to fetch |
 | `page_token` | string | No | Page token for pagination |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `tool_version` | string | No | Optional tool version to use for execution |
+
+## `gmail_list_threads`
+
+List threads in a connected Gmail account using optional search and label filters. Requires a valid Gmail OAuth2 connection with read access.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `include_spam_trash` | boolean | No | Whether to include threads from Spam and Trash |
+| `label_ids` | `array<string>` | No | Gmail label IDs to filter threads (threads must match all labels) |
+| `max_results` | integer | No | Maximum number of threads to return |
+| `page_token` | string | No | Page token for pagination |
+| `query` | string | No | Search query string using Gmail search syntax (for example, `is:unread from:user@example.com`) |
 | `schema_version` | string | No | Optional schema version to use for tool execution |
 | `tool_version` | string | No | Optional tool version to use for execution |
 

@@ -30,7 +30,7 @@ A few things worth knowing before you dive in:
 - All documentation lives as **MDX files** inside `src/content/`. That's the main place contributors work.
 - The site is built with **[Astro](https://astro.build) v5** and the **[Starlight](https://starlight.astro.build)** docs framework, deployed on Netlify in SSR mode.
 - We use **pnpm** as the package manager — not npm or yarn.
-- Follow the constitution at `.specify/memory/constitution.md` as the single source of truth for all documentation rules. The writing style, frontmatter requirements, and code example rules are also documented in `CLAUDE.md` and `.cursorrules` at the root as supplemental guidance. Read these before writing.
+- Follow the documentation standards in `CLAUDE.md` at the root as the single source of truth for all documentation rules. Read this before writing.
 
 ---
 
@@ -255,7 +255,7 @@ SDK variable names are fixed — do not rename them:
 | Go       | `scalekitClient`  |
 | Java     | `scalekitClient`  |
 
-For the full style guide, read `CLAUDE.md` and `.cursorrules` at the root of the repo.
+For the full style guide, read `CLAUDE.md` at the root of the repo.
 
 ---
 
