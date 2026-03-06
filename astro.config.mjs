@@ -96,6 +96,7 @@ export default defineConfig({
           actions: ['copy', 'chatgpt', 'claude'],
           hideMainActionLabel: true,
         }),
+        // Provide copy-to-clipboard button for inline code snippets site-wide for better UX
         starlightCopyInlineCode({
           // Show copy button only on hover (default: true)
           showOnHover: true,
