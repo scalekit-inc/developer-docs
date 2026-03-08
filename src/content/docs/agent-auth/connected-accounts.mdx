@@ -305,41 +305,52 @@ const status = await agentConnect.accounts.getStatus('account_id');
 
 ## Account permissions and scopes
 
-### Scope management
+Scopes define what actions a connected account can perform on a user's behalf. Understanding how scopes are configured and updated is critical to building reliable agent integrations.
 
-Connected accounts can have different scopes than their parent connection:
+### Scopes are set at the connection level
 
-```javascript
-// Create account with custom scopes
-const account = await agentConnect.accounts.create({
-  connection_id: 'conn_gmail_oauth',
-  identifier: 'user_123',
-  scopes: [
-    'https://www.googleapis.com/auth/gmail.readonly',  // Read-only access
-    'https://www.googleapis.com/auth/gmail.send'      // Send emails
-  ]
-});
+Scopes are configured at the **connection level**, not at the individual connected account level. When a user completes the OAuth authorization flow for a connected account, they approve exactly the scopes defined on that connection.
 
-// Update account scopes (requires re-authentication)
-await agentConnect.accounts.updateScopes('account_id', {
-  scopes: ['https://www.googleapis.com/auth/gmail.modify']
-});
-```
+**Scopes are read-only after a connected account is created.** There is no API or SDK method to modify the granted scopes on an existing connected account after the user has completed authentication.
 
-### Permission validation
+### Add or change scopes
 
-Verify account permissions before tool execution:
+To request additional scopes for an existing connected account:
 
-```javascript
-// Check if account has required permissions
-const hasPermission = await agentConnect.accounts.hasPermission(
-  'account_id',
-  'https://www.googleapis.com/auth/gmail.send'
-);
+<Steps>
+1. **Update the connection configuration** — In the Scalekit dashboard, navigate to the connection and add the new scopes.
 
-// Get all granted permissions
-const permissions = await agentConnect.accounts.getPermissions('account_id');
-```
+2. **Generate a new magic link** — Use the Scalekit dashboard or API to create a new authorization link for the user.
+
+3. **User approves the updated consent screen** — The user visits the link and approves the expanded OAuth consent screen with the new scopes.
+
+4. **Connected account is updated** — After the user approves, Scalekit updates the connected account with the new token set.
+</Steps>
+
+The user must go through the OAuth flow again whenever scopes change. There is no way to silently add scopes on their behalf.
+
+### Account and connector status values
+
+When working with connected accounts, you may encounter the following enum values from the Scalekit platform:
+
+**Connector status**
+
+| Value | Description |
+|-------|-------------|
+| `CONNECTOR_STATUS_ACTIVE` | Connector is configured and operational |
+| `CONNECTOR_STATUS_INACTIVE` | Connector is configured but not active |
+| `CONNECTOR_STATUS_PENDING` | Connector setup is incomplete |
+| `CONNECTOR_STATUS_ERROR` | Connector has a configuration or authentication error |
+
+**Connector type**
+
+| Value | Description |
+|-------|-------------|
+| `CONNECTOR_TYPE_OAUTH2` | OAuth 2.0 connection (e.g., Gmail, Slack, GitHub) |
+| `CONNECTOR_TYPE_API_KEY` | API key-based connection (e.g., Zendesk, HubSpot) |
+| `CONNECTOR_TYPE_BASIC_AUTH` | Username and password connection |
+
+These values are returned in API responses when listing or inspecting connections and connected accounts.
 
 ## Account metadata and settings
 
