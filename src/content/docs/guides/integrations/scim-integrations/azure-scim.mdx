@@ -88,7 +88,33 @@ These components enable seamless synchronization between your application and th
 
    Entra ID is now set up to send events to Hero SaaS when users are added or removed.
 
-4. ## Test user and group provisioning
+4. ## Map custom attributes (optional)
+
+   By default, Entra ID syncs standard attributes such as email, first name, last name, and display name. To sync a custom attribute (for example, a department code or employee ID), you must map it explicitly in the provisioning configuration.
+
+    In your app's **Provisioning** settings, click **Edit attribute mappings** under the **Mappings** section.
+
+    At the bottom of the page, select **Show advanced options**, then click **Edit attribute list for [app name]**. Add the custom target attribute as a new SCIM extension schema field (for example, `urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:employeeNumber`). This ensures the attribute exists for mapping.
+
+    In the attribute mapping list, click **Add new mapping** at the bottom.
+
+    Configure the mapping:
+
+    - **Mapping type**: Select **Direct**.
+    - **Source attribute**: Select the Entra ID attribute that contains the value you want to sync (for example, `employeeId` or a custom extension attribute like `extension_<appId>_<attributeName>`).
+    - **Target attribute**: Select or type the matching SCIM attribute name as configured in Scalekit (for example, `urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:employeeNumber`).
+
+    Click **Ok**, then save the provisioning configuration.
+
+    <Aside type="note">
+    Custom extension attributes in Entra ID follow the naming pattern `extension_<appId>_<attributeName>`, where `<appId>` is the Application (client) ID from your Entra app registration. You can find the Application (client) ID in the Entra ID portal under **App registrations > Your app > Application (client) ID**.
+
+    Entra-synced on-prem Active Directory extension attributes appear in this same format (for example, `extension_<appId>_employeeNumber`).
+
+    Entra ID takes up to 40 minutes for attribute changes to propagate to the application during a sync cycle. To test immediately, use **Provision on demand**.
+    </Aside>
+
+5. ## Test user and group provisioning
 
    In the Hero SaaS Application, go to "Provision on demand". Input a user name from your user list and click "Provision".
 
