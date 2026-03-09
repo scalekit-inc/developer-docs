@@ -14,7 +14,7 @@ next:
   link: "/agent-auth/tools/execute"
 ---
 
-import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
 Connected accounts in Agent Auth represent individual user or organization connections to third-party providers. They contain the authentication state, tokens, and permissions needed to execute tools on behalf of a specific identifier (user_id, org_id, or custom identifier).
 
@@ -81,61 +81,32 @@ F -> B
 
 Create connected accounts programmatically:
 
-<Tabs>
-<TabItem value="curl" label="cURL">
-
-```bash
-curl -X POST "https://api.scalekit.com/v1/connect/accounts" \
-  -H "Authorization: Bearer YOUR_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "connection_id": "conn_gmail_oauth",
-    "identifier": "user_123",
-    "identifier_type": "user_id",
-    "scopes": ["https://www.googleapis.com/auth/gmail.send"],
-    "settings": {
-      "auto_refresh": true,
-      "expires_in": 3600
-    }
-  }'
-```
-
-</TabItem>
-<TabItem value="javascript" label="JavaScript">
-
-```javascript
-const connectedAccount = await agentConnect.accounts.create({
-  connection_id: 'conn_gmail_oauth',
-  identifier: 'user_123',
-  identifier_type: 'user_id',
-  scopes: ['https://www.googleapis.com/auth/gmail.send'],
-  settings: {
-    auto_refresh: true,
-    expires_in: 3600
-  }
-});
-
-// Generate authorization URL for user
-const authUrl = await agentConnect.accounts.getAuthUrl(connectedAccount.id);
-```
-
-</TabItem>
-<TabItem value="python" label="Python">
+<Tabs syncKey="tech-stack">
+<TabItem label="Python">
 
 ```python
-connected_account = agent_connect.accounts.create(
-    connection_id='conn_gmail_oauth',
-    identifier='user_123',
-    identifier_type='user_id',
-    scopes=['https://www.googleapis.com/auth/gmail.send'],
-    settings={
-        'auto_refresh': True,
-        'expires_in': 3600
-    }
+# actions = scalekit_client.actions  (initialize ScalekitClient first — see quickstart)
+response = actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier="user_123"
 )
+connected_account = response.connected_account
+print(f"Connected account: {connected_account.id}, status: {connected_account.status}")
+```
 
-# Generate authorization URL for user
-auth_url = agent_connect.accounts.get_auth_url(connected_account.id)
+</TabItem>
+<TabItem label="Node.js">
+
+```typescript
+// Requires @scalekit-sdk/node@2.2.0-beta.1: npm install @scalekit-sdk/node@2.2.0-beta.1
+// const { connectedAccounts } = new ScalekitClient(ENV_URL, CLIENT_ID, CLIENT_SECRET)
+const response = await connectedAccounts.getOrCreateConnectedAccount({
+  connector: 'gmail',
+  identifier: 'user_123',
+});
+
+const connectedAccount = response.connectedAccount;
+console.log('Connected account:', connectedAccount?.id, 'status:', connectedAccount?.status);
 ```
 
 </TabItem>
@@ -160,113 +131,90 @@ For OAuth connections, connected accounts follow the standard OAuth flow:
 
 Generate URLs for users to complete authentication:
 
-```javascript
-// Generate authorization URL
-const authUrl = await agentConnect.accounts.getAuthUrl('account_id', {
-  state: 'custom_state_value',
-  redirect_uri: 'https://your-app.com/callback',
-  scopes: ['additional_scope']
-});
+<Tabs syncKey="tech-stack">
+<TabItem label="Python">
 
-// Example generated URL
-// https://accounts.google.com/oauth/authorize?
-//   client_id=your_client_id&
-//   redirect_uri=https://your-app.com/callback&
-//   scope=https://www.googleapis.com/auth/gmail.send&
-//   response_type=code&
-//   state=custom_state_value
-```
-
-### Handling callbacks
-
-Process the OAuth callback to complete authentication:
-
-<Tabs>
-<TabItem value="javascript" label="JavaScript">
-
-```javascript
-// Handle OAuth callback
-app.get('/callback', async (req, res) => {
-  const { code, state, error } = req.query;
-
-  if (error) {
-    // Handle OAuth error
-    return res.status(400).json({ error: error });
-  }
-
-  try {
-    // Exchange code for tokens
-    const result = await agentConnect.accounts.exchangeCode(
-      'account_id',
-      code,
-      state
-    );
-
-    // Account is now active
-    res.json({ status: 'success', account: result });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+```python
+link_response = actions.get_authorization_link(
+    connection_name="gmail",
+    identifier="user_123"
+)
+print(f"Authorization URL: {link_response.link}")
+# Redirect the user to link_response.link to complete OAuth
 ```
 
 </TabItem>
-<TabItem value="python" label="Python">
+<TabItem label="Node.js">
 
-```python
-@app.route('/callback')
-def handle_callback():
-    code = request.args.get('code')
-    state = request.args.get('state')
-    error = request.args.get('error')
+```typescript
+// Requires @scalekit-sdk/node@2.2.0-beta.1: npm install @scalekit-sdk/node@2.2.0-beta.1
+const linkResponse = await connectedAccounts.getMagicLinkForConnectedAccount({
+  connector: 'gmail',
+  identifier: 'user_123',
+});
 
-    if error:
-        return jsonify({'error': error}), 400
-
-    try:
-        # Exchange code for tokens
-        result = agent_connect.accounts.exchange_code(
-            'account_id',
-            code,
-            state
-        )
-
-        # Account is now active
-        return jsonify({'status': 'success', 'account': result})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+console.log('Authorization URL:', linkResponse.link);
+// Redirect the user to linkResponse.link to complete OAuth
 ```
 
 </TabItem>
 </Tabs>
 
+### Handling callbacks
+
+Scalekit handles the OAuth callback automatically. Once the user completes the authorization flow, Scalekit exchanges the code for tokens and updates the connected account status to `ACTIVE`.
+
 ## Managing connected accounts
 
 ### Account information
 
-Retrieve connected account details:
+Retrieve connected account details and OAuth tokens:
 
-```javascript
-const account = await agentConnect.accounts.get('account_id');
+<Tabs syncKey="tech-stack">
+<TabItem label="Python">
 
-// Account object structure
-{
-  "id": "account_123",
-  "connection_id": "conn_gmail_oauth",
-  "identifier": "user_123",
-  "identifier_type": "user_id",
-  "provider": "gmail",
-  "status": "active",
-  "scopes": ["https://www.googleapis.com/auth/gmail.send"],
-  "created_at": "2024-01-15T10:30:00Z",
-  "updated_at": "2024-01-15T10:45:00Z",
-  "expires_at": "2024-01-15T11:45:00Z",
-  "metadata": {
-    "user_email": "user@example.com",
-    "provider_account_id": "google_user_123"
-  }
-}
+```python
+response = actions.get_connected_account(
+    connection_name="gmail",
+    identifier="user_123"
+)
+connected_account = response.connected_account
+
+# Extract OAuth tokens from authorization details
+tokens = connected_account.authorization_details["oauth_token"]
+access_token = tokens["access_token"]
+refresh_token = tokens["refresh_token"]
+
+print(f"Account ID: {connected_account.id}")
+print(f"Status: {connected_account.status}")
 ```
+
+</TabItem>
+<TabItem label="Node.js">
+
+```typescript
+const accountResponse = await connectedAccounts.getConnectedAccountByIdentifier({
+  connector: 'gmail',
+  identifier: 'user_123',
+});
+
+const connectedAccount = accountResponse?.connectedAccount;
+const authDetails = connectedAccount?.authorizationDetails;
+
+// Extract OAuth tokens from authorization details
+const accessToken = (authDetails && authDetails.details?.case === 'oauthToken')
+  ? authDetails.details.value?.accessToken
+  : undefined;
+const refreshToken = (authDetails && authDetails.details?.case === 'oauthToken')
+  ? authDetails.details.value?.refreshToken
+  : undefined;
+
+console.log('Account ID:', connectedAccount?.id);
+console.log('Status:', connectedAccount?.status);
+```
+
+</TabItem>
+</Tabs>
 
 ### Token management
 
@@ -278,30 +226,97 @@ Connected accounts automatically handle token lifecycle:
 - Failed refresh attempts update account status to expired
 
 **Manual token refresh:**
-```javascript
-// Manually refresh tokens
-const refreshed = await agentConnect.accounts.refreshTokens('account_id');
 
-// Check token status
-const tokenStatus = await agentConnect.accounts.getTokenStatus('account_id');
+There is no SDK method to manually trigger a token refresh. If a connected account's status is `EXPIRED` or `ERROR`, generate a new authorization link and prompt the user to re-authorize:
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Python">
+
+```python
+response = actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier="user_123"
+)
+connected_account = response.connected_account
+
+if connected_account.status != "ACTIVE":
+    # Re-authorize the user to refresh their tokens
+    link_response = actions.get_authorization_link(
+        connection_name="gmail",
+        identifier="user_123"
+    )
+    print(f"Re-authorization required. Send user to: {link_response.link}")
 ```
+
+</TabItem>
+<TabItem label="Node.js">
+
+```typescript
+const response = await connectedAccounts.getOrCreateConnectedAccount({
+  connector: 'gmail',
+  identifier: 'user_123',
+});
+
+const connectedAccount = response.connectedAccount;
+
+if (connectedAccount?.status !== 'ACTIVE') {
+  // Re-authorize the user to refresh their tokens
+  const linkResponse = await connectedAccounts.getMagicLinkForConnectedAccount({
+    connector: 'gmail',
+    identifier: 'user_123',
+  });
+  console.log('Re-authorization required. Send user to:', linkResponse.link);
+}
+```
+
+</TabItem>
+</Tabs>
 
 ### Account status monitoring
 
 Monitor account authentication status:
 
-```javascript
-// Check account status
-const status = await agentConnect.accounts.getStatus('account_id');
+<Tabs syncKey="tech-stack">
+<TabItem label="Python">
+
+```python
+response = actions.get_connected_account(
+    connection_name="gmail",
+    identifier="user_123"
+)
+connected_account = response.connected_account
+
+# Possible status values:
+# - PENDING: Waiting for user authentication
+# - ACTIVE: Authenticated and ready
+# - EXPIRED: Tokens expired, needs re-authorization
+# - REVOKED: User revoked access
+# - ERROR: Authentication error
+print(f"Account status: {connected_account.status}")
+```
+
+</TabItem>
+<TabItem label="Node.js">
+
+```typescript
+const accountResponse = await connectedAccounts.getConnectedAccountByIdentifier({
+  connector: 'gmail',
+  identifier: 'user_123',
+});
+
+const connectedAccount = accountResponse?.connectedAccount;
 
 // Possible status values:
-// - pending: Waiting for user authentication
-// - active: Authenticated and ready
-// - expired: Tokens expired, needs refresh
-// - revoked: User revoked access
-// - error: Authentication error
-// - suspended: Account temporarily disabled
+// - PENDING: Waiting for user authentication
+// - ACTIVE: Authenticated and ready
+// - EXPIRED: Tokens expired, needs re-authorization
+// - REVOKED: User revoked access
+// - ERROR: Authentication error
+console.log('Account status:', connectedAccount?.status);
 ```
+
+</TabItem>
+</Tabs>
 
 ## Account permissions and scopes
 
@@ -356,90 +371,48 @@ These values are returned in API responses when listing or inspecting connection
 
 ### Custom metadata
 
-Store additional information with connected accounts:
-
-```javascript
-// Add custom metadata
-await agentConnect.accounts.updateMetadata('account_id', {
-  user_email: 'user@example.com',
-  department: 'engineering',
-  preferences: {
-    notification_settings: 'email',
-    timezone: 'UTC'
-  }
-});
-
-// Retrieve metadata
-const metadata = await agentConnect.accounts.getMetadata('account_id');
-```
-
-### Account settings
-
-Configure account-specific settings:
-
-```javascript
-// Update account settings
-await agentConnect.accounts.updateSettings('account_id', {
-  auto_refresh: true,
-  rate_limit: 100,
-  timeout: 30,
-  retry_attempts: 3
-});
-```
+Custom metadata is managed via the Scalekit dashboard.
 
 ## Bulk operations
 
 ### Managing multiple accounts
 
-Handle multiple connected accounts efficiently:
+The Python SDK supports per-account retrieval via `actions.get_or_create_connected_account`. Bulk list and delete operations (`connectedAccounts.listConnectedAccounts`, `connectedAccounts.deleteConnectedAccount`) are available in the Node.js SDK, or via the direct API and dashboard.
 
-```javascript
-// Create multiple accounts
-const accounts = await agentConnect.accounts.createBulk([
-  {
-    connection_id: 'conn_gmail_oauth',
-    identifier: 'user_1',
-    identifier_type: 'user_id'
-  },
-  {
-    connection_id: 'conn_gmail_oauth',
-    identifier: 'user_2',
-    identifier_type: 'user_id'
-  }
-]);
+<Tabs syncKey="tech-stack">
+<TabItem label="Python">
 
-// Get accounts by connection
-const gmailAccounts = await agentConnect.accounts.list({
-  connection_id: 'conn_gmail_oauth'
-});
-
-// Get accounts by status
-const activeAccounts = await agentConnect.accounts.list({
-  status: 'active'
-});
+```python
+# Retrieve an individual account by identifier
+# Note: listing all accounts for a connector is available via the dashboard or direct API
+response = actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier="user_123"
+)
+connected_account = response.connected_account
+print(f"Account: {connected_account.id}, Status: {connected_account.status}")
 ```
 
-### Batch operations
+</TabItem>
+<TabItem label="Node.js">
 
-Perform operations on multiple accounts:
-
-```javascript
-// Refresh tokens for multiple accounts
-const refreshResults = await agentConnect.accounts.refreshTokensBulk([
-  'account_1',
-  'account_2',
-  'account_3'
-]);
-
-// Update settings for multiple accounts
-await agentConnect.accounts.updateSettingsBulk([
-  'account_1',
-  'account_2'
-], {
-  auto_refresh: true,
-  rate_limit: 150
+```typescript
+// List connected accounts
+const listResponse = await connectedAccounts.listConnectedAccounts({
+  connector: 'gmail',
 });
+console.log('Connected accounts:', listResponse);
+
+// Delete a connected account
+await connectedAccounts.deleteConnectedAccount({
+  connector: 'gmail',
+  identifier: 'user_123',
+});
+console.log('Connected account deleted');
 ```
+
+</TabItem>
+</Tabs>
 
 ## Error handling
 
@@ -447,29 +420,42 @@ await agentConnect.accounts.updateSettingsBulk([
 
 Handle common connected account errors:
 
-```javascript
+<Tabs syncKey="tech-stack">
+<TabItem label="Python">
+
+```python
+try:
+    response = actions.get_connected_account(
+        connection_name="gmail",
+        identifier="user_123"
+    )
+    connected_account = response.connected_account
+except Exception as e:
+    print(f"Error retrieving connected account: {e}")
+    # Check connected_account.status for EXPIRED, REVOKED, or ERROR states
+    # and prompt the user to re-authorize if needed
+```
+
+</TabItem>
+<TabItem label="Node.js">
+
+```typescript
 try {
-  const account = await agentConnect.accounts.get('account_id');
+  const accountResponse = await connectedAccounts.getConnectedAccountByIdentifier({
+    connector: 'gmail',
+    identifier: 'user_123',
+  });
+  const connectedAccount = accountResponse?.connectedAccount;
+  console.log('Account status:', connectedAccount?.status);
 } catch (error) {
-  switch (error.code) {
-    case 'ACCOUNT_NOT_FOUND':
-      // Account doesn't exist
-      break;
-    case 'ACCOUNT_EXPIRED':
-      // Tokens expired, refresh needed
-      break;
-    case 'ACCOUNT_REVOKED':
-      // User revoked access
-      break;
-    case 'INVALID_PERMISSIONS':
-      // Insufficient permissions
-      break;
-    default:
-      // Other errors
-      break;
-  }
+  console.error('Error retrieving connected account:', error);
+  // Check connectedAccount?.status for EXPIRED, REVOKED, or ERROR states
+  // and prompt the user to re-authorize if needed
 }
 ```
+
+</TabItem>
+</Tabs>
 
 ### Error recovery
 
@@ -516,36 +502,11 @@ Ensure proper account isolation:
 
 ### Account health monitoring
 
-Monitor connected account health:
-
-```javascript
-// Get account health metrics
-const health = await agentConnect.accounts.getHealth('account_id');
-
-// Health metrics include:
-// - Token expiry status
-// - Authentication success rate
-// - API error rates
-// - Last successful authentication
-```
+Monitor the status of connected accounts by calling `get_connected_account` (Python) or `getConnectedAccountByIdentifier` (Node.js) and inspecting the `status` field. Accounts in a non-`ACTIVE` state may require re-authorization.
 
 ### Usage analytics
 
-Track account usage patterns:
-
-```javascript
-// Get account usage statistics
-const usage = await agentConnect.accounts.getUsage('account_id', {
-  start_date: '2024-01-01',
-  end_date: '2024-01-31'
-});
-
-// Usage data includes:
-// - Total tool executions
-// - API requests made
-// - Error rates
-// - Most used tools
-```
+Track usage patterns and tool execution results through the Scalekit dashboard. SDK methods for usage analytics are not currently available.
 
 ## Best practices
 
@@ -576,18 +537,35 @@ const usage = await agentConnect.accounts.getUsage('account_id', {
 
 Test connected accounts in development:
 
-```javascript
-// Create test account
-const testAccount = await agentConnect.accounts.create({
-  connection_id: 'conn_test_provider',
+<Tabs syncKey="tech-stack">
+<TabItem label="Python">
+
+```python
+# Create or retrieve a test connected account
+response = actions.get_or_create_connected_account(
+    connection_name="gmail",
+    identifier="test_user"
+)
+test_account = response.connected_account
+print(f"Test account: {test_account.id}, status: {test_account.status}")
+```
+
+</TabItem>
+<TabItem label="Node.js">
+
+```typescript
+// Create or retrieve a test connected account
+const response = await connectedAccounts.getOrCreateConnectedAccount({
+  connector: 'gmail',
   identifier: 'test_user',
-  identifier_type: 'user_id',
-  test_mode: true
 });
 
-// Use test tokens
-const testTokens = await agentConnect.accounts.getTestTokens('account_id');
+const testAccount = response.connectedAccount;
+console.log('Test account:', testAccount?.id, 'status:', testAccount?.status);
 ```
+
+</TabItem>
+</Tabs>
 
 ### Integration testing
 
