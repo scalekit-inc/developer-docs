@@ -99,7 +99,7 @@ export default defineConfig({
         // Provide copy-to-clipboard button for inline code snippets site-wide for better UX
         starlightCopyInlineCode({
           // Show copy button only on hover (default: true)
-          showOnHover: true,
+          showOnHover: false,
 
           // Tooltip text for copy button (default: 'Copy')
           copyLabel: 'Copy',
