@@ -1,0 +1,51 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+import useOwnCredentialsImg from '@/assets/docs/agent-connectors/google_looker/use-own-credentials-redirect-uri.png'
+import oauthWebAppImg from '@/assets/docs/agent-connectors/gmail/oauth-web-app.png'
+import addRedirectUriImg from '@/assets/docs/agent-connectors/gmail/add-redirect-uri.png'
+
+Register your Scalekit environment with the Google Looker connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Aside type="caution">
+  Google applications using scopes that permit access to certain user data must complete a verification process.
+</Aside>
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Google Looker** and click **Create**.
+
+    - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+      <img src={useOwnCredentialsImg.src} alt="Configure Google Looker Connection with redirect URI" width="500" />
+
+    - Navigate to [Google Cloud Console's](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) **APIs & Services > Credentials**. Select **+ Create Credentials**, then **OAuth client ID**. Choose **Web application** from the Application type menu.
+
+      ![Selecting Web Application in Google OAuth](@/assets/docs/agent-connectors/gmail/oauth-web-app.png)
+
+    - Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and select **Create**.
+
+      ![Adding Google redirect URI for OAuth](@/assets/docs/agent-connectors/gmail/add-redirect-uri.png)
+
+2. ### Enable the Looker API
+
+    - In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services > Library**.
+
+    - Search for "Looker API" in the API Library and select **Looker API**.
+
+    - Press the blue **Enable** button.
+
+3. ### Get client credentials
+
+    Google provides your Client ID and Client Secret credentials after you create the OAuth client ID in step 1.
+
+4. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - **Client ID** (from above)
+      - **Client Secret** (from above)
+      - **Permissions** (scopes — see [Google API Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes))
+
+    - Click **Save**.
+</Steps>
