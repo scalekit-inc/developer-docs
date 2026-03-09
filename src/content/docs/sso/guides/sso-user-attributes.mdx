@@ -107,42 +107,52 @@ After configuring a custom attribute in Scalekit, its value appears in the ID to
 
 <Tabs syncKey="tech-stack">
 <TabItem label="Node.js">
-```typescript title="Read custom attributes from ID token"
+```typescript title="src/auth/validateToken.ts"
 import type { IdTokenClaim } from '@scalekit-sdk/node';
 
-// Validate the ID token and cast to include your custom attributes
-const claims = await scalekit.validateToken<IdTokenClaim & Record<string, unknown>>(idToken);
-const employeeNumber = claims['employee_number'];
-const userRole = claims['user_role']; // use 'user_role', not 'roles'
+try {
+  // Validate the ID token and cast to include your custom attributes
+  // Security: Prevents replay attacks, forged tokens, and ensures token integrity
+  const claims = await scalekit.validateToken<IdTokenClaim & Record<string, unknown>>(idToken);
+  const employeeNumber = claims['employee_number'];
+  const userRole = claims['user_role']; // use 'user_role', not 'roles'
+} catch (error) {
+  console.error('Token validation failed:', error);
+  throw error;
+}
 ```
-</TabItem>
 <TabItem label="Python">
-```python title="Read custom attributes from ID token"
+```python title="src/auth/validate_token.py"
 # Validate the ID token — returns a dict of all claims
+# Security: Prevents replay attacks, forged tokens, and ensures token integrity
 claims = scalekit_client.validate_token(id_token)
+if claims is None:
+    raise ValueError("Invalid or expired token")
 employee_number = claims.get('employee_number')
 user_role = claims.get('user_role')  # use 'user_role', not 'roles'
 ```
-</TabItem>
 <TabItem label="Go">
-```go title="Read custom attributes from ID token"
+```go title="cmd/auth/validate_token.go"
 // Validate the ID token — returns a map of all claims
+// Security: Prevents replay attacks, forged tokens, and ensures token integrity
 claims, err := scalekitClient.ValidateToken(ctx, idToken)
 if err != nil {
-    log.Fatal(err)
+    log.Fatalf("Token validation failed: %v", err)
 }
 employeeNumber := claims["employee_number"]
 userRole := claims["user_role"] // use "user_role", not "roles"
 ```
-</TabItem>
 <TabItem label="Java">
-```java title="Read custom attributes from ID token"
+```java title="src/auth/ValidateToken.java"
 import java.util.Map;
 
 // Validate the ID token — returns a map of all claims
+// Security: Prevents replay attacks, forged tokens, and ensures token integrity
 Map<String, Object> claims = scalekitClient.authentication().validateToken(idToken);
+if (claims == null) {
+    throw new IllegalArgumentException("Invalid or expired token");
+}
 Object employeeNumber = claims.get("employee_number");
 Object userRole = claims.get("user_role"); // use "user_role", not "roles"
 ```
-</TabItem>
 </Tabs>
