@@ -37,15 +37,15 @@ Using Scalekit SDK, you can execute any action on behalf of a user using the fol
 ```python
 # Fetch recent emails
 tool_response = actions.execute_tool(
-    # connected_account gives the user context
-    connected_account_id=connected_account.id,
-    # tool name to execute
-    tool='gmail_fetch_mails',
     # tool input parameters
     tool_input={
         'query': 'is:unread',
         'max_results': 5
-    }
+    },
+    # tool name to execute
+    tool_name='gmail_fetch_mails',
+    # connected_account gives the user context
+    connected_account_id=connected_account.id,
 )
 
 print(f'Recent emails: {tool_response.result}')
@@ -55,6 +55,12 @@ print(f'Recent emails: {tool_response.result}')
 <TabItem label="Node.js">
 
 ```typescript
+// Get the connected account first
+const { connectedAccount } = await connectedAccounts.getOrCreateConnectedAccount({
+  connector: 'gmail',
+  identifier: 'user_123',
+});
+
 // Fetch recent emails
 const toolResponse = await tools.executeTool({
   // tool name to execute
