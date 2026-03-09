@@ -56,18 +56,12 @@ print(f'Recent emails: {tool_response.result}')
 
 ```typescript
 // Requires @scalekit-sdk/node@2.2.0-beta.1: npm install @scalekit-sdk/node@2.2.0-beta.1
-// Get the connected account first
-const { connectedAccount } = await connectedAccounts.getOrCreateConnectedAccount({
-  connector: 'gmail',
-  identifier: 'user_123',
-});
-
 // Fetch recent emails
 const toolResponse = await tools.executeTool({
   // tool name to execute
   toolName: 'gmail_fetch_mails',
-  // connected account gives the user context
-  connectedAccountId: connectedAccount?.id,
+  // connectedAccountId from a prior getOrCreateConnectedAccount call
+  connectedAccountId: 'your_connected_account_id',
   // tool input parameters
   params: {
     query: 'is:unread',
