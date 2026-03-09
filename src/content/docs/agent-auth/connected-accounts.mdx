@@ -14,7 +14,7 @@ next:
   link: "/agent-auth/tools/execute"
 ---
 
-import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Aside type="note" title="Node.js beta version">
   The Node.js SDK examples on this page require `@scalekit-sdk/node@2.2.0-beta.1`. Agent Auth features are in beta for Node.js. Install with: `npm install @scalekit-sdk/node@2.2.0-beta.1`
@@ -89,6 +89,7 @@ Create connected accounts programmatically:
 <TabItem label="Python">
 
 ```python
+# actions = scalekit_client.actions  (initialize ScalekitClient first — see quickstart)
 response = actions.get_or_create_connected_account(
     connection_name="gmail",
     identifier="user_123"
@@ -280,7 +281,7 @@ Monitor account authentication status:
 <TabItem label="Python">
 
 ```python
-response = actions.get_or_create_connected_account(
+response = actions.get_connected_account(
     connection_name="gmail",
     identifier="user_123"
 )
@@ -299,12 +300,12 @@ print(f"Account status: {connected_account.status}")
 <TabItem label="Node.js">
 
 ```typescript
-const response = await connectedAccounts.getOrCreateConnectedAccount({
+const accountResponse = await connectedAccounts.getConnectedAccountByIdentifier({
   connector: 'gmail',
   identifier: 'user_123',
 });
 
-const connectedAccount = response.connectedAccount;
+const connectedAccount = accountResponse?.connectedAccount;
 
 // Possible status values:
 // - PENDING: Waiting for user authentication
