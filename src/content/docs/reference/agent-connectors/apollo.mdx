@@ -172,120 +172,129 @@ Connect a user's Apollo account and make API calls on their behalf — Scalekit 
 
 ## Tool list
 
-## `apollo_contacts_search`
+## `apollo_create_account`
 
-Search for contacts in Apollo using filters such as name, title, company, location, and more.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `contact_stage_ids` | `array<string>` | No | Filter by contact stage IDs |
-| `email_status` | string | No | Filter by email verification status (e.g., `verified`, `unverified`) |
-| `organization_ids` | `array<string>` | No | Filter contacts by organization IDs |
-| `page` | integer | No | Page number for pagination |
-| `per_page` | integer | No | Number of results per page (max 100) |
-| `person_locations` | `array<string>` | No | Filter by contact location |
-| `person_titles` | `array<string>` | No | Filter by job title keywords |
-| `q_keywords` | string | No | Full-text keyword search |
-| `sort_ascending` | boolean | No | Sort results in ascending order |
-| `sort_by_field` | string | No | Field to sort results by |
-
-## `apollo_contact_get`
-
-Retrieve details of a specific contact from Apollo by contact ID.
+Create a new account (organization) in Apollo. Requires the `account_write` scope.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `contact_id` | string | Yes | ID of the contact to retrieve |
+| `name` | string | Yes | Name of the account to create |
+| `domain` | string | No | Website domain of the account (e.g., `example.com`) |
+| `linkedin_url` | string | No | LinkedIn profile URL of the account |
+| `phone_number` | string | No | Primary phone number of the account |
+| `raw_address` | string | No | Physical address of the account |
 
-## `apollo_contact_create`
+## `apollo_create_contact`
 
-Create a new contact in Apollo.
+Create a new contact in Apollo. Requires the `contact_write` scope.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
+| `first_name` | string | Yes | First name of the contact |
+| `last_name` | string | Yes | Last name of the contact |
 | `account_id` | string | No | ID of the account to associate this contact with |
 | `email` | string | No | Email address of the contact |
-| `first_name` | string | No | First name of the contact |
-| `label_names` | `array<string>` | No | Labels to apply to the contact |
-| `last_name` | string | Yes | Last name of the contact |
+| `linkedin_url` | string | No | LinkedIn profile URL of the contact |
 | `organization_name` | string | No | Name of the contact's organization |
-| `phone_numbers` | `array<object>` | No | Array of phone number objects |
+| `phone` | string | No | Phone number of the contact |
 | `title` | string | No | Job title of the contact |
 
-## `apollo_contact_update`
+## `apollo_enrich_account`
 
-Update an existing contact in Apollo by contact ID.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `account_id` | string | No | ID of the account to associate this contact with |
-| `contact_id` | string | Yes | ID of the contact to update |
-| `email` | string | No | Updated email address |
-| `first_name` | string | No | Updated first name |
-| `label_names` | `array<string>` | No | Labels to apply to the contact |
-| `last_name` | string | No | Updated last name |
-| `organization_name` | string | No | Updated organization name |
-| `title` | string | No | Updated job title |
-
-## `apollo_accounts_search`
-
-Search for accounts (organizations) in Apollo using filters such as industry, employee count, and location.
+Enrich an account's profile with additional data from Apollo's database using domain or name. Requires the `organizations_enrich` scope.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `account_stage_ids` | `array<string>` | No | Filter by account stage IDs |
-| `industries` | `array<string>` | No | Filter by industry keywords |
-| `maximum_employees` | integer | No | Maximum number of employees |
-| `minimum_employees` | integer | No | Minimum number of employees |
-| `page` | integer | No | Page number for pagination |
-| `per_page` | integer | No | Number of results per page (max 100) |
-| `q_keywords` | string | No | Full-text keyword search |
-| `sort_ascending` | boolean | No | Sort results in ascending order |
-| `sort_by_field` | string | No | Field to sort results by |
+| `domain` | string | No | Domain of the organization to enrich (e.g., `example.com`) |
+| `name` | string | No | Name of the organization to enrich |
 
-## `apollo_account_get`
+## `apollo_enrich_contact`
 
-Retrieve details of a specific account from Apollo by account ID.
+Enrich a contact's profile with additional data from Apollo's database. Requires the `person_read` scope.
+
+> **Note**: This tool is restricted to certain Apollo plans.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `email` | string | No | Email address of the person to enrich (recommended for best results) |
+| `first_name` | string | No | First name of the person |
+| `last_name` | string | No | Last name of the person |
+| `linkedin_url` | string | No | LinkedIn profile URL of the person |
+| `organization_name` | string | No | Organization name of the person |
+| `reveal_personal_emails` | boolean | No | Set to `true` to include personal email addresses in the response |
+| `reveal_phone_number` | boolean | No | Set to `true` to include phone numbers in the response |
+
+## `apollo_get_account`
+
+Retrieve details of a specific account from Apollo by account ID. Requires the `account_read` scope.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `account_id` | string | Yes | ID of the account to retrieve |
 
-## `apollo_people_enrich`
+## `apollo_get_contact`
 
-Enrich a person's profile with additional data from Apollo's database using their email or name and company.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `email` | string | No | Email address to enrich (recommended) |
-| `first_name` | string | No | First name of the person |
-| `last_name` | string | No | Last name of the person |
-| `organization_name` | string | No | Organization name for the person |
-
-## `apollo_organizations_enrich`
-
-Enrich an organization's profile with additional data from Apollo's database using domain or name.
+Retrieve details of a specific contact from Apollo by contact ID. Requires the `contact_read` scope.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `domain` | string | No | Domain of the organization (e.g., `example.com`) |
-| `name` | string | No | Name of the organization |
+| `contact_id` | string | Yes | ID of the contact to retrieve |
 
-## `apollo_sequences_list`
+## `apollo_list_sequences`
 
-List all sequences (email outreach campaigns) in Apollo.
+List sequences (email outreach campaigns) in Apollo. Requires the `emailer_campaigns_search` scope.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `page` | integer | No | Page number for pagination |
 | `per_page` | integer | No | Number of results per page |
+| `search` | string | No | Search term to filter sequences by name |
 
-## `apollo_sequence_contacts_add`
+## `apollo_search_accounts`
 
-Add contacts to an Apollo sequence to enroll them in an email outreach campaign.
+Search for accounts (organizations) in Apollo using filters such as company name, industry, and location. Requires the `accounts_search` scope.
+
+> **Note**: This tool is restricted to certain Apollo plans.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `contact_ids` | `array<string>` | Yes | Array of contact IDs to add to the sequence |
-| `sequence_id` | string | Yes | ID of the sequence to add contacts to |
-| `user_id` | string | No | ID of the user sending the sequence |
+| `company_name` | string | No | Filter by company name |
+| `employee_ranges` | string | No | Filter by employee count range (e.g., `1,10`) |
+| `industry` | string | No | Filter by industry |
+| `keywords` | string | No | Full-text keyword search |
+| `location` | string | No | Filter by account location |
+| `page` | integer | No | Page number for pagination |
+| `per_page` | integer | No | Number of results per page |
+
+## `apollo_search_contacts`
+
+Search for contacts in Apollo using filters such as title, company, industry, and location. Requires the `contacts_search` scope.
+
+> **Note**: This tool is restricted to certain Apollo plans.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `company_name` | string | No | Filter by company name |
+| `industry` | string | No | Filter by industry |
+| `keywords` | string | No | Full-text keyword search |
+| `location` | string | No | Filter by contact location |
+| `page` | integer | No | Page number for pagination |
+| `per_page` | integer | No | Number of results per page |
+| `seniority` | string | No | Filter by seniority level |
+| `title` | string | No | Filter by job title |
+
+## `apollo_update_contact`
+
+Update an existing contact in Apollo by contact ID. Requires the `contact_update` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `contact_id` | string | Yes | ID of the contact to update |
+| `contact_stage_id` | string | No | Updated contact stage ID |
+| `email` | string | No | Updated email address |
+| `first_name` | string | No | Updated first name |
+| `last_name` | string | No | Updated last name |
+| `linkedin_url` | string | No | Updated LinkedIn profile URL |
+| `organization_name` | string | No | Updated organization name |
+| `phone` | string | No | Updated phone number |
+| `title` | string | No | Updated job title |
