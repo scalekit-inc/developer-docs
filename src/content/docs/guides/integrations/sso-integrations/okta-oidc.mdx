@@ -1,0 +1,99 @@
+---
+title: "Okta - OIDC"
+description: "Learn how to set up OpenID Connect (OIDC) Single Sign-On (SSO) using Okta as your identity provider, with step-by-step instructions for app integration setup."
+prev: false
+next: false
+sidebar:
+  order: 2
+  label: "Okta"
+  badge:
+    variant: note
+    text: OIDC
+---
+
+import { Steps, Aside } from "@astrojs/starlight/components"
+
+This guide walks you through configuring Okta as your OIDC identity provider for your application. You'll create an OIDC app integration in Okta, connect it to the SSO Configuration Portal, assign access, test the connection, and then enable Single Sign-On.
+
+<Steps>
+1. ## Create an OIDC Integration
+
+   Log in to your _Okta Admin Console_. Go to _Applications -> Applications_.
+
+   ![Open the Applications page in Okta Admin Console](@/assets/docs/guides/sso-integrations/okta-oidc/0.png)
+
+   In the **Applications** tab, click on **Create App Integration.**
+
+   ![Create a new app integration in Okta](@/assets/docs/guides/sso-integrations/okta-oidc/1.png)
+
+   Select **OIDC - OpenID Connect** as the sign-in method and **Web Application** as the application type, then click **Next**.
+
+   ![Select OIDC web application in Okta](@/assets/docs/guides/sso-integrations/okta-oidc/2.png)
+
+2. ## Configure OIDC Integration
+   
+   In the app configuration form, enter an app name.
+   ![Set app name in Okta](@/assets/docs/guides/sso-integrations/okta-oidc/2026-03-10-14-18-44.png)
+
+   From the **SSO Configuration Portal**, copy the **Redirect URI** under **Service Provider Details**.
+   ![Copy Redirect URI from the SSO Configuration Portal](@/assets/docs/guides/sso-integrations/okta-oidc/2026-03-10-14-23-04.png)
+
+   Back in Okta, paste this value into **Sign-in redirect URIs**.
+   ![Add Redirect URL to Okta](@/assets/docs/guides/sso-integrations/okta-oidc/2026-03-10-14-25-01.png)
+    
+   Scroll down to the Assignments section. Select **Limit access to selected groups** and assign the appropriate groups to the application. The group assignment can be edited later.
+   ![Assign required groups to the application in Okta](@/assets/docs/guides/sso-integrations/okta-oidc/2026-03-10-14-20-32.png)
+
+3. ## Provide OIDC Configuration
+
+   After the app integration is created, copy the following values from the **General** tab in Okta:
+
+   - **Client ID**
+   - **Client Secret**
+   - **Okta Tenant Domain**
+
+   ![Copy client credentials from Okta](@/assets/docs/guides/sso-integrations/okta-oidc/2026-03-10-14-45-43.png)
+   
+   Add these values under **Identity Provider Configuration** in the **SSO Configuration Portal**:
+   ![Add client credentials in SSO configuration portal](@/assets/docs/guides/sso-integrations/okta-oidc/2026-03-10-14-47-17.png)
+   
+   Click the profile section in the top navigation bar in Okta and copy the **Okta Tenant Domain**. We will use this value to construct the Issuer URL.
+   ![Copy Okta tenant domain from profile menu](@/assets/docs/guides/sso-integrations/okta-oidc/2026-03-10-15-42-33.png)
+
+   Construct the **Issuer URL** using the following format:
+
+   ```text
+   https://[okta-tenant-domain]
+   ```
+   
+   Add this Issuer URL in the **SSO Configuration Portal**:
+   ![Add Issuer URL in SSO configuration portal](@/assets/docs/guides/sso-integrations/okta-oidc/2026-03-10-14-51-07.png)
+
+   Once all values are entered, click **Update**.
+   ![Completed IdP configuration in the SSO Configuration Portal](@/assets/docs/guides/sso-integrations/okta-oidc/2026-03-10-14-51-52.png)
+
+4. ## Assign People/Groups
+
+   In Okta, go to the **Assignments** tab.
+
+   ![Assign people or groups to the Okta app integration](@/assets/docs/guides/sso-integrations/okta-oidc/4.png)
+
+   Click **Assign**, then choose **Assign to People** or **Assign to Groups**. Assign the appropriate people or groups to this integration and click **Done**.
+   ![Assign users or groups to the Okta app](@/assets/docs/guides/sso-integrations/okta-oidc/2026-03-10-14-59-18.png)
+
+5. ## Test Connection
+
+   In the **SSO Configuration Portal**, click **Test Connection**. If everything is configured correctly, you will see a **Success** response.
+
+   <Aside type="note">
+   If the connection fails, you'll see an error, the reason for the error, and a way to solve that error right on the screen.
+   </Aside>
+
+
+6. ## Enable Single Sign-On
+
+   Click **Enable Connection** to allow assigned users to sign in through Okta OIDC.
+   ![Enable connection](@/assets/docs/guides/sso-integrations/okta-oidc/2026-03-10-15-22-15.png)
+
+   This completes the Okta OIDC SSO setup for your application.
+</Steps>
