@@ -1,0 +1,431 @@
+---
+title: 'Implementing Passwordless Auth in Next.js 15'
+description: 'Add magic link and OTP authentication to your Next.js application using Scalekit''s headless API.'
+date: 2025-02-19
+tags: ['Full stack auth', 'Next.js']
+excerpt: Next.js 15's App Router requires server-first authentication. This guide shows you how to implement magic link + OTP passwordless login using Scalekit's headless API, keeping all security logic server-side while maintaining full control over your UI.
+featured: false
+authors:
+  - name: 'Hashirr Lukmahn'
+    title: 'Software Engineer'
+    url: 'https://www.linkedin.com/in/hashirr-lukmahn/'
+    picture: '/images/blog/authors/hashirr-lukmahn.jpg'
+---
+
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+Next.js 15's App Router expects authentication to be server-first: tokens generated on the server, verification happening in Route Handlers or Server Actions, and sessions stored in HttpOnly cookies. If you're building passwordless authentication (magic links + OTP), traditional client-side SDKs won't work properly with this model.
+
+This cookbook shows you how to implement passwordless auth that works natively with Next.js 15's architecture using Scalekit's headless API.
+
+## The problem
+
+You want passwordless authentication in Next.js 15 but face these challenges:
+
+- **Client-side SDKs break App Router patterns** - They expect browser-side token handling, which violates server-first principles
+- **Vendor UIs don't match your design** - Pre-built login pages force you to compromise on branding
+- **DIY is complex** - Building secure token generation, email delivery, verification, and session management from scratch is a significant lift
+- **Cross-device failures** - Magic links often break when users switch devices or email clients strip parameters
+
+## Who needs this
+
+This cookbook is for you if:
+
+- ✅ You're building a Next.js 15 application using App Router
+- ✅ You want passwordless authentication (magic links, OTP, or both)
+- ✅ You need full control over your login UI and email design
+- ✅ You don't want to migrate your existing user database
+- ✅ You require server-side security for compliance
+
+You **don't** need this if:
+
+- ❌ You're happy with vendor-hosted login pages
+- ❌ You're using Next.js Pages Router (not App Router)
+- ❌ You prefer traditional username/password authentication
+
+## The solution
+
+Scalekit's passwordless API provides three server-side methods that integrate directly with Next.js 15's architecture:
+
+1. **`sendPasswordlessEmail()`** - Generates and sends magic link/OTP to user's email
+2. **`verifyPasswordlessEmail()`** - Validates the token/code and returns verified identity
+3. **`resendPasswordlessEmail()`** - Issues a fresh credential if the first expires
+
+All security logic stays server-side, works with Server Actions and Route Handlers, and integrates with Edge Middleware for route protection.
+
+## Implementation
+
+### 1. Configure Scalekit dashboard
+
+Enable passwordless authentication in your [Scalekit dashboard](https://app.scalekit.com/):
+
+1. Navigate to **Authentication → Passwordless**
+2. Select **Magic Link + Verification Code** for maximum reliability
+3. Set **Expiry Period** (e.g., 600 seconds for 10-minute lifetime)
+4. Enable **Enforce same browser origin** to prevent link hijacking
+5. (Optional) Enable **Regenerate credentials on resend** to invalidate old links
+
+### 2. Install dependencies and configure environment
+
+```bash
+npm install @scalekit-sdk/node jsonwebtoken
+```
+
+Create `.env.local`:
+
+```bash
+SCALEKIT_ENVIRONMENT_URL=env_xxxx
+SCALEKIT_CLIENT_ID=skc_xxx
+SCALEKIT_CLIENT_SECRET=your_secret
+APP_URL=http://localhost:3000
+JWT_SECRET=your_jwt_secret
+```
+
+### 3. Create session management utilities
+
+Create `lib/session-store.ts` to handle server-side session creation:
+
+```typescript
+import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
+
+const COOKIE = 'session';
+const SECRET = process.env.JWT_SECRET!;
+
+export function createSession(email: string) {
+  const token = jwt.sign({ email }, SECRET, { expiresIn: '7d' });
+  cookies().set(COOKIE, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60 * 60 * 24 * 7,
+  });
+}
+
+export function readSessionEmail(): string | null {
+  const token = cookies().get(COOKIE)?.value;
+  if (!token) return null;
+  
+  try {
+    const decoded = jwt.verify(token, SECRET) as { email: string };
+    return decoded.email;
+  } catch {
+    return null;
+  }
+}
+
+export function clearSession() {
+  cookies().delete(COOKIE);
+}
+```
+
+### 4. Create send email endpoint
+
+Create `app/api/auth/send-passwordless/route.ts`:
+
+```typescript
+import Scalekit from '@scalekit-sdk/node';
+import { NextRequest, NextResponse } from 'next/server';
+
+const scalekit = new Scalekit(
+  process.env.SCALEKIT_ENVIRONMENT_URL!,
+  process.env.SCALEKIT_CLIENT_ID!,
+  process.env.SCALEKIT_CLIENT_SECRET!
+);
+
+export async function POST(req: NextRequest) {
+  const { email } = await req.json();
+  
+  try {
+    const response = await scalekit.passwordless.sendPasswordlessEmail(email, {
+      template: 'SIGNIN',
+      expiresIn: 600, // 10 minutes
+      state: crypto.randomUUID(),
+      magiclinkAuthUri: `${process.env.APP_URL}/api/auth/verify`,
+    });
+    
+    return NextResponse.json({
+      authRequestId: response.authRequestId,
+      expiresAt: response.expiresAt,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to send email' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### 5. Create verification endpoint
+
+Create `app/api/auth/verify/route.ts` with both GET (magic link) and POST (OTP) handlers:
+
+```typescript
+import Scalekit from '@scalekit-sdk/node';
+import { NextRequest, NextResponse } from 'next/server';
+import { createSession } from '@/lib/session-store';
+
+const scalekit = new Scalekit(
+  process.env.SCALEKIT_ENVIRONMENT_URL!,
+  process.env.SCALEKIT_CLIENT_ID!,
+  process.env.SCALEKIT_CLIENT_SECRET!
+);
+
+// Magic link verification
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const linkToken = url.searchParams.get('link_token');
+  const authRequestId = url.searchParams.get('auth_request_id') ?? undefined;
+  
+  if (!linkToken) {
+    return NextResponse.redirect(
+      new URL('/login?error=missing_token', req.url)
+    );
+  }
+  
+  try {
+    const verified = await scalekit.passwordless.verifyPasswordlessEmail(
+      { linkToken },
+      authRequestId
+    );
+    
+    createSession(verified.email);
+    return NextResponse.redirect(new URL('/dashboard', req.url));
+  } catch {
+    return NextResponse.redirect(
+      new URL('/login?error=verification_failed', req.url)
+    );
+  }
+}
+
+// OTP verification
+export async function POST(req: NextRequest) {
+  const { code, authRequestId } = await req.json();
+  
+  if (!code || !authRequestId) {
+    return NextResponse.json(
+      { error: 'Missing required fields' },
+      { status: 400 }
+    );
+  }
+  
+  try {
+    const verified = await scalekit.passwordless.verifyPasswordlessEmail(
+      { code },
+      authRequestId
+    );
+    
+    createSession(verified.email);
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json(
+      { error: 'Invalid or expired code' },
+      { status: 400 }
+    );
+  }
+}
+```
+
+### 6. Add resend endpoint
+
+Create `app/api/auth/resend-passwordless/route.ts`:
+
+```typescript
+import Scalekit from '@scalekit-sdk/node';
+import { NextRequest, NextResponse } from 'next/server';
+
+const scalekit = new Scalekit(
+  process.env.SCALEKIT_ENVIRONMENT_URL!,
+  process.env.SCALEKIT_CLIENT_ID!,
+  process.env.SCALEKIT_CLIENT_SECRET!
+);
+
+export async function POST(req: NextRequest) {
+  const { authRequestId } = await req.json();
+  
+  if (!authRequestId) {
+    return NextResponse.json(
+      { error: 'Missing authRequestId' },
+      { status: 400 }
+    );
+  }
+  
+  try {
+    const response = await scalekit.passwordless.resendPasswordlessEmail(
+      authRequestId
+    );
+    
+    return NextResponse.json({
+      authRequestId: response.authRequestId,
+      expiresAt: response.expiresAt,
+    });
+  } catch {
+    return NextResponse.json(
+      { error: 'Resend failed' },
+      { status: 400 }
+    );
+  }
+}
+```
+
+### 7. Protect routes with middleware
+
+Create `middleware.ts` in your project root:
+
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+
+export function middleware(req: NextRequest) {
+  const protectedPath = req.nextUrl.pathname.startsWith('/dashboard');
+  const hasSession = Boolean(req.cookies.get('session')?.value);
+  
+  if (protectedPath && !hasSession) {
+    const url = new URL('/login', req.url);
+    url.searchParams.set('next', req.nextUrl.pathname);
+    return NextResponse.redirect(url);
+  }
+  
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*'],
+};
+```
+
+### 8. Build login UI (example)
+
+Create `app/login/page.tsx`:
+
+```typescript
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [authRequestId, setAuthRequestId] = useState('');
+  const [showOtp, setShowOtp] = useState(false);
+  const [otp, setOtp] = useState('');
+  const router = useRouter();
+  
+  async function handleSendEmail(e: React.FormEvent) {
+    e.preventDefault();
+    
+    const res = await fetch('/api/auth/send-passwordless', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    
+    const data = await res.json();
+    setAuthRequestId(data.authRequestId);
+    setShowOtp(true);
+  }
+  
+  async function handleVerifyOtp(e: React.FormEvent) {
+    e.preventDefault();
+    
+    const res = await fetch('/api/auth/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: otp, authRequestId }),
+    });
+    
+    if (res.ok) {
+      router.push('/dashboard');
+    }
+  }
+  
+  return (
+    <div>
+      {!showOtp ? (
+        <form onSubmit={handleSendEmail}>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            required
+          />
+          <button type="submit">Send magic link</button>
+        </form>
+      ) : (
+        <form onSubmit={handleVerifyOtp}>
+          <p>Check your email for a magic link or enter the code below:</p>
+          <input
+            type="text"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            placeholder="Enter 6-digit code"
+            maxLength={6}
+          />
+          <button type="submit">Verify</button>
+        </form>
+      )}
+    </div>
+  );
+}
+```
+
+## Security features
+
+Scalekit enforces these protections automatically:
+
+- **Rate limiting**: 2 emails per minute per address, 5 OTP attempts per 10 minutes
+- **Short-lived tokens**: Configure expiry from 60 seconds to 1 hour
+- **Same-browser enforcement**: When enabled, links can only be verified from the originating browser
+- **HttpOnly sessions**: Tokens never touch client JavaScript
+
+## Error handling
+
+Map Scalekit errors to user-friendly messages:
+
+```typescript
+function getErrorMessage(error: string): string {
+  if (error.includes('expired')) {
+    return 'This link has expired. Request a new one.';
+  }
+  if (error.includes('rate')) {
+    return 'Too many attempts. Please try again later.';
+  }
+  if (error.includes('invalid')) {
+    return 'Invalid code. Please check and try again.';
+  }
+  return 'Verification failed. Please try again.';
+}
+```
+
+## Production checklist
+
+Before deploying:
+
+- ✅ Set `secure: true` for session cookies (enforced automatically in production)
+- ✅ Configure production Scalekit credentials in environment variables
+- ✅ Verify dashboard settings match your security requirements
+- ✅ Test magic link + OTP flow on multiple email clients
+- ✅ Set up monitoring for authentication errors and rate limit hits
+- ✅ Configure custom email templates with your branding
+
+## Complete example
+
+Full working code is available in the [Scalekit GitHub repository](https://github.com/scalekit-developers/blogops-app-examples/tree/main/nextjs-passwordless-auth).
+
+## Why this approach works
+
+This implementation:
+
+- **Works natively with App Router** - All sensitive operations are server-side
+- **Maintains full UI control** - No vendor widgets or redirects to hosted pages
+- **Handles cross-device gracefully** - OTP fallback covers magic link failures
+- **Requires no user migration** - Works on top of your existing user store
+- **Stays secure by default** - HttpOnly cookies, server-only verification, automatic rate limiting
+
+## Related resources
+
+- [Scalekit Passwordless Auth Documentation](https://docs.scalekit.com/passwordless/)
+- [Next.js 15 App Router Documentation](https://nextjs.org/docs/app)
+- [Full tutorial blog post](https://www.scalekit.com/blog/passwordless-authentication-next-js)

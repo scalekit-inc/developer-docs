@@ -1,0 +1,348 @@
+---
+title: 'Build an agent that books meetings and drafts emails'
+description: 'Connect a Python agent to Google Calendar and Gmail via Scalekit to find free slots, book meetings, and draft follow-up emails.'
+date: 2026-03-06
+tags: ['Agent auth']
+excerpt: >
+  Building a scheduling agent means coordinating authentication to two separate tools — Google Calendar and Gmail — then chaining their outputs in one workflow. Without managed OAuth, each connector requires its own token lifecycle and error-handling logic. This recipe shows how Scalekit handles auth per connector so your agent can focus on finding a free slot, creating the event, and drafting the confirmation.
+featured: false
+authors:
+  - name: 'Saif Ali Shaik'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+
+Scheduling a meeting sounds simple: find a free slot, create an event, send a confirmation. But in an agent, each of those steps crosses a tool boundary — and each tool requires its own OAuth token. Without a managed auth layer, you end up writing token-fetching, refresh logic, and error handling three times over before you write a single line of scheduling logic. This cookbook solves that by using Scalekit to own the OAuth lifecycle for each connector, so your agent can focus on the workflow itself.
+
+This is a Python recipe for agents that call two or more external APIs on behalf of a user. If you're using a service account rather than user-delegated OAuth, or building in JavaScript, the pattern is the same but the source differs — see the `javascript/` track in [agent-auth-examples](https://github.com/scalekit-developers/agent-auth-examples). The complete Python source used here is `python/meeting_scheduler_agent.py` in that repo.
+
+**The core problems this solves:**
+
+- **One token per connector** — Google Calendar and Gmail use separate OAuth scopes and separate access tokens. Your agent must manage both independently.
+- **First-run authorization is blocking** — If the user has not yet authorized a connector, your agent cannot proceed until they complete the browser OAuth flow.
+- **Token expiry is silent** — A token that worked yesterday fails today, and the failure looks identical to a permissions error.
+- **Chaining tool outputs is fragile** — The event link from the Calendar API needs to appear in the Gmail draft. If the Calendar call fails mid-workflow, the draft gets a broken link or never gets created.
+
+Scalekit exposes a `connected_accounts` abstraction that maps a user ID to an authorized OAuth session per connector. When your agent calls `get_or_create_connected_account`, Scalekit either returns an existing active account with a valid token or creates a new one and returns an authorization URL. Once the user authorizes, `get_connected_account` returns the token. From that point, Scalekit handles refresh automatically.
+
+This means your agent's authorization step is a single function regardless of which connector you're targeting. The rest of the code — Calendar queries, event creation, Gmail drafts — is plain HTTP with the token Scalekit provides.
+
+
+<Steps>
+1. **Set up the environment**
+
+   Create a `.env` file at the project root with your Scalekit credentials:
+
+   ```bash
+   SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
+   SCALEKIT_CLIENT_ID=your-client-id
+   SCALEKIT_CLIENT_SECRET=your-client-secret
+   ```
+
+   Install dependencies:
+
+   ```bash
+   pip install scalekit-sdk python-dotenv requests
+   ```
+
+   In the Scalekit Dashboard, create two connections for your environment:
+
+   - `googlecalendar` — Google Calendar OAuth connection
+   - `gmail` — Gmail OAuth connection
+
+   The script references these names literally. The names must match exactly.
+
+2. **Initialize the Scalekit client**
+
+   ```python
+   # meeting_scheduler_agent.py
+   import os
+   import base64
+   from datetime import datetime, timezone, timedelta
+   from email.mime.text import MIMEText
+
+   import requests
+   from dotenv import load_dotenv
+   from scalekit import ScalekitClient
+
+   load_dotenv()
+
+   # Never hard-code credentials — they would be exposed in source control
+   # and CI logs. Pull them from environment variables instead.
+   scalekit_client = ScalekitClient(
+       environment_url=os.getenv("SCALEKIT_ENVIRONMENT_URL"),
+       client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+       client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+   )
+
+   actions = scalekit_client.actions
+
+   # Replace with a real user identifier from your application's session
+   USER_ID = "user_123"
+   ATTENDEE_EMAIL = "attendee@example.com"
+   MEETING_TITLE = "Quick Sync"
+   DURATION_MINUTES = 60
+   SEARCH_DAYS = 3
+   WORK_START_HOUR = 9   # UTC
+   WORK_END_HOUR = 17    # UTC
+   ```
+
+   `scalekit_client.actions` is the entry point for all connected-account operations. Initialize it once and pass `actions` to the functions below.
+
+3. **Authorize each connector**
+
+   The `authorize` function handles the first-run prompt and returns a valid access token:
+
+   ```python
+   def authorize(connector: str) -> str:
+       """Ensure the user has an active connected account and return its access token.
+
+       On first run, this prints an authorization URL and waits for the user
+       to complete the browser OAuth flow before continuing.
+       """
+       account = actions.get_or_create_connected_account(connector, USER_ID)
+
+       if account.status != "active":
+           auth_link = actions.get_authorization_link(connector, USER_ID)
+           print(f"\nOpen this link to authorize {connector}:\n{auth_link}\n")
+           input("Press Enter after completing authorization in your browser…")
+           account = actions.get_connected_account(connector, USER_ID)
+
+       return account.authorization_details["oauth_token"]["access_token"]
+   ```
+
+   Call this once per connector before any API calls:
+
+   ```python
+   calendar_token = authorize("googlecalendar")
+   gmail_token = authorize("gmail")
+   ```
+
+   After the first successful authorization, `get_or_create_connected_account` returns `status == "active"` on subsequent runs and the `if` block is skipped. Scalekit refreshes expired tokens automatically.
+
+4. **Query calendar availability**
+
+   With a valid Calendar token, query the `freeBusy` endpoint to get the user's busy intervals:
+
+   ```python
+   def get_busy_slots(token: str) -> list[dict]:
+       """Fetch busy intervals for the user's primary calendar."""
+       now = datetime.now(timezone.utc)
+       window_end = now + timedelta(days=SEARCH_DAYS)
+
+       response = requests.post(
+           "https://www.googleapis.com/calendar/v3/freeBusy",
+           headers={"Authorization": f"Bearer {token}"},
+           json={
+               "timeMin": now.isoformat(),
+               "timeMax": window_end.isoformat(),
+               "items": [{"id": "primary"}],
+           },
+       )
+       response.raise_for_status()
+       return response.json()["calendars"]["primary"]["busy"]
+   ```
+
+   `raise_for_status()` converts 4xx and 5xx responses into exceptions, so the caller sees a clear error rather than a silent wrong result. The `busy` list contains `{"start": "...", "end": "..."}` dicts in ISO 8601 format.
+
+5. **Find the first open slot**
+
+   Walk forward in one-hour increments from now and return the first candidate that falls within working hours and does not overlap a busy interval:
+
+   ```python
+   def find_free_slot(busy_slots: list[dict]) -> tuple[datetime, datetime] | None:
+       """Return the first open one-hour slot during working hours in UTC.
+
+       Returns None if no slot is available in the search window.
+       """
+       now = datetime.now(timezone.utc)
+       # Round up to the next whole hour so the candidate is always in the future
+       candidate = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+       window_end = now + timedelta(days=SEARCH_DAYS)
+
+       while candidate < window_end:
+           slot_end = candidate + timedelta(minutes=DURATION_MINUTES)
+
+           if WORK_START_HOUR <= candidate.hour < WORK_END_HOUR:
+               overlap = any(
+                   candidate < datetime.fromisoformat(b["end"])
+                   and slot_end > datetime.fromisoformat(b["start"])
+                   for b in busy_slots
+               )
+               if not overlap:
+                   return candidate, slot_end
+
+           candidate += timedelta(hours=1)
+
+       return None
+   ```
+
+   This is a useful first-draft strategy: simple, readable, easy to debug. Its limits are real (one-hour granularity, UTC-only, primary calendar only) and addressed in [Production notes](#production-notes) below.
+
+6. **Create the calendar event**
+
+   Post the event to the Google Calendar API and return its HTML link, which you'll include in the email draft:
+
+   ```python
+   def create_event(token: str, start: datetime, end: datetime) -> str:
+       """Create a calendar event and return its HTML link."""
+       response = requests.post(
+           "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+           headers={"Authorization": f"Bearer {token}"},
+           json={
+               "summary": MEETING_TITLE,
+               "description": "Scheduled by agent",
+               "start": {"dateTime": start.isoformat(), "timeZone": "UTC"},
+               "end": {"dateTime": end.isoformat(), "timeZone": "UTC"},
+               "attendees": [{"email": ATTENDEE_EMAIL}],
+           },
+       )
+       response.raise_for_status()
+       return response.json()["htmlLink"]
+   ```
+
+   The `htmlLink` in the response is the calendar event URL. Google also sends an invitation email to each attendee automatically when the event is created; the draft you create in the next step is a separate follow-up, not the invitation itself.
+
+7. **Draft the confirmation email**
+
+   Build the email body, base64-encode it, and post it to Gmail's drafts endpoint:
+
+   ```python
+   def create_draft(token: str, event_link: str, start: datetime) -> None:
+       """Create a Gmail draft with the meeting details."""
+       body = (
+           f"Hi,\n\n"
+           f"I've scheduled '{MEETING_TITLE}' for "
+           f"{start.strftime('%A, %B %d at %H:%M UTC')} ({DURATION_MINUTES} min).\n\n"
+           f"Calendar link: {event_link}\n\n"
+           f"Looking forward to it!"
+       )
+
+       message = MIMEText(body)
+       message["to"] = ATTENDEE_EMAIL
+       message["subject"] = f"Invitation: {MEETING_TITLE}"
+
+       # Gmail's API requires the raw RFC 2822 message encoded as URL-safe base64
+       raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
+
+       response = requests.post(
+           "https://gmail.googleapis.com/gmail/v1/users/me/drafts",
+           headers={"Authorization": f"Bearer {token}"},
+           json={"message": {"raw": raw}},
+       )
+       response.raise_for_status()
+       print("Draft created in Gmail.")
+   ```
+
+   The script creates a draft, not a sent message. The user reviews it before sending. This is the right default for an agent — it takes the action but keeps a human in the loop for outbound communication.
+
+8. **Wire it together**
+
+   ```python
+   def main() -> None:
+       print("Authorizing Google Calendar…")
+       calendar_token = authorize("googlecalendar")
+
+       print("Authorizing Gmail…")
+       gmail_token = authorize("gmail")
+
+       print("Checking calendar availability…")
+       busy_slots = get_busy_slots(calendar_token)
+
+       slot = find_free_slot(busy_slots)
+       if not slot:
+           print(f"No free slot found in the next {SEARCH_DAYS} days.")
+           return
+
+       start, end = slot
+       print(f"Found slot: {start.strftime('%A %B %d, %H:%M')} UTC")
+
+       print("Creating calendar event…")
+       event_link = create_event(calendar_token, start, end)
+       print(f"Event created: {event_link}")
+
+       print("Creating Gmail draft…")
+       create_draft(gmail_token, event_link, start)
+
+
+   if __name__ == "__main__":
+       main()
+   ```
+</Steps>
+
+## Testing
+
+Run the agent from the command line:
+
+```bash
+python meeting_scheduler_agent.py
+```
+
+On first run, you should see two authorization prompts in sequence:
+
+```
+Authorizing Google Calendar…
+
+Open this link to authorize googlecalendar:
+https://accounts.google.com/o/oauth2/auth?...
+
+Press Enter after completing authorization in your browser…
+
+Authorizing Gmail…
+
+Open this link to authorize gmail:
+https://accounts.google.com/o/oauth2/auth?...
+
+Press Enter after completing authorization in your browser…
+
+Checking calendar availability…
+Found slot: Wednesday March 11, 10:00 UTC
+Creating calendar event…
+Event created: https://calendar.google.com/calendar/event?eid=...
+Creating Gmail draft…
+Draft created in Gmail.
+```
+
+On subsequent runs, the authorization prompts are skipped and the agent goes straight to availability checking.
+
+Verify the results:
+
+1. Open Google Calendar — you should see the event on the chosen date
+2. Open Gmail — you should see a draft in the Drafts folder with the event link
+
+## Common mistakes
+
+- **Connection name mismatch** — If you name the Scalekit connection `google-calendar` instead of `googlecalendar`, `get_or_create_connected_account` returns an error. The name in the Dashboard must match the string you pass to `authorize()` exactly.
+
+- **Missing OAuth scopes** — If you see a `403 Forbidden` when calling the Calendar or Gmail API, the OAuth app in Google Cloud Console is missing the required scopes. Calendar needs `https://www.googleapis.com/auth/calendar` and Gmail needs `https://www.googleapis.com/auth/gmail.compose`.
+
+- **`raise_for_status()` swallowing context** — The default exception message from `requests` truncates the response body. In development, add `print(response.text)` before `raise_for_status()` to see the full error from Google.
+
+- **UTC times without timezone info** — Passing a naive `datetime` (without `timezone.utc`) to `isoformat()` produces a string without a `Z` suffix. Google Calendar rejects this with a `400` error. Always construct datetimes with `timezone.utc`.
+
+- **`USER_ID` not matching your session** — The script uses a hardcoded `"user_123"`. In production, replace this with the actual user ID from your application's session. A mismatch means the connected account query returns the wrong user's tokens.
+
+## Production notes
+
+**Timezone handling** — The working-hours check (`WORK_START_HOUR`, `WORK_END_HOUR`) is UTC-only. In production, convert the user's local timezone and the attendee's timezone before searching. The `zoneinfo` module (Python 3.9+) handles this without third-party dependencies.
+
+**Slot granularity** — The one-hour increment misses 30- and 15-minute openings. For real scheduling, use the busy intervals directly to calculate the gaps between events, then filter by minimum duration.
+
+**Multiple calendars** — The `freeBusy` query checks only `primary`. Users who manage work and personal calendars separately will show false availability. Expand the `items` list to include all calendars the user has shared access to.
+
+**Draft vs send** — Creating a draft is safer for a first deployment. When you're confident in the agent's output quality, switch the Gmail endpoint from `/drafts` to `/messages/send` to make the agent fully autonomous. Add a confirmation step before making this change.
+
+**Error recovery** — If `create_event` succeeds but `create_draft` fails, you have an orphaned event with no follow-up email. In production, wrap the two calls in a compensation pattern: track the event ID and delete it if the draft creation fails.
+
+**Rate limits** — Google Calendar and Gmail both have per-user quotas. If your agent runs frequently for the same user, add exponential backoff around the `requests.post` calls.
+
+## Next steps
+
+- **Add user input** — Replace the hardcoded `ATTENDEE_EMAIL`, `MEETING_TITLE`, and `DURATION_MINUTES` with parameters parsed from natural language using an LLM tool call.
+- **Build the JavaScript equivalent** — The `agent-auth-examples` repo includes a JavaScript track. Compare the two implementations to see where the patterns converge and where they differ.
+- **Handle re-authorization** — If a user revokes access, `get_connected_account` returns an inactive account. Add a re-authorization path to recover gracefully instead of crashing.
+- **Explore other connectors** — The same `authorize()` pattern works for any Scalekit-supported connector: Slack, Notion, Jira. Swap the connector name and replace the Google API calls with the target service's API.
+- **Review the Scalekit agent auth quickstart** — For a broader overview of the connected-accounts model, see the [agent auth quickstart](/agent-auth/quickstart).
