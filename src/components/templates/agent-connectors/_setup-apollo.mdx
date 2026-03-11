@@ -1,32 +1,67 @@
-import { Steps } from '@astrojs/starlight/components'
+import { Steps, Aside } from '@astrojs/starlight/components'
 
-Register your Scalekit environment with the Apollo connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+Register your Scalekit environment with the Apollo connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically.
+
+<Aside type="note">
+Apollo restricts contact enrichment (`apollo_enrich_contact`), account search (`apollo_search_accounts`), and contact search (`apollo_search_contacts`) to paid plans. Free plan accounts will get an error when calling these tools.
+</Aside>
 
 <Steps>
-1. ### Set up auth redirects
+1. ### Create a connection in Scalekit
 
     - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Apollo** and click **Create**.
 
-    - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+    - Click **Use your own credentials** and copy the **Redirect URI**. It looks like:
+      `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`
 
       ![](@/assets/docs/agent-connectors/apollo/use-own-credentials-redirect-uri.png)
 
-    - Go to [Apollo's developer settings](https://developer.apollo.io/) and create a new OAuth application.
+    Keep this tab open — you'll return to it in step 3.
 
-    - Under **Redirect URIs**, paste the redirect URI you copied and save the application.
+2. ### Register an OAuth application in Apollo
 
-2. ### Get client credentials
+    - Go to [Apollo's OAuth registration page](https://developer.apollo.io/oauth-registration#/oauth-registration) and sign in with your Apollo account.
 
-    Apollo provides your Client ID and Client Secret after you create the OAuth application.
+    - Fill in the registration form:
+      - **Application name** — a name to identify your app (e.g., `My Sales Agent`)
+      - **Description** — brief description of what your app does
+      - **Redirect URIs** — paste the redirect URI you copied from Scalekit
 
-3. ### Add credentials in Scalekit
+    - Under **Scopes**, select the permissions your agent needs. Use the table below to decide:
 
-    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+      | Scope | Required for |
+      | --- | --- |
+      | `contact_read` | Reading contact details |
+      | `contact_write` | Creating contacts |
+      | `contact_update` | Updating contacts |
+      | `account_read` | Reading account details |
+      | `account_write` | Creating accounts |
+      | `organizations_enrich` | Enriching accounts with Apollo data |
+      | `person_read` | Enriching contacts (paid plans only) |
+      | `emailer_campaigns_search` | Listing email sequences |
+      | `accounts_search` | Searching accounts (paid plans only) |
+      | `contacts_search` | Searching contacts (paid plans only) |
 
-    - Enter your credentials:
-      - **Client ID** (from above)
-      - **Client Secret** (from above)
-      - **Permissions** (scopes — see [Apollo API Scopes reference](https://apolloio.github.io/apollo-api-docs/))
+      ![](@/assets/docs/agent-connectors/apollo/create-oauth-app.png)
+
+    - Click **Register application**.
+
+3. ### Copy your client credentials
+
+    After registering, Apollo shows the **Client ID** and **Client Secret** for your application.
+
+    ![](@/assets/docs/agent-connectors/apollo/client-credentials.png)
+
+    Copy both values now. **The Client Secret is shown only once** — you cannot retrieve it again after navigating away.
+
+4. ### Add credentials in Scalekit
+
+    - Return to [Scalekit dashboard](https://app.scalekit.com) → **Agent Auth** → **Connections** and open the connection you created in step 1.
+
+    - Enter the following:
+      - **Client ID** — from Apollo
+      - **Client Secret** — from Apollo
+      - **Permissions** — the same scopes you selected in Apollo
 
     - Click **Save**.
 </Steps>
