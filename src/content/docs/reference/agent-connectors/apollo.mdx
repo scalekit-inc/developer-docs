@@ -95,38 +95,6 @@ Supports authentication: <Badge text="OAuth 2.0" />
 Connect a user's Apollo account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
 
 <Tabs syncKey="tech-stack">
-  <TabItem label="Node.js">
-    ```typescript
-    import Scalekit from '@scalekit-sdk/node';
-    import 'dotenv/config';
-
-    const connectionName = 'apollo'; // connection name from Scalekit dashboard
-    const identifier = 'user_123';   // your unique user identifier
-
-    // Get credentials from app.scalekit.com → Developers → API Credentials
-    const scalekit = new Scalekit({
-      clientId: process.env.SCALEKIT_CLIENT_ID,
-      clientSecret: process.env.SCALEKIT_CLIENT_SECRET,
-      envUrl: process.env.SCALEKIT_ENV_URL,
-    });
-
-    // Get authorization link and send it to your user
-    const { link } = await scalekit.connectedAccounts.getMagicLinkForConnectedAccount({
-      connector: connectionName,
-      identifier,
-    });
-    console.log('Authorize Apollo:', link);
-
-    // After the user authorizes, make API calls via Scalekit proxy
-    const result = await scalekit.actions.request({
-      connectionName,
-      identifier,
-      path: '/v1/contacts/search',
-      method: 'POST',
-    });
-    console.log(result);
-    ```
-  </TabItem>
   <TabItem label="Python">
     ```python
     import scalekit.client, os
