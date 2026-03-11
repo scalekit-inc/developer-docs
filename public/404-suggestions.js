@@ -17,7 +17,10 @@ fetch('/sitemap-index.xml')
     const hasShards = shardUrls.some((u) => u.endsWith('.xml'))
     if (!hasShards) return shardUrls
     return Promise.all(
-      shardUrls.filter((u) => u.endsWith('.xml')).map((u) => fetch(u).then((r) => r.text())),
+      shardUrls
+        .filter((u) => u.endsWith('.xml'))
+        .map((u) => new URL(u).pathname)
+        .map((path) => fetch(path).then((r) => r.text())),
     ).then((xmls) => xmls.flatMap(extractLocs))
   })
   .then((locs) => {
