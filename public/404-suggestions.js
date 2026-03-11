@@ -5,10 +5,22 @@ function score(candidatePath, attemptedSegments) {
 
 const attempted = window.location.pathname.split('/').filter(Boolean)
 
-fetch('/sitemap-0.xml')
+function extractLocs(xml) {
+  return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1])
+}
+
+fetch('/sitemap-index.xml')
   .then((r) => r.text())
   .then((xml) => {
-    const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1])
+    const shardUrls = extractLocs(xml)
+    // If the index itself contains page URLs (no shards), use them directly
+    const hasShards = shardUrls.some((u) => u.endsWith('.xml'))
+    if (!hasShards) return shardUrls
+    return Promise.all(
+      shardUrls.filter((u) => u.endsWith('.xml')).map((u) => fetch(u).then((r) => r.text())),
+    ).then((xmls) => xmls.flatMap(extractLocs))
+  })
+  .then((locs) => {
     const scored = locs
       .map((url) => ({ url, score: score(new URL(url).pathname, attempted) }))
       .filter(({ score }) => score > 0)
