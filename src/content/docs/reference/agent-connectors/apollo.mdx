@@ -1,0 +1,300 @@
+---
+title: Apollo
+description: Connect to Apollo to search contacts, manage sequences, enrich leads, and accelerate sales pipeline
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+      /* Heading copy functionality */
+      .sl-markdown-content h2,
+      .sl-markdown-content h3,
+      .sl-markdown-content h4 {
+        position: relative;
+        cursor: pointer;
+      }
+      .sl-markdown-content h2:hover::after,
+      .sl-markdown-content h3:hover::after,
+      .sl-markdown-content h4:hover::after {
+        content: " 📋 ";
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+  - tag: script
+    content: |
+      // Using a self-executing function to avoid global namespace pollution
+      (function() {
+        // Function to initialize the copy functionality
+        function initHeadingCopy() {
+          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
+
+          headings.forEach(heading => {
+            // Skip if already initialized
+            if (heading.hasAttribute('data-copy-initialized')) return;
+            heading.setAttribute('data-copy-initialized', 'true');
+
+            heading.addEventListener('click', async () => {
+              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
+
+              try {
+                await navigator.clipboard.writeText(headingText);
+
+                // Visual feedback
+                const originalText = heading.textContent;
+                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
+
+                setTimeout(() => {
+                  heading.textContent = originalText;
+                }, 2000);
+              } catch (err) {
+                console.error('Failed to copy heading:', err);
+              }
+            });
+          });
+        }
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initHeadingCopy);
+
+        // Also initialize now in case the DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          setTimeout(initHeadingCopy, 1);
+        }
+
+        // For Astro's client-side navigation
+        document.addEventListener('astro:page-load', initHeadingCopy);
+      })();
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupApolloSection } from '@components/templates'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Apollo to search contacts, manage sequences, enrich leads, and accelerate sales pipeline
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/apollo.svg" width="64" height="64" alt="Apollo logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+## Set up the agent connector
+
+<SetupApolloSection />
+
+## Usage
+
+Connect a user's Apollo account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
+
+<Tabs syncKey="tech-stack">
+{/* Node.js - commented out, uncomment when ready
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'apollo'; // get your connection name from connection configurations
+    const identifier = 'user_123';   // your unique user identifier
+
+    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const { connectedAccounts, actions } = scalekit;
+
+    // Authenticate the user
+    const { link } = await connectedAccounts.getMagicLinkForConnectedAccount({
+      connector: connectionName,
+      identifier,
+    });
+    console.log('🔗 Authorize Apollo:', link);
+    process.stdout.write('Press Enter after authorizing...');
+    await new Promise(r => process.stdin.once('data', r));
+
+    // Make a request via Scalekit proxy
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/v1/contacts/search',
+      method: 'POST',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+*/}
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "apollo"  # get your connection name from connection configurations
+    identifier = "user_123"     # your unique user identifier
+
+    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Authenticate the user
+    link_response = actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier=identifier
+    )
+    # present this link to your user for authorization, or click it yourself for testing
+    print("🔗 Authorize Apollo:", link_response.link)
+    input("Press Enter after authorizing...")
+
+    # Make a request via Scalekit proxy
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/v1/contacts/search",
+        method="POST"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+## Tool list
+
+## `apollo_create_account`
+
+Create a new account (organization) in Apollo. Requires the `account_write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | Yes | Name of the account to create |
+| `domain` | string | No | Website domain of the account (e.g., `example.com`) |
+| `linkedin_url` | string | No | LinkedIn profile URL of the account |
+| `phone_number` | string | No | Primary phone number of the account |
+| `raw_address` | string | No | Physical address of the account |
+
+## `apollo_create_contact`
+
+Create a new contact in Apollo. Requires the `contact_write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `first_name` | string | Yes | First name of the contact |
+| `last_name` | string | Yes | Last name of the contact |
+| `account_id` | string | No | ID of the account to associate this contact with |
+| `email` | string | No | Email address of the contact |
+| `linkedin_url` | string | No | LinkedIn profile URL of the contact |
+| `organization_name` | string | No | Name of the contact's organization |
+| `phone` | string | No | Phone number of the contact |
+| `title` | string | No | Job title of the contact |
+
+## `apollo_enrich_account`
+
+Enrich an account's profile with additional data from Apollo's database using domain or name. Requires the `organizations_enrich` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `domain` | string | No | Domain of the organization to enrich (e.g., `example.com`) |
+| `name` | string | No | Name of the organization to enrich |
+
+## `apollo_enrich_contact`
+
+Enrich a contact's profile with additional data from Apollo's database. Requires the `person_read` scope.
+
+> **Note**: This tool is restricted to certain Apollo plans.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `email` | string | No | Email address of the person to enrich (recommended for best results) |
+| `first_name` | string | No | First name of the person |
+| `last_name` | string | No | Last name of the person |
+| `linkedin_url` | string | No | LinkedIn profile URL of the person |
+| `organization_name` | string | No | Organization name of the person |
+| `reveal_personal_emails` | boolean | No | Set to `true` to include personal email addresses in the response |
+| `reveal_phone_number` | boolean | No | Set to `true` to include phone numbers in the response |
+
+## `apollo_get_account`
+
+Retrieve details of a specific account from Apollo by account ID. Requires the `account_read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `account_id` | string | Yes | ID of the account to retrieve |
+
+## `apollo_get_contact`
+
+Retrieve details of a specific contact from Apollo by contact ID. Requires the `contact_read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `contact_id` | string | Yes | ID of the contact to retrieve |
+
+## `apollo_list_sequences`
+
+List sequences (email outreach campaigns) in Apollo. Requires the `emailer_campaigns_search` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page` | integer | No | Page number for pagination |
+| `per_page` | integer | No | Number of results per page |
+| `search` | string | No | Search term to filter sequences by name |
+
+## `apollo_search_accounts`
+
+Search for accounts (organizations) in Apollo using filters such as company name, industry, and location. Requires the `accounts_search` scope.
+
+> **Note**: This tool is restricted to certain Apollo plans.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `company_name` | string | No | Filter by company name |
+| `employee_ranges` | string | No | Filter by employee count range (e.g., `1,10`) |
+| `industry` | string | No | Filter by industry |
+| `keywords` | string | No | Full-text keyword search |
+| `location` | string | No | Filter by account location |
+| `page` | integer | No | Page number for pagination |
+| `per_page` | integer | No | Number of results per page |
+
+## `apollo_search_contacts`
+
+Search for contacts in Apollo using filters such as title, company, industry, and location. Requires the `contacts_search` scope.
+
+> **Note**: This tool is restricted to certain Apollo plans.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `company_name` | string | No | Filter by company name |
+| `industry` | string | No | Filter by industry |
+| `keywords` | string | No | Full-text keyword search |
+| `location` | string | No | Filter by contact location |
+| `page` | integer | No | Page number for pagination |
+| `per_page` | integer | No | Number of results per page |
+| `seniority` | string | No | Filter by seniority level |
+| `title` | string | No | Filter by job title |
+
+## `apollo_update_contact`
+
+Update an existing contact in Apollo by contact ID. Requires the `contact_update` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `contact_id` | string | Yes | ID of the contact to update |
+| `contact_stage_id` | string | No | Updated contact stage ID |
+| `email` | string | No | Updated email address |
+| `first_name` | string | No | Updated first name |
+| `last_name` | string | No | Updated last name |
+| `linkedin_url` | string | No | Updated LinkedIn profile URL |
+| `organization_name` | string | No | Updated organization name |
+| `phone` | string | No | Updated phone number |
+| `title` | string | No | Updated job title |

@@ -223,6 +223,18 @@ Retrieve a specific Gmail message using its message ID. Optionally control the f
 | `schema_version` | string | No | Optional schema version to use for tool execution |
 | `tool_version` | string | No | Optional tool version to use for execution |
 
+## `gmail_get_thread_by_id`
+
+Retrieve a specific Gmail thread by thread ID. Optionally control message format and metadata headers. Requires a valid Gmail OAuth2 connection with read access.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `thread_id` | string | Yes | Unique Gmail thread ID |
+| `format` | string | No | Format of messages in the returned thread. Allowed values: `full`, `metadata`, `minimal`. |
+| `metadata_headers` | `array<string>` | No | Specific email headers to include when format is metadata |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `tool_version` | string | No | Optional tool version to use for execution |
+
 ## `gmail_list_drafts`
 
 List draft emails from a connected Gmail account. Requires a valid Gmail OAuth2 connection.
@@ -231,6 +243,20 @@ List draft emails from a connected Gmail account. Requires a valid Gmail OAuth2 
 | --- | --- | --- | --- |
 | `max_results` | integer | No | Maximum number of drafts to fetch |
 | `page_token` | string | No | Page token for pagination |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `tool_version` | string | No | Optional tool version to use for execution |
+
+## `gmail_list_threads`
+
+List threads in a connected Gmail account using optional search and label filters. Requires a valid Gmail OAuth2 connection with read access.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `include_spam_trash` | boolean | No | Whether to include threads from Spam and Trash |
+| `label_ids` | `array<string>` | No | Gmail label IDs to filter threads (threads must match all labels) |
+| `max_results` | integer | No | Maximum number of threads to return |
+| `page_token` | string | No | Page token for pagination |
+| `query` | string | No | Search query string using Gmail search syntax (for example, `is:unread from:user@example.com`) |
 | `schema_version` | string | No | Optional schema version to use for tool execution |
 | `tool_version` | string | No | Optional tool version to use for execution |
 

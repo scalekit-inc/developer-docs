@@ -2,10 +2,6 @@
 title: Zendesk
 description: Connect to Zendesk. Manage customer support tickets, users, organizations, and help desk operations
 tableOfContents: true
-sidebar:
-  badge:
-    text: Soon
-    variant: tip
 head:
   - tag: style
     content: |
@@ -88,104 +84,166 @@ import { SetupZendeskSection } from '@components/templates'
  </div>
 </div>
 
-Supports authentication: <Badge text="OAuth 2.0" />
+Supports authentication: <Badge text="API Key" />
 
 
 ## Set up the agent connector
 
 <SetupZendeskSection />
 
-## Usage
+## Tool list
 
-Connect a user's Zendesk account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
+## `zendesk_ticket_create`
 
-<Tabs syncKey="tech-stack">
-{/* Node.js - commented out, uncomment when ready
-  <TabItem label="Node.js">
-    ```typescript
-    import { ScalekitClient } from '@scalekit-sdk/node';
-    import 'dotenv/config';
+Create a new support ticket in Zendesk. Requires a comment/description and optionally a subject, priority, assignee, and tags.
 
-    const connectionName = 'zendesk'; // get your connection name from connection configurations
-    const identifier = 'user_123';  // your unique user identifier
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `comment_body` | string | Yes | The description or first comment of the ticket |
+| `subject` | string | No | The subject/title of the ticket |
+| `status` | string | No | Ticket status: `new`, `open`, `pending`, `hold`, `solved`, or `closed` |
+| `priority` | string | No | Ticket priority: `urgent`, `high`, `normal`, or `low` |
+| `type` | string | No | Ticket type: `problem`, `incident`, `question`, or `task` |
+| `assignee_email` | string | No | Email of the agent to assign the ticket to |
+| `tags` | array\<string\> | No | List of tags to apply to the ticket |
 
-    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
-    const scalekit = new ScalekitClient(
-      process.env.SCALEKIT_ENV_URL,
-      process.env.SCALEKIT_CLIENT_ID,
-      process.env.SCALEKIT_CLIENT_SECRET
-    );
-    const { connectedAccounts, actions } = scalekit;
+## `zendesk_ticket_update`
 
-    // Authenticate the user
-    const { link } = await connectedAccounts.getMagicLinkForConnectedAccount({
-      connector: connectionName,
-      identifier,
-    });
-    console.log('🔗 Authorize Zendesk:', link);
-    process.stdout.write('Press Enter after authorizing...');
-    await new Promise(r => process.stdin.once('data', r));
+Update an existing Zendesk ticket. Change status, priority, assignee, subject, tags, or any other writable ticket field.
 
-    // Make a request via Scalekit proxy
-    const result = await actions.request({
-      connectionName,
-      identifier,
-      path: '/api/v2/users/me',
-      method: 'GET',
-    });
-    console.log(result);
-    ```
-  </TabItem>
-*/}
-  <TabItem label="Python">
-    ```python title="zendesk_usage.py"
-    import scalekit.client, os
-    from dotenv import load_dotenv
-    load_dotenv()
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `ticket_id` | number | Yes | The ID of the ticket to update |
+| `status` | string | No | Ticket status: `new`, `open`, `pending`, `hold`, `solved`, or `closed` |
+| `priority` | string | No | Ticket priority: `urgent`, `high`, `normal`, or `low` |
+| `subject` | string | No | New subject/title for the ticket |
+| `type` | string | No | Ticket type: `problem`, `incident`, `question`, or `task` |
+| `assignee_email` | string | No | Email of the agent to assign the ticket to |
+| `assignee_id` | number | No | ID of the agent to assign the ticket to |
+| `group_id` | number | No | ID of the group to assign the ticket to |
+| `tags` | array\<string\> | No | List of tags to set on the ticket (replaces existing tags) |
 
-    connection_name = "zendesk"  # get your connection name from connection configurations
-    identifier = "user_123"     # your unique user identifier
+## `zendesk_ticket_reply`
 
-    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
-    try:
-        scalekit_client = scalekit.client.ScalekitClient(
-            client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-            client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-            env_url=os.getenv("SCALEKIT_ENV_URL"),
-        )
-        actions = scalekit_client.actions
-        print("✓ Scalekit client initialized")
-    except Exception as e:
-        print(f"✗ Failed to initialize Scalekit client: {e}")
-        exit(1)
+Add a public reply or internal note to a Zendesk ticket. Set `public` to `false` for internal notes visible only to agents.
 
-    # Authenticate the user
-    try:
-        link_response = actions.get_authorization_link(
-            connection_name=connection_name,
-            identifier=identifier
-        )
-        # present this link to your user for authorization, or click it yourself for testing
-        print(f"✓ Authorization link generated successfully")
-        print("🔗 Authorize Zendesk:", link_response.link)
-        input("Press Enter after authorizing...")
-    except Exception as e:
-        print(f"✗ Failed to get authorization link: {e}")
-        exit(1)
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `ticket_id` | number | Yes | The ID of the ticket to reply to |
+| `body` | string | Yes | The reply message content (plain text, markdown supported) |
+| `public` | boolean | No | `true` for a public reply, `false` for an internal note (default: `true`) |
 
-    # Make a request via Scalekit proxy
-    try:
-        result = actions.request(
-            connection_name=connection_name,
-            identifier=identifier,
-            path="/api/v2/users/me",
-            method="GET"
-        )
-        print(f"✓ API request successful")
-        print(result)
-    except Exception as e:
-        print(f"✗ API request failed: {e}")
-        exit(1)
-    ```
-  </TabItem>
-</Tabs>
+## `zendesk_ticket_get`
+
+Retrieve details of a specific Zendesk ticket by ID. Returns ticket properties including status, priority, subject, requester, assignee, and timestamps.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `ticket_id` | number | Yes | The ID of the ticket to retrieve |
+| `include` | string | No | Comma-separated list of sideloads to include (e.g., `users`, `groups`, `organizations`) |
+
+## `zendesk_tickets_list`
+
+List tickets in Zendesk with sorting and pagination. Returns tickets for the authenticated agent's account.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page` | number | No | Page number for pagination |
+| `per_page` | number | No | Number of tickets per page (max 100) |
+| `sort_by` | string | No | Field to sort by: `created_at`, `updated_at`, `priority`, `status`, `ticket_type` |
+| `sort_order` | string | No | Sort direction: `asc` or `desc` (default: `desc`) |
+
+## `zendesk_search_tickets`
+
+Search Zendesk tickets using a query string. Supports Zendesk's search syntax (e.g., `type:ticket status:open`). Returns up to 1000 results with pagination.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `query` | string | Yes | Search query string using Zendesk search syntax (e.g., `type:ticket status:open assignee:me`) |
+| `page` | number | No | Page number for pagination |
+| `per_page` | number | No | Number of results per page (max 100) |
+| `sort_by` | string | No | Field to sort results by (`updated_at`, `created_at`, `priority`, `status`, `ticket_type`) |
+| `sort_order` | string | No | Sort direction: `asc` or `desc` (default: `desc`) |
+
+## `zendesk_ticket_comments_list`
+
+Retrieve all comments (public replies and internal notes) for a specific Zendesk ticket. Returns comment body, author, timestamps, and attachments.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `ticket_id` | number | Yes | The ID of the ticket whose comments to list |
+| `include` | string | No | Sideloads to include. Use `users` to include user details for email CCs |
+| `include_inline_images` | boolean | No | When `true`, inline images are listed as attachments (default: `false`) |
+| `sort_order` | string | No | Sort direction for comments: `asc` or `desc` (default: `asc`) |
+
+## `zendesk_user_create`
+
+Create a new user in Zendesk. Can create end-users (customers), agents, or admins. Email is required for end-users.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | Yes | Full name of the user |
+| `email` | string | No | Primary email address of the user |
+| `role` | string | No | User role: `end-user`, `agent`, or `admin` (default: `end-user`) |
+| `organization_id` | number | No | ID of the organization to associate the user with |
+| `phone` | string | No | Primary phone number in E.164 format (e.g., `+15551234567`) |
+| `verified` | boolean | No | Whether the user's identity is verified (default: `false`) |
+
+## `zendesk_user_get`
+
+Retrieve details of a specific Zendesk user by ID. Returns user profile including name, email, role, organization, and account status.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `user_id` | number | Yes | The ID of the user to retrieve |
+| `include` | string | No | Comma-separated list of sideloads to include |
+
+## `zendesk_users_list`
+
+List users in Zendesk. Filter by role (`end-user`, `agent`, `admin`) with pagination support.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page` | number | No | Page number for pagination |
+| `per_page` | number | No | Number of users per page (max 100) |
+| `role` | string | No | Filter by role: `end-user`, `agent`, or `admin` |
+| `sort` | string | No | Field to sort by; prefix with `-` for descending (e.g., `-created_at`) |
+
+## `zendesk_organization_get`
+
+Retrieve details of a specific Zendesk organization by ID. Returns organization name, domain names, tags, notes, shared ticket settings, and custom fields.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `organization_id` | number | Yes | The ID of the organization to retrieve |
+| `include` | string | No | Additional related data to include (e.g., `lookup_relationship_fields`) |
+
+## `zendesk_organizations_list`
+
+List all organizations in Zendesk with pagination support.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page` | number | No | Page number for pagination |
+| `per_page` | number | No | Number of organizations per page (max 100) |
+
+## `zendesk_views_list`
+
+List ticket views in Zendesk. Views are saved filters for organizing tickets by status, assignee, tags, and more.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page` | number | No | Page number for pagination |
+| `per_page` | number | No | Number of views per page (max 100) |
+| `access` | string | No | Filter by access level: `personal`, `shared`, or `account` |
+| `sort_by` | string | No | Field to sort by: `title`, `updated_at`, `created_at`, or `position` |
+| `sort_order` | string | No | Sort direction: `asc` or `desc` |
+
+## `zendesk_groups_list`
+
+List all groups in Zendesk. Groups are used to organize agents and route tickets.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page` | number | No | Page number for pagination |
+| `per_page` | number | No | Number of groups per page (max 100) |
