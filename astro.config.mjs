@@ -11,6 +11,7 @@ import starlightDocSearch from '@astrojs/starlight-docsearch'
 import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
+import starlightCopyInlineCode from 'starlight-copy-inline-code'
 import starlightLinksValidator from 'starlight-links-validator'
 import starlightLlmsTxt from 'starlight-llms-txt'
 import starlightBlog from 'starlight-blog'
@@ -31,6 +32,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Scalekit Docs',
+      pagefind: false,
       routeMiddleware: './src/routeData.ts',
       lastUpdated: true,
       tableOfContents: {
@@ -101,6 +103,19 @@ export default defineConfig({
             readingTime: true,
             words: 'total',
           },
+        // Provide copy-to-clipboard button for inline code snippets site-wide for better UX
+        starlightCopyInlineCode({
+          // Show copy button only on hover (default: true)
+          showOnHover: false,
+
+          // Tooltip text for copy button (default: 'Copy')
+          copyLabel: 'Copy',
+
+          // Tooltip text after successful copy (default: 'Copied!')
+          copiedLabel: 'Copied!',
+
+          // CSS selector for inline code elements (default: ':not(pre) > code')
+          selector: ':not(pre) > code',
         }),
       ],
       head: [
