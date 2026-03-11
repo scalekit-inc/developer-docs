@@ -11,22 +11,8 @@ Apollo restricts contact enrichment (`apollo_enrich_contact`), account search (`
 
     - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Apollo** and click **Create**.
 
-    - Click **Use your own credentials** and copy the **Redirect URI**. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
-
-      ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/apollo/use-own-credentials-redirect-uri.png)
-
-    Keep this tab open — you'll return to it in step 3.
-
-2. ### Register an OAuth application in Apollo
-
-    - Go to [Apollo's OAuth registration page](https://developer.apollo.io/oauth-registration#/oauth-registration) and sign in with your Apollo account.
-
-    - Fill in the registration form:
-      - **Application name** — a name to identify your app (e.g., `My Sales Agent`)
-      - **Description** — brief description of what your app does
-      - **Redirect URIs** — paste the redirect URI you copied from Scalekit
-
-    - Under **Scopes**, select the permissions your agent needs:
+    - Click **Use your own credentials** and copy the **Redirect URI**. It looks like:
+      `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`
 
       | Scope | Required for |
       | --- | --- |
@@ -41,13 +27,43 @@ Apollo restricts contact enrichment (`apollo_enrich_contact`), account search (`
       | `accounts_search` | Searching accounts (paid plans only) |
       | `contacts_search` | Searching contacts (paid plans only) |
 
-      ![Register OAuth application in Apollo developer settings](@/assets/docs/agent-connectors/apollo/add-redirect-uri.png)
+    Keep this tab open — you'll return to it in step 3.
+
+2. ### Register an OAuth application in Apollo
+
+    - Go to [Apollo's OAuth registration page](https://developer.apollo.io/oauth-registration#/oauth-registration) and sign in with your Apollo account.
+
+    - Fill in the registration form:
+      - **Application name** — a name to identify your app (e.g., `My Sales Agent`)
+      - **Description** — brief description of what your app does
+      - **Redirect URIs** — paste the redirect URI you copied from Scalekit
+
+    - Under **Scopes**, select the permissions your agent needs. Use the table below to decide:
+
+      | Scope | Required for |
+      | --- | --- |
+      | `contact_read` | Reading contact details |
+      | `contact_write` | Creating contacts |
+      | `contact_update` | Updating contacts |
+      | `account_read` | Reading account details |
+      | `account_write` | Creating accounts |
+      | `organizations_enrich` | Enriching accounts with Apollo data |
+      | `person_read` | Enriching contacts (paid plans only) |
+      | `emailer_campaigns_search` | Listing email sequences |
+      | `accounts_search` | Searching accounts (paid plans only) |
+      | `contacts_search` | Searching contacts (paid plans only) |
+
+      ![](@/assets/docs/agent-connectors/apollo/create-oauth-app.png)
 
     - Click **Register application**.
 
 3. ### Copy your client credentials
 
-    After registering, Apollo shows the **Client ID** and **Client Secret** for your application. Copy both values — **the Client Secret is shown only once** and cannot be retrieved again after navigating away.
+    After registering, Apollo shows the **Client ID** and **Client Secret** for your application.
+
+    ![](@/assets/docs/agent-connectors/apollo/client-credentials.png)
+
+    Copy both values now. **The Client Secret is shown only once** — you cannot retrieve it again after navigating away.
 
 4. ### Add credentials in Scalekit
 
