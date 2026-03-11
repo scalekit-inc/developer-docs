@@ -19,18 +19,35 @@ fetch('/sitemap-0.xml')
     if (!container) return
     if (scored.length === 0) return
 
+    const ACRONYMS = new Set([
+      'sso',
+      'scim',
+      'api',
+      'saml',
+      'oidc',
+      'm2m',
+      'sdk',
+      'mfa',
+      'jwt',
+      'oauth',
+    ])
+
     const items = scored
       .map(({ url }) => {
         const path = new URL(url).pathname
         const label = path
           .split('/')
           .filter(Boolean)
-          .map((s) => s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()))
+          .map((s) => {
+            const word = s.replace(/-/g, ' ')
+            if (ACRONYMS.has(word.toLowerCase())) return word.toUpperCase()
+            return word.replace(/\b\w/g, (c) => c.toUpperCase())
+          })
           .join(' / ')
         return `<li><a href="${path}">${label}</a></li>`
       })
       .join('')
 
-    container.innerHTML = `<p>Suggested pages</p><ul>${items}</ul>`
+    container.innerHTML = `<p>You might be looking for:</p><ul>${items}</ul>`
   })
   .catch(() => {})
