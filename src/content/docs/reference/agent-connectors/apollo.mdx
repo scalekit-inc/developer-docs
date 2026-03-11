@@ -90,39 +90,58 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 <SetupApolloSection />
 
+## Required scopes
+
+When configuring permissions in Scalekit, select only the scopes your agent needs. Each tool below lists its required scope.
+
+| Scope | Description | Tools |
+| --- | --- | --- |
+| `contact_read` | Read contact details | `apollo_get_contact` |
+| `contact_write` | Create contacts | `apollo_create_contact` |
+| `contact_update` | Update contacts | `apollo_update_contact` |
+| `account_read` | Read account details | `apollo_get_account` |
+| `account_write` | Create accounts | `apollo_create_account` |
+| `organizations_enrich` | Enrich accounts with Apollo data | `apollo_enrich_account` |
+| `person_read` | Enrich contacts with Apollo data | `apollo_enrich_contact` |
+| `emailer_campaigns_search` | List email sequences | `apollo_list_sequences` |
+| `accounts_search` | Search accounts by filters | `apollo_search_accounts` |
+| `contacts_search` | Search contacts by filters | `apollo_search_contacts` |
+
+<Aside type="caution">
+`accounts_search`, `contacts_search`, and `person_read` (contact enrichment) are available on paid Apollo plans only. Calls to these tools will fail on free plans.
+</Aside>
+
+See the [Apollo OAuth scopes reference](https://developers.apollo.io/docs/oauth-scopes) for the full list.
+
 ## Usage
 
 Connect a user's Apollo account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
 
 <Tabs syncKey="tech-stack">
-{/* Node.js - commented out, uncomment when ready
   <TabItem label="Node.js">
     ```typescript
-    import { ScalekitClient } from '@scalekit-sdk/node';
+    import Scalekit from '@scalekit-sdk/node';
     import 'dotenv/config';
 
-    const connectionName = 'apollo'; // get your connection name from connection configurations
+    const connectionName = 'apollo'; // connection name from Scalekit dashboard
     const identifier = 'user_123';   // your unique user identifier
 
-    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
-    const scalekit = new ScalekitClient(
-      process.env.SCALEKIT_ENV_URL,
-      process.env.SCALEKIT_CLIENT_ID,
-      process.env.SCALEKIT_CLIENT_SECRET
-    );
-    const { connectedAccounts, actions } = scalekit;
+    // Get credentials from app.scalekit.com → Developers → API Credentials
+    const scalekit = new Scalekit({
+      clientId: process.env.SCALEKIT_CLIENT_ID,
+      clientSecret: process.env.SCALEKIT_CLIENT_SECRET,
+      envUrl: process.env.SCALEKIT_ENV_URL,
+    });
 
-    // Authenticate the user
-    const { link } = await connectedAccounts.getMagicLinkForConnectedAccount({
+    // Get authorization link and send it to your user
+    const { link } = await scalekit.connectedAccounts.getMagicLinkForConnectedAccount({
       connector: connectionName,
       identifier,
     });
-    console.log('🔗 Authorize Apollo:', link);
-    process.stdout.write('Press Enter after authorizing...');
-    await new Promise(r => process.stdin.once('data', r));
+    console.log('Authorize Apollo:', link);
 
-    // Make a request via Scalekit proxy
-    const result = await actions.request({
+    // After the user authorizes, make API calls via Scalekit proxy
+    const result = await scalekit.actions.request({
       connectionName,
       identifier,
       path: '/v1/contacts/search',
@@ -131,35 +150,31 @@ Connect a user's Apollo account and make API calls on their behalf — Scalekit 
     console.log(result);
     ```
   </TabItem>
-*/}
   <TabItem label="Python">
     ```python
     import scalekit.client, os
     from dotenv import load_dotenv
     load_dotenv()
 
-    connection_name = "apollo"  # get your connection name from connection configurations
+    connection_name = "apollo"  # connection name from Scalekit dashboard
     identifier = "user_123"     # your unique user identifier
 
-    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    # Get credentials from app.scalekit.com → Developers → API Credentials
     scalekit_client = scalekit.client.ScalekitClient(
         client_id=os.getenv("SCALEKIT_CLIENT_ID"),
         client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
         env_url=os.getenv("SCALEKIT_ENV_URL"),
     )
-    actions = scalekit_client.actions
 
-    # Authenticate the user
-    link_response = actions.get_authorization_link(
+    # Get authorization link and send it to your user
+    link_response = scalekit_client.actions.get_authorization_link(
         connection_name=connection_name,
         identifier=identifier
     )
-    # present this link to your user for authorization, or click it yourself for testing
-    print("🔗 Authorize Apollo:", link_response.link)
-    input("Press Enter after authorizing...")
+    print("Authorize Apollo:", link_response.link)
 
-    # Make a request via Scalekit proxy
-    result = actions.request(
+    # After the user authorizes, make API calls via Scalekit proxy
+    result = scalekit_client.actions.request(
         connection_name=connection_name,
         identifier=identifier,
         path="/v1/contacts/search",
@@ -212,7 +227,9 @@ Enrich an account's profile with additional data from Apollo's database using do
 
 Enrich a contact's profile with additional data from Apollo's database. Requires the `person_read` scope.
 
-> **Note**: This tool is restricted to certain Apollo plans.
+<Aside type="caution">
+This tool is available on paid Apollo plans only.
+</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -226,7 +243,7 @@ Enrich a contact's profile with additional data from Apollo's database. Requires
 
 ## `apollo_get_account`
 
-Retrieve details of a specific account from Apollo by account ID. Requires the `account_read` scope.
+Retrieve details of a specific account by ID. Requires the `account_read` scope.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -234,7 +251,7 @@ Retrieve details of a specific account from Apollo by account ID. Requires the `
 
 ## `apollo_get_contact`
 
-Retrieve details of a specific contact from Apollo by contact ID. Requires the `contact_read` scope.
+Retrieve details of a specific contact by ID. Requires the `contact_read` scope.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -252,9 +269,11 @@ List sequences (email outreach campaigns) in Apollo. Requires the `emailer_campa
 
 ## `apollo_search_accounts`
 
-Search for accounts (organizations) in Apollo using filters such as company name, industry, and location. Requires the `accounts_search` scope.
+Search for accounts (organizations) using filters such as company name, industry, and location. Requires the `accounts_search` scope.
 
-> **Note**: This tool is restricted to certain Apollo plans.
+<Aside type="caution">
+This tool is available on paid Apollo plans only.
+</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -268,9 +287,11 @@ Search for accounts (organizations) in Apollo using filters such as company name
 
 ## `apollo_search_contacts`
 
-Search for contacts in Apollo using filters such as title, company, industry, and location. Requires the `contacts_search` scope.
+Search for contacts using filters such as title, company, industry, and location. Requires the `contacts_search` scope.
 
-> **Note**: This tool is restricted to certain Apollo plans.
+<Aside type="caution">
+This tool is available on paid Apollo plans only.
+</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -285,7 +306,7 @@ Search for contacts in Apollo using filters such as title, company, industry, an
 
 ## `apollo_update_contact`
 
-Update an existing contact in Apollo by contact ID. Requires the `contact_update` scope.
+Update an existing contact by ID. Requires the `contact_update` scope.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
