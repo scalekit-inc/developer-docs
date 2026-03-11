@@ -255,7 +255,23 @@ export const sidebar = [
         link: '/apis/#description/overview',
         attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
       },
-      'dev-kit/api-collections/openapi-spec',
+      {
+        label: 'Cookbooks',
+        link: '/cookbooks',
+      },
+      {
+        label: 'API collections',
+        collapsed: true,
+        items: [
+          // 'dev-kit/api-collections/postman-collections', TODO: Expand the guide for postman collections
+          {
+            label: 'Postman collections',
+            link: 'https://github.com/scalekit-inc/api-collections/tree/main/postman',
+            attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
+          },
+          'dev-kit/api-collections/openapi-spec',
+        ],
+      },
       {
         label: 'AI tools',
         collapsed: false,
@@ -537,6 +553,7 @@ export const sidebar = [
  */
 export const exclude = [
   '/', // Home page
+  '/blog',
   '/404', // Error page
   '/apis/**/*', // REST API reference has Scalar-powered navigation
 ]
@@ -640,7 +657,17 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   connect: 'agent-auth',
 
   // Developer Resources sidebar → 'Developer Resources' tab
-  'dev-kit': 'scenarios',
+  'dev-kit': {
+    default: 'code-samples',
+    pathOverrides: {
+      '/dev-kit/code-samples': 'code-samples',
+      '/dev-kit/tools': 'testing-utilities',
+      '/dev-kit/sdks': 'dev-tools',
+      '/guides/integrations': 'integrations',
+      '/authenticate/implement-workflows': 'workflows',
+      '/cookbooks': 'cookbooks',
+    },
+  },
 
   // SDKs sidebar → 'SDKs' tab
   sdks: 'sdks',

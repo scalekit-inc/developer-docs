@@ -14,6 +14,7 @@ import starlightVideos from 'starlight-videos'
 import starlightCopyInlineCode from 'starlight-copy-inline-code'
 import starlightLinksValidator from 'starlight-links-validator'
 import starlightLlmsTxt from 'starlight-llms-txt'
+import starlightBlog from 'starlight-blog'
 import { sidebar as sidebarConfig, topics, exclude } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import { llmsConfig } from './src/configs/llms.config.ts'
@@ -96,6 +97,12 @@ export default defineConfig({
           actions: ['copy', 'chatgpt', 'claude'],
           hideMainActionLabel: true,
         }),
+        starlightBlog({
+          prefix: 'cookbooks',
+          metrics: {
+            readingTime: true,
+            words: 'total',
+          },
         // Provide copy-to-clipboard button for inline code snippets site-wide for better UX
         starlightCopyInlineCode({
           // Show copy button only on hover (default: true)
