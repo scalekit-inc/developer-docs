@@ -15,6 +15,7 @@ import {
   IconLucideBlocks,
   IconLucideCode,
   IconLucideWorkflow,
+  IconTdesignSequence,
 } from '../utils/icon-map'
 import IconLucideRocket from '~icons/lucide/rocket'
 import IconLucideLogIn from '~icons/lucide/log-in'
@@ -151,8 +152,8 @@ export const secondaryNavItems: NavItem[] = [
         href: '/dev-kit/build-with-ai/',
         label: 'Developer Resources',
         dropdownLabel: 'Build with AI',
-        iconComponent: IconLucideBot,
-        description: 'Coding agent guides by product',
+        iconComponent: IconTdesignSequence,
+        description: 'Integrate auth with AI coding agents by product',
         sectionLabel: 'DEVELOPER KIT',
         sectionDescription: 'Tools and examples to accelerate your integration',
         columnGroup: 'left',
@@ -160,9 +161,9 @@ export const secondaryNavItems: NavItem[] = [
       {
         id: 'dev-tools',
         href: '/dev-kit/sdks',
-        label: 'SDKs & APIs',
+        label: 'Reference & tooling',
         iconComponent: IconSdk,
-        description: 'SDKs and CLI tools',
+        description: 'Implement auth with SDKs, REST APIs, OpenAPI specs, and Postman collections',
         columnGroup: 'left',
       },
       {
@@ -170,7 +171,7 @@ export const secondaryNavItems: NavItem[] = [
         href: '/dev-kit/tools/scalekit-dryrun/',
         label: 'Testing Utilities',
         iconComponent: IconCodiconDebugStart,
-        description: 'Test integrations locally',
+        description: 'Test and debug auth integrations locally',
         columnGroup: 'left',
       },
       // RIGHT COLUMN - Resources
@@ -180,7 +181,7 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Developer Resources',
         dropdownLabel: 'Integrations',
         iconComponent: IconLucideBlocks,
-        description: 'Connect tools and platforms',
+        description: 'Connect external identity providers and platforms',
         sectionLabel: 'RESOURCES',
         sectionDescription: 'Guides, references, and community resources',
         columnGroup: 'right',
@@ -191,7 +192,7 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Developer Resources',
         dropdownLabel: 'Workflows',
         iconComponent: IconLucideWorkflow,
-        description: 'Automate with webhooks and events',
+        description: 'Automate user lifecycle and auth events with webhooks',
         columnGroup: 'right',
       },
       {
@@ -200,7 +201,7 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Developer Resources',
         dropdownLabel: 'Cookbooks',
         iconComponent: IconLucideBookOpenText,
-        description: 'Recipes for common integration patterns',
+        description: 'Implement common patterns with step-by-step recipes',
         columnGroup: 'right',
       },
       {
@@ -208,7 +209,7 @@ export const secondaryNavItems: NavItem[] = [
         href: '/dev-kit/code-samples/',
         label: 'Code Samples',
         iconComponent: IconLucideCode,
-        description: 'Browse examples by language',
+        description: 'Copy and adapt code examples by language',
         columnGroup: 'right',
       },
     ],

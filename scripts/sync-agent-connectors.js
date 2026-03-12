@@ -686,6 +686,7 @@ async function main() {
   let removed = 0
   for (const existing of fs.readdirSync(outputDir)) {
     if (!existing.endsWith('.mdx')) continue
+    if (existing === 'index.mdx') continue // Preserve index if it ever exists in this dir
     if (expectedFiles.has(existing)) continue
     const orphanPath = path.join(outputDir, existing)
     if (!orphanPath.startsWith(outputDir + path.sep)) continue // safety check

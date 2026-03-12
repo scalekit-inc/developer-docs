@@ -11,11 +11,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'authenticate/set-up-scalekit',
-          {
-            label: 'Quickstarts',
-            collapsed: false,
-            items: [{ label: 'Code it yourself', link: 'authenticate/fsa/quickstart' }],
-          },
+          { label: 'Quickstart: Full stack auth', link: 'authenticate/fsa/quickstart' },
           'authenticate/fsa/code-samples',
         ],
       },
@@ -134,15 +130,7 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: [
-          'agent-auth/overview',
-          {
-            label: 'Quickstarts',
-            collapsed: false,
-            items: [{ label: 'Code it yourself', link: 'agent-auth/quickstart' }],
-          },
-          'agent-auth/code-samples',
-        ],
+        items: ['agent-auth/overview', 'agent-auth/quickstart', 'agent-auth/code-samples'],
       },
       {
         label: 'Authentication',
@@ -249,6 +237,7 @@ export const sidebar = [
             attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
           },
           'dev-kit/api-collections/openapi-spec',
+          'dev-kit/api-collections/postman-collections',
         ],
       },
       {
@@ -289,6 +278,10 @@ export const sidebar = [
         collapsed: true,
         autogenerate: { directory: 'guides/integrations/scim-integrations' },
       },
+      {
+        label: 'Agent connectors',
+        link: 'guides/integrations/agent-connectors',
+      },
       createSpacing(),
       createSectionHeader('Workflows'),
       {
@@ -308,10 +301,6 @@ export const sidebar = [
         ],
       },
       { label: 'Admin portal events', link: 'reference/admin-portal/ui-events' },
-      {
-        label: 'Cookbooks',
-        link: '/cookbooks',
-      },
     ],
   },
   {
@@ -324,11 +313,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'authenticate/mcp/overview',
-          {
-            label: 'Quickstarts',
-            collapsed: false,
-            items: [{ label: 'Code it yourself', link: 'authenticate/mcp/quickstart' }],
-          },
+          'authenticate/mcp/quickstart',
           'authenticate/mcp/managing-mcp-clients',
           'authenticate/mcp/code-samples',
         ],
@@ -375,14 +360,7 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: [
-          {
-            label: 'Quickstarts',
-            collapsed: false,
-            items: [{ label: 'Code it yourself', link: 'authenticate/sso/add-modular-sso' }],
-          },
-          'authenticate/sso/code-samples',
-        ],
+        items: ['authenticate/sso/add-modular-sso', 'authenticate/sso/code-samples'],
       },
       {
         label: 'Integrate SSO with own auth',
@@ -430,14 +408,7 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: [
-          {
-            label: 'Quickstarts',
-            collapsed: false,
-            items: [{ label: 'Code it yourself', link: 'directory/scim/quickstart' }],
-          },
-          'directory/code-samples',
-        ],
+        items: ['directory/scim/quickstart', 'directory/code-samples'],
       },
       {
         label: 'How to...',
