@@ -15,7 +15,7 @@ import {
   IconLucideBlocks,
   IconLucideCode,
   IconLucideWorkflow,
-  IconTdesignSequence,
+  IconRiAiGenerate2,
 } from '../utils/icon-map'
 import IconLucideRocket from '~icons/lucide/rocket'
 import IconLucideLogIn from '~icons/lucide/log-in'
@@ -152,7 +152,7 @@ export const secondaryNavItems: NavItem[] = [
         href: '/dev-kit/build-with-ai/',
         label: 'Developer Resources',
         dropdownLabel: 'Build with AI',
-        iconComponent: IconTdesignSequence,
+        iconComponent: IconRiAiGenerate2,
         description: 'Integrate auth with AI coding agents by product',
         sectionLabel: 'DEVELOPER KIT',
         sectionDescription: 'Tools and examples to accelerate your integration',

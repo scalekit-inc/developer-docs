@@ -82,7 +82,7 @@ import IconSolarServerPathOutline from '~icons/solar/server-path-outline'
 import IconPajamasStatusHealth from '~icons/pajamas/status-health'
 
 // Miscellaneous
-import IconTdesignSequence from '~icons/tdesign/sequence'
+import IconRiAiGenerate2 from '~icons/ri/ai-generate-2'
 import IconRipple from '~icons/simple-icons/ripple'
 import IconReaddotcv from '~icons/simple-icons/readdotcv'
 import IconStreamlinePlumpBusinessProgressBar2 from '~icons/streamline-plump/business-progress-bar-2'
@@ -194,7 +194,7 @@ export const iconMap = {
   download: IconLucideDownload,
   sparkle: IconPhSparkle,
   ai: IconPhSparkle,
-  'build-with-ai': IconTdesignSequence,
+  'build-with-ai': IconRiAiGenerate2,
   mcp: IconMcp,
   users: IconLucideUsers,
   fsa: IconLucideUsers,
@@ -291,7 +291,7 @@ export {
   IconHugeiconsResourcesAdd,
   IconLucideOutlineWebhook,
   IconLucideWorkflow,
-  IconTdesignSequence,
+  IconRiAiGenerate2,
   // Programming languages
   IconProiconsJavascript,
 
