@@ -11,64 +11,6 @@ head:
       table td:first-child, table th:first-child {
         white-space: nowrap;
       }
-      /* Heading copy functionality */
-      .sl-markdown-content h2,
-      .sl-markdown-content h3,
-      .sl-markdown-content h4 {
-        position: relative;
-        cursor: pointer;
-      }
-      .sl-markdown-content h2:hover::after,
-      .sl-markdown-content h3:hover::after,
-      .sl-markdown-content h4:hover::after {
-        content: " 📋 ";
-        font-size: 0.8em;
-        opacity: 0.7;
-      }
-  - tag: script
-    content: |
-      // Using a self-executing function to avoid global namespace pollution
-      (function() {
-        // Function to initialize the copy functionality
-        function initHeadingCopy() {
-          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
-
-          headings.forEach(heading => {
-            // Skip if already initialized
-            if (heading.hasAttribute('data-copy-initialized')) return;
-            heading.setAttribute('data-copy-initialized', 'true');
-
-            heading.addEventListener('click', async () => {
-              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
-
-              try {
-                await navigator.clipboard.writeText(headingText);
-
-                // Visual feedback
-                const originalText = heading.textContent;
-                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
-
-                setTimeout(() => {
-                  heading.textContent = originalText;
-                }, 2000);
-              } catch (err) {
-                console.error('Failed to copy heading:', err);
-              }
-            });
-          });
-        }
-
-        // Initialize on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', initHeadingCopy);
-
-        // Also initialize now in case the DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          setTimeout(initHeadingCopy, 1);
-        }
-
-        // For Astro's client-side navigation
-        document.addEventListener('astro:page-load', initHeadingCopy);
-      })();
 ---
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
@@ -123,7 +65,7 @@ Create a comment in Notion. Provide a comment object with rich_text content and 
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `comment` | `object` | Yes | Comment object containing a rich_text array. Example: {"rich_text":[{"type":"text","text":{"content":"Hello"}}]} |
+| `comment` | `object` | Yes | Comment object containing a rich_text array. Example: `{"rich_text":[{"type":"text","text":{"content":"Hello"}}]}` |
 | `discussion_id` | string | No | Existing discussion thread ID to reply to. |
 | `notion_version` | string | No | Optional override for the Notion-Version header (e.g., 2022-06-28). |
 | `parent` | `object` | No | Parent object for a new top-level comment. Shape: {"page_id":"<uuid>"}. |
@@ -173,8 +115,8 @@ Create a new database in Notion under a parent page. Provide a parent object wit
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `notion_version` | string | No | Optional override for the Notion-Version header (e.g., 2022-06-28). |
-| `parent` | `object` | Yes | Parent object specifying the page under which the database is created. Example: {"page_id": "2561ab6c-418b-8072-beec-c4779fa811cf"} |
-| `properties` | `object` | Yes | Database schema object defining properties (columns). Example: {"Name": {"title": {}}, "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Doing"}, {"name": "Done"}]}}} |
+| `parent` | `object` | Yes | Parent object specifying the page under which the database is created. Example: `{"page_id": "2561ab6c-418b-8072-beec-c4779fa811cf"}` |
+| `properties` | `object` | Yes | Database schema object defining properties (columns). Example: `{"Name": {"title": {}}, "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Doing"}, {"name": "Done"}]}}}` |
 | `schema_version` | string | No | Internal override for schema version. |
 | `title` | `array<object>` | Yes | Database title as a Notion rich_text array. |
 | `tool_version` | string | No | Internal override for tool implementation version. |
