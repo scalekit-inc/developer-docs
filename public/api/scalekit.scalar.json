@@ -48,7 +48,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Filter by connector type. Connector identifier such as 'notion', 'slack', 'google', etc. Alphanumeric with hyphens and underscores allowed.",
+            "description": "Filter by connector type. Connector identifier such as 'notion', 'slack', 'google', etc. Alphanumeric with spaces, hyphens, underscores, and colons allowed.",
             "name": "connector",
             "in": "query"
           },
@@ -2156,13 +2156,71 @@
             "source": "Connection connection = scalekitClient.connections().getConnectionById(connectionId, organizationId);"
           }
         ]
+      },
+      "delete": {
+        "description": "Deletes an SSO connection from the specified organization by connection ID. Use this endpoint when an identity provider integration is no longer needed for the organization. Returns an empty response after the SSO connection is deleted successfully.",
+        "tags": ["Connections"],
+        "summary": "Delete SSO connection",
+        "operationId": "ConnectionService_DeleteConnection",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Organization ID for the Connection.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Connection ID. Unique ID for the connection",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SSO connection deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.connection.deleteConnection(organizationId, connectionId);"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "scalekit_client.connection.delete_connection(\n  organization_id,\n  connection_id\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := scalekitClient.Connection.DeleteConnection(\n  ctx,\n  organizationId,\n  connectionId,\n)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "scalekitClient.connections().deleteConnection(connectionId, organizationId);"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/connections/{id}:disable": {
       "patch": {
         "description": "Deactivate an existing connection for the specified organization. When disabled, users cannot authenticate using this connection. This endpoint changes the connection state from enabled to disabled without modifying other configuration settings",
         "tags": ["Connections"],
-        "summary": "Disable organization connection",
+        "summary": "Disable SSO connection",
         "operationId": "ConnectionService_DisableConnection",
         "parameters": [
           {
@@ -2224,7 +2282,7 @@
       "patch": {
         "description": "Activate an existing connection for the specified organization. When enabled, users can authenticate using this connection. This endpoint changes the connection state from disabled to enabled without modifying other configuration settings",
         "tags": ["Connections"],
-        "summary": "Enable organization connection",
+        "summary": "Enable SSO connection",
         "operationId": "ConnectionService_EnableConnection",
         "parameters": [
           {
@@ -3261,6 +3319,133 @@
                 "schema": {
                   "$ref": "#/components/schemas/usersListUserRolesResponse"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organization_id}/users:search": {
+      "get": {
+        "description": "Searches for users within a specific organization by email address, user ID, or external ID. The query must be at least 3 characters and is case-insensitive. Scopes results strictly to the given organization. Returns a paginated list of matching users with up to 30 results per page. Use the next_page_token from the response to retrieve subsequent pages.",
+        "tags": ["Users"],
+        "summary": "Search organization users",
+        "operationId": "UserService_SearchOrganizationUsers",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier of the organization to search within. Must start with 'org_' and be 1-32 characters long.",
+            "name": "organization_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term to match against user email, IDs, or external IDs. Must be at least 3 characters. Case insensitive.",
+            "name": "query",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "Maximum number of users to return per page. Value must be between 1 and 30.",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token from a previous response for pagination. Provide this to retrieve the next page of results.",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching users within the organization returned; includes pagination cursors for navigating large result sets.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/usersSearchOrganizationUsersResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - query must be at least 3 characters and no more than 100 characters, and organization_id must be a valid org_ prefixed identifier.",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - organization not found.",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/organizations:external/{external_id}": {
+      "get": {
+        "description": "Retrieves organization details by External ID, including name, region, metadata, and settings",
+        "tags": ["Organizations"],
+        "summary": "Get organization details by external Id",
+        "operationId": "OrganizationService_GetOrganizationByExternalId",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier that links an Organization Object to your app's tenant, stored as an External ID",
+            "name": "external_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique scalekit-generated identifier that uniquely references an organization",
+            "name": "id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the complete organization object with ID, display name, settings, external ID and metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/organizationsGetOrganizationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - external ID is empty or the caller's organization claim does not match",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Organization not found - no organization exists with the specified external ID",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           }
@@ -4644,26 +4829,6 @@
         ]
       }
     },
-    "/api/v1/users/support-hash": {
-      "get": {
-        "description": "Retrieves the support email hash for the current logged in user, used for the Scalekit support system.",
-        "tags": ["Users"],
-        "summary": "Get support hash",
-        "operationId": "UserService_GetSupportHash",
-        "responses": {
-          "200": {
-            "description": "Support hash retrieved successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/usersGetSupportHashResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/users/{id}": {
       "get": {
         "description": "Retrieves all details for a user by system-generated user ID or external ID. The response includes organization memberships and user metadata.",
@@ -4988,6 +5153,61 @@
             "source": "RevokeAllUserSessionsResponse res = scalekitClient.sessions().revokeAllUserSessions(\"user_123\");"
           }
         ]
+      }
+    },
+    "/api/v1/users:search": {
+      "get": {
+        "description": "Searches for users across the entire environment by email address, user ID, or external ID. The query must be at least 3 characters and is case-insensitive. Returns a paginated list of matching users with up to 30 results per page. Use the next_page_token from the response to retrieve subsequent pages.",
+        "tags": ["Users"],
+        "summary": "Search users",
+        "operationId": "UserService_SearchUsers",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term to match against user email, IDs, or external IDs. Must be at least 3 characters. Case insensitive.",
+            "name": "query",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "Maximum number of users to return per page. Value must be between 1 and 30.",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token from a previous response for pagination. Provide this to retrieve the next page of results.",
+            "name": "page_token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching users returned; includes pagination cursors for navigating large result sets.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/usersSearchUsersResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - query must be at least 3 characters and no more than 100 characters.",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/webauthn/credentials": {
@@ -6915,6 +7135,16 @@
             "description": "Indicates whether user profiles should be synchronized with the identity provider upon each log-in.",
             "type": "boolean",
             "examples": [true]
+          },
+          "tenant_id": {
+            "description": "Microsoft Entra tenant ID. Required when using a single-tenant or multi-tenant app registered in Microsoft Entra. Leave empty to use the common endpoint.",
+            "type": "string",
+            "examples": ["xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"]
+          },
+          "token_access_type": {
+            "description": "Token Access Type",
+            "type": "string",
+            "examples": ["offline"]
           },
           "token_uri": {
             "description": "Token URI",
@@ -9157,14 +9387,6 @@
           }
         }
       },
-      "usersGetSupportHashResponse": {
-        "type": "object",
-        "properties": {
-          "support_hash": {
-            "type": "string"
-          }
-        }
-      },
       "usersGetUserResponse": {
         "type": "object",
         "properties": {
@@ -9342,6 +9564,64 @@
                 "user_id": "usr_456"
               }
             ]
+          }
+        }
+      },
+      "usersSearchOrganizationUsersResponse": {
+        "type": "object",
+        "properties": {
+          "next_page_token": {
+            "description": "Token for retrieving the next page of results. Empty if there are no more pages.",
+            "type": "string",
+            "examples": ["eyJwYWdlIjogMiwgImxhc3RfaWQiOiAidXNyXzEyMzQ1In0="]
+          },
+          "prev_page_token": {
+            "description": "Token for retrieving the previous page of results. Empty if this is the first page.",
+            "type": "string",
+            "examples": ["eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInVzcl85ODc2NSJ9"]
+          },
+          "total_size": {
+            "description": "Total number of users matching the request criteria, regardless of pagination.",
+            "type": "integer",
+            "format": "int64",
+            "examples": [1042]
+          },
+          "users": {
+            "description": "List of matching users.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/usersUser"
+            }
+          }
+        }
+      },
+      "usersSearchUsersResponse": {
+        "type": "object",
+        "properties": {
+          "next_page_token": {
+            "description": "Token for retrieving the next page of results. Empty if there are no more pages.",
+            "type": "string",
+            "examples": ["eyJwYWdlIjogMiwgImxhc3RfaWQiOiAidXNyXzEyMzQ1In0="]
+          },
+          "prev_page_token": {
+            "description": "Token for retrieving the previous page of results. Empty if this is the first page.",
+            "type": "string",
+            "examples": ["eyJwYWdlIjogMCwgImZpcnN0X2lkIjogInVzcl85ODc2NSJ9"]
+          },
+          "total_size": {
+            "description": "Total number of users matching the request criteria, regardless of pagination.",
+            "type": "integer",
+            "format": "int64",
+            "examples": [1042]
+          },
+          "users": {
+            "description": "List of matching users.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "$ref": "#/components/schemas/usersUser"
+            }
           }
         }
       },
