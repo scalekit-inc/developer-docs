@@ -209,14 +209,17 @@ export const sidebar = [
     icon: 'seti:powershell',
     items: [
       {
-        label: 'Code samples',
+        label: 'Build with coding agents',
         items: [
-          { label: 'Overview', link: 'dev-kit/code-samples' },
-          'dev-kit/code-samples/full-stack-auth',
-          'dev-kit/code-samples/agent-auth',
-          'dev-kit/code-samples/mcp-auth',
-          'dev-kit/code-samples/modular-sso',
-          'dev-kit/code-samples/modular-scim',
+          'dev-kit/build-with-ai',
+          'dev-kit/build-with-ai/full-stack-auth',
+          'dev-kit/build-with-ai/agent-auth',
+          'dev-kit/build-with-ai/mcp-auth',
+          'dev-kit/build-with-ai/sso',
+          'dev-kit/build-with-ai/scim',
+          'dev-kit/ai-assisted-development/scalekit-mcp-server',
+          'dev-kit/resources/ai-assisted-setup',
+          'dev-kit/ai-assisted-development/context7',
         ],
       },
       {
@@ -240,20 +243,6 @@ export const sidebar = [
           'dev-kit/api-collections/postman-collections',
         ],
       },
-      {
-        label: 'AI tools',
-        items: [
-          'dev-kit/build-with-ai',
-          'dev-kit/build-with-ai/full-stack-auth',
-          'dev-kit/build-with-ai/agent-auth',
-          'dev-kit/build-with-ai/mcp-auth',
-          'dev-kit/build-with-ai/sso',
-          'dev-kit/build-with-ai/scim',
-          'dev-kit/ai-assisted-development/scalekit-mcp-server',
-          'dev-kit/resources/ai-assisted-setup',
-          'dev-kit/ai-assisted-development/context7',
-        ],
-      },
     ],
   },
   {
@@ -262,6 +251,17 @@ export const sidebar = [
     link: '/guides/integrations',
     icon: 'open-book',
     items: [
+      {
+        label: 'Code samples',
+        items: [
+          { label: 'Overview', link: 'dev-kit/code-samples' },
+          'dev-kit/code-samples/full-stack-auth',
+          'dev-kit/code-samples/agent-auth',
+          'dev-kit/code-samples/mcp-auth',
+          'dev-kit/code-samples/modular-sso',
+          'dev-kit/code-samples/modular-scim',
+        ],
+      },
       createSectionHeader('Integrations'),
       {
         label: 'Social connections',
