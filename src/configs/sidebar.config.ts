@@ -14,10 +14,7 @@ export const sidebar = [
           {
             label: 'Quickstarts',
             collapsed: false,
-            items: [
-              { label: 'Quickstart: Full stack auth', link: 'authenticate/fsa/quickstart' },
-              'authenticate/fsa/start-fsa-coding-agents',
-            ],
+            items: [{ label: 'Quickstart: Full stack auth', link: 'authenticate/fsa/quickstart' }],
           },
           'authenticate/fsa/code-samples',
         ],
@@ -142,7 +139,7 @@ export const sidebar = [
           {
             label: 'Quickstarts',
             collapsed: false,
-            items: ['agent-auth/quickstart', 'agent-auth/start-agent-auth-coding-agents'],
+            items: ['agent-auth/quickstart'],
           },
           'agent-auth/code-samples',
         ],
@@ -251,6 +248,27 @@ export const sidebar = [
       'dev-kit/tools/sso-simulator',
       'dev-kit/tools/use-scalekit-credentials',
       createSpacing(),
+      createSectionHeader('Build with AI'),
+      'dev-kit/build-with-ai',
+      'dev-kit/build-with-ai/full-stack-auth',
+      'dev-kit/build-with-ai/agent-auth',
+      'dev-kit/build-with-ai/mcp-auth',
+      'dev-kit/build-with-ai/sso',
+      'dev-kit/build-with-ai/scim',
+      {
+        label: 'AI tools',
+        collapsed: false,
+        items: [
+          'dev-kit/ai-assisted-development/scalekit-mcp-server',
+          'dev-kit/resources/ai-assisted-setup',
+          'dev-kit/ai-assisted-development/context7',
+          // 'dev-kit/ai-assisted-development/cursor',
+          // 'dev-kit/ai-assisted-development/claude',
+          // 'dev-kit/ai-assisted-development/codex',
+          // 'dev-kit/ai-assisted-development/vscode',
+        ],
+      },
+      createSpacing(),
       createSectionHeader('DEV TOOLS'),
       {
         label: 'SDKs',
@@ -277,19 +295,6 @@ export const sidebar = [
             attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
           },
           'dev-kit/api-collections/openapi-spec',
-        ],
-      },
-      {
-        label: 'AI tools',
-        collapsed: false,
-        items: [
-          'dev-kit/ai-assisted-development/scalekit-mcp-server',
-          'dev-kit/resources/ai-assisted-setup',
-          'dev-kit/ai-assisted-development/context7',
-          // 'dev-kit/ai-assisted-development/cursor',
-          // 'dev-kit/ai-assisted-development/claude',
-          // 'dev-kit/ai-assisted-development/codex',
-          // 'dev-kit/ai-assisted-development/vscode',
         ],
       },
       createSpacing(),
@@ -362,7 +367,7 @@ export const sidebar = [
           {
             label: 'Quickstarts',
             collapsed: false,
-            items: ['authenticate/mcp/quickstart', 'authenticate/mcp/start-mcp-auth-coding-agents'],
+            items: ['authenticate/mcp/quickstart'],
           },
           'authenticate/mcp/managing-mcp-clients',
           'authenticate/mcp/code-samples',
@@ -414,7 +419,7 @@ export const sidebar = [
           {
             label: 'Quickstarts',
             collapsed: false,
-            items: ['authenticate/sso/add-modular-sso', 'authenticate/sso/start-sso-coding-agents'],
+            items: ['authenticate/sso/add-modular-sso'],
           },
           'authenticate/sso/code-samples',
         ],
@@ -469,7 +474,7 @@ export const sidebar = [
           {
             label: 'Quickstarts',
             collapsed: false,
-            items: ['directory/scim/quickstart', 'directory/scim/start-scim-coding-agents'],
+            items: ['directory/scim/quickstart'],
           },
           'directory/code-samples',
         ],
@@ -683,6 +688,7 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
     pathOverrides: {
       '/dev-kit/code-samples': 'code-samples',
       '/dev-kit/tools': 'testing-utilities',
+      '/build-with-ai': 'build-with-ai',
       '/dev-kit/sdks': 'dev-tools',
       '/guides/integrations': 'integrations',
       '/authenticate/implement-workflows': 'workflows',
