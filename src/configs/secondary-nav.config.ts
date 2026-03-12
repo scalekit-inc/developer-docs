@@ -145,15 +145,24 @@ export const secondaryNavItems: NavItem[] = [
     label: 'Developer Resources',
     iconComponent: IconHugeiconsResourcesAdd,
     children: [
-      // LEFT COLUMN
+      // LEFT COLUMN - Developer Kit (Build with AI, SDKs & APIs, Testing Utilities)
       {
-        id: 'code-samples',
-        href: '/dev-kit/code-samples/',
-        label: 'Code Samples',
-        iconComponent: IconLucideCode,
-        description: 'Browse examples by language',
+        id: 'build-with-ai',
+        href: '/dev-kit/build-with-ai/',
+        label: 'Developer Resources',
+        dropdownLabel: 'Build with AI',
+        iconComponent: IconLucideBot,
+        description: 'Coding agent guides by product',
         sectionLabel: 'DEVELOPER KIT',
         sectionDescription: 'Tools and examples to accelerate your integration',
+        columnGroup: 'left',
+      },
+      {
+        id: 'dev-tools',
+        href: '/dev-kit/sdks',
+        label: 'SDKs & APIs',
+        iconComponent: IconSdk,
+        description: 'SDKs and CLI tools',
         columnGroup: 'left',
       },
       {
@@ -164,24 +173,7 @@ export const secondaryNavItems: NavItem[] = [
         description: 'Test integrations locally',
         columnGroup: 'left',
       },
-      {
-        id: 'dev-tools',
-        href: '/dev-kit/sdks',
-        label: 'Dev Tools',
-        iconComponent: IconSdk,
-        description: 'SDKs and CLI tools',
-        columnGroup: 'left',
-      },
-      {
-        id: 'build-with-ai',
-        href: '/dev-kit/build-with-ai/',
-        label: 'Developer Resources',
-        dropdownLabel: 'Build with AI',
-        iconComponent: IconLucideBot,
-        description: 'Coding agent guides by product',
-        columnGroup: 'left',
-      },
-      // RIGHT COLUMN
+      // RIGHT COLUMN - Resources
       {
         id: 'integrations',
         href: '/guides/integrations/social-connections/',
@@ -209,6 +201,14 @@ export const secondaryNavItems: NavItem[] = [
         dropdownLabel: 'Cookbooks',
         iconComponent: IconLucideBookOpenText,
         description: 'Recipes for common integration patterns',
+        columnGroup: 'right',
+      },
+      {
+        id: 'code-samples',
+        href: '/dev-kit/code-samples/',
+        label: 'Code Samples',
+        iconComponent: IconLucideCode,
+        description: 'Browse examples by language',
         columnGroup: 'right',
       },
     ],

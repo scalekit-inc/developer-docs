@@ -1,3 +1,5 @@
+import { createSectionHeader, createSpacing } from './sidebar-utils'
+
 export const sidebar = [
   {
     label: 'Full stack auth',
@@ -12,7 +14,7 @@ export const sidebar = [
           {
             label: 'Quickstarts',
             collapsed: false,
-            items: [{ label: 'Quickstart: Full stack auth', link: 'authenticate/fsa/quickstart' }],
+            items: [{ label: 'Code it yourself', link: 'authenticate/fsa/quickstart' }],
           },
           'authenticate/fsa/code-samples',
         ],
@@ -137,7 +139,7 @@ export const sidebar = [
           {
             label: 'Quickstarts',
             collapsed: false,
-            items: ['agent-auth/quickstart'],
+            items: [{ label: 'Code it yourself', link: 'agent-auth/quickstart' }],
           },
           'agent-auth/code-samples',
         ],
@@ -271,48 +273,41 @@ export const sidebar = [
     link: '/guides/integrations',
     icon: 'open-book',
     items: [
+      createSectionHeader('Integrations'),
       {
-        label: 'Integrations',
+        label: 'Social connections',
+        collapsed: true,
+        autogenerate: { directory: 'guides/integrations/social-connections' },
+      },
+      {
+        label: 'SSO integrations',
+        collapsed: true,
+        autogenerate: { directory: 'guides/integrations/sso-integrations' },
+      },
+      {
+        label: 'SCIM integrations',
+        collapsed: true,
+        autogenerate: { directory: 'guides/integrations/scim-integrations' },
+      },
+      createSpacing(),
+      createSectionHeader('Workflows'),
+      {
+        label: 'Webhooks',
+        collapsed: false,
         items: [
-          {
-            label: 'Social connections',
-            collapsed: true,
-            autogenerate: { directory: 'guides/integrations/social-connections' },
-          },
-          {
-            label: 'SSO integrations',
-            collapsed: true,
-            autogenerate: { directory: 'guides/integrations/sso-integrations' },
-          },
-          {
-            label: 'SCIM integrations',
-            collapsed: true,
-            autogenerate: { directory: 'guides/integrations/scim-integrations' },
-          },
+          'authenticate/implement-workflows/implement-webhooks',
+          'guides/webhooks-best-practices',
         ],
       },
       {
-        label: 'Workflows',
+        label: 'Interceptors',
+        collapsed: false,
         items: [
-          {
-            label: 'Webhooks',
-            collapsed: false,
-            items: [
-              'authenticate/implement-workflows/implement-webhooks',
-              'guides/webhooks-best-practices',
-            ],
-          },
-          {
-            label: 'Interceptors',
-            collapsed: false,
-            items: [
-              'authenticate/interceptors/auth-flow-interceptors',
-              'reference/interceptors/triggers',
-            ],
-          },
-          { label: 'Admin portal events', link: 'reference/admin-portal/ui-events' },
+          'authenticate/interceptors/auth-flow-interceptors',
+          'reference/interceptors/triggers',
         ],
       },
+      { label: 'Admin portal events', link: 'reference/admin-portal/ui-events' },
       {
         label: 'Cookbooks',
         link: '/cookbooks',
@@ -332,7 +327,7 @@ export const sidebar = [
           {
             label: 'Quickstarts',
             collapsed: false,
-            items: ['authenticate/mcp/quickstart'],
+            items: [{ label: 'Code it yourself', link: 'authenticate/mcp/quickstart' }],
           },
           'authenticate/mcp/managing-mcp-clients',
           'authenticate/mcp/code-samples',
@@ -384,7 +379,7 @@ export const sidebar = [
           {
             label: 'Quickstarts',
             collapsed: false,
-            items: ['authenticate/sso/add-modular-sso'],
+            items: [{ label: 'Code it yourself', link: 'authenticate/sso/add-modular-sso' }],
           },
           'authenticate/sso/code-samples',
         ],
@@ -439,7 +434,7 @@ export const sidebar = [
           {
             label: 'Quickstarts',
             collapsed: false,
-            items: ['directory/scim/quickstart'],
+            items: [{ label: 'Code it yourself', link: 'directory/scim/quickstart' }],
           },
           'directory/code-samples',
         ],
