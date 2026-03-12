@@ -3663,6 +3663,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/usersListUserRolesResponse'
+  /api/v1/organizations:external/{external_id}:
+    get:
+      description: Retrieves organization details by External ID, including
+        name, region, metadata, and settings
+      tags:
+        - Organizations
+      summary: Get organization details by external Id
+      operationId: OrganizationService_GetOrganizationByExternalId
+      parameters:
+        - schema:
+            type: string
+          description: Unique identifier that links an Organization Object to
+            your app's tenant, stored as an External ID
+          name: external_id
+          in: path
+          required: true
+        - schema:
+            type: string
+          description: Unique scalekit-generated identifier that uniquely
+            references an organization
+          name: id
+          in: query
+      responses:
+        "200":
+          description: Returns the complete organization object with ID, display
+            name, settings, external ID and metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/organizationsGetOrganizationResponse"
+        "400":
+          description: Invalid request - external ID is empty or the caller's
+            organization claim does not match
+          content:
+            application/json:
+              schema: { }
+        "404":
+          description: Organization not found - no organization exists with the
+            specified external ID
+          content:
+            application/json:
+              schema: { }
   /api/v1/passwordless/email/resend:
     post:
       description: Resend a verification email if the user didn't receive it or
