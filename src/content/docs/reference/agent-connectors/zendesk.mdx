@@ -84,7 +84,7 @@ import { SetupZendeskSection } from '@components/templates'
  </div>
 </div>
 
-Supports authentication: <Badge text="API Key" />
+Supports authentication: <Badge text="API KEY" />
 
 
 ## Set up the agent connector
@@ -93,121 +93,14 @@ Supports authentication: <Badge text="API Key" />
 
 ## Tool list
 
-## `zendesk_ticket_create`
+## `zendesk_groups_list`
 
-Create a new support ticket in Zendesk. Requires a comment/description and optionally a subject, priority, assignee, and tags.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `comment_body` | string | Yes | The description or first comment of the ticket |
-| `subject` | string | No | The subject/title of the ticket |
-| `status` | string | No | Ticket status: `new`, `open`, `pending`, `hold`, `solved`, or `closed` |
-| `priority` | string | No | Ticket priority: `urgent`, `high`, `normal`, or `low` |
-| `type` | string | No | Ticket type: `problem`, `incident`, `question`, or `task` |
-| `assignee_email` | string | No | Email of the agent to assign the ticket to |
-| `tags` | array\<string\> | No | List of tags to apply to the ticket |
-
-## `zendesk_ticket_update`
-
-Update an existing Zendesk ticket. Change status, priority, assignee, subject, tags, or any other writable ticket field.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `ticket_id` | number | Yes | The ID of the ticket to update |
-| `status` | string | No | Ticket status: `new`, `open`, `pending`, `hold`, `solved`, or `closed` |
-| `priority` | string | No | Ticket priority: `urgent`, `high`, `normal`, or `low` |
-| `subject` | string | No | New subject/title for the ticket |
-| `type` | string | No | Ticket type: `problem`, `incident`, `question`, or `task` |
-| `assignee_email` | string | No | Email of the agent to assign the ticket to |
-| `assignee_id` | number | No | ID of the agent to assign the ticket to |
-| `group_id` | number | No | ID of the group to assign the ticket to |
-| `tags` | array\<string\> | No | List of tags to set on the ticket (replaces existing tags) |
-
-## `zendesk_ticket_reply`
-
-Add a public reply or internal note to a Zendesk ticket. Set `public` to `false` for internal notes visible only to agents.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `ticket_id` | number | Yes | The ID of the ticket to reply to |
-| `body` | string | Yes | The reply message content (plain text, markdown supported) |
-| `public` | boolean | No | `true` for a public reply, `false` for an internal note (default: `true`) |
-
-## `zendesk_ticket_get`
-
-Retrieve details of a specific Zendesk ticket by ID. Returns ticket properties including status, priority, subject, requester, assignee, and timestamps.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `ticket_id` | number | Yes | The ID of the ticket to retrieve |
-| `include` | string | No | Comma-separated list of sideloads to include (e.g., `users`, `groups`, `organizations`) |
-
-## `zendesk_tickets_list`
-
-List tickets in Zendesk with sorting and pagination. Returns tickets for the authenticated agent's account.
+List all groups in Zendesk. Groups are used to organize agents and route tickets.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `page` | number | No | Page number for pagination |
-| `per_page` | number | No | Number of tickets per page (max 100) |
-| `sort_by` | string | No | Field to sort by: `created_at`, `updated_at`, `priority`, `status`, `ticket_type` |
-| `sort_order` | string | No | Sort direction: `asc` or `desc` (default: `desc`) |
-
-## `zendesk_search_tickets`
-
-Search Zendesk tickets using a query string. Supports Zendesk's search syntax (e.g., `type:ticket status:open`). Returns up to 1000 results with pagination.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `query` | string | Yes | Search query string using Zendesk search syntax (e.g., `type:ticket status:open assignee:me`) |
-| `page` | number | No | Page number for pagination |
-| `per_page` | number | No | Number of results per page (max 100) |
-| `sort_by` | string | No | Field to sort results by (`updated_at`, `created_at`, `priority`, `status`, `ticket_type`) |
-| `sort_order` | string | No | Sort direction: `asc` or `desc` (default: `desc`) |
-
-## `zendesk_ticket_comments_list`
-
-Retrieve all comments (public replies and internal notes) for a specific Zendesk ticket. Returns comment body, author, timestamps, and attachments.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `ticket_id` | number | Yes | The ID of the ticket whose comments to list |
-| `include` | string | No | Sideloads to include. Use `users` to include user details for email CCs |
-| `include_inline_images` | boolean | No | When `true`, inline images are listed as attachments (default: `false`) |
-| `sort_order` | string | No | Sort direction for comments: `asc` or `desc` (default: `asc`) |
-
-## `zendesk_user_create`
-
-Create a new user in Zendesk. Can create end-users (customers), agents, or admins. Email is required for end-users.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `name` | string | Yes | Full name of the user |
-| `email` | string | No | Primary email address of the user |
-| `role` | string | No | User role: `end-user`, `agent`, or `admin` (default: `end-user`) |
-| `organization_id` | number | No | ID of the organization to associate the user with |
-| `phone` | string | No | Primary phone number in E.164 format (e.g., `+15551234567`) |
-| `verified` | boolean | No | Whether the user's identity is verified (default: `false`) |
-
-## `zendesk_user_get`
-
-Retrieve details of a specific Zendesk user by ID. Returns user profile including name, email, role, organization, and account status.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `user_id` | number | Yes | The ID of the user to retrieve |
-| `include` | string | No | Comma-separated list of sideloads to include |
-
-## `zendesk_users_list`
-
-List users in Zendesk. Filter by role (`end-user`, `agent`, `admin`) with pagination support.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `page` | number | No | Page number for pagination |
-| `per_page` | number | No | Number of users per page (max 100) |
-| `role` | string | No | Filter by role: `end-user`, `agent`, or `admin` |
-| `sort` | string | No | Field to sort by; prefix with `-` for descending (e.g., `-created_at`) |
+| `per_page` | number | No | Number of groups per page (max 100) |
 
 ## `zendesk_organization_get`
 
@@ -215,8 +108,8 @@ Retrieve details of a specific Zendesk organization by ID. Returns organization 
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
+| `include` | string | No | Additional related data to include (e.g., lookup_relationship_fields) |
 | `organization_id` | number | Yes | The ID of the organization to retrieve |
-| `include` | string | No | Additional related data to include (e.g., `lookup_relationship_fields`) |
 
 ## `zendesk_organizations_list`
 
@@ -227,23 +120,130 @@ List all organizations in Zendesk with pagination support.
 | `page` | number | No | Page number for pagination |
 | `per_page` | number | No | Number of organizations per page (max 100) |
 
+## `zendesk_search_tickets`
+
+Search Zendesk tickets using a query string. Supports Zendesk's search syntax (e.g., 'type:ticket status:open'). Returns up to 1000 results with pagination.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page` | number | No | Page number for pagination |
+| `per_page` | number | No | Number of results per page (max 100) |
+| `query` | string | Yes | Search query string using Zendesk search syntax (e.g., 'type:ticket status:open assignee:me') |
+| `sort_by` | string | No | Field to sort results by (updated_at, created_at, priority, status, ticket_type) |
+| `sort_order` | string | No | Sort direction: asc or desc (default: desc) |
+
+## `zendesk_ticket_comments_list`
+
+Retrieve all comments (public replies and internal notes) for a specific Zendesk ticket. Returns comment body, author, timestamps, and attachments.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `include` | string | No | Sideloads to include. Accepts 'users' to list email CCs. |
+| `include_inline_images` | boolean | No | When true, inline images are listed as attachments (default: false) |
+| `sort_order` | string | No | Sort direction for comments: asc or desc (default: asc) |
+| `ticket_id` | number | Yes | The ID of the ticket whose comments to list |
+
+## `zendesk_ticket_create`
+
+Create a new support ticket in Zendesk. Requires a comment/description and optionally a subject, priority, assignee, and tags.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assignee_email` | string | No | Email of the agent to assign the ticket to |
+| `comment_body` | string | Yes | The description or first comment of the ticket |
+| `priority` | string | No | Ticket priority: urgent, high, normal, or low |
+| `status` | string | No | Ticket status: new, open, pending, hold, solved, or closed |
+| `subject` | string | No | The subject/title of the ticket |
+| `tags` | `array<string>` | No | List of tags to apply to the ticket |
+| `type` | string | No | Ticket type: problem, incident, question, or task |
+
+## `zendesk_ticket_get`
+
+Retrieve details of a specific Zendesk ticket by ID. Returns ticket properties including status, priority, subject, requester, assignee, and timestamps.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `include` | string | No | Comma-separated list of sideloads to include (e.g., users, groups, organizations) |
+| `ticket_id` | number | Yes | The ID of the ticket to retrieve |
+
+## `zendesk_ticket_reply`
+
+Add a public reply or internal note to a Zendesk ticket. Set public to false for internal notes visible only to agents.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `body` | string | Yes | The reply message content (plain text, markdown supported) |
+| `public` | boolean | No | Whether the comment is public (true) or an internal note (false). Defaults to true. |
+| `ticket_id` | number | Yes | The ID of the ticket to reply to |
+
+## `zendesk_ticket_update`
+
+Update an existing Zendesk ticket. Change status, priority, assignee, subject, tags, or any other writable ticket field.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assignee_email` | string | No | Email of the agent to assign the ticket to |
+| `assignee_id` | number | No | ID of the agent to assign the ticket to |
+| `group_id` | number | No | ID of the group to assign the ticket to |
+| `priority` | string | No | Ticket priority: urgent, high, normal, or low |
+| `status` | string | No | Ticket status: new, open, pending, hold, solved, or closed |
+| `subject` | string | No | New subject/title for the ticket |
+| `tags` | `array<string>` | No | List of tags to set on the ticket (replaces existing tags) |
+| `ticket_id` | number | Yes | The ID of the ticket to update |
+| `type` | string | No | Ticket type: problem, incident, question, or task |
+
+## `zendesk_tickets_list`
+
+List tickets in Zendesk with sorting and pagination. Returns tickets for the authenticated agent's account.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page` | number | No | Page number for pagination |
+| `per_page` | number | No | Number of tickets per page (max 100) |
+| `sort_by` | string | No | Field to sort by: created_at, updated_at, priority, status, ticket_type |
+| `sort_order` | string | No | Sort direction: asc or desc (default: desc) |
+
+## `zendesk_user_create`
+
+Create a new user in Zendesk. Can create end-users (customers), agents, or admins. Email is required for end-users.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `email` | string | No | Primary email address of the user |
+| `name` | string | Yes | Full name of the user |
+| `organization_id` | number | No | ID of the organization to associate the user with |
+| `phone` | string | No | Primary phone number (E.164 format, e.g. +15551234567) |
+| `role` | string | No | User role: end-user, agent, or admin. Defaults to end-user. |
+| `verified` | boolean | No | Whether the user's identity is verified. Defaults to false. |
+
+## `zendesk_user_get`
+
+Retrieve details of a specific Zendesk user by ID. Returns user profile including name, email, role, organization, and account status.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `include` | string | No | Comma-separated list of sideloads to include |
+| `user_id` | number | Yes | The ID of the user to retrieve |
+
+## `zendesk_users_list`
+
+List users in Zendesk. Filter by role (end-user, agent, admin) with pagination support.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page` | number | No | Page number for pagination |
+| `per_page` | number | No | Number of users per page (max 100) |
+| `role` | string | No | Filter by role: end-user, agent, or admin |
+| `sort` | string | No | Field to sort by. Prefix with - for descending (e.g. -created_at) |
+
 ## `zendesk_views_list`
 
 List ticket views in Zendesk. Views are saved filters for organizing tickets by status, assignee, tags, and more.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
+| `access` | string | No | Filter by access level: personal, shared, or account |
 | `page` | number | No | Page number for pagination |
 | `per_page` | number | No | Number of views per page (max 100) |
-| `access` | string | No | Filter by access level: `personal`, `shared`, or `account` |
-| `sort_by` | string | No | Field to sort by: `title`, `updated_at`, `created_at`, or `position` |
-| `sort_order` | string | No | Sort direction: `asc` or `desc` |
-
-## `zendesk_groups_list`
-
-List all groups in Zendesk. Groups are used to organize agents and route tickets.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `page` | number | No | Page number for pagination |
-| `per_page` | number | No | Number of groups per page (max 100) |
+| `sort_by` | string | No | Field to sort by: title, updated_at, created_at, or position |
+| `sort_order` | string | No | Sort direction: asc or desc |

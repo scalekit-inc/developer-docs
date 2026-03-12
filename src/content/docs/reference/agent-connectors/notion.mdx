@@ -74,6 +74,7 @@ head:
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
 import { SetupNotionSection } from '@components/templates'
+import { UsageNotionSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -91,88 +92,30 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 <SetupNotionSection />
 
-
 ## Usage
 
-Connect a user's Notion account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
-
-<Tabs syncKey="tech-stack">
-{/* Node.js - commented out, uncomment when ready
-  <TabItem label="Node.js">
-    ```typescript
-    import { ScalekitClient } from '@scalekit-sdk/node';
-    import 'dotenv/config';
-
-    const connectionName = 'notion'; // get your connection name from connection configurations
-    const identifier = 'user_123';  // your unique user identifier
-
-    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
-    const scalekit = new ScalekitClient(
-      process.env.SCALEKIT_ENV_URL,
-      process.env.SCALEKIT_CLIENT_ID,
-      process.env.SCALEKIT_CLIENT_SECRET
-    );
-    const { connectedAccounts, actions } = scalekit;
-
-    // Authenticate the user
-    const { link } = await connectedAccounts.getMagicLinkForConnectedAccount({
-      connector: connectionName,
-      identifier,
-    });
-    console.log('🔗 Authorize Notion:', link);
-    process.stdout.write('Press Enter after authorizing...');
-    await new Promise(r => process.stdin.once('data', r));
-
-    // Make a request via Scalekit proxy
-    const result = await actions.request({
-      connectionName,
-      identifier,
-      path: '/v1/users/me',
-      method: 'GET',
-    });
-    console.log(result);
-    ```
-  </TabItem>
-*/}
-  <TabItem label="Python">
-    ```python
-    import scalekit.client, os
-    from dotenv import load_dotenv
-    load_dotenv()
-
-    connection_name = "notion"  # get your connection name from connection configurations
-    identifier = "user_123"     # your unique user identifier
-
-    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
-    scalekit_client = scalekit.client.ScalekitClient(
-        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-        env_url=os.getenv("SCALEKIT_ENV_URL"),
-    )
-    actions = scalekit_client.actions
-
-    # Authenticate the user
-    link_response = actions.get_authorization_link(
-        connection_name=connection_name,
-        identifier=identifier
-    )
-    # present this link to your user for authorization, or click it yourself for testing
-    print("🔗 Authorize Notion:", link_response.link)
-    input("Press Enter after authorizing...")
-
-    # Make a request via Scalekit proxy
-    result = actions.request(
-        connection_name=connection_name,
-        identifier=identifier,
-        path="/v1/users/me",
-        method="GET"
-    )
-    print(result)
-    ```
-  </TabItem>
-</Tabs>
+<UsageNotionSection />
 
 ## Tool list
+
+## `notion_block_delete`
+
+Delete (archive) a Notion block by its ID. This also deletes all child blocks within it.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `block_id` | string | Yes | The ID of the block to delete |
+
+## `notion_block_update`
+
+Update the text content of an existing Notion block. Supports paragraph, heading, list item, quote, callout, and code blocks.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `block_id` | string | Yes | The ID of the block to update |
+| `language` | string | No | Programming language for code blocks |
+| `text` | string | Yes | New text content for the block |
+| `type` | string | Yes | The block type (must match the existing block type) |
 
 ## `notion_comment_create`
 
@@ -180,10 +123,10 @@ Create a comment in Notion. Provide a comment object with rich_text content and 
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `comment` | `object` | Yes | Comment object containing a rich_text array. Example: `{"rich_text":[{"type":"text","text":{"content":"Hello"}}]}` |
+| `comment` | `object` | Yes | Comment object containing a rich_text array. Example: {"rich_text":[{"type":"text","text":{"content":"Hello"}}]} |
 | `discussion_id` | string | No | Existing discussion thread ID to reply to. |
 | `notion_version` | string | No | Optional override for the Notion-Version header (e.g., 2022-06-28). |
-| `parent` | `object` | No | Parent object for a new top-level comment. Shape: `{"page_id":"<uuid>"}`. |
+| `parent` | `object` | No | Parent object for a new top-level comment. Shape: {"page_id":"<uuid>"}. |
 | `schema_version` | string | No | Internal override for schema version. |
 | `tool_version` | string | No | Internal override for tool implementation version. |
 
@@ -230,8 +173,8 @@ Create a new database in Notion under a parent page. Provide a parent object wit
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `notion_version` | string | No | Optional override for the Notion-Version header (e.g., 2022-06-28). |
-| `parent` | `object` | Yes | Parent object specifying the page under which the database is created. Example: `{"page_id": "2561ab6c-418b-8072-beec-c4779fa811cf"}` |
-| `properties` | `object` | Yes | Database schema object defining properties (columns). Example: `{"Name": {"title": {}}, "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Doing"}, {"name": "Done"}]}}}` |
+| `parent` | `object` | Yes | Parent object specifying the page under which the database is created. Example: {"page_id": "2561ab6c-418b-8072-beec-c4779fa811cf"} |
+| `properties` | `object` | Yes | Database schema object defining properties (columns). Example: {"Name": {"title": {}}, "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Doing"}, {"name": "Done"}]}}} |
 | `schema_version` | string | No | Internal override for schema version. |
 | `title` | `array<object>` | Yes | Database title as a Notion rich_text array. |
 | `tool_version` | string | No | Internal override for tool implementation version. |
@@ -264,15 +207,15 @@ LLM guidance:
 - Use the **exact property key** as defined in the database (case‑sensitive), or the property id.
 - `icon` example (emoji): `{"type":"emoji","emoji":"📝"}`
 - `cover` example (external): `{"type":"external","external":{"url":"https://example.com/image.jpg"}}`
-- Runtime note: the executor/host should synthesize `parent = {"database_id": "<database_id>"}` before sending to Notion.
+- Runtime note: the executor/host should synthesize `parent = {"database_id": database_id}` before sending to Notion.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `_parent` | `object` | No | Computed by host: `{ "database_id": "<database_id>" }`. Do not supply manually. |
+| `_parent` | `object` | No | Computed by host: { "database_id": "<database_id>" }. Do not supply manually. |
 | `child_blocks` | `array<unknown>` | No | Optional array of Notion blocks to append as page content (paragraph, heading, to_do, etc.). |
-| `cover` | `object` | No | Optional page cover object. Example external: `{"type":"external","external":{"url":"https://example.com/cover.jpg"}}`. |
+| `cover` | `object` | No | Optional page cover object. Example external: {"type":"external","external":{"url":"https://example.com/cover.jpg"}}. |
 | `database_id` | string | Yes | Target database ID (hyphenated UUID). |
-| `icon` | `object` | No | Optional page icon object. Examples: `{"type":"emoji","emoji":"📝"}` or `{"type":"external","external":{"url":"https://..."}}`. |
+| `icon` | `object` | No | Optional page icon object. Examples: {"type":"emoji","emoji":"📝"} or {"type":"external","external":{"url":"https://..."}}. |
 | `notion_version` | string | No | Optional Notion-Version header override (e.g., 2022-06-28). |
 | `properties` | `object` | Yes | Object mapping **column names (or property ids)** to **property values**. ️ **CRITICAL: Property Identification Rules:** - For title fields: ALWAYS use 'title' as the property key (not 'Name' or display names) - For other properties: Use exact property names from database schema (case-sensitive) - DO NOT use URL-encoded property IDs with special characters  **Recommended Workflow:** 1. Call fetch_database first to see exact property names 2. Use 'title' for title-type properties 3. Match other property names exactly as shown in schema Example: […] |
 | `schema_version` | string | No | Optional schema version override. |
@@ -303,6 +246,36 @@ Query a Notion database for rows (pages). Provide database_id (hyphenated UUID).
 | `start_cursor` | string | No | Cursor to fetch the next page of results. |
 | `tool_version` | string | No | Optional tool version override. |
 
+## `notion_database_update`
+
+Update a Notion database's title, description, or property schema.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `database_id` | string | Yes | The ID of the database to update |
+| `description` | string | No | New description for the database |
+| `properties` | `object` | No | Property schema updates (add, rename, or reconfigure columns) |
+| `title` | string | No | New title for the database |
+
+## `notion_page_content_append`
+
+Append blocks to a Notion page or block. Supports paragraph, heading_1/2/3, bulleted_list_item, numbered_list_item, code, quote, callout, and divider block types.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `block_id` | string | Yes | The ID of the page or block to append content to |
+| `blocks` | `array<object>` | Yes | Array of blocks to append. Each block has a type and text (plus optional language for code blocks). |
+
+## `notion_page_content_get`
+
+Retrieve the content (blocks) of a Notion page or block. Returns all child blocks with their type and text content.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `block_id` | string | Yes | The ID of the page or block whose children to retrieve |
+| `page_size` | number | No | Number of blocks to return (max 100) |
+| `start_cursor` | string | No | Cursor for pagination from a previous response |
+
 ## `notion_page_create`
 
 Create a page in Notion either inside a database (as a row) or as a child of a page. Use exactly one parent mode: provide database_id to create a database row (page with properties) OR provide parent_page_id to create a child page. When creating in a database, properties must use Notion property value shapes and the title property key must be "title" (not the display name). Children (content blocks), icon, and cover are optional. The executor should synthesize the Notion parent object from the chosen parent input.
@@ -314,13 +287,42 @@ Target rules:
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `_parent` | `object` | No | Computed by the executor: `{"database_id": "..."}` OR `{"page_id": "..."}` derived from database_id/parent_page_id. |
+| `_parent` | `object` | No | Computed by the executor: {"database_id": "..."} OR {"page_id": "..."} derived from database_id/parent_page_id. |
 | `child_blocks` | `array<unknown>` | No | Optional blocks to add as page content (children). |
 | `cover` | `object` | No | Optional page cover object. |
 | `database_id` | string | No | Create a page as a new row in this database (hyphenated UUID). Extract from the database URL (last 32 chars → hyphenate 8-4-4-4-12). |
 | `icon` | `object` | No | Optional page icon object. |
 | `notion_version` | string | No | Optional Notion-Version header override. |
 | `parent_page_id` | string | No | Create a child page under this page (hyphenated UUID). Extract from the parent page URL. |
-| `properties` | `object` | No | For database rows, supply property values keyed by property name (or id). For title properties, the key must be "title". Example (database row): `{"title": {"title": [{"text": {"content": "Task A"}}]}, "Status": {"select": {"name": "Todo"}}, "Due": {"date": {"start": "2025-09-01"}}}` |
+| `properties` | `object` | No | For database rows, supply property values keyed by property name (or id). For title properties, the key must be "title". Example (database row): {   "title": { "title": [ { "text": { "content": "Task A" } } ] },   "Status": { "select": { "name": "Todo" } },   "Due": { "date": { "start": "2025-09-01" } } } |
 | `schema_version` | string | No | Optional schema version override. |
 | `tool_version` | string | No | Optional tool version override. |
+
+## `notion_page_get`
+
+Retrieve a Notion page by its ID. Returns the page properties, metadata, and parent information.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page_id` | string | Yes | The ID of the Notion page to retrieve |
+
+## `notion_page_update`
+
+Update a Notion page's properties, archive/unarchive it, or change its icon and cover.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `archived` | boolean | No | Set to true to archive (delete) the page, false to unarchive it |
+| `cover` | `object` | No | Page cover image to set |
+| `icon` | `object` | No | Page icon to set |
+| `page_id` | string | Yes | The ID of the Notion page to update |
+| `properties` | `object` | No | Page properties to update using Notion property value shapes |
+
+## `notion_user_list`
+
+List all users in the Notion workspace including people and bots.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page_size` | number | No | Number of users to return (max 100) |
+| `start_cursor` | string | No | Cursor for pagination from a previous response |
