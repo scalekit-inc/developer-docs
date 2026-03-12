@@ -1,5 +1,3 @@
-import { createSectionHeader, createSpacing } from './sidebar-utils'
-
 export const sidebar = [
   {
     label: 'Full stack auth',
@@ -215,143 +213,110 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Developer Resources',
+    label: 'Developer Kit',
     id: 'dev-kit',
     link: '/dev-kit/code-samples/',
     icon: 'seti:powershell',
-    // TODO: A lot of items are intentionally hidden until contents in them are authored.
     items: [
-      // 'dev-kit',
-      // {
-      //   label: 'Work with Scalekit',
-      //   collapsed: true,
-      //   items: [
-      //     'dev-kit/guides/dashboard/environments',
-      //     'dev-kit/guides/dashboard/manage-team-members',
-      //     'dev-kit/guides/dashboard/billing',
-      //   ],
-      // },
       {
         label: 'Code samples',
         items: [
           { label: 'Overview', link: 'dev-kit/code-samples' },
-          'dev-kit/code-samples/mcp-auth',
+          'dev-kit/code-samples/full-stack-auth',
           'dev-kit/code-samples/agent-auth',
+          'dev-kit/code-samples/mcp-auth',
           'dev-kit/code-samples/modular-sso',
           'dev-kit/code-samples/modular-scim',
-          'dev-kit/code-samples/full-stack-auth',
         ],
       },
-      createSpacing(),
-      createSectionHeader('Testing Utilities'),
-      'dev-kit/tools/scalekit-dryrun',
-      'dev-kit/tools/sso-simulator',
-      'dev-kit/tools/use-scalekit-credentials',
-      createSpacing(),
-      createSectionHeader('Build with AI'),
-      'dev-kit/build-with-ai',
-      'dev-kit/build-with-ai/full-stack-auth',
-      'dev-kit/build-with-ai/agent-auth',
-      'dev-kit/build-with-ai/mcp-auth',
-      'dev-kit/build-with-ai/sso',
-      'dev-kit/build-with-ai/scim',
       {
-        label: 'AI tools',
-        collapsed: false,
+        label: 'Testing utilities',
         items: [
-          'dev-kit/ai-assisted-development/scalekit-mcp-server',
-          'dev-kit/resources/ai-assisted-setup',
-          'dev-kit/ai-assisted-development/context7',
-          // 'dev-kit/ai-assisted-development/cursor',
-          // 'dev-kit/ai-assisted-development/claude',
-          // 'dev-kit/ai-assisted-development/codex',
-          // 'dev-kit/ai-assisted-development/vscode',
+          'dev-kit/tools/scalekit-dryrun',
+          'dev-kit/tools/sso-simulator',
+          'dev-kit/tools/use-scalekit-credentials',
         ],
       },
-      createSpacing(),
-      createSectionHeader('DEV TOOLS'),
       {
-        label: 'SDKs',
-        link: 'dev-kit/sdks',
-      },
-      {
-        label: 'APIs',
-        // link: 'dev-kit/apis',
-        link: '/apis/#description/overview',
-        attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
-      },
-      {
-        label: 'Cookbooks',
-        link: '/cookbooks',
-      },
-      {
-        label: 'API collections',
-        collapsed: true,
+        label: 'SDKs & APIs',
         items: [
-          // 'dev-kit/api-collections/postman-collections', TODO: Expand the guide for postman collections
+          'dev-kit/sdks',
           {
-            label: 'Postman collections',
-            link: 'https://github.com/scalekit-inc/api-collections/tree/main/postman',
+            label: 'APIs',
+            link: '/apis/#description/overview',
             attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
           },
           'dev-kit/api-collections/openapi-spec',
         ],
       },
-      createSpacing(),
-      createSectionHeader('Workflows'),
       {
-        label: 'Webhooks',
-        collapsed: true,
+        label: 'AI tools',
         items: [
-          'authenticate/implement-workflows/implement-webhooks',
-          'guides/webhooks-best-practices',
+          'dev-kit/build-with-ai',
+          'dev-kit/build-with-ai/full-stack-auth',
+          'dev-kit/build-with-ai/agent-auth',
+          'dev-kit/build-with-ai/mcp-auth',
+          'dev-kit/build-with-ai/sso',
+          'dev-kit/build-with-ai/scim',
+          'dev-kit/ai-assisted-development/scalekit-mcp-server',
+          'dev-kit/resources/ai-assisted-setup',
+          'dev-kit/ai-assisted-development/context7',
+        ],
+      },
+    ],
+  },
+  {
+    label: 'Resources',
+    id: 'resources',
+    link: '/guides/integrations',
+    icon: 'open-book',
+    items: [
+      {
+        label: 'Integrations',
+        items: [
+          {
+            label: 'Social connections',
+            collapsed: true,
+            autogenerate: { directory: 'guides/integrations/social-connections' },
+          },
+          {
+            label: 'SSO integrations',
+            collapsed: true,
+            autogenerate: { directory: 'guides/integrations/sso-integrations' },
+          },
+          {
+            label: 'SCIM integrations',
+            collapsed: true,
+            autogenerate: { directory: 'guides/integrations/scim-integrations' },
+          },
         ],
       },
       {
-        label: 'Interceptors',
-        collapsed: true,
+        label: 'Workflows',
         items: [
-          'authenticate/interceptors/auth-flow-interceptors',
-          'reference/interceptors/triggers',
+          {
+            label: 'Webhooks',
+            collapsed: false,
+            items: [
+              'authenticate/implement-workflows/implement-webhooks',
+              'guides/webhooks-best-practices',
+            ],
+          },
+          {
+            label: 'Interceptors',
+            collapsed: false,
+            items: [
+              'authenticate/interceptors/auth-flow-interceptors',
+              'reference/interceptors/triggers',
+            ],
+          },
+          { label: 'Admin portal events', link: 'reference/admin-portal/ui-events' },
         ],
       },
-      { label: 'Admin portal events', link: 'reference/admin-portal/ui-events' },
-      createSectionHeader('Auth Integrations'),
       {
-        label: 'Social connections',
-        collapsed: true,
-        autogenerate: {
-          directory: 'guides/integrations/social-connections',
-        },
+        label: 'Cookbooks',
+        link: '/cookbooks',
       },
-      {
-        label: 'SSO integrations',
-        collapsed: true,
-        autogenerate: { directory: 'guides/integrations/sso-integrations' },
-      },
-      {
-        label: 'SCIM integrations',
-        collapsed: true,
-        autogenerate: { directory: 'guides/integrations/scim-integrations' },
-      },
-      // {
-      //   label: 'Test enterprise integrations',
-      //   collapsed: true,
-      //   items: ['dev-kit/guides/testing/sso-simulator', 'dev-kit/guides/testing/scim-simulator'],
-      // },
-      // {
-      //   label: 'How-to guides',
-      //   collapsed: false,
-      //   items: [
-      //     // 'reference/webhooks/overview',
-      //     // 'reference/webhooks/directory-events',
-      //     // 'reference/webhooks/user-events',
-      //     // 'reference/webhooks/organization-events',
-      //     // 'reference/webhooks/permission-events',
-      //     // 'reference/webhooks/role-events',
-      //     // 'reference/webhooks/sso-events'
-      //   ],
-      // },
     ],
   },
   {
@@ -603,17 +568,30 @@ export const topics = {
   // Agent Auth / Connect
   connect: ['/agent-auth/**/*', '/reference/agent-connectors/**/*'],
 
-  // === dev-kit patterns (must come before authenticate pattern) ===
+  // === Developer Kit (tools, code, SDKs, AI helpers) ===
   'dev-kit': [
-    '/authenticate/implement-workflows/implement-webhooks',
-    '/authenticate/interceptors/auth-flow-interceptors',
+    '/dev-kit/code-samples/**/*',
+    '/dev-kit/tools/**/*',
+    '/dev-kit/sdks/**/*',
+    '/dev-kit/ai-assisted-development/**/*',
+    '/dev-kit/resources/**/*',
+    '/dev-kit/build-with-ai/**/*',
+    '/dev-kit/api-collections/**/*',
     '/dev-kit/**/*',
+  ],
+
+  // === Resources (integrations, workflows, references) ===
+  resources: [
+    '/guides/integrations/**/*',
+    '/authenticate/implement-workflows/**/*',
+    '/authenticate/interceptors/**/*',
+    '/reference/admin-portal/**/*',
+    '/guides/webhooks-best-practices',
+    '/reference/interceptors/**/*',
     '/guides/**/*',
     '/browse/**/*',
-    '/m2m/**/*',
-    '/social-logins/**/*',
-    '/passwordless/**/*',
-    '/reference/**/*', // Any remaining reference pages
+    '/reference/**/*',
+    '/cookbooks/**/*',
     '/**/*', // Catch-all: anything not matched above defaults here
   ],
 
@@ -682,16 +660,28 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Agent Auth sidebar → 'Agent Auth' tab
   connect: 'agent-auth',
 
-  // Developer Resources sidebar → 'Developer Resources' tab
+  // Developer Kit sidebar → Developer Resources dropdown (left column)
   'dev-kit': {
     default: 'code-samples',
     pathOverrides: {
       '/dev-kit/code-samples': 'code-samples',
       '/dev-kit/tools': 'testing-utilities',
-      '/build-with-ai': 'build-with-ai',
+      '/dev-kit/build-with-ai': 'build-with-ai',
       '/dev-kit/sdks': 'dev-tools',
+      '/dev-kit/ai-assisted-development': 'build-with-ai',
+      '/dev-kit/resources/ai-assisted-setup': 'build-with-ai',
+    },
+  },
+
+  // Resources sidebar → Developer Resources dropdown (right column)
+  resources: {
+    default: 'integrations',
+    pathOverrides: {
       '/guides/integrations': 'integrations',
       '/authenticate/implement-workflows': 'workflows',
+      '/authenticate/interceptors': 'workflows',
+      '/reference/interceptors': 'workflows',
+      '/reference/admin-portal': 'workflows',
       '/cookbooks': 'cookbooks',
     },
   },
