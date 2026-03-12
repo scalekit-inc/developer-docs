@@ -557,6 +557,7 @@ export const topics = {
     '/guides/**/*',
     '/browse/**/*',
     '/reference/**/*',
+    '/cookbooks',
     '/cookbooks/**/*',
     '/**/*', // Catch-all: anything not matched above defaults here
   ],
