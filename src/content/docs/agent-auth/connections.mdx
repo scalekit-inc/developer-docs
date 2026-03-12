@@ -32,68 +32,9 @@ Connections serve as the bridge between your Agent Auth setup and third-party pr
 
 Agent Auth supports various connection types based on different authentication methods:
 
-### OAuth 2.0 connections
-
-Most modern APIs use OAuth 2.0 for secure authentication:
-
-```json
-{
-  "connection_id": "conn_gmail_oauth",
-  "provider": "gmail",
-  "auth_type": "oauth2",
-  "credentials": {
-    "client_id": "your-client-id",
-    "client_secret": "your-client-secret",
-    "redirect_uri": "https://your-app.com/callback"
-  },
-  "scopes": ["https://www.googleapis.com/auth/gmail.send"],
-  "settings": {
-    "auto_refresh": true,
-    "expires_in": 3600
-  }
-}
-```
-
-### API key connections
-
-Simple authentication using static API keys:
-
-```json
-{
-  "connection_id": "conn_jira_api",
-  "provider": "jira",
-  "auth_type": "api_key",
-  "credentials": {
-    "api_key": "your-api-key",
-    "base_url": "https://your-domain.atlassian.net"
-  },
-  "settings": {
-    "rate_limit": 100,
-    "timeout": 30
-  }
-}
-```
-
-### Custom authentication
-
-For providers with unique authentication requirements:
-
-```json
-{
-  "connection_id": "conn_custom_auth",
-  "provider": "custom_provider",
-  "auth_type": "custom",
-  "credentials": {
-    "username": "your-username",
-    "password": "your-password",
-    "token": "bearer-token"
-  },
-  "settings": {
-    "auth_endpoint": "https://api.provider.com/auth",
-    "refresh_endpoint": "https://api.provider.com/refresh"
-  }
-}
-```
+- **OAuth 2.0 connections** — Most modern APIs use OAuth 2.0 for secure authentication. Configure client ID, client secret, redirect URI, scopes, and token settings.
+- **API key connections** — Simple authentication using static API keys. Provide your API key, base URL, and optional settings such as rate limit and timeout.
+- **Custom authentication** — For providers with unique authentication requirements. Configure credentials (e.g., username, password, token) and custom auth or refresh endpoints.
 
 ## Creating connections
 
@@ -108,70 +49,6 @@ For providers with unique authentication requirements:
 6. **Test connection** to verify configuration
 7. **Save connection** for use with connected accounts
 </Steps>
-
-### Using the API
-
-Create connections programmatically using the Agent Auth API:
-
-<Tabs>
-<TabItem value="curl" label="cURL">
-
-```bash
-curl -X POST "https://api.scalekit.com/v1/connect/connections" \
-  -H "Authorization: Bearer YOUR_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "provider": "gmail",
-    "auth_type": "oauth2",
-    "credentials": {
-      "client_id": "your-client-id",
-      "client_secret": "your-client-secret"
-    },
-    "scopes": ["https://www.googleapis.com/auth/gmail.send"],
-    "settings": {
-      "auto_refresh": true
-    }
-  }'
-```
-
-</TabItem>
-<TabItem value="javascript" label="JavaScript">
-
-```javascript
-const connection = await agentConnect.connections.create({
-  provider: 'gmail',
-  auth_type: 'oauth2',
-  credentials: {
-    client_id: 'your-client-id',
-    client_secret: 'your-client-secret'
-  },
-  scopes: ['https://www.googleapis.com/auth/gmail.send'],
-  settings: {
-    auto_refresh: true
-  }
-});
-```
-
-</TabItem>
-<TabItem value="python" label="Python">
-
-```python
-connection = agent_connect.connections.create(
-    provider='gmail',
-    auth_type='oauth2',
-    credentials={
-        'client_id': 'your-client-id',
-        'client_secret': 'your-client-secret'
-    },
-    scopes=['https://www.googleapis.com/auth/gmail.send'],
-    settings={
-        'auto_refresh': True
-    }
-)
-```
-
-</TabItem>
-</Tabs>
 
 ## Connection configuration
 
@@ -233,21 +110,6 @@ const jiraScopes = [
 ];
 ```
 
-### Rate limiting and throttling
-
-Configure how your connection handles API rate limits:
-
-```json
-{
-  "rate_limiting": {
-    "requests_per_minute": 100,
-    "requests_per_hour": 1000,
-    "burst_limit": 10,
-    "backoff_strategy": "exponential",
-    "retry_attempts": 3
-  }
-}
-```
 
 ### Connection settings
 
@@ -281,30 +143,11 @@ Connections go through various states:
 
 Modify existing connections when requirements change:
 
-<Tabs>
-<TabItem value="dashboard" label="Dashboard">
-
 1. Navigate to your connections list
 2. Select the connection to modify
 3. Update credentials, scopes, or settings
 4. Test the updated connection
 5. Save changes
-
-</TabItem>
-<TabItem value="api" label="API">
-
-```javascript
-const updatedConnection = await agentConnect.connections.update('conn_id', {
-  scopes: ['new-scope-1', 'new-scope-2'],
-  settings: {
-    rate_limit: 200,
-    timeout: 60
-  }
-});
-```
-
-</TabItem>
-</Tabs>
 
 ### Connection monitoring
 
