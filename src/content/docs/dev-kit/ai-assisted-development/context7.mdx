@@ -11,24 +11,60 @@ prev: false
 next: false
 ---
 
-import { Tabs, TabItem, Steps, Aside } from '@astrojs/starlight/components'
+import { Tabs, TabItem, Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components'
 
 AI coding agents like Claude Code and Cursor work from training data that can be months out of date. When you ask them to help integrate Scalekit, they may reference old APIs, deprecated patterns, or incorrect parameter names — leading to bugs that are hard to trace.
 
-[Context7](https://context7.com) is an MCP (Model Context Protocol) server that pulls live, version-accurate documentation directly into your coding agent's context. It is opt-in: docs are only injected when you add `use context7` to a prompt, or when you configure auto-invoke rules so the agent calls it automatically. Without one of these triggers, Context7 is not invoked and your agent falls back to its training data.
+[Context7](https://context7.com) provides two ways to access live, version-accurate documentation:
+
+- **CLI** — query docs directly from your terminal (recommended for most developers)
+- **MCP server** — integrates with AI agents for automatic doc injection
+
+Both methods pull the same up-to-date content. Choose CLI for direct control, or MCP server for seamless AI agent integration.
 
 Scalekit's full developer documentation is indexed on Context7 at [context7.com/scalekit-inc/developer-docs](https://context7.com/scalekit-inc/developer-docs), covering hundreds of pages and thousands of code snippets across SSO, SCIM, MCP auth, agent auth, and connected accounts.
 
 ## Get accurate answers about Scalekit
 
-When a prompt triggers Context7 — either via the `use context7` keyword or an auto-invoke rule — it retrieves the relevant documentation from the indexed Scalekit docs and injects it into the agent's context window. Your agent then answers using accurate, current content rather than training data.
+Context7 retrieves relevant documentation from the indexed Scalekit docs and delivers it to you or your agent. The AI then answers using accurate, current content rather than training data.
 
-Context7 provides two MCP tools:
-- `resolve-library-id` — finds the Scalekit docs library by name
-- `query-docs` — retrieves specific documentation sections by library ID
+Context7 provides three main capabilities:
+- `library` — resolve library IDs and discover docs
+- `docs` — fetch specific documentation sections
+- MCP server tools for AI agent integration
 
 <Steps>
 1. #### Set up Context7
+
+   Context7 can be set up via CLI or as an MCP server. Choose your method:
+
+   <Tabs syncKey="setup-method">
+   <TabItem label="CLI">
+
+   Install the Context7 CLI to query docs directly from your terminal.
+
+   **One-off installation via npx:**
+
+   ```sh wrap showLineNumbers=false
+   npx ctx7 --help
+   ```
+
+   **Global installation:**
+
+   ```sh wrap showLineNumbers=false
+   npm install -g ctx7
+   ctx7 --version
+   ```
+
+   Requires Node.js 18 or higher.
+
+   The CLI provides three main capabilities:
+   - **Fetch docs** — query specific documentation sections
+   - **Manage skills** — generate AI agent skills for auto-invocation
+   - **Configure MCP** — set up MCP server integration
+
+   </TabItem>
+   <TabItem label="MCP Server">
 
    Context7 is configured as an MCP server in your coding agent. You can also add it directly from [context7.com](https://context7.com). Choose your tool:
 
@@ -133,7 +169,65 @@ Context7 provides two MCP tools:
    </TabItem>
    </Tabs>
 
+   </TabItem>
+   </Tabs>
+
 2. #### Query Scalekit docs
+
+   <Tabs syncKey="query-method">
+   <TabItem label="Using CLI">
+
+   Querying Scalekit docs via CLI is a two-step process.
+
+   **Step 1 — Resolve Scalekit library:**
+
+   ```sh wrap showLineNumbers=false
+   ctx7 library scalekit "How to set up SSO"
+   ctx7 library scalekit "SCIM user provisioning"
+   ctx7 library scalekit "MCP authentication setup"
+   ```
+
+   Expected result for library selection:
+
+   | Field | Description |
+   | --- | --- |
+   | Library ID | `/scalekit-inc/developer-docs` |
+   | Code Snippets | High (hundreds of indexed examples) |
+   | Source Reputation | High |
+   | Benchmark Score | Quality score from 0 to 100 |
+
+   **Step 2 — Fetch Scalekit docs:**
+
+   ```sh wrap showLineNumbers=false
+   # SSO queries
+   ctx7 docs /scalekit-inc/developer-docs "How to set up SSO with Scalekit"
+   ctx7 docs /scalekit-inc/developer-docs "Configure SAML for enterprise SSO"
+
+   # SCIM queries
+   ctx7 docs /scalekit-inc/developer-docs "How to provision users with SCIM"
+   ctx7 docs /scalekit-inc/developer-docs "Set up SCIM for Active Directory"
+
+   # MCP auth queries
+   ctx7 docs /scalekit-inc/developer-docs "Add MCP auth to my server"
+   ctx7 docs /scalekit-inc/developer-docs "Configure agent authentication"
+
+   # Connected accounts queries
+   ctx7 docs /scalekit-inc/developer-docs "Configure connected accounts for GitHub OAuth"
+   ctx7 docs /scalekit-inc/developer-docs "Set up Google OAuth integration"
+
+   # JSON output for scripting
+   ctx7 docs /scalekit-inc/developer-docs "SSO setup" --json
+
+   # Pipe to other tools
+   ctx7 docs /scalekit-inc/developer-docs "SCIM provisioning" | head -50
+   ```
+
+   <Aside type="note">
+   Library IDs always start with `/`. Running `ctx7 docs scalekit "SSO"` will fail — always use the full ID: `/scalekit-inc/developer-docs`.
+   </Aside>
+
+   </TabItem>
+   <TabItem label="Using MCP Server">
 
    Once Context7 is running, add **`use context7`** to any prompt where you want current Scalekit documentation injected automatically.
 
@@ -159,7 +253,46 @@ Context7 provides two MCP tools:
    How do I configure connected accounts for GitHub OAuth with Scalekit? use context7
    ```
 
+   </TabItem>
+   </Tabs>
+
 3. #### Auto-invoke Context7 (optional)
+
+   Configure your coding agent to always use Context7 for library and API questions — no need to add "use context7" manually each time.
+
+   <Tabs syncKey="autoinvoke-method">
+   <TabItem label="CLI">
+
+   Use `ctx7 setup --cli` to configure Context7 for AI coding agents. This installs a `docs` skill that guides the agent to use `ctx7 library` and `ctx7 docs` commands for Scalekit documentation.
+
+   **Setup commands:**
+
+   ```sh wrap showLineNumbers=false
+   # Interactive setup (prompts for agent)
+   ctx7 setup --cli
+
+   # Direct setup for specific agents
+   ctx7 setup --cli --claude       # Claude Code (~/.claude/skills)
+   ctx7 setup --cli --cursor       # Cursor (~/.cursor/skills)
+   ctx7 setup --cli --universal    # Universal (~/.config/agents/skills)
+
+   # Project-specific setup (default is global)
+   ctx7 setup --cli --project
+
+   # Skip confirmation prompts
+   ctx7 setup --cli --yes
+   ```
+
+   **What gets installed — CLI + Skills mode:**
+
+   | File | Purpose |
+   | --- | --- |
+   | Agent skills directory | `docs` skill — guides the agent to use `ctx7 library` and `ctx7 docs` |
+
+   When the `docs` skill is installed, your AI agent will automatically use `ctx7` commands to fetch accurate Scalekit documentation when asked about SSO, SCIM, MCP auth, or other Scalekit features.
+
+   </TabItem>
+   <TabItem label="MCP Server">
 
    Configure your coding agent to always use Context7 for library and API questions — no need to add "use context7" manually each time.
 
@@ -186,9 +319,15 @@ Context7 provides two MCP tools:
    </TabItem>
    </Tabs>
 
+   </TabItem>
+   </Tabs>
+
 4. #### Increase rate limits with an API key
 
    The free tier of Context7 has rate limits. For heavier usage or team environments, get a free API key from [context7.com/dashboard](https://context7.com/dashboard) and add it to your configuration.
+
+   <Tabs syncKey="rate-limit-method">
+   <TabItem label="MCP Server">
 
    <Tabs syncKey="ai-tool">
    <TabItem label="Claude Code">
@@ -253,7 +392,28 @@ Context7 provides two MCP tools:
    </TabItem>
    </Tabs>
 
-   API keys start with `ctx7sk`. If authentication fails with a 401 error, verify the key format matches your transport method (HTTP header vs. CLI argument).
+   </TabItem>
+   <TabItem label="CLI">
+
+   Set an API key via environment variable for higher rate limits:
+
+   ```sh wrap showLineNumbers=false
+   # Set API key for current session
+   export CONTEXT7_API_KEY=your_key
+
+   # Add to ~/.bashrc or ~/.zshrc for permanent use
+   echo 'export CONTEXT7_API_KEY=your_key' >> ~/.bashrc
+   ```
+
+   API keys start with `ctx7sk`. If authentication fails with a 401 error, verify the key format matches your method (HTTP header for MCP, environment variable for CLI).
+
+   <Aside type="note">
+   Most CLI commands work without authentication. Login (`ctx7 login`) is only required for skill generation and higher rate limits on documentation commands.
+   </Aside>
+
+   </TabItem>
+   </Tabs>
+
 </Steps>
 
 <Aside type="note">
