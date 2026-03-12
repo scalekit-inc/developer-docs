@@ -314,12 +314,56 @@ function getSetupComponent(stemMap, providerSlug) {
 
 const SETUP_STEM_MAP = buildSetupStemMap()
 
-function syncTemplateIndex(stemMap) {
+// ---------------------------------------------------------------------------
+// Usage section map — auto-discovered from src/components/templates/agent-connectors/
+// ---------------------------------------------------------------------------
+
+function buildUsageStemMap() {
+  const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
+  let files
+  try {
+    files = fs.readdirSync(templatesDir)
+  } catch {
+    return {}
+  }
+  const map = {}
+  for (const file of files) {
+    if (!file.startsWith('_usage-') || !file.endsWith('.mdx')) continue
+    const stem = file.replace('_usage-', '').replace('.mdx', '')
+    map[stem] =
+      'Usage' +
+      stem
+        .split(/[-_]/)
+        .filter((w) => w.length > 0)
+        .map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase())
+        .join('') +
+      'Section'
+  }
+  return map
+}
+
+function getUsageComponent(stemMap, providerSlug) {
+  if (!providerSlug) return null
+  return (
+    stemMap[providerSlug] ||
+    stemMap[providerSlug.replace(/_/g, '-')] ||
+    stemMap[providerSlug.replace(/_/g, '')] ||
+    null
+  )
+}
+
+const USAGE_STEM_MAP = buildUsageStemMap()
+
+function syncTemplateIndex(setupMap, usageMap) {
   const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
   const indexPath = path.join(templatesDir, 'index.ts')
-  const lines = Object.entries(stemMap)
+  const setupLines = Object.entries(setupMap)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([stem, name]) => `export { default as ${name} } from './_setup-${stem}.mdx'`)
+  const usageLines = Object.entries(usageMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([stem, name]) => `export { default as ${name} } from './_usage-${stem}.mdx'`)
+  const lines = [...setupLines, ...usageLines]
   fs.writeFileSync(indexPath, lines.join('\n') + '\n', 'utf8')
 }
 
@@ -438,12 +482,14 @@ function generateMdxContent(provider, tools) {
     "import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'",
   )
   lines.push("import { Accordion, AccordionItem } from 'accessible-astro-components'")
-  const setupComponentName = getSetupComponent(
-    SETUP_STEM_MAP,
-    toSafeIdentifier(provider.identifier),
-  )
+  const providerSlug = toSafeIdentifier(provider.identifier)
+  const setupComponentName = getSetupComponent(SETUP_STEM_MAP, providerSlug)
+  const usageComponentName = getUsageComponent(USAGE_STEM_MAP, providerSlug)
   if (setupComponentName) {
     lines.push(`import { ${setupComponentName} } from '@components/templates'`)
+  }
+  if (usageComponentName) {
+    lines.push(`import { ${usageComponentName} } from '@components/templates'`)
   }
   lines.push('')
 
@@ -475,6 +521,14 @@ function generateMdxContent(provider, tools) {
     lines.push('## Set up the agent connector')
     lines.push('')
     lines.push(`<${setupComponentName} />`)
+    lines.push('')
+  }
+
+  // Usage section
+  if (usageComponentName) {
+    lines.push('## Usage')
+    lines.push('')
+    lines.push(`<${usageComponentName} />`)
     lines.push('')
   }
 
@@ -557,8 +611,10 @@ async function main() {
     process.exit(1)
   }
 
-  syncTemplateIndex(SETUP_STEM_MAP)
-  console.log(`✓ Synced index.ts (${Object.keys(SETUP_STEM_MAP).length} templates)`)
+  syncTemplateIndex(SETUP_STEM_MAP, USAGE_STEM_MAP)
+  console.log(
+    `✓ Synced index.ts (${Object.keys(SETUP_STEM_MAP).length} setup + ${Object.keys(USAGE_STEM_MAP).length} usage templates)`,
+  )
 
   const outputDir = path.join(__dirname, '../src/content/docs/reference/agent-connectors')
   fs.mkdirSync(outputDir, { recursive: true })
