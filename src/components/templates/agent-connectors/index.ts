@@ -1,5 +1,6 @@
 export { default as SetupAirtableSection } from './_setup-airtable.mdx'
 export { default as SetupApolloSection } from './_setup-apollo.mdx'
+export { default as SetupAttioSection } from './_setup-attio.mdx'
 export { default as SetupAsanaSection } from './_setup-asana.mdx'
 export { default as SetupBigquerySection } from './_setup-bigquery.mdx'
 export { default as SetupClickupSection } from './_setup-clickup.mdx'
