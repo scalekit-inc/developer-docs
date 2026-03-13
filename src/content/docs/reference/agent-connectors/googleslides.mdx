@@ -11,69 +11,12 @@ head:
       table td:first-child, table th:first-child {
         white-space: nowrap;
       }
-      /* Heading copy functionality */
-      .sl-markdown-content h2,
-      .sl-markdown-content h3,
-      .sl-markdown-content h4 {
-        position: relative;
-        cursor: pointer;
-      }
-      .sl-markdown-content h2:hover::after,
-      .sl-markdown-content h3:hover::after,
-      .sl-markdown-content h4:hover::after {
-        content: " 📋 ";
-        font-size: 0.8em;
-        opacity: 0.7;
-      }
-  - tag: script
-    content: |
-      // Using a self-executing function to avoid global namespace pollution
-      (function() {
-        // Function to initialize the copy functionality
-        function initHeadingCopy() {
-          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
-
-          headings.forEach(heading => {
-            // Skip if already initialized
-            if (heading.hasAttribute('data-copy-initialized')) return;
-            heading.setAttribute('data-copy-initialized', 'true');
-
-            heading.addEventListener('click', async () => {
-              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
-
-              try {
-                await navigator.clipboard.writeText(headingText);
-
-                // Visual feedback
-                const originalText = heading.textContent;
-                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
-
-                setTimeout(() => {
-                  heading.textContent = originalText;
-                }, 2000);
-              } catch (err) {
-                console.error('Failed to copy heading:', err);
-              }
-            });
-          });
-        }
-
-        // Initialize on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', initHeadingCopy);
-
-        // Also initialize now in case the DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          setTimeout(initHeadingCopy, 1);
-        }
-
-        // For Astro's client-side navigation
-        document.addEventListener('astro:page-load', initHeadingCopy);
-      })();
 ---
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
-import { SetupGoogleSlidesSection } from '@components/templates'
+import { SetupGoogleslidesSection } from '@components/templates'
+import { UsageGoogleslidesSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -89,87 +32,11 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 ## Set up the agent connector
 
-<SetupGoogleSlidesSection />
+<SetupGoogleslidesSection />
 
 ## Usage
 
-Connect a user's Google Slides account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
-
-<Tabs syncKey="tech-stack">
-{/* Node.js - commented out, uncomment when ready
-  <TabItem label="Node.js">
-    ```typescript
-    import { ScalekitClient } from '@scalekit-sdk/node';
-    import 'dotenv/config';
-
-    const connectionName = 'google_slides'; // get your connection name from connection configurations
-    const identifier = 'user_123';          // your unique user identifier
-
-    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
-    const scalekit = new ScalekitClient(
-      process.env.SCALEKIT_ENV_URL,
-      process.env.SCALEKIT_CLIENT_ID,
-      process.env.SCALEKIT_CLIENT_SECRET
-    );
-    const { connectedAccounts, actions } = scalekit;
-
-    // Authenticate the user
-    const { link } = await connectedAccounts.getMagicLinkForConnectedAccount({
-      connector: connectionName,
-      identifier,
-    });
-    console.log('🔗 Authorize Google Slides:', link); // present this link to your user for authorization, or click it yourself for testing
-    process.stdout.write('Press Enter after authorizing...');
-    await new Promise(r => process.stdin.once('data', r));
-
-    // Make a request via Scalekit proxy
-    const result = await actions.request({
-      connectionName,
-      identifier,
-      path: '/v1/presentations',
-      method: 'GET',
-    });
-    console.log(result);
-    ```
-  </TabItem>
-*/}
-  <TabItem label="Python">
-    ```python
-    import scalekit.client, os
-    from dotenv import load_dotenv
-    load_dotenv()
-
-    connection_name = "google_slides"  # get your connection name from connection configurations
-    identifier = "user_123"            # your unique user identifier
-
-    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
-    scalekit_client = scalekit.client.ScalekitClient(
-        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-        env_url=os.getenv("SCALEKIT_ENV_URL"),
-    )
-    actions = scalekit_client.actions
-
-    # Authenticate the user
-    link_response = actions.get_authorization_link(
-        connection_name=connection_name,
-        identifier=identifier
-    )
-    # present this link to your user for authorization, or click it yourself for testing
-    print("🔗 Authorize Google Slides:", link_response.link)
-    input("Press Enter after authorizing...")
-
-    # Make a request via Scalekit proxy
-    result = actions.request(
-        connection_name=connection_name,
-        identifier=identifier,
-        path="/v1/presentations",
-        method="GET"
-    )
-    print(result)
-    ```
-  </TabItem>
-</Tabs>
+<UsageGoogleslidesSection />
 
 ## Tool list
 
