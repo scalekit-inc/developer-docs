@@ -295,7 +295,7 @@ export const sidebar = [
       createSectionHeader('Workflows'),
       {
         label: 'Webhooks',
-        collapsed: false,
+        collapsed: true,
         items: [
           'authenticate/implement-workflows/implement-webhooks',
           'guides/webhooks-best-practices',
@@ -303,7 +303,7 @@ export const sidebar = [
       },
       {
         label: 'Interceptors',
-        collapsed: false,
+        collapsed: true,
         items: [
           'authenticate/interceptors/auth-flow-interceptors',
           'reference/interceptors/triggers',
