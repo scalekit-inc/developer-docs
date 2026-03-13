@@ -15,6 +15,9 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkStringify from 'remark-stringify'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -144,134 +147,244 @@ function groupToolsByProvider(tools) {
 }
 
 // ---------------------------------------------------------------------------
-// MDX escaping — port of Python MDXGenerator.escape_mdx_content()
+// Markdown AST helpers (replaces ad-hoc MDX regex escaping)
 // ---------------------------------------------------------------------------
 
-function escapeMdx(text) {
-  if (!text) return text
+const markdownProcessor = unified().use(remarkParse).use(remarkStringify, {
+  fences: true,
+  bullet: '-',
+  listItemIndent: 'one',
+})
 
-  // Fix malformed bold+backtick patterns like **foo` → foo
-  text = text.replace(/\*\*([^*`]+)`/g, '$1')
+function escapeCurlyBraces(text) {
+  return text.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;')
+}
 
-  // Multi-line JSON after "Example:" / "Shape:" → fenced code block
-  const lines = text.split('\n')
-  const resultLines = []
+function pushTextNode(nodes, value) {
+  if (!value) return
+  const last = nodes[nodes.length - 1]
+  if (last && last.type === 'text') {
+    last.value += value
+    return
+  }
+  nodes.push({ type: 'text', value })
+}
+
+function extractBalancedBraces(text, start) {
+  let depth = 0
+  let inString = false
+  let escaped = false
+
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i]
+
+    if (escaped) {
+      escaped = false
+      continue
+    }
+    if (ch === '\\') {
+      escaped = true
+      continue
+    }
+    if (ch === '"') {
+      inString = !inString
+      continue
+    }
+    if (inString) continue
+
+    if (ch === '{') depth++
+    if (ch === '}') {
+      depth--
+      if (depth === 0) {
+        return { value: text.slice(start, i + 1), end: i + 1 }
+      }
+    }
+  }
+
+  return null
+}
+
+function isLikelyInlineJson(candidate) {
+  if (!candidate || candidate.includes('\n')) return false
+  if (!candidate.startsWith('{') || !candidate.endsWith('}')) return false
+  if (candidate === '{}') return true
+  return candidate.includes(':') && candidate.includes('"')
+}
+
+function formatInlineJsonAndEscapeBraces(text) {
+  let output = ''
   let i = 0
-  while (i < lines.length) {
-    const line = lines[i]
-    if ((line.includes('Example:') || line.includes('Shape:')) && i + 1 < lines.length) {
-      let jsonStart = -1
-      let jsonEnd = -1
-      for (let j = i + 1; j < Math.min(i + 10, lines.length); j++) {
-        if (lines[j].trim().startsWith('{')) {
-          jsonStart = j
-          break
-        }
+
+  while (i < text.length) {
+    if (text[i] === '`') {
+      const end = text.indexOf('`', i + 1)
+      if (end === -1) {
+        output += text.slice(i)
+        break
       }
-      if (jsonStart !== -1) {
-        let braceCount = 0
-        outer: for (let j = jsonStart; j < Math.min(jsonStart + 20, lines.length); j++) {
-          for (const ch of lines[j]) {
-            if (ch === '{') braceCount++
-            else if (ch === '}') {
-              braceCount--
-              if (braceCount === 0) {
-                jsonEnd = j
-                break outer
-              }
-            }
-          }
-        }
+      output += text.slice(i, end + 1)
+      i = end + 1
+      continue
+    }
+
+    const nextBacktick = text.indexOf('`', i)
+    const segmentEnd = nextBacktick === -1 ? text.length : nextBacktick
+    const segment = text.slice(i, segmentEnd)
+
+    let cursor = 0
+    while (cursor < segment.length) {
+      const braceStart = segment.indexOf('{', cursor)
+      if (braceStart === -1) {
+        output += escapeCurlyBraces(segment.slice(cursor))
+        break
       }
-      if (jsonStart !== -1 && jsonEnd !== -1) {
-        resultLines.push(line)
-        resultLines.push('')
-        resultLines.push('```json')
-        for (let j = jsonStart; j <= jsonEnd; j++) resultLines.push(lines[j])
-        resultLines.push('```')
-        i = jsonEnd + 1
+
+      if (braceStart > cursor) {
+        output += escapeCurlyBraces(segment.slice(cursor, braceStart))
+      }
+
+      const block = extractBalancedBraces(segment, braceStart)
+      if (!block) {
+        output += '&#123;'
+        cursor = braceStart + 1
         continue
       }
-    }
-    resultLines.push(line)
-    i++
-  }
-  text = resultLines.join('\n')
 
-  // Inline JSON on lines containing "example" keyword → wrap in backticks
-  const processedLines = text.split('\n')
-  for (let lineIdx = 0; lineIdx < processedLines.length; lineIdx++) {
-    const line = processedLines[lineIdx]
-    if (/example.*\{/i.test(line)) {
-      const jsonMatches = []
-      let idx = 0
-      while (idx < line.length) {
-        if (line[idx] === '{') {
-          let braceCount = 0
-          const start = idx
-          let end = idx
-          for (let j = idx; j < line.length; j++) {
-            if (line[j] === '{') braceCount++
-            else if (line[j] === '}') {
-              braceCount--
-              if (braceCount === 0) {
-                end = j + 1
-                break
-              }
-            }
-          }
-          if (braceCount === 0 && end > start) {
-            jsonMatches.push([start, end])
-            idx = end
-          } else {
-            idx++
-          }
-        } else {
-          idx++
-        }
+      if (isLikelyInlineJson(block.value.replace(/\s+/g, ' '))) {
+        output += '`' + block.value.replace(/\s+/g, ' ').trim() + '`'
+      } else {
+        output += escapeCurlyBraces(block.value)
       }
-      let newLine = line
-      for (const [start, end] of [...jsonMatches].reverse()) {
-        const json = newLine.slice(start, end)
-        if (!json.includes('`')) {
-          newLine = newLine.slice(0, start) + '`' + json + '`' + newLine.slice(end)
-        }
+      cursor = block.end
+    }
+
+    i = segmentEnd
+  }
+
+  return output
+}
+
+function convertTextNodeToMdast(value) {
+  const nodes = []
+  let cursor = 0
+
+  while (cursor < value.length) {
+    const braceStart = value.indexOf('{', cursor)
+    if (braceStart === -1) {
+      pushTextNode(nodes, escapeCurlyBraces(value.slice(cursor)))
+      break
+    }
+
+    if (braceStart > cursor) {
+      pushTextNode(nodes, escapeCurlyBraces(value.slice(cursor, braceStart)))
+    }
+
+    const block = extractBalancedBraces(value, braceStart)
+    if (!block) {
+      pushTextNode(nodes, '&#123;')
+      cursor = braceStart + 1
+      continue
+    }
+
+    if (isLikelyInlineJson(block.value)) {
+      nodes.push({ type: 'inlineCode', value: block.value })
+    } else {
+      pushTextNode(nodes, escapeCurlyBraces(block.value))
+    }
+    cursor = block.end
+  }
+
+  return nodes
+}
+
+function transformTextNodesToMdast(node) {
+  if (!node || !node.children || !Array.isArray(node.children)) return
+
+  const transformedChildren = []
+  for (const child of node.children) {
+    if (child.type === 'text') {
+      transformedChildren.push(...convertTextNodeToMdast(child.value || ''))
+      continue
+    }
+
+    transformTextNodesToMdast(child)
+    transformedChildren.push(child)
+  }
+
+  node.children = transformedChildren
+}
+
+function promoteEscapedJsonExampleBlocks(markdown) {
+  const lines = markdown.split('\n')
+  const output = []
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    output.push(line)
+
+    if (!/(Example:|Shape:)/.test(line)) continue
+
+    let j = i + 1
+    while (j < lines.length && lines[j].trim() === '') j++
+    if (j >= lines.length) continue
+
+    const looksLikeEscapedJsonStart = /^\s*\\?&#123;/.test(lines[j])
+    if (!looksLikeEscapedJsonStart) continue
+
+    let depth = 0
+    let end = -1
+    for (let k = j; k < lines.length; k++) {
+      const openCount = (lines[k].match(/\\?&#123;/g) || []).length
+      const closeCount = (lines[k].match(/\\?&#125;/g) || []).length
+      depth += openCount - closeCount
+      if (depth === 0) {
+        end = k
+        break
       }
-      processedLines[lineIdx] = newLine
     }
-  }
-  text = processedLines.join('\n')
+    if (end === -1) continue
 
-  // Simple {"key":"val"} patterns → wrap in backticks
-  function isNotInBackticks(t, pos) {
-    const before = t.slice(0, pos)
-    const backtickCount = (before.match(/`/g) || []).length
-    if (before.includes('```')) {
-      const codeBlocks = (before.match(/```/g) || []).length
-      if (codeBlocks % 2 === 1) return false
-    }
-    return backtickCount % 2 === 0
-  }
+    const jsonLines = lines
+      .slice(j, end + 1)
+      .map((entry) => entry.replace(/\\?&#123;/g, '{').replace(/\\?&#125;/g, '}'))
 
-  const simplePatterns = [
-    /\{"page_id"\s*:\s*"[^"]*"\}/g,
-    /\{"database_id"\s*:\s*"[^"]*"\}/g,
-    /\{"[^"]{1,20}"\s*:\s*"[^"]{1,20}"\}/g,
-  ]
-  for (const pattern of simplePatterns) {
-    const matches = [...text.matchAll(pattern)]
-    for (const match of [...matches].reverse()) {
-      if (isNotInBackticks(text, match.index)) {
-        const json = match[0]
-        if (!json.includes('[') && (json.match(/\{/g) || []).length === 1) {
-          text =
-            text.slice(0, match.index) + '`' + json + '`' + text.slice(match.index + json.length)
-        }
-      }
-    }
+    output.push('')
+    output.push('```json')
+    output.push(...jsonLines)
+    output.push('```')
+
+    i = end
   }
 
-  return text
+  return output.join('\n')
+}
+
+function renderMarkdownWithAst(text, { tableCell = false } = {}) {
+  if (!text) return text
+
+  const normalized = text.replace(/\*\*([^*`]+)`/g, '$1')
+
+  if (tableCell) {
+    return formatInlineJsonAndEscapeBraces(
+      normalized.replace(/```[\s\S]*?```/g, '[…]').replace(/\n+/g, ' '),
+    )
+      .replace(/\|/g, '\\|')
+      .trim()
+  }
+
+  try {
+    const tree = markdownProcessor.parse(normalized)
+    transformTextNodesToMdast(tree)
+    const output = promoteEscapedJsonExampleBlocks(
+      String(markdownProcessor.stringify(tree)).replace(/\\_/g, '_'),
+    ).trim()
+
+    return output
+  } catch {
+    // Safe fallback for malformed markdown from upstream connector metadata.
+    let output = escapeCurlyBraces(normalized)
+    return output
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -486,7 +599,7 @@ function generateMdxContent(provider, tools) {
 
     lines.push(`## \`${toolName}\``)
     lines.push('')
-    lines.push(escapeMdx(toolDescription))
+    lines.push(renderMarkdownWithAst(toolDescription))
     lines.push('')
 
     const propEntries = Object.entries(properties)
@@ -496,12 +609,9 @@ function generateMdxContent(provider, tools) {
 
       for (const [propName, propInfo] of propEntries) {
         let propType = propInfo.type || 'string'
-        const propDescription = escapeMdx(propInfo.description || 'No description')
-          .replace(/```[\s\S]*?```/g, '[…]') // collapse fenced code blocks
-          .replace(/`([^`]*)`/g, '$1') // strip inline backticks
-          .replace(/\n+/g, ' ') // collapse newlines to a space
-          .replace(/\|/g, '\\|') // escape pipe characters
-          .trim()
+        const propDescription = renderMarkdownWithAst(propInfo.description || 'No description', {
+          tableCell: true,
+        })
 
         // Handle type arrays like ["string", "null"]
         if (Array.isArray(propType)) {
