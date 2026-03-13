@@ -130,7 +130,11 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['agent-auth/overview', 'agent-auth/quickstart', 'agent-auth/code-samples'],
+        items: [
+          'agent-auth/overview',
+          { label: 'Quickstart: Agent Auth', link: 'agent-auth/quickstart' },
+          'agent-auth/code-samples',
+        ],
       },
       {
         label: 'Authentication',
@@ -253,6 +257,7 @@ export const sidebar = [
     items: [
       {
         label: 'Code samples',
+        collapsed: true,
         items: [
           { label: 'Overview', link: 'dev-kit/code-samples' },
           'dev-kit/code-samples/full-stack-auth',
@@ -313,7 +318,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'authenticate/mcp/overview',
-          'authenticate/mcp/quickstart',
+          { label: 'Quickstart: MCP Auth', link: 'authenticate/mcp/quickstart' },
           'authenticate/mcp/managing-mcp-clients',
           'authenticate/mcp/code-samples',
         ],
@@ -360,7 +365,10 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['authenticate/sso/add-modular-sso', 'authenticate/sso/code-samples'],
+        items: [
+          { label: 'Quickstart: Add modular SSO', link: 'authenticate/sso/add-modular-sso' },
+          'authenticate/sso/code-samples',
+        ],
       },
       {
         label: 'Integrate SSO with own auth',
@@ -408,7 +416,10 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['directory/scim/quickstart', 'directory/code-samples'],
+        items: [
+          { label: 'Quickstart: Add modular SCIM', link: 'directory/scim/quickstart' },
+          'directory/code-samples',
+        ],
       },
       {
         label: 'How to...',
