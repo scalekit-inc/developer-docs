@@ -1,0 +1,146 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Make API calls through the Scalekit proxy using a connected Exa account. Scalekit injects the API key automatically — you never handle it directly.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "exa"     # connection name from Scalekit dashboard
+    identifier = "user_123"     # your unique user identifier
+
+    # Get credentials from app.scalekit.com → Developers → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+
+    # --- Semantic web search ---
+    # Returns ranked results with titles, URLs, and optional content.
+    # Use type="keyword" for exact-match queries instead of semantic similarity.
+    search_results = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/search",
+        method="POST",
+        json={
+            "query": "LLM observability tools compared 2025",
+            "num_results": 10,
+            "type": "neural",                    # "neural" for semantic, "keyword" for exact match
+            "category": "research paper",        # Optional: narrow to a content category
+            "start_published_date": "2025-01-01",
+            "contents": {
+                "text": True,                    # Include full page text (costs extra credits)
+                "summary": {"query": "key findings about LLM observability"}
+            }
+        }
+    )
+    for r in search_results["results"]:
+        print(r["title"], r["url"])
+
+    # --- Crawl all pages of a website ---
+    # Follows internal links up to max_depth and returns content for each page.
+    # Useful for indexing docs sites, blogs, or company knowledge bases.
+    crawl_results = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/crawl",
+        method="POST",
+        json={
+            "url": "https://docs.example.com",
+            "max_depth": 2,           # How many link hops to follow (default 1)
+            "max_pages": 50,          # Cap to avoid excessive credit use
+            "include_subdomains": False,
+            "exclude_paths": ["/archive/*", "/changelog/*"]
+        }
+    )
+    for page in crawl_results["results"]:
+        print(page["url"], len(page.get("text", "")), "chars")
+
+    # --- Get a direct answer from live web sources ---
+    # Returns a natural language answer synthesized from top search results,
+    # along with citations so you can verify or surface sources to users.
+    answer = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/answer",
+        method="POST",
+        json={
+            "query": "What are the rate limits for the OpenAI GPT-4o API?",
+            "num_results": 5,
+            "include_domains": ["openai.com", "platform.openai.com"],
+            "text": True                         # Include source text snippets alongside the answer
+        }
+    )
+    print("Answer:", answer["answer"])
+    print("Sources:", [s["url"] for s in answer.get("sources", [])])
+
+    # --- Run structured in-depth research ---
+    # Exa decomposes the topic into sub-queries, searches each in parallel,
+    # and synthesizes a structured response. More expensive than a single search.
+    research = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/research",
+        method="POST",
+        json={
+            "topic": "Competitive landscape of AI coding assistants in 2025",
+            "num_subqueries": 8,       # Number of parallel sub-queries (max 15)
+            "output_schema": {         # Optional: constrain output to a JSON schema
+                "type": "object",
+                "properties": {
+                    "summary": {"type": "string"},
+                    "key_players": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {"type": "string"},
+                                "differentiator": {"type": "string"}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    )
+    print("Research summary:", research["data"]["summary"])
+    for player in research["data"]["key_players"]:
+        print(f"  - {player['name']}: {player['differentiator']}")
+
+    # --- Build a large set of matching URLs (Websets) ---
+    # Designed for bulk data collection — can return thousands of results
+    # matching a natural language description of an entity type.
+    # Each result is vetted against your criteria before being returned.
+    websets = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/websets/searches",
+        method="POST",
+        json={
+            "query": "B2B SaaS companies focused on AI-powered sales automation founded after 2020",
+            "count": 200,              # Target number of matching URLs (can be thousands)
+            "entity_type": "company",
+            "criteria": [
+                {
+                    "description": "Company must have a product demo or free trial available",
+                    "options": {"type": "must"}
+                }
+            ],
+            "include_domains": ["linkedin.com", "crunchbase.com"]
+        }
+    )
+    print(f"Found {len(websets['results'])} matching companies")
+    for entity in websets["results"][:5]:
+        print(entity["url"])
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip">
+**Optimize credit usage**: For `exa_search`, omit `contents.text` unless you need the full page body — returning text costs one extra credit per result. For `exa_research`, keep `num_subqueries` between 4–8 for most use cases; higher values increase both quality and cost. Use `exa_answer` for factual single questions and `exa_research` when you need structured, multi-faceted output.
+</Aside>
