@@ -1,0 +1,101 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+<Steps>
+1. ## Install GitHub Copilot CLI
+
+   Install the GitHub Copilot CLI to access AI-assisted coding with plugin support. An active GitHub Copilot subscription is required.
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   npm install -g @github/copilot
+   ```
+
+   After installation completes, run `copilot` to start an interactive session and enter `/login` to authenticate with your GitHub account.
+
+   Learn more in the [GitHub Copilot CLI getting started guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-getting-started).
+
+2. ## Add the Scalekit authstack marketplace
+
+   Register Scalekit's plugin marketplace to access pre-configured authentication plugins. This marketplace provides implementation skills that help GitHub Copilot generate correct Agent Auth code.
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+   ```
+
+   The marketplace provides specialized plugins that understand Agent Auth patterns and OAuth 2.0 security requirements. These plugins guide GitHub Copilot to generate implementation code that matches your project structure.
+
+   To remove the Scalekit authstack marketplace, use the remove command:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin marketplace remove github-copilot-authstack
+   ```
+
+3. ## Install the Agent Auth plugin
+
+   Install the Agent Auth plugin to give GitHub Copilot the skills needed to generate agent authentication code:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin install agent-auth@scalekit-auth-stack
+   ```
+
+   <details>
+   <summary>Verify the plugin is installed</summary>
+
+   Confirm the plugin installed successfully:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin list
+   ```
+
+   <Aside type="tip" title="Keep plugins updated">
+   Update authentication plugins regularly to receive security patches and improvements:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin update agent-auth@scalekit-auth-stack
+   ```
+   </Aside>
+
+   </details>
+
+   <details>
+   <summary>Remove an installed plugin</summary>
+
+   To remove an installed plugin, use the uninstall command:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin uninstall agent-auth@scalekit-auth-stack
+   ```
+
+   </details>
+
+4. ## Generate authentication implementation
+
+   Use a structured prompt to direct GitHub Copilot. A well-formed prompt ensures the agent generates complete, production-ready Agent Auth code that includes all required security components.
+
+   Copy the following command into your terminal:
+
+   ```bash wrap title="Terminal" frame="terminal" showLineNumbers=false
+   copilot "Configure Scalekit agent authentication for Gmail — provide the code to trigger the auth flow, retrieve the secure user token, and then use that authenticated session to fetch and list the last 5 unread emails. Add logging to verify the flow."
+   ```
+
+   GitHub Copilot uses the Agent Auth plugin to analyze your existing application structure, generate Scalekit client initialization code, create connected account management functions, implement OAuth authorization link generation, and add token fetching and refresh logic.
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
+   </Aside>
+
+5. ## Verify the implementation
+
+   After GitHub Copilot completes, verify that all authentication components are properly configured:
+
+   Check generated files:
+   - Scalekit client initialization with credentials (you may need to set up a `.env` file with your Scalekit API credentials)
+   - Connected account management functions
+   - Authorization link generation
+   - Token fetching and storage
+   - Error handling for expired tokens
+
+   The authorization flow should redirect users to the service's consent page, where they grant permissions. Your application should then be able to fetch OAuth tokens and execute actions on behalf of the authenticated user.
+
+</Steps>
+
+When you connect, the agent authenticates users through the OAuth 2.0 flow you configured. Verify that protected resources require valid access tokens and that the agent can successfully execute actions on behalf of authenticated users.
