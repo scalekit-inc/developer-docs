@@ -389,6 +389,10 @@ export const redirects = {
   '/dev-kit/nodejs': '/dev-kit/sdks/',
   '/dev-kit/ui-widgets': '/authenticate/manage-users-orgs/hosted-widgets/',
 
+  // Dev Kit API collections - Postman collections now live on GitHub
+  '/dev-kit/api-collections/postman-collections':
+    'https://github.com/scalekit-inc/api-collections/tree/main',
+
   // =============================================================================
   // CHANGELOG REDIRECTS - Redirect to SDK pages
   // =============================================================================
