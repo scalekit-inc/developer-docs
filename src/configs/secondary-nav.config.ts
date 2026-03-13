@@ -153,7 +153,7 @@ export const secondaryNavItems: NavItem[] = [
         label: 'Developer Resources',
         dropdownLabel: 'Build with AI',
         iconComponent: IconRiAiGenerate2,
-        description: 'Integrate auth with AI coding agents by product',
+        description: 'Integrate auth with AI coding agents',
         sectionLabel: 'DEVELOPER KIT',
         sectionDescription: 'Tools and examples to accelerate your integration',
         columnGroup: 'left',
