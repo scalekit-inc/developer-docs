@@ -11,52 +11,12 @@ head:
       table td:first-child, table th:first-child {
         white-space: nowrap;
       }
-      /* Heading copy functionality */
-      .sl-markdown-content h2,
-      .sl-markdown-content h3,
-      .sl-markdown-content h4 {
-        position: relative;
-        cursor: pointer;
-      }
-      .sl-markdown-content h2:hover::after,
-      .sl-markdown-content h3:hover::after,
-      .sl-markdown-content h4:hover::after {
-        content: " 📋 ";
-        font-size: 0.8em;
-        opacity: 0.7;
-      }
-  - tag: script
-    content: |
-      (function() {
-        function initHeadingCopy() {
-          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
-          headings.forEach(heading => {
-            if (heading.hasAttribute('data-copy-initialized')) return;
-            heading.setAttribute('data-copy-initialized', 'true');
-            heading.addEventListener('click', async () => {
-              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
-              try {
-                await navigator.clipboard.writeText(headingText);
-                const originalText = heading.textContent;
-                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
-                setTimeout(() => { heading.textContent = originalText; }, 2000);
-              } catch (err) {
-                console.error('Failed to copy heading:', err);
-              }
-            });
-          });
-        }
-        document.addEventListener('DOMContentLoaded', initHeadingCopy);
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          setTimeout(initHeadingCopy, 1);
-        }
-        document.addEventListener('astro:page-load', initHeadingCopy);
-      })();
 ---
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
 import { SetupAttioSection } from '@components/templates'
+import { UsageAttioSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -75,49 +35,13 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 ## Usage
 
-Connect a user's Attio workspace and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
-
-<Tabs syncKey="tech-stack">
-  <TabItem label="Python">
-    ```python
-    import scalekit.client, os
-    from dotenv import load_dotenv
-    load_dotenv()
-
-    connection_name = "attio"  # connection name from Scalekit dashboard
-    identifier = "user_123"    # your unique user identifier
-
-    # Get credentials from app.scalekit.com → Developers → API Credentials
-    scalekit_client = scalekit.client.ScalekitClient(
-        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-        env_url=os.getenv("SCALEKIT_ENV_URL"),
-    )
-
-    # Get authorization link and send it to your user
-    link_response = scalekit_client.actions.get_authorization_link(
-        connection_name=connection_name,
-        identifier=identifier
-    )
-    print("Authorize Attio:", link_response.link)
-
-    # After the user authorizes, make API calls via Scalekit proxy
-    result = scalekit_client.actions.request(
-        connection_name=connection_name,
-        identifier=identifier,
-        path="/v2/objects/people/records/query",
-        method="POST"
-    )
-    print(result)
-    ```
-  </TabItem>
-</Tabs>
+<UsageAttioSection />
 
 ## Tool list
 
 ## `attio_create_person`
 
-Create a new person record in Attio. Throws an error on conflicts of unique attributes like `email_addresses`. Use `attio_assert_person` if you prefer to update on conflicts.
+Create a new person record in Attio. Throws an error on conflicts of unique attributes like `email_addresses`.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -152,7 +76,7 @@ Permanently delete a person record from Attio by its `record_id`. This operation
 
 ## `attio_create_company`
 
-Create a new company record in Attio. Throws an error on conflicts of unique attributes like `domains`. Use `attio_assert_company` if you prefer to update on conflicts.
+Create a new company record in Attio. Throws an error on conflicts of unique attributes like `domains`.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -663,7 +587,22 @@ This tool is in beta and may change without notice.
 
 ## `attio_get_current_token_info`
 
-Identify the current access token, the workspace it is linked to, and its permissions. Use to verify token validity or retrieve workspace information.
+Identify the current access token, the workspace it belongs to, the actor that authenticated, and the OAuth scopes granted. Use this to verify that a user's token is active, confirm which workspace is connected, and check what permissions your app has before making write calls.
 
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
+This tool takes no input parameters. It returns:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `active` | boolean | Whether the token is currently active and usable |
+| `workspace.id` | string | UUID of the connected Attio workspace |
+| `workspace.name` | string | Display name of the connected Attio workspace |
+| `actor.type` | string | Who authenticated — `workspace-member` for a user OAuth token, `api-token` for a service token |
+| `actor.id` | string | UUID of the workspace member or API token |
+| `actor.name` | string | Display name of the authenticated actor |
+| `actor.email` | string | Email address of the workspace member (present for `workspace-member` actors) |
+| `scopes` | array | List of OAuth scopes granted to the token (e.g., `record_permission:read`, `object_configuration:read`, `note:read-write`) |
+
+**When to use this:**
+- After a user completes OAuth, call this to confirm the connection was established correctly and identify which workspace they connected.
+- Before performing a write operation, verify the required scope is present in `scopes` to surface a clear error rather than a generic API rejection.
+- When debugging a failing request, check whether `active` is `true` and whether the token has the expected scopes.
