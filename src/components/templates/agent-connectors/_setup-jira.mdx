@@ -1,30 +1,23 @@
 import { Steps, Aside } from '@astrojs/starlight/components'
-import useOwnCredentialsImg from '@/assets/docs/agent-connectors/jira/use-own-credentials-redirect-uri.png'
-import addRedirectUriImg from '@/assets/docs/agent-connectors/jira/add-redirect-uri.gif'
-import addCredentialsImg from '@/assets/docs/agent-connectors/jira/add-credentials.png'
 
-Register your Scalekit environment with the Jira connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. You'll need your app credentials from the [Atlassian Developer Console](https://developer.atlassian.com/apps/).
+Register your Scalekit environment with the Jira connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
 
 <Steps>
 1. ### Set up auth redirects
 
-    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Jira** and click **Create**. Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
 
-    - Find **Jira** from the list of providers and click **Create**.
+      ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/jira/use-own-credentials-redirect-uri.png)
 
-    - Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+    - In the [Atlassian Developer Console](https://developer.atlassian.com/apps/), open your app and go to **Authorization** → **OAuth 2.0 (3LO)** → **Configure**.
 
-      <img src={useOwnCredentialsImg.src} alt="Configure Jira Connection with redirect URI" width="540" />
+    - Paste the copied URI into the **Callback URL** field and click **Save changes**.
 
-    - In the [Atlassian Developer Console](https://developer.atlassian.com/apps/), open your app and go to **APIs and Features** → **OAuth 2.0 (3LO)**.
-
-    - Paste the copied URI into the **Callback URL** field and save.
-
-      <img src={addRedirectUriImg.src} alt="Adding callback URL in Atlassian Developer Console for Jira" width="540" />
+      ![Add callback URL in Atlassian Developer Console for Jira](@/assets/docs/agent-connectors/jira/add-redirect-uri.gif)
 
 2. ### Get client credentials
 
-    In the [Atlassian Developer Console](https://developer.atlassian.com/apps/), open your app and go to **App Details**:
+    In the [Atlassian Developer Console](https://developer.atlassian.com/apps/), open your app and go to **Settings**:
 
     - **Client ID** — listed under **Client ID**
     - **Client Secret** — listed under **Secret**
@@ -34,10 +27,10 @@ Register your Scalekit environment with the Jira connector so Scalekit handles t
     - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
 
     - Enter your credentials:
-      - **Client ID** (from your Atlassian app)
-      - **Client Secret** (from your Atlassian app)
-      - **Permissions** — select the Jira API scopes your app needs (see [Jira OAuth scopes](https://developer.atlassian.com/cloud/jira/platform/scopes-for-oauth-2-3LO-and-forge-apps/))
+      - Client ID (from your Atlassian app)
+      - Client Secret (from your Atlassian app)
+      - Permissions (scopes — see [Jira OAuth scopes reference](https://developer.atlassian.com/cloud/jira/platform/scopes-for-oauth-2-3LO-and-forge-apps/))
 
-      <img src={addCredentialsImg.src} alt="Adding credentials for Jira in Scalekit dashboard" width="540" />
+      ![Add credentials for Jira in Scalekit dashboard](@/assets/docs/agent-connectors/jira/add-credentials.png)
     - Click **Save**.
 </Steps>

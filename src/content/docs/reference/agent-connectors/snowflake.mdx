@@ -11,69 +11,12 @@ head:
       table td:first-child, table th:first-child {
         white-space: nowrap;
       }
-      /* Heading copy functionality */
-      .sl-markdown-content h2,
-      .sl-markdown-content h3,
-      .sl-markdown-content h4 {
-        position: relative;
-        cursor: pointer;
-      }
-      .sl-markdown-content h2:hover::after,
-      .sl-markdown-content h3:hover::after,
-      .sl-markdown-content h4:hover::after {
-        content: " 📋 ";
-        font-size: 0.8em;
-        opacity: 0.7;
-      }
-  - tag: script
-    content: |
-      // Using a self-executing function to avoid global namespace pollution
-      (function() {
-        // Function to initialize the copy functionality
-        function initHeadingCopy() {
-          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
-
-          headings.forEach(heading => {
-            // Skip if already initialized
-            if (heading.hasAttribute('data-copy-initialized')) return;
-            heading.setAttribute('data-copy-initialized', 'true');
-
-            heading.addEventListener('click', async () => {
-              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
-
-              try {
-                await navigator.clipboard.writeText(headingText);
-
-                // Visual feedback
-                const originalText = heading.textContent;
-                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
-
-                setTimeout(() => {
-                  heading.textContent = originalText;
-                }, 2000);
-              } catch (err) {
-                console.error('Failed to copy heading:', err);
-              }
-            });
-          });
-        }
-
-        // Initialize on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', initHeadingCopy);
-
-        // Also initialize now in case the DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          setTimeout(initHeadingCopy, 1);
-        }
-
-        // For Astro's client-side navigation
-        document.addEventListener('astro:page-load', initHeadingCopy);
-      })();
 ---
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
 import { SetupSnowflakeSection } from '@components/templates'
+import { UsageSnowflakeSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -93,123 +36,9 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 ## Usage
 
-Connect a user's Snowflake account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
-
-<Tabs syncKey="tech-stack">
-{/* Node.js - commented out, uncomment when ready
-  <TabItem label="Node.js">
-    ```typescript
-    import { ScalekitClient } from '@scalekit-sdk/node';
-    import 'dotenv/config';
-
-    const connectionName = 'snowflake'; // get your connection name from connection configurations
-    const identifier = 'user_123';  // your unique user identifier
-
-    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
-    const scalekit = new ScalekitClient(
-      process.env.SCALEKIT_ENV_URL,
-      process.env.SCALEKIT_CLIENT_ID,
-      process.env.SCALEKIT_CLIENT_SECRET
-    );
-    const { connectedAccounts, actions } = scalekit;
-
-    // Authenticate the user
-    const { link } = await connectedAccounts.getMagicLinkForConnectedAccount({
-      connector: connectionName,
-      identifier,
-    });
-    console.log('🔗 Authorize Snowflake:', link);
-    process.stdout.write('Press Enter after authorizing...');
-    await new Promise(r => process.stdin.once('data', r));
-
-    // Make a request via Scalekit proxy
-    const result = await actions.request({
-      connectionName,
-      identifier,
-      path: '/api/v2/statements',
-      method: 'POST',
-    });
-    console.log(result);
-    ```
-  </TabItem>
-*/}
-  <TabItem label="Python">
-    ```python
-    import scalekit.client, os
-    from dotenv import load_dotenv
-    load_dotenv()
-
-    connection_name = "snowflake"  # get your connection name from connection configurations
-    identifier = "user_123"     # your unique user identifier
-
-    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
-    scalekit_client = scalekit.client.ScalekitClient(
-        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-        env_url=os.getenv("SCALEKIT_ENV_URL"),
-    )
-    actions = scalekit_client.actions
-
-    # Authenticate the user
-    link_response = actions.get_authorization_link(
-        connection_name=connection_name,
-        identifier=identifier
-    )
-    # present this link to your user for authorization, or click it yourself for testing
-    print("🔗 Authorize Snowflake:", link_response.link)
-    input("Press Enter after authorizing...")
-
-    # Make a request via Scalekit proxy
-    result = actions.request(
-        connection_name=connection_name,
-        identifier=identifier,
-        path="/api/v2/statements",
-        method="POST"
-    )
-    print(result)
-    ```
-  </TabItem>
-</Tabs>
+<UsageSnowflakeSection />
 
 ## Tool list
-
-## `snowflake_execute_query`
-
-Execute one or more SQL statements against Snowflake using the SQL API.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `statement` | string | Yes | SQL statement to execute |
-| `async` | boolean \| null | No | Execute statement asynchronously and return a statement handle |
-| `bindings` | object \| null | No | Bind variables object for `?` placeholders in the SQL statement |
-| `database` | string \| null | No | Database to use when executing the statement |
-| `nullable` | boolean \| null | No | When `false`, SQL `NULL` values are returned as string `"null"` |
-| `parameters` | object \| null | No | Statement-level Snowflake parameters as a JSON object |
-| `request_id` | string \| null | No | Unique request identifier (UUID) used for idempotent retries |
-| `retry` | boolean \| null | No | Set `true` when resubmitting a previously sent request with the same `request_id` |
-| `role` | string \| null | No | Role to use when executing the statement |
-| `schema` | string \| null | No | Schema to use when executing the statement |
-| `timeout` | integer \| null | No | Maximum number of seconds to wait for statement execution (minimum: `1`) |
-| `warehouse` | string \| null | No | Warehouse to use when executing the statement |
-
-## `snowflake_get_query_status`
-
-Get Snowflake SQL API statement status and first partition result metadata by statement handle.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `statement_handle` | string | Yes | Snowflake statement handle returned by Execute Query |
-| `request_id` | string \| null | No | Optional request ID used when the statement was submitted |
-
-## `snowflake_get_query_partition`
-
-Get a specific result partition for a Snowflake SQL API statement.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `statement_handle` | string | Yes | Snowflake statement handle returned by Execute Query |
-| `partition` | integer | Yes | Partition index to fetch (0-based, minimum: `0`) |
-| `request_id` | string \| null | No | Optional request ID used when the statement was submitted |
 
 ## `snowflake_cancel_query`
 
@@ -217,132 +46,170 @@ Cancel a running Snowflake SQL API statement by statement handle.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
+| `request_id` | string | No | Optional request ID used when the statement was submitted |
 | `statement_handle` | string | Yes | Snowflake statement handle to cancel |
-| `request_id` | string \| null | No | Optional request ID used when the statement was submitted |
 
-## `snowflake_get_schemata`
+## `snowflake_execute_query`
 
-Query `INFORMATION_SCHEMA.SCHEMATA` for schema metadata.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `database` | string | Yes | Database name |
-| `schema_like` | string \| null | No | Optional schema pattern |
-| `limit` | integer \| null | No | Maximum rows (minimum: `1`) |
-| `role` | string \| null | No | Optional role |
-| `warehouse` | string \| null | No | Optional warehouse |
-
-## `snowflake_get_tables`
-
-Query `INFORMATION_SCHEMA.TABLES` for table metadata in a Snowflake database.
+Execute one or more SQL statements against Snowflake using the SQL API. Requires a valid Snowflake OAuth2 connection. Use semicolons to submit multiple statements.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `database` | string | Yes | Database name |
-| `schema` | string \| null | No | Optional schema filter |
-| `table_name_like` | string \| null | No | Optional table name pattern |
-| `limit` | integer \| null | No | Maximum number of rows (minimum: `1`) |
-| `role` | string \| null | No | Optional role |
-| `warehouse` | string \| null | No | Optional warehouse |
+| `async` | boolean | No | Execute statement asynchronously and return a statement handle |
+| `bindings` | `object` | No | Bind variables object for '?' placeholders in the SQL statement |
+| `database` | string | No | Database to use when executing the statement |
+| `nullable` | boolean | No | When false, SQL NULL values are returned as the string "null" |
+| `parameters` | `object` | No | Statement-level Snowflake parameters as a JSON object |
+| `request_id` | string | No | Unique request identifier (UUID) used for idempotent retries |
+| `retry` | boolean | No | Set true when resubmitting a previously sent request with the same request_id |
+| `role` | string | No | Role to use when executing the statement |
+| `schema` | string | No | Schema to use when executing the statement |
+| `statement` | string | Yes | SQL statement to execute. Use semicolons to send multiple statements in one request. |
+| `timeout` | integer | No | Maximum number of seconds to wait for statement execution |
+| `warehouse` | string | No | Warehouse to use when executing the statement |
 
 ## `snowflake_get_columns`
 
-Query `INFORMATION_SCHEMA.COLUMNS` for column metadata.
+Query INFORMATION_SCHEMA.COLUMNS for column metadata.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
+| `column_name_like` | string | No | Optional column name pattern |
 | `database` | string | Yes | Database name |
-| `schema` | string \| null | No | Optional schema filter |
-| `table` | string \| null | No | Optional table filter |
-| `column_name_like` | string \| null | No | Optional column name pattern |
-| `limit` | integer \| null | No | Maximum rows (minimum: `1`) |
-| `role` | string \| null | No | Optional role |
-| `warehouse` | string \| null | No | Optional warehouse |
+| `limit` | integer | No | Maximum rows |
+| `role` | string | No | Optional role |
+| `schema` | string | No | Optional schema filter |
+| `table` | string | No | Optional table filter |
+| `warehouse` | string | No | Optional warehouse |
 
-## `snowflake_get_table_constraints`
+## `snowflake_get_query_partition`
 
-Query `INFORMATION_SCHEMA.TABLE_CONSTRAINTS`.
+Get a specific result partition for a Snowflake SQL API statement.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `database` | string | Yes | Database name |
-| `schema` | string \| null | No | Optional schema filter |
-| `table` | string \| null | No | Optional table filter |
-| `constraint_type` | string \| null | No | Optional constraint type filter |
-| `limit` | integer \| null | No | Maximum rows (minimum: `1`) |
-| `role` | string \| null | No | Optional role |
-| `warehouse` | string \| null | No | Optional warehouse |
+| `partition` | integer | Yes | Partition index to fetch (0-based) |
+| `request_id` | string | No | Optional request ID used when the statement was submitted |
+| `statement_handle` | string | Yes | Snowflake statement handle returned by Execute Query |
+
+## `snowflake_get_query_status`
+
+Get Snowflake SQL API statement status and first partition result metadata by statement handle.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `request_id` | string | No | Optional request ID used when the statement was submitted |
+| `statement_handle` | string | Yes | Snowflake statement handle returned by Execute Query |
 
 ## `snowflake_get_referential_constraints`
 
-Query `INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS`.
+Query INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `database` | string | Yes | Database name |
-| `schema` | string \| null | No | Optional schema filter |
-| `table` | string \| null | No | Optional table filter |
-| `limit` | integer \| null | No | Maximum rows (minimum: `1`) |
-| `role` | string \| null | No | Optional role |
-| `warehouse` | string \| null | No | Optional warehouse |
+| `limit` | integer | No | Maximum rows |
+| `role` | string | No | Optional role |
+| `schema` | string | No | Optional schema filter |
+| `table` | string | No | Optional table filter |
+| `warehouse` | string | No | Optional warehouse |
+
+## `snowflake_get_schemata`
+
+Query INFORMATION_SCHEMA.SCHEMATA for schema metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `database` | string | Yes | Database name |
+| `limit` | integer | No | Maximum rows |
+| `role` | string | No | Optional role |
+| `schema_like` | string | No | Optional schema pattern |
+| `warehouse` | string | No | Optional warehouse |
+
+## `snowflake_get_table_constraints`
+
+Query INFORMATION_SCHEMA.TABLE_CONSTRAINTS.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `constraint_type` | string | No | Optional constraint type filter |
+| `database` | string | Yes | Database name |
+| `limit` | integer | No | Maximum rows |
+| `role` | string | No | Optional role |
+| `schema` | string | No | Optional schema filter |
+| `table` | string | No | Optional table filter |
+| `warehouse` | string | No | Optional warehouse |
+
+## `snowflake_get_tables`
+
+Query INFORMATION_SCHEMA.TABLES for table metadata in a Snowflake database.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `database` | string | Yes | Database name |
+| `limit` | integer | No | Maximum number of rows |
+| `role` | string | No | Optional role |
+| `schema` | string | No | Optional schema filter |
+| `table_name_like` | string | No | Optional table name pattern |
+| `warehouse` | string | No | Optional warehouse |
 
 ## `snowflake_show_databases_schemas`
 
-Run `SHOW DATABASES` or `SHOW SCHEMAS`.
+Run SHOW DATABASES or SHOW SCHEMAS.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `object_type` | string | Yes | Object type to show. Allowed values: `databases`, `schemas` |
-| `database_name` | string \| null | No | Optional database scope for `SHOW SCHEMAS` |
-| `like_pattern` | string \| null | No | Optional `LIKE` pattern |
-| `role` | string \| null | No | Optional role |
-| `warehouse` | string \| null | No | Optional warehouse |
-
-## `snowflake_show_warehouses`
-
-Run `SHOW WAREHOUSES`.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `like_pattern` | string \| null | No | Optional `LIKE` pattern |
-| `role` | string \| null | No | Optional role |
-| `warehouse` | string \| null | No | Optional warehouse |
+| `database_name` | string | No | Optional database scope for SHOW SCHEMAS |
+| `like_pattern` | string | No | Optional LIKE pattern |
+| `object_type` | string | Yes | Object type to show |
+| `role` | string | No | Optional role |
+| `warehouse` | string | No | Optional warehouse |
 
 ## `snowflake_show_grants`
 
-Run `SHOW GRANTS` in common modes (`to_role`, `to_user`, `of_role`, `on_object`).
+Run SHOW GRANTS in common modes (to role, to user, of role, on object).
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `grant_view` | string | Yes | `SHOW GRANTS` variant. Allowed values: `to_role`, `to_user`, `of_role`, `on_object` |
-| `role_name` | string \| null | No | Role name (used for `to_role` and `of_role`) |
-| `user_name` | string \| null | No | User name (used for `to_user`) |
-| `object_type` | string \| null | No | Object type for `on_object` |
-| `object_name` | string \| null | No | Object name for `on_object` |
-| `role` | string \| null | No | Optional execution role |
-| `warehouse` | string \| null | No | Optional warehouse |
-
-## `snowflake_show_primary_keys`
-
-Run `SHOW PRIMARY KEYS` with optional scope.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `database_name` | string \| null | No | Optional database name for scope |
-| `schema_name` | string \| null | No | Optional schema name for scope |
-| `table_name` | string \| null | No | Optional table name for scope |
-| `role` | string \| null | No | Optional role |
-| `warehouse` | string \| null | No | Optional warehouse |
+| `grant_view` | string | Yes | SHOW GRANTS variant |
+| `object_name` | string | No | Object name for on_object |
+| `object_type` | string | No | Object type for on_object |
+| `role` | string | No | Optional execution role |
+| `role_name` | string | No | Role name (for to_role/of_role) |
+| `user_name` | string | No | User name (for to_user) |
+| `warehouse` | string | No | Optional warehouse |
 
 ## `snowflake_show_imported_exported_keys`
 
-Run `SHOW IMPORTED KEYS` or `SHOW EXPORTED KEYS` for a table.
+Run SHOW IMPORTED KEYS or SHOW EXPORTED KEYS for a table. For reliable execution in this environment, use fully-qualified scope (database_name + schema_name + table_name).
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `key_direction` | string | Yes | Which command to run. Allowed values: `imported`, `exported` |
-| `table_name` | string | Yes | Table name |
-| `schema_name` | string \| null | No | Optional schema name |
-| `database_name` | string \| null | No | Optional database name |
-| `role` | string \| null | No | Optional role |
-| `warehouse` | string \| null | No | Optional warehouse |
+| `database_name` | string | No | Optional database name (recommended with schema_name) |
+| `key_direction` | string | Yes | Which command to run |
+| `role` | string | No | Optional role |
+| `schema_name` | string | No | Optional schema name (recommended with database_name) |
+| `table_name` | string | Yes | Table name (use with schema_name and database_name for fully-qualified scope) |
+| `warehouse` | string | No | Optional warehouse |
+
+## `snowflake_show_primary_keys`
+
+Run SHOW PRIMARY KEYS with optional scope. When using schema_name (or schema_name + table_name), database_name is required for fully-qualified scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `database_name` | string | No | Optional database name for scope (required when schema_name is set) |
+| `role` | string | No | Optional role |
+| `schema_name` | string | No | Optional schema name for scope |
+| `table_name` | string | No | Optional table name for scope |
+| `warehouse` | string | No | Optional warehouse |
+
+## `snowflake_show_warehouses`
+
+Run SHOW WAREHOUSES.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `like_pattern` | string | No | Optional LIKE pattern |
+| `role` | string | No | Optional role |
+| `warehouse` | string | No | Optional warehouse |

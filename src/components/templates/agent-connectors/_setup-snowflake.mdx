@@ -1,6 +1,4 @@
 import { Steps } from '@astrojs/starlight/components'
-import useOwnCredentialsImg from '@/assets/docs/agent-connectors/snowflake/use-own-credentials-redirect-uri.png'
-import addCredentialsImg from '@/assets/docs/agent-connectors/snowflake/add-credentials.png'
 
 Register your Scalekit environment with the Snowflake connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. You'll need to create an OAuth Security Integration in your Snowflake account.
 
@@ -9,11 +7,9 @@ Register your Scalekit environment with the Snowflake connector so Scalekit hand
 
     - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
 
-    - Find **Snowflake** from the list of providers and click **Create**.
+    - Find **Snowflake** from the list of providers and click **Create**. Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
 
-    - Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
-
-      <img src={useOwnCredentialsImg.src} alt="Configure Snowflake Connection with redirect URI" width="500" />
+      ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/snowflake/use-own-credentials-redirect-uri.png)
 
     - Log into your Snowflake account (Snowsight) and run the following SQL to create an OAuth Security Integration, replacing `<redirect_uri>` with the URI you copied:
 
@@ -28,25 +24,24 @@ Register your Scalekit environment with the Snowflake connector so Scalekit hand
 
 2. ### Get client credentials
 
-    After creating the integration, run the following SQL to retrieve the client credentials:
+    - After creating the integration, run the following SQL to retrieve the client credentials:
 
-    ```sql
-    SELECT SYSTEM$SHOW_OAUTH_CLIENT_SECRETS('SCALEKIT_OAUTH');
-    ```
+      ```sql
+      SELECT SYSTEM$SHOW_OAUTH_CLIENT_SECRETS('SCALEKIT_OAUTH');
+      ```
 
-    This returns a JSON object containing:
-
-    - **Client ID** — value of `OAUTH_CLIENT_ID`
-    - **Client Secret** — value of `OAUTH_CLIENT_SECRET_2` (or `OAUTH_CLIENT_SECRET_1`)
+    - This returns a JSON object containing:
+      - **Client ID** — value of `OAUTH_CLIENT_ID`
+      - **Client Secret** — value of `OAUTH_CLIENT_SECRET_2` (or `OAUTH_CLIENT_SECRET_1`)
 
 3. ### Add credentials in Scalekit
 
     - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
 
     - Enter your credentials:
-      - **Client ID** (from the SQL output)
-      - **Client Secret** (from the SQL output)
+      - Client ID (from the SQL output)
+      - Client Secret (from the SQL output)
 
-      <img src={addCredentialsImg.src} alt="Adding credentials for Snowflake in Scalekit dashboard" width="540" />
+      ![Add credentials in Scalekit dashboard](@/assets/docs/agent-connectors/snowflake/add-credentials.png)
     - Click **Save**.
 </Steps>
