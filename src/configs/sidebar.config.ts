@@ -221,6 +221,12 @@ export const sidebar = [
           'dev-kit/build-with-ai/mcp-auth',
           'dev-kit/build-with-ai/sso',
           'dev-kit/build-with-ai/scim',
+        ],
+      },
+      {
+        label: 'AI tools',
+        collapsed: true,
+        items: [
           'dev-kit/ai-assisted-development/scalekit-mcp-server',
           'dev-kit/resources/ai-assisted-setup',
           'dev-kit/ai-assisted-development/context7',
