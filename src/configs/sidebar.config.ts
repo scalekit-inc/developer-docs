@@ -244,7 +244,11 @@ export const sidebar = [
             attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
           },
           'dev-kit/api-collections/openapi-spec',
-          'dev-kit/api-collections/postman-collections',
+          {
+            label: 'Postman collections',
+            link: 'https://github.com/scalekit-inc/api-collections/tree/main',
+            attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
+          },
         ],
       },
     ],
