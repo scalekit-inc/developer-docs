@@ -1,32 +1,7 @@
 ---
 import Default from '@astrojs/starlight/components/Head.astro'
-
-const { entry } = Astro.locals.starlightRoute
-const { title, description, tags } = entry.data
-
-const canonicalURL = new URL(Astro.url.pathname, Astro.site)
-
-const jsonLd =
-  title && description
-    ? JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'TechArticle',
-        headline: title,
-        description: description,
-        keywords: tags?.length ? tags.join(', ') : undefined,
-        url: canonicalURL.href,
-        publisher: {
-          '@type': 'Organization',
-          name: 'Scalekit',
-          url: 'https://scalekit.com',
-        },
-      })
-    : null
 ---
 
 <Default>
   <slot />
-  {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
-  {tags?.length && <meta name="keywords" content={tags.join(', ')} />}
-  <link rel="alternate" type="text/plain" title="LLM-friendly documentation" href="/llms.txt" />
 </Default>
