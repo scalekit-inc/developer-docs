@@ -1,0 +1,99 @@
+---
+title: HarvestAPI
+description: Connect to HarvestAPI to scrape LinkedIn profiles, companies, and job listings, and search for people and jobs using real-time LinkedIn data.
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupHarvestapiSection } from '@components/templates'
+import { UsageHarvestapiSection } from '@components/templates'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to HarvestAPI to scrape LinkedIn profiles, companies, and job listings, and search for people and jobs using real-time LinkedIn data. Enables AI agents to access live LinkedIn data for recruiting, sales prospecting, and market research.
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/harvestapi.svg" width="64" height="64" alt="HarvestAPI logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="API Key" />
+
+## Set up the agent connector
+
+<SetupHarvestapiSection />
+
+## Usage
+
+<UsageHarvestapiSection />
+
+## Tool list
+
+## `scrape_profile`
+
+Scrape a LinkedIn profile by URL or username. Returns contact details, current and past employment history, education, skills, and profile metadata. Either `url` or `username` is required.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `url` | string | No | Full LinkedIn profile URL (e.g., `https://www.linkedin.com/in/username`). Use this or `username`. |
+| `username` | string | No | LinkedIn profile handle (the slug after `/in/`). Use this or `url`. |
+
+## `scrape_company`
+
+Scrape a LinkedIn company page for overview details, headcount, specialties, recent updates, and an employee list. Either `url` or `username` is required.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `url` | string | No | Full LinkedIn company page URL (e.g., `https://www.linkedin.com/company/microsoft`). Use this or `username`. |
+| `username` | string | No | LinkedIn company handle (the slug after `/company/`). Use this or `url`. |
+| `include_employees` | boolean | No | When `true`, includes a list of current employees in the response. Defaults to `false`. |
+
+## `search_people`
+
+Search LinkedIn for people using structured filters. Returns a paginated list of matching profiles with name, title, company, and profile URL. At least one filter parameter is recommended for meaningful results.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `keywords` | string | No | Free-text search terms matched against name, headline, and bio. |
+| `title` | string | No | Job title filter (e.g., `VP of Engineering`). Supports partial matches. |
+| `company` | string | No | Current or past company name filter (e.g., `OpenAI`). |
+| `location` | string | No | Location filter by city, state, or country (e.g., `San Francisco, CA`). |
+| `industry` | string | No | Industry vertical filter (e.g., `Software`, `Finance`, `Healthcare`). |
+| `page` | integer | No | Page number for pagination. Starts at `1`. Defaults to `1`. |
+
+## `search_jobs`
+
+Search LinkedIn job listings using keywords, location, or company filters. Returns a paginated list of job postings with title, company, location, and listing URL.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `keywords` | string | No | Job title or skill keywords to search for (e.g., `machine learning engineer`). |
+| `location` | string | No | Location filter by city, state, or country (e.g., `New York, NY`). |
+| `company` | string | No | Filter listings by company name (e.g., `Stripe`). |
+| `page` | integer | No | Page number for pagination. Starts at `1`. Defaults to `1`. |
+
+## `scrape_job`
+
+Retrieve full details for a single LinkedIn job listing by its URL. Returns job title, company, location, description, requirements, seniority level, employment type, and application link.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `url` | string | Yes | Full LinkedIn job posting URL (e.g., `https://www.linkedin.com/jobs/view/1234567890`). |
+
+## `bulk_scrape_profiles`
+
+Batch scrape multiple LinkedIn profiles in a single request. Each profile in the `urls` array is scraped independently. Returns an array of profile objects in the same order as the input. Failed profiles return an error object instead of profile data. Each profile counts as one credit.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `urls` | `array<string>` | Yes | List of LinkedIn profile URLs to scrape. Each entry must be a full URL (e.g., `https://www.linkedin.com/in/username`). Maximum 50 URLs per request. |
