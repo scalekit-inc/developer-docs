@@ -264,8 +264,8 @@ export default defineConfig({
         dark: '1',
       },
       sketch: true, // Clean, professional diagrams instead of hand-drawn
-      appendix: true, // Enable interactive elements (tooltips/links)
-      inline: true, // Embed SVG inline to make links clickable
+      appendix: false, // No interactive elements needed (none of our diagrams use D2 links)
+      inline: false, // Save SVGs as separate files (reduces prerender memory vs inline embedding)
       layout: 'elk', // ELK layout engine for better positioning
       pad: 5,
     }),
