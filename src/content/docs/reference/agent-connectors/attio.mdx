@@ -94,19 +94,19 @@ Add a record (contact, company, deal, or custom object) to a specific Attio list
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `entry_values` | `object` | No | Optional attribute values to set on the list entry itself (not the underlying record). Keys are attribute slugs, values are the data to set. Example: {"stage": "qualified"} |
+| `entry_values` | `object` | No | Optional attribute values to set on the list entry itself (not the underlying record). Keys are attribute slugs, values are the data to set. Example: &#123;"stage": "qualified"&#125; |
 | `list_id` | string | Yes | The UUID of the Attio list to add the record to. Use the List Lists tool (attio_list_lists) to retrieve available lists and their UUIDs. |
 | `parent_object` | string | Yes | The object type slug the record belongs to. Must match the object type the list is configured for — run attio_list_lists to check the list's parent object before adding. |
 | `parent_record_id` | string | Yes | The UUID of the record to add to the list. Must be a valid UUID — obtain this from search or list records results. |
 
 ## `attio_create_attribute`
 
-Creates a new attribute on an Attio object or list. Requires api_slug, title, type, description, is_required, is_unique, is_mct, and config. The config object varies by type — for most types pass an empty object {}. For select/multiselect, config can include options. For record-reference, config includes the target object.
+Creates a new attribute on an Attio object or list. Requires api_slug, title, type, description, is_required, is_unique, is_mct, and config. The config object varies by type — for most types pass an empty object &#123;&#125;. For select/multiselect, config can include options. For record-reference, config includes the target object.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `api_slug` | string | Yes | Snake_case identifier for the new attribute. Must be unique within the object. |
-| `config` | `object` | Yes | Type-specific configuration object. For most types (text, number, date, checkbox, etc.) pass an empty object {}. For record-reference, pass {"relationship": {"object": "companies"}}. |
+| `config` | `object` | Yes | Type-specific configuration object. For most types (text, number, date, checkbox, etc.) pass an empty object &#123;&#125;. For record-reference, pass &#123;"relationship": &#123;"object": "companies"&#125;&#125;. |
 | `description` | string | Yes | Human-readable description of what this attribute is used for. |
 | `is_multiselect` | boolean | Yes | Whether this attribute allows multiple values per record. |
 | `is_required` | boolean | Yes | Whether this attribute is required when creating records of this object type. |
@@ -153,7 +153,7 @@ Creates a new list in Attio. Requires workspace_access (one of: full-access, rea
 | `name` | string | Yes | Human-readable display name for the new list. |
 | `parent_object` | string | Yes | Object slug the list tracks. Must be a valid object slug such as people, companies, or deals. |
 | `workspace_access` | string | Yes | Access level for all workspace members. Must be one of: full-access, read-and-write, read-only. Use full-access to give all members full control. |
-| `workspace_member_access` | `array<object>` | No | Optional array of per-member access overrides. Leave empty for uniform access via workspace_access. Each item: {"workspace_member_id": "uuid", "level": "full-access"}. |
+| `workspace_member_access` | `array<object>` | No | Optional array of per-member access overrides. Leave empty for uniform access via workspace_access. Each item: &#123;"workspace_member_id": "uuid", "level": "full-access"&#125;. |
 
 ## `attio_create_note`
 
@@ -194,7 +194,7 @@ Create a new record in Attio for a given object type (e.g. people, companies, de
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `object` | string | Yes | The slug or UUID of the object type to create the record in. Common slugs: "people", "companies", "deals". |
-| `values` | `object` | Yes | Attribute values for the new record. Keys are attribute API slugs or UUIDs; values are the data to set. For multi-value attributes, supply an array. Example for a person: {"name": [{"first_name": "Alice", "last_name": "Smith"}], "email_addresses": [{"email_address": "alice@example.com"}]} |
+| `values` | `object` | Yes | Attribute values for the new record. Keys are attribute API slugs or UUIDs; values are the data to set. For multi-value attributes, supply an array. Example for a person: &#123;"name": [&#123;"first_name": "Alice", "last_name": "Smith"&#125;], "email_addresses": [&#123;"email_address": "alice@example.com"&#125;]&#125; |
 
 ## `attio_create_task`
 
@@ -202,11 +202,11 @@ Create a new task in Attio. Tasks can be linked to one or more records (people, 
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `assignees` | `array<object>` | No | Array of assignees for this task. Each item must have either referenced_actor_id (UUID) with referenced_actor_type set to workspace-member, or workspace_member_email_address. Example: [{"referenced_actor_type": "workspace-member", "referenced_actor_id": "d4a8e6f2-3b1c-4d5e-9f0a-1b2c3d4e5f6a"}] |
+| `assignees` | `array<object>` | No | Array of assignees for this task. Each item must have either referenced_actor_id (UUID) with referenced_actor_type set to workspace-member, or workspace_member_email_address. Example: [&#123;"referenced_actor_type": "workspace-member", "referenced_actor_id": "d4a8e6f2-3b1c-4d5e-9f0a-1b2c3d4e5f6a"&#125;] |
 | `content` | string | Yes | The text content of the task. Maximum 2000 characters. Only plaintext is supported. |
 | `deadline_at` | string | Yes | ISO 8601 datetime for the task deadline. Must include milliseconds and timezone, e.g. 2024-03-31T17:00:00.000Z. |
 | `is_completed` | boolean | No | Whether the task is already completed. Defaults to false. |
-| `linked_records` | `array<object>` | No | Array of records to link this task to. Each item must have a target_object (slug or UUID) and either target_record_id (UUID) or an attribute-based match. Example: [{"target_object": "people", "target_record_id": "bf071e1f-6035-429d-b874-d83ea64ea13b"}] |
+| `linked_records` | `array<object>` | No | Array of records to link this task to. Each item must have a target_object (slug or UUID) and either target_record_id (UUID) or an attribute-based match. Example: [&#123;"target_object": "people", "target_record_id": "bf071e1f-6035-429d-b874-d83ea64ea13b"&#125;] |
 
 ## `attio_delete_comment`
 
@@ -538,11 +538,11 @@ List and query records for a specific Attio object type (e.g. people, companies,
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `filter` | `object` | No | Filter object to narrow results to a subset of records. Structure depends on the attributes of the target object. Example: {"email_addresses": {"email_address": {"$eq": "alice@example.com"}}} |
+| `filter` | `object` | No | Filter object to narrow results to a subset of records. Structure depends on the attributes of the target object. Example: &#123;"email_addresses": &#123;"email_address": &#123;"$eq": "alice@example.com"&#125;&#125;&#125; |
 | `limit` | number | No | Maximum number of records to return. Defaults to 500. |
 | `object` | string | Yes | The slug or UUID of the object type to list records for. Common slugs: "people", "companies", "deals". |
 | `offset` | number | No | Number of records to skip before returning results. Defaults to 0. Use with limit for pagination. |
-| `sorts` | `array<object>` | No | Array of sort objects to order results. Each sort object specifies a direction ("asc" or "desc"), an attribute slug or ID, and an optional field. Example: [{"direction": "asc", "attribute": "name"}] |
+| `sorts` | `array<object>` | No | Array of sort objects to order results. Each sort object specifies a direction ("asc" or "desc"), an attribute slug or ID, and an optional field. Example: [&#123;"direction": "asc", "attribute": "name"&#125;] |
 
 ## `attio_list_tasks`
 
