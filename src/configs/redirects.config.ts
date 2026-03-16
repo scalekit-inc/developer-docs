@@ -267,31 +267,21 @@ export const redirects = {
   // BUILD WITH AI REDIRECTS (coding agent guides)
   // =============================================================================
   // Coding agent guides moved from product quickstarts to /dev-kit/build-with-ai/
+  // Note: With trailingSlash: 'ignore', single redirect without slash handles both /path and /path/ variants
 
   '/agent-auth/start-agent-auth-coding-agents': '/dev-kit/build-with-ai/agent-auth/',
-  '/agent-auth/start-agent-auth-coding-agents/': '/dev-kit/build-with-ai/agent-auth/',
   '/authenticate/fsa/start-fsa-coding-agents': '/dev-kit/build-with-ai/full-stack-auth/',
-  '/authenticate/fsa/start-fsa-coding-agents/': '/dev-kit/build-with-ai/full-stack-auth/',
   '/authenticate/mcp/start-mcp-auth-coding-agents': '/dev-kit/build-with-ai/mcp-auth/',
-  '/authenticate/mcp/start-mcp-auth-coding-agents/': '/dev-kit/build-with-ai/mcp-auth/',
   '/authenticate/sso/start-sso-coding-agents': '/dev-kit/build-with-ai/sso/',
-  '/authenticate/sso/start-sso-coding-agents/': '/dev-kit/build-with-ai/sso/',
   '/directory/scim/start-scim-coding-agents': '/dev-kit/build-with-ai/scim/',
-  '/directory/scim/start-scim-coding-agents/': '/dev-kit/build-with-ai/scim/',
 
   // Build with AI moved from /build-with-ai/ to /dev-kit/build-with-ai/
   '/build-with-ai': '/dev-kit/build-with-ai/',
-  '/build-with-ai/': '/dev-kit/build-with-ai/',
   '/build-with-ai/full-stack-auth': '/dev-kit/build-with-ai/full-stack-auth/',
-  '/build-with-ai/full-stack-auth/': '/dev-kit/build-with-ai/full-stack-auth/',
   '/build-with-ai/agent-auth': '/dev-kit/build-with-ai/agent-auth/',
-  '/build-with-ai/agent-auth/': '/dev-kit/build-with-ai/agent-auth/',
   '/build-with-ai/mcp-auth': '/dev-kit/build-with-ai/mcp-auth/',
-  '/build-with-ai/mcp-auth/': '/dev-kit/build-with-ai/mcp-auth/',
   '/build-with-ai/sso': '/dev-kit/build-with-ai/sso/',
-  '/build-with-ai/sso/': '/dev-kit/build-with-ai/sso/',
   '/build-with-ai/scim': '/dev-kit/build-with-ai/scim/',
-  '/build-with-ai/scim/': '/dev-kit/build-with-ai/scim/',
 
   // =============================================================================
   // API AUTH (M2M) REDIRECTS
