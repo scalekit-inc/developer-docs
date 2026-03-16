@@ -97,3 +97,59 @@ Batch scrape multiple LinkedIn profiles in a single request. Each profile in the
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `urls` | `array<string>` | Yes | List of LinkedIn profile URLs to scrape. Each entry must be a full URL (e.g., `https://www.linkedin.com/in/username`). Maximum 50 URLs per request. |
+
+## `search_companies`
+
+Search LinkedIn for companies using keyword and structured filters. Returns a paginated list of matching company pages with name, industry, headcount, and profile URL. At least one filter parameter is recommended for meaningful results.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `search` | string | Yes | Keywords to match against company names (e.g., `"AI infrastructure"`). |
+| `location` | string | No | Filter by city, state, or country (e.g., `"San Francisco, CA"`). |
+| `company_size` | string | No | Filter by headcount range: `1-10`, `11-50`, `51-200`, `201-500`, `501-1000`, `1001-5000`, `5001-10000`, `10001+`. |
+| `industry_id` | string | No | Filter by LinkedIn industry ID. Comma-separate multiple IDs (e.g., `"4,96"`). |
+| `page` | integer | No | Page number for pagination. Starts at `1`. Defaults to `1`. |
+
+## `get_company_posts`
+
+Retrieve recent posts published by a LinkedIn company page. Returns post content, engagement metrics, and publish date. Useful for tracking competitor content, monitoring brand mentions, or building social intelligence pipelines.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `company` | string | No | LinkedIn company page URL (e.g., `https://www.linkedin.com/company/openai`). Use this or `company_id`. |
+| `company_id` | string | No | LinkedIn company ID. Use this or `company`. |
+| `posted_limit` | string | No | Filter posts by recency on LinkedIn's side: `24h`, `week`, or `month`. |
+| `page` | integer | No | Page number for pagination. Starts at `1`. Defaults to `1`. |
+
+## `search_posts`
+
+Search LinkedIn posts using keyword and author filters. Returns matching posts with content, author, engagement metrics, and publish date. Use this to monitor topics, track thought leaders, or surface content relevant to a campaign or research task.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `search` | string | No | Keywords to search in post content (e.g., `"generative AI regulation"`). |
+| `profile` | string | No | Filter posts by author LinkedIn profile URL (comma-separate multiple). |
+| `company` | string | No | Filter posts by author's company LinkedIn URL (comma-separate multiple). |
+| `content_type` | string | No | Filter by post format: `videos`, `images`, `documents`, `live_videos`. |
+| `posted_limit` | string | No | Filter by recency: `24h`, `week`, or `month`. |
+| `sort_by` | string | No | Sort order: `relevance` (default) or `date`. |
+| `page` | integer | No | Page number for pagination. Starts at `1`. Defaults to `1`. |
+
+## `search_leads`
+
+Advanced LinkedIn profile search with Sales Navigator-style filters. Returns a paginated list of profiles matching the specified criteria. Use this for high-precision lead generation when `search_people` filters are not granular enough.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `search` | string | No | Fuzzy keyword search matched across name, headline, and bio. |
+| `current_companies` | string | No | Filter by current employer LinkedIn URL or ID (comma-separate up to 50). |
+| `past_companies` | string | No | Filter by past employer LinkedIn URL or ID (comma-separate multiple). |
+| `locations` | string | No | Filter by location text (comma-separate up to 70). |
+| `current_job_titles` | string | No | Filter by current job title (comma-separate up to 70, e.g., `"Head of Sales,VP Sales"`). |
+| `first_names` | string | No | Strict first name filter (comma-separate multiple). |
+| `last_names` | string | No | Strict last name filter (comma-separate multiple). |
+| `industry_ids` | string | No | Filter by LinkedIn industry ID (comma-separate up to 70). |
+| `seniority_level_ids` | string | No | Filter by seniority: `1` (Entry), `2` (Senior), `3` (Manager), `4` (Director), `5` (VP), `6` (C-Suite), `7` (Owner). Comma-separate multiple. |
+| `years_of_experience_ids` | string | No | Filter by total experience: `1` (1–2 yrs), `2` (3–5 yrs), `3` (6–10 yrs), `4` (11–15 yrs), `5` (16–20 yrs), `6` (20+ yrs). |
+| `company_headcount` | string | No | Filter by employer size: `1-10`, `11-50`, `51-200`, `201-500`, `501-1000`, `1001-5000`, `5001-10000`, `10001+`. |
+| `page` | integer | No | Page number for pagination. Maximum page is `100`. Defaults to `1`. |
