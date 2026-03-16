@@ -1,0 +1,211 @@
+---
+title: Exa
+description: Connect to Exa to perform AI-powered semantic web search, crawl websites for structured content, get natural language answers from the web, run in-depth research, and execute large-scale URL discovery with Websets.
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+      /* Heading copy functionality */
+      .sl-markdown-content h2,
+      .sl-markdown-content h3,
+      .sl-markdown-content h4 {
+        position: relative;
+        cursor: pointer;
+      }
+      .sl-markdown-content h2:hover::after,
+      .sl-markdown-content h3:hover::after,
+      .sl-markdown-content h4:hover::after {
+        content: " 📋 ";
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+  - tag: script
+    content: |
+      // Using a self-executing function to avoid global namespace pollution
+      (function() {
+        // Function to initialize the copy functionality
+        function initHeadingCopy() {
+          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
+
+          headings.forEach(heading => {
+            // Skip if already initialized
+            if (heading.hasAttribute('data-copy-initialized')) return;
+            heading.setAttribute('data-copy-initialized', 'true');
+
+            heading.addEventListener('click', async () => {
+              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
+
+              try {
+                await navigator.clipboard.writeText(headingText);
+
+                // Visual feedback
+                const originalText = heading.textContent;
+                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
+
+                setTimeout(() => {
+                  heading.textContent = originalText;
+                }, 2000);
+              } catch (err) {
+                console.error('Failed to copy heading:', err);
+              }
+            });
+          });
+        }
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initHeadingCopy);
+
+        // Also initialize now in case the DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          setTimeout(initHeadingCopy, 1);
+        }
+
+        // For Astro's client-side navigation
+        document.addEventListener('astro:page-load', initHeadingCopy);
+      })();
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Exa to perform AI-powered semantic web search, crawl websites for structured content, get natural language answers from the web, run in-depth research, and execute large-scale URL discovery with Websets.
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/exa.svg" width="64" height="64" alt="Exa logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="API Key" />
+
+
+## Tool list
+
+## `exa_answer`
+
+Get a natural language answer to a question by searching the web with Exa and synthesizing results. Returns a direct answer with citations to the source pages. Ideal for factual questions, current events, and research queries. Rate limit: 60 requests/minute.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `exclude_domains` | `array<string>` | No | JSON array of domains to exclude from answer sources. |
+| `include_domains` | `array<string>` | No | JSON array of domains to restrict source search to. Example: ["reuters.com","bbc.com"] |
+| `include_text` | boolean | No | When true, also returns the source page text alongside the synthesized answer. |
+| `num_results` | integer | No | Number of web sources to use when generating the answer (1–20). More sources improves accuracy but costs more credits. |
+| `query` | string | Yes | The question or query to answer from web sources. |
+
+## `exa_crawl`
+
+Crawl one or more web pages by URL and extract their content including full text, highlights, and AI-generated summaries. Useful for reading specific pages discovered via search. Rate limit: 60 requests/minute. Credit consumption depends on number of URLs.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `highlights_per_url` | integer | No | Number of highlight sentences to return per URL when include_highlights is true. Defaults to 3. |
+| `include_highlights` | boolean | No | When true, returns the most relevant sentence-level highlights from each page. |
+| `include_html_tags` | boolean | No | When true, retains HTML tags in the extracted text. Defaults to false (plain text only). |
+| `include_summary` | boolean | No | When true, returns an AI-generated summary for each crawled page. |
+| `max_characters` | integer | No | Maximum characters of text to extract per page. Defaults to 5000. |
+| `summary_query` | string | No | Optional query to focus the AI summary on a specific aspect of the page. |
+| `urls` | `array<string>` | Yes | JSON array of URLs to crawl and extract content from. |
+
+## `exa_delete_webset`
+
+Delete an Exa Webset by its ID. This permanently removes the webset and all its collected items. This action cannot be undone.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `webset_id` | string | Yes | The ID of the webset to delete. |
+
+## `exa_find_similar`
+
+Find web pages similar to a given URL using Exa's neural similarity search. Useful for competitor research, finding related articles, or discovering similar companies. Optionally returns page text, highlights, or summaries. Rate limit: 60 requests/minute.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `end_published_date` | string | No | Only return pages published before this date. ISO 8601 format: YYYY-MM-DDTHH:MM:SS.000Z |
+| `exclude_domains` | `array<string>` | No | Array of domains to exclude from results. |
+| `include_domains` | `array<string>` | No | Array of domains to restrict results to. |
+| `include_text` | boolean | No | When true, returns the full text content of each result page. |
+| `max_characters` | integer | No | Maximum characters of page text to return per result when include_text is true. Defaults to 3000. |
+| `num_results` | integer | No | Number of similar results to return (1–100). Defaults to 10. |
+| `start_published_date` | string | No | Only return pages published after this date. ISO 8601 format: YYYY-MM-DDTHH:MM:SS.000Z |
+| `url` | string | Yes | The URL to find similar pages for. |
+
+## `exa_get_webset`
+
+Get the status and details of an existing Exa Webset by its ID. Use this to poll the status of an async webset created with Create Webset. Returns metadata including status (created, running, completed, cancelled), progress, and configuration.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `webset_id` | string | Yes | The ID of the webset to retrieve. |
+
+## `exa_list_webset_items`
+
+List the collected URLs and items from a completed Exa Webset. Use this after polling Get Webset until its status is 'completed' to retrieve the discovered results.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `count` | integer | No | Number of items to return per page. Defaults to 10. |
+| `cursor` | string | No | Pagination cursor from a previous response to fetch the next page of items. |
+| `webset_id` | string | Yes | The ID of the webset to retrieve items from. |
+
+## `exa_list_websets`
+
+List all Exa Websets in your account with optional pagination. Returns a list of websets with their IDs, statuses, and configurations.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `count` | integer | No | Number of websets to return per page. Defaults to 10. |
+| `cursor` | string | No | Pagination cursor from a previous response to fetch the next page. |
+
+## `exa_research`
+
+Run in-depth research on a topic using Exa's neural search. Performs a semantic search and returns results with full page text and AI-generated summaries, providing structured multi-source research output. Best for comprehensive topic analysis. Rate limit: 60 requests/minute.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `category` | string | No | Restrict research to a specific content category for more targeted results. |
+| `exclude_domains` | `array<string>` | No | JSON array of domains to exclude from research results. |
+| `include_domains` | `array<string>` | No | JSON array of domains to restrict research sources to. Useful to focus on authoritative sources. |
+| `max_characters` | integer | No | Maximum characters of text to extract per source page. Defaults to 5000. |
+| `num_results` | integer | No | Number of sources to gather for the research (1–20). More sources provide broader coverage. |
+| `query` | string | Yes | The research topic or question to investigate across the web. |
+| `start_published_date` | string | No | Only include sources published after this date. ISO 8601 format. |
+| `summary_query` | string | No | Optional focused question to guide the AI page summaries. Defaults to the main research query. |
+
+## `exa_search`
+
+Search the web using Exa's AI-powered semantic or keyword search engine. Supports filtering by domain, date range, content category, and result type. Optionally returns page text, highlights, or summaries alongside search results. Rate limit: 60 requests/minute.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `category` | string | No | Restrict results to a specific content category. |
+| `end_published_date` | string | No | Only return pages published before this date. ISO 8601 format: YYYY-MM-DDTHH:MM:SS.000Z |
+| `exclude_domains` | `array<string>` | No | JSON array of domains to exclude from results. Example: ["reddit.com","quora.com"] |
+| `include_domains` | `array<string>` | No | JSON array of domains to restrict results to. Example: ["techcrunch.com","wired.com"] |
+| `include_text` | boolean | No | When true, returns the full text content of each result page (up to max_characters). |
+| `max_characters` | integer | No | Maximum characters of page text to return per result when include_text is true. Defaults to 3000. |
+| `num_results` | integer | No | Number of results to return (1–100). Defaults to 10. |
+| `query` | string | Yes | The search query. For neural/auto type, natural language works best. For keyword type, use specific terms. |
+| `start_published_date` | string | No | Only return pages published after this date. ISO 8601 format: YYYY-MM-DDTHH:MM:SS.000Z |
+| `type` | string | No | Search type: 'neural' for semantic AI search (best for natural language), 'keyword' for exact-match keyword search, 'auto' to let Exa decide. |
+| `use_autoprompt` | boolean | No | When true, Exa automatically rewrites the query to be more semantically effective. |
+
+## `exa_websets`
+
+Execute a complex web query designed to discover and return large sets of URLs (up to thousands) matching specific criteria. Websets are ideal for lead generation, market research, competitor analysis, and large-scale data collection. Returns a webset ID — poll status with GET /websets/v0/websets/{id}. High credit consumption.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `count` | integer | No | Target number of URLs to collect. Can range from hundreds to thousands. Higher counts take longer and consume more credits. |
+| `entity_type` | string | No | The type of entity to search for. Helps Exa understand what constitutes a valid result match. |
+| `exclude_domains` | `array<string>` | No | JSON array of domains to exclude from webset results. |
+| `external_id` | string | No | Optional external identifier to tag this webset for reference in your system. |
+| `include_domains` | `array<string>` | No | JSON array of domains to restrict webset sources to. |
+| `query` | string | Yes | The search query describing what kinds of pages or entities to find. Be specific and descriptive for best results. |

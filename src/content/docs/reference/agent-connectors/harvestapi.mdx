@@ -1,0 +1,236 @@
+---
+title: HarvestAPI
+description: Connect to HarvestAPI to scrape LinkedIn profiles, companies, and job listings, and search for people and jobs using LinkedIn data. Enables AI agents to access real-time LinkedIn data for recruiting, sales prospecting, and market research. Pay-as-you-go credit model.
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+      /* Heading copy functionality */
+      .sl-markdown-content h2,
+      .sl-markdown-content h3,
+      .sl-markdown-content h4 {
+        position: relative;
+        cursor: pointer;
+      }
+      .sl-markdown-content h2:hover::after,
+      .sl-markdown-content h3:hover::after,
+      .sl-markdown-content h4:hover::after {
+        content: " 📋 ";
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+  - tag: script
+    content: |
+      // Using a self-executing function to avoid global namespace pollution
+      (function() {
+        // Function to initialize the copy functionality
+        function initHeadingCopy() {
+          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
+
+          headings.forEach(heading => {
+            // Skip if already initialized
+            if (heading.hasAttribute('data-copy-initialized')) return;
+            heading.setAttribute('data-copy-initialized', 'true');
+
+            heading.addEventListener('click', async () => {
+              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
+
+              try {
+                await navigator.clipboard.writeText(headingText);
+
+                // Visual feedback
+                const originalText = heading.textContent;
+                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
+
+                setTimeout(() => {
+                  heading.textContent = originalText;
+                }, 2000);
+              } catch (err) {
+                console.error('Failed to copy heading:', err);
+              }
+            });
+          });
+        }
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initHeadingCopy);
+
+        // Also initialize now in case the DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          setTimeout(initHeadingCopy, 1);
+        }
+
+        // For Astro's client-side navigation
+        document.addEventListener('astro:page-load', initHeadingCopy);
+      })();
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to HarvestAPI to scrape LinkedIn profiles, companies, and job listings, and search for people and jobs using LinkedIn data. Enables AI agents to access real-time LinkedIn data for recruiting, sales prospecting, and market research. Pay-as-you-go credit model.
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/harvest.svg" width="64" height="64" alt="HarvestAPI logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="API Key" />
+
+
+## Tool list
+
+## `harvestapi_bulk_scrape_profiles`
+
+Batch scrape multiple LinkedIn profiles in a single request using the HarvestAPI Apify scraper. Accepts a JSON array of LinkedIn profile URLs. Pricing: $4 per 1,000 profiles, $10 per 1,000 with email. Requires an Apify API token from https://console.apify.com/settings/integrations.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `apify_token` | string | Yes | Your Apify API token from https://console.apify.com/settings/integrations. |
+| `find_email` | boolean | No | When true, attempts email discovery for all profiles. Costs $10 per 1,000 instead of $4. |
+| `profile_urls` | `array<string>` | Yes | JSON array of LinkedIn profile URLs to scrape in bulk. |
+
+## `harvestapi_get_company`
+
+Retrieve the Harvest company (account) information for the authenticated user, including company name, base URI, plan type, clock format, currency, and weekly capacity settings.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `account_id` | string | Yes | Your Harvest account ID, returned during OAuth as the Harvest-Account-Id header. |
+
+## `harvestapi_get_user`
+
+Retrieve a Harvest user profile by user ID, including their name, email, roles, weekly capacity, and avatar. Use the List Users endpoint to discover user IDs. Requires the Harvest-Account-Id header which is returned during OAuth.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `account_id` | string | Yes | Your Harvest account ID, returned during OAuth as the Harvest-Account-Id header. |
+| `user_id` | string | Yes | The ID of the Harvest user to retrieve. |
+
+## `harvestapi_list_projects`
+
+List all projects in your Harvest account with optional filters. Returns project details including name, client, budget, billing method, start/end dates, and active status. Supports filtering by client, active status, and date range.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `account_id` | string | Yes | Your Harvest account ID, returned during OAuth as the Harvest-Account-Id header. |
+| `client_id` | string | No | Filter projects by client ID. |
+| `is_active` | boolean | No | Filter projects by active status. Set to true for active projects, false for archived. |
+| `page` | integer | No | Page number for pagination (starts at 1). |
+| `per_page` | integer | No | Number of projects to return per page (max 100). |
+
+## `harvestapi_list_time_entries`
+
+List time entries in your Harvest account with optional filters by project, user, client, task, or date range. Returns paginated time entries with hours logged, notes, billable status, and associated project/task/user details.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `account_id` | string | Yes | Your Harvest account ID, returned during OAuth as the Harvest-Account-Id header. |
+| `client_id` | string | No | Filter time entries by client ID. |
+| `from` | string | No | Only return time entries with a spent_date on or after this date. Format: YYYY-MM-DD. |
+| `is_billed` | boolean | No | Filter by whether the time entry has been invoiced (billed). Set to true for billed entries, false for unbilled. |
+| `is_running` | boolean | No | Filter by whether the timer is currently running. Set to true to return only active timers. |
+| `page` | integer | No | Page number for pagination (starts at 1). |
+| `per_page` | integer | No | Number of time entries to return per page (max 100). |
+| `project_id` | string | No | Filter time entries by project ID. |
+| `task_id` | string | No | Filter time entries by task ID. |
+| `to` | string | No | Only return time entries with a spent_date on or before this date. Format: YYYY-MM-DD. |
+| `user_id` | string | No | Filter time entries by user ID. |
+
+## `harvestapi_list_users`
+
+List all users in your Harvest account with optional filters. Returns user profiles including name, email, roles, and weekly capacity. Supports filtering by active status and pagination.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `account_id` | string | Yes | Your Harvest account ID, returned during OAuth as the Harvest-Account-Id header. |
+| `is_active` | boolean | No | Filter users by active status. Set to true to return only active users, false for deactivated users. |
+| `page` | integer | No | Page number for pagination (starts at 1). |
+| `per_page` | integer | No | Number of users to return per page (max 100). |
+
+## `harvestapi_log_time_entry`
+
+Create a new time entry in Harvest for a specific project and task. Supports both duration-based (hours) and start/end time-based logging. Returns the created time entry with its ID, billable status, and invoice details.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `account_id` | string | Yes | Your Harvest account ID, returned during OAuth as the Harvest-Account-Id header. |
+| `hours` | number | No | Number of hours to log. Use this for duration-based entry. Omit if using spent_date with start/end times. |
+| `notes` | string | No | Optional notes or description for the time entry. |
+| `project_id` | string | Yes | The ID of the Harvest project to log time against. |
+| `spent_date` | string | Yes | The ISO 8601 date the time was spent. Format: YYYY-MM-DD. |
+| `task_id` | string | Yes | The ID of the task within the project to log time against. |
+| `user_id` | string | No | The ID of the user to log time for. Defaults to the authenticated user if omitted. |
+
+## `harvestapi_scrape_company`
+
+Scrape a LinkedIn company page for overview, headcount, employee count range, follower count, locations, specialities, industries, and funding data. Provide one of: company_url, universal_name, or search (company name).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `company_url` | string | No | Full LinkedIn company page URL. Provide this, universal_name, or search. |
+| `search` | string | No | Company name to look up on LinkedIn. Returns the most relevant result. Provide this, company_url, or universal_name. |
+| `universal_name` | string | No | Company universal name from the LinkedIn URL slug. Provide this, company_url, or search. |
+
+## `harvestapi_scrape_job`
+
+Retrieve full job listing details from LinkedIn by job URL or job ID. Returns title, company, description, requirements, salary, location, workplace type, employment type, applicant count, and application details. Provide one of: job_url or job_id.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `job_id` | string | No | LinkedIn numeric job ID from the posting URL. Provide this or job_url. |
+| `job_url` | string | No | Full LinkedIn job posting URL. Provide this or job_id. |
+
+## `harvestapi_scrape_profile`
+
+Scrape a LinkedIn profile by URL or public identifier, returning contact details, employment history, education, skills, and more. Provide either profile_url or public_identifier. Use main=true for a simplified profile at fewer credits. Optionally find email with find_email=true (costs extra credits). Processing time ~2.6s (main) or ~4.9s (full).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `find_email` | boolean | No | When true, attempts to find the profile's email address via SMTP verification. Costs extra credits. |
+| `main` | boolean | No | When true, returns a simplified profile with fewer fields. Charges fewer credits than a full scrape. |
+| `profile_url` | string | No | Full LinkedIn profile URL. Provide this or public_identifier. |
+| `public_identifier` | string | No | LinkedIn profile public identifier (the slug in the URL). Provide this or profile_url. |
+
+## `harvestapi_search_jobs`
+
+Search LinkedIn job listings by keyword, location, company, workplace type, employment type, experience level, and salary. Returns paginated job listings with title, company, location, and LinkedIn URL.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `company_id` | string | No | Filter by LinkedIn company ID(s), comma-separated. |
+| `easy_apply` | boolean | No | When true, filter to jobs with LinkedIn Easy Apply only. |
+| `employment_type` | string | No | Filter by employment type. Accepted values: full-time, part-time, contract, temporary, internship (comma-separated). |
+| `experience_level` | string | No | Filter by experience level. Accepted values: internship, entry, associate, mid-senior, director, executive (comma-separated). |
+| `location` | string | No | Filter by job location text (city, country, or region). |
+| `page` | integer | No | Page number for pagination (default: 1). |
+| `posted_limit` | string | No | Filter by recency of posting. Accepted values: 24h, week, month. |
+| `salary` | string | No | Minimum salary filter. Accepted values: 40k+, 60k+, 80k+, 100k+, 120k+, 140k+, 160k+, 180k+, 200k+. |
+| `search` | string | No | Job title or keyword to search for. |
+| `sort_by` | string | No | Sort results by relevance or date. |
+| `workplace_type` | string | No | Filter by workplace type. Accepted values: office, hybrid, remote (comma-separated). |
+
+## `harvestapi_search_people`
+
+Search LinkedIn for people using filters such as job title, current company, location, and industry. Uses LinkedIn Lead Search for unmasked results. Returns paginated profiles with name, title, location, and LinkedIn URL. All parameters are optional and comma-separated for multiple values.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `company_headcount` | string | No | Company headcount range filter, comma-separated (e.g. '1-10,11-50'). |
+| `current_companies` | string | No | Current company IDs or LinkedIn URLs, comma-separated (max 50). |
+| `current_job_titles` | string | No | Current job titles, comma-separated (max 70). e.g. 'CTO,VP Engineering' |
+| `first_names` | string | No | First names to filter by, comma-separated (max 70). |
+| `industry_ids` | string | No | LinkedIn industry IDs, comma-separated (max 70). |
+| `last_names` | string | No | Last names to filter by, comma-separated (max 70). |
+| `locations` | string | No | Location text, comma-separated (max 70). e.g. 'San Francisco,New York' |
+| `page` | integer | No | Page number for pagination (default: 1, max: 100). |
+| `search` | string | No | Fuzzy keyword search across name, title, and company. Supports LinkedIn search operators. |
+| `seniority_level_ids` | string | No | LinkedIn seniority level IDs, comma-separated. |
