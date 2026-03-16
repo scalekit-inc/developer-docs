@@ -480,8 +480,30 @@ Send a direct message to a LinkedIn connection on behalf of a LinkedIn account. 
 
 ## `get_my_api_user`
 
-Retrieve information about the current HarvestAPI user account, including credit balance, usage statistics, and account details. Use this to monitor remaining credits before making high-volume scraping requests. Takes no parameters.
+Retrieve information about the current HarvestAPI user account. Call this before high-volume scraping workflows to verify you have sufficient credits. Takes no parameters.
+
+**Returns:**
+
+| Field | Description |
+| --- | --- |
+| `id` | Your HarvestAPI user ID |
+| `email` | Account email address |
+| `credits` | Current credit balance |
+| `credits_used` | Total credits consumed to date |
+| `plan` | Active subscription plan name |
+| `rate_limit` | Maximum API requests per second for your plan |
+| `created_at` | Account creation timestamp |
 
 ## `get_private_account_pools`
 
-Retrieve the list of private LinkedIn account pools configured on your HarvestAPI account. Private pools allow dedicated LinkedIn accounts to be used for API requests, providing better rate limit isolation and reliability for high-volume workflows. Takes no parameters.
+Retrieve the list of private LinkedIn account pools configured on your HarvestAPI account. Private pools route requests through dedicated LinkedIn accounts, providing better rate limit isolation for high-volume workflows. Takes no parameters.
+
+**Returns an array of pools, each containing:**
+
+| Field | Description |
+| --- | --- |
+| `id` | Pool ID — pass this as `usePrivatePool` in supported tools |
+| `name` | Display name of the pool |
+| `accounts_count` | Number of LinkedIn accounts in the pool |
+| `status` | Pool status: `active` or `inactive` |
+| `created_at` | Pool creation timestamp |
