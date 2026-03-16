@@ -65,7 +65,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Multi-App Authentication',
+        label: 'Auth across multiple apps',
         collapsed: false,
         items: [
           'authenticate/fsa/multiapp/overview',
@@ -209,7 +209,7 @@ export const sidebar = [
   {
     label: 'Developer Kit',
     id: 'dev-kit',
-    link: '/dev-kit/code-samples/',
+    link: '/dev-kit/build-with-ai/',
     icon: 'seti:powershell',
     items: [
       {
@@ -269,12 +269,12 @@ export const sidebar = [
         label: 'Code samples',
         collapsed: true,
         items: [
-          { label: 'Overview', link: 'dev-kit/code-samples' },
-          'dev-kit/code-samples/full-stack-auth',
-          'dev-kit/code-samples/agent-auth',
-          'dev-kit/code-samples/mcp-auth',
-          'dev-kit/code-samples/modular-sso',
-          'dev-kit/code-samples/modular-scim',
+          { label: 'Overview', link: 'resources/code-samples' },
+          'resources/code-samples/full-stack-auth',
+          'resources/code-samples/agent-auth',
+          'resources/code-samples/mcp-auth',
+          'resources/code-samples/modular-sso',
+          'resources/code-samples/modular-scim',
         ],
       },
       createSectionHeader('Integrations'),
@@ -555,20 +555,9 @@ export const topics = {
   // Agent Auth / Connect
   connect: ['/agent-auth/**/*', '/reference/agent-connectors/**/*'],
 
-  // === Developer Kit (tools, code, SDKs, AI helpers) ===
-  'dev-kit': [
-    '/dev-kit/code-samples/**/*',
-    '/dev-kit/tools/**/*',
-    '/dev-kit/sdks/**/*',
-    '/dev-kit/ai-assisted-development/**/*',
-    '/dev-kit/resources/**/*',
-    '/dev-kit/build-with-ai/**/*',
-    '/dev-kit/api-collections/**/*',
-    '/dev-kit/**/*',
-  ],
-
   // === Resources (integrations, workflows, references) ===
   resources: [
+    '/resources/code-samples/**/*',
     '/guides/integrations/**/*',
     '/authenticate/implement-workflows/**/*',
     '/authenticate/interceptors/**/*',
@@ -581,6 +570,17 @@ export const topics = {
     '/cookbooks',
     '/cookbooks/**/*',
     '/**/*', // Catch-all: anything not matched above defaults here
+  ],
+
+  // === Developer Kit (tools, code, SDKs, AI helpers) ===
+  'dev-kit': [
+    '/dev-kit/tools/**/*',
+    '/dev-kit/sdks/**/*',
+    '/dev-kit/ai-assisted-development/**/*',
+    '/dev-kit/resources/**/*',
+    '/dev-kit/build-with-ai/**/*',
+    '/dev-kit/api-collections/**/*',
+    '/dev-kit/**/*',
   ],
 
   // Main authentication topic (after more specific mcp/sso patterns)
@@ -650,9 +650,8 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
 
   // Developer Kit sidebar → Developer Resources dropdown (left column)
   'dev-kit': {
-    default: 'code-samples',
+    default: 'build-with-ai',
     pathOverrides: {
-      '/dev-kit/code-samples': 'code-samples',
       '/dev-kit/tools': 'testing-utilities',
       '/dev-kit/build-with-ai': 'build-with-ai',
       '/dev-kit/sdks': 'dev-tools',
@@ -665,6 +664,7 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   resources: {
     default: 'integrations',
     pathOverrides: {
+      '/resources/code-samples': 'code-samples',
       '/guides/integrations': 'integrations',
       '/authenticate/implement-workflows': 'workflows',
       '/authenticate/interceptors': 'workflows',

@@ -25,15 +25,13 @@ seeAlso:
   label: "See also"
 ---
 
-import { Steps } from '@astrojs/starlight/components';
+import { Steps, Aside } from '@astrojs/starlight/components';
 
-Mobile and desktop applications are **native clients**. Like SPAs, they are **public OAuth clients** and do **not** use a `client_secret`. These applications initiate login, handle the callback, and perform the authorization code exchange using **Authorization Code with PKCE**.
+Implement login, token management, and logout in your mobile or desktop application using Authorization Code with PKCE. Native apps are public OAuth clients that cannot securely store a `client_secret` in the application binary, so they use PKCE to protect the authorization flow. This guide covers initiating login through the system browser, handling deep link callbacks, managing tokens in secure storage, and implementing logout.
 
 :::tip
-👉 [**Check out the example apps on GitHub**](https://github.com/scalekit-inc/multiapp-demo) to see Web, SPA, Desktop, and Mobile apps sharing a single Scalekit session.
+[**Check out the example apps on GitHub**](https://github.com/scalekit-inc/multiapp-demo) to see Web, SPA, Desktop, and Mobile apps sharing a single Scalekit session.
 :::
-
-This guide covers the authorization code flow with PKCE for **mobile and desktop applications**.
 
 ## Prerequisites
 
@@ -41,7 +39,7 @@ Before you begin, ensure you have:
 
 - A Scalekit account with an environment configured
 - Your environment URL (`ENV_URL`), e.g., `https://yourenv.scalekit.com`
-- A native application registered in Scalekit with a `client_id` ([Create one →](/authenticate/fsa/multiapp/manage-apps))
+- A native application registered in Scalekit with a `client_id` ([Create one](/authenticate/fsa/multiapp/manage-apps))
 - A callback URI configured:
   - **Mobile**: Custom URI scheme (e.g., `myapp://callback`) or universal/app links
   - **Desktop**: Custom URI scheme or loopback address (e.g., `http://127.0.0.1:PORT/callback`)
@@ -74,7 +72,7 @@ Scalekit -> "Desktop / Mobile app": access_token, refresh_token, id_token
 
 1. ## Initiate login or signup
 
-   Login begins when your application opens the system browser and redirects the user to Scalekit's hosted login page.
+   Initiate login by opening the system browser with the authorization URL. Always use the system browser rather than an embedded WebView — this lets users leverage existing sessions and provides a familiar, secure authentication experience.
 
    ```sh
    <ENV_URL>/oauth/authorize?
@@ -87,26 +85,34 @@ Scalekit -> "Desktop / Mobile app": access_token, refresh_token, id_token
      code_challenge_method=S256
    ```
 
-   Native applications should generate and store:
-   - `state` (to validate the callback)
-   - `code_verifier` (kept locally), and the derived `code_challenge` (sent on `/oauth/authorize`)
+   Generate and store these values before opening the browser:
 
-   The authorization request is always opened in the **system browser**.
-   
-   For detailed definition of the base parameters, refer [here](/authenticate/fsa/implement-login)
+   - `state` — Validate this on callback to prevent CSRF attacks
+   - `code_verifier` — A cryptographically random string you keep in the app
+   - `code_challenge` — Derived from the verifier using S256 hashing; send this in the authorization URL
+
+   <Aside type="note" title="Why PKCE is required for native apps">
+
+   Native apps cannot keep a `client_secret` secure because the secret would be embedded in the application binary and could be extracted through reverse engineering. PKCE protects against authorization code interception attacks where malware on the device captures the authorization code from the callback URI.
+
+   </Aside>
+
+   For detailed parameter definitions, see [Initiate signup/login](/authenticate/fsa/implement-login).
 
 2. ## Handle the callback and complete login
 
    After authentication, Scalekit redirects the user back to your application using the registered callback mechanism.
 
-   Common patterns include:
-   - **Mobile apps**: custom URI schemes or universal links
-   - **Desktop apps**: custom URI schemes or a loopback HTTP server on `localhost`
+   Common callback patterns:
 
-   Your application must:
-   - Validate the returned `state`
-   - Handle any error parameters
-   - Exchange the authorization code for tokens using the stored `code_verifier`
+   - **Mobile apps** — Custom URI schemes (e.g., `myapp://callback`) or universal links (iOS) / app links (Android)
+   - **Desktop apps** — Custom URI schemes or a temporary HTTP server on localhost
+
+   Your callback handler must:
+
+   - Validate the returned `state` matches what you stored — this confirms the response is for your original request
+   - Handle any error parameters before processing
+   - Exchange the authorization code for tokens by including the `code_verifier`
 
    ```sh
    POST <ENV_URL>/oauth/token
@@ -128,20 +134,25 @@ Scalekit -> "Desktop / Mobile app": access_token, refresh_token, id_token
    }
    ```
 
-   Note: Authorization codes are single-use and short-lived.
+   <Aside type="note" title="Authorization codes expire after one use">
+
+   Authorization codes are single-use and expire quickly (approximately 10 minutes). If you attempt to reuse a code or it expires, start a new login flow to obtain a fresh authorization code.
+
+   </Aside>
 
 3. ## Manage sessions and token refresh
 
-   Once tokens are issued, your native application is responsible for session management.
+   Store tokens in platform-specific secure storage and validate them on each request. When access tokens expire, use the refresh token to obtain new ones without requiring the user to re-authenticate.
 
    **Token roles**
-   - **Access token**: short-lived, used for authenticated requests
-   - **Refresh token**: used to obtain new tokens
-   - **ID token**: user identity claims and required for logout
 
-   Tokens should be stored using **secure, OS-backed storage** appropriate for the platform.
+   - **Access token** — Short-lived token (default 5 minutes) for authenticated API requests
+   - **Refresh token** — Long-lived token to obtain new access tokens
+   - **ID token** — JWT containing user identity claims; required for logout
 
-   When an access token expires, request new tokens using the refresh token:
+   Store tokens using secure, OS-backed storage appropriate for each platform. See [Token storage security](#token-storage-security) for platform-specific recommendations.
+
+   When an access token expires, request new tokens:
 
    ```sh
    POST <ENV_URL>/oauth/token
@@ -152,13 +163,14 @@ Scalekit -> "Desktop / Mobile app": access_token, refresh_token, id_token
    refresh_token=<REFRESH_TOKEN>
    ```
 
-   Validate access tokens by checking:
-   - Verify the token signature using Scalekit’s public keys (JWKS).
-   - `iss` matches your Scalekit environment
-   - `aud` matches your `client_id`
-   - `exp` and `iat` are valid
+   Validate access tokens by verifying:
 
-   Public keys for verification are available at:
+   - Token signature using Scalekit's public keys (JWKS endpoint)
+   - `iss` matches your Scalekit environment URL
+   - `aud` includes your `client_id`
+   - `exp` and `iat` are valid timestamps
+
+   Public keys for signature verification:
 
    ```sh
    <ENV_URL>/keys
@@ -166,12 +178,13 @@ Scalekit -> "Desktop / Mobile app": access_token, refresh_token, id_token
 
 4. ## Implement logout
 
-   Logging out requires clearing your local session and invalidating the Scalekit session.
+   Clear your local session and redirect the system browser to Scalekit's logout endpoint to invalidate the shared session.
 
-   Your logout action should:
-   - Extract the ID token (if available)
-   - Clear locally stored tokens
-   - Redirect the system browser to Scalekit's logout endpoint
+   Your logout action must:
+
+   - Extract the ID token before clearing local storage
+   - Clear tokens from secure storage
+   - Open the system browser to Scalekit's logout endpoint
 
    ```sh
    <ENV_URL>/oidc/logout?
@@ -179,7 +192,11 @@ Scalekit -> "Desktop / Mobile app": access_token, refresh_token, id_token
      post_logout_redirect_uri=<POST_LOGOUT_REDIRECT_URI>
    ```
 
-   Logout must be performed via a **browser redirect** so that Scalekit can identify and terminate the session.
+   <Aside type="note" title="Logout must open the system browser">
+
+   Use the system browser to navigate to the `/oidc/logout` endpoint, not a backend API call. The browser ensures Scalekit's session cookie is sent with the request, allowing Scalekit to identify and terminate the correct session.
+
+   </Aside>
 
 </Steps>
 
@@ -191,12 +208,12 @@ When authentication fails, Scalekit redirects to your callback URI with error pa
 myapp://callback?error=access_denied&error_description=User+denied+access&state=<STATE>
 ```
 
-Your callback handler should check for errors before processing the authorization code:
+Check for errors before processing the authorization code:
 
-1. Check if the `error` parameter exists in the callback URI
-2. Log the `error` and `error_description` for debugging
-3. Display a user-friendly message in your app
-4. Provide an option to retry login
+- Check if the `error` parameter exists in the callback URI
+- Log the `error` and `error_description` for debugging
+- Display a user-friendly message in your app
+- Provide an option to retry login
 
 Common error codes:
 
@@ -208,7 +225,9 @@ Common error codes:
 
 ## Token storage security
 
-Native apps should use platform-specific secure storage mechanisms:
+Native apps have access to platform-specific secure storage mechanisms that encrypt tokens at rest and protect them from other applications. Unlike browser storage, these mechanisms provide strong protection against token theft from device compromise or malware.
+
+Use platform-specific secure storage for each platform:
 
 | Platform | Recommended Storage |
 |----------|---------------------|
@@ -220,11 +239,17 @@ Native apps should use platform-specific secure storage mechanisms:
 
 **Recommendations:**
 
-- Never store tokens in plain text files or unencrypted databases
-- Use biometric or device PIN protection for sensitive token access when available
-- Clear tokens from secure storage on logout
+- Never store tokens in plain text files, shared preferences, or unencrypted databases — these can be read by any application with storage access
+- Use biometric or device PIN protection for sensitive token access when available — this adds a second factor for token access
+- Clear tokens from secure storage on logout — this ensures a clean state for the next authentication
+
+<Aside type="caution" title="Never embed secrets in your application binary">
+
+Credentials embedded in application code or configuration files can be extracted through reverse engineering. Always use PKCE for native apps instead of relying on a `client_secret`. If you need to make authenticated API calls from your backend, use a separate web application with proper secret management.
+
+</Aside>
 
 ## What's next
 
 - [Set up a custom domain](/guides/custom-domain) for your authentication pages
-- [Add enterprise SSO](/sso/quickstart) to support SAML and OIDC with your customers' identity providers
+- [Add enterprise SSO](/authenticate/auth-methods/enterprise-sso/) to support SAML and OIDC with your customers' identity providers

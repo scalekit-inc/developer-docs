@@ -379,6 +379,15 @@ export const redirects = {
   '/dev-kit/nodejs': '/dev-kit/sdks/',
   '/dev-kit/ui-widgets': '/authenticate/manage-users-orgs/hosted-widgets/',
 
+  // Code samples moved to /resources/code-samples/
+  '/dev-kit/code-samples': '/resources/code-samples/',
+  '/dev-kit/code-samples/': '/resources/code-samples/',
+  '/dev-kit/code-samples/full-stack-auth': '/resources/code-samples/full-stack-auth/',
+  '/dev-kit/code-samples/agent-auth': '/resources/code-samples/agent-auth/',
+  '/dev-kit/code-samples/mcp-auth': '/resources/code-samples/mcp-auth/',
+  '/dev-kit/code-samples/modular-sso': '/resources/code-samples/modular-sso/',
+  '/dev-kit/code-samples/modular-scim': '/resources/code-samples/modular-scim/',
+
   // Dev Kit API collections - Postman collections now live on GitHub
   '/dev-kit/api-collections/postman-collections':
     'https://github.com/scalekit-inc/api-collections/tree/main',

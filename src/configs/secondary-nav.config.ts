@@ -206,7 +206,7 @@ export const secondaryNavItems: NavItem[] = [
       },
       {
         id: 'code-samples',
-        href: '/dev-kit/code-samples/',
+        href: '/resources/code-samples/',
         label: 'Code Samples',
         iconComponent: IconLucideCode,
         description: 'Copy and adapt code examples by language',
