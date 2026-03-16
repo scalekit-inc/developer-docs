@@ -24,24 +24,13 @@ seeAlso:
 import { Aside, LinkButton } from '@astrojs/starlight/components';
 import Subtitle from '@/components/ui/Subtitle.astro'
 
-Your product likely spans multiple applications—a web app, a mobile app, maybe a desktop client. For example, a project management application might have a web app at `app.projectmanager.com`, documentation at `docs.projectmanager.com`, and a mobile companion app. Without shared authentication, users sign in separately to each one. With Scalekit's Multi-App Authentication, you register each application as an OAuth client that shares a single user session. Users authenticate once and gain access everywhere.
+Register multiple applications as OAuth clients that share a single Scalekit user session. Users authenticate once and gain access everywhere across your web app, mobile app, desktop client, and documentation site. Each application gets its own OAuth client with appropriate credentials based on its type, while all apps share the same underlying session.
 
 <LinkButton href="https://github.com/scalekit-inc/multiapp-demo" target="_blank" rel="noopener" variant="secondary" class="sk-secondary" icon="github">Check out the example apps</LinkButton>
 
 <br/>
 
-You likely need multi-app authentication if you ship multiple apps (web app, mobile app, desktop companion, or SPA), users expect to stay signed in across surfaces, or you want centralized session control and auditability across apps. Each app gets its own OAuth client and scopes for better security and maintenance.
-
-Multi-app authentication eliminates friction from repeated logins across your product suite, closes security gaps from inconsistent session handling and token management, and reduces engineering overhead from maintaining multiple auth implementations.
-
-Here's how multi-app authentication works:
-
-1. [Register](/authenticate/fsa/multiapp/manage-apps/) each application as an OAuth client in Scalekit.
-2. User logs into any app.
-3. Scalekit creates a session for that user.
-4. Other apps detect the session and skip the login prompt.
-5. Logging out of any app terminates the shared session.
-
+Use multi-app authentication when you ship multiple apps (web, mobile, desktop, or SPA), users expect to stay signed in across surfaces, or you need centralized session control and auditability. Each app gets its own OAuth client for clearer audit logs, safer scope boundaries, and easier maintenance. This eliminates friction from repeated logins and closes security gaps from inconsistent session handling.
 
 ```d2 pad=50
 shape: sequence_diagram
@@ -64,13 +53,23 @@ User -> "App B": Logout
 "Scalekit (shared session)" -> "App A": Session revoked
 ```
 
-Revoking the Scalekit session does not automatically clear your application's local state. Each app must clear its own session and stored tokens. A failed **refresh token exchange** is a reliable signal that the shared session has been revoked.
+## How multi-app authentication works
 
-<Aside type="note">
-For proactive sign-out across all applications, configure [back-channel logout URLs](/authenticate/fsa/multiapp/manage-apps/#configure-redirect-urls) so Scalekit can notify each app when the shared session is terminated.
+1. [Register](/authenticate/fsa/multiapp/manage-apps/) each application as an OAuth client in Scalekit.
+2. User logs into any app.
+3. Scalekit creates a session for that user.
+4. Other apps detect the session and skip the login prompt.
+5. Logging out of any app terminates the shared session.
+
+<Aside type="note" title="Each app must clear its own local state">
+
+Revoking the Scalekit session does not automatically clear your application's local state. Each app must clear its own session and stored tokens. A failed **refresh token exchange** is a reliable signal that the shared session has been revoked. For proactive sign-out across all applications, configure [back-channel logout URLs](/authenticate/fsa/multiapp/manage-apps/#configure-redirect-urls) so Scalekit can notify each app when the shared session is terminated.
+
 </Aside>
 
-Each application is registered separately in Scalekit and receives its own OAuth client, with credentials based on application type:
+## Application types and authentication flows
+
+Each application is registered separately in Scalekit and receives its own OAuth client. Choose the application type based on whether it has a backend server that can securely store credentials:
 
 | App Type | Description | Has Backend? | Uses Secret? | Auth Flow |
 |----------|-------------|:------------:|:------------:|-----------|
@@ -81,30 +80,58 @@ Each application is registered separately in Scalekit and receives its own OAuth
 
 Even though each app has a different `client_id`, they all rely on the same Scalekit user session. Separate clients per app give you clearer audit logs, safer scope boundaries, and easier long-term maintenance.
 
-Let's create multiple applications in Scalekit.
+## Implementation steps
 
-1. **Create applications in Scalekit** - Create [applications](/authenticate/fsa/multiapp/manage-apps) in Scalekit for each of your apps. During setup, select the app type based on whether it has a backend and needs client secrets.
+1. **Create applications in Scalekit** — [Create applications](/authenticate/fsa/multiapp/manage-apps) in Scalekit for each of your apps. During setup, select the app type based on whether it has a backend and needs client secrets.
 
-2. **Configure redirect URLs for each app** - Redirects are registered endpoints in Scalekit that control where users are sent during authentication flows. Configure [redirect URLs](/authenticate/fsa/multiapp/manage-apps/#configure-redirect-urls) for each application.
+2. **Configure redirect URLs for each app** — Redirects are registered endpoints in Scalekit that control where users are sent during authentication flows. [Configure redirect URLs](/authenticate/fsa/multiapp/manage-apps/#configure-redirect-urls) for each application.
 
-3. **Implement login flow for each app** - Once your applications are registered, each app follows an OAuth-based authentication flow. Use this detailed [guide](/authenticate/fsa/implement-login/) for implementing login/signup flow in your apps.
+3. **Implement login flow for each app** — Once your applications are registered, each app follows an OAuth-based authentication flow. Use the [login implementation guide](/authenticate/fsa/implement-login/) for implementing login/signup flow in your apps.
 
-4. **Manage sessions and token refresh** - After users successfully authenticate in any of your apps, you receive session tokens that manage their access. Use this [detailed guide](/authenticate/fsa/manage-session/) to manage sessions in your apps.
+4. **Manage sessions and token refresh** — After users successfully authenticate in any of your apps, you receive session tokens that manage their access. Use the [session management guide](/authenticate/fsa/manage-session/) to manage sessions in your apps.
 
-   <Aside>
-   As part of the auth flow, your app will receive an access token. Validate it by checking the issuer, audience (which must include the application's `client_id`), `iat`, and `exp`. Store tokens securely, and use the `/oauth/token` endpoint with the `refresh_token` grant to obtain new access, refresh, and ID tokens when needed.
+   <Aside type="tip" title="Validate access tokens on each request">
+
+   Validate access tokens by checking the issuer, audience (which must include the application's `client_id`), `iat`, and `exp`. Store tokens securely, and use the `/oauth/token` endpoint with the `refresh_token` grant to obtain new access, refresh, and ID tokens when needed.
+
    </Aside>
 
-5. **Implement logout** - Initiate logout by calling the `/oidc/logout` endpoint with the relevant parameters. Clear your local application session when refresh token exchange fails, or configure back-channel logout to proactively sign users out across all applications sharing the same session.
+5. **Implement logout** — Initiate logout by calling the `/oidc/logout` endpoint with the relevant parameters. Clear your local application session when refresh token exchange fails, or configure back-channel logout to proactively sign users out across all applications sharing the same session. Follow the [logout implementation guide](/authenticate/fsa/logout/) to implement logout in your apps.
 
-   You can follow this [detailed guide](/authenticate/fsa/logout/) to implement logout in your apps.
+## Troubleshooting
 
-## Common scenarios
+<details>
+<summary>Why am I getting a redirect URI mismatch error?</summary>
 
-1. The exact URI (including trailing slashes and query parameters) must match what's configured in **Dashboard > Developers > Applications > [Your App] > Redirects**. Common mismatches include `http` vs `https`, missing or extra trailing slash, or different port numbers in development.
+The exact URI (including trailing slashes and query parameters) must match what's configured in **Dashboard > Developers > Applications > [Your App] > Redirects**. Common mismatches include:
 
-2. Verify all applications are registered in the same Scalekit environment. Apps in different environments maintain separate session pools and cannot share authentication state.
+- `http` vs `https`
+- Missing or extra trailing slash
+- Different port numbers in development
 
-3. If users are prompted to login on every app, check that all apps use the same Scalekit environment URL, the browser allows third-party cookies (required for session detection), and the user is using the same browser across apps.
+</details>
 
-4. If a refresh token is rejected, the Scalekit session may have been revoked from another application, or the refresh token has expired. Redirect the user to log in again to establish a new session.
+<details>
+<summary>Why aren't my apps sharing authentication state?</summary>
+
+Verify all applications are registered in the same Scalekit environment. Apps in different environments maintain separate session pools and cannot share authentication state.
+
+</details>
+
+<details>
+<summary>Why are users prompted to login on every app?</summary>
+
+Check the following:
+
+- All apps use the same Scalekit environment URL
+- The browser allows third-party cookies (required for session detection)
+- The user is using the same browser across apps
+
+</details>
+
+<details>
+<summary>Why is the refresh token being rejected?</summary>
+
+The Scalekit session may have been revoked from another application, or the refresh token has expired. Redirect the user to log in again to establish a new session.
+
+</details>
