@@ -1,6 +1,6 @@
 ---
 title: Exa
-description: Connect to Exa for AI-powered semantic web search, website crawling, direct answers, structured research, and large-scale URL discovery.
+description: Connect to Exa for AI-powered semantic web search, content enrichment, finding similar pages, website crawling, direct answers, structured research, and large-scale URL discovery.
 tableOfContents: true
 head:
   - tag: style
@@ -19,7 +19,7 @@ import { SetupExaSection, UsageExaSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
-  Connect to Exa for AI-powered semantic web search, website crawling, direct answers, structured research, and large-scale URL discovery.
+  Connect to Exa for AI-powered semantic web search, content enrichment, finding similar pages, website crawling, direct answers, structured research, and large-scale URL discovery.
  </div>
  <div class="flex justify-center">
   <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/exa.svg" width="64" height="64" alt="Exa logo" />
@@ -63,6 +63,26 @@ Search the web with a semantic or keyword query. Returns ranked results with tit
 | `contents.highlights` | object | No | Include highlighted snippets — set `num_sentences` and `highlights_per_url` |
 | `contents.summary` | object | No | Include an AI-generated page summary — optionally set `query` to focus the summary |
 
+## `exa_find_similar`
+
+Find web pages that are semantically similar to a given URL. Exa uses its neural index to surface pages with matching content, tone, and topic — useful for competitive research, discovering similar products, or finding alternative sources on a topic.
+
+**Credits**: 1 credit per request + 1 credit per result when `contents.text` or `contents.summary` is requested.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `url` | string | Yes | URL to find similar pages for (e.g., `https://example.com/product`) |
+| `num_results` | integer | No | Number of results to return (default `10`, max `100`) |
+| `include_domains` | array | No | Restrict results to these domains (e.g., `["techcrunch.com", "wired.com"]`) |
+| `exclude_domains` | array | No | Exclude results from these domains |
+| `start_published_date` | string | No | ISO 8601 date — only return pages published after this date |
+| `end_published_date` | string | No | ISO 8601 date — only return pages published before this date |
+| `start_crawl_date` | string | No | ISO 8601 date — only return pages crawled by Exa after this date |
+| `end_crawl_date` | string | No | ISO 8601 date — only return pages crawled by Exa before this date |
+| `contents.text` | boolean | No | Include full page text in each result (costs 1 extra credit per result) |
+| `contents.highlights` | object | No | Include highlighted snippets — set `num_sentences` and `highlights_per_url` |
+| `contents.summary` | object | No | Include an AI-generated page summary — optionally set `query` to focus the summary |
+
 ## `exa_crawl`
 
 Crawl all pages of a website starting from a given URL and extract their text content. Follows internal links up to the configured depth. Use this to index documentation sites, company knowledge bases, or competitor content for downstream processing.
@@ -76,6 +96,30 @@ Crawl all pages of a website starting from a given URL and extract their text co
 | `max_pages` | integer | No | Maximum number of pages to retrieve (default `100`) — set this to control credit usage |
 | `include_subdomains` | boolean | No | Whether to follow links to subdomains of the starting URL (default `false`) |
 | `exclude_paths` | array | No | URL path patterns to skip (e.g., `["/archive/*", "/blog/*"]`) |
+
+## `exa_get_contents`
+
+Retrieve enriched content — full text, highlighted snippets, or AI-generated summaries — for one or more specific URLs without running a search. Use this when you already have URLs (from a prior search, a CRM, or an external list) and want to extract structured content from them.
+
+**Credits**: 1 credit per URL + 1 credit per content item retrieved (text, highlights, or summary each count separately).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `urls` | array | Yes* | List of URLs to retrieve content for (e.g., `["https://example.com/about"]`) |
+| `ids` | array | Yes* | List of Exa result IDs from a prior `exa_search` or `exa_find_similar` call — use instead of `urls` when you have Exa IDs |
+| `text` | boolean | No | Include full page text for each URL (costs 1 extra credit per page) |
+| `text.max_characters` | integer | No | Truncate page text to this many characters |
+| `text.include_html_tags` | boolean | No | Preserve HTML tags in the returned text — helps LLMs interpret page structure |
+| `highlights` | object | No | Extract relevant text snippets from each page |
+| `highlights.query` | string | No | Custom query to guide which snippets are highlighted |
+| `summary` | object | No | Generate an AI summary for each page (costs 1 extra credit per page) |
+| `summary.query` | string | No | Focus the summary on a specific question or topic |
+| `summary.schema` | object | No | JSON schema for structured summary output |
+| `subpages` | integer | No | Number of subpages to also crawl from each URL (default `0`) |
+| `subpage_target` | string | No | Keyword or path pattern to target specific subpages (e.g., `"pricing"`) |
+| `max_age_hours` | integer | No | Maximum age of cached content in hours — set a lower value to force a fresher crawl |
+
+*Provide either `urls` or `ids` — at least one is required.
 
 ## `exa_answer`
 
