@@ -557,7 +557,6 @@ export const topics = {
 
   // === Developer Kit (tools, code, SDKs, AI helpers) ===
   'dev-kit': [
-    '/dev-kit/code-samples/**/*',
     '/dev-kit/tools/**/*',
     '/dev-kit/sdks/**/*',
     '/dev-kit/ai-assisted-development/**/*',
@@ -569,6 +568,7 @@ export const topics = {
 
   // === Resources (integrations, workflows, references) ===
   resources: [
+    '/dev-kit/code-samples/**/*',
     '/guides/integrations/**/*',
     '/authenticate/implement-workflows/**/*',
     '/authenticate/interceptors/**/*',
