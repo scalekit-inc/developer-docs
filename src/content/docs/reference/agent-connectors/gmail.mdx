@@ -1,9 +1,8 @@
 ---
 title: Gmail
 description: Gmail is Google's cloud based email service that allows you to access your messages from any computer or device with just a web browser.
+tags: [agent-connectors, gmail, google, email, oauth, integration, tool]
 tableOfContents: true
-sidebar:
-  order: 1
 head:
   - tag: style
     content: |
@@ -13,68 +12,12 @@ head:
       table td:first-child, table th:first-child {
         white-space: nowrap;
       }
-      /* Heading copy functionality */
-      .sl-markdown-content h2,
-      .sl-markdown-content h3,
-      .sl-markdown-content h4 {
-        position: relative;
-        cursor: pointer;
-      }
-      .sl-markdown-content h2:hover::after,
-      .sl-markdown-content h3:hover::after,
-      .sl-markdown-content h4:hover::after {
-        content: " 📋 ";
-        font-size: 0.8em;
-        opacity: 0.7;
-      }
-  - tag: script
-    content: |
-      // Using a self-executing function to avoid global namespace pollution
-      (function() {
-        // Function to initialize the copy functionality
-        function initHeadingCopy() {
-          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
-
-          headings.forEach(heading => {
-            // Skip if already initialized
-            if (heading.hasAttribute('data-copy-initialized')) return;
-            heading.setAttribute('data-copy-initialized', 'true');
-
-            heading.addEventListener('click', async () => {
-              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
-
-              try {
-                await navigator.clipboard.writeText(headingText);
-
-                // Visual feedback
-                const originalText = heading.textContent;
-                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
-
-                setTimeout(() => {
-                  heading.textContent = originalText;
-                }, 2000);
-              } catch (err) {
-                console.error('Failed to copy heading:', err);
-              }
-            });
-          });
-        }
-
-        // Initialize on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', initHeadingCopy);
-
-        // Also initialize now in case the DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          setTimeout(initHeadingCopy, 1);
-        }
-
-        // For Astro's client-side navigation
-        document.addEventListener('astro:page-load', initHeadingCopy);
-      })();
 ---
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupGmailSection } from '@components/templates'
+import { UsageGmailSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -88,78 +31,112 @@ import { Accordion, AccordionItem } from 'accessible-astro-components'
 Supports authentication: <Badge text="OAuth 2.0" />
 
 
+## Set up the agent connector
+
+<SetupGmailSection />
+
+## Usage
+
+<UsageGmailSection />
+
 ## Tool list
 
 ## `gmail_fetch_mails`
 
 Fetch emails from a connected Gmail account using search filters. Requires a valid Gmail OAuth2 connection.
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `format` | Format of the returned message. | string | null |
-| `include_spam_trash` | Whether to fetch emails from spam and trash folders | boolean | null |
-| `label_ids` | Gmail label IDs to filter messages | `array<string>` | null |
-| `max_results` | Maximum number of emails to fetch | integer | null |
-| `page_token` | Page token for pagination | string | null |
-| `query` | Search query string using Gmail's search syntax (e.g., 'is:unread from:user@example.com') | string | null |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `format` | string | No | Format of the returned message. |
+| `include_spam_trash` | boolean | No | Whether to fetch emails from spam and trash folders |
+| `label_ids` | `array<string>` | No | Gmail label IDs to filter messages |
+| `max_results` | integer | No | Maximum number of emails to fetch |
+| `page_token` | string | No | Page token for pagination |
+| `query` | string | No | Search query string using Gmail's search syntax (e.g., 'is:unread from:user@example.com') |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `tool_version` | string | No | Optional tool version to use for execution |
 
 ## `gmail_get_attachment_by_id`
 
 Retrieve a specific attachment from a Gmail message using the message ID and attachment ID.
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `attachment_id` | Unique Gmail attachment ID | string |
-| `file_name` | Preferred filename to use when saving/returning the attachment | string | null |
-| `message_id` | Unique Gmail message ID that contains the attachment | string |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `attachment_id` | string | Yes | Unique Gmail attachment ID |
+| `file_name` | string | No | Preferred filename to use when saving/returning the attachment |
+| `message_id` | string | Yes | Unique Gmail message ID that contains the attachment |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `tool_version` | string | No | Optional tool version to use for execution |
 
 ## `gmail_get_contacts`
 
 Fetch a list of contacts from the connected Gmail account. Supports pagination and field filtering.
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `max_results` | Maximum number of contacts to fetch | integer | null |
-| `page_token` | Token to retrieve the next page of results | string | null |
-| `person_fields` | Fields to include for each person | `array<string>` | null |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `max_results` | integer | No | Maximum number of contacts to fetch |
+| `page_token` | string | No | Token to retrieve the next page of results |
+| `person_fields` | `array<string>` | No | Fields to include for each person |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `tool_version` | string | No | Optional tool version to use for execution |
 
 ## `gmail_get_message_by_id`
 
 Retrieve a specific Gmail message using its message ID. Optionally control the format of the returned data.
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `format` | Format of the returned message. | string | null |
-| `message_id` | Unique Gmail message ID | string |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `format` | string | No | Format of the returned message. |
+| `message_id` | string | Yes | Unique Gmail message ID |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `tool_version` | string | No | Optional tool version to use for execution |
+
+## `gmail_get_thread_by_id`
+
+Retrieve a specific Gmail thread by thread ID. Optionally control message format and metadata headers. Requires a valid Gmail OAuth2 connection with read access.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `format` | string | No | Format of messages in the returned thread. |
+| `metadata_headers` | `array<string>` | No | Specific email headers to include when format is metadata |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `thread_id` | string | Yes | Unique Gmail thread ID |
+| `tool_version` | string | No | Optional tool version to use for execution |
 
 ## `gmail_list_drafts`
 
 List draft emails from a connected Gmail account. Requires a valid Gmail OAuth2 connection.
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `max_results` | Maximum number of drafts to fetch | integer | null |
-| `page_token` | Page token for pagination | string | null |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `max_results` | integer | No | Maximum number of drafts to fetch |
+| `page_token` | string | No | Page token for pagination |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `tool_version` | string | No | Optional tool version to use for execution |
+
+## `gmail_list_threads`
+
+List threads in a connected Gmail account using optional search and label filters. Requires a valid Gmail OAuth2 connection with read access.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `include_spam_trash` | boolean | No | Whether to include threads from Spam and Trash |
+| `label_ids` | `array<string>` | No | Gmail label IDs to filter threads (threads must match all labels) |
+| `max_results` | integer | No | Maximum number of threads to return |
+| `page_token` | string | No | Page token for pagination |
+| `query` | string | No | Search query string using Gmail search syntax (for example, 'is:unread from:user@example.com') |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `tool_version` | string | No | Optional tool version to use for execution |
 
 ## `gmail_search_people`
 
 Search people or contacts in the connected Google account using a query. Requires a valid Google OAuth2 connection with People API scopes.
 
-| Properties | Description | Type |
-| --- | --- | --- |
-| `other_contacts` | Whether to include people not in the user's contacts (from 'Other Contacts'). | boolean | null |
-| `page_size` | Maximum number of people to return. | integer | null |
-| `person_fields` | Fields to retrieve for each person. | `array<string>` | null |
-| `query` | Text query to search people (e.g., name, email address). | string |
-| `schema_version` | Optional schema version to use for tool execution | string | null |
-| `tool_version` | Optional tool version to use for execution | string | null |
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `other_contacts` | boolean | No | Whether to include people not in the user's contacts (from 'Other Contacts'). |
+| `page_size` | integer | No | Maximum number of people to return. |
+| `person_fields` | `array<string>` | No | Fields to retrieve for each person. |
+| `query` | string | Yes | Text query to search people (e.g., name, email address). |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `tool_version` | string | No | Optional tool version to use for execution |

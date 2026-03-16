@@ -27,7 +27,7 @@ next:
   label: 'Handle IdP-initiated SSO'
 ---
 
-import { Steps, Aside, Badge } from '@astrojs/starlight/components'
+import { Steps, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components'
 
 Scalekit simplifies Single Sign-On (SSO) by managing user information between Identity Providers (IdPs) and B2B applications. The IdPs provide standard user properties, such as `email` and `firstname`, to your application, thus helping recognize the user.
 
@@ -85,3 +85,64 @@ In the Scalekit dashboard, navigate to **Dashboard > Organizations**.
 Upon testing the connection, if you notice the updated user profile (`employee_number` as `1729` in this example), this signifies a successful test.
 
 Subsequently, these details will be integrated into your B2B application through Scalekit. This ensures seamless recognition and handling of customer user attributes during the SSO authentication process.
+
+## Reserved attribute names
+
+Some attribute names are **reserved by Scalekit** and must not be used for custom attributes. Using a reserved name causes silent failures — the custom attribute value is silently dropped or overwritten during SSO.
+
+| Name | Purpose |
+|------|---------|
+| `roles` | Used by Scalekit for FSA role-based access control (RBAC) |
+| `permissions` | Used by Scalekit for FSA permissions |
+| `email` | Standard claim — always populated from IdP |
+| `email_verified` | Standard claim |
+| `name`, `given_name`, `family_name` | Standard profile claims |
+| `sub`, `oid`, `sid` | Internal Scalekit identifiers |
+
+If your IdP sends an attribute named `roles`, it **will not** appear as a custom attribute in the JWT. Instead, rename it to something unique (e.g., `user_role` or `idp_roles`) in both Scalekit and your IdP attribute mapping.
+
+## Access custom attributes from the ID token
+
+After configuring a custom attribute in Scalekit, its value appears in the ID token as a JWT claim. Use the Scalekit SDK to validate the token and read the claim:
+
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+```typescript title="Read custom attributes from ID token"
+import type { IdTokenClaim } from '@scalekit-sdk/node';
+
+// Validate the ID token and cast to include your custom attributes
+const claims = await scalekit.validateToken<IdTokenClaim & Record<string, unknown>>(idToken);
+const employeeNumber = claims['employee_number'];
+const userRole = claims['user_role']; // use 'user_role', not 'roles'
+```
+</TabItem>
+<TabItem label="Python">
+```python title="Read custom attributes from ID token"
+# Validate the ID token — returns a dict of all claims
+claims = scalekit_client.validate_token(id_token)
+employee_number = claims.get('employee_number')
+user_role = claims.get('user_role')  # use 'user_role', not 'roles'
+```
+</TabItem>
+<TabItem label="Go">
+```go title="Read custom attributes from ID token"
+// Validate the ID token — returns a map of all claims
+claims, err := scalekitClient.ValidateToken(ctx, idToken)
+if err != nil {
+    log.Fatal(err)
+}
+employeeNumber := claims["employee_number"]
+userRole := claims["user_role"] // use "user_role", not "roles"
+```
+</TabItem>
+<TabItem label="Java">
+```java title="Read custom attributes from ID token"
+import java.util.Map;
+
+// Validate the ID token — returns a map of all claims
+Map<String, Object> claims = scalekitClient.authentication().validateToken(idToken);
+Object employeeNumber = claims.get("employee_number");
+Object userRole = claims.get("user_role"); // use "user_role", not "roles"
+```
+</TabItem>
+</Tabs>

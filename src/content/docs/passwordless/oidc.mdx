@@ -41,10 +41,8 @@ next:
 pagefind: false
 ---
 
-import IconRiAiGenerate2 from '~icons/ri/ai-generate-2'
 import { Aside, Steps, Badge, Tabs, TabItem, LinkCard, LinkButton } from '@astrojs/starlight/components';
-import CopyPrompt from '@components/ui/CopyPrompt.astro';
-import Card from '@/components/ui/Card.astro';
+import FoldCard from '@components/ui/FoldCard.astro';
 import IconTdesignSequence from '~icons/tdesign/sequence'
 
 
@@ -68,26 +66,19 @@ Your app -> User: "Create session and grant access"
 </details>
 
 
-<Card title="Get moving, instantly, with your go-to AI assistant" icon={IconRiAiGenerate2}>
-  <div class="llm-prompt-card">
-    <div class="llm-prompt-content">
-      <p>Input this prompt in your IDE to analyze your existing code base and generate implementation code accordingly.</p>
+<FoldCard
+  title="Build with a coding agent"
+  iconKey="build-with-ai"
+  iconPosition="right"
+  href="/dev-kit/build-with-ai/full-stack-auth/"
+  cta="Build with AI"
+  showCta={false}
+  clickable={false}
+>
+  Use first class plugins for your coding agents to implement this integration in minutes.
 
-      <span class="llm-prompt-subtitle">
-        *Compatible with Cursor, Windsurf, VS Code, and any AI-powered tools
-      </span>
-    </div>
-    <div class="llm-prompt-action">
-      <CopyPrompt
-        promptType="oidcPasswordlessQuickstartPrompt"
-            label="Copy llm prompt"
-        className="sk-secondary"
-        variant="secondary"
-        title="Generate OIDC passwordless integration code"
-      />
-    </div>
-  </div>
-</Card>
+  [Build with AI →](/dev-kit/build-with-ai/full-stack-auth/)
+</FoldCard>
 
 
 
@@ -321,22 +312,23 @@ Your app -> User: "Create session and grant access"
 
     ```go showLineNumbers title="Fetch user profile"
     // Handle oauth redirect_url, fetch code and error_description from request params
-    code: = r.URL.Query().Get("code")
-    error: = r.URL.Query().Get("error")
-    errorDescription: = r.URL.Query().Get("error_description")
+    code := r.URL.Query().Get("code")
+    errorCode := r.URL.Query().Get("error")
+    errorDescription := r.URL.Query().Get("error_description")
 
-    if error != "" {
-      // Handle errors
+    if errorCode != "" {
+      // Handle errors - include errorDescription for context
+      return fmt.Errorf("OAuth error: %s - %s", errorCode, errorDescription)
     }
 
-    result, err: = a.scalekit.AuthenticateWithCode(code,<redirectUrl>)
+    result, err := scalekitClient.AuthenticateWithCode(r.Context(), code, redirectUrl)
 
     if err != nil {
       // Handle errors
     }
 
     // result.User has the authenticated user's details
-    userEmail: = result.User.Email
+    userEmail := result.User.Email
 
     // Next step: create a session for this user and allow access
     ```

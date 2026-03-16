@@ -2,153 +2,86 @@
 title: "Microsoft Entra ID - OIDC"
 prev: false
 next: false
-description: "Learn how to set up OpenID Connect (OIDC) Single Sign-On (SSO) using Microsoft Entra ID (Azure AD), with step-by-step instructions for application registration."
+description: "Learn how to set up OpenID Connect (OIDC) Single Sign-On (SSO) using Microsoft Entra ID, with step-by-step instructions for app registration and OIDC configuration."
 
 sidebar:
-  order: 2
+  order: 8
   label: "Microsoft Entra ID"
   badge:
     variant: note
     text: OIDC
-head:
-  - tag: style
-    content: |
-      .sl-markdown-content h2 {
-          font-size: var(--sl-text-xl);
-       }
 ---
 
-import { Steps } from "@astrojs/starlight/components"
+import { Steps, Aside } from "@astrojs/starlight/components"
 
-> Step-by-step guide to configure Single Sign-On with Microsoft Entra ID using OpenID Connect
-
-This guide walks you through configuring Microsoft Entra ID as your OIDC identity provider for the application you are onboarding, enabling secure Single Sign-On for your users. You'll learn how to register an application, configure OIDC settings, obtain client credentials, and assign users to the application. By following these steps, your users will be able to seamlessly authenticate using their Microsoft Entra ID credentials.
+This guide walks you through configuring Microsoft Entra ID as your OIDC identity provider. You'll create an app registration, provide OIDC values in the SSO Configuration Portal, map required claims, assign access, test the connection, and enable Single Sign-On.
 
 <Steps>
-1. ## Get the redirect URI
+1. ## Create an Application
 
-   Sign into the SSO Configuration Portal, select **Microsoft Entra ID**, then **OIDC**, and click on **Configure**
+   Sign in to **Microsoft Entra ID** in the <a href="https://portal.azure.com/" target="_blank" rel="noopener">Microsoft Azure Portal</a>. Go to **App registrations** and click **New registration** to create a new app. 
 
-   Under **Service Provider Details**, copy the **Redirect URI**. You'll need this when registering your application in Azure.
+   ![Microsoft Entra ID App registrations page with New registration button](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/0.png)
 
-   {/* TODO: Add screenshot - Copy Redirect URI */}
-   {/* ![Copy Redirect URI](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/0.png) */}
+   Set the **Application name**. Set **Supported Account Types** to **Single tenant only**.
+   ![Application registration form showing app name and single-tenant account type](@/assets/docs/microsoft-entraid-oidc/2026-03-10-17-47-18.png)
 
-2. ## Register the application
+   From the SSO Configuration Portal, copy the **Redirect URI** from **Service Provider Details**:
+   ![SSO Configuration Portal showing the Redirect URI in Service Provider Details](@/assets/docs/microsoft-entraid-oidc/2026-03-10-17-41-08.png)
 
-   Login to **Microsoft Entra ID** in the <a href="https://portal.azure.com/" target="_blank">Microsoft Azure Portal</a>. Select the option for **Entra ID application** and locate the **App registrations** tab.
+   In Entra ID, under **Redirect URI** section, select **Web** and paste the copied redirect URI, then click **Register**.
+   ![Microsoft Entra registration screen with Web Redirect URI configured](@/assets/docs/microsoft-entraid-oidc/2026-03-10-17-45-37.png)
 
-   {/* TODO: Add screenshot - Locate App registrations */}
-   {/* ![Locate App registrations](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/1.png) */}
+2. ## Generate client credentials
 
-   Click on **New registration** at the top of the page.
+   From the application's **Overview** page in Entra ID, copy **Application (client) ID**.
+   ![Application Overview page highlighting the Application client ID](@/assets/docs/microsoft-entraid-oidc/2026-03-10-17-50-29.png)
 
-   {/* TODO: Add screenshot - Click on New registration */}
-   {/* ![Click on New registration](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/2.png) */}
+   Go to **Certificates & secrets**, click **New client secret**, and create a client secret and copy it.
+   ![Certificates and secrets page with New client secret action](@/assets/docs/microsoft-entraid-oidc/2026-03-10-17-54-11.png)
+   ![New client secret created with value ready to copy](@/assets/docs/microsoft-entraid-oidc/2026-03-10-17-54-32.png)
 
-   Give your application a name and configure the settings. For **Redirect URI**, select **Web** and paste the URI you copied in step 1. Click on **Register**.
+   Add the **Client ID** and **Client Secret** in the SSO Configuration Portal.
+   ![SSO Configuration Portal fields for Client ID and Client Secret](@/assets/docs/microsoft-entraid-oidc/2026-03-10-17-56-30.png)
 
-   {/* TODO: Add screenshot - Register a new application on Entra ID */}
-   {/* ![Register a new application on Entra ID](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/3.gif) */}
+3. ## Provide Issuer URL
 
-3. ## Get the client credentials
+   In Entra ID, navigate to application's **Overview** page -> **Endpoints**. Copy the **OpenID Connect metadata document** URL: 
+   ![Application Endpoints dialog showing OpenID Connect metadata document URL](@/assets/docs/microsoft-entraid-oidc/2026-03-10-18-01-17.png)
 
-   After registration, copy the **Application (client) ID** from the application's **Overview** page.
+   Paste the copied URL into the **Issuer URL** field in the SSO Configuration Portal and click **Update**.
+   ![SSO Configuration Portal Issuer URL field populated with metadata URL](@/assets/docs/microsoft-entraid-oidc/2026-03-10-18-02-21.png)
 
-   {/* TODO: Add screenshot - Copy Application client ID */}
-   {/* ![Copy Application client ID](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/4.png) */}
+4. ## Attribute Mapping
 
-   Navigate to **Certificates & secrets** under **Manage** in the left sidebar.
+   Go to **Token configuration** and click **Add optional claim**. Select token type **ID**, then add these claims: `email`, `family_name`, and `given_name`.
 
-   {/* TODO: Add screenshot - Locate Certificates secrets */}
-   {/* ![Locate Certificates secrets](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/5.png) */}
+   ![Add optional claim dialog with ID token claims email family_name and given_name selected](@/assets/docs/microsoft-entraid-oidc/2026-03-10-18-08-25.png)
+   
 
-   Click on **New client secret**. Add a description and select an expiration period, then click **Add**.
+5. ## Assign Users and Groups
 
-   {/* TODO: Add screenshot - Create a new client secret */}
-   {/* ![Create a new client secret](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/6.png) */}
+   In Entra ID, navigate to **Enterprise applications** and select the recently created **OIDC app**.
+   ![Enterprise applications list with the newly created OIDC app selected](@/assets/docs/microsoft-entraid-oidc/2026-03-10-18-15-54.png)
 
-   Copy the **Value** of the client secret.
+   Then navigate to **Users and groups** and click **Add user/group**.
+   ![Users and groups page with Add user or group action](@/assets/docs/microsoft-entraid-oidc/2026-03-10-18-15-23.png)
+   
+   Assign the required users or groups, and save the assignment.
+   ![Assigned users and groups list for the Entra OIDC enterprise application](@/assets/docs/microsoft-entraid-oidc/2026-03-10-18-24-04.png)
 
-   :::note
+6. ## Test your SSO connection
 
-   Copy the secret **Value** immediately. You won't be able to see it again after leaving this page.
+   In the SSO Configuration Portal, click **Test Connection** to verify your configuration.
 
-   :::
-
-   {/* TODO: Add screenshot - Copy client secret value */}
-   {/* ![Copy client secret value](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/7.png) */}
-
-4. ## Get the issuer URL
-
-   Navigate to **Endpoints** in the application overview or find it in the left menu. Copy the **OpenID Connect metadata document URL** or the **Authority URL**.
-
-   The issuer URL typically follows this format: `https://login.microsoftonline.com/{tenant-id}/v2.0`
-
-   {/* TODO: Add screenshot - Copy OpenID Connect metadata URL */}
-   {/* ![Copy OpenID Connect metadata URL](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/8.png) */}
-
-5. ## Configure API permissions (optional)
-
-   Go to **API permissions** under **Manage** and click on **Add a permission**. Select **Microsoft Graph**, then **Delegated permissions**.
-
-   {/* TODO: Add screenshot - Add API permission */}
-   {/* ![Add API permission](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/9.png) */}
-
-   Search for and add the following permissions:
-
-   - `email`
-   - `profile`
-   - `openid`
-
-   Click on **Add permissions** at the bottom.
-
-   {/* TODO: Add screenshot - Add email profile openid permissions */}
-   {/* ![Add email profile openid permissions](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/10.png) */}
-
-6. ## Configure token claims (optional)
-
-   Go to **Token configuration** under **Manage**. Click on **Add groups claim** if you need group information in the token.
-
-   {/* TODO: Add screenshot - Add groups claim */}
-   {/* ![Add groups claim](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/11.png) */}
-
-   To add optional claims like `email`, `given_name`, and `family_name`, click **Add optional claim**.
-
-   {/* TODO: Add screenshot - Configure optional claims */}
-   {/* ![Configure optional claims](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/12.png) */}
-
-7. ## Assign users and groups
-
-   Go to the **Users and groups** tab, and click on **Add user/group**.
-
-   Here, please select all the required users or user groups that need login access to this application via Single Sign-On.
-
-   {/* TODO: Add screenshot - Assigning users and groups to your application */}
-   {/* ![Assigning users and groups to your application](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/13.gif) */}
-
-8. ## Configure the SSO Portal
-
-   Back in the **SSO Configuration Portal**, under **Identity Provider Configuration**, enter the **Client ID**, **Client Secret**, and **Issuer URL** copied from the previous steps.
-
-   {/* TODO: Add screenshot - Configure IdP settings in SSO Portal */}
-   {/* ![Configure IdP settings in SSO Portal](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/14.png) */}
-
-9. ## Test the connection
-
-   Click on **Test Connection**. If everything is done correctly, you will see a **Success** response as shown below.
-
-   {/* TODO: Add screenshot - Test your OIDC application for SSO */}
-   {/* ![Test your OIDC application for SSO](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/15.png) */}
-
+   <Aside type="note">
    If the connection fails, you'll see an error, the reason for the error, and a way to solve that error right on the screen.
+   </Aside>
 
-10. ## Enable the connection
+7. ## Enable Single Sign-On
 
-    Click on **Enable Connection**. This will let all your selected users login to the new application via your Microsoft Entra ID OIDC SSO.
+   Once the test succeeds, click **Enable Connection**.
+   ![SSO Configuration Portal with Enable Connection action after successful test](@/assets/docs/microsoft-entraid-oidc/2026-03-10-18-17-20.png)
 
-    {/* TODO: Add screenshot - Enable SSO on Entra ID */}
-    {/* ![Enable SSO on Entra ID](@/assets/docs/guides/sso-integrations/microsoft-entraid-oidc/16.png) */}
-
-    With this, we are done configuring your Microsoft Entra ID application for an OIDC SSO login setup.
+   This completes the Microsoft Entra ID OIDC SSO setup for your application.
 </Steps>

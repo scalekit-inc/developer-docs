@@ -1,9 +1,10 @@
 ---
 title: Tool Calling
 description: Learn how to execute tools in Agent Auth to interact with third-party applications using connected accounts.
+tags: [agentauth, tools, api, execution, oauth, guide]
 ---
 
-import { Card, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 Tool execution is the core functionality of Agent Auth that allows you to perform actions on third-party applications using connected accounts. Tools abstract complex API operations into simple, consistent function calls.
 
@@ -31,19 +32,46 @@ Using Scalekit SDK, you can execute any action on behalf of a user using the fol
 - tool_name
 - tool_input_parameters
 
+<Tabs syncKey="tech-stack">
+<TabItem label="Python">
+
 ```python
 # Fetch recent emails
 tool_response = actions.execute_tool(
-    # connected_account gives the user context
-    connected_account_id=connected_account.id,
-    # tool name to execute
-    tool='gmail_fetch_mails',
     # tool input parameters
     tool_input={
         'query': 'is:unread',
         'max_results': 5
-    }
+    },
+    # tool name to execute
+    tool_name='gmail_fetch_mails',
+    # connected_account gives the user context
+    connected_account_id=connected_account.id,
 )
 
 print(f'Recent emails: {tool_response.result}')
 ```
+
+</TabItem>
+<TabItem label="Node.js">
+
+```typescript
+// Requires @scalekit-sdk/node@2.2.0-beta.1: npm install @scalekit-sdk/node@2.2.0-beta.1
+// Fetch recent emails
+const toolResponse = await tools.executeTool({
+  // tool name to execute
+  toolName: 'gmail_fetch_mails',
+  // connectedAccountId from a prior getOrCreateConnectedAccount call
+  connectedAccountId: 'your_connected_account_id',
+  // tool input parameters
+  params: {
+    query: 'is:unread',
+    max_results: 5,
+  },
+});
+
+console.log('Recent emails:', toolResponse.result);
+```
+
+</TabItem>
+</Tabs>

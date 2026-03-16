@@ -1,0 +1,39 @@
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+Connect a user's Apollo account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "apollo"  # connection name from Scalekit dashboard
+    identifier = "user_123"     # your unique user identifier
+
+    # Get credentials from app.scalekit.com → Developers → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+
+    # Get authorization link and send it to your user
+    link_response = scalekit_client.actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier=identifier
+    )
+    print("Authorize Apollo:", link_response.link)
+
+    # After the user authorizes, make API calls via Scalekit proxy
+    result = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/api/v1/contacts/search",
+        method="POST"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>

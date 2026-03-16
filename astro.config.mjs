@@ -11,8 +11,10 @@ import starlightDocSearch from '@astrojs/starlight-docsearch'
 import starlightContextualMenu from 'starlight-contextual-menu'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
+import starlightCopyInlineCode from 'starlight-copy-inline-code'
 import starlightLinksValidator from 'starlight-links-validator'
 import starlightLlmsTxt from 'starlight-llms-txt'
+import starlightBlog from 'starlight-blog'
 import { sidebar as sidebarConfig, topics, exclude } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import { llmsConfig } from './src/configs/llms.config.ts'
@@ -30,6 +32,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Scalekit Docs',
+      pagefind: false,
       routeMiddleware: './src/routeData.ts',
       lastUpdated: true,
       tableOfContents: {
@@ -74,7 +77,7 @@ export default defineConfig({
         './src/styles/theme-priority.css',
       ],
       plugins: [
-        starlightThemeNova(),
+        starlightThemeNova({ stylingSystem: 'tailwind' }),
         starlightImageZoom({
           showCaptions: true,
         }),
@@ -94,8 +97,38 @@ export default defineConfig({
           actions: ['copy', 'chatgpt', 'claude'],
           hideMainActionLabel: true,
         }),
+        // Provide copy-to-clipboard button for inline code snippets site-wide for better UX
+        starlightCopyInlineCode({
+          // Show copy button only on hover (default: true)
+          showOnHover: false,
+
+          // Tooltip text for copy button (default: 'Copy')
+          copyLabel: 'Copy',
+
+          // Tooltip text after successful copy (default: 'Copied!')
+          copiedLabel: 'Copied!',
+
+          // CSS selector for inline code elements (default: ':not(pre) > code')
+          selector: ':not(pre) > code',
+        }),
+        starlightBlog({
+          prefix: 'cookbooks',
+          metrics: {
+            readingTime: true,
+            words: 'total',
+          },
+        }),
       ],
       head: [
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'alternate',
+            type: 'text/plain',
+            title: 'LLM-friendly documentation',
+            href: '/llms.txt',
+          },
+        },
         {
           tag: 'script',
           attrs: {
@@ -202,15 +235,34 @@ export default defineConfig({
             src: '/js/pylon-widget.js',
           },
         },
+        // Prevent HubSpot from auto-showing chat; we load it explicitly for anonymous users
         {
           tag: 'script',
-          attrs: {
-            type: 'text/javascript',
-            id: 'hs-script-loader',
-            async: true,
-            defer: true,
-            src: '//js-na2.hs-scripts.com/44204598.js',
-          },
+          content: `window.hsConversationsSettings = { loadImmediately: false };`,
+        },
+        {
+          tag: 'script',
+          content: `
+            ;(function () {
+              function inIframe() {
+                try {
+                  return window.self !== window.top
+                } catch (e) {
+                  return true
+                }
+              }
+
+              if (inIframe()) return
+
+              var script = document.createElement('script')
+              script.type = 'text/javascript'
+              script.id = 'hs-script-loader'
+              script.async = true
+              script.defer = true
+              script.src = '//js-na2.hs-scripts.com/44204598.js'
+              document.head.appendChild(script)
+            })()
+          `,
         },
       ],
     }),

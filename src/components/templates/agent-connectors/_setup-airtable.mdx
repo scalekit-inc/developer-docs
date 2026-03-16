@@ -1,0 +1,36 @@
+import { Steps } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Airtable connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Airtable** and click **Create**. Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+      ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/airtable/use-own-credentials-redirect-uri.png)
+
+    - In the [Airtable Developer Hub](https://airtable.com/developers), open your app and navigate to the **OAuth** section.
+
+    - Under **Redirect URIs**, click **Add a redirect URI** and paste the copied URI.
+
+      ![Add redirect URI in Airtable Developer Hub](@/assets/docs/agent-connectors/airtable/add-redirect-uri.png)
+
+2. ### Get client credentials
+
+    On your Airtable app page in the [Airtable Developer Hub](https://airtable.com/developers):
+
+    - **Client ID** — found under **Client ID** on your app page
+    - **Client Secret** — found under **Client Secret** on your app page
+
+3. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - Client ID (from your Airtable app page)
+      - Client Secret (from your Airtable app page)
+      - Permissions (scopes — see [Airtable OAuth scopes reference](https://airtable.com/developers/web/api/scopes))
+
+      ![Add credentials for Airtable in Scalekit dashboard](@/assets/docs/agent-connectors/airtable/add-credentials.png)
+    - Click **Save**.
+</Steps>

@@ -51,7 +51,7 @@ async function fetchFileFromGitHub(
   path: string,
   ref: string = 'main',
   token?: string,
-): Promise<{ content: string; sha: string; htmlUrl: string } | null> {
+): Promise<{ content: string; sha: string; htmlUrl: string; actualPath: string } | null> {
   const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${ref}`
 
   const headers: Record<string, string> = {
@@ -83,6 +83,7 @@ async function fetchFileFromGitHub(
       content,
       sha: data.sha,
       htmlUrl: data.html_url,
+      actualPath: path,
     }
   } catch (error) {
     console.error(
@@ -91,6 +92,36 @@ async function fetchFileFromGitHub(
     )
     return null
   }
+}
+
+/**
+ * Try fetching a file with fallback to alternative filenames
+ * For reference.md files, tries both reference.md and REFERENCE.md
+ */
+async function fetchFileWithFallback(
+  owner: string,
+  repo: string,
+  path: string,
+  ref: string = 'main',
+  token?: string,
+): Promise<{ content: string; sha: string; htmlUrl: string; actualPath: string } | null> {
+  // If the path is reference.md, try both lowercase and uppercase versions
+  if (path.toLowerCase() === 'reference.md') {
+    const pathsToTry = ['reference.md', 'REFERENCE.md']
+
+    for (const tryPath of pathsToTry) {
+      const result = await fetchFileFromGitHub(owner, repo, tryPath, ref, token)
+      if (result) {
+        return result
+      }
+    }
+
+    // Neither path worked
+    return null
+  }
+
+  // For other files, just try the original path
+  return await fetchFileFromGitHub(owner, repo, path, ref, token)
 }
 
 /**
@@ -122,13 +153,30 @@ export function githubFilesLoader(config: GitHubFilesLoaderConfig): Loader {
 
           logger.info(`Fetching ${fileConfig.repo}/${fileConfig.path}...`)
 
-          const result = await fetchFileFromGitHub(owner, repo, fileConfig.path, ref, token)
+          const result = await fetchFileWithFallback(owner, repo, fileConfig.path, ref, token)
 
           if (!result) {
-            logger.warn(
-              `Skipping ${fileConfig.id}: file not found at ${fileConfig.repo}/${fileConfig.path}`,
+            logger.error(
+              `❌ Failed to load ${fileConfig.id}: file not found at ${fileConfig.repo}/${fileConfig.path} (ref: ${ref})`,
+            )
+            if (fileConfig.path.toLowerCase() === 'reference.md') {
+              logger.error(
+                `   Tried both reference.md and REFERENCE.md - neither exists in the repository`,
+              )
+            }
+            logger.error(
+              `   Check that the file exists at: https://github.com/${fileConfig.repo}/blob/${ref}/${fileConfig.path}`,
             )
             return null
+          }
+
+          // Log which filename was actually found
+          if (result.actualPath !== fileConfig.path) {
+            logger.info(
+              `✅ Successfully loaded ${fileConfig.id} from ${fileConfig.repo} (found as ${result.actualPath})`,
+            )
+          } else {
+            logger.info(`✅ Successfully loaded ${fileConfig.id} from ${fileConfig.repo}`)
           }
 
           // Render markdown to HTML using Astro's built-in renderer
@@ -138,7 +186,7 @@ export function githubFilesLoader(config: GitHubFilesLoaderConfig): Loader {
             id: fileConfig.id,
             data: {
               repo: fileConfig.repo,
-              path: fileConfig.path,
+              path: result.actualPath, // Store the actual path that was found
               ref,
               sha: result.sha,
               htmlUrl: result.htmlUrl,

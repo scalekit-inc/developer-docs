@@ -96,6 +96,14 @@
     } catch (e) {}
   }
 
+  var inIframe = function () {
+    try {
+      return window.self !== window.top
+    } catch (e) {
+      return true
+    }
+  }
+
   /**
    * Initialize Pylon configuration
    */
@@ -215,12 +223,22 @@
    * Initialize minimal config for anonymous users
    */
   var initializeMinimalConfig = function () {
-    window.pylon = {
-      chat_settings: {
-        app_id: PYLON_APP_ID,
-      },
+    if (inIframe()) {
+      console.log('[chat] iframe detected — skipping HubSpot widget')
+      return
     }
-    console.log('[pylon] minimal config set for anonymous user')
+
+    // Anonymous user: show HubSpot instead of Pylon
+    console.log('[chat] anonymous user — loading HubSpot widget')
+    if (window.HubSpotConversations) {
+      window.HubSpotConversations.widget.load()
+    } else {
+      // HubSpot SDK not ready yet — wait for it
+      window.hsConversationsOnReady = window.hsConversationsOnReady || []
+      window.hsConversationsOnReady.push(function () {
+        window.HubSpotConversations.widget.load()
+      })
+    }
   }
 
   /**

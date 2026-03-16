@@ -1,0 +1,161 @@
+---
+title: Apollo
+description: Connect to Apollo.io to search and enrich B2B contacts and accounts, manage CRM contacts, and automate outreach sequences.
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupApolloSection } from '@components/templates'
+import { UsageApolloSection } from '@components/templates'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Apollo.io to search and enrich B2B contacts and accounts, manage CRM contacts, and automate outreach sequences.
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/apollo.svg" width="64" height="64" alt="Apollo logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+
+## Set up the agent connector
+
+<SetupApolloSection />
+
+## Usage
+<UsageApolloSection />
+
+## Tool list
+
+## `apollo_create_account`
+
+Create a new account (company) record in your Apollo CRM. Accounts represent organizations and can be linked to contacts. Check for duplicates before creating to avoid double entries.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `domain` | string | No | Website domain of the company |
+| `linkedin_url` | string | No | LinkedIn company page URL |
+| `name` | string | Yes | Name of the company/account |
+| `phone_number` | string | No | Main phone number of the company |
+| `raw_address` | string | No | Physical address of the company |
+
+## `apollo_create_contact`
+
+Create a new contact record in your Apollo CRM. The contact will appear in your Apollo contacts list and can be enrolled in sequences. Check for duplicates before creating to avoid double entries.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `account_id` | string | No | Apollo account ID to associate this contact with |
+| `email` | string | No | Email address of the contact |
+| `first_name` | string | Yes | First name of the contact |
+| `last_name` | string | Yes | Last name of the contact |
+| `linkedin_url` | string | No | LinkedIn profile URL of the contact |
+| `organization_name` | string | No | Company name the contact works at |
+| `phone` | string | No | Phone number of the contact |
+| `title` | string | No | Job title of the contact |
+
+## `apollo_enrich_account`
+
+Enrich a company/account record with Apollo firmographic data using the company's website domain or name. Returns verified employee count, revenue estimates, industry, tech stack, funding rounds, and social profiles. Consumes Apollo credits per match.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `domain` | string | No | Website domain of the company to enrich (e.g., acmecorp.com) |
+| `name` | string | No | Company name to enrich (used if domain is not available) |
+
+## `apollo_enrich_contact`
+
+Enrich a contact using Apollo's people matching engine. Provide an email address or name + company to retrieve a verified contact profile. Revealing personal emails or phone numbers consumes additional Apollo credits per successful match.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `email` | string | No | Work email address of the contact to enrich |
+| `first_name` | string | No | First name of the contact to enrich |
+| `last_name` | string | No | Last name of the contact to enrich |
+| `linkedin_url` | string | No | LinkedIn profile URL for precise matching |
+| `organization_name` | string | No | Company name to assist in matching |
+| `reveal_personal_emails` | boolean | No | Attempt to reveal personal email addresses (consumes extra Apollo credits) |
+| `reveal_phone_number` | boolean | No | Attempt to reveal direct phone numbers (consumes extra Apollo credits) |
+
+## `apollo_get_account`
+
+Retrieve the full profile of a company account from Apollo by its ID. Returns detailed firmographic data including employee count, revenue estimates, industry, tech stack, funding information, and social profiles.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `account_id` | string | Yes | The Apollo account (organization) ID to retrieve |
+
+## `apollo_get_contact`
+
+Retrieve the full profile of a contact from Apollo by their ID. Returns detailed professional information including email, phone, LinkedIn URL, employment history, education, and social profiles.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `contact_id` | string | Yes | The Apollo contact ID to retrieve |
+
+## `apollo_list_sequences`
+
+List available email sequences (Apollo Sequences / Emailer Campaigns) in your Apollo account. Supports filtering by name and pagination. Returns sequence ID, name, status, and step count.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page` | integer | No | Page number for pagination (starts at 1) |
+| `per_page` | integer | No | Number of sequences to return per page (max 100) |
+| `search` | string | No | Filter sequences by name (partial match) |
+
+## `apollo_search_accounts`
+
+Search Apollo's company database using firmographic filters such as company name, industry, employee count range, revenue range, and location. Returns matching account records with company details.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `company_name` | string | No | Filter accounts by company name (partial match supported) |
+| `employee_ranges` | string | No | Comma-separated employee count ranges (e.g., 1,10,11,50,51,200) |
+| `industry` | string | No | Filter accounts by industry vertical |
+| `keywords` | string | No | Keyword search across company name, description, and domain |
+| `location` | string | No | Filter accounts by headquarters city, state, or country |
+| `page` | integer | No | Page number for pagination (starts at 1) |
+| `per_page` | integer | No | Number of accounts to return per page (max 100) |
+
+## `apollo_search_contacts`
+
+Search contacts in your Apollo CRM using filters such as job title, company, and sort order. Returns matching contact records with professional details. Results are paginated.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `company_name` | string | No | Filter contacts by company name |
+| `industry` | string | No | Filter contacts by their company's industry (e.g., Software, Healthcare) |
+| `keywords` | string | No | Full-text keyword search across contact name, title, company, and bio |
+| `location` | string | No | Filter contacts by city, state, or country |
+| `page` | integer | No | Page number for pagination (starts at 1) |
+| `per_page` | integer | No | Number of contacts to return per page (max 100) |
+| `seniority` | string | No | Filter by seniority level (e.g., c_suite, vp, director, manager, senior, entry) |
+| `title` | string | No | Filter contacts by job title keywords (e.g., VP of Sales) |
+
+## `apollo_update_contact`
+
+Update properties or CRM stage of an existing Apollo contact record by contact ID. Only the provided fields will be updated; omitted fields remain unchanged.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `contact_id` | string | Yes | The Apollo contact ID to update |
+| `contact_stage_id` | string | No | Apollo CRM stage ID to move the contact to |
+| `email` | string | No | Updated email address for the contact |
+| `first_name` | string | No | Updated first name |
+| `last_name` | string | No | Updated last name |
+| `linkedin_url` | string | No | Updated LinkedIn profile URL |
+| `organization_name` | string | No | Updated company name |
+| `phone` | string | No | Updated phone number |
+| `title` | string | No | Updated job title |
