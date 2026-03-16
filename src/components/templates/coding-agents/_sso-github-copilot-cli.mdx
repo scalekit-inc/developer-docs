@@ -1,0 +1,79 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+<Steps>
+1. ## Add the Scalekit authstack marketplace
+
+   Need to install GitHub Copilot CLI? See the [getting started guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-getting-started) — an active GitHub Copilot subscription is required.
+
+   Register Scalekit's plugin marketplace to access pre-configured authentication plugins. This marketplace provides implementation skills that help GitHub Copilot generate correct Modular SSO code.
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+   ```
+
+   The marketplace provides specialized plugins that understand SSO patterns and SAML/OIDC security requirements. These plugins guide GitHub Copilot to generate implementation code that matches your project structure.
+
+   To remove the Scalekit authstack marketplace, use the remove command:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin marketplace remove github-copilot-authstack
+   ```
+
+2. ## Install the Modular SSO plugin
+
+   Install the Modular SSO plugin to give GitHub Copilot the skills needed to generate SSO code:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin install modular-sso@scalekit-auth-stack
+   ```
+
+   <details>
+   <summary>Verify the plugin is installed</summary>
+
+   Confirm the plugin installed successfully:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin list
+   ```
+
+   <Aside type="tip" title="Keep plugins updated">
+   Update authentication plugins regularly to receive security patches and improvements:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin update modular-sso@scalekit-auth-stack
+   ```
+   </Aside>
+
+   </details>
+
+3. ## Generate SSO implementation
+
+   Use a structured prompt to direct GitHub Copilot. A well-formed prompt ensures the agent generates complete, production-ready SSO code that includes all required security components.
+
+   Copy the following command into your terminal:
+
+   ```bash wrap title="Terminal" frame="terminal" showLineNumbers=false
+   copilot "Add Scalekit SSO to my existing app — initialize ScalekitClient, generate an SSO authorization URL for a given organization, handle the SSO callback to validate and exchange the code for user identity, and integrate the SSO user into my existing session system. Code only."
+   ```
+
+   GitHub Copilot uses the Modular SSO plugin to analyze your existing application structure, generate Scalekit client initialization code, create an SSO authorization URL generator for organization-based routing, implement the SSO callback handler to validate and exchange the code for user identity, and integrate SSO user data into your existing session system.
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
+   </Aside>
+
+4. ## Verify the implementation
+
+   After GitHub Copilot completes, verify that all SSO components are properly configured:
+
+   Check generated files:
+   - Scalekit client initialization with environment credentials (you may need to set up a `.env` file with your Scalekit API credentials)
+   - SSO authorization URL generation for organization-based routing
+   - SSO callback handler that validates the authorization code and retrieves user identity
+   - Integration logic that maps SSO user identity into your existing session system
+
+   The SSO flow should redirect users to their organization's identity provider, where they authenticate. Your application should then receive the callback, validate the code, extract the user's identity, and create or update the user session accordingly.
+
+</Steps>
+
+When users authenticate through SSO, your application receives verified identity claims from the identity provider. Verify that the SSO callback correctly maps user identity to your application's user model and that the session is created with the appropriate access level.
