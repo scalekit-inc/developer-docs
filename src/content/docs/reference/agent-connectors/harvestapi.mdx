@@ -1,6 +1,6 @@
 ---
 title: HarvestAPI
-description: Connect to HarvestAPI to scrape LinkedIn profiles, companies, and job listings, and search for people and jobs using real-time LinkedIn data.
+description: Connect to HarvestAPI to log time entries in Harvest and scrape LinkedIn profiles, companies, and job listings for recruiting, sales, and market research.
 tableOfContents: true
 head:
   - tag: style
@@ -20,7 +20,7 @@ import { UsageHarvestapiSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
-  Connect to HarvestAPI to scrape LinkedIn profiles, companies, and job listings, and search for people and jobs using real-time LinkedIn data. Enables AI agents to access live LinkedIn data for recruiting, sales prospecting, and market research.
+  Connect to HarvestAPI to log and retrieve time entries in Harvest, and scrape LinkedIn profiles, companies, and job listings for recruiting, sales prospecting, and market research.
  </div>
  <div class="flex justify-center">
   <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/harvestapi.svg" width="64" height="64" alt="HarvestAPI logo" />
@@ -39,117 +39,138 @@ Supports authentication: <Badge text="API Key" />
 
 ## Tool list
 
-## `scrape_profile`
+## `log_time_entry`
 
-Scrape a LinkedIn profile by URL or username. Returns contact details, current and past employment history, education, skills, and profile metadata. Either `url` or `username` is required.
+Create a new time entry in Harvest for a specific project and task. Supports both duration-based (hours) and start/end time-based logging. Returns the created time entry with its ID, billable status, and invoice details.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `url` | string | No | Full LinkedIn profile URL (e.g., `https://www.linkedin.com/in/username`). Use this or `username`. |
-| `username` | string | No | LinkedIn profile handle (the slug after `/in/`). Use this or `url`. |
+| `project_id` | integer | Yes | Harvest project ID to log time against |
+| `task_id` | integer | Yes | Harvest task ID within the project |
+| `spent_date` | string | Yes | Date of the time entry in `YYYY-MM-DD` format |
+| `hours` | number | No | Duration in decimal hours (e.g., `1.5` for 90 minutes). Use this or `started_time`/`ended_time`. |
+| `started_time` | string | No | Start time for timer-based entry (e.g., `8:00am`). Requires `ended_time`. |
+| `ended_time` | string | No | End time for timer-based entry (e.g., `9:30am`). Requires `started_time`. |
+| `notes` | string | No | Notes or description for the time entry |
+| `user_id` | integer | No | User ID to log time for. Defaults to the authenticated user. Requires admin permissions to set for other users. |
+
+## `list_time_entries`
+
+List time entries in your Harvest account with optional filters by project, user, client, task, or date range. Returns paginated time entries with hours logged, notes, billable status, and associated project, task, and user details.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `project_id` | integer | No | Filter by Harvest project ID |
+| `user_id` | integer | No | Filter by Harvest user ID |
+| `client_id` | integer | No | Filter by Harvest client ID |
+| `task_id` | integer | No | Filter by Harvest task ID |
+| `from` | string | No | Start of date range in `YYYY-MM-DD` format |
+| `to` | string | No | End of date range in `YYYY-MM-DD` format |
+| `is_billed` | boolean | No | Filter by billed status |
+| `is_running` | boolean | No | Return only active running timers when `true` |
+| `page` | integer | No | Page number for pagination. Defaults to `1`. |
+| `per_page` | integer | No | Number of results per page (max `100`). Defaults to `100`. |
+
+## `list_projects`
+
+List all projects in your Harvest account with optional filters. Returns project details including name, client, budget, billing method, start and end dates, and active status.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `client_id` | integer | No | Filter projects by client ID |
+| `is_active` | boolean | No | Filter by active status |
+| `updated_since` | string | No | ISO 8601 datetime — return only projects updated after this timestamp |
+| `page` | integer | No | Page number for pagination. Defaults to `1`. |
+| `per_page` | integer | No | Number of results per page (max `100`). Defaults to `100`. |
+
+## `list_users`
+
+List all users in your Harvest account with optional filters. Returns user profiles including name, email, roles, and weekly capacity.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `is_active` | boolean | No | Filter by active status |
+| `updated_since` | string | No | ISO 8601 datetime — return only users updated after this timestamp |
+| `page` | integer | No | Page number for pagination. Defaults to `1`. |
+| `per_page` | integer | No | Number of results per page (max `100`). Defaults to `100`. |
+
+## `get_user`
+
+Retrieve a Harvest user profile by user ID, including name, email, roles, weekly capacity, and avatar. Use `list_users` to discover user IDs. Requires the `Harvest-Account-Id` header returned during OAuth.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `user_id` | string | Yes | Harvest user ID |
+
+## `get_company`
+
+Retrieve the Harvest company (account) information for the authenticated user, including company name, base URI, plan type, clock format, currency, and weekly capacity settings. Takes no parameters.
+
+## `scrape_profile`
+
+Scrape a LinkedIn profile by URL or public identifier, returning contact details, employment history, education, skills, and more. Provide either `profile_url` or `public_identifier`. Use `main=true` for a simplified profile at fewer credits. Optionally find email with `find_email=true` (costs extra credits).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `profile_url` | string | No | Full LinkedIn profile URL (e.g., `https://www.linkedin.com/in/satyanadella`). Use this or `public_identifier`. |
+| `public_identifier` | string | No | LinkedIn profile handle — the slug after `/in/` (e.g., `satyanadella`). Use this or `profile_url`. |
+| `main` | boolean | No | Return a simplified profile using fewer credits (~2.6s). Defaults to `false` (full profile, ~4.9s). |
+| `find_email` | boolean | No | Attempt to find the contact's email address. Costs extra credits per successful match. Defaults to `false`. |
 
 ## `scrape_company`
 
-Scrape a LinkedIn company page for overview details, headcount, specialties, recent updates, and an employee list. Either `url` or `username` is required.
+Scrape a LinkedIn company page for overview, headcount, employee count range, follower count, locations, specialties, industries, and funding data. Provide one of `company_url`, `universal_name`, or `search`.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `url` | string | No | Full LinkedIn company page URL (e.g., `https://www.linkedin.com/company/microsoft`). Use this or `username`. |
-| `username` | string | No | LinkedIn company handle (the slug after `/company/`). Use this or `url`. |
-| `include_employees` | boolean | No | When `true`, includes a list of current employees in the response. Defaults to `false`. |
+| `company_url` | string | No | Full LinkedIn company page URL (e.g., `https://www.linkedin.com/company/microsoft`). |
+| `universal_name` | string | No | LinkedIn company universal name — the slug after `/company/` (e.g., `microsoft`). |
+| `search` | string | No | Company name to search for. Returns the most relevant match. |
 
 ## `search_people`
 
-Search LinkedIn for people using structured filters. Returns a paginated list of matching profiles with name, title, company, and profile URL. At least one filter parameter is recommended for meaningful results.
+Search LinkedIn for people using filters such as job title, current company, location, and industry. Uses LinkedIn Lead Search for unmasked results. Returns paginated profiles with name, title, location, and LinkedIn URL. All parameters are optional and comma-separated for multiple values.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `keywords` | string | No | Free-text search terms matched against name, headline, and bio. |
-| `title` | string | No | Job title filter (e.g., `VP of Engineering`). Supports partial matches. |
-| `company` | string | No | Current or past company name filter (e.g., `OpenAI`). |
-| `location` | string | No | Location filter by city, state, or country (e.g., `San Francisco, CA`). |
-| `industry` | string | No | Industry vertical filter (e.g., `Software`, `Finance`, `Healthcare`). |
+| `keywords` | string | No | Free-text search terms matched against name, headline, and bio |
+| `title` | string | No | Job title filter (e.g., `VP of Engineering`). Comma-separate multiple values. |
+| `company` | string | No | Current company name filter (e.g., `OpenAI`). Comma-separate multiple values. |
+| `location` | string | No | Location filter by city, state, or country. Comma-separate multiple values. |
+| `industry` | string | No | Industry vertical filter. Comma-separate multiple values. |
 | `page` | integer | No | Page number for pagination. Starts at `1`. Defaults to `1`. |
 
 ## `search_jobs`
 
-Search LinkedIn job listings using keywords, location, or company filters. Returns a paginated list of job postings with title, company, location, and listing URL.
+Search LinkedIn job listings by keyword, location, company, workplace type, employment type, experience level, and salary. Returns paginated job listings with title, company, location, and LinkedIn URL.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `keywords` | string | No | Job title or skill keywords to search for (e.g., `machine learning engineer`). |
-| `location` | string | No | Location filter by city, state, or country (e.g., `New York, NY`). |
-| `company` | string | No | Filter listings by company name (e.g., `Stripe`). |
+| `keywords` | string | No | Job title or skill keywords to search for (e.g., `machine learning engineer`) |
+| `location` | string | No | Location filter by city, state, or country (e.g., `New York, NY`) |
+| `company` | string | No | Filter listings by company name (e.g., `Stripe`) |
+| `workplace_type` | string | No | Filter by workplace arrangement: `remote`, `on-site`, or `hybrid` |
+| `employment_type` | string | No | Filter by employment type: `full-time`, `part-time`, `contract`, `temporary`, `volunteer`, `internship` |
+| `experience_level` | string | No | Filter by seniority: `entry`, `associate`, `mid-senior`, `director`, `executive` |
+| `salary` | string | No | Salary range filter (format varies by region) |
 | `page` | integer | No | Page number for pagination. Starts at `1`. Defaults to `1`. |
 
 ## `scrape_job`
 
-Retrieve full details for a single LinkedIn job listing by its URL. Returns job title, company, location, description, requirements, seniority level, employment type, and application link.
+Retrieve full job listing details from LinkedIn by job URL or job ID. Returns title, company, description, requirements, salary, location, workplace type, employment type, applicant count, and application details.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `url` | string | Yes | Full LinkedIn job posting URL (e.g., `https://www.linkedin.com/jobs/view/1234567890`). |
+| `job_url` | string | No | Full LinkedIn job posting URL (e.g., `https://www.linkedin.com/jobs/view/1234567890`). Use this or `job_id`. |
+| `job_id` | string | No | LinkedIn job listing ID. Use this or `job_url`. |
 
 ## `bulk_scrape_profiles`
 
-Batch scrape multiple LinkedIn profiles in a single request. Each profile in the `urls` array is scraped independently. Returns an array of profile objects in the same order as the input. Failed profiles return an error object instead of profile data. Each profile counts as one credit.
+Batch scrape multiple LinkedIn profiles in a single request using the HarvestAPI Apify scraper. Accepts a list of LinkedIn profile URLs. Returns an array of profile objects in the same order as the input. Each profile counts as one credit.
+
+**Pricing**: $4 per 1,000 profiles; $10 per 1,000 profiles with email. Requires an Apify API token.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `urls` | `array<string>` | Yes | List of LinkedIn profile URLs to scrape. Each entry must be a full URL (e.g., `https://www.linkedin.com/in/username`). Maximum 50 URLs per request. |
-
-## `search_companies`
-
-Search LinkedIn for companies using keyword and structured filters. Returns a paginated list of matching company pages with name, industry, headcount, and profile URL. At least one filter parameter is recommended for meaningful results.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `search` | string | Yes | Keywords to match against company names (e.g., `"AI infrastructure"`). |
-| `location` | string | No | Filter by city, state, or country (e.g., `"San Francisco, CA"`). |
-| `company_size` | string | No | Filter by headcount range: `1-10`, `11-50`, `51-200`, `201-500`, `501-1000`, `1001-5000`, `5001-10000`, `10001+`. |
-| `industry_id` | string | No | Filter by LinkedIn industry ID. Comma-separate multiple IDs (e.g., `"4,96"`). |
-| `page` | integer | No | Page number for pagination. Starts at `1`. Defaults to `1`. |
-
-## `get_company_posts`
-
-Retrieve recent posts published by a LinkedIn company page. Returns post content, engagement metrics, and publish date. Useful for tracking competitor content, monitoring brand mentions, or building social intelligence pipelines.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `company` | string | No | LinkedIn company page URL (e.g., `https://www.linkedin.com/company/openai`). Use this or `company_id`. |
-| `company_id` | string | No | LinkedIn company ID. Use this or `company`. |
-| `posted_limit` | string | No | Filter posts by recency on LinkedIn's side: `24h`, `week`, or `month`. |
-| `page` | integer | No | Page number for pagination. Starts at `1`. Defaults to `1`. |
-
-## `search_posts`
-
-Search LinkedIn posts using keyword and author filters. Returns matching posts with content, author, engagement metrics, and publish date. Use this to monitor topics, track thought leaders, or surface content relevant to a campaign or research task.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `search` | string | No | Keywords to search in post content (e.g., `"generative AI regulation"`). |
-| `profile` | string | No | Filter posts by author LinkedIn profile URL (comma-separate multiple). |
-| `company` | string | No | Filter posts by author's company LinkedIn URL (comma-separate multiple). |
-| `content_type` | string | No | Filter by post format: `videos`, `images`, `documents`, `live_videos`. |
-| `posted_limit` | string | No | Filter by recency: `24h`, `week`, or `month`. |
-| `sort_by` | string | No | Sort order: `relevance` (default) or `date`. |
-| `page` | integer | No | Page number for pagination. Starts at `1`. Defaults to `1`. |
-
-## `search_leads`
-
-Advanced LinkedIn profile search with Sales Navigator-style filters. Returns a paginated list of profiles matching the specified criteria. Use this for high-precision lead generation when `search_people` filters are not granular enough.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `search` | string | No | Fuzzy keyword search matched across name, headline, and bio. |
-| `current_companies` | string | No | Filter by current employer LinkedIn URL or ID (comma-separate up to 50). |
-| `past_companies` | string | No | Filter by past employer LinkedIn URL or ID (comma-separate multiple). |
-| `locations` | string | No | Filter by location text (comma-separate up to 70). |
-| `current_job_titles` | string | No | Filter by current job title (comma-separate up to 70, e.g., `"Head of Sales,VP Sales"`). |
-| `first_names` | string | No | Strict first name filter (comma-separate multiple). |
-| `last_names` | string | No | Strict last name filter (comma-separate multiple). |
-| `industry_ids` | string | No | Filter by LinkedIn industry ID (comma-separate up to 70). |
-| `seniority_level_ids` | string | No | Filter by seniority: `1` (Entry), `2` (Senior), `3` (Manager), `4` (Director), `5` (VP), `6` (C-Suite), `7` (Owner). Comma-separate multiple. |
-| `years_of_experience_ids` | string | No | Filter by total experience: `1` (1–2 yrs), `2` (3–5 yrs), `3` (6–10 yrs), `4` (11–15 yrs), `5` (16–20 yrs), `6` (20+ yrs). |
-| `company_headcount` | string | No | Filter by employer size: `1-10`, `11-50`, `51-200`, `201-500`, `501-1000`, `1001-5000`, `5001-10000`, `10001+`. |
-| `page` | integer | No | Page number for pagination. Maximum page is `100`. Defaults to `1`. |
+| `apify_token` | string | Yes | Apify API token. Obtain from [console.apify.com/settings/integrations](https://console.apify.com/settings/integrations). |
