@@ -1,6 +1,7 @@
 ---
 title: Notion
 description: Connect to Notion workspace. Create, edit pages, manage databases, and collaborate on content
+tags: [agent-connectors, notion, database, documentation, oauth, integration, tool]
 tableOfContents: true
 head:
   - tag: style
@@ -11,69 +12,12 @@ head:
       table td:first-child, table th:first-child {
         white-space: nowrap;
       }
-      /* Heading copy functionality */
-      .sl-markdown-content h2,
-      .sl-markdown-content h3,
-      .sl-markdown-content h4 {
-        position: relative;
-        cursor: pointer;
-      }
-      .sl-markdown-content h2:hover::after,
-      .sl-markdown-content h3:hover::after,
-      .sl-markdown-content h4:hover::after {
-        content: " 📋 ";
-        font-size: 0.8em;
-        opacity: 0.7;
-      }
-  - tag: script
-    content: |
-      // Using a self-executing function to avoid global namespace pollution
-      (function() {
-        // Function to initialize the copy functionality
-        function initHeadingCopy() {
-          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
-
-          headings.forEach(heading => {
-            // Skip if already initialized
-            if (heading.hasAttribute('data-copy-initialized')) return;
-            heading.setAttribute('data-copy-initialized', 'true');
-
-            heading.addEventListener('click', async () => {
-              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
-
-              try {
-                await navigator.clipboard.writeText(headingText);
-
-                // Visual feedback
-                const originalText = heading.textContent;
-                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
-
-                setTimeout(() => {
-                  heading.textContent = originalText;
-                }, 2000);
-              } catch (err) {
-                console.error('Failed to copy heading:', err);
-              }
-            });
-          });
-        }
-
-        // Initialize on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', initHeadingCopy);
-
-        // Also initialize now in case the DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          setTimeout(initHeadingCopy, 1);
-        }
-
-        // For Astro's client-side navigation
-        document.addEventListener('astro:page-load', initHeadingCopy);
-      })();
 ---
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
 import { SetupNotionSection } from '@components/templates'
+import { UsageNotionSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -90,6 +34,10 @@ Supports authentication: <Badge text="OAuth 2.0" />
 ## Set up the agent connector
 
 <SetupNotionSection />
+
+## Usage
+
+<UsageNotionSection />
 
 ## Tool list
 
@@ -118,10 +66,10 @@ Create a comment in Notion. Provide a comment object with rich_text content and 
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `comment` | `object` | Yes | Comment object containing a rich_text array. Example: `&#123;"rich_text":[&#123;"type":"text","text":&#123;"content":"Hello"&#125;&#125;]&#125;` |
+| `comment` | `object` | Yes | Comment object containing a rich_text array. Example: `{"rich_text":[{"type":"text","text":{"content":"Hello"}}]}` |
 | `discussion_id` | string | No | Existing discussion thread ID to reply to. |
 | `notion_version` | string | No | Optional override for the Notion-Version header (e.g., 2022-06-28). |
-| `parent` | `object` | No | Parent object for a new top-level comment. Shape: `&#123;"page_id":"<uuid>"&#125;`. |
+| `parent` | `object` | No | Parent object for a new top-level comment. Shape: `{"page_id":"<uuid>"}`. |
 | `schema_version` | string | No | Internal override for schema version. |
 | `tool_version` | string | No | Internal override for tool implementation version. |
 
@@ -168,8 +116,8 @@ Create a new database in Notion under a parent page. Provide a parent object wit
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `notion_version` | string | No | Optional override for the Notion-Version header (e.g., 2022-06-28). |
-| `parent` | `object` | Yes | Parent object specifying the page under which the database is created. Example: `&#123;"page_id": "2561ab6c-418b-8072-beec-c4779fa811cf"&#125;` |
-| `properties` | `object` | Yes | Database schema object defining properties (columns). Example: `&#123;"Name": &#123;"title": &#123;&#125;&#125;, "Status": &#123;"select": &#123;"options": [&#123;"name": "Todo"&#125;, &#123;"name": "Doing"&#125;, &#123;"name": "Done"&#125;]&#125;&#125;&#125;` |
+| `parent` | `object` | Yes | Parent object specifying the page under which the database is created. Example: `{"page_id": "2561ab6c-418b-8072-beec-c4779fa811cf"}` |
+| `properties` | `object` | Yes | Database schema object defining properties (columns). Example: `{"Name": {"title": {}}, "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Doing"}, {"name": "Done"}]}}}` |
 | `schema_version` | string | No | Internal override for schema version. |
 | `title` | `array<object>` | Yes | Database title as a Notion rich_text array. |
 | `tool_version` | string | No | Internal override for tool implementation version. |
@@ -187,32 +135,33 @@ Retrieve a Notion database’s full definition, including title, properties, and
 
 ## `notion_database_insert_row`
 
-Insert a new row (page) into a Notion database. Required: `database_id` (hyphenated UUID) and `properties` (object mapping database column names to Notion **property values). Optional: child_blocks` (content blocks), `icon` (page icon object), and `cover` (page cover object).
+Insert a new row (page) into a Notion database. Required: `database_id` (hyphenated UUID) and `properties` (object mapping database column names to Notion \*\*property values). Optional: child_blocks`(content blocks),`icon`(page icon object), and`cover\` (page cover object).
 
 LLM guidance:
+
 - `properties` must use **property values** (not schema). Example:
 
 ```json
   {
-    "title": { "title": [ { "text": { "content": "Task A" } } ] },
-    "Status": { "select": { "name": "Todo" } },
-    "Due": { "date": { "start": "2025-09-01" } }
+  "title": { "title": \[ { "text": { "content": "Task A" } } ] },
+  "Status": { "select": { "name": "Todo" } },
+  "Due": { "date": { "start": "2025-09-01" } }
   }
 ```
 - Use the **exact property key** as defined in the database (case‑sensitive), or the property id.
-- `icon` example (emoji): `&#123;"type":"emoji","emoji":"📝"&#125;`
-- `cover` example (external): `&#123;"type":"external","external":&#123;"url":"https://example.com/image.jpg"&#125;&#125;`
-- Runtime note: the executor/host should synthesize `parent = &#123;"database_id": database_id&#125;` before sending to Notion.
+- `icon` example (emoji): `{"type":"emoji","emoji":"📝"}`
+- `cover` example (external): `{"type":"external","external":{"url":"https://example.com/image.jpg"}}`
+- Runtime note: the executor/host should synthesize `parent = {"database_id": database_id}` before sending to Notion.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `_parent` | `object` | No | Computed by host: `&#123; "database_id": "<database_id>" &#125;`. Do not supply manually. |
+| `_parent` | `object` | No | Computed by host: `{ "database_id": "<database_id>" }`. Do not supply manually. |
 | `child_blocks` | `array<unknown>` | No | Optional array of Notion blocks to append as page content (paragraph, heading, to_do, etc.). |
-| `cover` | `object` | No | Optional page cover object. Example external: `&#123;"type":"external","external":&#123;"url":"https://example.com/cover.jpg"&#125;&#125;`. |
+| `cover` | `object` | No | Optional page cover object. Example external: `{"type":"external","external":{"url":"https://example.com/cover.jpg"}}`. |
 | `database_id` | string | Yes | Target database ID (hyphenated UUID). |
-| `icon` | `object` | No | Optional page icon object. Examples: `&#123;"type":"emoji","emoji":"📝"&#125;` or `&#123;"type":"external","external":&#123;"url":"https://..."&#125;&#125;`. |
+| `icon` | `object` | No | Optional page icon object. Examples: `{"type":"emoji","emoji":"📝"}` or `{"type":"external","external":{"url":"https://..."}}`. |
 | `notion_version` | string | No | Optional Notion-Version header override (e.g., 2022-06-28). |
-| `properties` | `object` | Yes | Object mapping **column names (or property ids)** to **property values**. ️ **CRITICAL: Property Identification Rules:** - For title fields: ALWAYS use 'title' as the property key (not 'Name' or display names) - For other properties: Use exact property names from database schema (case-sensitive) - DO NOT use URL-encoded property IDs with special characters  **Recommended Workflow:** 1. Call fetch_database first to see exact property names 2. Use 'title' for title-type properties 3. Match other property names exactly as shown in schema Example: […] |
+| `properties` | `object` | Yes | Object mapping **column names (or property ids)** to **property values**. ️ **CRITICAL: Property Identification Rules:** - For title fields: ALWAYS use 'title' as the property key (not 'Name' or display names) - For other properties: Use exact property names from database schema (case-sensitive) - DO NOT use URL-encoded property IDs with special characters  **Recommended Workflow:** 1. Call fetch_database first to see exact property names 2. Use 'title' for title-type properties 3. Match other property names exactly as shown in schema Example: `{ "title": { "title": [ { "text": { "content": "Task A" } } ] }, "Status": { "select": { "name": "Todo" } }, "Due": { "date": { "start": "2025-09-01" } } }` |
 | `schema_version` | string | No | Optional schema version override. |
 | `tool_version` | string | No | Optional tool version override. |
 
@@ -276,20 +225,21 @@ Retrieve the content (blocks) of a Notion page or block. Returns all child block
 Create a page in Notion either inside a database (as a row) or as a child of a page. Use exactly one parent mode: provide database_id to create a database row (page with properties) OR provide parent_page_id to create a child page. When creating in a database, properties must use Notion property value shapes and the title property key must be "title" (not the display name). Children (content blocks), icon, and cover are optional. The executor should synthesize the Notion parent object from the chosen parent input.
 
 Target rules:
+
 - Use database_id OR parent_page_id (not both)
 - If database_id is provided → properties are required
 - If parent_page_id is provided → properties are optional
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `_parent` | `object` | No | Computed by the executor: `&#123;"database_id": "..."&#125;` OR `&#123;"page_id": "..."&#125;` derived from database_id/parent_page_id. |
+| `_parent` | `object` | No | Computed by the executor: `{"database_id": "..."}` OR `{"page_id": "..."}` derived from database_id/parent_page_id. |
 | `child_blocks` | `array<unknown>` | No | Optional blocks to add as page content (children). |
 | `cover` | `object` | No | Optional page cover object. |
 | `database_id` | string | No | Create a page as a new row in this database (hyphenated UUID). Extract from the database URL (last 32 chars → hyphenate 8-4-4-4-12). |
 | `icon` | `object` | No | Optional page icon object. |
 | `notion_version` | string | No | Optional Notion-Version header override. |
 | `parent_page_id` | string | No | Create a child page under this page (hyphenated UUID). Extract from the parent page URL. |
-| `properties` | `object` | No | For database rows, supply property values keyed by property name (or id). For title properties, the key must be "title". Example (database row): `&#123; "title": &#123; "title": [ &#123; "text": &#123; "content": "Task A" &#125; &#125; ] &#125;, "Status": &#123; "select": &#123; "name": "Todo" &#125; &#125;, "Due": &#123; "date": &#123; "start": "2025-09-01" &#125; &#125; &#125;` |
+| `properties` | `object` | No | For database rows, supply property values keyed by property name (or id). For title properties, the key must be "title". Example (database row): `{ "title": { "title": [ { "text": { "content": "Task A" } } ] }, "Status": { "select": { "name": "Todo" } }, "Due": { "date": { "start": "2025-09-01" } } }` |
 | `schema_version` | string | No | Optional schema version override. |
 | `tool_version` | string | No | Optional tool version override. |
 

@@ -1,7 +1,4 @@
 import { Steps, Aside } from '@astrojs/starlight/components'
-import oauthWebAppImg from '@/assets/docs/agent-connectors/gmail/oauth-web-app.png'
-import addRedirectUriImg from '@/assets/docs/agent-connectors/gmail/add-redirect-uri.png'
-import enableApiImg from '@/assets/docs/agent-connectors/bigquery/enable-bigquery-api.png'
 
 Register your Scalekit environment with the Google BigQuery connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
 
@@ -10,51 +7,38 @@ Register your Scalekit environment with the Google BigQuery connector so Scaleki
 </Aside>
 
 <Steps>
-1. ### Configure redirect URL
+1. ### Set up auth redirects
 
-    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**.
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Google BigQuery** and click **Create**. Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
 
-    - Find **Google BigQuery** from the list of providers and click **Create**.
+      ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/bigquery/use-own-credentials-redirect-uri.png)
 
-    - Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+    - Navigate to [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) → **APIs & Services** → **Credentials**. Select **+ Create Credentials**, then **OAuth client ID**. Choose **Web application** from the Application type menu.
 
-      ![](@/assets/docs/agent-connectors/bigquery/use-own-credentials-redirect-uri.png)
+      ![Select Web Application in Google OAuth settings](@/assets/docs/agent-connectors/gmail/oauth-web-app.png)
 
-    - Navigate to [Google Cloud Console's](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project) **APIs & Services > Credentials**
+    - Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and click **Create**.
 
-    - Select **+ Create Credentials**, then **OAuth client ID**
+      ![Add authorized redirect URI in Google Cloud Console](@/assets/docs/agent-connectors/gmail/add-redirect-uri.png)
 
-    - Choose **Web application** from the Application type menu
+2. ### Enable the BigQuery API
 
-      ![Selecting Web Application in Google OAuth](@/assets/docs/agent-connectors/gmail/oauth-web-app.png)
+    - In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services** → **Library**. Search for "BigQuery API" and click **Enable**.
 
-    - Under **Authorized redirect URIs**, click **+ Add URI**, paste the redirect URI, and select **Create**.
+      ![](@/assets/docs/agent-connectors/bigquery/enable-bigquery-api.png)
 
-      ![Adding Google redirect URI for OAuth](@/assets/docs/agent-connectors/gmail/add-redirect-uri.png)
+3. ### Get client credentials
 
-2. ### Enable the Google BigQuery API
-
-    - In [Google Cloud Console](https://console.cloud.google.com/projectselector2/home/dashboard?supportedpurview=project), go to **APIs & Services > Library**
-
-    - Search for "BigQuery API" in the API Library
-
-    - Select **BigQuery API**
-
-      <img src={enableApiImg.src} alt="BigQuery API in Google Cloud Platform" width="540" />
-
-    - Press the blue **Enable** button
-
-3. ### Get your client credentials
-
-    Google provides your Client ID and Client Secret credentials after you create the OAuth client ID in step 1.
+    - Google provides your Client ID and Client Secret after you create the OAuth client ID in step 1.
 
 4. ### Add credentials in Scalekit
 
     - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
-
     - Enter your credentials:
       - Client ID (from above)
       - Client Secret (from above)
       - Permissions (scopes — see [Google API Scopes reference](https://developers.google.com/identity/protocols/oauth2/scopes))
+
+      ![Add credentials in Scalekit dashboard](@/assets/docs/agent-connectors/gmail/add-credentials.png)
     - Click **Save**.
 </Steps>

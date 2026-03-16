@@ -1,0 +1,80 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+<Steps>
+
+1. ## Add the Scalekit authstack marketplace
+
+   Need to install GitHub Copilot CLI? See the [getting started guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-getting-started) — an active GitHub Copilot subscription is required.
+
+   Register Scalekit's plugin marketplace to access pre-configured SCIM plugins. This marketplace provides implementation skills that help GitHub Copilot generate correct directory sync code.
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+   ```
+
+   The marketplace provides specialized plugins that understand directory sync patterns and webhook security requirements. These plugins guide GitHub Copilot to generate implementation code that matches your project structure.
+
+   To remove the Scalekit authstack marketplace, use the remove command:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin marketplace remove github-copilot-authstack
+   ```
+
+2. ## Install the Modular SCIM plugin
+
+   Install the Modular SCIM plugin to give GitHub Copilot the skills needed to generate SCIM webhook handling code:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin install modular-scim@scalekit-auth-stack
+   ```
+
+   <details>
+   <summary>Verify the plugin is installed</summary>
+
+   Confirm the plugin installed successfully:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin list
+   ```
+
+   <Aside type="tip" title="Keep plugins updated">
+   Update SCIM plugins regularly to receive security patches and improvements:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin update modular-scim@scalekit-auth-stack
+   ```
+   </Aside>
+
+   </details>
+
+3. ## Generate SCIM implementation
+
+   Use a structured prompt to direct GitHub Copilot. A well-formed prompt ensures the agent generates complete, production-ready SCIM code that includes all required security components.
+
+   Copy the following command into your terminal:
+
+   ```bash wrap title="Terminal" frame="terminal" showLineNumbers=false
+   copilot "Add Scalekit SCIM directory sync to my app — set up the webhook endpoint to receive SCIM events, validate the webhook signature, and handle user provisioning and deprovisioning events to create, update, and delete users in my database. Code only."
+   ```
+
+   GitHub Copilot uses the Modular SCIM plugin to analyze your existing application structure, generate a webhook endpoint to receive SCIM events from Scalekit, implement webhook signature validation to prevent unauthorized requests, create handlers for user provisioning events (create and update), and add deprovisioning logic to delete or deactivate users in your database.
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated SCIM code before deployment. Verify that webhook signature validation, event handling logic, and database operations match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
+   </Aside>
+
+4. ## Verify the implementation
+
+   After GitHub Copilot completes, verify that all SCIM components are properly configured:
+
+   Check generated files:
+   - Webhook endpoint that receives SCIM events from Scalekit (you may need to set up a `.env` file with your Scalekit webhook secret)
+   - Webhook signature validation to authenticate incoming requests
+   - User provisioning handler that creates or updates users in your database
+   - Deprovisioning handler that deletes or deactivates users when they are removed from the identity provider
+
+   The SCIM flow should receive webhook events from Scalekit when users are added, updated, or removed in the connected identity provider. Your application should validate each event's signature, then apply the corresponding change to your user database.
+
+</Steps>
+
+When directory sync is active, user lifecycle changes in the identity provider propagate automatically to your application. Verify that provisioning events correctly create or update users, and that deprovisioning events properly remove or deactivate accounts.

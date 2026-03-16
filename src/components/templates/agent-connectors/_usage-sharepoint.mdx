@@ -1,0 +1,174 @@
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+Connect a user's SharePoint account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
+
+<Tabs syncKey="tech-stack">
+{/* Node.js - commented out, uncomment when ready
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'sharepoint'; // get your connection name from connection configurations
+    const identifier = 'user_123';  // your unique user identifier
+
+    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const { connectedAccounts, actions } = scalekit;
+
+    // Authenticate the user
+    const { link } = await connectedAccounts.getMagicLinkForConnectedAccount({
+      connector: connectionName,
+      identifier,
+    });
+    console.log('🔗 Authorize SharePoint:', link);
+    process.stdout.write('Press Enter after authorizing...');
+    await new Promise(r => process.stdin.once('data', r));
+
+    // Make a request via Scalekit proxy
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/v1.0/me/sites',
+      method: 'GET',
+    });
+    console.log(result);
+    ```
+  </TabItem>
+*/}
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "sharepoint"  # get your connection name from connection configurations
+    identifier = "user_123"     # your unique user identifier
+
+    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Authenticate the user
+    link_response = actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier=identifier
+    )
+    # present this link to your user for authorization, or click it yourself for testing
+    print("🔗 Authorize SharePoint:", link_response.link)
+    input("Press Enter after authorizing...")
+
+    # Make a request via Scalekit proxy
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/v1.0/me/sites",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+## File operations
+
+### Download a file
+
+Fetch file metadata via the Scalekit proxy to get a pre-authenticated download URL, then stream the file directly from Microsoft's CDN. This avoids buffering large files through the proxy and is significantly faster.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python
+    import requests
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "sharepoint"  # get your connection name from connection configurations
+    identifier = "user_123"         # your unique user identifier
+    site_id = "<YOUR_SITE_ID>"      # call GET /v1.0/sites/root to get your site ID
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+
+    filename = "report.pdf"
+
+    # Step 1: Fetch file metadata via Scalekit proxy (authenticated)
+    response = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path=f"/v1.0/sites/{site_id}/drive/root:/{filename}",
+        method="GET",
+        query_params={},
+    )
+    meta = response.json()
+
+    # Step 2: Stream directly from Microsoft CDN using the pre-authenticated URL
+    # No auth headers needed — the URL is cryptographically signed and expires in ~1 hour
+    download_url = meta["@microsoft.graph.downloadUrl"]
+
+    with requests.get(download_url, stream=True) as r:
+        r.raise_for_status()
+        with open(filename, "wb") as f:
+            for chunk in r.iter_content(chunk_size=8 * 1024 * 1024):  # 8 MB chunks
+                f.write(chunk)
+
+    print(f"Downloaded: {filename} ({os.path.getsize(filename):,} bytes)")
+    ```
+  </TabItem>
+</Tabs>
+
+### Upload a file
+
+Upload a file to SharePoint's Shared Documents folder. Scalekit injects the OAuth token automatically — your app never handles credentials directly.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python
+    import mimetypes
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "sharepoint"  # get your connection name from connection configurations
+    identifier = "user_123"         # your unique user identifier
+    site_id = "<YOUR_SITE_ID>"      # call GET /v1.0/sites/root to get your site ID
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+
+    filename = "report.pdf"
+    with open(filename, "rb") as f:
+        file_bytes = f.read()
+
+    mime_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+
+    response = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path=f"/v1.0/sites/{site_id}/drive/root:/{filename}:/content",
+        method="PUT",
+        query_params={},
+        form_data=file_bytes,
+        headers={"Content-Type": mime_type},
+    )
+
+    meta = response.json()
+    print(f"Uploaded: {meta['name']} → {meta['webUrl']}")
+    ```
+  </TabItem>
+</Tabs>
