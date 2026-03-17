@@ -181,7 +181,7 @@ export const sidebar = [
           },
           {
             label: 'MCP',
-            items: ['agent-auth/mcp/quickstart'],
+            items: [{ label: 'Tool access via MCP', link: 'agent-auth/mcp/tool-access-via-mcp' }],
           },
         ],
       },
