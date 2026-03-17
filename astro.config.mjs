@@ -24,8 +24,6 @@ import Icons from 'unplugin-icons/vite'
 
 import netlify from '@astrojs/netlify'
 
-const isNetlifyBuild = process.env.NETLIFY === 'true'
-
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
@@ -94,7 +92,7 @@ export default defineConfig({
         starlightLinksValidator({
           exclude: ['/apis/**'],
         }),
-        ...(isNetlifyBuild ? [] : [starlightLlmsTxt(llmsConfig)]),
+        starlightLlmsTxt(llmsConfig),
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude'],
           hideMainActionLabel: true,
