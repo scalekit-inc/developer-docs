@@ -89,9 +89,11 @@ export default defineConfig({
           askAi: '8jKZkVuXS0hG',
         }),
         starlightVideos(),
-        starlightLinksValidator({
-          exclude: ['/apis/**'],
-        }),
+        // Links validator disabled on Netlify/CI to reduce peak memory during prerendering.
+        // Run locally with `pnpm build` to validate links before pushing.
+        ...(!process.env.CI && !process.env.NETLIFY
+          ? [starlightLinksValidator({ exclude: ['/apis/**'] })]
+          : []),
         starlightLlmsTxt(llmsConfig),
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude'],
