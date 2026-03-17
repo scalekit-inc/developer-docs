@@ -224,6 +224,141 @@ The `<Steps>` component requires a single continuous `<ol>`. Any broken indentat
 - **Prefer relative links** for internal pages; include anchors for sections
 - **Reference APIs consistently**: Backticks for code (`Deno.run`, `--allow-net`)
 
+### Component Usage Patterns
+
+#### Frontmatter enrichment
+
+Beyond the essentials, enrich frontmatter with these patterns for better navigation and SEO:
+
+```yaml
+---
+title: 'Clear title'
+description: 'Concise description'
+tags: [authentication, quickstart, sessions]
+sidebar:
+  label: 'Short label'
+  order: 1
+  prev:
+    label: 'Previous topic'
+    link: '/path/to/prev'
+  next:
+    label: 'Next topic'
+    link: '/path/to/next'
+  seeAlso:
+    expanded: true
+    items:
+      - title: 'Related resource'
+        icon: 'book'
+        url: 'https://example.com'
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+tableOfContents: true
+---
+```
+
+- **`tags`**: Array of relevant keywords for categorization and search
+- **`prev`/`next`**: Sequential navigation for journey-based docs
+- **`seeAlso`**: Related resources with optional `icon` and `expanded` state
+- **`head`**: Custom styles for consistent heading sizing across pages
+
+#### Steps with H2 headings
+
+Inside `<Steps>`, each step should use an H2 heading for clear section breaks:
+
+````mdx
+<Steps>
+1. ## Install the SDK
+
+Description of what this step accomplishes.
+
+```bash
+npm install @scalekit/sdk
+```
+````
+
+2. ## Configure credentials
+
+   Description of configuration.
+
+   ```bash
+   SCALEKIT_CLIENT_ID=your-id
+   ```
+
+   </Steps>
+
+````
+
+#### Badge component for required/recommended items
+
+Use `<Badge>` to indicate parameter requirements in tables and inline text:
+
+```mdx
+| Parameter | Description |
+|-----------|-------------|
+| `client_id` | Your application identifier <Badge text="Required" /> |
+| `state` | Random string for CSRF protection <Badge text="Recommended" /> |
+````
+
+#### Aside component with titles
+
+Always include a `title` attribute for accessibility and clarity:
+
+```mdx
+<Aside type="caution" title="Never hard-code secrets">
+  Store credentials in environment variables.
+</Aside>
+
+<Aside type="tip" title="Match redirect URLs exactly">
+  Ensure the URL in code matches dashboard configuration.
+</Aside>
+
+<Aside type="note" title="Important claims to validate">
+  Always verify `iss`, `aud`, and `exp` claims.
+</Aside>
+```
+
+#### Details sections for FAQs and demos
+
+Use `<details>` blocks at the end of pages for common scenarios and troubleshooting:
+
+```mdx
+## Common scenarios
+
+<details>
+<summary>How do I route users to a specific organization?</summary>
+
+Explanation and code example here.
+
+</details>
+
+<details>
+<summary>Why am I seeing an invalid_grant error?</summary>
+
+Troubleshooting explanation here.
+
+</details>
+```
+
+#### Collapsible supplementary content
+
+Place optional content (demos, sequence diagrams, extended references) in collapsible sections at the top of the page:
+
+```mdx
+<details>
+<summary>See the authentication sequence</summary>
+
+![Sequence diagram](path/to/image.png)
+
+1. User initiates sign-in
+2. Identity verification occurs
+3. Session is created
+
+</details>
+```
+
 ---
 
 ## Technical Requirements
