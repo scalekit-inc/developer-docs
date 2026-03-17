@@ -89,9 +89,15 @@ export default defineConfig({
           askAi: '8jKZkVuXS0hG',
         }),
         starlightVideos(),
-        starlightLinksValidator({
-          exclude: ['/apis/**'],
-        }),
+        // Links validator disabled in CI to reduce build memory usage.
+        // Run locally with: pnpm astro build (without NETLIFY env var)
+        ...(!process.env.NETLIFY
+          ? [
+              starlightLinksValidator({
+                exclude: ['/apis/**'],
+              }),
+            ]
+          : []),
         starlightLlmsTxt(llmsConfig),
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude'],

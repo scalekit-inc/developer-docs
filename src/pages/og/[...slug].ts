@@ -1,5 +1,3 @@
-export const prerender = true;
-
 import { getCollection } from 'astro:content'
 import { OGImageRoute } from 'astro-og-canvas'
 
