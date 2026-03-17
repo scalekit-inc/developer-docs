@@ -145,9 +145,9 @@ Scalekit handles the complex authentication flow while you focus on your core pr
 
    # Request user profile data (openid, profile, email) and session tracking (offline_access)
    # offline_access enables refresh tokens so users can stay logged in across sessions
-   options = AuthorizationUrlOptions(
-       scopes=['openid', 'profile', 'email', 'offline_access']
-   )
+   options = AuthorizationUrlOptions()
+   options.scopes = ['openid', 'profile', 'email', 'offline_access']
+
 
    authorization_url = scalekit.get_authorization_url(redirect_uri, options)
    # Generated URL will look like:
@@ -273,7 +273,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
                     code, redirect_uri, options
                 )
 
-                user = auth_result.user
+                user = auth_result["user"]
                 # id_token: Decode to access full user profile (sub, oid, email, name)
                 # access_token: Contains roles and permissions for authorization decisions
                 # refresh_token: Use to obtain new access tokens when they expire
@@ -850,7 +850,7 @@ Scalekit handles the complex authentication flow while you focus on your core pr
         <TabItem value="python" label="Python">
           ```python { 16, 13-14, 20 } collapse={1-5}
           from flask import Flask, redirect
-          from scalekit import LogoutUrlOptions
+          from scalekit.common.scalekit import LogoutUrlOptions
 
           app = Flask(__name__)
 
