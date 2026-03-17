@@ -14,6 +14,7 @@ import starlightVideos from 'starlight-videos'
 import starlightCopyInlineCode from 'starlight-copy-inline-code'
 import starlightLinksValidator from 'starlight-links-validator'
 import starlightLlmsTxt from 'starlight-llms-txt'
+import starlightBlog from 'starlight-blog'
 import { sidebar as sidebarConfig, topics, exclude } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import { llmsConfig } from './src/configs/llms.config.ts'
@@ -110,8 +111,24 @@ export default defineConfig({
           // CSS selector for inline code elements (default: ':not(pre) > code')
           selector: ':not(pre) > code',
         }),
+        starlightBlog({
+          prefix: 'cookbooks',
+          metrics: {
+            readingTime: true,
+            words: 'total',
+          },
+        }),
       ],
       head: [
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'alternate',
+            type: 'text/plain',
+            title: 'LLM-friendly documentation',
+            href: '/llms.txt',
+          },
+        },
         {
           tag: 'script',
           attrs: {

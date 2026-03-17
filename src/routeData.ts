@@ -17,6 +17,37 @@ export const onRequest = defineRouteMiddleware((context) => {
     attrs: { name: 'twitter:image', content: ogImageUrl.href },
   })
 
+  // JSON-LD TechArticle schema for AEO (Google AI Overviews, Perplexity, Bing Copilot)
+  const { title, description, tags } = starlightRoute.entry.data
+  if (title && description) {
+    const canonicalURL = new URL(context.url.pathname, context.site)
+    head.push({
+      tag: 'script',
+      attrs: { type: 'application/ld+json' },
+      content: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        headline: title,
+        description,
+        ...(tags?.length ? { keywords: tags.join(', ') } : {}),
+        url: canonicalURL.href,
+        publisher: {
+          '@type': 'Organization',
+          name: 'Scalekit',
+          url: 'https://scalekit.com',
+        },
+      }),
+    })
+  }
+
+  // Keywords meta tag from frontmatter tags
+  if (tags?.length) {
+    head.push({
+      tag: 'meta',
+      attrs: { name: 'keywords', content: tags.join(', ') },
+    })
+  }
+
   const overviewItem = starlightRoute.toc?.items[0]
   if (overviewItem) overviewItem.text = individualOverviewTitle ?? 'Overview'
 })

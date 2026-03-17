@@ -65,7 +65,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Multi-App Authentication',
+        label: 'Auth across multiple apps',
         collapsed: false,
         items: [
           'authenticate/fsa/multiapp/overview',
@@ -132,11 +132,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'agent-auth/overview',
-          {
-            label: 'Quickstarts',
-            collapsed: false,
-            items: ['agent-auth/quickstart', 'agent-auth/start-agent-auth-coding-agents'],
-          },
+          { label: 'Quickstart: Agent Auth', link: 'agent-auth/quickstart' },
           'agent-auth/code-samples',
         ],
       },
@@ -215,63 +211,95 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Developer Resources',
+    label: 'Developer Kit',
     id: 'dev-kit',
-    link: '/dev-kit/code-samples/',
+    link: '/dev-kit/build-with-ai/',
     icon: 'seti:powershell',
-    // TODO: A lot of items are intentionally hidden until contents in them are authored.
     items: [
-      // 'dev-kit',
-      // {
-      //   label: 'Work with Scalekit',
-      //   collapsed: true,
-      //   items: [
-      //     'dev-kit/guides/dashboard/environments',
-      //     'dev-kit/guides/dashboard/manage-team-members',
-      //     'dev-kit/guides/dashboard/billing',
-      //   ],
-      // },
       {
-        label: 'Code samples',
+        label: 'Build with coding agents',
         items: [
-          { label: 'Overview', link: 'dev-kit/code-samples' },
-          'dev-kit/code-samples/mcp-auth',
-          'dev-kit/code-samples/agent-auth',
-          'dev-kit/code-samples/modular-sso',
-          'dev-kit/code-samples/modular-scim',
-          'dev-kit/code-samples/full-stack-auth',
+          'dev-kit/build-with-ai',
+          'dev-kit/build-with-ai/full-stack-auth',
+          'dev-kit/build-with-ai/agent-auth',
+          'dev-kit/build-with-ai/mcp-auth',
+          'dev-kit/build-with-ai/sso',
+          'dev-kit/build-with-ai/scim',
         ],
       },
-      createSpacing(),
-      createSectionHeader('Testing Utilities'),
-      'dev-kit/tools/scalekit-dryrun',
-      'dev-kit/tools/sso-simulator',
-      'dev-kit/tools/use-scalekit-credentials',
-      createSpacing(),
-      createSectionHeader('DEV TOOLS'),
-      {
-        label: 'SDKs',
-        link: 'dev-kit/sdks',
-      },
-      {
-        label: 'APIs',
-        // link: 'dev-kit/apis',
-        link: '/apis/#description/overview',
-        attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
-      },
-      'dev-kit/api-collections/openapi-spec',
       {
         label: 'AI tools',
-        collapsed: false,
+        collapsed: true,
         items: [
           'dev-kit/ai-assisted-development/scalekit-mcp-server',
           'dev-kit/resources/ai-assisted-setup',
           'dev-kit/ai-assisted-development/context7',
-          // 'dev-kit/ai-assisted-development/cursor',
-          // 'dev-kit/ai-assisted-development/claude',
-          // 'dev-kit/ai-assisted-development/codex',
-          // 'dev-kit/ai-assisted-development/vscode',
         ],
+      },
+      {
+        label: 'Testing utilities',
+        items: [
+          'dev-kit/tools/scalekit-dryrun',
+          'dev-kit/tools/sso-simulator',
+          'dev-kit/tools/use-scalekit-credentials',
+        ],
+      },
+      {
+        label: 'SDKs & APIs',
+        items: [
+          'dev-kit/sdks',
+          {
+            label: 'APIs',
+            link: '/apis/#description/overview',
+            attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
+          },
+          'dev-kit/api-collections/openapi-spec',
+          {
+            label: 'Postman collections',
+            link: 'https://github.com/scalekit-inc/api-collections/tree/main',
+            attrs: { target: '_blank', rel: 'noopener noreferrer', class: 'external-link' },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: 'Resources',
+    id: 'resources',
+    link: '/guides/integrations',
+    icon: 'open-book',
+    items: [
+      {
+        label: 'Code samples',
+        collapsed: true,
+        items: [
+          { label: 'Overview', link: 'resources/code-samples' },
+          'resources/code-samples/full-stack-auth',
+          'resources/code-samples/agent-auth',
+          'resources/code-samples/mcp-auth',
+          'resources/code-samples/modular-sso',
+          'resources/code-samples/modular-scim',
+        ],
+      },
+      createSectionHeader('Integrations'),
+      {
+        label: 'Social connections',
+        collapsed: true,
+        autogenerate: { directory: 'guides/integrations/social-connections' },
+      },
+      {
+        label: 'SSO integrations',
+        collapsed: true,
+        autogenerate: { directory: 'guides/integrations/sso-integrations' },
+      },
+      {
+        label: 'SCIM integrations',
+        collapsed: true,
+        autogenerate: { directory: 'guides/integrations/scim-integrations' },
+      },
+      {
+        label: 'Agent connectors',
+        link: 'guides/integrations/agent-connectors',
       },
       createSpacing(),
       createSectionHeader('Workflows'),
@@ -292,42 +320,6 @@ export const sidebar = [
         ],
       },
       { label: 'Admin portal events', link: 'reference/admin-portal/ui-events' },
-      createSectionHeader('Auth Integrations'),
-      {
-        label: 'Social connections',
-        collapsed: true,
-        autogenerate: {
-          directory: 'guides/integrations/social-connections',
-        },
-      },
-      {
-        label: 'SSO integrations',
-        collapsed: true,
-        autogenerate: { directory: 'guides/integrations/sso-integrations' },
-      },
-      {
-        label: 'SCIM integrations',
-        collapsed: true,
-        autogenerate: { directory: 'guides/integrations/scim-integrations' },
-      },
-      // {
-      //   label: 'Test enterprise integrations',
-      //   collapsed: true,
-      //   items: ['dev-kit/guides/testing/sso-simulator', 'dev-kit/guides/testing/scim-simulator'],
-      // },
-      // {
-      //   label: 'How-to guides',
-      //   collapsed: false,
-      //   items: [
-      //     // 'reference/webhooks/overview',
-      //     // 'reference/webhooks/directory-events',
-      //     // 'reference/webhooks/user-events',
-      //     // 'reference/webhooks/organization-events',
-      //     // 'reference/webhooks/permission-events',
-      //     // 'reference/webhooks/role-events',
-      //     // 'reference/webhooks/sso-events'
-      //   ],
-      // },
     ],
   },
   {
@@ -340,11 +332,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'authenticate/mcp/overview',
-          {
-            label: 'Quickstarts',
-            collapsed: false,
-            items: ['authenticate/mcp/quickstart', 'authenticate/mcp/start-mcp-auth-coding-agents'],
-          },
+          { label: 'Quickstart: MCP Auth', link: 'authenticate/mcp/quickstart' },
           'authenticate/mcp/managing-mcp-clients',
           'authenticate/mcp/code-samples',
         ],
@@ -391,7 +379,10 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['authenticate/sso/add-modular-sso', 'authenticate/sso/code-samples'],
+        items: [
+          { label: 'Quickstart: Add modular SSO', link: 'authenticate/sso/add-modular-sso' },
+          'authenticate/sso/code-samples',
+        ],
       },
       {
         label: 'Integrate SSO with own auth',
@@ -439,7 +430,10 @@ export const sidebar = [
     items: [
       {
         label: 'Getting started',
-        items: ['directory/scim/quickstart', 'directory/code-samples'],
+        items: [
+          { label: 'Quickstart: Add modular SCIM', link: 'directory/scim/quickstart' },
+          'directory/code-samples',
+        ],
       },
       {
         label: 'How to...',
@@ -541,6 +535,7 @@ export const sidebar = [
  */
 export const exclude = [
   '/', // Home page
+  '/blog',
   '/404', // Error page
   '/apis/**/*', // REST API reference has Scalar-powered navigation
 ]
@@ -564,18 +559,32 @@ export const topics = {
   // Agent Auth / Connect
   connect: ['/agent-auth/**/*', '/reference/agent-connectors/**/*'],
 
-  // === dev-kit patterns (must come before authenticate pattern) ===
-  'dev-kit': [
-    '/authenticate/implement-workflows/implement-webhooks',
-    '/authenticate/interceptors/auth-flow-interceptors',
-    '/dev-kit/**/*',
+  // === Resources (integrations, workflows, references) ===
+  resources: [
+    '/resources/code-samples/**/*',
+    '/guides/integrations/**/*',
+    '/authenticate/implement-workflows/**/*',
+    '/authenticate/interceptors/**/*',
+    '/reference/admin-portal/**/*',
+    '/guides/webhooks-best-practices',
+    '/reference/interceptors/**/*',
     '/guides/**/*',
     '/browse/**/*',
-    '/m2m/**/*',
-    '/social-logins/**/*',
-    '/passwordless/**/*',
-    '/reference/**/*', // Any remaining reference pages
+    '/reference/**/*',
+    '/cookbooks',
+    '/cookbooks/**/*',
     '/**/*', // Catch-all: anything not matched above defaults here
+  ],
+
+  // === Developer Kit (tools, code, SDKs, AI helpers) ===
+  'dev-kit': [
+    '/dev-kit/tools/**/*',
+    '/dev-kit/sdks/**/*',
+    '/dev-kit/ai-assisted-development/**/*',
+    '/dev-kit/resources/**/*',
+    '/dev-kit/build-with-ai/**/*',
+    '/dev-kit/api-collections/**/*',
+    '/dev-kit/**/*',
   ],
 
   // Main authentication topic (after more specific mcp/sso patterns)
@@ -643,8 +652,31 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Agent Auth sidebar → 'Agent Auth' tab
   connect: 'agent-auth',
 
-  // Developer Resources sidebar → 'Developer Resources' tab
-  'dev-kit': 'scenarios',
+  // Developer Kit sidebar → Developer Resources dropdown (left column)
+  'dev-kit': {
+    default: 'build-with-ai',
+    pathOverrides: {
+      '/dev-kit/tools': 'testing-utilities',
+      '/dev-kit/build-with-ai': 'build-with-ai',
+      '/dev-kit/sdks': 'dev-tools',
+      '/dev-kit/ai-assisted-development': 'build-with-ai',
+      '/dev-kit/resources/ai-assisted-setup': 'build-with-ai',
+    },
+  },
+
+  // Resources sidebar → Developer Resources dropdown (right column)
+  resources: {
+    default: 'integrations',
+    pathOverrides: {
+      '/resources/code-samples': 'code-samples',
+      '/guides/integrations': 'integrations',
+      '/authenticate/implement-workflows': 'workflows',
+      '/authenticate/interceptors': 'workflows',
+      '/reference/interceptors': 'workflows',
+      '/reference/admin-portal': 'workflows',
+      '/cookbooks': 'cookbooks',
+    },
+  },
 
   // SDKs sidebar → 'SDKs' tab
   sdks: 'sdks',

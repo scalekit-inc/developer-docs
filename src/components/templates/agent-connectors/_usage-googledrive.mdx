@@ -78,6 +78,92 @@ Connect a user's Google Drive account and make API calls on their behalf — Sca
   </TabItem>
 </Tabs>
 
+## File operations
+
+### Download a file
+
+Download a file from Google Drive by its file ID via the Scalekit proxy.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "google_drive"  # get your connection name from connection configurations
+    identifier = "user_123"           # your unique user identifier
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+
+    file_id = "<YOUR_FILE_ID>"   # file ID from Drive (visible in the file's URL)
+    output_path = "downloaded.pdf"
+
+    response = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path=f"/drive/v3/files/{file_id}",
+        method="GET",
+        query_params={"alt": "media"},
+    )
+
+    with open(output_path, "wb") as f:
+        f.write(response.content)
+
+    print(f"Downloaded: {output_path} ({len(response.content):,} bytes)")
+    ```
+  </TabItem>
+</Tabs>
+
+### Upload a file
+
+Upload a file to Google Drive via the Scalekit proxy. Scalekit injects the OAuth token automatically — your app never handles credentials directly.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python
+    import mimetypes
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "google_drive"  # get your connection name from connection configurations
+    identifier = "user_123"           # your unique user identifier
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+
+    file_path = "report.pdf"
+    file_name = "report.pdf"
+
+    with open(file_path, "rb") as f:
+        file_bytes = f.read()
+
+    mime_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
+
+    response = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/upload/drive/v3/files",
+        method="POST",
+        query_params={"uploadType": "media", "name": file_name},
+        form_data=file_bytes,
+        headers={"Content-Type": mime_type},
+    )
+
+    file_id = response.json()["id"]
+    print(f"Uploaded: {file_name} (File ID: {file_id})")
+    ```
+  </TabItem>
+</Tabs>
+
 ## `googledrive_get_file_metadata`
 
 Retrieve metadata for a specific file in Google Drive by its file ID. Returns name, MIME type, size, creation time, and more.

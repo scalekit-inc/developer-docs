@@ -1,0 +1,93 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+<Steps>
+1. ## Add the Scalekit authstack marketplace
+
+   Need to install GitHub Copilot CLI? See the [getting started guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-getting-started) — an active GitHub Copilot subscription is required.
+
+   Register Scalekit's plugin marketplace to access pre-configured authentication plugins. This marketplace provides implementation skills that help GitHub Copilot generate correct MCP server authentication code.
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+   ```
+
+   The marketplace provides specialized plugins that understand MCP server architectures and OAuth 2.1 security requirements. These plugins guide GitHub Copilot to generate implementation code that matches your project structure.
+
+   To remove the Scalekit authstack marketplace, use the remove command:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin marketplace remove github-copilot-authstack
+   ```
+
+2. ## Install the MCP Auth plugin
+
+   Install the MCP Auth plugin to give GitHub Copilot the skills needed to generate OAuth 2.1 authentication code for MCP servers:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin install mcp-auth@scalekit-auth-stack
+   ```
+
+   <details>
+   <summary>Verify the plugin is installed</summary>
+
+   Confirm the plugin installed successfully:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin list
+   ```
+
+   <Aside type="tip" title="Keep plugins updated">
+   Update authentication plugins regularly to receive security patches and improvements:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin update mcp-auth@scalekit-auth-stack
+   ```
+   </Aside>
+
+   </details>
+
+3. ## Generate authentication implementation
+
+   Use a structured prompt to direct GitHub Copilot. A well-formed prompt ensures the agent generates complete, production-ready authentication code that includes all required security components.
+
+   Copy the following command into your terminal:
+
+   ```bash wrap title="Terminal" frame="terminal" showLineNumbers=false
+   copilot "Add OAuth 2.1 authentication to my MCP server using Scalekit. Initialize ScalekitClient with environment credentials, implement /.well-known/ metadata endpoint for discovery, and add authentication middleware that validates JWT bearer tokens on all MCP requests. Code only."
+   ```
+
+   GitHub Copilot uses the MCP Auth plugin to analyze your existing MCP server structure, generate authentication middleware with token validation, create the OAuth discovery endpoint, and configure environment variable handling.
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
+   </Aside>
+
+4. ## Verify the implementation
+
+   After GitHub Copilot completes, verify that all authentication components are properly configured:
+
+   Check generated files:
+   - Authentication middleware with JWT validation
+   - Environment variable configuration (`.env.example`)
+   - OAuth discovery endpoint (`/.well-known/oauth-authorization-server`)
+   - Error handling for invalid or expired tokens
+
+   Test the authentication flow:
+
+   ```bash title="Terminal" frame="terminal"
+   # Start your MCP server
+   npm start
+
+   # Test discovery endpoint
+   curl http://localhost:3000/.well-known/oauth-authorization-server
+
+   # Test protected endpoint (should return 401)
+   curl http://localhost:3000/mcp
+
+   # Test with valid token
+   curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/mcp
+   ```
+
+   The discovery endpoint should return OAuth configuration metadata. Protected endpoints should reject requests without valid tokens and accept requests with properly scoped access tokens.
+
+</Steps>
