@@ -115,6 +115,7 @@ export default defineConfig({
         }),
         starlightBlog({
           prefix: 'cookbooks',
+          rss: false, // Disable RSS — feed generation loads all content into memory, triggers OOM on Netlify
           metrics: {
             readingTime: true,
             words: 'total',
