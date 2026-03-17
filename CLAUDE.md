@@ -125,7 +125,7 @@ Every documentation page MUST fit one primary type and follow its recommended st
 
 ### How-to Guide
 
-Task-oriented; includes Overview, Prerequisites, Procedure (with `<Steps>`), Verify, Next Steps, and optional FAQs.
+Task-oriented; includes Overview, Prerequisites, Procedure (with `<Steps>`), Verify, optional Next Steps, and optional FAQs. The "Next Steps" section may be omitted when the frontmatter `prev`/`next` links already provide contextual navigation to related pages.
 
 ### API Reference
 
@@ -181,7 +181,7 @@ tableOfContents: true
 ### Content Organization
 
 - Opening paragraphs (1–3) MUST state what users will accomplish, when/why they need it, and preview the workflow using direct instructional language
-- Page organization SHOULD follow: opening context, optional collapsible supplementary sections, main content sections, and a closing "next steps" or summary
+- Page organization SHOULD follow: opening context, optional collapsible supplementary sections, main content sections, and an optional closing "next steps" or summary. A closing "next steps" section may be omitted when frontmatter `prev`/`next` links already provide contextual navigation
 - Use H2 for major sections, H3 for subsections, and H4 only inside `<Steps>`; never use H1 in body content and avoid nesting beyond H4
 - Use numbered lists only inside `<Steps>` for ordered procedures; use bulleted lists for unordered information
 

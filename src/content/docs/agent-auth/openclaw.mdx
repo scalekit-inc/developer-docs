@@ -1,12 +1,13 @@
 ---
-title: "OpenClaw Skill for Agent Auth"
-description: Use the Scalekit Agent Auth skill for OpenClaw to connect your AI agents to third-party services like LinkedIn, Notion, Slack, and more.
+title: "OpenClaw skill"
+description: Connect OpenClaw agents to third-party services through Scalekit. Supports LinkedIn, Notion, Slack, Gmail, and 50+ providers.
 sidebar:
   order: 10
-  label: "OpenClaw Skill"
+  label: "OpenClaw"
 banner:
   content: |
     Join our dev community to connect with Scalekit engineers for questions or feedback
+tableOfContents: true
 ---
 
 import { Aside, Steps, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
@@ -14,36 +15,40 @@ import openclawArch from '../../../assets/docs/agent-auth/openclaw-architecture.
 import { Image } from 'astro:assets';
 
 <Aside type="danger">
-  Scalekit ensures your tokens and API keys are stored and audited securely. However, OpenClaw like all AI agent frameworks is vulnerable to prompt injection and other agent-level attacks. Please follow security best practices to protect your instance.
+  Scalekit stores tokens and API keys securely with full audit logging. OpenClaw, like all AI agent frameworks, is vulnerable to prompt injection and other agent-level attacks. Follow security best practices to protect your instance.
 </Aside>
 
 <Image src={openclawArch} alt="OpenClaw connects to Scalekit which connects to LinkedIn, Gmail, Notion, HubSpot, and Salesforce" />
 
-The **Scalekit Agent Auth** skill for [OpenClaw](https://github.com/scalekit-inc/openclaw-skill) lets your OpenClaw agent execute actions on third-party services directly from your conversation — searching LinkedIn, reading Notion pages, sending Slack messages, querying Snowflake, and more — all through Scalekit Connect.
+Use the Scalekit Agent Auth skill for [OpenClaw](https://github.com/scalekit-inc/openclaw-skill) to let your AI agents execute actions on third-party services directly from conversations. Search LinkedIn, read Notion pages, send Slack messages, query Snowflake, and more — all through Scalekit Connect without storing tokens or API keys in your agent.
 
 ## How it works
 
 When you ask Claude to interact with a third-party service, the skill:
 
-1. Discovers the configured connection for the provider in Scalekit (e.g. [Gmail connection setup](/reference/agent-connectors/gmail/))
-2. Verifies the connection is active (OAuth magic link for new OAuth connections; Dashboard guidance for API Key / Bearer / Basic connections)
-3. Fetches the available tools for that provider and their schemas
-4. Executes the right tool with the correct parameters
-5. Falls back to a proxied HTTP request if no tool exists for the action
+<Steps>
+
+1. **Discovers the connection** — Finds the configured provider in Scalekit (e.g., [Gmail connection setup](/reference/agent-connectors/gmail/))
+2. **Verifies authorization** — Checks if the connection is active. For OAuth, generates a magic link for new connections. For API keys, provides Dashboard guidance.
+3. **Fetches tool schemas** — Retrieves available tools and their parameter schemas for the provider
+4. **Executes the tool** — Calls the right tool with the correct parameters
+5. **Falls back to proxy** — If no tool exists for the action, routes the request through Scalekit's HTTP proxy
+
+</Steps>
 
 <Aside type="tip">
-  The skill automatically detects whether a connection is OAuth or non-OAuth and applies the correct auth flow — no configuration needed.
+  The skill automatically detects whether a connection uses OAuth or an API key and applies the correct auth flow — no configuration needed.
 </Aside>
 
-Your agent never stores tokens or API keys. Scalekit acts as a token vault — all OAuth tokens, API keys, and credentials are stored and managed by Scalekit. The skill retrieves only what it needs at runtime, scoped to the requesting user.
+Your agent never stores tokens or API keys. Scalekit acts as a token vault, managing all OAuth tokens, API keys, and credentials. The skill retrieves only what it needs at runtime, scoped to the requesting user.
 
 ## Prerequisites
 
-- [OpenClaw](https://openclaw.ai) installed and set up
-- A Scalekit account with Agent Auth enabled — [get started at app.scalekit.com](https://app.scalekit.com)
+- [OpenClaw](https://openclaw.ai) installed and configured
+- A Scalekit account with Agent Auth enabled — [sign up at app.scalekit.com](https://app.scalekit.com)
 - `python3` and `uv` available in your PATH
 
-## Installation
+## Install the skill
 
 Install the skill from ClawHub:
 
@@ -51,7 +56,7 @@ Install the skill from ClawHub:
 clawhub install scalekit-agent-auth
 ```
 
-Then add your Scalekit credentials to `.env` in your project root:
+Add your Scalekit credentials to `.env` in your project root:
 
 ```bash
 TOOL_CLIENT_ID=skc_your_client_id
@@ -64,25 +69,29 @@ TOOL_IDENTIFIER=your_default_user_identifier
   `TOOL_CLIENT_ID`, `TOOL_CLIENT_SECRET`, and `TOOL_ENV_URL` are required. `TOOL_IDENTIFIER` is optional but recommended — it sets the default user context for all tool calls.
 </Aside>
 
-## Example: Read emails with Gmail
+## Example usage
+
+### Read emails with Gmail
 
 ```
 You: Show me my latest unread emails
 ```
 
 OpenClaw will automatically:
+
 1. Look up the `GMAIL` connection
 2. Verify it's active (or generate a magic link to authorize if needed)
 3. Fetch the `gmail_list_emails` tool schema
 4. Return your latest unread emails
 
-## Example: Read a Notion page
+### Read a Notion page
 
 ```
 You: Read my Notion page https://notion.so/My-Page-abc123
 ```
 
 OpenClaw will:
+
 1. Look up the `NOTION` connection
 2. If not yet authorized, generate a magic link for you to complete OAuth
 3. Fetch the `notion_page_get` tool schema
@@ -90,7 +99,7 @@ OpenClaw will:
 
 ## Supported providers
 
-Any provider configured in Scalekit — including Notion, Slack, Gmail, Google Sheets, GitHub, Salesforce, HubSpot, Linear, Snowflake, Exa, HarvestAPI, and 50+ more.
+Any provider configured in Scalekit works with the OpenClaw skill — including Notion, Slack, Gmail, Google Sheets, GitHub, Salesforce, HubSpot, Linear, Snowflake, Exa, HarvestAPI, and 50+ more.
 
 <CardGrid>
   <LinkCard
@@ -107,5 +116,25 @@ Any provider configured in Scalekit — including Notion, Slack, Gmail, Google S
     title="ClawHub listing"
     description="Install scalekit-agent-auth from ClawHub"
     href="https://clawhub.dev/skills/scalekit-agent-auth"
+  />
+</CardGrid>
+
+## Next steps
+
+<CardGrid>
+  <LinkCard
+    title="Configure connections"
+    description="Set up OAuth and API key connections in Scalekit"
+    href="/agent-auth/connections"
+  />
+  <LinkCard
+    title="Understand tools"
+    description="Learn how Scalekit tools work and how to authorize them"
+    href="/agent-auth/tools/overview"
+  />
+  <LinkCard
+    title="Troubleshoot auth flows"
+    description="Debug common authentication issues"
+    href="/agent-auth/authentication/troubleshooting"
   />
 </CardGrid>
