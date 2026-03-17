@@ -1,6 +1,6 @@
 ---
 title: Exa
-description: Connect to Exa for AI-powered semantic web search, content enrichment, finding similar pages, website crawling, direct answers, structured research, and large-scale URL discovery.
+description: Connect to Exa to perform AI-powered semantic web search, crawl websites for structured content, get natural language answers from the web, run in-depth research, and execute large-scale URL discovery with Websets.
 tableOfContents: true
 head:
   - tag: style
@@ -11,15 +11,72 @@ head:
       table td:first-child, table th:first-child {
         white-space: nowrap;
       }
+      /* Heading copy functionality */
+      .sl-markdown-content h2,
+      .sl-markdown-content h3,
+      .sl-markdown-content h4 {
+        position: relative;
+        cursor: pointer;
+      }
+      .sl-markdown-content h2:hover::after,
+      .sl-markdown-content h3:hover::after,
+      .sl-markdown-content h4:hover::after {
+        content: " 📋 ";
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+  - tag: script
+    content: |
+      // Using a self-executing function to avoid global namespace pollution
+      (function() {
+        // Function to initialize the copy functionality
+        function initHeadingCopy() {
+          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
+
+          headings.forEach(heading => {
+            // Skip if already initialized
+            if (heading.hasAttribute('data-copy-initialized')) return;
+            heading.setAttribute('data-copy-initialized', 'true');
+
+            heading.addEventListener('click', async () => {
+              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
+
+              try {
+                await navigator.clipboard.writeText(headingText);
+
+                // Visual feedback
+                const originalText = heading.textContent;
+                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
+
+                setTimeout(() => {
+                  heading.textContent = originalText;
+                }, 2000);
+              } catch (err) {
+                console.error('Failed to copy heading:', err);
+              }
+            });
+          });
+        }
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', initHeadingCopy);
+
+        // Also initialize now in case the DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          setTimeout(initHeadingCopy, 1);
+        }
+
+        // For Astro's client-side navigation
+        document.addEventListener('astro:page-load', initHeadingCopy);
+      })();
 ---
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
-import { SetupExaSection, UsageExaSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
-  Connect to Exa for AI-powered semantic web search, content enrichment, finding similar pages, website crawling, direct answers, structured research, and large-scale URL discovery.
+  Connect to Exa to perform AI-powered semantic web search, crawl websites for structured content, get natural language answers from the web, run in-depth research, and execute large-scale URL discovery with Websets.
  </div>
  <div class="flex justify-center">
   <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/exa.svg" width="64" height="64" alt="Exa logo" />
@@ -28,138 +85,127 @@ import { SetupExaSection, UsageExaSection } from '@components/templates'
 
 Supports authentication: <Badge text="API Key" />
 
-## Set up the agent connector
-
-<SetupExaSection />
-
-## Usage
-
-<UsageExaSection />
 
 ## Tool list
 
-## `exa_search`
+## `exa_answer`
 
-Search the web with a semantic or keyword query. Returns ranked results with titles, URLs, published dates, and optional full-page content. Semantic search (`type: neural`) finds conceptually similar pages even when your exact words don't appear in the source. Keyword search (`type: keyword`) uses traditional exact-match scoring.
-
-**Credits**: 1 credit per request + 1 credit per result when `contents.text` or `contents.summary` is requested.
+Get a natural language answer to a question by searching the web with Exa and synthesizing results. Returns a direct answer with citations to the source pages. Ideal for factual questions, current events, and research queries. Rate limit: 60 requests/minute.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `query` | string | Yes | Search query — phrase it as a statement or question for best semantic results |
-| `num_results` | integer | No | Number of results to return (default `10`, max `100`) |
-| `type` | string | No | Search mode: `neural` for semantic similarity (default), `keyword` for exact-match |
-| `category` | string | No | Filter by content type: `company`, `research paper`, `news`, `github`, `tweet`, `personal site`, `pdf`, `linkedin profile` |
-| `include_domains` | array | No | Restrict results to these domains (e.g., `["techcrunch.com", "arxiv.org"]`) |
-| `exclude_domains` | array | No | Exclude results from these domains |
-| `start_published_date` | string | No | ISO 8601 date — only return pages published after this date (e.g., `2025-01-01`) |
-| `end_published_date` | string | No | ISO 8601 date — only return pages published before this date |
-| `start_crawl_date` | string | No | ISO 8601 date — only return pages crawled by Exa after this date |
-| `end_crawl_date` | string | No | ISO 8601 date — only return pages crawled by Exa before this date |
-| `include_text` | array | No | Strings that must appear in the page text |
-| `exclude_text` | array | No | Strings that must not appear in the page text |
-| `location` | string | No | ISO country code for location-biased results (e.g., `US`, `GB`, `DE`) |
-| `contents.text` | boolean | No | Include full page text in each result (costs 1 extra credit per result) |
-| `contents.highlights` | object | No | Include highlighted snippets — set `num_sentences` and `highlights_per_url` |
-| `contents.summary` | object | No | Include an AI-generated page summary — optionally set `query` to focus the summary |
-
-## `exa_find_similar`
-
-Find web pages that are semantically similar to a given URL. Exa uses its neural index to surface pages with matching content, tone, and topic — useful for competitive research, discovering similar products, or finding alternative sources on a topic.
-
-**Credits**: 1 credit per request + 1 credit per result when `contents.text` or `contents.summary` is requested.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `url` | string | Yes | URL to find similar pages for (e.g., `https://example.com/product`) |
-| `num_results` | integer | No | Number of results to return (default `10`, max `100`) |
-| `include_domains` | array | No | Restrict results to these domains (e.g., `["techcrunch.com", "wired.com"]`) |
-| `exclude_domains` | array | No | Exclude results from these domains |
-| `start_published_date` | string | No | ISO 8601 date — only return pages published after this date |
-| `end_published_date` | string | No | ISO 8601 date — only return pages published before this date |
-| `start_crawl_date` | string | No | ISO 8601 date — only return pages crawled by Exa after this date |
-| `end_crawl_date` | string | No | ISO 8601 date — only return pages crawled by Exa before this date |
-| `contents.text` | boolean | No | Include full page text in each result (costs 1 extra credit per result) |
-| `contents.highlights` | object | No | Include highlighted snippets — set `num_sentences` and `highlights_per_url` |
-| `contents.summary` | object | No | Include an AI-generated page summary — optionally set `query` to focus the summary |
+| `exclude_domains` | `array<string>` | No | JSON array of domains to exclude from answer sources. |
+| `include_domains` | `array<string>` | No | JSON array of domains to restrict source search to. Example: ["reuters.com","bbc.com"] |
+| `include_text` | boolean | No | When true, also returns the source page text alongside the synthesized answer. |
+| `num_results` | integer | No | Number of web sources to use when generating the answer (1–20). More sources improves accuracy but costs more credits. |
+| `query` | string | Yes | The question or query to answer from web sources. |
 
 ## `exa_crawl`
 
-Crawl all pages of a website starting from a given URL and extract their text content. Follows internal links up to the configured depth. Use this to index documentation sites, company knowledge bases, or competitor content for downstream processing.
-
-**Credits**: Credits vary based on the number of pages crawled and content extracted.
+Crawl one or more web pages by URL and extract their content including full text, highlights, and AI-generated summaries. Useful for reading specific pages discovered via search. Rate limit: 60 requests/minute. Credit consumption depends on number of URLs.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `url` | string | Yes | Starting URL to crawl (e.g., `https://docs.example.com`) |
-| `max_depth` | integer | No | Maximum number of link hops to follow from the starting URL (default `1`) |
-| `max_pages` | integer | No | Maximum number of pages to retrieve (default `100`) — set this to control credit usage |
-| `include_subdomains` | boolean | No | Whether to follow links to subdomains of the starting URL (default `false`) |
-| `exclude_paths` | array | No | URL path patterns to skip (e.g., `["/archive/*", "/blog/*"]`) |
+| `highlights_per_url` | integer | No | Number of highlight sentences to return per URL when include_highlights is true. Defaults to 3. |
+| `include_highlights` | boolean | No | When true, returns the most relevant sentence-level highlights from each page. |
+| `include_html_tags` | boolean | No | When true, retains HTML tags in the extracted text. Defaults to false (plain text only). |
+| `include_summary` | boolean | No | When true, returns an AI-generated summary for each crawled page. |
+| `max_characters` | integer | No | Maximum characters of text to extract per page. Defaults to 5000. |
+| `summary_query` | string | No | Optional query to focus the AI summary on a specific aspect of the page. |
+| `urls` | `array<string>` | Yes | JSON array of URLs to crawl and extract content from. |
 
-## `exa_get_contents`
+## `exa_delete_webset`
 
-Retrieve enriched content — full text, highlighted snippets, or AI-generated summaries — for one or more specific URLs without running a search. Use this when you already have URLs (from a prior search, a CRM, or an external list) and want to extract structured content from them.
-
-**Credits**: 1 credit per URL + 1 credit per content item retrieved (text, highlights, or summary each count separately).
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `urls` | array | Yes* | List of URLs to retrieve content for (e.g., `["https://example.com/about"]`) |
-| `ids` | array | Yes* | List of Exa result IDs from a prior `exa_search` or `exa_find_similar` call — use instead of `urls` when you have Exa IDs |
-| `text` | boolean | No | Include full page text for each URL (costs 1 extra credit per page) |
-| `text.max_characters` | integer | No | Truncate page text to this many characters |
-| `text.include_html_tags` | boolean | No | Preserve HTML tags in the returned text — helps LLMs interpret page structure |
-| `highlights` | object | No | Extract relevant text snippets from each page |
-| `highlights.query` | string | No | Custom query to guide which snippets are highlighted |
-| `summary` | object | No | Generate an AI summary for each page (costs 1 extra credit per page) |
-| `summary.query` | string | No | Focus the summary on a specific question or topic |
-| `summary.schema` | object | No | JSON schema for structured summary output |
-| `subpages` | integer | No | Number of subpages to also crawl from each URL (default `0`) |
-| `subpage_target` | string | No | Keyword or path pattern to target specific subpages (e.g., `"pricing"`) |
-| `max_age_hours` | integer | No | Maximum age of cached content in hours — set a lower value to force a fresher crawl |
-
-*Provide either `urls` or `ids` — at least one is required.
-
-## `exa_answer`
-
-Get a concise natural language answer to a question, synthesized from live web search results. Returns the answer text and a list of source URLs used to generate it. Use this when you need a direct factual response rather than a list of links.
-
-**Credits**: Credits vary based on the number of sources retrieved.
+Delete an Exa Webset by its ID. This permanently removes the webset and all its collected items. This action cannot be undone.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `query` | string | Yes | The question to answer (e.g., `"What are the rate limits for GPT-4o?"`) |
-| `num_results` | integer | No | Number of web sources used to generate the answer (default `5`) |
-| `text` | boolean | No | Include the source text snippets alongside the answer |
-| `include_domains` | array | No | Restrict source lookup to these domains |
-| `exclude_domains` | array | No | Exclude these domains from the source lookup |
-| `start_published_date` | string | No | ISO 8601 date — only use sources published after this date |
-| `end_published_date` | string | No | ISO 8601 date — only use sources published before this date |
+| `webset_id` | string | Yes | The ID of the webset to delete. |
+
+## `exa_find_similar`
+
+Find web pages similar to a given URL using Exa's neural similarity search. Useful for competitor research, finding related articles, or discovering similar companies. Optionally returns page text, highlights, or summaries. Rate limit: 60 requests/minute.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `end_published_date` | string | No | Only return pages published before this date. ISO 8601 format: YYYY-MM-DDTHH:MM:SS.000Z |
+| `exclude_domains` | `array<string>` | No | Array of domains to exclude from results. |
+| `include_domains` | `array<string>` | No | Array of domains to restrict results to. |
+| `include_text` | boolean | No | When true, returns the full text content of each result page. |
+| `max_characters` | integer | No | Maximum characters of page text to return per result when include_text is true. Defaults to 3000. |
+| `num_results` | integer | No | Number of similar results to return (1–100). Defaults to 10. |
+| `start_published_date` | string | No | Only return pages published after this date. ISO 8601 format: YYYY-MM-DDTHH:MM:SS.000Z |
+| `url` | string | Yes | The URL to find similar pages for. |
+
+## `exa_get_webset`
+
+Get the status and details of an existing Exa Webset by its ID. Use this to poll the status of an async webset created with Create Webset. Returns metadata including status (created, running, completed, cancelled), progress, and configuration.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `webset_id` | string | Yes | The ID of the webset to retrieve. |
+
+## `exa_list_webset_items`
+
+List the collected URLs and items from a completed Exa Webset. Use this after polling Get Webset until its status is 'completed' to retrieve the discovered results.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `count` | integer | No | Number of items to return per page. Defaults to 10. |
+| `cursor` | string | No | Pagination cursor from a previous response to fetch the next page of items. |
+| `webset_id` | string | Yes | The ID of the webset to retrieve items from. |
+
+## `exa_list_websets`
+
+List all Exa Websets in your account with optional pagination. Returns a list of websets with their IDs, statuses, and configurations.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `count` | integer | No | Number of websets to return per page. Defaults to 10. |
+| `cursor` | string | No | Pagination cursor from a previous response to fetch the next page. |
 
 ## `exa_research`
 
-Run in-depth, multi-angle research on a topic. Exa decomposes the topic into multiple sub-queries, runs each in parallel, and synthesizes a structured output. Optionally provide a JSON schema to control the output shape. Use this for competitive intelligence, market research, or any question that requires aggregating information across many sources.
-
-**Credits**: Significantly more expensive than `exa_search` — cost scales with `num_subqueries`. Each sub-query consumes search and content retrieval credits.
+Run in-depth research on a topic using Exa's neural search. Performs a semantic search and returns results with full page text and AI-generated summaries, providing structured multi-source research output. Best for comprehensive topic analysis. Rate limit: 60 requests/minute.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `topic` | string | Yes | Research topic or question (e.g., `"Competitive landscape of AI coding assistants in 2025"`) |
-| `num_subqueries` | integer | No | Number of parallel sub-queries to run (default `5`, max `15`) — higher values improve coverage but increase cost |
-| `output_schema` | object | No | JSON schema defining the structure of the output — omit for free-form markdown output |
-| `include_domains` | array | No | Restrict all sub-query sources to these domains |
+| `category` | string | No | Restrict research to a specific content category for more targeted results. |
+| `exclude_domains` | `array<string>` | No | JSON array of domains to exclude from research results. |
+| `include_domains` | `array<string>` | No | JSON array of domains to restrict research sources to. Useful to focus on authoritative sources. |
+| `max_characters` | integer | No | Maximum characters of text to extract per source page. Defaults to 5000. |
+| `num_results` | integer | No | Number of sources to gather for the research (1–20). More sources provide broader coverage. |
+| `query` | string | Yes | The research topic or question to investigate across the web. |
+| `start_published_date` | string | No | Only include sources published after this date. ISO 8601 format. |
+| `summary_query` | string | No | Optional focused question to guide the AI page summaries. Defaults to the main research query. |
+
+## `exa_search`
+
+Search the web using Exa's AI-powered semantic or keyword search engine. Supports filtering by domain, date range, content category, and result type. Optionally returns page text, highlights, or summaries alongside search results. Rate limit: 60 requests/minute.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `category` | string | No | Restrict results to a specific content category. |
+| `end_published_date` | string | No | Only return pages published before this date. ISO 8601 format: YYYY-MM-DDTHH:MM:SS.000Z |
+| `exclude_domains` | `array<string>` | No | JSON array of domains to exclude from results. Example: ["reddit.com","quora.com"] |
+| `include_domains` | `array<string>` | No | JSON array of domains to restrict results to. Example: ["techcrunch.com","wired.com"] |
+| `include_text` | boolean | No | When true, returns the full text content of each result page (up to max_characters). |
+| `max_characters` | integer | No | Maximum characters of page text to return per result when include_text is true. Defaults to 3000. |
+| `num_results` | integer | No | Number of results to return (1–100). Defaults to 10. |
+| `query` | string | Yes | The search query. For neural/auto type, natural language works best. For keyword type, use specific terms. |
+| `start_published_date` | string | No | Only return pages published after this date. ISO 8601 format: YYYY-MM-DDTHH:MM:SS.000Z |
+| `type` | string | No | Search type: 'neural' for semantic AI search (best for natural language), 'keyword' for exact-match keyword search, 'auto' to let Exa decide. |
+| `use_autoprompt` | boolean | No | When true, Exa automatically rewrites the query to be more semantically effective. |
 
 ## `exa_websets`
 
-Execute a complex natural language query designed to return a large set of matching URLs — potentially thousands. Each result is vetted against your criteria before being returned. Use this for bulk data collection tasks such as building lead lists, aggregating industry news, or sourcing research datasets.
-
-**Credits**: Credits are consumed per vetted result. Cost scales with `count`.
+Execute a complex web query designed to discover and return large sets of URLs (up to thousands) matching specific criteria. Websets are ideal for lead generation, market research, competitor analysis, and large-scale data collection. Returns a webset ID — poll status with GET `/websets/v0/websets/&#123;id&#125;`. High credit consumption.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `query` | string | Yes | Natural language description of the set to find (e.g., `"YC-backed AI startups founded after 2022"`) |
-| `count` | integer | No | Target number of matching URLs to return (default `10`, can be thousands) |
-| `entity_type` | string | No | Type of entity to find: `company`, `person`, `article`, `research paper`, `job listing`, `event`, `product` |
-| `criteria` | array | No | Additional filter criteria — each item has a `description` and `options.type` (`must`, `should`, or `must_not`) |
-| `include_domains` | array | No | Restrict results to these domains (e.g., `["linkedin.com", "crunchbase.com"]`) |
+| `count` | integer | No | Target number of URLs to collect. Can range from hundreds to thousands. Higher counts take longer and consume more credits. |
+| `entity_type` | string | No | The type of entity to search for. Helps Exa understand what constitutes a valid result match. |
+| `exclude_domains` | `array<string>` | No | JSON array of domains to exclude from webset results. |
+| `external_id` | string | No | Optional external identifier to tag this webset for reference in your system. |
+| `include_domains` | `array<string>` | No | JSON array of domains to restrict webset sources to. |
+| `query` | string | Yes | The search query describing what kinds of pages or entities to find. Be specific and descriptive for best results. |
