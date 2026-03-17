@@ -3,7 +3,12 @@
   publish = "dist"
 
 [build.environment]
-  NODE_OPTIONS = "--max_old_space_size=6144"
+  # Aggressive memory tuning for Astro 6 + Vite builds:
+  # - max_old_space_size: cap V8 heap at 6GB (Netlify provides ~8GB system RAM)
+  # - max-semi-space-size: increase young generation to reduce frequent minor GCs
+  # - expose-gc: allow manual GC if needed by integrations
+  # - optimize-for-size: prefer memory-efficient code over speed
+  NODE_OPTIONS = "--max_old_space_size=6144 --max-semi-space-size=64 --expose-gc --optimize-for-size"
 
 [functions]
   directory = "netlify/functions"

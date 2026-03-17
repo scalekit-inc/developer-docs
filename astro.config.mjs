@@ -26,7 +26,11 @@ import netlify from '@astrojs/netlify'
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'server',
+  // Switched from 'server' to default (static) to drastically reduce build memory.
+  // Astro 6's Vite Environments API creates separate build contexts per output mode;
+  // 'server' mode processes all 300+ pages through a heavy SSR pipeline.
+  // The few SSR pages (auth, health, admin) already have `prerender = false`.
+  // output: 'server',
   site: 'https://docs.scalekit.com',
   redirects,
   integrations: [
@@ -321,7 +325,13 @@ export default defineConfig({
     plugins: [pluginCollapsibleSections(), tailwindcss(), Icons({ compiler: 'astro' })],
     build: {
       chunkSizeWarningLimit: 2000,
+      // Disable source maps in CI to reduce peak memory during bundling
+      sourcemap: false,
+      // Disable gzip size reporting to save memory on large builds
+      reportCompressedSize: false,
       rollupOptions: {
+        // Limit parallel file I/O to reduce memory spikes during bundling
+        maxParallelFileOps: 2,
         output: {
           manualChunks(id) {
             if (id.includes('@scalar')) return 'scalar'
