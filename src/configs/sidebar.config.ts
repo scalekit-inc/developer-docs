@@ -179,10 +179,7 @@ export const sidebar = [
               // 'agent-auth/frameworks/anthropic',
             ],
           },
-          {
-            label: 'MCP',
-            items: [{ label: 'Tool access via MCP', link: 'agent-auth/mcp/tool-access-via-mcp' }],
-          },
+          { label: 'Tool access via MCP', link: 'agent-auth/mcp/tool-access-via-mcp' },
         ],
       },
       {
