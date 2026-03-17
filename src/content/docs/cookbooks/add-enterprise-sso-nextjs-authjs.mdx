@@ -1,0 +1,299 @@
+---
+title: 'Add Enterprise SSO to Next.js with Auth.js'
+description: 'Wire Scalekit''s OIDC interface into Auth.js to ship per-tenant enterprise SSO in Next.js without touching SAML or IdP-specific code.'
+date: 2026-03-10
+tags: ['SSO', 'Next.js', 'Full stack auth']
+excerpt: >
+  Every enterprise customer wants their own IdP — Okta, Azure AD, Google Workspace.
+  Handling SAML handshakes and per-tenant routing before you've shipped a feature is
+  exhausting. This cookbook shows how to delegate that complexity to Scalekit and use
+  Auth.js to own the session layer, so enterprise SSO is an afternoon, not a sprint.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Enterprise customers don't want to hand over their employees' credentials to your app — they want SSO through their own IdP. Auth.js handles sessions well, but it has no concept of per-tenant SAML connections or routing by organization. Scalekit fills that gap: it exposes a single OIDC-compliant endpoint that sits in front of every IdP your customers use. This cookbook wires those two pieces together so your app gets enterprise SSO without writing a line of SAML code.
+
+## The problem
+
+Adding enterprise SSO to a Next.js app sounds simple until you start building it:
+
+- **SAML complexity** — every IdP (Okta, Azure AD, Google Workspace, Ping) uses different metadata, certificate rotation schedules, and attribute mappings. You end up maintaining per-IdP configuration forever.
+- **Per-tenant routing** — each sign-in attempt needs to resolve to the right connection for that customer. A single `clientId` in Auth.js doesn't model this.
+- **Duplicate boilerplate** — Okta setup is not Azure AD setup. You write the integration N times, once per IdP your enterprise customers use.
+- **Session ownership** — SAML assertions and OIDC tokens are not app sessions. Bridging them correctly (handling expiry, attribute claims, refresh) is error-prone without a clear seam.
+
+## Who needs this
+
+This cookbook is for you if:
+
+- ✅ You're building a multi-tenant B2B SaaS app
+- ✅ You already use Auth.js for session management and want to keep it
+- ✅ You have enterprise customers who require SSO through their own IdP
+- ✅ You want to avoid ripping out Auth.js to adopt a fully managed auth platform
+
+You **don't** need this if:
+
+- ❌ You're building a consumer app with no enterprise requirements
+- ❌ Your app has no concept of organizations or tenants
+- ❌ You don't have customers asking for Okta/Azure AD/Google Workspace integration
+
+## The solution
+
+Scalekit exposes a single OIDC-compliant authorization endpoint. Auth.js treats it like any other OIDC provider and manages the session after the callback. You never write SAML code — Scalekit handles the protocol translation, certificate rotation, and attribute normalization for every IdP your customers connect. The routing params (`connection_id`, `organization_id`, `domain`) let you target the right enterprise connection at sign-in time.
+
+## Implementation
+
+### 1. Set up Scalekit
+
+Create an environment in the [Scalekit dashboard](https://app.scalekit.com/):
+
+1. Copy your **Issuer URL** (e.g. `https://yourenv.scalekit.dev`), **Client ID** (`skc_...`), and **Client Secret** from **API Keys**.
+2. Register your redirect URI: `http://localhost:3000/auth/callback/scalekit`
+
+   > Auth.js v5 defaults to `/auth` as its base path — not `/api/auth`. The callback URL must match exactly or the OAuth flow will fail.
+
+3. Create an **Organization** and add an **SSO Connection** for your test IdP.
+4. Copy the **Connection ID** (`conn_...`) — you'll use it to route sign-in attempts during development.
+
+### 2. Install dependencies
+
+```bash
+pnpm add next-auth
+```
+
+Auth.js v5 (`next-auth@5`) ships as a single package. No separate adapter is needed for JWT sessions.
+
+### 3. Add the Scalekit provider
+
+<Aside type="note" title="Native provider coming soon">
+  PR [#13392](https://github.com/nextauthjs/next-auth/pull/13392) adds `next-auth/providers/scalekit` natively to Auth.js. Until it merges, copy the provider file below into your project as `providers/scalekit.ts`.
+</Aside>
+
+```typescript
+// providers/scalekit.ts
+import type { OAuthConfig, OAuthUserConfig } from "next-auth/providers"
+
+export interface ScalekitProfile extends Record<string, any> {
+  sub: string
+  email: string
+  email_verified: boolean
+  name: string
+  given_name: string
+  family_name: string
+  picture: string
+  oid: string // organization_id
+}
+
+export default function Scalekit<P extends ScalekitProfile>(
+  options: OAuthUserConfig<P> & {
+    issuer: string
+    organizationId?: string
+    connectionId?: string
+    domain?: string
+  }
+): OAuthConfig<P> {
+  const { issuer, organizationId, connectionId, domain } = options
+
+  return {
+    id: "scalekit",
+    name: "Scalekit",
+    type: "oidc",
+    issuer,
+    authorization: {
+      params: {
+        scope: "openid email profile",
+        ...(connectionId && { connection_id: connectionId }),
+        ...(organizationId && { organization_id: organizationId }),
+        ...(domain && { domain }),
+      },
+    },
+    profile(profile) {
+      return {
+        id: profile.sub,
+        name: profile.name ?? `${profile.given_name} ${profile.family_name}`,
+        email: profile.email,
+        image: profile.picture ?? null,
+      }
+    },
+    style: { bg: "#6f42c1", text: "#fff" },
+    options,
+  }
+}
+```
+
+After PR #13392 merges, replace the local import with:
+
+```typescript
+import Scalekit from "next-auth/providers/scalekit"
+```
+
+### 4. Configure `auth.ts`
+
+Create `auth.ts` in your project root:
+
+```typescript
+import NextAuth from "next-auth"
+import Scalekit from "./providers/scalekit"  // → "next-auth/providers/scalekit" after PR #13392
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  providers: [
+    Scalekit({
+      issuer: process.env.AUTH_SCALEKIT_ISSUER!,
+      clientId: process.env.AUTH_SCALEKIT_ID!,
+      clientSecret: process.env.AUTH_SCALEKIT_SECRET!,
+      // Routing: set one of these (see step 7 for strategy)
+      connectionId: process.env.AUTH_SCALEKIT_CONNECTION_ID,
+    }),
+  ],
+  basePath: "/auth",
+  session: { strategy: "jwt" },
+})
+```
+
+`basePath: "/auth"` is required to match the redirect URI you registered in step 1. Without it, Auth.js uses `/api/auth` and the Scalekit callback will fail.
+
+### 5. Set environment variables
+
+```bash
+# .env.local
+
+# Generate with: npx auth secret
+AUTH_SECRET=
+
+# From Scalekit dashboard → API Keys
+AUTH_SCALEKIT_ISSUER=https://yourenv.scalekit.dev
+AUTH_SCALEKIT_ID=skc_...
+AUTH_SCALEKIT_SECRET=
+
+# Connection ID for development routing (conn_...)
+# In production, resolve this dynamically per tenant — see step 7
+AUTH_SCALEKIT_CONNECTION_ID=conn_...
+```
+
+`AUTH_SECRET` is not optional. Auth.js uses it to sign JWTs and encrypt session cookies. Missing it causes sign-in to fail silently.
+
+### 6. Wire up route handlers
+
+Create `app/auth/[...nextauth]/route.ts`:
+
+```typescript
+import { handlers } from "@/auth"
+export const { GET, POST } = handlers
+```
+
+This exposes `GET /auth/callback/scalekit` and `POST /auth/signout` — the endpoints Auth.js needs. The directory must be `app/auth/` (not `app/api/auth/`) to match the `basePath` you configured.
+
+### 7. SSO routing strategies
+
+Scalekit resolves which IdP connection to activate using these params (highest to lowest precedence):
+
+```typescript
+Scalekit({
+  issuer: process.env.AUTH_SCALEKIT_ISSUER!,
+  clientId: process.env.AUTH_SCALEKIT_ID!,
+  clientSecret: process.env.AUTH_SCALEKIT_SECRET!,
+
+  // Option A — exact connection (dev / single-tenant use)
+  connectionId: "conn_...",
+
+  // Option B — org's active connection (multi-tenant: look up org from user's DB record)
+  organizationId: "org_...",
+
+  // Option C — resolve org from email domain (useful at login prompt)
+  domain: "acme.com",
+})
+```
+
+In production, don't hardcode these values. Store `organizationId` or `connectionId` per tenant in your database, then construct the `signIn()` call dynamically based on the authenticated user's org:
+
+```typescript
+// Example: look up org at sign-in time
+const org = await db.organizations.findByDomain(emailDomain)
+
+await signIn("scalekit", {
+  organizationId: org.scalekitOrgId,
+  redirectTo: "/dashboard",
+})
+```
+
+### 8. Trigger sign-in and read the session
+
+A server component reads the session, and a sign-in form triggers the flow:
+
+```typescript
+// app/page.tsx
+import { auth, signIn } from "@/auth"
+
+export default async function Home() {
+  const session = await auth()
+
+  if (session) {
+    return (
+      <div>
+        <p>Signed in as {session.user?.email}</p>
+      </div>
+    )
+  }
+
+  return (
+    <form
+      action={async () => {
+        "use server"
+        await signIn("scalekit", { redirectTo: "/dashboard" })
+      }}
+    >
+      <button type="submit">Sign in with SSO</button>
+    </form>
+  )
+}
+```
+
+`session.user` includes `name`, `email`, and `image` normalized from the Scalekit OIDC profile.
+
+## Testing
+
+1. Run `pnpm dev` and visit `http://localhost:3000`.
+2. Click **Sign in with SSO** — you should be redirected to your IdP's login page.
+3. Complete authentication and confirm you land back on your app.
+4. Check the session at `http://localhost:3000/api/auth/session` or read it from a server component — you should see `user.email` populated.
+
+If the redirect fails immediately, enable debug logging to trace the OIDC callback:
+
+```bash
+AUTH_DEBUG=true pnpm dev
+```
+
+## Common mistakes
+
+1. **Wrong redirect URI** — registering `/api/auth/callback/scalekit` instead of `/auth/callback/scalekit`. Auth.js v5 changed the default `basePath` from `/api/auth` to `/auth`. The URI in Scalekit's dashboard must match the callback path Auth.js actually uses.
+
+2. **Missing `AUTH_SECRET`** — sign-in appears to start but fails on the callback with no visible error. Always set `AUTH_SECRET`. Generate one with `npx auth secret`.
+
+3. **Hardcoding `connectionId` in production** — works in development, breaks for every other tenant. Store connection identifiers per-organization in your database and resolve them at runtime.
+
+4. **Missing `basePath` in `auth.ts`** — if you omit `basePath: "/auth"`, Auth.js defaults to `/api/auth`. Your route handler must be at `app/api/auth/[...nextauth]/route.ts` and your redirect URI must use `/api/auth/callback/scalekit`. Pick one and be consistent.
+
+5. **Using the wrong import path** — `next-auth/providers/scalekit` only resolves after PR #13392 merges. Until then, the local file at `./providers/scalekit` is the correct import.
+
+## Production notes
+
+- **Rotate secrets without code changes** — update `AUTH_SCALEKIT_SECRET` in your environment configuration; Scalekit handles IdP certificate rotation automatically.
+- **Dynamic connection routing** — store `organizationId` or `connectionId` per tenant in your database. Resolve at sign-in time based on the user's email domain or their existing tenant membership.
+- **Debug OIDC callback issues** — set `AUTH_DEBUG=true` temporarily in production to emit detailed callback traces. Remove it after diagnosing.
+- **Session persistence** — JWT sessions (the default) work without a database. If you need server-side session invalidation, add an Auth.js adapter (e.g. Prisma, Drizzle) and switch to `strategy: "database"`.
+- **Scalekit handles IdP complexity** — certificate rotation, SAML metadata updates, and attribute mapping changes happen in the Scalekit dashboard without touching your code.
+
+## Next steps
+
+- [scalekit-developers/scalekit-authjs-example](https://github.com/scalekit-developers/scalekit-authjs-example) — full working repo for this cookbook
+- [Auth.js PR #13392](https://github.com/nextauthjs/next-auth/pull/13392) — track native Scalekit provider availability
+- [Scalekit SSO routing documentation](https://docs.scalekit.com/sso/quickstart) — full reference for `connection_id`, `organization_id`, and `domain` routing params
+- [Auth.js adapters](https://authjs.dev/getting-started/database) — add database-backed sessions for server-side invalidation
+- [Scalekit organization management API](https://docs.scalekit.com/apis) — look up `organizationId` dynamically from your tenant records
