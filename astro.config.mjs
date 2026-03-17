@@ -96,6 +96,7 @@ export default defineConfig({
         starlightContextualMenu({
           actions: ['copy', 'chatgpt', 'claude'],
           hideMainActionLabel: true,
+          injectMarkdownRoutes: false,
         }),
         // Provide copy-to-clipboard button for inline code snippets site-wide for better UX
         starlightCopyInlineCode({
