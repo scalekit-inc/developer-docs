@@ -381,7 +381,6 @@ export const redirects = {
 
   // Code samples moved to /resources/code-samples/
   '/dev-kit/code-samples': '/resources/code-samples/',
-  '/dev-kit/code-samples/': '/resources/code-samples/',
   '/dev-kit/code-samples/full-stack-auth': '/resources/code-samples/full-stack-auth/',
   '/dev-kit/code-samples/agent-auth': '/resources/code-samples/agent-auth/',
   '/dev-kit/code-samples/mcp-auth': '/resources/code-samples/mcp-auth/',
