@@ -31,11 +31,35 @@ head:
 tableOfContents: true
 ---
 
-import { Aside, Steps, CardGrid, LinkCard, Badge } from '@astrojs/starlight/components';
-import openclawArch from '../../../assets/docs/agent-auth/openclaw-architecture.png';
-import { Image } from 'astro:assets';
+import { Aside, Steps, Tabs, TabItem, CardGrid, LinkCard, Badge } from '@astrojs/starlight/components';
 
-<Image src={openclawArch} alt="OpenClaw connects to Scalekit which connects to LinkedIn, Gmail, Notion, HubSpot, and Salesforce" />
+```d2
+direction: right
+
+OpenClaw: "OpenClaw agent" {
+  style.font-size: 18
+}
+
+Scalekit: {
+  label: "Scalekit Agent Auth"
+  Auth: "OAuth handler"
+  Vault: "Token vault"
+}
+
+Providers: {
+  label: "Third-party services"
+  LinkedIn: "LinkedIn"
+  Gmail: "Gmail"
+  Salesforce: "Salesforce"
+  More: "50+ more"
+}
+
+OpenClaw -> Scalekit.Auth: "Execute tools"
+Scalekit.Vault -> Providers.LinkedIn
+Scalekit.Vault -> Providers.Gmail
+Scalekit.Vault -> Providers.Salesforce
+Scalekit.Vault -> Providers.More
+```
 
 Use the Scalekit Agent Auth skill for [OpenClaw](https://github.com/scalekit-inc/openclaw-skill) to let your AI agents execute actions on third-party services directly from conversations. Search LinkedIn, read Notion pages, send Slack messages, query Snowflake, and more — all through Scalekit Connect without storing tokens or API keys in your agent.
 
@@ -43,33 +67,13 @@ Use the Scalekit Agent Auth skill for [OpenClaw](https://github.com/scalekit-inc
   Scalekit stores tokens and API keys securely with full audit logging. OpenClaw, like all AI agent frameworks, is vulnerable to prompt injection and other agent-level attacks. Follow security best practices to protect your instance.
 </Aside>
 
-## How it works
-
 When you ask Claude to interact with a third-party service, the skill:
 
-<Steps>
-
-1. ## Discover the connection
-
-   The skill finds the configured provider in Scalekit (e.g., [Gmail connection setup](/reference/agent-connectors/gmail/)) and identifies which connection to use based on the requested action.
-
-2. ## Verify authorization
-
-   The skill checks if the connection is active. For OAuth connections, it generates a magic link for new authorizations. For API key connections, it provides Dashboard guidance for setup.
-
-3. ## Fetch tool schemas
-
-   The skill retrieves available tools and their parameter schemas for the provider, determining what actions are possible.
-
-4. ## Execute the tool
-
-   The skill calls the right tool with the correct parameters and returns the result to your conversation.
-
-5. ## Fall back to proxy
-
-   If no tool exists for the action, the skill routes the request through Scalekit's HTTP proxy, making direct API calls on your behalf.
-
-</Steps>
+- Finds the configured provider in Scalekit (e.g., [Gmail connection setup](/reference/agent-connectors/gmail/)) and identifies which connection to use based on the requested action
+- Checks if the connection is active. For OAuth connections, it generates a magic link for new authorizations. For API key connections, it provides Dashboard guidance for setup
+- Retrieves available tools and their parameter schemas for the provider, determining what actions are possible
+- Calls the right tool with the correct parameters and returns the result to your conversation
+- If no tool exists for the action, routes the request through Scalekit's HTTP proxy, making direct API calls on your behalf
 
 <Aside type="tip" title="Automatic auth flow detection">
   The skill automatically detects whether a connection uses OAuth or an API key and applies the correct auth flow — no configuration needed.
@@ -83,61 +87,68 @@ Your agent never stores tokens or API keys. Scalekit acts as a token vault, mana
 - A Scalekit account with Agent Auth enabled — [sign up at app.scalekit.com](https://app.scalekit.com)
 - `python3` and `uv` available in your PATH
 
-## Install the skill
+## Get started
 
-Install the skill from ClawHub:
+<Steps>
+1. ## Install the skill
 
-```bash
-clawhub install scalekit-agent-auth
-```
+   Install the skill from ClawHub:
 
-Add your Scalekit credentials to `.env` in your project root:
+   ```bash showLineNumbers=false
+   clawhub install scalekit-agent-auth
+   ```
 
-```bash title=".env"
-TOOL_CLIENT_ID=skc_your_client_id      # Your Scalekit client ID
-TOOL_CLIENT_SECRET=your_client_secret  # Your Scalekit client secret
-TOOL_ENV_URL=https://your-env.scalekit.cloud  # Your Scalekit environment URL
-TOOL_IDENTIFIER=your_default_user_identifier  # Default user context for tool calls
-```
+2. ## Configure credentials
 
-| Parameter | Description |
-|-----------|-------------|
-| `TOOL_CLIENT_ID` | Your Scalekit client ID <Badge text="Required" /> |
-| `TOOL_CLIENT_SECRET` | Your Scalekit client secret <Badge text="Required" /> |
-| `TOOL_ENV_URL` | Your Scalekit environment URL <Badge text="Required" /> |
-| `TOOL_IDENTIFIER` | Default user context for all tool calls <Badge text="Recommended" /> |
+   Add your Scalekit credentials to `.env` in your project root:
 
-<Aside type="caution" title="Environment variable security">
-  Never commit `.env` files to version control. Add `.env` to your `.gitignore` file to prevent accidental exposure of credentials.
-</Aside>
+   ```bash title=".env"
+   TOOL_CLIENT_ID=skc_your_client_id      # Your Scalekit client ID
+   TOOL_CLIENT_SECRET=your_client_secret  # Your Scalekit client secret
+   TOOL_ENV_URL=https://your-env.scalekit.cloud  # Your Scalekit environment URL
+   TOOL_IDENTIFIER=your_default_user_identifier  # Default user context for tool calls
+   ```
 
-## Example usage
+   | Parameter | Description |
+   |-----------|-------------|
+   | `TOOL_CLIENT_ID` | Your Scalekit client ID <Badge text="Required" /> |
+   | `TOOL_CLIENT_SECRET` | Your Scalekit client secret <Badge text="Required" /> |
+   | `TOOL_ENV_URL` | Your Scalekit environment URL <Badge text="Required" /> |
+   | `TOOL_IDENTIFIER` | Default user context for all tool calls <Badge text="Recommended" /> |
 
-### Read emails with Gmail
+   <Aside type="caution" title="Environment variable security">
+     Never commit `.env` files to version control. Add `.env` to your `.gitignore` file to prevent accidental exposure of credentials.
+   </Aside>
 
-```
-You: Show me my latest unread emails
-```
+3. ## Usage
 
-OpenClaw will automatically:
+   <Tabs>
+   <TabItem label="Gmail">
+   ``` showLineNumbers=false
+   You: Show me my latest unread emails
+   ```
 
-1. Look up the `GMAIL` connection
-2. Verify it's active (or generate a magic link to authorize if needed)
-3. Fetch the `gmail_list_emails` tool schema
-4. Return your latest unread emails
+   OpenClaw will automatically:
 
-### Read a Notion page
+   1. Look up the `GMAIL` connection
+   2. Verify it's active (or generate a magic link to authorize if needed)
+   3. Fetch the `gmail_list_emails` tool schema
+   4. Return your latest unread emails
+   </TabItem>
+   <TabItem label="Notion">
+   ``` showLineNumbers=false
+   You: Read my Notion page https://notion.so/My-Page-abc123
+   ```
 
-```
-You: Read my Notion page https://notion.so/My-Page-abc123
-```
+   OpenClaw will:
 
-OpenClaw will:
-
-1. Look up the `NOTION` connection
-2. If not yet authorized, generate a magic link for you to complete OAuth
-3. Fetch the `notion_page_get` tool schema
-4. Return the page content
+   1. Look up the `NOTION` connection
+   2. If not yet authorized, generate a magic link for you to complete OAuth
+   3. Fetch the `notion_page_get` tool schema
+   4. Return the page content
+   </TabItem>
+   </Tabs>
+</Steps>
 
 ## Supported providers
 
@@ -147,12 +158,7 @@ Any provider configured in Scalekit works with the OpenClaw skill — including 
   <LinkCard
     title="Browse connections"
     description="See all supported providers in the Scalekit dashboard"
-    href="https://app.scalekit.com"
-  />
-  <LinkCard
-    title="scalekit-agent-auth on ClawHub"
-    description="View the skill listing and installation instructions"
-    href="https://clawhub.ai/Avinash-Kamath/scalekit-agent-auth"
+    href="/guides/integrations/agent-connectors"
   />
   <LinkCard
     title="ClawHub listing"
@@ -197,30 +203,10 @@ This error occurs when the skill cannot find a configured connection for the req
 
 Enable debug logging in your OpenClaw configuration to see detailed information about tool calls:
 
-```bash
+```bash showLineNumbers=false
 TOOL_DEBUG=true
 ```
 
 This logs the tool name, parameters, and response for each execution, helping you identify issues with parameter formatting or API responses.
 
 </details>
-
-## Next steps
-
-<CardGrid>
-  <LinkCard
-    title="Configure connections"
-    description="Set up OAuth and API key connections in Scalekit"
-    href="/agent-auth/connections"
-  />
-  <LinkCard
-    title="Understand tools"
-    description="Learn how Scalekit tools work and how to authorize them"
-    href="/agent-auth/tools/overview"
-  />
-  <LinkCard
-    title="Troubleshoot auth flows"
-    description="Debug common authentication issues"
-    href="/agent-auth/authentication/troubleshooting"
-  />
-</CardGrid>
