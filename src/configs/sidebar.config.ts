@@ -137,7 +137,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Authentication',
+        label: 'Concepts',
         collapsed: false,
         items: [
           'agent-auth/providers',
@@ -146,7 +146,7 @@ export const sidebar = [
           // 'agent-auth/authentication/auth-flows-comparison',
           'agent-auth/tools/authorize',
           // 'agent-auth/authentication/token-management',
-          'agent-auth/advanced/bring-your-own-oauth',
+          // 'agent-auth/advanced/bring-your-own-oauth',
           'agent-auth/advanced/custom-domain',
           // 'agent-auth/authentication/scopes-permissions',
           // 'agent-auth/authentication/multi-provider',
@@ -156,19 +156,22 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Connectors',
-        autogenerate: {
-          directory: 'reference/agent-connectors',
-        },
-      },
-      {
-        label: 'Agentic tool calling',
+        label: 'Tool calling',
         collapsed: false,
         items: [
-          'agent-auth/agentic-quickstart',
+          'agent-auth/tools/agent-tools-quickstart',
+          //'agent-auth/advanced/proxy-api-calls',
+          // 'agent-auth/tools/custom-processors',
+          // 'connect/tools/custom-tools',
+          // 'connect/tools/proxy-tools',
           {
             label: 'AI Frameworks',
             items: [
+              {
+                label: 'OpenClaw',
+                link: 'agent-auth/openclaw',
+                badge: { text: 'New', variant: 'tip' },
+              },
               'agent-auth/frameworks/langchain',
               'agent-auth/frameworks/google-adk',
               // 'agent-auth/frameworks/agno',
@@ -176,24 +179,14 @@ export const sidebar = [
               // 'agent-auth/frameworks/anthropic',
             ],
           },
-          {
-            label: 'MCP',
-            items: ['agent-auth/mcp/quickstart'],
-          },
+          { label: 'Tool access via MCP', link: 'agent-auth/mcp/tool-access-via-mcp' },
         ],
       },
       {
-        label: 'Tool calling reference',
-        collapsed: false,
-        items: [
-          'agent-auth/tools/overview',
-          'agent-auth/tools/execute',
-          'agent-auth/tools/modifiers',
-          //'agent-auth/advanced/proxy-api-calls',
-          // 'agent-auth/tools/custom-processors',
-          // 'connect/tools/custom-tools',
-          // 'connect/tools/proxy-tools',
-        ],
+        label: 'Providers',
+        autogenerate: {
+          directory: 'reference/agent-connectors',
+        },
       },
       // {
       //   label: 'MCP',
