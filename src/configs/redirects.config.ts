@@ -198,6 +198,11 @@ export const redirects = {
   // AGENT AUTH REDIRECTS
   // =============================================================================
 
+  // Tool calling pages merged into agent-tools-quickstart
+  '/agent-auth/tools/execute': '/agent-auth/tools/agent-tools-quickstart/',
+  '/agent-auth/tools/modifiers': '/agent-auth/tools/agent-tools-quickstart/',
+  '/agent-auth/agentic-quickstart': '/agent-auth/tools/agent-tools-quickstart/',
+
   // Agent auth shorthand paths
   '/agent-auth': '/agent-auth/quickstart/',
   '/apis/agent-auth': '/agent-auth/quickstart/',
