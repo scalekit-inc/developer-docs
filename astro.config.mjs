@@ -127,6 +127,7 @@ export default defineConfig({
         }),
         starlightBlog({
           prefix: 'cookbooks',
+          rss: false,
           metrics: {
             readingTime: true,
             words: 'total',
