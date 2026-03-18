@@ -3,13 +3,29 @@ import StarlightPageActionsPageTitle from 'starlight-page-actions/overrides/Page
 const { description } = Astro.locals.starlightRoute.entry.data
 ---
 
-<StarlightPageActionsPageTitle />
-{description && <p class="page-description">{description}</p>}
+<div class="page-title-wrapper">
+  <StarlightPageActionsPageTitle />
+  {description && <p class="page-description">{description}</p>}
+</div>
 
 <style>
+  .page-title-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .page-title-wrapper :global(h1) {
+    order: 1;
+  }
+
   .page-description {
+    order: 2;
     margin-top: 0.5rem;
     color: var(--sl-color-gray-2);
-    display: block;
+  }
+
+  .page-title-wrapper :global(.actions-container) {
+    order: 3;
+    margin-top: 0.75rem;
   }
 </style>
