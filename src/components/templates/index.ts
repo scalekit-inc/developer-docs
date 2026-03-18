@@ -29,4 +29,4 @@ export { default as AgentAuthGitHubCopilotCLISection } from './coding-agents/_ag
 export { default as MCPAuthGitHubCopilotCLISection } from './coding-agents/_mcp-auth-github-copilot-cli.mdx'
 export { default as GitHubCopilotCLICodingAgentSection } from './coding-agents/_github-copilot-cli.mdx'
 export { default as CursorCodingAgentSection } from './coding-agents/_cursor.mdx'
-export { default as OpenCodeCodingAgentSection } from './coding-agents/_opencode.mdx'
+export { default as SkillsCLICodingAgentSection } from './coding-agents/_skills-cli.mdx'

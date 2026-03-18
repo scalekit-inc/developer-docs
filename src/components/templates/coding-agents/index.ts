@@ -6,7 +6,7 @@ export { default as FSAGitHubCopilotCLISection } from './_fsa-github-copilot-cli
 export { default as GitHubCopilotCLISection } from './_github-copilot-cli.mdx'
 export { default as MCPAuthClaudeCodeSection } from './_mcp-auth-claude-code.mdx'
 export { default as MCPAuthGitHubCopilotCLISection } from './_mcp-auth-github-copilot-cli.mdx'
-export { default as OpenCodeCodingAgentSection } from './_opencode.mdx'
+export { default as SkillsCLICodingAgentSection } from './_skills-cli.mdx'
 export { default as SCIMClaudeCodeSection } from './_scim-claude-code.mdx'
 export { default as SCIMGitHubCopilotCLISection } from './_scim-github-copilot-cli.mdx'
 export { default as SSOClaudeCodeSection } from './_sso-claude-code.mdx'

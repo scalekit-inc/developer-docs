@@ -18,6 +18,7 @@ import starlightBlog from 'starlight-blog'
 import { sidebar as sidebarConfig, topics, exclude } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import { llmsConfig } from './src/configs/llms.config.ts'
+import { pageActionsPrompt } from './src/configs/page-actions.config.ts'
 import tailwindcss from '@tailwindcss/vite'
 import d2 from 'astro-d2' // https://astro-d2.vercel.app/configuration/
 import Icons from 'unplugin-icons/vite'
@@ -104,10 +105,17 @@ export default defineConfig({
           : []),
         starlightLlmsTxt(llmsConfig),
         starlightPageActions({
+          prompt: pageActionsPrompt,
           actions: {
             markdown: true,
             chatgpt: true,
             claude: true,
+            custom: {
+              cursor: {
+                label: 'Open in Cursor',
+                href: 'https://cursor.com/link/prompt?text=',
+              },
+            },
           },
           // No baseUrl — prevents llms.txt generation (already handled by starlight-llms-txt)
         }),
