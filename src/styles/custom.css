@@ -468,3 +468,17 @@
     text-underline-offset: initial;
   }
 }
+
+/* =============================================================================
+   UNLAYERED OVERRIDES - Must be outside @layer to beat third-party unlayered rules
+   ============================================================================= */
+
+/* Fix: starlight-blog injects a global rule that hides .right-sidebar-panel and
+   mobile-starlight-toc on all pages (not just blog pages) when data-has-toc is set.
+   The rule [data-has-toc] :is(.right-sidebar-panel, ...) has specificity (0,2,0).
+   This rule uses html selector for specificity (0,2,1) to win without !important. */
+@media (min-width: 72rem) {
+  html[data-has-toc] .right-sidebar-panel {
+    display: block;
+  }
+}
