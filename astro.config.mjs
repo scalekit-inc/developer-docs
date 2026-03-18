@@ -8,7 +8,7 @@ import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import starlightDocSearch from '@astrojs/starlight-docsearch'
-import starlightContextualMenu from 'starlight-contextual-menu'
+import starlightPageActions from 'starlight-page-actions'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
 import starlightCopyInlineCode from 'starlight-copy-inline-code'
@@ -103,10 +103,13 @@ export default defineConfig({
             ]
           : []),
         starlightLlmsTxt(llmsConfig),
-        starlightContextualMenu({
-          actions: ['copy', 'chatgpt', 'claude'],
-          hideMainActionLabel: true,
-          injectMarkdownRoutes: false,
+        starlightPageActions({
+          actions: {
+            copyMarkdown: true,
+            openChatGPT: true,
+            openClaude: true,
+          },
+          // No baseUrl — prevents llms.txt generation (already handled by starlight-llms-txt)
         }),
         // Provide copy-to-clipboard button for inline code snippets site-wide for better UX
         starlightCopyInlineCode({
