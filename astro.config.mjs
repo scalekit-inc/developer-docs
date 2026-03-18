@@ -105,9 +105,9 @@ export default defineConfig({
         starlightLlmsTxt(llmsConfig),
         starlightPageActions({
           actions: {
-            copyMarkdown: true,
-            openChatGPT: true,
-            openClaude: true,
+            markdown: true,
+            chatgpt: true,
+            claude: true,
           },
           // No baseUrl — prevents llms.txt generation (already handled by starlight-llms-txt)
         }),
