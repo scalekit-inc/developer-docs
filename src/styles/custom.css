@@ -482,3 +482,12 @@
     display: block;
   }
 }
+
+/* Fix: starlight-blog's Blog.astro has :global(.content-panel:first-of-type) { display: none }
+   which leaks to ALL pages via Vite's shared CSS chunking (because starlight-blog's
+   MarkdownContent override is rendered on every page, pulling in the CSS bundle).
+   Blog pages are identifiable by .posts (blog index) or .post-footer (blog post) elements.
+   Specificity (0,2,1) beats Blog.astro's (0,1,0). */
+main:not(:has(.posts, .post-footer)) .content-panel:first-of-type {
+  display: block;
+}
