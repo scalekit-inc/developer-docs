@@ -491,3 +491,11 @@
 main:not(:has(.posts, .post-footer)) .content-panel:first-of-type {
   display: block;
 }
+
+/* Fix: starlight-blog's Blog.astro leaks :global(.content-panel:nth-of-type(2)) { border-top: none }
+   to ALL pages via Vite's shared CSS chunking.
+   Non-blog pages need the hairline border between title and content panels.
+   Specificity (0,2,1) beats Blog.astro's (0,1,0). */
+main:not(:has(.posts, .post-footer)) .content-panel:nth-of-type(2) {
+  border-top: 1px solid var(--sl-color-hairline);
+}
