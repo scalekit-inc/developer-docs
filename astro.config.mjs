@@ -8,7 +8,7 @@ import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import starlightDocSearch from '@astrojs/starlight-docsearch'
-import starlightContextualMenu from 'starlight-contextual-menu'
+import starlightPageActions from 'starlight-page-actions'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
 import starlightCopyInlineCode from 'starlight-copy-inline-code'
@@ -26,7 +26,11 @@ import netlify from '@astrojs/netlify'
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'server',
+  // Switched from 'server' to default (static) to drastically reduce build memory.
+  // Astro 6's Vite Environments API creates separate build contexts per output mode;
+  // 'server' mode processes all 300+ pages through a heavy SSR pipeline.
+  // The few SSR pages (auth, health, admin) already have `prerender = false`.
+  // output: 'server',
   site: 'https://docs.scalekit.com',
   redirects,
   integrations: [
@@ -89,13 +93,23 @@ export default defineConfig({
           askAi: '8jKZkVuXS0hG',
         }),
         starlightVideos(),
-        starlightLinksValidator({
-          exclude: ['/apis/**'],
-        }),
+        // Links validator disabled in CI to reduce build memory usage.
+        // Run locally with: pnpm astro build (without NETLIFY env var)
+        ...(!process.env.NETLIFY
+          ? [
+              starlightLinksValidator({
+                exclude: ['/apis/**'],
+              }),
+            ]
+          : []),
         starlightLlmsTxt(llmsConfig),
-        starlightContextualMenu({
-          actions: ['copy', 'chatgpt', 'claude'],
-          hideMainActionLabel: true,
+        starlightPageActions({
+          actions: {
+            markdown: true,
+            chatgpt: true,
+            claude: true,
+          },
+          // No baseUrl — prevents llms.txt generation (already handled by starlight-llms-txt)
         }),
         // Provide copy-to-clipboard button for inline code snippets site-wide for better UX
         starlightCopyInlineCode({
@@ -113,6 +127,7 @@ export default defineConfig({
         }),
         starlightBlog({
           prefix: 'cookbooks',
+          rss: false,
           metrics: {
             readingTime: true,
             words: 'total',
@@ -314,7 +329,13 @@ export default defineConfig({
     plugins: [pluginCollapsibleSections(), tailwindcss(), Icons({ compiler: 'astro' })],
     build: {
       chunkSizeWarningLimit: 2000,
+      // Disable source maps in CI to reduce peak memory during bundling
+      sourcemap: false,
+      // Disable gzip size reporting to save memory on large builds
+      reportCompressedSize: false,
       rollupOptions: {
+        // Limit parallel file I/O to reduce memory spikes during bundling
+        maxParallelFileOps: 2,
         output: {
           manualChunks(id) {
             if (id.includes('@scalar')) return 'scalar'
