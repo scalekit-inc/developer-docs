@@ -231,8 +231,13 @@ In this quickstart, you'll build a simple tool-calling program that:
           ? authDetails.details.value?.refreshToken
           : undefined;
 
-        console.log('accessToken:', accessToken);
-        console.log('refreshToken:', refreshToken);
+        // Security Warning: Never log OAuth tokens in production. Token exposure in logs
+        // or aggregators creates credential leakage risks. Use safe redaction,
+        // conditional debug-only logging, or secure secret storage instead.
+        if (process.env.NODE_ENV === 'development') {
+          console.log('accessToken:', accessToken);
+          console.log('refreshToken:', refreshToken);
+        }
         ```
       </TabItem>
     </Tabs>
