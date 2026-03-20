@@ -99,10 +99,9 @@ print(f"Connected account: {connected_account.id}, status: {connected_account.st
 <TabItem label="Node.js">
 
 ```typescript
-// Requires @scalekit-sdk/node@2.2.0-beta.1: npm install @scalekit-sdk/node@2.2.0-beta.1
-// const { connectedAccounts } = new ScalekitClient(ENV_URL, CLIENT_ID, CLIENT_SECRET)
-const response = await connectedAccounts.getOrCreateConnectedAccount({
-  connector: 'gmail',
+// const actions = new ScalekitClient(ENV_URL, CLIENT_ID, CLIENT_SECRET).actions
+const response = await actions.getOrCreateConnectedAccount({
+  connectionName: 'gmail',
   identifier: 'user_123',
 });
 
@@ -148,9 +147,8 @@ print(f"Authorization URL: {link_response.link}")
 <TabItem label="Node.js">
 
 ```typescript
-// Requires @scalekit-sdk/node@2.2.0-beta.1: npm install @scalekit-sdk/node@2.2.0-beta.1
-const linkResponse = await connectedAccounts.getMagicLinkForConnectedAccount({
-  connector: 'gmail',
+const linkResponse = await actions.getAuthorizationLink({
+  connectionName: 'gmail',
   identifier: 'user_123',
 });
 
@@ -194,8 +192,8 @@ print(f"Status: {connected_account.status}")
 <TabItem label="Node.js">
 
 ```typescript
-const accountResponse = await connectedAccounts.getConnectedAccountByIdentifier({
-  connector: 'gmail',
+const accountResponse = await actions.getConnectedAccount({
+  connectionName: 'gmail',
   identifier: 'user_123',
 });
 
@@ -253,8 +251,8 @@ if connected_account.status != "ACTIVE":
 <TabItem label="Node.js">
 
 ```typescript
-const response = await connectedAccounts.getOrCreateConnectedAccount({
-  connector: 'gmail',
+const response = await actions.getOrCreateConnectedAccount({
+  connectionName: 'gmail',
   identifier: 'user_123',
 });
 
@@ -262,8 +260,8 @@ const connectedAccount = response.connectedAccount;
 
 if (connectedAccount?.status !== 'ACTIVE') {
   // Re-authorize the user to refresh their tokens
-  const linkResponse = await connectedAccounts.getMagicLinkForConnectedAccount({
-    connector: 'gmail',
+  const linkResponse = await actions.getAuthorizationLink({
+    connectionName: 'gmail',
     identifier: 'user_123',
   });
   console.log('Re-authorization required. Send user to:', linkResponse.link);
@@ -300,8 +298,8 @@ print(f"Account status: {connected_account.status}")
 <TabItem label="Node.js">
 
 ```typescript
-const accountResponse = await connectedAccounts.getConnectedAccountByIdentifier({
-  connector: 'gmail',
+const accountResponse = await actions.getConnectedAccount({
+  connectionName: 'gmail',
   identifier: 'user_123',
 });
 
@@ -378,14 +376,13 @@ Custom metadata is managed via the Scalekit dashboard.
 
 ### Managing multiple accounts
 
-The Python SDK supports per-account retrieval via `actions.get_or_create_connected_account`. Bulk list and delete operations (`connectedAccounts.listConnectedAccounts`, `connectedAccounts.deleteConnectedAccount`) are available in the Node.js SDK, or via the direct API and dashboard.
+The Python SDK supports read-only retrieval via `actions.get_connected_account` (Python) / `actions.getConnectedAccount` (Node.js). Use `actions.get_or_create_connected_account` when you need create-or-retrieve semantics. Bulk list and delete operations (`actions.listConnectedAccounts`, `actions.deleteConnectedAccount`) are available in the Node.js SDK, or via the direct API and dashboard.
 
 <Tabs syncKey="tech-stack">
 <TabItem label="Python">
 
 ```python
-# Retrieve an individual account by identifier
-# Note: listing all accounts for a connector is available via the dashboard or direct API
+# Get or create a connected account by identifier
 response = actions.get_or_create_connected_account(
     connection_name="gmail",
     identifier="user_123"
@@ -399,14 +396,14 @@ print(f"Account: {connected_account.id}, Status: {connected_account.status}")
 
 ```typescript
 // List connected accounts
-const listResponse = await connectedAccounts.listConnectedAccounts({
-  connector: 'gmail',
+const listResponse = await actions.listConnectedAccounts({
+  connectionName: 'gmail',
 });
 console.log('Connected accounts:', listResponse);
 
 // Delete a connected account
-await connectedAccounts.deleteConnectedAccount({
-  connector: 'gmail',
+await actions.deleteConnectedAccount({
+  connectionName: 'gmail',
   identifier: 'user_123',
 });
 console.log('Connected account deleted');
@@ -442,8 +439,8 @@ except Exception as e:
 
 ```typescript
 try {
-  const accountResponse = await connectedAccounts.getConnectedAccountByIdentifier({
-    connector: 'gmail',
+  const accountResponse = await actions.getConnectedAccount({
+    connectionName: 'gmail',
     identifier: 'user_123',
   });
   const connectedAccount = accountResponse?.connectedAccount;
@@ -503,7 +500,7 @@ Ensure proper account isolation:
 
 ### Account health monitoring
 
-Monitor the status of connected accounts by calling `get_connected_account` (Python) or `getConnectedAccountByIdentifier` (Node.js) and inspecting the `status` field. Accounts in a non-`ACTIVE` state may require re-authorization.
+Monitor the status of connected accounts by calling `actions.get_connected_account` (Python) or `actions.getConnectedAccount` (Node.js) and inspecting the `status` field. Accounts in a non-`ACTIVE` state may require re-authorization.
 
 ### Usage analytics
 
@@ -556,8 +553,8 @@ print(f"Test account: {test_account.id}, status: {test_account.status}")
 
 ```typescript
 // Create or retrieve a test connected account
-const response = await connectedAccounts.getOrCreateConnectedAccount({
-  connector: 'gmail',
+const response = await actions.getOrCreateConnectedAccount({
+  connectionName: 'gmail',
   identifier: 'test_user',
 });
 

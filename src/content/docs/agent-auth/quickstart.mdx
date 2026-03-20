@@ -79,13 +79,10 @@ In this quickstart, you'll build a simple tool-calling program that:
       </TabItem>
       <TabItem label="Node.js">
         ```sh showLineNumbers=false frame="none"
-        npm install @scalekit-sdk/node@2.2.0-beta.1
+        npm install @scalekit-sdk/node
         ```
       </TabItem>
     </Tabs>
-    <Aside type="note" title="Node.js beta version">
-      Agent Auth features (`connectedAccounts`, `tools`) are available in the Node.js SDK beta. Use `@scalekit-sdk/node@2.2.0-beta.1` until the stable release ships.
-    </Aside>
     <Tabs syncKey="tech-stack">
       <TabItem label="Python">
         ```python showLineNumbers=false frame="none" wrap
@@ -114,7 +111,7 @@ In this quickstart, you'll build a simple tool-calling program that:
           process.env.SCALEKIT_CLIENT_SECRET
         );
 
-        const { connectedAccounts, tools } = scalekit;
+        const actions = scalekit.actions;
         ```
       </TabItem>
     </Tabs>
@@ -138,8 +135,8 @@ In this quickstart, you'll build a simple tool-calling program that:
       <TabItem label="Node.js">
         ```typescript showLineNumbers=false frame="none"
         // Create or retrieve the user's connected Gmail account
-        const response = await connectedAccounts.getOrCreateConnectedAccount({
-          connector: 'gmail',
+        const response = await actions.getOrCreateConnectedAccount({
+          connectionName: 'gmail',
           identifier: 'user_123',  // Replace with your system's unique user ID
         });
 
@@ -175,12 +172,11 @@ In this quickstart, you'll build a simple tool-calling program that:
       </TabItem>
       <TabItem label="Node.js">
         ```typescript showLineNumbers=false frame="none" wrap
-        import { ConnectorStatus } from '@scalekit-sdk/node/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
         // Generate authorization link if user hasn't authorized or token is expired
-        if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
+        if (connectedAccount?.status !== 'ACTIVE') {
           console.log('gmail is not connected:', connectedAccount?.status);
-          const linkResponse = await connectedAccounts.getMagicLinkForConnectedAccount({
-            connector: 'gmail',
+          const linkResponse = await actions.getAuthorizationLink({
+            connectionName: 'gmail',
             identifier: 'user_123',
           });
           console.log('🔗 click on the link to authorize gmail', linkResponse.link);
@@ -221,23 +217,27 @@ In this quickstart, you'll build a simple tool-calling program that:
       </TabItem>
       <TabItem label="Node.js">
         ```typescript showLineNumbers=false frame="none" wrap
-        const accountResponse = await connectedAccounts.getConnectedAccountByIdentifier({
-          connector: 'gmail',
+        const accountResponse = await actions.getConnectedAccount({
+          connectionName: 'gmail',
           identifier: 'user_123',
         });
 
         // Extract OAuth tokens from authorization details
         const authDetails = accountResponse?.connectedAccount?.authorizationDetails;
-        const accessToken = (authDetails && authDetails.details?.case === "oauthToken")
+        const accessToken = (authDetails && authDetails.details?.case === 'oauthToken')
           ? authDetails.details.value?.accessToken
           : undefined;
-        const refreshToken = (authDetails && authDetails.details?.case === "oauthToken")
+        const refreshToken = (authDetails && authDetails.details?.case === 'oauthToken')
           ? authDetails.details.value?.refreshToken
           : undefined;
 
-        console.log('Connected account:', accountResponse);
-        console.log('accessToken:', accessToken);
-        console.log('refreshToken:', refreshToken);
+        // Security Warning: Never log OAuth tokens in production. Token exposure in logs
+        // or aggregators creates credential leakage risks. Use safe redaction,
+        // conditional debug-only logging, or secure secret storage instead.
+        if (process.env.NODE_ENV === 'development') {
+          console.log('accessToken:', accessToken);
+          console.log('refreshToken:', refreshToken);
+        }
         ```
       </TabItem>
     </Tabs>
