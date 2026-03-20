@@ -148,6 +148,7 @@ export const sidebar = [
           // 'agent-auth/authentication/token-management',
           // 'agent-auth/advanced/bring-your-own-oauth',
           'agent-auth/advanced/custom-domain',
+          'agent-auth/custom-providers',
           // 'agent-auth/authentication/scopes-permissions',
           // 'agent-auth/authentication/multi-provider',
           // 'agent-auth/authentication/troubleshooting',

@@ -1,0 +1,159 @@
+---
+title: Custom Providers
+description: Add and manage custom providers in Agent Auth for apps that are not available as built-in providers.
+tags: [agentauth, customproviders, providers, connectors, proxy, guide]
+sidebar:
+  label: "Custom Providers"
+tableOfContents:
+  maxHeadingLevel: 3
+prev:
+  label: "Custom domains"
+  link: "/agent-auth/advanced/custom-domain"
+next:
+  label: "Tool calling"
+  link: "/agent-auth/tools/agent-tools-quickstart"
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Custom providers let you add your own provider definition in Agent Auth when the app you want to connect is not available as a built-in provider. You may also see them referred to as custom connectors. They are best suited for proxy-only integrations where you want Scalekit to manage authentication details and route requests to the upstream API through a custom provider definition.
+
+## When to use custom providers
+
+Use a custom provider when:
+
+- The application is not available in Scalekit's built-in provider library
+- You know the upstream API and authentication pattern you need to support
+- You want a repeatable way to manage provider definitions across environments
+
+Use a built-in provider when Scalekit already supports the application you need.
+
+## Manage custom providers with the skill
+
+The recommended way to manage custom providers is with the <a href="https://github.com/scalekit-inc/skills/tree/main/skills/agent-auth/sk-actions-custom-provider" target="_blank" rel="noopener noreferrer"> skill</a> `sk-actions-custom-provider`. The skill helps you:
+
+- Understand the provider's auth pattern and build the provider JSON
+- Manage provider lifecycle
+
+<Aside type="note">
+Custom providers are for proxy-only connectors.
+</Aside>
+
+## Dev and Production workflow
+
+<Steps>
+1. Start your coding agent with the <a href="https://github.com/scalekit-inc/skills/tree/main/skills/agent-auth/sk-actions-custom-provider" target="_blank" rel="noopener noreferrer">`sk-actions-custom-provider` skill</a>.
+2. Tell the agent whether you are working in `Dev` or `Production`.
+3. In `Dev`, share your Scalekit credentials, provider name, API docs, auth docs, and base API URL if you already know it.
+4. In `Production`, share both `Production` and `Dev` environment credentials and the provider name you want to replicate.
+5. Review the generated provider JSON or proposed update carefully before applying it.
+</Steps>
+
+Whenever the skill shows you the final provider payload, review the values carefully before approving or running the next step.
+
+## Common management tasks
+
+### Create
+
+To create a custom provider, give the skill:
+
+- The environment details
+- The provider name
+- The upstream API docs
+- The auth docs
+
+The skill will inspect the docs, infer the auth pattern, generate the provider JSON, and help you create the provider in `Dev`.
+
+### List
+
+To list custom providers, ask the skill to fetch the existing custom providers for your environment. This is useful for checking whether a provider already exists before creating or updating it.
+
+### Update
+
+To update a provider, ask the skill to find the existing custom provider by name and propose the new provider JSON. The skill shows a focused diff before updating. Review the proposed values carefully, especially when auth fields or OAuth scopes change.
+
+### Replicate to Production
+
+To move a provider into `Production`, ask the skill to replicate the provider from `Dev`. The skill first finds the matching `Dev` provider, uses that provider JSON as the source of truth, then determines whether the `Production` action should be create or update.
+
+### Delete
+
+To delete a provider, ask the skill to find the matching custom provider and prepare the delete curl using the provider `identifier`. If deletion is blocked because the provider is still in use, remove the related connections or connected accounts first and then retry.
+
+## What the skill determines for you
+
+Based on the upstream docs, the skill can determine:
+
+- The auth type
+- OAuth endpoints such as authorize, token, and user info URLs
+- Required auth fields such as `api_key`, `token`, `username`, `password`, `domain`, or `version`
+- Named path parameters that should be tracked as provider fields
+- Whether the provider needs account-scoped fields
+- Whether the upstream API needs custom auth header handling
+- Whether credentials need auth field mutations such as a prefix, suffix, or default value
+- The correct proxy URL
+
+## Provider payload reference
+
+The skill helps you build and review a provider payload with these common top-level fields:
+
+- `display_name`: Human-readable name for the custom provider
+- `description`: Short description of what the provider connects to
+- `auth_patterns`: Authentication options supported by the provider
+- `proxy_url`: Base URL the proxy should call for the upstream API (mandatory)
+- `proxy_enabled`: Whether the proxy is enabled for the provider (mandatory, should be true)
+
+Within `auth_patterns`, the most common fields are:
+
+- `type`: The auth type, such as OAUTH, BASIC, BEARER, or API_KEY
+- `display_name`: Label shown for that auth option
+- `description`: Short explanation of the auth method
+- `fields`: Inputs collected for static auth providers such as BASIC, BEARER, and API_KEY. These usually store values such as `username`, `password`, `token`, `api_key`, `domain`, or `version`.
+- `account_fields`: Inputs collected for OAUTH providers when account-scoped values are needed. This is typically used for values tied to a connected account, such as named path parameters.
+- `oauth_config`: OAuth-specific configuration, such as authorize and token endpoints
+- `auth_header_key_override`: Custom header name when the upstream does not use `Authorization`. For example, some APIs expect auth in a header such as `X-API-Key` instead of the standard `Authorization` header.
+- `auth_field_mutations`: Value transformations applied before the credential is sent. This is useful when the upstream expects a prefix, suffix, or default companion value, such as adding a token prefix or setting a fallback password value for Basic auth.
+
+When you review the final payload, pay close attention to:
+
+- `display_name` and `description`
+- The selected auth `type`
+- Required `fields` and `account_fields`
+- OAuth endpoints and scopes, if the provider uses OAuth
+- `proxy_url`
+
+## Supported auth patterns
+
+The skill can build custom providers for these auth patterns:
+
+- `OAUTH`
+- `BASIC`
+- `BEARER`
+- `API_KEY`
+
+For OAuth providers, it can also infer endpoints and visible scopes from the upstream docs when that information is available.
+
+## Example prompts
+
+```text
+Use $sk-actions-custom-provider to create a custom provider in Dev.
+```
+
+```text
+Use $sk-actions-custom-provider to update the custom provider for <provider-name>.
+```
+
+```text
+Use $sk-actions-custom-provider to replicate <provider-name> from Dev to Production.
+```
+
+```text
+Use $sk-actions-custom-provider to prepare the delete curl for <provider-name>.
+```
+
+## Best practices
+
+- Keep the provider name clear and stable
+- Use the upstream API docs as the source of truth
+- Reuse the same provider definition pattern across environments
+- Prefer built-in providers when available
