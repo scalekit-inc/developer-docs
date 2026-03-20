@@ -1,9 +1,9 @@
 ---
-title: Custom Providers
+title: Custom providers
 description: Add and manage custom providers in Agent Auth for apps that are not available as built-in providers.
 tags: [agentauth, customproviders, providers, connectors, proxy, guide]
 sidebar:
-  label: "Custom Providers"
+  label: "Custom providers"
 tableOfContents:
   maxHeadingLevel: 3
 prev:
@@ -14,7 +14,7 @@ next:
   link: "/agent-auth/tools/agent-tools-quickstart"
 ---
 
-import { Aside, Steps } from '@astrojs/starlight/components';
+import { Aside } from '@astrojs/starlight/components';
 
 Custom providers let you add your own provider definition in Agent Auth when the app you want to connect is not available as a built-in provider. You may also see them referred to as custom connectors. They are best suited for proxy-only integrations where you want Scalekit to manage authentication details and route requests to the upstream API through a custom provider definition.
 
@@ -30,7 +30,7 @@ Use a built-in provider when Scalekit already supports the application you need.
 
 ## Manage custom providers with the skill
 
-The recommended way to manage custom providers is with the <a href="https://github.com/scalekit-inc/skills/tree/main/skills/agent-auth/sk-actions-custom-provider" target="_blank" rel="noopener noreferrer"> skill</a> `sk-actions-custom-provider`. The skill helps you:
+The recommended way to manage custom providers is with the <a href="https://github.com/scalekit-inc/skills/tree/main/skills/agent-auth/sk-actions-custom-provider" target="_blank" rel="noopener noreferrer">`sk-actions-custom-provider` skill</a>. The skill helps you:
 
 - Understand the provider's auth pattern and build the provider JSON
 - Manage provider lifecycle
@@ -41,13 +41,11 @@ Custom providers are for proxy-only connectors.
 
 ## Dev and Production workflow
 
-<Steps>
-1. Start your coding agent with the <a href="https://github.com/scalekit-inc/skills/tree/main/skills/agent-auth/sk-actions-custom-provider" target="_blank" rel="noopener noreferrer">`sk-actions-custom-provider` skill</a>.
-2. Tell the agent whether you are working in `Dev` or `Production`.
-3. In `Dev`, share your Scalekit credentials, provider name, API docs, auth docs, and base API URL if you already know it.
-4. In `Production`, share both `Production` and `Dev` environment credentials and the provider name you want to replicate.
-5. Review the generated provider JSON or proposed update carefully before applying it.
-</Steps>
+The workflow starts by asking whether you are working in `Dev` or `Production`.
+
+In `Dev`, you share your Scalekit credentials, provider name, API docs, auth docs, and base API URL if you already know it. The skill reads the docs, infers the authentication model, generates the provider JSON, lists matching custom providers, and shows a diff before updates.
+
+In `Production`, you share both `Production` and `Dev` environment credentials and the provider name you want to replicate. The skill uses the matching provider in `Dev` as the source of truth, checks whether the provider already exists in `Production`, and prepares the appropriate action from there.
 
 Whenever the skill shows you the final provider payload, review the values carefully before approving or running the next step.
 
