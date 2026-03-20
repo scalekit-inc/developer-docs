@@ -19,23 +19,28 @@ Connect a user's Apollo account and make API calls on their behalf — Scalekit 
     );
     const actions = scalekit.actions;
 
-    // Get authorization link and send it to your user
-    const { link } = await actions.getAuthorizationLink({
-      connectionName,
-      identifier,
-    });
-    console.log('Authorize Apollo:', link); // present this link to your user for authorization, or click it yourself for testing
-    process.stdout.write('Press Enter after authorizing...');
-    await new Promise(r => process.stdin.once('data', r));
+    try {
+      // Get authorization link and send it to your user
+      const { link } = await actions.getAuthorizationLink({
+        connectionName,
+        identifier,
+      });
+      console.log('Authorize Apollo:', link); // present this link to your user for authorization, or click it yourself for testing
+      process.stdout.write('Press Enter after authorizing...');
+      await new Promise(r => process.stdin.once('data', r));
 
-    // After the user authorizes, make API calls via Scalekit proxy
-    const result = await actions.request({
-      connectionName,
-      identifier,
-      path: '/api/v1/contacts/search',
-      method: 'POST',
-    });
-    console.log(result.data);
+      // After the user authorizes, make API calls via Scalekit proxy
+      const result = await actions.request({
+        connectionName,
+        identifier,
+        path: '/api/v1/contacts/search',
+        method: 'POST',
+      });
+      console.log(result.data);
+    } catch (err) {
+      console.error('Apollo request failed:', err);
+      process.exit(1);
+    }
     ```
   </TabItem>
   <TabItem label="Python">
@@ -60,6 +65,7 @@ Connect a user's Apollo account and make API calls on their behalf — Scalekit 
         identifier=identifier
     )
     print("Authorize Apollo:", link_response.link)
+    input("Press Enter after authorizing...")
 
     # After the user authorizes, make API calls via Scalekit proxy
     result = scalekit_client.actions.request(
