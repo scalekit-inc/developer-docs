@@ -7,6 +7,33 @@ You can interact with Exa in two ways — via direct proxy API calls or via Scal
 ## Proxy API Calls
 
 <Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'exa';     // connection name from your Scalekit dashboard
+    const identifier = 'user_123';    // your user's unique identifier
+
+    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // Make a request via Scalekit proxy — no API key needed here
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/search',
+      method: 'POST',
+      body: { query: 'LLM observability tools 2025', num_results: 5 },
+    });
+    console.log(result.data);
+    ```
+  </TabItem>
   <TabItem label="Python">
     ```python
     import scalekit.client, os

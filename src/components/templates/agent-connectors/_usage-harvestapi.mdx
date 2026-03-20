@@ -7,6 +7,89 @@ You can interact with Harvest API in two ways — via direct proxy API calls or 
 ## Proxy API Calls
 
 <Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'harvestapi';  // connection name from Scalekit dashboard
+    const identifier = 'user_123';        // must match the identifier used when adding the connected account
+
+    // Get credentials from app.scalekit.com → Developers → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // Scrape a LinkedIn profile by URL
+    const profile = await actions.request({
+      connectionName,
+      identifier,
+      path: '/linkedin/profile',
+      method: 'GET',
+      queryParams: { url: 'https://www.linkedin.com/in/satyanadella' },
+    });
+    console.log(profile.data);
+
+    // Search LinkedIn for people by title and location
+    const people = await actions.request({
+      connectionName,
+      identifier,
+      path: '/linkedin/lead-search',
+      method: 'GET',
+      queryParams: { title: 'VP of Engineering', location: 'San Francisco, CA' },
+    });
+    console.log(people.data);
+
+    // Scrape a LinkedIn company page
+    const company = await actions.request({
+      connectionName,
+      identifier,
+      path: '/linkedin/company',
+      method: 'GET',
+      queryParams: { url: 'https://www.linkedin.com/company/openai' },
+    });
+    console.log(company.data);
+
+    // Search LinkedIn job listings by keyword and location
+    const jobs = await actions.request({
+      connectionName,
+      identifier,
+      path: '/linkedin/job-search',
+      method: 'GET',
+      queryParams: { keywords: 'machine learning engineer', location: 'New York, NY' },
+    });
+    console.log(jobs.data);
+
+    // Scrape a single job listing by URL
+    const job = await actions.request({
+      connectionName,
+      identifier,
+      path: '/linkedin/job',
+      method: 'GET',
+      queryParams: { url: 'https://www.linkedin.com/jobs/view/1234567890' },
+    });
+    console.log(job.data);
+
+    // Bulk scrape multiple LinkedIn profiles in one request
+    const bulk = await actions.request({
+      connectionName,
+      identifier,
+      path: '/v2/acts/harvestapi~linkedin-profile-scraper/run-sync-get-dataset-items',
+      method: 'POST',
+      body: {
+        urls: [
+          'https://www.linkedin.com/in/satyanadella',
+          'https://www.linkedin.com/in/jeffweiner08',
+          'https://www.linkedin.com/in/reidhoffman',
+        ],
+      },
+    });
+    console.log(bulk.data);
+    ```
+  </TabItem>
   <TabItem label="Python">
     ```python
     import scalekit.client, os
