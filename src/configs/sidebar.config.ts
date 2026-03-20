@@ -148,12 +148,20 @@ export const sidebar = [
           // 'agent-auth/authentication/token-management',
           // 'agent-auth/advanced/bring-your-own-oauth',
           'agent-auth/advanced/custom-domain',
-          'agent-auth/custom-providers',
           // 'agent-auth/authentication/scopes-permissions',
           // 'agent-auth/authentication/multi-provider',
           // 'agent-auth/authentication/troubleshooting',
           // 'agent-auth/authentication/testing-auth-flows',
           // 'agent-auth/advanced/overview',
+        ],
+      },
+      {
+        label: 'Bring your own provider',
+        items: [
+          'agent-auth/bring-your-own-provider/overview',
+          'agent-auth/bring-your-own-provider/auth-types-and-patterns',
+          'agent-auth/bring-your-own-provider/managing-providers',
+          'agent-auth/bring-your-own-provider/using-tool-proxy',
         ],
       },
       {
