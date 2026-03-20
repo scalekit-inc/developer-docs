@@ -21,7 +21,9 @@ Connect a user's Attio workspace and make API calls on their behalf — Scalekit
 
     // Step 1: Send this URL to your user to authorize Attio access
     const { link } = await actions.getAuthorizationLink({ connectionName, identifier });
-    console.log('Authorize Attio:', link);
+    console.log('Authorize Attio:', link); // present this link to your user for authorization, or click it yourself for testing
+    process.stdout.write('Press Enter after authorizing...');
+    await new Promise(r => process.stdin.once('data', r));
 
     // Step 2: After the user authorizes, make API calls via Scalekit proxy
 
