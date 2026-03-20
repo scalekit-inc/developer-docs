@@ -45,7 +45,7 @@ Connect a user's Apollo account and make API calls on their behalf — Scalekit 
   </TabItem>
   <TabItem label="Python">
     ```python
-    import scalekit.client, os
+    import scalekit.client, os, sys
     from dotenv import load_dotenv
     load_dotenv()
 
@@ -59,22 +59,26 @@ Connect a user's Apollo account and make API calls on their behalf — Scalekit 
         env_url=os.getenv("SCALEKIT_ENV_URL"),
     )
 
-    # Get authorization link and send it to your user
-    link_response = scalekit_client.actions.get_authorization_link(
-        connection_name=connection_name,
-        identifier=identifier
-    )
-    print("Authorize Apollo:", link_response.link)
-    input("Press Enter after authorizing...")
+    try:
+        # Get authorization link and send it to your user
+        link_response = scalekit_client.actions.get_authorization_link(
+            connection_name=connection_name,
+            identifier=identifier
+        )
+        print("Authorize Apollo:", link_response.link)
+        input("Press Enter after authorizing...")
 
-    # After the user authorizes, make API calls via Scalekit proxy
-    result = scalekit_client.actions.request(
-        connection_name=connection_name,
-        identifier=identifier,
-        path="/api/v1/contacts/search",
-        method="POST"
-    )
-    print(result)
+        # After the user authorizes, make API calls via Scalekit proxy
+        result = scalekit_client.actions.request(
+            connection_name=connection_name,
+            identifier=identifier,
+            path="/api/v1/contacts/search",
+            method="POST"
+        )
+        print(result)
+    except Exception as e:
+        print(f"Apollo request failed: {e}", file=sys.stderr)
+        sys.exit(1)
     ```
   </TabItem>
 </Tabs>
