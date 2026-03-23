@@ -156,6 +156,15 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Bring your own provider',
+        items: [
+          'agent-auth/bring-your-own-provider/overview',
+          'agent-auth/bring-your-own-provider/auth-types-and-patterns',
+          'agent-auth/bring-your-own-provider/managing-providers',
+          'agent-auth/bring-your-own-provider/using-tool-proxy',
+        ],
+      },
+      {
         label: 'Tool calling',
         collapsed: false,
         items: [
