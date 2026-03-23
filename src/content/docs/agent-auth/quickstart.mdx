@@ -103,6 +103,7 @@ In this quickstart, you'll build a simple tool-calling program that:
       <TabItem label="Node.js">
         ```typescript showLineNumbers=false frame="none"
         import { ScalekitClient } from '@scalekit-sdk/node';
+        import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
         import 'dotenv/config';
 
         const scalekit = new ScalekitClient(
@@ -175,7 +176,7 @@ In this quickstart, you'll build a simple tool-calling program that:
       <TabItem label="Node.js">
         ```typescript showLineNumbers=false frame="none" wrap
         // Generate authorization link if user hasn't authorized or token is expired
-        if (connectedAccount?.status !== 'ACTIVE') {
+        if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
           console.log('gmail is not connected:', connectedAccount?.status);
           const linkResponse = await actions.getAuthorizationLink({
             connectionName: 'gmail',
@@ -214,7 +215,7 @@ In this quickstart, you'll build a simple tool-calling program that:
           identifier: 'user_123',
           path: '/gmail/v1/users/me/messages',
           method: 'GET',
-          params: { q: 'is:unread', maxResults: '5' },
+          queryParams: { q: 'is:unread', maxResults: 5 },
         });
         console.log(result);
         ```
@@ -249,7 +250,7 @@ In this quickstart, you'll build a simple tool-calling program that:
             max_results: 5,
           },
         });
-        console.log('Recent emails:', toolResponse.result);
+        console.log('Recent emails:', toolResponse.data);
         ```
       </TabItem>
     </Tabs>
