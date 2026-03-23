@@ -1,0 +1,71 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Once a connected account is set up, make search API calls through the Scalekit proxy. Scalekit injects the Brave Search API key automatically as the `X-Subscription-Token` header — you never handle credentials in your application code.
+
+You can interact with Brave Search in two ways — via direct proxy API calls or via Scalekit optimized tool calls. Scroll down to see the list of available Scalekit tools.
+
+## Proxy API calls
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'brave-search'; // connection name from your Scalekit dashboard
+    const identifier = 'user_123';         // your user's unique identifier
+
+    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // Web search via Scalekit proxy — no API key needed here
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/res/v1/web/search',
+      method: 'GET',
+      queryParams: { q: 'best open source LLM frameworks 2025', count: '5' },
+    });
+    console.log(result.data.web.results);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "brave-search"  # connection name from your Scalekit dashboard
+    identifier = "user_123"           # your user's unique identifier
+
+    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Web search via Scalekit proxy — no API key needed here
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/res/v1/web/search",
+        method="GET",
+        params={"q": "best open source LLM frameworks 2025", "count": 5}
+    )
+    print(result["web"]["results"])
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip">
+  Brave Search uses API key auth — unlike OAuth connectors, there is no authorization link or redirect flow. Once you call `upsertConnectedAccount` (or add an account via the dashboard), your users can make requests immediately.
+</Aside>
+
+## Scalekit Tools

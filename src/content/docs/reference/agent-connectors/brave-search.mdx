@@ -1,0 +1,285 @@
+---
+title: Brave Search
+description: Connect to Brave Search. Run privacy-first web, news, image, video, and local searches; retrieve AI summaries; get LLM-optimized context; and use OpenAI-compatible chat completions grounded in live search results.
+tags: [agent-connectors, brave-search, search, ai, privacy, news, local, summarizer, llm, integration, tool]
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupBraveSearchSection } from '@components/templates'
+import { UsageBraveSearchSection } from '@components/templates'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Brave Search to run privacy-first web, news, image, video, and local searches; retrieve AI-generated summaries and entity data; get LLM-optimized context for grounding; and use OpenAI-compatible chat completions backed by real-time search results.
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/brave-search.svg" width="64" height="64" alt="Brave Search logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="API Key" />
+
+<Aside type="note" title="Plan requirements">
+  Brave Search API tools require different subscription tiers. The **Free plan** (2,000 queries/month) covers core search tools. AI Summarizer tools require **Pro**. Chat completions require the **AI plan**. Local/POI tools require the **Data for AI plan**. See [api.search.brave.com](https://api.search.brave.com) → **Subscription** for details.
+</Aside>
+
+## Set up the agent connector
+
+<SetupBraveSearchSection />
+
+## Usage
+
+<UsageBraveSearchSection />
+
+## Tool list
+
+## `brave_web_search`
+
+Search the web using Brave's privacy-focused search engine. Returns real-time results including web pages, news, videos, images, and rich data. Supports filtering by country, language, recency, and custom re-ranking via Goggles.
+
+**Required plan**: Free and above.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `q` | string | Yes | Search query. Maximum 400 characters, 50 words. |
+| `country` | string | No | Country code (ISO 3166-1 alpha-2, e.g., `US`, `GB`, `DE`) to localise results. |
+| `search_lang` | string | No | Language of search results (ISO 639-1, e.g., `en`, `fr`, `de`). |
+| `ui_lang` | string | No | UI language for rendering result labels (e.g., `en-US`). |
+| `count` | integer | No | Number of results per page (1–20, default 20). |
+| `offset` | integer | No | Pagination offset (0–9). Use with `count` to page through up to 200 results. |
+| `safesearch` | string | No | Content filter: `off`, `moderate` (default), or `strict`. |
+| `freshness` | string | No | Recency filter: `pd` (24 h), `pw` (7 days), `pm` (31 days), `py` (1 year), or a date range `YYYY-MM-DDtoYYYY-MM-DD`. |
+| `text_decorations` | boolean | No | Include bold markers in result snippets for query-term highlighting. |
+| `spellcheck` | boolean | No | Automatically spellcheck the query before searching. |
+| `goggles_id` | string | No | URL of a Goggles re-ranking file for custom result ordering. |
+| `units` | string | No | Unit system for unit-sensitive results: `metric` or `imperial`. |
+| `extra_snippets` | boolean | No | Return up to 5 additional snippets per result. **Requires Pro plan.** |
+| `summary` | boolean | No | Request an AI summarizer key in the response for use with `brave_summarizer_*` tools. **Requires Pro plan.** |
+
+## `brave_news_search`
+
+Search for recent news articles using Brave Search. Returns results with titles, URLs, snippets, publication dates, and source information. Supports filtering by country, language, and recency.
+
+**Required plan**: Free and above.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `q` | string | Yes | News search query. |
+| `country` | string | No | Country code (ISO 3166-1 alpha-2) to localise news results. |
+| `search_lang` | string | No | Language of news results (ISO 639-1). |
+| `count` | integer | No | Number of results (1–20, default 20). |
+| `offset` | integer | No | Pagination offset (0–4). |
+| `freshness` | string | No | Recency filter: `pd` (24 h), `pw` (7 days), `pm` (31 days). |
+| `extra_snippets` | boolean | No | Return additional text snippets per result. **Requires Pro plan.** |
+| `goggles_id` | string | No | URL of a Goggles re-ranking file. |
+| `safesearch` | string | No | Content filter: `off`, `moderate` (default), or `strict`. |
+| `spellcheck` | boolean | No | Automatically spellcheck the query before searching. |
+
+## `brave_image_search`
+
+Search for images using Brave Search. Returns image results with thumbnails, source URLs, dimensions, and metadata.
+
+**Required plan**: Free and above.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `q` | string | Yes | Image search query. |
+| `country` | string | No | Country code (ISO 3166-1 alpha-2) to localise results. |
+| `search_lang` | string | No | Language filter (ISO 639-1). |
+| `count` | integer | No | Number of image results to return (1–3 per API call). |
+| `safesearch` | string | No | Content filter: `off`, `moderate` (default), or `strict`. |
+| `spellcheck` | boolean | No | Automatically spellcheck the query before searching. |
+
+## `brave_video_search`
+
+Search for videos using Brave Search. Returns results with titles, URLs, thumbnails, durations, and publisher metadata.
+
+**Required plan**: Free and above.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `q` | string | Yes | Video search query. |
+| `country` | string | No | Country code (ISO 3166-1 alpha-2) to localise results. |
+| `search_lang` | string | No | Language filter (ISO 639-1). |
+| `count` | integer | No | Number of results (1–20, default 20). |
+| `offset` | integer | No | Pagination offset (0–9). |
+| `freshness` | string | No | Recency filter: `pd`, `pw`, `pm`, or a date range. |
+| `safesearch` | string | No | Content filter: `off`, `moderate` (default), or `strict`. |
+| `spellcheck` | boolean | No | Automatically spellcheck the query before searching. |
+
+## `brave_suggest_search`
+
+Get autocomplete search suggestions from Brave Search for a given query prefix. Useful for query completion, exploring related search terms, and building search UIs.
+
+**Required plan**: Free and above.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `q` | string | Yes | Query prefix to get autocomplete suggestions for. |
+| `country` | string | No | Country code (ISO 3166-1 alpha-2) to localise suggestions. |
+| `count` | integer | No | Number of suggestions to return (1–20, default 5). |
+
+## `brave_spellcheck`
+
+Check and correct spelling of a query using Brave Search's spellcheck engine. Returns suggested corrections for misspelled queries.
+
+**Required plan**: Free and above.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `q` | string | Yes | The query to spellcheck. |
+| `country` | string | No | Country code (ISO 3166-1 alpha-2) to apply locale-aware corrections. |
+
+## `brave_llm_context`
+
+Retrieve real-time web search results structured as grounding context for LLMs. Returns curated snippets, source URLs, titles, and metadata specifically formatted to maximise contextual relevance for AI-generated answers. Supports fine-grained token and snippet budgets to control context size.
+
+**Required plan**: Pro and above.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `q` | string | Yes | Search query to retrieve grounding context for. |
+| `count` | integer | No | Number of web results to include (1–20, default 5). |
+| `token_budget` | integer | No | Maximum total tokens for the returned context. Use to fit within your LLM's context window. |
+| `snippet_budget` | integer | No | Maximum number of snippets to include across all results. |
+| `country` | string | No | Country code (ISO 3166-1 alpha-2) to localise results. |
+| `search_lang` | string | No | Language filter (ISO 639-1). |
+| `freshness` | string | No | Recency filter: `pd`, `pw`, `pm`, `py`, or date range. |
+| `safesearch` | string | No | Content filter: `off`, `moderate` (default), or `strict`. |
+
+## `brave_chat_completions`
+
+Get AI-generated answers grounded in real-time Brave Search results using an OpenAI-compatible chat completions interface. Returns summarised, cited answers with source references and token usage statistics. Drop-in replacement for OpenAI `/v1/chat/completions` for search-augmented generation.
+
+**Required plan**: AI plan.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `messages` | array | Yes | Conversation history in OpenAI format: `[{"role": "user", "content": "..."}]`. Supported roles: `system`, `user`, `assistant`. |
+| `model` | string | No | Model identifier (e.g., `brave/serp-claude-3-5-haiku`). Defaults to the plan's included model. |
+| `stream` | boolean | No | Stream the response using server-sent events (SSE). Default `false`. |
+| `country` | string | No | Country code (ISO 3166-1 alpha-2) to localise the underlying search. |
+| `search_lang` | string | No | Language filter for the underlying search (ISO 639-1). |
+| `safesearch` | string | No | Content filter applied to the underlying search: `off`, `moderate`, or `strict`. |
+| `freshness` | string | No | Recency filter for the underlying search results. |
+
+## `brave_local_place_search`
+
+Search 200M+ Points of Interest (POIs) by geographic centre and radius. Supports searching by coordinates or location name with an optional keyword query. Returns location IDs that you can use with `brave_local_pois` and `brave_local_descriptions` to get full details.
+
+**Required plan**: Data for AI plan.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `q` | string | No | Keyword to filter POIs (e.g., `coffee shop`, `hospital`). |
+| `lat` | number | No | Latitude of the search centre (–90 to 90). Use with `lon` instead of `location`. |
+| `lon` | number | No | Longitude of the search centre (–180 to 180). Use with `lat` instead of `location`. |
+| `location` | string | No | Human-readable location name (e.g., `San Francisco, CA`). Alternative to `lat`/`lon`. |
+| `radius` | integer | No | Search radius in metres from the centre point. |
+| `count` | integer | No | Number of POI results to return (1–20, default 5). |
+
+## `brave_local_pois`
+
+Fetch detailed Point of Interest data for up to 20 location IDs returned by `brave_local_place_search`. Returns rich local business data including address, phone, opening hours, ratings, and reviews.
+
+**Required plan**: Data for AI plan.
+
+<Aside type="caution" title="Location IDs are ephemeral">
+  Location IDs returned by `brave_local_place_search` expire after approximately 8 hours. Always fetch POI details in the same session as the search, not from a cached or stored ID.
+</Aside>
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `ids` | array | Yes | List of location IDs from a `brave_local_place_search` response (maximum 20 IDs per call). |
+
+## `brave_local_descriptions`
+
+Fetch AI-generated descriptions for locations using IDs from a `brave_local_place_search` response. Returns natural language summaries describing the place, its atmosphere, and what visitors can expect.
+
+**Required plan**: Data for AI plan.
+
+<Aside type="caution" title="Location IDs are ephemeral">
+  Location IDs expire after approximately 8 hours. Use them promptly after receiving them from `brave_local_place_search`.
+</Aside>
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `ids` | array | Yes | List of location IDs from a `brave_local_place_search` response (maximum 20 IDs per call). |
+
+## `brave_summarizer_search`
+
+Retrieve a full AI-generated summary for a summarizer key obtained from a `brave_web_search` response (requires `summary: true` on the web search call). Returns the complete summary with title, content, enrichments, follow-up queries, and entity details.
+
+**Required plan**: Pro and above.
+
+<Aside type="note" title="How to get a summarizer key">
+  First call `brave_web_search` with `summary: true`. The response includes a `summarizer.key` field. Pass that key to this tool and the other `brave_summarizer_*` tools.
+</Aside>
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `key` | string | Yes | Summarizer key from the `summarizer.key` field of a `brave_web_search` response. |
+| `entity_info` | boolean | No | Include entity metadata (people, places, organisations) referenced in the summary. |
+| `raw` | boolean | No | Return unformatted (raw) summary text without inline citation markers. |
+
+## `brave_summarizer_summary`
+
+Fetch only the complete AI-generated summary content for a summarizer key. Use when you only need the summary text without enrichments or follow-up data.
+
+**Required plan**: Pro and above.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `key` | string | Yes | Summarizer key from a `brave_web_search` response. |
+
+## `brave_summarizer_enrichments`
+
+Fetch enrichment data for a Brave AI summary key. Returns associated images, Q&A pairs, entity details, and source references that accompany the summary.
+
+**Required plan**: Pro and above.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `key` | string | Yes | Summarizer key from a `brave_web_search` response. |
+
+## `brave_summarizer_followups`
+
+Fetch suggested follow-up queries for a Brave AI summary key. Useful for building conversational search flows and helping users explore related topics.
+
+**Required plan**: Pro and above.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `key` | string | Yes | Summarizer key from a `brave_web_search` response. |
+
+## `brave_summarizer_entity_info`
+
+Fetch detailed entity metadata for a specific entity mentioned in a Brave AI summary. Returns structured information about people, places, organisations, and concepts referenced in the summary.
+
+**Required plan**: Pro and above.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `key` | string | Yes | Summarizer key from a `brave_web_search` response. |
+| `entity` | string | Yes | Name of the entity to retrieve details for (must be present in the summary). |
+
+## `brave_summarizer_title`
+
+Fetch only the title component of a Brave AI summary. Use when you need a short heading for the summary without loading the full content.
+
+**Required plan**: Pro and above.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `key` | string | Yes | Summarizer key from a `brave_web_search` response. |
