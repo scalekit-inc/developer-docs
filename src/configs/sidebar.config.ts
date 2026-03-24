@@ -407,6 +407,7 @@ export const sidebar = [
             label: 'Self-service admin portal',
             link: 'authenticate/sso/admin-portal',
           },
+          'sso/reference/sso-integration-errors',
         ],
       },
       {
