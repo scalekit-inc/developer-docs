@@ -65,7 +65,7 @@ You can interact with Brave Search in two ways — via direct proxy API calls or
 </Tabs>
 
 <Aside type="tip" title="No OAuth flow needed">
-  Brave Search uses API key auth — unlike OAuth connectors, there is no authorization link or redirect flow. Once you call `upsertConnectedAccount` (or add an account via the dashboard), your users can make requests immediately.
+  Brave Search uses API key auth — unlike OAuth connectors, there is no authorization link or redirect flow. Once you call `upsert_connected_account` (Python) / `upsertConnectedAccount` (Node.js), or add an account via the dashboard, your users can make requests immediately.
 </Aside>
 
 ## Scalekit tools
@@ -86,7 +86,8 @@ scalekit_client = ScalekitClient(
     env_url=os.environ["SCALEKIT_ENV_URL"],
 )
 
-connected_account = scalekit_client.actions.get_or_create_connected_account(
+# Ensure a connected account exists for this user before making tool calls
+scalekit_client.actions.get_or_create_connected_account(
     connection_name="brave-search",
     identifier="user_123",
 )
@@ -254,8 +255,9 @@ Use Scalekit's LangChain helper to load all Brave Search tools into a LangChain 
 
 ```python title="examples/brave_langchain_agent.py"
 import os
-from langchain.agents import AgentType, initialize_agent
+from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_anthropic import ChatAnthropic
+from langchain_core.prompts import ChatPromptTemplate
 from scalekit.client import ScalekitClient
 
 scalekit_client = ScalekitClient(
@@ -275,16 +277,20 @@ llm = ChatAnthropic(
     api_key=os.environ["ANTHROPIC_API_KEY"],
 )
 
-agent = initialize_agent(
-    tools=tools,
-    llm=llm,
-    agent=AgentType.OPENAI_FUNCTIONS,
-    verbose=True,
-)
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful research assistant with access to Brave Search tools."),
+    ("human", "{input}"),
+    ("placeholder", "{agent_scratchpad}"),
+])
 
-response = agent.run(
-    "Find the top 5 news articles about AI regulation in Europe from the past week "
-    "and give me a one-sentence summary of each."
-)
-print(response)
+agent = create_tool_calling_agent(llm, tools, prompt)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
+response = agent_executor.invoke({
+    "input": (
+        "Find the top 5 news articles about AI regulation in Europe from the past week "
+        "and give me a one-sentence summary of each."
+    )
+})
+print(response["output"])
 ```
