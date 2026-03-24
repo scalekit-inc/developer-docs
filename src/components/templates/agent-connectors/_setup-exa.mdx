@@ -23,7 +23,7 @@ Register your Exa API key with Scalekit so it can authenticate and proxy request
 
 3. ### Add a connected account
 
-   Connected accounts link a specific user identifier in your system to an Exa API key. You can add them via the dashboard for testing, or via the Scalekit API in production.
+   Connected accounts link a specific user identifier in your system to an Exa API key. Add accounts via the dashboard for testing, or via the Scalekit API in production.
 
    **Via dashboard (for testing)**
 
@@ -40,22 +40,31 @@ Register your Exa API key with Scalekit so it can authenticate and proxy request
    **Via API (for production)**
 
    <Tabs syncKey="tech-stack">
+     <TabItem label="Node.js">
+       ```typescript
+       await scalekit.actions.upsertConnectedAccount({
+         connectionName: 'exa',
+         identifier: 'user_123',
+         credentials: { api_key: 'your-exa-api-key' },
+       });
+       ```
+     </TabItem>
      <TabItem label="Python">
        ```python
        scalekit_client.actions.upsert_connected_account(
            connection_name="exa",
-           identifier="user_123",       # your user's unique ID
+           identifier="user_123",
            credentials={"api_key": "your-exa-api-key"}
        )
        ```
      </TabItem>
    </Tabs>
 
-   <Aside type="tip">
-   In production, call `upsert_connected_account` when a user connects their Exa account — for example, after they paste their API key into a settings page in your app.
+   <Aside type="tip" title="Production usage tip">
+     In production, call `upsertConnectedAccount` when a user connects their Exa account — for example, after they paste their API key into a settings page in your app.
    </Aside>
 </Steps>
 
-<Aside type="note">
-**Credits and rate limits**: Each Exa API key has a default limit of 10 QPS. Search, find-similar, and get-contents cost 1 credit per request, plus additional credits per content item (text, highlights, or summary) returned. `exa_research` and `exa_websets` run multiple sub-queries internally and consume significantly more credits. Monitor usage at [dashboard.exa.ai](https://dashboard.exa.ai) → **Usage**.
+<Aside type="note" title="Credits and rate limits">
+  Each Exa API key has a default limit of 10 QPS. Search, find-similar, and get-contents cost 1 credit per request, plus additional credits per content item (text, highlights, or summary) returned. `exa_research` and `exa_websets` run multiple sub-queries internally and consume significantly more credits. Monitor usage at [dashboard.exa.ai](https://dashboard.exa.ai) → **Usage**.
 </Aside>

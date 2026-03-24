@@ -1,7 +1,10 @@
 ---
 title: Exa
 description: Connect to Exa for AI-powered semantic web search, content enrichment, finding similar pages, website crawling, direct answers, structured research, and large-scale URL discovery.
+tags: [agent-connectors, exa, search, web-scraping, research, ai, semantic-search]
 tableOfContents: true
+sidebar:
+  label: Exa
 head:
   - tag: style
     content: |
@@ -27,6 +30,25 @@ import { SetupExaSection, UsageExaSection } from '@components/templates'
 </div>
 
 Supports authentication: <Badge text="API Key" />
+
+<details>
+<summary>What you can build with this connector</summary>
+
+| Use case | Tools involved |
+|---|---|
+| **Semantic lead research** | `exa_search` (category: company) → `exa_get_contents` (summaries) |
+| **Competitive intelligence** | `exa_find_similar` → `exa_get_contents` → `exa_research` |
+| **Real-time Q&A grounding** | `exa_answer` → feed answer + sources into LLM context |
+| **Bulk URL discovery** | `exa_websets` (thousands of results) → `exa_get_contents` |
+| **Documentation indexing** | `exa_crawl` (follow internal links) → chunk and embed |
+| **Structured market reports** | `exa_research` (with `output_schema`) → structured JSON output |
+
+**Key concepts:**
+- **Neural vs keyword search**: `neural` (default) finds conceptually related pages even when your exact words don't appear. Use `keyword` for precise product names, quotes, or code identifiers.
+- **Credits**: Every request costs credits. Requesting `text`, `highlights`, or `summary` costs extra per result. Omitting content fields returns metadata only and saves credits.
+- **`exa_research` vs `exa_search`**: Use `exa_search` for targeted queries. Use `exa_research` when you need multi-angle synthesis across many sources — it runs sub-queries in parallel and costs significantly more.
+
+</details>
 
 ## Set up the agent connector
 
