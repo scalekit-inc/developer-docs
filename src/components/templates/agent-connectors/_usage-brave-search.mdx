@@ -64,8 +64,227 @@ You can interact with Brave Search in two ways — via direct proxy API calls or
   </TabItem>
 </Tabs>
 
-<Aside type="tip">
+<Aside type="tip" title="No OAuth flow needed">
   Brave Search uses API key auth — unlike OAuth connectors, there is no authorization link or redirect flow. Once you call `upsertConnectedAccount` (or add an account via the dashboard), your users can make requests immediately.
 </Aside>
 
-## Scalekit Tools
+## Scalekit tools
+
+Use `actions.execute_tool()` to call Brave Search tools directly. Scalekit injects credentials automatically — your application code never handles the API key.
+
+### Web search
+
+Search the web and retrieve real-time results. Works on all plans including Free.
+
+```python title="examples/brave_web_search.py"
+import os
+from scalekit.client import ScalekitClient
+
+scalekit_client = ScalekitClient(
+    client_id=os.environ["SCALEKIT_CLIENT_ID"],
+    client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+    env_url=os.environ["SCALEKIT_ENV_URL"],
+)
+
+connected_account = scalekit_client.actions.get_or_create_connected_account(
+    connection_name="brave-search",
+    identifier="user_123",
+)
+
+# Search for recent articles — freshness "pw" limits results to the past 7 days
+result = scalekit_client.actions.execute_tool(
+    connection_name="brave-search",
+    identifier="user_123",
+    tool_name="brave_web_search",
+    input={
+        "q": "open source LLM frameworks 2025",
+        "count": 5,
+        "freshness": "pw",
+    },
+)
+
+for item in result["web"]["results"]:
+    print(item["title"], item["url"])
+```
+
+### News search
+
+Retrieve recent news articles by topic or keyword. Useful for monitoring a brand, topic, or competitor.
+
+```python title="examples/brave_news_search.py"
+# Fetch the latest news on a topic from the past 24 hours
+result = scalekit_client.actions.execute_tool(
+    connection_name="brave-search",
+    identifier="user_123",
+    tool_name="brave_news_search",
+    input={
+        "q": "AI regulation Europe",
+        "count": 10,
+        "freshness": "pd",   # pd = past 24 hours
+    },
+)
+
+for article in result["results"]:
+    print(article["title"], article["age"], article["url"])
+```
+
+### LLM grounding context
+
+Retrieve search results structured specifically for grounding LLM responses. Requires Pro plan. Use `token_budget` to stay within your model's context window.
+
+```python title="examples/brave_llm_context.py"
+# Get search context sized to fit a 4 000-token budget
+result = scalekit_client.actions.execute_tool(
+    connection_name="brave-search",
+    identifier="user_123",
+    tool_name="brave_llm_context",
+    input={
+        "q": "vector database comparison 2025",
+        "count": 5,
+        "token_budget": 4000,
+    },
+)
+
+# Pass the structured context directly to your LLM
+grounding_context = result["context"]
+print(grounding_context)
+```
+
+### AI chat completions grounded in search
+
+Get an AI-generated answer backed by real-time Brave Search results, using an OpenAI-compatible interface. Requires AI plan.
+
+```python title="examples/brave_chat_completions.py"
+# Drop-in replacement for OpenAI /v1/chat/completions — results are grounded in live search
+result = scalekit_client.actions.execute_tool(
+    connection_name="brave-search",
+    identifier="user_123",
+    tool_name="brave_chat_completions",
+    input={
+        "messages": [
+            {"role": "user", "content": "What are the latest developments in quantum computing?"}
+        ],
+        "model": "brave/serp-claude-3-5-haiku",
+    },
+)
+
+print(result["choices"][0]["message"]["content"])
+# Each answer includes citations back to source URLs
+for source in result.get("search_results", []):
+    print(source["title"], source["url"])
+```
+
+### Local place search and POI details
+
+Find nearby businesses or points of interest, then retrieve full details. Requires Data for AI plan.
+
+```python title="examples/brave_local_search.py"
+# Step 1: Find coffee shops near San Francisco city centre
+places = scalekit_client.actions.execute_tool(
+    connection_name="brave-search",
+    identifier="user_123",
+    tool_name="brave_local_place_search",
+    input={
+        "q": "specialty coffee",
+        "location": "San Francisco, CA",
+        "count": 5,
+    },
+)
+
+location_ids = [p["id"] for p in places["results"]]
+
+# Step 2: Fetch rich details (hours, ratings, address) for those locations
+# Location IDs expire after ~8 hours — always fetch details in the same session
+pois = scalekit_client.actions.execute_tool(
+    connection_name="brave-search",
+    identifier="user_123",
+    tool_name="brave_local_pois",
+    input={"ids": location_ids},
+)
+
+for poi in pois["results"]:
+    print(poi["name"], poi["address"], poi["rating"])
+```
+
+### AI summary with follow-up queries
+
+Get an AI-generated summary for a search query, then surface follow-up questions. Requires Pro plan.
+
+```python title="examples/brave_summarizer.py"
+# Step 1: Web search with summary: true to obtain a summarizer key
+search_result = scalekit_client.actions.execute_tool(
+    connection_name="brave-search",
+    identifier="user_123",
+    tool_name="brave_web_search",
+    input={
+        "q": "benefits of RAG vs fine-tuning for enterprise LLMs",
+        "summary": True,
+        "count": 5,
+    },
+)
+
+summarizer_key = search_result["summarizer"]["key"]
+
+# Step 2: Retrieve the full AI summary using the key
+summary = scalekit_client.actions.execute_tool(
+    connection_name="brave-search",
+    identifier="user_123",
+    tool_name="brave_summarizer_search",
+    input={"key": summarizer_key, "entity_info": True},
+)
+
+print(summary["title"])
+print(summary["summary"])
+
+# Step 3: Get follow-up questions for a conversational search experience
+followups = scalekit_client.actions.execute_tool(
+    connection_name="brave-search",
+    identifier="user_123",
+    tool_name="brave_summarizer_followups",
+    input={"key": summarizer_key},
+)
+
+for q in followups["queries"]:
+    print("-", q)
+```
+
+### LangChain integration
+
+Use Scalekit's LangChain helper to load all Brave Search tools into a LangChain agent. The agent selects and calls the right tool automatically based on the user's query.
+
+```python title="examples/brave_langchain_agent.py"
+import os
+from langchain.agents import AgentType, initialize_agent
+from langchain_anthropic import ChatAnthropic
+from scalekit.client import ScalekitClient
+
+scalekit_client = ScalekitClient(
+    client_id=os.environ["SCALEKIT_CLIENT_ID"],
+    client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+    env_url=os.environ["SCALEKIT_ENV_URL"],
+)
+
+# Load all Brave Search tools — Scalekit handles auth for each call
+tools = scalekit_client.actions.langchain.get_tools(
+    providers=["BRAVE_SEARCH"],
+    identifier="user_123",
+)
+
+llm = ChatAnthropic(
+    model="claude-sonnet-4-6",
+    api_key=os.environ["ANTHROPIC_API_KEY"],
+)
+
+agent = initialize_agent(
+    tools=tools,
+    llm=llm,
+    agent=AgentType.OPENAI_FUNCTIONS,
+    verbose=True,
+)
+
+response = agent.run(
+    "Find the top 5 news articles about AI regulation in Europe from the past week "
+    "and give me a one-sentence summary of each."
+)
+print(response)
+```

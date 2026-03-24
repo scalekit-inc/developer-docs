@@ -3,6 +3,8 @@ title: Brave Search
 description: Connect to Brave Search. Run privacy-first web, news, image, video, and local searches; retrieve AI summaries; get LLM-optimized context; and use OpenAI-compatible chat completions grounded in live search results.
 tags: [agent-connectors, brave-search, search, ai, privacy, news, local, summarizer, llm, integration, tool]
 tableOfContents: true
+sidebar:
+  label: Brave Search
 head:
   - tag: style
     content: |
@@ -24,11 +26,31 @@ import { UsageBraveSearchSection } from '@components/templates'
   Connect to Brave Search to run privacy-first web, news, image, video, and local searches; retrieve AI-generated summaries and entity data; get LLM-optimized context for grounding; and use OpenAI-compatible chat completions backed by real-time search results.
  </div>
  <div class="flex justify-center">
-  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/brave-search.svg" width="64" height="64" alt="Brave Search logo" />
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/brave.svg" width="64" height="64" alt="Brave Search logo" />
  </div>
 </div>
 
 Supports authentication: <Badge text="API Key" />
+
+<details>
+<summary>What you can build with this connector</summary>
+
+| Use case | Tools involved |
+|---|---|
+| **Real-time web research** | `brave_web_search` → feed results into LLM context |
+| **News monitoring** | `brave_news_search` with `freshness: pd` → summarise headlines |
+| **LLM grounding** | `brave_llm_context` → pass structured snippets directly to your model |
+| **Search-augmented chat** | `brave_chat_completions` with conversation history → cited AI answers |
+| **Local business lookup** | `brave_local_place_search` → `brave_local_pois` → display hours, ratings, address |
+| **AI summaries with follow-ups** | `brave_web_search` (summary: true) → `brave_summarizer_search` → `brave_summarizer_followups` |
+
+**Key concepts:**
+- **Plan tiers**: Free covers core search. Pro adds `brave_llm_context` and summarizer tools. AI plan adds `brave_chat_completions`. Data for AI plan adds local/POI tools.
+- **Summarizer two-step**: First call `brave_web_search` with `summary: true` to get a `summarizer.key`, then pass that key to `brave_summarizer_*` tools.
+- **LLM context vs web search**: `brave_llm_context` returns token-budgeted, snippet-optimised output specifically for grounding — prefer it over raw web search results when feeding an LLM.
+- **Rate limits**: Free plan allows 1 req/s. Paid plans scale to 20 req/s. Handle `429` errors with backoff.
+
+</details>
 
 <Aside type="note" title="Plan requirements">
   Brave Search API tools require different subscription tiers. The **Free plan** (2,000 queries/month) covers core search tools. AI Summarizer tools require **Pro**. Chat completions require the **AI plan**. Local/POI tools require the **Data for AI plan**. See [api.search.brave.com](https://api.search.brave.com) → **Subscription** for details.
