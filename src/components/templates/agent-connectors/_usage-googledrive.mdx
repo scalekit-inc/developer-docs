@@ -2,8 +2,11 @@ import { Tabs, TabItem } from '@astrojs/starlight/components'
 
 Connect a user's Google Drive account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
 
+You can interact with Google Drive in two ways — via direct proxy API calls or via Scalekit optimized tool calls. Scroll down to see the list of available Scalekit tools.
+
+## Proxy API Calls
+
 <Tabs syncKey="tech-stack">
-{/* Node.js - commented out, uncomment when ready
   <TabItem label="Node.js">
     ```typescript
     import { ScalekitClient } from '@scalekit-sdk/node';
@@ -18,11 +21,11 @@ Connect a user's Google Drive account and make API calls on their behalf — Sca
       process.env.SCALEKIT_CLIENT_ID,
       process.env.SCALEKIT_CLIENT_SECRET
     );
-    const { connectedAccounts, actions } = scalekit;
+    const actions = scalekit.actions;
 
     // Authenticate the user
-    const { link } = await connectedAccounts.getMagicLinkForConnectedAccount({
-      connector: connectionName,
+    const { link } = await actions.getAuthorizationLink({
+      connectionName,
       identifier,
     });
     console.log('🔗 Authorize Google Drive:', link); // present this link to your user for authorization, or click it yourself for testing
@@ -39,7 +42,6 @@ Connect a user's Google Drive account and make API calls on their behalf — Sca
     console.log(result);
     ```
   </TabItem>
-*/}
   <TabItem label="Python">
     ```python
     import scalekit.client, os
@@ -74,6 +76,94 @@ Connect a user's Google Drive account and make API calls on their behalf — Sca
         method="GET"
     )
     print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+## Scalekit Tools
+
+## File operations
+
+### Download a file
+
+Download a file from Google Drive by its file ID via the Scalekit proxy.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "google_drive"  # get your connection name from connection configurations
+    identifier = "user_123"           # your unique user identifier
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+
+    file_id = "<YOUR_FILE_ID>"   # file ID from Drive (visible in the file's URL)
+    output_path = "downloaded.pdf"
+
+    response = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path=f"/drive/v3/files/{file_id}",
+        method="GET",
+        query_params={"alt": "media"},
+    )
+
+    with open(output_path, "wb") as f:
+        f.write(response.content)
+
+    print(f"Downloaded: {output_path} ({len(response.content):,} bytes)")
+    ```
+  </TabItem>
+</Tabs>
+
+### Upload a file
+
+Upload a file to Google Drive via the Scalekit proxy. Scalekit injects the OAuth token automatically — your app never handles credentials directly.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python
+    import mimetypes
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "google_drive"  # get your connection name from connection configurations
+    identifier = "user_123"           # your unique user identifier
+
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+
+    file_path = "report.pdf"
+    file_name = "report.pdf"
+
+    with open(file_path, "rb") as f:
+        file_bytes = f.read()
+
+    mime_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
+
+    response = scalekit_client.actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/upload/drive/v3/files",
+        method="POST",
+        query_params={"uploadType": "media", "name": file_name},
+        form_data=file_bytes,
+        headers={"Content-Type": mime_type},
+    )
+
+    file_id = response.json()["id"]
+    print(f"Uploaded: {file_name} (File ID: {file_id})")
     ```
   </TabItem>
 </Tabs>

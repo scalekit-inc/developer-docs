@@ -1,0 +1,74 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+<Steps>
+1. ## Add the Scalekit authstack marketplace
+
+   Need to install GitHub Copilot CLI? See the [getting started guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-getting-started) — an active GitHub Copilot subscription is required.
+
+   Register Scalekit's plugin marketplace to access pre-configured authentication plugins. This marketplace provides implementation skills that help GitHub Copilot generate correct Full Stack Auth code.
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+   ```
+
+   The marketplace provides specialized plugins that understand full-stack auth patterns and OAuth 2.0 security requirements. These plugins guide GitHub Copilot to generate implementation code that matches your project structure.
+
+2. ## Install the Full Stack Auth plugin
+
+   Install the Full Stack Auth plugin to give GitHub Copilot the skills needed to generate complete authentication code:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin install full-stack-auth@scalekit-auth-stack
+   ```
+
+   <details>
+   <summary>Verify the plugin is installed</summary>
+
+   Confirm the plugin installed successfully:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin list
+   ```
+
+   <Aside type="tip" title="Keep plugins updated">
+   Update authentication plugins regularly to receive security patches and improvements:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   copilot plugin update full-stack-auth@scalekit-auth-stack
+   ```
+   </Aside>
+
+   </details>
+
+3. ## Generate authentication implementation
+
+   Use a structured prompt to direct GitHub Copilot. A well-formed prompt ensures the agent generates complete, production-ready Full Stack Auth code that includes all required security components.
+
+   Copy the following command into your terminal:
+
+   ```bash wrap title="Terminal" frame="terminal" showLineNumbers=false
+   copilot "Implement Scalekit full-stack auth — initialize ScalekitClient with environment credentials, implement the login redirect, handle the OAuth callback to exchange the code for tokens, store the session securely, and add a logout endpoint that clears the session. Code only."
+   ```
+
+   GitHub Copilot uses the Full Stack Auth plugin to analyze your existing application structure, generate Scalekit client initialization code, create the login redirect handler, implement the OAuth callback for token exchange, add secure session storage, and provide a logout endpoint.
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
+   </Aside>
+
+4. ## Verify the implementation
+
+   After GitHub Copilot completes, verify that all authentication components are properly configured:
+
+   Check generated files:
+   - Scalekit client initialization with environment credentials (you may need to set up a `.env` file with your Scalekit API credentials)
+   - Login route that redirects to Scalekit's authorization endpoint
+   - OAuth callback route that exchanges the code for tokens
+   - Secure session storage with proper cookie attributes
+   - Logout endpoint that clears the session
+
+   The login flow should redirect users to Scalekit's authorization page, where they authenticate. Your application should then exchange the returned authorization code for tokens, store the session, and redirect the user to the protected area of your app.
+
+</Steps>
+
+When you connect, users authenticate through the OAuth 2.0 flow you configured. Verify that protected routes require a valid session and that the logout endpoint properly clears session state.
