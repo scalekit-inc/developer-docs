@@ -24,7 +24,7 @@ import { UsagePhantombusterSection } from '@components/templates'
   Connect to PhantomBuster to launch and monitor automation agents, stream live container output, manage leads and lead lists, run AI completions grounded in real data, export usage reports, and control every aspect of your PhantomBuster organization programmatically.
  </div>
  <div class="flex justify-center">
-  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/phantombuster.svg" width="64" height="64" alt="PhantomBuster logo" />
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/phantombuster.svg" width="64" height="64" alt="PhantomBuster logo" />
  </div>
 </div>
 
@@ -33,6 +33,26 @@ Supports authentication: <Badge text="API Key" />
 <Aside type="note" title="Plan requirements">
   PhantomBuster tools require different subscription tiers. AI completions require **AI credits** (Pro+). CRM contact saving requires a configured **HubSpot integration** (Pro+). Branch management requires **Team+**. See the setup guide below for the full plan breakdown.
 </Aside>
+
+<details>
+<summary>What you can build with this connector</summary>
+
+PhantomBuster automates web actions — primarily LinkedIn scraping, lead generation, and outreach at scale. With this connector your AI agent can:
+
+| Use case | Tools involved |
+|---|---|
+| **LinkedIn outreach pipeline** | `phantombuster_agent_launch` → `phantombuster_container_fetch_result` → `phantombuster_leads_save_many` |
+| **Scheduled scraping with monitoring** | `phantombuster_agent_save` (set schedule) → `phantombuster_org_fetch_running_containers` → `phantombuster_container_fetch_output` |
+| **Lead enrichment with AI** | `phantombuster_leads_fetch_by_list` → `phantombuster_ai_completions` (parse titles/skills) → `phantombuster_leads_save_many` |
+| **Quota-aware automation** | `phantombuster_org_fetch_resources` (check limits) → `phantombuster_agent_launch` → `phantombuster_org_export_container_usage` |
+| **Multi-org reporting** | `phantombuster_org_fetch` → `phantombuster_org_export_agent_usage` → `phantombuster_org_export_container_usage` |
+
+**Key concepts:**
+- **Agent** — a saved automation configuration (script + schedule + arguments). Launch an agent to create a container.
+- **Container** — a single execution run of an agent. Containers hold logs, status, and result data.
+- **Lead list** — a named collection of leads stored in your PhantomBuster organization.
+
+</details>
 
 ## Set up the agent connector
 
