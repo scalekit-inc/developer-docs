@@ -1,0 +1,69 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Once a connected account is set up, call the PhantomBuster API through the Scalekit proxy. Scalekit injects the API key as the `X-Phantombuster-Key` header automatically — you never handle credentials in your application code.
+
+You can interact with PhantomBuster in two ways — via direct proxy API calls or via Scalekit optimized tool calls. Scroll down to see the list of available Scalekit tools.
+
+## Proxy API calls
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'phantombuster'; // connection name from your Scalekit dashboard
+    const identifier = 'user_123';          // your user's unique identifier
+
+    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // List all agents via Scalekit proxy — no API key needed here
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/api/v2/agents',
+      method: 'GET',
+    });
+    console.log(result.data);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "phantombuster"  # connection name from your Scalekit dashboard
+    identifier = "user_123"            # your user's unique identifier
+
+    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # List all agents via Scalekit proxy — no API key needed here
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/api/v2/agents",
+        method="GET"
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip">
+  PhantomBuster uses API key auth — unlike OAuth connectors, there is no authorization link or redirect flow. Once you call `upsertConnectedAccount` (or add an account via the dashboard), your users can make requests immediately.
+</Aside>
+
+## Scalekit Tools
