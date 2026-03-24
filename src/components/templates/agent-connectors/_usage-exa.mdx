@@ -1,4 +1,4 @@
-import { Aside } from '@astrojs/starlight/components'
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
 
 Once a connected account is set up, make API calls through the Scalekit proxy. Scalekit injects the Exa API key automatically — you never handle credentials in your application code.
 
@@ -6,32 +6,63 @@ You can interact with Exa in two ways — via direct proxy API calls or via Scal
 
 ## Proxy API calls
 
-```python
-import scalekit.client, os
-from dotenv import load_dotenv
-load_dotenv()
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
 
-connection_name = "exa"    # connection name from your Scalekit dashboard
-identifier = "user_123"    # your user's unique identifier
+    const connectionName = 'exa';      // connection name from your Scalekit dashboard
+    const identifier = 'user_123';     // your user's unique identifier
 
-# Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
-scalekit_client = scalekit.client.ScalekitClient(
-    client_id=os.getenv("SCALEKIT_CLIENT_ID"),
-    client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
-    env_url=os.getenv("SCALEKIT_ENV_URL"),
-)
-actions = scalekit_client.actions
+    // Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
 
-# Semantic search via Scalekit proxy — no API key needed here
-result = actions.request(
-    connection_name=connection_name,
-    identifier=identifier,
-    path="/search",
-    method="POST",
-    json={"query": "LLM observability tools 2025", "num_results": 5}
-)
-print(result)
-```
+    // Semantic search via Scalekit proxy — no API key needed here
+    const result = await actions.request({
+      connectionName,
+      identifier,
+      path: '/search',
+      method: 'POST',
+      body: { query: 'LLM observability tools 2025', num_results: 5 },
+    });
+    console.log(result.data);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "exa"    # connection name from your Scalekit dashboard
+    identifier = "user_123"    # your user's unique identifier
+
+    # Get your credentials from app.scalekit.com → Developers → Settings → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Semantic search via Scalekit proxy — no API key needed here
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
+        path="/search",
+        method="POST",
+        json={"query": "LLM observability tools 2025", "num_results": 5}
+    )
+    print(result)
+    ```
+  </TabItem>
+</Tabs>
 
 <Aside type="tip" title="No OAuth flow needed">
   Exa uses API key auth — unlike OAuth connectors, there is no authorization link or redirect flow. Once you call `upsertConnectedAccount` (or add an account via the dashboard), your users can make requests immediately.
