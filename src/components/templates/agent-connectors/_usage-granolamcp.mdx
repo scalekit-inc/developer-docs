@@ -1,0 +1,89 @@
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components'
+
+Connect a user's Granola account and query Granola's official MCP server through Scalekit. Scalekit handles the OAuth flow, token storage, and tool execution automatically.
+
+Granola MCP is primarily used through Scalekit tools. Use `scalekit_client.actions.execute_tool()` to search meeting notes, list meetings, fetch meeting details, and retrieve transcripts without calling the upstream MCP server directly.
+
+## Tool Calling
+
+Use this connector when you want an agent to work with Granola meeting content, including summaries, notes, attendees, and transcripts.
+
+- Use `granolamcp_query_granola_meetings` for natural-language questions such as decisions, action items, or follow-ups from past meetings.
+- Use `granolamcp_list_meetings` to find meetings in a time window before drilling into specific meeting IDs.
+- Use `granolamcp_get_meetings` when you already know the Granola meeting IDs and need richer metadata or notes.
+- Use `granolamcp_get_meeting_transcript` when exact wording matters and you need the verbatim transcript instead of summarized notes.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python title="examples/granolamcp_query_meetings.py"
+    import os
+    from scalekit.client import ScalekitClient
+
+    scalekit_client = ScalekitClient(
+        client_id=os.environ["SCALEKIT_CLIENT_ID"],
+        client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+        env_url=os.environ["SCALEKIT_ENV_URL"],
+    )
+
+    auth_link = scalekit_client.actions.get_authorization_link(
+        connection_name="granolamcp",
+        identifier="user_123",
+    )
+    print("Authorize Granola MCP:", auth_link.link)
+    input("Press Enter after authorizing...")
+
+    connected_account = scalekit_client.actions.get_or_create_connected_account(
+        connection_name="granolamcp",
+        identifier="user_123",
+    )
+
+    tool_response = scalekit_client.actions.execute_tool(
+        tool_name="granolamcp_query_granola_meetings",
+        connected_account_id=connected_account.connected_account.id,
+        tool_input={
+            "query": "What decisions and follow-ups came out of last week's customer calls?"
+        },
+    )
+    print("Granola response:", tool_response)
+    ```
+  </TabItem>
+  <TabItem label="Node.js">
+    ```typescript title="examples/granolamcp_query_meetings.ts"
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL!,
+      process.env.SCALEKIT_CLIENT_ID!,
+      process.env.SCALEKIT_CLIENT_SECRET!
+    );
+    const actions = scalekit.actions;
+
+    const { link } = await actions.getAuthorizationLink({
+      connectionName: 'granolamcp',
+      identifier: 'user_123',
+    });
+    console.log('Authorize Granola MCP:', link);
+    process.stdout.write('Press Enter after authorizing...');
+    await new Promise((resolve) => process.stdin.once('data', resolve));
+
+    const connectedAccount = await actions.getOrCreateConnectedAccount({
+      connectionName: 'granolamcp',
+      identifier: 'user_123',
+    });
+
+    const toolResponse = await actions.executeTool({
+      toolName: 'granolamcp_query_granola_meetings',
+      connectedAccountId: connectedAccount?.id,
+      toolInput: {
+        query: "What decisions and follow-ups came out of last week's customer calls?",
+      },
+    });
+    console.log('Granola response:', toolResponse.data);
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="Preserve citations">
+  `granolamcp_query_granola_meetings` returns inline citations back to the source meeting notes. Keep those citations in your final user-facing response when possible.
+</Aside>
