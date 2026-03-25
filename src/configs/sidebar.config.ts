@@ -187,9 +187,9 @@ export const sidebar = [
           },
           'agent-auth/frameworks/langchain',
           'agent-auth/frameworks/google-adk',
-          // 'agent-auth/frameworks/agno',
-          // 'agent-auth/frameworks/openai',
-          // 'agent-auth/frameworks/anthropic',
+          // 'agent-auth/frameworks/agno', // TODO: Add when Agno framework docs are complete
+          // 'agent-auth/frameworks/openai', // TODO: Add when OpenAI framework docs are complete
+          // 'agent-auth/frameworks/anthropic', // TODO: Add when Anthropic framework docs are complete
         ],
       },
       {
