@@ -76,6 +76,7 @@ head:
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupPipedriveSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -112,135 +113,79 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 </details>
 
-## Set up the Pipedrive connector
+## Set up the agent connector
 
-<Steps>
-1. ## Create a Pipedrive OAuth app
+<SetupPipedriveSection />
 
-   Go to the [Pipedrive Developer Hub](https://developers.pipedrive.com/) and create a new app.
+## Usage
 
-   - Set the **Callback URL** to your Scalekit OAuth redirect endpoint (shown in the next step).
-   - Select the OAuth 2.0 scopes your agent requires. Common scopes:
-
-   | Scope | Access granted |
-   |---|---|
-   | `deals:full` | Read and write deals |
-   | `contacts:full` | Read and write persons and organizations |
-   | `leads:full` | Read and write leads |
-   | `activities:full` | Read and write activities |
-   | `products:full` | Read and write products |
-   | `users:read` | Read user information |
-   | `webhooks:full` | Manage webhooks |
-
-   Copy your **Client ID** and **Client Secret** — you will need them in the next step.
-
-   <Aside type="tip" title="Use the minimum scopes">
-     Request only the scopes your agent actually uses. Narrow scopes reduce the blast radius if credentials are compromised and make it easier to get user consent.
-   </Aside>
-
-2. ## Add Pipedrive as a connection in Scalekit
-
-   In your Scalekit dashboard, navigate to **Agent Auth > Connections** and add a new connection for Pipedrive.
-
-   - Set the **Connection name** to `pipedrive` (used in all SDK calls).
-   - Enter your Pipedrive **Client ID** and **Client Secret**.
-   - Copy the **Redirect URI** shown and paste it into your Pipedrive OAuth app's Callback URL field.
-
-   <Aside type="note" title="Connection name is your identifier">
-     The connection name `pipedrive` is the string you pass to `connection_name` in every SDK call. It must match exactly — including case.
-   </Aside>
-
-3. ## Authorize your users
-
-   Generate a Pipedrive authorization URL for each user and redirect them to it. Scalekit exchanges the authorization code for tokens and stores them securely — your agent never handles raw OAuth tokens.
-
-   <Tabs syncKey="tech-stack">
-     <TabItem label="Node.js">
-       ```typescript
-       import { ScalekitClient } from '@scalekit/sdk';
-
-       const scalekit = new ScalekitClient({
-         clientId: process.env.SCALEKIT_CLIENT_ID,
-         clientSecret: process.env.SCALEKIT_CLIENT_SECRET,
-         environmentUrl: process.env.SCALEKIT_ENV_URL,
-       });
-
-       // Generate authorization URL and redirect the user
-       const authUrl = await scalekit.actions.getAuthorizationLink({
-         connectionName: 'pipedrive',
-         identifier: 'user_123',              // your internal user ID
-         redirectUri: 'https://your-app.com/oauth/callback',
-       });
-
-       // Redirect the user to authUrl
-       ```
-     </TabItem>
-     <TabItem label="Python">
-       ```python
-       import os
-       from scalekit import ScalekitClient
-
-       scalekit_client = ScalekitClient(
-           client_id=os.environ["SCALEKIT_CLIENT_ID"],
-           client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
-           environment_url=os.environ["SCALEKIT_ENV_URL"],
-       )
-
-       # Generate authorization URL and redirect the user
-       auth_url = scalekit_client.actions.get_authorization_link(
-           connection_name="pipedrive",
-           identifier="user_123",            # your internal user ID
-           redirect_uri="https://your-app.com/oauth/callback",
-       )
-
-       # Redirect the user to auth_url
-       ```
-     </TabItem>
-   </Tabs>
-
-   After the user authorizes your app in Pipedrive, they land on your `redirect_uri`. Scalekit handles the token exchange automatically — no additional code needed in the callback.
-
-   <Aside type="tip" title="Verify the connection after authorization">
-     Call `scalekit_client.actions.get_or_create_connected_account(connection_name="pipedrive", identifier="user_123")` after the redirect to confirm the token was stored successfully before running agent tools.
-   </Aside>
-
-</Steps>
-
-## Use the connector
-
-Once a user has authorized Pipedrive, your agent can make API calls on their behalf using either direct proxy requests or the Scalekit tools abstraction.
-
-### Proxy API calls
-
-Use `scalekit_client.actions.request()` to send authenticated HTTP requests directly to the Pipedrive REST API. Scalekit injects the user's access token automatically and refreshes it when needed.
+Connect a user's Pipedrive account and make API calls on their behalf — Scalekit handles OAuth and token refresh automatically.
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
     ```typescript
-    // Fetch all open deals for the authorized user
-    const response = await scalekit.actions.request({
-      connectionName: 'pipedrive',
-      identifier: 'user_123',
-      method: 'GET',
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'pipedrive'; // connection name from Scalekit dashboard
+    const identifier = 'user_123';      // your unique user identifier
+
+    // Get credentials from app.scalekit.com → Developers → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    // Authenticate the user — send this link to your user
+    const { link } = await actions.getAuthorizationLink({ connectionName, identifier });
+    console.log('🔗 Authorize Pipedrive:', link);
+
+    // After the user authorizes, make API calls via Scalekit proxy
+    const result = await actions.request({
+      connectionName,
+      identifier,
       path: '/v1/deals',
+      method: 'GET',
       params: { status: 'open', limit: 50 },
     });
-
-    console.log(response.data.data); // Array of deal objects
+    console.log(result.data.data); // Array of deal objects
     ```
   </TabItem>
   <TabItem label="Python">
     ```python
-    # Fetch all open deals for the authorized user
-    response = scalekit_client.actions.request(
-        connection_name="pipedrive",
-        identifier="user_123",
-        method="GET",
+    import scalekit.client, os
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "pipedrive"  # connection name from Scalekit dashboard
+    identifier = "user_123"        # your unique user identifier
+
+    # Get credentials from app.scalekit.com → Developers → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+    actions = scalekit_client.actions
+
+    # Authenticate the user — send this link to your user
+    link_response = actions.get_authorization_link(
+        connection_name=connection_name,
+        identifier=identifier
+    )
+    print("🔗 Authorize Pipedrive:", link_response.link)
+
+    # After the user authorizes, make API calls via Scalekit proxy
+    result = actions.request(
+        connection_name=connection_name,
+        identifier=identifier,
         path="/v1/deals",
+        method="GET",
         params={"status": "open", "limit": 50},
     )
-
-    print(response["data"]["data"])  # List of deal objects
+    print(result["data"]["data"])  # List of deal objects
     ```
   </TabItem>
 </Tabs>
@@ -249,24 +194,57 @@ Use `scalekit_client.actions.request()` to send authenticated HTTP requests dire
   The Pipedrive REST API base URL is `https://api.pipedrive.com`. Scalekit prefixes it automatically — pass only the path (e.g., `/v1/deals`).
 </Aside>
 
+![Scalekit Connected Accounts tab showing authorized Pipedrive users with status, token expiry, and date added columns](@/assets/docs/agent-connectors/pipedrive/add-connected-account.png)
+
 ### Scalekit tools
 
 Use `actions.execute_tool()` to call any Pipedrive tool by name. Scalekit resolves credentials, calls the Pipedrive API, and returns a structured response. All tool names map directly to the [Tool list](#tool-list) below.
 
 **Create a deal and schedule a follow-up call:**
 
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+```typescript
+// Create a new deal linked to a person and organization
+const deal = await actions.executeTool({
+  connectionName: 'pipedrive',
+  identifier: 'user_123',
+  toolName: 'pipedrive_deal_create',
+  toolInput: {
+    title: 'Acme Corp — Enterprise Plan',
+    value: 48000,
+    currency: 'USD',
+    person_id: 1042,
+    org_id: 305,
+    stage_id: 2,
+    expected_close_date: '2026-06-30',
+  },
+});
+const dealId = deal.data.id;
+console.log(`Created deal ${dealId}`);
+
+// Schedule a discovery call for the new deal
+const activity = await actions.executeTool({
+  connectionName: 'pipedrive',
+  identifier: 'user_123',
+  toolName: 'pipedrive_activity_create',
+  toolInput: {
+    subject: 'Discovery call — Acme Corp',
+    type: 'call',
+    deal_id: dealId,
+    due_date: '2026-04-01',
+    due_time: '10:00',
+    duration: '00:30',
+    note: 'Confirm decision-makers and budget approval process',
+  },
+});
+console.log(`Scheduled activity ${activity.data.id}`);
+```
+</TabItem>
+<TabItem label="Python">
 ```python
-import os
-from scalekit import ScalekitClient
-
-scalekit_client = ScalekitClient(
-    client_id=os.environ["SCALEKIT_CLIENT_ID"],
-    client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
-    environment_url=os.environ["SCALEKIT_ENV_URL"],
-)
-
 # Create a new deal linked to a person and organization
-deal = scalekit_client.actions.execute_tool(
+deal = actions.execute_tool(
     connection_name="pipedrive",
     identifier="user_123",
     tool_name="pipedrive_deal_create",
@@ -284,7 +262,7 @@ deal_id = deal["data"]["id"]
 print(f"Created deal {deal_id}")
 
 # Schedule a discovery call for the new deal
-activity = scalekit_client.actions.execute_tool(
+activity = actions.execute_tool(
     connection_name="pipedrive",
     identifier="user_123",
     tool_name="pipedrive_activity_create",
@@ -300,12 +278,14 @@ activity = scalekit_client.actions.execute_tool(
 )
 print(f"Scheduled activity {activity['data']['id']}")
 ```
+</TabItem>
+</Tabs>
 
 **Search for a person and attach a note:**
 
 ```python
 # Find an existing contact by name
-results = scalekit_client.actions.execute_tool(
+results = actions.execute_tool(
     connection_name="pipedrive",
     identifier="user_123",
     tool_name="pipedrive_persons_search",
@@ -317,7 +297,7 @@ if persons:
     person_id = persons[0]["item"]["id"]
 
     # Attach a contextual note
-    scalekit_client.actions.execute_tool(
+    actions.execute_tool(
         connection_name="pipedrive",
         identifier="user_123",
         tool_name="pipedrive_note_create",
@@ -334,7 +314,7 @@ if persons:
 
 ```python
 # Fetch current deal details
-deal = scalekit_client.actions.execute_tool(
+deal = actions.execute_tool(
     connection_name="pipedrive",
     identifier="user_123",
     tool_name="pipedrive_deal_get",
@@ -343,7 +323,7 @@ deal = scalekit_client.actions.execute_tool(
 current_stage = deal["data"]["stage_id"]
 
 # Fetch all stages in the pipeline to find the next one
-stages = scalekit_client.actions.execute_tool(
+stages = actions.execute_tool(
     connection_name="pipedrive",
     identifier="user_123",
     tool_name="pipedrive_stages_list",
@@ -353,7 +333,7 @@ stage_ids = sorted(s["id"] for s in stages["data"])
 next_stage = stage_ids[stage_ids.index(current_stage) + 1]
 
 # Advance the deal
-scalekit_client.actions.execute_tool(
+actions.execute_tool(
     connection_name="pipedrive",
     identifier="user_123",
     tool_name="pipedrive_deal_update",
@@ -369,7 +349,7 @@ from datetime import date
 
 today = date.today().isoformat()
 
-activities = scalekit_client.actions.execute_tool(
+activities = actions.execute_tool(
     connection_name="pipedrive",
     identifier="user_123",
     tool_name="pipedrive_activities_list",
@@ -389,7 +369,7 @@ for act in activities["data"]["data"] or []:
 
 ```python
 # Find all open deals that have not moved in 30+ days
-stalled = scalekit_client.actions.execute_tool(
+stalled = actions.execute_tool(
     connection_name="pipedrive",
     identifier="user_123",
     tool_name="pipedrive_deals_list",
@@ -402,7 +382,7 @@ cutoff = datetime.now() - timedelta(days=30)
 for deal in stalled["data"]["data"] or []:
     last_activity = deal.get("last_activity_date")
     if last_activity and datetime.fromisoformat(last_activity) < cutoff:
-        scalekit_client.actions.execute_tool(
+        actions.execute_tool(
             connection_name="pipedrive",
             identifier="user_123",
             tool_name="pipedrive_deal_update",
