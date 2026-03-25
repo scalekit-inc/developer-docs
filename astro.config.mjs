@@ -299,6 +299,7 @@ export default defineConfig({
       },
     }),
     d2({
+      skipGeneration: !!process.env['NETLIFY'],
       theme: {
         default: '1', // Light theme (Neutral default)
         dark: '1',
