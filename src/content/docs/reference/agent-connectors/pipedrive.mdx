@@ -28,6 +28,13 @@ head:
         font-size: 0.8em;
         opacity: 0.7;
       }
+      .sl-markdown-content h2.copy-feedback::after,
+      .sl-markdown-content h3.copy-feedback::after,
+      .sl-markdown-content h4.copy-feedback::after {
+        content: " ✓ ";
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
   - tag: script
     content: |
       // Using a self-executing function to avoid global namespace pollution
@@ -47,12 +54,12 @@ head:
               try {
                 await navigator.clipboard.writeText(headingText);
 
-                // Visual feedback
-                const originalText = heading.textContent;
-                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
+                // Visual feedback — use CSS class to avoid mutating textContent
+                // (mutating textContent removes Starlight's anchor link children)
+                heading.classList.add('copy-feedback');
 
                 setTimeout(() => {
-                  heading.textContent = originalText;
+                  heading.classList.remove('copy-feedback');
                 }, 2000);
               } catch (err) {
                 console.error('Failed to copy heading:', err);
@@ -330,7 +337,10 @@ stages = actions.execute_tool(
     tool_input={"pipeline_id": deal["data"]["pipeline_id"]},
 )
 stage_ids = sorted(s["id"] for s in stages["data"])
-next_stage = stage_ids[stage_ids.index(current_stage) + 1]
+current_idx = stage_ids.index(current_stage)
+if current_idx >= len(stage_ids) - 1:
+    raise ValueError("Deal is already in the last stage")
+next_stage = stage_ids[current_idx + 1]
 
 # Advance the deal
 actions.execute_tool(
