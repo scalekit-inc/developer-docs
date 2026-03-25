@@ -229,7 +229,7 @@ export const secondaryNavItems: NavItem[] = [
       },
       {
         id: 'rest-apis',
-        href: '/apis/#description/overview',
+        href: 'https://saif-at-scalekit-scalekit-api.apidocumentation.com/',
         label: 'REST APIs',
         iconComponent: IconApi,
         description: 'Programmatic control to manage users, orgs, sessions etc.',
