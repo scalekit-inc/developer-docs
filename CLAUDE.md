@@ -561,7 +561,7 @@ Before publishing documentation, verify:
 
 ## Patched Dependencies
 
-This project uses pnpm patches to fix upstream bugs. Before modifying patches or upgrading patched dependencies, read `PATCHES.md` for context, removal criteria, and upgrade instructions.
+This project uses pnpm patches to fix upstream bugs. Before modifying patches or upgrading patched dependencies, read `project-docs/PATCHES.md` for context, removal criteria, and upgrade instructions.
 
 ---
 
