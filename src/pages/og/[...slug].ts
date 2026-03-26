@@ -16,8 +16,8 @@ const entries = await getCollection('docs')
 // Map entries to an object keyed by id for quick lookup
 const pages = Object.fromEntries(entries.map(({ id, data }) => [id, { data }]))
 
-// Export the `GET` handler and static paths generator expected by Astro
-export const { getStaticPaths, GET } = await OGImageRoute({
+// Export only GET because this route is server-rendered (prerender = false)
+const { GET } = await OGImageRoute({
   pages,
   // matches the `[...slug].ts` filename
   param: 'slug',
@@ -54,3 +54,4 @@ export const { getStaticPaths, GET } = await OGImageRoute({
     ],
   }),
 })
+export { GET }

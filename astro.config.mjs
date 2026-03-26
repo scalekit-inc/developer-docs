@@ -108,7 +108,7 @@ export default defineConfig({
           prompt: pageActionsPrompt,
           actions: {
             markdown: true,
-            chatgpt: true,
+            chatgpt: false,
             claude: true,
             custom: {
               cursor: {
