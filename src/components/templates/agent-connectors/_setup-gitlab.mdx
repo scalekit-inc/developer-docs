@@ -1,69 +1,66 @@
 import { Steps, Aside } from '@astrojs/starlight/components'
 
-Register your Scalekit environment with the GitLab connector so Scalekit handles the OAuth 2.0 flow and token lifecycle on your behalf. The connection name you create here is the string you pass to `connection_name` (Python) or `connectionName` (Node.js) in every SDK call.
+Register your Scalekit environment with the GitLab connector so Scalekit handles the OAuth 2.0 flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
 
 <Steps>
-1. ### Create a connection in Scalekit
+1. ### Set up auth redirects
 
-    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and click **Create Connection**.
-    - Search for **GitLab** and click **Create**.
-    - Click **Use your own credentials** and copy the **Redirect URI**. It looks like:
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **GitLab** and click **Create**.
 
-      `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`
+      <Aside>
+        By default, a connection using Scalekit's credentials will be created. If you are testing, go directly to the Usage section. Before going to production, update your connection by following the steps below.
+      </Aside>
 
-    Keep this tab open — you will return to it in step 4.
+    - Click **Use your own credentials** and copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
 
-    ![](@/assets/docs/agent-connectors/gitlab/use-own-credentials-redirect-uri.png)
+      ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/gitlab/use-own-credentials-redirect-uri.png)
 
-2. ### Create a GitLab OAuth application
+    - Go to [GitLab Applications settings](https://gitlab.com/-/profile/applications) (**User Settings** → **Applications**) and open or create your OAuth application.
 
-    - Sign in to your GitLab account and go to **User Settings** → **Applications**:
-      `https://gitlab.com/-/profile/applications`
+    - Paste the copied URI into the **Redirect URI** field and click **Save application**.
 
-    - Fill in the form:
-      - **Name** — a label for your application (e.g., `My DevOps Agent`)
-      - **Redirect URI** — paste the Redirect URI you copied from Scalekit
+      ![Add redirect URI and scopes in GitLab OAuth app](@/assets/docs/agent-connectors/gitlab/create-oauth-app.png)
 
     - Under **Scopes**, select the permissions your agent needs:
 
-      | Scope | Access granted | Required for |
+      | Scope | Access granted | Use when |
       | --- | --- | --- |
-      | `api` | Full read/write access to all API endpoints (REST + GraphQL) | Most tools |
-      | `read_user` | Access to current user profile | `gitlab_current_user_get` |
+      | `api` | Full read/write access to all API endpoints | Most tools — recommended for full access |
+      | `read_user` | Current user's profile | `gitlab_current_user_get` only |
       | `read_api` | Read-only access to all API endpoints | Read-only agents |
-      | `read_repository` | Read access to repositories | File/commit reads only |
-      | `write_repository` | Push access to repositories | `gitlab_file_create`, `gitlab_file_update`, `gitlab_file_delete`, `gitlab_branch_create` |
+      | `read_repository` | Read access to repositories | File and commit reads only |
+      | `write_repository` | Push access to repositories | `gitlab_file_create`, `gitlab_file_update`, `gitlab_branch_create` |
 
       <Aside type="tip" title="Use api scope for full access">
-        The `api` scope grants complete REST and GraphQL access and covers all 110 tools in this connector. Use `read_api` alone if your agent only reads data, or combine `read_user` + `write_repository` for minimal push access without full API access.
+        The `api` scope grants complete REST and GraphQL access and covers all 110 tools in this connector. Use `read_api` alone if your agent only reads data.
       </Aside>
 
-    - Click **Save application**.
+      <Aside type="note" title="GitLab SaaS vs. self-managed">
+        These steps are for **GitLab.com** (SaaS). If your team uses a self-managed GitLab instance, replace `gitlab.com` with your instance hostname in all URLs.
+      </Aside>
 
-    ![](@/assets/docs/agent-connectors/gitlab/create-oauth-app.png)
+2. ### Get client credentials
 
-    <Aside type="note" title="GitLab SaaS vs. self-managed">
-      These steps are for **GitLab.com** (SaaS). If your team uses a self-managed GitLab instance, replace `gitlab.com` with your instance hostname in all URLs and in `GITLAB_BASE_URL` when making API calls.
-    </Aside>
+    After saving the application, GitLab shows the **Application ID** and **Secret** on the application detail page:
 
-3. ### Copy your Application ID and Secret
+    ![GitLab application detail page with Application ID and Secret](@/assets/docs/agent-connectors/gitlab/get-credentials.png)
 
-    After saving, GitLab shows the **Application ID** and **Secret** on the application detail page.
+    - **Application ID** — listed on the app's main settings page
+    - **Secret** — shown only once after creation; if you lose it, regenerate it from the same page
 
-    Copy both values — you need them in the next step. The secret is shown only once; if you lose it, regenerate it from the same page.
+3. ### Add credentials in Scalekit
 
-4. ### Add credentials in Scalekit
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
 
-    - Return to [Scalekit dashboard](https://app.scalekit.com) → **Agent Auth** → **Connections** and open the connection you created in step 1.
-    - Enter the following values:
-      - **Application ID** → paste as **Client ID**
-      - **Secret** → paste as **Client Secret**
-      - **Scopes** → enter the same scopes you selected in GitLab (e.g., `api read_user`)
+    - Enter your credentials:
+      - **Client ID** — paste your GitLab Application ID
+      - **Client Secret** — paste your GitLab Secret
+
+      ![Add GitLab credentials in Scalekit dashboard](@/assets/docs/agent-connectors/gitlab/add-credentials.png)
+
     - Click **Save**.
 
-    ![](@/assets/docs/agent-connectors/gitlab/add-credentials.png)
-
     <Aside type="note" title="Connection name is your identifier">
-      The connection name you set here (e.g., `gitlab`) is the string you pass to `connection_name` in every SDK call. It must match exactly — including case.
+      The connection name you set here (e.g., `gitlab`) is the string you pass to `connection_name` (Python) or `connectionName` (Node.js) in every SDK call. It must match exactly — including case.
     </Aside>
 </Steps>
