@@ -559,6 +559,12 @@ Before publishing documentation, verify:
 
 ---
 
+## Patched Dependencies
+
+This project uses pnpm patches to fix upstream bugs. Before modifying patches or upgrading patched dependencies, read `project-docs/PATCHES.md` for context, removal criteria, and upgrade instructions.
+
+---
+
 ## Active Technologies
 
 - MDX (Markdown + JSX), TypeScript 5.x + Astro + Starlight framework, Tailwind CSS
