@@ -39,6 +39,9 @@ head:
     content: |
       // Using a self-executing function to avoid global namespace pollution
       (function() {
+        if (window.__pipedriveHeadingCopyInitialized) return;
+        window.__pipedriveHeadingCopyInitialized = true;
+
         // Function to initialize the copy functionality
         function initHeadingCopy() {
           const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
@@ -290,6 +293,37 @@ print(f"Scheduled activity {activity['data']['id']}")
 
 **Search for a person and attach a note:**
 
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+```typescript
+// Find an existing contact by name
+const results = await actions.executeTool({
+  connectionName: 'pipedrive',
+  identifier: 'user_123',
+  toolName: 'pipedrive_persons_search',
+  toolInput: { term: 'Jane Smith', exact_match: false, limit: 5 },
+});
+
+const persons = results.data.items;
+if (persons.length > 0) {
+  const personId = persons[0].item.id;
+
+  // Attach a contextual note
+  await actions.executeTool({
+    connectionName: 'pipedrive',
+    identifier: 'user_123',
+    toolName: 'pipedrive_note_create',
+    toolInput: {
+      content: 'Spoke with Jane re: renewal. She confirmed budget approval in Q2.',
+      person_id: personId,
+      pinned_to_person_flag: true,
+    },
+  });
+  console.log(`Note added to person ${personId}`);
+}
+```
+</TabItem>
+<TabItem label="Python">
 ```python
 # Find an existing contact by name
 results = actions.execute_tool(
@@ -316,9 +350,48 @@ if persons:
     )
     print(f"Note added to person {person_id}")
 ```
+</TabItem>
+</Tabs>
 
 **Move a deal to the next stage:**
 
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+```typescript
+// Fetch current deal details
+const deal = await actions.executeTool({
+  connectionName: 'pipedrive',
+  identifier: 'user_123',
+  toolName: 'pipedrive_deal_get',
+  toolInput: { deal_id: 9871 },
+});
+const currentStage: number = deal.data.stage_id;
+
+// Fetch all stages in the pipeline to find the next one
+const stages = await actions.executeTool({
+  connectionName: 'pipedrive',
+  identifier: 'user_123',
+  toolName: 'pipedrive_stages_list',
+  toolInput: { pipeline_id: deal.data.pipeline_id },
+});
+const stageIds: number[] = stages.data.map((s: { id: number }) => s.id).sort((a: number, b: number) => a - b);
+const currentIdx = stageIds.indexOf(currentStage);
+if (currentIdx >= stageIds.length - 1) {
+  throw new Error('Deal is already in the last stage');
+}
+const nextStage = stageIds[currentIdx + 1];
+
+// Advance the deal
+await actions.executeTool({
+  connectionName: 'pipedrive',
+  identifier: 'user_123',
+  toolName: 'pipedrive_deal_update',
+  toolInput: { deal_id: 9871, stage_id: nextStage },
+});
+console.log(`Deal moved from stage ${currentStage} to ${nextStage}`);
+```
+</TabItem>
+<TabItem label="Python">
 ```python
 # Fetch current deal details
 deal = actions.execute_tool(
@@ -351,9 +424,29 @@ actions.execute_tool(
 )
 print(f"Deal moved from stage {current_stage} to {next_stage}")
 ```
+</TabItem>
+</Tabs>
 
 **List all activities due today:**
 
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+```typescript
+const today = new Date().toISOString().split('T')[0];
+
+const activities = await actions.executeTool({
+  connectionName: 'pipedrive',
+  identifier: 'user_123',
+  toolName: 'pipedrive_activities_list',
+  toolInput: { start_date: today, end_date: today, done: 0, limit: 100 },
+});
+
+for (const act of activities.data.data ?? []) {
+  console.log(`[${act.type}] ${act.subject} — due ${act.due_time}`);
+}
+```
+</TabItem>
+<TabItem label="Python">
 ```python
 from datetime import date
 
@@ -374,9 +467,37 @@ activities = actions.execute_tool(
 for act in activities["data"]["data"] or []:
     print(f"[{act['type']}] {act['subject']} — due {act['due_time']}")
 ```
+</TabItem>
+</Tabs>
 
 **Bulk-update stalled deals:**
 
+<Tabs syncKey="tech-stack">
+<TabItem label="Node.js">
+```typescript
+// Find all open deals that have not moved in 30+ days
+const stalled = await actions.executeTool({
+  connectionName: 'pipedrive',
+  identifier: 'user_123',
+  toolName: 'pipedrive_deals_list',
+  toolInput: { status: 'open', limit: 200 },
+});
+
+const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+for (const deal of stalled.data.data ?? []) {
+  if (deal.last_activity_date && new Date(deal.last_activity_date) < cutoff) {
+    await actions.executeTool({
+      connectionName: 'pipedrive',
+      identifier: 'user_123',
+      toolName: 'pipedrive_deal_update',
+      toolInput: { deal_id: deal.id, status: 'lost' },
+    });
+    console.log(`Marked deal ${deal.id} (${deal.title}) as lost`);
+  }
+}
+```
+</TabItem>
+<TabItem label="Python">
 ```python
 # Find all open deals that have not moved in 30+ days
 stalled = actions.execute_tool(
@@ -400,6 +521,8 @@ for deal in stalled["data"]["data"] or []:
         )
         print(f"Marked deal {deal['id']} ({deal['title']}) as lost")
 ```
+</TabItem>
+</Tabs>
 
 ### LangChain integration
 
@@ -723,6 +846,30 @@ Search organizations by keyword across name, address, and notes.
 | `exact_match` | boolean | No | When `true`, only exact phrase matches are returned |
 | `start` | number | No | Pagination offset |
 | `limit` | number | No | Number of results per page |
+
+## `pipedrive_organization_deals_list`
+
+List all deals linked to a specific organization. Useful for account-level pipeline views and competitive mapping.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `org_id` | number | Yes | ID of the organization |
+| `status` | string | No | Filter by deal status: `open`, `won`, `lost`, `deleted`, `all_not_deleted` |
+| `start` | number | No | Pagination offset |
+| `limit` | number | No | Number of results per page. Max 500, defaults to 100 |
+| `sort` | string | No | Sort field and direction (e.g., `update_time DESC`) |
+
+## `pipedrive_person_deals_list`
+
+List all deals linked to a specific person. Use this to see all opportunities associated with a contact.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `person_id` | number | Yes | ID of the person |
+| `status` | string | No | Filter by deal status: `open`, `won`, `lost`, `deleted`, `all_not_deleted` |
+| `start` | number | No | Pagination offset |
+| `limit` | number | No | Number of results per page. Max 500, defaults to 100 |
+| `sort` | string | No | Sort field and direction |
 
 ### Leads
 
@@ -1247,8 +1394,46 @@ Create a reusable saved filter that can be passed as `filter_id` to any list end
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `name` | string | Yes | Filter name |
-| `conditions` | object | Yes | Filter conditions JSON object matching the Pipedrive filter schema |
+| `conditions` | object | Yes | Filter conditions — see structure below |
 | `type` | string | Yes | Object type this filter applies to: `deals`, `leads`, `org`, `people`, `products`, `activity` |
+
+**`conditions` structure:**
+
+The `conditions` object uses a nested `glue`/`conditions` format. `glue` is either `"and"` or `"or"` and controls how conditions in the group are combined.
+
+```json
+{
+  "glue": "and",
+  "conditions": [
+    {
+      "glue": "and",
+      "conditions": [
+        {
+          "object": "deal",
+          "field_id": "value",
+          "operator": ">",
+          "value": "10000",
+          "extra_value": null
+        },
+        {
+          "object": "deal",
+          "field_id": "status",
+          "operator": "=",
+          "value": "open",
+          "extra_value": null
+        }
+      ]
+    }
+  ]
+}
+```
+
+Each condition has:
+- `object` — the entity type (`deal`, `person`, `org`, `lead`, `activity`, `product`)
+- `field_id` — the field name (e.g., `value`, `status`, `stage_id`, `owner_id`)
+- `operator` — comparison operator: `=`, `!=`, `<`, `>`, `<=`, `>=`, `CONTAINS`, `NOT CONTAINS`, `IS NULL`, `IS NOT NULL`
+- `value` — the comparison value (always a string, even for numbers)
+- `extra_value` — used for range operators; `null` otherwise
 
 ## `pipedrive_filter_get`
 
