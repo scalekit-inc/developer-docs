@@ -1,0 +1,91 @@
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+Connect a user's Apollo account and make API calls on their behalf — Scalekit handles OAuth and token management automatically.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Node.js">
+    ```typescript title="examples/apollo.ts"
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const connectionName = 'apollo';  // connection name from Scalekit dashboard
+    const identifier = 'user_123';    // your unique user identifier
+
+    // Get credentials from app.scalekit.com → Developers → API Credentials
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL,
+      process.env.SCALEKIT_CLIENT_ID,
+      process.env.SCALEKIT_CLIENT_SECRET
+    );
+    const actions = scalekit.actions;
+
+    async function main() {
+      try {
+        // Get authorization link and send it to your user
+        const { link } = await actions.getAuthorizationLink({
+          connectionName,
+          identifier,
+        });
+        console.log('Authorize Apollo:', link); // present this link to your user for authorization, or click it yourself for testing
+        process.stdout.write('Press Enter after authorizing...');
+        await new Promise(r => process.stdin.once('data', r));
+
+        // After the user authorizes, make API calls via Scalekit proxy
+        const result = await actions.request({
+          connectionName,
+          identifier,
+          path: '/api/v1/contacts/search',
+          method: 'POST',
+        });
+        console.log(result.data);
+      } catch (err) {
+        console.error('Apollo request failed:', err);
+        process.exit(1);
+      }
+    }
+
+    main().catch((err) => {
+      console.error('Unhandled error:', err);
+      process.exit(1);
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    import scalekit.client, os, sys
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    connection_name = "apollo"  # connection name from Scalekit dashboard
+    identifier = "user_123"     # your unique user identifier
+
+    # Get credentials from app.scalekit.com → Developers → API Credentials
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+        client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+        env_url=os.getenv("SCALEKIT_ENV_URL"),
+    )
+
+    try:
+        # Get authorization link and send it to your user
+        link_response = scalekit_client.actions.get_authorization_link(
+            connection_name=connection_name,
+            identifier=identifier
+        )
+        print("Authorize Apollo:", link_response.link)
+        input("Press Enter after authorizing...")
+
+        # After the user authorizes, make API calls via Scalekit proxy
+        result = scalekit_client.actions.request(
+            connection_name=connection_name,
+            identifier=identifier,
+            path="/api/v1/contacts/search",
+            method="POST"
+        )
+        print(result)
+    except Exception as e:
+        print(f"Apollo request failed: {e}", file=sys.stderr)
+        sys.exit(1)
+    ```
+  </TabItem>
+</Tabs>

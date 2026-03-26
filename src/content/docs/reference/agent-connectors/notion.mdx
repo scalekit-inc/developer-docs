@@ -1,6 +1,7 @@
 ---
 title: Notion
 description: Connect to Notion workspace. Create, edit pages, manage databases, and collaborate on content
+tags: [agent-connectors, notion, database, documentation, oauth, integration, tool]
 tableOfContents: true
 head:
   - tag: style
@@ -11,68 +12,12 @@ head:
       table td:first-child, table th:first-child {
         white-space: nowrap;
       }
-      /* Heading copy functionality */
-      .sl-markdown-content h2,
-      .sl-markdown-content h3,
-      .sl-markdown-content h4 {
-        position: relative;
-        cursor: pointer;
-      }
-      .sl-markdown-content h2:hover::after,
-      .sl-markdown-content h3:hover::after,
-      .sl-markdown-content h4:hover::after {
-        content: " 📋 ";
-        font-size: 0.8em;
-        opacity: 0.7;
-      }
-  - tag: script
-    content: |
-      // Using a self-executing function to avoid global namespace pollution
-      (function() {
-        // Function to initialize the copy functionality
-        function initHeadingCopy() {
-          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
-
-          headings.forEach(heading => {
-            // Skip if already initialized
-            if (heading.hasAttribute('data-copy-initialized')) return;
-            heading.setAttribute('data-copy-initialized', 'true');
-
-            heading.addEventListener('click', async () => {
-              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
-
-              try {
-                await navigator.clipboard.writeText(headingText);
-
-                // Visual feedback
-                const originalText = heading.textContent;
-                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
-
-                setTimeout(() => {
-                  heading.textContent = originalText;
-                }, 2000);
-              } catch (err) {
-                console.error('Failed to copy heading:', err);
-              }
-            });
-          });
-        }
-
-        // Initialize on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', initHeadingCopy);
-
-        // Also initialize now in case the DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          setTimeout(initHeadingCopy, 1);
-        }
-
-        // For Astro's client-side navigation
-        document.addEventListener('astro:page-load', initHeadingCopy);
-      })();
 ---
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupNotionSection } from '@components/templates'
+import { UsageNotionSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -86,7 +31,34 @@ import { Accordion, AccordionItem } from 'accessible-astro-components'
 Supports authentication: <Badge text="OAuth 2.0" />
 
 
+## Set up the agent connector
+
+<SetupNotionSection />
+
+## Usage
+
+<UsageNotionSection />
+
 ## Tool list
+
+## `notion_block_delete`
+
+Delete (archive) a Notion block by its ID. This also deletes all child blocks within it.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `block_id` | string | Yes | The ID of the block to delete |
+
+## `notion_block_update`
+
+Update the text content of an existing Notion block. Supports paragraph, heading, list item, quote, callout, and code blocks.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `block_id` | string | Yes | The ID of the block to update |
+| `language` | string | No | Programming language for code blocks |
+| `text` | string | Yes | New text content for the block |
+| `type` | string | Yes | The block type (must match the existing block type) |
 
 ## `notion_comment_create`
 
@@ -163,16 +135,17 @@ Retrieve a Notion database’s full definition, including title, properties, and
 
 ## `notion_database_insert_row`
 
-Insert a new row (page) into a Notion database. Required: `database_id` (hyphenated UUID) and `properties` (object mapping database column names to Notion **property values). Optional: child_blocks` (content blocks), `icon` (page icon object), and `cover` (page cover object).
+Insert a new row (page) into a Notion database. Required: `database_id` (hyphenated UUID) and `properties` (object mapping database column names to Notion \*\*property values). Optional: child_blocks`(content blocks),`icon`(page icon object), and`cover\` (page cover object).
 
 LLM guidance:
+
 - `properties` must use **property values** (not schema). Example:
 
 ```json
   {
-    "title": { "title": [ { "text": { "content": "Task A" } } ] },
-    "Status": { "select": { "name": "Todo" } },
-    "Due": { "date": { "start": "2025-09-01" } }
+  "title": { "title": \[ { "text": { "content": "Task A" } } ] },
+  "Status": { "select": { "name": "Todo" } },
+  "Due": { "date": { "start": "2025-09-01" } }
   }
 ```
 - Use the **exact property key** as defined in the database (case‑sensitive), or the property id.
@@ -188,27 +161,7 @@ LLM guidance:
 | `database_id` | string | Yes | Target database ID (hyphenated UUID). |
 | `icon` | `object` | No | Optional page icon object. Examples: `{"type":"emoji","emoji":"📝"}` or `{"type":"external","external":{"url":"https://..."}}`. |
 | `notion_version` | string | No | Optional Notion-Version header override (e.g., 2022-06-28). |
-| `properties` | `object` | Yes | Object mapping **column names (or property ids)** to **property values**.
-
-️ **CRITICAL: Property Identification Rules:**
-- For title fields: ALWAYS use 'title' as the property key (not 'Name' or display names)
-- For other properties: Use exact property names from database schema (case-sensitive)
-- DO NOT use URL-encoded property IDs with special characters
-
- **Recommended Workflow:**
-1. Call fetch_database first to see exact property names
-2. Use 'title' for title-type properties
-3. Match other property names exactly as shown in schema
-
-Example:
-
-```json
-{
-  "title": { "title": [ { "text": { "content": "Task A" } } ] },
-  "Status": { "select": { "name": "Todo" } },
-  "Due": { "date": { "start": "2025-09-01" } }
-}
-``` |
+| `properties` | `object` | Yes | Object mapping **column names (or property ids)** to **property values**. ️ **CRITICAL: Property Identification Rules:** - For title fields: ALWAYS use 'title' as the property key (not 'Name' or display names) - For other properties: Use exact property names from database schema (case-sensitive) - DO NOT use URL-encoded property IDs with special characters  **Recommended Workflow:** 1. Call fetch_database first to see exact property names 2. Use 'title' for title-type properties 3. Match other property names exactly as shown in schema Example: `{ "title": { "title": [ { "text": { "content": "Task A" } } ] }, "Status": { "select": { "name": "Todo" } }, "Due": { "date": { "start": "2025-09-01" } } }` |
 | `schema_version` | string | No | Optional schema version override. |
 | `tool_version` | string | No | Optional tool version override. |
 
@@ -237,11 +190,42 @@ Query a Notion database for rows (pages). Provide database_id (hyphenated UUID).
 | `start_cursor` | string | No | Cursor to fetch the next page of results. |
 | `tool_version` | string | No | Optional tool version override. |
 
+## `notion_database_update`
+
+Update a Notion database's title, description, or property schema.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `database_id` | string | Yes | The ID of the database to update |
+| `description` | string | No | New description for the database |
+| `properties` | `object` | No | Property schema updates (add, rename, or reconfigure columns) |
+| `title` | string | No | New title for the database |
+
+## `notion_page_content_append`
+
+Append blocks to a Notion page or block. Supports paragraph, heading_1/2/3, bulleted_list_item, numbered_list_item, code, quote, callout, and divider block types.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `block_id` | string | Yes | The ID of the page or block to append content to |
+| `blocks` | `array<object>` | Yes | Array of blocks to append. Each block has a type and text (plus optional language for code blocks). |
+
+## `notion_page_content_get`
+
+Retrieve the content (blocks) of a Notion page or block. Returns all child blocks with their type and text content.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `block_id` | string | Yes | The ID of the page or block whose children to retrieve |
+| `page_size` | number | No | Number of blocks to return (max 100) |
+| `start_cursor` | string | No | Cursor for pagination from a previous response |
+
 ## `notion_page_create`
 
 Create a page in Notion either inside a database (as a row) or as a child of a page. Use exactly one parent mode: provide database_id to create a database row (page with properties) OR provide parent_page_id to create a child page. When creating in a database, properties must use Notion property value shapes and the title property key must be "title" (not the display name). Children (content blocks), icon, and cover are optional. The executor should synthesize the Notion parent object from the chosen parent input.
 
 Target rules:
+
 - Use database_id OR parent_page_id (not both)
 - If database_id is provided → properties are required
 - If parent_page_id is provided → properties are optional
@@ -255,13 +239,35 @@ Target rules:
 | `icon` | `object` | No | Optional page icon object. |
 | `notion_version` | string | No | Optional Notion-Version header override. |
 | `parent_page_id` | string | No | Create a child page under this page (hyphenated UUID). Extract from the parent page URL. |
-| `properties` | `object` | No | For database rows, supply property values keyed by property name (or id). For title properties, the key must be "title".
-
-Example (database row):
-{
-  "title": { "title": [ { "text": { "content": "Task A" } } ] },
-  "Status": { "select": { "name": "Todo" } },
-  "Due": { "date": { "start": "2025-09-01" } }
-} |
+| `properties` | `object` | No | For database rows, supply property values keyed by property name (or id). For title properties, the key must be "title". Example (database row): `{ "title": { "title": [ { "text": { "content": "Task A" } } ] }, "Status": { "select": { "name": "Todo" } }, "Due": { "date": { "start": "2025-09-01" } } }` |
 | `schema_version` | string | No | Optional schema version override. |
 | `tool_version` | string | No | Optional tool version override. |
+
+## `notion_page_get`
+
+Retrieve a Notion page by its ID. Returns the page properties, metadata, and parent information.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page_id` | string | Yes | The ID of the Notion page to retrieve |
+
+## `notion_page_update`
+
+Update a Notion page's properties, archive/unarchive it, or change its icon and cover.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `archived` | boolean | No | Set to true to archive (delete) the page, false to unarchive it |
+| `cover` | `object` | No | Page cover image to set |
+| `icon` | `object` | No | Page icon to set |
+| `page_id` | string | Yes | The ID of the Notion page to update |
+| `properties` | `object` | No | Page properties to update using Notion property value shapes |
+
+## `notion_user_list`
+
+List all users in the Notion workspace including people and bots.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page_size` | number | No | Number of users to return (max 100) |
+| `start_cursor` | string | No | Cursor for pagination from a previous response |

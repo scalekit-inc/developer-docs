@@ -1,6 +1,7 @@
 ---
 title: "Assign roles to users"
-description: "Learn how to assign roles to users in your application using the dashboard, SDK, or automated provisioning"
+description: "Learn how to assign roles to users in your application using to dashboard, SDK, or automated provisioning"
+tags: [rbac, roles, permissions, users, authorization, access-control, provisioning]
 tableOfContents: true
 head:
   - tag: style
@@ -253,7 +254,7 @@ To implement role assignment functionality, follow these essential prerequisites
 
     // Make the API call to update user roles
     try {
-      const result = await scalekit.membership.updateMembership({
+      const result = await scalekit.user.updateMembership({
         user_id: validationResult.data.user_id,
         organization_id: validationResult.data.organization_id,
         roles: validationResult.data.roles
@@ -298,7 +299,7 @@ To implement role assignment functionality, follow these essential prerequisites
 
     # Make the API call to update user roles
     try:
-        from scalekit.v1.memberships.memberships_pb2 import UpdateMembershipRequest
+        from scalekit.v1.users.users_pb2 import UpdateMembershipRequest
 
         request = UpdateMembershipRequest(
             user_id=validation_result['data']['user_id'],
@@ -306,7 +307,7 @@ To implement role assignment functionality, follow these essential prerequisites
             roles=validation_result['data']['roles']
         )
 
-        result = scalekit_client.memberships.update_membership(request=request)
+        result = scalekit_client.users.update_membership(request=request)
         print(f"Role assigned successfully: {result}")
 
         return jsonify({
@@ -394,7 +395,7 @@ To implement role assignment functionality, follow these essential prerequisites
             .addAllRoles((List<String>) data.get("roles"))
             .build();
 
-        UpdateMembershipResponse response = scalekitClient.memberships().updateMembership(updateRequest);
+        UpdateMembershipResponse response = scalekitClient.users().updateMembership(updateRequest);
         System.out.println("Role assigned successfully: " + response);
 
         return ResponseEntity.ok(Map.of(

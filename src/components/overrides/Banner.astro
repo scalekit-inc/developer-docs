@@ -8,6 +8,9 @@ const { banner } = Astro.locals.starlightRoute.entry.data
 // Check if this is the community banner
 const isCommunityBanner = banner?.content?.includes('Join our dev community')
 
+// Check if this is the Build with AI banner
+const isBuildWithAIBanner = banner?.content?.includes('AI coding agents')
+
 // Slack community invite URL
 const slackUrl =
   'https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw'
@@ -25,6 +28,8 @@ const slackUrl =
           </span>
         </div>
       </div>
+    ) : isBuildWithAIBanner ? (
+      <div class="ai-banner" data-pagefind-ignore set:html={banner.content} />
     ) : (
       <div class="sl-banner" data-pagefind-ignore set:html={banner.content} />
     ))
@@ -71,6 +76,26 @@ const slackUrl =
     opacity: 0.8;
   }
 
+  /* AI banner styles */
+  .ai-banner {
+    padding: 0.75rem 1rem;
+    background: linear-gradient(90deg, var(--sl-color-accent-low) 0%, var(--sl-color-bg-nav) 100%);
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-2);
+    text-align: center;
+  }
+
+  .ai-banner :global(a) {
+    color: var(--sl-color-white);
+    text-decoration: underline;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+  }
+
+  .ai-banner :global(a:hover) {
+    opacity: 0.8;
+  }
+
   /* Responsive adjustments */
   @media (max-width: 50rem) {
     .community-banner {
@@ -84,6 +109,10 @@ const slackUrl =
     .slack-icon {
       width: 0.8rem;
       height: 0.8rem;
+    }
+
+    .ai-banner {
+      padding: 0.625rem 0.875rem;
     }
   }
 </style>

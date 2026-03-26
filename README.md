@@ -89,14 +89,15 @@ Open [http://localhost:4321](http://localhost:4321). Changes to MDX files hot-re
 
 #### Useful Commands
 
-| Command                      | Description                                          |
-| ---------------------------- | ---------------------------------------------------- |
-| `pnpm dev`                   | Start the local dev server (no HMR)                  |
-| `pnpm build`                 | Build the production site to `./dist`                |
-| `pnpm preview`               | Preview the production build locally                 |
-| `pnpm format`                | Auto-format all `.md`, `.mdx`, `.astro`, `.ts` files |
-| `pnpm format:check`          | Check formatting without writing changes             |
-| `pnpm generate-search-index` | Regenerate the Algolia API search index              |
+| Command                      | Description                                                 |
+| ---------------------------- | ----------------------------------------------------------- |
+| `pnpm dev`                   | Start the site with Netlify Dev (matches deploy env)        |
+| `pnpm start`                 | Run Astro dev only — use when previewing D2 diagram changes |
+| `pnpm build`                 | Build the production site to `./dist`                       |
+| `pnpm preview`               | Preview the production build locally                        |
+| `pnpm format`                | Auto-format all `.md`, `.mdx`, `.astro`, `.ts` files        |
+| `pnpm format:check`          | Check formatting without writing changes                    |
+| `pnpm generate-search-index` | Regenerate the Algolia API search index                     |
 
 ---
 
@@ -114,10 +115,9 @@ We welcome contributions from everyone — whether it's fixing a typo, improving
 
 #### Writing Standards
 
-Before writing or editing, check two files:
+Before writing or editing, check:
 
-- **`CLAUDE.md`** — quick reference for voice, structure, and document types
-- **`.cursorrules`** — detailed style, formatting, and content rules
+- **`CLAUDE.md`** — the single source of truth for voice, structure, document types, and all documentation standards
 
 **Key conventions at a glance:**
 
@@ -149,10 +149,9 @@ Before writing or editing, check two files:
 
 The site runs in **SSR mode on Netlify** with Edge Functions. Every push to `main` triggers a production deploy. Pull requests automatically generate isolated preview deployments.
 
-```bash
-# Netlify build command
-bash scripts/install-d2.sh && export PATH="$HOME/.local/bin:$PATH" && pnpm run build
-```
+Netlify runs **`pnpm run build`** (see `netlify.toml`). D2 is not installed on Netlify: diagram SVGs are **committed** under `public/d2/`, and the `astro-d2` integration is configured with `skipGeneration` when the `NETLIFY` environment variable is set, so CI does not run the D2 CLI.
+
+Install the D2 CLI locally (`pnpm install:d2`) only when you **regenerate** diagrams from `.d2` sources or when you run a full local production build that is not using Netlify’s skip path. See **CONTRIBUTING.md** for how `pnpm dev` and `pnpm start` relate to diagram generation.
 
 Environment variables required for local development are documented in `.env.example`.
 

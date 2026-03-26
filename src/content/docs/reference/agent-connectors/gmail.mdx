@@ -1,6 +1,7 @@
 ---
 title: Gmail
 description: Gmail is Google's cloud based email service that allows you to access your messages from any computer or device with just a web browser.
+tags: [agent-connectors, gmail, google, email, oauth, integration, tool]
 tableOfContents: true
 head:
   - tag: style
@@ -11,68 +12,12 @@ head:
       table td:first-child, table th:first-child {
         white-space: nowrap;
       }
-      /* Heading copy functionality */
-      .sl-markdown-content h2,
-      .sl-markdown-content h3,
-      .sl-markdown-content h4 {
-        position: relative;
-        cursor: pointer;
-      }
-      .sl-markdown-content h2:hover::after,
-      .sl-markdown-content h3:hover::after,
-      .sl-markdown-content h4:hover::after {
-        content: " 📋 ";
-        font-size: 0.8em;
-        opacity: 0.7;
-      }
-  - tag: script
-    content: |
-      // Using a self-executing function to avoid global namespace pollution
-      (function() {
-        // Function to initialize the copy functionality
-        function initHeadingCopy() {
-          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');
-
-          headings.forEach(heading => {
-            // Skip if already initialized
-            if (heading.hasAttribute('data-copy-initialized')) return;
-            heading.setAttribute('data-copy-initialized', 'true');
-
-            heading.addEventListener('click', async () => {
-              const headingText = heading.textContent.replace(/\s📋$/, '').trim();
-
-              try {
-                await navigator.clipboard.writeText(headingText);
-
-                // Visual feedback
-                const originalText = heading.textContent;
-                heading.textContent = heading.textContent.replace(/\s📋$/, '') + ' ✓';
-
-                setTimeout(() => {
-                  heading.textContent = originalText;
-                }, 2000);
-              } catch (err) {
-                console.error('Failed to copy heading:', err);
-              }
-            });
-          });
-        }
-
-        // Initialize on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', initHeadingCopy);
-
-        // Also initialize now in case the DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          setTimeout(initHeadingCopy, 1);
-        }
-
-        // For Astro's client-side navigation
-        document.addEventListener('astro:page-load', initHeadingCopy);
-      })();
 ---
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupGmailSection } from '@components/templates'
+import { UsageGmailSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
@@ -85,6 +30,14 @@ import { Accordion, AccordionItem } from 'accessible-astro-components'
 
 Supports authentication: <Badge text="OAuth 2.0" />
 
+
+## Set up the agent connector
+
+<SetupGmailSection />
+
+## Usage
+
+<UsageGmailSection />
 
 ## Tool list
 
@@ -138,6 +91,18 @@ Retrieve a specific Gmail message using its message ID. Optionally control the f
 | `schema_version` | string | No | Optional schema version to use for tool execution |
 | `tool_version` | string | No | Optional tool version to use for execution |
 
+## `gmail_get_thread_by_id`
+
+Retrieve a specific Gmail thread by thread ID. Optionally control message format and metadata headers. Requires a valid Gmail OAuth2 connection with read access.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `format` | string | No | Format of messages in the returned thread. |
+| `metadata_headers` | `array<string>` | No | Specific email headers to include when format is metadata |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `thread_id` | string | Yes | Unique Gmail thread ID |
+| `tool_version` | string | No | Optional tool version to use for execution |
+
 ## `gmail_list_drafts`
 
 List draft emails from a connected Gmail account. Requires a valid Gmail OAuth2 connection.
@@ -146,6 +111,20 @@ List draft emails from a connected Gmail account. Requires a valid Gmail OAuth2 
 | --- | --- | --- | --- |
 | `max_results` | integer | No | Maximum number of drafts to fetch |
 | `page_token` | string | No | Page token for pagination |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `tool_version` | string | No | Optional tool version to use for execution |
+
+## `gmail_list_threads`
+
+List threads in a connected Gmail account using optional search and label filters. Requires a valid Gmail OAuth2 connection with read access.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `include_spam_trash` | boolean | No | Whether to include threads from Spam and Trash |
+| `label_ids` | `array<string>` | No | Gmail label IDs to filter threads (threads must match all labels) |
+| `max_results` | integer | No | Maximum number of threads to return |
+| `page_token` | string | No | Page token for pagination |
+| `query` | string | No | Search query string using Gmail search syntax (for example, 'is:unread from:user@example.com') |
 | `schema_version` | string | No | Optional schema version to use for tool execution |
 | `tool_version` | string | No | Optional tool version to use for execution |
 

@@ -8,14 +8,17 @@ import starlightSidebarTopics from 'starlight-sidebar-topics'
 import starlightImageZoom from 'starlight-image-zoom'
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import starlightDocSearch from '@astrojs/starlight-docsearch'
-import starlightContextualMenu from 'starlight-contextual-menu'
+import starlightPageActions from 'starlight-page-actions'
 import starlightThemeNova from 'starlight-theme-nova'
 import starlightVideos from 'starlight-videos'
+import starlightCopyInlineCode from 'starlight-copy-inline-code'
 import starlightLinksValidator from 'starlight-links-validator'
 import starlightLlmsTxt from 'starlight-llms-txt'
+import starlightBlog from 'starlight-blog'
 import { sidebar as sidebarConfig, topics, exclude } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import { llmsConfig } from './src/configs/llms.config.ts'
+import { pageActionsPrompt } from './src/configs/page-actions.config.ts'
 import tailwindcss from '@tailwindcss/vite'
 import d2 from 'astro-d2' // https://astro-d2.vercel.app/configuration/
 import Icons from 'unplugin-icons/vite'
@@ -24,12 +27,17 @@ import netlify from '@astrojs/netlify'
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'server',
+  // Switched from 'server' to default (static) to drastically reduce build memory.
+  // Astro 6's Vite Environments API creates separate build contexts per output mode;
+  // 'server' mode processes all 300+ pages through a heavy SSR pipeline.
+  // The few SSR pages (auth, health, admin) already have `prerender = false`.
+  // output: 'server',
   site: 'https://docs.scalekit.com',
   redirects,
   integrations: [
     starlight({
       title: 'Scalekit Docs',
+      pagefind: false,
       routeMiddleware: './src/routeData.ts',
       lastUpdated: true,
       tableOfContents: {
@@ -74,7 +82,7 @@ export default defineConfig({
         './src/styles/theme-priority.css',
       ],
       plugins: [
-        starlightThemeNova({ stylingSystem: 'css' }),
+        starlightThemeNova({ stylingSystem: 'tailwind' }),
         starlightImageZoom({
           showCaptions: true,
         }),
@@ -86,16 +94,64 @@ export default defineConfig({
           askAi: '8jKZkVuXS0hG',
         }),
         starlightVideos(),
-        starlightLinksValidator({
-          exclude: ['/apis/**'],
-        }),
+        // Links validator disabled in CI to reduce build memory usage.
+        // Run locally with: pnpm astro build (without NETLIFY env var)
+        ...(!process.env.NETLIFY
+          ? [
+              starlightLinksValidator({
+                exclude: ['/apis/**'],
+              }),
+            ]
+          : []),
         starlightLlmsTxt(llmsConfig),
-        starlightContextualMenu({
-          actions: ['copy', 'chatgpt', 'claude'],
-          hideMainActionLabel: true,
+        starlightPageActions({
+          prompt: pageActionsPrompt,
+          actions: {
+            markdown: true,
+            chatgpt: true,
+            claude: true,
+            custom: {
+              cursor: {
+                label: 'Open in Cursor',
+                href: 'https://cursor.com/link/prompt?text=',
+              },
+            },
+          },
+          // No baseUrl — prevents llms.txt generation (already handled by starlight-llms-txt)
+        }),
+        // Provide copy-to-clipboard button for inline code snippets site-wide for better UX
+        starlightCopyInlineCode({
+          // Show copy button only on hover (default: true)
+          showOnHover: false,
+
+          // Tooltip text for copy button (default: 'Copy')
+          copyLabel: 'Copy',
+
+          // Tooltip text after successful copy (default: 'Copied!')
+          copiedLabel: 'Copied!',
+
+          // CSS selector for inline code elements (default: ':not(pre) > code')
+          selector: ':not(pre) > code',
+        }),
+        starlightBlog({
+          prefix: 'cookbooks',
+          rss: false,
+          metrics: {
+            readingTime: true,
+            words: 'total',
+          },
         }),
       ],
       head: [
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'alternate',
+            type: 'text/plain',
+            title: 'LLM-friendly documentation',
+            href: '/llms.txt',
+          },
+        },
         {
           tag: 'script',
           attrs: {
@@ -243,6 +299,7 @@ export default defineConfig({
       },
     }),
     d2({
+      skipGeneration: !!process.env['NETLIFY'],
       theme: {
         default: '1', // Light theme (Neutral default)
         dark: '1',
@@ -281,7 +338,13 @@ export default defineConfig({
     plugins: [pluginCollapsibleSections(), tailwindcss(), Icons({ compiler: 'astro' })],
     build: {
       chunkSizeWarningLimit: 2000,
+      // Disable source maps in CI to reduce peak memory during bundling
+      sourcemap: false,
+      // Disable gzip size reporting to save memory on large builds
+      reportCompressedSize: false,
       rollupOptions: {
+        // Limit parallel file I/O to reduce memory spikes during bundling
+        maxParallelFileOps: 2,
         output: {
           manualChunks(id) {
             if (id.includes('@scalar')) return 'scalar'
