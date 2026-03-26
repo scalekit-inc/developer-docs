@@ -1,3 +1,4 @@
+export { default as SetupPipedriveSection } from './_setup-pipedrive.mdx'
 export { default as SetupAirtableSection } from './_setup-airtable.mdx'
 export { default as SetupApolloSection } from './_setup-apollo.mdx'
 export { default as SetupAttioSection } from './_setup-attio.mdx'
