@@ -15,6 +15,9 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkStringify from 'remark-stringify'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -144,134 +147,337 @@ function groupToolsByProvider(tools) {
 }
 
 // ---------------------------------------------------------------------------
-// MDX escaping — port of Python MDXGenerator.escape_mdx_content()
+// Markdown AST helpers (replaces ad-hoc MDX regex escaping)
 // ---------------------------------------------------------------------------
 
-function escapeMdx(text) {
-  if (!text) return text
+const markdownProcessor = unified().use(remarkParse).use(remarkStringify, {
+  fences: true,
+  bullet: '-',
+  listItemIndent: 'one',
+})
 
-  // Fix malformed bold+backtick patterns like **foo` → foo
-  text = text.replace(/\*\*([^*`]+)`/g, '$1')
+function escapeCurlyBraces(text) {
+  return text.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;')
+}
 
-  // Multi-line JSON after "Example:" / "Shape:" → fenced code block
-  const lines = text.split('\n')
-  const resultLines = []
+function pushTextNode(nodes, value) {
+  if (!value) return
+  const last = nodes[nodes.length - 1]
+  if (last && last.type === 'text') {
+    last.value += value
+    return
+  }
+  nodes.push({ type: 'text', value })
+}
+
+function extractBalancedBraces(text, start) {
+  let depth = 0
+  let inString = false
+  let escaped = false
+
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i]
+
+    if (escaped) {
+      escaped = false
+      continue
+    }
+    if (ch === '\\') {
+      escaped = true
+      continue
+    }
+    if (ch === '"') {
+      inString = !inString
+      continue
+    }
+    if (inString) continue
+
+    if (ch === '{') depth++
+    if (ch === '}') {
+      depth--
+      if (depth === 0) {
+        return { value: text.slice(start, i + 1), end: i + 1 }
+      }
+    }
+  }
+
+  return null
+}
+
+function isLikelyInlineJson(candidate) {
+  if (!candidate || candidate.includes('\n')) return false
+  if (!candidate.startsWith('{') || !candidate.endsWith('}')) return false
+  if (candidate === '{}') return true
+  return candidate.includes(':') && candidate.includes('"')
+}
+
+function formatInlineJsonAndEscapeBraces(text) {
+  let output = ''
   let i = 0
-  while (i < lines.length) {
-    const line = lines[i]
-    if ((line.includes('Example:') || line.includes('Shape:')) && i + 1 < lines.length) {
-      let jsonStart = -1
-      let jsonEnd = -1
-      for (let j = i + 1; j < Math.min(i + 10, lines.length); j++) {
-        if (lines[j].trim().startsWith('{')) {
-          jsonStart = j
-          break
-        }
+
+  while (i < text.length) {
+    if (text[i] === '`') {
+      const end = text.indexOf('`', i + 1)
+      if (end === -1) {
+        output += text.slice(i)
+        break
       }
-      if (jsonStart !== -1) {
-        let braceCount = 0
-        outer: for (let j = jsonStart; j < Math.min(jsonStart + 20, lines.length); j++) {
-          for (const ch of lines[j]) {
-            if (ch === '{') braceCount++
-            else if (ch === '}') {
-              braceCount--
-              if (braceCount === 0) {
-                jsonEnd = j
-                break outer
-              }
-            }
-          }
-        }
+      output += text.slice(i, end + 1)
+      i = end + 1
+      continue
+    }
+
+    const nextBacktick = text.indexOf('`', i)
+    const segmentEnd = nextBacktick === -1 ? text.length : nextBacktick
+    const segment = text.slice(i, segmentEnd)
+
+    let cursor = 0
+    while (cursor < segment.length) {
+      const braceStart = segment.indexOf('{', cursor)
+      if (braceStart === -1) {
+        output += escapeCurlyBraces(segment.slice(cursor))
+        break
       }
-      if (jsonStart !== -1 && jsonEnd !== -1) {
-        resultLines.push(line)
-        resultLines.push('')
-        resultLines.push('```json')
-        for (let j = jsonStart; j <= jsonEnd; j++) resultLines.push(lines[j])
-        resultLines.push('```')
-        i = jsonEnd + 1
+
+      if (braceStart > cursor) {
+        output += escapeCurlyBraces(segment.slice(cursor, braceStart))
+      }
+
+      const block = extractBalancedBraces(segment, braceStart)
+      if (!block) {
+        output += '&#123;'
+        cursor = braceStart + 1
         continue
       }
-    }
-    resultLines.push(line)
-    i++
-  }
-  text = resultLines.join('\n')
 
-  // Inline JSON on lines containing "example" keyword → wrap in backticks
-  const processedLines = text.split('\n')
-  for (let lineIdx = 0; lineIdx < processedLines.length; lineIdx++) {
-    const line = processedLines[lineIdx]
-    if (/example.*\{/i.test(line)) {
-      const jsonMatches = []
-      let idx = 0
-      while (idx < line.length) {
-        if (line[idx] === '{') {
-          let braceCount = 0
-          const start = idx
-          let end = idx
-          for (let j = idx; j < line.length; j++) {
-            if (line[j] === '{') braceCount++
-            else if (line[j] === '}') {
-              braceCount--
-              if (braceCount === 0) {
-                end = j + 1
-                break
-              }
-            }
-          }
-          if (braceCount === 0 && end > start) {
-            jsonMatches.push([start, end])
-            idx = end
-          } else {
-            idx++
-          }
-        } else {
-          idx++
-        }
+      if (isLikelyInlineJson(block.value.replace(/\s+/g, ' '))) {
+        output += '`' + block.value.replace(/\s+/g, ' ').trim() + '`'
+      } else {
+        output += escapeCurlyBraces(block.value)
       }
-      let newLine = line
-      for (const [start, end] of [...jsonMatches].reverse()) {
-        const json = newLine.slice(start, end)
-        if (!json.includes('`')) {
-          newLine = newLine.slice(0, start) + '`' + json + '`' + newLine.slice(end)
-        }
+      cursor = block.end
+    }
+
+    i = segmentEnd
+  }
+
+  return output
+}
+
+function convertTextNodeToMdast(value) {
+  const nodes = []
+  let cursor = 0
+
+  while (cursor < value.length) {
+    const braceStart = value.indexOf('{', cursor)
+    if (braceStart === -1) {
+      pushTextNode(nodes, escapeCurlyBraces(value.slice(cursor)))
+      break
+    }
+
+    if (braceStart > cursor) {
+      pushTextNode(nodes, escapeCurlyBraces(value.slice(cursor, braceStart)))
+    }
+
+    const block = extractBalancedBraces(value, braceStart)
+    if (!block) {
+      pushTextNode(nodes, '&#123;')
+      cursor = braceStart + 1
+      continue
+    }
+
+    if (isLikelyInlineJson(block.value)) {
+      nodes.push({ type: 'inlineCode', value: block.value })
+    } else {
+      pushTextNode(nodes, escapeCurlyBraces(block.value))
+    }
+    cursor = block.end
+  }
+
+  return nodes
+}
+
+function transformTextNodesToMdast(node) {
+  if (!node || !node.children || !Array.isArray(node.children)) return
+
+  const transformedChildren = []
+  for (const child of node.children) {
+    if (child.type === 'text') {
+      transformedChildren.push(...convertTextNodeToMdast(child.value || ''))
+      continue
+    }
+
+    transformTextNodesToMdast(child)
+    transformedChildren.push(child)
+  }
+
+  node.children = transformedChildren
+}
+
+function promoteEscapedJsonExampleBlocks(markdown) {
+  const lines = markdown.split('\n')
+  const output = []
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    output.push(line)
+
+    if (!/(Example:|Shape:)/.test(line)) continue
+
+    let j = i + 1
+    while (j < lines.length && lines[j].trim() === '') j++
+    if (j >= lines.length) continue
+
+    const looksLikeEscapedJsonStart = /^\s*\\?&#123;/.test(lines[j])
+    if (!looksLikeEscapedJsonStart) continue
+
+    let depth = 0
+    let end = -1
+    for (let k = j; k < lines.length; k++) {
+      const openCount = (lines[k].match(/\\?&#123;/g) || []).length
+      const closeCount = (lines[k].match(/\\?&#125;/g) || []).length
+      depth += openCount - closeCount
+      if (depth === 0) {
+        end = k
+        break
       }
-      processedLines[lineIdx] = newLine
     }
-  }
-  text = processedLines.join('\n')
+    if (end === -1) continue
 
-  // Simple {"key":"val"} patterns → wrap in backticks
-  function isNotInBackticks(t, pos) {
-    const before = t.slice(0, pos)
-    const backtickCount = (before.match(/`/g) || []).length
-    if (before.includes('```')) {
-      const codeBlocks = (before.match(/```/g) || []).length
-      if (codeBlocks % 2 === 1) return false
-    }
-    return backtickCount % 2 === 0
-  }
+    const jsonLines = lines
+      .slice(j, end + 1)
+      .map((entry) => entry.replace(/\\?&#123;/g, '{').replace(/\\?&#125;/g, '}'))
 
-  const simplePatterns = [
-    /\{"page_id"\s*:\s*"[^"]*"\}/g,
-    /\{"database_id"\s*:\s*"[^"]*"\}/g,
-    /\{"[^"]{1,20}"\s*:\s*"[^"]{1,20}"\}/g,
-  ]
-  for (const pattern of simplePatterns) {
-    const matches = [...text.matchAll(pattern)]
-    for (const match of [...matches].reverse()) {
-      if (isNotInBackticks(text, match.index)) {
-        const json = match[0]
-        if (!json.includes('[') && (json.match(/\{/g) || []).length === 1) {
-          text =
-            text.slice(0, match.index) + '`' + json + '`' + text.slice(match.index + json.length)
-        }
-      }
-    }
+    output.push('')
+    output.push('```json')
+    output.push(...jsonLines)
+    output.push('```')
+
+    i = end
   }
 
-  return text
+  return output.join('\n')
+}
+
+function renderMarkdownWithAst(text, { tableCell = false } = {}) {
+  if (!text) return text
+
+  const normalized = text.replace(/\*\*([^*`]+)`/g, '$1')
+
+  if (tableCell) {
+    return formatInlineJsonAndEscapeBraces(
+      normalized.replace(/```[\s\S]*?```/g, '[…]').replace(/\n+/g, ' '),
+    )
+      .replace(/\|/g, '\\|')
+      .trim()
+  }
+
+  try {
+    const tree = markdownProcessor.parse(normalized)
+    transformTextNodesToMdast(tree)
+    const output = promoteEscapedJsonExampleBlocks(
+      String(markdownProcessor.stringify(tree)).replace(/\\_/g, '_'),
+    ).trim()
+
+    return output
+  } catch {
+    // Safe fallback for malformed markdown from upstream connector metadata.
+    let output = escapeCurlyBraces(normalized)
+    return output
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Setup section map — auto-discovered from src/components/templates/agent-connectors/
+// ---------------------------------------------------------------------------
+
+function buildSetupStemMap() {
+  const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
+  let files
+  try {
+    files = fs.readdirSync(templatesDir)
+  } catch {
+    return {}
+  }
+  const map = {}
+  for (const file of files) {
+    if (!file.startsWith('_setup-') || !file.endsWith('.mdx')) continue
+    const stem = file.replace('_setup-', '').replace('.mdx', '')
+    map[stem] =
+      'Setup' +
+      stem
+        .split('-')
+        .filter((w) => w.length > 0)
+        .map((w) => w[0].toUpperCase() + w.slice(1))
+        .join('') +
+      'Section'
+  }
+  return map
+}
+
+function getSetupComponent(stemMap, providerSlug) {
+  if (!providerSlug) return null
+  return (
+    stemMap[providerSlug] ||
+    stemMap[providerSlug.replace(/_/g, '-')] ||
+    stemMap[providerSlug.replace(/_/g, '')] ||
+    null
+  )
+}
+
+const SETUP_STEM_MAP = buildSetupStemMap()
+
+// ---------------------------------------------------------------------------
+// Usage section map — auto-discovered from src/components/templates/agent-connectors/
+// ---------------------------------------------------------------------------
+
+function buildUsageStemMap() {
+  const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
+  let files
+  try {
+    files = fs.readdirSync(templatesDir)
+  } catch {
+    return {}
+  }
+  const map = {}
+  for (const file of files) {
+    if (!file.startsWith('_usage-') || !file.endsWith('.mdx')) continue
+    const stem = file.replace('_usage-', '').replace('.mdx', '')
+    map[stem] =
+      'Usage' +
+      stem
+        .split(/[-_]/)
+        .filter((w) => w.length > 0)
+        .map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase())
+        .join('') +
+      'Section'
+  }
+  return map
+}
+
+function getUsageComponent(stemMap, providerSlug) {
+  if (!providerSlug) return null
+  return (
+    stemMap[providerSlug] ||
+    stemMap[providerSlug.replace(/_/g, '-')] ||
+    stemMap[providerSlug.replace(/_/g, '')] ||
+    null
+  )
+}
+
+const USAGE_STEM_MAP = buildUsageStemMap()
+
+function syncTemplateIndex(setupMap, usageMap) {
+  const templatesDir = path.join(__dirname, '../src/components/templates/agent-connectors')
+  const indexPath = path.join(templatesDir, 'index.ts')
+  const setupLines = Object.entries(setupMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([stem, name]) => `export { default as ${name} } from './_setup-${stem}.mdx'`)
+  const usageLines = Object.entries(usageMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([stem, name]) => `export { default as ${name} } from './_usage-${stem}.mdx'`)
+  const lines = [...setupLines, ...usageLines]
+  fs.writeFileSync(indexPath, lines.join('\n') + '\n', 'utf8')
 }
 
 // ---------------------------------------------------------------------------
@@ -307,7 +513,7 @@ function generateMdxContent(provider, tools) {
     lines.push('    variant: tip')
   }
 
-  // Static head boilerplate (CSS + JS) — matches existing MDX files exactly
+  // Static head boilerplate (CSS only)
   lines.push('head:')
   lines.push('  - tag: style')
   lines.push('    content: |')
@@ -317,70 +523,6 @@ function generateMdxContent(provider, tools) {
   lines.push('      table td:first-child, table th:first-child {')
   lines.push('        white-space: nowrap;')
   lines.push('      }')
-  lines.push('      /* Heading copy functionality */')
-  lines.push('      .sl-markdown-content h2,')
-  lines.push('      .sl-markdown-content h3,')
-  lines.push('      .sl-markdown-content h4 {')
-  lines.push('        position: relative;')
-  lines.push('        cursor: pointer;')
-  lines.push('      }')
-  lines.push('      .sl-markdown-content h2:hover::after,')
-  lines.push('      .sl-markdown-content h3:hover::after,')
-  lines.push('      .sl-markdown-content h4:hover::after {')
-  lines.push('        content: " 📋 ";')
-  lines.push('        font-size: 0.8em;')
-  lines.push('        opacity: 0.7;')
-  lines.push('      }')
-  lines.push('  - tag: script')
-  lines.push('    content: |')
-  lines.push('      // Using a self-executing function to avoid global namespace pollution')
-  lines.push('      (function() {')
-  lines.push('        // Function to initialize the copy functionality')
-  lines.push('        function initHeadingCopy() {')
-  lines.push(
-    "          const headings = document.querySelectorAll('.sl-markdown-content h2, .sl-markdown-content h3, .sl-markdown-content h4');",
-  )
-  lines.push('')
-  lines.push('          headings.forEach(heading => {')
-  lines.push('            // Skip if already initialized')
-  lines.push("            if (heading.hasAttribute('data-copy-initialized')) return;")
-  lines.push("            heading.setAttribute('data-copy-initialized', 'true');")
-  lines.push('')
-  lines.push("            heading.addEventListener('click', async () => {")
-  lines.push("              const headingText = heading.textContent.replace(/\\s📋$/, '').trim();")
-  lines.push('')
-  lines.push('              try {')
-  lines.push('                await navigator.clipboard.writeText(headingText);')
-  lines.push('')
-  lines.push('                // Visual feedback')
-  lines.push('                const originalText = heading.textContent;')
-  lines.push(
-    "                heading.textContent = heading.textContent.replace(/\\s📋$/, '') + ' ✓';",
-  )
-  lines.push('')
-  lines.push('                setTimeout(() => {')
-  lines.push('                  heading.textContent = originalText;')
-  lines.push('                }, 2000);')
-  lines.push('              } catch (err) {')
-  lines.push("                console.error('Failed to copy heading:', err);")
-  lines.push('              }')
-  lines.push('            });')
-  lines.push('          });')
-  lines.push('        }')
-  lines.push('')
-  lines.push('        // Initialize on DOMContentLoaded')
-  lines.push("        document.addEventListener('DOMContentLoaded', initHeadingCopy);")
-  lines.push('')
-  lines.push('        // Also initialize now in case the DOM is already loaded')
-  lines.push(
-    "        if (document.readyState === 'complete' || document.readyState === 'interactive') {",
-  )
-  lines.push('          setTimeout(initHeadingCopy, 1);')
-  lines.push('        }')
-  lines.push('')
-  lines.push("        // For Astro's client-side navigation")
-  lines.push("        document.addEventListener('astro:page-load', initHeadingCopy);")
-  lines.push('      })();')
   lines.push('---')
   lines.push('')
 
@@ -389,6 +531,15 @@ function generateMdxContent(provider, tools) {
     "import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'",
   )
   lines.push("import { Accordion, AccordionItem } from 'accessible-astro-components'")
+  const providerSlug = toSafeIdentifier(provider.identifier)
+  const setupComponentName = getSetupComponent(SETUP_STEM_MAP, providerSlug)
+  const usageComponentName = getUsageComponent(USAGE_STEM_MAP, providerSlug)
+  if (setupComponentName) {
+    lines.push(`import { ${setupComponentName} } from '@components/templates'`)
+  }
+  if (usageComponentName) {
+    lines.push(`import { ${usageComponentName} } from '@components/templates'`)
+  }
   lines.push('')
 
   // Provider description + icon grid
@@ -414,6 +565,22 @@ function generateMdxContent(provider, tools) {
     lines.push('')
   }
 
+  // Setup section
+  if (setupComponentName) {
+    lines.push('## Set up the agent connector')
+    lines.push('')
+    lines.push(`<${setupComponentName} />`)
+    lines.push('')
+  }
+
+  // Usage section
+  if (usageComponentName) {
+    lines.push('## Usage')
+    lines.push('')
+    lines.push(`<${usageComponentName} />`)
+    lines.push('')
+  }
+
   // Tool list heading
   if (tools.length > 0) {
     lines.push('## Tool list')
@@ -432,7 +599,7 @@ function generateMdxContent(provider, tools) {
 
     lines.push(`## \`${toolName}\``)
     lines.push('')
-    lines.push(escapeMdx(toolDescription))
+    lines.push(renderMarkdownWithAst(toolDescription))
     lines.push('')
 
     const propEntries = Object.entries(properties)
@@ -442,12 +609,9 @@ function generateMdxContent(provider, tools) {
 
       for (const [propName, propInfo] of propEntries) {
         let propType = propInfo.type || 'string'
-        const propDescription = escapeMdx(propInfo.description || 'No description')
-          .replace(/```[\s\S]*?```/g, '[…]') // collapse fenced code blocks
-          .replace(/`([^`]*)`/g, '$1') // strip inline backticks
-          .replace(/\n+/g, ' ') // collapse newlines to a space
-          .replace(/\|/g, '\\|') // escape pipe characters
-          .trim()
+        const propDescription = renderMarkdownWithAst(propInfo.description || 'No description', {
+          tableCell: true,
+        })
 
         // Handle type arrays like ["string", "null"]
         if (Array.isArray(propType)) {
@@ -493,6 +657,11 @@ async function main() {
     process.exit(1)
   }
 
+  syncTemplateIndex(SETUP_STEM_MAP, USAGE_STEM_MAP)
+  console.log(
+    `✓ Synced index.ts (${Object.keys(SETUP_STEM_MAP).length} setup + ${Object.keys(USAGE_STEM_MAP).length} usage templates)`,
+  )
+
   const outputDir = path.join(__dirname, '../src/content/docs/reference/agent-connectors')
   fs.mkdirSync(outputDir, { recursive: true })
 
@@ -517,6 +686,7 @@ async function main() {
   let removed = 0
   for (const existing of fs.readdirSync(outputDir)) {
     if (!existing.endsWith('.mdx')) continue
+    if (existing === 'index.mdx') continue // Preserve index if it ever exists in this dir
     if (expectedFiles.has(existing)) continue
     const orphanPath = path.join(outputDir, existing)
     if (!orphanPath.startsWith(outputDir + path.sep)) continue // safety check

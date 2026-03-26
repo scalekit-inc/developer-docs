@@ -23,6 +23,7 @@ export const redirects = {
   '/fsa/guides/onboard-enterprise-customers': '/sso/guides/onboard-enterprise-customers/',
   '/fsa/guides/enterprise-sso/': '/authenticate/auth-methods/enterprise-sso/',
   '/fsa/guides/auth-methods/': '/authenticate/auth-methods/passwordless/',
+  '/fsa/guides/passwordless': '/authenticate/auth-methods/passwordless/',
   '/fsa/guides/social-logins/': '/authenticate/auth-methods/social-logins/',
   '/fsa/reference/user-profile/': '/authenticate/manage-users-orgs/custom-user-attributes/',
 
@@ -198,6 +199,11 @@ export const redirects = {
   // AGENT AUTH REDIRECTS
   // =============================================================================
 
+  // Tool calling pages merged into agent-tools-quickstart
+  '/agent-auth/tools/execute': '/agent-auth/tools/agent-tools-quickstart/',
+  '/agent-auth/tools/modifiers': '/agent-auth/tools/agent-tools-quickstart/',
+  '/agent-auth/agentic-quickstart': '/agent-auth/tools/agent-tools-quickstart/',
+
   // Agent auth shorthand paths
   '/agent-auth': '/agent-auth/quickstart/',
   '/apis/agent-auth': '/agent-auth/quickstart/',
@@ -253,6 +259,7 @@ export const redirects = {
 
   // MCP pages
   '/agent-actions/mcp/quickstart': '/agent-auth/mcp/quickstart/',
+  '/agent-auth/mcp/quickstart': '/agent-auth/mcp/tool-access-via-mcp/',
 
   // Tools pages
   '/agent-actions/tools/authorize': '/agent-auth/tools/authorize/',
@@ -264,6 +271,26 @@ export const redirects = {
   '/agent-actions/tools/proxy-tools': '/agent-auth/tools/proxy-tools/',
 
   // =============================================================================
+  // BUILD WITH AI REDIRECTS (coding agent guides)
+  // =============================================================================
+  // Coding agent guides moved from product quickstarts to /dev-kit/build-with-ai/
+  // Note: With trailingSlash: 'ignore', single redirect without slash handles both /path and /path/ variants
+
+  '/agent-auth/start-agent-auth-coding-agents': '/dev-kit/build-with-ai/agent-auth/',
+  '/authenticate/fsa/start-fsa-coding-agents': '/dev-kit/build-with-ai/full-stack-auth/',
+  '/authenticate/mcp/start-mcp-auth-coding-agents': '/dev-kit/build-with-ai/mcp-auth/',
+  '/authenticate/sso/start-sso-coding-agents': '/dev-kit/build-with-ai/sso/',
+  '/directory/scim/start-scim-coding-agents': '/dev-kit/build-with-ai/scim/',
+
+  // Build with AI moved from /build-with-ai/ to /dev-kit/build-with-ai/
+  '/build-with-ai': '/dev-kit/build-with-ai/',
+  '/build-with-ai/full-stack-auth': '/dev-kit/build-with-ai/full-stack-auth/',
+  '/build-with-ai/agent-auth': '/dev-kit/build-with-ai/agent-auth/',
+  '/build-with-ai/mcp-auth': '/dev-kit/build-with-ai/mcp-auth/',
+  '/build-with-ai/sso': '/dev-kit/build-with-ai/sso/',
+  '/build-with-ai/scim': '/dev-kit/build-with-ai/scim/',
+
+  // =============================================================================
   // API AUTH (M2M) REDIRECTS
   // =============================================================================
   '/m2m/quickstart': '/authenticate/m2m/api-auth-quickstart/',
@@ -273,7 +300,8 @@ export const redirects = {
   '/m2m/authenticate-scalekit-api': '/guides/authenticate-scalekit-api/',
   '/m2m/api-auth-for-m2m-clients': '/guides/m2m/api-auth-m2m-clients/',
   '/m2m/external-ids-and-metadata': '/guides/external-ids-and-metadata/',
-  '/m2m/scopes': '/guides/m2m/scopes/',
+  '/m2m/scopes': '/authenticate/m2m/api-auth-quickstart/',
+  '/guides/m2m/scopes/': '/authenticate/m2m/api-auth-quickstart/',
   '/reference/api/m2m-clients': '/guides/m2m/api-auth-m2m-clients/',
 
   // =============================================================================
@@ -357,6 +385,19 @@ export const redirects = {
   '/dev-kit/guides/testing/sso-simulator': '/dev-kit/tools/sso-simulator/',
   '/dev-kit/nodejs': '/dev-kit/sdks/',
   '/dev-kit/ui-widgets': '/authenticate/manage-users-orgs/hosted-widgets/',
+
+  // Code samples moved to /resources/code-samples/
+  '/dev-kit/code-samples': '/resources/code-samples/',
+  '/dev-kit/code-samples/': '/resources/code-samples/',
+  '/dev-kit/code-samples/full-stack-auth': '/resources/code-samples/full-stack-auth/',
+  '/dev-kit/code-samples/agent-auth': '/resources/code-samples/agent-auth/',
+  '/dev-kit/code-samples/mcp-auth': '/resources/code-samples/mcp-auth/',
+  '/dev-kit/code-samples/modular-sso': '/resources/code-samples/modular-sso/',
+  '/dev-kit/code-samples/modular-scim': '/resources/code-samples/modular-scim/',
+
+  // Dev Kit API collections - Postman collections now live on GitHub
+  '/dev-kit/api-collections/postman-collections':
+    'https://github.com/scalekit-inc/api-collections/tree/main',
 
   // =============================================================================
   // CHANGELOG REDIRECTS - Redirect to SDK pages

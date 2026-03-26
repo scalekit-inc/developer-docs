@@ -76,18 +76,25 @@ Here's an example of the payload. Note this is formatted for readability and the
 
 In some cases, you may need to parse the ID token manually—for example, to access custom claims that are not part of the standard `User` object in the SDK method. These details are encoded in the ID token as JSON Web Token (JWT).
 
-To verify the signature, you need to:
+If you use the Scalekit SDK, token validation is handled automatically. For non-SDK integrations (e.g., Ruby, PHP, or other languages), follow the steps below.
 
-1.  Fetch the public signing keys from the JSON Web Key Set (JWKS) endpoint.
-2.  Use a JWT library for your language to decode and verify the token using the keys.
+### Key validation parameters
 
-The JWKS endpoint for your environment is located at:
+| Parameter | Value |
+|-----------|-------|
+| Signing algorithm | `RS256` |
+| JWKS endpoint | `https://<YOUR_ENVIRONMENT_URL>/keys` |
+| Issuer (`iss`) | Your Scalekit environment URL (e.g., `https://yourapp.scalekit.com`) |
+| OpenID configuration | `https://<YOUR_ENVIRONMENT_URL>/.well-known/openid-configuration` |
 
-```sh
-https://<YOUR_ENVIRONMENT_URL>/keys
-```
+### Manual validation steps
 
-For example, if your Scalekit Environment URL is `https://your-environment.scalekit.com`, the keys can be found at `https://your-environment.scalekit.com/keys`.
+To verify the signature manually:
+
+1. Fetch the OpenID configuration from `https://<YOUR_ENVIRONMENT_URL>/.well-known/openid-configuration` to discover `issuer` and `jwks_uri`.
+2. Fetch the public signing keys from the `jwks_uri` (e.g., `https://<YOUR_ENVIRONMENT_URL>/keys`).
+3. Use a JWT library for your language to decode and verify the token with `RS256` using those keys.
+4. Validate the required claims listed below.
 
 ### Important claims
 

@@ -1,7 +1,17 @@
 ---
 title: Authorize a user
 description: Learn how to authorize users for successful tool execution with Agent Auth.
+tags: [agentauth, tools, oauth2, authorization, authentication, api, guide]
+prev:
+  label: "Connected accounts"
+  link: "/agent-auth/connected-accounts"
+next:
+  label: "Custom domains"
+  link: "/agent-auth/advanced/custom-domain"
 ---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
 Scalekit provides a completely managed authentication platform to handle complex OAuth2.0, API Keys, Bearer Tokens and any other API authentication protocols required by third party applications to execute tool calls on behalf of users.
 
 This managed authentication handling enables you to build powerful agents without having to worry about handling user authentication and API authentication across different applications like Salesforce, Hubspot, GMail, Google Calendar etc.
@@ -12,24 +22,60 @@ If you are building an agent that needs to execute actions on behalf of a user, 
 
 The following code sample helps your agent complete user authorization required to make a successful authenticated tool call.
 
+<Tabs syncKey="tech-stack">
+<TabItem label="Python">
+
 ```python
-link_response = connect.get_authorization_link(
-    connection_name="gmail", # connection name to which the user needs to grant access.
-    identifier="user_123" # unique user id
+link_response = actions.get_authorization_link(
+    connection_name="gmail",  # connection name to which the user needs to grant access
+    identifier="user_123"     # unique user id
 )
-print(f"🔗click on the link to authorize gmail", link_response.link)
-input(f"⎆ Press Enter after authorizing gmail...")
+print(f"click on the link to authorize gmail", link_response.link)
+input(f"Press Enter after authorizing gmail...")
 ```
+
+</TabItem>
+<TabItem label="Node.js">
+
+```typescript
+const linkResponse = await actions.getAuthorizationLink({
+  connectionName: 'gmail',  // connection name to which the user needs to grant access
+  identifier: 'user_123',  // unique user id
+});
+console.log('click on the link to authorize gmail', linkResponse.link);
+// In production, redirect the user to linkResponse.link to complete the OAuth flow
+```
+
+</TabItem>
+</Tabs>
 
 ## Check Authorization Status
 
 If you would like to check whether the user has completed authorization for a given application,
 
+<Tabs syncKey="tech-stack">
+<TabItem label="Python">
+
 ```python
-response = connect.get_or_create_connected_account(
+response = actions.get_or_create_connected_account(
     connection_name="gmail",
     identifier="user_123"
 )
 connected_account = response.connected_account
-print(f"AUthorization status of the connected account", connected_account.status)
+print(f"Authorization status of the connected account", connected_account.status)
 ```
+
+</TabItem>
+<TabItem label="Node.js">
+
+```typescript
+const response = await actions.getOrCreateConnectedAccount({
+  connectionName: 'gmail',
+  identifier: 'user_123',
+});
+const connectedAccount = response.connectedAccount;
+console.log('Authorization status of the connected account', connectedAccount?.status);
+```
+
+</TabItem>
+</Tabs>

@@ -1,6 +1,7 @@
 ---
 title: Proxy API Calls
 description: Use Scalekit managed authentication and make direct HTTP calls to third party applications
+tags: [agentauth, advanced, proxy, api, integration, guide]
 pagefind: false
 head:
   - tag: meta
@@ -14,13 +15,17 @@ Even though Scalekit Agent Auth offers pre-built tools and actions out of the bo
 
 Based on the connected account or user identifier details, Scalekit will automatically inject the user authorization tokens so that API calls to the third application will be successful.
 
+<Aside type="caution" title="Proxy must be enabled per environment">
+Proxy access for built-in providers (Gmail, Notion, Slack, and others) is **not enabled by default** on new environments. If you receive the error `proxy not enabled for provider`, contact [support@scalekit.com](mailto:support@scalekit.com) to enable the proxy for your environment.
+</Aside>
+
 ```python
 # Fetch recent emails
 emails = actions.tools.execute(
     connected_account_id=connected_account.id,
     tool='gmail_proxy_api',
     parameters={
-        'path': '/api/v1/emails:fetch',
+        'path': '/gmail/v1/users/me/messages',
         'method': 'GET',
         'headers': [{'Content-Type': 'application/json'}],
         'params': [{'max_results': '5'}],

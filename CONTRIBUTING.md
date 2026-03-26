@@ -10,8 +10,9 @@ This guide covers everything you need to go from zero to a merged pull request.
 
 - [Before you start](#before-you-start)
 - [Set up locally](#set-up-locally)
+- [D2 diagrams and local development](#d2-diagrams-and-local-development)
 - [Configure environment variables](#configure-environment-variables)
-- [Run git hooks](#run-git-hooks)
+- [Git hooks](#git-hooks)
 - [Describe project architecture](#describe-project-architecture)
   - [Describe Starlight plugins](#describe-starlight-plugins)
   - [Describe overridden components](#describe-overridden-components)
@@ -30,7 +31,7 @@ A few things worth knowing before you dive in:
 - All documentation lives as **MDX files** inside `src/content/`. That's the main place contributors work.
 - The site is built with **[Astro](https://astro.build) v5** and the **[Starlight](https://starlight.astro.build)** docs framework, deployed on Netlify in SSR mode.
 - We use **pnpm** as the package manager — not npm or yarn.
-- Follow the constitution at `.specify/memory/constitution.md` as the single source of truth for all documentation rules. The writing style, frontmatter requirements, and code example rules are also documented in `CLAUDE.md` and `.cursorrules` at the root as supplemental guidance. Read these before writing.
+- Follow the documentation standards in `CLAUDE.md` at the root as the single source of truth for all documentation rules. Read this before writing.
 
 ---
 
@@ -40,7 +41,7 @@ A few things worth knowing before you dive in:
 
 - **Node.js** ≥ 18
 - **pnpm** ≥ 10
-- **D2 CLI** — Diagramming tool for `.d2` files. Install with `pnpm install:d2` (supports macOS and Linux, both Intel and ARM)
+- **D2 CLI** (optional for most edits) — Needed only when you change `.d2` sources or run a full local build that regenerates diagrams. Install with `pnpm install:d2` (supports macOS and Linux, both Intel and ARM). See [D2 diagrams and local development](#d2-diagrams-and-local-development).
 
 ```bash
 npm install -g pnpm
@@ -59,26 +60,39 @@ cp .env.example .env
 # 3. Install dependencies (this also sets up git hooks automatically)
 pnpm install
 
-# 4. Install D2 CLI (for diagram rendering)
-pnpm install:d2
-
-# 5. Start the dev server
+# 4. Start the dev server
 pnpm dev
 ```
 
 Open [http://localhost:4321](http://localhost:4321). Edits to MDX files in `src/content/` reflect immediately.
 
+If you edit `.d2` diagrams or need a full local build that regenerates them, install the D2 CLI first (`pnpm install:d2`) and read [D2 diagrams and local development](#d2-diagrams-and-local-development).
+
 ### Useful commands
 
-| Command                      | Description                                          |
-| ---------------------------- | ---------------------------------------------------- |
-| `pnpm dev`                   | Start the local dev server                           |
-| `pnpm build`                 | Build the production site to `./dist`                |
-| `pnpm preview`               | Preview the production build locally                 |
-| `pnpm install:d2`            | Install D2 CLI tool for diagram rendering            |
-| `pnpm format`                | Auto-format all `.md`, `.mdx`, `.astro`, `.ts` files |
-| `pnpm format:check`          | Check formatting without writing changes             |
-| `pnpm generate-search-index` | Regenerate the Algolia API search index              |
+| Command                      | Description                                                      |
+| ---------------------------- | ---------------------------------------------------------------- |
+| `pnpm dev`                   | Start the site with Netlify Dev (`netlify dev`)                  |
+| `pnpm start`                 | Run `astro dev` — use to preview D2 diagram regeneration locally |
+| `pnpm build`                 | Build the production site to `./dist`                            |
+| `pnpm preview`               | Preview the production build locally                             |
+| `pnpm install:d2`            | Install D2 CLI tool for diagram rendering                        |
+| `pnpm format`                | Auto-format all `.md`, `.mdx`, `.astro`, `.ts` files             |
+| `pnpm format:check`          | Check formatting without writing changes                         |
+| `pnpm generate-search-index` | Regenerate the Algolia API search index                          |
+
+---
+
+## D2 diagrams and local development
+
+The **astro-d2** integration in `astro.config.mjs` sets `skipGeneration: !!process.env['NETLIFY']`. When `NETLIFY` is set (Netlify production and preview builds, and when you run **`pnpm dev`**, which uses `netlify dev`), diagram generation is skipped and the site uses **committed** SVG assets under `public/d2/`.
+
+- **`pnpm dev`** — Runs `netlify dev`, which sets `NETLIFY`. D2 diagrams are not regenerated; this matches deploy behavior and is the default for everyday doc work.
+- **`pnpm start`** — Runs `astro dev` without `NETLIFY`, so the D2 integration can **regenerate** diagrams from `.d2` files while you edit them. Use this when you need to preview diagram changes locally.
+
+Install the D2 CLI with **`pnpm install:d2`** before regenerating diagrams or before a full local **`pnpm build`** if your environment does not set `NETLIFY` (the pre-push hook runs a full build and expects D2 when generation runs).
+
+**Netlify** uses `command = "pnpm run build"` in `netlify.toml`. The D2 CLI is **not** installed in that environment; diagrams are pre-committed, so CI does not need to run D2.
 
 ---
 
@@ -153,18 +167,18 @@ This hook ensures you never push something that breaks the build. It takes a few
 
 The site uses a rich set of Starlight plugins, each responsible for a discrete feature:
 
-| Plugin                                                                                           | What It Does                                                            |
-| ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
-| [starlight-theme-nova](https://github.com/trueberryless/starlight-theme-nova)                    | Custom visual theme layered on top of Starlight defaults                |
-| [starlight-sidebar-topics](https://github.com/HiDeoo/starlight-sidebar-topics)                   | Groups sidebar nav into distinct topic sections                         |
-| [starlight-sidebar-topics-dropdown](https://github.com/HiDeoo/starlight-sidebar-topics-dropdown) | Renders topic switcher as a dropdown for mobile/compact views           |
-| [starlight-image-zoom](https://github.com/HiDeoo/starlight-image-zoom)                           | Adds click-to-zoom on all images, with captions                         |
-| [starlight-links-validator](https://github.com/HiDeoo/starlight-links-validator)                 | Validates internal links at build time (excludes `/apis/**`)            |
-| [starlight-llms-txt](https://github.com/HiDeoo/starlight-llms-txt)                               | Generates a machine-readable `llms.txt` index for AI assistants         |
-| [starlight-videos](https://github.com/HiDeoo/starlight-videos)                                   | Embeds and styles video content within docs pages                       |
-| [starlight-contextual-menu](https://github.com/HiDeoo/starlight-contextual-menu)                 | Adds per-page contextual actions: copy, open in ChatGPT, open in Claude |
-| [@astrojs/starlight-docsearch](https://www.npmjs.com/package/@astrojs/starlight-docsearch)       | Algolia DocSearch integration with AI Ask mode                          |
-| [astro-d2](https://astro-d2.vercel.app)                                                          | Renders `.d2` diagram files as SVGs at build time                       |
+| Plugin                                                                                           | What It Does                                                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [starlight-theme-nova](https://github.com/trueberryless/starlight-theme-nova)                    | Custom visual theme layered on top of Starlight defaults                                                                                                                     |
+| [starlight-sidebar-topics](https://github.com/HiDeoo/starlight-sidebar-topics)                   | Groups sidebar nav into distinct topic sections                                                                                                                              |
+| [starlight-sidebar-topics-dropdown](https://github.com/HiDeoo/starlight-sidebar-topics-dropdown) | Renders topic switcher as a dropdown for mobile/compact views                                                                                                                |
+| [starlight-image-zoom](https://github.com/HiDeoo/starlight-image-zoom)                           | Adds click-to-zoom on all images, with captions                                                                                                                              |
+| [starlight-links-validator](https://github.com/HiDeoo/starlight-links-validator)                 | Validates internal links at build time (excludes `/apis/**`)                                                                                                                 |
+| [starlight-llms-txt](https://github.com/HiDeoo/starlight-llms-txt)                               | Generates a machine-readable `llms.txt` index for AI assistants                                                                                                              |
+| [starlight-videos](https://github.com/HiDeoo/starlight-videos)                                   | Embeds and styles video content within docs pages                                                                                                                            |
+| [starlight-contextual-menu](https://github.com/HiDeoo/starlight-contextual-menu)                 | Adds per-page contextual actions: copy, open in ChatGPT, open in Claude                                                                                                      |
+| [@astrojs/starlight-docsearch](https://www.npmjs.com/package/@astrojs/starlight-docsearch)       | Algolia DocSearch integration with AI Ask mode                                                                                                                               |
+| [astro-d2](https://astro-d2.vercel.app)                                                          | Renders `.d2` diagram files as SVGs at build time; uses `skipGeneration` when `NETLIFY` is set (see [D2 diagrams and local development](#d2-diagrams-and-local-development)) |
 
 If you're adding or editing a plugin, the configuration lives entirely in `astro.config.mjs`.
 
@@ -255,7 +269,7 @@ SDK variable names are fixed — do not rename them:
 | Go       | `scalekitClient`  |
 | Java     | `scalekitClient`  |
 
-For the full style guide, read `CLAUDE.md` and `.cursorrules` at the root of the repo.
+For the full style guide, read `CLAUDE.md` at the root of the repo.
 
 ---
 

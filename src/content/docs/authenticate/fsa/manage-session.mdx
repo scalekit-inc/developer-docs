@@ -1,6 +1,7 @@
 ---
 title: 'Manage user sessions'
 description: 'Store tokens safely with proper cookie security, validate on every request, and refresh with rotation to keep sessions secure'
+tags: [sessions, security, tokens, cookies, jwt, refresh-token, authentication]
 head:
   - tag: style
     content: |
@@ -52,6 +53,18 @@ This guide shows you how to store these tokens securely with encryption and prop
     After successful identity verification using any of the auth methods (Magic Link & OTP, social, enterprise SSO), your application receives session tokens(access and refresh tokens) towards the [end of the login](/authenticate/fsa/complete-login/).
 
    <AuthResultTabsSection />
+
+   <Aside type="caution" title="Request offline_access to receive a refresh token">
+   A refresh token is only included in the authentication response when you include the `offline_access` scope in your authorization URL. If your authorization URL does not include `offline_access`, `authResult.refreshToken` will be `null` or undefined.
+
+    Always include `offline_access` alongside `openid`, `profile`, and `email` when building your authorization URL:
+
+    ```js
+    scopes: ['openid', 'profile', 'email', 'offline_access']
+    ```
+
+   Additionally, Scalekit **rotates refresh tokens** — every time you use a refresh token to get a new access token, you receive a new refresh token. Store the new refresh token immediately and discard the old one. Replaying a used refresh token will result in an error.
+   </Aside>
 
    Store each token based on its security requirements. For SPAs and mobile apps, consider storing access tokens in memory and sending via `Authorization: Bearer` headers to minimize CSRF exposure. For traditional web apps, use the cookie-based approach below:
    - **Access Token**: Store in a secure, HttpOnly cookie with proper `Path` scoping (e.g., `/api`) to prevent XSS attacks. This token has a short lifespan and provides access to protected resources.
@@ -215,7 +228,7 @@ This guide shows you how to store these tokens securely with encryption and prop
    Validate every request for a valid access token in your application. Create middleware to protect your application routes. This middleware validates the access token on every request to secured endpoints. For APIs, consider reading from `Authorization: Bearer` headers instead of cookies to minimize CSRF risk.
 
 
-   Here's an example middle ware method validating access token and refreshing the token if it's expired for every request.
+   Here's an example middleware method validating the access token and refreshing it if expired for every request.
 
    <Tabs syncKey="tech-stack">
      <TabItem value="node" label="Node.js">
@@ -486,6 +499,26 @@ This guide shows you how to store these tokens securely with encryption and prop
       ```
       </TabItem>
    </Tabs>
+
+   <details>
+   <summary>TypeScript: get typed claims from validateToken</summary>
+
+   Use a generic type parameter to get properly typed claims instead of `unknown`. Pass `JWTPayload` from `jose` for access tokens, or `IdTokenClaim` from `@scalekit-sdk/node` for ID tokens:
+
+   ```typescript
+   import type { JWTPayload } from 'jose';
+   import type { IdTokenClaim } from '@scalekit-sdk/node';
+
+   // Access token — typed as JWTPayload
+   const claims = await scalekit.validateToken<JWTPayload>(accessToken);
+   console.log(claims.sub); // user ID
+
+   // ID token — typed with full user profile claims
+   const idClaims = await scalekit.validateToken<IdTokenClaim>(idToken);
+   console.log(idClaims.email);
+   ```
+
+   </details>
 
 3. ## Configure session security and duration
 

@@ -1,6 +1,7 @@
 ---
 title: Troubleshooting MCP auth
 description: Troubleshooting guide for common errors while adding auth for MCP Servers
+tags: [mcp-auth, troubleshooting, errors, oauth2, debug, support]
 sidebar:
   label: "Troubleshooting MCP auth"
 tableOfContents:
@@ -23,6 +24,20 @@ This guide helps you diagnose and resolve common issues when integrating Scaleki
 Use this guide to troubleshoot setup problems, resolve CORS and network issues, understand client-specific behavior, and implement best practices for your authentication setup.
 
 ## Configuration & Setup Issues
+
+### I'm getting an access token but no refresh token
+
+Add the `offline_access` scope to your authorization request. Without it, Scalekit does not issue a refresh token alongside the access token.
+
+Include it with your other scopes:
+
+```
+openid profile email offline_access
+```
+
+Once added, subsequent logins will return both an access token and a refresh token.
+
+---
 
 ### My MCP server is not connecting to the MCP Inspector
 
@@ -67,6 +82,22 @@ This error typically occurs when your MCP client has cached an old MCP server do
 
 <Aside type="caution">
 Claude Desktop does not currently support clearing cached authentication data. As a workaround, use a different domain or subdomain for your MCP server, or contact Claude support for assistance.
+</Aside>
+
+### GitHub Copilot CLI: stale cached credentials after environment switch
+
+GitHub Copilot CLI caches OAuth client credentials locally. If you switch your Scalekit environment (for example, from US to EU), the cached `client_id` no longer matches the new environment and login fails with `unable to retrieve client by id`.
+
+**Resolution:**
+
+1. Locate and delete the cached OAuth config files:
+   ```sh
+   rm -rf ~/.copilot/mcp-oauth-config
+   ```
+2. Reconnect your MCP server in GitHub Copilot CLI — it will register a fresh client against the correct environment.
+
+<Aside type="note">
+If you cannot find the files using the path above, also check `~/.config/github-copilot/` for any cached MCP auth files.
 </Aside>
 
 ---
