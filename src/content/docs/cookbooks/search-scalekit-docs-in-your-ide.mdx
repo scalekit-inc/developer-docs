@@ -1,5 +1,5 @@
 ---
-title: 'Search Scalekit docs from your AI coding assistant'
+title: 'Search Scalekit docs with ref.tools in your AI coding assistant'
 description: 'Configure ref.tools MCP to search Scalekit documentation directly from Cursor, Claude Code, or Windsurf without leaving your IDE.'
 date: 2026-03-26
 tags: ['Agent auth', 'MCP']
@@ -146,29 +146,41 @@ You can also just ask naturally — most assistants will call the tool automatic
 
 ## Common mistakes
 
-**API key committed to git**
+<details>
+<summary>API key committed to git</summary>
 
 - **Symptom**: Your key appears in git history or a public repository
 - **Cause**: Config file with the key inline was committed
 - **Fix**: Use an environment variable (`$REF_API_KEY`) and add the config file to `.gitignore` if it contains real credentials
 
-**Wrong transport for your client**
+</details>
+
+<details>
+<summary>Wrong transport for your client</summary>
 
 - **Symptom**: MCP server fails to connect or appears as disconnected
 - **Cause**: Some clients only support stdio; others support both HTTP and stdio
 - **Fix**: Check your client's MCP documentation. Cursor and Claude Code support streamable HTTP. Older or less common clients may require stdio.
 
-**Server name not matching what the client expects**
+</details>
+
+<details>
+<summary>Server name not matching what the client expects</summary>
 
 - **Symptom**: Tool calls fail with "unknown tool" or the server doesn't appear in the tool list
 - **Cause**: The config key (e.g., `ref-context`) doesn't match what you reference in prompts, or the client uses a different config field name
 - **Fix**: Confirm the key in your config file matches the server name shown in your client's MCP settings panel
 
-**Tool not appearing after config change**
+</details>
+
+<details>
+<summary>Tool not appearing after config change</summary>
 
 - **Symptom**: You updated the config but the `ref_search_documentation` tool isn't available
 - **Cause**: The MCP connection wasn't refreshed
 - **Fix**: Fully restart your AI assistant, or use its MCP reload command (Claude Code: `claude mcp list` to verify; Cursor: reload the window)
+
+</details>
 
 ## Next steps
 
