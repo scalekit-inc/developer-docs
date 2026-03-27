@@ -1,0 +1,194 @@
+---
+title: 'Search Scalekit docs with ref.tools'
+description: 'Configure ref.tools MCP to search Scalekit documentation directly from Cursor, Claude Code, or Windsurf without leaving your IDE.'
+sidebar:
+  label: 'Search Scalekit docs in IDE'
+date: 2026-03-26
+tags: ['Agent auth', 'MCP']
+excerpt: >
+  Switching to a browser to look up Scalekit docs breaks your coding flow.
+  This cookbook shows you how to configure the ref.tools MCP server so your
+  AI coding assistant can search Scalekit documentation inline — in Cursor,
+  Claude Code, Windsurf, or any MCP-compatible client.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer'
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Every time you need to look up a Scalekit API, scope name, or configuration option, you break your flow: open a new tab, search the docs, copy the answer, switch back. With ref.tools configured as an MCP server, your AI coding assistant can search Scalekit documentation inline and return accurate, up-to-date answers without you leaving the editor. Setup takes about two minutes.
+
+## The problem
+
+AI coding assistants are good at generating code, but they have two failure modes when it comes to third-party docs:
+
+- **Hallucination** — The model invents an API that doesn't exist or gets parameter names wrong because its training data is incomplete
+- **Stale knowledge** — Even accurate training data goes out of date as SDKs and APIs evolve
+
+Both problems get worse when you're working with a narrowly scoped platform like Scalekit. The model may have seen very little training data about it, and what it did see may be outdated.
+
+The standard workaround is to paste docs into the chat manually — which means constant context-switching between your editor and a browser. ref.tools solves both problems by connecting your AI assistant directly to live Scalekit documentation through an MCP tool call.
+
+## Who needs this
+
+This cookbook is for you if:
+
+- ✅ You use Cursor, Claude Code, Windsurf, or another MCP-compatible AI assistant
+- ✅ You're building with Scalekit (auth, SSO, MCP servers, M2M, SCIM)
+- ✅ You want accurate, up-to-date answers without context-switching to a browser
+
+You **don't** need this if:
+
+- ❌ You prefer pasting docs into your chat manually
+- ❌ Your AI assistant doesn't support MCP
+
+## The solution
+
+[ref.tools](https://ref.tools) is a documentation search platform that indexes third-party docs — including Scalekit — and exposes them as an MCP tool called `ref_search_documentation`. Once you add the ref.tools MCP server to your AI assistant, you can prompt it to search Scalekit docs and it will call the tool and return current results directly in chat.
+
+The server supports two transports:
+
+- **Streamable HTTP** (recommended) — Direct HTTP connection using your API key; lower latency, no local process required
+- **stdio** (legacy) — Runs a local `npx` process; works with any MCP client that supports stdio
+
+## Set up ref.tools
+
+<Steps>
+1. ### Get your API key
+   1. Go to [ref.tools](https://ref.tools) and sign in
+   2. Search for **Scalekit** to confirm the documentation source is indexed
+   3. Open the **Quick Install** panel for Scalekit — your API key is pre-filled in the install commands
+   4. Copy your API key; you'll use it in the next step
+
+2. ### Add the MCP server to your AI assistant
+
+   Pick your tool and apply the matching configuration.
+
+   #### Claude Code
+
+   Run this command in your terminal to add the MCP server globally across all projects:
+
+   ```bash
+   claude mcp add --transport http ref-context https://api.ref.tools/mcp \
+     --header "x-ref-api-key: YOUR_API_KEY"
+   ```
+
+   To scope it to a single project instead, add `--scope project` to the command.
+
+   #### Cursor
+
+   Add the following to `.cursor/mcp.json` in your project root (or via **Settings → MCP**):
+
+   ```json title=".cursor/mcp.json"
+   {
+     "ref-context": {
+       "type": "http",
+       "url": "https://api.ref.tools/mcp?apiKey=YOUR_API_KEY"
+     }
+   }
+   ```
+
+   #### Windsurf
+
+   Add the following to `~/.codeium/windsurf/mcp_config.json`:
+
+   ```json title="~/.codeium/windsurf/mcp_config.json"
+   {
+     "ref-context": {
+       "serverUrl": "https://api.ref.tools/mcp?apiKey=YOUR_API_KEY"
+     }
+   }
+   ```
+
+   #### Other (stdio)
+
+   For any MCP client that supports stdio, add to your MCP config:
+
+   ```json title="mcp.json"
+   {
+     "ref-context": {
+       "command": "npx",
+       "args": ["ref-tools-mcp@latest"],
+       "env": {
+         "REF_API_KEY": "YOUR_API_KEY"
+       }
+     }
+   }
+   ```
+
+   This requires Node.js installed locally. The `npx` command fetches and runs the server on first use.
+
+3. ### Verify it's working
+   1. Restart your AI assistant (or use its MCP reload command if available)
+   2. Open a new chat and send this prompt:
+      ```
+      Use ref to look up how to add OAuth 2.1 authorization to an MCP server with Scalekit
+      ```
+   3. Your assistant should call the `ref_search_documentation` tool and return results from `docs.scalekit.com`
+
+   If the tool doesn't appear, check that you restarted the assistant after saving the config, and that the API key is correct.
+</Steps>
+
+<Aside type="caution" title="Keep your API key private">
+  Never commit your ref.tools API key to source control. For project-level configs checked into git, pass the key through an environment variable and reference it as `$REF_API_KEY` in your config, or add the config file to `.gitignore`.
+</Aside>
+
+## Example searches to try
+
+Once ref.tools is connected, use phrases like "use ref to..." or "look up in ref..." to trigger the tool explicitly:
+
+- `Use ref to find the Scalekit MCP auth quickstart`
+- `Look up how to configure SSO with Scalekit`
+- `Use ref to find Scalekit M2M token documentation`
+- `Search Scalekit docs for SCIM provisioning setup`
+- `Use ref to look up Scalekit SDK environment variables`
+
+You can also just ask naturally — most assistants will call the tool automatically when the question is about Scalekit.
+
+## Common mistakes
+
+<details>
+<summary>API key committed to git</summary>
+
+- **Symptom**: Your key appears in git history or a public repository
+- **Cause**: Config file with the key inline was committed
+- **Fix**: Use an environment variable (`$REF_API_KEY`) and add the config file to `.gitignore` if it contains real credentials
+
+</details>
+
+<details>
+<summary>Wrong transport for your client</summary>
+
+- **Symptom**: MCP server fails to connect or appears as disconnected
+- **Cause**: Some clients only support stdio; others support both HTTP and stdio
+- **Fix**: Check your client's MCP documentation. Cursor and Claude Code support streamable HTTP. Older or less common clients may require stdio.
+
+</details>
+
+<details>
+<summary>Server name not matching what the client expects</summary>
+
+- **Symptom**: Tool calls fail with "unknown tool" or the server doesn't appear in the tool list
+- **Cause**: The config key (e.g., `ref-context`) doesn't match what you reference in prompts, or the client uses a different config field name
+- **Fix**: Confirm the key in your config file matches the server name shown in your client's MCP settings panel
+
+</details>
+
+<details>
+<summary>Tool not appearing after config change</summary>
+
+- **Symptom**: You updated the config but the `ref_search_documentation` tool isn't available
+- **Cause**: The MCP connection wasn't refreshed
+- **Fix**: Fully restart your AI assistant, or use its MCP reload command (Claude Code: `claude mcp list` to verify; Cursor: reload the window)
+
+</details>
+
+## Next steps
+
+For further setup, authentication options, and available documentation sources, see the links below.
+
+- [Add OAuth 2.1 authorization to MCP servers](/authenticate/mcp/quickstart) — the most common thing developers look up using ref
+- [ref.tools](https://ref.tools) — browse all available documentation sources you can add alongside Scalekit
+- [M2M authentication overview](/guides/m2m/overview) — machine-to-machine auth patterns frequently searched via ref
