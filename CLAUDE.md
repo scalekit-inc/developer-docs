@@ -216,7 +216,43 @@ The `<Steps>` component requires a single continuous `<ol>`. Any broken indentat
    - ❌ WRONG — blank line after `<Steps>`
    - ✅ CORRECT — content starts immediately after `<Steps>`
 
+5. When `<Tabs>` appears inside a step, keep the entire tabs block inside that list item
+   - Indent `<Tabs>`, `<TabItem>`, paragraphs, and fenced code blocks with 3 spaces
+   - Add a blank line after `<TabItem ...>` before prose or code fences
+   - Close `</TabItem>` and `</Tabs>` at the same 3-space indentation level
+   - If a tabs block is not part of a specific numbered step, move it outside `</Steps>`
+
 **Quick mental model**: Treat the entire `<Steps>` block as a single continuous list. All content (steps, continuation text, images, sub-bullets) must be indented to stay within that list structure.
+
+**Safe pattern for `<Steps>` with tabs**:
+
+````mdx
+<Steps>
+1. ## Install dependencies
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="typescript" label="TypeScript">
+
+```bash
+pnpm install
+```
+
+   </TabItem>
+   <TabItem value="python" label="Python">
+
+```bash
+uv pip install -r requirements.txt
+```
+
+   </TabItem>
+   </Tabs>
+
+2. ## Continue with the next step
+
+   Add more content here.
+
+   </Steps>
+````
 
 ### Linking and references
 
