@@ -34,6 +34,11 @@ export default defineConfig({
   // The few SSR pages (auth, health, admin) already have `prerender = false`.
   // output: 'server',
   site: 'https://docs.scalekit.com',
+  server: {
+    // Match Netlify dev's readiness probe, which connects to `localhost`.
+    host: 'localhost',
+    port: 4321,
+  },
   redirects,
   integrations: [
     starlight({

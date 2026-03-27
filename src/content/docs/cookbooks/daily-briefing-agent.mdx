@@ -1,0 +1,591 @@
+---
+title: 'Build a daily briefing agent with Vercel AI SDK and Scalekit Agent Auth'
+description: 'Connect a TypeScript or Python agent to Google Calendar and Gmail via Scalekit Agent Auth to summarize your day — using two different integration patterns.'
+date: 2026-03-27
+tags: ['Agent auth']
+excerpt: >
+  Connecting an agent to two external APIs means handling two separate OAuth tokens, two authorization flows, and two different error surfaces. This recipe shows how Scalekit manages the OAuth lifecycle for both connectors, then demonstrates two patterns for calling those APIs: fetching a token and calling the REST API directly, versus letting Scalekit execute the call through a built-in action.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+A daily briefing agent needs two things: today's calendar events and the latest unread emails. Both live behind OAuth-protected APIs, and each requires its own token, its own authorization flow, and its own refresh logic. Before you write any scheduling logic, you're already maintaining two parallel token lifecycles.
+
+Scalekit eliminates that overhead. It stores one OAuth session per connector per user, handles token refresh automatically, and gives you a single API surface regardless of which provider you're talking to. This recipe shows how to use it with Google Calendar and Gmail — and demonstrates two patterns for consuming those credentials in your agent.
+
+**What this recipe covers:**
+
+- **OAuth token pattern** — Scalekit provides a valid token; your agent calls the Google Calendar REST API directly. Use this when you need full control over the request.
+- **Built-in action pattern** — Your agent calls `execute_tool("gmail_fetch_mails")`; Scalekit executes the Gmail API call and returns structured data. Use this when you want speed and don't need to customize the request.
+
+The complete source used here is available in the [vercel-ai-agent-toolkit](https://github.com/scalekit-developers/vercel-ai-agent-toolkit) repository, with a TypeScript implementation using the Vercel AI SDK and a Python implementation using the Anthropic SDK directly.
+
+### 1. Set up connections in Scalekit
+
+In the [Scalekit Dashboard](https://app.scalekit.com), create two connections under **Agent Auth → Connections**:
+
+- `googlecalendar` — Google Calendar OAuth connection
+- `gmail` — Gmail OAuth connection
+
+The connection names are identifiers your code references directly. They must match exactly.
+
+### 2. Install dependencies
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="typescript" label="TypeScript">
+
+    ```bash
+    cd typescript
+    pnpm install
+    ```
+
+    The `typescript/package.json` includes:
+
+    ```json
+    {
+      "dependencies": {
+        "ai": "^4.3.15",
+        "@ai-sdk/anthropic": "^1.2.12",
+        "@scalekit-sdk/node": "2.2.0-beta.1",
+        "zod": "^3.0.0",
+        "dotenv": "^16.0.0"
+      }
+    }
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+   ```bash
+   cd python
+   uv venv .venv
+   uv pip install -r requirements.txt
+   ```
+
+   The `python/requirements.txt` includes:
+
+   ```text
+   scalekit-sdk-python
+   anthropic
+   requests
+   python-dotenv
+   ```
+
+  </TabItem>
+</Tabs>
+
+### 3. Configure credentials
+
+Copy the example env file and fill in your credentials:
+
+   ```bash
+   cp typescript/.env.example typescript/.env   # TypeScript
+   cp typescript/.env.example python/.env       # Python (same variables)
+   ```
+
+   ```bash title=".env"
+   SCALEKIT_ENV_URL=https://your-env.scalekit.dev
+   SCALEKIT_CLIENT_ID=skc_...
+   SCALEKIT_CLIENT_SECRET=your-secret
+
+   ANTHROPIC_API_KEY=sk-ant-...
+   ```
+
+Get your Scalekit credentials at **app.scalekit.com → Settings → API Credentials**.
+
+### 4. Initialize the Scalekit client
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="typescript" label="TypeScript">
+
+    ```typescript
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb.js';
+    import 'dotenv/config';
+
+    // Never hard-code credentials — they would be exposed in source control.
+    // Pull them from environment variables at runtime.
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL!,
+      process.env.SCALEKIT_CLIENT_ID!,
+      process.env.SCALEKIT_CLIENT_SECRET!,
+    );
+
+    const USER_ID = 'user_123'; // Replace with the real user ID from your session
+    ```
+
+    `ConnectorStatus` is imported from the SDK's generated protobuf file. Compare `connectedAccount.status` against `ConnectorStatus.ACTIVE` rather than the string `'ACTIVE'` — TypeScript's type system enforces this.
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    import os
+    import json
+    import requests
+    from datetime import datetime, timezone
+    from dotenv import load_dotenv
+    import anthropic
+    import scalekit.client
+
+    load_dotenv()
+
+    # Never hard-code credentials — they would be exposed in source control.
+    # Pull them from environment variables at runtime.
+    scalekit_client = scalekit.client.ScalekitClient(
+        client_id=os.environ["SCALEKIT_CLIENT_ID"],
+        client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+        env_url=os.environ["SCALEKIT_ENV_URL"],
+    )
+    actions = scalekit_client.actions
+
+    USER_ID = "user_123"  # Replace with the real user ID from your session
+    ```
+
+    `scalekit_client.actions` is the entry point for all connected-account operations: creating accounts, generating auth links, fetching tokens, and executing built-in tools.
+  </TabItem>
+</Tabs>
+
+### 5. Ensure each connector is authorized
+
+Before calling any API, check whether the user has an active connected account. If not, print an authorization link and wait for them to complete the browser OAuth flow.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="typescript" label="TypeScript">
+
+    ```typescript
+    async function ensureConnected(connector: string) {
+      const { connectedAccount } =
+        await scalekit.connectedAccounts.getOrCreateConnectedAccount({
+          connector,
+          identifier: USER_ID,
+        });
+
+      if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
+        const { link } =
+          await scalekit.connectedAccounts.getMagicLinkForConnectedAccount({
+            connector,
+            identifier: USER_ID,
+          });
+        console.log(`\n[${connector}] Authorization required.`);
+        console.log(`Open this link:\n\n  ${link}\n`);
+        console.log('Press Enter once you have completed the OAuth flow...');
+        await new Promise<void>(resolve => {
+          process.stdin.resume();
+          process.stdin.once('data', () => { process.stdin.pause(); resolve(); });
+        });
+      }
+
+      return connectedAccount;
+    }
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    def ensure_connected(connector: str):
+        response = actions.get_or_create_connected_account(
+            connection_name=connector,
+            identifier=USER_ID,
+        )
+        connected_account = response.connected_account
+
+        if connected_account.status != "ACTIVE":
+            link_response = actions.get_authorization_link(
+                connection_name=connector,
+                identifier=USER_ID,
+            )
+            print(f"\n[{connector}] Authorization required.")
+            print(f"Open this link:\n\n  {link_response.link}\n")
+            input("Press Enter once you have completed the OAuth flow...")
+
+        return connected_account
+    ```
+  </TabItem>
+</Tabs>
+
+After the first successful authorization, `getOrCreateConnectedAccount` / `get_or_create_connected_account` returns an active account on all subsequent calls. Scalekit refreshes expired tokens automatically — your code never calls a token-refresh endpoint.
+
+### 6. Fetch calendar events using the OAuth token pattern
+
+For Google Calendar, retrieve a valid access token from Scalekit and call the Google Calendar REST API directly. This pattern gives you full control over query parameters, pagination, and error handling.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="typescript" label="TypeScript">
+
+    ```typescript
+    async function getAccessToken(connector: string): Promise<string> {
+      const response =
+        await scalekit.connectedAccounts.getConnectedAccountByIdentifier({
+          connector,
+          identifier: USER_ID,
+        });
+      const details = response?.connectedAccount?.authorizationDetails?.details;
+      if (details?.case === 'oauthToken' && details.value?.accessToken) {
+        return details.value.accessToken;
+      }
+      throw new Error(`No access token found for ${connector}`);
+    }
+    ```
+
+    Use this token in a tool that the LLM can call:
+
+    ```typescript
+    import { tool } from 'ai';
+    import { z } from 'zod';
+
+    const today = new Date();
+    const timeMin = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+    const timeMax = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).toISOString();
+
+    const calendarToken = await getAccessToken('googlecalendar');
+
+    const getCalendarEvents = tool({
+      description: "Fetch today's events from Google Calendar",
+      parameters: z.object({
+        maxResults: z.number().optional().default(5),
+      }),
+      execute: async ({ maxResults }) => {
+        const url = new URL('https://www.googleapis.com/calendar/v3/calendars/primary/events');
+        url.searchParams.set('timeMin', timeMin);
+        url.searchParams.set('timeMax', timeMax);
+        url.searchParams.set('maxResults', String(maxResults));
+        url.searchParams.set('orderBy', 'startTime');
+        url.searchParams.set('singleEvents', 'true');
+
+        const res = await fetch(url.toString(), {
+          headers: { Authorization: `Bearer ${calendarToken}` },
+        });
+        if (!res.ok) throw new Error(`Calendar API error: ${res.status}`);
+        const data = await res.json() as { items?: unknown[] };
+        return data.items ?? [];
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    def get_access_token(connector: str) -> str:
+        # get_connected_account always returns a fresh token —
+        # Scalekit refreshes expired tokens before returning.
+        response = actions.get_connected_account(
+            connection_name=connector,
+            identifier=USER_ID,
+        )
+        tokens = response.connected_account.authorization_details["oauth_token"]
+        return tokens["access_token"]
+
+    def fetch_calendar_events(access_token: str, max_results: int = 5) -> list:
+        today = datetime.now(timezone.utc).astimezone()
+        time_min = today.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+        time_max = today.replace(hour=23, minute=59, second=59, microsecond=0).isoformat()
+
+        resp = requests.get(
+            "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+            headers={"Authorization": f"Bearer {access_token}"},
+            params={
+                "timeMin": time_min,
+                "timeMax": time_max,
+                "maxResults": max_results,
+                "orderBy": "startTime",
+                "singleEvents": "true",
+            },
+        )
+        resp.raise_for_status()
+        return resp.json().get("items", [])
+    ```
+  </TabItem>
+</Tabs>
+
+### 7. Fetch emails using the built-in action pattern
+
+For Gmail, call `execute_tool` with the built-in `gmail_fetch_mails` action. Scalekit executes the Gmail API call using the stored token and returns structured data. You don't need to build the request, handle the token, or parse the response format.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="typescript" label="TypeScript">
+
+    ```typescript
+    const getUnreadEmails = tool({
+      description: 'Fetch top unread emails from Gmail via Scalekit actions',
+      parameters: z.object({
+        maxResults: z.number().optional().default(5),
+      }),
+      execute: async ({ maxResults }) => {
+        const response = await scalekit.tools.executeTool({
+          toolName: 'gmail_fetch_mails',
+          connectedAccountId: gmailAccount?.id,
+          params: {
+            query: 'is:unread',
+            max_results: maxResults,
+          },
+        });
+        return response.data?.toJson() ?? {};
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+    ```python
+    def fetch_unread_emails(connected_account_id: str, max_results: int = 5) -> dict:
+        response = actions.execute_tool(
+            tool_name="gmail_fetch_mails",
+            connected_account_id=connected_account_id,
+            tool_input={
+                "query": "is:unread",
+                "max_results": max_results,
+            },
+        )
+        return response.result
+    ```
+  </TabItem>
+</Tabs>
+
+The built-in action pattern trades flexibility for brevity. You can't customize headers or pagination, but you also don't need to read Gmail API documentation — the tool parameters are consistent across all Scalekit connectors. See [all supported agent connectors](/guides/integrations/agent-connectors/) for the full list of built-in tools.
+
+### 8. Wire the agent together
+
+Pass both tools to the LLM and ask for a daily summary.
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="typescript" label="TypeScript">
+
+    The TypeScript version uses the Vercel AI SDK's `generateText` with `maxSteps` to allow the LLM to call multiple tools in sequence before producing the final response.
+
+    ```typescript
+    import { generateText } from 'ai';
+    import { anthropic } from '@ai-sdk/anthropic';
+
+    const [calendarAccount, gmailAccount] = await Promise.all([
+      ensureConnected('googlecalendar'),
+      ensureConnected('gmail'),
+    ]);
+
+    const calendarToken = await getAccessToken('googlecalendar');
+
+    const { text } = await generateText({
+      model: anthropic('claude-sonnet-4-6'),
+      prompt: `Give me a summary of my day for ${today.toDateString()}: list today's calendar events and my top 5 unread emails.`,
+      tools: {
+        getCalendarEvents,
+        getUnreadEmails,
+      },
+      maxSteps: 5, // allow the LLM to call multiple tools before responding
+    });
+
+    console.log(text);
+    ```
+
+    `maxSteps` controls how many tool-call rounds the LLM can make before it must return a final text response. Without it, `generateText` stops after the first tool call.
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+   The Python version uses the Anthropic SDK directly with a manual agentic loop. The loop continues until the model returns `stop_reason == "end_turn"` with no pending tool calls.
+
+    ```python
+    def run_agent():
+        gmail_account = ensure_connected("gmail")
+        ensure_connected("googlecalendar")
+        calendar_token = get_access_token("googlecalendar")
+
+        client = anthropic.Anthropic()
+        today = datetime.now().strftime("%A, %B %d, %Y")
+
+        tools = [
+            {
+                "name": "get_calendar_events",
+                "description": "Fetch today's events from Google Calendar",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {"max_results": {"type": "integer", "default": 5}},
+                },
+            },
+            {
+                "name": "get_unread_emails",
+                "description": "Fetch top unread emails from Gmail via Scalekit actions",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {"max_results": {"type": "integer", "default": 5}},
+                },
+            },
+        ]
+
+        messages = [
+            {
+                "role": "user",
+                "content": f"Give me a summary of my day for {today}: list today's calendar events and my top 5 unread emails.",
+            }
+        ]
+
+        while True:
+            response = client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=1024,
+                tools=tools,
+                messages=messages,
+            )
+            messages.append({"role": "assistant", "content": response.content})
+
+            if response.stop_reason == "end_turn":
+                for block in response.content:
+                    if hasattr(block, "text"):
+                        print(block.text)
+                break
+
+            tool_results = []
+            for block in response.content:
+                if block.type == "tool_use":
+                    max_results = block.input.get("max_results", 5)
+                    if block.name == "get_calendar_events":
+                        result = fetch_calendar_events(calendar_token, max_results)
+                    elif block.name == "get_unread_emails":
+                        result = fetch_unread_emails(gmail_account.id, max_results)
+                    else:
+                        result = {"error": f"Unknown tool: {block.name}"}
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": json.dumps(result),
+                    })
+
+            if tool_results:
+                messages.append({"role": "user", "content": tool_results})
+            else:
+                break
+
+    if __name__ == "__main__":
+        run_agent()
+    ```
+  </TabItem>
+</Tabs>
+
+### 9. Testing
+
+Run the agent:
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="typescript" label="TypeScript">
+
+```bash
+cd typescript && pnpm start
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+```bash
+cd python && .venv/bin/python index.py
+```
+
+  </TabItem>
+</Tabs>
+
+On first run, you see two authorization prompts in sequence:
+
+```text
+[googlecalendar] Authorization required.
+Open this link:
+
+  https://auth.scalekit.dev/connect/...
+
+Press Enter once you have completed the OAuth flow...
+
+[gmail] Authorization required.
+Open this link:
+
+  https://auth.scalekit.dev/connect/...
+
+Press Enter once you have completed the OAuth flow...
+```
+
+After both connectors are authorized, the agent fetches your data and returns a summary:
+
+```text
+Here's your day for Friday, March 27, 2026:
+
+📅 Calendar — 3 events today
+• 9:00 AM  Team standup (30 min)
+• 1:00 PM  Product review
+• 4:00 PM  1:1 with manager
+
+📧 Unread emails — top 5
+• "Q1 roadmap feedback needed" — Sarah Chen, 1h ago
+• "Deploy failed: production" — GitHub Actions, 2h ago
+• "New PR review requested" — Lin Feng, 3h ago
+...
+```
+
+On subsequent runs, both authorization prompts are skipped. Scalekit returns the active session directly.
+
+## Common mistakes
+
+<details>
+<summary>Connection name mismatch</summary>
+
+- **Symptom**: `getOrCreateConnectedAccount` returns an error for `googlecalendar` or `gmail`
+- **Cause**: The connection name in the Scalekit Dashboard does not match the literal string in your code
+- **Fix**: Make the dashboard connection name match your code exactly, for example `googlecalendar` instead of `google-calendar`
+
+</details>
+
+<details>
+<summary>TypeScript status compared to a string</summary>
+
+- **Symptom**: TypeScript raises `TS2367` for `connectedAccount?.status !== 'ACTIVE'`
+- **Cause**: The SDK returns a `ConnectorStatus` enum, not a string literal
+- **Fix**: Import `ConnectorStatus` from the SDK's generated protobuf file and compare against `ConnectorStatus.ACTIVE`
+
+</details>
+
+<details>
+<summary>Python naive datetimes in API calls</summary>
+
+- **Symptom**: Google Calendar returns a `400` error for your event query
+- **Cause**: A naive `datetime` produces an ISO string without timezone information
+- **Fix**: Use `datetime.now(timezone.utc)` and call `.astimezone()` so the generated timestamps are timezone-aware
+
+</details>
+
+<details>
+<summary>`maxSteps` missing in the Vercel AI SDK</summary>
+
+- **Symptom**: `generateText` stops after the first tool call instead of returning a final summary
+- **Cause**: The model is not allowed to make enough tool-call rounds
+- **Fix**: Set `maxSteps` to at least `3`, and increase it if your workflow needs more than one tool call plus a final response
+
+</details>
+
+<details>
+<summary>`toolInput` used instead of `params`</summary>
+
+- **Symptom**: `executeTool` succeeds but the Gmail tool receives no parameters
+- **Cause**: `@scalekit-sdk/node` expects a `params` field, not `toolInput`
+- **Fix**: Pass tool arguments in `params`, for example `{ query: 'is:unread', max_results: 5 }`
+
+</details>
+
+## Production notes
+
+**User ID from session** — Both implementations hardcode `USER_ID = "user_123"`. In production, replace this with the real user identifier from your application's session. A mismatch means Scalekit looks up the wrong user's tokens.
+
+**Token freshness** — `getConnectedAccountByIdentifier` (TypeScript) and `get_connected_account` (Python) always return a fresh token — Scalekit refreshes it before returning if it has expired. You do not need to track expiry or call a refresh endpoint.
+
+**First-run blocking** — The authorization prompt blocks the process until the user completes OAuth in the browser. In a web application, redirect the user to `link` instead of printing it, and handle the callback before proceeding.
+
+**`execute_tool` response shape** — In Python, `response.result` is a dictionary whose structure depends on the tool. In TypeScript, `response.data?.toJson()` converts the protobuf response to a plain object. Log the raw response on first use to understand the shape before passing it to the LLM.
+
+**Rate limits** — The Google Calendar API and Gmail API both have per-user daily quotas. If your agent runs frequently, add exponential backoff around the API calls and cache calendar events across requests where freshness allows.
+
+## Next steps
+
+- **Add more connectors** — The same `ensureConnected` pattern works for any Scalekit-supported connector. Swap the connector name and replace the Google API calls with the target service's API. See [all supported connectors](/guides/integrations/agent-connectors/).
+- **Use the built-in Calendar action** — Scalekit also provides a `googlecalendar_list_events` built-in action. If you don't need custom query parameters, switch the Calendar tool to `execute_tool` and remove the `getAccessToken` call entirely.
+- **Stream the response** — Replace `generateText` with `streamText` in the Vercel AI SDK to stream the LLM's summary token-by-token instead of waiting for the full response.
+- **Handle re-authorization** — If a user revokes access, `getOrCreateConnectedAccount` returns an inactive account. Add a re-authorization path to recover gracefully instead of crashing.
+- **Review the agent auth quickstart** — For a broader overview of the connected-accounts model and supported providers, see the [agent auth quickstart](/agent-auth/quickstart/).
