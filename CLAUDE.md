@@ -240,7 +240,7 @@ pnpm install
 
    Add more content here.
 
-   </Steps>
+</Steps>
 ````
 
 Use normal section headings instead of `<Steps>` when the content is mostly `<Tabs>`, long JSX blocks, or multiple embedded components.
