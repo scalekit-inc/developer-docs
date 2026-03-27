@@ -24,6 +24,7 @@ import d2 from 'astro-d2' // https://astro-d2.vercel.app/configuration/
 import Icons from 'unplugin-icons/vite'
 
 import netlify from '@astrojs/netlify'
+import openapiToMarkdown from './src/integrations/openapi-markdown'
 
 // https://astro.build/config
 export default defineConfig({
@@ -310,6 +311,7 @@ export default defineConfig({
       layout: 'elk', // ELK layout engine for better positioning
       pad: 5,
     }),
+    openapiToMarkdown(),
   ],
 
   image: {
