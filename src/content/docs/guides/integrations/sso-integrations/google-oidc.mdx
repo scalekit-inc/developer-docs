@@ -1,0 +1,78 @@
+---
+title: "Google Workspace - OIDC"
+description: "Learn how to set up OpenID Connect (OIDC) Single Sign-On (SSO) using Google Workspace, with step-by-step instructions for app registration and client configuration."
+prev: false
+next: false
+sidebar:
+  order: 10
+  label: "Google Workspace"
+  badge:
+    variant: note
+    text: OIDC
+---
+
+import { Steps, Aside } from "@astrojs/starlight/components"
+
+This guide walks you through configuring Google Workspace as your OIDC identity provider. You'll create a Google OAuth app, configure an OAuth client, provide the required OIDC values in the SSO Configuration Portal, test the connection, and then enable Single Sign-On.
+
+<Steps>
+1. ## Create an OAuth App
+
+   Sign in to **Google Cloud Console** and open the project you want to use for this integration. Search for **Google Auth Platform** and open it from the results list.
+
+   ![Search for Google Auth Platform in Google Cloud Console](@/assets/docs/guides/sso-integrations/google-oidc/google-auth-platform-search.png)
+
+   Click **Get started** to begin the OAuth app setup.
+
+   ![Google Auth Platform overview with Get started button](@/assets/docs/guides/sso-integrations/google-oidc/google-auth-platform-get-started.png)
+
+   Enter the **App Information** and select the appropriate **User support email**.
+   ![Google OAuth app configuration flow](@/assets/docs/guides/sso-integrations/google-oidc/google-oauth-app-information.png)
+
+   Select the **Audience** as **Internal** and click **Next**.
+   ![Google OAuth consent screen with Internal audience selected](@/assets/docs/guides/sso-integrations/google-oidc/google-oauth-app-audience-internal.png)
+
+   Add the relevant email address in the **Contact Information** and click **Next**.
+   ![Google OAuth consent screen contact information step](@/assets/docs/guides/sso-integrations/google-oidc/google-oauth-app-contact-information.png)
+
+   Agree to Google's policy and click **Continue** and then **Create**.
+   ![Google OAuth consent screen policy agreement and Create button](@/assets/docs/guides/sso-integrations/google-oidc/google-oauth-app-create-confirmation.png)
+
+2. ## Create OAuth Client
+
+   From the left-side menu, navigate to **Clients** and click **Create client**.
+   ![Google Auth Platform Clients page with Create client button](@/assets/docs/guides/sso-integrations/google-oidc/google-clients-create-client.png)
+
+   In Application type dropdown, select **Web Application** and add **Name** for the client.
+   ![Create OAuth client form with Web application selected and client name entered](@/assets/docs/guides/sso-integrations/google-oidc/google-oauth-client-type-and-name.png)
+
+   Copy the **Redirect URI** from **SSO Configuration Portal**.
+   ![SSO Configuration Portal showing the Google OIDC Redirect URI](@/assets/docs/guides/sso-integrations/google-oidc/google-sso-portal-redirect-uri.png)
+
+   On **Google console**, under the **Authorized redirect URIs**, click **Add URI**. Add the above copied URI to this field and click **Create**.
+   ![Google OAuth client form with Authorized redirect URIs section](@/assets/docs/guides/sso-integrations/google-oidc/google-oauth-client-authorized-redirect-uri.png)
+
+3. ## Provide Client Credentials
+
+   After the client is created, copy the **Client ID** and **Client Secret** from Google Cloud.
+   ![Google Cloud OAuth client details showing Client ID and Client Secret](@/assets/docs/guides/sso-integrations/google-oidc/google-client-id-and-secret.png)
+
+   Add the above values under **Identity Provider Configuration** in the **SSO Configuration Portal**. For **Issuer URL**, use `https://accounts.google.com`. Once all values are entered, click **Update**.
+   ![SSO Configuration Portal fields for Google Client ID and Client Secret](@/assets/docs/guides/sso-integrations/google-oidc/google-sso-portal-client-credentials.png)
+   ![SSO Configuration Portal showing the Google Issuer URL after update](@/assets/docs/guides/sso-integrations/google-oidc/google-sso-portal-issuer-url.png)
+
+4. ## Test Connection
+
+   In the **SSO Configuration Portal**, click **Test Connection**. If everything is configured correctly, you will see a **Success** response.
+
+   <Aside type="note">
+   If the connection fails, you'll see an error, the reason for the error, and a way to solve that error right on the screen.
+   </Aside>
+
+5. ## Enable Single Sign-On
+
+   Once the test succeeds, click **Enable Connection** to allow users in your organization to sign in with Google Workspace OIDC.
+   ![SSO Configuration Portal with Enable Connection button for Google Workspace OIDC](@/assets/docs/guides/sso-integrations/google-oidc/google-enable-connection.png)
+
+   This completes the Google Workspace OIDC SSO setup for your application.
+</Steps>
