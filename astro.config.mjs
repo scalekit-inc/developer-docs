@@ -108,7 +108,7 @@ export default defineConfig({
           prompt: pageActionsPrompt,
           actions: {
             markdown: true,
-            chatgpt: true,
+            chatgpt: false,
             claude: true,
             custom: {
               cursor: {
@@ -299,6 +299,7 @@ export default defineConfig({
       },
     }),
     d2({
+      skipGeneration: !!process.env['NETLIFY'],
       theme: {
         default: '1', // Light theme (Neutral default)
         dark: '1',

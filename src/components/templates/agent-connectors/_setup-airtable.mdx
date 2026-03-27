@@ -1,36 +1,48 @@
-import { Steps } from '@astrojs/starlight/components'
+import { Steps, Aside } from '@astrojs/starlight/components'
 
 Register your Scalekit environment with the Airtable connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
 
 <Steps>
-1. ### Set up auth redirects
+1. ### Create the Airtable connection in Scalekit
 
-    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Airtable** and click **Create**. Copy the redirect URI. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Actions** → **Connections** and click **+ Create Connection**. Search for **Airtable** and click **Create**.
 
-      ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/airtable/use-own-credentials-redirect-uri.png)
+     ![Search for Airtable and create a new connection](@/assets/docs/agent-connectors/airtable/create-airtable-connection.png)
 
-    - In the [Airtable Developer Hub](https://airtable.com/developers), open your app and navigate to the **OAuth** section.
+   - In the **Configure Airtable Connection** dialog, copy the **Redirect URI**. You will need this when registering your OAuth integration in Airtable.
 
-    - Under **Redirect URIs**, click **Add a redirect URI** and paste the copied URI.
+     ![Copy the redirect URI from the Configure Airtable Connection dialog](@/assets/docs/agent-connectors/airtable/configure-airtable-connection.png)
 
-      ![Add redirect URI in Airtable Developer Hub](@/assets/docs/agent-connectors/airtable/add-redirect-uri.png)
+2. ### Register an OAuth integration in Airtable
 
-2. ### Get client credentials
+   - Go to the [Airtable Builder Hub](https://airtable.com/create/oauth) and navigate to **OAuth integrations**. Click **Register an OAuth integration**.
 
-    On your Airtable app page in the [Airtable Developer Hub](https://airtable.com/developers):
+     ![OAuth integrations page in Airtable Builder Hub](@/assets/docs/agent-connectors/airtable/airtable-oauth-integrations.png)
 
-    - **Client ID** — found under **Client ID** on your app page
-    - **Client Secret** — found under **Client Secret** on your app page
+   - Fill in your integration details (name, description, and other required fields).
 
-3. ### Add credentials in Scalekit
+   - Under **OAuth redirect URLs**, paste the redirect URI you copied from the Scalekit dashboard.
 
-    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+3. ### Get your client credentials
 
-    - Enter your credentials:
-      - Client ID (from your Airtable app page)
-      - Client Secret (from your Airtable app page)
-      - Permissions (scopes — see [Airtable OAuth scopes reference](https://airtable.com/developers/web/api/scopes))
+   - On your OAuth integration page in the Airtable Builder Hub, find the **Developer details** section.
 
-      ![Add credentials for Airtable in Scalekit dashboard](@/assets/docs/agent-connectors/airtable/add-credentials.png)
-    - Click **Save**.
+   - Copy the **Client ID**.
+
+   - Click **Generate client secret** and copy the secret value immediately.
+
+     ![Copy Client ID and generate a client secret from Airtable developer details](@/assets/docs/agent-connectors/airtable/airtable-developer-details.png)
+
+4. ### Add credentials in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Actions** → **Connections** and open the Airtable connection you created.
+
+   - Enter your credentials:
+     - **Client ID** — from the Airtable developer details
+     - **Client Secret** — the generated secret from Airtable
+     - **Scopes** — select the permissions your app needs (for example, `data.records:read`, `data.records:write`, `schema.bases:read`, `schema.bases:write`, `webhook.manage`). See [Airtable OAuth scopes reference](https://airtable.com/developers/web/api/scopes) for the full list.
+
+     ![Airtable credentials entered in the Scalekit connection configuration](@/assets/docs/agent-connectors/airtable/airtable-credentials-filled.png)
+
+   - Click **Save**.
 </Steps>

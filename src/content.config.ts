@@ -61,16 +61,16 @@ export const collections = {
       // githubToken defaults to GITHUB_TOKEN environment variable if not provided
     }),
   }),
-  // SDK Reference Documentation - Fetches reference.md from SDK repositories
+  // SDK Reference Documentation - Fetches REFERENCE.md from SDK repositories
   // Each entry contains the markdown content from the SDK's reference documentation
-  // Note: Expo SDK doesn't have reference.md yet - only Overview page
+  // Note: Expo SDK doesn't have REFERENCE.md yet - only Overview page
   'sdk-references': defineCollection({
     loader: githubFilesLoader({
       files: [
-        { repo: 'scalekit-inc/scalekit-sdk-node', path: 'reference.md', id: 'node' },
-        { repo: 'scalekit-inc/scalekit-sdk-python', path: 'reference.md', id: 'python' },
-        { repo: 'scalekit-inc/scalekit-sdk-go', path: 'reference.md', id: 'go' },
-        { repo: 'scalekit-inc/scalekit-sdk-java', path: 'reference.md', id: 'java' },
+        { repo: 'scalekit-inc/scalekit-sdk-node', path: 'REFERENCE.md', id: 'node' },
+        { repo: 'scalekit-inc/scalekit-sdk-python', path: 'REFERENCE.md', id: 'python' },
+        { repo: 'scalekit-inc/scalekit-sdk-go', path: 'REFERENCE.md', id: 'go' },
+        { repo: 'scalekit-inc/scalekit-sdk-java', path: 'REFERENCE.md', id: 'java' },
       ],
     }),
     schema: z.object({
