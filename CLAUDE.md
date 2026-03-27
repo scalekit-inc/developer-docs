@@ -12,9 +12,15 @@ This file is the **single source of truth** for all documentation standards and 
 
 Every feature must include comprehensive, user-focused documentation. Documentation is not an afterthought but a first-class deliverable that guides implementation. All code changes require corresponding documentation updates.
 
-### Git Commits
+### Git workflow
 
 - Do NOT include `Co-Authored-By` lines in commit messages
+- **At the start of a fresh session, before making any changes**, ask the user: "Do you want me to cut a new branch or work on the current branch?"
+  - Branch names must follow the pattern `preview/<name>` where `<name>` contains no forward slashes
+- **Never force push** (`git push --force` or `git push -f`). If a push fails, stop and clearly explain the reason it failed — do not attempt workarounds without user confirmation.
+- **Once the user confirms local testing works, or explicitly asks to commit and push**, commit all changes, push the branch, and open a PR against `main`. The PR must include:
+  - A crisp description of the changes
+  - A preview link in the format: `https://deploy-preview-{PR_NUMBER}--scalekit-starlight.netlify.app/{path-to-changed-page}/`
 
 ### SDK variable names (critical)
 
