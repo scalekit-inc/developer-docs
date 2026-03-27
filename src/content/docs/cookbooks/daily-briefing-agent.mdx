@@ -13,7 +13,7 @@ authors:
     picture: '/images/blog/authors/saif.png'
 ---
 
-import { Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+import { TabItem, Tabs } from '@astrojs/starlight/components';
 
 A daily briefing agent needs two things: today's calendar events and the latest unread emails. Both live behind OAuth-protected APIs, and each requires its own token, its own authorization flow, and its own refresh logic. Before you write any scheduling logic, you're already maintaining two parallel token lifecycles.
 
@@ -26,20 +26,19 @@ Scalekit eliminates that overhead. It stores one OAuth session per connector per
 
 The complete source used here is available in the [vercel-ai-agent-toolkit](https://github.com/scalekit-developers/vercel-ai-agent-toolkit) repository, with a TypeScript implementation using the Vercel AI SDK and a Python implementation using the Anthropic SDK directly.
 
-<Steps>
-1. ### Set up connections in Scalekit
+### 1. Set up connections in Scalekit
 
-   In the [Scalekit Dashboard](https://app.scalekit.com), create two connections under **Agent Auth → Connections**:
+In the [Scalekit Dashboard](https://app.scalekit.com), create two connections under **Agent Auth → Connections**:
 
-   - `googlecalendar` — Google Calendar OAuth connection
-   - `gmail` — Gmail OAuth connection
+- `googlecalendar` — Google Calendar OAuth connection
+- `gmail` — Gmail OAuth connection
 
-   The connection names are identifiers your code references directly. They must match exactly.
+The connection names are identifiers your code references directly. They must match exactly.
 
-2. ### Install dependencies
+### 2. Install dependencies
 
-   <Tabs syncKey="tech-stack">
-   <TabItem value="typescript" label="TypeScript">
+<Tabs syncKey="tech-stack">
+  <TabItem value="typescript" label="TypeScript">
 
     ```bash
     cd typescript
@@ -60,8 +59,8 @@ The complete source used here is available in the [vercel-ai-agent-toolkit](http
     }
     ```
 
-   </TabItem>
-   <TabItem value="python" label="Python">
+  </TabItem>
+  <TabItem value="python" label="Python">
 
    ```bash
    cd python
@@ -78,12 +77,12 @@ The complete source used here is available in the [vercel-ai-agent-toolkit](http
    python-dotenv
    ```
 
-   </TabItem>
-   </Tabs>
+  </TabItem>
+</Tabs>
 
-3. ### Configure credentials
+### 3. Configure credentials
 
-   Copy the example env file and fill in your credentials:
+Copy the example env file and fill in your credentials:
 
    ```bash
    cp typescript/.env.example typescript/.env   # TypeScript
@@ -98,12 +97,12 @@ The complete source used here is available in the [vercel-ai-agent-toolkit](http
    ANTHROPIC_API_KEY=sk-ant-...
    ```
 
-   Get your Scalekit credentials at **app.scalekit.com → Settings → API Credentials**.
+Get your Scalekit credentials at **app.scalekit.com → Settings → API Credentials**.
 
-4. ### Initialize the Scalekit client
+### 4. Initialize the Scalekit client
 
-   <Tabs syncKey="tech-stack">
-   <TabItem value="typescript" label="TypeScript">
+<Tabs syncKey="tech-stack">
+  <TabItem value="typescript" label="TypeScript">
 
     ```typescript
     import { ScalekitClient } from '@scalekit-sdk/node';
@@ -122,8 +121,8 @@ The complete source used here is available in the [vercel-ai-agent-toolkit](http
     ```
 
     `ConnectorStatus` is imported from the SDK's generated protobuf file. Compare `connectedAccount.status` against `ConnectorStatus.ACTIVE` rather than the string `'ACTIVE'` — TypeScript's type system enforces this.
-   </TabItem>
-   <TabItem value="python" label="Python">
+  </TabItem>
+  <TabItem value="python" label="Python">
 
     ```python
     import os
@@ -149,15 +148,15 @@ The complete source used here is available in the [vercel-ai-agent-toolkit](http
     ```
 
     `scalekit_client.actions` is the entry point for all connected-account operations: creating accounts, generating auth links, fetching tokens, and executing built-in tools.
-   </TabItem>
-   </Tabs>
+  </TabItem>
+</Tabs>
 
-5. ## Ensure each connector is authorized
+### 5. Ensure each connector is authorized
 
-   Before calling any API, check whether the user has an active connected account. If not, print an authorization link and wait for them to complete the browser OAuth flow.
+Before calling any API, check whether the user has an active connected account. If not, print an authorization link and wait for them to complete the browser OAuth flow.
 
-   <Tabs syncKey="tech-stack">
-   <TabItem value="typescript" label="TypeScript">
+<Tabs syncKey="tech-stack">
+  <TabItem value="typescript" label="TypeScript">
 
     ```typescript
     async function ensureConnected(connector: string) {
@@ -185,8 +184,8 @@ The complete source used here is available in the [vercel-ai-agent-toolkit](http
       return connectedAccount;
     }
     ```
-   </TabItem>
-   <TabItem value="python" label="Python">
+  </TabItem>
+  <TabItem value="python" label="Python">
 
     ```python
     def ensure_connected(connector: str):
@@ -207,17 +206,17 @@ The complete source used here is available in the [vercel-ai-agent-toolkit](http
 
         return connected_account
     ```
-   </TabItem>
-   </Tabs>
+  </TabItem>
+</Tabs>
 
-   After the first successful authorization, `getOrCreateConnectedAccount` / `get_or_create_connected_account` returns an active account on all subsequent calls. Scalekit refreshes expired tokens automatically — your code never calls a token-refresh endpoint.
+After the first successful authorization, `getOrCreateConnectedAccount` / `get_or_create_connected_account` returns an active account on all subsequent calls. Scalekit refreshes expired tokens automatically — your code never calls a token-refresh endpoint.
 
-6. ### Fetch calendar events using the OAuth token pattern
+### 6. Fetch calendar events using the OAuth token pattern
 
-   For Google Calendar, retrieve a valid access token from Scalekit and call the Google Calendar REST API directly. This pattern gives you full control over query parameters, pagination, and error handling.
+For Google Calendar, retrieve a valid access token from Scalekit and call the Google Calendar REST API directly. This pattern gives you full control over query parameters, pagination, and error handling.
 
-   <Tabs syncKey="tech-stack">
-   <TabItem value="typescript" label="TypeScript">
+<Tabs syncKey="tech-stack">
+  <TabItem value="typescript" label="TypeScript">
 
     ```typescript
     async function getAccessToken(connector: string): Promise<string> {
@@ -268,8 +267,8 @@ The complete source used here is available in the [vercel-ai-agent-toolkit](http
       },
     });
     ```
-   </TabItem>
-   <TabItem value="python" label="Python">
+  </TabItem>
+  <TabItem value="python" label="Python">
 
     ```python
     def get_access_token(connector: str) -> str:
@@ -301,15 +300,15 @@ The complete source used here is available in the [vercel-ai-agent-toolkit](http
         resp.raise_for_status()
         return resp.json().get("items", [])
     ```
-   </TabItem>
-   </Tabs>
+  </TabItem>
+</Tabs>
 
-7. ### Fetch emails using the built-in action pattern
+### 7. Fetch emails using the built-in action pattern
 
-   For Gmail, call `execute_tool` with the built-in `gmail_fetch_mails` action. Scalekit executes the Gmail API call using the stored token and returns structured data. You don't need to build the request, handle the token, or parse the response format.
+For Gmail, call `execute_tool` with the built-in `gmail_fetch_mails` action. Scalekit executes the Gmail API call using the stored token and returns structured data. You don't need to build the request, handle the token, or parse the response format.
 
-   <Tabs syncKey="tech-stack">
-   <TabItem value="typescript" label="TypeScript">
+<Tabs syncKey="tech-stack">
+  <TabItem value="typescript" label="TypeScript">
 
     ```typescript
     const getUnreadEmails = tool({
@@ -330,8 +329,8 @@ The complete source used here is available in the [vercel-ai-agent-toolkit](http
       },
     });
     ```
-    </TabItem>
-    <TabItem value="python" label="Python">
+  </TabItem>
+  <TabItem value="python" label="Python">
 
     ```python
     def fetch_unread_emails(connected_account_id: str, max_results: int = 5) -> dict:
@@ -345,17 +344,17 @@ The complete source used here is available in the [vercel-ai-agent-toolkit](http
         )
         return response.result
     ```
-   </TabItem>
-   </Tabs>
+  </TabItem>
+</Tabs>
 
-   The built-in action pattern trades flexibility for brevity. You can't customize headers or pagination, but you also don't need to read Gmail API documentation — the tool parameters are consistent across all Scalekit connectors. See [all supported agent connectors](/guides/integrations/agent-connectors/) for the full list of built-in tools.
+The built-in action pattern trades flexibility for brevity. You can't customize headers or pagination, but you also don't need to read Gmail API documentation — the tool parameters are consistent across all Scalekit connectors. See [all supported agent connectors](/guides/integrations/agent-connectors/) for the full list of built-in tools.
 
-8. ### Wire the agent together
+### 8. Wire the agent together
 
-   Pass both tools to the LLM and ask for a daily summary.
+Pass both tools to the LLM and ask for a daily summary.
 
-   <Tabs syncKey="tech-stack">
-   <TabItem value="typescript" label="TypeScript">
+<Tabs syncKey="tech-stack">
+  <TabItem value="typescript" label="TypeScript">
 
     The TypeScript version uses the Vercel AI SDK's `generateText` with `maxSteps` to allow the LLM to call multiple tools in sequence before producing the final response.
 
@@ -384,8 +383,8 @@ The complete source used here is available in the [vercel-ai-agent-toolkit](http
     ```
 
     `maxSteps` controls how many tool-call rounds the LLM can make before it must return a final text response. Without it, `generateText` stops after the first tool call.
-   </TabItem>
-   <TabItem value="python" label="Python">
+  </TabItem>
+  <TabItem value="python" label="Python">
 
    The Python version uses the Anthropic SDK directly with a manual agentic loop. The loop continues until the model returns `stop_reason == "end_turn"` with no pending tool calls.
 
@@ -463,11 +462,10 @@ The complete source used here is available in the [vercel-ai-agent-toolkit](http
     if __name__ == "__main__":
         run_agent()
     ```
-   </TabItem>
-   </Tabs>
-</Steps>
+  </TabItem>
+</Tabs>
 
-### Testing
+### 9. Testing
 
 Run the agent:
 
@@ -525,17 +523,52 @@ Here's your day for Friday, March 27, 2026:
 
 On subsequent runs, both authorization prompts are skipped. Scalekit returns the active session directly.
 
-### Common mistakes
+## Common mistakes
 
-- **Connection name mismatch** — If you create the Scalekit connection as `google-calendar` but pass `googlecalendar` in code (or vice versa), `getOrCreateConnectedAccount` returns an error. The connection name in the dashboard must match the string in your code exactly.
+<details>
+<summary>Connection name mismatch</summary>
 
-- **TypeScript: comparing status to a string** — `connectedAccount?.status !== 'ACTIVE'` causes a TypeScript error (`TS2367`) because the SDK's status field is a `ConnectorStatus` enum, not a string. Import `ConnectorStatus` from the SDK's protobuf file and compare against `ConnectorStatus.ACTIVE`.
+- **Symptom**: `getOrCreateConnectedAccount` returns an error for `googlecalendar` or `gmail`
+- **Cause**: The connection name in the Scalekit Dashboard does not match the literal string in your code
+- **Fix**: Make the dashboard connection name match your code exactly, for example `googlecalendar` instead of `google-calendar`
 
-- **Python: naive datetimes in API calls** — Constructing a `datetime` without `timezone.utc` produces an ISO string without a `Z` suffix. Google Calendar rejects this with a `400` error. Always use `datetime.now(timezone.utc)` and call `.astimezone()` to get a timezone-aware local time.
+</details>
 
-- **`maxSteps` missing in Vercel AI SDK** — Without `maxSteps`, `generateText` stops after the first tool call result and returns before the LLM has a chance to summarize. Set `maxSteps` to at least `3` (one round per tool, plus a final summary pass).
+<details>
+<summary>TypeScript status compared to a string</summary>
 
-- **`toolInput` vs `params`** — In `@scalekit-sdk/node`, `executeTool` uses a `params` field, not `toolInput`. Passing `toolInput` fails silently: the call succeeds but the tool receives no parameters.
+- **Symptom**: TypeScript raises `TS2367` for `connectedAccount?.status !== 'ACTIVE'`
+- **Cause**: The SDK returns a `ConnectorStatus` enum, not a string literal
+- **Fix**: Import `ConnectorStatus` from the SDK's generated protobuf file and compare against `ConnectorStatus.ACTIVE`
+
+</details>
+
+<details>
+<summary>Python naive datetimes in API calls</summary>
+
+- **Symptom**: Google Calendar returns a `400` error for your event query
+- **Cause**: A naive `datetime` produces an ISO string without timezone information
+- **Fix**: Use `datetime.now(timezone.utc)` and call `.astimezone()` so the generated timestamps are timezone-aware
+
+</details>
+
+<details>
+<summary>`maxSteps` missing in the Vercel AI SDK</summary>
+
+- **Symptom**: `generateText` stops after the first tool call instead of returning a final summary
+- **Cause**: The model is not allowed to make enough tool-call rounds
+- **Fix**: Set `maxSteps` to at least `3`, and increase it if your workflow needs more than one tool call plus a final response
+
+</details>
+
+<details>
+<summary>`toolInput` used instead of `params`</summary>
+
+- **Symptom**: `executeTool` succeeds but the Gmail tool receives no parameters
+- **Cause**: `@scalekit-sdk/node` expects a `params` field, not `toolInput`
+- **Fix**: Pass tool arguments in `params`, for example `{ query: 'is:unread', max_results: 5 }`
+
+</details>
 
 ## Production notes
 

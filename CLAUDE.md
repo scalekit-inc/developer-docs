@@ -212,40 +212,29 @@ The `<Steps>` component requires a single continuous `<ol>`. Any broken indentat
    - ❌ WRONG — 4 spaces, or blank line before the bullets
    - ✅ CORRECT — 3 spaces, no blank line before bullets
 
-4. No blank line immediately after `<Steps>` opening tag
-   - ❌ WRONG — blank line after `<Steps>`
-   - ✅ CORRECT — content starts immediately after `<Steps>`
+4. A blank line after `<Steps>` is allowed
+   - Starlight documents `<Steps>` as wrapping a normal Markdown ordered list
+   - The important rule is that the content must still parse as one ordered list
 
-5. When `<Tabs>` appears inside a step, keep the entire tabs block inside that list item
-   - Indent `<Tabs>`, `<TabItem>`, paragraphs, and fenced code blocks with 3 spaces
-   - Add a blank line after `<TabItem ...>` before prose or code fences
-   - Close `</TabItem>` and `</Tabs>` at the same 3-space indentation level
-   - If a tabs block is not part of a specific numbered step, move it outside `</Steps>`
+5. Prefer plain Markdown inside `<Steps>`
+   - Standard Markdown content inside steps is the most reliable pattern
+   - If a procedure contains mostly `<Tabs>` or other JSX-heavy blocks, prefer normal H2 sections instead of `<Steps>`
+
+6. When `<Tabs>` appears inside a step, keep the entire tabs block inside that list item
+   - Indent `<Tabs>`, `<TabItem>`, paragraphs, and fenced code blocks consistently under that step
+   - If the structure becomes fragile or hard to format, move the tabs block outside `</Steps>` or replace the whole procedure with standard section headings
 
 **Quick mental model**: Treat the entire `<Steps>` block as a single continuous list. All content (steps, continuation text, images, sub-bullets) must be indented to stay within that list structure.
 
-**Safe pattern for `<Steps>` with tabs**:
+**Safe baseline pattern for `<Steps>`**:
 
 ````mdx
 <Steps>
 1. ## Install dependencies
 
-   <Tabs syncKey="tech-stack">
-   <TabItem value="typescript" label="TypeScript">
-
 ```bash
 pnpm install
 ```
-
-   </TabItem>
-   <TabItem value="python" label="Python">
-
-```bash
-uv pip install -r requirements.txt
-```
-
-   </TabItem>
-   </Tabs>
 
 2. ## Continue with the next step
 
@@ -253,6 +242,8 @@ uv pip install -r requirements.txt
 
    </Steps>
 ````
+
+Use normal section headings instead of `<Steps>` when the content is mostly `<Tabs>`, long JSX blocks, or multiple embedded components.
 
 ### Linking and references
 
