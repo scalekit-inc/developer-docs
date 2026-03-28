@@ -224,7 +224,7 @@ export const sidebar = [
       },
       {
         label: 'AI tools',
-        collapsed: true,
+        collapsed: false,
         items: [
           'dev-kit/ai-assisted-development/scalekit-mcp-server',
           'dev-kit/resources/ai-assisted-setup',
