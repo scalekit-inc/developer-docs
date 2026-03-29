@@ -1857,24 +1857,9 @@
         },
         "x-codeSamples": [
           {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const { clients } = await scalekit.m2m.listOrganizationClients(\"org_123\", { pageSize: 30 });\nfor (const client of clients) {\n  console.log(client.clientId, client.name);\n}"
-          },
-          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "response = scalekit_client.m2m_client.list_organization_clients(\n    organization_id=\"org_123\",\n    page_size=30\n)\nfor client in response.clients:\n    print(f\"Client ID: {client.id}, Name: {client.name}\")"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "resp, err := scalekitClient.M2M().ListOrganizationClients(ctx, \"org_123\", scalekit.ListOrganizationClientsOptions{\n    PageSize: 30,\n})\nif err != nil {\n    // handle error\n}\nfor _, c := range resp.Clients {\n    fmt.Println(c.ClientId, c.Name)\n}"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "ListOrganizationClientsResponse resp = scalekitClient.m2m().listOrganizationClients(\"org_123\", 30, null);\nfor (var client : resp.getClientsList()) {\n    System.out.println(client.getClientId() + \" \" + client.getName());\n}"
+            "source": "# List clients for a specific organization\norg_id = 'SCALEKIT_ORGANIZATION_ID'\n\n# Retrieve all clients with default pagination\nresponse = scalekit_client.m2m_client.list_organization_clients(\n    organization_id=org_id,\n    page_size=30\n)\n\n# Access the clients list\nclients = response.clients\nfor client in clients:\n    print(f\"Client ID: {scalekit_client.id}, Name: {scalekit_client.name}\")"
           }
         ]
       },
@@ -1908,24 +1893,9 @@
         },
         "x-codeSamples": [
           {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const { client } = await scalekit.m2m.createOrganizationClient(\"org_123\", {\n  name: \"GitHub Actions Deployment Service\",\n  description: \"Service account for GitHub Actions to deploy applications\nto production\",\n  scopes: [\"deploy:applications\", \"read:deployments\"],\n  audience: [\"deployment-api.acmecorp.com\"],\n});\n// client.clientId → store this for future management"
-          },
-          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\nm2m_client = OrganizationClient(\n    name=\"GitHub Actions Deployment Service\",\n    description=\"Service account for GitHub Actions to deploy applications\nto production\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory-service\"},\n        {\"key\": \"environment\", \"value\": \"production_us\"}\n    ],\n    scopes=[\"deploy:applications\", \"read:deployments\"],\n    audience=[\"deployment-api.acmecorp.com\"],\n)\nresponse = scalekit_client.m2m_client.create_organization_client(\n    organization_id=\"org_123\",\n    m2m_client=m2m_client\n)\n# response.client.id → store this for future management"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "resp, err := scalekitClient.M2M().CreateOrganizationClient(ctx, \"org_123\", scalekit.CreateOrganizationClientOptions{\n    Name:        \"GitHub Actions Deployment Service\",\n    Description: \"Service account for GitHub Actions to deploy applications\nto production\",\n    Scopes:      []string{\"deploy:applications\", \"read:deployments\"},\n    Audience:    []string{\"deployment-api.acmecorp.com\"},\n})\nif err != nil {\n    // handle error\n}\n// resp.Client.ClientId → store this for future management"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "OrganizationClient client = OrganizationClient.newBuilder()\n    .setName(\"GitHub Actions Deployment Service\")\n    .setDescription(\"Service account for GitHub Actions to deploy applications\nto production\")\n    .addScopes(\"deploy:applications\")\n    .addScopes(\"read:deployments\")\n    .addAudience(\"deployment-api.acmecorp.com\")\n    .build();\n\nCreateOrganizationClientResponse resp = scalekitClient.m2m().createOrganizationClient(\"org_123\", client);\n// resp.getClient().getClientId() → store this for future management"
+            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\nm2m_client = OrganizationClient(\n    name=\"GitHub Actions Deployment Service\",\n    description=\"Service account for GitHub Actions to deploy applications\nto production\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory-service\"},\n        {\"key\": \"environment\", \"value\": \"production_us\"}\n    ],\n    scopes=[\"deploy:applications\", \"read:deployments\"],\n    audience=[\"deployment-api.acmecorp.com\"],\n    expiry=3600\n)\n\nresponse = scalekit_client.m2m_client.create_organization_client(\n    organization_id=\"SCALEKIT_ORGANIZATION_ID\",\n    m2m_client=m2m_client\n)"
           }
         ],
         "requestBody": {
@@ -1981,24 +1951,9 @@
         },
         "x-codeSamples": [
           {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const { client } = await scalekit.m2m.getOrganizationClient(\"org_123\", \"skc_client_456\");\nconsole.log(client.name, client.clientId);"
-          },
-          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "response = scalekit_client.m2m_client.get_organization_client(\n    organization_id=\"org_123\",\n    client_id=\"skc_client_456\"\n)\nprint(response.client.name, response.client.id)"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "resp, err := scalekitClient.M2M().GetOrganizationClient(ctx, \"org_123\", \"skc_client_456\")\nif err != nil {\n    // handle error\n}\nfmt.Println(resp.Client.Name, resp.Client.ClientId)"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "GetOrganizationClientResponse resp = scalekitClient.m2m().getOrganizationClient(\"org_123\", \"skc_client_456\");\nSystem.out.println(resp.getClient().getName() + \" \" + resp.getClient().getClientId());"
+            "source": "# Get client ID from environment variables\norg_id = 'SCALEKIT_ORGANIZATION_ID'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Fetch client details for the specified organization\nresponse = scalekit_client.m2m_client.get_organization_client(\n    organization_id=org_id,\n    client_id=client_id\n)"
           }
         ]
       },
@@ -2039,24 +1994,9 @@
         },
         "x-codeSamples": [
           {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "await scalekit.m2m.deleteOrganizationClient(\"org_123\", \"skc_client_456\");"
-          },
-          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "scalekit_client.m2m_client.delete_organization_client(\n    organization_id=\"org_123\",\n    client_id=\"skc_client_456\"\n)"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "err := scalekitClient.M2M().DeleteOrganizationClient(ctx, \"org_123\", \"skc_client_456\")\nif err != nil {\n    // handle error\n}"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "scalekitClient.m2m().deleteOrganizationClient(\"org_123\", \"skc_client_456\");"
+            "source": "# Get client ID from environment variables\norg_id = '<SCALEKIT_ORGANIZATION_ID>'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Delete the specified client from the organization\nresponse = scalekit_client.m2m_client.delete_organization_client(\n    organization_id=org_id,\n    client_id=client_id\n)"
           }
         ]
       },
@@ -2099,24 +2039,9 @@
         },
         "x-codeSamples": [
           {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const { client } = await scalekit.m2m.updateOrganizationClient(\"org_123\", \"skc_client_456\", {\n  description: \"Service account for GitHub Actions — EU production\",\n  scopes: [\"deploy:applications\", \"read:deployments\"],\n});"
-          },
-          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\nupdate_m2m_client = OrganizationClient(\n    description=\"Service account for GitHub Actions to deploy applications\nto production_eu\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory\"},\n        {\"key\": \"environment\", \"value\": \"production_eu\"}\n    ]\n)\nresponse = scalekit_client.m2m_client.update_organization_client(\n    organization_id=\"org_123\",\n    client_id=\"skc_client_456\",\n    m2m_client=update_m2m_client\n)"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "resp, err := scalekitClient.M2M().UpdateOrganizationClient(ctx, \"org_123\", \"skc_client_456\", scalekit.UpdateOrganizationClientOptions{\n    Description: \"Service account for GitHub Actions — EU production\",\n    Scopes:      []string{\"deploy:applications\", \"read:deployments\"},\n})\nif err != nil {\n    // handle error\n}"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "OrganizationClient update = OrganizationClient.newBuilder()\n    .setDescription(\"Service account for GitHub Actions — EU production\")\n    .addScopes(\"deploy:applications\")\n    .addScopes(\"read:deployments\")\n    .build();\n\nUpdateOrganizationClientResponse resp = scalekitClient.m2m().updateOrganizationClient(\"org_123\", \"skc_client_456\", update);"
+            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\norg_id = '<SCALEKIT_ORGANIZATION_ID>'\nclient_id = os.environ['M2M_CLIENT_ID']\n\nupdate_m2m_client = OrganizationClient(\n    description=\"Service account for GitHub Actions to deploy applications\nto production_eu\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory\"},\n        {\"key\": \"environment\", \"value\": \"production_eu\"}\n    ]\n)\n\nresponse = scalekit_client.m2m_client.update_organization_client(\n    organization_id=org_id,\n    client_id=client_id,\n    m2m_client=update_m2m_client\n)"
           }
         ],
         "requestBody": {
@@ -2172,24 +2097,9 @@
         },
         "x-codeSamples": [
           {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "const { secret, plainSecret } = await scalekit.m2m.addOrganizationClientSecret(\"org_123\", \"skc_client_456\");\n// plainSecret       → store securely; it will not be shown again\n// secret.secretId   → use to delete this secret later"
-          },
-          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "response = scalekit_client.m2m_client.add_organization_client_secret(\n    organization_id=\"org_123\",\n    client_id=\"skc_client_456\"\n)\n# response.plain_secret → store securely; it will not be shown again\n# response.secret.id    → use to delete this secret later"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "resp, err := scalekitClient.M2M().CreateOrganizationClientSecret(ctx, \"org_123\", \"skc_client_456\")\nif err != nil {\n    // handle error\n}\n// resp.PlainSecret   → store securely; it will not be shown again\n// resp.Secret.Id     → use to delete this secret later"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "CreateOrganizationClientSecretResponse resp = scalekitClient.m2m().addOrganizationClientSecret(\"org_123\", \"skc_client_456\");\n// resp.getPlainSecret()    → store securely; it will not be shown again\n// resp.getSecret().getId() → use to delete this secret later"
+            "source": "# Get client ID from environment variables\norg_id = 'SCALEKIT_ORGANIZATION_ID'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Add a new secret to the specified client\nresponse = scalekit_client.m2m_client.add_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id\n)\n\n# Extract the secret ID from the response\nsecret_id = response[0].secret.id"
           }
         ]
       }
@@ -2241,24 +2151,9 @@
         },
         "x-codeSamples": [
           {
-            "label": "Node.js SDK",
-            "lang": "javascript",
-            "source": "await scalekit.m2m.removeOrganizationClientSecret(\"org_123\", \"skc_client_456\", \"sec_789\");"
-          },
-          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "scalekit_client.m2m_client.remove_organization_client_secret(\n    organization_id=\"org_123\",\n    client_id=\"skc_client_456\",\n    secret_id=\"sec_789\"\n)"
-          },
-          {
-            "label": "Go SDK",
-            "lang": "go",
-            "source": "err := scalekitClient.M2M().DeleteOrganizationClientSecret(ctx, \"org_123\", \"skc_client_456\", \"sec_789\")\nif err != nil {\n    // handle error\n}"
-          },
-          {
-            "label": "Java SDK",
-            "lang": "java",
-            "source": "scalekitClient.m2m().removeOrganizationClientSecret(\"org_123\", \"skc_client_456\", \"sec_789\");"
+            "source": "# Get client and secret IDs from environment variables\norg_id = '<SCALEKIT_ORGANIZATION_ID>'\nclient_id = os.environ['M2M_CLIENT_ID']\nsecret_id = os.environ['M2M_SECRET_ID']\n\n# Remove the specified secret from the client\nresponse = scalekit_client.m2m_client.remove_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id,\n    secret_id=secret_id\n)"
           }
         ]
       }
@@ -3555,8 +3450,8 @@
           {
             "schema": {
               "type": "string",
-              "maxLength": 100,
-              "minLength": 3
+              "minLength": 3,
+              "maxLength": 100
             },
             "description": "Search term to match against user email, IDs, or external IDs. Must be at least 3 characters. Case insensitive.",
             "name": "query",
@@ -3567,8 +3462,8 @@
             "schema": {
               "type": "integer",
               "format": "int64",
-              "maximum": 30,
-              "minimum": 1
+              "minimum": 1,
+              "maximum": 30
             },
             "description": "Maximum number of users to return per page. Value must be between 1 and 30.",
             "name": "page_size",
@@ -5403,8 +5298,8 @@
           {
             "schema": {
               "type": "string",
-              "maxLength": 100,
-              "minLength": 3
+              "minLength": 3,
+              "maxLength": 100
             },
             "description": "Search term to match against user email, IDs, or external IDs. Must be at least 3 characters. Case insensitive.",
             "name": "query",
@@ -5415,8 +5310,8 @@
             "schema": {
               "type": "integer",
               "format": "int64",
-              "maximum": 30,
-              "minimum": 1
+              "minimum": 1,
+              "maximum": 30
             },
             "description": "Maximum number of users to return per page. Value must be between 1 and 30.",
             "name": "page_size",
