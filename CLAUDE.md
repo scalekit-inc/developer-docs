@@ -12,9 +12,16 @@ This file is the **single source of truth** for all documentation standards and 
 
 Every feature must include comprehensive, user-focused documentation. Documentation is not an afterthought but a first-class deliverable that guides implementation. All code changes require corresponding documentation updates.
 
-### Git Commits
+### Git workflow
 
 - Do NOT include `Co-Authored-By` lines in commit messages
+- **At the start of a fresh session, before making any changes**, ask the user: "Do you want me to cut a new branch or work on the current branch?"
+  - Branch names must follow the pattern `preview/<name>` where `<name>` contains no forward slashes
+- **Never force push** (`git push --force` or `git push -f`). If a push fails, stop and clearly explain the reason it failed — do not attempt workarounds without user confirmation.
+- **For commit, push, and PR creation**, spawn a subagent using the Haiku model to handle it. The pre-push hook generates large logs and PR creation output adds unnecessary noise to the main session context.
+- **Once the user confirms local testing works, or explicitly asks to commit and push**, commit all changes, push the branch, and open a PR against `main`. The PR must include:
+  - A crisp description of the changes
+  - A preview link in the format: `https://deploy-preview-{PR_NUMBER}--scalekit-starlight.netlify.app/{path-to-changed-page}/`
 
 ### SDK variable names (critical)
 
@@ -125,7 +132,7 @@ Every documentation page MUST fit one primary type and follow its recommended st
 
 ### How-to Guide
 
-Task-oriented; includes Overview, Prerequisites, Procedure (with `<Steps>`), Verify, Next Steps, and optional FAQs.
+Task-oriented; includes Overview, Prerequisites, Procedure (with `<Steps>`), Verify, optional Next Steps, and optional FAQs. The "Next Steps" section may be omitted when the frontmatter `prev`/`next` links already provide contextual navigation to related pages.
 
 ### API Reference
 
@@ -181,7 +188,7 @@ tableOfContents: true
 ### Content Organization
 
 - Opening paragraphs (1–3) MUST state what users will accomplish, when/why they need it, and preview the workflow using direct instructional language
-- Page organization SHOULD follow: opening context, optional collapsible supplementary sections, main content sections, and a closing "next steps" or summary
+- Page organization SHOULD follow: opening context, optional collapsible supplementary sections, main content sections, and an optional closing "next steps" or summary. A closing "next steps" section may be omitted when frontmatter `prev`/`next` links already provide contextual navigation
 - Use H2 for major sections, H3 for subsections, and H4 only inside `<Steps>`; never use H1 in body content and avoid nesting beyond H4
 - Use numbered lists only inside `<Steps>` for ordered procedures; use bulleted lists for unordered information
 
@@ -212,17 +219,179 @@ The `<Steps>` component requires a single continuous `<ol>`. Any broken indentat
    - ❌ WRONG — 4 spaces, or blank line before the bullets
    - ✅ CORRECT — 3 spaces, no blank line before bullets
 
-4. No blank line immediately after `<Steps>` opening tag
-   - ❌ WRONG — blank line after `<Steps>`
-   - ✅ CORRECT — content starts immediately after `<Steps>`
+4. A blank line after `<Steps>` is allowed
+   - Starlight documents `<Steps>` as wrapping a normal Markdown ordered list
+   - The important rule is that the content must still parse as one ordered list
+
+5. Prefer plain Markdown inside `<Steps>`
+   - Standard Markdown content inside steps is the most reliable pattern
+   - If a procedure contains mostly `<Tabs>` or other JSX-heavy blocks, prefer normal H2 sections instead of `<Steps>`
+
+6. When `<Tabs>` appears inside a step, keep the entire tabs block inside that list item
+   - Indent `<Tabs>`, `<TabItem>`, paragraphs, and fenced code blocks consistently under that step
+   - If the structure becomes fragile or hard to format, move the tabs block outside `</Steps>` or replace the whole procedure with standard section headings
 
 **Quick mental model**: Treat the entire `<Steps>` block as a single continuous list. All content (steps, continuation text, images, sub-bullets) must be indented to stay within that list structure.
+
+**Safe baseline pattern for `<Steps>`**:
+
+````mdx
+<Steps>
+1. ## Install dependencies
+
+```bash
+pnpm install
+```
+
+2. ## Continue with the next step
+
+   Add more content here.
+
+</Steps>
+````
+
+Use normal section headings instead of `<Steps>` when the content is mostly `<Tabs>`, long JSX blocks, or multiple embedded components.
 
 ### Linking and references
 
 - **Descriptive link text**: "See permission flags" not "click here"
 - **Prefer relative links** for internal pages; include anchors for sections
 - **Reference APIs consistently**: Backticks for code (`Deno.run`, `--allow-net`)
+
+### Component Usage Patterns
+
+#### Frontmatter enrichment
+
+Beyond the essentials, enrich frontmatter with these patterns for better navigation and SEO:
+
+```yaml
+---
+title: 'Clear title'
+description: 'Concise description'
+tags: [authentication, quickstart, sessions]
+sidebar:
+  label: 'Short label'
+  order: 1
+  prev:
+    label: 'Previous topic'
+    link: '/path/to/prev'
+  next:
+    label: 'Next topic'
+    link: '/path/to/next'
+  seeAlso:
+    expanded: true
+    items:
+      - title: 'Related resource'
+        icon: 'book'
+        url: 'https://example.com'
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+tableOfContents: true
+---
+```
+
+- **`tags`**: Array of relevant keywords for categorization and search
+- **`prev`/`next`**: Sequential navigation for journey-based docs
+- **`seeAlso`**: Related resources with optional `icon` and `expanded` state
+- **`head`**: Custom styles for consistent heading sizing across pages
+
+#### Steps with H2 headings
+
+Inside `<Steps>`, each step should use an H2 heading for clear section breaks:
+
+````mdx
+<Steps>
+1. ## Install the SDK
+
+Description of what this step accomplishes.
+
+```bash
+npm install @scalekit/sdk
+```
+````
+
+2. ## Configure credentials
+
+   Description of configuration.
+
+   ```bash
+   SCALEKIT_CLIENT_ID=your-id
+   ```
+
+   </Steps>
+
+````
+
+#### Badge component for required/recommended items
+
+Use `<Badge>` to indicate parameter requirements in tables and inline text:
+
+```mdx
+| Parameter | Description |
+|-----------|-------------|
+| `client_id` | Your application identifier <Badge text="Required" /> |
+| `state` | Random string for CSRF protection <Badge text="Recommended" /> |
+````
+
+#### Aside component with titles
+
+Always include a `title` attribute for accessibility and clarity:
+
+```mdx
+<Aside type="caution" title="Never hard-code secrets">
+  Store credentials in environment variables.
+</Aside>
+
+<Aside type="tip" title="Match redirect URLs exactly">
+  Ensure the URL in code matches dashboard configuration.
+</Aside>
+
+<Aside type="note" title="Important claims to validate">
+  Always verify `iss`, `aud`, and `exp` claims.
+</Aside>
+```
+
+#### Details sections for FAQs and demos
+
+Use `<details>` blocks at the end of pages for common scenarios and troubleshooting:
+
+```mdx
+## Common scenarios
+
+<details>
+<summary>How do I route users to a specific organization?</summary>
+
+Explanation and code example here.
+
+</details>
+
+<details>
+<summary>Why am I seeing an invalid_grant error?</summary>
+
+Troubleshooting explanation here.
+
+</details>
+```
+
+#### Collapsible supplementary content
+
+Place optional content (demos, sequence diagrams, extended references) in collapsible sections at the top of the page:
+
+```mdx
+<details>
+<summary>See the authentication sequence</summary>
+
+![Sequence diagram](path/to/image.png)
+
+1. User initiates sign-in
+2. Identity verification occurs
+3. Session is created
+
+</details>
+```
 
 ---
 
@@ -421,6 +590,12 @@ Before publishing documentation, verify:
 - [ ] SDK variable names follow the NON-NEGOTIABLE naming convention
 - [ ] Security implications are explained where relevant
 - [ ] Frontmatter includes title, description, and sidebar.label
+
+---
+
+## Patched Dependencies
+
+This project uses pnpm patches to fix upstream bugs. Before modifying patches or upgrading patched dependencies, read `project-docs/PATCHES.md` for context, removal criteria, and upgrade instructions.
 
 ---
 

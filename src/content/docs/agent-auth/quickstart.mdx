@@ -1,15 +1,16 @@
 ---
 title: "Quickstart: Add auth to your AI agents"
 description: Set up connectors and get OAuth tokens and call tools on the fly using Scalekit's Agent Auth
+tags: [agent-auth, quickstart, ai-agents, oauth, token-vault, tool-integration, delegated-oauth]
 sidebar:
   order: 1
-  label: "Code it yourself"
 banner:
   content: |
-    Join our dev community to connect with Scalekit engineers for questions or feedback
+    Build this faster with AI coding agents. <a href="/dev-kit/build-with-ai/agent-auth/">Build with AI →</a>
 ---
 
 import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import FoldCard from '@components/ui/FoldCard.astro';
 
 Users ask your app in natural language - "Show me last 5 unread emails" or "Create a calendar event for tomorrow" or "Send an alert to my team"
 
@@ -20,7 +21,50 @@ All of these actions require your app to be able to securely connect to third-pa
 - Provides a unified API to call tools on behalf of the user. Scalekit provides tools if your preferred connector is not supported.
 - Manage each user account per connector through Scalekit dashboard or programmatically.
 
-Get started
+<FoldCard
+  title="Build with a coding agent"
+  iconKey="build-with-ai"
+  iconPosition="right"
+  href="/dev-kit/build-with-ai/agent-auth/"
+  cta="Build with AI"
+  showCta={false}
+  clickable={false}
+>
+  <Tabs syncKey="build-with-agent">
+   <TabItem label="Claude Code">
+     ```bash title="Claude REPL" showLineNumbers=false frame="none"
+     /plugin marketplace add scalekit-inc/claude-code-authstack
+     ```
+     ```bash title="Claude REPL" showLineNumbers=false frame="none"
+     /plugin install agent-auth@scalekit-auth-stack
+     ```
+   </TabItem>
+   <TabItem label="Codex">
+     ```bash title="Terminal" showLineNumbers=false frame="none"
+     curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
+     ```
+     ```bash title="Codex" showLineNumbers=false frame="none"
+     # Restart Codex
+     # Plugin Directory -> Scalekit Auth Stack -> install agent-auth
+     ```
+   </TabItem>
+   <TabItem label="GitHub Copilot CLI">
+     ```bash title="Terminal" showLineNumbers=false frame="none"
+     copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+     ```
+     ```bash title="Terminal" showLineNumbers=false frame="none"
+     copilot plugin install agent-auth@scalekit-auth-stack
+     ```
+   </TabItem>
+   <TabItem label="40+ agents">
+     ```bash title="Terminal" showLineNumbers=false frame="none"
+     npx skills add scalekit-inc/skills --skill integrating-agent-auth
+     ```
+   </TabItem>
+  </Tabs>
+
+  [Continue building with AI →](/dev-kit/build-with-ai/agent-auth/)
+</FoldCard>
 
 ## Agent that fetches last 5 unread emails
 
@@ -44,13 +88,10 @@ In this quickstart, you'll build a simple tool-calling program that:
       </TabItem>
       <TabItem label="Node.js">
         ```sh showLineNumbers=false frame="none"
-        npm install @scalekit-sdk/node@2.2.0-beta.1
+        npm install @scalekit-sdk/node
         ```
       </TabItem>
     </Tabs>
-    <Aside type="note" title="Node.js beta version">
-      Agent Auth features (`connectedAccounts`, `tools`) are available in the Node.js SDK beta. Use `@scalekit-sdk/node@2.2.0-beta.1` until the stable release ships.
-    </Aside>
     <Tabs syncKey="tech-stack">
       <TabItem label="Python">
         ```python showLineNumbers=false frame="none" wrap
@@ -71,6 +112,7 @@ In this quickstart, you'll build a simple tool-calling program that:
       <TabItem label="Node.js">
         ```typescript showLineNumbers=false frame="none"
         import { ScalekitClient } from '@scalekit-sdk/node';
+        import { ConnectorStatus } from '@scalekit-sdk/node/lib/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
         import 'dotenv/config';
 
         const scalekit = new ScalekitClient(
@@ -79,7 +121,7 @@ In this quickstart, you'll build a simple tool-calling program that:
           process.env.SCALEKIT_CLIENT_SECRET
         );
 
-        const { connectedAccounts, tools } = scalekit;
+        const actions = scalekit.actions;
         ```
       </TabItem>
     </Tabs>
@@ -103,8 +145,8 @@ In this quickstart, you'll build a simple tool-calling program that:
       <TabItem label="Node.js">
         ```typescript showLineNumbers=false frame="none"
         // Create or retrieve the user's connected Gmail account
-        const response = await connectedAccounts.getOrCreateConnectedAccount({
-          connector: 'gmail',
+        const response = await actions.getOrCreateConnectedAccount({
+          connectionName: 'gmail',
           identifier: 'user_123',  // Replace with your system's unique user ID
         });
 
@@ -115,6 +157,8 @@ In this quickstart, you'll build a simple tool-calling program that:
     </Tabs>
     <Aside title="Set up a connection">
       The Gmail connector is enabled by default for quick getting started purposes. In case your app wants to connect to different third-party apps, you can setup a connection for each app in the Scalekit dashboard > Agent Auth > _+ Create Connection_
+
+      To set up your app's credentials for a provider, check the **Providers** section in the sidebar.
     </Aside>
 3. ## Authenticate the user
 
@@ -140,12 +184,11 @@ In this quickstart, you'll build a simple tool-calling program that:
       </TabItem>
       <TabItem label="Node.js">
         ```typescript showLineNumbers=false frame="none" wrap
-        import { ConnectorStatus } from '@scalekit-sdk/node/pkg/grpc/scalekit/v1/connected_accounts/connected_accounts_pb';
         // Generate authorization link if user hasn't authorized or token is expired
         if (connectedAccount?.status !== ConnectorStatus.ACTIVE) {
           console.log('gmail is not connected:', connectedAccount?.status);
-          const linkResponse = await connectedAccounts.getMagicLinkForConnectedAccount({
-            connector: 'gmail',
+          const linkResponse = await actions.getAuthorizationLink({
+            connectionName: 'gmail',
             identifier: 'user_123',
           });
           console.log('🔗 click on the link to authorize gmail', linkResponse.link);
@@ -155,134 +198,68 @@ In this quickstart, you'll build a simple tool-calling program that:
       </TabItem>
     </Tabs>
 
-4. ## Fetch OAuth tokens for the user
+4. ## Call the Gmail API to fetch last 5 unread emails
 
-     Now that the user has successfully authorized the Gmail connection, you can fetch the latest access token and refresh token for the user's connected account anytime you want.
-    Scalekit will keep the token refreshed periodically so that you always have the latest valid access token to make API calls on behalf of the user.
+     Now that the user is authenticated, use Scalekit's proxy to call the Gmail API directly — no need to manage access tokens yourself.
 
     <Tabs syncKey="tech-stack">
       <TabItem label="Python">
         ```python showLineNumbers=false frame="none" wrap
-        # Retrieve the connected account to extract OAuth tokens
-        response = actions.get_connected_account(
-                connection_name="gmail",
-                identifier="user_123"
+        # Fetch 5 unread emails via Scalekit proxy
+        result = actions.request(
+            connection_name="gmail",
+            identifier="user_123",
+            path="/gmail/v1/users/me/messages",
+            method="GET",
+            params={"q": "is:unread", "maxResults": 5}
         )
-
-        connected_account = response.connected_account
-
-        # Extract OAuth tokens from authorization details
-        tokens = connected_account.authorization_details["oauth_token"]
-        access_token = tokens["access_token"]
-        refresh_token = tokens["refresh_token"]
-
-        # Security Warning: Never log OAuth tokens in production. Token exposure in logs
-        # or aggregators creates credential leakage risks. Use safe redaction,
-        # conditional debug-only logging, or secure secret storage instead.
-        if os.getenv("DEBUG"):
-            print("access token:", access_token)
-            print("refresh token:", refresh_token)
+        print(result)
         ```
       </TabItem>
       <TabItem label="Node.js">
         ```typescript showLineNumbers=false frame="none" wrap
-        const accountResponse = await connectedAccounts.getConnectedAccountByIdentifier({
-          connector: 'gmail',
+        // Fetch 5 unread emails via Scalekit proxy
+        const result = await actions.request({
+          connectionName: 'gmail',
           identifier: 'user_123',
+          path: '/gmail/v1/users/me/messages',
+          method: 'GET',
+          queryParams: { q: 'is:unread', maxResults: 5 },
         });
-
-        // Extract OAuth tokens from authorization details
-        const authDetails = accountResponse?.connectedAccount?.authorizationDetails;
-        const accessToken = (authDetails && authDetails.details?.case === "oauthToken")
-          ? authDetails.details.value?.accessToken
-          : undefined;
-        const refreshToken = (authDetails && authDetails.details?.case === "oauthToken")
-          ? authDetails.details.value?.refreshToken
-          : undefined;
-
-        console.log('Connected account:', accountResponse);
-        console.log('accessToken:', accessToken);
-        console.log('refreshToken:', refreshToken);
+        console.log(result);
         ```
       </TabItem>
     </Tabs>
-    Refer to the respective connector's API documentation for more details on how to use these tokens and consume their API. Scalekit provides tools for most of the connectors, so you can use them to call the API directly.
 
-5. ## Call the Gmail API to fetch last 5 unread emails
+5. ## Use Scalekit optimized tools
 
-     Now that the user is authenticated and you have the access token, you can execute the Gmail API to fetch the last 5 unread emails from the user's inbox.
-     The example below directly calls the Gmail API. You can use the Gmail SDK or any other HTTP client of your choice to make the API calls.
+     In addition to the proxy, Scalekit provides optimized tools built specifically for AI agents. These tools abstract away API complexity — no need to know the exact endpoint, parameters, or response shape. Under the hood, they orchestrate multiple API calls and return the response in a structured, AI-friendly format that's easy for your agent to reason over.
 
     <Tabs syncKey="tech-stack">
       <TabItem label="Python">
-         ```python showLineNumbers=false frame="none" wrap
-         # Fetch 5 unread emails using Gmail API
-         headers = {
-             "Authorization": f"Bearer {access_token}",  # Use the OAuth access token
-         }
-
-         list_url = "https://gmail.googleapis.com/gmail/v1/users/me/messages"
-         params = {
-             "q": "is:unread",
-             "maxResults": 5,
-         }
-
-         list_response = requests.get(list_url, headers=headers, params=params)
-         messages = list_response.json().get("messages", [])
-
-         print(f"\nFound {len(messages)} unread emails:\n")
-
-         # Fetch and display details for each email
-         for msg in messages:
-            msg_url = f"{list_url}/{msg['id']}"
-            msg_response = requests.get(msg_url, headers=headers, params={"format": "metadata", "metadataHeaders": ["From", "Subject", "Date"]})
-            msg_data = msg_response.json()
-
-            headers_list = msg_data.get("payload", {}).get("headers", [])
-            subject = next((h["value"] for h in headers_list if h["name"] == "Subject"), "No Subject")
-            sender = next((h["value"] for h in headers_list if h["name"] == "From"), "Unknown")
-            date = next((h["value"] for h in headers_list if h["name"] == "Date"), "Unknown")
-
-            print(f"From: {sender}")
-            print(f"Subject: {subject}")
-            print(f"Date: {date}")
-            print(f"Snippet: {msg_data.get('snippet', '')}")
-            print("-" * 50)
+        ```python showLineNumbers=false frame="none" wrap
+        response = actions.execute_tool(
+            tool_name="gmail_fetch_mails",
+            identifier="user_123",
+            tool_input={
+                "query": "is:unread",
+                "max_results": 5,
+            },
+        )
+        print(response)
         ```
       </TabItem>
       <TabItem label="Node.js">
-         ```typescript showLineNumbers=false frame="none" wrap
-         // Fetch 5 unread emails using Gmail API
-         const listUrl = 'https://gmail.googleapis.com/gmail/v1/users/me/messages';
-         const params = new URLSearchParams({ q: 'is:unread', maxResults: '5' });
-
-         const listResponse = await fetch(`${listUrl}?${params}`, {
-           headers: { Authorization: `Bearer ${accessToken}` },  // Use the OAuth access token
-         });
-         const listData = await listResponse.json();
-         const messages = listData.messages ?? [];
-
-         console.log(`\nFound ${messages.length} unread emails:\n`);
-
-         // Fetch and display details for each email
-         for (const msg of messages) {
-          const msgResponse = await fetch(
-            `${listUrl}/${msg.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`,
-            { headers: { Authorization: `Bearer ${accessToken}` } }
-          );
-          const msgData = await msgResponse.json();
-
-          const headersList = msgData.payload?.headers ?? [];
-          const subject = headersList.find((h) => h.name === 'Subject')?.value ?? 'No Subject';
-          const sender = headersList.find((h) => h.name === 'From')?.value ?? 'Unknown';
-          const date = headersList.find((h) => h.name === 'Date')?.value ?? 'Unknown';
-
-          console.log(`From: ${sender}`);
-          console.log(`Subject: ${subject}`);
-          console.log(`Date: ${date}`);
-          console.log(`Snippet: ${msgData.snippet ?? ''}`);
-          console.log('-'.repeat(50));
-        }
+        ```typescript showLineNumbers=false frame="none" wrap
+        const toolResponse = await actions.executeTool({
+          toolName: 'gmail_fetch_mails',
+          connectedAccountId: connectedAccount?.id,
+          toolInput: {
+            query: 'is:unread',
+            max_results: 5,
+          },
+        });
+        console.log('Recent emails:', toolResponse.data);
         ```
       </TabItem>
     </Tabs>

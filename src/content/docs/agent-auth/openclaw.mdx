@@ -1,0 +1,212 @@
+---
+title: "OpenClaw skill"
+description: Connect OpenClaw agents to third-party services through Scalekit. Supports LinkedIn, Notion, Slack, Gmail, and 50+ providers.
+tags: [agent-auth, openclaw, ai-agents, tools, integrations]
+sidebar:
+  order: 10
+  label: "OpenClaw"
+  prev:
+    label: "Frameworks"
+    link: "/agent-auth/frameworks/"
+  next:
+    label: "Connections"
+    link: "/agent-auth/connections"
+  seeAlso:
+    expanded: true
+    items:
+      - title: "OpenClaw GitHub"
+        icon: "github"
+        url: "https://github.com/scalekit-inc/openclaw-skill"
+      - title: "ClawHub listing"
+        icon: "book"
+        url: "https://clawhub.dev/skills/scalekit-agent-auth"
+banner:
+  content: |
+    Join our dev community to connect with Scalekit engineers for questions or feedback
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 { font-size: var(--sl-text-xl); }
+      .sl-markdown-content h3 { font-size: var(--sl-text-lg); }
+tableOfContents: true
+---
+
+import { Aside, Steps, Tabs, TabItem, CardGrid, LinkCard, Badge } from '@astrojs/starlight/components';
+
+```d2
+direction: right
+
+OpenClaw: "OpenClaw agent" {
+  style.font-size: 18
+}
+
+Scalekit: {
+  label: "Scalekit Agent Auth"
+  Auth: "OAuth handler"
+  Vault: "Token vault"
+}
+
+Providers: {
+  label: "Third-party services"
+  LinkedIn: "LinkedIn"
+  Gmail: "Gmail"
+  Salesforce: "Salesforce"
+  More: "50+ more"
+}
+
+OpenClaw -> Scalekit.Auth: "Execute tools"
+Scalekit.Vault -> Providers.LinkedIn
+Scalekit.Vault -> Providers.Gmail
+Scalekit.Vault -> Providers.Salesforce
+Scalekit.Vault -> Providers.More
+```
+
+Use the Scalekit Agent Auth skill for [OpenClaw](https://github.com/scalekit-inc/openclaw-skill) to let your AI agents execute actions on third-party services directly from conversations. Search LinkedIn, read Notion pages, send Slack messages, query Snowflake, and more — all through Scalekit Connect without storing tokens or API keys in your agent.
+
+<Aside type="danger" title="Security considerations for AI agents">
+  Scalekit stores tokens and API keys securely with full audit logging. OpenClaw, like all AI agent frameworks, is vulnerable to prompt injection and other agent-level attacks. Follow security best practices to protect your instance.
+</Aside>
+
+When you ask Claude to interact with a third-party service, the skill:
+
+- Finds the configured provider in Scalekit (e.g., [Gmail connection setup](/reference/agent-connectors/gmail/)) and identifies which connection to use based on the requested action
+- Checks if the connection is active. For OAuth connections, it generates a magic link for new authorizations. For API key connections, it provides Dashboard guidance for setup
+- Retrieves available tools and their parameter schemas for the provider, determining what actions are possible
+- Calls the right tool with the correct parameters and returns the result to your conversation
+- If no tool exists for the action, routes the request through Scalekit's HTTP proxy, making direct API calls on your behalf
+
+<Aside type="tip" title="Automatic auth flow detection">
+  The skill automatically detects whether a connection uses OAuth or an API key and applies the correct auth flow — no configuration needed.
+</Aside>
+
+Your agent never stores tokens or API keys. Scalekit acts as a token vault, managing all OAuth tokens, API keys, and credentials. The skill retrieves only what it needs at runtime, scoped to the requesting user.
+
+## Prerequisites
+
+- [OpenClaw](https://openclaw.ai) installed and configured
+- A Scalekit account with Agent Auth enabled — [sign up at app.scalekit.com](https://app.scalekit.com)
+- `python3` and `uv` available in your PATH
+
+## Get started
+
+<Steps>
+1. ## Install the skill
+
+   Install the skill from ClawHub:
+
+   ```bash showLineNumbers=false
+   clawhub install scalekit-agent-auth
+   ```
+
+2. ## Configure credentials
+
+   Add your Scalekit credentials to `.env` in your project root:
+
+   ```bash title=".env"
+   TOOL_CLIENT_ID=skc_your_client_id      # Your Scalekit client ID
+   TOOL_CLIENT_SECRET=your_client_secret  # Your Scalekit client secret
+   TOOL_ENV_URL=https://your-env.scalekit.cloud  # Your Scalekit environment URL
+   TOOL_IDENTIFIER=your_default_user_identifier  # Default user context for tool calls
+   ```
+
+   | Parameter | Description |
+   |-----------|-------------|
+   | `TOOL_CLIENT_ID` | Your Scalekit client ID <Badge text="Required" /> |
+   | `TOOL_CLIENT_SECRET` | Your Scalekit client secret <Badge text="Required" /> |
+   | `TOOL_ENV_URL` | Your Scalekit environment URL <Badge text="Required" /> |
+   | `TOOL_IDENTIFIER` | Default user context for all tool calls <Badge text="Recommended" /> |
+
+   <Aside type="caution" title="Environment variable security">
+     Never commit `.env` files to version control. Add `.env` to your `.gitignore` file to prevent accidental exposure of credentials.
+   </Aside>
+
+3. ## Usage
+
+   <Tabs>
+   <TabItem label="Gmail">
+   ```txt showLineNumbers=false
+   You: Show me my latest unread emails
+   ```
+
+   OpenClaw will automatically:
+
+   1. Look up the `GMAIL` connection
+   2. Verify it's active (or generate a magic link to authorize if needed)
+   3. Fetch the `gmail_list_emails` tool schema
+   4. Return your latest unread emails
+   </TabItem>
+   <TabItem label="Notion">
+   ```txt showLineNumbers=false
+   You: Read my Notion page https://notion.so/My-Page-abc123
+   ```
+
+   OpenClaw will:
+
+   1. Look up the `NOTION` connection
+   2. If not yet authorized, generate a magic link for you to complete OAuth
+   3. Fetch the `notion_page_get` tool schema
+   4. Return the page content
+   </TabItem>
+   </Tabs>
+</Steps>
+
+## Supported providers
+
+Any provider configured in Scalekit works with the OpenClaw skill — including Notion, Slack, Gmail, Google Sheets, GitHub, Salesforce, HubSpot, Linear, Snowflake, Exa, HarvestAPI, and 50+ more.
+
+<CardGrid>
+  <LinkCard
+    title="Browse connections"
+    description="See all supported providers in the Scalekit dashboard"
+    href="/guides/integrations/agent-connectors"
+  />
+  <LinkCard
+    title="ClawHub listing"
+    description="Install scalekit-agent-auth from ClawHub"
+    href="https://clawhub.dev/skills/scalekit-agent-auth"
+  />
+</CardGrid>
+
+## Common scenarios
+
+<details>
+<summary>How do I authorize a new connection?</summary>
+
+When you request an action for a connection that isn't yet authorized, the skill automatically generates a magic link. Click the link to complete OAuth authorization in your browser. After authorization, return to your OpenClaw conversation and retry the action.
+
+For API key-based connections (like Snowflake), you'll need to configure credentials directly in the Scalekit Dashboard under **Connections**.
+
+</details>
+
+<details>
+<summary>How do I switch between different user contexts?</summary>
+
+Set `TOOL_IDENTIFIER` in your `.env` file to define a default user context. All tool calls will execute with that user's permissions and connected accounts.
+
+To use a different user context for a specific conversation, you can override the identifier by setting it in your OpenClaw configuration or passing it as a parameter when invoking the skill.
+
+</details>
+
+<details>
+<summary>Why am I seeing a "connection not found" error?</summary>
+
+This error occurs when the skill cannot find a configured connection for the requested provider. Check the following:
+
+1. **Verify the connection exists** — Go to **Dashboard > Connections** and confirm the provider is configured
+2. **Check connection status** — Ensure the connection shows as "Active" in the dashboard
+3. **Verify environment** — Confirm you're using the correct `TOOL_ENV_URL` for your environment
+
+</details>
+
+<details>
+<summary>How do I debug tool execution issues?</summary>
+
+Enable debug logging in your OpenClaw configuration to see detailed information about tool calls:
+
+```bash showLineNumbers=false
+TOOL_DEBUG=true
+```
+
+This logs the tool name, parameters, and response for each execution, helping you identify issues with parameter formatting or API responses.
+
+</details>

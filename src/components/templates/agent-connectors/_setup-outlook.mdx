@@ -1,35 +1,54 @@
-import { Steps } from '@astrojs/starlight/components'
+import { Steps, Aside } from '@astrojs/starlight/components'
 
 Register your Scalekit environment with the Outlook connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
 
 <Steps>
-1. ### Set up auth redirects
+1. ### Create the Outlook connection in Scalekit
 
-    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **Outlook** and click **Create**. Copy the redirect URI. It will look like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Actions** → **Connections** and click **+ Create Connection**. Search for **Outlook** and click **Create**.
 
-        ![](@/assets/docs/_setup-outlook/copy-redirecturi.png)
+     ![Search for Outlook and create a new connection](@/assets/docs/agent-connectors/outlook/create-outlook-connection.png)
 
-    - Sign into [portal.azure.com](https://portal.azure.com) and go to **Microsoft Entra ID** → **App registrations** → **New registration**.
+   - In the **Configure Outlook Connection** dialog, copy the **Redirect URI**. You will need this when registering your app in Azure.
 
-    - Enter a name for your app.
+     ![Copy the redirect URI from the Configure Outlook Connection dialog](@/assets/docs/agent-connectors/outlook/configure-outlook-connection.png)
 
-    - Under **Supported account types**, select **Accounts in any organizational directory (Any Azure AD directory - Multitenant) and personal Microsoft accounts**.
+2. ### Register an application in Azure
 
-    - Under **Redirect URI**, select **Web** and paste the redirect URI from step 1. Click **Register**.
+   - Sign into [portal.azure.com](https://portal.azure.com) and go to **Microsoft Entra ID** → **App registrations**.
 
-2. ### Get your client credentials
+     ![App registrations page in Azure portal](@/assets/docs/agent-connectors/outlook/azure-app-registrations.png)
 
-    - Go to **Certificates & secrets** → **New client secret**, set an expiry, and click **Add**. Copy the **Value** immediately.
+   - Click **New registration**. Enter a name for your app (for example, "Scalekit Outlook Connector").
 
-    - From the **Overview** page, copy the **Application (client) ID**.
+   - Under **Supported account types**, select **Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant) and personal Microsoft accounts**.
 
-3. ### Add credentials in Scalekit
+   - Under **Redirect URI**, select **Web** and paste the redirect URI you copied from the Scalekit dashboard. Click **Register**.
 
-    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+     ![Paste the Scalekit redirect URI in Azure](@/assets/docs/agent-connectors/outlook/azure-add-redirect-uri.png)
 
-    - Enter your credentials:
-      - Client ID (Application (client) ID from Azure)
-      - Client Secret (from Certificates & secrets)
-      - Permissions (scopes — see [Microsoft Graph permissions reference](https://learn.microsoft.com/en-us/graph/permissions-reference))
-    - Click **Save**.
+3. ### Get your client credentials
+
+   - From the app's **Overview** page, copy the **Application (client) ID**.
+
+     ![Copy the Application (client) ID from the Azure app overview](@/assets/docs/agent-connectors/outlook/azure-app-overview.png)
+
+   - Go to **Certificates & secrets** in the left sidebar, then click **+ New client secret**.
+
+     ![Certificates and secrets page in Azure portal](@/assets/docs/agent-connectors/outlook/azure-certificates-secrets.png)
+
+   - Enter a description (for example, "Secret for Scalekit Agent Actions"), set an expiry period, and click **Add**. Copy the secret **Value** immediately — it is only shown once.
+
+     ![Add a client secret in Azure portal](@/assets/docs/agent-connectors/outlook/azure-add-client-secret.png)
+
+4. ### Add credentials in Scalekit
+
+   - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Actions** → **Connections** and open the Outlook connection you created.
+
+   - Enter your credentials:
+     - **Client ID** — the Application (client) ID from the Azure app overview
+     - **Client Secret** — the secret value from Certificates & secrets
+     - **Scopes** — select the permissions your app needs (for example, `Calendars.Read`, `Calendars.ReadWrite`, `Mail.Read`, `Mail.ReadWrite`, `Mail.Send`, `Contacts.Read`, `Contacts.ReadWrite`, `User.Read`, `offline_access`). See [Microsoft Graph permissions reference](https://learn.microsoft.com/en-us/graph/permissions-reference) for the full list.
+
+   - Click **Save**.
 </Steps>
