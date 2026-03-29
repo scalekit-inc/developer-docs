@@ -360,6 +360,68 @@
         }
       }
     },
+    "/api/v1/connected_accounts/user/verify": {
+      "post": {
+        "description": "Confirms the user assertion and activates the connected account after the user completes third-party OAuth. Called by the B2B app server with auth_request_id and identifier. Validates that the asserted identifier matches the one stored on the auth request and promotes pending tokens to live.",
+        "tags": ["Connected Accounts"],
+        "summary": "Verify connected account user",
+        "operationId": "ConnectedAccountService_VerifyConnectedAccountUser",
+        "responses": {
+          "200": {
+            "description": "Verification successful; connected account is now ACTIVE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/connected_accountsVerifyConnectedAccountUserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request - missing or malformed fields",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing access token",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - identifier mismatch",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Not found - no pending flow for the given auth_request_id or already consumed",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/connected_accountsVerifyConnectedAccountUserRequest"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
     "/api/v1/connected_accounts:delete": {
       "post": {
         "description": "Permanently removes a connected account and revokes all associated authentication credentials. Identify the account by ID, or by combination of organization/user, connector, and identifier. This action cannot be undone. All OAuth tokens and API keys for this account will be invalidated.",
@@ -756,7 +818,7 @@
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "import os\nfrom scalekit import ScalekitClient\nscalekit_client = ScalekitClient(\n    env_url=os.getenv(\"SCALEKIT_ENV_URL\"),\n    client_id=os.getenv(\"SCALEKIT_CLIENT_ID\"),\n    client_secret=os.getenv(\"SCALEKIT_CLIENT_SECRET\"),\n)\n# The Python SDK currently exposes a helper that \n  #simply links an existing\n# user to an organization.\nresp, _ = scalekit_client.users.add_user_to_organization(\n    organization_id=\"org_123\",\n    user_id=\"usr_123\",\n)"
+            "source": "from scalekit.v1.users.users_pb2 import CreateMembership\nfrom scalekit.v1.commons.commons_pb2 import Role\n\nmembership = CreateMembership(\n    roles=[Role(name=\"admin\")],\n    metadata={\"department\": \"engineering\", \"location\": \"nyc-office\"},\n)\nresp = scalekit_client.users.create_membership(\n    organization_id=\"org_123\",\n    user_id=\"usr_123\",\n    membership=membership,\n)"
           },
           {
             "label": "Go SDK",
@@ -1795,9 +1857,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const { clients } = await scalekit.m2m.listOrganizationClients(\"org_123\", { pageSize: 30 });\nfor (const client of clients) {\n  console.log(client.clientId, client.name);\n}"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# List clients for a specific organization\norg_id = 'SCALEKIT_ORGANIZATION_ID'\n\n# Retrieve all clients with default pagination\nresponse = scalekit_client.m2m_client.list_organization_clients(\n    organization_id=org_id,\n    page_size=30\n)\n\n# Access the clients list\nclients = response.clients\nfor client in clients:\n    print(f\"Client ID: {scalekit_client.id}, Name: {scalekit_client.name}\")"
+            "source": "response = scalekit_client.m2m_client.list_organization_clients(\n    organization_id=\"org_123\",\n    page_size=30\n)\nfor client in response.clients:\n    print(f\"Client ID: {client.id}, Name: {client.name}\")"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.M2M().ListOrganizationClients(ctx, \"org_123\", scalekit.ListOrganizationClientsOptions{\n    PageSize: 30,\n})\nif err != nil {\n    // handle error\n}\nfor _, c := range resp.Clients {\n    fmt.Println(c.ClientId, c.Name)\n}"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ListOrganizationClientsResponse resp = scalekitClient.m2m().listOrganizationClients(\"org_123\", 30, null);\nfor (var client : resp.getClientsList()) {\n    System.out.println(client.getClientId() + \" \" + client.getName());\n}"
           }
         ]
       },
@@ -1831,9 +1908,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const { client } = await scalekit.m2m.createOrganizationClient(\"org_123\", {\n  name: \"GitHub Actions Deployment Service\",\n  description: \"Service account for GitHub Actions to deploy applications\nto production\",\n  scopes: [\"deploy:applications\", \"read:deployments\"],\n  audience: [\"deployment-api.acmecorp.com\"],\n});\n// client.clientId → store this for future management"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\nm2m_client = OrganizationClient(\n    name=\"GitHub Actions Deployment Service\",\n    description=\"Service account for GitHub Actions to deploy applications\nto production\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory-service\"},\n        {\"key\": \"environment\", \"value\": \"production_us\"}\n    ],\n    scopes=[\"deploy:applications\", \"read:deployments\"],\n    audience=[\"deployment-api.acmecorp.com\"],\n    expiry=3600\n)\n\nresponse = scalekit_client.m2m_client.create_organization_client(\n    organization_id=\"SCALEKIT_ORGANIZATION_ID\",\n    m2m_client=m2m_client\n)"
+            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\nm2m_client = OrganizationClient(\n    name=\"GitHub Actions Deployment Service\",\n    description=\"Service account for GitHub Actions to deploy applications\nto production\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory-service\"},\n        {\"key\": \"environment\", \"value\": \"production_us\"}\n    ],\n    scopes=[\"deploy:applications\", \"read:deployments\"],\n    audience=[\"deployment-api.acmecorp.com\"],\n)\nresponse = scalekit_client.m2m_client.create_organization_client(\n    organization_id=\"org_123\",\n    m2m_client=m2m_client\n)\n# response.client.id → store this for future management"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.M2M().CreateOrganizationClient(ctx, \"org_123\", scalekit.CreateOrganizationClientOptions{\n    Name:        \"GitHub Actions Deployment Service\",\n    Description: \"Service account for GitHub Actions to deploy applications\nto production\",\n    Scopes:      []string{\"deploy:applications\", \"read:deployments\"},\n    Audience:    []string{\"deployment-api.acmecorp.com\"},\n})\nif err != nil {\n    // handle error\n}\n// resp.Client.ClientId → store this for future management"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "OrganizationClient client = OrganizationClient.newBuilder()\n    .setName(\"GitHub Actions Deployment Service\")\n    .setDescription(\"Service account for GitHub Actions to deploy applications\nto production\")\n    .addScopes(\"deploy:applications\")\n    .addScopes(\"read:deployments\")\n    .addAudience(\"deployment-api.acmecorp.com\")\n    .build();\n\nCreateOrganizationClientResponse resp = scalekitClient.m2m().createOrganizationClient(\"org_123\", client);\n// resp.getClient().getClientId() → store this for future management"
           }
         ],
         "requestBody": {
@@ -1889,9 +1981,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const { client } = await scalekit.m2m.getOrganizationClient(\"org_123\", \"skc_client_456\");\nconsole.log(client.name, client.clientId);"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Get client ID from environment variables\norg_id = 'SCALEKIT_ORGANIZATION_ID'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Fetch client details for the specified organization\nresponse = scalekit_client.m2m_client.get_organization_client(\n    organization_id=org_id,\n    client_id=client_id\n)"
+            "source": "response = scalekit_client.m2m_client.get_organization_client(\n    organization_id=\"org_123\",\n    client_id=\"skc_client_456\"\n)\nprint(response.client.name, response.client.id)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.M2M().GetOrganizationClient(ctx, \"org_123\", \"skc_client_456\")\nif err != nil {\n    // handle error\n}\nfmt.Println(resp.Client.Name, resp.Client.ClientId)"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "GetOrganizationClientResponse resp = scalekitClient.m2m().getOrganizationClient(\"org_123\", \"skc_client_456\");\nSystem.out.println(resp.getClient().getName() + \" \" + resp.getClient().getClientId());"
           }
         ]
       },
@@ -1932,9 +2039,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.m2m.deleteOrganizationClient(\"org_123\", \"skc_client_456\");"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Get client ID from environment variables\norg_id = '<SCALEKIT_ORGANIZATION_ID>'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Delete the specified client from the organization\nresponse = scalekit_client.m2m_client.delete_organization_client(\n    organization_id=org_id,\n    client_id=client_id\n)"
+            "source": "scalekit_client.m2m_client.delete_organization_client(\n    organization_id=\"org_123\",\n    client_id=\"skc_client_456\"\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := scalekitClient.M2M().DeleteOrganizationClient(ctx, \"org_123\", \"skc_client_456\")\nif err != nil {\n    // handle error\n}"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "scalekitClient.m2m().deleteOrganizationClient(\"org_123\", \"skc_client_456\");"
           }
         ]
       },
@@ -1977,9 +2099,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const { client } = await scalekit.m2m.updateOrganizationClient(\"org_123\", \"skc_client_456\", {\n  description: \"Service account for GitHub Actions — EU production\",\n  scopes: [\"deploy:applications\", \"read:deployments\"],\n});"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\norg_id = '<SCALEKIT_ORGANIZATION_ID>'\nclient_id = os.environ['M2M_CLIENT_ID']\n\nupdate_m2m_client = OrganizationClient(\n    description=\"Service account for GitHub Actions to deploy applications\nto production_eu\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory\"},\n        {\"key\": \"environment\", \"value\": \"production_eu\"}\n    ]\n)\n\nresponse = scalekit_client.m2m_client.update_organization_client(\n    organization_id=org_id,\n    client_id=client_id,\n    m2m_client=update_m2m_client\n)"
+            "source": "from scalekit.v1.clients.clients_pb2 import OrganizationClient\n\nupdate_m2m_client = OrganizationClient(\n    description=\"Service account for GitHub Actions to deploy applications\nto production_eu\",\n    custom_claims=[\n        {\"key\": \"github_repository\", \"value\": \"acmecorp/inventory\"},\n        {\"key\": \"environment\", \"value\": \"production_eu\"}\n    ]\n)\nresponse = scalekit_client.m2m_client.update_organization_client(\n    organization_id=\"org_123\",\n    client_id=\"skc_client_456\",\n    m2m_client=update_m2m_client\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.M2M().UpdateOrganizationClient(ctx, \"org_123\", \"skc_client_456\", scalekit.UpdateOrganizationClientOptions{\n    Description: \"Service account for GitHub Actions — EU production\",\n    Scopes:      []string{\"deploy:applications\", \"read:deployments\"},\n})\nif err != nil {\n    // handle error\n}"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "OrganizationClient update = OrganizationClient.newBuilder()\n    .setDescription(\"Service account for GitHub Actions — EU production\")\n    .addScopes(\"deploy:applications\")\n    .addScopes(\"read:deployments\")\n    .build();\n\nUpdateOrganizationClientResponse resp = scalekitClient.m2m().updateOrganizationClient(\"org_123\", \"skc_client_456\", update);"
           }
         ],
         "requestBody": {
@@ -2035,9 +2172,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const { secret, plainSecret } = await scalekit.m2m.addOrganizationClientSecret(\"org_123\", \"skc_client_456\");\n// plainSecret       → store securely; it will not be shown again\n// secret.secretId   → use to delete this secret later"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Get client ID from environment variables\norg_id = 'SCALEKIT_ORGANIZATION_ID'\nclient_id = os.environ['M2M_CLIENT_ID']\n\n# Add a new secret to the specified client\nresponse = scalekit_client.m2m_client.add_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id\n)\n\n# Extract the secret ID from the response\nsecret_id = response[0].secret.id"
+            "source": "response = scalekit_client.m2m_client.add_organization_client_secret(\n    organization_id=\"org_123\",\n    client_id=\"skc_client_456\"\n)\n# response.plain_secret → store securely; it will not be shown again\n# response.secret.id    → use to delete this secret later"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.M2M().CreateOrganizationClientSecret(ctx, \"org_123\", \"skc_client_456\")\nif err != nil {\n    // handle error\n}\n// resp.PlainSecret   → store securely; it will not be shown again\n// resp.Secret.Id     → use to delete this secret later"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "CreateOrganizationClientSecretResponse resp = scalekitClient.m2m().addOrganizationClientSecret(\"org_123\", \"skc_client_456\");\n// resp.getPlainSecret()    → store securely; it will not be shown again\n// resp.getSecret().getId() → use to delete this secret later"
           }
         ]
       }
@@ -2089,9 +2241,24 @@
         },
         "x-codeSamples": [
           {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "await scalekit.m2m.removeOrganizationClientSecret(\"org_123\", \"skc_client_456\", \"sec_789\");"
+          },
+          {
             "label": "Python SDK",
             "lang": "python",
-            "source": "# Get client and secret IDs from environment variables\norg_id = '<SCALEKIT_ORGANIZATION_ID>'\nclient_id = os.environ['M2M_CLIENT_ID']\nsecret_id = os.environ['M2M_SECRET_ID']\n\n# Remove the specified secret from the client\nresponse = scalekit_client.m2m_client.remove_organization_client_secret(\n    organization_id=org_id,\n    client_id=client_id,\n    secret_id=secret_id\n)"
+            "source": "scalekit_client.m2m_client.remove_organization_client_secret(\n    organization_id=\"org_123\",\n    client_id=\"skc_client_456\",\n    secret_id=\"sec_789\"\n)"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "err := scalekitClient.M2M().DeleteOrganizationClientSecret(ctx, \"org_123\", \"skc_client_456\", \"sec_789\")\nif err != nil {\n    // handle error\n}"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "scalekitClient.m2m().removeOrganizationClientSecret(\"org_123\", \"skc_client_456\", \"sec_789\");"
           }
         ]
       }
@@ -3282,7 +3449,29 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const { permissions } = await scalekit.user.listUserPermissions(\"org_123\", \"usr_123\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "resp = scalekit_client.users.list_user_permissions(\n    organization_id=\"org_123\",\n    user_id=\"usr_123\",\n)\npermissions = resp.permissions"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.User().ListUserPermissions(ctx, \"org_123\", \"usr_123\")\nif err != nil {\n    // handle error\n}\npermissions := resp.Permissions"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ListUserPermissionsResponse resp = scalekitClient.users().listUserPermissions(\"org_123\", \"usr_123\");\nList<Permission> permissions = resp.getPermissionsList();"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/users/{user_id}/roles": {
@@ -3322,7 +3511,29 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const { roles } = await scalekit.user.listUserRoles(\"org_123\", \"usr_123\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "resp = scalekit_client.users.list_user_roles(\n    organization_id=\"org_123\",\n    user_id=\"usr_123\",\n)\nroles = resp.roles"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.User().ListUserRoles(ctx, \"org_123\", \"usr_123\")\nif err != nil {\n    // handle error\n}\nroles := resp.Roles"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "ListUserRolesResponse resp = scalekitClient.users().listUserRoles(\"org_123\", \"usr_123\");\nList<Role> roles = resp.getRolesList();"
+          }
+        ]
       }
     },
     "/api/v1/organizations/{organization_id}/users:search": {
@@ -3343,16 +3554,21 @@
           },
           {
             "schema": {
-              "type": "string"
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 3
             },
             "description": "Search term to match against user email, IDs, or external IDs. Must be at least 3 characters. Case insensitive.",
             "name": "query",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "schema": {
               "type": "integer",
-              "format": "int64"
+              "format": "int64",
+              "maximum": 30,
+              "minimum": 1
             },
             "description": "Maximum number of users to return per page. Value must be between 1 and 30.",
             "name": "page_size",
@@ -4257,22 +4473,22 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "await scalekit.role.deleteRoleBase(\"admin\");"
+            "source": "await scalekit.role.deleteRoleBase(\"senior_editor\");"
           },
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "scalekit_client.roles.delete_role_base(role_name=\"admin\")"
+            "source": "scalekit_client.roles.delete_role_base(role_name=\"senior_editor\")"
           },
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "err := scalekitClient.Role().DeleteRoleBase(ctx, \"admin\")\nif err != nil { /* handle err */ }"
+            "source": "err := scalekitClient.Role().DeleteRoleBase(ctx, \"senior_editor\")\nif err != nil {\n    // handle error\n}"
           },
           {
             "label": "Java SDK",
             "lang": "java",
-            "source": "scalekitClient.roles().deleteRoleBase(\"admin\");"
+            "source": "scalekitClient.roles().deleteRoleBase(\"senior_editor\");"
           }
         ]
       }
@@ -4537,22 +4753,22 @@
           {
             "label": "Node.js SDK",
             "lang": "javascript",
-            "source": "const res = await scalekit.permission.listEffectiveRolePermissions(\"admin\");"
+            "source": "const { permissions } = await scalekit.permission.listEffectiveRolePermissions(\"senior_editor\");"
           },
           {
             "label": "Python SDK",
             "lang": "python",
-            "source": "res = scalekit_client.permissions.list_effective_role_permissions(role_name=\"admin\")"
+            "source": "response = scalekit_client.permissions.list_effective_role_permissions(role_name=\"senior_editor\")\npermissions = response.permissions"
           },
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "resp, err := scalekitClient.Permission().ListEffectiveRolePermissions(ctx, \"admin\")\nif err != nil { /* handle err */ }\n_ = resp"
+            "source": "resp, err := scalekitClient.Permission().ListEffectiveRolePermissions(ctx, \"senior_editor\")\nif err != nil {\n    // handle error\n}\npermissions := resp.Permissions"
           },
           {
             "label": "Java SDK",
             "lang": "java",
-            "source": "ListEffectiveRolePermissionsResponse res = scalekitClient.permissions().listEffectiveRolePermissions(\"admin\");"
+            "source": "ListEffectiveRolePermissionsResponse response = scalekitClient.permissions().listEffectiveRolePermissions(\"senior_editor\");\nList<Permission> permissions = response.getPermissionsList();"
           }
         ]
       }
@@ -4819,7 +5035,7 @@
           {
             "label": "Go SDK",
             "lang": "go",
-            "source": "all, err := scalekitClient.User().ListOrganizationUsers(ctx, \"\", &scalekit.ListUsersOptions{PageSize: 100})"
+            "source": "all, err := scalekitClient.User().ListUsers(ctx, &scalekit.ListUsersOptions{PageSize: 100})"
           },
           {
             "label": "Java SDK",
@@ -4865,7 +5081,29 @@
               }
             }
           }
-        }
+        },
+        "x-codeSamples": [
+          {
+            "label": "Node.js SDK",
+            "lang": "javascript",
+            "source": "const { user } = await scalekit.user.getUser(\"usr_123456\");"
+          },
+          {
+            "label": "Python SDK",
+            "lang": "python",
+            "source": "resp = scalekit_client.users.get_user(user_id=\"usr_123456\")\nuser = resp.user"
+          },
+          {
+            "label": "Go SDK",
+            "lang": "go",
+            "source": "resp, err := scalekitClient.User().GetUser(ctx, \"usr_123456\")\nif err != nil {\n    // handle error\n}\nuser := resp.User"
+          },
+          {
+            "label": "Java SDK",
+            "lang": "java",
+            "source": "GetUserResponse resp = scalekitClient.users().getUser(\"usr_123456\");\nUser user = resp.getUser();"
+          }
+        ]
       },
       "delete": {
         "description": "Permanently removes a user from your environment and deletes all associated data. Use this endpoint when you need to completely remove a user account. This action deletes the user's profile, memberships, and all related data across all organizations. This operation cannot be undone, so use with caution.",
@@ -5164,16 +5402,21 @@
         "parameters": [
           {
             "schema": {
-              "type": "string"
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 3
             },
             "description": "Search term to match against user email, IDs, or external IDs. Must be at least 3 characters. Case insensitive.",
             "name": "query",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "schema": {
               "type": "integer",
-              "format": "int64"
+              "format": "int64",
+              "maximum": 30,
+              "minimum": 1
             },
             "description": "Maximum number of users to return per page. Value must be between 1 and 30.",
             "name": "page_size",
@@ -5443,12 +5686,15 @@
   "components": {
     "schemas": {
       "HelpInfoLink": {
+        "description": "A documentation or reference link.",
         "type": "object",
         "properties": {
           "description": {
+            "description": "Human-readable label for the link (e.g. \"User verification flow\").",
             "type": "string"
           },
           "url": {
+            "description": "Absolute URL to the documentation page (e.g. \"https://docs.scalekit.com/...\").",
             "type": "string"
           }
         }
@@ -6424,7 +6670,7 @@
             "examples": ["google"]
           },
           "status": {
-            "description": "Current status of the connected account. Indicates if the account is active, expired, or pending authorization.",
+            "description": "Current status of the connected account. Indicates if the account is active, expired, pending authorization, or pending user identity verification.",
             "$ref": "#/components/schemas/connected_accountsConnectorStatus"
           },
           "token_expires_at": {
@@ -6499,10 +6745,10 @@
         }
       },
       "connected_accountsConnectorStatus": {
-        "description": "- ACTIVE: Account is connected and credentials are valid\n - EXPIRED: Access token has expired and needs refresh\n - PENDING_AUTH: Account awaiting user authorization",
+        "description": "- ACTIVE: Account is connected and credentials are valid\n - EXPIRED: Access token has expired and needs refresh\n - PENDING_AUTH: Account awaiting user authorization (re-auth initiated)\n - PENDING_VERIFICATION: OAuth complete; awaiting user identity verification\nbefore activation",
         "type": "string",
         "title": "Status of a connected account indicating its current state",
-        "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH"]
+        "enum": ["ACTIVE", "EXPIRED", "PENDING_AUTH", "PENDING_VERIFICATION"]
       },
       "connected_accountsConnectorType": {
         "description": "- OAUTH: OAuth 2.0 authorization with access and refresh tokens\n - API_KEY: Static API key authentication\n - BASIC_AUTH: HTTP Basic Authentication (username/password)\n - BEARER_TOKEN: Bearer token authentication\n - CUSTOM: Custom authentication mechanism\n - BASIC: Basic authentication (alias)",
@@ -6625,10 +6871,20 @@
             "type": "string",
             "examples": ["org_121312434123312"]
           },
+          "state": {
+            "description": "Optional opaque state value. State added to the user verify redirect URL query params to validate the user verification",
+            "type": "string",
+            "examples": ["QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY="]
+          },
           "user_id": {
             "description": "User ID for the connector",
             "type": "string",
             "examples": ["user_121312434123312"]
+          },
+          "user_verify_url": {
+            "description": "B2B app's user verify redirect URL",
+            "type": "string",
+            "examples": ["https://app.yourapp.com/user/verify/callback"]
           }
         }
       },
@@ -6808,6 +7064,32 @@
           "connected_account": {
             "description": "The updated connected account with refreshed credentials, new token expiry, and modified configuration settings.",
             "$ref": "#/components/schemas/connected_accountsConnectedAccount"
+          }
+        }
+      },
+      "connected_accountsVerifyConnectedAccountUserRequest": {
+        "type": "object",
+        "required": ["auth_request_id", "identifier"],
+        "properties": {
+          "auth_request_id": {
+            "description": "Auth request ID as base64url-encoded opaque token from the user verify redirect URL query params",
+            "type": "string",
+            "examples": ["QVNDSUFyY2hhYml0dGVyXzE2ODQ5NzIwNzI0NTY="]
+          },
+          "identifier": {
+            "description": "Current logged in user's connected account identifier",
+            "type": "string",
+            "examples": ["user@example.com"]
+          }
+        }
+      },
+      "connected_accountsVerifyConnectedAccountUserResponse": {
+        "type": "object",
+        "properties": {
+          "post_user_verify_redirect_url": {
+            "description": "URL to redirect the user to after successful verification",
+            "type": "string",
+            "examples": ["https://env1.example.com/connect/success"]
           }
         }
       },
@@ -8049,9 +8331,11 @@
         }
       },
       "errdetailsHelpInfo": {
+        "description": "HelpInfo provides documentation links attached to an error response.\nWhen present in ErrorInfo, clients should surface these links to help\ndevelopers resolve the error. For example, a missing required field error\nmay include a link to the relevant guide.",
         "type": "object",
         "properties": {
           "links": {
+            "description": "One or more links relevant to resolving the error.",
             "type": "array",
             "items": {
               "type": "object",
@@ -9795,7 +10079,7 @@
       },
       "v1connected_accountsCreateConnectedAccount": {
         "type": "object",
-        "title": "Payload for creating a new connected account - only authorization details required",
+        "title": "Payload for creating a new connected account - authorization details are optional",
         "properties": {
           "api_config": {
             "description": "Optional JSON configuration for connector-specific API settings such as rate limits, custom API endpoints, timeouts, or feature flags.",
@@ -9809,7 +10093,7 @@
             ]
           },
           "authorization_details": {
-            "description": "Required authentication credentials for the connected account. Must include either OAuth tokens (access_token, refresh_token, scopes) or static auth details (API keys, bearer tokens).",
+            "description": "Optional authentication credentials for the connected account. Include OAuth tokens (access_token, refresh_token, scopes) or static auth details (API keys, bearer tokens). Can be provided later via update.",
             "$ref": "#/components/schemas/connected_accountsAuthorizationDetails",
             "examples": [
               {
