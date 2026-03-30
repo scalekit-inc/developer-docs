@@ -413,8 +413,12 @@ export const redirects = {
   '/dev-kit/changelogs/java/version/v1-0-1': '/sdks/java/',
   '/dev-kit/changelogs/go/version/v1-0-4': '/sdks/go/',
 
+  // Agent connectors redirects
+  '/reference/agent-connectors': '/guides/integrations/agent-connectors/',
+  '/reference/agent-connectors/': '/guides/integrations/agent-connectors/',
+  '/connectors': '/guides/integrations/agent-connectors/',
+
   // Other redirects
-  '/connectors': '/reference/agent-connectors/',
   '/fsa/data-modeling': '/fsa/data-modelling/',
   '/guides': '/',
   '/mcp': '/authenticate/mcp/quickstart/',
