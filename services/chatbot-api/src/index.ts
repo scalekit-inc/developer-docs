@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import express from 'express'
-import { createAgentRouter } from '@scalekit/agentkit/express'
+import { streamText } from 'ai'
+import { anthropic } from '@ai-sdk/anthropic'
 import { searchDocsTool } from './tools/search-docs.js'
 import { createPylonIssueTool } from './tools/create-pylon-issue.js'
 import { SYSTEM_PROMPT } from './agent.js'
@@ -10,7 +11,7 @@ app.use(express.json())
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-user-id, x-org-id, x-is-admin')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
   if (req.method === 'OPTIONS') {
     res.sendStatus(200)
@@ -23,20 +24,23 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' })
 })
 
-app.use(
-  '/api/chat',
-  createAgentRouter({
-    systemPrompt: SYSTEM_PROMPT,
-    tools: [searchDocsTool, createPylonIssueTool],
-    model: 'claude-haiku-4-5-20251001',
+app.post('/api/chat', async (req, res) => {
+  const { messages, userId = '', orgId = '' } = req.body
+
+  const result = streamText({
+    model: anthropic('claude-haiku-4-5-20251001'),
+    system: SYSTEM_PROMPT,
+    messages,
     maxTokens: 1024,
-    context: (req) => ({
-      userId: (req.headers['x-user-id'] as string) ?? '',
-      orgId: (req.headers['x-org-id'] as string) ?? '',
-      isAdmin: req.headers['x-is-admin'] === 'true',
-    }),
-  }),
-)
+    maxSteps: 5,
+    tools: {
+      search_docs: searchDocsTool,
+      create_pylon_issue: createPylonIssueTool({ userId, orgId }),
+    },
+  })
+
+  result.pipeDataStreamToResponse(res)
+})
 
 const port = process.env.PORT ?? 3001
 app.listen(port, () => {

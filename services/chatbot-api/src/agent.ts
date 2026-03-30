@@ -1,8 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk'
-import { AgentRunner, ToolRegistry, InMemorySessionStore } from '@scalekit/agentkit'
-import { searchDocsTool } from './tools/search-docs.js'
-import { createPylonIssueTool } from './tools/create-pylon-issue.js'
-
 export const SYSTEM_PROMPT = `You are the Scalekit docs assistant. Be brief and direct — give concise answers, not full documentation.
 
 When answering questions:
@@ -26,24 +21,3 @@ If search_docs does not contain a clear answer to the question:
 Never guess or invent information about Scalekit products.
 Never reproduce large sections of documentation verbatim — snippet and link, don't dump.
 Never invent or assume API endpoints, SDK method names, parameter names, or return types. If the exact method signature or endpoint is not present in the search results, say so explicitly and direct the user to the API reference.`
-
-export function createAgent() {
-  const anthropic = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
-  })
-
-  const tools = new ToolRegistry()
-  tools.register(searchDocsTool)
-  tools.register(createPylonIssueTool)
-
-  const runner = new AgentRunner({
-    anthropic,
-    systemPrompt: SYSTEM_PROMPT,
-    tools,
-    sessionStore: new InMemorySessionStore(),
-    model: 'claude-haiku-4-5-20251001',
-    maxTokens: 1024,
-  })
-
-  return { runner, tools }
-}
