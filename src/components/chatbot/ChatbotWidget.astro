@@ -437,6 +437,26 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
     margin: 10px 0 !important;
   }
 
+  /* ── Sources section (rendered after the hr + Sources: line) ── */
+  .sk-sources {
+    display: block !important;
+    padding-top: 8px !important;
+    font-size: 12px !important;
+    color: #6b7280 !important;
+    line-height: 1.8 !important;
+  }
+  .sk-sources strong {
+    font-weight: 600 !important;
+    color: #6b7280 !important;
+  }
+  .sk-sources a {
+    color: #6366f1 !important;
+    text-decoration: none !important;
+  }
+  .sk-sources a:hover {
+    text-decoration: underline !important;
+  }
+
   /* ── Typing indicator ── */
   .sk-typing {
     display: flex !important;
@@ -682,6 +702,12 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
       }
       // Blank line
       if (line.trim() === '') {
+        i++
+        continue
+      }
+      // Sources line (**Sources:** ...)
+      if (/^\*\*Sources:\*\*/.test(line)) {
+        html += `<span class="sk-sources">${inlineMd(line)}</span>`
         i++
         continue
       }
