@@ -1,10 +1,9 @@
 <div align="left">
 
 <img
-  src="https://raw.githubusercontent.com/scalekit-inc/developer-docs/main/src/assets/images/logos-v4/sk-docs-light.svg"
+  src="./src/assets/images/logos-v4/sk-docs-white.svg"
   alt="Scalekit Docs"
   height="50"
-  style="background-color: white; padding: 8px; border-radius: 4px;"
 />
 
 <p>The open-source documentation site for Scalekit — the enterprise auth platform for B2B SaaS teams.<br />
