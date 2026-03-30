@@ -12,9 +12,16 @@ This file is the **single source of truth** for all documentation standards and 
 
 Every feature must include comprehensive, user-focused documentation. Documentation is not an afterthought but a first-class deliverable that guides implementation. All code changes require corresponding documentation updates.
 
-### Git Commits
+### Git workflow
 
 - Do NOT include `Co-Authored-By` lines in commit messages
+- **At the start of a fresh session, before making any changes**, ask the user: "Do you want me to cut a new branch or work on the current branch?"
+  - Branch names must follow the pattern `preview/<name>` where `<name>` contains no forward slashes
+- **Never force push** (`git push --force` or `git push -f`). If a push fails, stop and clearly explain the reason it failed — do not attempt workarounds without user confirmation.
+- **For commit, push, and PR creation**, spawn a subagent using the Haiku model to handle it. The pre-push hook generates large logs and PR creation output adds unnecessary noise to the main session context.
+- **Once the user confirms local testing works, or explicitly asks to commit and push**, commit all changes, push the branch, and open a PR against `main`. The PR must include:
+  - A crisp description of the changes
+  - A preview link in the format: `https://deploy-preview-{PR_NUMBER}--scalekit-starlight.netlify.app/{path-to-changed-page}/`
 
 ### SDK variable names (critical)
 
@@ -212,11 +219,38 @@ The `<Steps>` component requires a single continuous `<ol>`. Any broken indentat
    - ❌ WRONG — 4 spaces, or blank line before the bullets
    - ✅ CORRECT — 3 spaces, no blank line before bullets
 
-4. No blank line immediately after `<Steps>` opening tag
-   - ❌ WRONG — blank line after `<Steps>`
-   - ✅ CORRECT — content starts immediately after `<Steps>`
+4. A blank line after `<Steps>` is allowed
+   - Starlight documents `<Steps>` as wrapping a normal Markdown ordered list
+   - The important rule is that the content must still parse as one ordered list
+
+5. Prefer plain Markdown inside `<Steps>`
+   - Standard Markdown content inside steps is the most reliable pattern
+   - If a procedure contains mostly `<Tabs>` or other JSX-heavy blocks, prefer normal H2 sections instead of `<Steps>`
+
+6. When `<Tabs>` appears inside a step, keep the entire tabs block inside that list item
+   - Indent `<Tabs>`, `<TabItem>`, paragraphs, and fenced code blocks consistently under that step
+   - If the structure becomes fragile or hard to format, move the tabs block outside `</Steps>` or replace the whole procedure with standard section headings
 
 **Quick mental model**: Treat the entire `<Steps>` block as a single continuous list. All content (steps, continuation text, images, sub-bullets) must be indented to stay within that list structure.
+
+**Safe baseline pattern for `<Steps>`**:
+
+````mdx
+<Steps>
+1. ## Install dependencies
+
+```bash
+pnpm install
+```
+
+2. ## Continue with the next step
+
+   Add more content here.
+
+</Steps>
+````
+
+Use normal section headings instead of `<Steps>` when the content is mostly `<Tabs>`, long JSX blocks, or multiple embedded components.
 
 ### Linking and references
 
@@ -556,6 +590,12 @@ Before publishing documentation, verify:
 - [ ] SDK variable names follow the NON-NEGOTIABLE naming convention
 - [ ] Security implications are explained where relevant
 - [ ] Frontmatter includes title, description, and sidebar.label
+
+---
+
+## Patched Dependencies
+
+This project uses pnpm patches to fix upstream bugs. Before modifying patches or upgrading patched dependencies, read `project-docs/PATCHES.md` for context, removal criteria, and upgrade instructions.
 
 ---
 

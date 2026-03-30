@@ -161,6 +161,11 @@ Start with the Quickstart Collection, then follow the developer's question to th
   // Add external resources not included in main documentation
   optionalLinks: [
     {
+      label: 'API reference markdown',
+      url: '/apis.md',
+      description: 'LLM-friendly Markdown generated from the Scalekit OpenAPI specification',
+    },
+    {
       label: 'OpenAPI Specification',
       url: '/api/scalekit.scalar.json',
       description: 'OpenAPI Specification for Scalekit REST API',

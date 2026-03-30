@@ -24,6 +24,7 @@ import d2 from 'astro-d2' // https://astro-d2.vercel.app/configuration/
 import Icons from 'unplugin-icons/vite'
 
 import netlify from '@astrojs/netlify'
+import openapiToMarkdown from './src/integrations/openapi-markdown'
 
 // https://astro.build/config
 export default defineConfig({
@@ -33,6 +34,11 @@ export default defineConfig({
   // The few SSR pages (auth, health, admin) already have `prerender = false`.
   // output: 'server',
   site: 'https://docs.scalekit.com',
+  server: {
+    // Match Netlify dev's readiness probe, which connects to `localhost`.
+    host: 'localhost',
+    port: 4321,
+  },
   redirects,
   integrations: [
     starlight({
@@ -108,7 +114,7 @@ export default defineConfig({
           prompt: pageActionsPrompt,
           actions: {
             markdown: true,
-            chatgpt: true,
+            chatgpt: false,
             claude: true,
             custom: {
               cursor: {
@@ -310,6 +316,7 @@ export default defineConfig({
       layout: 'elk', // ELK layout engine for better positioning
       pad: 5,
     }),
+    openapiToMarkdown(),
   ],
 
   image: {
