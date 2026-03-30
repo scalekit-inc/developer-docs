@@ -47,9 +47,10 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
     if (window.__scalekitChatMounted) return
     window.__scalekitChatMounted = true
 
-    const [{ AgentTerminal }, { createRoot }] = await Promise.all([
+    const [{ AgentTerminal }, { createRoot }, { createElement }] = await Promise.all([
       import('@scalekit/agentkit/react'),
       import('react-dom/client'),
+      import('react'),
     ])
 
     const mount = document.getElementById('scalekit-chatbot-mount')
@@ -64,6 +65,8 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
       : {}
 
     const root = createRoot(mount)
-    root.render(AgentTerminal({ endpoint: `${endpoint}/api/chat`, headers, theme: 'zinc' }))
+    root.render(
+      createElement(AgentTerminal, { endpoint: `${endpoint}/api/chat`, headers, theme: 'zinc' }),
+    )
   }
 </script>
