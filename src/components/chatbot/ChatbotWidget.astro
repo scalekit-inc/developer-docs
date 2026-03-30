@@ -1,72 +1,525 @@
 ---
-// Chatbot widget component.
-// Currently uses AgentTerminal as placeholder.
-// Replace with AgentChatBubble once @scalekit/agentkit UI variants are complete.
+// Docs chatbot widget.
+// Talks directly to the chatbot-api SSE endpoint — no React dependency.
+// Replace with @scalekit/agentkit ChatBubble variant once UI variants are complete.
 const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3001'
 ---
 
-<div
-  id="scalekit-chatbot-container"
-  style="display:none; position:fixed; bottom:24px; right:24px; z-index:9999; width:420px; height:560px; border-radius:12px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.3);"
->
-  <div id="scalekit-chatbot-mount" style="width:100%; height:100%;"></div>
-</div>
-
-<button
-  id="scalekit-chatbot-trigger"
-  aria-label="Ask AI"
-  style="position:fixed; bottom:24px; right:24px; z-index:9999; width:48px; height:48px; border-radius:50%; background:#6366f1; border:none; cursor:pointer; color:white; font-size:20px; box-shadow:0 4px 12px rgba(99,102,241,0.4);"
->
-  💬
+<!-- Trigger button -->
+<button id="sk-chat-trigger" aria-label="Ask the docs AI" title="Ask the docs AI">
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+  </svg>
 </button>
 
+<!-- Chat panel -->
+<div id="sk-chat-panel" aria-label="Docs assistant" role="dialog" aria-modal="true">
+  <div id="sk-chat-header">
+    <div id="sk-chat-header-info">
+      <div id="sk-chat-avatar">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3h1V6a4 4 0 0 1 4-4z"
+          ></path>
+          <circle cx="9" cy="13" r="1" fill="currentColor"></circle>
+          <circle cx="15" cy="13" r="1" fill="currentColor"></circle>
+        </svg>
+      </div>
+      <div>
+        <div id="sk-chat-title">Docs assistant</div>
+        <div id="sk-chat-subtitle">Ask anything about Scalekit</div>
+      </div>
+    </div>
+    <button id="sk-chat-close" aria-label="Close">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div id="sk-chat-messages">
+    <div class="sk-msg sk-msg-assistant">
+      <div class="sk-msg-bubble">
+        Hi! Ask me anything about Scalekit — SSO, SCIM, Agent Auth, MCP, or full-stack auth. I'll
+        search the docs and answer based on what's there.
+      </div>
+    </div>
+  </div>
+
+  <div id="sk-chat-footer">
+    <div id="sk-chat-input-row">
+      <input
+        id="sk-chat-input"
+        type="text"
+        placeholder="Ask a question…"
+        autocomplete="off"
+        aria-label="Your question"
+      />
+      <button id="sk-chat-send" aria-label="Send" disabled>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <div id="sk-chat-powered">
+      Powered by Claude · <a href="https://docs.scalekit.com" target="_blank">Scalekit docs</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  #sk-chat-trigger {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9998;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #6366f1;
+    border: none;
+    cursor: pointer;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.45);
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  #sk-chat-trigger:hover {
+    transform: scale(1.07);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.55);
+  }
+
+  #sk-chat-panel {
+    position: fixed;
+    bottom: 88px;
+    right: 24px;
+    z-index: 9999;
+    width: 380px;
+    height: 540px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow:
+      0 8px 40px rgba(0, 0, 0, 0.14),
+      0 0 0 1px rgba(0, 0, 0, 0.06);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  #sk-chat-panel.sk-open {
+    display: flex;
+  }
+
+  #sk-chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: #6366f1;
+    color: white;
+    flex-shrink: 0;
+  }
+  #sk-chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #sk-chat-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  #sk-chat-title {
+    font-weight: 600;
+    font-size: 14px;
+  }
+  #sk-chat-subtitle {
+    font-size: 11px;
+    opacity: 0.8;
+    margin-top: 1px;
+  }
+  #sk-chat-close {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+    transition: opacity 0.15s;
+  }
+  #sk-chat-close:hover {
+    opacity: 1;
+  }
+
+  #sk-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+  }
+  #sk-chat-messages::-webkit-scrollbar {
+    width: 4px;
+  }
+  #sk-chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  #sk-chat-messages::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 4px;
+  }
+
+  .sk-msg {
+    display: flex;
+    flex-direction: column;
+  }
+  .sk-msg-user {
+    align-items: flex-end;
+  }
+  .sk-msg-assistant {
+    align-items: flex-start;
+  }
+
+  .sk-msg-bubble {
+    max-width: 88%;
+    padding: 10px 13px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    word-wrap: break-word;
+  }
+  .sk-msg-user .sk-msg-bubble {
+    background: #6366f1;
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+  .sk-msg-assistant .sk-msg-bubble {
+    background: #f3f4f6;
+    color: #111827;
+    border-bottom-left-radius: 4px;
+  }
+  .sk-msg-assistant .sk-msg-bubble a {
+    color: #6366f1;
+    text-decoration: underline;
+  }
+  .sk-msg-assistant .sk-msg-bubble code {
+    background: #e5e7eb;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  .sk-typing {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 12px 14px;
+  }
+  .sk-typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #9ca3af;
+    animation: sk-bounce 1.2s infinite;
+  }
+  .sk-typing span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .sk-typing span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+  @keyframes sk-bounce {
+    0%,
+    60%,
+    100% {
+      transform: translateY(0);
+    }
+    30% {
+      transform: translateY(-5px);
+    }
+  }
+
+  .sk-msg-error .sk-msg-bubble {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+  }
+
+  #sk-chat-footer {
+    border-top: 1px solid #f3f4f6;
+    padding: 12px 14px 10px;
+    flex-shrink: 0;
+  }
+  #sk-chat-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  #sk-chat-input {
+    flex: 1;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 9px 13px;
+    font-size: 13.5px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+    background: #f9fafb;
+    color: #111827;
+  }
+  #sk-chat-input:focus {
+    border-color: #6366f1;
+    background: #fff;
+  }
+  #sk-chat-input::placeholder {
+    color: #9ca3af;
+  }
+
+  #sk-chat-send {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #6366f1;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition:
+      background 0.15s,
+      opacity 0.15s;
+  }
+  #sk-chat-send:hover:not(:disabled) {
+    background: #4f46e5;
+  }
+  #sk-chat-send:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  #sk-chat-powered {
+    text-align: center;
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 8px;
+  }
+  #sk-chat-powered a {
+    color: #9ca3af;
+    text-decoration: none;
+  }
+  #sk-chat-powered a:hover {
+    color: #6366f1;
+  }
+</style>
+
 <script define:vars={{ chatApiUrl }}>
-  // Toggle open/close
-  const trigger = document.getElementById('scalekit-chatbot-trigger')
-  const container = document.getElementById('scalekit-chatbot-container')
-  let open = false
+  const panel = document.getElementById('sk-chat-panel')
+  const trigger = document.getElementById('sk-chat-trigger')
+  const closeBtn = document.getElementById('sk-chat-close')
+  const messages = document.getElementById('sk-chat-messages')
+  const input = document.getElementById('sk-chat-input')
+  const sendBtn = document.getElementById('sk-chat-send')
 
-  trigger?.addEventListener('click', () => {
-    open = !open
-    if (container) container.style.display = open ? 'block' : 'none'
-    if (trigger) trigger.style.display = open ? 'none' : 'flex'
-    if (open) window.__scalekitChatMount?.(chatApiUrl)
+  let sessionId = `sess_${Date.now()}`
+  let isStreaming = false
+
+  function open() {
+    panel.classList.add('sk-open')
+    trigger.style.display = 'none'
+    input.focus()
+  }
+  function close() {
+    panel.classList.remove('sk-open')
+    trigger.style.display = 'flex'
+  }
+
+  trigger.addEventListener('click', open)
+  closeBtn.addEventListener('click', close)
+
+  input.addEventListener('input', () => {
+    sendBtn.disabled = !input.value.trim() || isStreaming
   })
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && !sendBtn.disabled) sendMessage()
+  })
+  sendBtn.addEventListener('click', sendMessage)
 
-  // ScalekitChat.identify() API — call this from the app after auth
+  function scrollToBottom() {
+    messages.scrollTop = messages.scrollHeight
+  }
+
+  function appendMessage(role, text) {
+    const wrap = document.createElement('div')
+    wrap.className = `sk-msg sk-msg-${role}`
+    const bubble = document.createElement('div')
+    bubble.className = 'sk-msg-bubble'
+    bubble.textContent = text
+    wrap.appendChild(bubble)
+    messages.appendChild(wrap)
+    scrollToBottom()
+    return bubble
+  }
+
+  function appendTyping() {
+    const wrap = document.createElement('div')
+    wrap.className = 'sk-msg sk-msg-assistant'
+    wrap.id = 'sk-typing-indicator'
+    wrap.innerHTML =
+      '<div class="sk-msg-bubble sk-typing"><span></span><span></span><span></span></div>'
+    messages.appendChild(wrap)
+    scrollToBottom()
+    return wrap
+  }
+
+  async function sendMessage() {
+    const text = input.value.trim()
+    if (!text || isStreaming) return
+
+    input.value = ''
+    sendBtn.disabled = true
+    isStreaming = true
+
+    appendMessage('user', text)
+    const typing = appendTyping()
+
+    const user = window.__scalekitChatUser
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(user?.email ? { 'x-user-id': user.email } : {}),
+      ...(user?.orgId ? { 'x-org-id': user.orgId } : {}),
+    }
+
+    let assistantBubble = null
+
+    try {
+      const res = await fetch(`${chatApiUrl}/api/chat`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ message: text, sessionId }),
+      })
+
+      typing.remove()
+
+      if (!res.ok) {
+        appendMessage('error', `Error ${res.status}: could not reach the docs assistant.`)
+        return
+      }
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop()
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          try {
+            const event = JSON.parse(line.slice(6))
+            if (event.type === 'token') {
+              if (!assistantBubble) {
+                const wrap = document.createElement('div')
+                wrap.className = 'sk-msg sk-msg-assistant'
+                const bubble = document.createElement('div')
+                bubble.className = 'sk-msg-bubble'
+                wrap.appendChild(bubble)
+                messages.appendChild(wrap)
+                assistantBubble = bubble
+              }
+              assistantBubble.textContent += event.data.text
+              scrollToBottom()
+            } else if (event.type === 'error') {
+              if (!assistantBubble) {
+                const wrap = document.createElement('div')
+                wrap.className = 'sk-msg sk-msg-error'
+                const bubble = document.createElement('div')
+                bubble.className = 'sk-msg-bubble'
+                wrap.appendChild(bubble)
+                messages.appendChild(wrap)
+                assistantBubble = bubble
+              }
+              assistantBubble.textContent = event.data.message ?? 'Something went wrong.'
+              scrollToBottom()
+            }
+          } catch (_) {}
+        }
+      }
+    } catch (err) {
+      typing.remove()
+      appendMessage('error', 'Could not connect to the docs assistant. Please try again.')
+    } finally {
+      isStreaming = false
+      sendBtn.disabled = !input.value.trim()
+      input.focus()
+    }
+  }
+
+  // ScalekitChat.identify() API
   window.ScalekitChat = {
     identify: ({ email, name, orgId, orgName }) => {
       window.__scalekitChatUser = { email, name, orgId, orgName }
     },
-  }
-</script>
-
-<script>
-  // Mount the React widget lazily when the panel opens
-  window.__scalekitChatMount = async (endpoint: string) => {
-    if (window.__scalekitChatMounted) return
-    window.__scalekitChatMounted = true
-
-    const [{ AgentTerminal }, { createRoot }, { createElement }] = await Promise.all([
-      import('@scalekit/agentkit/react'),
-      import('react-dom/client'),
-      import('react'),
-    ])
-
-    const mount = document.getElementById('scalekit-chatbot-mount')
-    if (!mount) return
-
-    const user = window.__scalekitChatUser
-    const headers = user
-      ? {
-          'x-user-id': user.email ?? '',
-          'x-org-id': user.orgId ?? '',
-        }
-      : {}
-
-    const root = createRoot(mount)
-    root.render(
-      createElement(AgentTerminal, { endpoint: `${endpoint}/api/chat`, headers, theme: 'zinc' }),
-    )
   }
 </script>
