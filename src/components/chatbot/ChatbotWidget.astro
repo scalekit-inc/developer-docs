@@ -34,7 +34,7 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
             height="14"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="currentColor"
+            stroke="white"
             stroke-width="2.5"
             stroke-linecap="round"
             style="display:block"
@@ -310,6 +310,7 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
   .sk-msg {
     display: flex !important;
     flex-direction: column !important;
+    width: 100% !important;
   }
   .sk-msg-user {
     align-items: flex-end !important;
@@ -437,23 +438,27 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
     margin: 10px 0 !important;
   }
 
-  /* ── Sources section (rendered after the hr + Sources: line) ── */
+  /* ── Sources section ── */
   .sk-sources {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
     padding-top: 8px !important;
     font-size: 12px !important;
     color: #6b7280 !important;
-    line-height: 1.8 !important;
   }
   .sk-sources strong {
     font-weight: 600 !important;
     color: #6b7280 !important;
+    margin-bottom: 2px !important;
   }
-  .sk-sources a {
+  .sk-source-link {
+    display: block !important;
     color: #6366f1 !important;
     text-decoration: none !important;
+    padding: 2px 0 !important;
   }
-  .sk-sources a:hover {
+  .sk-source-link:hover {
     text-decoration: underline !important;
   }
 
@@ -652,8 +657,44 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
     const lines = text.split('\n')
     let html = ''
     let i = 0
+    let inSources = false
+
     while (i < lines.length) {
       const line = lines[i]
+
+      // Entering sources section: hr followed by **Sources:**
+      if (/^[-*_]{3,}$/.test(line.trim())) {
+        // Peek ahead — if next non-empty line is **Sources:**, start sources block
+        let j = i + 1
+        while (j < lines.length && lines[j].trim() === '') j++
+        if (j < lines.length && /^\*\*Sources:\*\*/.test(lines[j])) {
+          html += '<div class="sk-sources"><strong>Sources</strong>'
+          inSources = true
+          i = j + 1 // skip the hr and the **Sources:** label line
+          continue
+        }
+        html += '<hr>'
+        i++
+        continue
+      }
+
+      // Inside sources section: each non-empty line is a source link
+      if (inSources) {
+        if (line.trim() === '') {
+          i++
+          continue
+        }
+        // Render the link inline, wrapped in an anchor block
+        const linkMatch = line.match(/^\[([^\]]+)\]\((https?:\/\/[^)]+)\)/)
+        if (linkMatch) {
+          html += `<a class="sk-source-link" href="${linkMatch[2]}" target="_blank" rel="noopener">${escHtml(linkMatch[1])}</a>`
+        } else {
+          html += `<span>${inlineMd(line)}</span>`
+        }
+        i++
+        continue
+      }
+
       // Fenced code block
       if (line.startsWith('```')) {
         let code = ''
@@ -671,12 +712,6 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
       if (hm) {
         const n = hm[1].length
         html += `<h${n}>${inlineMd(hm[2])}</h${n}>`
-        i++
-        continue
-      }
-      // Horizontal rule
-      if (/^[-*_]{3,}$/.test(line.trim())) {
-        html += '<hr>'
         i++
         continue
       }
@@ -705,16 +740,12 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
         i++
         continue
       }
-      // Sources line (**Sources:** ...)
-      if (/^\*\*Sources:\*\*/.test(line)) {
-        html += `<span class="sk-sources">${inlineMd(line)}</span>`
-        i++
-        continue
-      }
       // Paragraph
       html += `<p>${inlineMd(line)}</p>`
       i++
     }
+
+    if (inSources) html += '</div>'
     return html
   }
 
@@ -780,9 +811,8 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
         body: JSON.stringify({ message: text, sessionId }),
       })
 
-      typing.remove()
-
       if (!res.ok) {
+        typing.remove()
         const err = document.createElement('div')
         err.className = 'sk-msg sk-msg-error'
         err.innerHTML = `<div class="sk-bubble">Error ${res.status} — could not reach the docs assistant.</div>`
@@ -807,16 +837,20 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
           try {
             const event = JSON.parse(line.slice(6))
             if (event.type === 'token') {
-              if (!bubble) bubble = createAssistantBubble()
+              if (!bubble) {
+                typing.remove()
+                bubble = createAssistantBubble()
+              }
               accumulated += event.data.text
               // Show raw text while streaming for responsiveness
               bubble.textContent = accumulated
               scrollToBottom()
             } else if (event.type === 'done') {
-              // Render full markdown once streaming completes
+              typing.remove()
               if (bubble && accumulated) bubble.innerHTML = renderMarkdown(accumulated)
               scrollToBottom()
             } else if (event.type === 'error') {
+              typing.remove()
               if (!bubble) bubble = createAssistantBubble()
               bubble.className = 'sk-bubble'
               bubble.closest('.sk-msg').className = 'sk-msg sk-msg-error'
