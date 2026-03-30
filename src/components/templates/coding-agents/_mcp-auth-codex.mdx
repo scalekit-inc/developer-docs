@@ -1,0 +1,71 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+<Steps>
+
+1. ## Install the Scalekit Auth Stack marketplace
+
+   Install Scalekit's Codex-native marketplace to access focused authentication plugins and reusable implementation guidance.
+
+   Run the bootstrap installer:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
+   ```
+
+   This installer downloads the marketplace from GitHub, installs it into `~/.codex/marketplaces/scalekit-auth-stack`, and only updates `~/.agents/plugins/marketplace.json` when it is safe to do so.
+
+   <Aside type="tip" title="If Codex skips your personal marketplace file">
+   The installer avoids overwriting another personal marketplace by default. If it skips that file, follow the installer's manual path and select the marketplace from `~/.codex/marketplaces/scalekit-auth-stack/.agents/plugins/marketplace.json`.
+   </Aside>
+
+2. ## Enable the MCP Auth plugin
+
+   Restart Codex so it reloads installed marketplaces, then open the Plugin Directory and select **Scalekit Auth Stack**.
+
+   Install the `mcp-auth` plugin. This plugin includes the workflows, framework-specific guidance, and references Codex uses to generate OAuth 2.1 protection for remote MCP servers.
+
+3. ## Generate the authentication implementation
+
+   Use a structured prompt to direct Codex. A well-formed prompt helps Codex generate complete, production-ready authentication code that includes all required security components.
+
+   Copy the following prompt into Codex:
+
+   ```md wrap showLineNumbers=false title="Authentication implementation prompt"
+   Add OAuth 2.1 authentication to my MCP server using Scalekit. Initialize ScalekitClient with environment credentials, implement /.well-known/ metadata endpoint for discovery, and add authentication middleware that validates JWT bearer tokens on all MCP requests. Code only.
+   ```
+
+   When you submit this prompt, Codex loads the MCP Auth plugin from the Scalekit Auth Stack marketplace, analyzes your existing MCP server structure, generates authentication middleware with token validation, creates the OAuth discovery endpoint, and configures environment variable handling.
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
+   </Aside>
+
+4. ## Verify and test the implementation
+
+   After Codex completes, verify that all authentication components are properly configured:
+
+   Check generated files:
+   - Authentication middleware with JWT validation
+   - Environment variable configuration (`.env.example`)
+   - OAuth discovery endpoint (`/.well-known/oauth-authorization-server`)
+   - Error handling for invalid or expired tokens
+
+   Test the authentication flow:
+
+   ```bash title="Terminal" frame="terminal"
+   # Start your MCP server
+   npm start
+
+   # Test discovery endpoint
+   curl http://localhost:3000/.well-known/oauth-authorization-server
+
+   # Test protected endpoint (should return 401)
+   curl http://localhost:3000/mcp
+
+   # Test with valid token
+   curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/mcp
+   ```
+
+   The discovery endpoint should return OAuth configuration metadata. Protected endpoints should reject requests without valid tokens and accept requests with properly scoped access tokens.
+
+</Steps>

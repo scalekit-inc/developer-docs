@@ -1,0 +1,79 @@
+---
+title: "JumpCloud - OIDC"
+description: "Learn how to set up OpenID Connect (OIDC) Single Sign-On (SSO) using JumpCloud, with step-by-step instructions for OIDC application setup."
+prev: false
+next: false
+sidebar:
+  order: 11
+  label: "JumpCloud"
+  badge:
+    variant: note
+    text: OIDC
+---
+
+import { Steps, Aside } from "@astrojs/starlight/components"
+
+This guide walks you through configuring JumpCloud as your OIDC identity provider. You'll create a custom OIDC application, add the redirect URI, provide the required OIDC values in the SSO Configuration Portal, assign access, test the connection, and then enable Single Sign-On.
+
+<Steps>
+1. ## Create an OIDC Application
+
+   Sign in to your **JumpCloud Admin Portal**. Go to **Access -> SSO Applications** and click **Add New Application**.
+
+   ![JumpCloud SSO Applications page with Add New Application](@/assets/docs/guides/sso-integrations/jumpcloud-oidc/jumpcloud-sso-applications-add-new-application.png)
+
+   In the application catalog, search for **OIDC** and select **Custom OIDC App**.
+   ![Search for Custom OIDC App in JumpCloud](@/assets/docs/guides/sso-integrations/jumpcloud-oidc/jumpcloud-search-custom-oidc-app.png)
+   
+   Continue through the setup, confirm the OIDC app selection by clicking **Next**.
+   ![Select Custom OIDC App in JumpCloud](@/assets/docs/guides/sso-integrations/jumpcloud-oidc/jumpcloud-select-custom-oidc-app.png)
+   
+   Enter a recognizable Application name in **Display Label** field, and optionally upload an icon and click **Next**.
+   ![Enter general information for the JumpCloud OIDC application](@/assets/docs/guides/sso-integrations/jumpcloud-oidc/jumpcloud-oidc-app-general-information.png)
+   
+   Click **Configure Application**.
+   ![JumpCloud Custom OIDC App review step with Configure Application button](@/assets/docs/guides/sso-integrations/jumpcloud-oidc/jumpcloud-configure-application-review.png)
+
+2. ## Add Redirect URI
+
+   From the **SSO Configuration Portal**, copy the **Redirect URI** under **Service Provider Details**.
+   ![SSO Configuration Portal showing the JumpCloud OIDC Redirect URI](@/assets/docs/guides/sso-integrations/jumpcloud-oidc/jumpcloud-sso-portal-redirect-uri.png)
+
+   In JumpCloud, open the recently created OIDC application and navigate to **SSO** -> **Configuration Settings**. Paste the copied URI into the **Redirect URI** field. Add the login url of your application in **Login URL** field.
+   ![JumpCloud SSO configuration settings with Redirect URI and Login URL fields](@/assets/docs/guides/sso-integrations/jumpcloud-oidc/jumpcloud-configuration-settings-redirect-and-login-url.png)
+
+3. ## Configure Attributes
+
+   Scroll down to **Attribute Mapping** section, select **Email** and **Profile** as **Standard Scopes** and then click **Activate**.
+   ![JumpCloud attribute mapping with Email and Profile standard scopes selected](@/assets/docs/guides/sso-integrations/jumpcloud-oidc/jumpcloud-attribute-mapping-standard-scopes.png)
+
+4. ## Provide OIDC Configuration
+
+   From JumpCloud, copy the **Client ID** and **Client Secret**. For **Issuer URL**, use `https://oauth.id.jumpcloud.com`.
+   ![JumpCloud application activated dialog showing Client ID and Client Secret](@/assets/docs/guides/sso-integrations/jumpcloud-oidc/jumpcloud-client-id-and-secret-modal.png)
+
+   Add these values under **Identity Provider Configuration** in the **SSO Configuration Portal**, then click **Update**.
+   ![SSO Configuration Portal fields for JumpCloud Client ID and Client Secret](@/assets/docs/guides/sso-integrations/jumpcloud-oidc/jumpcloud-sso-portal-client-credentials.png)
+   ![SSO Configuration Portal showing the JumpCloud Issuer URL after update](@/assets/docs/guides/sso-integrations/jumpcloud-oidc/jumpcloud-sso-portal-issuer-url.png)
+
+
+5. ## Assign Users/Groups
+
+   On JumpCloud, navigate to **User Groups** tab. Assign the appropriate user groups to the new OIDC application and click **Save**.
+   ![JumpCloud User Groups tab with assigned groups selected for the OIDC app](@/assets/docs/guides/sso-integrations/jumpcloud-oidc/jumpcloud-user-groups-assignment.png)
+
+6. ## Test Connection
+
+   In the **SSO Configuration Portal**, click **Test Connection** to verify your configuration.
+
+   <Aside type="note">
+   If the connection fails, you'll see an error, the reason for the error, and a way to solve that error right on the screen.
+   </Aside>
+
+7. ## Enable Single Sign-On
+
+   Once the test succeeds, click **Enable Connection** to allow assigned users to sign in with JumpCloud OIDC.
+   ![SSO Configuration Portal with Enable Connection button for JumpCloud OIDC](@/assets/docs/guides/sso-integrations/jumpcloud-oidc/jumpcloud-enable-connection.png)
+
+   This completes the JumpCloud OIDC SSO setup for your application.
+</Steps>
