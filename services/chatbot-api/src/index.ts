@@ -15,7 +15,7 @@ app.use((_req, res, next) => {
   next()
 })
 
-app.options('*', (_req, res) => res.sendStatus(200))
+app.options('(.*)', (_req, res) => res.sendStatus(200))
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' })
