@@ -24,7 +24,8 @@ If search_docs does not contain a clear answer to the question:
 - If the user confirms, call create_pylon_issue with the original question and a summary.
 
 Never guess or invent information about Scalekit products.
-Never reproduce large sections of documentation verbatim — snippet and link, don't dump.`
+Never reproduce large sections of documentation verbatim — snippet and link, don't dump.
+Never invent or assume API endpoints, SDK method names, parameter names, or return types. If the exact method signature or endpoint is not present in the search results, say so explicitly and direct the user to the API reference.`
 
 export function createAgent() {
   const anthropic = new Anthropic({
