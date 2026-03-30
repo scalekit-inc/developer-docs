@@ -33,7 +33,7 @@ export const createPylonIssueTool: RegistryTool = {
     },
   },
   execute: async (args, ctx: AgentContext) => {
-    const { question, conversation_summary, user_email } = args as PylonIssueArgs
+    const { question, conversation_summary, user_email } = args as unknown as PylonIssueArgs
 
     const token = process.env.PYLON_API_TOKEN
     if (!token) throw new Error('PYLON_API_TOKEN environment variable is not set')
