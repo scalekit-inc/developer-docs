@@ -127,6 +127,52 @@ Fires when an organization admin disables their Single Sign-On connection in the
 
 ## Session events
 
+### `PORTAL_LOAD_SUCCESS`
+
+Fires when the admin portal session is created and loaded successfully. Use this to prompt users that the session is loaded.
+
+```json title="PORTAL_LOAD_SUCCESS"
+{
+  "event_type": "PORTAL_LOAD_SUCCESS",
+  "object": "session",
+  "message": "The admin portal loaded successfully",
+  "organization_id": "org_43982563588440584",
+  "data": {
+    "expiry": "2025-02-28T12:40:35.911Z" // ISO 8601 timestamp when session expires
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `event_type` | string | The type of event being triggered |
+| `object` | string | The object type associated with the event |
+| `organization_id` | string | Unique identifier for the organization |
+| `message` | string | Human-readable message describing the event |
+| `data.expiry` | string | ISO 8601 timestamp indicating when the session will expire |
+
+### `PORTAL_LOAD_FAILURE`
+
+Fires when the admin portal session failed to load. Use this to prompt users that the session has failed to load.
+
+```json title="PORTAL_LOAD_FAILURE"
+{
+  "event_type": "PORTAL_LOAD_FAILURE",
+  "object": "session",
+  "message": "The admin portal failed to load",
+  "data": {
+    "error_code": "SESSION_EXPIRED" // error code indicating why the session load failed
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `event_type` | string | The type of event being triggered |
+| `object` | string | The object type associated with the event |
+| `message` | string | Human-readable message describing the event |
+| `data.error_code` | string | Error code indicating why the session load failed |
+
 ### `PORTAL_SESSION_WARNING`
 
 Fires when the admin portal session is about to expire (typically 5 minutes before expiration). Use this to prompt users to save their work or refresh their session.
@@ -278,6 +324,14 @@ function initAdminPortalEventHandling(scalekitEnvironmentUrl) {
         handleDirectoryDisabled(organization_id, data);
         break;
 
+      case 'PORTAL_LOAD_SUCCESS':
+        handlePortalLoadSuccess(data.expiry);
+        break;
+
+      case 'PORTAL_LOAD_FAILURE':
+        handlePortalLoadFailure(data.error_code);
+        break;
+
       case 'PORTAL_SESSION_WARNING':
         handleSessionWarning(data.expiry);
         break;
@@ -305,6 +359,32 @@ function handleSSOEnabled(orgId, data) {
 
   // Update UI to reflect SSO is active
   updateOrganizationUI(orgId, { ssoEnabled: true });
+}
+
+function handlePortalLoadSuccess(expiryTime) {
+  const expiryDate = new Date(expiryTime);
+  console.log('[Admin Portal] Loaded successfully, session expires at', expiryDate);
+
+  // Update UI to show the portal is ready
+  document.getElementById('admin-portal-iframe').style.display = 'block';
+}
+
+function handlePortalLoadFailure(errorCode) {
+  console.error('[Admin Portal] Failed to load, error code:', errorCode);
+
+  // Hide the iframe and show an error message to the user
+  document.getElementById('admin-portal-iframe').style.display = 'none';
+
+  showModal({
+    title: 'Portal failed to load',
+    message: errorCode === 'SESSION_EXPIRED'
+      ? 'Your session has expired. Please refresh to continue.'
+      : `The admin portal could not be loaded (${errorCode}). Please try again.`,
+    action: {
+      label: 'Refresh Page',
+      onClick: () => window.location.reload()
+    }
+  });
 }
 
 function handleSessionWarning(expiryTime) {
