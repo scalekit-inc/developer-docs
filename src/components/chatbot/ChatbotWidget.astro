@@ -1,91 +1,85 @@
 ---
-// Docs chatbot widget.
-// Talks directly to the chatbot-api SSE endpoint — no React dependency.
-// Replace with @scalekit/agentkit ChatBubble variant once UI variants are complete.
+// Docs chatbot widget — ⌘K overlay style.
+// Pure vanilla JS + SSE, no React dependency, CSS-isolated from the docs site.
 const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3001'
 ---
 
-<!-- Trigger button -->
-<button id="sk-chat-trigger" aria-label="Ask the docs AI" title="Ask the docs AI">
-  <svg
-    width="22"
-    height="22"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-  </svg>
-</button>
+<!-- ⌘K overlay -->
+<div id="sk-overlay" role="dialog" aria-modal="true" aria-label="Docs assistant" aria-hidden="true">
+  <div id="sk-modal">
+    <div id="sk-modal-header">
+      <div id="sk-modal-header-left">
+        <div id="sk-modal-icon">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <span id="sk-modal-title">Docs assistant</span>
+      </div>
+      <div id="sk-modal-header-right">
+        <span id="sk-modal-hint">Press <kbd>Esc</kbd> to close</span>
+        <button id="sk-modal-close" aria-label="Close">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
 
-<!-- Chat panel -->
-<div id="sk-chat-panel" aria-label="Docs assistant" role="dialog" aria-modal="true">
-  <div id="sk-chat-header">
-    <div id="sk-chat-header-info">
-      <div id="sk-chat-avatar">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+    <div id="sk-messages">
+      <div class="sk-msg sk-msg-assistant">
+        <div class="sk-bubble">
+          Hi! Ask me anything about Scalekit — SSO, SCIM, Agent Auth, MCP, or full-stack auth. I'll
+          search the docs and answer based on what's there.
+        </div>
+      </div>
+
+      <div id="sk-suggestions">
+        <button class="sk-suggestion" data-q="How do I set up SSO with Okta?"
+          >How do I set up SSO with Okta?</button
         >
-          <path
-            d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3h1V6a4 4 0 0 1 4-4z"
-          ></path>
-          <circle cx="9" cy="13" r="1" fill="currentColor"></circle>
-          <circle cx="15" cy="13" r="1" fill="currentColor"></circle>
-        </svg>
-      </div>
-      <div>
-        <div id="sk-chat-title">Docs assistant</div>
-        <div id="sk-chat-subtitle">Ask anything about Scalekit</div>
-      </div>
-    </div>
-    <button id="sk-chat-close" aria-label="Close">
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-      >
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    </button>
-  </div>
-
-  <div id="sk-chat-messages">
-    <div class="sk-msg sk-msg-assistant">
-      <div class="sk-msg-bubble">
-        Hi! Ask me anything about Scalekit — SSO, SCIM, Agent Auth, MCP, or full-stack auth. I'll
-        search the docs and answer based on what's there.
+        <button class="sk-suggestion" data-q="How does SCIM provisioning work?"
+          >How does SCIM provisioning work?</button
+        >
+        <button class="sk-suggestion" data-q="How do AI agents authenticate with OAuth?"
+          >How do AI agents authenticate with OAuth?</button
+        >
+        <button class="sk-suggestion" data-q="What is Full Stack Auth?"
+          >What is Full Stack Auth?</button
+        >
       </div>
     </div>
-  </div>
 
-  <div id="sk-chat-footer">
-    <div id="sk-chat-input-row">
+    <div id="sk-input-area">
       <input
-        id="sk-chat-input"
+        id="sk-input"
         type="text"
-        placeholder="Ask a question…"
+        placeholder="Ask anything about Scalekit…"
         autocomplete="off"
         aria-label="Your question"
       />
-      <button id="sk-chat-send" aria-label="Send" disabled>
+      <button id="sk-send" aria-label="Send" disabled>
         <svg
-          width="16"
-          height="16"
+          width="15"
+          height="15"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -98,190 +92,285 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
         </svg>
       </button>
     </div>
-    <div id="sk-chat-powered">
-      Powered by Claude · <a href="https://docs.scalekit.com" target="_blank">Scalekit docs</a>
+
+    <div id="sk-footer">
+      Powered by Claude &middot; <a href="https://docs.scalekit.com" target="_blank" rel="noopener"
+        >Scalekit docs</a
+      >
     </div>
   </div>
 </div>
 
+<!-- Trigger pill -->
+<button id="sk-trigger" aria-label="Ask the docs AI (⌘K)">
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+  </svg>
+  <span>Ask AI</span>
+  <kbd>⌘K</kbd>
+</button>
+
 <style>
-  #sk-chat-trigger {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 9998;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: #6366f1;
-    border: none;
-    cursor: pointer;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.45);
-    transition:
-      transform 0.15s ease,
-      box-shadow 0.15s ease;
-  }
-  #sk-chat-trigger:hover {
-    transform: scale(1.07);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.55);
+  /* ── Reset: isolate widget from docs site global styles ── */
+  #sk-overlay *,
+  #sk-trigger,
+  #sk-trigger * {
+    all: unset;
+    box-sizing: border-box;
   }
 
-  #sk-chat-panel {
-    position: fixed;
-    bottom: 88px;
-    right: 24px;
-    z-index: 9999;
-    width: 380px;
-    height: 540px;
-    background: #fff;
-    border-radius: 16px;
+  /* ── Trigger pill ── */
+  #sk-trigger {
+    position: fixed !important;
+    bottom: 24px !important;
+    right: 24px !important;
+    z-index: 9997 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 8px 14px 8px 10px !important;
+    background: #fff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 999px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #374151 !important;
+    cursor: pointer !important;
     box-shadow:
-      0 8px 40px rgba(0, 0, 0, 0.14),
-      0 0 0 1px rgba(0, 0, 0, 0.06);
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
+      0 2px 8px rgba(0, 0, 0, 0.08),
+      0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+    transition:
+      box-shadow 0.15s,
+      border-color 0.15s !important;
+    white-space: nowrap !important;
   }
-  #sk-chat-panel.sk-open {
-    display: flex;
+  #sk-trigger:hover {
+    border-color: #6366f1 !important;
+    box-shadow:
+      0 4px 14px rgba(99, 102, 241, 0.2),
+      0 0 0 1px rgba(99, 102, 241, 0.2) !important;
   }
-
-  #sk-chat-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px;
-    background: #6366f1;
-    color: white;
-    flex-shrink: 0;
+  #sk-trigger svg {
+    color: #6366f1 !important;
+    flex-shrink: 0 !important;
   }
-  #sk-chat-header-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  #sk-chat-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  #sk-chat-title {
-    font-weight: 600;
-    font-size: 14px;
-  }
-  #sk-chat-subtitle {
-    font-size: 11px;
-    opacity: 0.8;
-    margin-top: 1px;
-  }
-  #sk-chat-close {
-    background: transparent;
-    border: none;
-    color: white;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.8;
-    transition: opacity 0.15s;
-  }
-  #sk-chat-close:hover {
-    opacity: 1;
+  #sk-trigger kbd {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 1px 5px !important;
+    background: #f3f4f6 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 4px !important;
+    font-size: 11px !important;
+    color: #6b7280 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
   }
 
-  #sk-chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    scroll-behavior: smooth;
+  /* ── Overlay backdrop ── */
+  #sk-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 9999 !important;
+    background: rgba(0, 0, 0, 0.45) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding-top: 12vh !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.18s ease !important;
   }
-  #sk-chat-messages::-webkit-scrollbar {
-    width: 4px;
+  #sk-overlay.sk-open {
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
-  #sk-chat-messages::-webkit-scrollbar-track {
-    background: transparent;
+
+  /* ── Modal panel ── */
+  #sk-modal {
+    width: 100% !important;
+    max-width: 620px !important;
+    margin: 0 16px !important;
+    background: #fff !important;
+    border-radius: 16px !important;
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.18),
+      0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 72vh !important;
+    overflow: hidden !important;
+    transform: translateY(-8px) scale(0.98) !important;
+    transition: transform 0.18s ease !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    color: #111827 !important;
   }
-  #sk-chat-messages::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
-    border-radius: 4px;
+  #sk-overlay.sk-open #sk-modal {
+    transform: translateY(0) scale(1) !important;
+  }
+
+  /* ── Header ── */
+  #sk-modal-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 14px 16px !important;
+    background: #6366f1 !important;
+    flex-shrink: 0 !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+  #sk-modal-header-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+  #sk-modal-icon {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+  #sk-modal-title {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #fff !important;
+  }
+  #sk-modal-header-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+  #sk-modal-hint {
+    font-size: 12px !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+  #sk-modal-hint kbd {
+    display: inline-block !important;
+    padding: 1px 5px !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 4px !important;
+    font-size: 11px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  }
+  #sk-modal-close {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    color: white !important;
+    transition: background 0.15s !important;
+    flex-shrink: 0 !important;
+  }
+  #sk-modal-close:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+  }
+
+  /* ── Messages ── */
+  #sk-messages {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    scroll-behavior: smooth !important;
+    min-height: 120px !important;
+  }
+  #sk-messages::-webkit-scrollbar {
+    width: 4px !important;
+  }
+  #sk-messages::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+  #sk-messages::-webkit-scrollbar-thumb {
+    background: #e5e7eb !important;
+    border-radius: 4px !important;
   }
 
   .sk-msg {
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
   }
   .sk-msg-user {
-    align-items: flex-end;
+    align-items: flex-end !important;
   }
   .sk-msg-assistant {
-    align-items: flex-start;
+    align-items: flex-start !important;
+  }
+  .sk-msg-error {
+    align-items: flex-start !important;
   }
 
-  .sk-msg-bubble {
-    max-width: 88%;
-    padding: 10px 13px;
-    border-radius: 12px;
-    font-size: 13.5px;
-    line-height: 1.55;
-    word-wrap: break-word;
+  .sk-bubble {
+    max-width: 85% !important;
+    padding: 10px 14px !important;
+    border-radius: 12px !important;
+    font-size: 13.5px !important;
+    line-height: 1.6 !important;
+    word-wrap: break-word !important;
+    white-space: pre-wrap !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    color: #111827 !important;
   }
-  .sk-msg-user .sk-msg-bubble {
-    background: #6366f1;
-    color: white;
-    border-bottom-right-radius: 4px;
+  .sk-msg-user .sk-bubble {
+    background: #6366f1 !important;
+    color: #fff !important;
+    border-bottom-right-radius: 4px !important;
   }
-  .sk-msg-assistant .sk-msg-bubble {
-    background: #f3f4f6;
-    color: #111827;
-    border-bottom-left-radius: 4px;
+  .sk-msg-assistant .sk-bubble {
+    background: #f3f4f6 !important;
+    border-bottom-left-radius: 4px !important;
   }
-  .sk-msg-assistant .sk-msg-bubble a {
-    color: #6366f1;
-    text-decoration: underline;
-  }
-  .sk-msg-assistant .sk-msg-bubble code {
-    background: #e5e7eb;
-    padding: 1px 5px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-family: 'SF Mono', 'Fira Code', monospace;
+  .sk-msg-error .sk-bubble {
+    background: #fef2f2 !important;
+    color: #dc2626 !important;
+    border: 1px solid #fecaca !important;
+    border-bottom-left-radius: 4px !important;
   }
 
+  /* ── Typing indicator ── */
   .sk-typing {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-    padding: 12px 14px;
+    display: flex !important;
+    gap: 5px !important;
+    align-items: center !important;
+    padding: 14px 14px !important;
   }
   .sk-typing span {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #9ca3af;
-    animation: sk-bounce 1.2s infinite;
+    display: block !important;
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 50% !important;
+    background: #9ca3af !important;
+    animation: sk-bounce 1.1s infinite !important;
   }
   .sk-typing span:nth-child(2) {
-    animation-delay: 0.2s;
+    animation-delay: 0.18s !important;
   }
   .sk-typing span:nth-child(3) {
-    animation-delay: 0.4s;
+    animation-delay: 0.36s !important;
   }
   @keyframes sk-bounce {
     0%,
@@ -294,104 +383,156 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
     }
   }
 
-  .sk-msg-error .sk-msg-bubble {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
+  /* ── Suggestions ── */
+  #sk-suggestions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin-top: 4px !important;
+  }
+  .sk-suggestion {
+    display: inline-block !important;
+    padding: 6px 12px !important;
+    background: #fff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 999px !important;
+    font-size: 12.5px !important;
+    color: #4b5563 !important;
+    cursor: pointer !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    transition:
+      border-color 0.15s,
+      color 0.15s !important;
+    white-space: nowrap !important;
+  }
+  .sk-suggestion:hover {
+    border-color: #6366f1 !important;
+    color: #6366f1 !important;
   }
 
-  #sk-chat-footer {
-    border-top: 1px solid #f3f4f6;
-    padding: 12px 14px 10px;
-    flex-shrink: 0;
+  /* ── Input area ── */
+  #sk-input-area {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 12px 14px !important;
+    border-top: 1px solid #f3f4f6 !important;
+    flex-shrink: 0 !important;
+    background: #fff !important;
   }
-  #sk-chat-input-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+  #sk-input {
+    flex: 1 !important;
+    height: 38px !important;
+    padding: 0 13px !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    font-size: 13.5px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    background: #f9fafb !important;
+    color: #111827 !important;
+    outline: none !important;
+    transition:
+      border-color 0.15s,
+      background 0.15s !important;
   }
-  #sk-chat-input {
-    flex: 1;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 9px 13px;
-    font-size: 13.5px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.15s;
-    background: #f9fafb;
-    color: #111827;
+  #sk-input:focus {
+    border-color: #6366f1 !important;
+    background: #fff !important;
   }
-  #sk-chat-input:focus {
-    border-color: #6366f1;
-    background: #fff;
-  }
-  #sk-chat-input::placeholder {
-    color: #9ca3af;
+  #sk-input::placeholder {
+    color: #9ca3af !important;
   }
 
-  #sk-chat-send {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: #6366f1;
-    border: none;
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+  #sk-send {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 10px !important;
+    background: #6366f1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    color: white !important;
+    flex-shrink: 0 !important;
     transition:
       background 0.15s,
-      opacity 0.15s;
+      opacity 0.15s !important;
   }
-  #sk-chat-send:hover:not(:disabled) {
-    background: #4f46e5;
+  #sk-send:hover:not([disabled]) {
+    background: #4f46e5 !important;
   }
-  #sk-chat-send:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
+  #sk-send[disabled] {
+    opacity: 0.35 !important;
+    cursor: not-allowed !important;
   }
 
-  #sk-chat-powered {
-    text-align: center;
-    font-size: 11px;
-    color: #9ca3af;
-    margin-top: 8px;
+  /* ── Footer ── */
+  #sk-footer {
+    text-align: center !important;
+    font-size: 11px !important;
+    color: #9ca3af !important;
+    padding: 0 14px 10px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    flex-shrink: 0 !important;
+    background: #fff !important;
   }
-  #sk-chat-powered a {
-    color: #9ca3af;
-    text-decoration: none;
+  #sk-footer a {
+    color: #9ca3af !important;
+    text-decoration: underline !important;
+    cursor: pointer !important;
   }
-  #sk-chat-powered a:hover {
-    color: #6366f1;
+  #sk-footer a:hover {
+    color: #6366f1 !important;
   }
 </style>
 
 <script define:vars={{ chatApiUrl }}>
-  const panel = document.getElementById('sk-chat-panel')
-  const trigger = document.getElementById('sk-chat-trigger')
-  const closeBtn = document.getElementById('sk-chat-close')
-  const messages = document.getElementById('sk-chat-messages')
-  const input = document.getElementById('sk-chat-input')
-  const sendBtn = document.getElementById('sk-chat-send')
+  const overlay = document.getElementById('sk-overlay')
+  const trigger = document.getElementById('sk-trigger')
+  const closeBtn = document.getElementById('sk-modal-close')
+  const messages = document.getElementById('sk-messages')
+  const input = document.getElementById('sk-input')
+  const sendBtn = document.getElementById('sk-send')
+  const suggestions = document.getElementById('sk-suggestions')
 
   let sessionId = `sess_${Date.now()}`
   let isStreaming = false
 
-  function open() {
-    panel.classList.add('sk-open')
-    trigger.style.display = 'none'
+  function openWidget() {
+    overlay.classList.add('sk-open')
+    overlay.setAttribute('aria-hidden', 'false')
     input.focus()
   }
-  function close() {
-    panel.classList.remove('sk-open')
-    trigger.style.display = 'flex'
+  function closeWidget() {
+    overlay.classList.remove('sk-open')
+    overlay.setAttribute('aria-hidden', 'true')
   }
 
-  trigger.addEventListener('click', open)
-  closeBtn.addEventListener('click', close)
+  trigger.addEventListener('click', openWidget)
+  closeBtn.addEventListener('click', closeWidget)
+
+  // Close on backdrop click
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeWidget()
+  })
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault()
+      overlay.classList.contains('sk-open') ? closeWidget() : openWidget()
+    }
+    if (e.key === 'Escape' && overlay.classList.contains('sk-open')) closeWidget()
+  })
+
+  // Suggestion pills
+  suggestions.addEventListener('click', (e) => {
+    const btn = e.target.closest('.sk-suggestion')
+    if (!btn) return
+    input.value = btn.dataset.q
+    sendBtn.disabled = false
+    sendMessage()
+  })
 
   input.addEventListener('input', () => {
     sendBtn.disabled = !input.value.trim() || isStreaming
@@ -409,7 +550,7 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
     const wrap = document.createElement('div')
     wrap.className = `sk-msg sk-msg-${role}`
     const bubble = document.createElement('div')
-    bubble.className = 'sk-msg-bubble'
+    bubble.className = 'sk-bubble'
     bubble.textContent = text
     wrap.appendChild(bubble)
     messages.appendChild(wrap)
@@ -417,12 +558,12 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
     return bubble
   }
 
-  function appendTyping() {
+  function showTyping() {
     const wrap = document.createElement('div')
     wrap.className = 'sk-msg sk-msg-assistant'
-    wrap.id = 'sk-typing-indicator'
+    wrap.id = 'sk-typing'
     wrap.innerHTML =
-      '<div class="sk-msg-bubble sk-typing"><span></span><span></span><span></span></div>'
+      '<div class="sk-bubble sk-typing"><span></span><span></span><span></span></div>'
     messages.appendChild(wrap)
     scrollToBottom()
     return wrap
@@ -432,12 +573,15 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
     const text = input.value.trim()
     if (!text || isStreaming) return
 
+    // Hide suggestions after first message
+    suggestions.style.display = 'none'
+
     input.value = ''
     sendBtn.disabled = true
     isStreaming = true
 
     appendMessage('user', text)
-    const typing = appendTyping()
+    const typing = showTyping()
 
     const user = window.__scalekitChatUser
     const headers = {
@@ -458,7 +602,7 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
       typing.remove()
 
       if (!res.ok) {
-        appendMessage('error', `Error ${res.status}: could not reach the docs assistant.`)
+        appendMessage('error', `Error ${res.status} — could not reach the docs assistant.`)
         return
       }
 
@@ -483,7 +627,7 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
                 const wrap = document.createElement('div')
                 wrap.className = 'sk-msg sk-msg-assistant'
                 const bubble = document.createElement('div')
-                bubble.className = 'sk-msg-bubble'
+                bubble.className = 'sk-bubble'
                 wrap.appendChild(bubble)
                 messages.appendChild(wrap)
                 assistantBubble = bubble
@@ -495,7 +639,7 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
                 const wrap = document.createElement('div')
                 wrap.className = 'sk-msg sk-msg-error'
                 const bubble = document.createElement('div')
-                bubble.className = 'sk-msg-bubble'
+                bubble.className = 'sk-bubble'
                 wrap.appendChild(bubble)
                 messages.appendChild(wrap)
                 assistantBubble = bubble
@@ -506,7 +650,7 @@ const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3
           } catch (_) {}
         }
       }
-    } catch (err) {
+    } catch (_) {
       typing.remove()
       appendMessage('error', 'Could not connect to the docs assistant. Please try again.')
     } finally {
