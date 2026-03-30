@@ -1,0 +1,69 @@
+---
+// Chatbot widget component.
+// Currently uses AgentTerminal as placeholder.
+// Replace with AgentChatBubble once @scalekit/agentkit UI variants are complete.
+const chatApiUrl = import.meta.env.PUBLIC_CHATBOT_API_URL ?? 'http://localhost:3001'
+---
+
+<div
+  id="scalekit-chatbot-container"
+  style="display:none; position:fixed; bottom:24px; right:24px; z-index:9999; width:420px; height:560px; border-radius:12px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.3);"
+>
+  <div id="scalekit-chatbot-mount" style="width:100%; height:100%;"></div>
+</div>
+
+<button
+  id="scalekit-chatbot-trigger"
+  aria-label="Ask AI"
+  style="position:fixed; bottom:24px; right:24px; z-index:9999; width:48px; height:48px; border-radius:50%; background:#6366f1; border:none; cursor:pointer; color:white; font-size:20px; box-shadow:0 4px 12px rgba(99,102,241,0.4);"
+>
+  💬
+</button>
+
+<script define:vars={{ chatApiUrl }}>
+  // Toggle open/close
+  const trigger = document.getElementById('scalekit-chatbot-trigger')
+  const container = document.getElementById('scalekit-chatbot-container')
+  let open = false
+
+  trigger?.addEventListener('click', () => {
+    open = !open
+    if (container) container.style.display = open ? 'block' : 'none'
+    if (trigger) trigger.style.display = open ? 'none' : 'flex'
+    if (open) window.__scalekitChatMount?.(chatApiUrl)
+  })
+
+  // ScalekitChat.identify() API — call this from the app after auth
+  window.ScalekitChat = {
+    identify: ({ email, name, orgId, orgName }) => {
+      window.__scalekitChatUser = { email, name, orgId, orgName }
+    },
+  }
+</script>
+
+<script is:inline>
+  // Mount the React widget lazily when the panel opens
+  window.__scalekitChatMount = async (endpoint) => {
+    if (window.__scalekitChatMounted) return
+    window.__scalekitChatMounted = true
+
+    const [{ AgentTerminal }, { createRoot }] = await Promise.all([
+      import('@scalekit/agentkit/react'),
+      import('react-dom/client'),
+    ])
+
+    const mount = document.getElementById('scalekit-chatbot-mount')
+    if (!mount) return
+
+    const user = window.__scalekitChatUser
+    const headers = user
+      ? {
+          'x-user-id': user.email ?? '',
+          'x-org-id': user.orgId ?? '',
+        }
+      : {}
+
+    const root = createRoot(mount)
+    root.render(AgentTerminal({ endpoint: `${endpoint}/api/chat`, headers, theme: 'zinc' }))
+  }
+</script>
