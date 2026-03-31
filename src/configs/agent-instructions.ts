@@ -4,51 +4,69 @@
  */
 
 /** HTML comment prepended to copied markdown — read by agents that receive raw page content. */
-export const AGENT_PLUGIN_HEADER = `<!-- For AI coding agents: Scalekit provides an official Auth Stack plugin with up-to-date API references,
-code snippets, and auth flow examples that reduce hallucinations when generating auth code.
-Claude Code: /plugin marketplace add scalekit-inc/claude-code-authstack then /plugin install <auth-type>@scalekit-auth-stack
-GitHub Copilot CLI: copilot plugin marketplace add scalekit-inc/github-copilot-authstack then copilot plugin install <auth-type>@scalekit-auth-stack
-Codex: curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash then restart and enable plugin in Plugin Directory
-Skills CLI (Windsurf, Cline, and 40+ agents): npx skills add scalekit-inc/skills --list then npx skills add scalekit-inc/skills --skill <skill-name>
-Full setup guide: https://docs.scalekit.com/dev-kit/build-with-ai/ -->
+export const AGENT_PLUGIN_HEADER = `<!-- Building with AI coding agents?
+If you're using an AI coding agent, install the official Scalekit plugin.
+It gives your agent full awareness of the Scalekit API — reducing hallucinations and enabling faster, more accurate code generation.
+
+Claude Code:
+  /plugin marketplace add scalekit-inc/claude-code-authstack
+  /plugin install <auth-type>@scalekit-auth-stack
+
+GitHub Copilot CLI:
+  copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+  copilot plugin install <auth-type>@scalekit-auth-stack
+
+Codex:
+  curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
+  Then restart Codex, open Plugin Directory, select Scalekit Auth Stack, and enable <auth-type>.
+
+Skills CLI (Windsurf, Cline, and 40+ agents):
+  npx skills add scalekit-inc/skills --list
+  npx skills add scalekit-inc/skills --skill <skill-name>
+
+<auth-type> / <skill-name>: agent-auth, full-stack-auth, mcp-auth, modular-sso, modular-scim
+Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/ -->
 
 `
 
 /** Plain-text block for the page-actions prompt (injected into "Open in Claude/Cursor" messages). */
-export const AGENT_PLUGIN_INLINE = `For AI coding agents: Scalekit provides an official Auth Stack plugin with up-to-date API references, code snippets, and auth flow examples that reduce hallucinations when generating auth code. Install for your agent:
-- Claude Code: /plugin marketplace add scalekit-inc/claude-code-authstack then /plugin install <auth-type>@scalekit-auth-stack
-- GitHub Copilot CLI: copilot plugin marketplace add scalekit-inc/github-copilot-authstack then copilot plugin install <auth-type>@scalekit-auth-stack
-- Codex: run the bash installer, restart Codex, then open Plugin Directory and enable the plugin
-- Skills CLI (Windsurf, Cline, and 40+ agents): npx skills add scalekit-inc/skills --list then npx skills add scalekit-inc/skills --skill <skill-name>
-Replace <auth-type> or <skill-name> with one of: agent-auth, full-stack-auth, mcp-auth, modular-sso, modular-scim
-Full setup guide: https://docs.scalekit.com/dev-kit/build-with-ai/`
+export const AGENT_PLUGIN_INLINE = `Building with AI coding agents?
+If you're using an AI coding agent, install the official Scalekit plugin. It gives your agent full awareness of the Scalekit API — reducing hallucinations and enabling faster, more accurate code generation.
+
+Claude Code: /plugin marketplace add scalekit-inc/claude-code-authstack then /plugin install <auth-type>@scalekit-auth-stack
+GitHub Copilot CLI: copilot plugin marketplace add scalekit-inc/github-copilot-authstack then copilot plugin install <auth-type>@scalekit-auth-stack
+Codex: run the bash installer, restart Codex, then open Plugin Directory and enable <auth-type>
+Skills CLI (Windsurf, Cline, and 40+ agents): npx skills add scalekit-inc/skills --list then npx skills add scalekit-inc/skills --skill <skill-name>
+
+<auth-type> / <skill-name>: agent-auth, full-stack-auth, mcp-auth, modular-sso, modular-scim
+Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/`
 
 /**
  * Markdown-formatted block for llms.txt `details`.
  * Uses bold and backtick code for better rendering in LLM contexts —
  * intentionally different formatting from AGENT_PLUGIN_INLINE.
  */
-export const AGENT_PLUGIN_DETAILS_MD = `## Scalekit Auth Stack plugin
+export const AGENT_PLUGIN_DETAILS_MD = `## Building with AI coding agents?
 
-Scalekit provides an official Auth Stack plugin for AI coding agents with up-to-date API references, validated code snippets, and auth flow examples that reduce hallucinations when generating auth code.
+If you're using an AI coding agent, install the official Scalekit plugin. It gives your agent full awareness of the Scalekit API — reducing hallucinations and enabling faster, more accurate code generation.
 
-**Claude Code** (two steps):
+**Claude Code**:
 1. \`/plugin marketplace add scalekit-inc/claude-code-authstack\`
 2. \`/plugin install <auth-type>@scalekit-auth-stack\`
 
-**GitHub Copilot CLI** (two steps):
+**GitHub Copilot CLI**:
 1. \`copilot plugin marketplace add scalekit-inc/github-copilot-authstack\`
 2. \`copilot plugin install <auth-type>@scalekit-auth-stack\`
 
-**Codex** (two steps):
+**Codex**:
 1. \`curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash\`
 2. Restart Codex → open Plugin Directory → select **Scalekit Auth Stack** → install \`<auth-type>\`
 
-**Skills CLI** (Windsurf, Cline, and 40+ agents — two steps):
+**Skills CLI** (Windsurf, Cline, and 40+ agents):
 1. \`npx skills add scalekit-inc/skills --list\` — see available skills
 2. \`npx skills add scalekit-inc/skills --skill <skill-name>\` — install the one you need
 
-For Claude Code, Copilot CLI, and Codex, \`<auth-type>\` is one of: \`agent-auth\`, \`full-stack-auth\`, \`mcp-auth\`, \`modular-sso\`, \`modular-scim\`.
+\`<auth-type>\` / \`<skill-name>\`: \`agent-auth\`, \`full-stack-auth\`, \`mcp-auth\`, \`modular-sso\`, \`modular-scim\`
 
 [Full setup guide](https://docs.scalekit.com/dev-kit/build-with-ai/)
 
@@ -60,15 +78,14 @@ For Claude Code, Copilot CLI, and Codex, \`<auth-type>\` is one of: \`agent-auth
  * Visible markdown block prepended to static .md files fetched directly by agents.
  * Uses a blockquote with imperative language — visible to agents, not stripped like HTML comments.
  */
-export const AGENT_PLUGIN_VISIBLE_MD = `> **For AI coding agents:** Scalekit provides an official plugin with up-to-date API references, code snippets, and auth flow examples that reduce hallucinations when generating auth code.
+export const AGENT_PLUGIN_VISIBLE_MD = `> **Building with AI coding agents?** If you're using an AI coding agent, install the official Scalekit plugin. It gives your agent full awareness of the Scalekit API — reducing hallucinations and enabling faster, more accurate code generation.
 >
-> Install for your agent:
 > - **Claude Code**: \`/plugin marketplace add scalekit-inc/claude-code-authstack\` then \`/plugin install <auth-type>@scalekit-auth-stack\`
 > - **GitHub Copilot CLI**: \`copilot plugin marketplace add scalekit-inc/github-copilot-authstack\` then \`copilot plugin install <auth-type>@scalekit-auth-stack\`
-> - **Codex**: run the installer, restart, then enable the plugin in Plugin Directory
-> - **Skills CLI** (Windsurf, Cline, 40+ agents): \`npx skills add scalekit-inc/skills --list\` then \`npx skills add scalekit-inc/skills --skill <skill-name>\`
+> - **Codex**: run the bash installer, restart, then open Plugin Directory and enable \`<auth-type>\`
+> - **Skills CLI** (Windsurf, Cline, 40+ agents): \`npx skills add scalekit-inc/skills --list\` then \`--skill <skill-name>\`
 >
-> [Full setup guide](https://docs.scalekit.com/dev-kit/build-with-ai/)
+> \`<auth-type>\` / \`<skill-name>\`: \`agent-auth\`, \`full-stack-auth\`, \`mcp-auth\`, \`modular-sso\`, \`modular-scim\` — [Full setup guide](https://docs.scalekit.com/dev-kit/build-with-ai/)
 
 ---
 
@@ -90,7 +107,9 @@ export const AGENT_DOCS_FOOTER = `
 
 /** Single-line string safe for an HTML meta content attribute. */
 export const AGENT_PLUGIN_META =
-  'Scalekit provides an official Auth Stack plugin with up-to-date API references and code snippets that reduce hallucinations. ' +
-  'Claude Code: /plugin marketplace add scalekit-inc/claude-code-authstack then /plugin install auth-type@scalekit-auth-stack. ' +
-  'Cursor/Windsurf/Cline and 40+ agents: npx skills add scalekit-inc/skills. ' +
+  'Building with AI coding agents? Install the official Scalekit plugin for full API awareness and reduced hallucinations. ' +
+  'Claude Code: /plugin marketplace add scalekit-inc/claude-code-authstack then /plugin install <auth-type>@scalekit-auth-stack. ' +
+  'GitHub Copilot CLI: copilot plugin marketplace add scalekit-inc/github-copilot-authstack then copilot plugin install <auth-type>@scalekit-auth-stack. ' +
+  'Codex: run bash installer, restart, enable in Plugin Directory. ' +
+  'Skills CLI (Windsurf, Cline, 40+ agents): npx skills add scalekit-inc/skills --list then --skill <skill-name>. ' +
   'Guide: https://docs.scalekit.com/dev-kit/build-with-ai/'
