@@ -314,7 +314,7 @@ export default defineConfig({
       },
     }),
     d2({
-      skipGeneration: !!process.env['NETLIFY'],
+      skipGeneration: !!process.env['NETLIFY'] || !!process.env['GITHUB_ACTIONS'],
       theme: {
         default: '1', // Light theme (Neutral default)
         dark: '1',
@@ -370,5 +370,5 @@ export default defineConfig({
       },
     },
   },
-  adapter: netlify(),
+  adapter: netlify({ imageCDN: !!process.env.NETLIFY }),
 })

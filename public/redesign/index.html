@@ -1,0 +1,1752 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scalekit website redesign — reference</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0a0a0f;
+        --surface: #0d0d14;
+        --surface-alt: #080810;
+        --border: #1e293b;
+        --text: #f1f5f9;
+        --text-muted: #64748b;
+        --text-dim: #475569;
+        --purple: #6366f1;
+        --purple-light: #818cf8;
+        --purple-bg: #12101f;
+        --purple-border: #6366f1;
+        --green: #10b981;
+        --green-light: #6ee7b7;
+        --green-bg: #0d1f16;
+        --green-border: #10b981;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        line-height: 1.6;
+      }
+
+      /* ── Page header ── */
+      .page-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #050508;
+        border-bottom: 1px solid var(--border);
+        padding: 0.6rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .page-header-left {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+      .page-badge {
+        font-size: 0.65rem;
+        font-family: monospace;
+        background: #1e1b4b;
+        color: var(--purple-light);
+        border: 1px solid var(--purple);
+        border-radius: 0.2rem;
+        padding: 0.2rem 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .page-header nav {
+        display: flex;
+        gap: 0;
+      }
+      .page-header nav a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.75rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 0.2rem;
+        transition: color 0.15s;
+      }
+      .page-header nav a:hover {
+        color: var(--text);
+        background: #111827;
+      }
+      .page-header-right {
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        font-family: monospace;
+      }
+
+      /* ── Sections ── */
+      .section {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 3rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .section:last-child {
+        border-bottom: none;
+      }
+
+      .section-label {
+        font-size: 0.65rem;
+        font-family: monospace;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+      }
+      .section-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+      }
+      .section-desc {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        max-width: 600px;
+        margin-bottom: 2rem;
+      }
+
+      /* ── Mockup frame ── */
+      .mockup {
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        overflow: hidden;
+      }
+      .mockup-bar {
+        background: #111827;
+        border-bottom: 1px solid var(--border);
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .mockup-bar .dots {
+        display: flex;
+        gap: 0.35rem;
+      }
+      .mockup-bar .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .mockup-bar .dot-red {
+        background: #ef4444;
+      }
+      .mockup-bar .dot-yellow {
+        background: #f59e0b;
+      }
+      .mockup-bar .dot-green {
+        background: #22c55e;
+      }
+      .mockup-bar .url {
+        flex: 1;
+        background: #1e293b;
+        border-radius: 0.25rem;
+        padding: 0.2rem 0.75rem;
+        font-size: 0.7rem;
+        font-family: monospace;
+        color: var(--text-muted);
+      }
+
+      /* ── Site homepage mockup ── */
+      .site-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+      }
+      .site-nav-left {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      }
+      .site-logo {
+        color: #e2e8f0;
+        font-weight: 700;
+        font-size: 1rem;
+        letter-spacing: -0.02em;
+      }
+      .site-nav-links {
+        display: flex;
+        gap: 1.5rem;
+        font-size: 0.78rem;
+      }
+      .site-nav-right {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+      .btn-signin {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        cursor: pointer;
+      }
+      .btn-start {
+        background: var(--purple);
+        color: white;
+        padding: 0.3rem 0.75rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .hero {
+        padding: 3rem 2.5rem 2rem;
+        background: var(--bg);
+      }
+      .eyebrow {
+        font-size: 0.68rem;
+        color: var(--purple);
+        font-family: monospace;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+      }
+      .hero h1 {
+        font-size: 2.4rem;
+        font-weight: 800;
+        line-height: 1.15;
+        color: var(--text);
+        margin-bottom: 1.25rem;
+        letter-spacing: -0.03em;
+        max-width: 640px;
+      }
+      .hero h1 span {
+        color: #94a3b8;
+      }
+      .hero-body {
+        font-size: 1rem;
+        color: var(--text-muted);
+        max-width: 560px;
+        line-height: 1.7;
+        margin-bottom: 2rem;
+      }
+      .hero-body em {
+        color: #94a3b8;
+        font-style: normal;
+      }
+
+      .diagram-box {
+        background: #f8f9ff;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+      }
+      .diagram-box img {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 0.25rem;
+      }
+
+      .two-doors {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+      }
+      .door {
+        border-radius: 0.5rem;
+        padding: 1.25rem;
+      }
+      .door-agents {
+        background: var(--purple-bg);
+        border: 1px solid var(--purple-border);
+      }
+      .door-apps {
+        background: var(--green-bg);
+        border: 1px solid var(--green-border);
+      }
+      .door-label {
+        font-size: 0.65rem;
+        font-family: monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.4rem;
+      }
+      .door-agents .door-label {
+        color: var(--purple-light);
+      }
+      .door-apps .door-label {
+        color: var(--green);
+      }
+      .door-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+      }
+      .door-body {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+      .code-snippet {
+        background: var(--bg);
+        border-radius: 0.25rem;
+        padding: 0.75rem;
+        font-family: monospace;
+        font-size: 0.7rem;
+        margin-bottom: 1rem;
+        border: 1px solid var(--border);
+        line-height: 1.7;
+      }
+      .door-cta {
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+      .door-agents .door-cta {
+        color: var(--purple-light);
+      }
+      .door-apps .door-cta {
+        color: var(--green);
+      }
+
+      .below-fold {
+        padding: 2rem 2.5rem;
+        background: var(--surface-alt);
+        border-top: 1px solid var(--border);
+      }
+      .modular-label {
+        font-size: 0.68rem;
+        color: var(--text-dim);
+        font-family: monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1.25rem;
+      }
+      .modular-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+      }
+      .modular-card {
+        background: #111827;
+        border: 1px solid var(--border);
+        border-radius: 0.375rem;
+        padding: 0.75rem;
+        text-align: center;
+      }
+      .modular-card-title {
+        font-size: 0.78rem;
+        color: #e2e8f0;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+      .modular-card-desc {
+        font-size: 0.68rem;
+        color: var(--text-dim);
+      }
+      .trust-strip {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        border-top: 1px solid var(--border);
+        padding-top: 1.25rem;
+        flex-wrap: wrap;
+      }
+      .trust-badge {
+        font-size: 0.72rem;
+        color: var(--text-dim);
+        font-family: monospace;
+      }
+
+      /* ── Sitemap ── */
+      .sitemap-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+      .sitemap-panel {
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        overflow: hidden;
+      }
+      .sitemap-header {
+        padding: 0.6rem 1rem;
+        font-family: monospace;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+      .sitemap-header.human {
+        background: #1a1a2e;
+        color: #e2e8f0;
+      }
+      .sitemap-header.agent {
+        background: #0f172a;
+        color: #7dd3fc;
+      }
+      .sitemap-body {
+        padding: 1.25rem;
+        font-family: monospace;
+        font-size: 0.75rem;
+        line-height: 1.9;
+        background: var(--surface);
+      }
+      .sm-section {
+        font-weight: 700;
+        margin-top: 0.5rem;
+      }
+      .sm-section.purple {
+        color: var(--purple);
+      }
+      .sm-section.green {
+        color: var(--green);
+      }
+      .sm-section.blue {
+        color: #7dd3fc;
+      }
+      .sm-section.gray {
+        color: var(--text-muted);
+      }
+      .sm-items {
+        padding-left: 1rem;
+        color: #94a3b8;
+        margin-bottom: 0.5rem;
+      }
+      .sm-note {
+        color: var(--text-dim);
+        font-size: 0.68rem;
+      }
+
+      /* ── Pricing ── */
+      .pricing-tabs {
+        display: flex;
+        gap: 0;
+        margin-bottom: 0;
+        border-bottom: 2px solid var(--border);
+      }
+      .pricing-tab {
+        padding: 0.6rem 1.25rem;
+        border: none;
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 600;
+        font-family: monospace;
+        background: #1e293b;
+        color: var(--text-muted);
+        transition: all 0.15s;
+      }
+      .pricing-tab.active-purple {
+        background: var(--purple);
+        color: white;
+      }
+      .pricing-tab.active-green {
+        background: var(--green);
+        color: white;
+      }
+      .pricing-view {
+        display: none;
+        padding: 1.5rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 0.5rem 0.5rem;
+      }
+      .pricing-view.active {
+        display: block;
+      }
+
+      .pricing-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.78rem;
+        margin-bottom: 1.25rem;
+      }
+      .pricing-table th {
+        text-align: left;
+        padding: 0.5rem 0.75rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .pricing-table td {
+        padding: 0.65rem 0.75rem;
+        border-bottom: 1px solid #111827;
+        color: #94a3b8;
+      }
+      .pricing-table td:first-child {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .pricing-table td.price {
+        color: var(--green);
+        font-weight: 700;
+        font-family: monospace;
+      }
+      .pricing-note {
+        font-size: 0.72rem;
+        color: var(--text-dim);
+        font-family: monospace;
+        line-height: 1.8;
+      }
+
+      /* ── Docs experience ── */
+      .docs-tabs {
+        display: flex;
+        gap: 0;
+        margin-bottom: 0;
+        border-bottom: 2px solid var(--border);
+      }
+      .docs-tab {
+        padding: 0.6rem 1.25rem;
+        border: none;
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-weight: 600;
+        font-family: monospace;
+        background: #1e293b;
+        color: var(--text-muted);
+        transition: all 0.15s;
+      }
+      .docs-tab.active-agents {
+        background: var(--purple);
+        color: white;
+      }
+      .docs-tab.active-apps {
+        background: var(--green);
+        color: white;
+      }
+      .docs-tab.active-machine {
+        background: #0ea5e9;
+        color: white;
+      }
+
+      .docs-view {
+        display: none;
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 0.5rem 0.5rem;
+        overflow: hidden;
+      }
+      .docs-view.active {
+        display: block;
+      }
+
+      .docs-layout {
+        display: grid;
+        grid-template-columns: 200px 1fr 160px;
+        min-height: 560px;
+        font-family: monospace;
+        font-size: 0.7rem;
+      }
+      .docs-sidebar {
+        background: var(--bg);
+        border-right: 1px solid var(--border);
+        padding: 1rem 0;
+      }
+      .docs-sidebar-logo {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 0.75rem 0.75rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 0.75rem;
+        color: #e2e8f0;
+        font-weight: 700;
+        font-size: 0.8rem;
+      }
+      .product-switcher {
+        margin: 0 0.75rem 0.75rem;
+        border-radius: 0.25rem;
+        padding: 0.4rem 0.6rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .product-switcher.agents {
+        background: var(--purple-bg);
+        border: 1px solid var(--purple);
+      }
+      .product-switcher.apps {
+        background: var(--green-bg);
+        border: 1px solid var(--green);
+      }
+      .ps-icon {
+        font-size: 0.62rem;
+      }
+      .ps-label {
+        font-weight: 600;
+        font-size: 0.68rem;
+      }
+      .ps-label.agents {
+        color: var(--purple-light);
+      }
+      .ps-label.apps {
+        color: var(--green);
+      }
+      .ps-toggle {
+        color: var(--text-dim);
+        margin-left: auto;
+        font-size: 0.62rem;
+      }
+
+      .sidebar-group {
+        padding: 0 0.75rem;
+      }
+      .sidebar-group-label {
+        color: var(--text-dim);
+        font-size: 0.58rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.4rem;
+        margin-top: 0.75rem;
+      }
+      .sidebar-item {
+        color: #94a3b8;
+        padding: 0.28rem 0.5rem;
+        margin-bottom: 0.15rem;
+        border-radius: 0.2rem;
+        cursor: pointer;
+      }
+      .sidebar-item.active-purple {
+        color: var(--purple);
+        background: #1e1b4b;
+        font-weight: 600;
+      }
+      .sidebar-item.active-green {
+        color: var(--green);
+        background: #0d2a1c;
+        font-weight: 600;
+      }
+      .sidebar-crossell {
+        margin: 1rem 0.75rem 0;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.62rem;
+      }
+      .sidebar-crossell.to-apps {
+        background: #0d1a10;
+        border: 1px solid #1e3a2f;
+      }
+      .sidebar-crossell.to-agents {
+        background: #12101f;
+        border: 1px solid #2e2a4b;
+      }
+      .sidebar-crossell-label {
+        color: var(--text-dim);
+        margin-bottom: 0.2rem;
+      }
+      .sidebar-crossell-link {
+        font-weight: 600;
+      }
+      .sidebar-crossell.to-apps .sidebar-crossell-link {
+        color: var(--green);
+      }
+      .sidebar-crossell.to-agents .sidebar-crossell-link {
+        color: var(--purple-light);
+      }
+
+      .docs-main {
+        background: #0d0d14;
+        padding: 1.5rem;
+        overflow-y: auto;
+      }
+      .docs-breadcrumb {
+        color: var(--text-dim);
+        font-size: 0.6rem;
+        margin-bottom: 0.75rem;
+      }
+      .docs-h1 {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+      }
+      .docs-intro {
+        color: var(--text-muted);
+        font-size: 0.73rem;
+        line-height: 1.7;
+        margin-bottom: 1.25rem;
+        max-width: 520px;
+      }
+      .docs-callout {
+        border-radius: 0.375rem;
+        padding: 0.75rem;
+        margin-bottom: 1.25rem;
+      }
+      .docs-callout.agents {
+        background: var(--purple-bg);
+        border: 1px solid var(--purple);
+      }
+      .docs-callout.apps {
+        background: var(--green-bg);
+        border: 1px solid var(--green);
+      }
+      .docs-callout-label {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.4rem;
+      }
+      .docs-callout.agents .docs-callout-label {
+        color: var(--purple-light);
+      }
+      .docs-callout.apps .docs-callout-label {
+        color: var(--green);
+      }
+      .docs-callout-body {
+        font-size: 0.68rem;
+        color: #94a3b8;
+        line-height: 1.6;
+      }
+      .lang-tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 0;
+      }
+      .lang-tab {
+        padding: 0.3rem 0.65rem;
+        font-size: 0.65rem;
+        cursor: pointer;
+        color: var(--text-muted);
+        border: none;
+        background: transparent;
+      }
+      .lang-tab.active {
+        color: var(--purple-light);
+        border-bottom: 2px solid var(--purple);
+      }
+      .lang-code {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 0.3rem 0.3rem;
+        padding: 0.75rem;
+        font-size: 0.68rem;
+        line-height: 1.7;
+        color: #a5b4fc;
+        margin-bottom: 1rem;
+      }
+
+      .docs-toc {
+        background: var(--bg);
+        border-left: 1px solid var(--border);
+        padding: 1rem 0.75rem;
+      }
+      .docs-toc-label {
+        font-size: 0.58rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-dim);
+        margin-bottom: 0.5rem;
+      }
+      .docs-toc-item {
+        font-size: 0.62rem;
+        color: var(--text-dim);
+        padding: 0.2rem 0;
+        cursor: pointer;
+      }
+      .docs-toc-item:hover {
+        color: #94a3b8;
+      }
+      .docs-mcp-widget {
+        margin-top: 1.5rem;
+        padding: 0.6rem;
+        background: var(--purple-bg);
+        border: 1px solid var(--purple);
+        border-radius: 0.25rem;
+      }
+      .docs-mcp-label {
+        font-size: 0.58rem;
+        color: var(--purple-light);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 0.4rem;
+      }
+      .docs-mcp-code {
+        font-size: 0.6rem;
+        color: #94a3b8;
+        line-height: 1.6;
+      }
+
+      /* ── docs.scalekit.com view ── */
+      .agent-surface {
+        padding: 1.5rem;
+        background: #070d14;
+        font-family: monospace;
+        font-size: 0.72rem;
+        line-height: 1.9;
+      }
+      .agent-surface h3 {
+        color: #7dd3fc;
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+        border-bottom: 1px solid #0e2a3a;
+        padding-bottom: 0.4rem;
+      }
+      .agent-route {
+        color: #7dd3fc;
+        font-weight: 700;
+      }
+      .agent-note {
+        color: var(--text-dim);
+        padding-left: 1.5rem;
+      }
+      .agent-tool {
+        color: #a5b4fc;
+        padding-left: 1.5rem;
+      }
+      .agent-json {
+        background: #0d0d14;
+        border: 1px solid #0e2a3a;
+        border-radius: 0.3rem;
+        padding: 0.75rem;
+        margin: 0.5rem 0 1rem;
+        color: #94a3b8;
+        font-size: 0.68rem;
+      }
+
+      /* ── Design tokens reference ── */
+      .tokens-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+      }
+      .token-card {
+        border: 1px solid var(--border);
+        border-radius: 0.375rem;
+        overflow: hidden;
+      }
+      .token-swatch {
+        height: 48px;
+      }
+      .token-info {
+        padding: 0.5rem 0.6rem;
+        background: var(--surface);
+      }
+      .token-name {
+        font-size: 0.68rem;
+        color: var(--text);
+        font-weight: 600;
+        font-family: monospace;
+      }
+      .token-value {
+        font-size: 0.62rem;
+        color: var(--text-muted);
+        font-family: monospace;
+      }
+
+      /* ── Footer note ── */
+      .page-footer {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-dim);
+        font-size: 0.75rem;
+        border-top: 1px solid var(--border);
+      }
+      .page-footer a {
+        color: var(--purple-light);
+        text-decoration: none;
+      }
+      .page-footer a:hover {
+        text-decoration: underline;
+      }
+
+      code {
+        color: var(--purple-light);
+        background: #1e1b4b;
+        padding: 0.1rem 0.3rem;
+        border-radius: 0.2rem;
+      }
+
+      @media (max-width: 700px) {
+        .two-doors {
+          grid-template-columns: 1fr;
+        }
+        .sitemap-grid {
+          grid-template-columns: 1fr;
+        }
+        .modular-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .tokens-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .docs-layout {
+          grid-template-columns: 1fr;
+        }
+        .docs-toc {
+          display: none;
+        }
+        .page-header nav {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- PAGE HEADER -->
+    <header class="page-header">
+      <div class="page-header-left">
+        <span class="page-badge">Internal reference · 2026-03-26</span>
+        <nav>
+          <a href="#homepage">Homepage</a>
+          <a href="#sitemap">Site structure</a>
+          <a href="#docs">Docs experience</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#tokens">Design tokens</a>
+        </nav>
+      </div>
+      <div class="page-header-right">scalekit.com redesign concept</div>
+    </header>
+
+    <!-- ══════════════════════════════════
+     SECTION 1 — HOMEPAGE MOCKUP
+═══════════════════════════════════ -->
+    <section class="section" id="homepage">
+      <div class="section-label">Section 01</div>
+      <h2 class="section-title">Homepage</h2>
+      <p class="section-desc">
+        A developer-first homepage that replaces both the current marketing site and docs landing
+        page. Two-door entry: Auth for Agents (primary, purple) and Auth for Apps (secondary,
+        green).
+      </p>
+
+      <div class="mockup">
+        <!-- Browser chrome -->
+        <div class="mockup-bar">
+          <div class="dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+          </div>
+          <div class="url">scalekit.com</div>
+        </div>
+
+        <!-- Site nav -->
+        <div class="site-nav">
+          <div class="site-nav-left">
+            <span class="site-logo">⬡ Scalekit</span>
+            <nav class="site-nav-links">
+              <span style="color: var(--purple-light); font-weight: 600; cursor: pointer"
+                >For Agents ↓</span
+              >
+              <span style="color: var(--green); font-weight: 600; cursor: pointer">For Apps ↓</span>
+              <span style="color: var(--text-muted); cursor: pointer">SDKs & APIs</span>
+              <span style="color: var(--text-muted); cursor: pointer">Pricing</span>
+              <span style="color: var(--text-muted); cursor: pointer">Changelog</span>
+            </nav>
+          </div>
+          <div class="site-nav-right">
+            <span class="btn-signin">Sign in</span>
+            <span class="btn-start">Start free →</span>
+          </div>
+        </div>
+
+        <!-- Hero -->
+        <div class="hero">
+          <div class="eyebrow">Authentication infrastructure for AI-era applications</div>
+          <h1>Auth used to be one problem.<br /><span>AI made it two.</span></h1>
+          <p class="hero-body">
+            Your app needs to authenticate the people and agents <em>connecting to it</em>. Your AI
+            agents need to authenticate to the external services <em>they connect to</em>. These are
+            fundamentally different problems. Scalekit solves both.
+          </p>
+
+          <!-- Diagram -->
+          <div class="diagram-box">
+            <img
+              src="/redesign/inbound-outbound.png"
+              alt="Inbound and Outbound auth architecture diagram"
+            />
+          </div>
+
+          <!-- Two doors -->
+          <div class="two-doors">
+            <!-- Door 1: For Agents (primary) -->
+            <div class="door door-agents">
+              <div class="door-label">Outbound · Primary product</div>
+              <div class="door-title">Connect your agents</div>
+              <div class="door-body">
+                Token vault, delegated OAuth, auto-refresh. 100+ providers. Works with every major
+                AI framework. Your agents connect to anything without managing credentials.
+              </div>
+              <div style="font-size: 0.65rem; color: var(--text-dim); margin-bottom: 0.4rem">
+                LangChain &nbsp;·&nbsp; OpenAI &nbsp;·&nbsp; Anthropic &nbsp;·&nbsp; Vercel AI
+                &nbsp;·&nbsp; Google ADK &nbsp;·&nbsp; Mastra
+              </div>
+              <div class="code-snippet">
+                <span style="color: var(--text-dim)">// Give your agent a Gmail tool</span><br />
+                <span style="color: #93c5fd">const</span>
+                <span style="color: var(--text)">token</span> =
+                <span style="color: #c084fc">await</span>
+                <span style="color: var(--purple-light)">scalekit</span><br />
+                &nbsp;&nbsp;.getToken({ provider:
+                <span style="color: #fde68a">'google'</span>,<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;userId, scopes: [<span style="color: #fde68a"
+                  >'gmail.send'</span
+                >] });
+              </div>
+              <span class="door-cta">Quickstart: Agent Auth →</span>
+              &nbsp;&nbsp;<span style="font-size: 0.75rem; color: var(--text-dim)"
+                >View 100+ providers</span
+              >
+            </div>
+
+            <!-- Door 2: For Apps (secondary) -->
+            <div class="door door-apps">
+              <div class="door-label">Inbound · For your app</div>
+              <div class="door-title">Authenticate your app</div>
+              <div class="door-body">
+                Full-stack login, organizations, RBAC, SSO, SCIM, MCP server security. Everything
+                users and agents need to authenticate into your application.
+              </div>
+              <div class="code-snippet">
+                <span style="color: var(--text-dim)">// Node.js — add login in 3 lines</span><br />
+                <span style="color: #93c5fd">const</span>
+                <span style="color: var(--text)">url</span> =
+                <span style="color: var(--green-light)">scalekit</span>.getAuthorizationUrl({<br />
+                &nbsp;&nbsp;redirectUri: <span style="color: #fde68a">process.env.REDIRECT_URI</span
+                ><br />
+                });<br />
+                res.redirect(url);
+              </div>
+              <span class="door-cta">Quickstart: For Apps →</span>
+            </div>
+          </div>
+        </div>
+        <!-- /hero -->
+
+        <!-- Below fold -->
+        <div class="below-fold">
+          <div class="modular-label">Already have an auth system? Add what you need:</div>
+          <div class="modular-grid">
+            <div class="modular-card">
+              <div class="modular-card-title">Modular SSO</div>
+              <div class="modular-card-desc">Add SAML/OIDC without replacing your stack</div>
+            </div>
+            <div class="modular-card">
+              <div class="modular-card-title">Modular SCIM</div>
+              <div class="modular-card-desc">Plug-in user provisioning from Okta, Azure</div>
+            </div>
+            <div class="modular-card">
+              <div class="modular-card-title">MCP Auth</div>
+              <div class="modular-card-desc">Secure your MCP server with OAuth 2.1</div>
+            </div>
+            <div class="modular-card">
+              <div class="modular-card-title">API Auth</div>
+              <div class="modular-card-desc">M2M tokens and scoped API key management</div>
+            </div>
+          </div>
+          <div class="trust-strip">
+            <span class="trust-badge">SOC 2 Type II</span>
+            <span class="trust-badge">ISO 27001</span>
+            <span class="trust-badge">GDPR</span>
+            <span class="trust-badge">99.99% uptime</span>
+            <span class="trust-badge">US + EU data residency</span>
+            <span class="trust-badge" style="margin-left: auto">→ View pricing</span>
+          </div>
+        </div>
+      </div>
+      <!-- /mockup -->
+    </section>
+
+    <!-- ══════════════════════════════════
+     SECTION 2 — SITE STRUCTURE
+═══════════════════════════════════ -->
+    <section class="section" id="sitemap">
+      <div class="section-label">Section 02</div>
+      <h2 class="section-title">Site structure</h2>
+      <p class="section-desc">
+        Two domains, two audiences, one source of truth.
+        <code>scalekit.com</code> is for human developers. <code>docs.scalekit.com</code> is a
+        machine-readable API layer for coding agents.
+      </p>
+
+      <div class="sitemap-grid">
+        <div class="sitemap-panel">
+          <div class="sitemap-header human">scalekit.com — human developers</div>
+          <div class="sitemap-body">
+            <div class="sm-section purple">/ &nbsp; Homepage</div>
+            <div class="sm-items">
+              Two-door hero (inbound / outbound)<br />
+              Pricing · Security · Enterprise · Footer
+            </div>
+
+            <div class="sm-section purple">
+              /for-agents/ &nbsp;<span class="sm-note">← Auth for Agents</span>
+            </div>
+            <div class="sm-items">
+              quickstart · overview · how it works<br />
+              connected-accounts · token-vault<br />
+              tool-calling · delegated-oauth<br />
+              frameworks/ &nbsp;<span class="sm-note"
+                >langchain · openai · anthropic · vercel · adk · mastra</span
+              ><br />
+              providers/ &nbsp;<span class="sm-note">google · slack · salesforce · +95 more</span>
+            </div>
+
+            <div class="sm-section green">
+              /for-apps/ &nbsp;<span class="sm-note">← Auth for Apps</span>
+            </div>
+            <div class="sm-items">
+              quickstart · overview<br />
+              full-stack-auth/ &nbsp;<span class="sm-note">login · session · orgs · RBAC</span
+              ><br />
+              modular-sso/ · modular-scim/<br />
+              mcp-auth/ · api-auth/
+            </div>
+
+            <div class="sm-section gray">
+              /sdks/ &nbsp;<span class="sm-note">shared across both</span>
+            </div>
+            <div class="sm-items">node · python · go · java · expo</div>
+
+            <div class="sm-section gray">/apis/ &nbsp; /pricing/ &nbsp; /changelog/</div>
+          </div>
+        </div>
+
+        <div class="sitemap-panel">
+          <div class="sitemap-header agent">docs.scalekit.com — coding agents</div>
+          <div class="sitemap-body">
+            <div class="sm-section blue">/ &nbsp; Agent entry point</div>
+            <div class="sm-items">
+              llms.txt &nbsp;<span class="sm-note">← product overview for LLMs</span><br />
+              llms-full.txt &nbsp;<span class="sm-note">← full context dump</span><br />
+              sitemap.xml &nbsp;<span class="sm-note">← machine-readable</span>
+            </div>
+
+            <div class="sm-section blue">
+              /mcp/ &nbsp;<span class="sm-note">MCP server (SSE)</span>
+            </div>
+            <div class="sm-items">
+              search(query) tool<br />
+              get_page(path) tool<br />
+              list_products() tool<br />
+              get_code_example(product, lang) tool
+            </div>
+
+            <div class="sm-section blue">
+              /context/ &nbsp;<span class="sm-note">structured context files</span>
+            </div>
+            <div class="sm-items">
+              for-agents.md · for-apps.md<br />
+              sdks.md · errors.md
+            </div>
+
+            <div class="sm-section blue">
+              /pages/ &nbsp;<span class="sm-note">clean markdown mirror</span>
+            </div>
+            <div class="sm-items">
+              No sidebars · No JS · No images<br />
+              Pure content for agent consumption<br />
+              for-agents/** · for-apps/** · sdks/**
+            </div>
+
+            <div class="sm-section blue">
+              /search &nbsp;<span class="sm-note">REST semantic search API</span>
+            </div>
+            <div class="sm-items">GET /search?q=&lt;query&gt;</div>
+
+            <div class="sm-section blue">
+              /openapi/ &nbsp;<span class="sm-note">spec.json · spec.yaml</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="
+          margin-top: 1.25rem;
+          padding: 1rem;
+          background: #1e293b;
+          border-radius: 0.5rem;
+          border-left: 3px solid var(--purple);
+        "
+      >
+        <p style="margin: 0; font-size: 0.82rem; color: #94a3b8">
+          <strong style="color: var(--text)">Key insight:</strong>
+          docs.scalekit.com is not a parallel docs site — it's a machine-readable API layer over the
+          same content. Coding agents (Cursor, Claude Code, Copilot) hit docs.scalekit.com. Humans
+          hit scalekit.com. Same source of truth, two rendering targets.
+        </p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+     SECTION 3 — DOCS EXPERIENCE
+═══════════════════════════════════ -->
+    <section class="section" id="docs">
+      <div class="section-label">Section 03</div>
+      <h2 class="section-title">Docs experience</h2>
+      <p class="section-desc">
+        Both product lines share the same doc shell. A product switcher in the sidebar lets
+        developers move between the two. Each sidebar has a persistent cross-sell prompt at the
+        bottom.
+      </p>
+
+      <div class="docs-tabs">
+        <button class="docs-tab active-agents" id="dtab-agents" onclick="showDocsTab('agents')">
+          For Agents docs
+        </button>
+        <button class="docs-tab" id="dtab-apps" onclick="showDocsTab('apps')">For Apps docs</button>
+        <button class="docs-tab" id="dtab-machine" onclick="showDocsTab('machine')">
+          docs.scalekit.com (agent-readable)
+        </button>
+      </div>
+
+      <!-- FOR AGENTS -->
+      <div class="docs-view active" id="dview-agents">
+        <div class="mockup-bar" style="background: #1e1b4b; border-bottom: 1px solid var(--border)">
+          <div class="dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+          </div>
+          <div class="url">scalekit.com/for-agents/</div>
+        </div>
+        <div class="docs-layout">
+          <div class="docs-sidebar">
+            <div class="docs-sidebar-logo">⬡ Scalekit</div>
+            <div class="product-switcher agents">
+              <span class="ps-icon">🤖</span>
+              <span class="ps-label agents">For Agents</span>
+              <span class="ps-toggle">↕</span>
+            </div>
+            <div class="sidebar-group">
+              <div class="sidebar-group-label">Get started</div>
+              <div class="sidebar-item active-purple">Overview</div>
+              <div class="sidebar-item">Quickstart</div>
+              <div class="sidebar-item">How it works</div>
+
+              <div class="sidebar-group-label">Core concepts</div>
+              <div class="sidebar-item">Connected accounts</div>
+              <div class="sidebar-item">Token vault</div>
+              <div class="sidebar-item">Delegated OAuth</div>
+              <div class="sidebar-item">Token refresh</div>
+
+              <div class="sidebar-group-label">Frameworks</div>
+              <div class="sidebar-item">LangChain</div>
+              <div class="sidebar-item">OpenAI Agents SDK</div>
+              <div class="sidebar-item">Anthropic</div>
+              <div class="sidebar-item">Vercel AI SDK</div>
+              <div class="sidebar-item">Google ADK</div>
+              <div class="sidebar-item">Mastra</div>
+
+              <div class="sidebar-group-label">Providers</div>
+              <div class="sidebar-item">Google (Gmail, Drive, Calendar)</div>
+              <div class="sidebar-item">Slack</div>
+              <div class="sidebar-item">Salesforce</div>
+              <div class="sidebar-item">HubSpot · Notion</div>
+              <div class="sidebar-item" style="color: var(--text-dim)">+ 95 more →</div>
+            </div>
+            <div class="sidebar-crossell to-apps">
+              <div class="sidebar-crossell-label">Also using Scalekit for:</div>
+              <div class="sidebar-crossell-link">→ Authenticate your app</div>
+            </div>
+          </div>
+
+          <div class="docs-main">
+            <div class="docs-breadcrumb">For Agents › Get started › Overview</div>
+            <div class="docs-h1">Agent Auth</div>
+            <p class="docs-intro">
+              Connect your AI agents to external services — Gmail, Slack, Salesforce, and 100+ more
+              — without managing OAuth flows, storing tokens, or handling refresh logic.
+            </p>
+
+            <div class="docs-callout agents">
+              <div class="docs-callout-label">What you'll build</div>
+              <div class="docs-callout-body">
+                1. User connects their Google account via your app<br />
+                2. Scalekit stores the token securely in the vault<br />
+                3. Your agent calls <code>scalekit.getToken()</code> at task time<br />
+                4. Token is returned, refreshed automatically if expired
+              </div>
+            </div>
+
+            <div class="lang-tabs">
+              <button class="lang-tab active">Node.js</button>
+              <button class="lang-tab">Python</button>
+              <button class="lang-tab">Go</button>
+              <button class="lang-tab">Java</button>
+            </div>
+            <div class="lang-code">
+              <span style="color: var(--text-dim)"
+                >// Retrieve a token for a user's Google account</span
+              ><br />
+              <span style="color: #93c5fd">const</span>
+              <span style="color: var(--text)">token</span> =
+              <span style="color: #c084fc">await</span>
+              <span style="color: var(--purple-light)">scalekit</span>.getToken({<br />
+              &nbsp;&nbsp;provider: <span style="color: #fde68a">'google'</span>,<br />
+              &nbsp;&nbsp;userId: <span style="color: #fde68a">'user_123'</span>,<br />
+              &nbsp;&nbsp;scopes: [<span style="color: #fde68a"
+                >'https://www.googleapis.com/auth/gmail.send'</span
+              >]<br />
+              });<br /><br />
+              <span style="color: var(--text-dim)">// token.accessToken is ready to use</span>
+            </div>
+          </div>
+
+          <div class="docs-toc">
+            <div class="docs-toc-label">On this page</div>
+            <div class="docs-toc-item">Overview</div>
+            <div class="docs-toc-item">How it works</div>
+            <div class="docs-toc-item">Prerequisites</div>
+            <div class="docs-toc-item">Quickstart</div>
+            <div class="docs-toc-item">Next steps</div>
+            <div class="docs-mcp-widget">
+              <div class="docs-mcp-label">For AI assistants</div>
+              <div class="docs-mcp-code">docs.scalekit.com/mcp</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOR APPS -->
+      <div class="docs-view" id="dview-apps">
+        <div class="mockup-bar" style="background: #0d2a1c; border-bottom: 1px solid var(--border)">
+          <div class="dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+          </div>
+          <div class="url">scalekit.com/for-apps/</div>
+        </div>
+        <div class="docs-layout">
+          <div class="docs-sidebar">
+            <div class="docs-sidebar-logo">⬡ Scalekit</div>
+            <div class="product-switcher apps">
+              <span class="ps-icon">🏗️</span>
+              <span class="ps-label apps">For Apps</span>
+              <span class="ps-toggle">↕</span>
+            </div>
+            <div class="sidebar-group">
+              <div class="sidebar-group-label">Get started</div>
+              <div class="sidebar-item active-green">Overview</div>
+              <div class="sidebar-item">Quickstart</div>
+
+              <div class="sidebar-group-label">Full Stack Auth</div>
+              <div class="sidebar-item">Login & session</div>
+              <div class="sidebar-item">Organizations</div>
+              <div class="sidebar-item">RBAC & permissions</div>
+              <div class="sidebar-item">Social login</div>
+              <div class="sidebar-item">Magic links</div>
+
+              <div class="sidebar-group-label">Modular add-ons</div>
+              <div class="sidebar-item">SSO (SAML / OIDC)</div>
+              <div class="sidebar-item">SCIM provisioning</div>
+              <div class="sidebar-item">MCP Auth</div>
+              <div class="sidebar-item">API & M2M Auth</div>
+            </div>
+            <div class="sidebar-crossell to-agents">
+              <div class="sidebar-crossell-label">Also building agents?</div>
+              <div class="sidebar-crossell-link">→ Connect your agents</div>
+            </div>
+          </div>
+
+          <div class="docs-main">
+            <div class="docs-breadcrumb">For Apps › Get started › Overview</div>
+            <div class="docs-h1">Auth for Apps</div>
+            <p class="docs-intro">
+              Everything your B2B application needs for authentication — login, sessions,
+              organizations, RBAC, SSO, SCIM, and MCP server security — in one SDK.
+            </p>
+
+            <div class="docs-callout apps">
+              <div class="docs-callout-label">Products in this section</div>
+              <div class="docs-callout-body">
+                <strong style="color: var(--green)">Full Stack Auth</strong> — complete login,
+                session, orgs, RBAC<br />
+                <strong style="color: var(--green)">Modular SSO</strong> — add SAML/OIDC to any
+                existing auth system<br />
+                <strong style="color: var(--green)">Modular SCIM</strong> — user provisioning from
+                Okta, Azure AD<br />
+                <strong style="color: var(--green)">MCP Auth</strong> — OAuth 2.1 security for your
+                MCP server<br />
+                <strong style="color: var(--green)">API Auth</strong> — M2M tokens and scoped API
+                keys
+              </div>
+            </div>
+
+            <div class="lang-tabs">
+              <button class="lang-tab active">Node.js</button>
+              <button class="lang-tab">Python</button>
+              <button class="lang-tab">Go</button>
+              <button class="lang-tab">Java</button>
+            </div>
+            <div class="lang-code" style="color: var(--green-light)">
+              <span style="color: var(--text-dim)">// Add login to your app</span><br />
+              <span style="color: #93c5fd">const</span>
+              <span style="color: var(--text)">url</span> =
+              <span style="color: var(--green-light)">scalekit</span>.getAuthorizationUrl({<br />
+              &nbsp;&nbsp;redirectUri: <span style="color: #fde68a">process.env.REDIRECT_URI</span
+              ><br />
+              });<br />
+              res.redirect(url);
+            </div>
+          </div>
+
+          <div class="docs-toc">
+            <div class="docs-toc-label">On this page</div>
+            <div class="docs-toc-item">Overview</div>
+            <div class="docs-toc-item">Products</div>
+            <div class="docs-toc-item">When to use each</div>
+            <div class="docs-toc-item">Quickstart</div>
+            <div class="docs-toc-item">Next steps</div>
+            <div
+              class="docs-mcp-widget"
+              style="border-color: var(--green); background: var(--green-bg)"
+            >
+              <div class="docs-mcp-label" style="color: var(--green)">For AI assistants</div>
+              <div class="docs-mcp-code">docs.scalekit.com/mcp</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- docs.scalekit.com agent surface -->
+      <div class="docs-view" id="dview-machine">
+        <div class="mockup-bar" style="background: #0a1628; border-bottom: 1px solid #0e2a3a">
+          <div class="dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+          </div>
+          <div class="url" style="color: #7dd3fc; background: #0a1628">
+            docs.scalekit.com — machine-readable layer
+          </div>
+        </div>
+        <div class="agent-surface">
+          <h3>Agent entry points</h3>
+          <p style="color: var(--text-dim); font-size: 0.7rem; margin-bottom: 1rem">
+            This domain is not for humans. It's a programmatic API layer for coding agents (Cursor,
+            Claude Code, Copilot). Humans never need to visit it directly.
+          </p>
+
+          <div><span class="agent-route">/llms.txt</span></div>
+          <div class="agent-note">Product overview + SDK naming conventions + page index</div>
+          <div><span class="agent-route">/llms-full.txt</span></div>
+          <div class="agent-note">Full context dump — all docs in one file</div>
+          <br />
+
+          <div>
+            <span class="agent-route">/mcp</span>
+            <span class="sm-note">— SSE endpoint</span>
+          </div>
+          <div class="agent-tool">
+            search(query) &nbsp;<span style="color: var(--text-dim)"
+              >— semantic search across all docs</span
+            >
+          </div>
+          <div class="agent-tool">
+            get_page(path) &nbsp;<span style="color: var(--text-dim)"
+              >— fetch any doc page as clean markdown</span
+            >
+          </div>
+          <div class="agent-tool">
+            list_products() &nbsp;<span style="color: var(--text-dim)"
+              >— list all products with descriptions</span
+            >
+          </div>
+          <div class="agent-tool">
+            get_code_example(product, lang) &nbsp;<span style="color: var(--text-dim)"
+              >— get code by product + language</span
+            >
+          </div>
+          <br />
+
+          <div style="color: var(--text-dim); font-size: 0.65rem; margin-bottom: 0.4rem">
+            Add to your coding agent config:
+          </div>
+          <div class="agent-json">
+            { "mcpServers": { "scalekit-docs": { "url": "https://docs.scalekit.com/mcp", "type":
+            "sse" } } }
+          </div>
+
+          <div><span class="agent-route">/context/for-agents.md</span></div>
+          <div class="agent-note">
+            Full agent auth context — drop directly into an LLM context window
+          </div>
+          <div><span class="agent-route">/context/for-apps.md</span></div>
+          <div class="agent-note">Full app auth context for LLM consumption</div>
+          <br />
+
+          <div><span class="agent-route">/pages/**</span></div>
+          <div class="agent-note">
+            Clean markdown mirror of all doc pages. No sidebars, no JS, no images. Pure content.
+          </div>
+          <br />
+
+          <div><span class="agent-route">/search?q=&lt;query&gt;</span></div>
+          <div class="agent-note">
+            REST semantic search API — returns ranked doc excerpts + URLs
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+     SECTION 4 — PRICING
+═══════════════════════════════════ -->
+    <section class="section" id="pricing">
+      <div class="section-label">Section 04</div>
+      <h2 class="section-title">Pricing</h2>
+      <p class="section-desc">
+        Two independent pricing models — one per product line — displayed as tabs on a single
+        pricing section. Each model has its own unit economics.
+      </p>
+
+      <div style="max-width: 720px">
+        <div class="pricing-tabs">
+          <button
+            class="pricing-tab active-purple"
+            id="ptab-agents"
+            onclick="showPricingTab('agents')"
+          >
+            Agent Auth
+          </button>
+          <button class="pricing-tab" id="ptab-apps" onclick="showPricingTab('apps')">
+            App Auth
+          </button>
+        </div>
+
+        <div class="pricing-view active" id="pview-agents">
+          <table class="pricing-table">
+            <thead>
+              <tr>
+                <th>Tier</th>
+                <th>Price</th>
+                <th>Includes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Starter</td>
+                <td class="price">$0</td>
+                <td>10 connected accounts · 5k tool calls/mo · 5 providers</td>
+              </tr>
+              <tr>
+                <td>Growth</td>
+                <td class="price">Custom</td>
+                <td>
+                  500 connected accounts · 100k tool calls/mo · 100+ providers · then per-unit
+                </td>
+              </tr>
+              <tr>
+                <td>Enterprise</td>
+                <td class="price">Custom</td>
+                <td>Unlimited · dedicated vault · custom residency · SLA</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pricing-note">
+            <strong style="color: #94a3b8">Overages:</strong> per connected account + per tool
+            call<br /><br />
+            <strong style="color: #94a3b8">Connected account</strong> — a single user's OAuth
+            connection to one external service (e.g. one user's Gmail)<br />
+            <strong style="color: #94a3b8">Tool call</strong> — one call to getToken() by your
+            agent, regardless of whether the token was cached or refreshed
+          </div>
+        </div>
+
+        <div class="pricing-view" id="pview-apps">
+          <table class="pricing-table">
+            <thead>
+              <tr>
+                <th>Tier</th>
+                <th>Price</th>
+                <th>Includes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Starter</td>
+                <td class="price" style="color: var(--green)">$0</td>
+                <td>1k MAUs · 3 MAOs · 0 SSO connections</td>
+              </tr>
+              <tr>
+                <td>Growth</td>
+                <td class="price" style="color: var(--green)">Custom</td>
+                <td>10k MAUs · 50 MAOs · 3 SSO connections · then per-unit</td>
+              </tr>
+              <tr>
+                <td>Enterprise</td>
+                <td class="price" style="color: var(--green)">Custom</td>
+                <td>Unlimited MAUs/MAOs/SSO · custom domain · audit logs · SLA</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pricing-note">
+            <strong style="color: #94a3b8">Overages:</strong> per MAU + per MAO + per SSO
+            connection<br /><br />
+            <strong style="color: #94a3b8">MAU</strong> — monthly active user who authenticates into
+            your app<br />
+            <strong style="color: #94a3b8">MAO</strong> — monthly active organization (a
+            tenant/workspace in your app)<br />
+            <strong style="color: #94a3b8">SSO connection</strong> — one configured enterprise IdP
+            (Okta, Azure AD, etc.) for one organization
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+     SECTION 5 — DESIGN TOKENS
+═══════════════════════════════════ -->
+    <section class="section" id="tokens">
+      <div class="section-label">Section 05</div>
+      <h2 class="section-title">Design tokens</h2>
+      <p class="section-desc">
+        Color palette and visual language. Dark by default — signals developer-first. Purple for
+        Agent Auth. Green for App Auth.
+      </p>
+
+      <div class="tokens-grid">
+        <div class="token-card">
+          <div class="token-swatch" style="background: #0a0a0f"></div>
+          <div class="token-info">
+            <div class="token-name">Background</div>
+            <div class="token-value">#0a0a0f</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div class="token-swatch" style="background: #0d0d14"></div>
+          <div class="token-info">
+            <div class="token-name">Surface</div>
+            <div class="token-value">#0d0d14</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div class="token-swatch" style="background: #1e293b"></div>
+          <div class="token-info">
+            <div class="token-name">Border</div>
+            <div class="token-value">#1e293b</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div class="token-swatch" style="background: #f1f5f9"></div>
+          <div class="token-info">
+            <div class="token-name">Text primary</div>
+            <div class="token-value">#f1f5f9</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div class="token-swatch" style="background: #64748b"></div>
+          <div class="token-info">
+            <div class="token-name">Text secondary</div>
+            <div class="token-value">#64748b</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div class="token-swatch" style="background: #6366f1"></div>
+          <div class="token-info">
+            <div class="token-name">Agent Auth accent</div>
+            <div class="token-value">#6366f1 (purple)</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div class="token-swatch" style="background: #10b981"></div>
+          <div class="token-info">
+            <div class="token-name">App Auth accent</div>
+            <div class="token-value">#10b981 (green)</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div
+            class="token-swatch"
+            style="
+              background: #111827;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #f1f5f9;
+              font-family: monospace;
+              font-size: 0.75rem;
+            "
+          >
+            Aa
+          </div>
+          <div class="token-info">
+            <div class="token-name">Typography</div>
+            <div class="token-value">System UI / monospace code</div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="
+          margin-top: 1.5rem;
+          padding: 1rem;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 0.5rem;
+          font-size: 0.78rem;
+          color: var(--text-muted);
+        "
+      >
+        <strong style="color: var(--text)">SDK variable naming (non-negotiable):</strong>
+        &nbsp; Node.js: <code>scalekit</code> &nbsp; Python: <code>scalekit_client</code> &nbsp; Go:
+        <code>scalekitClient</code> &nbsp; Java: <code>scalekitClient</code>
+      </div>
+    </section>
+
+    <!-- PAGE FOOTER -->
+    <footer class="page-footer">
+      <p>Scalekit website redesign · Internal reference · 2026-03-26</p>
+      <p style="margin-top: 0.4rem">
+        Design spec:
+        <a href="/docs/superpowers/specs/2026-03-26-website-redesign-design"
+          >docs/superpowers/specs/2026-03-26-website-redesign-design.md</a
+        >
+        &nbsp;·&nbsp; Implementation plan:
+        <a href="/docs/superpowers/plans/2026-03-26-website-restructure"
+          >docs/superpowers/plans/2026-03-26-website-restructure.md</a
+        >
+      </p>
+    </footer>
+
+    <script>
+      function showDocsTab(name) {
+        ;['agents', 'apps', 'machine'].forEach((t) => {
+          document.getElementById('dview-' + t).classList.remove('active')
+          const tab = document.getElementById('dtab-' + t)
+          tab.className = 'docs-tab'
+        })
+        document.getElementById('dview-' + name).classList.add('active')
+        const activeTab = document.getElementById('dtab-' + name)
+        if (name === 'agents') activeTab.classList.add('active-agents')
+        else if (name === 'apps') activeTab.classList.add('active-apps')
+        else activeTab.classList.add('active-machine')
+      }
+
+      function showPricingTab(name) {
+        ;['agents', 'apps'].forEach((t) => {
+          document.getElementById('pview-' + t).classList.remove('active')
+          const tab = document.getElementById('ptab-' + t)
+          tab.className = 'pricing-tab'
+        })
+        document.getElementById('pview-' + name).classList.add('active')
+        const activeTab = document.getElementById('ptab-' + name)
+        activeTab.classList.add(name === 'agents' ? 'active-purple' : 'active-green')
+      }
+    </script>
+  </body>
+</html>
