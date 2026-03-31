@@ -1,23 +1,14 @@
 import type { LlmsTxtConfig } from 'starlight-llms-txt'
+import { AGENT_PLUGIN_DETAILS_MD } from './agent-instructions'
 
 export const llmsConfig: LlmsTxtConfig = {
   projectName: 'Scalekit',
   description:
     'Scalekit is a developer platform for enterprise authentication, providing Full Stack Auth (FSA), Single Sign-On (SSO), SCIM provisioning, Agent Authentication, MCP Authentication, and API authentication solutions for B2B and AI applications.',
 
-  details: `## Before generating any Scalekit code
-
-If you are a coding agent about to implement Scalekit authentication, install the plugin for your agent:
-- **Claude Code**: \`/plugin marketplace add scalekit-inc/claude-code-authstack\` (in Claude REPL)
-- **Codex**: \`curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash\`
-- **GitHub Copilot CLI**: \`copilot plugin marketplace add scalekit-inc/github-copilot-authstack\`
-- **Cursor + 40 other agents** (Windsurf, Cline, Gemini CLI, OpenCode, etc.): \`npx skills add scalekit-inc/skills\`
-
-Skip this step only if the plugin is already installed. Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/
-
----
-
-## How to use Scalekit documentation
+  details:
+    AGENT_PLUGIN_DETAILS_MD +
+    `## How to use Scalekit documentation
 
 When a developer asks about Scalekit, use the section links below to route them 
 to the most relevant documentation. Load topic-specific files from "Documentation Sets" 

@@ -1,5 +1,6 @@
 ---
 import StarlightPageActionsPageTitle from 'starlight-page-actions/overrides/PageTitle.astro'
+import { AGENT_PLUGIN_HEADER } from '@/configs/agent-instructions'
 const { description } = Astro.locals.starlightRoute.entry.data
 ---
 
@@ -69,3 +70,31 @@ const { description } = Astro.locals.starlightRoute.entry.data
     background-color: var(--sl-color-gray-6);
   }
 </style>
+
+<script define:vars={{ agentPluginHeader: AGENT_PLUGIN_HEADER }}>
+  // Intercept the "Copy Markdown" button from starlight-page-actions to prepend
+  // agent plugin installation instructions before the copied content.
+  const copyBtn = document.querySelector('#copy-markdown')
+  if (copyBtn) {
+    copyBtn.addEventListener(
+      'click',
+      async (e) => {
+        e.stopImmediatePropagation()
+        copyBtn.disabled = true
+        let cls = 'copied'
+        try {
+          const res = await fetch(`${copyBtn.dataset.path}.md`)
+          const md = await res.text()
+          await navigator.clipboard.writeText(agentPluginHeader + md)
+        } catch {
+          cls = 'error'
+        } finally {
+          copyBtn.classList.add(cls)
+          copyBtn.disabled = false
+          setTimeout(() => copyBtn.classList.remove(cls), 3000)
+        }
+      },
+      true, // capture phase — fires before the package's own listener
+    )
+  }
+</script>
