@@ -1,42 +1,31 @@
 import { Steps, Aside } from '@astrojs/starlight/components'
 
 <Aside type="note" title="Scalekit Auth Stack is under review on Cursor Marketplace">
-The Scalekit Auth Stack plugin is currently under review and not yet live on [cursor.com/marketplace](https://cursor.com/marketplace). Once approved, you'll be able to install it directly with an "Add to Cursor" button — no additional setup needed.
+The Scalekit Auth Stack plugin is currently under review and not yet live on [cursor.com/marketplace](https://cursor.com/marketplace). Once approved, you'll be able to install it directly with an "Add to Cursor" button.
 
-Until then, you can access all Scalekit plugins inside Cursor by registering the marketplace through Claude Code. Cursor automatically surfaces Claude Code plugins under **Settings > Plugins**.
+Until then, use the local installer to load the plugins into Cursor.
 </Aside>
 
 <Steps>
-1. ## Register the Scalekit Auth Stack marketplace
-
-   Cursor surfaces Claude Code plugins in **Settings > Plugins**. If you haven't installed Claude Code yet, follow the [Claude Code quickstart](https://code.claude.com/docs/en/quickstart) first.
-
-   Open the Claude Code REPL:
+1. ## Install the Scalekit Auth Stack locally
 
    ```bash title="Terminal" frame="terminal" showLineNumbers=false
-   claude
+   curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
    ```
 
-   Then add the Scalekit marketplace:
+   This installer downloads the latest Scalekit Cursor plugin bundle and installs each auth plugin into `~/.cursor/plugins/local/<plugin-name>`.
 
-   ```bash title="Claude REPL" showLineNumbers=false
-   /plugin marketplace add scalekit-inc/claude-code-authstack
-   ```
+   <Aside type="tip" title="Use a symlink when iterating locally">
+   If you're developing the plugin repo locally and want changes to show up without recopies, use the local installer path described in the repository README to symlink plugins into `~/.cursor/plugins/local`.
+   </Aside>
 
-   When the marketplace registers successfully, you'll see:
+2. ## Reload Cursor and enable the plugin
 
-   ```bash title="Terminal" frame="terminal" showLineNumbers=false
-   ❯ /plugin marketplace add scalekit-inc/claude-code-authstack
-      ⎿  Successfully added marketplace: scalekit-auth-stack
-   ```
-
-2. ## Open the plugin in Cursor
-
-   Launch Cursor and go to **Settings > Plugins**. The Scalekit Auth Stack plugins appear here automatically — Cursor picks them up from Claude Code's plugin registry.
+   Restart Cursor, or run **Developer: Reload Window**, then open **Settings > Cursor Settings > Plugins**.
 
    {/* IMAGE PLACEHOLDER: Screenshot of Cursor Settings > Plugins showing Scalekit Auth Stack */}
 
-   Select the authentication plugin you need (for example, **Modular SSO**, **Full Stack Auth**, or **MCP Auth**) and enable it.
+   Select the authentication plugin you need, such as **Full Stack Auth**, **Modular SSO**, or **MCP Auth**, and enable it.
 
    <Aside type="note" title="Alternatively: Install via Skills CLI">
    You can also install Scalekit skills with the Vercel Skills CLI:
@@ -60,10 +49,11 @@ Until then, you can access all Scalekit plugins inside Cursor by registering the
 
    After Cursor finishes generating code, confirm all authentication components are in place:
 
+   - The Scalekit plugin appears in **Settings > Cursor Settings > Plugins**
    - Scalekit client initialized with your API credentials (set up a `.env` file with your Scalekit environment variables)
    - Authorization URL generation and callback handler
    - Session or token integration matching your application's existing patterns
 
 </Steps>
 
-Once the Scalekit Auth Stack is live on [cursor.com/marketplace](https://cursor.com/marketplace), you can skip steps 1–2 entirely. A single click on the **Add to Cursor** button will install the plugin directly into Cursor, and it will appear immediately in **Settings > Plugins**.
+Once the Scalekit Auth Stack is live on [cursor.com/marketplace](https://cursor.com/marketplace), you'll be able to skip the local installer and install it directly inside Cursor.
