@@ -34,7 +34,7 @@ export default defineConfig({
   // Astro 6's Vite Environments API creates separate build contexts per output mode;
   // 'server' mode processes all 300+ pages through a heavy SSR pipeline.
   // The few SSR pages (auth, health, admin) already have `prerender = false`.
-  // output: 'server',
+  output: 'server',
   site: 'https://docs.scalekit.com',
   server: {
     // Match Netlify dev's readiness probe, which connects to `localhost`.
