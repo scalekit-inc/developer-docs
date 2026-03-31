@@ -26,6 +26,7 @@ import Icons from 'unplugin-icons/vite'
 
 import netlify from '@astrojs/netlify'
 import openapiToMarkdown from './src/integrations/openapi-markdown'
+import { injectAgentHeader } from './src/integrations/inject-agent-header.ts'
 
 // https://astro.build/config
 export default defineConfig({
@@ -325,6 +326,7 @@ export default defineConfig({
       pad: 5,
     }),
     openapiToMarkdown(),
+    injectAgentHeader(),
   ],
 
   image: {
