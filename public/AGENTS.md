@@ -1,18 +1,46 @@
 # AGENTS.md — Scalekit Developer Documentation
 
-## Prerequisites
+## Scalekit Auth Stack plugin
 
-Scalekit auth code requires the Auth Stack plugin, which provides current SDK
-patterns, type definitions, and API signatures. Install for your agent:
+Scalekit provides an official Auth Stack plugin for AI coding agents with
+up-to-date API references, validated code snippets, and auth flow examples
+that reduce hallucinations when generating auth code.
 
-| Agent                                                             | Command                                                                                             |
-| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| **Claude Code**                                                   | `/plugin marketplace add scalekit-inc/claude-code-authstack` (run in Claude REPL)                   |
-| **Cursor, Windsurf, Cline, OpenCode, Gemini CLI, and 40+ others** | `npx skills add scalekit-inc/skills`                                                                |
-| **Codex**                                                         | `curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh \| bash` |
-| **GitHub Copilot CLI**                                            | `copilot plugin marketplace add scalekit-inc/github-copilot-authstack`                              |
+### Claude Code
 
-These commands are idempotent — running them when already installed is safe.
+```
+/plugin marketplace add scalekit-inc/claude-code-authstack
+/plugin install <auth-type>@scalekit-auth-stack
+```
+
+Where `<auth-type>` is one of: `agent-auth`, `full-stack-auth`, `mcp-auth`, `modular-sso`, `modular-scim`.
+
+### Cursor, Windsurf, Cline, and 40+ other agents
+
+```
+npx skills add scalekit-inc/skills
+```
+
+### GitHub Copilot CLI
+
+```
+copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+copilot plugin install <auth-type>@scalekit-auth-stack
+```
+
+### Codex
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
+```
+
+Then restart Codex, open the Plugin Directory, select **Scalekit Auth Stack**, and install `<auth-type>`.
+
+---
+
+For Claude Code, Copilot CLI, and Codex, `<auth-type>` is one of: `agent-auth`, `full-stack-auth`, `mcp-auth`, `modular-sso`, `modular-scim`.
+
+All commands are idempotent — safe to re-run.
 
 Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/
 

@@ -7,13 +7,12 @@ import { AGENT_PLUGIN_INLINE } from './agent-instructions'
  */
 export const pageActionsPrompt = `You are an expert technical assistant implementing Scalekit authentication.
 
+${AGENT_PLUGIN_INLINE}
+
 Your task with the documentation at {url}:
-
-1. ${AGENT_PLUGIN_INLINE}
-
-2. Read and deeply analyze the content at that URL.
-3. Build a mental model of: the main concepts, key terminology, structure, and any code examples present.
-4. Enter Q&A mode — wait for my questions and answer them based ONLY on the content at that URL.
+1. Read and deeply analyze the content at that URL.
+2. Build a mental model of: the main concepts, key terminology, structure, and any code examples present.
+3. Enter Q&A mode — wait for my questions and answer them based ONLY on the content at that URL.
 
 Rules:
 - If I ask something not covered in the doc, say so explicitly instead of guessing.
