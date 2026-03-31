@@ -18,6 +18,7 @@ import starlightBlog from 'starlight-blog'
 import { sidebar as sidebarConfig, topics, exclude } from './src/configs/sidebar.config'
 import { redirects } from './src/configs/redirects.config'
 import { llmsConfig } from './src/configs/llms.config.ts'
+import { AGENT_PLUGIN_META } from './src/configs/agent-instructions.ts'
 import { pageActionsPrompt } from './src/configs/page-actions.config.ts'
 import tailwindcss from '@tailwindcss/vite'
 import d2 from 'astro-d2' // https://astro-d2.vercel.app/configuration/
@@ -25,6 +26,7 @@ import Icons from 'unplugin-icons/vite'
 
 import netlify from '@astrojs/netlify'
 import openapiToMarkdown from './src/integrations/openapi-markdown'
+import { injectAgentHeader } from './src/integrations/inject-agent-header.ts'
 
 // https://astro.build/config
 export default defineConfig({
@@ -32,7 +34,7 @@ export default defineConfig({
   // Astro 6's Vite Environments API creates separate build contexts per output mode;
   // 'server' mode processes all 300+ pages through a heavy SSR pipeline.
   // The few SSR pages (auth, health, admin) already have `prerender = false`.
-  // output: 'server',
+  output: 'server',
   site: 'https://docs.scalekit.com',
   server: {
     // Match Netlify dev's readiness probe, which connects to `localhost`.
@@ -156,6 +158,13 @@ export default defineConfig({
             type: 'text/plain',
             title: 'LLM-friendly documentation',
             href: '/llms.txt',
+          },
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'ai-agent-instructions',
+            content: AGENT_PLUGIN_META,
           },
         },
         {
@@ -317,6 +326,7 @@ export default defineConfig({
       pad: 5,
     }),
     openapiToMarkdown(),
+    injectAgentHeader(),
   ],
 
   image: {
