@@ -1,6 +1,4 @@
 import { defineMiddleware } from 'astro:middleware'
-import { readFile } from 'node:fs/promises'
-import { join } from 'node:path'
 import { verifyJwt } from '@/utils/auth/jwt'
 
 const PUBLIC_PATH_PREFIXES = [
@@ -28,33 +26,9 @@ function isProtectedPath(pathname: string): boolean {
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url
 
-  // Serve raw MDX source for agents that send Accept: text/markdown
-  const accept = context.request.headers.get('accept') ?? ''
-  if (accept.includes('text/markdown')) {
-    const slug = pathname.replace(/\/$/, '') || '/index'
-    const candidates = [
-      join(process.cwd(), 'src/content/docs', `${slug}.mdx`),
-      join(process.cwd(), 'src/content/docs', `${slug}/index.mdx`),
-      join(process.cwd(), 'src/content/docs', `${slug}.md`),
-    ]
-    for (const filePath of candidates) {
-      try {
-        const content = await readFile(filePath, 'utf-8')
-        return new Response(content, {
-          headers: { 'Content-Type': 'text/markdown; charset=utf-8' },
-        })
-      } catch {
-        // try next candidate
-      }
-    }
-    // No source file found — fall through to normal response
-  }
-
   // Only allow access to public paths without authentication
   if (isPublicPath(pathname)) {
-    const response = await next()
-    response.headers.set('Link', '</llms.txt>; rel="llms-txt"')
-    return response
+    return next()
   }
 
   // Require authentication for protected paths
@@ -80,7 +54,5 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  const response = await next()
-  response.headers.set('Link', '</llms.txt>; rel="llms-txt"')
-  return response
+  return next()
 })
