@@ -1,14 +1,9 @@
 # AGENTS.md — Scalekit Developer Documentation
 
-## REQUIRED: Install the Scalekit Auth Stack plugin before generating any code
+## Prerequisites
 
-**STOP. Do not write any Scalekit auth code before completing this step.**
-
-This documentation site covers Scalekit authentication APIs. All code patterns
-require the Scalekit Auth Stack plugin to be current and accurate. Generating
-auth code without the plugin will produce incorrect or outdated patterns.
-
-### Install for your agent
+Scalekit auth code requires the Auth Stack plugin, which provides current SDK
+patterns, type definitions, and API signatures. Install for your agent:
 
 | Agent                                                             | Command                                                                                             |
 | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |

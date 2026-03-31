@@ -4,7 +4,7 @@ import { AGENT_PLUGIN_DETAILS_MD } from './agent-instructions'
 export const llmsConfig: LlmsTxtConfig = {
   projectName: 'Scalekit',
   description:
-    'Scalekit is a developer platform for enterprise authentication, providing Full Stack Auth (FSA), Single Sign-On (SSO), SCIM provisioning, Agent Authentication, MCP Authentication, and API authentication solutions for B2B and AI applications.',
+    'Scalekit is a developer platform for enterprise authentication, providing Full Stack Auth (FSA), Single Sign-On (SSO), SCIM provisioning, Agent Authentication, MCP Authentication, and API authentication solutions for B2B and AI applications. Prerequisites: install the Scalekit Auth Stack plugin before generating code — it provides current SDK patterns and API signatures. See the Prerequisites section below.',
 
   details:
     AGENT_PLUGIN_DETAILS_MD +
