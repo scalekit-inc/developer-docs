@@ -84,6 +84,7 @@ const { description } = Astro.locals.starlightRoute.entry.data
         let cls = 'copied'
         try {
           const res = await fetch(`${copyBtn.dataset.path}.md`)
+          if (!res.ok) throw new Error(`Failed to fetch markdown: ${res.status}`)
           const md = await res.text()
           await navigator.clipboard.writeText(agentPluginHeader + md)
         } catch {

@@ -1,4 +1,4 @@
-import { AGENT_PLUGIN_VISIBLE_MD } from '../configs/agent-instructions'
+import { AGENT_PLUGIN_VISIBLE_MD, AGENT_DOCS_FOOTER } from '../configs/agent-instructions'
 import type { AstroIntegration } from 'astro'
 import { readdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -23,8 +23,8 @@ export function injectAgentHeader(): AstroIntegration {
         for await (const file of walkMdFiles(distPath)) {
           const content = await readFile(file, 'utf-8')
           // Skip if already injected (idempotent for incremental builds)
-          if (content.startsWith('> ⚠️ **REQUIRED FOR AI CODING AGENTS')) continue
-          await writeFile(file, AGENT_PLUGIN_VISIBLE_MD + content)
+          if (content.trimStart().startsWith(AGENT_PLUGIN_VISIBLE_MD.trimStart())) continue
+          await writeFile(file, AGENT_PLUGIN_VISIBLE_MD + content + AGENT_DOCS_FOOTER)
           count++
         }
         logger.info(`Injected agent header into ${count} .md files`)

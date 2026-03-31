@@ -63,6 +63,20 @@ export const AGENT_PLUGIN_VISIBLE_MD = `> ⚠️ **REQUIRED FOR AI CODING AGENTS
 
 `
 
+/** Footer appended to all static .md files — helps agents discover the full documentation index. */
+export const AGENT_DOCS_FOOTER = `
+
+---
+
+## More Scalekit documentation
+
+| File | Contents |
+|------|----------|
+| [/llms.txt](/llms.txt) | Structured index with routing hints per product area |
+| [/llms-full.txt](/llms-full.txt) | Complete documentation for all pages |
+| [sitemap-0.xml](https://docs.scalekit.com/sitemap-0.xml) | Full URL list of all documentation pages |
+`
+
 /** Single-line string safe for an HTML meta content attribute. */
 export const AGENT_PLUGIN_META =
   'Install Scalekit plugin before generating auth code. ' +
