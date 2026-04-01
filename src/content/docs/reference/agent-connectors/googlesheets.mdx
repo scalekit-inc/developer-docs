@@ -1,0 +1,88 @@
+---
+title: Google Sheets
+description: Connect to Google Sheets. Create, edit, and analyze spreadsheets with powerful data management capabilities
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { UsageGooglesheetsSection } from '@components/templates'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Google Sheets. Create, edit, and analyze spreadsheets with powerful data management capabilities
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/google_sheets.svg" width="64" height="64" alt="Google Sheets logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+
+## Usage
+
+<UsageGooglesheetsSection />
+
+## Tool list
+
+## `googlesheets_create_spreadsheet`
+
+Create a new Google Sheets spreadsheet with an optional title and initial sheet configuration. Returns the new spreadsheet ID and metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `locale` | string | No | Locale of the spreadsheet |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `sheets` | `array<object>` | No | Initial sheets to include in the spreadsheet |
+| `time_zone` | string | No | Time zone for the spreadsheet |
+| `title` | string | No | Title of the new spreadsheet |
+| `tool_version` | string | No | Optional tool version to use for execution |
+
+## `googlesheets_get_values`
+
+Returns only the cell values from a specific range in a Google Sheet — no metadata, no formatting, just the data. For full spreadsheet metadata and formatting, use googlesheets_read_spreadsheet instead.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `major_dimension` | string | No | Whether values are returned by rows or columns |
+| `range` | string | Yes | Cell range to read in A1 notation |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `spreadsheet_id` | string | Yes | The ID of the Google Sheet |
+| `tool_version` | string | No | Optional tool version to use for execution |
+| `value_render_option` | string | No | How values should be rendered in the response |
+
+## `googlesheets_read_spreadsheet`
+
+Returns everything about a spreadsheet — including spreadsheet metadata, sheet properties, cell values, formatting, themes, and pixel sizes. If you only need cell values, use googlesheets_get_values instead.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `include_grid_data` | boolean | No | Include cell data in the response |
+| `ranges` | string | No | Cell range to read in A1 notation |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `spreadsheet_id` | string | Yes | The ID of the Google Sheet to read |
+| `tool_version` | string | No | Optional tool version to use for execution |
+
+## `googlesheets_update_values`
+
+Update cell values in a specific range of a Google Sheet. Supports writing single cells or multiple rows and columns at once.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `include_values_in_response` | boolean | No | Return the updated cell values in the response |
+| `range` | string | Yes | Cell range to update in A1 notation |
+| `schema_version` | string | No | Optional schema version to use for tool execution |
+| `spreadsheet_id` | string | Yes | The ID of the Google Sheet to update |
+| `tool_version` | string | No | Optional tool version to use for execution |
+| `value_input_option` | string | No | How input values should be interpreted |
+| `values` | `array<array>` | Yes | 2D array of values to write to the range |

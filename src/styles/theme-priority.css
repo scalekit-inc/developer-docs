@@ -1,0 +1,30 @@
+/*
+ * This file ensures StarlightThemeRapide styles take precedence
+ * and centralizes Tailwind/Starlight base imports to avoid duplication.
+ */
+
+/* Use Nova's defaults; ensure Tailwind utilities are available but don't override Nova layout */
+@layer base, nova, starlight, theme, components, utilities, scalekit.tokens, scalekit.layout, scalekit.components, scalekit.overrides;
+@import '@astrojs/starlight-tailwind';
+@import 'starlight-theme-nova/tailwind.css';
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/* Import any custom styles with lower specificity, ensuring they don't override theme styles */
+@import './custom.css';
+@import './tailwind.css';
+
+/* This allows for iframe embedding when URL is passed with ?inproduct=true */
+@import './iframe.css';
+
+/* Smoothen theme change on main content only (avoid global fades) */
+/* @media (prefers-reduced-motion: no-preference) {
+  :root[data-theme] main,
+  :root[data-theme] .content-panel,
+  :root[data-theme] .sl-markdown-content {
+    transition:
+      background-color 400ms ease,
+      color 400ms ease,
+      border-color 400ms ease;
+  }
+} */

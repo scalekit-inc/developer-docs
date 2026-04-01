@@ -1,0 +1,309 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# ============================================================
+# Scalekit Developer Docs — CodeRabbit Configuration
+# Goal: Uphold documentation quality and ensure FSA (and all
+#       topic sections) reflect a coherent user journey as
+#       defined in src/configs/sidebar.config.ts. Cookbooks
+#       (src/content/docs/cookbooks) use blog-style rules below.
+# ============================================================
+
+language: 'en-US'
+early_access: false
+
+reviews:
+  profile: 'assertive'
+  request_changes_workflow: true
+  high_level_summary: true
+  high_level_summary_placeholder: '@coderabbitai summary'
+  poem: false
+  review_status: true
+  review_details: true
+  collapse_walkthrough: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - 'main'
+      - 'staging'
+
+  # ── Path-level instructions ──────────────────────────────
+  path_instructions:
+    # ── All MDX files (global baseline) ──────────────────
+    - path: '**/*.mdx'
+      instructions: |
+        You are reviewing Scalekit developer documentation written in MDX
+        (Astro + Starlight framework). Apply ALL of the following checks:
+
+        ## Frontmatter
+        - `title` MUST be ≤ 60 characters and clearly state what the page does.
+        - `description` MUST be ≤ 160 characters, action-oriented, unique per page.
+        - `sidebar.label` MUST be present and ≤ 30 characters.
+        - `sidebar.order` MUST be set on every page that lives inside a section
+          with siblings, to enforce the journey order in sidebar.config.ts.
+        - Flag any missing `prev` / `next` links on pages that are clearly
+          part of a sequential flow (e.g., quickstart → implement-login →
+          complete-login → manage-session → logout).
+
+        ## Voice & Style (CLAUDE.md standards)
+        - Voice: confident, direct, collaborative, instructional.
+        - Person: second person only ("you", "your application"). Reject "we",
+          "our", "the developer", "the user".
+        - Tense: present tense for descriptions; imperative mood for instructions.
+        - Flag weasel words: "simply", "just", "easy", "straightforward",
+          "obviously", "of course", "note that".
+        - Flag passive voice constructions where active voice is clearer.
+        - Headings must be sentence case, not Title Case (except proper nouns).
+        - No heading should end with a colon or period.
+
+        ## Content structure
+        - Journey how-to guides MUST contain numbered `<Steps>` (Starlight
+          component). This does NOT apply to `src/content/docs/cookbooks/**`
+          (blog-style recipes — optional `<Steps>`, `<Tabs>` after `</Steps>` OK;
+          see cookbooks `path_instructions`).
+        - Concept pages MUST NOT contain numbered steps — concepts explain, not instruct.
+        - API reference pages MUST list parameters in a table with Name / Type /
+          Required / Description columns.
+        - Every page MUST end with a clear "what's next" signal — either a
+          `next:` frontmatter link, a `<LinkCard>`, or an explicit paragraph
+          pointing the reader forward in the sidebar journey.
+
+        ## Code examples
+        - ALL code examples that show SDK usage MUST include all four language
+          tabs: Node.js, Python, Go, Java — using `<Tabs syncKey="tech-stack">`.
+        - SDK variable names are STRICTLY: `scalekit` (Node.js),
+          `scalekit_client` (Python), `scalekitClient` (Go), `scalekitClient` (Java).
+          Flag any deviation.
+        - Code blocks MUST have a `title=` attribute showing the file path
+          (e.g., `title="routes/auth.ts"`).
+        - Security-sensitive operations (tokens, cookies, secrets) MUST include
+          inline comments explaining the security implication or threat mitigated.
+        - Show both success path AND error path in every code example.
+
+        ## Links & References
+        - Internal links MUST use root-relative paths (e.g., `/authenticate/fsa/quickstart/`).
+        - Flag any hardcoded `https://docs.scalekit.com` links — use relative paths instead.
+        - Every `<LinkCard>` or `seeAlso` reference MUST point to a page that
+          actually exists in the repo or a confirmed external URL.
+
+        ## Accessibility & MDX hygiene
+        - All images MUST have descriptive alt text — not empty `![]()` syntax.
+        - Custom components (`<Aside>`, `<Steps>`, `<Tabs>`, `<Card>`) MUST be
+          imported at the top of the file if used.
+        - No raw HTML `<div>` blocks unless absolutely necessary and justified
+          by a code comment.
+        - If `<Steps>` is used, verify it compiles to one ordered list: each
+          numbered step starts at column 0 as `1. ## ...`, and content nested
+          under a step uses exactly 3 spaces of indentation.
+        - When `<Tabs>` appears inside a step, verify the whole tabs block stays
+          inside that list item with consistent 3-space indentation for `<Tabs>`,
+          `<TabItem>`, prose, and fenced code blocks. Flag mixed indentation that
+          would trigger the Starlight `<Steps>` parser error.
+        - Prefer plain Markdown inside `<Steps>`. If a procedure is mostly
+          `<Tabs>` or other JSX-heavy blocks, suggest normal H2/H3 sections
+          instead of forcing `<Steps>`.
+
+    # ── Cookbooks (blog-style recipes) ───────────────────
+    - path: 'src/content/docs/cookbooks/**/*.mdx'
+      instructions: |
+        This file is a Scalekit cookbook: a standalone recipe under the
+        starlight-blog integration (`prefix: cookbooks` in astro.config.mjs).
+        Apply global MDX voice, style, links, and accessibility rules, but use
+        these cookbook-specific expectations:
+
+        ## Overrides to global MDX checks
+        - Do NOT require `sidebar.order` — ordering follows the blog plugin and
+          publication metadata, not sidebar.config.ts journey slots.
+        - Do NOT require `prev` / `next` frontmatter — cookbooks are not a
+          sequential product journey; cross-links and related docs are enough.
+        - `tableOfContents` is optional — enable it when the post has many H2s.
+
+        ## Frontmatter
+        - `title` and `description` follow the same length and clarity rules as
+          global MDX.
+        - Prefer `sidebar.label` for navigation consistency; if absent, do not
+          treat it as a hard failure (older cookbooks may omit it).
+        - `date`, `tags`, `authors`, `excerpt`, and `featured` are normal for
+          cookbooks — verify tags match the topic (e.g. MCP, SSO, FSA).
+
+        ## Code examples
+        - Require all four SDK tabs (Node.js, Python, Go, Java) ONLY when the
+          snippet demonstrates Scalekit client SDK usage. For MCP setup, CLI,
+          shell, framework-only (e.g. Next.js), or IDE configuration recipes,
+          use the tabs or single-language blocks that fit the task. Do not
+          demand four SDK languages for bash, JSON, env files, or non-SDK code.
+        - Minimal examples (single command, config block) do not need both
+          success and error paths unless the recipe is explicitly about errors.
+        - Flag real-looking API keys or secrets — use placeholders such as
+          `YOUR_API_KEY` or `YOUR_CLIENT_SECRET`.
+
+        ## `<Steps>` (overrides global "how-to MUST use Steps")
+        - Do NOT require `<Steps>` on cookbooks. The global rule targets journey
+          how-to pages; a cookbook may use H2 sections, `<Tabs>`, or prose.
+        - Do NOT flag "missing Steps" when the procedure is already clear.
+        - If `<Steps>` is used, `<Tabs>` or other blocks MAY appear after
+          `</Steps>` (e.g. per–IDE or per–client variants). That is valid; do
+          not call it broken MDX or demand that Steps wrap all procedural
+          content.
+        - If `<Steps>` is used, verify it still compiles to one ordered list:
+          each numbered step starts at column 0 as `1. ## ...`, and any content
+          nested under a step uses exactly 3 spaces of indentation.
+        - When `<Tabs>` appears inside a step, verify the entire tabs block stays
+          inside that list item: `<Tabs>`, `<TabItem>`, prose, and fenced code
+          blocks should all remain indented under the step. Flag mixed
+          indentation that would trigger the Starlight error: "The `<Steps>`
+          component expects its content to be a single ordered list (`<ol>`)."
+        - If a cookbook is mostly `<Tabs>` or other JSX-heavy blocks, prefer H2
+          sections over `<Steps>` instead of forcing a fragile nested structure.
+
+        ## Structure
+        - How-to cookbooks SHOULD use `<Steps>` when the flow is procedural
+          (see `<Steps>` section above for when not to enforce it).
+        - Patterns such as "The problem", "Who needs this", and "The solution"
+          are appropriate; concept-only cookbooks do not need fake numbered
+          steps.
+
+        ## Links
+        - Same internal-link rules as global MDX (root-relative paths, no
+          unnecessary `https://docs.scalekit.com` hardcoding).
+
+    # ── FSA section — journey coherence ─────────────────
+    - path: 'src/content/docs/fsa/**/*.mdx'
+      instructions: |
+        This page is part of the Full Stack Auth (FSA) documentation section.
+        The FSA sidebar journey in sidebar.config.ts follows this sequence:
+
+          Getting started
+            1. authenticate/set-up-scalekit
+            2. authenticate/fsa/quickstart           ← entry point
+            3. authenticate/fsa/code-samples
+
+          User authentication
+            4. authenticate/fsa/implement-login
+            5. authenticate/fsa/complete-login
+            6. authenticate/fsa/manage-session
+            7. authenticate/fsa/logout
+            8. guides/dashboard/redirects
+
+          Manage users & orgs
+            9.  fsa/data-modelling                   ← THIS directory
+            10. authenticate/manage-users-orgs/...
+            11. fsa/guides/*
+
+          Customize → Go Live
+            12. fsa/guides/login-page-branding
+            13. fsa/guides/migration-guide
+
+        CHECK:
+        - Does this page have a `prev:` and `next:` that correctly links to
+          its neighbors in the above sequence?
+        - Does the page content "hand off" the reader — ending with a sentence
+          or component that makes the next step obvious?
+        - Does the page assume knowledge that should have been introduced in
+          an earlier page? If yes, flag it and suggest adding a cross-link.
+        - Does the page repeat foundational concepts already covered earlier
+          in the journey? If yes, replace repetition with a cross-link.
+        - For `fsa/data-modelling.mdx` specifically: verify it bridges the gap
+          between "user authenticated" (quickstart) and "now manage users/orgs"
+          without re-explaining the login flow.
+
+    - path: 'src/content/docs/fsa/guides/**/*.mdx'
+      instructions: |
+        These are FSA how-to guides — task-oriented pages for specific
+        user-management and customization scenarios. Verify:
+        - Each guide is clearly scoped to ONE task (single responsibility).
+        - The guide does not duplicate content from the parent FSA section;
+          it should extend it with specifics.
+        - `just-in-time-provisioning.mdx`: must explain JIT in the context of
+          organization-level auth policy enforcement.
+        - `login-page-branding.mdx`: must be placed in the "Customize" section
+          of the sidebar journey and have next/prev links accordingly.
+        - `migration-guide.mdx`: must be in "Go Live" and call out breaking
+          changes clearly with an `<Aside type="caution">` block.
+        - `user-invitations.mdx`: must reference the data model from
+          `fsa/data-modelling.mdx` for membership status (`pending`, `active`).
+
+    # ── authenticate/fsa/multiapp/ exception ──────────────
+    - path: 'src/content/docs/authenticate/fsa/multiapp/**/*.mdx'
+      instructions: |
+        This page is part of the multiapp section. Skip sidebar.order and tags checks.
+        Apply all other global MDX rules (title, description, voice, style, code examples, etc.).
+        Ordering is centralized in src/configs/sidebar.config.ts.
+
+    # ── authenticate/ section ────────────────────────────
+    - path: 'src/content/docs/authenticate/**/*.mdx'
+      instructions: |
+        This page lives in the primary authentication section.
+        - If it's a quickstart or step-based guide, it MUST use `<Steps>`.
+        - Auth method pages (passwordless, social, SSO, passkeys) MUST include
+          a brief "when to use this" section before the implementation steps.
+        - Any reference to tokens (idToken, accessToken, refreshToken) MUST
+          clarify: what it contains, its lifetime, and how to use it securely.
+        - The FSA quickstart (`authenticate/fsa/quickstart.mdx`) is the
+          canonical entry point — no other page should duplicate its 5-step
+          install→redirect→callback→session→logout structure.
+
+    # ── Sidebar & navigation config ─────────────────────
+    - path: 'src/configs/sidebar.config.ts'
+      instructions: |
+        This file defines the user journey across ALL documentation sections.
+        When reviewing changes to this file:
+        - Verify that reordered items do not break the logical learning sequence
+          (e.g., "complete-login" must always come after "implement-login").
+        - New items added to the FSA sidebar must follow the journey sequence:
+          Getting Started → User Auth → Auth Methods → Users & Orgs →
+          Authorization → Multi-App → APIs → Customize → Go Live.
+        - Commented-out items (TODO) are acceptable but must include a comment
+          explaining WHY they are hidden.
+        - `sidebarToSecondaryNav` mappings MUST be updated whenever a new
+          sidebar section (`id`) is added.
+        - External links MUST include the `attrs` block with
+          `target: '_blank'`, `rel: 'noopener noreferrer'`, `class: 'external-link'`.
+
+    # ── Content config & schema ──────────────────────────
+    - path: 'src/content.config.ts'
+      instructions: |
+        This defines Astro content collection schemas.
+        - New optional frontmatter fields MUST have `.optional()` and a
+          sensible `.default()` where applicable.
+        - SDK repository entries in `github-releases` and `sdk-references`
+          loaders must stay in sync — if a new SDK repo is added to one,
+          it must be added to the other.
+
+    # ── CLAUDE.md ───────────────────────────────────────────────
+    - path: 'CLAUDE.md'
+      instructions: |
+        CLAUDE.md is the single source of truth for all documentation standards in this repo.
+        - SDK variable names section is CRITICAL — any change here must be
+          intentional and reflected across all code examples in the docs.
+        - The "Quality Checklist" section must end every AI-generated draft
+          with `STYLE-CHECK: [PASSED | TODO]`.
+
+    # ── JS/TS source files — relaxed commenting rules ───
+    - path: '**/*.{ts,js,mjs}'
+      instructions: |
+        Do NOT enforce code-commenting style rules on these files.
+        Specifically, do not flag:
+        - Comments that "duplicate" or restate what the code does.
+        - Missing comments on bug fixes, workarounds, or issue references.
+        - Missing inline documentation or explanatory comments.
+        Code comments are at the author's discretion.
+
+    # ── Astro config ─────────────────────────────────────
+    - path: 'astro.config.mjs'
+      instructions: |
+        - Sidebar config is imported from `src/configs/sidebar.config.ts` —
+          do NOT inline sidebar items here directly.
+        - Any new Starlight plugin added must be documented in a comment
+          explaining its purpose.
+        - `starlightLinksValidator` exclude patterns must stay minimal —
+          only exclude paths that genuinely can't be validated (e.g., `/apis/**`).
+
+  # ── Finishing touches ────────────────────────────────
+  finishing_touches:
+    docstrings:
+      enabled: false # This is a docs repo, not a code library
+
+chat:
+  auto_reply: true

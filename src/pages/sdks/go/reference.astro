@@ -1,0 +1,116 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+import { getEntry, render } from 'astro:content'
+
+// Fetch the reference documentation from the sdk-references collection
+const referenceEntry = await getEntry('sdk-references', 'go')
+const { Content } = referenceEntry ? await render(referenceEntry) : { Content: null }
+
+const frontmatter = {
+  title: 'Go SDK Reference',
+  description: 'Complete API reference for the Scalekit Go SDK',
+  topic: 'sdks',
+  template: 'doc' as const,
+  tableOfContents: false,
+  sidebar: {
+    label: 'SDK reference',
+  },
+  prev: false,
+  next: false,
+}
+---
+
+<StarlightPage frontmatter={frontmatter} hasSidebar={true}>
+  {
+    referenceEntry && Content ? (
+      <div class="sdk-reference-content">
+        <Content />
+        <div class="reference-footer">
+          <p>
+            <strong>Source:</strong>{' '}
+            <a href={referenceEntry.data.htmlUrl} target="_blank" rel="noopener noreferrer">
+              View on GitHub →
+            </a>
+          </p>
+          <p class="last-updated">
+            Last fetched:{' '}
+            {new Date(referenceEntry.data.lastFetched).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </p>
+        </div>
+      </div>
+    ) : (
+      <div class="reference-error">
+        <p>
+          <strong>Reference documentation is currently unavailable.</strong>
+        </p>
+        <p>
+          Please visit the{' '}
+          <a
+            href="https://github.com/scalekit-inc/scalekit-sdk-go"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub repository
+          </a>{' '}
+          for the latest documentation.
+        </p>
+      </div>
+    )
+  }
+</StarlightPage>
+
+<style>
+  .sdk-reference-content {
+    max-width: var(--sl-content-width);
+    margin: 0 auto;
+  }
+
+  .reference-footer {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--sl-color-hairline);
+    font-size: 0.875rem;
+    color: var(--sl-color-text-2);
+  }
+
+  .reference-footer p {
+    margin: 0.5rem 0;
+  }
+
+  .reference-footer a {
+    color: var(--sl-color-accent);
+    text-decoration: none;
+  }
+
+  .reference-footer a:hover {
+    text-decoration: underline;
+  }
+
+  .last-updated {
+    font-style: italic;
+  }
+
+  .reference-error {
+    padding: 2rem;
+    background: var(--sl-color-bg-inline-code);
+    border-left: 4px solid var(--sl-color-orange);
+    border-radius: 0.5rem;
+  }
+
+  .reference-error p {
+    margin: 0.5rem 0;
+  }
+
+  .reference-error a {
+    color: var(--sl-color-accent);
+    text-decoration: none;
+  }
+
+  .reference-error a:hover {
+    text-decoration: underline;
+  }
+</style>

@@ -1,0 +1,47 @@
+---
+interface Props {
+  className?: string
+  columnsMobile?: number
+  columnsTablet?: number
+  columnsDesktop?: number
+  columnsLarge?: number
+  gap?: string
+}
+
+const {
+  className = '',
+  columnsMobile = 1,
+  columnsTablet = 2,
+  columnsDesktop = 3,
+  columnsLarge = 4,
+  gap = '1.5rem',
+} = Astro.props
+
+const gridClass = `responsive-grid-${Math.random().toString(36).substr(2, 9)}`
+const cssContent = `.${gridClass} {
+  display: grid;
+  gap: ${gap};
+  grid-template-columns: repeat(${columnsMobile}, 1fr);
+}
+@media (min-width: 640px) {
+  .${gridClass} {
+    grid-template-columns: repeat(${columnsTablet}, 1fr);
+  }
+}
+@media (min-width: 768px) {
+  .${gridClass} {
+    grid-template-columns: repeat(${columnsDesktop}, 1fr);
+  }
+}
+@media (min-width: 1280px) {
+  .${gridClass} {
+    grid-template-columns: repeat(${columnsLarge}, 1fr);
+  }
+}`
+---
+
+<div class={`responsive-card-grid ${gridClass} ${className}`}>
+  <slot />
+</div>
+
+<style set:html={cssContent}></style>

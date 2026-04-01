@@ -1,0 +1,119 @@
+---
+title: LangChain
+description: Build a LangChain agent that authenticates users with Gmail and executes tools on their behalf using Scalekit Agent Auth.
+tags: [agentauth, framework, langchain, oauth2, toolintegration, aigents, guide]
+tableOfContents: true
+seeAlso:
+  label: "Code samples"
+  expanded: true
+  items:
+    - title: "Sample LangChain agent"
+      icon: "github"
+      url: "https://github.com/scalekit-inc/sample-langchain-agent"
+---
+
+import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem, LinkButton } from '@astrojs/starlight/components';
+
+This guide shows how to build a LangChain agent that authenticates users with Gmail via OAuth 2.0 and fetches their last 5 unread emails using Scalekit Agent Auth.
+
+<LinkButton href="https://github.com/scalekit-inc/sample-langchain-agent" variant="secondary" class="sk-secondary" target="_blank" rel="noopener" icon="github">Full code on GitHub</LinkButton>
+
+## Prerequisites
+
+Before you start, make sure you have:
+
+- **Scalekit API credentials** — Client ID and Client Secret from [app.scalekit.com](https://app.scalekit.com)
+- **OpenAI API Key** — Get from [OpenAI Platform](https://platform.openai.com/api-keys)
+
+<Steps>
+1. ### Set up your environment
+
+   Install the Scalekit Python SDK and initialize the client. Get your credentials from **Developers → Settings → API Credentials** in the [dashboard](https://app.scalekit.com).
+
+   <p>
+     ```sh showLineNumbers=false frame="none"
+     pip install scalekit-sdk-python langchain langchain-openai
+     ```
+   </p>
+   <p>
+     ```python showLineNumbers=false frame="none"
+     import scalekit.client
+     import os
+     from dotenv import load_dotenv
+
+     load_dotenv()
+     scalekit_client = scalekit.client.ScalekitClient(
+         client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+         client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+         env_url=os.getenv("SCALEKIT_ENV_URL"),
+     )
+     actions = scalekit_client.actions
+
+     ```
+   </p>
+
+2. ### Create a connected account
+
+   Authorize a user to access their Gmail account by creating a connected account. This represents the user's connection to their Gmail account:
+
+   ```python
+   # Create a connected account for user if it doesn't exist already
+   response = actions.get_or_create_connected_account(
+               connection_name="gmail",
+               identifier="user_123" # unique identifier; replace with your system's user ID
+           )
+   connected_account = response.connected_account
+
+   print(f'Connected account created: {connected_account.id}')
+   ```
+
+3. ### Authenticate the user
+
+   For Scalekit to execute tools on behalf of the user, the user must grant authorization to access their Gmail account. Scalekit automatically handles the entire OAuth workflow, including token refresh.
+
+   ```python
+   # If the user hasn't yet authorized the gmail connection or if the user's access token is expired,
+   # generate a magic link and redirect the user to this link so that the user can complete authorization
+   if(connected_account.status != "ACTIVE"):
+         link_response = actions.get_authorization_link(
+             connection_name="gmail",
+             identifier="user_123"
+         )
+         print(f"🔗click on the link to authorize gmail", link_response.link)
+         input(f"⎆ Press Enter after authorizing gmail...")
+
+   # In a real app, redirect the user to this URL so that the user can complete the authentication process for their gmail account
+   ```
+
+4. ### Build a LangChain agent
+
+   Build a simple agent that fetches the last 5 unread emails from the user's inbox and generates a summary.
+
+   ```python
+   from langchain_openai import ChatOpenAI
+   from langchain.agents import AgentExecutor, create_openai_tools_agent
+   from langchain_core.prompts import SystemMessagePromptTemplate, MessagesPlaceholder, HumanMessagePromptTemplate,PromptTemplate, ChatPromptTemplate
+
+   # use scalekit SDK to fetch all GMAIL tools in langchain format
+   tools =  actions.langchain.get_tools(
+        identifier="user_123",
+        providers = ["GMAIL"], # all tools for provider used by default
+        page_size=100
+   )
+
+   prompt = ChatPromptTemplate.from_messages([
+       SystemMessagePromptTemplate(prompt=PromptTemplate(input_variables=[], template="You are a helpful assistant. Use tools if needed")),
+       MessagesPlaceholder(variable_name="chat_history", optional=True),
+       HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=["input"], template="{input}")),
+       MessagesPlaceholder(variable_name="agent_scratchpad")
+   ])
+
+   llm = ChatOpenAI(model="gpt-4o")
+   agent = create_openai_tools_agent(llm, tools, prompt)
+   agent_executor = AgentExecutor(agent=agent, tools=tools,verbose=True)
+   result = agent_executor.invoke({"input":"fetch my last 5 unread emails and summarize it"}
+   )
+   ```
+
+</Steps>
+

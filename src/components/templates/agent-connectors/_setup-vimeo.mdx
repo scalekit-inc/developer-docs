@@ -1,0 +1,64 @@
+import { Steps } from '@astrojs/starlight/components'
+import createAppFormImg from '@/assets/docs/agent-connectors/vimeo/create-app-form.png'
+import createAppFilledImg from '@/assets/docs/agent-connectors/vimeo/create-app-filled.png'
+import appClientIdentifierImg from '@/assets/docs/agent-connectors/vimeo/app-client-identifier.png'
+import scalekitSearchVimeoImg from '@/assets/docs/agent-connectors/vimeo/scalekit-search-vimeo.png'
+import configureVimeoConnectionImg from '@/assets/docs/agent-connectors/vimeo/configure-vimeo-connection.png'
+import vimeoAppCallbackUrlImg from '@/assets/docs/agent-connectors/vimeo/vimeo-app-callback-url.png'
+
+Register your Vimeo app credentials with Scalekit so it can manage the OAuth 2.0 authentication flow and token lifecycle on your behalf. You'll need a Client Identifier and Client Secret from the [Vimeo Developer Portal](https://developer.vimeo.com/).
+
+<Steps>
+1. ### Create a Vimeo app
+
+   - Go to the [Vimeo Developer Portal](https://developer.vimeo.com/) and click **Create an app** in the top-right corner.
+
+   - Fill in the required fields:
+     - **App name** — enter a name for your app (e.g., `Scalekit-Auth`)
+     - **Brief description** — describe what the app does
+     - Select **Yes** under "Will people besides you be able to access your app?" to allow other Vimeo accounts to authenticate
+     - Check the box to agree to the Vimeo API License Agreement and Terms of Service
+
+     <img src={createAppFilledImg.src} alt="Vimeo Create a new app form filled with Scalekit-Auth details" width="540" />
+
+   - Click **Create App**.
+
+2. ### Copy your Client Identifier
+
+   After creating the app, you are taken to the app's settings page. Copy the **Client identifier** — you'll need it in a later step.
+
+   <img src={appClientIdentifierImg.src} alt="Vimeo app settings page showing the Client Identifier" width="540" />
+
+3. ### Create a connection in Scalekit
+
+   - In <a href="https://app.scalekit.com" target="_blank" rel="noopener">Scalekit dashboard</a>, go to **Agent Auth** → **Create Connection**. Search for **Vimeo** and click **Create**.
+
+     <img src={scalekitSearchVimeoImg.src} alt="Searching for Vimeo in Scalekit Create Connection" width="540" />
+
+   - Copy the **Redirect URI** from the connection configuration panel. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+     <img src={configureVimeoConnectionImg.src} alt="Configure Vimeo Connection panel showing Redirect URI, Client ID, Client Secret, and Scopes fields" width="540" />
+
+4. ### Configure the callback URL in Vimeo
+
+   - Back in the [Vimeo Developer Portal](https://developer.vimeo.com/), open your app and click **Edit settings**.
+
+   - Paste the Scalekit Redirect URI into the **App URL** field and the **Your callback URLs** field.
+
+   - Click **Add secret** under **Client secrets** to generate a new client secret. Copy the secret value.
+
+     <img src={vimeoAppCallbackUrlImg.src} alt="Vimeo app settings with callback URL and client secret configured" width="540" />
+
+   - Click **Update** to save.
+
+5. ### Add credentials in Scalekit
+
+   - In <a href="https://app.scalekit.com" target="_blank" rel="noopener">Scalekit dashboard</a>, go to **Agent Auth** → **Connections** and open the Vimeo connection you created.
+
+   - Enter your credentials:
+     - **Client ID** — the Client Identifier from your Vimeo app
+     - **Client Secret** — the secret you generated in step 4
+     - **Scopes** — select the scopes your app needs (e.g., `create`, `delete`, `edit`, `interact`, `private`, `public`)
+
+   - Click **Save**.
+</Steps>

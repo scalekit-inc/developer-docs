@@ -1,0 +1,157 @@
+---
+import FoldCard from './ui/FoldCard.astro'
+import { getCollection } from 'astro:content'
+import { Badge } from '@astrojs/starlight/components'
+import { getSDKConfigs, formatTimeAgo, type SDKConfig } from '@/utils/release-helpers'
+
+// Load GitHub releases and get latest release data for each SDK
+const releases = await getCollection('github-releases')
+
+// Get SDK configurations with latest releases
+const sdkConfig = getSDKConfigs(releases)
+const sdkList = Object.values(sdkConfig) as SDKConfig[]
+---
+
+<div class="sdk-cards-grid" style="--sl-content-gap-y: 0;">
+  {
+    sdkList.map((sdk) => (
+      <div class="sdk-card-wrapper">
+        <FoldCard
+          title={sdk.title}
+          iconKey={sdk.icon}
+          href={sdk.href}
+          showCta={true}
+          cta="Get Started →"
+          showTitle={false}
+          clickable={false}
+          ctaSmall={true}
+        >
+          <div class="sdk-card-header-meta">
+            {sdk.release && <Badge text={sdk.release.tagName} />}
+            {sdk.release && <span class="separator">•</span>}
+            {sdk.release && (
+              <span class="sdk-card-meta">Updated {formatTimeAgo(sdk.release.publishedAt)}</span>
+            )}
+          </div>
+
+          <div class="sdk-card-subtitle">{sdk.description}</div>
+
+          <div class="sdk-card-features">
+            {sdk.features.map((feature) => (
+              <div class="sdk-feature">{feature}</div>
+            ))}
+          </div>
+
+          <div class="sdk-bottom-row">
+            <div class="sdk-meta-row">
+              {/* Pulling stars directly from loader data */}
+              {sdk.release && sdk.release.repoStargazerCount > 50 && (
+                <div class="meta-item" title="GitHub Stars">
+                  {sdk.release.repoStargazerCount} stars
+                </div>
+              )}
+            </div>
+          </div>
+        </FoldCard>
+      </div>
+    ))
+  }
+</div>
+
+<style is:global>
+  .sdk-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    --sl-content-gap-y: 0 !important;
+  }
+
+  /* Prevent all margin-top within SDK cards grid */
+  .sdk-cards-grid * {
+    margin-top: 0 !important;
+  }
+
+  .sdk-card-wrapper :global(.fold-card) {
+    height: 100%;
+  }
+
+  .sdk-card-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .sdk-card-header-meta :global(.sl-badge) {
+    font-size: 0.75rem;
+  }
+
+  .separator {
+    color: var(--sl-color-gray-6);
+  }
+
+  .sdk-card-meta {
+    color: var(--sl-color-text-muted);
+    font-size: 0.8rem;
+  }
+
+  .sdk-card-subtitle {
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    color: var(--sl-color-text);
+  }
+
+  .sdk-card-features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .sdk-feature {
+    padding-left: 1rem;
+    position: relative;
+    font-size: 0.9rem;
+    color: var(--sl-color-text-muted);
+  }
+
+  .sdk-feature::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--sl-color-accent);
+    font-weight: bold;
+  }
+
+  .sdk-bottom-row {
+    margin-top: auto;
+  }
+
+  .sdk-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .get-started-link {
+    color: var(--sl-color-accent);
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--sl-color-text-muted);
+  }
+
+  @media (max-width: 768px) {
+    .sdk-cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

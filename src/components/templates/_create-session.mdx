@@ -1,0 +1,85 @@
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="tech-stack">
+  <TabItem value="node" label="Node.js">
+    ```javascript
+    const { accessToken, refreshToken, expiresIn } = authResult;
+
+    // Store the refreshToken securely, e.g., in a database
+    await db.saveRefreshToken(user.id, refreshToken);
+
+    // Set the accessToken as a secure, HTTP-only cookie
+    res.cookie('accessToken', accessToken, {
+      maxAge: (expiresIn - 60) * 1000,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    access_token = auth_result['access_token']
+    refresh_token = auth_result.get('refresh_token')
+    expires_in = auth_result.get('expires_in', 3600)  # Default to 1 hour if not provided
+
+    # Store the refresh_token securely, e.g., in a database
+    await db.save_refresh_token(user['id'], refresh_token)
+
+    # Set the access_token as a secure, HTTP-only cookie
+    response = redirect('/dashboard/profile')
+    response.set_cookie(
+        'accessToken',
+        access_token,
+        max_age=expires_in - 60,
+        httponly=True,
+        secure=os.environ.get('FLASK_ENV') == 'production',
+        samesite='Strict'
+    )
+    return response
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go
+    accessToken := authResult.AccessToken
+    refreshToken := authResult.RefreshToken
+    expiresIn := authResult.ExpiresIn
+
+    // Store the refreshToken securely, e.g., in a database
+    err = db.SaveRefreshToken(user.Id, refreshToken)
+    if err != nil {
+        c.JSON(500, gin.H{"error": "Failed to save refresh token"})
+        return
+    }
+
+    // Set the accessToken as a secure, HTTP-only cookie
+    c.SetCookie(
+        "accessToken",
+        accessToken,
+        expiresIn-60,
+        "/",
+        "",
+        os.Getenv("GIN_MODE") == "release",
+        true,
+    )
+    ```
+  </TabItem>
+  <TabItem value="java" label="Java">
+    ```java
+    String accessToken = authResult.getAccessToken();
+    String refreshToken = authResult.getRefreshToken();
+    int expiresIn = authResult.getExpiresIn();
+
+    // Store the refreshToken securely, e.g., in a database
+    refreshTokenRepository.save(user.getId(), refreshToken);
+
+    // Set the accessToken as a secure, HTTP-only cookie
+    Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+    accessTokenCookie.setMaxAge(expiresIn - 60);
+    accessTokenCookie.setHttpOnly(true);
+    accessTokenCookie.setSecure(System.getenv("SPRING_PROFILES_ACTIVE").equals("prod"));
+    accessTokenCookie.setPath("/");
+    response.addCookie(accessTokenCookie);
+    ```
+  </TabItem>
+</Tabs>

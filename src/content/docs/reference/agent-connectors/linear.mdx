@@ -1,0 +1,94 @@
+---
+title: Linear
+description: Connect to Linear. Manage issues, projects, sprints, and development workflows
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupLinearSection } from '@components/templates'
+import { UsageLinearSection } from '@components/templates'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Linear. Manage issues, projects, sprints, and development workflows
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/linear.svg" width="64" height="64" alt="Linear logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+
+## Set up the agent connector
+
+<SetupLinearSection />
+
+## Usage
+
+<UsageLinearSection />
+
+## Tool list
+
+## `linear_graphql_query`
+
+Execute a custom GraphQL query or mutation against the Linear API. Allows running any valid GraphQL operation with variables support for advanced use cases.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `query` | string | Yes | The GraphQL query or mutation to execute |
+| `variables` | `object` | No | Variables to pass to the GraphQL query |
+
+## `linear_issue_create`
+
+Create a new issue in Linear using the issueCreate mutation. Requires a team ID and title at minimum.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assigneeId` | string | No | ID of the user to assign the issue to |
+| `description` | string | No | Description of the issue |
+| `estimate` | string | No | Story point estimate for the issue |
+| `labelIds` | `array<string>` | No | Array of label IDs to apply to the issue |
+| `priority` | string | No | Priority level of the issue (1-4, where 1 is urgent) |
+| `projectId` | string | No | ID of the project to associate the issue with |
+| `stateId` | string | No | ID of the workflow state to set |
+| `teamId` | string | Yes | ID of the team to create the issue in |
+| `title` | string | Yes | Title of the issue |
+
+## `linear_issue_update`
+
+Update an existing issue in Linear. You can update title, description, priority, state, and assignee.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assigneeId` | string | No | ID of the user to assign the issue to |
+| `description` | string | No | New description for the issue |
+| `issueId` | string | Yes | ID of the issue to update |
+| `priority` | string | No | Priority level of the issue (1-4, where 1 is urgent) |
+| `stateId` | string | No | ID of the workflow state to set |
+| `title` | string | No | New title for the issue |
+
+## `linear_issues_list`
+
+List issues in Linear using the issues query with simple filtering and pagination support.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `after` | string | No | Cursor for pagination (returns issues after this cursor) |
+| `assignee` | string | No | Filter by assignee email (e.g., 'user@example.com') |
+| `before` | string | No | Cursor for pagination (returns issues before this cursor) |
+| `first` | integer | No | Number of issues to return (pagination) |
+| `labels` | `array<string>` | No | Filter by label names (array of strings) |
+| `priority` | string | No | Filter by priority level (1=Urgent, 2=High, 3=Medium, 4=Low) |
+| `project` | string | No | Filter by project name (e.g., 'Q4 Goals') |
+| `state` | string | No | Filter by state name (e.g., 'In Progress', 'Done') |

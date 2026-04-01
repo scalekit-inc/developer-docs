@@ -1,0 +1,174 @@
+---
+title: Freshdesk
+description: Connect to Freshdesk. Manage tickets, contacts, companies, and customer support workflows
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { UsageFreshdeskSection } from '@components/templates'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Freshdesk. Manage tickets, contacts, companies, and customer support workflows
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/freshdesk.png" width="64" height="64" alt="Freshdesk logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="Basic Auth" />
+
+
+## Usage
+
+<UsageFreshdeskSection />
+
+## Tool list
+
+## `freshdesk_agent_create`
+
+Create a new agent in Freshdesk. Email is required and must be unique. Agent will receive invitation email to set up account. At least one role must be assigned.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `agent_type` | number | No | Type of agent (1=Support Agent, 2=Field Agent, 3=Collaborator) |
+| `email` | string | Yes | Email address of the agent (must be unique) |
+| `focus_mode` | boolean | No | Focus mode setting for the agent |
+| `group_ids` | `array<number>` | No | Array of group IDs to assign the agent to |
+| `language` | string | No | Language preference of the agent |
+| `name` | string | No | Full name of the agent |
+| `occasional` | boolean | No | Whether the agent is occasional (true) or full-time (false) |
+| `role_ids` | `array<number>` | Yes | Array of role IDs to assign to the agent (at least one required) |
+| `signature` | string | No | Agent email signature in HTML format |
+| `skill_ids` | `array<number>` | No | Array of skill IDs to assign to the agent |
+| `ticket_scope` | number | Yes | Ticket permission level (1=Global Access, 2=Group Access, 3=Restricted Access) |
+| `time_zone` | string | No | Time zone of the agent |
+
+## `freshdesk_agent_delete`
+
+Delete an agent from Freshdesk. This action is irreversible and will remove the agent from the system. The agent will no longer have access to the helpdesk and all associated data will be permanently deleted.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `agent_id` | number | Yes | ID of the agent to delete |
+
+## `freshdesk_agents_list`
+
+Retrieve a list of agents from Freshdesk with filtering options. Returns agent details including IDs, contact information, roles, and availability status. Supports pagination with up to 100 agents per page.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `email` | string | No | Filter agents by email address |
+| `mobile` | string | No | Filter agents by mobile number |
+| `page` | number | No | Page number for pagination (starts from 1) |
+| `per_page` | number | No | Number of agents per page (max 100) |
+| `phone` | string | No | Filter agents by phone number |
+| `state` | string | No | Filter agents by state (fulltime or occasional) |
+
+## `freshdesk_contact_create`
+
+Create a new contact in Freshdesk. Email and name are required. Supports custom fields, company assignment, and contact segmentation.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `address` | string | No | Address of the contact |
+| `company_id` | number | No | Company ID to associate with the contact |
+| `custom_fields` | `object` | No | Key-value pairs for custom field values |
+| `description` | string | No | Description about the contact |
+| `email` | string | Yes | Email address of the contact |
+| `job_title` | string | No | Job title of the contact |
+| `language` | string | No | Language preference of the contact |
+| `mobile` | string | No | Mobile number of the contact |
+| `name` | string | Yes | Full name of the contact |
+| `phone` | string | No | Phone number of the contact |
+| `tags` | `array<string>` | No | Array of tags to associate with the contact |
+| `time_zone` | string | No | Time zone of the contact |
+
+## `freshdesk_roles_list`
+
+Retrieve a list of all roles from Freshdesk. Returns role details including IDs, names, descriptions, default status, and timestamps. This endpoint provides information about the different permission levels and access controls available in the Freshdesk system.
+
+## `freshdesk_ticket_create`
+
+Create a new ticket in Freshdesk. Requires either requester_id, email, facebook_id, phone, twitter_id, or unique_external_id to identify the requester.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cc_emails` | `array<string>` | No | Array of email addresses to be added in CC |
+| `custom_fields` | `object` | No | Key-value pairs containing custom field names and values |
+| `description` | string | No | HTML content of the ticket describing the issue |
+| `email` | string | No | Email address of the requester. If no contact exists, will be added as new contact. |
+| `group_id` | number | No | ID of the group to which the ticket has been assigned |
+| `name` | string | No | Name of the requester |
+| `priority` | number | No | Priority of the ticket. 1=Low, 2=Medium, 3=High, 4=Urgent |
+| `requester_id` | number | No | User ID of the requester. For existing contacts, can be passed instead of email. |
+| `responder_id` | number | No | ID of the agent to whom the ticket has been assigned |
+| `source` | number | No | Channel through which ticket was created. 1=Email, 2=Portal, 3=Phone, 7=Chat, 9=Feedback Widget, 10=Outbound Email |
+| `status` | number | No | Status of the ticket. 2=Open, 3=Pending, 4=Resolved, 5=Closed |
+| `subject` | string | No | Subject of the ticket |
+| `tags` | `array<string>` | No | Array of tags to be associated with the ticket |
+| `type` | string | No | Helps categorize the ticket according to different kinds of issues |
+
+## `freshdesk_ticket_get`
+
+Retrieve details of a specific ticket by ID. Includes ticket properties, conversations, and metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `include` | string | No | Additional resources to include (stats, requester, company, conversations) |
+| `ticket_id` | number | Yes | ID of the ticket to retrieve |
+
+## `freshdesk_ticket_update`
+
+Update an existing ticket in Freshdesk. Note: Subject and description of outbound tickets cannot be updated.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `custom_fields` | `object` | No | Key-value pairs containing custom field names and values |
+| `description` | string | No | HTML content of the ticket (cannot be updated for outbound tickets) |
+| `group_id` | number | No | ID of the group to which the ticket has been assigned |
+| `name` | string | No | Name of the requester |
+| `priority` | number | No | Priority of the ticket. 1=Low, 2=Medium, 3=High, 4=Urgent |
+| `responder_id` | number | No | ID of the agent to whom the ticket has been assigned |
+| `status` | number | No | Status of the ticket. 2=Open, 3=Pending, 4=Resolved, 5=Closed |
+| `subject` | string | No | Subject of the ticket (cannot be updated for outbound tickets) |
+| `tags` | `array<string>` | No | Array of tags to be associated with the ticket |
+| `ticket_id` | number | Yes | ID of the ticket to update |
+
+## `freshdesk_tickets_list`
+
+Retrieve a list of tickets with filtering and pagination. Supports filtering by status, priority, requester, and more. Returns 30 tickets per page by default.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `company_id` | number | No | Filter by company ID |
+| `email` | string | No | Filter by requester email |
+| `filter` | string | No | Filter name (new_and_my_open, watching, spam, deleted) |
+| `include` | string | No | Additional resources to include (description, requester, company, stats) |
+| `page` | number | No | Page number for pagination (starts from 1) |
+| `per_page` | number | No | Number of tickets per page (max 100) |
+| `requester_id` | number | No | Filter by requester ID |
+| `updated_since` | string | No | Filter tickets updated since this timestamp (ISO 8601) |
+
+## `freshdesk_tickets_reply`
+
+Add a public reply to a ticket conversation. The reply will be visible to the customer and will update the ticket status if specified.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `bcc_emails` | `array<string>` | No | Array of email addresses to BCC on the reply |
+| `body` | string | Yes | HTML content of the reply |
+| `cc_emails` | `array<string>` | No | Array of email addresses to CC on the reply |
+| `from_email` | string | No | Email address to send the reply from |
+| `ticket_id` | number | Yes | ID of the ticket to reply to |
+| `user_id` | number | No | ID of the agent sending the reply |

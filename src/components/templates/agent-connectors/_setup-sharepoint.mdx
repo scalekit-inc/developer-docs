@@ -1,0 +1,39 @@
+import { Steps } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the SharePoint connector so Scalekit handles the authentication flow and token lifecycle for you. The connection name you create will be used to identify and invoke the connection programmatically. Then complete the configuration in your application as follows:
+
+<Steps>
+1. ### Set up auth redirects
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Create Connection**. Find **SharePoint** and click **Create**. Copy the redirect URI. It will look like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+      ![Copy redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/sharepoint/use-own-credentials-redirect-uri.png)
+
+    - Sign into https://entra.microsoft.com and go to **Microsoft Entra ID** → **App registrations** → **New registration**.
+
+    - Enter a name for your app.
+
+    - Under **Supported account types**, select **Accounts in any organizational directory (Any Azure AD directory - Multitenant)**.
+
+    - Under **Redirect URI**, select **Web** and paste the redirect URI from step 1. Click **Register**.
+
+      ![Register an application in Azure portal](@/assets/docs/agent-connectors/sharepoint/add-redirect-uri.png)
+
+2. ### Get your client credentials
+
+    - Go to **Certificates & secrets** → **New client secret**, set an expiry, and click **Add**. Copy the **Value** immediately.
+
+    - From the **Overview** page, copy the **Application (client) ID**.
+
+3. ### Add credentials in Scalekit
+
+    - In [Scalekit dashboard](https://app.scalekit.com), go to **Agent Auth** → **Connections** and open the connection you created.
+
+    - Enter your credentials:
+      - Client ID (Application (client) ID from Azure)
+      - Client Secret (from Certificates & secrets)
+      - Permissions (scopes — see [Microsoft Graph permissions reference](https://learn.microsoft.com/en-us/graph/permissions-reference))
+
+      ![Add credentials in Scalekit dashboard](@/assets/docs/agent-connectors/sharepoint/add-credentials.png)
+    - Click **Save**.
+</Steps>

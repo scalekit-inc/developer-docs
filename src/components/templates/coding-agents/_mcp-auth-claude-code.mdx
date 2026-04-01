@@ -1,0 +1,142 @@
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components'
+import { Image } from 'astro:assets'
+import enableClaudePluginGif from '@/assets/docs/ai-assisted-mcp-quickstart/2.gif'
+
+<Steps>
+
+1. ## Add the Scalekit Auth Stack marketplace
+
+   Not yet on Claude Code? Follow the [official quickstart guide](https://code.claude.com/docs/en/quickstart) to install it.
+
+   Register Scalekit's plugin marketplace to access pre-configured authentication skills. This marketplace provides context-aware prompts and implementation guides that help coding agents generate correct authentication code.
+
+   Start the Claude Code REPL:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   claude
+   ```
+
+   Then add the marketplace:
+
+   ```bash title="Claude REPL" showLineNumbers=false
+   /plugin marketplace add scalekit-inc/claude-code-authstack
+   ```
+
+   When the marketplace registers successfully, you'll see confirmation output:
+
+   ```bash title="Terminal" frame="terminal" showLineNumbers=false
+   ❯ /plugin marketplace add scalekit-inc/claude-code-authstack
+      ⎿  Successfully added marketplace: scalekit-auth-stack
+   ```
+
+   The marketplace provides specialized authentication plugins that understand MCP server architectures and OAuth 2.1 security requirements. These plugins guide the coding agent to generate implementation code that matches your project structure.
+
+2. ## Enable authentication plugins
+
+   Select which authentication capabilities to activate in your development environment. Each plugin provides specific skills that the coding agent uses to generate authentication code.
+
+   Directly install the specific plugin:
+
+   ```bash title="Claude REPL" showLineNumbers=false
+   /plugin install mcp-auth@scalekit-auth-stack
+   ```
+
+   <details>
+   <summary>Alternative: Enable authentication plugins via plugin wizard</summary>
+
+   Run the plugin wizard to browse and enable available plugins:
+
+   ```bash title="Claude REPL" showLineNumbers=false
+   /plugins
+   ```
+
+   Navigate through the visual interface to enable the MCP authentication plugin:
+
+   <Image
+     src={enableClaudePluginGif}
+     loading="eager"
+     priority={true}
+     alt="Enabling Scalekit MCP authentication plugin in Claude Code"
+     data-zoom-off
+   />
+
+   <Aside type="tip" title="Auto-update recommendations">
+   Enable auto-updates for authentication plugins to receive security patches and improvements. Scalekit regularly updates plugins based on community feedback and security best practices.
+   </Aside>
+
+   </details>
+
+3. ## Generate authentication implementation
+
+   Use a structured prompt to direct the coding agent. A well-formed prompt ensures the agent generates complete, production-ready authentication code that includes all required security components.
+
+   Copy the following prompt into your coding agent:
+
+   ```md wrap showLineNumbers=false title="Authentication implementation prompt"
+   Add OAuth 2.1 authentication to my MCP server using Scalekit. Initialize ScalekitClient with environment credentials, implement /.well-known/ metadata endpoint for discovery, and add authentication middleware that validates JWT bearer tokens on all MCP requests. Code only.
+   ```
+
+    When you submit this prompt, Claude Code loads the MCP authentication skill from the marketplace -> analyzes your existing MCP server structure -> generates authentication middleware with token validation -> creates the OAuth discovery endpoint -> configures environment variable handling.
+
+    <Image
+      src="@/assets/docs/ai-assisted-mcp-quickstart/skill-activation.png"
+      alt="Claude Code activating MCP authentication skill"
+    />
+
+   <Aside type="caution" title="Review generated code">
+   Always review AI-generated authentication code before deployment. Verify that environment variables, token validation logic, and error handling match your security requirements. The coding agent provides a foundation, but you must ensure it aligns with your application's specific needs.
+   </Aside>
+
+4. ## Verify and test the implementation
+
+   After the coding agent completes, verify that all authentication components are properly configured:
+
+   Check generated files:
+   - Authentication middleware with JWT validation
+   - Environment variable configuration (`.env.example`)
+   - OAuth discovery endpoint (`/.well-known/oauth-authorization-server`)
+   - Error handling for invalid or expired tokens
+
+   **Test the authentication flow:**
+
+   <Tabs syncKey="tech-stack">
+   <TabItem value="claude" label="Claude Code">
+   ```md wrap title="Claude REPL" showLineNumbers=false
+   Now that your MCP server has authentication integrated, let's verify it's working correctly by testing the flow step by step. First, start your MCP server using npm start (Node.js) or python server.py (Python) and confirm it's running without errors. Next, test the OAuth discovery endpoint by running curl http://localhost:3000/.well-known/oauth-authorization-server to verify your server exposes the correct authorization configuration. Then, verify authentication is enforced by calling curl http://localhost:3000/mcp without credentials—this should return a 401 Unauthorized response, confirming protected endpoints are secured. Finally, test with a valid token by running curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/mcp (replace YOUR_TOKEN with an actual access token from your auth provider) to confirm authenticated requests succeed and return the expected response—if all these steps work as described, your authentication implementation is functioning correctly.
+   ```
+   </TabItem>
+   <TabItem value="node" label="Node.js">
+   ```bash title="Terminal" frame="terminal"
+   # Start your MCP server
+   npm start
+
+   # Test discovery endpoint
+   curl http://localhost:3000/.well-known/oauth-authorization-server
+
+   # Test protected endpoint (should return 401)
+   curl http://localhost:3000/mcp
+
+   # Test with valid token
+   curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/mcp
+   ```
+   </TabItem>
+   <TabItem value="python" label="Python">
+   ```bash title="Terminal" frame="terminal"
+   # Start your MCP server
+   python server.py
+
+   # Test discovery endpoint
+   curl http://localhost:3000/.well-known/oauth-authorization-server
+
+   # Test protected endpoint (should return 401)
+   curl http://localhost:3000/mcp
+
+   # Test with valid token
+   curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/mcp
+   ```
+   </TabItem>
+   </Tabs>
+
+   The discovery endpoint should return OAuth configuration metadata. Protected endpoints should reject requests without valid tokens and accept requests with properly scoped access tokens.
+
+</Steps>

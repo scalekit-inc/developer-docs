@@ -1,0 +1,56 @@
+---
+title: Production readiness checklist
+description: "A focused checklist for launching your Scalekit SSO integration, based on the core enterprise authentication launch checks."
+sidebar:
+  label: "Production readiness checklist"
+prev: false
+next: false
+tableOfContents: false
+---
+
+import { Aside, TabItem, Tabs, Steps } from "@astrojs/starlight/components"
+import CheckItem from '@components/ui/CheckItem.astro';
+
+As you prepare to launch enterprise SSO to production, you should confirm that your configuration satisfies the core enterprise checks from the authentication launch checklist.
+
+This page extracts the SSO-specific items from the main authentication [production readiness checklist](/authenticate/launch-checklist/) and organizes them for your SSO rollout.
+
+Use this checklist alongside the main launch checklist to validate that your SSO flows, admin experience, and network access are ready for enterprise customers.
+
+
+
+<CheckItem iconName="approve-check-circle"> **Verify production environment configuration** </CheckItem>
+
+   Confirm that your environment URL (`SCALEKIT_ENVIRONMENT_URL`), client ID (`SCALEKIT_CLIENT_ID`), and client secret (`SCALEKIT_CLIENT_SECRET`) are correctly configured for your production environment and match your production Scalekit dashboard settings.
+
+<CheckItem iconName="approve-check-circle"> **Verify SSO integrations with identity providers**</CheckItem>
+
+   Test SSO integrations with your target identity providers (for example, Okta, Azure AD, Google Workspace) using your production environment URL and credentials.
+
+<CheckItem iconName="approve-check-circle"> **Configure SSO attribute mapping and identifiers** </CheckItem>
+
+   Configure SSO user attribute mapping (email, name, groups) and ensure you use consistent user identifiers (for example, email or `userPrincipalName`) across all SSO connections.
+
+<CheckItem iconName="approve-check-circle"> **Verify redirect URIs and state validation** </CheckItem>
+
+   Confirm that your redirect URIs are correctly configured in both Scalekit and your identity providers, and that you validate the `state` parameter in callbacks to prevent CSRF attacks.
+
+<CheckItem iconName="approve-check-circle"> **Test SP-initiated and IdP-initiated SSO flows** </CheckItem>
+
+   Test both SP-initiated and IdP-initiated SSO flows end-to-end in a staging environment before enabling them for production tenants. See [test SSO flows](/sso/guides/test-sso) for detailed scenarios.
+
+<CheckItem iconName="approve-check-circle"> **Finalize admin portal setup and branding** </CheckItem>
+
+   Configure the self-service admin portal, apply your branding (logo, accent colors), and verify that enterprise admins can manage SSO connections and users as expected.
+
+<CheckItem iconName="approve-check-circle"> **Review admin portal URL and DNS** </CheckItem>
+
+   Customize the admin portal URL to match your domain (for example, `https://sso.b2b-app.com`), update your `.env` configuration after CNAME setup, and confirm that your customers can access the portal from their networks.
+
+<CheckItem iconName="approve-check-circle"> **Verify customer network and firewall access** </CheckItem>
+
+   Ask your enterprise customers to whitelist your Scalekit environment domain and related endpoints so SSO redirects and admin portal access work behind their VPNs and firewalls.
+
+<CheckItem iconName="approve-check-circle"> **Harden error handling and monitoring for SSO** </CheckItem>
+
+   Test SSO error scenarios (for example, misconfigured connections, invalid assertions, and deactivated users), and set up logging and alerts so you can quickly detect and remediate SSO issues.
