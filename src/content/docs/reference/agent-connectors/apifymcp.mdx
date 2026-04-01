@@ -16,15 +16,17 @@ head:
       }
 ---
 
-import { Badge, Tabs, TabItem, Aside } from '@astrojs/starlight/components'
-import { SetupApifymcpSection, UsageApifymcpSection } from '@components/templates'
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupApifymcpSection } from '@components/templates'
+import { UsageApifymcpSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
   Connect to Apify MCP to discover and run web scraping and data extraction Actors, retrieve Actor run status and output, search the web for AI pipelines, and browse Apify and Crawlee documentation — all from within your AI agent workflows.
  </div>
  <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/apify.svg" width="64" height="64" alt="Apify logo" />
+  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/apify.svg" width="64" height="64" alt="Apify logo" />
  </div>
 </div>
 
@@ -57,9 +59,11 @@ Supports authentication: <Badge text="API Key" />
 
 <UsageApifymcpSection />
 
-## Tool list
+## Tool reference
 
-## `apifymcp_search_actors`
+Each tool is listed below with its parameters. Use the tool names exactly as shown when calling `execute_tool`.
+
+### `apifymcp_search_actors`
 
 Search the Apify Store to discover Actors for a given use case or platform. Returns Actor names, IDs, descriptions, and usage stats. Does not run any scraping — use this to find the right Actor before calling it.
 
@@ -69,7 +73,7 @@ Search the Apify Store to discover Actors for a given use case or platform. Retu
 | `limit` | integer | No | Number of results to return (1–100). Default: `5` |
 | `offset` | integer | No | Number of results to skip for pagination. Default: `0` |
 
-## `apifymcp_fetch_actor_details`
+### `apifymcp_fetch_actor_details`
 
 Retrieve detailed information about an Actor, including its input schema, README, pricing, and output schema. Always call this before `apifymcp_call_actor` to understand required and optional input parameters.
 
@@ -90,7 +94,7 @@ Retrieve detailed information about an Actor, including its input schema, README
 | `output.readme` | boolean | No | Include the full README (can be very large — use sparingly) |
 | `output.stats` | boolean | No | Include usage statistics (total runs, users) |
 
-## `apifymcp_call_actor`
+### `apifymcp_call_actor`
 
 Run an Actor from the Apify Store with the specified input. By default runs synchronously and waits for the result. Use `async: true` for long-running tasks, then track progress with `apifymcp_get_actor_run` and retrieve output with `apifymcp_get_actor_output`.
 
@@ -103,7 +107,7 @@ Run an Actor from the Apify Store with the specified input. By default runs sync
 | `callOptions.memory` | integer | No | Memory limit for the run in megabytes (e.g., `256`, `512`, `1024`) |
 | `callOptions.timeout` | integer | No | Timeout for the run in seconds |
 
-## `apifymcp_get_actor_run`
+### `apifymcp_get_actor_run`
 
 Get the current status and metadata for a specific Actor run. Use this to poll an async run until it completes. Returns run status, timestamps, performance stats, and storage resource IDs.
 
@@ -111,7 +115,7 @@ Get the current status and metadata for a specific Actor run. Use this to poll a
 | --- | --- | --- | --- |
 | `runId` | string | Yes | The ID of the Actor run to check (returned by `apifymcp_call_actor` when `async: true`) |
 
-## `apifymcp_get_actor_output`
+### `apifymcp_get_actor_output`
 
 Retrieve output dataset items from a completed Actor run. Supports field selection to reduce response size, and pagination for large datasets.
 
@@ -122,7 +126,7 @@ Retrieve output dataset items from a completed Actor run. Supports field selecti
 | `limit` | number | No | Maximum number of items to return. Default: `100` |
 | `offset` | number | No | Number of items to skip for pagination. Default: `0` |
 
-## `apifymcp_rag_web_browser`
+### `apifymcp_rag_web_browser`
 
 Search Google and scrape the top N result pages, returning clean content for use in AI pipelines and RAG (Retrieval-Augmented Generation) workflows. Can also scrape a specific URL directly by passing it as the `query`.
 
@@ -132,7 +136,7 @@ Search Google and scrape the top N result pages, returning clean content for use
 | `maxResults` | integer | No | Number of top search result pages to scrape (default: `3`) |
 | `outputFormats` | array | No | Content formats to return. Options: `"text"`, `"markdown"`, `"html"`. Default: `["markdown"]` |
 
-## `apifymcp_search_apify_docs`
+### `apifymcp_search_apify_docs`
 
 Search Apify and Crawlee documentation using full-text search. Returns matching page titles, URLs, and snippets. Follow up with `apifymcp_fetch_apify_docs` to retrieve the full content of a specific page.
 
@@ -143,7 +147,7 @@ Search Apify and Crawlee documentation using full-text search. Returns matching 
 | `limit` | number | No | Maximum number of results to return (1–20). Default: `5` |
 | `offset` | number | No | Number of results to skip for pagination. Default: `0` |
 
-## `apifymcp_fetch_apify_docs`
+### `apifymcp_fetch_apify_docs`
 
 Fetch the full content of an Apify or Crawlee documentation page by URL. Use after finding a relevant page with `apifymcp_search_apify_docs`.
 
