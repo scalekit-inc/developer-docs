@@ -1,0 +1,92 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+import twitterDeveloperPortalImg from '@/assets/docs/agent-connectors/twitter/twitter-developer-portal.png'
+import createAppFormImg from '@/assets/docs/agent-connectors/twitter/create-app-form.png'
+import appClientCredentialsImg from '@/assets/docs/agent-connectors/twitter/app-client-credentials.png'
+import scalekitSearchTwitterImg from '@/assets/docs/agent-connectors/twitter/scalekit-search-twitter.png'
+import configureTwitterConnectionImg from '@/assets/docs/agent-connectors/twitter/configure-twitter-connection.png'
+import twitterAppCallbackUrlImg from '@/assets/docs/agent-connectors/twitter/twitter-app-callback-url.png'
+
+Register your Twitter (X) app credentials with Scalekit so it can manage the OAuth 2.0 (PKCE) authentication flow and token lifecycle on your behalf. You'll need a Client ID and Client Secret from the [Twitter Developer Portal](https://developer.twitter.com/en/portal/dashboard).
+
+<Steps>
+1. ### Create a Twitter developer project and app
+
+   - Go to the [Twitter Developer Portal](https://developer.twitter.com/en/portal/dashboard) and sign in with your Twitter account.
+
+     <img src={twitterDeveloperPortalImg.src} alt="Twitter Developer Portal dashboard" width="540" />
+
+   - Click **+ Create Project**, give your project a meaningful name, select a use case, and add a description.
+
+   - Create an app within the project. Give your app a name (e.g., `Scalekit-Agent`).
+
+     <img src={createAppFormImg.src} alt="Twitter create app form with app name field" width="540" />
+
+2. ### Configure user authentication settings
+
+   - Inside your app, go to **User authentication settings** and click **Set up**.
+
+   - Configure the following:
+     - **App permissions** — select **Read and write** (or **Read** if your agent only reads data)
+     - **Type of App** — select **Web App, Automated App or Bot**
+     - **Website URL** — enter your application's homepage URL
+
+3. ### Get the redirect URI from Scalekit
+
+   - In <a href="https://app.scalekit.com" target="_blank" rel="noopener">Scalekit dashboard</a>, go to **Agent Auth** → **Create Connection**. Search for **Twitter** and click **Create**.
+
+     <img src={scalekitSearchTwitterImg.src} alt="Searching for Twitter in Scalekit Create Connection" width="540" />
+
+   - Copy the **Redirect URI** from the connection configuration panel. It looks like `https://<SCALEKIT_ENVIRONMENT_URL>/sso/v1/oauth/<CONNECTION_ID>/callback`.
+
+     <img src={configureTwitterConnectionImg.src} alt="Configure Twitter Connection panel showing Redirect URI, Client ID, and Client Secret fields" width="540" />
+
+4. ### Add the callback URL in Twitter
+
+   - Back in the Twitter Developer Portal, inside **User authentication settings**, paste the Scalekit Redirect URI into the **Callback URI / Redirect URL** field.
+
+   - Click **Save** to apply the authentication settings.
+
+     <img src={twitterAppCallbackUrlImg.src} alt="Twitter app User authentication settings with Scalekit callback URL configured" width="540" />
+
+   <Aside type="caution" title="Redirect URI must match exactly">
+     Twitter performs an exact string match on the redirect URI. Any mismatch — including a trailing slash — will cause the OAuth flow to fail with an `invalid_redirect_uri` error.
+   </Aside>
+
+5. ### Copy your client credentials
+
+   - In the Twitter Developer Portal, go to **Keys and tokens** for your app.
+
+   - Under **OAuth 2.0 Client ID and Client Secret**, click **Generate** (or **Regenerate** if credentials already exist).
+
+   - Copy the **Client ID** and **Client Secret** immediately. The secret will not be shown again.
+
+     <img src={appClientCredentialsImg.src} alt="Twitter app Keys and tokens page showing OAuth 2.0 Client ID and Client Secret" width="540" />
+
+6. ### Add credentials in Scalekit
+
+   - In <a href="https://app.scalekit.com" target="_blank" rel="noopener">Scalekit dashboard</a>, go to **Agent Auth** → **Connections** and open the Twitter connection you created.
+
+   - Enter your credentials:
+     - **Client ID** — the Client ID from your Twitter app
+     - **Client Secret** — the secret you generated in step 5
+     - **Scopes** — select the scopes your agent needs. Common scopes:
+
+       | Scope | What it grants |
+       | --- | --- |
+       | `tweet.read` | Read tweets and timelines |
+       | `tweet.write` | Post, delete, and manage tweets |
+       | `users.read` | Read user profile information |
+       | `follows.read` | Read following and follower lists |
+       | `follows.write` | Follow and unfollow users |
+       | `like.read` | Read liked tweets |
+       | `like.write` | Like and unlike tweets |
+       | `bookmark.read` | Read bookmarked tweets |
+       | `bookmark.write` | Add and remove bookmarks |
+       | `offline.access` | Obtain refresh tokens for long-lived access |
+
+   - Click **Save**.
+
+   <Aside type="tip" title="Request only the scopes you need">
+     Twitter displays a consent screen listing every requested scope. Requesting unnecessary scopes reduces user trust and may cause authorization to be denied.
+   </Aside>
+</Steps>
