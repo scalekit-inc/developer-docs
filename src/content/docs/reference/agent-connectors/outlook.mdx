@@ -75,6 +75,20 @@ Create a new calendar event in the user's Outlook calendar. Supports attendees, 
 | `start_timezone` | string | Yes | No description |
 | `subject` | string | Yes | No description |
 
+## `outlook_create_contact`
+
+Create a new contact in the user's mailbox with name, email addresses, and phone numbers.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `givenName` | string | Yes | First name of the contact |
+| `surname` | string | Yes | Last name of the contact |
+| `emailAddresses` | array | No | Array of email address objects with 'address' and optional 'name' fields |
+| `businessPhones` | array | No | Array of business phone numbers |
+| `mobilePhone` | string | No | Mobile phone number |
+| `jobTitle` | string | No | Job title |
+| `companyName` | string | No | Company name |
+
 ## `outlook_delete_calendar_event`
 
 Delete a calendar event by ID.
@@ -83,6 +97,15 @@ Delete a calendar event by ID.
 | --- | --- | --- | --- |
 | `event_id` | string | Yes | No description |
 
+## `outlook_get_attachment`
+
+Download a specific attachment from an Outlook email message by attachment ID. Returns the full attachment including base64-encoded file content in the contentBytes field.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `message_id` | string | Yes | The ID of the message containing the attachment |
+| `attachment_id` | string | Yes | The ID of the attachment to download |
+
 ## `outlook_get_calendar_event`
 
 Retrieve an existing calendar event by ID from the user's Outlook calendar.
@@ -90,6 +113,22 @@ Retrieve an existing calendar event by ID from the user's Outlook calendar.
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `event_id` | string | Yes | No description |
+
+## `outlook_get_message`
+
+Retrieve a specific email message by ID from the user's Outlook mailbox, including full body content, sender, recipients, attachments info, and metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `message_id` | string | Yes | The ID of the message to retrieve |
+
+## `outlook_list_attachments`
+
+List all attachments on a specific Outlook email message. Returns attachment metadata including ID, name, size, and content type.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `message_id` | string | Yes | The ID of the message to list attachments for |
 
 ## `outlook_list_calendar_events`
 
@@ -139,3 +178,179 @@ Update an existing Outlook calendar event. Only provided fields will be updated.
 | `start_datetime` | string | No | Event start time in RFC3339 format |
 | `start_timezone` | string | No | Timezone for start time |
 | `subject` | string | No | Event title/summary |
+
+## `outlook_list_contacts`
+
+List all contacts in the user's mailbox with support for filtering, pagination, and field selection.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `$filter` | string | No | Filter expression to narrow results (OData) |
+| `$orderby` | string | No | Property to sort by (e.g., "displayName") |
+| `$select` | string | No | Comma-separated list of properties to return |
+| `$skip` | integer | No | Number of contacts to skip for pagination |
+| `$top` | integer | No | Number of contacts to return (default: 10) |
+
+## `outlook_list_messages`
+
+List all messages in the user's mailbox with support for filtering, pagination, and field selection. Returns 10 messages by default.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `$filter` | string | No | Filter expression to narrow results (OData) |
+| `$orderby` | string | No | Property to sort by (e.g., "receivedDateTime desc") |
+| `$select` | string | No | Comma-separated list of properties to return |
+| `$skip` | integer | No | Number of messages to skip for pagination |
+| `$top` | integer | No | Number of messages to return (1-1000, default: 10) |
+
+## `outlook_mailbox_settings_get`
+
+Retrieve the mailbox settings for the signed-in user. Returns automatic replies (out-of-office) configuration, language, timezone, working hours, date/time format, and delegate meeting message delivery preferences.
+
+## `outlook_mailbox_settings_update`
+
+Update mailbox settings for the signed-in user. Supports configuring automatic replies (out-of-office), language, timezone, working hours, date/time format, and delegate meeting message delivery preferences. Only fields provided will be updated.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `automaticRepliesSetting` | `object` | No | Configuration for automatic replies (out-of-office). Includes status, internalReplyMessage, externalReplyMessage, externalAudience, scheduledStartDateTime, scheduledEndDateTime |
+| `dateFormat` | string | No | Preferred date format string (e.g., 'MM/dd/yyyy') |
+| `delegateMeetingMessageDeliveryOptions` | string | No | Controls how meeting messages are delivered when a delegate is configured |
+| `language` | `object` | No | Language and locale. Properties: locale (string), displayName (string) |
+| `timeFormat` | string | No | Preferred time format string (e.g., 'hh:mm tt' or 'HH:mm') |
+| `timeZone` | string | No | Preferred time zone (e.g., 'UTC', 'Pacific Standard Time') |
+| `workingHours` | `object` | No | Working hours config. Properties: daysOfWeek (array), startTime, endTime, timeZone |
+
+## `outlook_reply_to_message`
+
+Reply to an existing email message. The reply is automatically sent to the original sender and saved in the Sent Items folder.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `messageId` | string | Yes | The unique identifier of the message to reply to |
+| `comment` | string | Yes | Reply message content |
+
+## `outlook_search_messages`
+
+Search messages by keywords across subject, body, sender, and other fields. Returns matching messages with support for pagination.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `query` | string | Yes | Search query string (searches across subject, body, from, to) |
+| `$select` | string | No | Comma-separated list of properties to return |
+| `$skip` | integer | No | Number of messages to skip for pagination |
+| `$top` | integer | No | Number of messages to return (1-1000, default: 10) |
+
+## `outlook_send_message`
+
+Send an email message using Microsoft Graph API. The message is saved in the Sent Items folder by default.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `subject` | string | Yes | Subject line of the email |
+| `body` | string | Yes | Body content of the email |
+| `toRecipients` | `array<string>` | Yes | Array of email addresses to send to |
+| `bodyType` | string | No | Content type of the body (Text or HTML) |
+| `ccRecipients` | array | No | Array of email addresses to CC |
+| `bccRecipients` | array | No | Array of email addresses to BCC |
+| `saveToSentItems` | boolean | No | Save the message in Sent Items folder (default: true) |
+
+## `outlook_todo_lists_create`
+
+Create a new Microsoft To Do task list.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `display_name` | string | Yes | The name of the task list |
+
+## `outlook_todo_lists_delete`
+
+Permanently delete a Microsoft To Do task list and all its tasks.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The ID of the task list to delete |
+
+## `outlook_todo_lists_get`
+
+Get a specific Microsoft To Do task list by ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The ID of the task list |
+
+## `outlook_todo_lists_list`
+
+List all Microsoft To Do task lists for the current user.
+
+## `outlook_todo_lists_update`
+
+Rename a Microsoft To Do task list.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The ID of the task list to update |
+| `display_name` | string | Yes | The new name for the task list |
+
+## `outlook_todo_tasks_create`
+
+Create a new task in a Microsoft To Do task list with optional body, due date, importance, and reminder.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The ID of the task list to add the task to |
+| `title` | string | Yes | The title of the task |
+| `body` | string | No | The body/notes of the task (plain text) |
+| `importance` | string | No | The importance of the task: low, normal, or high |
+| `status` | string | No | The status: notStarted, inProgress, completed, waitingOnOthers, or deferred |
+| `due_date` | string | No | Due date in YYYY-MM-DD format |
+| `due_time_zone` | string | No | Time zone for the due date (defaults to UTC) |
+| `reminder_date_time` | string | No | Reminder date and time in ISO 8601 format |
+| `reminder_time_zone` | string | No | Time zone for the reminder (defaults to UTC) |
+| `categories` | array | No | Array of category names to assign to the task |
+
+## `outlook_todo_tasks_delete`
+
+Permanently delete a task from a Microsoft To Do task list.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The ID of the task list |
+| `task_id` | string | Yes | The ID of the task to delete |
+
+## `outlook_todo_tasks_get`
+
+Get a specific task from a Microsoft To Do task list.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The ID of the task list |
+| `task_id` | string | Yes | The ID of the task |
+
+## `outlook_todo_tasks_list`
+
+List all tasks in a Microsoft To Do task list with optional filtering and pagination.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The ID of the task list |
+| `$top` | integer | No | Number of tasks to return (default: 10) |
+| `$skip` | integer | No | Number of tasks to skip for pagination |
+| `$filter` | string | No | OData filter expression (e.g., "status eq 'notStarted'") |
+| `$orderby` | string | No | Property to sort by (e.g., "createdDateTime desc") |
+
+## `outlook_todo_tasks_update`
+
+Update a task in a Microsoft To Do task list. Only provided fields are changed.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The ID of the task list |
+| `task_id` | string | Yes | The ID of the task to update |
+| `title` | string | No | New title for the task |
+| `body` | string | No | New body/notes for the task (plain text) |
+| `importance` | string | No | The importance: low, normal, or high |
+| `status` | string | No | The status: notStarted, inProgress, completed, waitingOnOthers, or deferred |
+| `due_date` | string | No | Due date in YYYY-MM-DD format |
+| `due_time_zone` | string | No | Time zone for the due date (defaults to UTC) |
+| `categories` | array | No | Array of category names to assign |
