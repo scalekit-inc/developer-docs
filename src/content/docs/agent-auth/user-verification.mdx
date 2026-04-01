@@ -131,12 +131,12 @@ Your app -> End user: Redirect to your app
    state = secrets.token_urlsafe(32)
    # Store state in a secure, HTTP-only cookie to validate on callback
 
-   response = scalekit_client.actions.get_magic_link_for_connected_account(
-       connector=connector,          # e.g. 'gmail'
-       identifier=user_id,           # current user id or email
-       user_verify_url="https://app.yourapp.com/user/verify",
-       state=state,
-   )
+   response = scalekit_client.actions.get_authorization_link(
+            connection_name=connector,
+            identifier=user_id,           # current user id or email
+            user_verify_url="https://app.yourapp.com/user/verify",
+            state=state,
+        )
    ```
      </TabItem>
      <TabItem label="Node.js">
@@ -184,9 +184,9 @@ Your app -> End user: Redirect to your app
    # 1. Validate the state query param matches the state stored in the cookie
    # 2. Call Scalekit to verify the user identity
    response = scalekit_client.actions.verify_connected_account_user(
-       auth_request_id=auth_request_id,
-       identifier=user_id,    # must match what was stored at link creation
-   )
+            auth_request_id=auth_request_id,
+            identifier=user_id,    # must match what was stored at link creation
+    )
    print(f"Redirect user to: {response.post_user_verify_redirect_url}")
    ```
      </TabItem>
