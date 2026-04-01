@@ -1,6 +1,6 @@
 ---
 title: Secure connected account auth in production
-description: Learn how to confirm user identity after OAuth completes before activating a connected account.
+description: Verify user identity when a connected account is authorized.
 tags: [agentauth, connectedaccounts, oauth2, security, user-verification]
 sidebar:
   label: User verification
@@ -16,16 +16,27 @@ next:
 
 import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-Scalekit verifies user identity after OAuth completes before activating a connected account. This confirms the person who authorized the OAuth flow is the user your app intended to connect.
+Before activating a connected account, Scalekit confirms that the user who completed the OAuth consent is the same user your app originally intended to connect. This **user verification** step runs every time a connected account is authorized.
 
-## Verification modes
+You can configure how verification works in **Agent Actions > User Verification** in the dashboard. Scalekit supports two modes:
 
-| Mode | Environments | Description |
-|---|---|---|
-| **Scalekit users only** | Development | Scalekit verifies the user using the Scalekit dashboard session. No code required. End-users must be invited to your Scalekit workspace and signed in to authorize connections. Default for development. |
-| **Custom user verifier** | Development, Production | Your app controls the verify step via a callback route. Recommended for all environments. Production is always set to this mode. |
+![Agent Actions User Verification showing Custom user verifier and Scalekit users only](@/assets/docs/agent-actions/user-verification-config.png)
 
-Switch the mode in development via **Agent Actions > User Verification** in the dashboard. Production environments are always set to Custom user verifier.
+### Scalekit user verifier
+
+Scalekit handles verification automatically, no code changes needed on your side.
+
+For this to work, the user authorizing the connection must already be logged in to the Scalekit dashboard. If they are, verification completes using the logged in user. If they are not logged in, Scalekit displays an error page instead.
+
+<Aside type="note" title="Dashboard access required">
+  Users must be part of your Scalekit workspace and signed in to the dashboard before they can authorize connections. Switch to the Custom user verifier when you're ready to onboard users who don't have Scalekit accounts.
+</Aside>
+
+### Custom user verifier
+
+Required for production. Your application takes over the verification step, so end-users never interact with Scalekit directly.
+
+After the OAuth consent completes, Scalekit redirects the user's browser to a verify route you define, passing an `auth_request_id` and `state` as query parameters. Your route identifies the logged-in user, then calls Scalekit's verify API with the `auth_request_id` and the user's `identifier`. Scalekit matches the identifier against the one recorded when the flow started and, on success, activates the connected account.
 
 ## Build a Custom user verifier
 
@@ -66,15 +77,7 @@ Switch the mode in development via **Agent Actions > User Verification** in the 
      </TabItem>
    </Tabs>
 
-2. ## Configure user verification mode
-
-   **Production environments** are always set to Custom user verifier — no action needed.
-
-   **For development environments**, go to **Agent Actions > User Verification** and select **Custom user verifier**:
-
-   ![Agent Actions User Verification showing Custom user verifier and Scalekit users only](@/assets/docs/agent-actions/user-verification-config.png)
-
-3. ## Create the magic link with verification params
+2. ## Create the magic link with verification params
 
    Pass these fields when creating the magic link to enable verification:
 
