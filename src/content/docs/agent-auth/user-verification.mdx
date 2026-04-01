@@ -1,9 +1,9 @@
 ---
 title: Secure connected account auth in production
-description: On each authorization, verification binds OAuth to the user who started the flow. Configure modes under Agent Actions > User Verification.
+description: Verify user identity when a connected account is authorized.
 tags: [agentauth, connectedaccounts, oauth2, security, user-verification]
 sidebar:
-  label: Verify user identity
+  label: User verification
 tableOfContents:
   maxHeadingLevel: 4
 prev:
@@ -17,17 +17,17 @@ next:
 import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import IconTdesignSequence from '~icons/tdesign/sequence';
 
-Whenever a connected account is authorized, Scalekit runs **user verification** so the user who finishes OAuth matches the user your app tied to the flow. That alignment blocks common phishing and social-engineering paths where consent would otherwise land on the wrong account.
+Before activating a connected account, Scalekit confirms that the user who completed the OAuth consent is the same user your app originally intended to connect. This **user verification** step runs every time a connected account is authorized and prevents OAuth consent from activating on the wrong account.
 
 Choose a mode in **Agent Actions > User Verification**:
 
-- **Verify with your app** — Your server checks the user against your session. **Production** and users who only sign in to your product.
-- **Verify with Scalekit** — Scalekit checks users signed in to the Scalekit dashboard. **Development and internal testing** only.
+- **Custom user verification** — Your server checks the user against your session. **Production** and users who only sign in to your product.
+- **Scalekit users only** — Scalekit checks users signed in to the Scalekit dashboard. **Development and internal testing** only.
 
 ![Agent Actions User Verification showing Custom user verifier and Scalekit users only](@/assets/docs/agent-actions/user-verification-config.png)
 
 <Tabs syncKey="user-verification-mode">
-  <TabItem label="Verify with your app">
+  <TabItem label="Custom user verification">
 
     Your application implements the verify step: end users never interact with Scalekit directly.
 
@@ -213,7 +213,7 @@ Your app -> End user: Redirect to your app
 </Steps>
 
   </TabItem>
-  <TabItem label="Verify with Scalekit">
+  <TabItem label="Scalekit users only">
 
     Scalekit performs verification for you—no verify route or verify API calls in your application code.
 
