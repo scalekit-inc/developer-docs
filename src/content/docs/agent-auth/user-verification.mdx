@@ -1,6 +1,6 @@
 ---
 title: Secure connected account auth in production
-description: Confirm the teammate who authorized a connector is the one your app intended, then configure verification in the dashboard.
+description: On each authorization, verification binds OAuth to the user who started the flow. Configure modes under Agent Actions > User Verification.
 tags: [agentauth, connectedaccounts, oauth2, security, user-verification]
 sidebar:
   label: Verify user identity
@@ -17,18 +17,19 @@ next:
 import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import IconTdesignSequence from '~icons/tdesign/sequence';
 
-Your users connect Gmail, GitHub, and other providers so agents can act on their behalf. **You need to know that the person who finished the provider's consent screen is the same person your app invited to connect**—not someone who received a forwarded magic link or followed a fake “fix your connection” message.
+Whenever a connected account is authorized, Scalekit runs **user verification** so the user who finishes OAuth matches the user your app tied to the flow. That alignment blocks common phishing and social-engineering paths where consent would otherwise land on the wrong account.
 
-Agent Auth runs OAuth for connectors, but **Scalekit does not see your product's sign-in sessions, workspaces, or user directory**. **User verification** closes that gap: after OAuth completes, your application confirms which end-user should own the connection using an **identifier** you set when the flow started. Scalekit activates the connected account only when that identifier matches the user who authorized.
+Choose a mode in **Agent Actions > User Verification**:
 
-You can configure how verification works in **Agent Actions > User Verification** in the dashboard. Scalekit supports two modes:
+- **Verify with your app** — Your server checks the user against your session. **Production** and users who only sign in to your product.
+- **Verify with Scalekit** — Scalekit checks users signed in to the Scalekit dashboard. **Development and internal testing** only.
 
 ![Agent Actions User Verification showing Custom user verifier and Scalekit users only](@/assets/docs/agent-actions/user-verification-config.png)
 
 <Tabs syncKey="user-verification-mode">
   <TabItem label="Verify with your app">
 
-    Required for production. Your application takes over the verification step, so end-users never interact with Scalekit directly.
+    Your application implements the verify step: end users never interact with Scalekit directly.
 
     When the user finishes OAuth, Scalekit redirects their browser to the **verify URL** you configured. The request includes `auth_request_id` and `state` query parameters. Your route reads the signed-in user from **your session** (not from the URL), then calls Scalekit's verify API with that `auth_request_id` and the same **`identifier`** you passed when you created the magic link. If it matches the value Scalekit stored for that flow, the connected account activates.
 
@@ -214,9 +215,9 @@ Your app -> End user: Redirect to your app
   </TabItem>
   <TabItem label="Verify with Scalekit">
 
-    Scalekit handles verification automatically, no code changes needed on your side.
+    Scalekit performs verification for you—no verify route or verify API calls in your application code.
 
-    For this to work, the user authorizing the connection must already be logged in to the Scalekit dashboard. If they are, verification completes using the logged-in user. If they are not logged in, Scalekit displays an error page instead.
+    The user authorizing the connection must already be signed in to the Scalekit dashboard. If they are, verification completes using that logged-in user. If not, Scalekit shows an error instead of activating the connection.
 
     <Aside type="note" title="Dashboard access required">
       Users must be part of your Scalekit workspace and signed in to the dashboard before they can authorize connections. Switch to the **Custom user verifier** in the dashboard when you're ready to onboard users who don't have Scalekit accounts.
