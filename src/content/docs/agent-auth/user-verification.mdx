@@ -26,7 +26,7 @@ You can configure how verification works in **Agent Actions > User Verification*
 
 Scalekit handles verification automatically, no code changes needed on your side.
 
-For this to work, the user authorizing the connection must already be logged in to the Scalekit dashboard. If they are, verification completes using the logged in user. If they are not logged in, Scalekit displays an error page instead.
+For this to work, the user authorizing the connection must already be logged in to the Scalekit dashboard. If they are, verification completes using the logged-in user. If they are not logged in, Scalekit displays an error page instead.
 
 <Aside type="note" title="Dashboard access required">
   Users must be part of your Scalekit workspace and signed in to the dashboard before they can authorize connections. Switch to the Custom user verifier when you're ready to onboard users who don't have Scalekit accounts.
@@ -38,7 +38,7 @@ Required for production. Your application takes over the verification step, so e
 
 After the OAuth consent completes, Scalekit redirects the user's browser to a verify route you define, passing an `auth_request_id` and `state` as query parameters. Your route identifies the logged-in user, then calls Scalekit's verify API with the `auth_request_id` and the user's `identifier`. Scalekit matches the identifier against the one recorded when the flow started and, on success, activates the connected account.
 
-## Build a Custom user verifier
+## Build a custom user verifier
 
 <Steps>
 1. ## Set up your environment
@@ -130,7 +130,7 @@ After the OAuth consent completes, Scalekit redirects the user's browser to a ve
 
    After OAuth completes, Scalekit redirects the user to your `user_verify_url`:
 
-   ```
+   ```http
    GET https://app.yourapp.com/user/verify?auth_request_id=req_xyz&state=<your_state>
    ```
 
@@ -195,7 +195,7 @@ Google OAuth -> Scalekit: auth code
 Scalekit -> Scalekit: hold tokens pending verification
 Scalekit -> User: redirect to user_verify_url
 
-User -> Your app: GET /user/verify/callback?auth_request_id=...&state=...
+User -> Your app: GET /user/verify?auth_request_id=...&state=...
 Your app -> Your app: validate state and look up user id from session
 Your app -> Scalekit: POST verify (auth_request_id, identifier)
 Scalekit -> Scalekit: assert identifier matches, activate account
