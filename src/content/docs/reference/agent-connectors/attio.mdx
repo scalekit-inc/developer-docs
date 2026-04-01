@@ -358,6 +358,52 @@ Permanently delete a note by its `note_id`. This operation is irreversible.
 | --- | --- | --- | --- |
 | `note_id` | string | Yes | UUID of the note to delete |
 
+## `attio_create_select_option`
+
+Adds a new select option to a `select` or `multiselect` attribute on an Attio object or list.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `attribute` | string | Yes | Attribute slug or UUID of the select/multiselect attribute |
+| `object` | string | Yes | Object slug or UUID (e.g. `people`, `companies`, `deals`) |
+| `title` | string | Yes | Display title for the new select option |
+
+## `attio_create_status`
+
+Adds a new status to a status attribute on an Attio object or list. Company and person objects do not support status attributes.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `attribute` | string | Yes | Attribute slug or UUID of the status attribute |
+| `object` | string | Yes | Object slug or UUID (e.g. `deals`) |
+| `title` | string | Yes | Display title for the new status |
+
+## `attio_create_user_record`
+
+Creates a new user record in Attio. Requires `primary_email_address`, `user_id`, and `workspace_id` in the values field. Optionally link to an existing person record.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `values` | object | Yes | Attribute values for the new user record |
+
+## `attio_create_webhook`
+
+Creates a webhook and subscribes to events in Attio. Returns the webhook configuration including a one-time signing secret for verifying event authenticity.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `target_url` | string | Yes | HTTPS URL that will receive webhook event payloads |
+| `subscriptions` | array | Yes | Array of event subscription objects (each needs `event_type` and `filter` fields) |
+| `secret` | string | No | Optional signing secret for verifying webhook payloads |
+
+## `attio_create_workspace_record`
+
+Creates a new workspace record in Attio. The `workspace_id` field is required and must be unique. Throws an error on conflicts of unique attributes.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `values` | object | Yes | Attribute values for the new workspace record |
+
 ## `attio_create_comment`
 
 Create a comment on a CRM record or list entry. To comment on a record, provide `record_object` and `record_id`. To comment on a list entry, provide `list_id` and `entry_id`. To reply to an existing thread, include `thread_id`. Content is always plaintext.
@@ -473,6 +519,64 @@ Optionally set list-level attribute values (e.g., pipeline stage) on the entry u
 | `record_id` | string | Yes | UUID of the record to add |
 | `entry_values` | object | No | Attribute values to set on the list entry itself (not the underlying record). Keys are list attribute slugs |
 
+## `attio_assert_company`
+
+Creates or updates a company record in Attio using a unique attribute. If a company with the same matching attribute value exists, it is updated; otherwise a new one is created.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `matching_attribute` | string | Yes | The attribute slug to match on for upsert (e.g. `domains`) |
+| `values` | object | Yes | Attribute values for the company record |
+
+## `attio_assert_list_entry`
+
+Creates or updates a list entry for a given parent record in Attio. If an entry with the specified parent record exists, it is updated. Otherwise a new entry is created.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The unique identifier or slug of the list |
+| `matching_attribute` | string | Yes | Attribute slug to match on for upsert |
+| `parent_object` | string | Yes | Object slug of the parent record (e.g. `people`, `companies`) |
+| `parent_record_id` | string | Yes | The unique identifier of the parent record |
+| `entry_values` | object | No | Optional attribute values for the list entry |
+
+## `attio_assert_person`
+
+Creates or updates a person record in Attio using a unique attribute. If a person with the same matching attribute value exists, it is updated; otherwise a new one is created.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `matching_attribute` | string | Yes | The attribute slug to match on for upsert (e.g. `email_addresses`) |
+| `values` | object | Yes | Attribute values for the person record |
+
+## `attio_assert_record`
+
+Trigger an Attio automation workflow for a specific record by upserting the record, which fires any automations configured on record create or update events. Matches on a unique attribute to avoid duplicates.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `matching_attribute` | string | Yes | The attribute slug to use as the unique match key (e.g. `email_addresses` for people, `domains` for companies) |
+| `object` | string | Yes | The slug or UUID of the object type to upsert into (e.g. `people`, `companies`, `deals`) |
+| `values` | object | Yes | Attribute values for the record |
+
+## `attio_assert_user_record`
+
+Creates or updates a user record in Attio using a unique attribute. If a user with the same matching attribute exists, it is updated; otherwise a new one is created.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `matching_attribute` | string | Yes | The attribute slug to match on for upsert (e.g. `primary_email_address`) |
+| `values` | object | Yes | Attribute values for the user record |
+
+## `attio_assert_workspace`
+
+Creates or updates a workspace record in Attio using a unique attribute. If a workspace with the same matching attribute value exists, it is updated; otherwise a new one is created.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `matching_attribute` | string | Yes | The attribute slug to match on for upsert (e.g. `workspace_id`) |
+| `values` | object | Yes | Attribute values for the workspace record |
+
 ## `attio_remove_from_list`
 
 Remove a specific entry from an Attio list by its `entry_id`. Deletes the list entry but does not delete the underlying record. Use the `entry_id` returned by `attio_add_to_list` or `attio_list_record_entries`.
@@ -490,6 +594,38 @@ List all list memberships for a specific record across all lists. Returns the li
 | --- | --- | --- | --- |
 | `object` | string | Yes | Object type slug or UUID |
 | `record_id` | string | Yes | UUID of the record |
+
+## `attio_patch_record`
+
+Updates a record by its `record_id` using PATCH for any object type. For multiselect attributes, values are prepended to existing values. Use `attio_put_record` to overwrite or remove multiselect values.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `object` | string | Yes | Object slug or UUID (e.g. `people`, `companies`, `deals`) |
+| `record_id` | string | Yes | The unique identifier of the record to update |
+| `values` | object | Yes | Attribute values to update on the record |
+
+## `attio_put_record`
+
+Updates a record by its `record_id` using PUT for any object type. For multiselect attributes, values overwrite existing values. Use `attio_patch_record` to append without removing.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `object` | string | Yes | Object slug or UUID (e.g. `people`, `companies`, `deals`) |
+| `record_id` | string | Yes | The unique identifier of the record to update |
+| `values` | object | Yes | Attribute values to set on the record (overwrites existing multiselect values) |
+
+## `attio_query_records`
+
+Queries records for a specific Attio object using server-side filtering operators and sorting. Use for complex filter criteria rather than simple listing.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `object` | string | Yes | Object slug or UUID to query records for (e.g. `companies`, `people`, `deals`) |
+| `filter` | object | No | Filter criteria for the query |
+| `sorts` | array | No | Sorting criteria for the results |
+| `limit` | number | No | Maximum number of records to return |
+| `offset` | number | No | Number of records to skip for pagination |
 
 ## `attio_list_objects`
 
@@ -702,3 +838,147 @@ This tool takes no input parameters. It returns:
 - After a user completes OAuth — confirm the connection succeeded and identify which workspace they authorized.
 - Before a write operation — verify the required scope is in `scopes` to give a clear error rather than a cryptic API rejection.
 - When debugging — check `active` is `true` and that expected scopes are present.
+
+## `attio_update_attribute`
+
+Updates an existing attribute on an Attio object or list by its slug or ID. Can modify title, description, or archive the attribute. Cannot modify system attributes.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `attribute` | string | Yes | Attribute slug or UUID to update |
+| `object` | string | Yes | Object slug or UUID (e.g. `people`, `companies`, `deals`) |
+| `title` | string | No | New display title for the attribute |
+| `is_archived` | boolean | No | Whether to archive the attribute |
+
+## `attio_update_company`
+
+Updates a company record in Attio by its `record_id` using PATCH. Only the provided attributes are updated. For multiselect attributes, values are prepended. Note: `logo_url` cannot be updated via API.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `record_id` | string | Yes | The unique identifier of the company record to update |
+| `values` | object | Yes | Attribute values to update on the company record |
+
+## `attio_update_deal`
+
+Updates a deal record in Attio by its `record_id` using PATCH. Only the provided fields are updated, leaving other fields unchanged.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `record_id` | string | Yes | The unique identifier of the deal record to update |
+| `values` | object | Yes | Attribute values to update on the deal record |
+
+## `attio_update_list`
+
+Updates an existing list in Attio. Can modify name, api_slug, or permissions. Changing the parent object of a list is not possible through the API.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The unique identifier or slug of the list to update |
+| `name` | string | No | New display name for the list |
+| `api_slug` | string | No | New snake_case identifier for the list |
+| `workspace_access` | string | No | New access level for workspace members |
+
+## `attio_update_list_entry`
+
+Updates a list entry by its `entry_id` in Attio using PATCH. For multiselect attributes, values are prepended to existing values. Use PUT to overwrite multiselect values.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The unique identifier or slug of the list |
+| `entry_id` | string | Yes | The unique identifier of the list entry to update |
+| `entry_values` | object | Yes | Attribute values to update on the list entry |
+
+## `attio_update_object`
+
+Updates a single object's configuration in Attio. Can modify the object's API slug, singular noun, or plural noun.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `object` | string | Yes | Object slug or UUID to update |
+| `singular_noun` | string | No | New singular noun for the object type |
+| `plural_noun` | string | No | New plural noun for the object type |
+| `api_slug` | string | No | New snake_case identifier for the object |
+
+## `attio_update_person`
+
+Updates a person record in Attio by its `record_id` using PATCH. Only the provided attributes are updated. For multiselect attributes, values are prepended. Note: `avatar_url` cannot be updated via API.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `record_id` | string | Yes | The unique identifier of the person record to update |
+| `values` | object | Yes | Attribute values to update on the person record |
+
+## `attio_update_record`
+
+Update an existing record's attributes in Attio. For multiselect attributes, the supplied values will overwrite (replace) the existing list. Supports people, companies, deals, and custom objects.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `object` | string | Yes | The slug or UUID of the object type (e.g. `people`, `companies`, `deals`) |
+| `record_id` | string | Yes | The UUID of the record to update |
+| `values` | object | Yes | Attribute values to update (multiselect values replace all existing) |
+
+## `attio_update_select_option`
+
+Updates an existing select option for a `select` or `multiselect` attribute in Attio. Can rename or archive an option. Archived options are hidden from selection but preserve historical data.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `attribute` | string | Yes | Attribute slug or UUID of the select/multiselect attribute |
+| `object` | string | Yes | Object slug or UUID (e.g. `people`, `companies`, `deals`) |
+| `option_id` | string | Yes | The unique identifier of the select option to update |
+| `title` | string | No | New display title for the select option |
+| `is_archived` | boolean | No | Whether to archive the select option |
+
+## `attio_update_status`
+
+Updates a status on a status attribute in Attio. Can modify title or archive the status. Company and person objects do not support status attributes.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `attribute` | string | Yes | Attribute slug or UUID of the status attribute |
+| `object` | string | Yes | Object slug or UUID (e.g. `deals`) |
+| `status_id` | string | Yes | The unique identifier of the status to update |
+| `title` | string | No | New display title for the status |
+| `is_archived` | boolean | No | Whether to archive the status |
+
+## `attio_update_task`
+
+Updates an existing task in Attio by its `task_id`. Only deadline, is_completed, linked_records, and assignees can be updated via this endpoint.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `task_id` | string | Yes | The unique identifier of the task to update |
+| `deadline_at` | string | No | ISO 8601 datetime string for the task deadline |
+| `is_completed` | boolean | No | Whether the task is completed |
+| `linked_records` | array | No | Records linked to this task |
+| `assignees` | array | No | Workspace members assigned to this task |
+
+## `attio_update_user_record`
+
+Updates a user record in Attio by its `record_id` using PATCH. Only the provided attributes are updated; other fields remain unchanged.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `record_id` | string | Yes | The unique identifier of the user record to update |
+| `values` | object | Yes | Attribute values to update on the user record |
+
+## `attio_update_webhook`
+
+Updates a webhook's target URL and/or event subscriptions in Attio. Each subscription must be an object with an `event_type` field.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `webhook_id` | string | Yes | The unique identifier of the webhook to update |
+| `target_url` | string | No | New HTTPS URL that will receive webhook events |
+| `subscriptions` | array | No | New array of event subscription objects to replace current subscriptions |
+
+## `attio_update_workspace_record`
+
+Updates a workspace record in Attio by its `record_id` using PATCH. Only the provided attributes are updated.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `record_id` | string | Yes | The unique identifier of the workspace record to update |
+| `values` | object | Yes | Attribute values to update on the workspace record |

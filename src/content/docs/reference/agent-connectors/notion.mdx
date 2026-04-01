@@ -109,6 +109,38 @@ Fetch data from Notion using the workspace search API (/search). Supports pagina
 | `start_cursor` | string | No | Cursor for pagination; pass the previous response's next_cursor |
 | `tool_version` | string | No | Optional tool version to use for execution |
 
+## `notion_data_source_fetch`
+
+Retrieve a Notion database's schema, title, and properties using the Notion 2025-09-03 API. Unlike notion_database_fetch, this returns a data_sources array — each entry contains a data_source_id required by notion_data_source_query and notion_data_source_insert_row. Use this as the first step when working with merged, synced, or multi-source databases.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `database_id` | string | Yes | The target database ID in UUID format with hyphens |
+
+## `notion_data_source_insert_row`
+
+Create a new row (page) in a Notion data source using the 2025-09-03 API. Required for merged, synced, or multi-source databases — these require parent.data_source_id instead of parent.database_id which the older notion_database_insert_row uses.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `data_source_id` | string | Yes | The ID of the data source to insert a row into. Retrieve from notion_data_source_fetch response under data_sources[].id |
+| `properties` | `object` | Yes | Object mapping column names (or property ids) to property values |
+| `child_blocks` | `array<unknown>` | No | Optional array of Notion blocks to append as page content |
+| `cover` | `object` | No | Optional page cover object (external/file) |
+| `icon` | `object` | No | Optional page icon object (emoji/external/file) |
+
+## `notion_data_source_query`
+
+Query rows (pages) from a Notion data source using the 2025-09-03 API. Required for merged, synced, or multi-source databases — these cannot be queried via notion_database_query as that tool uses the older /databases/{id}/query endpoint which does not support multiple data sources.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `data_source_id` | string | Yes | The ID of the data source to query. Retrieve from notion_data_source_fetch response under data_sources[].id |
+| `filter` | `object` | No | Notion filter object to narrow results. Supports compound filters with 'and'/'or' arrays |
+| `page_size` | integer | No | Maximum number of rows to return (1-100). Default: 10 |
+| `sorts` | `array<object>` | No | Order the results. Each item must include either `property` or `timestamp`, plus `direction` |
+| `start_cursor` | string | No | Cursor to fetch the next page of results |
+
 ## `notion_database_create`
 
 Create a new database in Notion under a parent page. Provide a parent object with page_id, a database title (rich_text array), and a properties object that defines the database schema (columns).
@@ -250,6 +282,18 @@ Retrieve a Notion page by its ID. Returns the page properties, metadata, and par
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `page_id` | string | Yes | The ID of the Notion page to retrieve |
+
+## `notion_page_search`
+
+Search Notion pages by text query. Returns matching pages with their titles, IDs, and metadata. Optionally sort by last_edited_time or created_time, and paginate with start_cursor.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `query` | string | No | Text to search for across Notion pages |
+| `page_size` | integer | No | Maximum number of pages to return (1-100). Default: 10 |
+| `sort_direction` | string | No | Direction to sort results: ascending or descending. Default: descending |
+| `sort_timestamp` | string | No | Timestamp field to sort by: last_edited_time or created_time. Default: last_edited_time |
+| `start_cursor` | string | No | Cursor to fetch the next page of results |
 
 ## `notion_page_update`
 
