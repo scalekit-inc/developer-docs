@@ -1,11 +1,14 @@
 import type { LlmsTxtConfig } from 'starlight-llms-txt'
+import { AGENT_PLUGIN_DETAILS_MD } from './agent-instructions'
 
 export const llmsConfig: LlmsTxtConfig = {
   projectName: 'Scalekit',
   description:
-    'Scalekit is a developer platform for enterprise authentication, providing Full Stack Auth (FSA), Single Sign-On (SSO), SCIM provisioning, Agent Authentication, MCP Authentication, and API authentication solutions for B2B and AI applications.',
+    'Scalekit is a developer platform for enterprise authentication, providing Full Stack Auth (FSA), Single Sign-On (SSO), SCIM provisioning, Agent Authentication, MCP Authentication, and API authentication solutions for B2B and AI applications. An official Auth Stack plugin is available for AI coding agents with up-to-date API references and code snippets — see install details below.',
 
-  details: `## How to use Scalekit documentation
+  details:
+    AGENT_PLUGIN_DETAILS_MD +
+    `## How to use Scalekit documentation
 
 When a developer asks about Scalekit, use the section links below to route them 
 to the most relevant documentation. Load topic-specific files from "Documentation Sets" 
@@ -160,6 +163,11 @@ Start with the Quickstart Collection, then follow the developer's question to th
 
   // Add external resources not included in main documentation
   optionalLinks: [
+    {
+      label: 'API reference markdown',
+      url: '/apis.md',
+      description: 'LLM-friendly Markdown generated from the Scalekit OpenAPI specification',
+    },
     {
       label: 'OpenAPI Specification',
       url: '/api/scalekit.scalar.json',

@@ -157,30 +157,40 @@ export const sidebar = [
         ],
       },
       {
+        label: 'Bring your own provider',
+        items: [
+          'agent-auth/bring-your-own-provider/overview',
+          'agent-auth/bring-your-own-provider/auth-types-and-patterns',
+          'agent-auth/bring-your-own-provider/managing-providers',
+          'agent-auth/bring-your-own-provider/using-tool-proxy',
+        ],
+      },
+      {
         label: 'Tool calling',
         collapsed: false,
         items: [
           'agent-auth/tools/agent-tools-quickstart',
+          { label: 'Tool access via MCP', link: 'agent-auth/mcp/tool-access-via-mcp' },
           //'agent-auth/advanced/proxy-api-calls',
           // 'agent-auth/tools/custom-processors',
-          // 'connect/tools/custom-tools',
-          // 'connect/tools/proxy-tools',
+          // 'agent-auth/mcp/manage-configs',
+          // 'agent-auth/mcp/custom-tools',
+        ],
+      },
+      {
+        label: 'AI Frameworks',
+        collapsed: false,
+        items: [
           {
-            label: 'AI Frameworks',
-            items: [
-              {
-                label: 'OpenClaw',
-                link: 'agent-auth/openclaw',
-                badge: { text: 'New', variant: 'tip' },
-              },
-              'agent-auth/frameworks/langchain',
-              'agent-auth/frameworks/google-adk',
-              // 'agent-auth/frameworks/agno',
-              // 'agent-auth/frameworks/openai',
-              // 'agent-auth/frameworks/anthropic',
-            ],
+            label: 'OpenClaw',
+            link: 'agent-auth/openclaw',
+            badge: { text: 'New', variant: 'tip' },
           },
-          { label: 'Tool access via MCP', link: 'agent-auth/mcp/tool-access-via-mcp' },
+          'agent-auth/frameworks/langchain',
+          'agent-auth/frameworks/google-adk',
+          // 'agent-auth/frameworks/agno', // TODO: Add when Agno framework docs are complete
+          // 'agent-auth/frameworks/openai', // TODO: Add when OpenAI framework docs are complete
+          // 'agent-auth/frameworks/anthropic', // TODO: Add when Anthropic framework docs are complete
         ],
       },
       {
@@ -189,10 +199,6 @@ export const sidebar = [
           directory: 'reference/agent-connectors',
         },
       },
-      // {
-      //   label: 'MCP',
-      //   items: ['connect/mcp/quickstart', 'connect/mcp/custom-mcp', 'connect/mcp/manage'],
-      // },
 
       // {
       //   label: 'Concepts',
@@ -219,7 +225,7 @@ export const sidebar = [
       },
       {
         label: 'AI tools',
-        collapsed: true,
+        collapsed: false,
         items: [
           'dev-kit/ai-assisted-development/scalekit-mcp-server',
           'dev-kit/resources/ai-assisted-setup',
@@ -399,6 +405,7 @@ export const sidebar = [
             label: 'Self-service admin portal',
             link: 'authenticate/sso/admin-portal',
           },
+          'sso/reference/sso-integration-errors',
         ],
       },
       {

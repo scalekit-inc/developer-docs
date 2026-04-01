@@ -23,6 +23,7 @@ export const redirects = {
   '/fsa/guides/onboard-enterprise-customers': '/sso/guides/onboard-enterprise-customers/',
   '/fsa/guides/enterprise-sso/': '/authenticate/auth-methods/enterprise-sso/',
   '/fsa/guides/auth-methods/': '/authenticate/auth-methods/passwordless/',
+  '/fsa/guides/passwordless': '/authenticate/auth-methods/passwordless/',
   '/fsa/guides/social-logins/': '/authenticate/auth-methods/social-logins/',
   '/fsa/reference/user-profile/': '/authenticate/manage-users-orgs/custom-user-attributes/',
 
@@ -387,7 +388,6 @@ export const redirects = {
 
   // Code samples moved to /resources/code-samples/
   '/dev-kit/code-samples': '/resources/code-samples/',
-  '/dev-kit/code-samples/': '/resources/code-samples/',
   '/dev-kit/code-samples/full-stack-auth': '/resources/code-samples/full-stack-auth/',
   '/dev-kit/code-samples/agent-auth': '/resources/code-samples/agent-auth/',
   '/dev-kit/code-samples/mcp-auth': '/resources/code-samples/mcp-auth/',
@@ -412,8 +412,11 @@ export const redirects = {
   '/dev-kit/changelogs/java/version/v1-0-1': '/sdks/java/',
   '/dev-kit/changelogs/go/version/v1-0-4': '/sdks/go/',
 
+  // Agent connectors redirects
+  '/reference/agent-connectors': '/guides/integrations/agent-connectors/',
+  '/connectors': '/guides/integrations/agent-connectors/',
+
   // Other redirects
-  '/connectors': '/reference/agent-connectors/',
   '/fsa/data-modeling': '/fsa/data-modelling/',
   '/guides': '/',
   '/mcp': '/authenticate/mcp/quickstart/',

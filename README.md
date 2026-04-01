@@ -1,10 +1,9 @@
 <div align="left">
 
 <img
-  src="https://raw.githubusercontent.com/scalekit-inc/developer-docs/main/src/assets/images/logos-v4/sk-docs-light.svg"
+  src="./src/assets/images/logos-v4/sk-docs-white.svg"
   alt="Scalekit Docs"
   height="50"
-  style="background-color: white; padding: 8px; border-radius: 4px;"
 />
 
 <p>The open-source documentation site for Scalekit — the enterprise auth platform for B2B SaaS teams.<br />
@@ -89,14 +88,15 @@ Open [http://localhost:4321](http://localhost:4321). Changes to MDX files hot-re
 
 #### Useful Commands
 
-| Command                      | Description                                          |
-| ---------------------------- | ---------------------------------------------------- |
-| `pnpm dev`                   | Start the local dev server (no HMR)                  |
-| `pnpm build`                 | Build the production site to `./dist`                |
-| `pnpm preview`               | Preview the production build locally                 |
-| `pnpm format`                | Auto-format all `.md`, `.mdx`, `.astro`, `.ts` files |
-| `pnpm format:check`          | Check formatting without writing changes             |
-| `pnpm generate-search-index` | Regenerate the Algolia API search index              |
+| Command                      | Description                                                 |
+| ---------------------------- | ----------------------------------------------------------- |
+| `pnpm dev`                   | Start the site with Netlify Dev (matches deploy env)        |
+| `pnpm start`                 | Run Astro dev only — use when previewing D2 diagram changes |
+| `pnpm build`                 | Build the production site to `./dist`                       |
+| `pnpm preview`               | Preview the production build locally                        |
+| `pnpm format`                | Auto-format all `.md`, `.mdx`, `.astro`, `.ts` files        |
+| `pnpm format:check`          | Check formatting without writing changes                    |
+| `pnpm generate-search-index` | Regenerate the Algolia API search index                     |
 
 ---
 
@@ -148,10 +148,9 @@ Before writing or editing, check:
 
 The site runs in **SSR mode on Netlify** with Edge Functions. Every push to `main` triggers a production deploy. Pull requests automatically generate isolated preview deployments.
 
-```bash
-# Netlify build command
-bash scripts/install-d2.sh && export PATH="$HOME/.local/bin:$PATH" && pnpm run build
-```
+Netlify runs **`pnpm run build`** (see `netlify.toml`). D2 is not installed on Netlify: diagram SVGs are **committed** under `public/d2/`, and the `astro-d2` integration is configured with `skipGeneration` when the `NETLIFY` environment variable is set, so CI does not run the D2 CLI.
+
+Install the D2 CLI locally (`pnpm install:d2`) only when you **regenerate** diagrams from `.d2` sources or when you run a full local production build that is not using Netlify’s skip path. See **CONTRIBUTING.md** for how `pnpm dev` and `pnpm start` relate to diagram generation.
 
 Environment variables required for local development are documented in `.env.example`.
 

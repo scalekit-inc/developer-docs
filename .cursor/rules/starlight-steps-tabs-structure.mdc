@@ -1,0 +1,26 @@
+---
+description: Enforce safe Starlight Steps and Tabs nesting in docs MDX
+globs: src/content/docs/**/*.mdx
+alwaysApply: false
+---
+
+# Starlight Steps and tabs structure
+
+- `<Steps>` must contain one continuous ordered list. Wrap it around a normal Markdown ordered list such as `1. ## ...`.
+- Numbered step lines must start at column 0. Do not indent the `1. ##`, `2. ##`, etc.
+- Any content that belongs to a step must be indented with 3 spaces: paragraphs, bullets, images, `<Tabs>`, `<TabItem>`, and fenced code blocks.
+- Prefer plain Markdown inside `<Steps>`. If the content is mostly `<Tabs>` or other JSX-heavy blocks, use normal section headings instead of `<Steps>`.
+- When `<Tabs>` is used inside a step, keep `<Tabs>`, `<TabItem>`, `</TabItem>`, and `</Tabs>` consistently nested under that step.
+- If a tabs block is not part of a numbered step, place it outside `</Steps>`.
+
+Safe baseline pattern:
+
+```mdx
+<Steps>
+1. ## Example step
+
+   ```bash
+   pnpm install
+   ```
+</Steps>
+```
