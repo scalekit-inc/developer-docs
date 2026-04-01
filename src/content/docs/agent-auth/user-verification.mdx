@@ -148,12 +148,12 @@ Your app -> End user: Redirect to your app
    const state = crypto.randomUUID();
    // Store state in a secure, HTTP-only cookie to validate on callback
 
-   const { link } = await scalekit.actions.getMagicLinkForConnectedAccount({
-     userId,                        // current user id or email
-     connector,                    // e.g. 'gmail'
-     userVerifyUrl: 'https://app.yourapp.com/user/verify',
-     state,
-   });
+   const { link } = await scalekit.actions.getAuthorizationLink({
+      identifier: userId,  // current user id or email
+      connectionName: connector, // e.g. 'gmail'
+      userVerifyUrl: 'https://app.yourapp.com/user/verify',
+      state,
+  });
    ```
      </TabItem>
    </Tabs>
@@ -200,9 +200,9 @@ Your app -> End user: Redirect to your app
    // 2. Call Scalekit to verify the user identity
    const { postUserVerifyRedirectUrl } =
      await scalekit.actions.verifyConnectedAccountUser({
-       authRequestId: auth_request_id,
-       identifier: userId,     // must match what was stored at link creation
-     });
+          authRequestId: auth_request_id,
+          identifier: userId,     // must match what was stored at link creation
+    });
    console.log('Redirect user to:', postUserVerifyRedirectUrl);
    ```
      </TabItem>
