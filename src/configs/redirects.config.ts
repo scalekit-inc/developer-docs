@@ -261,6 +261,9 @@ export const redirects = {
   '/agent-actions/mcp/quickstart': '/agent-auth/mcp/quickstart/',
   '/agent-auth/mcp/quickstart': '/agent-auth/mcp/tool-access-via-mcp/',
 
+  // User verification
+  '/agent-actions/user-verification': '/agent-auth/user-verification/',
+
   // Tools pages
   '/agent-actions/tools/authorize': '/agent-auth/tools/authorize/',
   '/agent-actions/tools/custom-processors': '/agent-auth/tools/custom-processors/',
