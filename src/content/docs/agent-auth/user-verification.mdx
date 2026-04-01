@@ -1,11 +1,11 @@
 ---
 title: Secure connected account auth in production
-description: Verify user identity when a connected account is authorized.
+description: Confirm the teammate who authorized a connector is the one your app intended, then configure verification in the dashboard.
 tags: [agentauth, connectedaccounts, oauth2, security, user-verification]
 sidebar:
-  label: User verification
+  label: Verify user identity
 tableOfContents:
-  maxHeadingLevel: 3
+  maxHeadingLevel: 4
 prev:
   label: "Quickstart: Agent Auth"
   link: "/agent-auth/quickstart"
@@ -15,33 +15,64 @@ next:
 ---
 
 import { Steps, Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import IconTdesignSequence from '~icons/tdesign/sequence';
 
-Before activating a connected account, Scalekit confirms that the user who completed the OAuth consent is the same user your app originally intended to connect. This **user verification** step runs every time a connected account is authorized.
+Your users connect Gmail, GitHub, and other providers so agents can act on their behalf. **You need to know that the person who finished the provider's consent screen is the same person your app invited to connect**—not someone who received a forwarded magic link or followed a fake “fix your connection” message.
+
+Agent Auth runs OAuth for connectors, but **Scalekit does not see your product's sign-in sessions, workspaces, or user directory**. **User verification** closes that gap: after OAuth completes, your application confirms which end-user should own the connection using an **identifier** you set when the flow started. Scalekit activates the connected account only when that identifier matches the user who authorized.
 
 You can configure how verification works in **Agent Actions > User Verification** in the dashboard. Scalekit supports two modes:
 
 ![Agent Actions User Verification showing Custom user verifier and Scalekit users only](@/assets/docs/agent-actions/user-verification-config.png)
 
-### Scalekit user verifier
+<Tabs syncKey="user-verification-mode">
+  <TabItem label="Verify with your app">
 
-Scalekit handles verification automatically, no code changes needed on your side.
+    Required for production. Your application takes over the verification step, so end-users never interact with Scalekit directly.
 
-For this to work, the user authorizing the connection must already be logged in to the Scalekit dashboard. If they are, verification completes using the logged-in user. If they are not logged in, Scalekit displays an error page instead.
+    When the user finishes OAuth, Scalekit redirects their browser to the **verify URL** you configured. The request includes `auth_request_id` and `state` query parameters. Your route reads the signed-in user from **your session** (not from the URL), then calls Scalekit's verify API with that `auth_request_id` and the same **`identifier`** you passed when you created the magic link. If it matches the value Scalekit stored for that flow, the connected account activates.
 
-<Aside type="note" title="Dashboard access required">
-  Users must be part of your Scalekit workspace and signed in to the dashboard before they can authorize connections. Switch to the Custom user verifier when you're ready to onboard users who don't have Scalekit accounts.
-</Aside>
+<details>
+<summary><IconTdesignSequence style="display: inline; width: 1rem; height: 1rem; vertical-align: middle; margin-right: 0.5rem;" /> Review the verification sequence</summary>
 
-### Custom user verifier
+```d2 pad=36
+title: "Connected account user verification" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
 
-Required for production. Your application takes over the verification step, so end-users never interact with Scalekit directly.
+shape: sequence_diagram
 
-After the OAuth consent completes, Scalekit redirects the user's browser to a verify route you define, passing an `auth_request_id` and `state` as query parameters. Your route identifies the logged-in user, then calls Scalekit's verify API with the `auth_request_id` and the user's `identifier`. Scalekit matches the identifier against the one recorded when the flow started and, on success, activates the connected account.
+Your app
+Scalekit
+Provider
+End user
 
-## Build a custom user verifier
+Your app -> Scalekit: POST magic link\n(identifier, user_verify_url, state)
+Scalekit -> Your app: Magic link URL
+Your app -> End user: Deliver link (email, in-app, …)
+
+End user -> Scalekit: Open magic link
+Scalekit -> Provider: OAuth consent screen
+Provider -> Scalekit: Authorization code
+Scalekit -> Scalekit: Store tokens\n(pending verification)
+Scalekit -> End user: Redirect to user_verify_url\n(auth_request_id, state)
+
+End user -> Your app: GET /user/verify
+Your app -> Your app: Validate state,\nread user from session
+Your app -> Scalekit: POST verify\n(auth_request_id, identifier)
+Scalekit -> Scalekit: Match identifier,\nactivate connection
+Scalekit -> Your app: post_user_verify_redirect_url
+Your app -> End user: Redirect to your app
+```
+
+</details>
+
+## Implement verification in your app
 
 <Steps>
-1. ## Set up your environment
+1. #### Set up your environment
 
    Install the Scalekit SDK and initialize the client with your API credentials from **Dashboard > Developers > Settings > API Credentials**:
 
@@ -77,7 +108,7 @@ After the OAuth consent completes, Scalekit redirects the user's browser to a ve
      </TabItem>
    </Tabs>
 
-2. ## Create the magic link with verification params
+2. #### Create the magic link with verification params
 
    Pass these fields when creating the magic link to enable verification:
 
@@ -126,7 +157,7 @@ After the OAuth consent completes, Scalekit redirects the user's browser to a ve
      </TabItem>
    </Tabs>
 
-3. ## Build the verify route
+3. #### Build the verify route
 
    After OAuth completes, Scalekit redirects the user to your `user_verify_url`:
 
@@ -140,7 +171,7 @@ After the OAuth consent completes, Scalekit redirects the user's browser to a ve
      Read the user's identity from your own session, not from the URL. Use `state` for session correlation only.
    </Aside>
 
-4. ## Confirm the user's identity
+4. #### Confirm the user's identity
 
    Call the verify endpoint server-side using your client credentials:
 
@@ -180,25 +211,16 @@ After the OAuth consent completes, Scalekit redirects the user's browser to a ve
 
 </Steps>
 
-## How it works
+  </TabItem>
+  <TabItem label="Verify with Scalekit">
 
-```d2
-shape: sequence_diagram
+    Scalekit handles verification automatically, no code changes needed on your side.
 
-Your app -> Scalekit: POST magic_link (identifier, state, user_verify_url)
-Scalekit -> Your app: magic link URL
-Your app -> User: deliver link
+    For this to work, the user authorizing the connection must already be logged in to the Scalekit dashboard. If they are, verification completes using the logged-in user. If they are not logged in, Scalekit displays an error page instead.
 
-User -> Scalekit: click magic link
-Scalekit -> Google OAuth: redirect
-Google OAuth -> Scalekit: auth code
-Scalekit -> Scalekit: hold tokens pending verification
-Scalekit -> User: redirect to user_verify_url
+    <Aside type="note" title="Dashboard access required">
+      Users must be part of your Scalekit workspace and signed in to the dashboard before they can authorize connections. Switch to the **Custom user verifier** in the dashboard when you're ready to onboard users who don't have Scalekit accounts.
+    </Aside>
 
-User -> Your app: GET /user/verify?auth_request_id=...&state=...
-Your app -> Your app: validate state and look up user id from session
-Your app -> Scalekit: POST verify (auth_request_id, identifier)
-Scalekit -> Scalekit: assert identifier matches, activate account
-Scalekit -> Your app: respond with post_user_verify_redirect_url
-Your app -> User: redirect to success page
-```
+  </TabItem>
+</Tabs>
