@@ -2,7 +2,7 @@ import { createSectionHeader, createSpacing } from './sidebar-utils'
 
 export const sidebar = [
   {
-    label: 'Full stack auth',
+    label: 'SaaS User Management',
     id: 'authenticate',
     link: '/authenticate/fsa/quickstart/',
     icon: 'seti:lock',
@@ -11,7 +11,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'authenticate/set-up-scalekit',
-          { label: 'Quickstart: Full stack auth', link: 'authenticate/fsa/quickstart' },
+          { label: 'Quickstart: SaaS User Management', link: 'authenticate/fsa/quickstart' },
           'authenticate/fsa/code-samples',
         ],
       },
@@ -135,6 +135,7 @@ export const sidebar = [
           { label: 'Quickstart: Agent Auth', link: 'agent-auth/quickstart' },
           'agent-auth/user-verification',
           'agent-auth/code-samples',
+          { label: 'Providers', link: 'guides/integrations/agent-connectors' },
         ],
       },
       {
@@ -271,7 +272,6 @@ export const sidebar = [
         items: [
           { label: 'Overview', link: 'resources/code-samples' },
           'resources/code-samples/full-stack-auth',
-          'resources/code-samples/agent-auth',
           'resources/code-samples/mcp-auth',
           'resources/code-samples/modular-sso',
           'resources/code-samples/modular-scim',
@@ -292,10 +292,6 @@ export const sidebar = [
         label: 'SCIM integrations',
         collapsed: true,
         autogenerate: { directory: 'guides/integrations/scim-integrations' },
-      },
-      {
-        label: 'Agent connectors',
-        link: 'guides/integrations/agent-connectors',
       },
       createSpacing(),
       createSectionHeader('Workflows'),
@@ -532,6 +528,7 @@ export const sidebar = [
  */
 export const exclude = [
   '/', // Home page
+  '/auth-for-saas',
   '/blog',
   '/404', // Error page
   '/apis/**/*', // REST API reference has Scalar-powered navigation
@@ -554,7 +551,12 @@ export const topics = {
   'modular-scim': ['/directory/**/*'],
 
   // Agent Auth / Connect
-  connect: ['/agent-auth/**/*', '/reference/agent-connectors/**/*'],
+  connect: [
+    '/agent-auth/**/*',
+    '/guides/integrations/agent-connectors',
+    '/guides/integrations/agent-connectors/**/*',
+    '/reference/agent-connectors/**/*',
+  ],
 
   // === Resources (integrations, workflows, references) ===
   resources: [
@@ -617,37 +619,45 @@ export type SecondaryNavMapping =
  * Values must match `secondaryNavItems[*].id`.
  */
 export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
-  // Main authentication sidebar → Full-stack Auth tabs (with path-based routing)
+  // Main authentication sidebar → SaaSKit tabs (with path-based routing)
   authenticate: {
-    default: 'fsa-quickstart',
+    default: 'saaskit-user-management',
     pathOverrides: {
-      '/authenticate/fsa/implement-login': 'fsa-user-auth',
-      '/authenticate/fsa/complete-login': 'fsa-user-auth',
-      '/authenticate/fsa/manage-session': 'fsa-user-auth',
-      '/authenticate/fsa/logout': 'fsa-user-auth',
-      '/fsa/data-modelling': 'fsa-users-orgs',
-      '/authenticate/manage-users-orgs': 'fsa-users-orgs',
-      '/authenticate/manage-organizations': 'fsa-users-orgs',
-      '/authenticate/authz': 'fsa-authorization',
-      '/guides/custom-domain': 'fsa-customize',
-      '/fsa/guides/login-page-branding': 'fsa-customize',
-      '/guides/email-providers': 'fsa-customize',
-      '/guides/dashboard/custom-email-templates': 'fsa-customize',
-      // Removed: interceptors and workflows now use topics-based routing (maps to dev-kit)
+      '/authenticate/mcp': 'saaskit-mcp-auth',
+      '/authenticate/sso': 'saaskit-sso',
+      '/directory/scim': 'saaskit-scim',
+      '/authenticate/fsa': 'saaskit-user-management',
+      '/authenticate/manage-users-orgs': 'saaskit-user-management',
+      '/authenticate/manage-organizations': 'saaskit-user-management',
+      '/authenticate/auth-methods': 'saaskit-user-management',
+      '/authenticate/authz': 'saaskit-user-management',
+      '/fsa': 'saaskit-user-management',
+      '/guides/custom-domain': 'saaskit-user-management',
+      '/guides/email-providers': 'saaskit-user-management',
+      '/guides/dashboard/custom-email-templates': 'saaskit-user-management',
     },
   },
 
-  // MCP sidebar → 'Auth for MCP' tab
-  mcp: 'mcp',
+  // MCP sidebar → SaaSKit MCP Auth tab
+  mcp: 'saaskit-mcp-auth',
 
-  // Modular SSO sidebar → 'Modular SSO' tab
-  'modular-sso': 'modular-sso',
+  // Modular SSO sidebar → SaaSKit SSO tab
+  'modular-sso': 'saaskit-sso',
 
-  // Modular SCIM sidebar → 'Modular SCIM' tab
-  'modular-scim': 'modular-scim',
+  // Modular SCIM sidebar → SaaSKit SCIM tab
+  'modular-scim': 'saaskit-scim',
 
-  // Agent Auth sidebar → 'Agent Auth' tab
-  connect: 'agent-auth',
+  // Agent Auth sidebar → AgentKit tabs
+  connect: {
+    default: 'agentkit-quickstart',
+    pathOverrides: {
+      '/agent-auth/tools/agent-tools-quickstart': 'agentkit-agent-tools',
+      '/agent-auth/openclaw': 'agentkit-ai-frameworks',
+      '/agent-auth/frameworks': 'agentkit-ai-frameworks',
+      '/guides/integrations/agent-connectors': 'agentkit-providers',
+      '/reference/agent-connectors': 'agentkit-providers',
+    },
+  },
 
   // Developer Kit sidebar → Developer Resources dropdown (left column)
   'dev-kit': {

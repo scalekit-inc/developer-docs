@@ -1,14 +1,15 @@
 ---
-title: Implement authentication in minutes
+title: Add auth to your AI agents
 template: splash
-description: Secure your  MCP servers, APIs, users - in one scalable stack
+description: Connect your AI agents with SaaS apps and APIs on behalf of users
 tableOfContents: false
-tags: [mcp-auth, agent-auth, sso, scim, full-stack-auth, modular-auth, b2b, ai-applications]
+topic: connect
+tags: [agent-auth, quickstart, ai-agents, oauth, token-vault, tool-integration]
 banner:
   content: |
-    Implement SSO, MCP auth, SCIM, and full-stack auth faster with AI coding agents. <a href="/dev-kit/build-with-ai/">Build with AI →</a>
+    Build your first agent action with Scalekit. <a href="/agent-auth/quickstart/">Start the quickstart →</a>
 hero:
-  tagline: Add MCP auth, Agent Auth, or SSO as modular components - or adopt the full-stack platform for your B2B, AI application
+  tagline: Auth, provider connections, and tool execution for agents acting on behalf of users
 head:
   - tag: style
     content: |
@@ -18,9 +19,6 @@ head:
       .hero {
         display: none !important;
       }
-      .platform-divider {
-        margin-top: 1rem !important;
-      }
       .platform-features-grid {
         margin-top: 1rem !important;
       }
@@ -29,17 +27,6 @@ head:
       }
       .platform-features-grid .responsive-card-grid article.fold-card {
         margin-top: 1rem !important;
-      }
-      .security-sections {
-        display: grid;
-        grid-template-columns: 1.2fr 1fr;
-        gap: 1.5rem;
-      }
-      @media (max-width: 768px) {
-        .security-sections {
-          grid-template-columns: 1fr;
-          gap: 1rem;
-        }
       }
       .meta.sl-flex {
         display: none !important;
@@ -62,8 +49,8 @@ head:
         background-color: #F8F9FF !important;
         background: #F8F9FF !important;
       }
-      .content-panel{
-       padding-top: 0
+      .content-panel {
+        padding-top: 0;
       }
       .fold-full-width {
         width: 100vw;
@@ -72,9 +59,7 @@ head:
         position: relative;
         z-index: 1;
       }
-      main {
-        overflow-x: hidden;
-      }
+      main,
       body {
         overflow-x: hidden;
       }
@@ -83,6 +68,86 @@ head:
         margin: 0 auto;
         padding: 0 4rem;
       }
+      .agent-home-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+        gap: 2rem;
+        align-items: flex-start;
+      }
+      .agent-home-copy {
+        min-width: 0;
+      }
+      .agent-home-tabs {
+        min-width: 0;
+        max-width: 100%;
+      }
+      .agent-home-tabs :global(.expressive-code),
+      .agent-home-tabs :global(pre),
+      .agent-home-tabs :global(.frame) {
+        max-width: 100%;
+      }
+      .agent-home-copy h1 {
+        font-size: 2.2rem;
+        margin: 0;
+      }
+      .agent-home-copy p {
+        font-size: 1.05rem;
+        color: var(--sl-color-text-muted);
+        line-height: 1.65;
+      }
+      .agent-home-actions {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        align-items: center;
+      }
+      .agent-home-actions :global(a) {
+        white-space: nowrap;
+      }
+      .provider-header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .provider-header h2 {
+        margin: 0;
+        font-size: 1.4rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05rem;
+      }
+      .provider-header p {
+        margin: 0.35rem 0 0;
+        color: var(--sl-color-text-muted);
+        max-width: 42rem;
+      }
+      .inline-link {
+        color: var(--sl-color-accent-high);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .inline-link:hover {
+        text-decoration: underline;
+      }
+      .sl-banner {
+        text-align: center;
+      }
+      .sl-banner a {
+        white-space: nowrap;
+      }
+      @media (max-width: 1024px) {
+        .agent-home-layout {
+          grid-template-columns: 1fr;
+        }
+        .agent-home-copy {
+          width: 100%;
+        }
+        .agent-home-actions {
+          flex-wrap: wrap;
+        }
+      }
       @media (max-width: 768px) {
         .fold-section {
           padding: 2rem 0;
@@ -90,456 +155,143 @@ head:
         .fold-container {
           padding: 0 1rem;
         }
-      }
-      .modular-auth-layout {
-        display: flex;
-        gap: 2rem;
-        align-items: top;
-      }
-      .modular-auth-left {
-        flex: 0 0 33.333%;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-      .modular-auth-icon {
-        font-size: 2rem;
-        color: var(--sl-color-accent);
-        margin-bottom: 0.5rem;
-      }
-      .modular-auth-heading {
-        font-size: 1.375rem;
-        margin: 0;
-        font-weight: 600;
-        color: var(--sl-color-text-heading);
-      }
-      .modular-auth-description {
-        font-size: 1.05rem;
-        margin: 0;
-        color: var(--sl-color-text-muted);
-        line-height: 1.6;
-      }
-      .modular-auth-cards-grid {
-        flex: 1;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(2, auto);
-        gap: 1.5rem;
-      }
-      @media (max-width: 1024px) {
-        .modular-auth-layout {
+        .provider-header {
           flex-direction: column;
+          align-items: flex-start;
         }
-        .modular-auth-left {
-          flex: none;
-          width: 100%;
-        }
-      }
-      @media (max-width: 768px) {
-        .modular-auth-cards-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-      .full-stack-auth-layout {
-        display: flex;
-        gap: 3rem;
-        align-items: top;
-        margin: 0;
-      }
-      .full-stack-auth-left {
-        flex: 0 0 33.333%;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      .full-stack-auth-heading {
-        font-size: 1.4rem;
-        margin: 0;
-        font-weight: 600;
-        color: var(--sl-color-text-heading);
-      }
-      .full-stack-auth-description {
-        font-size: 1.1rem;
-        margin: 0;
-        color: var(--sl-color-text-muted);
-        line-height: 1.6;
-      }
-      .full-stack-auth-card {
-        flex: 1;
-      }
-      @media (max-width: 1024px) {
-        .full-stack-auth-layout {
-          flex-direction: column;
-        }
-        .full-stack-auth-left {
-          flex: none;
-          width: 100%;
-        }
-      }
-      .feedback-section {
-        display: none !important;
-        margin-top: none !important;
-      }
-      button[aria-label="Menu"].sl-flex.md\:sl-hidden {
-        display: none !important;
       }
 prev: false
 next: false
 ---
 
-import { Card, CardGrid, Badge, LinkButton, Tabs, TabItem } from '@astrojs/starlight/components'
+import { LinkButton, Tabs, TabItem } from '@astrojs/starlight/components'
 import FoldCard from '@components/ui/FoldCard.astro'
 import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
-import SimpleList from '@components/ui/SimpleList.astro'
-import CheckItem from '@components/ui/CheckItem.astro'
-import IconLucideKeyRound from '~icons/lucide/key-round'
-import IconLucideInfo from '~icons/lucide/info'
-import homeFsaImage from '@/assets/docs/home/image-pills.svg'
-import shieldImage from '@/assets/docs/home/shield.svg'
-import complianceImage from '@/content/docs/compliance.svg'
 
 <div class="fold-section fold-full-width">
-  <div class="fold-container" style="gap: 0.15rem;">
-  <div>
-    <h1 style="font-size: 2.2rem; margin: 0rem; text-align: left;">Implement authentication in minutes</h1>
-    <div style="font-size: 1.1rem; text-align: left;">
-      <p style="margin: 0rem;">Add auth to your B2B or AI application without building from scratch.</p>
-      <p style="margin: 0.25rem 0 0;">Drop in a modular capability — MCP Auth, Agent Auth, SSO, or SCIM — alongside your existing system, or adopt Scalekit as your full identity layer for users, sessions, organizations, and roles.</p>
-     </div>
-  </div>
+  <div class="fold-container">
+    <div class="agent-home-layout">
+      <div class="agent-home-copy">
+        <h1>Auth and actions for your agents</h1>
+        <div style="font-size: 1.1rem; text-align: left;">
+          <p style="margin: 0;">Connect SaaS apps and APIs on behalf of users without building OAuth edge cases and token lifecycle plumbing yourself.</p>
+          <p style="margin: 0.25rem 0 0;">Start with the Agent Auth quickstart, then expand into providers, tool execution, and framework-specific guides as your agent moves from prototype to production.</p>
+        </div>
 
-    {/* <p style="font-size: 1.1rem; margin: 0rem; text-align: left;"></p> */}
+        <div class="agent-home-actions">
+          <LinkButton href="/agent-auth/quickstart/" icon="right-arrow" class="sk-primary">
+            Start the quickstart
+          </LinkButton>
+          <LinkButton
+            href="/guides/integrations/agent-connectors/"
+            variant="secondary"
+            icon="right-arrow"
+            class="sk-secondary"
+          >
+            Browse providers
+          </LinkButton>
+        </div>
+      </div>
 
-  <div style="margin-top: 0.15rem;">
+      <div class="agent-home-tabs">
+        <Tabs syncKey="coding-agent">
+          <TabItem label="Claude Code">
+            ```bash title="Step 1 — Add the marketplace (Claude REPL)" showLineNumbers=false
+            /plugin marketplace add scalekit-inc/claude-code-authstack
+            ```
 
-<Tabs syncKey="coding-agent">
-  <TabItem label="Claude Code">
-    ```bash title="Step 1 — Add the marketplace (Claude REPL)" showLineNumbers=false
-    /plugin marketplace add scalekit-inc/claude-code-authstack
-    ```
+            ```bash title="Step 2 — Install your auth plugin (Claude REPL)" showLineNumbers=false
+            # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
+            /plugin install agent-auth@scalekit-auth-stack
+            ```
 
-    ```bash title="Step 2 — Install your auth plugin (Claude REPL)" showLineNumbers=false
-    # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
-    /plugin install agent-auth@scalekit-auth-stack
-    ```
+            Now ask your agent to implement Scalekit auth in natural language.
+          </TabItem>
+          <TabItem label="Codex">
+            ```bash title="Step 1 — Install the Scalekit Auth Stack" frame="terminal" showLineNumbers=false
+            curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
+            ```
 
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-  <TabItem label="Codex">
-    ```bash title="Step 1 — Install the Scalekit Auth Stack" frame="terminal" showLineNumbers=false
-    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
-    ```
+            Step 2 — Restart Codex, open **Plugin Directory**, select **Scalekit Auth Stack**, and enable your auth plugin.
 
-    Step 2 — Restart Codex, open **Plugin Directory**, select **Scalekit Auth Stack**, and enable your auth plugin.
+            Now ask your agent to implement Scalekit auth in natural language.
+          </TabItem>
+          <TabItem label="GitHub Copilot CLI">
+            ```bash title="Step 1 — Add the marketplace" frame="terminal" showLineNumbers=false
+            copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+            ```
 
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-  <TabItem label="GitHub Copilot CLI">
-    ```bash title="Step 1 — Add the marketplace" frame="terminal" showLineNumbers=false
-    copilot plugin marketplace add scalekit-inc/github-copilot-authstack
-    ```
+            ```bash title="Step 2 — Install your auth plugin" frame="terminal" showLineNumbers=false
+            # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
+            copilot plugin install agent-auth@scalekit-auth-stack
+            ```
 
-    ```bash title="Step 2 — Install your auth plugin" frame="terminal" showLineNumbers=false
-    # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
-    copilot plugin install agent-auth@scalekit-auth-stack
-    ```
+            Now ask your agent to implement Scalekit auth in natural language.
+          </TabItem>
+          <TabItem label="Cursor">
+            The Scalekit Auth Stack is pending Cursor Marketplace review. Install it locally in Cursor:
 
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-  <TabItem label="Cursor">
-    The Scalekit Auth Stack is pending Cursor Marketplace review. Install it locally in Cursor:
+            ```bash title="Step 1 — Install the Scalekit Auth Stack" frame="terminal" showLineNumbers=false
+            curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
+            ```
 
-    ```bash title="Step 1 — Install the Scalekit Auth Stack" frame="terminal" showLineNumbers=false
-    curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
-    ```
+            Step 2 — Restart Cursor, open **Settings > Cursor Settings > Plugins**, and enable your auth plugin.
 
-    Step 2 — Restart Cursor, open **Settings > Cursor Settings > Plugins**, and enable your auth plugin.
+            Now ask your agent to implement Scalekit auth in natural language.
+          </TabItem>
+          <TabItem label="40+ agents">
+            Works with OpenCode, Windsurf, Cline, Gemini CLI, Codex, and 35+ more agents via the [Vercel Skills CLI](https://vercel.com/docs/agent-resources/skills).
 
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-  <TabItem label="40+ agents">
-    Works with OpenCode, Windsurf, Cline, Gemini CLI, Codex, and 35+ more agents via the [Vercel Skills CLI](https://vercel.com/docs/agent-resources/skills).
+            ```bash title="Step 1 — Browse available skills" frame="terminal" showLineNumbers=false
+            npx skills add scalekit-inc/skills --list
+            ```
 
-    ```bash title="Step 1 — Browse available skills" frame="terminal" showLineNumbers=false
-    npx skills add scalekit-inc/skills --list
-    ```
+            ```bash title="Step 2 — Install a specific skill" frame="terminal" showLineNumbers=false
+            npx skills add scalekit-inc/skills --skill adding-mcp-oauth
+            ```
 
-    ```bash title="Step 2 — Install a specific skill" frame="terminal" showLineNumbers=false
-    npx skills add scalekit-inc/skills --skill adding-mcp-oauth
-    ```
-
-    Now ask your agent to implement Scalekit auth in natural language.
-  </TabItem>
-</Tabs>
-  </div>
-
+            Now ask your agent to implement Scalekit auth in natural language.
+          </TabItem>
+        </Tabs>
+      </div>
+    </div>
   </div>
 </div>
-
 
 <div class="fold-section fold--background-muted fold-full-width">
   <div class="fold-container">
-    <div class="modular-auth-layout">
-      <div class="modular-auth-left">
-        <h2 class="modular-auth-heading" style="margin-top: 1.5rem !important; text-transform: uppercase; letter-spacing: 0.05rem;">Modular Auth</h2>
-        <div class="modular-auth-description"><p>Add specific auth capabilities like MCP, SSO, SCIM, or Agent auth, without replacing your existing system</p></div>
-      </div>
-      <div class="modular-auth-cards-grid">
-        <FoldCard
-          title="MCP Auth"
-          iconKey="mcp"
-          href="/authenticate/mcp/quickstart/"
-          showCta={false}
-          clickable={true}
-        >
-          Add OAuth 2.1 authorization to your remote MCP server with Dynamic Client Registration and short-lived tokens
-        </FoldCard>
-
-        <FoldCard
-          title="Agent Auth"
-          iconKey="bot"
-          href="/agent-auth/quickstart/"
-          showCta={false}
-          clickable={true}
-        >
-          Give your AI agents a token vault so they can call Gmail, Slack, Notion, and other services on behalf of users
-        </FoldCard>
-
-        <FoldCard
-          title="Single Sign-on"
-          iconKey="sso"
-          href="/authenticate/sso/add-modular-sso/"
-          showCta={false}
-          clickable={true}
-        >
-          Let enterprise users sign in through their company's identity provider — Okta, Microsoft Entra, Google, and more
-        </FoldCard>
-
-        <FoldCard
-          title="SCIM Provisioning"
-          iconKey="scim"
-          href="/directory/scim/quickstart"
-          showCta={false}
-          clickable={true}
-        >
-          Automatically sync users, roles, and groups when IT admins add or remove people in Okta or Azure AD
-        </FoldCard>
+    <div class="provider-header">
+      <div>
+        <h2>Top Providers</h2>
+        <p>
+          Start with a few ready-made integrations, then use the full providers
+          catalog when your agent needs broader coverage.
+          <a href="/guides/integrations/agent-connectors/" class="inline-link">
+            See the full list of providers →
+          </a>
+        </p>
       </div>
     </div>
-  </div>
-</div>
 
-{/* <div style="display: flex; padding: 0.5rem 1rem; align-items: center; gap: 0.625rem; border-radius: 0.375rem; border: 1px solid var(--sl-color-gray-5); background: #FCFCFC">
-Ready to build something new? <a href="https://app.scalekit.com" target="_blank" rel="noopener">Set up your account now</a>
-</div> */}
-
-
-{/* <div class="platform-divider" style="display: flex; align-items: center; gap: 1rem; color: var(--sl-color-gray-3); font-size: 0.875rem; font-weight: 500; letter-spacing: 0.05em;">
-  <div style="flex: 1; height: 1px; background: var(--sl-color-gray-5);"></div>
-  <span>OR</span>
-  <div style="flex: 1; height: 1px; background: var(--sl-color-gray-5);"></div>
-</div> */}
-
-
-<div class="fold-section fold-full-width">
-  <div class="fold-container">
-    <div class="full-stack-auth-layout">
-      <div class="full-stack-auth-left">
-
-        <h2 class="full-stack-auth-heading" style="margin-top: 2rem !important;text-transform: uppercase; letter-spacing: 0.05rem;">FULL-STACK AUTH</h2>
-        <p class="full-stack-auth-description">Use Scalekit as your full identity layer to manage users, organizations,
-sessions, and roles</p>
-        <LinkButton href="/authenticate/fsa/quickstart" variant="secondary" class="sk-secondary" icon="right-arrow" style="margin-top: 2rem; width: fit-content;">
-          Quickstart
-        </LinkButton>
-        <p style="font-size: 0.9rem; margin: -1rem 0rem; color: var(--sl-color-text-muted); ">Get production-ready auth running in minutes</p>
-      </div>
-      <div class="full-stack-auth-card">
-        <img src={homeFsaImage.src} alt="Full Stack Auth Platform" style="width: 75%; height: auto; border-radius: 0.5rem; border: none !important; margin-left: 4rem !important;" data-zoom-off />
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="fold-section fold-full-width" style="padding-top: 0rem">
-  <div class="fold-container">
     <ResponsiveCardGrid columnsDesktop={3} columnsLarge={3}>
-      <FoldCard
-        title="User lifecycle"
-        iconKey="usercheck"
-        href="/fsa/data-modelling"
-        clickable={true}
-      >
-        Create, update, and delete users with built-in lifecycle APIs
+      <FoldCard title="Slack" iconKey="slack" href="/reference/agent-connectors/slack/" clickable={true}>
+        Connect channels, messages, and workspace workflows to user-authorized agent actions.
       </FoldCard>
-      <FoldCard
-        title="Authentication methods"
-        iconKey="authmethods"
-        href="/authenticate/auth-methods/passwordless/"
-        clickable={true}
-      >
-        Support modern login flows with passkeys, magic links, OTPs, and social logins
+      <FoldCard title="GitHub" iconKey="github" href="/reference/agent-connectors/github/" clickable={true}>
+        Let agents read repos, issues, and pull requests with delegated user access.
       </FoldCard>
-      <FoldCard
-        title="B2B-native identity"
-        iconKey="b2b"
-        href="/fsa/data-modelling"
-        clickable={true}
-      >
-        Model organizations, user memberships, and multi-tenant access for B2B SaaS apps
+      <FoldCard title="Google Drive" iconKey="google" href="/reference/agent-connectors/googledrive/" clickable={true}>
+        Search, read, and organize files with user-approved Google Workspace access.
       </FoldCard>
-      <FoldCard
-        title="Authorization"
-        iconKey="shield"
-        href="/authenticate/authz/overview"
-        clickable={true}
-      >
-        Define roles and permissions for human users and AI agents
+      <FoldCard title="Salesforce" iconKey="salesforce" href="/reference/agent-connectors/salesforce/" clickable={true}>
+        Pull account and pipeline context into sales and support agent workflows.
       </FoldCard>
-      <FoldCard
-        title="Enterprise identity"
-        iconKey="sso"
-        href="/authenticate/auth-methods/enterprise-sso"
-        clickable={true}
-      >
-        Add enterprise capabilities like Single Sign-On (SSO) and SCIM provisioning
+      <FoldCard title="Jira" href="/reference/agent-connectors/jira/" clickable={true}>
+        Create, update, and triage issues without exposing long-lived service credentials.
       </FoldCard>
-      <FoldCard
-        title="API & M2M auth"
-        iconKey="apiauth"
-        href="/authenticate/m2m/api-auth-quickstart"
-        clickable={true}
-      >
-        Issue and validate user-scoped and org-level tokens for APIs and services
+      <FoldCard title="HubSpot" href="/reference/agent-connectors/hubspot/" clickable={true}>
+        Sync contacts, deals, and CRM context into user-facing or internal agents.
       </FoldCard>
     </ResponsiveCardGrid>
   </div>
 </div>
-
-<div class="fold-section fold--background-muted fold-full-width">
-  <div class="fold-container">
-  <div>
-    <h2 style="font-size: 1.8rem; margin: 0.5rem 0rem; text-align: left;">Extensibility & Controls</h2>
-    <p style="font-size: 1.1rem; margin: 0rem; text-align: left;">Customize identity workflows and apply your business logic</p>
-    </div>
-
-    <div class="platform-features-grid">
-      <CardGrid>
-        <FoldCard
-          title="Webhooks"
-          iconKey="webhooks"
-          href="/reference/webhooks/overview/"
-          clickable={true}
-        >
-          Receive real-time events for authentication, user lifecycle, and organizations
-        </FoldCard>
-        <FoldCard
-          title="Interceptors"
-          iconKey="workflow"
-          href="/authenticate/interceptors/auth-flow-interceptors/"
-          clickable={true}
-        >
-          Apply custom logic and policy checks during authentication & authorization flows
-        </FoldCard>
-        <FoldCard
-          title="Branding"
-          iconKey="theme"
-          href="/fsa/guides/login-page-branding/"
-          clickable={true}
-        >
-          Customize hosted login/signup pages and auth-related emails to match your app's branding
-        </FoldCard>
-        <FoldCard
-          title="Auth logs"
-          iconKey="events"
-          href="/guides/dashboard/auth-logs/"
-          clickable={true}
-        >
-          Record and inspect authentication events and user access activity for auditing purposes
-        </FoldCard>
-      </CardGrid>
-    </div>
-  </div>
-</div>
-
-<div class="fold-section  fold-full-width">
-  <div class="fold-container">
-  <div>
-    <h2 style="font-size: 1.8rem; margin: 0.5rem 0rem; text-align: left;">Developer Resources</h2>
-    <p style="font-size: 1.1rem; margin: 0rem; text-align: left;">SDKs, code samples, and community resources for building with Scalekit</p>
-  </div>
-
-<ResponsiveCardGrid>
-  <FoldCard
-    title="SDKs"
-    iconKey="sdk"
-    href="/apis/#description/sdks"
-    clickable={true}
-  >
-    Drop-in libraries to quickly integrate Scalekit into your application
-  </FoldCard>
-  <FoldCard
-    title="Code samples"
-    iconKey="github"
-    href="/resources/code-samples"
-    clickable={true}
-  >
-    Reference implementations and code examples for common auth flows
-  </FoldCard>
-  <FoldCard
-    title="Developer community"
-    iconKey="community"
-    href="https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw" target="_blank" rel="noopener"
-    clickable={true}
-  >
-    Ask questions, share feedback, and learn from other Scalekit developers
-  </FoldCard>
-  <FoldCard
-    title="SDKs & APIs"
-    iconKey="book"
-    href="/sdks/"
-    clickable={true}
-  >
-    Official SDKs and REST API reference for integrating authentication
-  </FoldCard>
-
-</ResponsiveCardGrid>
-  </div>
-</div>
-
-<div class="fold-section fold--background-muted fold-full-width">
-  <div class="fold-container">
-  <div>
-    <h2 style="font-size: 1.8rem; margin: 0.1rem 0rem; text-align: left;">Security, Compliance & Availability</h2>
-    <p style="font-size: 1.1rem; margin: 0rem; text-align: left;">Designed for production workloads with strict operational and security requirements</p>
-  </div>
-
-    {/* <p style="font-size: 1.1rem; margin: 0rem; text-align: left;"></p> */}
-
-    <div class="security-sections">
-      <div>
-        <p style="margin: 0.5rem 0;"><span style="margin-right: 0.5rem;">⊕</span><strong>Multi-region data residency</strong><br /><span style="margin-left: 1.5rem;">Dedicated regional clusters in the US and EU</span></p>
-        <p style="margin: 0.5rem 0;"><span style="margin-right: 0.5rem;">⊕</span><strong>Compliance</strong><br /><span style="margin-left: 1.5rem;">SOC 2, ISO 27001, GDPR, and CCPA compliant</span></p>
-        <p style="margin: 0.5rem 0;"><span style="margin-right: 0.5rem;">⊕</span><strong>Uptime</strong><br /><span style="margin-left: 1.5rem;">99.99% uptime with failover redundancy</span></p>
-        <p style="margin: 0.5rem 0;"><span style="margin-right: 0.5rem;">⊕</span><strong>Secure token & secret storage</strong><br /><span style="margin-left: 1.5rem;">Vault-backed storage with strong isolation for tokens and agent credentials</span></p>
-      </div>
-      <div style="display: flex; justify-content: center; align-items: center; margin-top: 0rem !important;">
-        <img src={complianceImage.src} alt="Compliance certifications" style="max-width: 110%; height: auto; border: none" data-zoom-off/>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-
-{/* <FoldCard
-  title="Connect with the Scalekit developer community"
-  iconKey="community"
-  showCta={false}
->
-  Join our vibrant developer community to collaborate, learn, and exchange ideas with Scalekit engineers. Get dedicated support, share feedback, and stay updated on the latest tools and best practices.
-
-  <br />
-  <a href="https://join.slack.com/t/scalekit-community/shared_invite/zt-3gsxwr4hc-0tvhwT2b_qgVSIZQBQCWRw">Join the dev community →</a>
-</FoldCard> */}

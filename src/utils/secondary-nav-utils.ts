@@ -75,7 +75,7 @@ export function getActiveSecondaryNavId(
 
   // 4. Default fallback for root path or unmatched pages
   if (pathname === '/' || pathname === '') {
-    return 'home' // Home page should select the Home nav item
+    return 'agentkit-quickstart'
   }
 
   return null
@@ -84,8 +84,12 @@ export function getActiveSecondaryNavId(
 /**
  * Determines if a nav item should be marked as current based on the pathname
  */
-export function isCurrentPage(pathname: string, item: NavItem): boolean {
-  const activeId = getActiveSecondaryNavId(pathname)
+export function isCurrentPage(
+  pathname: string,
+  item: NavItem,
+  entry?: SecondaryNavProps['entry'],
+): boolean {
+  const activeId = getActiveSecondaryNavId(pathname, entry)
 
   // For dropdown parent items, check if any child is current
   if (item.children && item.children.length > 0) {
@@ -102,21 +106,15 @@ export function isCurrentPage(pathname: string, item: NavItem): boolean {
   return activeId === item.id
 }
 
-export function getDisplayLabel(pathname: string, item: NavItem): string {
-  // Authenticate dropdown: keep the "Choose product" placeholder unless a child is active.
-  // This prevents the label from implicitly changing to "Full stack auth" when users land
-  // directly on non-auth sections (e.g. SDKs, APIs, Developer Resources).
+export function getDisplayLabel(
+  pathname: string,
+  item: NavItem,
+  entry?: SecondaryNavProps['entry'],
+): string {
   if (item.id === 'authenticate') {
     if (item.children && item.children.length > 0) {
-      const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
-
-      // No active child => user hasn't selected a specific product via the current section.
+      const activeChild = item.children.find((child) => isCurrentPage(pathname, child, entry))
       if (!activeChild) return 'Choose product'
-
-      // For right column items (Full-stack Auth shortcuts), always use parent label.
-      if (activeChild.columnGroup === 'right') return item.label
-
-      // For left column items (Modular Auth), use child label.
       return activeChild.label
     }
 
@@ -124,7 +122,7 @@ export function getDisplayLabel(pathname: string, item: NavItem): string {
   }
 
   if (item.children && item.children.length > 0) {
-    const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
+    const activeChild = item.children.find((child) => isCurrentPage(pathname, child, entry))
     // For right column items (Full-stack Auth shortcuts), always use parent label
     if (activeChild && activeChild.columnGroup === 'right') {
       return item.label
@@ -135,19 +133,15 @@ export function getDisplayLabel(pathname: string, item: NavItem): string {
   return item.label
 }
 
-export function getDisplayIcon(pathname: string, item: NavItem): any {
-  // Authenticate dropdown: keep the grid icon placeholder unless a child is active.
+export function getDisplayIcon(
+  pathname: string,
+  item: NavItem,
+  entry?: SecondaryNavProps['entry'],
+): any {
   if (item.id === 'authenticate') {
     if (item.children && item.children.length > 0) {
-      const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
-
-      // No active child => show placeholder icon.
+      const activeChild = item.children.find((child) => isCurrentPage(pathname, child, entry))
       if (!activeChild) return IconLucideLayoutGrid
-
-      // For right column items (Full-stack Auth shortcuts), always use parent icon.
-      if (activeChild.columnGroup === 'right') return item.iconComponent
-
-      // For left column items (Modular Auth), use child icon.
       if (activeChild.iconComponent) return activeChild.iconComponent
     }
 
@@ -155,7 +149,7 @@ export function getDisplayIcon(pathname: string, item: NavItem): any {
   }
 
   if (item.children && item.children.length > 0) {
-    const activeChild = item.children.find((child) => isCurrentPage(pathname, child))
+    const activeChild = item.children.find((child) => isCurrentPage(pathname, child, entry))
     // For right column items (Full-stack Auth shortcuts), always use parent icon
     if (activeChild && activeChild.columnGroup === 'right') {
       return item.iconComponent
