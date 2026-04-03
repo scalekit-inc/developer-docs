@@ -123,6 +123,12 @@ import IconSimpleIconsLinear from '~icons/simple-icons/linear'
 import IconSimpleIconsFigma from '~icons/simple-icons/figma'
 import IconSimpleIconsIntercom from '~icons/simple-icons/intercom'
 
+// AI Agent icons
+import IconSimpleIconsClaude from '~icons/simple-icons/claude'
+import IconSimpleIconsOpenai from '~icons/simple-icons/openai'
+import IconSimpleIconsGithubcopilot from '~icons/simple-icons/githubcopilot'
+import IconSimpleIconsCursor from '~icons/simple-icons/cursor'
+
 // Static icon mapping organized by categories
 export const iconMap = {
   // Core UI icons
@@ -262,6 +268,13 @@ export const iconMap = {
   linear: IconSimpleIconsLinear,
   figma: IconSimpleIconsFigma,
   intercom: IconSimpleIconsIntercom,
+
+  // AI agents
+  claude: IconSimpleIconsClaude,
+  openai: IconSimpleIconsOpenai,
+  codex: IconSimpleIconsOpenai,
+  githubcopilot: IconSimpleIconsGithubcopilot,
+  cursor: IconSimpleIconsCursor,
 }
 
 export type IconKey = keyof typeof iconMap

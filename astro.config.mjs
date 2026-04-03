@@ -57,6 +57,7 @@ export default defineConfig({
         // SocialIcons: './src/components/overrides/SocialIcons.astro',
         // Sidebar: './src/components/overrides/Sidebar.astro',
         Head: './src/components/overrides/Head.astro',
+        Icon: './src/components/overrides/Icon.astro',
         Header: './src/components/overrides/Header.astro',
         Footer: './src/components/overrides/Footer.astro',
         PageSidebar: './src/components/overrides/PageSidebar.astro',
@@ -338,6 +339,12 @@ export default defineConfig({
       alias: {
         '@': path.resolve('./src'),
         '@components': path.resolve('./src/components'),
+        '@starlight/rehype-tabs': path.resolve(
+          './node_modules/@astrojs/starlight/user-components/rehype-tabs.ts',
+        ),
+        '@astrojs/starlight/components/Icon.astro': path.resolve(
+          './node_modules/@astrojs/starlight/user-components/Icon.astro',
+        ),
       },
     },
     optimizeDeps: {

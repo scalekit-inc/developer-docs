@@ -110,6 +110,22 @@ head:
       .provider-grid {
         margin-top: 0.5rem !important;
       }
+      .provider-logo-grid {
+        margin-top: 1rem !important;
+      }
+      .provider-logo-grid :global(.fold-card) {
+        padding: 1rem;
+      }
+      .provider-logo-grid :global(.card-header) {
+        margin-bottom: 0;
+        gap: 0.5rem;
+      }
+      .provider-logo-grid :global(.card-content) {
+        display: none;
+      }
+      .provider-logo-grid :global(.card-title) {
+        font-size: 0.95rem;
+      }
       .provider-header h2 {
         margin: 0;
         font-size: 1.4rem;
@@ -162,7 +178,8 @@ prev: false
 next: false
 ---
 
-import { Tabs, TabItem, Steps } from '@astrojs/starlight/components'
+import { TabItem, Steps } from '@astrojs/starlight/components'
+import Tabs from '@components/ui/Tabs.astro'
 import FoldCard from '@components/ui/FoldCard.astro'
 import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
 
@@ -182,7 +199,7 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
            Choose your AI agent to install the Scalekit Auth Stack plugin.
 
            <Tabs syncKey="coding-agent">
-             <TabItem label="Claude Code">
+             <TabItem label="Claude Code" icon="claude">
                ```bash title="Add the marketplace (Claude REPL)" showLineNumbers=false
                /plugin marketplace add scalekit-inc/claude-code-authstack
                ```
@@ -192,14 +209,14 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
                /plugin install agent-auth@scalekit-auth-stack
                ```
              </TabItem>
-             <TabItem label="Codex">
+             <TabItem label="Codex" icon="codex">
                ```bash title="Install the Scalekit Auth Stack" showLineNumbers=false
                curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
                ```
 
                Restart Codex, open **Plugin Directory**, select **Scalekit Auth Stack**, and enable your auth plugin.
              </TabItem>
-             <TabItem label="GitHub Copilot CLI">
+             <TabItem label="GitHub Copilot CLI" icon="githubcopilot">
                ```bash title="Add the marketplace" showLineNumbers=false
                copilot plugin marketplace add scalekit-inc/github-copilot-authstack
                ```
@@ -209,7 +226,7 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
                copilot plugin install agent-auth@scalekit-auth-stack
                ```
              </TabItem>
-             <TabItem label="Cursor">
+             <TabItem label="Cursor" icon="cursor">
                The Scalekit Auth Stack is pending Cursor Marketplace review. Install it locally in Cursor:
 
                ```bash title="Install the Scalekit Auth Stack" showLineNumbers=false
@@ -218,7 +235,7 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
 
                Restart Cursor, open **Settings > Cursor Settings > Plugins**, and enable your auth plugin.
              </TabItem>
-             <TabItem label="40+ agents">
+             <TabItem label="40+ agents" icon="sparkle">
                Works with OpenCode, Windsurf, Cline, Gemini CLI, Codex, and 35+ more agents via the [Vercel Skills CLI](https://vercel.com/docs/agent-resources/skills).
 
                ```bash title="Browse available skills" showLineNumbers=false
@@ -233,11 +250,52 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
 
         2. ## Starting prompt
 
-           Now ask your agent to implement Scalekit auth in natural language. Here are a few examples you can start with:
+           Now ask your agent to implement Scalekit auth in natural language. Start with one of these prompts and adapt it to your app:
 
-           - *"Read the Agent Auth Quickstart and help me implement user authentication for my agent."*
-           - *"Using the Agent Connectors guide, build a Slack integration so my agent can post messages on the user's behalf."*
-           - *"Follow the MCP Auth documentation to create a secure tool that retrieves user access tokens."*
+           <Tabs syncKey="starter-prompt">
+             <TabItem label="HubSpot + Gmail">
+               ```text title="Expand my agent with HubSpot and Gmail" showLineNumbers=false
+               Expand my current agent code so it can connect to HubSpot and Gmail with Scalekit Agent Auth.
+
+               Start by reading the Agent Auth quickstart, the HubSpot connector guide, and the Gmail examples in the docs. Then guide me step by step to:
+               1. Configure the required Scalekit connections.
+               2. Create or reuse the connected account for my user.
+               3. Trigger the authorization flow if the user is not connected.
+               4. Fetch the latest 5 emails from Gmail.
+               5. Keep the implementation ready for HubSpot actions next.
+
+               Use production-safe patterns, explain security implications, and update my code instead of giving me a high-level summary.
+               ```
+             </TabItem>
+             <TabItem label="Access + refresh tokens">
+               ```text title="Retrieve tokens for direct API calls" showLineNumbers=false
+               Guide me step by step to implement Scalekit so I can securely retrieve a user's access token and refresh token when I need to call a provider API directly.
+
+               Read the connected accounts and token management docs first. Then:
+               1. Add the required Scalekit setup to my app.
+               2. Create or load the connected account for my user.
+               3. Trigger authorization when the account is not active.
+               4. Show me how to read `accessToken` and `refreshToken` from the connected account details.
+               5. Explain when I should call the provider directly versus using Scalekit's proxy or built-in tools.
+
+               Use secure defaults, never expose tokens in logs, and make the final code ready for real API calls.
+               ```
+             </TabItem>
+             <TabItem label="LangChain + Calendar">
+               ```text title="Use LangChain with Google Calendar" showLineNumbers=false
+               Use LangChain as the primary framework and help me build an agent with Scalekit that connects to Google Calendar.
+
+               Start from the LangChain framework guide and the Google Calendar examples. Then work step by step to:
+               1. Configure the `googlecalendar` connection in Scalekit.
+               2. Create or reuse the connected account for my user.
+               3. Send the user through authorization if needed.
+               4. Retrieve a valid access token from Scalekit or use the built-in tool if that is the better pattern.
+               5. Call Google Calendar and return upcoming events.
+
+               Write the implementation code, explain any required scopes, and keep the flow ready for follow-up actions such as creating calendar events.
+               ```
+             </TabItem>
+           </Tabs>
 
         </Steps>
       </div>
@@ -249,14 +307,18 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
   <div class="fold-container">
     <div class="provider-header">
       <div>
-        <h2>Powerful Agent Workflows</h2>
+        <h2>Popular connectors</h2>
         <p>
-          Spark your imagination by giving your agents deep access to the world's most popular platforms.
+          Connect your agents to the tools users already use. Start with common workflows, then
+          expand into the full catalog as your product grows.
+          <a href="/guides/integrations/agent-connectors/" class="inline-link">
+            See all 40+ connectors →
+          </a>
         </p>
       </div>
     </div>
 
-    <ResponsiveCardGrid columnsDesktop={3} columnsLarge={3}>
+    <ResponsiveCardGrid className="provider-grid" columnsDesktop={3} columnsLarge={3}>
       <FoldCard title="Slack" iconKey="slack" href="/reference/agent-connectors/slack/" clickable={true}>
         Connect channels, messages, and workspace workflows to user-authorized agent actions.
       </FoldCard>
@@ -266,46 +328,24 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
       <FoldCard title="Google Drive" iconKey="google" href="/reference/agent-connectors/googledrive/" clickable={true}>
         Search, read, and organize files with user-approved Google Workspace access.
       </FoldCard>
-      <FoldCard title="Salesforce" iconKey="salesforce" href="/reference/agent-connectors/salesforce/" clickable={true}>
-        Pull account and pipeline context into sales and support agent workflows.
-      </FoldCard>
-      <FoldCard title="Jira" iconKey="jira" href="/reference/agent-connectors/jira/" clickable={true}>
-        Create, update, and triage issues without exposing long-lived service credentials.
-      </FoldCard>
-      <FoldCard title="HubSpot" iconKey="hubspot" href="/reference/agent-connectors/hubspot/" clickable={true}>
-        Sync contacts, deals, and CRM context into user-facing or internal agents.
-      </FoldCard>
     </ResponsiveCardGrid>
-  </div>
-</div>
 
-<div class="fold-section fold-full-width">
-  <div class="fold-container">
-    <div class="provider-header">
-      <div>
-        <h2>And 40+ More Connections</h2>
-        <p>
-          Scalekit supports all the tools your users rely on.
-          <a href="/guides/integrations/agent-connectors/" class="inline-link">
-            See the full list of providers →
-          </a>
-        </p>
-      </div>
-    </div>
-
-    <ResponsiveCardGrid className="provider-grid" columnsTablet={3} columnsDesktop={4} columnsLarge={6}>
+    <ResponsiveCardGrid
+      className="provider-logo-grid"
+      columnsTablet={3}
+      columnsDesktop={4}
+      columnsLarge={6}
+      gap="0.75rem"
+    >
+      <FoldCard title="Salesforce" iconKey="salesforce" href="/reference/agent-connectors/salesforce/" clickable={true} />
+      <FoldCard title="Jira" iconKey="jira" href="/reference/agent-connectors/jira/" clickable={true} />
+      <FoldCard title="HubSpot" iconKey="hubspot" href="/reference/agent-connectors/hubspot/" clickable={true} />
       <FoldCard title="Zendesk" iconKey="zendesk" href="/reference/agent-connectors/zendesk/" clickable={true} />
       <FoldCard title="Notion" iconKey="notion" href="/reference/agent-connectors/notion/" clickable={true} />
       <FoldCard title="Linear" iconKey="linear" href="/reference/agent-connectors/linear/" clickable={true} />
       <FoldCard title="Figma" iconKey="figma" href="/reference/agent-connectors/figma/" clickable={true} />
       <FoldCard title="Intercom" iconKey="intercom" href="/reference/agent-connectors/intercom/" clickable={true} />
       <FoldCard title="GitLab" iconKey="gitlab" href="/reference/agent-connectors/gitlab/" clickable={true} />
-      <FoldCard title="Slack" iconKey="slack" href="/reference/agent-connectors/slack/" clickable={true} />
-      <FoldCard title="GitHub" iconKey="github" href="/reference/agent-connectors/github/" clickable={true} />
-      <FoldCard title="Drive" iconKey="google" href="/reference/agent-connectors/googledrive/" clickable={true} />
-      <FoldCard title="Salesforce" iconKey="salesforce" href="/reference/agent-connectors/salesforce/" clickable={true} />
-      <FoldCard title="Jira" iconKey="jira" href="/reference/agent-connectors/jira/" clickable={true} />
-      <FoldCard title="HubSpot" iconKey="hubspot" href="/reference/agent-connectors/hubspot/" clickable={true} />
     </ResponsiveCardGrid>
   </div>
 </div>
