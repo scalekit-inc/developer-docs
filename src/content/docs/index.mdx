@@ -105,7 +105,10 @@ head:
         align-items: end;
         justify-content: space-between;
         gap: 1rem;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .provider-grid {
+        margin-top: 0.5rem !important;
       }
       .provider-header h2 {
         margin: 0;
@@ -159,7 +162,7 @@ prev: false
 next: false
 ---
 
-import { LinkButton, Tabs, TabItem } from '@astrojs/starlight/components'
+import { Tabs, TabItem, Steps } from '@astrojs/starlight/components'
 import FoldCard from '@components/ui/FoldCard.astro'
 import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
 
@@ -168,87 +171,75 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
     <div class="agent-home-layout">
       <div class="agent-home-copy">
         <h1>Connect your agents with SaaS apps, APIs, and databases</h1>
-        <div style="font-size: 1.1rem; text-align: left;">
-          <p style="margin: 0;">Secure auth and actions on behalf of users, not service accounts.</p>
-          <p style="margin: 0.25rem 0 0;">Start with the Agent Auth quickstart, then expand into providers, tool execution, and framework-specific guides as your agent moves from prototype to production.</p>
-        </div>
-
+        <p>Secure auth and actions on behalf of users, not service accounts.</p>
+        <p>Start with the Agent Auth quickstart, then expand into providers, tool execution, and framework-specific guides as your agent moves from prototype to production.</p>
       </div>
 
       <div class="agent-home-tabs">
-        <Tabs syncKey="coding-agent">
-          <TabItem label="Claude Code">
-            ```bash title="Step 1 — Add the marketplace (Claude REPL)" showLineNumbers=false
-            /plugin marketplace add scalekit-inc/claude-code-authstack
-            ```
+        <Steps>
+        1. ## Set up developer environment
 
-            ```bash title="Step 2 — Install your auth plugin (Claude REPL)" showLineNumbers=false
-            # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
-            /plugin install agent-auth@scalekit-auth-stack
-            ```
+           Choose your AI agent to install the Scalekit Auth Stack plugin.
 
-            Now ask your agent to implement Scalekit auth in natural language.
-          </TabItem>
-          <TabItem label="Codex">
-            ```bash title="Step 1 — Install the Scalekit Auth Stack" frame="terminal" showLineNumbers=false
-            curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
-            ```
+           <Tabs syncKey="coding-agent">
+             <TabItem label="Claude Code">
+               ```bash title="Add the marketplace (Claude REPL)" showLineNumbers=false
+               /plugin marketplace add scalekit-inc/claude-code-authstack
+               ```
 
-            Step 2 — Restart Codex, open **Plugin Directory**, select **Scalekit Auth Stack**, and enable your auth plugin.
+               ```bash title="Install your auth plugin (Claude REPL)" showLineNumbers=false
+               # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
+               /plugin install agent-auth@scalekit-auth-stack
+               ```
+             </TabItem>
+             <TabItem label="Codex">
+               ```bash title="Install the Scalekit Auth Stack" showLineNumbers=false
+               curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
+               ```
 
-            Now ask your agent to implement Scalekit auth in natural language.
-          </TabItem>
-          <TabItem label="GitHub Copilot CLI">
-            ```bash title="Step 1 — Add the marketplace" frame="terminal" showLineNumbers=false
-            copilot plugin marketplace add scalekit-inc/github-copilot-authstack
-            ```
+               Restart Codex, open **Plugin Directory**, select **Scalekit Auth Stack**, and enable your auth plugin.
+             </TabItem>
+             <TabItem label="GitHub Copilot CLI">
+               ```bash title="Add the marketplace" showLineNumbers=false
+               copilot plugin marketplace add scalekit-inc/github-copilot-authstack
+               ```
 
-            ```bash title="Step 2 — Install your auth plugin" frame="terminal" showLineNumbers=false
-            # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
-            copilot plugin install agent-auth@scalekit-auth-stack
-            ```
+               ```bash title="Install your auth plugin" showLineNumbers=false
+               # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
+               copilot plugin install agent-auth@scalekit-auth-stack
+               ```
+             </TabItem>
+             <TabItem label="Cursor">
+               The Scalekit Auth Stack is pending Cursor Marketplace review. Install it locally in Cursor:
 
-            Now ask your agent to implement Scalekit auth in natural language.
-          </TabItem>
-          <TabItem label="Cursor">
-            The Scalekit Auth Stack is pending Cursor Marketplace review. Install it locally in Cursor:
+               ```bash title="Install the Scalekit Auth Stack" showLineNumbers=false
+               curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
+               ```
 
-            ```bash title="Step 1 — Install the Scalekit Auth Stack" frame="terminal" showLineNumbers=false
-            curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
-            ```
+               Restart Cursor, open **Settings > Cursor Settings > Plugins**, and enable your auth plugin.
+             </TabItem>
+             <TabItem label="40+ agents">
+               Works with OpenCode, Windsurf, Cline, Gemini CLI, Codex, and 35+ more agents via the [Vercel Skills CLI](https://vercel.com/docs/agent-resources/skills).
 
-            Step 2 — Restart Cursor, open **Settings > Cursor Settings > Plugins**, and enable your auth plugin.
+               ```bash title="Browse available skills" showLineNumbers=false
+               npx skills add scalekit-inc/skills --list
+               ```
 
-            Now ask your agent to implement Scalekit auth in natural language.
-          </TabItem>
-          <TabItem label="40+ agents">
-            Works with OpenCode, Windsurf, Cline, Gemini CLI, Codex, and 35+ more agents via the [Vercel Skills CLI](https://vercel.com/docs/agent-resources/skills).
+               ```bash title="Install a specific skill" showLineNumbers=false
+               npx skills add scalekit-inc/skills --skill integrating-agent-auth
+               ```
+             </TabItem>
+           </Tabs>
 
-            ```bash title="Step 1 — Browse available skills" frame="terminal" showLineNumbers=false
-            npx skills add scalekit-inc/skills --list
-            ```
+        2. ## Starting prompt
 
-            ```bash title="Step 2 — Install a specific skill" frame="terminal" showLineNumbers=false
-            npx skills add scalekit-inc/skills --skill integrating-agent-auth
-            ```
+           Now ask your agent to implement Scalekit auth in natural language. Here are a few examples you can start with:
 
-            Now ask your agent to implement Scalekit auth in natural language.
-          </TabItem>
-        </Tabs>
+           - *"Read the Agent Auth Quickstart and help me implement user authentication for my agent."*
+           - *"Using the Agent Connectors guide, build a Slack integration so my agent can post messages on the user's behalf."*
+           - *"Follow the MCP Auth documentation to create a secure tool that retrieves user access tokens."*
 
-        <div class="agent-home-actions">
-          <LinkButton href="/agent-auth/quickstart/" icon="right-arrow" class="sk-primary">
-            Start the quickstart
-          </LinkButton>
-          <LinkButton
-            href="/guides/integrations/agent-connectors/"
-            variant="secondary"
-            icon="right-arrow"
-            class="sk-secondary"
-          >
-            Browse providers
-          </LinkButton>
-        </div>
+        </Steps>
       </div>
     </div>
   </div>
@@ -258,13 +249,9 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
   <div class="fold-container">
     <div class="provider-header">
       <div>
-        <h2>Top Providers</h2>
+        <h2>Powerful Agent Workflows</h2>
         <p>
-          Start with a few ready-made integrations, then use the full providers
-          catalog when your agent needs broader coverage.
-          <a href="/guides/integrations/agent-connectors/" class="inline-link">
-            See the full list of providers →
-          </a>
+          Spark your imagination by giving your agents deep access to the world's most popular platforms.
         </p>
       </div>
     </div>
@@ -282,12 +269,43 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
       <FoldCard title="Salesforce" iconKey="salesforce" href="/reference/agent-connectors/salesforce/" clickable={true}>
         Pull account and pipeline context into sales and support agent workflows.
       </FoldCard>
-      <FoldCard title="Jira" href="/reference/agent-connectors/jira/" clickable={true}>
+      <FoldCard title="Jira" iconKey="jira" href="/reference/agent-connectors/jira/" clickable={true}>
         Create, update, and triage issues without exposing long-lived service credentials.
       </FoldCard>
-      <FoldCard title="HubSpot" href="/reference/agent-connectors/hubspot/" clickable={true}>
+      <FoldCard title="HubSpot" iconKey="hubspot" href="/reference/agent-connectors/hubspot/" clickable={true}>
         Sync contacts, deals, and CRM context into user-facing or internal agents.
       </FoldCard>
+    </ResponsiveCardGrid>
+  </div>
+</div>
+
+<div class="fold-section fold-full-width">
+  <div class="fold-container">
+    <div class="provider-header">
+      <div>
+        <h2>And 40+ More Connections</h2>
+        <p>
+          Scalekit supports all the tools your users rely on.
+          <a href="/guides/integrations/agent-connectors/" class="inline-link">
+            See the full list of providers →
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <ResponsiveCardGrid className="provider-grid" columnsTablet={3} columnsDesktop={4} columnsLarge={6}>
+      <FoldCard title="Zendesk" iconKey="zendesk" href="/reference/agent-connectors/zendesk/" clickable={true} />
+      <FoldCard title="Notion" iconKey="notion" href="/reference/agent-connectors/notion/" clickable={true} />
+      <FoldCard title="Linear" iconKey="linear" href="/reference/agent-connectors/linear/" clickable={true} />
+      <FoldCard title="Figma" iconKey="figma" href="/reference/agent-connectors/figma/" clickable={true} />
+      <FoldCard title="Intercom" iconKey="intercom" href="/reference/agent-connectors/intercom/" clickable={true} />
+      <FoldCard title="GitLab" iconKey="gitlab" href="/reference/agent-connectors/gitlab/" clickable={true} />
+      <FoldCard title="Slack" iconKey="slack" href="/reference/agent-connectors/slack/" clickable={true} />
+      <FoldCard title="GitHub" iconKey="github" href="/reference/agent-connectors/github/" clickable={true} />
+      <FoldCard title="Drive" iconKey="google" href="/reference/agent-connectors/googledrive/" clickable={true} />
+      <FoldCard title="Salesforce" iconKey="salesforce" href="/reference/agent-connectors/salesforce/" clickable={true} />
+      <FoldCard title="Jira" iconKey="jira" href="/reference/agent-connectors/jira/" clickable={true} />
+      <FoldCard title="HubSpot" iconKey="hubspot" href="/reference/agent-connectors/hubspot/" clickable={true} />
     </ResponsiveCardGrid>
   </div>
 </div>

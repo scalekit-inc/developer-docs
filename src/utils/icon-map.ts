@@ -115,6 +115,13 @@ import IconHugeiconsSalesforce from '~icons/fa7-brands/salesforce'
 import IconClarityBlocksGroupLine from '~icons/clarity/blocks-group-line'
 import IconAntDesignUserSwitchOutlined from '~icons/ant-design/user-switch-outlined'
 import IconMingcuteUserSecurityLine from '~icons/mingcute/user-security-line'
+import IconSimpleIconsJira from '~icons/simple-icons/jira'
+import IconSimpleIconsHubspot from '~icons/simple-icons/hubspot'
+import IconSimpleIconsZendesk from '~icons/simple-icons/zendesk'
+import IconSimpleIconsNotion from '~icons/simple-icons/notion'
+import IconSimpleIconsLinear from '~icons/simple-icons/linear'
+import IconSimpleIconsFigma from '~icons/simple-icons/figma'
+import IconSimpleIconsIntercom from '~icons/simple-icons/intercom'
 
 // Static icon mapping organized by categories
 export const iconMap = {
@@ -248,6 +255,13 @@ export const iconMap = {
   github: IconHugeiconsGithub,
   salesforce: IconHugeiconsSalesforce,
   social: IconClarityBlocksGroupLine,
+  jira: IconSimpleIconsJira,
+  hubspot: IconSimpleIconsHubspot,
+  zendesk: IconSimpleIconsZendesk,
+  notion: IconSimpleIconsNotion,
+  linear: IconSimpleIconsLinear,
+  figma: IconSimpleIconsFigma,
+  intercom: IconSimpleIconsIntercom,
 }
 
 export type IconKey = keyof typeof iconMap

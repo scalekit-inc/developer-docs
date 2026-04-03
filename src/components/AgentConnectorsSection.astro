@@ -10,14 +10,89 @@ const sorted = [...connectors].sort((a, b) =>
 )
 ---
 
+<div class="agent-connectors-search-container mt-4 mb-6">
+  <input
+    type="search"
+    id="agent-connector-search"
+    placeholder="Search for an agent connector..."
+    class="search-input"
+  />
+</div>
+
 <CardGrid>
   {
     sorted.map((entry) => (
-      <LinkCard
-        title={entry.data.title}
-        href={`/${entry.id}/`}
-        description={entry.data.description}
-      />
+      <div
+        class="connector-card-wrapper"
+        data-title={(entry.data.title || '').toLowerCase()}
+        data-description={(entry.data.description || '').toLowerCase()}
+      >
+        <LinkCard
+          title={entry.data.title}
+          href={`/${entry.id}/`}
+          description={entry.data.description}
+        />
+      </div>
     ))
   }
 </CardGrid>
+
+<style>
+  .search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-base);
+    transition: border-color 0.2s ease;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: var(--sl-color-text-accent);
+    background: var(--sl-color-black);
+  }
+
+  .connector-card-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .connector-card-wrapper > :global(*) {
+    flex: 1;
+    height: 100%;
+  }
+</style>
+
+<script>
+  function setupSearch() {
+    const searchInput = document.getElementById('agent-connector-search') as HTMLInputElement | null
+    const cards = document.querySelectorAll('.connector-card-wrapper')
+
+    if (!searchInput) return
+
+    searchInput.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement
+      const searchTerm = target.value.toLowerCase().trim()
+
+      cards.forEach((card) => {
+        const el = card as HTMLElement
+        const title = el.getAttribute('data-title') || ''
+        const description = el.getAttribute('data-description') || ''
+
+        if (title.includes(searchTerm) || description.includes(searchTerm)) {
+          el.style.display = 'flex'
+        } else {
+          el.style.display = 'none'
+        }
+      })
+    })
+  }
+
+  // Setup on load
+  setupSearch()
+  // Setup on view transitions if used
+  document.addEventListener('astro:page-load', setupSearch)
+</script>
