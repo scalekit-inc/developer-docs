@@ -122,6 +122,9 @@ import IconSimpleIconsNotion from '~icons/simple-icons/notion'
 import IconSimpleIconsLinear from '~icons/simple-icons/linear'
 import IconSimpleIconsFigma from '~icons/simple-icons/figma'
 import IconSimpleIconsIntercom from '~icons/simple-icons/intercom'
+import IconSimpleIconsDiscord from '~icons/simple-icons/discord'
+import IconSimpleIconsAsana from '~icons/simple-icons/asana'
+import IconSimpleIconsTrello from '~icons/simple-icons/trello'
 
 // AI Agent icons
 import IconSimpleIconsClaude from '~icons/simple-icons/claude'
@@ -268,6 +271,9 @@ export const iconMap = {
   linear: IconSimpleIconsLinear,
   figma: IconSimpleIconsFigma,
   intercom: IconSimpleIconsIntercom,
+  discord: IconSimpleIconsDiscord,
+  asana: IconSimpleIconsAsana,
+  trello: IconSimpleIconsTrello,
 
   // AI agents
   claude: IconSimpleIconsClaude,
