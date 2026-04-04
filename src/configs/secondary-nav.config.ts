@@ -15,7 +15,6 @@ import {
   IconRiAiGenerate2,
 } from '../utils/icon-map'
 import IconLucideRocket from '~icons/lucide/rocket'
-import IconLucideWrench from '~icons/lucide/wrench'
 import IconLucideBookOpenText from '~icons/lucide/book-open-text'
 import IconLucideCheck from '~icons/lucide/check'
 
@@ -34,94 +33,106 @@ export interface NavItem {
   sectionHref?: string
   sectionCtaLabel?: string
   columnGroup?: 'left' | 'right'
+  /** Temporary shared item — will be split into product-specific entries once the SDK docs are ready */
+  shared?: boolean
 }
 
-export const secondaryNavItems: NavItem[] = [
+// SDKs & APIs is shared across both products until the SDK docs are split per product.
+// TODO: replace this with product-specific SDK entries when Agent Kit and SaaS Kit SDK docs are ready
+const sharedSdksItem: NavItem = {
+  id: 'api-reference',
+  href: '#sdks-apis',
+  label: 'SDKs & APIs',
+  iconComponent: IconMdiCubeOutline,
+  shared: true,
+  children: [
+    {
+      id: 'sdks',
+      href: '/sdks/',
+      label: 'SDKs',
+      iconComponent: IconSdk,
+      description: 'Ready-to-use libraries to implement auth in your app',
+    },
+    {
+      id: 'rest-apis',
+      href: '/apis/#description/overview',
+      label: 'REST APIs',
+      iconComponent: IconApi,
+      description: 'Programmatic control to manage users, orgs, sessions etc.',
+    },
+  ],
+}
+
+const agentKitItems: NavItem[] = [
   {
-    id: 'authenticate',
-    href: '#authenticate',
-    label: 'Choose product',
+    id: 'agentkit-quickstart',
+    href: '/agent-auth/quickstart/',
+    label: 'Quickstart',
+    iconComponent: IconLucideRocket,
+  },
+  {
+    // href points to the first framework page; parent is highlighted via ID match in isCurrentPage
+    id: 'agentkit-ai-frameworks',
+    href: '/agent-auth/openclaw/',
+    label: 'AI Frameworks',
+    iconComponent: IconRiAiGenerate2,
     children: [
       {
-        id: 'agentkit-quickstart',
-        href: '/agent-auth/quickstart/',
-        label: 'AgentKit',
-        dropdownLabel: 'Quickstart',
-        iconComponent: IconLucideRocket,
-        description: 'Build your first agent action and authorize a user in minutes',
-        sectionLabel: 'AGENTKIT',
-        sectionDescription:
-          'Docs for building agents that connect to SaaS tools on behalf of users',
-        columnGroup: 'left',
-      },
-      {
-        id: 'agentkit-agent-tools',
-        href: '/agent-auth/tools/agent-tools-quickstart/',
-        label: 'AgentKit',
-        dropdownLabel: 'Agent Tools',
-        iconComponent: IconLucideWrench,
-        description: 'Call optimized tools and simplify how agents work across connectors',
-        columnGroup: 'left',
-      },
-      {
-        id: 'agentkit-ai-frameworks',
+        id: 'agentkit-openclaw',
         href: '/agent-auth/openclaw/',
-        label: 'AgentKit',
-        dropdownLabel: 'AI Frameworks',
+        label: 'OpenClaw',
         iconComponent: IconRiAiGenerate2,
-        description: 'Plug Agent Auth into framework-specific agent runtimes and scaffolds',
-        columnGroup: 'left',
+        description: 'OpenAI-compatible layer with Scalekit auth built in',
       },
       {
-        id: 'agentkit-providers',
-        href: '/guides/integrations/agent-connectors/',
-        label: 'AgentKit',
-        dropdownLabel: 'Providers',
+        id: 'agentkit-langchain',
+        href: '/agent-auth/frameworks/langchain/',
+        label: 'LangChain',
+        iconComponent: IconLucideCode,
+        description: 'Add auth to LangChain agents',
+      },
+      {
+        id: 'agentkit-google-adk',
+        href: '/agent-auth/frameworks/google-adk/',
+        label: 'Google ADK',
         iconComponent: IconLucideBot,
-        description: 'Browse supported SaaS apps, APIs, and MCP-backed connectors',
-        columnGroup: 'left',
-      },
-      {
-        id: 'saaskit-user-management',
-        href: '/authenticate/fsa/quickstart/',
-        label: 'SaaSKit',
-        dropdownLabel: 'User management',
-        iconComponent: IconLucideUsers,
-        description: 'Run your SaaS auth stack with users, orgs, sessions, roles, and APIs',
-        sectionLabel: 'SAASKIT',
-        sectionDescription: 'Docs for securing B2B SaaS apps with modular and full-stack auth',
-        sectionHref: '/auth-for-saas/',
-        sectionCtaLabel: 'See overview →',
-        columnGroup: 'right',
-      },
-      {
-        id: 'saaskit-sso',
-        href: '/authenticate/sso/add-modular-sso/',
-        label: 'SaaSKit',
-        dropdownLabel: 'SSO',
-        iconComponent: IconMingcuteUserSecurityLine,
-        description: 'Add enterprise SAML and OIDC sign-in without rewriting your auth system',
-        columnGroup: 'right',
-      },
-      {
-        id: 'saaskit-scim',
-        href: '/directory/scim/quickstart/',
-        label: 'SaaSKit',
-        dropdownLabel: 'SCIM',
-        iconComponent: IconAntDesignUserSwitchOutlined,
-        description: 'Provision users, groups, and roles automatically from enterprise directories',
-        columnGroup: 'right',
-      },
-      {
-        id: 'saaskit-mcp-auth',
-        href: '/authenticate/mcp/quickstart/',
-        label: 'SaaSKit',
-        dropdownLabel: 'MCP Auth',
-        iconComponent: IconMcp,
-        description: 'Secure MCP servers with OAuth, dynamic registration, and short-lived tokens',
-        columnGroup: 'right',
+        description: 'Add auth to Google ADK agents',
       },
     ],
+  },
+  {
+    id: 'agentkit-providers',
+    href: '/guides/integrations/agent-connectors/',
+    label: 'Providers',
+    iconComponent: IconLucideBot,
+  },
+  sharedSdksItem,
+]
+
+const saasKitItems: NavItem[] = [
+  {
+    id: 'saaskit-user-management',
+    href: '/authenticate/fsa/quickstart/',
+    label: 'User Management',
+    iconComponent: IconLucideUsers,
+  },
+  {
+    id: 'saaskit-sso',
+    href: '/authenticate/sso/add-modular-sso/',
+    label: 'SSO',
+    iconComponent: IconMingcuteUserSecurityLine,
+  },
+  {
+    id: 'saaskit-scim',
+    href: '/directory/scim/quickstart/',
+    label: 'SCIM',
+    iconComponent: IconAntDesignUserSwitchOutlined,
+  },
+  {
+    id: 'saaskit-mcp-auth',
+    href: '/authenticate/mcp/quickstart/',
+    label: 'MCP Auth',
+    iconComponent: IconMcp,
   },
   {
     id: 'developer-resources',
@@ -195,28 +206,12 @@ export const secondaryNavItems: NavItem[] = [
       },
     ],
   },
-  {
-    id: 'api-reference',
-    href: '#sdks-apis',
-    label: 'SDKs & APIs',
-    iconComponent: IconMdiCubeOutline,
-    children: [
-      {
-        id: 'sdks',
-        href: '/sdks/',
-        label: 'SDKs',
-        iconComponent: IconSdk,
-        description: 'Ready-to-use libraries to implement auth in your app',
-      },
-      {
-        id: 'rest-apis',
-        href: '/apis/#description/overview',
-        label: 'REST APIs',
-        iconComponent: IconApi,
-        description: 'Programmatic control to manage users, orgs, sessions etc.',
-      },
-    ],
-  },
+  sharedSdksItem,
 ]
+
+export const secondaryNavConfig: Record<'agentkit' | 'saaskit', NavItem[]> = {
+  agentkit: agentKitItems,
+  saaskit: saasKitItems,
+}
 
 export { IconLucideCheck }

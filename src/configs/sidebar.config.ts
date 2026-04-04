@@ -651,7 +651,8 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   connect: {
     default: 'agentkit-quickstart',
     pathOverrides: {
-      '/agent-auth/tools/agent-tools-quickstart': 'agentkit-agent-tools',
+      // Agent Tools no longer has its own secondary nav item; falls back to Quickstart
+      '/agent-auth/tools/agent-tools-quickstart': 'agentkit-quickstart',
       '/agent-auth/openclaw': 'agentkit-ai-frameworks',
       '/agent-auth/frameworks': 'agentkit-ai-frameworks',
       '/guides/integrations/agent-connectors': 'agentkit-providers',

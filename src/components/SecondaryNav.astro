@@ -1,37 +1,35 @@
 ---
-import { secondaryNavItems, IconLucideCheck } from '../configs/secondary-nav.config'
+import { secondaryNavConfig, IconLucideCheck } from '../configs/secondary-nav.config'
 import {
-  resolveNavMapping,
+  getActiveProduct,
   getActiveSecondaryNavId,
   isCurrentPage,
   getDisplayLabel,
   getDisplayIcon,
   type SecondaryNavProps,
 } from '../utils/secondary-nav-utils'
+
 import { IconLucideChevronDown as IconChevronDown } from '../utils/icon-map'
 
 const { entry } = Astro.props satisfies SecondaryNavProps
 
-// Use imported configuration and utilities
+const activeProduct = getActiveProduct(Astro.url.pathname, entry?.data?.topic)
 const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
-const isAgentKitContext = Astro.url.pathname === '/' || activeId?.startsWith('agentkit-')
-const visibleNavItems = secondaryNavItems.filter(
-  (item) => !(isAgentKitContext && item.id === 'developer-resources'),
-)
+const navItems = secondaryNavConfig[activeProduct]
 ---
 
 <nav class="secondary-nav sl-hidden md:sl-flex" aria-label="Main topics navigation">
   <div class="nav-section nav-left">
     <div class="nav-items">
       {
-        visibleNavItems.map((item) => (
+        navItems.map((item) => (
           <div
             class={`nav-item-wrapper ${item.children && item.children.length > 0 ? 'has-dropdown' : ''}`}
             data-keep-parent-label={item.keepParentLabel ? 'true' : undefined}
           >
             <a
               href={item.href}
-              class={`nav-item ${isCurrentPage(Astro.url.pathname, item, entry) ? 'current' : ''}`}
+              class={`nav-item ${isCurrentPage(Astro.url.pathname, item, entry) ? 'current' : ''} ${item.shared ? 'shared' : ''}`}
               aria-current="page"
             >
               <div class="nav-item-content">
@@ -75,7 +73,7 @@ const visibleNavItems = secondaryNavItems.filter(
   style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 999999;"
 >
   {
-    visibleNavItems
+    navItems
       .filter((item) => item.children && item.children.length > 0)
       .map((item) => {
         // Check if this dropdown has column groups
@@ -249,6 +247,7 @@ const visibleNavItems = secondaryNavItems.filter(
     isolation: isolate;
     background-color: var(--sl-color-bg);
     z-index: calc(var(--sl-z-index-navbar) - 1);
+    border-bottom: 1px solid var(--sl-color-hairline-shade);
   }
 
   .nav-section {
@@ -318,6 +317,19 @@ const visibleNavItems = secondaryNavItems.filter(
     border-radius: 0.375rem;
     border-bottom: none;
     margin: 0.25rem 0;
+  }
+
+  /* Shared items are temporary — will be split into product-specific entries */
+  .nav-item.shared {
+    color: var(--sl-color-gray-3);
+    border: 1px dashed var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+    margin: 0.25rem 0;
+    padding: 0.3rem 0.9rem;
+  }
+
+  .nav-item.shared:hover {
+    color: var(--sl-color-gray-1);
   }
 
   .nav-item-content {

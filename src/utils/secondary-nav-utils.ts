@@ -4,6 +4,21 @@ import { isHashOnly, normalizePath } from './path-matching'
 import type { NavItem } from '../configs/secondary-nav.config'
 import { IconLucideLayoutGrid } from './icon-map'
 
+/**
+ * Determines which product is active based on the current page context.
+ * Frontmatter topic takes precedence over path-based detection.
+ */
+export function getActiveProduct(pathname: string, topic?: string): 'agentkit' | 'saaskit' {
+  if (topic === 'connect') return 'agentkit'
+  if (
+    pathname.startsWith('/agent-auth/') ||
+    pathname.startsWith('/guides/integrations/agent-connectors') ||
+    pathname.startsWith('/reference/agent-connectors')
+  )
+    return 'agentkit'
+  return 'saaskit'
+}
+
 // Props interface - entry is passed from Header.astro
 export interface SecondaryNavProps {
   entry?: {
