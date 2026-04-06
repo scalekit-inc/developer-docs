@@ -1,388 +1,177 @@
 ---
-title: Add auth to your AI agents
+title: Scalekit Docs
 template: splash
-description: Connect your AI agents with SaaS apps and APIs on behalf of users
+description: Auth, provider connections, and tool execution for AI agents and SaaS apps
 tableOfContents: false
-topic: connect
-tags: [agent-auth, quickstart, ai-agents, oauth, token-vault, tool-integration]
-hero:
-  tagline: Auth, provider connections, and tool execution for agents acting on behalf of users
-head:
-  - tag: style
-    content: |
-      right-sidebar-panel {
-        display: none !important;
-      }
-      .hero {
-        display: none !important;
-      }
-      .platform-features-grid {
-        margin-top: 1rem !important;
-      }
-      .platform-features-grid .responsive-card-grid {
-        margin-top: 1rem !important;
-      }
-      .platform-features-grid .responsive-card-grid article.fold-card {
-        margin-top: 1rem !important;
-      }
-      .meta.sl-flex {
-        display: none !important;
-      }
-      footer.sl-flex {
-        display: none !important;
-      }
-      .fold-section {
-        padding: 3rem 0;
-        margin: 0;
-      }
-      .fold-section.fold--background-muted {
-        background-color: #F8F9FF !important;
-        background: #F8F9FF !important;
-      }
-      main .fold-section.fold--background-muted,
-      .sl-markdown-content .fold-section.fold--background-muted,
-      .content-panel .fold-section.fold--background-muted,
-      body .fold-section.fold--background-muted {
-        background-color: #F8F9FF !important;
-        background: #F8F9FF !important;
-      }
-      .content-panel {
-        padding-top: 0;
-      }
-      .fold-full-width {
-        width: 100vw;
-        margin-left: 50%;
-        transform: translateX(-50%);
-        position: relative;
-        z-index: 1;
-      }
-      main,
-      body {
-        overflow-x: hidden;
-      }
-      .fold-container {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 0 4rem;
-      }
-      .agent-home-copy {
-        min-width: 0;
-      }
-      .agent-home-tabs {
-        margin: 2rem 0;
-        min-width: 0;
-        max-width: 100%;
-      }
-      .agent-home-tabs :global(.expressive-code),
-      .agent-home-tabs :global(pre),
-      .agent-home-tabs :global(.frame) {
-        max-width: 100%;
-        overflow-x: auto;
-      }
-      .agent-home-copy h1 {
-        font-size: 2.2rem;
-        margin: 0;
-      }
-      .agent-home-copy p {
-        font-size: 1.05rem;
-        color: var(--sl-color-text-muted);
-        line-height: 1.65;
-        max-width: 50rem;
-      }
-      .agent-home-actions {
-        display: flex;
-        flex-wrap: nowrap;
-        gap: 0.75rem;
-        margin-top: 1.5rem;
-        align-items: center;
-      }
-      .agent-home-actions :global(a) {
-        white-space: nowrap;
-      }
-      .provider-header {
-        display: flex;
-        align-items: end;
-        justify-content: space-between;
-        gap: 1rem;
-        margin-bottom: 0.5rem;
-      }
-      .provider-grid {
-        margin-top: 0.5rem !important;
-      }
-      .provider-logo-grid {
-        margin-top: 1rem !important;
-      }
-      .provider-logo-grid :global(.fold-card) {
-        padding: 1rem;
-      }
-      .provider-logo-grid :global(.card-header) {
-        margin-bottom: 0;
-        gap: 0.5rem;
-      }
-      .provider-logo-grid :global(.card-content) {
-        display: none;
-      }
-      .provider-logo-grid :global(.card-title) {
-        font-size: 0.95rem;
-      }
-      .provider-header h2 {
-        margin: 0;
-        font-size: 1.4rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05rem;
-      }
-      .provider-header p {
-        margin: 0.35rem 0 0;
-        color: var(--sl-color-text-muted);
-        max-width: 42rem;
-      }
-      .inline-link {
-        color: var(--sl-color-accent-high);
-        font-weight: 600;
-        text-decoration: none;
-      }
-      .inline-link:hover {
-        text-decoration: underline;
-      }
-      .sl-banner {
-        text-align: center;
-      }
-      .sl-banner a {
-        white-space: nowrap;
-      }
-      @media (max-width: 1024px) {
-        .agent-home-copy {
-          width: 100%;
-        }
-        .agent-home-actions {
-          flex-wrap: wrap;
-        }
-      }
-      @media (max-width: 768px) {
-        .fold-section {
-          padding: 2rem 0;
-        }
-        .fold-container {
-          padding: 0 1.25rem;
-        }
-        .provider-header {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-        .agent-home-copy h1 {
-          font-size: 1.8rem;
-        }
-        .provider-header h2 {
-          font-size: 1.2rem;
-        }
-        .agent-home-tabs {
-          margin-top: 1.5rem;
-        }
-      }
 prev: false
 next: false
+head:
+  - tag: script
+    content: |
+      (function () {
+        try {
+          var path = localStorage.getItem('sk_docs_path');
+          if (path === 'agent-actions') { window.location.replace('/home/agent-actions/'); return; }
+          if (path === 'auth-for-saas') { window.location.replace('/home/auth-for-saas/'); return; }
+        } catch (e) {}
+      })();
+  - tag: style
+    content: |
+      /* Hide Starlight chrome — gateway is a routing surface, not a docs page */
+      right-sidebar-panel { display: none !important; }
+      .hero { display: none !important; }
+      .meta.sl-flex { display: none !important; }
+      footer.sl-flex { display: none !important; }
+      .secondary-nav { display: none !important; }
+      .content-panel { padding: 0 !important; }
+      main { padding: 0 !important; max-width: 100% !important; }
+      .sl-container { max-width: 100% !important; padding: 0 !important; }
+
+      /* Gateway layout */
+      .gateway {
+        display: flex;
+        flex-direction: row;
+        height: calc(100vh - var(--sl-nav-height));
+        min-height: 400px;
+        overflow: hidden;
+      }
+
+      .panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 3rem 2.5rem;
+        text-align: center;
+        text-decoration: none;
+        color: inherit;
+        transition: flex 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, background 0.2s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .panel-agents {
+        background: linear-gradient(160deg, #0d1529 0%, #111827 60%);
+        border-right: 1px solid #1f2937;
+      }
+
+      .panel-saas {
+        background: linear-gradient(160deg, #0a1a10 0%, #111827 60%);
+      }
+
+      /* Hover expansion — desktop with pointer device only */
+      @media (hover: hover) and (min-width: 1024px) {
+        .gateway:hover .panel:not(:hover) {
+          flex: 0.6;
+          opacity: 0.6;
+        }
+        .gateway:hover .panel:hover {
+          flex: 1.4;
+        }
+        .panel-agents:hover {
+          background: linear-gradient(160deg, #131d3a 0%, #161d2e 100%);
+        }
+        .panel-saas:hover {
+          background: linear-gradient(160deg, #0d2015 0%, #141d15 100%);
+        }
+      }
+
+      .panel-divider {
+        width: 1px;
+        background: #1f2937;
+        flex-shrink: 0;
+        align-self: stretch;
+      }
+
+      .panel-badge {
+        font-size: 0.6875rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: #4b5563;
+        margin-bottom: 0.25rem;
+      }
+
+      .panel-icon {
+        font-size: 2.25rem;
+        line-height: 1;
+      }
+
+      .panel-label {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #f3f4f6;
+        line-height: 1.35;
+        max-width: 17rem;
+        margin: 0;
+      }
+
+      .panel-desc {
+        font-size: 0.8125rem;
+        color: #6b7280;
+        line-height: 1.6;
+        max-width: 16rem;
+        margin: 0;
+      }
+
+      .panel-cta {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+      }
+
+      .panel-agents .panel-cta { color: #818cf8; }
+      .panel-saas  .panel-cta { color: #34d399; }
+
+      /* Tablet: keep side-by-side, no hover expansion, shorter labels */
+      @media (max-width: 1023px) and (min-width: 768px) {
+        .panel-label { font-size: 1rem; max-width: 13rem; }
+        .panel-desc { font-size: 0.75rem; }
+      }
+
+      /* Mobile: stack vertically */
+      @media (max-width: 767px) {
+        .gateway {
+          flex-direction: column;
+        }
+        .panel-divider {
+          width: 100%;
+          height: 1px;
+          align-self: auto;
+        }
+        .panel {
+          flex: 1;
+          padding: 2rem 1.5rem;
+        }
+      }
 ---
 
-import { TabItem, Steps } from '@astrojs/starlight/components'
-import Tabs from '@components/ui/Tabs.astro'
-import FoldCard from '@components/ui/FoldCard.astro'
-import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
+<div class="gateway">
+  <a
+    href="/home/agent-actions/"
+    class="panel panel-agents"
+    onclick="try{localStorage.setItem('sk_docs_path','agent-actions')}catch(e){}"
+  >
+    <span class="panel-badge">For AI developers</span>
+    <span class="panel-icon">🤖</span>
+    <p class="panel-label">I'm building agents that act on behalf of users</p>
+    <p class="panel-desc">Connect to Slack, HubSpot, databases, and 40+ tools via OAuth, MCP, and token vault</p>
+    <span class="panel-cta">Start with Agent Auth →</span>
+  </a>
 
-<div class="fold-section fold-full-width">
-  <div class="fold-container">
-    <div class="agent-home-layout">
-      <div class="agent-home-copy">
-        <h1>Connect your agents with SaaS apps, APIs, and databases</h1>
-        <p>Secure auth and actions on behalf of users, not service accounts.</p>
-        <p>Start with the Agent Auth quickstart, then expand into providers, tool execution, and framework-specific guides as your agent moves from prototype to production.</p>
-      </div>
-    </div>
+  <div class="panel-divider" role="separator"></div>
 
-    <div class="agent-home-tabs">
-        <Steps>
-        1. ## Set up developer environment
-
-           Choose your AI agent to install the Scalekit Auth Stack plugin.
-
-           <Tabs syncKey="coding-agent">
-             <TabItem label="Any agent" icon="sparkle">
-               Works with Claude Code, Codex, Copilot CLI, Cursor, Windsurf, and 35+ more agents.
-
-               ```bash showLineNumbers=false
-               npx skills add scalekit-inc/skills --skill setup-scalekit
-               ```
-
-               Your agent guides you through the rest.
-
-               ```text title="Starting prompt" showLineNumbers=false
-               Help me set up Scalekit in this project. I use [mention your agent — e.g., Claude Code, Cursor, Codex].
-               ```
-             </TabItem>
-             <TabItem label="Claude Code" icon="claude">
-               ```text title="Prompt for Claude Code"
-               I want to install the Scalekit Auth Stack. Please suggest the commands to add the marketplace 'scalekit-inc/claude-code-authstack' and install the 'agent-auth' plugin.
-               ```
-
-               Or, install using the following commands:
-
-               ```bash showLineNumbers=false
-               # Tip: run `npx skills add scalekit-inc/skills --skill setup-scalekit` first for best results
-               # Add the marketplace (Claude REPL)
-               /plugin marketplace add scalekit-inc/claude-code-authstack
-
-               # Install your auth plugin (Claude REPL)
-               # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
-               /plugin install agent-auth@scalekit-auth-stack
-               ```
-             </TabItem>
-             <TabItem label="Codex" icon="codex">
-               ```text title="Prompt for Codex"
-               I want to install the Scalekit Auth Stack. Please suggest the shell command to download and run the installation script from 'https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh'.
-               ```
-
-               Or, install using the following commands:
-
-               ```bash showLineNumbers=false
-               # Tip: run `npx skills add scalekit-inc/skills --skill setup-scalekit` first for best results
-               # Install the Scalekit Auth Stack
-               curl -fsSL https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh | bash
-               ```
-
-               Restart Codex, open **Plugin Directory**, select **Scalekit Auth Stack**, and enable your auth plugin.
-             </TabItem>
-             <TabItem label="GitHub Copilot CLI" icon="githubcopilot">
-               ```text title="Prompt for GitHub Copilot"
-               I want to install the Scalekit Auth Stack. Please suggest the commands to add the marketplace 'scalekit-inc/github-copilot-authstack' and install the 'agent-auth' plugin.
-               ```
-
-               Or, install using the following commands:
-
-               ```bash showLineNumbers=false
-               # Tip: run `npx skills add scalekit-inc/skills --skill setup-scalekit` first for best results
-               # Add the marketplace
-               copilot plugin marketplace add scalekit-inc/github-copilot-authstack
-
-               # Install your auth plugin
-               # options: full-stack-auth, agent-auth, mcp-auth, modular-sso, modular-scim
-               copilot plugin install agent-auth@scalekit-auth-stack
-               ```
-             </TabItem>
-             <TabItem label="Cursor" icon="cursor">
-               The Scalekit Auth Stack is pending Cursor Marketplace review. Install it locally in Cursor:
-
-               ```text title="Prompt for Cursor"
-               I want to install the Scalekit Auth Stack. Please suggest the shell command to download and run the installation script from 'https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh'.
-               ```
-
-               Or, install using the following commands:
-
-               ```bash showLineNumbers=false
-               # Tip: run `npx skills add scalekit-inc/skills --skill setup-scalekit` first for best results
-               # Install the Scalekit Auth Stack
-               curl -fsSL https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh | bash
-               ```
-
-               Restart Cursor, open **Settings > Cursor Settings > Plugins**, and enable your auth plugin.
-             </TabItem>
-           </Tabs>
-
-        2. ## Starting prompt
-
-           Now ask your agent to implement Scalekit auth in natural language. Start with one of these prompts and adapt it to your app:
-
-           <Tabs syncKey="starter-prompt">
-             <TabItem label="HubSpot + Gmail">
-               ```text title="Expand my agent with HubSpot and Gmail" showLineNumbers=false
-               Expand my current agent code so it can connect to HubSpot and Gmail with Scalekit Agent Auth.
-
-               Start by reading the Agent Auth quickstart, the HubSpot connector guide, and the Gmail examples in the docs. Then guide me step by step to:
-               1. Configure the required Scalekit connections.
-               2. Create or reuse the connected account for my user.
-               3. Trigger the authorization flow if the user is not connected.
-               4. Fetch the latest 5 emails from Gmail.
-               5. Keep the implementation ready for HubSpot actions next.
-
-               Use production-safe patterns, explain security implications, and update my code instead of giving me a high-level summary.
-               ```
-             </TabItem>
-             <TabItem label="Access + refresh tokens">
-               ```text title="Retrieve tokens for direct API calls" showLineNumbers=false
-               Guide me step by step to implement Scalekit so I can securely retrieve a user's access token and refresh token when I need to call a provider API directly.
-
-               Read the connected accounts and token management docs first. Then:
-               1. Add the required Scalekit setup to my app.
-               2. Create or load the connected account for my user.
-               3. Trigger authorization when the account is not active.
-               4. Show me how to read `accessToken` and `refreshToken` from the connected account details.
-               5. Explain when I should call the provider directly versus using Scalekit's proxy or built-in tools.
-
-               Use secure defaults, never expose tokens in logs, and make the final code ready for real API calls.
-               ```
-             </TabItem>
-             <TabItem label="LangChain + Calendar">
-               ```text title="Use LangChain with Google Calendar" showLineNumbers=false
-               Use LangChain as the primary framework and help me build an agent with Scalekit that connects to Google Calendar.
-
-               Start from the LangChain framework guide and the Google Calendar examples. Then work step by step to:
-               1. Configure the `googlecalendar` connection in Scalekit.
-               2. Create or reuse the connected account for my user.
-               3. Send the user through authorization if needed.
-               4. Retrieve a valid access token from Scalekit or use the built-in tool if that is the better pattern.
-               5. Call Google Calendar and return upcoming events.
-
-               Write the implementation code, explain any required scopes, and keep the flow ready for follow-up actions such as creating calendar events.
-               ```
-             </TabItem>
-           </Tabs>
-
-        </Steps>
-      </div>
-  </div>
-</div>
-
-<div class="fold-section fold--background-muted fold-full-width">
-  <div class="fold-container">
-    <div class="provider-header">
-      <div>
-        <h2>Popular connectors</h2>
-        <p>
-          Connect your agents to the tools users already use. Start with common workflows, then
-          expand into the full catalog as your product grows.
-          <a href="/guides/integrations/agent-connectors/" class="inline-link">
-            See all 40+ connectors →
-          </a>
-        </p>
-      </div>
-    </div>
-
-    <ResponsiveCardGrid className="provider-grid" columnsDesktop={3} columnsLarge={3}>
-      <FoldCard title="Slack" iconKey="slack" href="/reference/agent-connectors/slack/" clickable={true}>
-        Connect channels, messages, and workspace workflows to user-authorized agent actions.
-      </FoldCard>
-      <FoldCard title="GitHub" iconKey="github" href="/reference/agent-connectors/github/" clickable={true}>
-        Let agents read repos, issues, and pull requests with delegated user access.
-      </FoldCard>
-      <FoldCard title="Google Drive" iconKey="google" href="/reference/agent-connectors/googledrive/" clickable={true}>
-        Search, read, and organize files with user-approved Google Workspace access.
-      </FoldCard>
-    </ResponsiveCardGrid>
-
-    <ResponsiveCardGrid
-      className="provider-logo-grid"
-      columnsTablet={3}
-      columnsDesktop={4}
-      columnsLarge={6}
-      gap="0.75rem"
-    >
-      <FoldCard title="Salesforce" iconKey="salesforce" href="/reference/agent-connectors/salesforce/" clickable={true} />
-      <FoldCard title="Jira" iconKey="jira" href="/reference/agent-connectors/jira/" clickable={true} />
-      <FoldCard title="HubSpot" iconKey="hubspot" href="/reference/agent-connectors/hubspot/" clickable={true} />
-      <FoldCard title="Zendesk" iconKey="zendesk" href="/reference/agent-connectors/zendesk/" clickable={true} />
-      <FoldCard title="Notion" iconKey="notion" href="/reference/agent-connectors/notion/" clickable={true} />
-      <FoldCard title="Linear" iconKey="linear" href="/reference/agent-connectors/linear/" clickable={true} />
-      <FoldCard title="Figma" iconKey="figma" href="/reference/agent-connectors/figma/" clickable={true} />
-      <FoldCard title="Intercom" iconKey="intercom" href="/reference/agent-connectors/intercom/" clickable={true} />
-      <FoldCard title="GitLab" iconKey="gitlab" href="/reference/agent-connectors/gitlab/" clickable={true} />
-    </ResponsiveCardGrid>
-  </div>
+  <a
+    href="/home/auth-for-saas/"
+    class="panel panel-saas"
+    onclick="try{localStorage.setItem('sk_docs_path','auth-for-saas')}catch(e){}"
+  >
+    <span class="panel-badge">For SaaS developers</span>
+    <span class="panel-icon">🏗️</span>
+    <p class="panel-label">I'm building a SaaS product that needs auth</p>
+    <p class="panel-desc">SSO, SCIM directory sync, and full user management for B2B apps</p>
+    <span class="panel-cta">Start with SaaS Auth →</span>
+  </a>
 </div>
