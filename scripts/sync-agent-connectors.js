@@ -465,6 +465,26 @@ function getUsageComponent(stemMap, providerSlug) {
   )
 }
 
+function warnMissingTemplates(providers, toolsByProvider) {
+  for (const provider of providers) {
+    const slug = toSafeIdentifier(provider.identifier || '')
+    const providerTools = toolsByProvider.get(provider.identifier || '') || []
+    if (providerTools.length === 0) continue // skip stubs with no tools
+    const hasSetup = getSetupComponent(SETUP_STEM_MAP, slug)
+    const hasUsage = getUsageComponent(USAGE_STEM_MAP, slug)
+    if (!hasSetup) {
+      console.warn(
+        `  ⚠ No setup template found for "${provider.identifier}" (slug: ${slug}) — setup section will be omitted`,
+      )
+    }
+    if (!hasUsage) {
+      console.warn(
+        `  ⚠ No usage template found for "${provider.identifier}" (slug: ${slug}) — usage section will be omitted`,
+      )
+    }
+  }
+}
+
 const USAGE_STEM_MAP = buildUsageStemMap()
 
 function syncTemplateIndex(setupMap, usageMap) {
@@ -678,6 +698,9 @@ async function main() {
   console.log(`✓ Fetched ${tools.length} tools`)
 
   const toolsByProvider = groupToolsByProvider(tools)
+
+  // Warn about providers with tools but no matching setup/usage template
+  warnMissingTemplates(providers, toolsByProvider)
 
   // Build the set of file names this run will produce
   const expectedFiles = new Set(providers.map((p) => toSafeIdentifier(p.identifier || '') + '.mdx'))
