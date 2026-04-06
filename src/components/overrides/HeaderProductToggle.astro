@@ -6,108 +6,219 @@ const { entry } = Astro.props satisfies SecondaryNavProps
 const activeId = getActiveSecondaryNavId(Astro.url.pathname, entry)
 const isAgentKitActive = activeId?.startsWith('agentkit-') ?? false
 const isSaaSKitActive = activeId?.startsWith('saaskit-') ?? false
+const hasSelection = isAgentKitActive || isSaaSKitActive
+
+const activeLabel = isAgentKitActive ? 'Agents' : isSaaSKitActive ? 'SaaS' : null
 
 const productLinks = [
   {
-    label: 'AgentKit',
+    label: 'Agents',
     href: '/agent-auth/quickstart/',
     isActive: isAgentKitActive,
+    storageValue: 'agent-actions',
   },
   {
-    label: 'SaaSKit',
+    label: 'SaaS',
     href: '/authenticate/fsa/quickstart/',
     isActive: isSaaSKitActive,
+    storageValue: 'auth-for-saas',
   },
 ]
 ---
 
-<nav class="product-toggle sl-hidden md:sl-flex" aria-label="Product switcher">
-  {
-    productLinks.map((link) => (
-      <a
-        href={link.href}
-        class={`product-toggle__option ${link.isActive ? 'is-active' : ''}`}
-        aria-current={link.isActive ? 'page' : undefined}
+<div class="product-phrase sl-hidden md:sl-flex" id="product-phrase">
+  <span class="phrase-text">I'm building</span>
+  <div class="product-dropdown" id="product-dropdown">
+    <button
+      class={`product-dropdown__trigger${!hasSelection ? ' is-placeholder' : ''}`}
+      aria-haspopup="listbox"
+      aria-expanded="false"
+      id="product-dropdown-trigger"
+      data-has-selection={hasSelection ? 'true' : 'false'}
+    >
+      <span id="product-label">{activeLabel ?? 'select one'}</span>
+      <svg
+        class="chevron"
+        width="10"
+        height="10"
+        viewBox="0 0 10 10"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
       >
-        {link.label}
-      </a>
-    ))
+        <path
+          d="M2 3.5L5 6.5L8 3.5"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </button>
+    <div class="product-dropdown__menu" role="listbox" aria-labelledby="product-dropdown-trigger">
+      {
+        productLinks.map((link) => (
+          <a
+            href={link.href}
+            class={`product-dropdown__item ${link.isActive ? 'is-active' : ''}`}
+            role="option"
+            aria-selected={link.isActive}
+            data-storage-value={link.storageValue}
+            data-label={link.label}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  const trigger = document.getElementById('product-dropdown-trigger') as HTMLButtonElement | null
+  const dropdown = document.getElementById('product-dropdown')
+  const labelEl = document.getElementById('product-label')
+
+  // Hydrate label from localStorage if no server-side active section was detected
+  if (trigger && labelEl && trigger.dataset.hasSelection === 'false') {
+    try {
+      const stored = localStorage.getItem('sk_docs_path')
+      if (stored === 'agent-actions') {
+        labelEl.textContent = 'Agents'
+        trigger.classList.remove('is-placeholder')
+        dropdown?.querySelector('[data-storage-value="agent-actions"]')?.classList.add('is-active')
+      } else if (stored === 'auth-for-saas') {
+        labelEl.textContent = 'SaaS'
+        trigger.classList.remove('is-placeholder')
+        dropdown?.querySelector('[data-storage-value="auth-for-saas"]')?.classList.add('is-active')
+      }
+    } catch (_) {}
   }
-</nav>
+
+  if (trigger && dropdown) {
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation()
+      const isOpen = dropdown.classList.toggle('is-open')
+      trigger.setAttribute('aria-expanded', String(isOpen))
+    })
+
+    document.addEventListener('click', () => {
+      dropdown.classList.remove('is-open')
+      trigger.setAttribute('aria-expanded', 'false')
+    })
+  }
+</script>
 
 <style>
-  .product-toggle {
+  .product-phrase {
     display: inline-flex;
     align-items: center;
-    gap: 0.0625rem;
-    margin-left: 0.5rem;
-    padding: 0.125rem;
-    border: 1px solid var(--sl-color-gray-6);
-    border-radius: 0.375rem;
-    background: color-mix(in srgb, var(--sl-color-gray-7) 60%, var(--sl-color-bg));
-  }
-
-  .product-toggle__option {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 1.875rem;
-    padding: 0.3125rem 0.75rem;
-    border-radius: calc(0.375rem - 0.125rem);
-    color: var(--sl-color-gray-2);
+    gap: 0.375rem;
+    margin-left: 0.75rem;
     font-size: var(--sl-text-sm);
-    font-weight: 550;
-    line-height: 1;
-    text-decoration: none;
+    color: var(--sl-color-gray-3);
     white-space: nowrap;
-    transition:
-      background-color 0.2s ease,
-      color 0.2s ease,
-      box-shadow 0.2s ease,
-      border-color 0.2s ease;
   }
 
-  .product-toggle__option:not(.is-active):hover {
-    background: color-mix(in srgb, var(--sl-color-white) 24%, transparent);
+  .phrase-text {
+    font-size: var(--sl-text-sm);
     color: var(--sl-color-gray-3);
   }
 
-  .product-toggle__option:focus-visible {
+  .product-dropdown {
+    position: relative;
+  }
+
+  .product-dropdown__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+    color: var(--sl-color-text);
+    text-decoration: underline;
+    text-decoration-color: var(--sl-color-gray-4);
+    text-underline-offset: 3px;
+    transition:
+      text-decoration-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .product-dropdown__trigger.is-placeholder {
+    font-weight: 400;
+    color: var(--sl-color-gray-3);
+    text-decoration-style: dashed;
+  }
+
+  .product-dropdown__trigger:hover {
+    text-decoration-color: var(--sl-color-text);
+  }
+
+  .product-dropdown__trigger:focus-visible {
     outline: 2px solid var(--sl-color-accent);
     outline-offset: 2px;
+    border-radius: 2px;
   }
 
-  .product-toggle__option.is-active {
+  .chevron {
+    opacity: 0.6;
+    transition: transform 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .product-dropdown.is-open .chevron {
+    transform: rotate(180deg);
+  }
+
+  .product-dropdown__menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 8rem;
     background: var(--sl-color-bg);
-    color: var(--sl-color-text);
-    box-shadow: 0 1px 1px rgba(15, 23, 42, 0.08);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    overflow: hidden;
   }
 
-  .product-toggle__option.is-active:hover {
-    color: var(--sl-color-text);
+  .product-dropdown.is-open .product-dropdown__menu {
+    display: block;
   }
 
-  :root[data-theme='dark'] .product-toggle {
-    border-color: var(--sl-color-gray-5);
-    background: color-mix(in srgb, var(--sl-color-gray-6) 85%, var(--sl-color-bg));
-  }
-
-  :root[data-theme='dark'] .product-toggle__option {
+  .product-dropdown__item {
+    display: block;
+    padding: 0.5rem 0.875rem;
+    font-size: var(--sl-text-sm);
     color: var(--sl-color-gray-2);
+    text-decoration: none;
+    transition:
+      background-color 0.1s ease,
+      color 0.1s ease;
   }
 
-  :root[data-theme='dark'] .product-toggle__option:not(.is-active):hover {
-    background: color-mix(in srgb, var(--sl-color-white) 3%, transparent);
-    color: var(--sl-color-gray-2);
+  .product-dropdown__item:hover {
+    background: var(--sl-color-gray-7);
+    color: var(--sl-color-text);
   }
 
-  @media (max-width: 60rem) {
-    .product-toggle {
-      margin-left: 0.375rem;
-    }
+  .product-dropdown__item.is-active {
+    color: var(--sl-color-text);
+    font-weight: 600;
+  }
 
-    .product-toggle__option {
-      padding-inline: 0.6875rem;
-    }
+  :root[data-theme='dark'] .product-dropdown__menu {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border-color: var(--sl-color-gray-4);
+  }
+
+  :root[data-theme='dark'] .product-dropdown__item:hover {
+    background: var(--sl-color-gray-6);
   }
 </style>

@@ -68,6 +68,15 @@ export function getActiveSecondaryNavId(
   pathname: string,
   entry?: SecondaryNavProps['entry'],
 ): string | null {
+  // Full-page home routes do not sit under the normal product URL prefixes,
+  // so map them explicitly before sidebar/path resolution.
+  if (pathname === '/home/agent-actions/' || pathname === '/home/agent-actions') {
+    return 'agentkit-quickstart'
+  }
+  if (pathname === '/home/auth-for-saas/' || pathname === '/home/auth-for-saas') {
+    return 'saaskit-user-management'
+  }
+
   // 1. First check explicit topic from page frontmatter
   if (entry?.data?.topic) {
     const mapping = sidebarToSecondaryNav[entry.data.topic]
@@ -86,11 +95,6 @@ export function getActiveSecondaryNavId(
   // 3. Hard-coded fallbacks for pages without a sidebar (e.g. Scalar /apis)
   if (pathname.startsWith('/apis')) {
     return 'rest-apis'
-  }
-
-  // 4. Default fallback for root path or unmatched pages
-  if (pathname === '/' || pathname === '') {
-    return 'agentkit-quickstart'
   }
 
   return null
