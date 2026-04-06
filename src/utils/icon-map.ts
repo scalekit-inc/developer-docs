@@ -110,6 +110,7 @@ import IconHugeiconsMicrosoft from '~icons/hugeicons/microsoft'
 import IconHugeiconsGitlab from '~icons/hugeicons/gitlab'
 import IconHugeiconsGithub from '~icons/hugeicons/github'
 import IconHugeiconsSalesforce from '~icons/fa7-brands/salesforce'
+import IconFa7BrandsXTwitter from '~icons/fa7-brands/x-twitter'
 
 // products - new icons if any
 import IconClarityBlocksGroupLine from '~icons/clarity/blocks-group-line'
@@ -247,6 +248,7 @@ export const iconMap = {
   gitlab: IconHugeiconsGitlab,
   github: IconHugeiconsGithub,
   salesforce: IconHugeiconsSalesforce,
+  twitter: IconFa7BrandsXTwitter,
   social: IconClarityBlocksGroupLine,
 }
 
