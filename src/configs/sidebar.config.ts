@@ -527,7 +527,9 @@ export const sidebar = [
  * These pages will use the built-in Starlight sidebar and not render a list of topics.
  */
 export const exclude = [
-  '/', // Home page
+  '/', // Gateway page — no topic sidebar
+  '/home/agent-actions', // Agent homepage — full-page layout, no sidebar
+  '/home/auth-for-saas', // SaaS homepage — full-page layout, no sidebar
   '/auth-for-saas',
   '/blog',
   '/404', // Error page
