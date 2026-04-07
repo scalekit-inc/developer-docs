@@ -509,6 +509,57 @@ function syncTemplateIndex(setupMap, usageMap) {
 }
 
 // ---------------------------------------------------------------------------
+// TypeScript data file generation — src/data/agent-connectors/<slug>.ts
+// ---------------------------------------------------------------------------
+
+function mapParamType(rawType) {
+  if (Array.isArray(rawType)) rawType = rawType[0] || 'string'
+  const allowed = ['string', 'boolean', 'integer', 'number', 'object', 'array']
+  return allowed.includes(rawType) ? rawType : 'string'
+}
+
+function escapeTemplateLiteral(str) {
+  return (str || '').replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${')
+}
+
+function generateTsDataFile(provider, tools) {
+  const sortedTools = [...tools].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+  const lines = []
+  lines.push("import type { Tool } from '../../types/agent-connectors'")
+  lines.push('')
+  lines.push('export const tools: Tool[] = [')
+
+  for (const tool of sortedTools) {
+    const name = tool.name || 'unnamed_tool'
+    const description = escapeTemplateLiteral(tool.description || 'No description available.')
+    const inputSchema = tool.input_schema || {}
+    const properties = Object.entries(inputSchema.properties || {})
+    const required = inputSchema.required || []
+
+    lines.push('  {')
+    lines.push(`    name: '${name}',`)
+    lines.push(`    description: \`${description}\`,`)
+    lines.push('    params: [')
+
+    for (const [propName, propInfo] of properties) {
+      const type = mapParamType(propInfo.type || 'string')
+      const isRequired = required.includes(propName)
+      const desc = escapeTemplateLiteral(propInfo.description || 'No description.')
+      lines.push(
+        `      { name: '${propName}', type: '${type}', required: ${isRequired}, description: \`${desc}\` },`,
+      )
+    }
+
+    lines.push('    ],')
+    lines.push('  },')
+  }
+
+  lines.push(']')
+  lines.push('')
+  return lines.join('\n')
+}
+
+// ---------------------------------------------------------------------------
 // MDX generation — port of Python MDXGenerator.generate_mdx_content()
 // ---------------------------------------------------------------------------
 
@@ -533,9 +584,9 @@ function generateMdxContent(provider, tools) {
   lines.push(`title: ${providerName}`)
   lines.push(`description: ${providerDescription}`)
   lines.push('tableOfContents: true')
-
+  lines.push('sidebar:')
+  lines.push(`  label: ${providerName}`)
   if (comingSoon) {
-    lines.push('sidebar:')
     lines.push('  badge:')
     lines.push('    text: Soon')
     lines.push('    variant: tip')
@@ -548,18 +599,14 @@ function generateMdxContent(provider, tools) {
   lines.push('      .sl-markdown-content h2 {')
   lines.push('        font-size: var(--sl-text-xl);')
   lines.push('      }')
-  lines.push('      table td:first-child, table th:first-child {')
-  lines.push('        white-space: nowrap;')
-  lines.push('      }')
   lines.push('---')
   lines.push('')
 
   // Imports
-  lines.push(
-    "import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'",
-  )
-  lines.push("import { Accordion, AccordionItem } from 'accessible-astro-components'")
+  lines.push("import { Badge } from '@astrojs/starlight/components'")
+  lines.push("import ToolList from '@/components/ToolList.astro'")
   const providerSlug = toSafeIdentifier(provider.identifier)
+  lines.push(`import { tools } from '@/data/agent-connectors/${providerSlug}'`)
   const setupComponentName = getSetupComponent(SETUP_STEM_MAP, providerSlug)
   const usageComponentName = getUsageComponent(USAGE_STEM_MAP, providerSlug)
   if (setupComponentName) {
@@ -609,59 +656,12 @@ function generateMdxContent(provider, tools) {
     lines.push('')
   }
 
-  // Tool list heading
+  // Tool list
   if (tools.length > 0) {
     lines.push('## Tool list')
     lines.push('')
-  }
-
-  // Per-tool sections (sorted by name, matching Python's sorted(tool_files))
-  const sortedTools = [...tools].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
-
-  for (const tool of sortedTools) {
-    const toolName = tool.name || 'unnamed_tool'
-    const toolDescription = tool.description || 'No description available.'
-    const inputSchema = tool.input_schema || {}
-    const properties = inputSchema.properties || {}
-    const requiredFields = inputSchema.required || []
-
-    lines.push(`## \`${toolName}\``)
+    lines.push('<ToolList tools={tools} />')
     lines.push('')
-    lines.push(renderMarkdownWithAst(toolDescription))
-    lines.push('')
-
-    const propEntries = Object.entries(properties)
-    if (propEntries.length > 0) {
-      lines.push('| Name | Type | Required | Description |')
-      lines.push('| --- | --- | --- | --- |')
-
-      for (const [propName, propInfo] of propEntries) {
-        let propType = propInfo.type || 'string'
-        const propDescription = renderMarkdownWithAst(propInfo.description || 'No description', {
-          tableCell: true,
-        })
-
-        // Handle type arrays like ["string", "null"]
-        if (Array.isArray(propType)) {
-          propType = propType[0] || 'string'
-        }
-
-        // Handle array and object types
-        if (propType === 'array') {
-          const items = propInfo.items || {}
-          let itemType = items.type || 'unknown'
-          if (Array.isArray(itemType)) itemType = itemType[0] || 'unknown'
-          propType = `\`array<${itemType}>\``
-        } else if (propType === 'object') {
-          propType = '`object`'
-        }
-
-        const isRequired = requiredFields.includes(propName) ? 'Yes' : 'No'
-        lines.push(`| \`${propName}\` | ${propType} | ${isRequired} | ${propDescription} |`)
-      }
-
-      lines.push('')
-    }
   }
 
   return lines.join('\n')
@@ -692,6 +692,9 @@ async function main() {
 
   const outputDir = path.join(__dirname, '../src/content/docs/reference/agent-connectors')
   fs.mkdirSync(outputDir, { recursive: true })
+
+  const dataOutputDir = path.join(__dirname, '../src/data/agent-connectors')
+  fs.mkdirSync(dataOutputDir, { recursive: true })
 
   console.log(`🔑 Authenticating with ${host}...`)
   const token = await getAccessToken(host, clientId, clientSecret)
@@ -744,6 +747,16 @@ async function main() {
     }
 
     fs.writeFileSync(filePath, mdxContent, 'utf8')
+
+    const tsContent = generateTsDataFile(provider, providerTools)
+    const tsFileName = safeIdentifier + '.ts'
+    const tsFilePath = path.join(dataOutputDir, tsFileName)
+    if (!tsFilePath.startsWith(dataOutputDir + path.sep)) {
+      console.warn(`  ⚠ Skipping unsafe data path for identifier "${identifier}"`)
+      continue
+    }
+    fs.writeFileSync(tsFilePath, tsContent, 'utf8')
+
     console.log(`  ✓ ${fileName} (${providerTools.length} tools)`)
     written++
   }
@@ -751,9 +764,10 @@ async function main() {
   console.log(`\n📊 Summary:`)
   console.log(`   Providers: ${providers.length}`)
   console.log(`   Tools: ${tools.length}`)
-  console.log(`   Files written: ${written}`)
+  console.log(`   Files written: ${written} MDX + ${written} TS data`)
   console.log(`   Orphans removed: ${removed}`)
-  console.log(`   Output: src/content/docs/reference/agent-connectors/`)
+  console.log(`   MDX output: src/content/docs/reference/agent-connectors/`)
+  console.log(`   Data output: src/data/agent-connectors/`)
   console.log('🎉 Done!')
 }
 
