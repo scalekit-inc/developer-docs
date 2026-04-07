@@ -6,7 +6,7 @@ const connectors = await getCollection('docs', ({ id }) =>
 )
 
 function getSlug(id: string): string {
-  return id.split('/').pop() ?? ''
+  return id.replace(/\/$/, '').split('/').pop() ?? id
 }
 
 const CATEGORY_MAP: Record<string, string> = {
@@ -106,10 +106,12 @@ const grouped = CATEGORY_ORDER.map((cat) => ({
       />
     </div>
     <div class="filter-pills" role="group" aria-label="Filter by auth type">
-      <button class="filter-pill active" data-filter="all">All</button>
-      <button class="filter-pill" data-filter="OAuth 2.0">OAuth 2.0</button>
-      <button class="filter-pill" data-filter="Bearer Token">Bearer Token</button>
-      <button class="filter-pill" data-filter="API Key">API Key</button>
+      <button class="filter-pill active" data-filter="all" aria-pressed="true">All</button>
+      <button class="filter-pill" data-filter="OAuth 2.0" aria-pressed="false">OAuth 2.0</button>
+      <button class="filter-pill" data-filter="Bearer Token" aria-pressed="false"
+        >Bearer Token</button
+      >
+      <button class="filter-pill" data-filter="API Key" aria-pressed="false">API Key</button>
     </div>
   </div>
 
@@ -128,13 +130,7 @@ const grouped = CATEGORY_ORDER.map((cat) => ({
             >
               <div class="card-top">
                 <div class="provider-logo">
-                  <img
-                    src={item.iconUrl}
-                    alt=""
-                    width="22"
-                    height="22"
-                    onerror="this.style.display='none'"
-                  />
+                  <img src={item.iconUrl} alt="" width="22" height="22" />
                 </div>
                 <div class="provider-meta">
                   <span class="provider-name">{item.title}</span>
@@ -202,10 +198,20 @@ const grouped = CATEGORY_ORDER.map((cat) => ({
 
   filterPills?.forEach((pill) => {
     pill.addEventListener('click', () => {
-      filterPills.forEach((p) => p.classList.remove('active'))
+      filterPills.forEach((p) => {
+        p.classList.remove('active')
+        p.setAttribute('aria-pressed', 'false')
+      })
       pill.classList.add('active')
+      pill.setAttribute('aria-pressed', 'true')
       activeFilter = pill.dataset.filter ?? 'all'
       applyFilters()
+    })
+  })
+
+  catalog?.querySelectorAll<HTMLImageElement>('.provider-logo img').forEach((img) => {
+    img.addEventListener('error', () => {
+      img.style.display = 'none'
     })
   })
 </script>
