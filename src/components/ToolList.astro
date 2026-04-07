@@ -288,10 +288,33 @@ const { tools } = Astro.props
         'font-size:var(--sl-text-xs);font-family:var(--sl-font-system-mono);color:var(--sl-color-gray-2);text-decoration:none;display:block;padding:0.125rem 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
       a.addEventListener('mouseenter', () => (a.style.color = 'var(--sl-color-text-accent)'))
       a.addEventListener('mouseleave', () => (a.style.color = 'var(--sl-color-gray-2)'))
+      a.addEventListener('click', (e) => {
+        e.preventDefault()
+        const target = document.getElementById(card.id) as HTMLDetailsElement | null
+        if (target) {
+          target.open = true
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          history.pushState(null, '', `#${card.id}`)
+        }
+      })
       li.appendChild(a)
       nestedUl.appendChild(li)
     })
 
     toolListItem.appendChild(nestedUl)
   })
+
+  // Open and scroll to the target tool when navigating directly via URL hash
+  function openFromHash(): void {
+    const hash = location.hash.slice(1)
+    if (!hash) return
+    const target = document.querySelector<HTMLDetailsElement>(`.tool-card#${CSS.escape(hash)}`)
+    if (target) {
+      target.open = true
+      setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+    }
+  }
+
+  openFromHash()
+  window.addEventListener('hashchange', openFromHash)
 </script>
