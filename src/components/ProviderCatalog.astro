@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content'
+import { catalog } from '@/data/agent-connectors/catalog'
 
 const connectors = await getCollection('docs', ({ id }) =>
   id.startsWith('reference/agent-connectors/'),
@@ -9,89 +10,36 @@ function getSlug(id: string): string {
   return id.replace(/\/$/, '').split('/').pop() ?? id
 }
 
-const CATEGORY_MAP: Record<string, string> = {
-  gmail: 'Google Workspace',
-  googledrive: 'Google Workspace',
-  googlecalendar: 'Google Workspace',
-  googlesheets: 'Google Workspace',
-  googledocs: 'Google Workspace',
-  googleslides: 'Google Workspace',
-  googlemeet: 'Google Workspace',
-  googleforms: 'Google Workspace',
-  google_ads: 'Google Workspace',
-  outlook: 'Microsoft 365',
-  onedrive: 'Microsoft 365',
-  microsoftword: 'Microsoft 365',
-  microsoftexcel: 'Microsoft 365',
-  microsoftteams: 'Microsoft 365',
-  sharepoint: 'Microsoft 365',
-  onenote: 'Microsoft 365',
-  slack: 'Communication',
-  discord: 'Communication',
-  zoom: 'Communication',
-  vimeo: 'Communication',
-  youtube: 'Communication',
-  intercom: 'Communication',
-  jira: 'Project Management',
-  linear: 'Project Management',
-  asana: 'Project Management',
-  monday: 'Project Management',
-  clickup: 'Project Management',
-  trello: 'Project Management',
-  notion: 'Project Management',
-  confluence: 'Project Management',
-  salesforce: 'CRM & Sales',
-  hubspot: 'CRM & Sales',
-  pipedrive: 'CRM & Sales',
-  apollo: 'CRM & Sales',
-  attio: 'CRM & Sales',
-  chorus: 'CRM & Sales',
-  gong: 'CRM & Sales',
-  attention: 'CRM & Sales',
-  github: 'Data & Dev',
-  gitlab: 'Data & Dev',
-  figma: 'Data & Dev',
-  snowflake: 'Data & Dev',
-  snowflakekeyauth: 'Data & Dev',
-  bigquery: 'Data & Dev',
-  dropbox: 'Data & Dev',
-}
-
-const AUTH_MAP: Record<string, string> = {
-  snowflakekeyauth: 'Bearer Token',
-  exa: 'API Key',
-  harvestapi: 'API Key',
-  'brave-search': 'API Key',
-  figma: 'API Key',
-}
-
-const CATEGORY_ORDER = [
-  'Google Workspace',
-  'Microsoft 365',
-  'Communication',
-  'Project Management',
-  'CRM & Sales',
-  'Data & Dev',
-  'Other',
-]
-
 const items = connectors.map((entry) => {
   const slug = getSlug(entry.id)
+  const meta = catalog[slug]
+  const categories = meta?.categories ?? []
   return {
     slug,
     title: entry.data.title ?? slug,
     description: entry.data.description ?? '',
     href: `/${entry.id}/`,
-    category: CATEGORY_MAP[slug] ?? 'Other',
-    authType: AUTH_MAP[slug] ?? 'OAuth 2.0',
-    iconUrl: `https://cdn.scalekit.com/sk-connect/assets/provider-icons/${slug}.svg`,
+    categories: categories.length > 0 ? categories : ['Other'],
+    authType: meta?.authType ?? 'OAuth 2.0',
+    iconUrl: meta?.iconUrl ?? '',
   }
 })
 
-const grouped = CATEGORY_ORDER.map((cat) => ({
-  name: cat,
-  items: items.filter((i) => i.category === cat).sort((a, b) => a.title.localeCompare(b.title)),
-})).filter((g) => g.items.length > 0)
+// Derive category order from catalog data; put 'Other' last
+const allCategories = Array.from(new Set(items.flatMap((i) => i.categories))).sort((a, b) => {
+  if (a === 'Other') return 1
+  if (b === 'Other') return -1
+  return a.localeCompare(b)
+})
+
+const grouped = allCategories
+  .map((cat) => ({
+    name: cat,
+    items: items
+      .filter((i) => i.categories.includes(cat))
+      .sort((a, b) => a.title.localeCompare(b.title)),
+  }))
+  .filter((g) => g.items.length > 0)
 ---
 
 <div class="provider-catalog not-content">
@@ -158,16 +106,16 @@ const grouped = CATEGORY_ORDER.map((cat) => ({
 </div>
 
 <script>
-  const catalog = document.querySelector('.provider-catalog') as HTMLElement
-  const searchInput = catalog?.querySelector('.search-input') as HTMLInputElement | null
-  const filterPills = catalog?.querySelectorAll<HTMLButtonElement>('.filter-pill')
-  const noResults = catalog?.querySelector('.no-results') as HTMLElement | null
+  const catalogEl = document.querySelector('.provider-catalog') as HTMLElement
+  const searchInput = catalogEl?.querySelector('.search-input') as HTMLInputElement | null
+  const filterPills = catalogEl?.querySelectorAll<HTMLButtonElement>('.filter-pill')
+  const noResults = catalogEl?.querySelector('.no-results') as HTMLElement | null
 
   let activeFilter = 'all'
   let searchQuery = ''
 
   function applyFilters(): void {
-    const cards = catalog?.querySelectorAll<HTMLElement>('.provider-card')
+    const cards = catalogEl?.querySelectorAll<HTMLElement>('.provider-card')
     let visible = 0
 
     cards?.forEach((card) => {
@@ -181,7 +129,7 @@ const grouped = CATEGORY_ORDER.map((cat) => ({
       if (show) visible++
     })
 
-    catalog?.querySelectorAll<HTMLElement>('.category-section')?.forEach((section) => {
+    catalogEl?.querySelectorAll<HTMLElement>('.category-section')?.forEach((section) => {
       const hasVisible = Array.from(section.querySelectorAll<HTMLElement>('.provider-card')).some(
         (c) => c.style.display !== 'none',
       )
@@ -209,7 +157,7 @@ const grouped = CATEGORY_ORDER.map((cat) => ({
     })
   })
 
-  catalog?.querySelectorAll<HTMLImageElement>('.provider-logo img').forEach((img) => {
+  catalogEl?.querySelectorAll<HTMLImageElement>('.provider-logo img').forEach((img) => {
     img.addEventListener('error', () => {
       img.style.display = 'none'
     })
