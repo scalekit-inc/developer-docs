@@ -421,6 +421,10 @@ function getSetupComponent(stemMap, providerSlug) {
     stemMap[providerSlug] ||
     stemMap[providerSlug.replace(/_/g, '-')] ||
     stemMap[providerSlug.replace(/_/g, '')] ||
+    Object.entries(stemMap).find(([stem]) => {
+      const normalized = stem.replace(/-/g, '')
+      return normalized === providerSlug || normalized.replace(/s$/, '') === providerSlug
+    })?.[1] ||
     null
   )
 }
@@ -481,6 +485,10 @@ function getUsageComponent(stemMap, providerSlug) {
     stemMap[providerSlug] ||
     stemMap[providerSlug.replace(/_/g, '-')] ||
     stemMap[providerSlug.replace(/_/g, '')] ||
+    Object.entries(stemMap).find(([stem]) => {
+      const normalized = stem.replace(/-/g, '')
+      return normalized === providerSlug || normalized.replace(/s$/, '') === providerSlug
+    })?.[1] ||
     null
   )
 }

@@ -1,0 +1,156 @@
+---
+title: Affinity
+description: Connect to Affinity relationship intelligence CRM to manage deal flow, relationships, pipeline opportunities, and network connections for private capital firms including VC, PE, and investment banking.
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Affinity relationship intelligence CRM to manage deal flow, relationships, pipeline opportunities, and network connections for private capital firms including VC, PE, and investment banking.
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/affinity.svg" width="64" height="64" alt="Affinity logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="Bearer Token" />
+
+
+## Tool list
+
+## `affinity_add_to_list`
+
+Add a person or organization to an Affinity list by creating a new list entry. Use this to add a founder to a deal pipeline, add a company to a watchlist, or track a new contact in a relationship list. Provide either entity_id for persons/organizations.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity_id` | integer | Yes | ID of the person or organization to add to the list |
+| `list_id` | integer | Yes | ID of the Affinity list to add the entity to |
+
+## `affinity_create_note`
+
+Create a note on a person, organization, or opportunity in Affinity. Notes support plain text content and can be attached to multiple entity types simultaneously. Use this to log meeting summaries, due diligence findings, or relationship context directly on a CRM record.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `content` | string | Yes | Plain text content of the note |
+| `opportunity_ids` | `array<integer>` | No | List of opportunity IDs to attach this note to |
+| `organization_ids` | `array<integer>` | No | List of organization IDs to attach this note to |
+| `person_ids` | `array<integer>` | No | List of person IDs to attach this note to |
+
+## `affinity_create_opportunity`
+
+Create a new deal or opportunity record in Affinity and add it to a pipeline list. Supports associating persons and organizations, setting the deal name, and assigning an owner. Ideal for logging inbound deals or sourcing new investment targets.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | integer | Yes | ID of the Affinity list to add this opportunity to |
+| `name` | string | Yes | Name of the opportunity or deal |
+| `organization_ids` | `array<integer>` | No | List of Affinity organization IDs to associate with this opportunity |
+| `person_ids` | `array<integer>` | No | List of Affinity person IDs to associate with this opportunity |
+
+## `affinity_get_opportunity`
+
+Retrieve full details of a deal or opportunity in Affinity including current stage, owner, associated persons and organizations, custom field values, and list membership. Use this before updating a deal or generating a deal memo.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `opportunity_id` | integer | Yes | Unique numeric ID of the opportunity to retrieve |
+
+## `affinity_get_organization`
+
+Retrieve an organization's full profile from Affinity including domain, team member connections, associated people, deal history, and interaction metadata. Use this for deep company diligence or to understand team relationships before an investment.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `organization_id` | integer | Yes | Unique numeric ID of the organization to retrieve |
+| `with_interaction_dates` | boolean | No | Include first and last interaction dates in the response |
+
+## `affinity_get_person`
+
+Retrieve a person's full profile from Affinity including contact information, email addresses, phone numbers, organization memberships, interaction history, and relationship score. Use this to deeply evaluate a contact before a meeting or investment decision.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `person_id` | integer | Yes | Unique numeric ID of the person to retrieve |
+| `with_interaction_dates` | boolean | No | Include first and last interaction dates in the response |
+
+## `affinity_get_relationship_strength`
+
+Retrieve relationship strength scores between your team members and an external contact (person) in Affinity. Scores reflect email and meeting interaction frequency and recency. Use this to identify the best warm introduction path to a founder, LP, or co-investor.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `external_id` | integer | Yes | Affinity person ID of the external contact to evaluate relationship strength against |
+| `internal_id` | integer | No | Affinity person ID of the internal team member (optional — omit to get scores for all team members) |
+
+## `affinity_list_lists`
+
+Retrieve all Affinity lists available in the workspace, including people lists, organization lists, and opportunity/deal pipeline lists. Returns list IDs, names, types, and owner information. Use this to discover list IDs before adding entries or filtering opportunities.
+
+## `affinity_list_notes`
+
+Retrieve notes associated with a specific person, organization, or opportunity in Affinity. Returns paginated note records including content, creator, and creation timestamp. Use this to review interaction history, meeting summaries, or due diligence logs on a CRM entity.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `opportunity_id` | integer | No | Filter notes by opportunity ID |
+| `organization_id` | integer | No | Filter notes by organization ID |
+| `page_size` | integer | No | Number of results to return per page (max 500) |
+| `page_token` | string | No | Pagination token from a previous response to fetch the next page |
+| `person_id` | integer | No | Filter notes by person ID |
+
+## `affinity_list_opportunities`
+
+List pipeline opportunities in Affinity with optional filters by list ID, owner, or stage. Returns paginated deal records including stage, value, associated people and organizations, and custom field values. Designed for deal flow monitoring and portfolio tracking.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | integer | No | Filter opportunities belonging to a specific Affinity list ID |
+| `page_size` | integer | No | Number of results to return per page (max 500) |
+| `page_token` | string | No | Pagination token from a previous response to fetch the next page |
+
+## `affinity_search_organizations`
+
+Search for companies and organizations in the Affinity network by name or domain. Returns a paginated list of matching organization records including team connections, domain info, and interaction metadata. Useful for deal sourcing and company diligence lookups.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page_size` | integer | No | Number of results to return per page (max 500) |
+| `page_token` | string | No | Pagination token from a previous response to fetch the next page |
+| `term` | string | No | Search term to filter organizations by name or domain |
+| `with_interaction_dates` | boolean | No | Include first and last interaction dates in the response |
+
+## `affinity_search_persons`
+
+Search for people in the Affinity network by name, email, or relationship strength. Returns a paginated list of matching person records including contact information and relationship metadata. Ideal for finding contacts before creating notes or evaluating deal connections.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page_size` | integer | No | Number of results to return per page (max 500) |
+| `page_token` | string | No | Pagination token from a previous response to fetch the next page |
+| `term` | string | No | Search term to filter persons by name or email address |
+| `with_interaction_dates` | boolean | No | Include first and last interaction dates in the response |
+
+## `affinity_update_opportunity`
+
+Update an existing deal or opportunity in Affinity. Supports renaming the deal, adding or removing associated persons and organizations. Use this to reflect changes in deal status, team assignment, or company involvement during a pipeline review.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | No | Updated name for the opportunity |
+| `opportunity_id` | integer | Yes | Unique numeric ID of the opportunity to update |
+| `organization_ids` | `array<integer>` | No | Updated list of Affinity organization IDs associated with this opportunity |
+| `person_ids` | `array<integer>` | No | Updated list of Affinity person IDs associated with this opportunity |
