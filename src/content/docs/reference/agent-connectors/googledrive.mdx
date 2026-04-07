@@ -2,20 +2,19 @@
 title: Google Drive
 description: Connect to Google Drive. Manage files, folders, and sharing permissions
 tableOfContents: true
+sidebar:
+  label: Google Drive
 head:
   - tag: style
     content: |
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
-      table td:first-child, table th:first-child {
-        white-space: nowrap;
-      }
 ---
 
-import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
-import { Accordion, AccordionItem } from 'accessible-astro-components'
-import { SetupGoogleDriveSection } from '@components/templates'
+import { Badge } from '@astrojs/starlight/components'
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/googledrive'
 import { UsageGoogledriveSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
@@ -40,44 +39,4 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 ## Tool list
 
-## `googledrive_get_file_metadata`
-
-Retrieve metadata for a specific file in Google Drive by its file ID. Returns name, MIME type, size, creation time, and more.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `fields` | string | No | Fields to include in the response |
-| `file_id` | string | Yes | The ID of the file to retrieve metadata for |
-| `schema_version` | string | No | Optional schema version to use for tool execution |
-| `supports_all_drives` | boolean | No | Support shared drives |
-| `tool_version` | string | No | Optional tool version to use for execution |
-
-## `googledrive_search_content`
-
-Search inside the content of files stored in Google Drive using full-text search. Finds files where the body text matches the search term.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `fields` | string | No | Fields to include in the response |
-| `mime_type` | string | No | Filter results by MIME type |
-| `page_size` | integer | No | Number of files to return per page |
-| `page_token` | string | No | Token for the next page of results |
-| `schema_version` | string | No | Optional schema version to use for tool execution |
-| `search_term` | string | Yes | Text to search for inside file contents |
-| `supports_all_drives` | boolean | No | Include shared drives in results |
-| `tool_version` | string | No | Optional tool version to use for execution |
-
-## `googledrive_search_files`
-
-Search for files and folders in Google Drive using query filters like name, type, owner, and parent folder.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `fields` | string | No | Fields to include in the response |
-| `order_by` | string | No | Sort order for results |
-| `page_size` | integer | No | Number of files to return per page |
-| `page_token` | string | No | Token for the next page of results |
-| `query` | string | No | Drive search query string |
-| `schema_version` | string | No | Optional schema version to use for tool execution |
-| `supports_all_drives` | boolean | No | Include shared drives in results |
-| `tool_version` | string | No | Optional tool version to use for execution |
+<ToolList tools={tools} />

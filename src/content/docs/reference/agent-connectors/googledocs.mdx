@@ -2,20 +2,19 @@
 title: Google Docs
 description: Connect to Google Docs. Create, edit, and collaborate on documents
 tableOfContents: true
+sidebar:
+  label: Google Docs
 head:
   - tag: style
     content: |
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
-      table td:first-child, table th:first-child {
-        white-space: nowrap;
-      }
 ---
 
-import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
-import { Accordion, AccordionItem } from 'accessible-astro-components'
-import { SetupGoogleDocsSection } from '@components/templates'
+import { Badge } from '@astrojs/starlight/components'
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/googledocs'
 import { UsageGoogledocsSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
@@ -40,46 +39,4 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 ## Tool list
 
-## `googledocs_create_document`
-
-Create a new blank Google Doc with an optional title. Returns the new document's ID and metadata.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `schema_version` | string | No | Optional schema version to use for tool execution |
-| `title` | string | No | Title of the new document |
-| `tool_version` | string | No | Optional tool version to use for execution |
-
-## `googledocs_list_documents`
-
-List all Google Docs documents in the user's Drive. Optionally search by document name. Returns document IDs, names, and metadata with pagination support.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `order_by` | string | No | Sort order for results. Examples: modifiedTime desc, name asc, createdTime desc |
-| `page_size` | integer | No | Number of documents to return per page (max 1000, default 100) |
-| `page_token` | string | No | Token for retrieving the next page of results. Use the nextPageToken from a previous response. |
-| `query` | string | No | Drive search query to filter documents. Defaults to all Google Docs. To search by name, use: mimeType = 'application/vnd.google-apps.document' and trashed = false and name contains 'report' |
-
-## `googledocs_read_document`
-
-Read the complete content and structure of a Google Doc including text, formatting, tables, and metadata.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `document_id` | string | Yes | The ID of the Google Doc to read |
-| `schema_version` | string | No | Optional schema version to use for tool execution |
-| `suggestions_view_mode` | string | No | How suggestions are rendered in the response |
-| `tool_version` | string | No | Optional tool version to use for execution |
-
-## `googledocs_update_document`
-
-Update the content of an existing Google Doc using batch update requests. Supports inserting and deleting text, formatting, tables, and other document elements.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `document_id` | string | Yes | The ID of the Google Doc to update |
-| `requests` | `array<object>` | Yes | Array of update requests to apply to the document |
-| `schema_version` | string | No | Optional schema version to use for tool execution |
-| `tool_version` | string | No | Optional tool version to use for execution |
-| `write_control` | `object` | No | Optional write control for revision management |
+<ToolList tools={tools} />

@@ -2,20 +2,19 @@
 title: Google Forms
 description: Connect to Google Forms. Create, view, and manage forms and responses securely
 tableOfContents: true
+sidebar:
+  label: Google Forms
 head:
   - tag: style
     content: |
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
-      table td:first-child, table th:first-child {
-        white-space: nowrap;
-      }
 ---
 
-import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
-import { Accordion, AccordionItem } from 'accessible-astro-components'
-import { SetupGoogleFormsSection } from '@components/templates'
+import { Badge } from '@astrojs/starlight/components'
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/googleforms'
 import { UsageGoogleformsSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
@@ -40,39 +39,4 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 ## Tool list
 
-## `googleforms_create_form`
-
-Create a new Google Form with a title and optional document title. Returns the new form's ID and metadata.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `document_title` | string | No | The title of the document shown in Google Drive (defaults to the form title if not provided) |
-| `title` | string | Yes | The title of the form shown to respondents |
-
-## `googleforms_get_form`
-
-Get the structure and metadata of a Google Form including its title, description, and all questions.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `form_id` | string | Yes | The ID of the Google Form to retrieve |
-
-## `googleforms_get_response`
-
-Get a single response submitted to a Google Form by its response ID. Returns the respondent's answers for all questions.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `form_id` | string | Yes | The ID of the Google Form |
-| `response_id` | string | Yes | The ID of the specific response to retrieve |
-
-## `googleforms_list_responses`
-
-List all responses submitted to a Google Form. Returns response IDs, submission timestamps, and answer values for each respondent.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `filter` | string | No | Filter responses by submission time. Format: timestamp > 2026-01-01T00:00:00Z |
-| `form_id` | string | Yes | The ID of the Google Form to list responses for |
-| `page_size` | integer | No | Maximum number of responses to return (max 5000) |
-| `page_token` | string | No | Token for retrieving the next page of results |
+<ToolList tools={tools} />
