@@ -1,6 +1,6 @@
 // src/types/agent-connectors.ts
 
-export type ParamType = 'string' | 'boolean' | 'integer' | 'object'
+export type ParamType = 'string' | 'boolean' | 'integer' | 'number' | 'object' | 'array'
 
 export interface ToolParam {
   name: string
