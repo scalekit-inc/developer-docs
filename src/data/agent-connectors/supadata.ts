@@ -18,6 +18,12 @@ export const tools: Tool[] = [
     description: `Extract transcripts from YouTube, TikTok, Instagram, X (Twitter), Facebook, or direct file URLs. Supports native captions, auto-generated captions, or AI-generated transcripts. Returns timestamped segments with speaker labels.`,
     params: [
       {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `URL of the video or media file to transcribe. Supports YouTube, TikTok, Instagram, X, Facebook, or direct video/audio file URLs.`,
+      },
+      {
         name: 'chunkSize',
         type: 'integer',
         required: false,
@@ -41,12 +47,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Return plain text instead of timestamped segments. Defaults to false.`,
       },
-      {
-        name: 'url',
-        type: 'string',
-        required: true,
-        description: `URL of the video or media file to transcribe. Supports YouTube, TikTok, Instagram, X, Facebook, or direct video/audio file URLs.`,
-      },
     ],
   },
   {
@@ -66,6 +66,12 @@ export const tools: Tool[] = [
     description: `Scrape a web page and return its content as clean Markdown. Ideal for extracting readable content from any URL while stripping away navigation and ads.`,
     params: [
       {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `URL of the web page to scrape.`,
+      },
+      {
         name: 'lang',
         type: 'string',
         required: false,
@@ -76,12 +82,6 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Strip all hyperlinks from the Markdown output. Defaults to false.`,
-      },
-      {
-        name: 'url',
-        type: 'string',
-        required: true,
-        description: `URL of the web page to scrape.`,
       },
     ],
   },
@@ -114,6 +114,12 @@ export const tools: Tool[] = [
     description: `Search YouTube for videos, channels, or playlists. Returns results with titles, IDs, descriptions, thumbnails, and metadata.`,
     params: [
       {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Search query string to find videos, channels, or playlists on YouTube.`,
+      },
+      {
         name: 'lang',
         type: 'string',
         required: false,
@@ -124,12 +130,6 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Maximum number of results to return.`,
-      },
-      {
-        name: 'query',
-        type: 'string',
-        required: true,
-        description: `Search query string to find videos, channels, or playlists on YouTube.`,
       },
       {
         name: 'type',
@@ -144,6 +144,12 @@ export const tools: Tool[] = [
     description: `Retrieve the transcript for a YouTube video by video ID or URL. Returns timestamped segments with text content.`,
     params: [
       {
+        name: 'videoId',
+        type: 'string',
+        required: true,
+        description: `YouTube video ID or full YouTube URL to retrieve the transcript for.`,
+      },
+      {
         name: 'lang',
         type: 'string',
         required: false,
@@ -154,12 +160,6 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Return plain text instead of timestamped segments. Defaults to false.`,
-      },
-      {
-        name: 'videoId',
-        type: 'string',
-        required: true,
-        description: `YouTube video ID or full YouTube URL to retrieve the transcript for.`,
       },
     ],
   },
@@ -174,16 +174,16 @@ export const tools: Tool[] = [
         description: `ISO 639-1 language code to translate the transcript into (e.g., en, fr, es).`,
       },
       {
-        name: 'text',
-        type: 'boolean',
-        required: false,
-        description: `Return plain text instead of timestamped segments. Defaults to false.`,
-      },
-      {
         name: 'videoId',
         type: 'string',
         required: true,
         description: `YouTube video ID or full YouTube URL to translate the transcript for.`,
+      },
+      {
+        name: 'text',
+        type: 'boolean',
+        required: false,
+        description: `Return plain text instead of timestamped segments. Defaults to false.`,
       },
     ],
   },

@@ -19,16 +19,16 @@ export const tools: Tool[] = [
     description: `Retrieve details of a specific Zendesk organization by ID. Returns organization name, domain names, tags, notes, shared ticket settings, and custom fields.`,
     params: [
       {
-        name: 'include',
-        type: 'string',
-        required: false,
-        description: `Additional related data to include (e.g., lookup_relationship_fields)`,
-      },
-      {
         name: 'organization_id',
         type: 'number',
         required: true,
         description: `The ID of the organization to retrieve`,
+      },
+      {
+        name: 'include',
+        type: 'string',
+        required: false,
+        description: `Additional related data to include (e.g., lookup_relationship_fields)`,
       },
     ],
   },
@@ -50,6 +50,12 @@ export const tools: Tool[] = [
     description: `Search Zendesk tickets using a query string. Supports Zendesk's search syntax (e.g., 'type:ticket status:open'). Zendesk limits search results to 1,000 total — the maximum valid page is floor(1000 / per_page) (e.g., per_page=100 → max page 10, per_page=25 → max page 40). Stop paginating when next_page is null or you reach the max page; requesting beyond the limit returns a 400 error.`,
     params: [
       {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Search query string using Zendesk search syntax (e.g., 'type:ticket status:open assignee:me')`,
+      },
+      {
         name: 'page',
         type: 'number',
         required: false,
@@ -60,12 +66,6 @@ export const tools: Tool[] = [
         type: 'number',
         required: false,
         description: `Number of results per page (max 100). Determines the max page ceiling: floor(1000 / per_page). Higher values mean fewer pages but a lower max page number.`,
-      },
-      {
-        name: 'query',
-        type: 'string',
-        required: true,
-        description: `Search query string using Zendesk search syntax (e.g., 'type:ticket status:open assignee:me')`,
       },
       {
         name: 'sort_by',
@@ -86,12 +86,6 @@ export const tools: Tool[] = [
     description: `Retrieve a specific side conversation on a Zendesk ticket by its ID. Returns the side conversation's state, subject, participants, preview text, and timestamps. Requires the Collaboration add-on.`,
     params: [
       {
-        name: 'include',
-        type: 'string',
-        required: false,
-        description: `Sideloads to include alongside the response. Use 'side_conversation_events' to include the full event history of the side conversation.`,
-      },
-      {
         name: 'side_conversation_id',
         type: 'string',
         required: true,
@@ -103,6 +97,12 @@ export const tools: Tool[] = [
         required: true,
         description: `The ID of the parent ticket`,
       },
+      {
+        name: 'include',
+        type: 'string',
+        required: false,
+        description: `Sideloads to include alongside the response. Use 'side_conversation_events' to include the full event history of the side conversation.`,
+      },
     ],
   },
   {
@@ -110,16 +110,16 @@ export const tools: Tool[] = [
     description: `List all side conversations on a Zendesk ticket. Returns side conversations including their state, subject, participants, and preview text. Requires the Collaboration add-on.`,
     params: [
       {
-        name: 'include',
-        type: 'string',
-        required: false,
-        description: `Sideloads to include alongside the response. Use 'side_conversation_events' to include the full event history for each side conversation.`,
-      },
-      {
         name: 'ticket_id',
         type: 'number',
         required: true,
         description: `The ID of the ticket whose side conversations to list`,
+      },
+      {
+        name: 'include',
+        type: 'string',
+        required: false,
+        description: `Sideloads to include alongside the response. Use 'side_conversation_events' to include the full event history for each side conversation.`,
       },
     ],
   },
@@ -127,6 +127,12 @@ export const tools: Tool[] = [
     name: 'zendesk_ticket_comments_list',
     description: `Retrieve all comments (public replies and internal notes) for a specific Zendesk ticket. Returns comment body, author, timestamps, and attachments.`,
     params: [
+      {
+        name: 'ticket_id',
+        type: 'number',
+        required: true,
+        description: `The ID of the ticket whose comments to list`,
+      },
       {
         name: 'include',
         type: 'string',
@@ -145,12 +151,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Sort direction for comments: asc or desc (default: asc)`,
       },
-      {
-        name: 'ticket_id',
-        type: 'number',
-        required: true,
-        description: `The ID of the ticket whose comments to list`,
-      },
     ],
   },
   {
@@ -158,16 +158,16 @@ export const tools: Tool[] = [
     description: `Create a new support ticket in Zendesk. Requires a comment/description and optionally a subject, priority, assignee, and tags.`,
     params: [
       {
-        name: 'assignee_email',
-        type: 'string',
-        required: false,
-        description: `Email of the agent to assign the ticket to`,
-      },
-      {
         name: 'comment_body',
         type: 'string',
         required: true,
         description: `The description or first comment of the ticket`,
+      },
+      {
+        name: 'assignee_email',
+        type: 'string',
+        required: false,
+        description: `Email of the agent to assign the ticket to`,
       },
       {
         name: 'priority',
@@ -206,16 +206,16 @@ export const tools: Tool[] = [
     description: `Retrieve details of a specific Zendesk ticket by ID. Returns ticket properties including status, priority, subject, requester, assignee, and timestamps.`,
     params: [
       {
-        name: 'include',
-        type: 'string',
-        required: false,
-        description: `Comma-separated list of sideloads to include (e.g., users, groups, organizations)`,
-      },
-      {
         name: 'ticket_id',
         type: 'number',
         required: true,
         description: `The ID of the ticket to retrieve`,
+      },
+      {
+        name: 'include',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of sideloads to include (e.g., users, groups, organizations)`,
       },
     ],
   },
@@ -230,16 +230,16 @@ export const tools: Tool[] = [
         description: `The reply message content (plain text, markdown supported)`,
       },
       {
-        name: 'public',
-        type: 'boolean',
-        required: false,
-        description: `Whether the comment is public (true) or an internal note (false). Defaults to true.`,
-      },
-      {
         name: 'ticket_id',
         type: 'number',
         required: true,
         description: `The ID of the ticket to reply to`,
+      },
+      {
+        name: 'public',
+        type: 'boolean',
+        required: false,
+        description: `Whether the comment is public (true) or an internal note (false). Defaults to true.`,
       },
     ],
   },
@@ -247,6 +247,12 @@ export const tools: Tool[] = [
     name: 'zendesk_ticket_update',
     description: `Update an existing Zendesk ticket. Change status, priority, assignee, subject, tags, or any other writable ticket field.`,
     params: [
+      {
+        name: 'ticket_id',
+        type: 'number',
+        required: true,
+        description: `The ID of the ticket to update`,
+      },
       {
         name: 'assignee_email',
         type: 'string',
@@ -290,12 +296,6 @@ export const tools: Tool[] = [
         description: `List of tags to set on the ticket (replaces existing tags)`,
       },
       {
-        name: 'ticket_id',
-        type: 'number',
-        required: true,
-        description: `The ID of the ticket to update`,
-      },
-      {
         name: 'type',
         type: 'string',
         required: false,
@@ -332,13 +332,13 @@ export const tools: Tool[] = [
     name: 'zendesk_user_create',
     description: `Create a new user in Zendesk. Can create end-users (customers), agents, or admins. Email is required for end-users.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `Full name of the user` },
       {
         name: 'email',
         type: 'string',
         required: false,
         description: `Primary email address of the user`,
       },
-      { name: 'name', type: 'string', required: true, description: `Full name of the user` },
       {
         name: 'organization_id',
         type: 'number',
@@ -370,16 +370,16 @@ export const tools: Tool[] = [
     description: `Retrieve details of a specific Zendesk user by ID. Returns user profile including name, email, role, organization, and account status.`,
     params: [
       {
-        name: 'include',
-        type: 'string',
-        required: false,
-        description: `Comma-separated list of sideloads to include`,
-      },
-      {
         name: 'user_id',
         type: 'number',
         required: true,
         description: `The ID of the user to retrieve`,
+      },
+      {
+        name: 'include',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of sideloads to include`,
       },
     ],
   },

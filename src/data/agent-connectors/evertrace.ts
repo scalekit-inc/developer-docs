@@ -103,13 +103,13 @@ export const tools: Tool[] = [
     name: 'evertrace_list_entries_list',
     description: `List entries in a list with pagination, sorting, and filtering by screening/viewed status.`,
     params: [
+      { name: 'list_id', type: 'string', required: true, description: `The list ID.` },
       {
         name: 'limit',
         type: 'string',
         required: false,
         description: `Number of results per page.`,
       },
-      { name: 'list_id', type: 'string', required: true, description: `The list ID.` },
       { name: 'page', type: 'string', required: false, description: `Page number for pagination.` },
       {
         name: 'screened_by',
@@ -141,13 +141,13 @@ export const tools: Tool[] = [
     name: 'evertrace_lists_create',
     description: `Create a new list. Provide user IDs in accesses to share the list with teammates. The creator is automatically granted access.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the new list.` },
       {
         name: 'accesses',
         type: 'array',
         required: false,
         description: `Array of user IDs to share this list with. Pass an empty array for private list.`,
       },
-      { name: 'name', type: 'string', required: true, description: `Name of the new list.` },
     ],
   },
   {
@@ -178,12 +178,6 @@ export const tools: Tool[] = [
     description: `Create a new saved search with filters. Each filter requires a key, operator, and value. Provide sharee user IDs to share the search with teammates.`,
     params: [
       {
-        name: 'emoji',
-        type: 'string',
-        required: false,
-        description: `Optional emoji for the saved search.`,
-      },
-      {
         name: 'filters',
         type: 'array',
         required: true,
@@ -206,6 +200,12 @@ export const tools: Tool[] = [
         type: 'number',
         required: true,
         description: `Epoch timestamp in milliseconds for when the search was last visited.`,
+      },
+      {
+        name: 'emoji',
+        type: 'string',
+        required: false,
+        description: `Optional emoji for the saved search.`,
       },
     ],
   },
@@ -256,6 +256,7 @@ export const tools: Tool[] = [
     name: 'evertrace_searches_update',
     description: `Update a saved search. All fields are optional — only provided fields are changed. If filters are provided, they replace all existing filters. If sharees are provided, they replace the full access list.`,
     params: [
+      { name: 'id', type: 'string', required: true, description: `The saved search ID to update.` },
       {
         name: 'emoji',
         type: 'string',
@@ -268,7 +269,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Replaces all existing filters. Each filter has: key, operator, value.`,
       },
-      { name: 'id', type: 'string', required: true, description: `The saved search ID to update.` },
       {
         name: 'sharees',
         type: 'array',

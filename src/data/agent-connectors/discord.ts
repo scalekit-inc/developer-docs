@@ -181,16 +181,16 @@ export const tools: Tool[] = [
     description: `Resolves and retrieves information about a Discord invite code, including the associated guild, channel, event, and inviter. Prefer this over the deprecated Get Invite tool for new integrations.`,
     params: [
       {
-        name: 'guild_scheduled_event_id',
-        type: 'string',
-        required: false,
-        description: `Guild scheduled event ID to include event details in the response.`,
-      },
-      {
         name: 'invite_code',
         type: 'string',
         required: true,
         description: `The unique invite code to resolve.`,
+      },
+      {
+        name: 'guild_scheduled_event_id',
+        type: 'string',
+        required: false,
+        description: `Guild scheduled event ID to include event details in the response.`,
       },
       {
         name: 'with_counts',

@@ -24,12 +24,6 @@ export const tools: Tool[] = [
         description: `The ID of the block to update`,
       },
       {
-        name: 'language',
-        type: 'string',
-        required: false,
-        description: `Programming language for code blocks`,
-      },
-      {
         name: 'text',
         type: 'string',
         required: true,
@@ -40,6 +34,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The block type (must match the existing block type)`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: false,
+        description: `Programming language for code blocks`,
       },
     ],
   },
@@ -205,6 +205,18 @@ export const tools: Tool[] = [
     description: `Create a new row (page) in a Notion data source using the 2025-09-03 API. Required for merged, synced, or multi-source databases — these require parent.data_source_id instead of parent.database_id which the older notion_database_insert_row uses. Provide the data_source_id from notion_data_source_fetch (data_sources[].id) and a properties object mapping column names to Notion property value shapes. Optionally attach child blocks (page content), an icon, or a cover image. LLM guidance: step 1 — call notion_data_source_fetch to get the data_source_id; step 2 — build the properties object using exact column names from the schema (use 'title' key for title-type fields); step 3 — call this tool.`,
     params: [
       {
+        name: 'data_source_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the data source to insert a row into. Retrieve from notion_database_fetch response under data_sources[].id.`,
+      },
+      {
+        name: 'properties',
+        type: 'object',
+        required: true,
+        description: `Object mapping column names (or property ids) to property values. Example: {"title": {"title": [{"text": {"content": "Task A"}}]}, "Status": {"select": {"name": "Todo"}}}`,
+      },
+      {
         name: 'child_blocks',
         type: 'array',
         required: false,
@@ -217,22 +229,10 @@ export const tools: Tool[] = [
         description: `Optional page cover object. Example: {"type":"external","external":{"url":"https://example.com/cover.jpg"}}`,
       },
       {
-        name: 'data_source_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the data source to insert a row into. Retrieve from notion_database_fetch response under data_sources[].id.`,
-      },
-      {
         name: 'icon',
         type: 'object',
         required: false,
         description: `Optional page icon object. Example: {"type":"emoji","emoji":"📝"}`,
-      },
-      {
-        name: 'properties',
-        type: 'object',
-        required: true,
-        description: `Object mapping column names (or property ids) to property values. Example: {"title": {"title": [{"text": {"content": "Task A"}}]}, "Status": {"select": {"name": "Todo"}}}`,
       },
     ],
   },
@@ -289,16 +289,16 @@ export const tools: Tool[] = [
         description: `Database schema object defining properties (columns). Example: {"Name": {"title": {}}, "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Doing"}, {"name": "Done"}]}}}`,
       },
       {
-        name: 'schema_version',
-        type: 'string',
-        required: false,
-        description: `Internal override for schema version.`,
-      },
-      {
         name: 'title',
         type: 'array',
         required: true,
         description: `Database title as a Notion rich_text array.`,
+      },
+      {
+        name: 'schema_version',
+        type: 'string',
+        required: false,
+        description: `Internal override for schema version.`,
       },
       {
         name: 'tool_version',
@@ -337,34 +337,10 @@ LLM guidance:
 - Runtime note: the executor/host should synthesize \`parent = {"database_id": database_id}\` before sending to Notion.`,
     params: [
       {
-        name: '_parent',
-        type: 'object',
-        required: false,
-        description: `Computed by host: \`{ "database_id": "<database_id>" }\`. Do not supply manually.`,
-      },
-      {
-        name: 'child_blocks',
-        type: 'array',
-        required: false,
-        description: `Optional array of Notion blocks to append as page content (paragraph, heading, to_do, etc.).`,
-      },
-      {
-        name: 'cover',
-        type: 'object',
-        required: false,
-        description: `Optional page cover object. Example external: {"type":"external","external":{"url":"https://example.com/cover.jpg"}}.`,
-      },
-      {
         name: 'database_id',
         type: 'string',
         required: true,
         description: `Target database ID (hyphenated UUID).`,
-      },
-      {
-        name: 'icon',
-        type: 'object',
-        required: false,
-        description: `Optional page icon object. Examples: {"type":"emoji","emoji":"📝"} or {"type":"external","external":{"url":"https://..."}}.`,
       },
       {
         name: 'properties',
@@ -388,6 +364,30 @@ Example:
   "Status": { "select": { "name": "Todo" } },
   "Due": { "date": { "start": "2025-09-01" } }
 }`,
+      },
+      {
+        name: '_parent',
+        type: 'object',
+        required: false,
+        description: `Computed by host: \`{ "database_id": "<database_id>" }\`. Do not supply manually.`,
+      },
+      {
+        name: 'child_blocks',
+        type: 'array',
+        required: false,
+        description: `Optional array of Notion blocks to append as page content (paragraph, heading, to_do, etc.).`,
+      },
+      {
+        name: 'cover',
+        type: 'object',
+        required: false,
+        description: `Optional page cover object. Example external: {"type":"external","external":{"url":"https://example.com/cover.jpg"}}.`,
+      },
+      {
+        name: 'icon',
+        type: 'object',
+        required: false,
+        description: `Optional page icon object. Examples: {"type":"emoji","emoji":"📝"} or {"type":"external","external":{"url":"https://..."}}.`,
       },
       {
         name: 'schema_version',
@@ -674,6 +674,12 @@ Example (database row):
     description: `Update a Notion page's properties, archive/unarchive it, or change its icon and cover.`,
     params: [
       {
+        name: 'page_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the Notion page to update`,
+      },
+      {
         name: 'archived',
         type: 'boolean',
         required: false,
@@ -681,12 +687,6 @@ Example (database row):
       },
       { name: 'cover', type: 'object', required: false, description: `Page cover image to set` },
       { name: 'icon', type: 'object', required: false, description: `Page icon to set` },
-      {
-        name: 'page_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the Notion page to update`,
-      },
       {
         name: 'properties',
         type: 'object',

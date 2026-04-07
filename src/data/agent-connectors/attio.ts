@@ -6,12 +6,6 @@ export const tools: Tool[] = [
     description: `Add a record (contact, company, deal, or custom object) to a specific Attio list. Returns the newly created list entry with its entry ID, which can be used to remove it later. If the record is already in the list, a new entry is created.`,
     params: [
       {
-        name: 'entry_values',
-        type: 'object',
-        required: false,
-        description: `Optional attribute values to set on the list entry itself (not the underlying record). Keys are attribute slugs, values are the data to set. Example: {"stage": "qualified"}`,
-      },
-      {
         name: 'list_id',
         type: 'string',
         required: true,
@@ -28,6 +22,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The UUID of the record to add to the list. Must be a valid UUID — obtain this from search or list records results.`,
+      },
+      {
+        name: 'entry_values',
+        type: 'object',
+        required: false,
+        description: `Optional attribute values to set on the list entry itself (not the underlying record). Keys are attribute slugs, values are the data to set. Example: {"stage": "qualified"}`,
       },
     ],
   },
@@ -198,22 +198,10 @@ export const tools: Tool[] = [
         description: `Body of the note. Use plain text or Markdown depending on the format field. Line breaks are supported via \\n in plaintext mode.`,
       },
       {
-        name: 'created_at',
-        type: 'string',
-        required: false,
-        description: `ISO 8601 timestamp for backdating the note. Defaults to the current time if not provided. Example: "2024-01-15T10:30:00Z"`,
-      },
-      {
         name: 'format',
         type: 'string',
         required: true,
         description: `Format of the note content. Must be either "plaintext" or "markdown".`,
-      },
-      {
-        name: 'meeting_id',
-        type: 'string',
-        required: false,
-        description: `UUID of an existing meeting to associate with this note. Optional.`,
       },
       {
         name: 'parent_object',
@@ -232,6 +220,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Plaintext title for the note. No formatting is allowed in the title.`,
+      },
+      {
+        name: 'created_at',
+        type: 'string',
+        required: false,
+        description: `ISO 8601 timestamp for backdating the note. Defaults to the current time if not provided. Example: "2024-01-15T10:30:00Z"`,
+      },
+      {
+        name: 'meeting_id',
+        type: 'string',
+        required: false,
+        description: `UUID of an existing meeting to associate with this note. Optional.`,
       },
     ],
   },
@@ -294,12 +294,6 @@ export const tools: Tool[] = [
     description: `Create a new task in Attio. Tasks can be linked to one or more records (people, companies, deals, etc.) and assigned to workspace members. Supports setting a deadline and initial completion status. Only plaintext format is supported for task content.`,
     params: [
       {
-        name: 'assignees',
-        type: 'array',
-        required: false,
-        description: `Array of assignees for this task. Each item must have either referenced_actor_id (UUID) with referenced_actor_type set to workspace-member, or workspace_member_email_address. Example: [{"referenced_actor_type": "workspace-member", "referenced_actor_id": "d4a8e6f2-3b1c-4d5e-9f0a-1b2c3d4e5f6a"}]`,
-      },
-      {
         name: 'content',
         type: 'string',
         required: true,
@@ -310,6 +304,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `ISO 8601 datetime for the task deadline. Must include milliseconds and timezone, e.g. 2024-03-31T17:00:00.000Z.`,
+      },
+      {
+        name: 'assignees',
+        type: 'array',
+        required: false,
+        description: `Array of assignees for this task. Each item must have either referenced_actor_id (UUID) with referenced_actor_type set to workspace-member, or workspace_member_email_address. Example: [{"referenced_actor_type": "workspace-member", "referenced_actor_id": "d4a8e6f2-3b1c-4d5e-9f0a-1b2c3d4e5f6a"}]`,
       },
       {
         name: 'is_completed',
@@ -750,6 +750,12 @@ export const tools: Tool[] = [
     description: `Lists entries in a given Attio list with optional filtering and sorting. Returns records that belong to the specified list.`,
     params: [
       {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The unique identifier or slug of the list.`,
+      },
+      {
         name: 'filter',
         type: 'object',
         required: false,
@@ -760,12 +766,6 @@ export const tools: Tool[] = [
         type: 'number',
         required: false,
         description: `Maximum number of entries to return.`,
-      },
-      {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The unique identifier or slug of the list.`,
       },
       {
         name: 'offset',
@@ -900,6 +900,12 @@ export const tools: Tool[] = [
     description: `List and query records for a specific Attio object type (e.g. people, companies, deals). Supports filtering by attribute values, sorting, and pagination with limit and offset. Returns guaranteed up-to-date data unlike the Search Records endpoint.`,
     params: [
       {
+        name: 'object',
+        type: 'string',
+        required: true,
+        description: `The slug or UUID of the object type to list records for. Common slugs: "people", "companies", "deals".`,
+      },
+      {
         name: 'filter',
         type: 'object',
         required: false,
@@ -910,12 +916,6 @@ export const tools: Tool[] = [
         type: 'number',
         required: false,
         description: `Maximum number of records to return. Defaults to 500.`,
-      },
-      {
-        name: 'object',
-        type: 'string',
-        required: true,
-        description: `The slug or UUID of the object type to list records for. Common slugs: "people", "companies", "deals".`,
       },
       {
         name: 'offset',
@@ -1091,28 +1091,28 @@ export const tools: Tool[] = [
     description: `Search for records in Attio for a given object type (people, companies, deals, or custom objects) using a fuzzy text query. Returns matching records with their IDs, labels, and key attributes.`,
     params: [
       {
-        name: 'limit',
-        type: 'integer',
-        required: false,
-        description: `Maximum number of results to return per page. Defaults to 20.`,
-      },
-      {
         name: 'object',
         type: 'string',
         required: true,
         description: `The slug or UUID of the object type to search within. Common slugs: "people", "companies", "deals".`,
       },
       {
-        name: 'offset',
-        type: 'integer',
-        required: false,
-        description: `Number of results to skip for pagination. Defaults to 0.`,
-      },
-      {
         name: 'query',
         type: 'string',
         required: true,
         description: `Fuzzy text search string matched against names, emails, domains, phone numbers, and social handles. Pass an empty string to return all records.`,
+      },
+      {
+        name: 'limit',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of results to return per page. Defaults to 20.`,
+      },
+      {
+        name: 'offset',
+        type: 'integer',
+        required: false,
+        description: `Number of results to skip for pagination. Defaults to 0.`,
       },
     ],
   },

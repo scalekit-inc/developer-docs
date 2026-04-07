@@ -533,8 +533,13 @@ function generateTsDataFile(provider, tools) {
     const name = tool.name || 'unnamed_tool'
     const description = escapeTemplateLiteral(tool.description || 'No description available.')
     const inputSchema = tool.input_schema || {}
-    const properties = Object.entries(inputSchema.properties || {})
     const required = inputSchema.required || []
+    const properties = Object.entries(inputSchema.properties || {}).sort(([a], [b]) => {
+      const aReq = required.includes(a)
+      const bReq = required.includes(b)
+      if (aReq !== bReq) return aReq ? -1 : 1
+      return a.localeCompare(b)
+    })
 
     lines.push('  {')
     lines.push(`    name: '${name}',`)

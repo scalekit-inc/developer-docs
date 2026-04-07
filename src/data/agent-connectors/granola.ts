@@ -6,16 +6,16 @@ export const tools: Tool[] = [
     description: `Retrieve a single Granola meeting note by its ID. Returns the full note including title, owner, calendar event details, attendees, folder memberships, and AI-generated summary. Optionally include the full transcript with speaker labels and timestamps.`,
     params: [
       {
-        name: 'include',
-        type: 'string',
-        required: false,
-        description: `Pass 'transcript' to include the full meeting transcript with speaker source and timestamps.`,
-      },
-      {
         name: 'note_id',
         type: 'string',
         required: true,
         description: `The unique identifier of the note to retrieve. Format: not_XXXXXXXXXXXXXX.`,
+      },
+      {
+        name: 'include',
+        type: 'string',
+        required: false,
+        description: `Pass 'transcript' to include the full meeting transcript with speaker source and timestamps.`,
       },
     ],
   },

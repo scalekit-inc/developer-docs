@@ -54,16 +54,22 @@ export const tools: Tool[] = [
     description: `Create a new escalation policy in PagerDuty. Escalation policies define who gets notified and in what order when an incident is triggered.`,
     params: [
       {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `A description of the escalation policy.`,
-      },
-      {
         name: 'name',
         type: 'string',
         required: true,
         description: `The name of the escalation policy.`,
+      },
+      {
+        name: 'target_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the user or schedule to notify in the first escalation rule.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A description of the escalation policy.`,
       },
       {
         name: 'num_loops',
@@ -82,12 +88,6 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `The number of minutes before an unacknowledged incident escalates to the next rule.`,
-      },
-      {
-        name: 'target_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the user or schedule to notify in the first escalation rule.`,
       },
       {
         name: 'target_type',
@@ -132,16 +132,16 @@ export const tools: Tool[] = [
     description: `Update an existing PagerDuty escalation policy's name, description, or loop settings.`,
     params: [
       {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `Updated description of the escalation policy.`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
         description: `The ID of the escalation policy to update.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Updated description of the escalation policy.`,
       },
       {
         name: 'name',
@@ -168,34 +168,10 @@ export const tools: Tool[] = [
     description: `Create a new incident in PagerDuty. Requires a title, service ID, and the email of the user creating the incident.`,
     params: [
       {
-        name: 'body_details',
-        type: 'string',
-        required: false,
-        description: `Additional details about the incident body (plain text).`,
-      },
-      {
-        name: 'escalation_policy_id',
-        type: 'string',
-        required: false,
-        description: `The ID of the escalation policy to assign to the incident.`,
-      },
-      {
         name: 'from_email',
         type: 'string',
         required: true,
         description: `The email address of the user creating the incident. Required by PagerDuty.`,
-      },
-      {
-        name: 'incident_key',
-        type: 'string',
-        required: false,
-        description: `A string that identifies the incident. Used for deduplication.`,
-      },
-      {
-        name: 'priority_id',
-        type: 'string',
-        required: false,
-        description: `The ID of the priority to assign to the incident.`,
       },
       {
         name: 'service_id',
@@ -208,6 +184,30 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `A brief description of the incident.`,
+      },
+      {
+        name: 'body_details',
+        type: 'string',
+        required: false,
+        description: `Additional details about the incident body (plain text).`,
+      },
+      {
+        name: 'escalation_policy_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the escalation policy to assign to the incident.`,
+      },
+      {
+        name: 'incident_key',
+        type: 'string',
+        required: false,
+        description: `A string that identifies the incident. Used for deduplication.`,
+      },
+      {
+        name: 'priority_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the priority to assign to the incident.`,
       },
       {
         name: 'urgency',
@@ -282,18 +282,6 @@ export const tools: Tool[] = [
     description: `Update an existing PagerDuty incident. Can change status, urgency, title, priority, escalation policy, or reassign it.`,
     params: [
       {
-        name: 'assignee_id',
-        type: 'string',
-        required: false,
-        description: `The ID of the user to assign the incident to.`,
-      },
-      {
-        name: 'escalation_policy_id',
-        type: 'string',
-        required: false,
-        description: `The ID of the escalation policy to assign to the incident.`,
-      },
-      {
         name: 'from_email',
         type: 'string',
         required: true,
@@ -304,6 +292,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The ID of the incident to update.`,
+      },
+      {
+        name: 'assignee_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the user to assign the incident to.`,
+      },
+      {
+        name: 'escalation_policy_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the escalation policy to assign to the incident.`,
       },
       {
         name: 'priority_id',
@@ -498,12 +498,6 @@ export const tools: Tool[] = [
     description: `Create a new maintenance window in PagerDuty. During a maintenance window, no incidents will be created for the associated services.`,
     params: [
       {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `A description of the maintenance window.`,
-      },
-      {
         name: 'end_time',
         type: 'string',
         required: true,
@@ -526,6 +520,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The start time of the maintenance window (ISO 8601 format).`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A description of the maintenance window.`,
       },
     ],
   },
@@ -564,6 +564,12 @@ export const tools: Tool[] = [
     description: `Update an existing PagerDuty maintenance window's description, start time, or end time.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the maintenance window to update.`,
+      },
+      {
         name: 'description',
         type: 'string',
         required: false,
@@ -574,12 +580,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Updated end time of the maintenance window (ISO 8601 format).`,
-      },
-      {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `The ID of the maintenance window to update.`,
       },
       {
         name: 'start_time',
@@ -642,6 +642,18 @@ export const tools: Tool[] = [
     description: `List notifications sent for incidents in a given time range. Notifications are messages sent to users when incidents are triggered, acknowledged, or resolved.`,
     params: [
       {
+        name: 'since',
+        type: 'string',
+        required: true,
+        description: `The start of the date range (ISO 8601). Required.`,
+      },
+      {
+        name: 'until',
+        type: 'string',
+        required: true,
+        description: `The end of the date range (ISO 8601). Required.`,
+      },
+      {
         name: 'filter',
         type: 'string',
         required: false,
@@ -666,22 +678,10 @@ export const tools: Tool[] = [
         description: `Offset to start pagination search results.`,
       },
       {
-        name: 'since',
-        type: 'string',
-        required: true,
-        description: `The start of the date range (ISO 8601). Required.`,
-      },
-      {
         name: 'time_zone',
         type: 'string',
         required: false,
         description: `Time zone for the notification data (IANA format).`,
-      },
-      {
-        name: 'until',
-        type: 'string',
-        required: true,
-        description: `The end of the date range (ISO 8601). Required.`,
       },
     ],
   },
@@ -761,30 +761,12 @@ export const tools: Tool[] = [
     description: `Create a new on-call schedule in PagerDuty with a single layer. Schedules determine who is on call at any given time.`,
     params: [
       {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `A description of the schedule.`,
-      },
-      {
-        name: 'layer_name',
-        type: 'string',
-        required: false,
-        description: `The name of the first schedule layer.`,
-      },
-      {
         name: 'layer_start',
         type: 'string',
         required: true,
         description: `The start time of the schedule layer (ISO 8601 format).`,
       },
       { name: 'name', type: 'string', required: true, description: `The name of the schedule.` },
-      {
-        name: 'rotation_turn_length_seconds',
-        type: 'integer',
-        required: false,
-        description: `The duration of each on-call rotation turn in seconds (e.g., 86400 = 1 day, 604800 = 1 week).`,
-      },
       {
         name: 'rotation_virtual_start',
         type: 'string',
@@ -802,6 +784,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Comma-separated list of user IDs to include in the rotation.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `A description of the schedule.`,
+      },
+      {
+        name: 'layer_name',
+        type: 'string',
+        required: false,
+        description: `The name of the first schedule layer.`,
+      },
+      {
+        name: 'rotation_turn_length_seconds',
+        type: 'integer',
+        required: false,
+        description: `The duration of each on-call rotation turn in seconds (e.g., 86400 = 1 day, 604800 = 1 week).`,
       },
     ],
   },
@@ -852,16 +852,16 @@ export const tools: Tool[] = [
     description: `Update an existing PagerDuty on-call schedule's name, description, or time zone.`,
     params: [
       {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `Updated description of the schedule.`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
         description: `The ID of the schedule to update.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Updated description of the schedule.`,
       },
       {
         name: 'name',
@@ -912,6 +912,13 @@ export const tools: Tool[] = [
     description: `Create a new service in PagerDuty. A service represents something you monitor and manage incidents for.`,
     params: [
       {
+        name: 'escalation_policy_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the escalation policy to assign to this service.`,
+      },
+      { name: 'name', type: 'string', required: true, description: `The name of the service.` },
+      {
         name: 'acknowledgement_timeout',
         type: 'integer',
         required: false,
@@ -935,13 +942,6 @@ export const tools: Tool[] = [
         required: false,
         description: `The user-provided description of the service.`,
       },
-      {
-        name: 'escalation_policy_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the escalation policy to assign to this service.`,
-      },
-      { name: 'name', type: 'string', required: true, description: `The name of the service.` },
     ],
   },
   {
@@ -979,6 +979,12 @@ export const tools: Tool[] = [
     description: `Update an existing PagerDuty service. Can change name, description, escalation policy, timeouts, and alert creation settings.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The ID of the service to update.`,
+      },
+      {
         name: 'acknowledgement_timeout',
         type: 'integer',
         required: false,
@@ -1007,12 +1013,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The ID of the escalation policy to assign to this service.`,
-      },
-      {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `The ID of the service to update.`,
       },
       { name: 'name', type: 'string', required: false, description: `The name of the service.` },
       {
@@ -1069,13 +1069,13 @@ export const tools: Tool[] = [
     name: 'pagerduty_team_create',
     description: `Create a new team in PagerDuty. Teams allow grouping of users and services.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `The name of the team.` },
       {
         name: 'description',
         type: 'string',
         required: false,
         description: `A description of the team.`,
       },
-      { name: 'name', type: 'string', required: true, description: `The name of the team.` },
     ],
   },
   {
@@ -1101,13 +1101,13 @@ export const tools: Tool[] = [
     name: 'pagerduty_team_update',
     description: `Update an existing PagerDuty team's name or description.`,
     params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the team to update.` },
       {
         name: 'description',
         type: 'string',
         required: false,
         description: `Updated description of the team.`,
       },
-      { name: 'id', type: 'string', required: true, description: `The ID of the team to update.` },
       {
         name: 'name',
         type: 'string',
@@ -1144,12 +1144,6 @@ export const tools: Tool[] = [
     name: 'pagerduty_user_create',
     description: `Create a new user in PagerDuty. Requires name, email, and the creating user's email in the From header.`,
     params: [
-      {
-        name: 'color',
-        type: 'string',
-        required: false,
-        description: `The schedule color for the user.`,
-      },
       { name: 'email', type: 'string', required: true, description: `The user's email address.` },
       {
         name: 'from_email',
@@ -1158,6 +1152,12 @@ export const tools: Tool[] = [
         description: `The email address of the admin creating this user. Required by PagerDuty.`,
       },
       { name: 'name', type: 'string', required: true, description: `The name of the user.` },
+      {
+        name: 'color',
+        type: 'string',
+        required: false,
+        description: `The schedule color for the user.`,
+      },
       {
         name: 'role',
         type: 'string',
@@ -1201,6 +1201,7 @@ export const tools: Tool[] = [
     name: 'pagerduty_user_update',
     description: `Update an existing PagerDuty user's profile including name, email, role, time zone, and color.`,
     params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the user to update.` },
       {
         name: 'color',
         type: 'string',
@@ -1213,7 +1214,6 @@ export const tools: Tool[] = [
         required: false,
         description: `The user's updated email address.`,
       },
-      { name: 'id', type: 'string', required: true, description: `The ID of the user to update.` },
       {
         name: 'name',
         type: 'string',

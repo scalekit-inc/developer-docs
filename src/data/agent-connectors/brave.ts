@@ -6,6 +6,12 @@ export const tools: Tool[] = [
     description: `Get AI-generated answers grounded in real-time Brave Search results using an OpenAI-compatible chat completions interface. Returns summarized, cited answers with source references and token usage statistics.`,
     params: [
       {
+        name: 'messages',
+        type: 'array',
+        required: true,
+        description: `Array of conversation messages. Each message must have a 'role' (system, user, or assistant) and 'content' (string).`,
+      },
+      {
         name: 'country',
         type: 'string',
         required: false,
@@ -36,12 +42,6 @@ export const tools: Tool[] = [
         description: `Language code for the response (e.g., en, fr, de).`,
       },
       {
-        name: 'messages',
-        type: 'array',
-        required: true,
-        description: `Array of conversation messages. Each message must have a 'role' (system, user, or assistant) and 'content' (string).`,
-      },
-      {
         name: 'model',
         type: 'string',
         required: false,
@@ -59,6 +59,7 @@ export const tools: Tool[] = [
     name: 'brave_image_search',
     description: `Search for images using Brave Search. Returns image results with thumbnails, source URLs, dimensions, and metadata. Supports filtering by country, language, and safe search.`,
     params: [
+      { name: 'q', type: 'string', required: true, description: `The image search query string.` },
       {
         name: 'count',
         type: 'integer',
@@ -71,7 +72,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Country code for localised results (e.g., us, gb, de), or ALL for no restriction.`,
       },
-      { name: 'q', type: 'string', required: true, description: `The image search query string.` },
       {
         name: 'safesearch',
         type: 'string',
@@ -96,6 +96,12 @@ export const tools: Tool[] = [
     name: 'brave_llm_context',
     description: `Retrieve real-time web search results optimized as grounding context for LLMs. Returns curated snippets, source URLs, titles, and metadata specifically structured to maximize contextual relevance for AI-generated answers. Supports fine-grained token and snippet budgets.`,
     params: [
+      {
+        name: 'q',
+        type: 'string',
+        required: true,
+        description: `The search query to retrieve grounding context for. Max 400 characters, 50 words.`,
+      },
       {
         name: 'context_threshold_mode',
         type: 'string',
@@ -161,12 +167,6 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Maximum number of URLs to include in the grounding response (1–50). Defaults to 20.`,
-      },
-      {
-        name: 'q',
-        type: 'string',
-        required: true,
-        description: `The search query to retrieve grounding context for. Max 400 characters, 50 words.`,
       },
       {
         name: 'safesearch',
@@ -282,6 +282,7 @@ export const tools: Tool[] = [
     name: 'brave_news_search',
     description: `Search for news articles using Brave Search. Returns recent news results with titles, URLs, snippets, publication dates, and source information. Supports filtering by country, language, freshness, and custom re-ranking via Goggles.`,
     params: [
+      { name: 'q', type: 'string', required: true, description: `The news search query string.` },
       {
         name: 'count',
         type: 'integer',
@@ -318,7 +319,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Zero-based offset for pagination (0–9). Defaults to 0.`,
       },
-      { name: 'q', type: 'string', required: true, description: `The news search query string.` },
       {
         name: 'safesearch',
         type: 'string',
@@ -349,6 +349,7 @@ export const tools: Tool[] = [
     name: 'brave_spellcheck',
     description: `Check and correct spelling of a query using Brave Search's spellcheck engine. Returns suggested corrections for misspelled queries.`,
     params: [
+      { name: 'q', type: 'string', required: true, description: `The query string to spellcheck.` },
       {
         name: 'country',
         type: 'string',
@@ -361,13 +362,18 @@ export const tools: Tool[] = [
         required: false,
         description: `Language code for spellcheck (e.g., en, fr, de).`,
       },
-      { name: 'q', type: 'string', required: true, description: `The query string to spellcheck.` },
     ],
   },
   {
     name: 'brave_suggest_search',
     description: `Get autocomplete search suggestions from Brave Search for a given query prefix. Useful for query completion, exploring related search terms, and building search UIs.`,
     params: [
+      {
+        name: 'q',
+        type: 'string',
+        required: true,
+        description: `The partial query string to get suggestions for.`,
+      },
       {
         name: 'count',
         type: 'integer',
@@ -385,12 +391,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Language code for suggestions (e.g., en, fr, de).`,
-      },
-      {
-        name: 'q',
-        type: 'string',
-        required: true,
-        description: `The partial query string to get suggestions for.`,
       },
       {
         name: 'rich',
@@ -441,6 +441,12 @@ export const tools: Tool[] = [
     description: `Retrieve a full AI-generated summary for a summarizer key obtained from a Brave web search response (requires summary=true on the web search). Returns the complete summary with title, content, enrichments, follow-up queries, and entity details.`,
     params: [
       {
+        name: 'key',
+        type: 'string',
+        required: true,
+        description: `The opaque summarizer key returned in a Brave web search response when summary=true was set.`,
+      },
+      {
         name: 'entity_info',
         type: 'integer',
         required: false,
@@ -451,12 +457,6 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Add citation markers throughout the summary text pointing to sources.`,
-      },
-      {
-        name: 'key',
-        type: 'string',
-        required: true,
-        description: `The opaque summarizer key returned in a Brave web search response when summary=true was set.`,
       },
     ],
   },
@@ -465,6 +465,12 @@ export const tools: Tool[] = [
     description: `Fetch the complete AI-generated summary for a summarizer key. Returns the full summary content with optional inline citation markers and entity metadata.`,
     params: [
       {
+        name: 'key',
+        type: 'string',
+        required: true,
+        description: `The opaque summarizer key returned in a Brave web search response when summary=true was set.`,
+      },
+      {
         name: 'entity_info',
         type: 'integer',
         required: false,
@@ -475,12 +481,6 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Add citation markers throughout the summary text pointing to sources.`,
-      },
-      {
-        name: 'key',
-        type: 'string',
-        required: true,
-        description: `The opaque summarizer key returned in a Brave web search response when summary=true was set.`,
       },
     ],
   },
@@ -500,6 +500,7 @@ export const tools: Tool[] = [
     name: 'brave_video_search',
     description: `Search for videos using Brave Search. Returns video results with titles, URLs, thumbnails, durations, and publisher metadata. Supports filtering by country, language, freshness, and safe search.`,
     params: [
+      { name: 'q', type: 'string', required: true, description: `The video search query string.` },
       {
         name: 'count',
         type: 'integer',
@@ -524,7 +525,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Zero-based offset for pagination (0–9). Defaults to 0.`,
       },
-      { name: 'q', type: 'string', required: true, description: `The video search query string.` },
       {
         name: 'safesearch',
         type: 'string',
@@ -549,6 +549,12 @@ export const tools: Tool[] = [
     name: 'brave_web_search',
     description: `Search the web using Brave Search's privacy-focused search engine. Returns real-time web results including titles, URLs, snippets, news, videos, images, locations, and rich data. Supports filtering by country, language, safe search, freshness, and custom re-ranking via Goggles.`,
     params: [
+      {
+        name: 'q',
+        type: 'string',
+        required: true,
+        description: `Search query string. Max 400 characters, 50 words.`,
+      },
       {
         name: 'count',
         type: 'integer',
@@ -584,12 +590,6 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Zero-based offset for pagination of results (0–9). Defaults to 0.`,
-      },
-      {
-        name: 'q',
-        type: 'string',
-        required: true,
-        description: `Search query string. Max 400 characters, 50 words.`,
       },
       {
         name: 'result_filter',

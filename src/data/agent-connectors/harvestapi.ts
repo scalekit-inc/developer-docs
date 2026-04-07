@@ -12,16 +12,16 @@ export const tools: Tool[] = [
         description: `Your Apify API token from https://console.apify.com/settings/integrations.`,
       },
       {
-        name: 'find_email',
-        type: 'boolean',
-        required: false,
-        description: `When true, attempts email discovery for all profiles. Costs $10 per 1,000 instead of $4.`,
-      },
-      {
         name: 'profile_urls',
         type: 'array',
         required: true,
         description: `JSON array of LinkedIn profile URLs to scrape in bulk.`,
+      },
+      {
+        name: 'find_email',
+        type: 'boolean',
+        required: false,
+        description: `When true, attempts email discovery for all profiles. Costs $10 per 1,000 instead of $4.`,
       },
     ],
   },
@@ -42,13 +42,13 @@ export const tools: Tool[] = [
     name: 'harvestapi_get_comment_reactions',
     description: `Retrieve reactions on a specific LinkedIn comment by its URL.`,
     params: [
+      { name: 'url', type: 'string', required: true, description: `URL of the LinkedIn comment.` },
       {
         name: 'page',
         type: 'integer',
         required: false,
         description: `Page number for pagination (default: 1).`,
       },
-      { name: 'url', type: 'string', required: true, description: `URL of the LinkedIn comment.` },
     ],
   },
   {
@@ -411,16 +411,16 @@ export const tools: Tool[] = [
     description: `Search LinkedIn groups by keyword. Returns paginated results with group name, description, and member count.`,
     params: [
       {
-        name: 'page',
-        type: 'integer',
-        required: false,
-        description: `Page number for pagination (default: 1).`,
-      },
-      {
         name: 'search',
         type: 'string',
         required: true,
         description: `Keyword to search for groups.`,
+      },
+      {
+        name: 'page',
+        type: 'integer',
+        required: false,
+        description: `Page number for pagination (default: 1).`,
       },
     ],
   },
@@ -735,6 +735,12 @@ export const tools: Tool[] = [
     description: `Search LinkedIn profiles offering services by name, location, or geo ID. Returns paginated results.`,
     params: [
       {
+        name: 'search',
+        type: 'string',
+        required: true,
+        description: `Search profiles by service name or keyword.`,
+      },
+      {
         name: 'geo_id',
         type: 'string',
         required: false,
@@ -751,12 +757,6 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Page number for pagination (default: 1).`,
-      },
-      {
-        name: 'search',
-        type: 'string',
-        required: true,
-        description: `Search profiles by service name or keyword.`,
       },
     ],
   },

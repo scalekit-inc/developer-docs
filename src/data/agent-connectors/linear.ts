@@ -24,6 +24,13 @@ export const tools: Tool[] = [
     description: `Create a new issue in Linear using the issueCreate mutation. Requires a team ID and title at minimum.`,
     params: [
       {
+        name: 'teamId',
+        type: 'string',
+        required: true,
+        description: `ID of the team to create the issue in`,
+      },
+      { name: 'title', type: 'string', required: true, description: `Title of the issue` },
+      {
         name: 'assigneeId',
         type: 'string',
         required: false,
@@ -65,19 +72,13 @@ export const tools: Tool[] = [
         required: false,
         description: `ID of the workflow state to set`,
       },
-      {
-        name: 'teamId',
-        type: 'string',
-        required: true,
-        description: `ID of the team to create the issue in`,
-      },
-      { name: 'title', type: 'string', required: true, description: `Title of the issue` },
     ],
   },
   {
     name: 'linear_issue_update',
     description: `Update an existing issue in Linear. You can update title, description, priority, state, and assignee.`,
     params: [
+      { name: 'issueId', type: 'string', required: true, description: `ID of the issue to update` },
       {
         name: 'assigneeId',
         type: 'string',
@@ -90,7 +91,6 @@ export const tools: Tool[] = [
         required: false,
         description: `New description for the issue`,
       },
-      { name: 'issueId', type: 'string', required: true, description: `ID of the issue to update` },
       {
         name: 'priority',
         type: 'string',

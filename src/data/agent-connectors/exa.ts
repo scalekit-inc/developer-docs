@@ -6,6 +6,12 @@ export const tools: Tool[] = [
     description: `Get a natural language answer to a question by searching the web with Exa and synthesizing results. Returns a direct answer with citations to the source pages. Ideal for factual questions, current events, and research queries. Rate limit: 60 requests/minute.`,
     params: [
       {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The question or query to answer from web sources.`,
+      },
+      {
         name: 'exclude_domains',
         type: 'array',
         required: false,
@@ -29,18 +35,18 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of web sources to use when generating the answer (1–20). More sources improves accuracy but costs more credits.`,
       },
-      {
-        name: 'query',
-        type: 'string',
-        required: true,
-        description: `The question or query to answer from web sources.`,
-      },
     ],
   },
   {
     name: 'exa_crawl',
     description: `Crawl one or more web pages by URL and extract their content including full text, highlights, and AI-generated summaries. Useful for reading specific pages discovered via search. Rate limit: 60 requests/minute. Credit consumption depends on number of URLs.`,
     params: [
+      {
+        name: 'urls',
+        type: 'array',
+        required: true,
+        description: `JSON array of URLs to crawl and extract content from.`,
+      },
       {
         name: 'highlights_per_url',
         type: 'integer',
@@ -77,12 +83,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Optional query to focus the AI summary on a specific aspect of the page.`,
       },
-      {
-        name: 'urls',
-        type: 'array',
-        required: true,
-        description: `JSON array of URLs to crawl and extract content from.`,
-      },
     ],
   },
   {
@@ -101,6 +101,12 @@ export const tools: Tool[] = [
     name: 'exa_find_similar',
     description: `Find web pages similar to a given URL using Exa's neural similarity search. Useful for competitor research, finding related articles, or discovering similar companies. Optionally returns page text, highlights, or summaries. Rate limit: 60 requests/minute.`,
     params: [
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The URL to find similar pages for.`,
+      },
       {
         name: 'end_published_date',
         type: 'string',
@@ -143,12 +149,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Only return pages published after this date. ISO 8601 format: YYYY-MM-DDTHH:MM:SS.000Z`,
       },
-      {
-        name: 'url',
-        type: 'string',
-        required: true,
-        description: `The URL to find similar pages for.`,
-      },
     ],
   },
   {
@@ -168,6 +168,12 @@ export const tools: Tool[] = [
     description: `List the collected URLs and items from a completed Exa Webset. Use this after polling Get Webset until its status is 'completed' to retrieve the discovered results.`,
     params: [
       {
+        name: 'webset_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webset to retrieve items from.`,
+      },
+      {
         name: 'count',
         type: 'integer',
         required: false,
@@ -178,12 +184,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Pagination cursor from a previous response to fetch the next page of items.`,
-      },
-      {
-        name: 'webset_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the webset to retrieve items from.`,
       },
     ],
   },
@@ -209,6 +209,12 @@ export const tools: Tool[] = [
     name: 'exa_research',
     description: `Run in-depth research on a topic using Exa's neural search. Performs a semantic search and returns results with full page text and AI-generated summaries, providing structured multi-source research output. Best for comprehensive topic analysis. Rate limit: 60 requests/minute.`,
     params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The research topic or question to investigate across the web.`,
+      },
       {
         name: 'category',
         type: 'string',
@@ -240,12 +246,6 @@ export const tools: Tool[] = [
         description: `Number of sources to gather for the research (1–20). More sources provide broader coverage.`,
       },
       {
-        name: 'query',
-        type: 'string',
-        required: true,
-        description: `The research topic or question to investigate across the web.`,
-      },
-      {
         name: 'start_published_date',
         type: 'string',
         required: false,
@@ -263,6 +263,12 @@ export const tools: Tool[] = [
     name: 'exa_search',
     description: `Search the web using Exa's AI-powered semantic or keyword search engine. Supports filtering by domain, date range, content category, and result type. Optionally returns page text, highlights, or summaries alongside search results. Rate limit: 60 requests/minute.`,
     params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The search query. For neural/auto type, natural language works best. For keyword type, use specific terms.`,
+      },
       {
         name: 'category',
         type: 'string',
@@ -306,12 +312,6 @@ export const tools: Tool[] = [
         description: `Number of results to return (1–100). Defaults to 10.`,
       },
       {
-        name: 'query',
-        type: 'string',
-        required: true,
-        description: `The search query. For neural/auto type, natural language works best. For keyword type, use specific terms.`,
-      },
-      {
         name: 'start_published_date',
         type: 'string',
         required: false,
@@ -335,6 +335,12 @@ export const tools: Tool[] = [
     name: 'exa_websets',
     description: `Execute a complex web query designed to discover and return large sets of URLs (up to thousands) matching specific criteria. Websets are ideal for lead generation, market research, competitor analysis, and large-scale data collection. Returns a webset ID — poll status with GET /websets/v0/websets/{id}. High credit consumption.`,
     params: [
+      {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `The search query describing what kinds of pages or entities to find. Be specific and descriptive for best results.`,
+      },
       {
         name: 'count',
         type: 'integer',
@@ -364,12 +370,6 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `JSON array of domains to restrict webset sources to.`,
-      },
-      {
-        name: 'query',
-        type: 'string',
-        required: true,
-        description: `The search query describing what kinds of pages or entities to find. Be specific and descriptive for best results.`,
       },
     ],
   },

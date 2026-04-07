@@ -275,16 +275,16 @@ export const tools: Tool[] = [
     description: `Update an existing deal or opportunity in Affinity. Supports renaming the deal, adding or removing associated persons and organizations. Use this to reflect changes in deal status, team assignment, or company involvement during a pipeline review.`,
     params: [
       {
-        name: 'name',
-        type: 'string',
-        required: false,
-        description: `Updated name for the opportunity`,
-      },
-      {
         name: 'opportunity_id',
         type: 'integer',
         required: true,
         description: `Unique numeric ID of the opportunity to update`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Updated name for the opportunity`,
       },
       {
         name: 'organization_ids',

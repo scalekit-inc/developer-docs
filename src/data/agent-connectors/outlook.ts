@@ -5,6 +5,11 @@ export const tools: Tool[] = [
     name: 'outlook_create_calendar_event',
     description: `Create a new calendar event in the user's Outlook calendar. Supports attendees, recurrence, reminders, online meetings, multiple locations, and event properties.`,
     params: [
+      { name: 'end_datetime', type: 'string', required: true, description: `No description.` },
+      { name: 'end_timezone', type: 'string', required: true, description: `No description.` },
+      { name: 'start_datetime', type: 'string', required: true, description: `No description.` },
+      { name: 'start_timezone', type: 'string', required: true, description: `No description.` },
+      { name: 'subject', type: 'string', required: true, description: `No description.` },
       {
         name: 'attendees_optional',
         type: 'string',
@@ -25,8 +30,6 @@ export const tools: Tool[] = [
       },
       { name: 'body_content', type: 'string', required: false, description: `No description.` },
       { name: 'body_contentType', type: 'string', required: false, description: `No description.` },
-      { name: 'end_datetime', type: 'string', required: true, description: `No description.` },
-      { name: 'end_timezone', type: 'string', required: true, description: `No description.` },
       {
         name: 'hideAttendees',
         type: 'boolean',
@@ -120,15 +123,19 @@ export const tools: Tool[] = [
         description: `Event sensitivity/privacy level`,
       },
       { name: 'showAs', type: 'string', required: false, description: `Free/busy status` },
-      { name: 'start_datetime', type: 'string', required: true, description: `No description.` },
-      { name: 'start_timezone', type: 'string', required: true, description: `No description.` },
-      { name: 'subject', type: 'string', required: true, description: `No description.` },
     ],
   },
   {
     name: 'outlook_create_contact',
     description: `Create a new contact in the user's mailbox with name, email addresses, and phone numbers.`,
     params: [
+      {
+        name: 'givenName',
+        type: 'string',
+        required: true,
+        description: `First name of the contact`,
+      },
+      { name: 'surname', type: 'string', required: true, description: `Last name of the contact` },
       {
         name: 'businessPhones',
         type: 'array',
@@ -142,15 +149,8 @@ export const tools: Tool[] = [
         required: false,
         description: `Array of email address objects with 'address' and optional 'name' fields`,
       },
-      {
-        name: 'givenName',
-        type: 'string',
-        required: true,
-        description: `First name of the contact`,
-      },
       { name: 'jobTitle', type: 'string', required: false, description: `Job title` },
       { name: 'mobilePhone', type: 'string', required: false, description: `Mobile phone number` },
-      { name: 'surname', type: 'string', required: true, description: `Last name of the contact` },
     ],
   },
   {
@@ -384,6 +384,12 @@ export const tools: Tool[] = [
     description: `Search messages by keywords across subject, body, sender, and other fields. Returns matching messages with support for pagination.`,
     params: [
       {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Search query string (searches across subject, body, from, to)`,
+      },
+      {
         name: '$select',
         type: 'string',
         required: false,
@@ -401,25 +407,26 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of messages to return (1-1000, default: 10)`,
       },
-      {
-        name: 'query',
-        type: 'string',
-        required: true,
-        description: `Search query string (searches across subject, body, from, to)`,
-      },
     ],
   },
   {
     name: 'outlook_send_message',
     description: `Send an email message using Microsoft Graph API. The message is saved in the Sent Items folder by default.`,
     params: [
+      { name: 'body', type: 'string', required: true, description: `Body content of the email` },
+      { name: 'subject', type: 'string', required: true, description: `Subject line of the email` },
+      {
+        name: 'toRecipients',
+        type: 'array',
+        required: true,
+        description: `Array of email addresses to send to`,
+      },
       {
         name: 'bccRecipients',
         type: 'array',
         required: false,
         description: `Array of email addresses to BCC`,
       },
-      { name: 'body', type: 'string', required: true, description: `Body content of the email` },
       {
         name: 'bodyType',
         type: 'string',
@@ -437,13 +444,6 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Save the message in Sent Items folder (default: true)`,
-      },
-      { name: 'subject', type: 'string', required: true, description: `Subject line of the email` },
-      {
-        name: 'toRecipients',
-        type: 'array',
-        required: true,
-        description: `Array of email addresses to send to`,
       },
     ],
   },
@@ -506,6 +506,13 @@ export const tools: Tool[] = [
     description: `Create a new task in a Microsoft To Do task list with optional body, due date, importance, and reminder.`,
     params: [
       {
+        name: 'list_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the task list to add the task to.`,
+      },
+      { name: 'title', type: 'string', required: true, description: `The title of the task.` },
+      {
         name: 'body',
         type: 'string',
         required: false,
@@ -536,12 +543,6 @@ export const tools: Tool[] = [
         description: `The importance of the task: low, normal, or high.`,
       },
       {
-        name: 'list_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the task list to add the task to.`,
-      },
-      {
         name: 'reminder_date_time',
         type: 'string',
         required: false,
@@ -559,7 +560,6 @@ export const tools: Tool[] = [
         required: false,
         description: `The status of the task: notStarted, inProgress, completed, waitingOnOthers, or deferred.`,
       },
-      { name: 'title', type: 'string', required: true, description: `The title of the task.` },
     ],
   },
   {
@@ -587,6 +587,7 @@ export const tools: Tool[] = [
     name: 'outlook_todo_tasks_list',
     description: `List all tasks in a Microsoft To Do task list with optional filtering and pagination.`,
     params: [
+      { name: 'list_id', type: 'string', required: true, description: `The ID of the task list.` },
       {
         name: '$filter',
         type: 'string',
@@ -611,13 +612,19 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of tasks to return (default: 10).`,
       },
-      { name: 'list_id', type: 'string', required: true, description: `The ID of the task list.` },
     ],
   },
   {
     name: 'outlook_todo_tasks_update',
     description: `Update a task in a Microsoft To Do task list. Only provided fields are changed.`,
     params: [
+      { name: 'list_id', type: 'string', required: true, description: `The ID of the task list.` },
+      {
+        name: 'task_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the task to update.`,
+      },
       {
         name: 'body',
         type: 'string',
@@ -648,18 +655,11 @@ export const tools: Tool[] = [
         required: false,
         description: `The importance: low, normal, or high.`,
       },
-      { name: 'list_id', type: 'string', required: true, description: `The ID of the task list.` },
       {
         name: 'status',
         type: 'string',
         required: false,
         description: `The status: notStarted, inProgress, completed, waitingOnOthers, or deferred.`,
-      },
-      {
-        name: 'task_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the task to update.`,
       },
       { name: 'title', type: 'string', required: false, description: `New title for the task.` },
     ],
@@ -668,6 +668,12 @@ export const tools: Tool[] = [
     name: 'outlook_update_calendar_event',
     description: `Update an existing Outlook calendar event. Only provided fields will be updated. Supports time, attendees, location, reminders, online meetings, recurrence, and event properties.`,
     params: [
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the calendar event to update`,
+      },
       {
         name: 'attendees_optional',
         type: 'string',
@@ -715,12 +721,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Timezone for end time`,
-      },
-      {
-        name: 'event_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the calendar event to update`,
       },
       {
         name: 'hideAttendees',

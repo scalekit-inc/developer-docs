@@ -102,13 +102,13 @@ export const tools: Tool[] = [
         required: true,
         description: `The deployment ID to create a check for.`,
       },
+      { name: 'name', type: 'string', required: true, description: `Display name for the check.` },
       {
         name: 'detailsUrl',
         type: 'string',
         required: false,
         description: `URL where users can view check details.`,
       },
-      { name: 'name', type: 'string', required: true, description: `Display name for the check.` },
       {
         name: 'team_id',
         type: 'string',
@@ -123,16 +123,16 @@ export const tools: Tool[] = [
     params: [
       { name: 'check_id', type: 'string', required: true, description: `The check ID to update.` },
       {
-        name: 'conclusion',
-        type: 'string',
-        required: false,
-        description: `Check conclusion: succeeded, failed, skipped, canceled.`,
-      },
-      {
         name: 'deployment_id',
         type: 'string',
         required: true,
         description: `The deployment ID the check belongs to.`,
+      },
+      {
+        name: 'conclusion',
+        type: 'string',
+        required: false,
+        description: `Check conclusion: succeeded, failed, skipped, canceled.`,
       },
       {
         name: 'detailsUrl',
@@ -212,13 +212,13 @@ export const tools: Tool[] = [
     name: 'vercel_deployment_create',
     description: `Creates a new Vercel deployment for a project, optionally from a Git ref or with inline files.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `The project name to deploy.` },
       {
         name: 'git_source',
         type: 'string',
         required: false,
         description: `JSON object with Git source info, e.g. {"type":"github","ref":"main","repoId":"123"}.`,
       },
-      { name: 'name', type: 'string', required: true, description: `The project name to deploy.` },
       {
         name: 'target',
         type: 'string',
@@ -352,28 +352,10 @@ export const tools: Tool[] = [
         description: `The domain to create the DNS record for.`,
       },
       {
-        name: 'mx_priority',
-        type: 'integer',
-        required: false,
-        description: `Priority for MX records.`,
-      },
-      {
         name: 'name',
         type: 'string',
         required: true,
         description: `Subdomain name, or empty string for root domain.`,
-      },
-      {
-        name: 'team_id',
-        type: 'string',
-        required: false,
-        description: `Team ID if the domain belongs to a team.`,
-      },
-      {
-        name: 'ttl',
-        type: 'integer',
-        required: false,
-        description: `Time-to-live in seconds. Default is 60.`,
       },
       {
         name: 'type',
@@ -386,6 +368,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The record value (IP address, hostname, text, etc.).`,
+      },
+      {
+        name: 'mx_priority',
+        type: 'integer',
+        required: false,
+        description: `Priority for MX records.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: false,
+        description: `Team ID if the domain belongs to a team.`,
+      },
+      {
+        name: 'ttl',
+        type: 'integer',
+        required: false,
+        description: `Time-to-live in seconds. Default is 60.`,
       },
     ],
   },
@@ -666,16 +666,16 @@ export const tools: Tool[] = [
         description: `The Edge Config store ID.`,
       },
       {
-        name: 'team_id',
-        type: 'string',
-        required: false,
-        description: `Team ID if the Edge Config belongs to a team.`,
-      },
-      {
         name: 'tokens',
         type: 'string',
         required: true,
         description: `JSON array of token IDs to delete.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: false,
+        description: `Team ID if the Edge Config belongs to a team.`,
       },
     ],
   },
@@ -721,6 +721,12 @@ export const tools: Tool[] = [
       },
       { name: 'key', type: 'string', required: true, description: `The environment variable key.` },
       {
+        name: 'value',
+        type: 'string',
+        required: true,
+        description: `The environment variable value.`,
+      },
+      {
         name: 'target',
         type: 'string',
         required: false,
@@ -737,12 +743,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Variable type: plain or secret. Default is plain.`,
-      },
-      {
-        name: 'value',
-        type: 'string',
-        required: true,
-        description: `The environment variable value.`,
       },
     ],
   },
@@ -811,16 +811,16 @@ export const tools: Tool[] = [
     description: `Returns all environment variables for a Vercel project, including their targets (production, preview, development) and encryption status.`,
     params: [
       {
-        name: 'decrypt',
-        type: 'boolean',
-        required: false,
-        description: `If true, returns decrypted values for sensitive variables.`,
-      },
-      {
         name: 'id_or_name',
         type: 'string',
         required: true,
         description: `The project ID or name.`,
+      },
+      {
+        name: 'decrypt',
+        type: 'boolean',
+        required: false,
+        description: `If true, returns decrypted values for sensitive variables.`,
       },
       {
         name: 'team_id',
@@ -834,6 +834,7 @@ export const tools: Tool[] = [
     name: 'vercel_project_create',
     description: `Creates a new Vercel project with a given name, framework, and optional Git repository.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `The name of the project.` },
       {
         name: 'framework',
         type: 'string',
@@ -846,7 +847,6 @@ export const tools: Tool[] = [
         required: false,
         description: `JSON object with 'type' (github/gitlab/bitbucket) and 'repo' (owner/name) fields.`,
       },
-      { name: 'name', type: 'string', required: true, description: `The name of the project.` },
       {
         name: 'root_directory',
         type: 'string',
@@ -884,12 +884,6 @@ export const tools: Tool[] = [
     description: `Assigns a domain to a Vercel project with an optional redirect target.`,
     params: [
       {
-        name: 'git_branch',
-        type: 'string',
-        required: false,
-        description: `Git branch to associate this domain with for preview deployments.`,
-      },
-      {
         name: 'id_or_name',
         type: 'string',
         required: true,
@@ -900,6 +894,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The domain name to assign to the project.`,
+      },
+      {
+        name: 'git_branch',
+        type: 'string',
+        required: false,
+        description: `Git branch to associate this domain with for preview deployments.`,
       },
       {
         name: 'redirect',
@@ -986,6 +986,12 @@ export const tools: Tool[] = [
     description: `Updates a Vercel project's name, framework, build command, output directory, or other settings.`,
     params: [
       {
+        name: 'id_or_name',
+        type: 'string',
+        required: true,
+        description: `The project ID or name to update.`,
+      },
+      {
         name: 'build_command',
         type: 'string',
         required: false,
@@ -996,12 +1002,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Framework preset to apply.`,
-      },
-      {
-        name: 'id_or_name',
-        type: 'string',
-        required: true,
-        description: `The project ID or name to update.`,
       },
       {
         name: 'install_command',
@@ -1058,13 +1058,13 @@ export const tools: Tool[] = [
     name: 'vercel_team_create',
     description: `Creates a new Vercel team with the specified slug and optional name.`,
     params: [
-      { name: 'name', type: 'string', required: false, description: `Display name for the team.` },
       {
         name: 'slug',
         type: 'string',
         required: true,
         description: `A unique URL-friendly identifier for the team.`,
       },
+      { name: 'name', type: 'string', required: false, description: `Display name for the team.` },
     ],
   },
   {
@@ -1096,13 +1096,13 @@ export const tools: Tool[] = [
         required: true,
         description: `Email address of the user to invite.`,
       },
+      { name: 'team_id', type: 'string', required: true, description: `The team ID or slug.` },
       {
         name: 'role',
         type: 'string',
         required: false,
         description: `Role to assign: OWNER, MEMBER, VIEWER, DEVELOPER, BILLING.`,
       },
-      { name: 'team_id', type: 'string', required: true, description: `The team ID or slug.` },
     ],
   },
   {
@@ -1122,6 +1122,7 @@ export const tools: Tool[] = [
     name: 'vercel_team_members_list',
     description: `Returns all members of a Vercel team including their roles and join dates.`,
     params: [
+      { name: 'team_id', type: 'string', required: true, description: `The team ID or slug.` },
       {
         name: 'limit',
         type: 'integer',
@@ -1140,13 +1141,18 @@ export const tools: Tool[] = [
         required: false,
         description: `Timestamp in ms to fetch members joined after this time.`,
       },
-      { name: 'team_id', type: 'string', required: true, description: `The team ID or slug.` },
     ],
   },
   {
     name: 'vercel_team_update',
     description: `Updates a Vercel team's name, slug, description, or other settings.`,
     params: [
+      {
+        name: 'team_id',
+        type: 'string',
+        required: true,
+        description: `The team ID or slug to update.`,
+      },
       {
         name: 'description',
         type: 'string',
@@ -1164,12 +1170,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `New URL-friendly slug for the team.`,
-      },
-      {
-        name: 'team_id',
-        type: 'string',
-        required: true,
-        description: `The team ID or slug to update.`,
       },
     ],
   },
@@ -1213,6 +1213,12 @@ export const tools: Tool[] = [
         description: `JSON array of event types to subscribe to, e.g. ["deployment.created","deployment.succeeded"].`,
       },
       {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The HTTPS endpoint URL to receive webhook payloads.`,
+      },
+      {
         name: 'project_ids',
         type: 'string',
         required: false,
@@ -1224,12 +1230,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Team ID to create the webhook for.`,
       },
-      {
-        name: 'url',
-        type: 'string',
-        required: true,
-        description: `The HTTPS endpoint URL to receive webhook payloads.`,
-      },
     ],
   },
   {
@@ -1237,16 +1237,16 @@ export const tools: Tool[] = [
     description: `Permanently deletes a Vercel webhook.`,
     params: [
       {
-        name: 'team_id',
-        type: 'string',
-        required: false,
-        description: `Team ID if the webhook belongs to a team.`,
-      },
-      {
         name: 'webhook_id',
         type: 'string',
         required: true,
         description: `The webhook ID to delete.`,
+      },
+      {
+        name: 'team_id',
+        type: 'string',
+        required: false,
+        description: `Team ID if the webhook belongs to a team.`,
       },
     ],
   },
@@ -1254,13 +1254,13 @@ export const tools: Tool[] = [
     name: 'vercel_webhook_get',
     description: `Returns details of a specific Vercel webhook by its ID.`,
     params: [
+      { name: 'webhook_id', type: 'string', required: true, description: `The webhook ID.` },
       {
         name: 'team_id',
         type: 'string',
         required: false,
         description: `Team ID if the webhook belongs to a team.`,
       },
-      { name: 'webhook_id', type: 'string', required: true, description: `The webhook ID.` },
     ],
   },
   {

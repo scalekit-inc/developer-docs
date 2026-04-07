@@ -30,16 +30,16 @@ export const tools: Tool[] = [
     description: `Creates a new public or private channel in a Slack workspace. Requires a valid Slack OAuth2 connection with channels:manage scope for public channels or groups:write scope for private channels.`,
     params: [
       {
-        name: 'is_private',
-        type: 'boolean',
-        required: false,
-        description: `Create a private channel instead of public`,
-      },
-      {
         name: 'name',
         type: 'string',
         required: true,
         description: `Name of the channel to create (without # prefix)`,
+      },
+      {
+        name: 'is_private',
+        type: 'boolean',
+        required: false,
+        description: `Create a private channel instead of public`,
       },
       {
         name: 'team_id',
@@ -138,6 +138,12 @@ export const tools: Tool[] = [
         description: `Channel ID, channel name (#general), or user ID for DM`,
       },
       {
+        name: 'ts',
+        type: 'string',
+        required: true,
+        description: `Timestamp of the parent message to get replies for`,
+      },
+      {
         name: 'cursor',
         type: 'string',
         required: false,
@@ -167,12 +173,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Start of time range of messages to include in results`,
       },
-      {
-        name: 'ts',
-        type: 'string',
-        required: true,
-        description: `Timestamp of the parent message to get replies for`,
-      },
     ],
   },
   {
@@ -180,16 +180,16 @@ export const tools: Tool[] = [
     description: `Retrieves detailed information about a specific Slack user, including profile data, status, and workspace information. Requires a valid Slack OAuth2 connection with users:read scope.`,
     params: [
       {
-        name: 'include_locale',
-        type: 'boolean',
-        required: false,
-        description: `Set to true to include locale information for the user`,
-      },
-      {
         name: 'user',
         type: 'string',
         required: true,
         description: `User ID to get information about`,
+      },
+      {
+        name: 'include_locale',
+        type: 'boolean',
+        required: false,
+        description: `Set to true to include locale information for the user`,
       },
     ],
   },
@@ -348,6 +348,13 @@ export const tools: Tool[] = [
     description: `Sends a message to a Slack channel or direct message. Requires a valid Slack OAuth2 connection with chat:write scope.`,
     params: [
       {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Channel ID, channel name (#general), or user ID for DM`,
+      },
+      { name: 'text', type: 'string', required: true, description: `Message text content` },
+      {
         name: 'attachments',
         type: 'string',
         required: false,
@@ -358,12 +365,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `JSON-encoded array of Block Kit block elements for rich message formatting`,
-      },
-      {
-        name: 'channel',
-        type: 'string',
-        required: true,
-        description: `Channel ID, channel name (#general), or user ID for DM`,
       },
       {
         name: 'reply_broadcast',
@@ -377,7 +378,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Optional schema version to use for tool execution`,
       },
-      { name: 'text', type: 'string', required: true, description: `Message text content` },
       {
         name: 'thread_ts',
         type: 'string',
@@ -433,6 +433,18 @@ export const tools: Tool[] = [
     description: `Updates/edits a previously sent message in a Slack channel or direct message. Requires a valid Slack OAuth2 connection with chat:write scope.`,
     params: [
       {
+        name: 'channel',
+        type: 'string',
+        required: true,
+        description: `Channel ID, channel name (#general), or user ID for DM where the message was sent`,
+      },
+      {
+        name: 'ts',
+        type: 'string',
+        required: true,
+        description: `Timestamp of the message to update`,
+      },
+      {
         name: 'attachments',
         type: 'string',
         required: false,
@@ -444,19 +456,7 @@ export const tools: Tool[] = [
         required: false,
         description: `JSON-encoded array of Block Kit block elements for rich message formatting`,
       },
-      {
-        name: 'channel',
-        type: 'string',
-        required: true,
-        description: `Channel ID, channel name (#general), or user ID for DM where the message was sent`,
-      },
       { name: 'text', type: 'string', required: false, description: `New message text content` },
-      {
-        name: 'ts',
-        type: 'string',
-        required: true,
-        description: `Timestamp of the message to update`,
-      },
     ],
   },
 ]

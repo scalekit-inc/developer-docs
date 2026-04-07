@@ -101,14 +101,14 @@ export const tools: Tool[] = [
     name: 'vimeo_folder_videos_list',
     description: `Retrieve all videos inside a specific Vimeo folder (project). Requires private scope.`,
     params: [
-      { name: 'direction', type: 'string', required: false, description: `Sort direction` },
-      { name: 'filter', type: 'string', required: false, description: `Filter videos by type` },
       {
         name: 'folder_id',
         type: 'string',
         required: true,
         description: `Folder (project) ID to list videos from`,
       },
+      { name: 'direction', type: 'string', required: false, description: `Sort direction` },
+      { name: 'filter', type: 'string', required: false, description: `Filter videos by type` },
       { name: 'page', type: 'integer', required: false, description: `Page number of results` },
       {
         name: 'per_page',
@@ -236,6 +236,7 @@ export const tools: Tool[] = [
     name: 'vimeo_showcase_create',
     description: `Create a new showcase (album) on Vimeo for organizing videos. Supports privacy, password protection, branding, and embed settings. Requires create scope.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `Name/title of the showcase` },
       {
         name: 'brand_color',
         type: 'string',
@@ -260,7 +261,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Whether to hide upcoming live events in the showcase`,
       },
-      { name: 'name', type: 'string', required: true, description: `Name/title of the showcase` },
       {
         name: 'password',
         type: 'string',
@@ -365,6 +365,7 @@ export const tools: Tool[] = [
     name: 'vimeo_user_videos_list',
     description: `Retrieve all public videos uploaded by a specific Vimeo user. Supports filtering and pagination. Requires public scope.`,
     params: [
+      { name: 'user_id', type: 'string', required: true, description: `Vimeo user ID or username` },
       { name: 'direction', type: 'string', required: false, description: `Sort direction` },
       {
         name: 'filter',
@@ -391,7 +392,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Sort order for video results`,
       },
-      { name: 'user_id', type: 'string', required: true, description: `Vimeo user ID or username` },
     ],
   },
   {
@@ -411,6 +411,12 @@ export const tools: Tool[] = [
     name: 'vimeo_video_comments_list',
     description: `Retrieve all comments posted on a specific Vimeo video. Requires public scope.`,
     params: [
+      {
+        name: 'video_id',
+        type: 'string',
+        required: true,
+        description: `Vimeo video ID to list comments from`,
+      },
       { name: 'direction', type: 'string', required: false, description: `Sort direction` },
       { name: 'page', type: 'integer', required: false, description: `Page number of results` },
       {
@@ -418,12 +424,6 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of comments per page`,
-      },
-      {
-        name: 'video_id',
-        type: 'string',
-        required: true,
-        description: `Vimeo video ID to list comments from`,
       },
     ],
   },
@@ -438,6 +438,7 @@ export const tools: Tool[] = [
     name: 'vimeo_video_edit',
     description: `Update the metadata of an existing Vimeo video including title, description, privacy settings, tags, and content rating. Requires edit scope.`,
     params: [
+      { name: 'video_id', type: 'string', required: true, description: `Vimeo video ID to edit` },
       {
         name: 'content_rating',
         type: 'string',
@@ -493,7 +494,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Who can view the video`,
       },
-      { name: 'video_id', type: 'string', required: true, description: `Vimeo video ID to edit` },
     ],
   },
   {
@@ -524,6 +524,7 @@ export const tools: Tool[] = [
     name: 'vimeo_videos_search',
     description: `Search for public videos on Vimeo using keywords and filters. Returns paginated video results with metadata. Requires a valid Vimeo OAuth2 connection with public scope.`,
     params: [
+      { name: 'query', type: 'string', required: true, description: `Search query keywords` },
       {
         name: 'direction',
         type: 'string',
@@ -548,7 +549,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of results to return per page`,
       },
-      { name: 'query', type: 'string', required: true, description: `Search query keywords` },
       {
         name: 'sort',
         type: 'string',

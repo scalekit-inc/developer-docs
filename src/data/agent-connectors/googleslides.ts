@@ -30,16 +30,16 @@ export const tools: Tool[] = [
     description: `Read the complete structure and content of a Google Slides presentation including slides, text, images, shapes, and metadata.`,
     params: [
       {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Fields to include in the response`,
-      },
-      {
         name: 'presentation_id',
         type: 'string',
         required: true,
         description: `The ID of the Google Slides presentation to read`,
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `Fields to include in the response`,
       },
       {
         name: 'schema_version',

@@ -6,6 +6,12 @@ export const tools: Tool[] = [
     description: `Create a new account (company) in Outreach.`,
     params: [
       {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Name of the account (company)`,
+      },
+      {
         name: 'description',
         type: 'string',
         required: false,
@@ -29,12 +35,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Location/city of the account`,
-      },
-      {
-        name: 'name',
-        type: 'string',
-        required: true,
-        description: `Name of the account (company)`,
       },
       {
         name: 'number_of_employees',
@@ -348,18 +348,6 @@ export const tools: Tool[] = [
     description: `Create a new opportunity in Outreach to track sales deals.`,
     params: [
       {
-        name: 'account_id',
-        type: 'integer',
-        required: false,
-        description: `ID of the account associated with this opportunity`,
-      },
-      {
-        name: 'amount',
-        type: 'number',
-        required: false,
-        description: `Monetary value of the opportunity`,
-      },
-      {
         name: 'close_date',
         type: 'string',
         required: true,
@@ -370,6 +358,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Name or title of the opportunity`,
+      },
+      {
+        name: 'account_id',
+        type: 'integer',
+        required: false,
+        description: `ID of the account associated with this opportunity`,
+      },
+      {
+        name: 'amount',
+        type: 'number',
+        required: false,
+        description: `Monetary value of the opportunity`,
       },
       {
         name: 'owner_id',
@@ -462,6 +462,12 @@ export const tools: Tool[] = [
     description: `Update an existing opportunity in Outreach. Only provided fields will be changed.`,
     params: [
       {
+        name: 'opportunity_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the opportunity to update`,
+      },
+      {
         name: 'amount',
         type: 'number',
         required: false,
@@ -478,12 +484,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Updated name of the opportunity`,
-      },
-      {
-        name: 'opportunity_id',
-        type: 'integer',
-        required: true,
-        description: `The unique identifier of the opportunity to update`,
       },
       { name: 'owner_id', type: 'integer', required: false, description: `Updated owner user ID` },
       {
@@ -668,6 +668,12 @@ export const tools: Tool[] = [
     description: `Update an existing prospect in Outreach. Only provided fields will be changed.`,
     params: [
       {
+        name: 'prospect_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the prospect to update`,
+      },
+      {
         name: 'account_id',
         type: 'integer',
         required: false,
@@ -732,12 +738,6 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `Array of phone numbers for the prospect`,
-      },
-      {
-        name: 'prospect_id',
-        type: 'integer',
-        required: true,
-        description: `The unique identifier of the prospect to update`,
       },
       {
         name: 'tags',
@@ -872,13 +872,13 @@ export const tools: Tool[] = [
     name: 'outreach_sequences_create',
     description: `Create a new sequence in Outreach for automated sales engagement.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the sequence` },
       {
         name: 'description',
         type: 'string',
         required: false,
         description: `Description of the sequence`,
       },
-      { name: 'name', type: 'string', required: true, description: `Name of the sequence` },
       {
         name: 'owner_id',
         type: 'integer',
@@ -964,6 +964,12 @@ export const tools: Tool[] = [
     description: `Update an existing sequence in Outreach. Use this to rename a sequence, change its description, or enable/disable it.`,
     params: [
       {
+        name: 'sequence_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the sequence to update`,
+      },
+      {
         name: 'description',
         type: 'string',
         required: false,
@@ -980,12 +986,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Updated name of the sequence`,
-      },
-      {
-        name: 'sequence_id',
-        type: 'integer',
-        required: true,
-        description: `The unique identifier of the sequence to update`,
       },
       {
         name: 'tags',
@@ -1049,16 +1049,16 @@ export const tools: Tool[] = [
     description: `Mark an existing task as complete in Outreach. Only works for action_item and in_person tasks — call and email tasks cannot be completed this way. Use this instead of outreach_tasks_update to complete a task.`,
     params: [
       {
-        name: 'completion_note',
-        type: 'string',
-        required: false,
-        description: `Optional note to record when marking the task complete`,
-      },
-      {
         name: 'task_id',
         type: 'integer',
         required: true,
         description: `The unique identifier of the task to mark as complete`,
+      },
+      {
+        name: 'completion_note',
+        type: 'string',
+        required: false,
+        description: `Optional note to record when marking the task complete`,
       },
     ],
   },
@@ -1073,18 +1073,6 @@ export const tools: Tool[] = [
         description: `Type of action for the task. Options: action_item, call, email, in_person`,
       },
       {
-        name: 'due_at',
-        type: 'string',
-        required: false,
-        description: `Due date/time for the task (ISO 8601 format)`,
-      },
-      {
-        name: 'note',
-        type: 'string',
-        required: false,
-        description: `Note or description for the task`,
-      },
-      {
         name: 'owner_id',
         type: 'integer',
         required: true,
@@ -1095,6 +1083,18 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `ID of the prospect associated with this task (subject). Required — must provide either prospect_id or account_id.`,
+      },
+      {
+        name: 'due_at',
+        type: 'string',
+        required: false,
+        description: `Due date/time for the task (ISO 8601 format)`,
+      },
+      {
+        name: 'note',
+        type: 'string',
+        required: false,
+        description: `Note or description for the task`,
       },
     ],
   },
@@ -1169,6 +1169,12 @@ export const tools: Tool[] = [
     description: `Update an existing task in Outreach. Supports changing action, note, and due date. To mark a task complete, use the outreach_tasks_complete tool instead.`,
     params: [
       {
+        name: 'task_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the task to update`,
+      },
+      {
         name: 'action',
         type: 'string',
         required: false,
@@ -1186,25 +1192,19 @@ export const tools: Tool[] = [
         required: false,
         description: `Updated note or description for the task`,
       },
-      {
-        name: 'task_id',
-        type: 'integer',
-        required: true,
-        description: `The unique identifier of the task to update`,
-      },
     ],
   },
   {
     name: 'outreach_templates_create',
     description: `Create a new email template in Outreach. Templates can be used in sequences and for manual email sends.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the template` },
       {
         name: 'body_html',
         type: 'string',
         required: false,
         description: `HTML body content of the template`,
       },
-      { name: 'name', type: 'string', required: true, description: `Name of the template` },
       {
         name: 'owner_id',
         type: 'integer',
@@ -1284,6 +1284,12 @@ export const tools: Tool[] = [
     description: `Update an existing email template in Outreach. Only provided fields will be changed.`,
     params: [
       {
+        name: 'template_id',
+        type: 'integer',
+        required: true,
+        description: `The unique identifier of the template to update`,
+      },
+      {
         name: 'body_html',
         type: 'string',
         required: false,
@@ -1302,12 +1308,6 @@ export const tools: Tool[] = [
         description: `Updated email subject line`,
       },
       { name: 'tags', type: 'array', required: false, description: `Updated array of tags` },
-      {
-        name: 'template_id',
-        type: 'integer',
-        required: true,
-        description: `The unique identifier of the template to update`,
-      },
     ],
   },
   {
@@ -1357,6 +1357,12 @@ export const tools: Tool[] = [
     description: `Create a new webhook in Outreach to receive event notifications at a specified URL. Outreach will POST event payloads to the provided URL when subscribed events occur.`,
     params: [
       {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The HTTPS URL to receive webhook event payloads`,
+      },
+      {
         name: 'action',
         type: 'string',
         required: false,
@@ -1373,12 +1379,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `A secret string used to sign webhook payloads for verification`,
-      },
-      {
-        name: 'url',
-        type: 'string',
-        required: true,
-        description: `The HTTPS URL to receive webhook event payloads`,
       },
     ],
   },

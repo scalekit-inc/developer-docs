@@ -102,16 +102,16 @@ export const tools: Tool[] = [
         description: `The ID of the comment to get reactions for.`,
       },
       {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Pagination cursor for next page of results.`,
-      },
-      {
         name: 'file_key',
         type: 'string',
         required: true,
         description: `The unique key of the Figma file.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor for next page of results.`,
       },
     ],
   },
@@ -234,12 +234,6 @@ export const tools: Tool[] = [
     description: `Posts a new comment on a Figma file. Can be placed at a specific canvas position or anchored to a specific node.`,
     params: [
       {
-        name: 'client_meta',
-        type: 'string',
-        required: false,
-        description: `JSON string specifying position or node anchor for the comment, e.g. {"node_id":"1:2","node_offset":{"x":0,"y":0}}.`,
-      },
-      {
         name: 'file_key',
         type: 'string',
         required: true,
@@ -250,6 +244,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The text content of the comment.`,
+      },
+      {
+        name: 'client_meta',
+        type: 'string',
+        required: false,
+        description: `JSON string specifying position or node anchor for the comment, e.g. {"node_id":"1:2","node_offset":{"x":0,"y":0}}.`,
       },
     ],
   },
@@ -276,16 +276,16 @@ export const tools: Tool[] = [
     description: `Returns all comments left on a Figma file, including their text, author, position, and resolved status.`,
     params: [
       {
-        name: 'as_md',
-        type: 'boolean',
-        required: false,
-        description: `If true, returns comment text as Markdown.`,
-      },
-      {
         name: 'file_key',
         type: 'string',
         required: true,
         description: `The unique key of the Figma file.`,
+      },
+      {
+        name: 'as_md',
+        type: 'boolean',
+        required: false,
+        description: `If true, returns comment text as Markdown.`,
       },
     ],
   },
@@ -318,16 +318,16 @@ export const tools: Tool[] = [
     description: `Returns a Figma file's full document tree including all nodes, components, styles, and metadata.`,
     params: [
       {
-        name: 'depth',
-        type: 'integer',
-        required: false,
-        description: `Depth of the document tree to return (1-4). Lower depth returns faster.`,
-      },
-      {
         name: 'file_key',
         type: 'string',
         required: true,
         description: `The unique key of the Figma file (found in the file URL).`,
+      },
+      {
+        name: 'depth',
+        type: 'integer',
+        required: false,
+        description: `Depth of the document tree to return (1-4). Lower depth returns faster.`,
       },
       {
         name: 'version',
@@ -360,16 +360,16 @@ export const tools: Tool[] = [
         description: `The unique key of the Figma file.`,
       },
       {
-        name: 'format',
-        type: 'string',
-        required: false,
-        description: `Image format: jpg, png, svg, or pdf. Default is png.`,
-      },
-      {
         name: 'ids',
         type: 'string',
         required: true,
         description: `Comma-separated list of node IDs to render.`,
+      },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        description: `Image format: jpg, png, svg, or pdf. Default is png.`,
       },
       {
         name: 'scale',
@@ -390,12 +390,6 @@ export const tools: Tool[] = [
     description: `Returns specific nodes from a Figma file by their node IDs, along with their children and associated styles and components.`,
     params: [
       {
-        name: 'depth',
-        type: 'integer',
-        required: false,
-        description: `Depth of the document tree to return for each node.`,
-      },
-      {
         name: 'file_key',
         type: 'string',
         required: true,
@@ -406,6 +400,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Comma-separated list of node IDs to retrieve.`,
+      },
+      {
+        name: 'depth',
+        type: 'integer',
+        required: false,
+        description: `Depth of the document tree to return for each node.`,
       },
       {
         name: 'version',
@@ -474,6 +474,12 @@ export const tools: Tool[] = [
     description: `Returns the version history of a Figma file, including version IDs, labels, descriptions, and creation timestamps.`,
     params: [
       {
+        name: 'file_key',
+        type: 'string',
+        required: true,
+        description: `The unique key of the Figma file.`,
+      },
+      {
         name: 'after',
         type: 'string',
         required: false,
@@ -484,12 +490,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Return versions created before this version ID (for pagination).`,
-      },
-      {
-        name: 'file_key',
-        type: 'string',
-        required: true,
-        description: `The unique key of the Figma file.`,
       },
       {
         name: 'page_size',
@@ -504,18 +504,6 @@ export const tools: Tool[] = [
     description: `Returns analytics data on component insertion, detachment, and usage actions from a library file. Enterprise only.`,
     params: [
       {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Pagination cursor from previous response.`,
-      },
-      {
-        name: 'end_date',
-        type: 'string',
-        required: false,
-        description: `End date for analytics in YYYY-MM-DD format.`,
-      },
-      {
         name: 'file_key',
         type: 'string',
         required: true,
@@ -526,6 +514,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Dimension to group results by: component or team.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from previous response.`,
+      },
+      {
+        name: 'end_date',
+        type: 'string',
+        required: false,
+        description: `End date for analytics in YYYY-MM-DD format.`,
       },
       {
         name: 'start_date',
@@ -540,16 +540,16 @@ export const tools: Tool[] = [
     description: `Returns a snapshot of how many times each component from a library is used across the organization. Enterprise only.`,
     params: [
       {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Pagination cursor from previous response.`,
-      },
-      {
         name: 'file_key',
         type: 'string',
         required: true,
         description: `The key of the library Figma file.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from previous response.`,
       },
     ],
   },
@@ -557,18 +557,6 @@ export const tools: Tool[] = [
     name: 'figma_library_analytics_style_actions_get',
     description: `Returns analytics data on style insertion and detachment actions from a library file. Enterprise only.`,
     params: [
-      {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Pagination cursor from previous response.`,
-      },
-      {
-        name: 'end_date',
-        type: 'string',
-        required: false,
-        description: `End date for analytics in YYYY-MM-DD format.`,
-      },
       {
         name: 'file_key',
         type: 'string',
@@ -580,6 +568,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Dimension to group results by: style or team.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from previous response.`,
+      },
+      {
+        name: 'end_date',
+        type: 'string',
+        required: false,
+        description: `End date for analytics in YYYY-MM-DD format.`,
       },
       {
         name: 'start_date',
@@ -594,16 +594,16 @@ export const tools: Tool[] = [
     description: `Returns a snapshot of how many times each style from a library is used across the organization. Enterprise only.`,
     params: [
       {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Pagination cursor from previous response.`,
-      },
-      {
         name: 'file_key',
         type: 'string',
         required: true,
         description: `The key of the library Figma file.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from previous response.`,
       },
     ],
   },
@@ -611,18 +611,6 @@ export const tools: Tool[] = [
     name: 'figma_library_analytics_variable_actions_get',
     description: `Returns analytics data on variable actions from a library file. Enterprise only.`,
     params: [
-      {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Pagination cursor from previous response.`,
-      },
-      {
-        name: 'end_date',
-        type: 'string',
-        required: false,
-        description: `End date for analytics in YYYY-MM-DD format.`,
-      },
       {
         name: 'file_key',
         type: 'string',
@@ -634,6 +622,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Dimension to group results by: variable or team.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from previous response.`,
+      },
+      {
+        name: 'end_date',
+        type: 'string',
+        required: false,
+        description: `End date for analytics in YYYY-MM-DD format.`,
       },
       {
         name: 'start_date',
@@ -648,16 +648,16 @@ export const tools: Tool[] = [
     description: `Returns a snapshot of how many times each variable from a library is used across the organization. Enterprise only.`,
     params: [
       {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Pagination cursor from previous response.`,
-      },
-      {
         name: 'file_key',
         type: 'string',
         required: true,
         description: `The key of the library Figma file.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Pagination cursor from previous response.`,
       },
     ],
   },
@@ -695,16 +695,16 @@ export const tools: Tool[] = [
     description: `Returns all files in a Figma project, including file keys, names, thumbnails, and last modified timestamps.`,
     params: [
       {
-        name: 'branch_data',
-        type: 'boolean',
-        required: false,
-        description: `If true, includes branch metadata for each file.`,
-      },
-      {
         name: 'project_id',
         type: 'string',
         required: true,
         description: `The ID of the Figma project.`,
+      },
+      {
+        name: 'branch_data',
+        type: 'boolean',
+        required: false,
+        description: `If true, includes branch metadata for each file.`,
       },
     ],
   },
@@ -719,6 +719,7 @@ export const tools: Tool[] = [
     name: 'figma_team_component_sets_list',
     description: `Returns all published component sets in a Figma team library, with pagination support.`,
     params: [
+      { name: 'team_id', type: 'string', required: true, description: `The ID of the Figma team.` },
       {
         name: 'after',
         type: 'integer',
@@ -737,13 +738,13 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of component sets to return per page.`,
       },
-      { name: 'team_id', type: 'string', required: true, description: `The ID of the Figma team.` },
     ],
   },
   {
     name: 'figma_team_components_list',
     description: `Returns all published components in a Figma team library, with pagination support.`,
     params: [
+      { name: 'team_id', type: 'string', required: true, description: `The ID of the Figma team.` },
       {
         name: 'after',
         type: 'integer',
@@ -762,7 +763,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of components to return per page.`,
       },
-      { name: 'team_id', type: 'string', required: true, description: `The ID of the Figma team.` },
     ],
   },
   {
@@ -783,6 +783,7 @@ export const tools: Tool[] = [
     name: 'figma_team_styles_list',
     description: `Returns all published styles in a Figma team library, with pagination support.`,
     params: [
+      { name: 'team_id', type: 'string', required: true, description: `The ID of the Figma team.` },
       {
         name: 'after',
         type: 'integer',
@@ -801,7 +802,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of styles to return per page.`,
       },
-      { name: 'team_id', type: 'string', required: true, description: `The ID of the Figma team.` },
     ],
   },
   {
@@ -815,12 +815,6 @@ export const tools: Tool[] = [
     name: 'figma_webhook_create',
     description: `Creates a new webhook that sends events to the specified endpoint URL when Figma events occur in a team.`,
     params: [
-      {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `Optional description for the webhook.`,
-      },
       {
         name: 'endpoint',
         type: 'string',
@@ -840,16 +834,22 @@ export const tools: Tool[] = [
         description: `A passcode included in the webhook payload for verification.`,
       },
       {
-        name: 'status',
-        type: 'string',
-        required: false,
-        description: `Webhook status: ACTIVE or PAUSED.`,
-      },
-      {
         name: 'team_id',
         type: 'string',
         required: true,
         description: `The ID of the team to subscribe to events for.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional description for the webhook.`,
+      },
+      {
+        name: 'status',
+        type: 'string',
+        required: false,
+        description: `Webhook status: ACTIVE or PAUSED.`,
       },
     ],
   },
@@ -884,6 +884,12 @@ export const tools: Tool[] = [
     description: `Updates an existing Figma webhook's endpoint, passcode, status, or description.`,
     params: [
       {
+        name: 'webhook_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the webhook to update.`,
+      },
+      {
         name: 'description',
         type: 'string',
         required: false,
@@ -906,12 +912,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Webhook status: ACTIVE or PAUSED.`,
-      },
-      {
-        name: 'webhook_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the webhook to update.`,
       },
     ],
   },

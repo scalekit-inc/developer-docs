@@ -6,16 +6,16 @@ export const tools: Tool[] = [
     description: `Retrieve metadata for a specific file in Google Drive by its file ID. Returns name, MIME type, size, creation time, and more.`,
     params: [
       {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Fields to include in the response`,
-      },
-      {
         name: 'file_id',
         type: 'string',
         required: true,
         description: `The ID of the file to retrieve metadata for`,
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `Fields to include in the response`,
       },
       {
         name: 'schema_version',
@@ -41,6 +41,12 @@ export const tools: Tool[] = [
     name: 'googledrive_search_content',
     description: `Search inside the content of files stored in Google Drive using full-text search. Finds files where the body text matches the search term.`,
     params: [
+      {
+        name: 'search_term',
+        type: 'string',
+        required: true,
+        description: `Text to search for inside file contents`,
+      },
       {
         name: 'fields',
         type: 'string',
@@ -70,12 +76,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional schema version to use for tool execution`,
-      },
-      {
-        name: 'search_term',
-        type: 'string',
-        required: true,
-        description: `Text to search for inside file contents`,
       },
       {
         name: 'supports_all_drives',

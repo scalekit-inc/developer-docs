@@ -6,6 +6,13 @@ export const tools: Tool[] = [
     description: `Create a new event in a connected Google Calendar account. Supports meeting links, recurrence, attendees, and more.`,
     params: [
       {
+        name: 'start_datetime',
+        type: 'string',
+        required: true,
+        description: `Event start time in RFC3339 format`,
+      },
+      { name: 'summary', type: 'string', required: true, description: `Event title/summary` },
+      {
         name: 'attendees_emails',
         type: 'array',
         required: false,
@@ -85,13 +92,6 @@ export const tools: Tool[] = [
         description: `Send update notifications to attendees`,
       },
       {
-        name: 'start_datetime',
-        type: 'string',
-        required: true,
-        description: `Event start time in RFC3339 format`,
-      },
-      { name: 'summary', type: 'string', required: true, description: `Event title/summary` },
-      {
         name: 'timezone',
         type: 'string',
         required: false,
@@ -122,16 +122,16 @@ export const tools: Tool[] = [
     description: `Delete an event from a connected Google Calendar account. Requires the calendar ID and event ID.`,
     params: [
       {
-        name: 'calendar_id',
-        type: 'string',
-        required: false,
-        description: `The ID of the calendar from which the event should be deleted`,
-      },
-      {
         name: 'event_id',
         type: 'string',
         required: true,
         description: `The ID of the calendar event to delete`,
+      },
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: false,
+        description: `The ID of the calendar from which the event should be deleted`,
       },
       {
         name: 'schema_version',
@@ -152,16 +152,16 @@ export const tools: Tool[] = [
     description: `Retrieve a specific calendar event by its ID using optional filtering and list parameters.`,
     params: [
       {
-        name: 'calendar_id',
-        type: 'string',
-        required: false,
-        description: `The calendar ID to search in`,
-      },
-      {
         name: 'event_id',
         type: 'string',
         required: true,
         description: `The unique identifier of the calendar event to fetch`,
+      },
+      {
+        name: 'calendar_id',
+        type: 'string',
+        required: false,
+        description: `The calendar ID to search in`,
       },
       {
         name: 'event_types',
@@ -334,16 +334,22 @@ export const tools: Tool[] = [
     description: `Update an existing event in a connected Google Calendar account. Only provided fields will be updated. Supports updating time, attendees, location, meeting links, and more.`,
     params: [
       {
-        name: 'attendees_emails',
-        type: 'array',
-        required: false,
-        description: `Attendee email addresses`,
-      },
-      {
         name: 'calendar_id',
         type: 'string',
         required: true,
         description: `Calendar ID containing the event`,
+      },
+      {
+        name: 'event_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the calendar event to update`,
+      },
+      {
+        name: 'attendees_emails',
+        type: 'array',
+        required: false,
+        description: `Attendee email addresses`,
       },
       {
         name: 'create_meeting_room',
@@ -374,12 +380,6 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Duration of event in minutes`,
-      },
-      {
-        name: 'event_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the calendar event to update`,
       },
       {
         name: 'event_type',

@@ -5,6 +5,7 @@ export const tools: Tool[] = [
     name: 'apollo_create_account',
     description: `Create a new account (company) record in your Apollo CRM. Accounts represent organizations and can be linked to contacts. Check for duplicates before creating to avoid double entries.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the company/account` },
       {
         name: 'domain',
         type: 'string',
@@ -17,7 +18,6 @@ export const tools: Tool[] = [
         required: false,
         description: `LinkedIn company page URL`,
       },
-      { name: 'name', type: 'string', required: true, description: `Name of the company/account` },
       {
         name: 'phone_number',
         type: 'string',
@@ -37,18 +37,6 @@ export const tools: Tool[] = [
     description: `Create a new contact record in your Apollo CRM. The contact will appear in your Apollo contacts list and can be enrolled in sequences. Check for duplicates before creating to avoid double entries.`,
     params: [
       {
-        name: 'account_id',
-        type: 'string',
-        required: false,
-        description: `Apollo account ID to associate this contact with`,
-      },
-      {
-        name: 'email',
-        type: 'string',
-        required: false,
-        description: `Email address of the contact`,
-      },
-      {
         name: 'first_name',
         type: 'string',
         required: true,
@@ -59,6 +47,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Last name of the contact`,
+      },
+      {
+        name: 'account_id',
+        type: 'string',
+        required: false,
+        description: `Apollo account ID to associate this contact with`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Email address of the contact`,
       },
       {
         name: 'linkedin_url',

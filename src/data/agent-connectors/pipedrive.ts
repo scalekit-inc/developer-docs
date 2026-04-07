@@ -60,6 +60,12 @@ export const tools: Tool[] = [
     description: `Create a new activity in Pipedrive such as a call, meeting, email, or task. Associate it with a deal, person, or organization.`,
     params: [
       {
+        name: 'subject',
+        type: 'string',
+        required: true,
+        description: `Subject/title of the activity.`,
+      },
+      {
         name: 'deal_id',
         type: 'integer',
         required: false,
@@ -102,12 +108,6 @@ export const tools: Tool[] = [
         description: `ID of the person to associate this activity with.`,
       },
       {
-        name: 'subject',
-        type: 'string',
-        required: true,
-        description: `Subject/title of the activity.`,
-      },
-      {
         name: 'type',
         type: 'string',
         required: false,
@@ -131,6 +131,12 @@ export const tools: Tool[] = [
     name: 'pipedrive_activity_update',
     description: `Update an existing activity in Pipedrive. Modify subject, type, due date/time, note, completion status, or associations.`,
     params: [
+      {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the activity to update.`,
+      },
       {
         name: 'deal_id',
         type: 'integer',
@@ -156,12 +162,6 @@ export const tools: Tool[] = [
         description: `Updated due time in HH:MM format.`,
       },
       {
-        name: 'id',
-        type: 'integer',
-        required: true,
-        description: `The ID of the activity to update.`,
-      },
-      {
         name: 'note',
         type: 'string',
         required: false,
@@ -185,6 +185,7 @@ export const tools: Tool[] = [
     name: 'pipedrive_deal_create',
     description: `Create a new deal in Pipedrive with a title, value, currency, pipeline, stage, associated person and organization.`,
     params: [
+      { name: 'title', type: 'string', required: true, description: `Title of the deal.` },
       {
         name: 'currency',
         type: 'string',
@@ -227,7 +228,6 @@ export const tools: Tool[] = [
         required: false,
         description: `ID of the pipeline stage for this deal.`,
       },
-      { name: 'title', type: 'string', required: true, description: `Title of the deal.` },
       {
         name: 'value',
         type: 'number',
@@ -259,6 +259,7 @@ export const tools: Tool[] = [
     name: 'pipedrive_deal_update',
     description: `Update an existing deal in Pipedrive. Modify title, value, status, pipeline stage, associated person, organization, or close date.`,
     params: [
+      { name: 'id', type: 'integer', required: true, description: `The ID of the deal to update.` },
       {
         name: 'currency',
         type: 'string',
@@ -271,7 +272,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Expected close date in YYYY-MM-DD format.`,
       },
-      { name: 'id', type: 'integer', required: true, description: `The ID of the deal to update.` },
       {
         name: 'org_id',
         type: 'integer',
@@ -382,6 +382,12 @@ export const tools: Tool[] = [
     description: `Search for deals in Pipedrive by a search term across title and other fields. Supports filtering by person, organization, and status.`,
     params: [
       {
+        name: 'term',
+        type: 'string',
+        required: true,
+        description: `Search term to find matching deals. Minimum 2 characters.`,
+      },
+      {
         name: 'cursor',
         type: 'string',
         required: false,
@@ -422,12 +428,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter by deal status: open, won, or lost.`,
-      },
-      {
-        name: 'term',
-        type: 'string',
-        required: true,
-        description: `Search term to find matching deals. Minimum 2 characters.`,
       },
     ],
   },
@@ -525,6 +525,7 @@ export const tools: Tool[] = [
     name: 'pipedrive_goal_update',
     description: `Update an existing goal in Pipedrive. Modify title, assignee, target, interval, or duration.`,
     params: [
+      { name: 'id', type: 'string', required: true, description: `The ID of the goal to update.` },
       {
         name: 'assignee_id',
         type: 'integer',
@@ -549,7 +550,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Updated goal start date in YYYY-MM-DD format.`,
       },
-      { name: 'id', type: 'string', required: true, description: `The ID of the goal to update.` },
       {
         name: 'interval',
         type: 'string',
@@ -607,6 +607,7 @@ export const tools: Tool[] = [
     name: 'pipedrive_lead_create',
     description: `Create a new lead in Pipedrive with a title and optional associations to a person or organization.`,
     params: [
+      { name: 'title', type: 'string', required: true, description: `Title of the lead.` },
       {
         name: 'organization_id',
         type: 'integer',
@@ -625,7 +626,6 @@ export const tools: Tool[] = [
         required: false,
         description: `ID of the person to associate this lead with.`,
       },
-      { name: 'title', type: 'string', required: true, description: `Title of the lead.` },
     ],
   },
   {
@@ -726,6 +726,12 @@ export const tools: Tool[] = [
     description: `Search for leads in Pipedrive by title, notes, or custom fields.`,
     params: [
       {
+        name: 'term',
+        type: 'string',
+        required: true,
+        description: `Search term. Minimum 2 characters.`,
+      },
+      {
         name: 'cursor',
         type: 'string',
         required: false,
@@ -760,12 +766,6 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Filter results by person ID.`,
-      },
-      {
-        name: 'term',
-        type: 'string',
-        required: true,
-        description: `Search term. Minimum 2 characters.`,
       },
     ],
   },
@@ -862,13 +862,13 @@ export const tools: Tool[] = [
     name: 'pipedrive_organization_create',
     description: `Create a new organization (company) in Pipedrive with a name, address, and optional owner.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the organization.` },
       {
         name: 'address',
         type: 'string',
         required: false,
         description: `Physical address of the organization.`,
       },
-      { name: 'name', type: 'string', required: true, description: `Name of the organization.` },
       {
         name: 'owner_id',
         type: 'integer',
@@ -906,16 +906,16 @@ export const tools: Tool[] = [
     description: `Update an existing organization in Pipedrive. Modify name, address, or owner.`,
     params: [
       {
-        name: 'address',
-        type: 'string',
-        required: false,
-        description: `Updated physical address of the organization.`,
-      },
-      {
         name: 'id',
         type: 'integer',
         required: true,
         description: `The ID of the organization to update.`,
+      },
+      {
+        name: 'address',
+        type: 'string',
+        required: false,
+        description: `Updated physical address of the organization.`,
       },
       {
         name: 'name',
@@ -966,6 +966,12 @@ export const tools: Tool[] = [
     description: `Search for organizations in Pipedrive by a search term across name, address, and custom fields.`,
     params: [
       {
+        name: 'term',
+        type: 'string',
+        required: true,
+        description: `Search term. Minimum 2 characters.`,
+      },
+      {
         name: 'cursor',
         type: 'string',
         required: false,
@@ -989,25 +995,19 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of results per page (max 500).`,
       },
-      {
-        name: 'term',
-        type: 'string',
-        required: true,
-        description: `Search term. Minimum 2 characters.`,
-      },
     ],
   },
   {
     name: 'pipedrive_person_create',
     description: `Create a new person (contact) in Pipedrive with name, email, phone, and optional organization association.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `Full name of the person.` },
       {
         name: 'email',
         type: 'string',
         required: false,
         description: `Email address of the person.`,
       },
-      { name: 'name', type: 'string', required: true, description: `Full name of the person.` },
       {
         name: 'org_id',
         type: 'integer',
@@ -1057,16 +1057,16 @@ export const tools: Tool[] = [
     description: `Update an existing person (contact) in Pipedrive. Modify name, email, phone, organization, or owner.`,
     params: [
       {
-        name: 'email',
-        type: 'string',
-        required: false,
-        description: `Updated email address of the person.`,
-      },
-      {
         name: 'id',
         type: 'integer',
         required: true,
         description: `The ID of the person to update.`,
+      },
+      {
+        name: 'email',
+        type: 'string',
+        required: false,
+        description: `Updated email address of the person.`,
       },
       {
         name: 'name',
@@ -1141,6 +1141,12 @@ export const tools: Tool[] = [
     description: `Search for persons (contacts) in Pipedrive by name, email, phone, or custom fields.`,
     params: [
       {
+        name: 'term',
+        type: 'string',
+        required: true,
+        description: `Search term to find matching persons. Minimum 2 characters.`,
+      },
+      {
         name: 'exact_match',
         type: 'boolean',
         required: false,
@@ -1164,25 +1170,19 @@ export const tools: Tool[] = [
         required: false,
         description: `Filter results by organization ID.`,
       },
-      {
-        name: 'term',
-        type: 'string',
-        required: true,
-        description: `Search term to find matching persons. Minimum 2 characters.`,
-      },
     ],
   },
   {
     name: 'pipedrive_pipeline_create',
     description: `Create a new sales pipeline in Pipedrive with a name and optional deal probability setting.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the pipeline.` },
       {
         name: 'is_deal_probability_enabled',
         type: 'boolean',
         required: false,
         description: `Whether deal probability is enabled for this pipeline.`,
       },
-      { name: 'name', type: 'string', required: true, description: `Name of the pipeline.` },
     ],
   },
   {
@@ -1267,6 +1267,7 @@ export const tools: Tool[] = [
     name: 'pipedrive_product_create',
     description: `Create a new product in Pipedrive with name, price, description, and other attributes.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the product.` },
       { name: 'code', type: 'string', required: false, description: `Product code or SKU.` },
       {
         name: 'description',
@@ -1274,7 +1275,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Description of the product.`,
       },
-      { name: 'name', type: 'string', required: true, description: `Name of the product.` },
       {
         name: 'owner_id',
         type: 'integer',
@@ -1324,6 +1324,12 @@ export const tools: Tool[] = [
     description: `Update an existing product in Pipedrive. Modify name, code, description, unit, tax, or owner.`,
     params: [
       {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the product to update.`,
+      },
+      {
         name: 'code',
         type: 'string',
         required: false,
@@ -1334,12 +1340,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Updated description of the product.`,
-      },
-      {
-        name: 'id',
-        type: 'integer',
-        required: true,
-        description: `The ID of the product to update.`,
       },
       {
         name: 'name',
@@ -1409,6 +1409,12 @@ export const tools: Tool[] = [
     description: `Search for products in Pipedrive by name, code, or custom fields.`,
     params: [
       {
+        name: 'term',
+        type: 'string',
+        required: true,
+        description: `Search term. Minimum 2 characters.`,
+      },
+      {
         name: 'cursor',
         type: 'string',
         required: false,
@@ -1432,18 +1438,19 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of results per page (max 500).`,
       },
-      {
-        name: 'term',
-        type: 'string',
-        required: true,
-        description: `Search term. Minimum 2 characters.`,
-      },
     ],
   },
   {
     name: 'pipedrive_stage_create',
     description: `Create a new stage in a Pipedrive pipeline with a name and optional deal probability settings.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `Name of the stage.` },
+      {
+        name: 'pipeline_id',
+        type: 'integer',
+        required: true,
+        description: `ID of the pipeline this stage belongs to.`,
+      },
       {
         name: 'days_to_rotten',
         type: 'integer',
@@ -1461,13 +1468,6 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Whether rotten flag is enabled for deals in this stage.`,
-      },
-      { name: 'name', type: 'string', required: true, description: `Name of the stage.` },
-      {
-        name: 'pipeline_id',
-        type: 'integer',
-        required: true,
-        description: `ID of the pipeline this stage belongs to.`,
       },
     ],
   },
@@ -1500,6 +1500,12 @@ export const tools: Tool[] = [
     description: `Update an existing pipeline stage in Pipedrive. Modify name, pipeline, deal probability, or rotten settings.`,
     params: [
       {
+        name: 'id',
+        type: 'integer',
+        required: true,
+        description: `The ID of the stage to update.`,
+      },
+      {
         name: 'days_to_rotten',
         type: 'integer',
         required: false,
@@ -1510,12 +1516,6 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Deal success probability for this stage (0-100).`,
-      },
-      {
-        name: 'id',
-        type: 'integer',
-        required: true,
-        description: `The ID of the stage to update.`,
       },
       {
         name: 'is_deal_rot_enabled',
@@ -1590,16 +1590,16 @@ export const tools: Tool[] = [
     description: `Search for Pipedrive users by name or email address.`,
     params: [
       {
-        name: 'search_by_email',
-        type: 'boolean',
-        required: false,
-        description: `When true, the search term is matched against email addresses instead of names.`,
-      },
-      {
         name: 'term',
         type: 'string',
         required: true,
         description: `Search term to match against user name or email.`,
+      },
+      {
+        name: 'search_by_email',
+        type: 'boolean',
+        required: false,
+        description: `When true, the search term is matched against email addresses instead of names.`,
       },
     ],
   },
@@ -1625,6 +1625,12 @@ export const tools: Tool[] = [
         description: `Object type to watch: deal, person, organization, activity, lead, note, pipeline, product, stage, user, or * for all.`,
       },
       {
+        name: 'subscription_url',
+        type: 'string',
+        required: true,
+        description: `The URL to send webhook notifications to.`,
+      },
+      {
         name: 'http_auth_password',
         type: 'string',
         required: false,
@@ -1641,12 +1647,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Display name for this webhook.`,
-      },
-      {
-        name: 'subscription_url',
-        type: 'string',
-        required: true,
-        description: `The URL to send webhook notifications to.`,
       },
       {
         name: 'version',

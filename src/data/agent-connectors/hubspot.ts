@@ -42,6 +42,12 @@ export const tools: Tool[] = [
     description: `Create a new company in HubSpot CRM. Requires a company name as the unique identifier. Supports additional properties like domain, industry, phone, location, and revenue information.`,
     params: [
       {
+        name: 'name',
+        type: 'string',
+        required: true,
+        description: `Company name (required, serves as primary identifier)`,
+      },
+      {
         name: 'annualrevenue',
         type: 'number',
         required: false,
@@ -61,12 +67,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Industry type of the company`,
-      },
-      {
-        name: 'name',
-        type: 'string',
-        required: true,
-        description: `Company name (required, serves as primary identifier)`,
       },
       {
         name: 'numberofemployees',
@@ -101,16 +101,16 @@ export const tools: Tool[] = [
     description: `Create a new contact in HubSpot CRM. Requires an email address as the unique identifier. Supports additional properties like name, company, phone, and lifecycle stage.`,
     params: [
       {
-        name: 'company',
-        type: 'string',
-        required: false,
-        description: `Company name where the contact works`,
-      },
-      {
         name: 'email',
         type: 'string',
         required: true,
         description: `Primary email address for the contact (required, serves as unique identifier)`,
+      },
+      {
+        name: 'company',
+        type: 'string',
+        required: false,
+        description: `Company name where the contact works`,
       },
       {
         name: 'firstname',
@@ -269,12 +269,6 @@ export const tools: Tool[] = [
         description: `Deal amount/value (required)`,
       },
       {
-        name: 'closedate',
-        type: 'string',
-        required: false,
-        description: `Expected close date (YYYY-MM-DD format)`,
-      },
-      {
         name: 'dealname',
         type: 'string',
         required: true,
@@ -285,6 +279,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Current stage of the deal (required)`,
+      },
+      {
+        name: 'closedate',
+        type: 'string',
+        required: false,
+        description: `Expected close date (YYYY-MM-DD format)`,
       },
       { name: 'dealtype', type: 'string', required: false, description: `Type of deal` },
       { name: 'description', type: 'string', required: false, description: `Deal description` },
@@ -303,16 +303,16 @@ export const tools: Tool[] = [
     params: [
       { name: 'deal_id', type: 'string', required: true, description: `ID of the deal to update` },
       {
-        name: 'good_deal',
-        type: 'boolean',
-        required: false,
-        description: `Boolean flag indicating if this is a good deal`,
-      },
-      {
         name: 'properties',
         type: 'object',
         required: true,
         description: `Object containing deal properties to update`,
+      },
+      {
+        name: 'good_deal',
+        type: 'boolean',
+        required: false,
+        description: `Boolean flag indicating if this is a good deal`,
       },
     ],
   },

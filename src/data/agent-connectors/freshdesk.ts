@@ -6,16 +6,28 @@ export const tools: Tool[] = [
     description: `Create a new agent in Freshdesk. Email is required and must be unique. Agent will receive invitation email to set up account. At least one role must be assigned.`,
     params: [
       {
-        name: 'agent_type',
-        type: 'number',
-        required: false,
-        description: `Type of agent (1=Support Agent, 2=Field Agent, 3=Collaborator)`,
-      },
-      {
         name: 'email',
         type: 'string',
         required: true,
         description: `Email address of the agent (must be unique)`,
+      },
+      {
+        name: 'role_ids',
+        type: 'array',
+        required: true,
+        description: `Array of role IDs to assign to the agent (at least one required)`,
+      },
+      {
+        name: 'ticket_scope',
+        type: 'number',
+        required: true,
+        description: `Ticket permission level (1=Global Access, 2=Group Access, 3=Restricted Access)`,
+      },
+      {
+        name: 'agent_type',
+        type: 'number',
+        required: false,
+        description: `Type of agent (1=Support Agent, 2=Field Agent, 3=Collaborator)`,
       },
       {
         name: 'focus_mode',
@@ -43,12 +55,6 @@ export const tools: Tool[] = [
         description: `Whether the agent is occasional (true) or full-time (false)`,
       },
       {
-        name: 'role_ids',
-        type: 'array',
-        required: true,
-        description: `Array of role IDs to assign to the agent (at least one required)`,
-      },
-      {
         name: 'signature',
         type: 'string',
         required: false,
@@ -59,12 +65,6 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `Array of skill IDs to assign to the agent`,
-      },
-      {
-        name: 'ticket_scope',
-        type: 'number',
-        required: true,
-        description: `Ticket permission level (1=Global Access, 2=Group Access, 3=Restricted Access)`,
       },
       { name: 'time_zone', type: 'string', required: false, description: `Time zone of the agent` },
     ],
@@ -127,6 +127,13 @@ export const tools: Tool[] = [
     name: 'freshdesk_contact_create',
     description: `Create a new contact in Freshdesk. Email and name are required. Supports custom fields, company assignment, and contact segmentation.`,
     params: [
+      {
+        name: 'email',
+        type: 'string',
+        required: true,
+        description: `Email address of the contact`,
+      },
+      { name: 'name', type: 'string', required: true, description: `Full name of the contact` },
       { name: 'address', type: 'string', required: false, description: `Address of the contact` },
       {
         name: 'company_id',
@@ -147,12 +154,6 @@ export const tools: Tool[] = [
         description: `Description about the contact`,
       },
       {
-        name: 'email',
-        type: 'string',
-        required: true,
-        description: `Email address of the contact`,
-      },
-      {
         name: 'job_title',
         type: 'string',
         required: false,
@@ -170,7 +171,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Mobile number of the contact`,
       },
-      { name: 'name', type: 'string', required: true, description: `Full name of the contact` },
       {
         name: 'phone',
         type: 'string',
@@ -281,16 +281,16 @@ export const tools: Tool[] = [
     description: `Retrieve details of a specific ticket by ID. Includes ticket properties, conversations, and metadata.`,
     params: [
       {
-        name: 'include',
-        type: 'string',
-        required: false,
-        description: `Additional resources to include (stats, requester, company, conversations)`,
-      },
-      {
         name: 'ticket_id',
         type: 'number',
         required: true,
         description: `ID of the ticket to retrieve`,
+      },
+      {
+        name: 'include',
+        type: 'string',
+        required: false,
+        description: `Additional resources to include (stats, requester, company, conversations)`,
       },
     ],
   },
@@ -298,6 +298,12 @@ export const tools: Tool[] = [
     name: 'freshdesk_ticket_update',
     description: `Update an existing ticket in Freshdesk. Note: Subject and description of outbound tickets cannot be updated.`,
     params: [
+      {
+        name: 'ticket_id',
+        type: 'number',
+        required: true,
+        description: `ID of the ticket to update`,
+      },
       {
         name: 'custom_fields',
         type: 'object',
@@ -346,12 +352,6 @@ export const tools: Tool[] = [
         type: 'array',
         required: false,
         description: `Array of tags to be associated with the ticket`,
-      },
-      {
-        name: 'ticket_id',
-        type: 'number',
-        required: true,
-        description: `ID of the ticket to update`,
       },
     ],
   },
@@ -403,13 +403,19 @@ export const tools: Tool[] = [
     name: 'freshdesk_tickets_reply',
     description: `Add a public reply to a ticket conversation. The reply will be visible to the customer and will update the ticket status if specified.`,
     params: [
+      { name: 'body', type: 'string', required: true, description: `HTML content of the reply` },
+      {
+        name: 'ticket_id',
+        type: 'number',
+        required: true,
+        description: `ID of the ticket to reply to`,
+      },
       {
         name: 'bcc_emails',
         type: 'array',
         required: false,
         description: `Array of email addresses to BCC on the reply`,
       },
-      { name: 'body', type: 'string', required: true, description: `HTML content of the reply` },
       {
         name: 'cc_emails',
         type: 'array',
@@ -421,12 +427,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Email address to send the reply from`,
-      },
-      {
-        name: 'ticket_id',
-        type: 'number',
-        required: true,
-        description: `ID of the ticket to reply to`,
       },
       {
         name: 'user_id',

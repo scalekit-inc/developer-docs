@@ -60,6 +60,24 @@ export const tools: Tool[] = [
     description: `Upload a call or meeting recording file to Jiminny for transcription and analysis, returning the new activity ID on success.`,
     params: [
       {
+        name: 'hostUserEmail',
+        type: 'string',
+        required: true,
+        description: `The email address of the host user. Must belong to the authenticated team.`,
+      },
+      {
+        name: 'language',
+        type: 'string',
+        required: true,
+        description: `The language locale of the activity (e.g. en_GB, en_US, fr_FR).`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The title of the activity (max 250 characters).`,
+      },
+      {
         name: 'accountId',
         type: 'string',
         required: false,
@@ -76,18 +94,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `An optional external identifier for this activity (max 191 characters). Must be unique per host user.`,
-      },
-      {
-        name: 'hostUserEmail',
-        type: 'string',
-        required: true,
-        description: `The email address of the host user. Must belong to the authenticated team.`,
-      },
-      {
-        name: 'language',
-        type: 'string',
-        required: true,
-        description: `The language locale of the activity (e.g. en_GB, en_US, fr_FR).`,
       },
       {
         name: 'leadId',
@@ -112,12 +118,6 @@ export const tools: Tool[] = [
         type: 'boolean',
         required: false,
         description: `Whether to skip the full AI analysis of the uploaded activity.`,
-      },
-      {
-        name: 'title',
-        type: 'string',
-        required: true,
-        description: `The title of the activity (max 250 characters).`,
       },
     ],
   },
@@ -150,18 +150,6 @@ export const tools: Tool[] = [
     description: `Retrieve bulk coaching feedback records within a required date range, optionally filtered by coach or coachee, returning scores, activity IDs, and timestamps.`,
     params: [
       {
-        name: 'coachId',
-        type: 'string',
-        required: false,
-        description: `Optional UUID of the coach (manager) to filter coaching feedback by.`,
-      },
-      {
-        name: 'coacheeId',
-        type: 'string',
-        required: false,
-        description: `Optional UUID of the coachee (sales rep) to filter coaching feedback by.`,
-      },
-      {
         name: 'fromDate',
         type: 'string',
         required: true,
@@ -172,6 +160,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Filter coaching feedback records created before this UTC date-time (e.g. 2021-11-01 00:00:00). Cannot be a future date.`,
+      },
+      {
+        name: 'coacheeId',
+        type: 'string',
+        required: false,
+        description: `Optional UUID of the coachee (sales rep) to filter coaching feedback by.`,
+      },
+      {
+        name: 'coachId',
+        type: 'string',
+        required: false,
+        description: `Optional UUID of the coach (manager) to filter coaching feedback by.`,
       },
     ],
   },
@@ -296,12 +296,6 @@ export const tools: Tool[] = [
     description: `Create a webhook subscription that sends event payloads to a destination URL when a specified trigger occurs in Jiminny.`,
     params: [
       {
-        name: 'external_id',
-        type: 'string',
-        required: false,
-        description: `An optional external identifier for the webhook (max 191 characters).`,
-      },
-      {
         name: 'trigger',
         type: 'string',
         required: true,
@@ -312,6 +306,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The destination URL to receive the webhook payload (max 191 characters).`,
+      },
+      {
+        name: 'external_id',
+        type: 'string',
+        required: false,
+        description: `An optional external identifier for the webhook (max 191 characters).`,
       },
     ],
   },

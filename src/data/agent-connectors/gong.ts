@@ -215,18 +215,6 @@ export const tools: Tool[] = [
     description: `Add a digital interaction event (such as a web visit, content engagement, or other digital touchpoint) to a Gong Engage prospect's activity timeline.`,
     params: [
       {
-        name: 'crm_account_id',
-        type: 'string',
-        required: false,
-        description: `The CRM account ID associated with this interaction.`,
-      },
-      {
-        name: 'crm_contact_id',
-        type: 'string',
-        required: false,
-        description: `The CRM contact ID associated with this interaction.`,
-      },
-      {
         name: 'event_name',
         type: 'string',
         required: true,
@@ -237,6 +225,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Timestamp when the digital interaction occurred (ISO 8601 format).`,
+      },
+      {
+        name: 'crm_account_id',
+        type: 'string',
+        required: false,
+        description: `The CRM account ID associated with this interaction.`,
+      },
+      {
+        name: 'crm_contact_id',
+        type: 'string',
+        required: false,
+        description: `The CRM contact ID associated with this interaction.`,
       },
       {
         name: 'prospect_email',
@@ -275,16 +275,16 @@ export const tools: Tool[] = [
         description: `The type of email engagement event to report.`,
       },
       {
-        name: 'link_url',
-        type: 'string',
-        required: false,
-        description: `For EMAIL_LINK_CLICKED events, the URL of the link that was clicked.`,
-      },
-      {
         name: 'prospect_email',
         type: 'string',
         required: true,
         description: `Email address of the prospect who triggered this engagement event.`,
+      },
+      {
+        name: 'link_url',
+        type: 'string',
+        required: false,
+        description: `For EMAIL_LINK_CLICKED events, the URL of the link that was clicked.`,
       },
     ],
   },
@@ -311,16 +311,16 @@ export const tools: Tool[] = [
     description: `List all Gong Engage flow folders available to a user, including company folders, personal folders, and folders shared with the specified user.`,
     params: [
       {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Cursor value from a previous API response for paginating to the next page of results.`,
-      },
-      {
         name: 'flow_owner_email',
         type: 'string',
         required: true,
         description: `Email address of the Gong user whose flow folders to retrieve. Returns company folders plus personal and shared folders for this user.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor value from a previous API response for paginating to the next page of results.`,
       },
       {
         name: 'workspace_id',
@@ -335,16 +335,16 @@ export const tools: Tool[] = [
     description: `List all Gong Engage flows available to a user, including company flows, personal flows, and flows shared with the specified user.`,
     params: [
       {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Cursor value from a previous API response for paginating to the next page of results.`,
-      },
-      {
         name: 'flow_owner_email',
         type: 'string',
         required: true,
         description: `Email address of the Gong user whose flows to retrieve. Returns company flows plus personal and shared flows for this user.`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor value from a previous API response for paginating to the next page of results.`,
       },
       {
         name: 'workspace_id',
@@ -485,16 +485,16 @@ export const tools: Tool[] = [
     description: `Mark a specific Gong Engage task as completed.`,
     params: [
       {
-        name: 'completion_notes',
-        type: 'string',
-        required: false,
-        description: `Optional notes about how the task was completed.`,
-      },
-      {
         name: 'task_id',
         type: 'string',
         required: true,
         description: `The unique ID of the Gong Engage task to mark as completed.`,
+      },
+      {
+        name: 'completion_notes',
+        type: 'string',
+        required: false,
+        description: `Optional notes about how the task was completed.`,
       },
     ],
   },
@@ -503,16 +503,16 @@ export const tools: Tool[] = [
     description: `Skip a specific Gong Engage task, indicating it should not be performed for this prospect.`,
     params: [
       {
-        name: 'skip_reason',
-        type: 'string',
-        required: false,
-        description: `Optional reason for skipping this task.`,
-      },
-      {
         name: 'task_id',
         type: 'string',
         required: true,
         description: `The unique ID of the Gong Engage task to skip.`,
+      },
+      {
+        name: 'skip_reason',
+        type: 'string',
+        required: false,
+        description: `Optional reason for skipping this task.`,
       },
     ],
   },
@@ -609,18 +609,6 @@ export const tools: Tool[] = [
     description: `Get aggregated interaction statistics for Gong calls within a date range. Returns metrics such as talk ratio, longest monologue, patience, question rate, and interactivity for each participant. Optionally filter by specific call IDs.`,
     params: [
       {
-        name: 'call_ids',
-        type: 'array',
-        required: false,
-        description: `Optional array of specific Gong call IDs to filter the statistics.`,
-      },
-      {
-        name: 'cursor',
-        type: 'string',
-        required: false,
-        description: `Cursor value from a previous response for paginating to the next page of results.`,
-      },
-      {
         name: 'from_date_time',
         type: 'string',
         required: true,
@@ -632,18 +620,24 @@ export const tools: Tool[] = [
         required: true,
         description: `End of the date range for retrieving interaction statistics (ISO 8601 format, e.g., 2024-12-31T23:59:59Z).`,
       },
-    ],
-  },
-  {
-    name: 'gong_stats_user_actions',
-    description: `Get user activity and scorecard statistics for Gong calls within a date range. Returns aggregated scorecard metrics and activity data per user. Optionally filter by specific user IDs.`,
-    params: [
+      {
+        name: 'call_ids',
+        type: 'array',
+        required: false,
+        description: `Optional array of specific Gong call IDs to filter the statistics.`,
+      },
       {
         name: 'cursor',
         type: 'string',
         required: false,
         description: `Cursor value from a previous response for paginating to the next page of results.`,
       },
+    ],
+  },
+  {
+    name: 'gong_stats_user_actions',
+    description: `Get user activity and scorecard statistics for Gong calls within a date range. Returns aggregated scorecard metrics and activity data per user. Optionally filter by specific user IDs.`,
+    params: [
       {
         name: 'from_date_time',
         type: 'string',
@@ -655,6 +649,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `End of the date range for retrieving scorecard statistics (ISO 8601 format, e.g., 2024-12-31T23:59:59Z).`,
+      },
+      {
+        name: 'cursor',
+        type: 'string',
+        required: false,
+        description: `Cursor value from a previous response for paginating to the next page of results.`,
       },
       {
         name: 'user_ids',

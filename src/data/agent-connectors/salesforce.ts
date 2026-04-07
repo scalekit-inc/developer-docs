@@ -5,6 +5,7 @@ export const tools: Tool[] = [
     name: 'salesforce_account_create',
     description: `Create a new Account in Salesforce. Supports standard fields`,
     params: [
+      { name: 'Name', type: 'string', required: true, description: `Account Name` },
       {
         name: 'AccountNumber',
         type: 'string',
@@ -29,7 +30,6 @@ export const tools: Tool[] = [
       { name: 'BillingStreet', type: 'string', required: false, description: `Billing street` },
       { name: 'Description', type: 'string', required: false, description: `Description` },
       { name: 'Industry', type: 'string', required: false, description: `Industry` },
-      { name: 'Name', type: 'string', required: true, description: `Account Name` },
       {
         name: 'NumberOfEmployees',
         type: 'integer',
@@ -81,6 +81,12 @@ export const tools: Tool[] = [
     name: 'salesforce_account_update',
     description: `Update an existing Account in Salesforce by account ID. Allows updating account properties like name, phone, website, industry, billing information, and more.`,
     params: [
+      {
+        name: 'account_id',
+        type: 'string',
+        required: true,
+        description: `ID of the account to update`,
+      },
       {
         name: 'AccountNumber',
         type: 'string',
@@ -210,12 +216,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Year the company started`,
       },
-      {
-        name: 'account_id',
-        type: 'string',
-        required: true,
-        description: `ID of the account to update`,
-      },
     ],
   },
   {
@@ -284,6 +284,12 @@ export const tools: Tool[] = [
     description: `Create a new post (feed element) on a Salesforce Chatter feed. Use 'me' as subject_id to post to the current user's feed.`,
     params: [
       {
+        name: 'text',
+        type: 'string',
+        required: true,
+        description: `The text body of the Chatter post`,
+      },
+      {
         name: 'is_rich_text',
         type: 'boolean',
         required: false,
@@ -300,12 +306,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `The ID of the subject (user, record, or group) to post to. Use 'me' for the current user's feed.`,
-      },
-      {
-        name: 'text',
-        type: 'string',
-        required: true,
-        description: `The text body of the Chatter post`,
       },
     ],
   },
@@ -338,6 +338,12 @@ export const tools: Tool[] = [
     description: `Search Salesforce Chatter posts (feed elements) by keyword across all feeds.`,
     params: [
       {
+        name: 'q',
+        type: 'string',
+        required: true,
+        description: `Search query string to find matching Chatter posts`,
+      },
+      {
         name: 'page',
         type: 'string',
         required: false,
@@ -349,18 +355,18 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of results to return per page (default: 25, max: 100)`,
       },
-      {
-        name: 'q',
-        type: 'string',
-        required: true,
-        description: `Search query string to find matching Chatter posts`,
-      },
     ],
   },
   {
     name: 'salesforce_chatter_user_feed_list',
     description: `Retrieve feed elements (posts) from a Salesforce user's Chatter news feed. Use 'me' as the user ID to get the current user's feed.`,
     params: [
+      {
+        name: 'user_id',
+        type: 'string',
+        required: true,
+        description: `The ID of the user whose Chatter feed to retrieve. Use 'me' for the current user.`,
+      },
       {
         name: 'page',
         type: 'string',
@@ -378,12 +384,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Sort order for feed elements. Options: LastModifiedDateDesc (default), CreatedDateDesc, MostRecentActivity`,
-      },
-      {
-        name: 'user_id',
-        type: 'string',
-        required: true,
-        description: `The ID of the user whose Chatter feed to retrieve. Use 'me' for the current user.`,
       },
     ],
   },
@@ -403,6 +403,12 @@ export const tools: Tool[] = [
     name: 'salesforce_contact_create',
     description: `Create a new contact in Salesforce. Allows setting contact properties like name, email, phone, account association, and other standard fields.`,
     params: [
+      {
+        name: 'LastName',
+        type: 'string',
+        required: true,
+        description: `Last name of the contact (required)`,
+      },
       {
         name: 'AccountId',
         type: 'string',
@@ -432,12 +438,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `First name of the contact`,
-      },
-      {
-        name: 'LastName',
-        type: 'string',
-        required: true,
-        description: `Last name of the contact (required)`,
       },
       {
         name: 'LeadSource',
@@ -504,16 +504,16 @@ export const tools: Tool[] = [
         description: `Folder to place the cloned dashboard`,
       },
       {
-        name: 'name',
-        type: 'string',
-        required: false,
-        description: `Name for the cloned dashboard`,
-      },
-      {
         name: 'source_dashboard_id',
         type: 'string',
         required: true,
         description: `ID of the dashboard to clone`,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        required: false,
+        description: `Name for the cloned dashboard`,
       },
     ],
   },
@@ -622,15 +622,22 @@ export const tools: Tool[] = [
     name: 'salesforce_opportunity_create',
     description: `Create a new opportunity in Salesforce. Allows setting opportunity properties like name, amount, stage, close date, and account association.`,
     params: [
-      { name: 'AccountId', type: 'string', required: false, description: `Associated Account Id` },
-      { name: 'Amount', type: 'number', required: false, description: `Opportunity amount` },
-      { name: 'CampaignId', type: 'string', required: false, description: `Related Campaign Id` },
       {
         name: 'CloseDate',
         type: 'string',
         required: true,
         description: `Expected close date (YYYY-MM-DD, required)`,
       },
+      { name: 'Name', type: 'string', required: true, description: `Opportunity name (required)` },
+      {
+        name: 'StageName',
+        type: 'string',
+        required: true,
+        description: `Current sales stage (required)`,
+      },
+      { name: 'AccountId', type: 'string', required: false, description: `Associated Account Id` },
+      { name: 'Amount', type: 'number', required: false, description: `Opportunity amount` },
+      { name: 'CampaignId', type: 'string', required: false, description: `Related Campaign Id` },
       {
         name: 'Custom_Field__c',
         type: 'string',
@@ -650,7 +657,6 @@ export const tools: Tool[] = [
         description: `Forecast category name`,
       },
       { name: 'LeadSource', type: 'string', required: false, description: `Lead source` },
-      { name: 'Name', type: 'string', required: true, description: `Opportunity name (required)` },
       {
         name: 'NextStep',
         type: 'string',
@@ -681,12 +687,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Record Type Id for Opportunity`,
       },
-      {
-        name: 'StageName',
-        type: 'string',
-        required: true,
-        description: `Current sales stage (required)`,
-      },
       { name: 'Type', type: 'string', required: false, description: `Opportunity type` },
     ],
   },
@@ -695,16 +695,16 @@ export const tools: Tool[] = [
     description: `Retrieve details of a specific opportunity from Salesforce by opportunity ID. Returns opportunity properties and associated data.`,
     params: [
       {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated list of fields to include in the response`,
-      },
-      {
         name: 'opportunity_id',
         type: 'string',
         required: true,
         description: `ID of the opportunity to retrieve`,
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of fields to include in the response`,
       },
     ],
   },
@@ -712,6 +712,12 @@ export const tools: Tool[] = [
     name: 'salesforce_opportunity_update',
     description: `Update an existing opportunity in Salesforce by opportunity ID. Allows updating opportunity properties like name, amount, stage, and close date.`,
     params: [
+      {
+        name: 'opportunity_id',
+        type: 'string',
+        required: true,
+        description: `ID of the opportunity to update`,
+      },
       { name: 'AccountId', type: 'string', required: false, description: `Associated Account Id` },
       { name: 'Amount', type: 'number', required: false, description: `Opportunity amount` },
       { name: 'CampaignId', type: 'string', required: false, description: `Related Campaign Id` },
@@ -767,12 +773,6 @@ export const tools: Tool[] = [
       },
       { name: 'StageName', type: 'string', required: false, description: `Current sales stage` },
       { name: 'Type', type: 'string', required: false, description: `Opportunity type` },
-      {
-        name: 'opportunity_id',
-        type: 'string',
-        required: true,
-        description: `ID of the opportunity to update`,
-      },
     ],
   },
   {
@@ -803,6 +803,13 @@ export const tools: Tool[] = [
     name: 'salesforce_report_create',
     description: `Create a new report in Salesforce using the Analytics API. Minimal verified version with only confirmed working fields.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `Report name` },
+      {
+        name: 'reportType',
+        type: 'string',
+        required: true,
+        description: `The report type's API name from your Salesforce org (e.g. Opportunity, AccountList). Find valid values in Setup > Report Types`,
+      },
       {
         name: 'aggregates',
         type: 'string',
@@ -840,7 +847,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Row groupings (JSON array)`,
       },
-      { name: 'name', type: 'string', required: true, description: `Report name` },
       { name: 'reportBooleanFilter', type: 'string', required: false, description: `Filter logic` },
       {
         name: 'reportFilters',
@@ -853,12 +859,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Report format type. TABULAR (default, no groupings), SUMMARY (supports row groupings), or MATRIX (supports row and column groupings)`,
-      },
-      {
-        name: 'reportType',
-        type: 'string',
-        required: true,
-        description: `The report type's API name from your Salesforce org (e.g. Opportunity, AccountList). Find valid values in Setup > Report Types`,
       },
       {
         name: 'scope',
@@ -896,6 +896,12 @@ export const tools: Tool[] = [
     name: 'salesforce_report_update',
     description: `Update an existing report in Salesforce by report ID. Minimal verified version with only confirmed working fields. Only updates fields that are provided.`,
     params: [
+      {
+        name: 'report_id',
+        type: 'string',
+        required: true,
+        description: `ID of the report to update`,
+      },
       {
         name: 'aggregates',
         type: 'string',
@@ -953,12 +959,6 @@ export const tools: Tool[] = [
         description: `Report format type. TABULAR (default, no groupings), SUMMARY (supports row groupings), or MATRIX (supports row and column groupings)`,
       },
       {
-        name: 'report_id',
-        type: 'string',
-        required: true,
-        description: `ID of the report to update`,
-      },
-      {
         name: 'scope',
         type: 'string',
         required: false,
@@ -970,14 +970,14 @@ export const tools: Tool[] = [
     name: 'salesforce_search_parameterized',
     description: `Execute parameterized searches against Salesforce data. Provides simplified search interface with predefined parameters.`,
     params: [
+      { name: 'search_text', type: 'string', required: true, description: `Text to search for` },
+      { name: 'sobject', type: 'string', required: true, description: `SObject type to search in` },
       {
         name: 'fields',
         type: 'string',
         required: false,
         description: `Comma-separated list of fields to return`,
       },
-      { name: 'search_text', type: 'string', required: true, description: `Text to search for` },
-      { name: 'sobject', type: 'string', required: true, description: `SObject type to search in` },
     ],
   },
   {
@@ -1033,12 +1033,6 @@ export const tools: Tool[] = [
     description: `Retrieve a record from any Salesforce SObject type by ID. Optionally specify which fields to return.`,
     params: [
       {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated list of fields to include in the response`,
-      },
-      {
         name: 'record_id',
         type: 'string',
         required: true,
@@ -1049,6 +1043,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The Salesforce SObject API name (e.g., Account, Contact, Lead, CustomObject__c)`,
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of fields to include in the response`,
       },
     ],
   },
@@ -1153,12 +1153,6 @@ export const tools: Tool[] = [
     description: `Retrieve a metadata record from any Salesforce Tooling API object type by ID. Optionally specify which fields to return.`,
     params: [
       {
-        name: 'fields',
-        type: 'string',
-        required: false,
-        description: `Comma-separated list of fields to include in the response`,
-      },
-      {
         name: 'record_id',
         type: 'string',
         required: true,
@@ -1169,6 +1163,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The Tooling API object name (e.g., ApexClass, ApexTrigger, CustomObject)`,
+      },
+      {
+        name: 'fields',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of fields to include in the response`,
       },
     ],
   },

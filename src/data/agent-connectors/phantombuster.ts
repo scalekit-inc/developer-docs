@@ -30,16 +30,16 @@ export const tools: Tool[] = [
     description: `Get the output of the most recent container of an agent. Designed for incremental data retrieval — use fromOutputPos to fetch only new output since the last call.`,
     params: [
       {
-        name: 'fromOutputPos',
-        type: 'number',
-        required: false,
-        description: `Start output from this byte position (for incremental fetching).`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
         description: `ID of the agent to fetch output from.`,
+      },
+      {
+        name: 'fromOutputPos',
+        type: 'number',
+        required: false,
+        description: `Start output from this byte position (for incremental fetching).`,
       },
       {
         name: 'prevContainerId',
@@ -95,18 +95,18 @@ export const tools: Tool[] = [
     name: 'phantombuster_agent_launch_soon',
     description: `Schedule a PhantomBuster agent to launch within a specified number of minutes. Useful for delayed execution without setting up a full recurring schedule.`,
     params: [
-      {
-        name: 'argument',
-        type: 'object',
-        required: false,
-        description: `Input arguments to pass to the agent for this execution (object or JSON string).`,
-      },
       { name: 'id', type: 'string', required: true, description: `ID of the agent to schedule.` },
       {
         name: 'minutes',
         type: 'integer',
         required: true,
         description: `Number of minutes from now after which the agent will launch.`,
+      },
+      {
+        name: 'argument',
+        type: 'object',
+        required: false,
+        description: `Input arguments to pass to the agent for this execution (object or JSON string).`,
       },
       {
         name: 'saveArgument',
@@ -379,16 +379,16 @@ export const tools: Tool[] = [
     description: `Fetch paginated leads belonging to a specific lead list in PhantomBuster organization storage.`,
     params: [
       {
-        name: 'includeTotalCount',
-        type: 'boolean',
-        required: false,
-        description: `Include the total count of leads in the response.`,
-      },
-      {
         name: 'listId',
         type: 'string',
         required: true,
         description: `ID of the lead list to fetch leads from.`,
+      },
+      {
+        name: 'includeTotalCount',
+        type: 'boolean',
+        required: false,
+        description: `Include the total count of leads in the response.`,
       },
       {
         name: 'paginationOffset',
@@ -477,16 +477,16 @@ export const tools: Tool[] = [
     description: `Export a CSV file containing container usage metrics for the current PhantomBuster organization. Optionally filter to a specific agent.`,
     params: [
       {
-        name: 'agentId',
-        type: 'string',
-        required: false,
-        description: `Filter the export to a specific agent ID.`,
-      },
-      {
         name: 'days',
         type: 'string',
         required: true,
         description: `Number of days of usage data to export. Maximum is ~180 days (6 months).`,
+      },
+      {
+        name: 'agentId',
+        type: 'string',
+        required: false,
+        description: `Filter the export to a specific agent ID.`,
       },
     ],
   },
@@ -552,20 +552,12 @@ export const tools: Tool[] = [
     description: `Save a new contact to the organization's connected CRM (HubSpot). Requires a CRM integration to be configured in the PhantomBuster organization settings.`,
     params: [
       {
-        name: 'company',
-        type: 'string',
-        required: false,
-        description: `Company the contact works at.`,
-      },
-      {
         name: 'crmName',
         type: 'string',
         required: true,
         description: `The CRM to save the contact to.`,
       },
-      { name: 'email', type: 'string', required: false, description: `Contact's email address.` },
       { name: 'firstname', type: 'string', required: true, description: `Contact's first name.` },
-      { name: 'jobtitle', type: 'string', required: false, description: `Contact's job title.` },
       { name: 'lastname', type: 'string', required: true, description: `Contact's last name.` },
       {
         name: 'pb_linkedin_profile_url',
@@ -573,6 +565,14 @@ export const tools: Tool[] = [
         required: true,
         description: `LinkedIn profile URL of the contact.`,
       },
+      {
+        name: 'company',
+        type: 'string',
+        required: false,
+        description: `Company the contact works at.`,
+      },
+      { name: 'email', type: 'string', required: false, description: `Contact's email address.` },
+      { name: 'jobtitle', type: 'string', required: false, description: `Contact's job title.` },
       { name: 'phone', type: 'string', required: false, description: `Contact's phone number.` },
     ],
   },
@@ -580,13 +580,13 @@ export const tools: Tool[] = [
     name: 'phantombuster_script_fetch',
     description: `Retrieve a specific PhantomBuster script by ID including its manifest, argument schema, output types, and optionally the full source code.`,
     params: [
+      { name: 'id', type: 'string', required: true, description: `ID of the script to fetch.` },
       {
         name: 'branch',
         type: 'string',
         required: false,
         description: `Branch of the script to fetch.`,
       },
-      { name: 'id', type: 'string', required: true, description: `ID of the script to fetch.` },
       {
         name: 'withCode',
         type: 'boolean',

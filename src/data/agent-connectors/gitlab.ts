@@ -91,20 +91,20 @@ export const tools: Tool[] = [
         required: true,
         description: `The project ID (numeric) or URL-encoded path.`,
       },
+      { name: 'note', type: 'string', required: true, description: `The comment text.` },
+      { name: 'sha', type: 'string', required: true, description: `The commit SHA.` },
       {
         name: 'line',
         type: 'integer',
         required: false,
         description: `Line number for an inline comment.`,
       },
-      { name: 'note', type: 'string', required: true, description: `The comment text.` },
       {
         name: 'path',
         type: 'string',
         required: false,
         description: `File path for an inline comment.`,
       },
-      { name: 'sha', type: 'string', required: true, description: `The commit SHA.` },
     ],
   },
   {
@@ -151,16 +151,16 @@ export const tools: Tool[] = [
     description: `List repository commits for a GitLab project.`,
     params: [
       {
-        name: 'author',
-        type: 'string',
-        required: false,
-        description: `Filter commits by author name or email.`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
         description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'author',
+        type: 'string',
+        required: false,
+        description: `Filter commits by author name or email.`,
       },
       {
         name: 'page',
@@ -217,16 +217,16 @@ export const tools: Tool[] = [
         description: `The project ID (numeric) or URL-encoded path.`,
       },
       {
-        name: 'straight',
-        type: 'string',
-        required: false,
-        description: `Comparison method: 'true' for straight diff, 'false' for merge base.`,
-      },
-      {
         name: 'to',
         type: 'string',
         required: true,
         description: `The target branch, tag, or commit SHA to compare to.`,
+      },
+      {
+        name: 'straight',
+        type: 'string',
+        required: false,
+        description: `Comparison method: 'true' for straight diff, 'false' for merge base.`,
       },
     ],
   },
@@ -245,12 +245,6 @@ export const tools: Tool[] = [
     description: `Create a new deploy key for a GitLab project.`,
     params: [
       {
-        name: 'can_push',
-        type: 'string',
-        required: false,
-        description: `If 'true', the deploy key has write access.`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
@@ -262,6 +256,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `A descriptive title for the deploy key.`,
+      },
+      {
+        name: 'can_push',
+        type: 'string',
+        required: false,
+        description: `If 'true', the deploy key has write access.`,
       },
     ],
   },
@@ -300,18 +300,6 @@ export const tools: Tool[] = [
     description: `Create a new file in a GitLab repository.`,
     params: [
       {
-        name: 'author_email',
-        type: 'string',
-        required: false,
-        description: `The author's email for the commit.`,
-      },
-      {
-        name: 'author_name',
-        type: 'string',
-        required: false,
-        description: `The author's name for the commit.`,
-      },
-      {
         name: 'branch',
         type: 'string',
         required: true,
@@ -330,12 +318,6 @@ export const tools: Tool[] = [
         description: `The file content (plain text or base64 encoded).`,
       },
       {
-        name: 'encoding',
-        type: 'string',
-        required: false,
-        description: `The encoding type: 'text' or 'base64'.`,
-      },
-      {
         name: 'file_path',
         type: 'string',
         required: true,
@@ -346,6 +328,24 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'author_email',
+        type: 'string',
+        required: false,
+        description: `The author's email for the commit.`,
+      },
+      {
+        name: 'author_name',
+        type: 'string',
+        required: false,
+        description: `The author's name for the commit.`,
+      },
+      {
+        name: 'encoding',
+        type: 'string',
+        required: false,
+        description: `The encoding type: 'text' or 'base64'.`,
       },
     ],
   },
@@ -444,6 +444,8 @@ export const tools: Tool[] = [
     name: 'gitlab_global_search',
     description: `Search globally across GitLab for projects, issues, merge requests, and more.`,
     params: [
+      { name: 'scope', type: 'string', required: true, description: `The scope to search in.` },
+      { name: 'search', type: 'string', required: true, description: `The search query string.` },
       {
         name: 'page',
         type: 'integer',
@@ -456,32 +458,30 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of results per page (max 100).`,
       },
-      { name: 'scope', type: 'string', required: true, description: `The scope to search in.` },
-      { name: 'search', type: 'string', required: true, description: `The search query string.` },
     ],
   },
   {
     name: 'gitlab_group_create',
     description: `Create a new GitLab group or subgroup.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `The name of the group.` },
+      {
+        name: 'path',
+        type: 'string',
+        required: true,
+        description: `URL-friendly path slug for the group.`,
+      },
       {
         name: 'description',
         type: 'string',
         required: false,
         description: `Optional group description.`,
       },
-      { name: 'name', type: 'string', required: true, description: `The name of the group.` },
       {
         name: 'parent_id',
         type: 'integer',
         required: false,
         description: `ID of the parent group (for subgroups).`,
-      },
-      {
-        name: 'path',
-        type: 'string',
-        required: true,
-        description: `URL-friendly path slug for the group.`,
       },
       {
         name: 'visibility',
@@ -618,16 +618,16 @@ export const tools: Tool[] = [
     description: `Update a GitLab group's settings.`,
     params: [
       {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `Updated group description.`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
         description: `The group ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Updated group description.`,
       },
       { name: 'name', type: 'string', required: false, description: `New name for the group.` },
       {
@@ -674,6 +674,13 @@ export const tools: Tool[] = [
     description: `Create a new issue in a GitLab project.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      { name: 'title', type: 'string', required: true, description: `The title of the issue.` },
+      {
         name: 'assignee_ids',
         type: 'string',
         required: false,
@@ -692,12 +699,6 @@ export const tools: Tool[] = [
         description: `Due date for the issue in YYYY-MM-DD format.`,
       },
       {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `The project ID (numeric) or URL-encoded path.`,
-      },
-      {
         name: 'labels',
         type: 'string',
         required: false,
@@ -709,7 +710,6 @@ export const tools: Tool[] = [
         required: false,
         description: `The ID of the milestone to assign.`,
       },
-      { name: 'title', type: 'string', required: true, description: `The title of the issue.` },
     ],
   },
   {
@@ -885,18 +885,6 @@ export const tools: Tool[] = [
     description: `Update an existing issue in a GitLab project.`,
     params: [
       {
-        name: 'assignee_ids',
-        type: 'string',
-        required: false,
-        description: `Comma-separated list of user IDs to assign.`,
-      },
-      {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `Updated description of the issue.`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
@@ -907,6 +895,18 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The internal ID of the issue within the project.`,
+      },
+      {
+        name: 'assignee_ids',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of user IDs to assign.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Updated description of the issue.`,
       },
       {
         name: 'labels',
@@ -928,16 +928,16 @@ export const tools: Tool[] = [
     description: `List issues for a GitLab project.`,
     params: [
       {
-        name: 'assignee_id',
-        type: 'integer',
-        required: false,
-        description: `Filter issues by assignee user ID.`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
         description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'assignee_id',
+        type: 'integer',
+        required: false,
+        description: `Filter issues by assignee user ID.`,
       },
       {
         name: 'labels',
@@ -1115,18 +1115,18 @@ export const tools: Tool[] = [
         description: `The color for the label in hex format (e.g. #FF0000).`,
       },
       {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `Optional description for the label.`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
         description: `The project ID (numeric) or URL-encoded path.`,
       },
       { name: 'name', type: 'string', required: true, description: `The name of the label.` },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional description for the label.`,
+      },
     ],
   },
   {
@@ -1188,6 +1188,30 @@ export const tools: Tool[] = [
     description: `Create a new merge request in a GitLab project.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'source_branch',
+        type: 'string',
+        required: true,
+        description: `The source branch name.`,
+      },
+      {
+        name: 'target_branch',
+        type: 'string',
+        required: true,
+        description: `The target branch name.`,
+      },
+      {
+        name: 'title',
+        type: 'string',
+        required: true,
+        description: `The title of the merge request.`,
+      },
+      {
         name: 'assignee_id',
         type: 'integer',
         required: false,
@@ -1198,12 +1222,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Description for the merge request (Markdown supported).`,
-      },
-      {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `The project ID (numeric) or URL-encoded path.`,
       },
       {
         name: 'labels',
@@ -1218,28 +1236,10 @@ export const tools: Tool[] = [
         description: `If 'true', removes the source branch after merging.`,
       },
       {
-        name: 'source_branch',
-        type: 'string',
-        required: true,
-        description: `The source branch name.`,
-      },
-      {
         name: 'squash',
         type: 'string',
         required: false,
         description: `If 'true', squashes all commits into one on merge.`,
-      },
-      {
-        name: 'target_branch',
-        type: 'string',
-        required: true,
-        description: `The target branch name.`,
-      },
-      {
-        name: 'title',
-        type: 'string',
-        required: true,
-        description: `The title of the merge request.`,
       },
     ],
   },
@@ -1290,16 +1290,16 @@ export const tools: Tool[] = [
         description: `The project ID (numeric) or URL-encoded path.`,
       },
       {
-        name: 'merge_commit_message',
-        type: 'string',
-        required: false,
-        description: `Custom merge commit message.`,
-      },
-      {
         name: 'merge_request_iid',
         type: 'integer',
         required: true,
         description: `The internal ID of the merge request.`,
+      },
+      {
+        name: 'merge_commit_message',
+        type: 'string',
+        required: false,
+        description: `Custom merge commit message.`,
       },
       {
         name: 'should_remove_source_branch',
@@ -1374,6 +1374,18 @@ export const tools: Tool[] = [
     description: `Update an existing merge request in a GitLab project.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'merge_request_iid',
+        type: 'integer',
+        required: true,
+        description: `The internal ID of the merge request.`,
+      },
+      {
         name: 'assignee_id',
         type: 'integer',
         required: false,
@@ -1386,22 +1398,10 @@ export const tools: Tool[] = [
         description: `Updated description for the merge request.`,
       },
       {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `The project ID (numeric) or URL-encoded path.`,
-      },
-      {
         name: 'labels',
         type: 'string',
         required: false,
         description: `Comma-separated list of label names.`,
-      },
-      {
-        name: 'merge_request_iid',
-        type: 'integer',
-        required: true,
-        description: `The internal ID of the merge request.`,
       },
       {
         name: 'state_event',
@@ -1489,6 +1489,13 @@ export const tools: Tool[] = [
     description: `Create a new milestone in a GitLab project.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      { name: 'title', type: 'string', required: true, description: `The title of the milestone.` },
+      {
         name: 'description',
         type: 'string',
         required: false,
@@ -1501,18 +1508,11 @@ export const tools: Tool[] = [
         description: `Due date for the milestone in YYYY-MM-DD format.`,
       },
       {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `The project ID (numeric) or URL-encoded path.`,
-      },
-      {
         name: 'start_date',
         type: 'string',
         required: false,
         description: `Start date for the milestone in YYYY-MM-DD format.`,
       },
-      { name: 'title', type: 'string', required: true, description: `The title of the milestone.` },
     ],
   },
   {
@@ -1556,18 +1556,6 @@ export const tools: Tool[] = [
     description: `Update an existing milestone in a GitLab project.`,
     params: [
       {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `Updated description for the milestone.`,
-      },
-      {
-        name: 'due_date',
-        type: 'string',
-        required: false,
-        description: `Updated due date in YYYY-MM-DD format.`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
@@ -1578,6 +1566,18 @@ export const tools: Tool[] = [
         type: 'integer',
         required: true,
         description: `The numeric ID of the milestone.`,
+      },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Updated description for the milestone.`,
+      },
+      {
+        name: 'due_date',
+        type: 'string',
+        required: false,
+        description: `Updated due date in YYYY-MM-DD format.`,
       },
       {
         name: 'state_event',
@@ -1742,6 +1742,12 @@ export const tools: Tool[] = [
         description: `The project ID (numeric) or URL-encoded path.`,
       },
       {
+        name: 'pipeline_id',
+        type: 'integer',
+        required: true,
+        description: `The numeric ID of the pipeline.`,
+      },
+      {
         name: 'page',
         type: 'integer',
         required: false,
@@ -1752,12 +1758,6 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of results per page (max 100).`,
-      },
-      {
-        name: 'pipeline_id',
-        type: 'integer',
-        required: true,
-        description: `The numeric ID of the pipeline.`,
       },
       { name: 'scope', type: 'string', required: false, description: `Filter jobs by scope.` },
     ],
@@ -1826,6 +1826,7 @@ export const tools: Tool[] = [
     name: 'gitlab_project_create',
     description: `Create a new GitLab project.`,
     params: [
+      { name: 'name', type: 'string', required: true, description: `The name of the project.` },
       {
         name: 'description',
         type: 'string',
@@ -1838,7 +1839,6 @@ export const tools: Tool[] = [
         required: false,
         description: `If 'true', initializes the repository with a README.`,
       },
-      { name: 'name', type: 'string', required: true, description: `The name of the project.` },
       {
         name: 'visibility',
         type: 'string',
@@ -2003,6 +2003,13 @@ export const tools: Tool[] = [
         description: `The project ID (numeric) or URL-encoded path.`,
       },
       {
+        name: 'scope',
+        type: 'string',
+        required: true,
+        description: `The scope to search in within the project.`,
+      },
+      { name: 'search', type: 'string', required: true, description: `The search query string.` },
+      {
         name: 'page',
         type: 'integer',
         required: false,
@@ -2020,13 +2027,6 @@ export const tools: Tool[] = [
         required: false,
         description: `The branch or tag name to search (for blobs or commits scope).`,
       },
-      {
-        name: 'scope',
-        type: 'string',
-        required: true,
-        description: `The scope to search in within the project.`,
-      },
-      { name: 'search', type: 'string', required: true, description: `The search query string.` },
     ],
   },
   {
@@ -2038,12 +2038,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The content of the snippet.`,
-      },
-      {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `Optional description for the snippet.`,
       },
       {
         name: 'file_name',
@@ -2058,6 +2052,12 @@ export const tools: Tool[] = [
         description: `The project ID (numeric) or URL-encoded path.`,
       },
       { name: 'title', type: 'string', required: true, description: `The title of the snippet.` },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Optional description for the snippet.`,
+      },
       {
         name: 'visibility',
         type: 'string',
@@ -2137,6 +2137,12 @@ export const tools: Tool[] = [
     description: `Update an existing GitLab project's settings.`,
     params: [
       {
+        name: 'id',
+        type: 'string',
+        required: true,
+        description: `The project ID (numeric) or URL-encoded path (e.g. 'namespace%2Fproject').`,
+      },
+      {
         name: 'default_branch',
         type: 'string',
         required: false,
@@ -2147,12 +2153,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `A short description of the project.`,
-      },
-      {
-        name: 'id',
-        type: 'string',
-        required: true,
-        description: `The project ID (numeric) or URL-encoded path (e.g. 'namespace%2Fproject').`,
       },
       { name: 'name', type: 'string', required: false, description: `New name for the project.` },
       {
@@ -2168,18 +2168,19 @@ export const tools: Tool[] = [
     description: `Create a new CI/CD variable for a GitLab project.`,
     params: [
       {
-        name: 'environment_scope',
-        type: 'string',
-        required: false,
-        description: `The environment scope for this variable (default '*').`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
         description: `The project ID (numeric) or URL-encoded path.`,
       },
       { name: 'key', type: 'string', required: true, description: `The variable key name.` },
+      { name: 'value', type: 'string', required: true, description: `The value of the variable.` },
+      {
+        name: 'environment_scope',
+        type: 'string',
+        required: false,
+        description: `The environment scope for this variable (default '*').`,
+      },
       {
         name: 'masked',
         type: 'string',
@@ -2192,7 +2193,6 @@ export const tools: Tool[] = [
         required: false,
         description: `If 'true', the variable is only available on protected branches/tags.`,
       },
-      { name: 'value', type: 'string', required: true, description: `The value of the variable.` },
       {
         name: 'variable_type',
         type: 'string',
@@ -2249,6 +2249,12 @@ export const tools: Tool[] = [
         description: `The variable key name to update.`,
       },
       {
+        name: 'value',
+        type: 'string',
+        required: true,
+        description: `The new value of the variable.`,
+      },
+      {
         name: 'masked',
         type: 'string',
         required: false,
@@ -2259,12 +2265,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `If 'true', the variable is only available on protected branches/tags.`,
-      },
-      {
-        name: 'value',
-        type: 'string',
-        required: true,
-        description: `The new value of the variable.`,
       },
     ],
   },
@@ -2289,6 +2289,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `The project ID (numeric) or URL-encoded path.`,
+      },
+      {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The URL to send webhook payloads to.`,
       },
       {
         name: 'issues_events',
@@ -2319,12 +2325,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Secret token to validate webhook payloads.`,
-      },
-      {
-        name: 'url',
-        type: 'string',
-        required: true,
-        description: `The URL to send webhook payloads to.`,
       },
     ],
   },
@@ -2381,6 +2381,12 @@ export const tools: Tool[] = [
         description: `The project ID (numeric) or URL-encoded path.`,
       },
       {
+        name: 'url',
+        type: 'string',
+        required: true,
+        description: `The new URL to send webhook payloads to.`,
+      },
+      {
         name: 'merge_requests_events',
         type: 'string',
         required: false,
@@ -2397,12 +2403,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `If 'true', trigger on push events.`,
-      },
-      {
-        name: 'url',
-        type: 'string',
-        required: true,
-        description: `The new URL to send webhook payloads to.`,
       },
     ],
   },
@@ -2490,16 +2490,16 @@ export const tools: Tool[] = [
       },
       { name: 'name', type: 'string', required: true, description: `The release name.` },
       {
-        name: 'ref',
-        type: 'string',
-        required: false,
-        description: `The branch or commit to create the tag from (only if tag does not exist).`,
-      },
-      {
         name: 'tag_name',
         type: 'string',
         required: true,
         description: `The tag name for the release.`,
+      },
+      {
+        name: 'ref',
+        type: 'string',
+        required: false,
+        description: `The branch or commit to create the tag from (only if tag does not exist).`,
       },
     ],
   },
@@ -2544,24 +2544,24 @@ export const tools: Tool[] = [
     description: `Update an existing release in a GitLab project.`,
     params: [
       {
-        name: 'description',
-        type: 'string',
-        required: false,
-        description: `Updated release notes in Markdown format.`,
-      },
-      {
         name: 'id',
         type: 'string',
         required: true,
         description: `The project ID (numeric) or URL-encoded path.`,
       },
-      { name: 'name', type: 'string', required: false, description: `Updated release name.` },
       {
         name: 'tag_name',
         type: 'string',
         required: true,
         description: `The tag name of the release to update.`,
       },
+      {
+        name: 'description',
+        type: 'string',
+        required: false,
+        description: `Updated release notes in Markdown format.`,
+      },
+      { name: 'name', type: 'string', required: false, description: `Updated release name.` },
     ],
   },
   {
@@ -2654,16 +2654,17 @@ export const tools: Tool[] = [
         description: `The project ID (numeric) or URL-encoded path.`,
       },
       {
-        name: 'message',
-        type: 'string',
-        required: false,
-        description: `Message for an annotated tag.`,
-      },
-      {
         name: 'ref',
         type: 'string',
         required: true,
         description: `The commit SHA, branch name, or another tag name to create the tag from.`,
+      },
+      { name: 'tag_name', type: 'string', required: true, description: `The name of the new tag.` },
+      {
+        name: 'message',
+        type: 'string',
+        required: false,
+        description: `Message for an annotated tag.`,
       },
       {
         name: 'release_description',
@@ -2671,7 +2672,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Release notes for the tag.`,
       },
-      { name: 'tag_name', type: 'string', required: true, description: `The name of the new tag.` },
     ],
   },
   {
@@ -2747,6 +2747,12 @@ export const tools: Tool[] = [
     description: `List projects owned by a specific user.`,
     params: [
       {
+        name: 'user_id',
+        type: 'integer',
+        required: true,
+        description: `The numeric ID of the user whose projects to list.`,
+      },
+      {
         name: 'page',
         type: 'integer',
         required: false,
@@ -2757,12 +2763,6 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Number of results per page (max 100).`,
-      },
-      {
-        name: 'user_id',
-        type: 'integer',
-        required: true,
-        description: `The numeric ID of the user whose projects to list.`,
       },
     ],
   },

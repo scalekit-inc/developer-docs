@@ -114,16 +114,16 @@ When NOT to use:
 Prioritize using query_granola_meetings over list_meetings/get_meetings for open-ended or natural language queries about meeting content.`,
     params: [
       {
-        name: 'document_ids',
-        type: 'array',
-        required: false,
-        description: `Optional list of specific meeting IDs to limit context to`,
-      },
-      {
         name: 'query',
         type: 'string',
         required: true,
         description: `The query to run on Granola meeting notes`,
+      },
+      {
+        name: 'document_ids',
+        type: 'array',
+        required: false,
+        description: `Optional list of specific meeting IDs to limit context to`,
       },
       {
         name: 'schema_version',

@@ -2,6 +2,50 @@ import type { Tool } from '../../types/agent-connectors'
 
 export const tools: Tool[] = [
   {
+    name: 'github_branch_create',
+    description: `Create a new branch in a GitHub repository. Requires the SHA of the commit to branch from (typically the HEAD of main).`,
+    params: [
+      {
+        name: 'branch_name',
+        type: 'string',
+        required: true,
+        description: `Name of the new branch to create`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
+        name: 'sha',
+        type: 'string',
+        required: true,
+        description: `The SHA of the commit to branch from. Use the HEAD SHA of the base branch (e.g. main).`,
+      },
+    ],
+  },
+  {
+    name: 'github_branch_get',
+    description: `Get details of a specific branch in a GitHub repository. Returns the branch name, latest commit SHA, and protection status.`,
+    params: [
+      {
+        name: 'branch',
+        type: 'string',
+        required: true,
+        description: `The name of the branch to retrieve`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+    ],
+  },
+  {
     name: 'github_file_contents_get',
     description: `Get the contents of a file or directory from a GitHub repository. Returns Base64 encoded content for files.`,
     params: [
@@ -17,32 +61,19 @@ export const tools: Tool[] = [
         required: true,
         description: `The content path (file or directory path in the repository)`,
       },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
       {
         name: 'ref',
         type: 'string',
         required: false,
         description: `The name of the commit/branch/tag`,
       },
-      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
     ],
   },
   {
     name: 'github_file_create_update',
     description: `Create a new file or update an existing file in a GitHub repository. Content must be Base64 encoded. Requires SHA when updating existing files.`,
     params: [
-      {
-        name: 'author',
-        type: 'object',
-        required: false,
-        description: `Author information object with name and email`,
-      },
-      { name: 'branch', type: 'string', required: false, description: `The branch name` },
-      {
-        name: 'committer',
-        type: 'object',
-        required: false,
-        description: `Committer information object with name and email`,
-      },
       {
         name: 'content',
         type: 'string',
@@ -69,6 +100,19 @@ export const tools: Tool[] = [
       },
       { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
       {
+        name: 'author',
+        type: 'object',
+        required: false,
+        description: `Author information object with name and email`,
+      },
+      { name: 'branch', type: 'string', required: false, description: `The branch name` },
+      {
+        name: 'committer',
+        type: 'object',
+        required: false,
+        description: `Committer information object with name and email`,
+      },
+      {
         name: 'sha',
         type: 'string',
         required: false,
@@ -80,6 +124,14 @@ export const tools: Tool[] = [
     name: 'github_issue_create',
     description: `Create a new issue in a repository. Requires push access to set assignees, milestones, and labels.`,
     params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      { name: 'title', type: 'string', required: true, description: `The title of the issue` },
       {
         name: 'assignees',
         type: 'array',
@@ -99,14 +151,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Milestone number to associate with the issue`,
       },
-      {
-        name: 'owner',
-        type: 'string',
-        required: true,
-        description: `The account owner of the repository`,
-      },
-      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
-      { name: 'title', type: 'string', required: true, description: `The title of the issue` },
       { name: 'type', type: 'string', required: false, description: `The name of the issue type` },
     ],
   },
@@ -114,6 +158,13 @@ export const tools: Tool[] = [
     name: 'github_issues_list',
     description: `List issues in a repository. Both issues and pull requests are returned as issues in the GitHub API.`,
     params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
       { name: 'assignee', type: 'string', required: false, description: `Filter by assigned user` },
       { name: 'creator', type: 'string', required: false, description: `Filter by issue creator` },
       { name: 'direction', type: 'string', required: false, description: `Sort order` },
@@ -130,12 +181,6 @@ export const tools: Tool[] = [
         description: `Filter by milestone number or state`,
       },
       {
-        name: 'owner',
-        type: 'string',
-        required: true,
-        description: `The account owner of the repository`,
-      },
-      {
         name: 'page',
         type: 'number',
         required: false,
@@ -147,7 +192,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of results per page (max 100)`,
       },
-      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
       {
         name: 'since',
         type: 'string',
@@ -162,6 +206,12 @@ export const tools: Tool[] = [
     name: 'github_public_repos_list',
     description: `List public repositories for a specified user. Does not require authentication.`,
     params: [
+      {
+        name: 'username',
+        type: 'string',
+        required: true,
+        description: `The GitHub username to list repositories for`,
+      },
       { name: 'direction', type: 'string', required: false, description: `Sort order` },
       {
         name: 'page',
@@ -182,12 +232,6 @@ export const tools: Tool[] = [
         description: `Property to sort repositories by`,
       },
       { name: 'type', type: 'string', required: false, description: `Filter repositories by type` },
-      {
-        name: 'username',
-        type: 'string',
-        required: true,
-        description: `The GitHub username to list repositories for`,
-      },
     ],
   },
   {
@@ -201,6 +245,19 @@ export const tools: Tool[] = [
         description: `The name of the branch you want the changes pulled into`,
       },
       {
+        name: 'head',
+        type: 'string',
+        required: true,
+        description: `The name of the branch where your changes are implemented (format: user:branch)`,
+      },
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
+      {
         name: 'body',
         type: 'string',
         required: false,
@@ -213,24 +270,11 @@ export const tools: Tool[] = [
         description: `Indicates whether the pull request is a draft`,
       },
       {
-        name: 'head',
-        type: 'string',
-        required: true,
-        description: `The name of the branch where your changes are implemented (format: user:branch)`,
-      },
-      {
         name: 'maintainer_can_modify',
         type: 'boolean',
         required: false,
         description: `Indicates whether maintainers can modify the pull request`,
       },
-      {
-        name: 'owner',
-        type: 'string',
-        required: true,
-        description: `The account owner of the repository`,
-      },
-      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
       {
         name: 'title',
         type: 'string',
@@ -243,6 +287,13 @@ export const tools: Tool[] = [
     name: 'github_pull_requests_list',
     description: `List pull requests in a repository with optional filtering by state, head, and base branches.`,
     params: [
+      {
+        name: 'owner',
+        type: 'string',
+        required: true,
+        description: `The account owner of the repository`,
+      },
+      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
       { name: 'base', type: 'string', required: false, description: `Filter by base branch name` },
       { name: 'direction', type: 'string', required: false, description: `Sort order` },
       {
@@ -250,12 +301,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Filter by head branch (format: user:ref-name)`,
-      },
-      {
-        name: 'owner',
-        type: 'string',
-        required: true,
-        description: `The account owner of the repository`,
       },
       {
         name: 'page',
@@ -269,7 +314,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Number of results per page (max 100)`,
       },
-      { name: 'repo', type: 'string', required: true, description: `The name of the repository` },
       {
         name: 'sort',
         type: 'string',

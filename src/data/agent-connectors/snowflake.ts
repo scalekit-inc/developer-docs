@@ -6,16 +6,16 @@ export const tools: Tool[] = [
     description: `Cancel a running Snowflake SQL API statement by statement handle.`,
     params: [
       {
-        name: 'request_id',
-        type: 'string',
-        required: false,
-        description: `Optional request ID used when the statement was submitted`,
-      },
-      {
         name: 'statement_handle',
         type: 'string',
         required: true,
         description: `Snowflake statement handle to cancel`,
+      },
+      {
+        name: 'request_id',
+        type: 'string',
+        required: false,
+        description: `Optional request ID used when the statement was submitted`,
       },
     ],
   },
@@ -23,6 +23,12 @@ export const tools: Tool[] = [
     name: 'snowflake_execute_query',
     description: `Execute one or more SQL statements against Snowflake using the SQL API. Requires a valid Snowflake OAuth2 connection. Use semicolons to submit multiple statements.`,
     params: [
+      {
+        name: 'statement',
+        type: 'string',
+        required: true,
+        description: `SQL statement to execute. Use semicolons to send multiple statements in one request.`,
+      },
       {
         name: 'async',
         type: 'boolean',
@@ -78,12 +84,6 @@ export const tools: Tool[] = [
         description: `Schema to use when executing the statement`,
       },
       {
-        name: 'statement',
-        type: 'string',
-        required: true,
-        description: `SQL statement to execute. Use semicolons to send multiple statements in one request.`,
-      },
-      {
         name: 'timeout',
         type: 'integer',
         required: false,
@@ -101,13 +101,13 @@ export const tools: Tool[] = [
     name: 'snowflake_get_columns',
     description: `Query INFORMATION_SCHEMA.COLUMNS for column metadata.`,
     params: [
+      { name: 'database', type: 'string', required: true, description: `Database name` },
       {
         name: 'column_name_like',
         type: 'string',
         required: false,
         description: `Optional column name pattern`,
       },
-      { name: 'database', type: 'string', required: true, description: `Database name` },
       { name: 'limit', type: 'integer', required: false, description: `Maximum rows` },
       { name: 'role', type: 'string', required: false, description: `Optional role` },
       { name: 'schema', type: 'string', required: false, description: `Optional schema filter` },
@@ -126,16 +126,16 @@ export const tools: Tool[] = [
         description: `Partition index to fetch (0-based)`,
       },
       {
-        name: 'request_id',
-        type: 'string',
-        required: false,
-        description: `Optional request ID used when the statement was submitted`,
-      },
-      {
         name: 'statement_handle',
         type: 'string',
         required: true,
         description: `Snowflake statement handle returned by Execute Query`,
+      },
+      {
+        name: 'request_id',
+        type: 'string',
+        required: false,
+        description: `Optional request ID used when the statement was submitted`,
       },
     ],
   },
@@ -144,16 +144,16 @@ export const tools: Tool[] = [
     description: `Get Snowflake SQL API statement status and first partition result metadata by statement handle.`,
     params: [
       {
-        name: 'request_id',
-        type: 'string',
-        required: false,
-        description: `Optional request ID used when the statement was submitted`,
-      },
-      {
         name: 'statement_handle',
         type: 'string',
         required: true,
         description: `Snowflake statement handle returned by Execute Query`,
+      },
+      {
+        name: 'request_id',
+        type: 'string',
+        required: false,
+        description: `Optional request ID used when the statement was submitted`,
       },
     ],
   },
@@ -189,13 +189,13 @@ export const tools: Tool[] = [
     name: 'snowflake_get_table_constraints',
     description: `Query INFORMATION_SCHEMA.TABLE_CONSTRAINTS.`,
     params: [
+      { name: 'database', type: 'string', required: true, description: `Database name` },
       {
         name: 'constraint_type',
         type: 'string',
         required: false,
         description: `Optional constraint type filter`,
       },
-      { name: 'database', type: 'string', required: true, description: `Database name` },
       { name: 'limit', type: 'integer', required: false, description: `Maximum rows` },
       { name: 'role', type: 'string', required: false, description: `Optional role` },
       { name: 'schema', type: 'string', required: false, description: `Optional schema filter` },
@@ -224,6 +224,7 @@ export const tools: Tool[] = [
     name: 'snowflake_show_databases_schemas',
     description: `Run SHOW DATABASES or SHOW SCHEMAS.`,
     params: [
+      { name: 'object_type', type: 'string', required: true, description: `Object type to show` },
       {
         name: 'database_name',
         type: 'string',
@@ -236,7 +237,6 @@ export const tools: Tool[] = [
         required: false,
         description: `Optional LIKE pattern`,
       },
-      { name: 'object_type', type: 'string', required: true, description: `Object type to show` },
       { name: 'role', type: 'string', required: false, description: `Optional role` },
       { name: 'warehouse', type: 'string', required: false, description: `Optional warehouse` },
     ],
@@ -279,16 +279,22 @@ export const tools: Tool[] = [
     description: `Run SHOW IMPORTED KEYS or SHOW EXPORTED KEYS for a table. For reliable execution in this environment, use fully-qualified scope (database_name + schema_name + table_name).`,
     params: [
       {
-        name: 'database_name',
-        type: 'string',
-        required: false,
-        description: `Optional database name (recommended with schema_name)`,
-      },
-      {
         name: 'key_direction',
         type: 'string',
         required: true,
         description: `Which command to run`,
+      },
+      {
+        name: 'table_name',
+        type: 'string',
+        required: true,
+        description: `Table name (use with schema_name and database_name for fully-qualified scope)`,
+      },
+      {
+        name: 'database_name',
+        type: 'string',
+        required: false,
+        description: `Optional database name (recommended with schema_name)`,
       },
       { name: 'role', type: 'string', required: false, description: `Optional role` },
       {
@@ -296,12 +302,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `Optional schema name (recommended with database_name)`,
-      },
-      {
-        name: 'table_name',
-        type: 'string',
-        required: true,
-        description: `Table name (use with schema_name and database_name for fully-qualified scope)`,
       },
       { name: 'warehouse', type: 'string', required: false, description: `Optional warehouse` },
     ],

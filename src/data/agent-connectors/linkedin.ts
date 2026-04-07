@@ -540,16 +540,16 @@ export const tools: Tool[] = [
     description: `Search LinkedIn members by keyword for at-mention typeahead (requires Marketing API access).`,
     params: [
       {
-        name: 'count',
-        type: 'integer',
-        required: false,
-        description: `Number of results to return.`,
-      },
-      {
         name: 'keywords',
         type: 'string',
         required: true,
         description: `Keywords to search for members.`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return.`,
       },
     ],
   },
@@ -666,16 +666,16 @@ export const tools: Tool[] = [
     description: `Search LinkedIn organizations by keyword using the company search API.`,
     params: [
       {
-        name: 'count',
-        type: 'integer',
-        required: false,
-        description: `Number of results to return.`,
-      },
-      {
         name: 'keywords',
         type: 'string',
         required: true,
         description: `Keywords to search for organizations.`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of results to return.`,
       },
     ],
   },
@@ -720,6 +720,12 @@ export const tools: Tool[] = [
     description: `List comments on a LinkedIn UGC post.`,
     params: [
       {
+        name: 'ugc_post_urn',
+        type: 'string',
+        required: true,
+        description: `URL-encoded URN of the UGC post to retrieve comments for, e.g. urn%3Ali%3AugcPost%3A{id}.`,
+      },
+      {
         name: 'count',
         type: 'integer',
         required: false,
@@ -730,12 +736,6 @@ export const tools: Tool[] = [
         type: 'integer',
         required: false,
         description: `Pagination start index (0-based offset).`,
-      },
-      {
-        name: 'ugc_post_urn',
-        type: 'string',
-        required: true,
-        description: `URL-encoded URN of the UGC post to retrieve comments for, e.g. urn%3Ali%3AugcPost%3A{id}.`,
       },
     ],
   },
@@ -881,16 +881,16 @@ export const tools: Tool[] = [
     description: `List all reactions on a LinkedIn post or entity.`,
     params: [
       {
-        name: 'count',
-        type: 'integer',
-        required: false,
-        description: `Number of reactions to return per page.`,
-      },
-      {
         name: 'entity_urn',
         type: 'string',
         required: true,
         description: `The URN of the post or entity to list reactions for.`,
+      },
+      {
+        name: 'count',
+        type: 'integer',
+        required: false,
+        description: `Number of reactions to return per page.`,
       },
       { name: 'start', type: 'integer', required: false, description: `Offset for pagination.` },
     ],

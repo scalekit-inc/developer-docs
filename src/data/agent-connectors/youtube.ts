@@ -12,16 +12,16 @@ export const tools: Tool[] = [
         description: `Type of items the group will contain`,
       },
       {
-        name: 'on_behalf_of_content_owner',
-        type: 'string',
-        required: false,
-        description: `Content owner ID. For content partners only.`,
-      },
-      {
         name: 'title',
         type: 'string',
         required: true,
         description: `Title of the analytics group`,
+      },
+      {
+        name: 'on_behalf_of_content_owner',
+        type: 'string',
+        required: false,
+        description: `Content owner ID. For content partners only.`,
       },
     ],
   },
@@ -36,12 +36,6 @@ export const tools: Tool[] = [
         description: `ID of the Analytics group to add the item to`,
       },
       {
-        name: 'on_behalf_of_content_owner',
-        type: 'string',
-        required: false,
-        description: `Content owner ID. For content partners only.`,
-      },
-      {
         name: 'resource_id',
         type: 'string',
         required: true,
@@ -52,6 +46,12 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `Type of the resource`,
+      },
+      {
+        name: 'on_behalf_of_content_owner',
+        type: 'string',
+        required: false,
+        description: `Content owner ID. For content partners only.`,
       },
     ],
   },
@@ -145,16 +145,16 @@ export const tools: Tool[] = [
         description: `ID of the Analytics group to update`,
       },
       {
-        name: 'on_behalf_of_content_owner',
-        type: 'string',
-        required: false,
-        description: `Content owner ID. For content partners only.`,
-      },
-      {
         name: 'title',
         type: 'string',
         required: true,
         description: `New title for the Analytics group`,
+      },
+      {
+        name: 'on_behalf_of_content_owner',
+        type: 'string',
+        required: false,
+        description: `Content owner ID. For content partners only.`,
       },
     ],
   },
@@ -162,6 +162,30 @@ export const tools: Tool[] = [
     name: 'youtube_analytics_query',
     description: `Query YouTube Analytics data to retrieve metrics like views, watch time, subscribers, revenue, etc. for channels or content owners.`,
     params: [
+      {
+        name: 'end_date',
+        type: 'string',
+        required: true,
+        description: `End date for the analytics report in YYYY-MM-DD format`,
+      },
+      {
+        name: 'ids',
+        type: 'string',
+        required: true,
+        description: `Channel or content owner ID. Format: channel==CHANNEL_ID or contentOwner==CONTENT_OWNER_ID`,
+      },
+      {
+        name: 'metrics',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of metrics to retrieve (e.g., views,estimatedMinutesWatched,likes,subscribersGained)`,
+      },
+      {
+        name: 'start_date',
+        type: 'string',
+        required: true,
+        description: `Start date for the analytics report in YYYY-MM-DD format`,
+      },
       {
         name: 'currency',
         type: 'string',
@@ -175,22 +199,10 @@ export const tools: Tool[] = [
         description: `Comma-separated list of dimensions to group results by (e.g., day,country,video)`,
       },
       {
-        name: 'end_date',
-        type: 'string',
-        required: true,
-        description: `End date for the analytics report in YYYY-MM-DD format`,
-      },
-      {
         name: 'filters',
         type: 'string',
         required: false,
         description: `Filter expression to narrow results (e.g., country==US, video==VIDEO_ID)`,
-      },
-      {
-        name: 'ids',
-        type: 'string',
-        required: true,
-        description: `Channel or content owner ID. Format: channel==CHANNEL_ID or contentOwner==CONTENT_OWNER_ID`,
       },
       {
         name: 'include_historical_channel_data',
@@ -205,22 +217,10 @@ export const tools: Tool[] = [
         description: `Maximum number of rows to return in the response (maximum value: 200)`,
       },
       {
-        name: 'metrics',
-        type: 'string',
-        required: true,
-        description: `Comma-separated list of metrics to retrieve (e.g., views,estimatedMinutesWatched,likes,subscribersGained)`,
-      },
-      {
         name: 'sort',
         type: 'string',
         required: false,
         description: `Comma-separated list of columns to sort by. Prefix with - for descending order (e.g., -views)`,
-      },
-      {
-        name: 'start_date',
-        type: 'string',
-        required: true,
-        description: `Start date for the analytics report in YYYY-MM-DD format`,
       },
       {
         name: 'start_index',
@@ -235,16 +235,16 @@ export const tools: Tool[] = [
     description: `Retrieve a list of caption tracks for a YouTube video. The part parameter is fixed to 'snippet'. Requires youtube.force-ssl scope.`,
     params: [
       {
-        name: 'id',
-        type: 'string',
-        required: false,
-        description: `Comma-separated list of caption track IDs to filter results`,
-      },
-      {
         name: 'video_id',
         type: 'string',
         required: true,
         description: `ID of the video to list captions for`,
+      },
+      {
+        name: 'id',
+        type: 'string',
+        required: false,
+        description: `Comma-separated list of caption track IDs to filter results`,
       },
     ],
   },
@@ -252,6 +252,12 @@ export const tools: Tool[] = [
     name: 'youtube_channels_list',
     description: `Retrieve information about one or more YouTube channels including subscriber count, video count, and channel metadata. You must provide exactly one filter: id, mine, for_handle, for_username, or managed_by_me. Requires a valid YouTube OAuth2 connection.`,
     params: [
+      {
+        name: 'part',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of channel resource parts to include in the response`,
+      },
       {
         name: 'for_handle',
         type: 'string',
@@ -289,12 +295,6 @@ export const tools: Tool[] = [
         description: `Return the authenticated user's channel. Use instead of id, for_handle, or for_username.`,
       },
       { name: 'page_token', type: 'string', required: false, description: `Token for pagination` },
-      {
-        name: 'part',
-        type: 'string',
-        required: true,
-        description: `Comma-separated list of channel resource parts to include in the response`,
-      },
     ],
   },
   {
@@ -314,6 +314,12 @@ export const tools: Tool[] = [
     name: 'youtube_comment_threads_list',
     description: `Retrieve top-level comment threads for a YouTube video or channel. You must provide exactly one filter: video_id, all_threads_related_to_channel_id, or id. Each thread includes the top-level comment and optionally its replies. Requires a valid YouTube OAuth2 connection.`,
     params: [
+      {
+        name: 'part',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of comment thread resource parts to include`,
+      },
       {
         name: 'all_threads_related_to_channel_id',
         type: 'string',
@@ -339,12 +345,6 @@ export const tools: Tool[] = [
         description: `Sort order for comment threads`,
       },
       { name: 'page_token', type: 'string', required: false, description: `Token for pagination` },
-      {
-        name: 'part',
-        type: 'string',
-        required: true,
-        description: `Comma-separated list of comment thread resource parts to include`,
-      },
       {
         name: 'search_terms',
         type: 'string',
@@ -411,6 +411,7 @@ export const tools: Tool[] = [
     name: 'youtube_playlist_insert',
     description: `Create a new YouTube playlist for the authenticated user. Requires youtube scope.`,
     params: [
+      { name: 'title', type: 'string', required: true, description: `Playlist title` },
       {
         name: 'default_language',
         type: 'string',
@@ -420,7 +421,6 @@ export const tools: Tool[] = [
       { name: 'description', type: 'string', required: false, description: `Playlist description` },
       { name: 'privacy_status', type: 'string', required: false, description: `Privacy setting` },
       { name: 'tags', type: 'array', required: false, description: `Tags for the playlist` },
-      { name: 'title', type: 'string', required: true, description: `Playlist title` },
     ],
   },
   {
@@ -440,16 +440,17 @@ export const tools: Tool[] = [
     description: `Add a video to a YouTube playlist at an optional position. Requires youtube scope.`,
     params: [
       {
-        name: 'note',
-        type: 'string',
-        required: false,
-        description: `Optional note for this playlist item`,
-      },
-      {
         name: 'playlist_id',
         type: 'string',
         required: true,
         description: `Playlist to add the video to`,
+      },
+      { name: 'video_id', type: 'string', required: true, description: `YouTube video ID to add` },
+      {
+        name: 'note',
+        type: 'string',
+        required: false,
+        description: `Optional note for this playlist item`,
       },
       {
         name: 'position',
@@ -457,25 +458,12 @@ export const tools: Tool[] = [
         required: false,
         description: `Zero-based position in the playlist. Omit to add at end.`,
       },
-      { name: 'video_id', type: 'string', required: true, description: `YouTube video ID to add` },
     ],
   },
   {
     name: 'youtube_playlist_items_list',
     description: `Retrieve a list of videos in a YouTube playlist. Returns playlist items with video details, positions, and metadata. Requires a valid YouTube OAuth2 connection.`,
     params: [
-      {
-        name: 'max_results',
-        type: 'integer',
-        required: false,
-        description: `Maximum number of playlist items to return (0-50, default: 5)`,
-      },
-      {
-        name: 'page_token',
-        type: 'string',
-        required: false,
-        description: `Token for pagination to retrieve the next page`,
-      },
       {
         name: 'part',
         type: 'string',
@@ -487,6 +475,18 @@ export const tools: Tool[] = [
         type: 'string',
         required: true,
         description: `YouTube playlist ID to retrieve items from`,
+      },
+      {
+        name: 'max_results',
+        type: 'integer',
+        required: false,
+        description: `Maximum number of playlist items to return (0-50, default: 5)`,
+      },
+      {
+        name: 'page_token',
+        type: 'string',
+        required: false,
+        description: `Token for pagination to retrieve the next page`,
       },
       {
         name: 'video_id',
@@ -501,6 +501,12 @@ export const tools: Tool[] = [
     description: `Update an existing YouTube playlist's title, description, privacy status, or default language. Requires youtube scope.`,
     params: [
       {
+        name: 'playlist_id',
+        type: 'string',
+        required: true,
+        description: `ID of the playlist to update`,
+      },
+      {
         name: 'default_language',
         type: 'string',
         required: false,
@@ -511,12 +517,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `New playlist description`,
-      },
-      {
-        name: 'playlist_id',
-        type: 'string',
-        required: true,
-        description: `ID of the playlist to update`,
       },
       {
         name: 'privacy_status',
@@ -531,6 +531,12 @@ export const tools: Tool[] = [
     name: 'youtube_playlists_list',
     description: `Retrieve a list of YouTube playlists for a channel or the authenticated user. You must provide exactly one filter: channel_id, id, or mine. Requires a valid YouTube OAuth2 connection.`,
     params: [
+      {
+        name: 'part',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of playlist resource parts to include`,
+      },
       {
         name: 'channel_id',
         type: 'string',
@@ -556,12 +562,6 @@ export const tools: Tool[] = [
         description: `Return playlists owned by the authenticated user. Use instead of channel_id or id.`,
       },
       { name: 'page_token', type: 'string', required: false, description: `Token for pagination` },
-      {
-        name: 'part',
-        type: 'string',
-        required: true,
-        description: `Comma-separated list of playlist resource parts to include`,
-      },
     ],
   },
   {
@@ -575,16 +575,16 @@ export const tools: Tool[] = [
         description: `Human-readable name for the reporting job`,
       },
       {
-        name: 'on_behalf_of_content_owner',
-        type: 'string',
-        required: false,
-        description: `Content owner ID on whose behalf the job is being created`,
-      },
-      {
         name: 'report_type_id',
         type: 'string',
         required: true,
         description: `ID of the report type to generate (e.g., channel_basic_a2, channel_demographics_a1)`,
+      },
+      {
+        name: 'on_behalf_of_content_owner',
+        type: 'string',
+        required: false,
+        description: `Content owner ID on whose behalf the job is being created`,
       },
     ],
   },
@@ -671,16 +671,16 @@ export const tools: Tool[] = [
     description: `List reports that have been generated for a YouTube reporting job. Each report is a downloadable CSV file.`,
     params: [
       {
-        name: 'created_after',
-        type: 'string',
-        required: false,
-        description: `Only return reports created after this timestamp (RFC3339 format, e.g., 2024-01-01T00:00:00Z)`,
-      },
-      {
         name: 'job_id',
         type: 'string',
         required: true,
         description: `ID of the reporting job whose reports to list`,
+      },
+      {
+        name: 'created_after',
+        type: 'string',
+        required: false,
+        description: `Only return reports created after this timestamp (RFC3339 format, e.g., 2024-01-01T00:00:00Z)`,
       },
       {
         name: 'on_behalf_of_content_owner',
@@ -804,6 +804,12 @@ export const tools: Tool[] = [
     description: `Retrieve a list of YouTube channel subscriptions for the authenticated user or a specific channel. You must provide exactly one filter: channel_id, id, mine, my_recent_subscribers, or my_subscribers. Requires a valid YouTube OAuth2 connection with youtube.readonly scope.`,
     params: [
       {
+        name: 'part',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of subscription resource parts to include`,
+      },
+      {
         name: 'channel_id',
         type: 'string',
         required: false,
@@ -852,12 +858,6 @@ export const tools: Tool[] = [
         description: `Sort order for subscriptions`,
       },
       { name: 'page_token', type: 'string', required: false, description: `Token for pagination` },
-      {
-        name: 'part',
-        type: 'string',
-        required: true,
-        description: `Comma-separated list of subscription resource parts to include`,
-      },
     ],
   },
   {
@@ -913,6 +913,12 @@ export const tools: Tool[] = [
     description: `Retrieve detailed information about one or more YouTube videos including statistics, snippet, content details, and status. You must provide exactly one filter: id, chart, or my_rating. Requires a valid YouTube OAuth2 connection.`,
     params: [
       {
+        name: 'part',
+        type: 'string',
+        required: true,
+        description: `Comma-separated list of video resource parts to include in the response`,
+      },
+      {
         name: 'chart',
         type: 'string',
         required: false,
@@ -937,12 +943,6 @@ export const tools: Tool[] = [
         description: `Filter videos by the authenticated user's rating. Use instead of id or chart.`,
       },
       { name: 'page_token', type: 'string', required: false, description: `Token for pagination` },
-      {
-        name: 'part',
-        type: 'string',
-        required: true,
-        description: `Comma-separated list of video resource parts to include in the response`,
-      },
       {
         name: 'region_code',
         type: 'string',
@@ -974,6 +974,12 @@ export const tools: Tool[] = [
     name: 'youtube_videos_update',
     description: `Update metadata for an existing YouTube video. When updating snippet, both title and category_id are required together. Requires youtube scope.`,
     params: [
+      {
+        name: 'video_id',
+        type: 'string',
+        required: true,
+        description: `ID of the video to update`,
+      },
       {
         name: 'category_id',
         type: 'string',
@@ -1017,12 +1023,6 @@ export const tools: Tool[] = [
         type: 'string',
         required: false,
         description: `New video title. Required together with category_id when updating snippet.`,
-      },
-      {
-        name: 'video_id',
-        type: 'string',
-        required: true,
-        description: `ID of the video to update`,
       },
     ],
   },

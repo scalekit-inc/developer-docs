@@ -23,6 +23,12 @@ When NOT to use:
         description: `Actor ID or full name in 'username/name' format (e.g. 'apify/rag-web-browser'). For MCP server Actors use 'actorName:toolName' format.`,
       },
       {
+        name: 'input',
+        type: 'object',
+        required: true,
+        description: `Input JSON to pass to the Actor. Must match the Actor's input schema exactly — use apifymcp_fetch_actor_details with output: {"inputSchema": true} first to get the required fields and types.`,
+      },
+      {
         name: 'async',
         type: 'boolean',
         required: false,
@@ -33,12 +39,6 @@ When NOT to use:
         type: 'object',
         required: false,
         description: `Optional run configuration options`,
-      },
-      {
-        name: 'input',
-        type: 'object',
-        required: true,
-        description: `Input JSON to pass to the Actor. Must match the Actor's input schema exactly — use apifymcp_fetch_actor_details with output: {"inputSchema": true} first to get the required fields and types.`,
       },
       {
         name: 'previewOutput',
@@ -161,6 +161,12 @@ When NOT to use:
 - User needs repeated/scheduled scraping of a specific platform — search for a dedicated Actor using apifymcp_search_actors instead`,
     params: [
       {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Google Search keywords or a specific URL to scrape. Supports advanced search operators.`,
+      },
+      {
         name: 'maxResults',
         type: 'integer',
         required: false,
@@ -171,12 +177,6 @@ When NOT to use:
         type: 'array',
         required: false,
         description: `Output formats for the scraped page content. Options: 'markdown', 'text', 'html' (default: ['markdown'])`,
-      },
-      {
-        name: 'query',
-        type: 'string',
-        required: true,
-        description: `Google Search keywords or a specific URL to scrape. Supports advanced search operators.`,
       },
     ],
   },
@@ -232,6 +232,12 @@ When NOT to use:
 - You already have a documentation URL — use apifymcp_fetch_apify_docs directly`,
     params: [
       {
+        name: 'query',
+        type: 'string',
+        required: true,
+        description: `Algolia full-text search query using keywords only (e.g. 'standby actor', 'proxy configuration'). Do not use full sentences.`,
+      },
+      {
         name: 'docSource',
         type: 'string',
         required: false,
@@ -248,12 +254,6 @@ When NOT to use:
         type: 'number',
         required: false,
         description: `Offset for pagination (default: 0)`,
-      },
-      {
-        name: 'query',
-        type: 'string',
-        required: true,
-        description: `Algolia full-text search query using keywords only (e.g. 'standby actor', 'proxy configuration'). Do not use full sentences.`,
       },
     ],
   },
