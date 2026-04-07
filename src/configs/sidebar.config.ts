@@ -135,7 +135,6 @@ export const sidebar = [
           { label: 'Quickstart: Agent Auth', link: 'agent-auth/quickstart' },
           'agent-auth/user-verification',
           'agent-auth/code-samples',
-          { label: 'Connectors', link: 'guides/integrations/agent-connectors' },
         ],
       },
       {

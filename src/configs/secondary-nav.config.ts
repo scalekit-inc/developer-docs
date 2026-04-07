@@ -74,7 +74,13 @@ const agentKitItems: NavItem[] = [
     id: 'agentkit-providers',
     href: '/guides/integrations/agent-connectors/',
     label: 'Connectors',
-    iconComponent: IconLucideBot,
+    iconComponent: IconLucideBlocks,
+  },
+  {
+    id: 'agentkit-code-samples',
+    href: '/agent-auth/code-samples/',
+    label: 'Code Samples',
+    iconComponent: IconLucideCode,
   },
   sharedSdksItem,
 ]
