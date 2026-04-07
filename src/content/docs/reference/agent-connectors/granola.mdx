@@ -1,0 +1,52 @@
+---
+title: Granola
+description: Connect to Granola to access AI-generated meeting notes, summaries, transcripts, and attendee data from your workspace. Granola automatically records and summarises meetings so your team never misses key decisions or action items.
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Granola to access AI-generated meeting notes, summaries, transcripts, and attendee data from your workspace. Granola automatically records and summarises meetings so your team never misses key decisions or action items.
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/granola.svg" width="64" height="64" alt="Granola logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="Bearer Token" />
+
+
+## Tool list
+
+## `granola_note_get`
+
+Retrieve a single Granola meeting note by its ID. Returns the full note including title, owner, calendar event details, attendees, folder memberships, and AI-generated summary. Optionally include the full transcript with speaker labels and timestamps.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `include` | string | No | Pass 'transcript' to include the full meeting transcript with speaker source and timestamps. |
+| `note_id` | string | Yes | The unique identifier of the note to retrieve. Format: not_XXXXXXXXXXXXXX. |
+
+## `granola_notes_list`
+
+List all accessible meeting notes in the Granola workspace with pagination and date filtering. Returns note IDs, titles, owners, calendar event details, attendees, folder memberships, and AI-generated summaries. Only notes shared in workspace-wide folders are accessible.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `created_after` | string | No | Filter notes created on or after this date. ISO 8601 format (e.g., 2024-01-01 or 2024-01-01T00:00:00Z). |
+| `created_before` | string | No | Filter notes created before this date. ISO 8601 format (e.g., 2024-12-31 or 2024-12-31T23:59:59Z). |
+| `cursor` | string | No | Pagination cursor from the previous response to fetch the next page of results. |
+| `page_size` | integer | No | Number of notes to return per page (1–30). Defaults to 10. |
+| `updated_after` | string | No | Filter notes updated after this date. ISO 8601 format (e.g., 2024-06-01 or 2024-06-01T00:00:00Z). |
