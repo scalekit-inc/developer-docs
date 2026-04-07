@@ -125,6 +125,8 @@ import IconSimpleIconsIntercom from '~icons/simple-icons/intercom'
 import IconSimpleIconsDiscord from '~icons/simple-icons/discord'
 import IconSimpleIconsAsana from '~icons/simple-icons/asana'
 import IconSimpleIconsTrello from '~icons/simple-icons/trello'
+import IconSimpleIconsGmail from '~icons/simple-icons/gmail'
+import IconSimpleIconsStripe from '~icons/simple-icons/stripe'
 
 // AI Agent icons
 import IconSimpleIconsClaude from '~icons/simple-icons/claude'
@@ -274,6 +276,8 @@ export const iconMap = {
   discord: IconSimpleIconsDiscord,
   asana: IconSimpleIconsAsana,
   trello: IconSimpleIconsTrello,
+  gmail: IconSimpleIconsGmail,
+  stripe: IconSimpleIconsStripe,
 
   // AI agents
   claude: IconSimpleIconsClaude,

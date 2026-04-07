@@ -1,16 +1,16 @@
 ---
 title: Auth patterns
-description: Learn the supported auth types, provider payload fields, and auth pattern configuration used by bring your own provider.
-tags: [agentauth, providers, auth, oauth2, proxy, guide]
+description: Learn the supported auth types, connector payload fields, and auth pattern configuration used by bring your own connector.
+tags: [agentauth, connectors, auth, oauth2, proxy, guide]
 sidebar:
   label: "Auth patterns"
 tableOfContents:
   maxHeadingLevel: 3
 prev:
-  label: "Bring your own provider"
+  label: "Bring your own connector"
   link: "/agent-auth/bring-your-own-provider/overview"
 next:
-  label: "Managing providers"
+  label: "Managing connectors"
   link: "/agent-auth/bring-your-own-provider/managing-providers"
 ---
 
@@ -18,11 +18,11 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 Auth patterns define how Scalekit should authenticate to the upstream API.
 
-Use this page to choose an auth type and build the provider payload for a custom provider.
+Use this page to choose an auth type and build the connector payload for a custom connector.
 
 ## Choose an auth type
 
-Bring your own provider supports these auth types:
+Bring your own connector supports these auth types:
 
 - OAUTH
 - BASIC
@@ -31,15 +31,15 @@ Bring your own provider supports these auth types:
 
 Use OAUTH when the upstream API requires a user authorization flow and token exchange. Use BASIC, BEARER, or API_KEY when the upstream API accepts static credentials or long-lived tokens that Scalekit can attach during proxy calls.
 
-## Understand the provider payload
+## Understand the connector payload
 
-The provider payload uses these common top-level fields:
+The connector payload uses these common top-level fields:
 
-- `display_name`: Human-readable name for the custom provider
-- `description`: Short description of what the provider connects to
-- `auth_patterns`: Authentication options supported by the provider
+- `display_name`: Human-readable name for the custom connector
+- `description`: Short description of what the connector connects to
+- `auth_patterns`: Authentication options supported by the connector
 - `proxy_url`: Base URL the proxy should call for the upstream API (mandatory)
-- `proxy_enabled`: Whether the proxy is enabled for the provider (mandatory, should be true)
+- `proxy_enabled`: Whether the proxy is enabled for the connector (mandatory, should be true)
 
 `proxy_url` can also include templated fields when the upstream API requires account-specific values, for example `https://{{domain}}/api`.
 
@@ -51,7 +51,7 @@ Within `auth_patterns`, the most common fields are:
 - `display_name`: Label shown for that auth option
 - `description`: Short explanation of the auth method
 - `fields`: Inputs collected for static auth providers such as BASIC, BEARER, and API_KEY. These usually store values such as `username`, `password`, `token`, `api_key`, `domain`, or `version`.
-- `account_fields`: Inputs collected for OAUTH providers when account-scoped values are needed. This is typically used for values tied to a connected account, such as named path parameters.
+- `account_fields`: Inputs collected for OAUTH connectors when account-scoped values are needed. This is typically used for values tied to a connected account, such as named path parameters.
 - `oauth_config`: OAuth-specific configuration, such as authorize and token endpoints
 - `auth_header_key_override`: Custom header name when the upstream does not use `Authorization`. For example, some APIs expect auth in a header such as `X-API-Key` instead of the standard `Authorization` header.
 - `auth_field_mutations`: Value transformations applied before the credential is sent. This is useful when the upstream expects a prefix, suffix, or default companion value, such as adding a token prefix or setting a fallback password value for Basic auth.
@@ -202,7 +202,7 @@ When you review the final payload, pay close attention to:
 - `display_name` and `description`
 - The selected auth `type`
 - Required `fields` and `account_fields`
-- OAuth endpoints and scopes, if the provider uses OAuth
+- OAuth endpoints and scopes, if the connector uses OAuth
 - `proxy_url`
 
-Use the payload body from this page in the create and update requests on the [Managing providers](/agent-auth/bring-your-own-provider/managing-providers) page.
+Use the payload body from this page in the create and update requests on the [Managing connectors](/agent-auth/bring-your-own-provider/managing-providers) page.

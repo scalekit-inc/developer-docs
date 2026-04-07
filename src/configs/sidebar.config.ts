@@ -135,7 +135,7 @@ export const sidebar = [
           { label: 'Quickstart: Agent Auth', link: 'agent-auth/quickstart' },
           'agent-auth/user-verification',
           'agent-auth/code-samples',
-          { label: 'Providers', link: 'guides/integrations/agent-connectors' },
+          { label: 'Connectors', link: 'guides/integrations/agent-connectors' },
         ],
       },
       {
@@ -158,7 +158,7 @@ export const sidebar = [
         ],
       },
       {
-        label: 'Bring your own provider',
+        label: 'Bring your own connector',
         items: [
           'agent-auth/bring-your-own-provider/overview',
           'agent-auth/bring-your-own-provider/auth-types-and-patterns',
@@ -194,17 +194,24 @@ export const sidebar = [
           // 'agent-auth/frameworks/anthropic', // TODO: Add when Anthropic framework docs are complete
         ],
       },
-      {
-        label: 'Providers',
-        autogenerate: {
-          directory: 'reference/agent-connectors',
-        },
-      },
-
       // {
       //   label: 'Concepts',
       //   items: ['connect/providers', 'connect/connections', 'connect/connected-accounts'],
       // },
+    ],
+  },
+  {
+    label: 'Agent connectors',
+    id: 'agent-providers',
+    link: '/guides/integrations/agent-connectors/',
+    icon: 'seti:bicep',
+    items: [
+      {
+        label: 'Connectors',
+        autogenerate: {
+          directory: 'reference/agent-connectors',
+        },
+      },
     ],
   },
   {
@@ -552,13 +559,15 @@ export const topics = {
   // Modular SCIM (directory provisioning)
   'modular-scim': ['/directory/**/*'],
 
-  // Agent Auth / Connect
-  connect: [
-    '/agent-auth/**/*',
+  // Agent connectors (dedicated providers sidebar — must come before connect)
+  'agent-providers': [
+    '/reference/agent-connectors/**/*',
     '/guides/integrations/agent-connectors',
     '/guides/integrations/agent-connectors/**/*',
-    '/reference/agent-connectors/**/*',
   ],
+
+  // Agent Auth / Connect
+  connect: ['/agent-auth/**/*'],
 
   // === Resources (integrations, workflows, references) ===
   resources: [
@@ -649,6 +658,9 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Modular SCIM sidebar → SaaSKit SCIM tab
   'modular-scim': 'saaskit-scim',
 
+  // Agent connectors sidebar → AgentKit Providers tab
+  'agent-providers': 'agentkit-providers',
+
   // Agent Auth sidebar → AgentKit tabs
   connect: {
     default: 'agentkit-quickstart',
@@ -657,8 +669,6 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
       '/agent-auth/tools/agent-tools-quickstart': 'agentkit-quickstart',
       '/agent-auth/openclaw': 'agentkit-ai-frameworks',
       '/agent-auth/frameworks': 'agentkit-ai-frameworks',
-      '/guides/integrations/agent-connectors': 'agentkit-providers',
-      '/reference/agent-connectors': 'agentkit-providers',
     },
   },
 

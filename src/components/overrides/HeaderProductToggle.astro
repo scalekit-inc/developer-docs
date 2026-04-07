@@ -1,5 +1,6 @@
 ---
 import { getActiveSecondaryNavId, type SecondaryNavProps } from '../../utils/secondary-nav-utils'
+import { IconLucideUsers, IconLucideBot } from '../../utils/icon-map'
 
 const { entry } = Astro.props satisfies SecondaryNavProps
 
@@ -16,12 +17,14 @@ const productLinks = [
     href: '/agent-auth/quickstart/',
     isActive: isAgentKitActive,
     storageValue: 'agent-actions',
+    iconComponent: IconLucideBot,
   },
   {
     label: 'SaaS',
     href: '/authenticate/fsa/quickstart/',
     isActive: isSaaSKitActive,
     storageValue: 'auth-for-saas',
+    iconComponent: IconLucideUsers,
   },
 ]
 ---
@@ -56,18 +59,22 @@ const productLinks = [
     </button>
     <div class="product-dropdown__menu" role="listbox" aria-labelledby="product-dropdown-trigger">
       {
-        productLinks.map((link) => (
-          <a
-            href={link.href}
-            class={`product-dropdown__item ${link.isActive ? 'is-active' : ''}`}
-            role="option"
-            aria-selected={link.isActive}
-            data-storage-value={link.storageValue}
-            data-label={link.label}
-          >
-            {link.label}
-          </a>
-        ))
+        productLinks.map((link) => {
+          const IconComponent = link.iconComponent
+          return (
+            <a
+              href={link.href}
+              class={`product-dropdown__item ${link.isActive ? 'is-active' : ''}`}
+              role="option"
+              aria-selected={link.isActive}
+              data-storage-value={link.storageValue}
+              data-label={link.label}
+            >
+              {IconComponent && <IconComponent class="dropdown-item-icon" />}
+              <span>{link.label}</span>
+            </a>
+          )
+        })
       }
     </div>
   </div>
@@ -78,7 +85,7 @@ const productLinks = [
   const dropdown = document.getElementById('product-dropdown')
   const labelEl = document.getElementById('product-label')
 
-  // Hydrate label from localStorage if no server-side active section was detected
+  // Hydrate label and icon from localStorage if no server-side active section was detected
   if (trigger && labelEl && trigger.dataset.hasSelection === 'false') {
     try {
       const stored = localStorage.getItem('sk_docs_path')
@@ -193,7 +200,9 @@ const productLinks = [
   }
 
   .product-dropdown__item {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.5rem 0.875rem;
     font-size: var(--sl-text-sm);
     color: var(--sl-color-gray-2);
@@ -201,6 +210,12 @@ const productLinks = [
     transition:
       background-color 0.1s ease,
       color 0.1s ease;
+  }
+
+  .dropdown-item-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
   }
 
   .product-dropdown__item:hover {

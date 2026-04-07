@@ -71,39 +71,9 @@ const agentKitItems: NavItem[] = [
     iconComponent: IconLucideRocket,
   },
   {
-    // href points to the first framework page; parent is highlighted via ID match in isCurrentPage
-    id: 'agentkit-ai-frameworks',
-    href: '/agent-auth/openclaw/',
-    label: 'AI Frameworks',
-    iconComponent: IconRiAiGenerate2,
-    children: [
-      {
-        id: 'agentkit-openclaw',
-        href: '/agent-auth/openclaw/',
-        label: 'OpenClaw',
-        iconComponent: IconRiAiGenerate2,
-        description: 'OpenAI-compatible layer with Scalekit auth built in',
-      },
-      {
-        id: 'agentkit-langchain',
-        href: '/agent-auth/frameworks/langchain/',
-        label: 'LangChain',
-        iconComponent: IconLucideCode,
-        description: 'Add auth to LangChain agents',
-      },
-      {
-        id: 'agentkit-google-adk',
-        href: '/agent-auth/frameworks/google-adk/',
-        label: 'Google ADK',
-        iconComponent: IconLucideBot,
-        description: 'Add auth to Google ADK agents',
-      },
-    ],
-  },
-  {
     id: 'agentkit-providers',
     href: '/guides/integrations/agent-connectors/',
-    label: 'Providers',
+    label: 'Connectors',
     iconComponent: IconLucideBot,
   },
   sharedSdksItem,

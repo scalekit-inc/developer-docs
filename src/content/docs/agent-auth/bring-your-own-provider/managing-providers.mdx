@@ -1,9 +1,9 @@
 ---
-title: Managing providers
-description: Use the recommended skill to create, review, update, promote, and delete bring your own provider definitions.
-tags: [agentauth, providers, customproviders, dev, production, guide]
+title: Managing connectors
+description: Use the recommended skill to create, review, update, promote, and delete bring your own connector definitions.
+tags: [agentauth, connectors, customconnectors, dev, production, guide]
 sidebar:
-  label: "Managing providers"
+  label: "Managing connectors"
 tableOfContents:
   maxHeadingLevel: 3
 prev:
@@ -16,35 +16,35 @@ next:
 
 import { Aside } from '@astrojs/starlight/components';
 
-Use this page to create, list, update, promote, and delete custom providers in Scalekit.
+Use this page to create, list, update, promote, and delete custom connectors in Scalekit.
 
-Create providers in `Dev` first, validate the definition, and then use the same definition for updates or Production rollout.
+Create connectors in `Dev` first, validate the definition, and then use the same definition for updates or Production rollout.
 
 <Aside type="tip" title="Recommended approach">
-The recommended way to manage providers is with the <a href="https://github.com/scalekit-inc/skills/tree/main/skills/agent-auth/sk-actions-custom-provider" target="_blank" rel="noopener noreferrer">`sk-actions-custom-provider` skill</a>. It keeps payload generation, review, and promotion consistent across Dev and Production.
+The recommended way to manage connectors is with the <a href="https://github.com/scalekit-inc/skills/tree/main/skills/agent-auth/sk-actions-custom-provider" target="_blank" rel="noopener noreferrer">`sk-actions-custom-provider` skill</a>. It keeps payload generation, review, and promotion consistent across Dev and Production.
 </Aside>
 
 Use it to:
 
-- Infer the provider auth type
-- Generate the provider payload
-- Review existing providers before create or update
+- Infer the connector auth type
+- Generate the connector payload
+- Review existing connectors before create or update
 - Show diffs before updates
-- Move provider definitions from Dev to Production
-- Prepare the delete curl for a provider
+- Move connector definitions from Dev to Production
+- Prepare the delete curl for a connector
 
-Whenever the skill shows you the final provider payload, review the values carefully before approving or running the next step.
+Whenever the skill shows you the final connector payload, review the values carefully before approving or running the next step.
 
-If you prefer to manage custom providers with the APIs directly, use the `curl` commands on this page and the JSON bodies from [Auth patterns](/agent-auth/bring-your-own-provider/auth-types-and-patterns).
+If you prefer to manage custom connectors with the APIs directly, use the `curl` commands on this page and the JSON bodies from [Auth patterns](/agent-auth/bring-your-own-provider/auth-types-and-patterns).
 
 Before using the `curl` examples on this page, make sure:
 
-- `SCALEKIT_ENVIRONMENT_URL` points to the Scalekit environment where you want to manage the provider
+- `SCALEKIT_ENVIRONMENT_URL` points to the Scalekit environment where you want to manage the connector
 - `env_access_token` contains a valid environment access token for that environment
 
-## Create a provider
+## Create a connector
 
-Create the provider in `Dev` first. Share the provider name, Scalekit credentials, API docs, auth docs, and base API URL if you already know it. The skill will infer the auth pattern, generate the provider payload, and help you create it.
+Create the connector in `Dev` first. Share the connector name, Scalekit credentials, API docs, auth docs, and base API URL if you already know it. The skill will infer the auth pattern, generate the connector payload, and help you create it.
 
 Use one of the JSON payloads from [Auth patterns](/agent-auth/bring-your-own-provider/auth-types-and-patterns) as the request body:
 
@@ -55,24 +55,24 @@ curl --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers" \
   --data '{...}'
 ```
 
-After the provider is created, create a connection in the Scalekit Dashboard and continue with the standard Agent Auth flow.
+After the connector is created, create a connection in the Scalekit Dashboard and continue with the standard Agent Auth flow.
 
-## List providers
+## List connectors
 
-List existing providers before you create or update one. This helps you confirm whether the provider already exists and whether you should create a new provider or update an existing one.
+List existing connectors before you create or update one. This helps you confirm whether the connector already exists and whether you should create a new connector or update an existing one.
 
 ```bash
 curl --location "$SCALEKIT_ENVIRONMENT_URL/api/v1/providers?filter.provider_type=CUSTOM&page_size=1000" \
   --header "Authorization: Bearer $env_access_token"
 ```
 
-## Update a provider
+## Update a connector
 
-When a provider changes, use the skill to compare the current provider with the proposed payload. Review auth fields, scopes, and proxy settings carefully before applying the update, because these values affect how future authorization and proxy calls behave.
+When a connector changes, use the skill to compare the current connector with the proposed payload. Review auth fields, scopes, and proxy settings carefully before applying the update, because these values affect how future authorization and proxy calls behave.
 
-Use the [List providers](#list-providers) API to get the provider `identifier` from the response before sending the update request.
+Use the [List connectors](#list-connectors) API to get the connector `identifier` from the response before sending the update request.
 
-Use the updated JSON body from [Auth patterns](/agent-auth/bring-your-own-provider/auth-types-and-patterns) and the provider `identifier` in the update request:
+Use the updated JSON body from [Auth patterns](/agent-auth/bring-your-own-provider/auth-types-and-patterns) and the connector `identifier` in the update request:
 
 ```bash
 curl --location --request PUT "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers/$PROVIDER_IDENTIFIER" \
@@ -81,24 +81,24 @@ curl --location --request PUT "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers
   --data '{...}'
 ```
 
-## Move a provider from Dev to Production
+## Move a connector from Dev to Production
 
-Use the `Dev` provider as the source of truth. The skill can locate the matching provider in `Dev`, compare it with `Production`, and prepare the correct action from there.
+Use the `Dev` connector as the source of truth. The skill can locate the matching connector in `Dev`, compare it with `Production`, and prepare the correct action from there.
 
 In practice, this means:
 
-- fetch the provider definition from `Dev`
+- fetch the connector definition from `Dev`
 - review the payload
 - create it in `Production` if it does not exist
 - update it in `Production` if it already exists
 
-Use the same JSON body from [Auth patterns](/agent-auth/bring-your-own-provider/auth-types-and-patterns) for the Production create or update request. This keeps the provider definition consistent between environments.
+Use the same JSON body from [Auth patterns](/agent-auth/bring-your-own-provider/auth-types-and-patterns) for the Production create or update request. This keeps the connector definition consistent between environments.
 
-## Delete a provider
+## Delete a connector
 
-To delete a provider, resolve the correct provider identifier first. If the provider is still in use, remove the related connections or connected accounts before retrying the delete flow.
+To delete a connector, resolve the correct connector identifier first. If the connector is still in use, remove the related connections or connected accounts before retrying the delete flow.
 
-Use the [List providers](#list-providers) API to get the provider `identifier` from the response before sending the delete request.
+Use the [List connectors](#list-connectors) API to get the connector `identifier` from the response before sending the delete request.
 
 ```bash
 curl --location --request DELETE "$SCALEKIT_ENVIRONMENT_URL/api/v1/custom-providers/$PROVIDER_IDENTIFIER" \

@@ -6,7 +6,7 @@ tableOfContents: false
 topic: connect
 tags: [agent-auth, quickstart, ai-agents, oauth, token-vault, tool-integration]
 hero:
-  tagline: Auth, provider connections, and tool execution for agents acting on behalf of users
+  tagline: Auth, connector integrations, and tool execution for agents acting on behalf of users
 head:
   - tag: style
     content: |
@@ -72,6 +72,11 @@ head:
         margin: 2rem 0;
         min-width: 0;
         max-width: 100%;
+      }
+      .agent-home-steps-meta {
+        font-size: 0.875rem;
+        color: var(--sl-color-text-muted);
+        margin: 0 0 1rem !important;
       }
       .agent-home-tabs :global(.expressive-code),
       .agent-home-tabs :global(pre),
@@ -192,15 +197,16 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
   <div class="fold-container">
     <div class="agent-home-layout">
       <div class="agent-home-copy">
-        <h1>Connect your agents with SaaS apps, APIs, and databases</h1>
-        <p>Secure auth and actions on behalf of users, not service accounts.</p>
-        <p>Start with the Agent Auth quickstart, then expand into providers, tool execution, and framework-specific guides as your agent moves from prototype to production.</p>
+        <h1>Give your agents access to the apps your users already use</h1>
+        <p>Your agent can read emails, update CRM records, schedule meetings, and take actions across 40+ integrations — all with user permission, not shared service accounts.</p>
+        <p>Follow the two steps below to connect your first integration. Then expand into more connectors and framework guides as you move from prototype to production.</p>
       </div>
     </div>
 
     <div class="agent-home-tabs">
+        <p class="agent-home-steps-meta">2 steps · ~5 minutes · works with any AI coding agent</p>
         <Steps>
-        1. ## Set up developer environment
+        1. ## Install the Scalekit plugin
 
            Choose your AI agent to install the Scalekit Auth Stack plugin.
 
@@ -219,7 +225,7 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
                ```
              </TabItem>
              <TabItem label="Claude Code" icon="claude">
-               ```text title="Prompt for Claude Code"
+               ```text title="Prompt for Claude Code" showLineNumbers=false
                I want to install the Scalekit Auth Stack. Please suggest the commands to add the marketplace 'scalekit-inc/claude-code-authstack' and install the 'agent-auth' plugin.
                ```
 
@@ -236,7 +242,7 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
                ```
              </TabItem>
              <TabItem label="Codex" icon="codex">
-               ```text title="Prompt for Codex"
+               ```text title="Prompt for Codex" showLineNumbers=false
                I want to install the Scalekit Auth Stack. Please suggest the shell command to download and run the installation script from 'https://raw.githubusercontent.com/scalekit-inc/codex-authstack/main/install.sh'.
                ```
 
@@ -251,7 +257,7 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
                Restart Codex, open **Plugin Directory**, select **Scalekit Auth Stack**, and enable your auth plugin.
              </TabItem>
              <TabItem label="GitHub Copilot CLI" icon="githubcopilot">
-               ```text title="Prompt for GitHub Copilot"
+               ```text title="Prompt for GitHub Copilot" showLineNumbers=false
                I want to install the Scalekit Auth Stack. Please suggest the commands to add the marketplace 'scalekit-inc/github-copilot-authstack' and install the 'agent-auth' plugin.
                ```
 
@@ -270,7 +276,7 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
              <TabItem label="Cursor" icon="cursor">
                The Scalekit Auth Stack is pending Cursor Marketplace review. Install it locally in Cursor:
 
-               ```text title="Prompt for Cursor"
+               ```text title="Prompt for Cursor" showLineNumbers=false
                I want to install the Scalekit Auth Stack. Please suggest the shell command to download and run the installation script from 'https://raw.githubusercontent.com/scalekit-inc/cursor-authstack/main/install.sh'.
                ```
 
@@ -292,6 +298,8 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
 
            <Tabs syncKey="starter-prompt">
              <TabItem label="HubSpot + Gmail">
+               For agents that need to read emails and update sales records.
+
                ```text title="Expand my agent with HubSpot and Gmail" showLineNumbers=false
                Expand my current agent code so it can connect to HubSpot and Gmail with Scalekit Agent Auth.
 
@@ -306,20 +314,24 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
                ```
              </TabItem>
              <TabItem label="Access + refresh tokens">
+               For agents that call connector APIs directly and need raw access or refresh tokens.
+
                ```text title="Retrieve tokens for direct API calls" showLineNumbers=false
-               Guide me step by step to implement Scalekit so I can securely retrieve a user's access token and refresh token when I need to call a provider API directly.
+               Guide me step by step to implement Scalekit so I can securely retrieve a user's access token and refresh token when I need to call a connector API directly.
 
                Read the connected accounts and token management docs first. Then:
                1. Add the required Scalekit setup to my app.
                2. Create or load the connected account for my user.
                3. Trigger authorization when the account is not active.
                4. Show me how to read `accessToken` and `refreshToken` from the connected account details.
-               5. Explain when I should call the provider directly versus using Scalekit's proxy or built-in tools.
+               5. Explain when I should call the connector directly versus using Scalekit's proxy or built-in tools.
 
                Use secure defaults, never expose tokens in logs, and make the final code ready for real API calls.
                ```
              </TabItem>
              <TabItem label="LangChain + Calendar">
+               For agents built with LangChain that need to read or manage calendar events.
+
                ```text title="Use LangChain with Google Calendar" showLineNumbers=false
                Use LangChain as the primary framework and help me build an agent with Scalekit that connects to Google Calendar.
 
@@ -336,6 +348,7 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
            </Tabs>
 
         </Steps>
+        <p class="agent-home-steps-meta">Need help? <a href="/guides/integrations/agent-connectors/" class="inline-link">Browse the connector guides</a> or reach out via the dashboard.</p>
       </div>
   </div>
 </div>
@@ -383,6 +396,9 @@ import ResponsiveCardGrid from '@components/ui/ResponsiveCardGrid.astro'
       <FoldCard title="Figma" iconKey="figma" href="/reference/agent-connectors/figma/" clickable={true} />
       <FoldCard title="Intercom" iconKey="intercom" href="/reference/agent-connectors/intercom/" clickable={true} />
       <FoldCard title="GitLab" iconKey="gitlab" href="/reference/agent-connectors/gitlab/" clickable={true} />
+      <FoldCard title="Gmail" iconKey="gmail" href="/reference/agent-connectors/gmail/" clickable={true} />
+      <FoldCard title="Stripe" iconKey="stripe" href="/reference/agent-connectors/stripe/" clickable={true} />
+      <FoldCard title="Asana" iconKey="asana" href="/reference/agent-connectors/asana/" clickable={true} />
     </ResponsiveCardGrid>
   </div>
 </div>

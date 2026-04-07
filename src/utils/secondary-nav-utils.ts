@@ -13,7 +13,8 @@ export function getActiveProduct(pathname: string, topic?: string): 'agentkit' |
   if (
     pathname.startsWith('/agent-auth/') ||
     pathname.startsWith('/guides/integrations/agent-connectors') ||
-    pathname.startsWith('/reference/agent-connectors')
+    pathname.startsWith('/reference/agent-connectors') ||
+    pathname.startsWith('/home/agent-actions')
   )
     return 'agentkit'
   return 'saaskit'

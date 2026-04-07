@@ -9,35 +9,35 @@ banner:
 
 import { Card, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
 
-Agent Auth is Scalekit's authentication solution that enables your applications to securely connect to third-party services on behalf of your users. It handles the complexity of OAuth flows, token management, and multi-provider authentication for popular business applications like Gmail, Slack, Jira, and more.
+Agent Auth is Scalekit's authentication solution that enables your applications to securely connect to third-party services on behalf of your users. It handles the complexity of OAuth flows, token management, and multi-connector authentication for popular business applications like Gmail, Slack, Jira, and more.
 
 ## What is Agent Auth?
 
 Agent Auth simplifies third-party authentication by providing:
 
-- **Multi-provider OAuth**: Support for OAuth 2.0 flows across all major providers
-- **Unified authentication API**: Single interface for managing connections to any provider
+- **Multi-connector OAuth**: Support for OAuth 2.0 flows across all major connectors
+- **Unified authentication API**: Single interface for managing connections to any connector
 - **Automatic token management**: Token refresh, storage, and lifecycle handling
 - **Flexible authentication modes**: Use Scalekit-managed OAuth or bring your own credentials
 - **Secure token handling**: Encrypted token storage and transmission
 
 ## Key concepts
 
-### Providers
+### Connectors
 
-Providers are third-party applications that your users can authenticate with. Agent Auth supports OAuth 2.0 flows for popular platforms including Gmail, Slack, GitHub, Jira, and many more.
+Connectors are third-party applications that your users can authenticate with. Agent Auth supports OAuth 2.0 flows for popular platforms including Gmail, Slack, GitHub, Jira, and many more.
 
 ### Connections
 
-Connections define the authentication configuration for a specific provider. Each connection contains:
+Connections define the authentication configuration for a specific connector. Each connection contains:
 
 - **Authentication credentials** (OAuth client ID/secret, API keys)
 - **OAuth configuration** (authorization URLs, token endpoints, scopes)
-- **Provider-specific settings** (rate limits, API versions)
+- **Connector-specific settings** (rate limits, API versions)
 
 ### Connected accounts
 
-Connected accounts represent the authenticated link between a user in your application and their account on a third-party provider. Each connected account maintains:
+Connected accounts represent the authenticated link between a user in your application and their account on a third-party connector. Each connected account maintains:
 
 - **Authentication state** (active, expired, revoked)
 - **Access tokens** and refresh tokens with automatic refresh handling
@@ -83,9 +83,9 @@ C -> Providers.D: "Authenticate"
 
 ## How authentication works
 
-### 1. Configure provider connections
+### 1. Configure connector connections
 
-Set up OAuth credentials for each provider you want to support:
+Set up OAuth credentials for each connector you want to support:
 
 ```javascript
 // Create a connection for Gmail with OAuth 2.0
@@ -128,7 +128,7 @@ const account = await agentConnect.accounts.get(connectedAccount.id);
 // account.status will be 'active' once authentication is complete
 ```
 
-## Supported providers
+## Supported connectors
 
 Agent Auth supports OAuth authentication for a wide range of popular business applications:
 
@@ -165,7 +165,7 @@ Agent Auth supports OAuth authentication for a wide range of popular business ap
 
 ## Common authentication scenarios
 
-### Multi-provider authentication
+### Multi-connector authentication
 
 Enable users to connect multiple third-party accounts in your application:
 
@@ -183,7 +183,7 @@ const slackAccount = await agentConnect.accounts.create({
   identifier_type: 'user_id'
 });
 
-// Generate OAuth URLs for each provider
+// Generate OAuth URLs for each connector
 const gmailAuthUrl = await agentConnect.accounts.getAuthUrl(gmailAccount.id);
 const slackAuthUrl = await agentConnect.accounts.getAuthUrl(slackAccount.id);
 ```
@@ -225,11 +225,11 @@ if (account.status === 'active') {
 
 ### Developer experience
 
-- **Unified authentication API**: Single interface for OAuth across all providers
+- **Unified authentication API**: Single interface for OAuth across all connectors
 - **Automatic token refresh**: No manual token lifecycle management required
-- **Pre-built OAuth flows**: Skip complex OAuth implementation for each provider
+- **Pre-built OAuth flows**: Skip complex OAuth implementation for each connector
 - **Multi-language SDKs**: Support for popular programming languages
-- **Standardized error handling**: Consistent error responses across providers
+- **Standardized error handling**: Consistent error responses across connectors
 
 ### Security and compliance
 
@@ -248,7 +248,7 @@ Agent Auth supports multiple authentication approaches:
 Use Scalekit's shared OAuth applications for quick setup:
 
 - **Fast setup**: Get started in minutes without registering OAuth apps
-- **Shared credentials**: Pre-configured OAuth credentials for all providers
+- **Shared credentials**: Pre-configured OAuth credentials for all connectors
 - **Zero configuration**: No need to manage client IDs or secrets
 - **Perfect for**: Development, testing, proof of concepts
 
@@ -258,7 +258,7 @@ Use your own OAuth applications for complete control:
 
 - **Custom branding**: Users see your application name and logo during OAuth
 - **Higher rate limits**: Dedicated quotas for your OAuth application
-- **Direct relationships**: Establish direct OAuth connections with providers
+- **Direct relationships**: Establish direct OAuth connections with connectors
 - **Enhanced control**: Full control over OAuth scopes and permissions
 - **Perfect for**: Production applications, enterprise customers
 
@@ -273,8 +273,8 @@ Ready to start using Agent Auth? Here's what you need to do:
   <LinkCard title="Authentication Flows" href="/agent-auth/authentication/auth-flows-comparison">
     Compare different authentication flow patterns
   </LinkCard>
-  <LinkCard title="Providers" href="/agent-auth/providers">
-    View supported OAuth providers and their requirements
+  <LinkCard title="Connectors" href="/agent-auth/providers">
+    View supported connectors and their requirements
   </LinkCard>
 </CardGrid>
 
