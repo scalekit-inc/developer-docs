@@ -2,8 +2,9 @@
 title: Attio
 description: Connect to Attio CRM to manage contacts, companies, deals, notes, tasks, and lists with a modern relationship management platform.
 tableOfContents: true
-sidebar:
-  label: Attio
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/attio.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [crm, sales]
 head:
   - tag: style
     content: |
@@ -12,31 +13,40 @@ head:
       }
 ---
 
-import { Badge } from '@astrojs/starlight/components'
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/attio'
 import { SetupAttioSection } from '@components/templates'
 import { UsageAttioSection } from '@components/templates'
 
-<div class="grid grid-cols-5 gap-4 items-center">
- <div class="col-span-4">
-  Connect to Attio CRM to manage contacts, companies, deals, notes, tasks, and lists with a modern relationship management platform.
- </div>
- <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/attio.svg" width="64" height="64" alt="Attio logo" />
- </div>
-</div>
+## What you can do
 
-Supports authentication: <Badge text="OAuth 2.0" />
+Connect this agent connector to let your agent:
 
+- **Create create** — Creates a new person record in Attio
+- **List list** — List and query records for a specific Attio object type (e.g
+- **Search search** — Search for records in Attio for a given object type (people, companies, deals, or custom objects) using a fuzzy text query
+- **Delete delete** — Permanently deletes a person record from Attio by its record_id
+- **Get get** — Retrieves a single comment by its comment_id in Attio
 
-## Set up the agent connector
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Attio, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Attio **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+<details>
+<summary>Set up the connector</summary>
 
 <SetupAttioSection />
 
-## Usage
+</details>
+
+<details>
+<summary>Code examples</summary>
 
 <UsageAttioSection />
+
+</details>
 
 ## Tool list
 

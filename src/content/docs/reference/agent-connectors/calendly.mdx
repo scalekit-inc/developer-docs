@@ -2,8 +2,9 @@
 title: Calendly
 description: Connect to Calendly. Access user profile, events, and scheduling workflows.
 tableOfContents: true
-sidebar:
-  label: Calendly
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/calendly.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [productivity, calendar, scheduling]
 head:
   - tag: style
     content: |
@@ -12,21 +13,25 @@ head:
       }
 ---
 
-import { Badge } from '@astrojs/starlight/components'
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/calendly'
 
-<div class="grid grid-cols-5 gap-4 items-center">
- <div class="col-span-4">
-  Connect to Calendly. Access user profile, events, and scheduling workflows.
- </div>
- <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/calendly.svg" width="64" height="64" alt="Calendly logo" />
- </div>
-</div>
+## What you can do
 
-Supports authentication: <Badge text="OAuth 2.0" />
+Connect this agent connector to let your agent:
 
+- **Delete webhook subscription, data compliance events, data compliance invitees** — Deletes a Calendly webhook subscription, stopping future event notifications
+- **List event type availability schedules, group relationships, groups** — Returns a list of availability schedules for the specified Calendly event type
+- **Create invitee no show, organization invitation, share** — Marks a specific invitee as a no-show for a scheduled Calendly event
+- **Get sample webhook data, organization membership, organization invitation** — Returns a sample webhook payload for the specified event type, useful for testing webhook integrations
+- **Update event type availability schedules, event type** — Updates the availability schedules (rules) for the specified Calendly event type
+- **Revoke organization invitation** — Revokes a pending invitation to a Calendly organization
+
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Calendly, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Calendly **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
 
 ## Tool list
 

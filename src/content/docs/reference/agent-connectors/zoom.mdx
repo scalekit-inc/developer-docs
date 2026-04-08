@@ -2,8 +2,9 @@
 title: Zoom
 description: Connect to Zoom. Schedule meetings, manage recordings, and handle video conferencing workflows
 tableOfContents: true
-sidebar:
-  label: Zoom
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/zoom.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [communication]
 head:
   - tag: style
     content: |
@@ -12,28 +13,27 @@ head:
       }
 ---
 
-import { Badge } from '@astrojs/starlight/components'
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/zoom'
 import { SetupZoomSection } from '@components/templates'
 import { UsageZoomSection } from '@components/templates'
 
-<div class="grid grid-cols-5 gap-4 items-center">
- <div class="col-span-4">
-  Connect to Zoom. Schedule meetings, manage recordings, and handle video conferencing workflows
- </div>
- <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/zoom.svg" width="64" height="64" alt="Zoom logo" />
- </div>
-</div>
+## Authentication
 
-Supports authentication: <Badge text="OAuth 2.0" />
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Zoom, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
 
+You supply your Zoom **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
 
-## Set up the agent connector
+<details>
+<summary>Set up the connector</summary>
 
 <SetupZoomSection />
 
-## Usage
+</details>
+
+<details>
+<summary>Code examples</summary>
 
 <UsageZoomSection />
+
+</details>

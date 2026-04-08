@@ -2,8 +2,9 @@
 title: Google Calendar
 description: Google Calendar is Google's cloud-based calendar service that allows you to manage your events, appointments, and schedules from any computer or device with just a web browser.
 tableOfContents: true
-sidebar:
-  label: Google Calendar
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_calendar.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [communication]
 head:
   - tag: style
     content: |
@@ -12,31 +13,40 @@ head:
       }
 ---
 
-import { Badge } from '@astrojs/starlight/components'
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/googlecalendar'
 import { SetupGooglecalendarSection } from '@components/templates'
 import { UsageGooglecalendarSection } from '@components/templates'
 
-<div class="grid grid-cols-5 gap-4 items-center">
- <div class="col-span-4">
-  Google Calendar is Google's cloud-based calendar service that allows you to manage your events, appointments, and schedules from any computer or device with just a web browser.
- </div>
- <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_calendar.svg" width="64" height="64" alt="Google Calendar logo" />
- </div>
-</div>
+## What you can do
 
-Supports authentication: <Badge text="OAuth 2.0" />
+Connect this agent connector to let your agent:
 
+- **Update update** — Update an existing event in a connected Google Calendar account
+- **List list** — List events from a connected Google Calendar account with filtering options
+- **Get get** — Retrieve a specific calendar event by its ID using optional filtering and list parameters
+- **Delete delete** — Delete an event from a connected Google Calendar account
+- **Create create** — Create a new event in a connected Google Calendar account
 
-## Set up the agent connector
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Google Calendar, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Google Calendar **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+<details>
+<summary>Set up the connector</summary>
 
 <SetupGooglecalendarSection />
 
-## Usage
+</details>
+
+<details>
+<summary>Code examples</summary>
 
 <UsageGooglecalendarSection />
+
+</details>
 
 ## Tool list
 

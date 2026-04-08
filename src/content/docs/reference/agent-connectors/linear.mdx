@@ -2,8 +2,9 @@
 title: Linear
 description: Connect to Linear. Manage issues, projects, sprints, and development workflows
 tableOfContents: true
-sidebar:
-  label: Linear
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/linear.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [developer_tools, project_management]
 head:
   - tag: style
     content: |
@@ -12,31 +13,39 @@ head:
       }
 ---
 
-import { Badge } from '@astrojs/starlight/components'
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/linear'
 import { SetupLinearSection } from '@components/templates'
 import { UsageLinearSection } from '@components/templates'
 
-<div class="grid grid-cols-5 gap-4 items-center">
- <div class="col-span-4">
-  Connect to Linear. Manage issues, projects, sprints, and development workflows
- </div>
- <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/linear.svg" width="64" height="64" alt="Linear logo" />
- </div>
-</div>
+## What you can do
 
-Supports authentication: <Badge text="OAuth 2.0" />
+Connect this agent connector to let your agent:
 
+- **Read issues** — fetch issues, projects, cycles, and team details
+- **Create and update issues** — file new issues, update status, set priority, and assign teammates
+- **Manage projects** — create and update project metadata and milestones
+- **Search** — find issues by keyword, assignee, label, or state
 
-## Set up the agent connector
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Linear, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Linear **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+<details>
+<summary>Set up the connector</summary>
 
 <SetupLinearSection />
 
-## Usage
+</details>
+
+<details>
+<summary>Code examples</summary>
 
 <UsageLinearSection />
+
+</details>
 
 ## Tool list
 

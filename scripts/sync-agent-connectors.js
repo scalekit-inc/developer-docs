@@ -23,6 +23,22 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // ---------------------------------------------------------------------------
+// Capability overrides — hand-curated "What you can do" bullets
+// ---------------------------------------------------------------------------
+
+function loadCapabilityOverrides() {
+  const overridesPath = path.join(__dirname, '../src/data/agent-connectors/capabilities.json')
+  try {
+    const raw = fs.readFileSync(overridesPath, 'utf8')
+    return JSON.parse(raw)
+  } catch {
+    return {}
+  }
+}
+
+const CAPABILITY_OVERRIDES = loadCapabilityOverrides()
+
+// ---------------------------------------------------------------------------
 // Env loader (using dotenv)
 // ---------------------------------------------------------------------------
 
@@ -604,7 +620,99 @@ function generateTsDataFile(provider, tools) {
 }
 
 // ---------------------------------------------------------------------------
-// MDX generation — port of Python MDXGenerator.generate_mdx_content()
+// Content helpers — capability bullets and authentication prose
+// ---------------------------------------------------------------------------
+
+/**
+ * Auto-generate "What you can do" bullets from the tool list.
+ * Groups tools by action verb and produces one bullet per group (max 6).
+ */
+function generateCapabilityBullets(tools, providerName) {
+  const ACTION_WORDS = [
+    'create',
+    'read',
+    'update',
+    'delete',
+    'search',
+    'list',
+    'get',
+    'send',
+    'fetch',
+    'run',
+    'execute',
+    'query',
+  ]
+
+  const actionGroups = new Map()
+  for (const tool of tools) {
+    const nameParts = (tool.name || '').split('_')
+    const action =
+      nameParts.find((p) => ACTION_WORDS.includes(p.toLowerCase())) ||
+      nameParts[nameParts.length - 1] ||
+      'use'
+    if (!actionGroups.has(action)) actionGroups.set(action, [])
+    actionGroups.get(action).push(tool)
+  }
+
+  const bullets = []
+  for (const [action, groupTools] of actionGroups) {
+    const objects = [
+      ...new Set(
+        groupTools.slice(0, 3).map((t) => {
+          const parts = t.name.split('_')
+          const actionIdx = parts.indexOf(action)
+          const objectParts = actionIdx > 1 ? parts.slice(1, actionIdx) : parts.slice(1, 2)
+          return objectParts.join(' ')
+        }),
+      ),
+    ]
+      .filter(Boolean)
+      .join(', ')
+
+    const desc = groupTools[0].description || ''
+    const firstSentence = desc.split(/\.\s/)[0].replace(/\.$/, '').trim()
+    const label = objects
+      ? `**${action.charAt(0).toUpperCase() + action.slice(1)} ${objects}**`
+      : `**${action.charAt(0).toUpperCase() + action.slice(1)} records**`
+
+    bullets.push(`- ${label} — ${firstSentence}`)
+  }
+
+  return bullets.slice(0, 6)
+}
+
+/**
+ * Generate a short "Authentication" paragraph based on the primary auth pattern.
+ */
+function generateAuthSection(authPattern, providerName) {
+  const type = authPattern.type || 'UNKNOWN'
+  if (type === 'OAUTH') {
+    return (
+      `This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to ${providerName}, ` +
+      `obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — ` +
+      `you only pass a \`connectionName\` and a user \`identifier\`.\n\n` +
+      `You supply your ${providerName} **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.`
+    )
+  }
+  if (type === 'API_KEY') {
+    return (
+      `This connector uses **API Key** authentication. Your users provide their ${providerName} API key once, ` +
+      `and Scalekit stores and manages it securely. Your agent code never handles keys directly — ` +
+      `you only pass a \`connectionName\` and a user \`identifier\`.`
+    )
+  }
+  if (type === 'BEARER') {
+    return (
+      `This connector uses **Bearer Token** authentication. Scalekit securely stores the token and injects it into ` +
+      `API requests on behalf of your users. Your agent code never handles tokens directly — ` +
+      `you only pass a \`connectionName\` and a user \`identifier\`.`
+    )
+  }
+  return `This connector uses **${authPattern.display_name || type}** authentication.`
+}
+
+// ---------------------------------------------------------------------------
+// MDX generation
 // ---------------------------------------------------------------------------
 
 function generateMdxContent(provider, tools) {
@@ -614,29 +722,33 @@ function generateMdxContent(provider, tools) {
   const providerDescription = provider.description || 'No description available.'
   const authPatterns = provider.auth_patterns || []
   const comingSoon = provider.coming_soon || false
+  const iconSrc = provider.icon_src || ''
+  const providerSlug = toSafeIdentifier(provider.identifier)
 
-  const authBadges = authPatterns.map((auth) => {
-    const type = auth.type || 'UNKNOWN'
-    if (type === 'OAUTH') return '<Badge text="OAuth 2.0" />'
-    if (type === 'API_KEY') return '<Badge text="API Key" />'
-    if (type === 'BEARER') return '<Badge text="Bearer Token" />'
-    return `<Badge text="${auth.display_name || type}" />`
-  })
+  // Primary auth pattern for header chip and auth section
+  const primaryAuth = authPatterns[0] || null
+  const authTypeLabel = primaryAuth ? resolveAuthType(authPatterns) : null
+
+  // Provider categories (API may or may not return this field)
+  const categories = Array.isArray(provider.categories) ? provider.categories : []
 
   // --- Frontmatter ---
   lines.push('---')
   lines.push(`title: ${providerName}`)
   lines.push(`description: ${providerDescription}`)
   lines.push('tableOfContents: true')
-  lines.push('sidebar:')
-  lines.push(`  label: ${providerName}`)
+  if (iconSrc) lines.push(`connectorIcon: ${iconSrc}`)
+  if (authTypeLabel) lines.push(`connectorAuthType: ${authTypeLabel}`)
+  if (categories.length) lines.push(`connectorCategories: [${categories.join(', ')}]`)
+
   if (comingSoon) {
+    lines.push('sidebar:')
     lines.push('  badge:')
     lines.push('    text: Soon')
     lines.push('    variant: tip')
   }
 
-  // Static head boilerplate (CSS only)
+  // Static head CSS
   lines.push('head:')
   lines.push('  - tag: style')
   lines.push('    content: |')
@@ -647,9 +759,7 @@ function generateMdxContent(provider, tools) {
   lines.push('')
 
   // Imports
-  lines.push("import { Badge } from '@astrojs/starlight/components'")
   lines.push("import ToolList from '@/components/ToolList.astro'")
-  const providerSlug = toSafeIdentifier(provider.identifier)
   lines.push(`import { tools } from '@/data/agent-connectors/${providerSlug}'`)
   const setupComponentName = getSetupComponent(SETUP_STEM_MAP, providerSlug)
   const usageComponentName = getUsageComponent(USAGE_STEM_MAP, providerSlug)
@@ -661,42 +771,51 @@ function generateMdxContent(provider, tools) {
   }
   lines.push('')
 
-  // Provider description + icon grid
-  const iconSrc = provider.icon_src || ''
-  if (iconSrc) {
-    lines.push('<div class="grid grid-cols-5 gap-4 items-center">')
-    lines.push(' <div class="col-span-4">')
-    lines.push(`  ${providerDescription}`)
-    lines.push(' </div>')
-    lines.push(' <div class="flex justify-center">')
-    lines.push(`  <img src="${iconSrc}" width="64" height="64" alt="${providerName} logo" />`)
-    lines.push(' </div>')
-    lines.push('</div>')
-  } else {
-    lines.push(providerDescription)
-  }
-  lines.push('')
+  // What you can do — use hand-curated overrides when available, auto-gen as fallback
+  if (tools.length > 0) {
+    const overrideBullets = CAPABILITY_OVERRIDES[providerSlug]
+    const bullets =
+      Array.isArray(overrideBullets) && overrideBullets.length > 0
+        ? overrideBullets.map((b) => `- ${b}`)
+        : generateCapabilityBullets(tools, providerName)
 
-  // Auth badges
-  if (authBadges.length > 0) {
-    lines.push(`Supports authentication: ${authBadges.join(' , ')}`)
+    lines.push('## What you can do')
     lines.push('')
+    lines.push(`Connect this agent connector to let your agent:`)
+    lines.push('')
+    for (const bullet of bullets) {
+      lines.push(bullet)
+    }
     lines.push('')
   }
 
-  // Setup section
+  // Authentication
+  if (primaryAuth) {
+    lines.push('## Authentication')
+    lines.push('')
+    lines.push(generateAuthSection(primaryAuth, providerName))
+    lines.push('')
+  }
+
+  // Setup section (collapsible)
   if (setupComponentName) {
-    lines.push('## Set up the agent connector')
+    lines.push('<details>')
+    lines.push('<summary>Set up the connector</summary>')
     lines.push('')
     lines.push(`<${setupComponentName} />`)
     lines.push('')
+    lines.push('</details>')
+    lines.push('')
   }
 
-  // Usage section
+  // Usage section (collapsible)
   if (usageComponentName) {
-    lines.push('## Usage')
+    lines.push('<details>')
+    lines.push('<summary>Code examples</summary>')
     lines.push('')
     lines.push(`<${usageComponentName} />`)
+    lines.push('')
+    lines.push('</details>')
     lines.push('')
   }
 

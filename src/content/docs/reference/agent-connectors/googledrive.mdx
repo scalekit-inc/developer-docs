@@ -2,8 +2,9 @@
 title: Google Drive
 description: Connect to Google Drive. Manage files, folders, and sharing permissions
 tableOfContents: true
-sidebar:
-  label: Google Drive
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_drive.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [files, documents]
 head:
   - tag: style
     content: |
@@ -12,31 +13,37 @@ head:
       }
 ---
 
-import { Badge } from '@astrojs/starlight/components'
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/googledrive'
 import { SetupGoogleDriveSection } from '@components/templates'
 import { UsageGoogledriveSection } from '@components/templates'
 
-<div class="grid grid-cols-5 gap-4 items-center">
- <div class="col-span-4">
-  Connect to Google Drive. Manage files, folders, and sharing permissions
- </div>
- <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_drive.svg" width="64" height="64" alt="Google Drive logo" />
- </div>
-</div>
+## What you can do
 
-Supports authentication: <Badge text="OAuth 2.0" />
+Connect this agent connector to let your agent:
 
+- **Search search** — Search for files and folders in Google Drive using query filters like name, type, owner, and parent folder
+- **Get get** — Retrieve metadata for a specific file in Google Drive by its file ID
 
-## Set up the agent connector
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Google Drive, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Google Drive **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+<details>
+<summary>Set up the connector</summary>
 
 <SetupGoogleDriveSection />
 
-## Usage
+</details>
+
+<details>
+<summary>Code examples</summary>
 
 <UsageGoogledriveSection />
+
+</details>
 
 ## Tool list
 

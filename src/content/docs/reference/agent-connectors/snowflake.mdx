@@ -2,8 +2,9 @@
 title: Snowflake
 description: Connect to Snowflake to manage and analyze your data warehouse workloads
 tableOfContents: true
-sidebar:
-  label: Snowflake
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/snowflake.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [data, analytics]
 head:
   - tag: style
     content: |
@@ -12,31 +13,41 @@ head:
       }
 ---
 
-import { Badge } from '@astrojs/starlight/components'
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/snowflake'
 import { SetupSnowflakeSection } from '@components/templates'
 import { UsageSnowflakeSection } from '@components/templates'
 
-<div class="grid grid-cols-5 gap-4 items-center">
- <div class="col-span-4">
-  Connect to Snowflake to manage and analyze your data warehouse workloads
- </div>
- <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/snowflake.svg" width="64" height="64" alt="Snowflake logo" />
- </div>
-</div>
+## What you can do
 
-Supports authentication: <Badge text="OAuth 2.0" />
+Connect this agent connector to let your agent:
 
+- **Grants show** — Run SHOW GRANTS in common modes (to role, to user, of role, on object)
+- **Warehouses show** — Run SHOW WAREHOUSES
+- **Schemas show databases** — Run SHOW DATABASES or SHOW SCHEMAS
+- **Keys show imported exported, show primary** — Run SHOW IMPORTED KEYS or SHOW EXPORTED KEYS for a table
+- **Get get** — Query INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
+- **Query cancel** — Cancel a running Snowflake SQL API statement by statement handle
 
-## Set up the agent connector
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Snowflake, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Snowflake **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+<details>
+<summary>Set up the connector</summary>
 
 <SetupSnowflakeSection />
 
-## Usage
+</details>
+
+<details>
+<summary>Code examples</summary>
 
 <UsageSnowflakeSection />
+
+</details>
 
 ## Tool list
 

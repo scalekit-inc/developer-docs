@@ -2,8 +2,9 @@
 title: OneNote
 description: Connect to Microsoft OneNote. Access, create, and manage notebooks, sections, and pages stored in OneDrive or SharePoint through Microsoft Graph API.
 tableOfContents: true
-sidebar:
-  label: OneNote
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/onenote.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [files, documents]
 head:
   - tag: style
     content: |
@@ -12,28 +13,27 @@ head:
       }
 ---
 
-import { Badge } from '@astrojs/starlight/components'
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/onenote'
 import { SetupOnenoteSection } from '@components/templates'
 import { UsageOnenoteSection } from '@components/templates'
 
-<div class="grid grid-cols-5 gap-4 items-center">
- <div class="col-span-4">
-  Connect to Microsoft OneNote. Access, create, and manage notebooks, sections, and pages stored in OneDrive or SharePoint through Microsoft Graph API.
- </div>
- <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/onenote.svg" width="64" height="64" alt="OneNote logo" />
- </div>
-</div>
+## Authentication
 
-Supports authentication: <Badge text="OAuth 2.0" />
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to OneNote, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
 
+You supply your OneNote **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
 
-## Set up the agent connector
+<details>
+<summary>Set up the connector</summary>
 
 <SetupOnenoteSection />
 
-## Usage
+</details>
+
+<details>
+<summary>Code examples</summary>
 
 <UsageOnenoteSection />
+
+</details>

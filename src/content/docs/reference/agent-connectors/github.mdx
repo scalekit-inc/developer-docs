@@ -2,8 +2,9 @@
 title: Github
 description: GitHub is a cloud-based Git repository hosting service that allows developers to store, manage, and track changes to their code.
 tableOfContents: true
-sidebar:
-  label: Github
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/github.png
+connectorAuthType: OAuth 2.0
+connectorCategories: [developer_tools]
 head:
   - tag: style
     content: |
@@ -12,31 +13,40 @@ head:
       }
 ---
 
-import { Badge } from '@astrojs/starlight/components'
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/github'
 import { SetupGithubSection } from '@components/templates'
 import { UsageGithubSection } from '@components/templates'
 
-<div class="grid grid-cols-5 gap-4 items-center">
- <div class="col-span-4">
-  GitHub is a cloud-based Git repository hosting service that allows developers to store, manage, and track changes to their code.
- </div>
- <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/github.png" width="64" height="64" alt="Github logo" />
- </div>
-</div>
+## What you can do
 
-Supports authentication: <Badge text="OAuth 2.0" />
+Connect this agent connector to let your agent:
 
+- **Read repositories** — fetch repo metadata, files, commits, branches, and tags
+- **Manage issues** — create, update, close, and comment on issues
+- **Work with pull requests** — open PRs, post reviews, and merge changes
+- **Search code** — search across repositories by keyword, language, or file path
+- **Trigger workflows** — dispatch GitHub Actions workflow runs
 
-## Set up the agent connector
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Github, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Github **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+<details>
+<summary>Set up the connector</summary>
 
 <SetupGithubSection />
 
-## Usage
+</details>
+
+<details>
+<summary>Code examples</summary>
 
 <UsageGithubSection />
+
+</details>
 
 ## Tool list
 

@@ -2,8 +2,9 @@
 title: Google Slides
 description: Connect to Google Slides to create, read, and modify presentations programmatically.
 tableOfContents: true
-sidebar:
-  label: Google Slides
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_slides.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [files, documents]
 head:
   - tag: style
     content: |
@@ -12,31 +13,37 @@ head:
       }
 ---
 
-import { Badge } from '@astrojs/starlight/components'
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/googleslides'
 import { SetupGoogleslidesSection } from '@components/templates'
 import { UsageGoogleslidesSection } from '@components/templates'
 
-<div class="grid grid-cols-5 gap-4 items-center">
- <div class="col-span-4">
-  Connect to Google Slides to create, read, and modify presentations programmatically.
- </div>
- <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_slides.svg" width="64" height="64" alt="Google Slides logo" />
- </div>
-</div>
+## What you can do
 
-Supports authentication: <Badge text="OAuth 2.0" />
+Connect this agent connector to let your agent:
 
+- **Read read** — Read the complete structure and content of a Google Slides presentation including slides, text, images, shapes, and metadata
+- **Create create** — Create a new Google Slides presentation with an optional title
 
-## Set up the agent connector
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Google Slides, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Google Slides **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+<details>
+<summary>Set up the connector</summary>
 
 <SetupGoogleslidesSection />
 
-## Usage
+</details>
+
+<details>
+<summary>Code examples</summary>
 
 <UsageGoogleslidesSection />
+
+</details>
 
 ## Tool list
 

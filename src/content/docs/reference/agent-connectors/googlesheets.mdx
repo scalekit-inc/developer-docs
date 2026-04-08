@@ -2,8 +2,9 @@
 title: Google Sheets
 description: Connect to Google Sheets. Create, edit, and analyze spreadsheets with powerful data management capabilities
 tableOfContents: true
-sidebar:
-  label: Google Sheets
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_sheets.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [files, documents, data, analytics]
 head:
   - tag: style
     content: |
@@ -12,31 +13,40 @@ head:
       }
 ---
 
-import { Badge } from '@astrojs/starlight/components'
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/googlesheets'
 import { SetupGoogleSheetsSection } from '@components/templates'
 import { UsageGooglesheetsSection } from '@components/templates'
 
-<div class="grid grid-cols-5 gap-4 items-center">
- <div class="col-span-4">
-  Connect to Google Sheets. Create, edit, and analyze spreadsheets with powerful data management capabilities
- </div>
- <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/google_sheets.svg" width="64" height="64" alt="Google Sheets logo" />
- </div>
-</div>
+## What you can do
 
-Supports authentication: <Badge text="OAuth 2.0" />
+Connect this agent connector to let your agent:
 
+- **Values clear, append** — Clear all values in a specified range of a Google Sheets spreadsheet
+- **Update update** — Update cell values in a specific range of a Google Sheet
+- **Get get** — Returns only the cell values from a specific range in a Google Sheet — no metadata, no formatting, just the data
+- **Read read** — Returns everything about a spreadsheet — including spreadsheet metadata, sheet properties, cell values, formatting, themes, and pixel sizes
+- **Create create** — Create a new Google Sheets spreadsheet with an optional title and initial sheet configuration
 
-## Set up the agent connector
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Google Sheets, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Google Sheets **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+<details>
+<summary>Set up the connector</summary>
 
 <SetupGoogleSheetsSection />
 
-## Usage
+</details>
+
+<details>
+<summary>Code examples</summary>
 
 <UsageGooglesheetsSection />
+
+</details>
 
 ## Tool list
 

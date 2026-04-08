@@ -2,8 +2,9 @@
 title: Vimeo
 description: Connect to Vimeo API v3.4. Upload and manage videos, organize content into showcases and folders, manage channels, handle comments, likes, and webhooks.
 tableOfContents: true
-sidebar:
-  label: Vimeo
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/vimeo.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [communication]
 head:
   - tag: style
     content: |
@@ -12,26 +13,33 @@ head:
       }
 ---
 
-import { Badge } from '@astrojs/starlight/components'
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/vimeo'
 import { SetupVimeoSection } from '@components/templates'
 
-<div class="grid grid-cols-5 gap-4 items-center">
- <div class="col-span-4">
-  Connect to Vimeo API v3.4. Upload and manage videos, organize content into showcases and folders, manage channels, handle comments, likes, and webhooks.
- </div>
- <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/vimeo.svg" width="64" height="64" alt="Vimeo logo" />
- </div>
-</div>
+## What you can do
 
-Supports authentication: <Badge text="OAuth 2.0" />
+Connect this agent connector to let your agent:
 
+- **List watchlater, showcase videos, following** — Retrieve all videos in the authenticated user's Vimeo Watch Later queue
+- **Add showcase video, folder video, watchlater** — Add a video to a Vimeo showcase
+- **Follow user** — Follow a Vimeo user on behalf of the authenticated user
+- **Create folder, showcase, webhook** — Create a new folder (project) in the authenticated user's Vimeo account for organizing private video content
+- **Delete video, webhook** — Permanently delete a Vimeo video
+- **Get video, me, user** — Retrieve detailed information about a specific Vimeo video including metadata, privacy settings, stats, and embed details
 
-## Set up the agent connector
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Vimeo, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Vimeo **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+<details>
+<summary>Set up the connector</summary>
 
 <SetupVimeoSection />
+
+</details>
 
 ## Tool list
 

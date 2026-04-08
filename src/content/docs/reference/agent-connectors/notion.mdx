@@ -2,8 +2,9 @@
 title: Notion
 description: Connect to Notion workspace. Create, edit pages, manage databases, and collaborate on content
 tableOfContents: true
-sidebar:
-  label: Notion
+connectorIcon: https://cdn.scalekit.com/sk-connect/assets/provider-icons/notion.svg
+connectorAuthType: OAuth 2.0
+connectorCategories: [project_management, files, documents]
 head:
   - tag: style
     content: |
@@ -12,31 +13,39 @@ head:
       }
 ---
 
-import { Badge } from '@astrojs/starlight/components'
 import ToolList from '@/components/ToolList.astro'
 import { tools } from '@/data/agent-connectors/notion'
 import { SetupNotionSection } from '@components/templates'
 import { UsageNotionSection } from '@components/templates'
 
-<div class="grid grid-cols-5 gap-4 items-center">
- <div class="col-span-4">
-  Connect to Notion workspace. Create, edit pages, manage databases, and collaborate on content
- </div>
- <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/notion.svg" width="64" height="64" alt="Notion logo" />
- </div>
-</div>
+## What you can do
 
-Supports authentication: <Badge text="OAuth 2.0" />
+Connect this agent connector to let your agent:
 
+- **Read pages and databases** — retrieve page content and query database entries
+- **Create pages** — add new pages and database rows with full content
+- **Update content** — edit existing page blocks, properties, and database fields
+- **Search** — find pages and databases across the user's Notion workspace
 
-## Set up the agent connector
+## Authentication
+
+This connector uses **OAuth 2.0**. Scalekit acts as the OAuth client: it redirects your user to Notion, obtains an access token, and automatically refreshes it before it expires. Your agent code never handles tokens directly — you only pass a `connectionName` and a user `identifier`.
+
+You supply your Notion **Connected App** credentials (Client ID + Secret) once per environment in the Scalekit dashboard.
+
+<details>
+<summary>Set up the connector</summary>
 
 <SetupNotionSection />
 
-## Usage
+</details>
+
+<details>
+<summary>Code examples</summary>
 
 <UsageNotionSection />
+
+</details>
 
 ## Tool list
 
