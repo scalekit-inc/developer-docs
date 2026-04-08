@@ -534,9 +534,6 @@ export const sidebar = [
  */
 export const exclude = [
   '/', // Gateway page — no topic sidebar
-  '/home/agent-actions', // Agent homepage — full-page layout, no sidebar
-  '/home/auth-for-saas', // SaaS homepage — full-page layout, no sidebar
-  '/auth-for-saas',
   '/blog',
   '/404', // Error page
   '/apis/**/*', // REST API reference has Scalar-powered navigation

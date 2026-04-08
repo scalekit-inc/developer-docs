@@ -69,8 +69,7 @@ export function getActiveSecondaryNavId(
   pathname: string,
   entry?: SecondaryNavProps['entry'],
 ): string | null {
-  // Full-page home routes do not sit under the normal product URL prefixes,
-  // so map them explicitly before sidebar/path resolution.
+  // Map old home routes for backwards compatibility
   if (pathname === '/home/agent-actions/' || pathname === '/home/agent-actions') {
     return 'agentkit-quickstart'
   }

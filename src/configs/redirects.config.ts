@@ -4,7 +4,7 @@ export const redirects = {
   // =============================================================================
   // '/': '/authenticate/welcome',
   '/authenticate': '/',
-  '/auth-for-saas': '/home/auth-for-saas/',
+  '/auth-for-saas': '/authenticate/fsa/quickstart/',
 
   // =============================================================================
   // FULL STACK AUTH (FSA) REDIRECTS
