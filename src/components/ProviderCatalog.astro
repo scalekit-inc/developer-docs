@@ -54,6 +54,9 @@ const allCategories = Array.from(new Set(items.flatMap((i) => i.categories))).so
   return categoryLabel(a).localeCompare(categoryLabel(b))
 })
 
+// Derive auth types from catalog data
+const allAuthTypes = Array.from(new Set(items.map((i) => i.authType))).sort()
+
 const grouped = allCategories
   .map((cat) => ({
     name: cat,
@@ -65,7 +68,7 @@ const grouped = allCategories
 ---
 
 <div class="provider-catalog not-content">
-  <div class="catalog-controls">
+  <div class="filters-bar">
     <div class="search-wrap">
       <span class="search-icon" aria-hidden="true">⌕</span>
       <input
@@ -75,31 +78,14 @@ const grouped = allCategories
         aria-label="Search providers"
       />
     </div>
-  </div>
-
-  <div class="filter-row" role="group" aria-label="Filter by category">
-    <span class="filter-label">Category</span>
-    <div class="filter-pills category-pills">
-      <button class="filter-pill active" data-category="all" aria-pressed="true">All</button>
-      {
-        allCategories.map((cat) => (
-          <button class="filter-pill" data-category={cat} aria-pressed="false">
-            {categoryLabel(cat)}
-          </button>
-        ))
-      }
-    </div>
-  </div>
-
-  <div class="filter-row" role="group" aria-label="Filter by auth type">
-    <span class="filter-label">Auth</span>
-    <div class="filter-pills auth-pills">
-      <button class="filter-pill active" data-auth="all" aria-pressed="true">All</button>
-      <button class="filter-pill" data-auth="OAuth 2.0" aria-pressed="false">OAuth 2.0</button>
-      <button class="filter-pill" data-auth="Bearer Token" aria-pressed="false">Bearer Token</button
-      >
-      <button class="filter-pill" data-auth="API Key" aria-pressed="false">API Key</button>
-    </div>
+    <select class="filter-select" id="category-select" aria-label="Filter by category">
+      <option value="all">All categories</option>
+      {allCategories.map((cat) => <option value={cat}>{categoryLabel(cat)}</option>)}
+    </select>
+    <select class="filter-select" id="auth-select" aria-label="Filter by auth type">
+      <option value="all">All auth types</option>
+      {allAuthTypes.map((auth) => <option value={auth}>{auth}</option>)}
+    </select>
   </div>
 
   {
@@ -143,10 +129,8 @@ const grouped = allCategories
 <script>
   const catalogEl = document.querySelector('.provider-catalog') as HTMLElement
   const searchInput = catalogEl?.querySelector('.search-input') as HTMLInputElement | null
-  const categoryPills = catalogEl?.querySelectorAll<HTMLButtonElement>(
-    '.category-pills .filter-pill',
-  )
-  const authPills = catalogEl?.querySelectorAll<HTMLButtonElement>('.auth-pills .filter-pill')
+  const categorySelect = catalogEl?.querySelector('#category-select') as HTMLSelectElement | null
+  const authSelect = catalogEl?.querySelector('#auth-select') as HTMLSelectElement | null
   const noResults = catalogEl?.querySelector('.no-results') as HTMLElement | null
 
   let activeCategory = 'all'
@@ -192,30 +176,14 @@ const grouped = allCategories
     applyFilters()
   })
 
-  categoryPills?.forEach((pill) => {
-    pill.addEventListener('click', () => {
-      categoryPills.forEach((p) => {
-        p.classList.remove('active')
-        p.setAttribute('aria-pressed', 'false')
-      })
-      pill.classList.add('active')
-      pill.setAttribute('aria-pressed', 'true')
-      activeCategory = pill.dataset.category ?? 'all'
-      applyFilters()
-    })
+  categorySelect?.addEventListener('change', () => {
+    activeCategory = categorySelect.value
+    applyFilters()
   })
 
-  authPills?.forEach((pill) => {
-    pill.addEventListener('click', () => {
-      authPills.forEach((p) => {
-        p.classList.remove('active')
-        p.setAttribute('aria-pressed', 'false')
-      })
-      pill.classList.add('active')
-      pill.setAttribute('aria-pressed', 'true')
-      activeAuth = pill.dataset.auth ?? 'all'
-      applyFilters()
-    })
+  authSelect?.addEventListener('change', () => {
+    activeAuth = authSelect.value
+    applyFilters()
   })
 
   catalogEl?.querySelectorAll<HTMLImageElement>('.provider-logo img').forEach((img) => {
@@ -230,13 +198,21 @@ const grouped = allCategories
     margin-top: 1.5rem;
   }
 
-  .catalog-controls {
-    margin-bottom: 0.75rem;
+  .filters-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .filters-bar .search-wrap {
+    flex: 1;
+    min-width: 12rem;
   }
 
   .search-wrap {
     position: relative;
-    max-width: 22rem;
   }
 
   .search-icon {
@@ -267,61 +243,27 @@ const grouped = allCategories
     color: var(--sl-color-gray-4);
   }
 
-  .filter-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    margin-bottom: 0.625rem;
-  }
-
-  .filter-label {
-    font-family: var(--sl-font-system-mono);
-    font-size: var(--sl-text-xs);
-    font-weight: 600;
-    color: var(--sl-color-gray-3);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding-top: 0.4rem;
-    white-space: nowrap;
-    min-width: 4rem;
-  }
-
-  .filter-pills {
-    display: flex;
-    gap: 0.375rem;
-    flex-wrap: wrap;
-    margin-bottom: 0.25rem;
-  }
-
-  .filter-pill {
-    padding: 0.3rem 0.75rem;
-    border-radius: 100px;
+  .filter-select {
+    background: var(--sl-color-bg-nav);
     border: 1px solid var(--sl-color-hairline);
-    background: transparent;
-    color: var(--sl-color-gray-2);
+    color: var(--sl-color-text);
     font-family: var(--sl-font-system);
-    font-size: var(--sl-text-xs);
-    font-weight: 500;
+    font-size: var(--sl-text-sm);
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    border-radius: 0.5rem;
     cursor: pointer;
-    transition:
-      border-color 0.15s,
-      color 0.15s,
-      background 0.15s;
+    outline: none;
+    appearance: auto;
+    transition: border-color 0.15s;
     white-space: nowrap;
   }
-  .filter-pill:hover {
-    border-color: var(--sl-color-gray-3);
-    color: var(--sl-color-text);
-  }
-  .filter-pill.active {
+  .filter-select:focus {
     border-color: var(--sl-color-text-accent);
-    color: var(--sl-color-text-accent);
-    background: color-mix(in srgb, var(--sl-color-text-accent) 8%, transparent);
   }
 
   .category-section {
-    margin-top: 2rem;
-    margin-bottom: 2.5rem;
+    margin-top: 2.5rem;
+    margin-bottom: 0;
   }
 
   .category-heading {
@@ -440,9 +382,6 @@ const grouped = allCategories
   }
   .auth-oauth-10a {
     color: #3b82f6;
-  }
-  .auth-api-key {
-    color: #f59e0b;
   }
 
   .no-results {
