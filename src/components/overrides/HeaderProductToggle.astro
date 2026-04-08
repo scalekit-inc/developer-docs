@@ -9,21 +9,21 @@ const isAgentKitActive = activeId?.startsWith('agentkit-') ?? false
 const isSaaSKitActive = activeId?.startsWith('saaskit-') ?? false
 const hasSelection = isAgentKitActive || isSaaSKitActive
 
-const activeLabel = isAgentKitActive ? 'Agents' : isSaaSKitActive ? 'SaaS' : null
+const activeLabel = isAgentKitActive ? 'AgentKit' : isSaaSKitActive ? 'SaaSKit' : null
 
 const productLinks = [
   {
-    label: 'Agents',
-    href: '/agent-auth/quickstart/',
+    label: 'AgentKit',
+    href: '/agentkit/quickstart/',
     isActive: isAgentKitActive,
-    storageValue: 'agent-actions',
+    storageValue: 'agentkit',
     iconComponent: IconLucideBot,
   },
   {
-    label: 'SaaS',
+    label: 'SaaSKit',
     href: '/authenticate/fsa/quickstart/',
     isActive: isSaaSKitActive,
-    storageValue: 'auth-for-saas',
+    storageValue: 'saaskit',
     iconComponent: IconLucideUsers,
   },
 ]
@@ -89,14 +89,14 @@ const productLinks = [
   if (trigger && labelEl && trigger.dataset.hasSelection === 'false') {
     try {
       const stored = localStorage.getItem('sk_docs_path')
-      if (stored === 'agent-actions') {
-        labelEl.textContent = 'Agents'
+      if (stored === 'agentkit' || stored === 'agent-actions') {
+        labelEl.textContent = 'AgentKit'
         trigger.classList.remove('is-placeholder')
-        dropdown?.querySelector('[data-storage-value="agent-actions"]')?.classList.add('is-active')
-      } else if (stored === 'auth-for-saas') {
-        labelEl.textContent = 'SaaS'
+        dropdown?.querySelector('[data-storage-value="agentkit"]')?.classList.add('is-active')
+      } else if (stored === 'saaskit' || stored === 'auth-for-saas') {
+        labelEl.textContent = 'SaaSKit'
         trigger.classList.remove('is-placeholder')
-        dropdown?.querySelector('[data-storage-value="auth-for-saas"]')?.classList.add('is-active')
+        dropdown?.querySelector('[data-storage-value="saaskit"]')?.classList.add('is-active')
       }
     } catch (_) {}
   }

@@ -24,7 +24,7 @@ Skills CLI (Windsurf, Cline, and 40+ agents):
   npx skills add scalekit-inc/skills --list
   npx skills add scalekit-inc/skills --skill <skill-name>
 
-<auth-type> / <skill-name>: agent-auth, full-stack-auth, mcp-auth, modular-sso, modular-scim
+<auth-type> / <skill-name>: agentkit, full-stack-auth, mcp-auth, modular-sso, modular-scim
 Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/ -->
 
 `
@@ -38,7 +38,7 @@ GitHub Copilot CLI: copilot plugin marketplace add scalekit-inc/github-copilot-a
 Codex: run the bash installer, restart Codex, then open Plugin Directory and enable <auth-type>
 Skills CLI (Windsurf, Cline, and 40+ agents): npx skills add scalekit-inc/skills --list then npx skills add scalekit-inc/skills --skill <skill-name>
 
-<auth-type> / <skill-name>: agent-auth, full-stack-auth, mcp-auth, modular-sso, modular-scim
+<auth-type> / <skill-name>: agentkit, full-stack-auth, mcp-auth, modular-sso, modular-scim
 Full guide: https://docs.scalekit.com/dev-kit/build-with-ai/`
 
 /**
@@ -66,7 +66,7 @@ If you're using an AI coding agent, install the official Scalekit plugin. It giv
 1. \`npx skills add scalekit-inc/skills --list\` — see available skills
 2. \`npx skills add scalekit-inc/skills --skill <skill-name>\` — install the one you need
 
-\`<auth-type>\` / \`<skill-name>\`: \`agent-auth\`, \`full-stack-auth\`, \`mcp-auth\`, \`modular-sso\`, \`modular-scim\`
+\`<auth-type>\` / \`<skill-name>\`: \`agentkit\`, \`full-stack-auth\`, \`mcp-auth\`, \`modular-sso\`, \`modular-scim\`
 
 [Full setup guide](https://docs.scalekit.com/dev-kit/build-with-ai/)
 
@@ -85,7 +85,7 @@ export const AGENT_PLUGIN_VISIBLE_MD = `> **Building with AI coding agents?** If
 > - **Codex**: run the bash installer, restart, then open Plugin Directory and enable \`<auth-type>\`
 > - **Skills CLI** (Windsurf, Cline, 40+ agents): \`npx skills add scalekit-inc/skills --list\` then \`--skill <skill-name>\`
 >
-> \`<auth-type>\` / \`<skill-name>\`: \`agent-auth\`, \`full-stack-auth\`, \`mcp-auth\`, \`modular-sso\`, \`modular-scim\` — [Full setup guide](https://docs.scalekit.com/dev-kit/build-with-ai/)
+> \`<auth-type>\` / \`<skill-name>\`: \`agentkit\`, \`full-stack-auth\`, \`mcp-auth\`, \`modular-sso\`, \`modular-scim\` — [Full setup guide](https://docs.scalekit.com/dev-kit/build-with-ai/)
 
 ---
 

@@ -1,0 +1,213 @@
+---
+title: Give your agent tool access via MCP
+description: Create a per-user MCP server with whitelisted, pre-authenticated tools — then hand your agent a single URL.
+tags: [agent-auth, quickstart, mcp, model-context-protocol, ai-agents, tools]
+sidebar:
+  label: Tool access via MCP
+  prev:
+    label: Quickstart — Agent tools
+    link: /agentkit/tools/agent-tools-quickstart
+  next:
+    label: OpenClaw
+    link: /agentkit/openclaw
+tableOfContents: true
+banner:
+  content: |
+    Build this faster with AI coding agents. <a href="/dev-kit/build-with-ai/mcp-auth/">Build with AI →</a>
+---
+
+import { LinkCard, CardGrid, Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import InstallSDK from '@components/templates/_installsdk.mdx';
+
+When your agent needs to act on behalf of a user — reading their email, creating calendar events — each user must authenticate to each service separately. Managing those credentials in your agent adds complexity and security risk.
+
+Scalekit solves this with per-user MCP servers. You define which tools and connections a server exposes, and Scalekit gives you a unique, pre-authenticated URL for each user. Hand that URL to your agent — it calls tools through MCP, Scalekit handles the auth. MCP servers only support Streamable HTTP transport.
+
+<Aside type="caution" title="Testing only — not for production">
+  This feature is in beta and intended for testing purposes only. Do not use it in production environments.
+</Aside>
+
+## How it works
+
+Two objects are central to this model:
+
+| Object | What it is | Created |
+|---|---|---|
+| **MCP config** | A reusable template that defines which connections and tools are exposed | Once, by your app |
+| **MCP instance** | A per-user instantiation of a config, with its own URL | Once per user |
+
+Your app creates a config once, then calls `ensure_instance` whenever a new user needs access. Scalekit generates a unique URL for that user. When the agent calls tools through that URL, Scalekit routes each call using the user's pre-authorized credentials.
+
+![Architecture diagram showing how Scalekit MCP works: app creates a config, Scalekit creates per-user instances with unique URLs, users authorize OAuth connections, and the agent connects via MCP URL](@/assets/docs/agentkit/mcp/mcp-tool-access-architecture.png)
+
+## Prerequisites
+
+Before you start, make sure you have:
+
+- **Scalekit API credentials** — Go to **Dashboard → Settings** and copy your `environment_url`, `client_id` and `client_secret`
+- **Gmail and Google Calendar connections configured in Scalekit:**
+  - **Gmail**: **Dashboard → Connections** (Agent Auth) → Create Connection → Gmail → set `Connection Name = MY_GMAIL` → Save
+  - **Google Calendar**: **Dashboard → Connections** (Agent Auth) → Create Connection → Google Calendar → set `Connection Name = MY_CALENDAR` → Save
+
+<Steps>
+1. ## Install the SDK and initialize the client
+
+   Install the Scalekit Python SDK:
+
+   <p>
+     ```sh showLineNumbers=false frame="none"
+     pip install scalekit-sdk-python python-dotenv>=1.0.1
+     ```
+   </p>
+
+   Initialize the client using your environment credentials:
+
+   <p>
+     ```python showLineNumbers=false frame="none"
+     import os
+     import scalekit.client
+     from scalekit.actions.models.mcp_config import McpConfigConnectionToolMapping
+
+     scalekit_client = scalekit.client.ScalekitClient(
+         client_id=os.getenv("SCALEKIT_CLIENT_ID"),
+         client_secret=os.getenv("SCALEKIT_CLIENT_SECRET"),
+         env_url=os.getenv("SCALEKIT_ENV_URL"),
+     )
+     my_mcp = scalekit_client.actions.mcp
+     ```
+   </p>
+
+2. ## Create an MCP config
+
+   An MCP config is a reusable template. It declares which connections and tools your server exposes. Create it once — not once per user.
+
+   <p>
+     ```python showLineNumbers=false frame="none"
+     cfg_response = my_mcp.create_config(
+         name="reminder-manager",
+         description="Summarizes latest email and creates a reminder event",
+         connection_tool_mappings=[
+             McpConfigConnectionToolMapping(
+                 connection_name="MY_GMAIL",
+                 tools=["gmail_fetch_mails"],
+             ),
+             McpConfigConnectionToolMapping(
+                 connection_name="MY_CALENDAR",
+                 tools=["googlecalendar_create_event"],
+             ),
+         ],
+     )
+     config_name = cfg_response.config.name
+     ```
+   </p>
+
+3. ## Get a per-user MCP URL
+
+   Call `ensure_instance` to get a unique MCP URL for a specific user. If an instance already exists for that user, Scalekit returns it — so it's safe to call on every login.
+
+   <p>
+     ```python showLineNumbers=false frame="none"
+     inst_response = my_mcp.ensure_instance(
+         config_name=config_name,
+         user_identifier="john-doe",
+     )
+     mcp_url = inst_response.instance.url
+     print("MCP URL:", mcp_url)
+     ```
+   </p>
+
+   Before the agent can use this URL, the user must authorize each connection. Retrieve the auth links and surface them to the user:
+
+   <p>
+     ```python showLineNumbers=false frame="none"
+     auth_state_response = my_mcp.get_instance_auth_state(
+         instance_id=inst_response.instance.id,
+         include_auth_links=True,
+     )
+     for conn in getattr(auth_state_response, "connections", []):
+         print("Connection:", conn.connection_name,
+               "| Status:", conn.connected_account_status,
+               "| Auth link:", conn.authentication_link)
+     ```
+   </p>
+
+   <Aside type="note" title="Complete authentication">
+     Open the printed links in your browser and complete authentication for each connection.
+
+     In production, surface these links to users via your app UI, email, or a Slack message. Poll `get_instance_auth_state` (without `include_auth_links`) to check when a user has completed authorization before passing the URL to your agent.
+   </Aside>
+
+   At this point you have a per-user MCP URL. You can pass it to any spec-compliant MCP client — MCP Inspector, Claude Desktop, or an agent framework. The next step shows an example using LangChain.
+
+4. ## Connect an agent (LangChain example)
+
+   Install the LangChain dependencies:
+
+   <p>
+     ```sh showLineNumbers=false frame="none"
+     pip install langgraph>=0.6.5 langchain-mcp-adapters>=0.1.9 openai>=1.53.0
+     ```
+   </p>
+
+   Set your OpenAI API key:
+
+   <p>
+     ```sh showLineNumbers=false frame="none"
+     export OPENAI_API_KEY=your-openai-api-key
+     ```
+   </p>
+
+   Pass the MCP URL to a LangChain agent. The agent discovers available tools automatically — no additional auth configuration required:
+
+   <p>
+     ```python showLineNumbers=false frame="none"
+     import asyncio
+     from langgraph.prebuilt import create_react_agent
+     from langchain_mcp_adapters.client import MultiServerMCPClient
+
+     async def run_agent(mcp_url: str):
+         client = MultiServerMCPClient(
+             {
+                 "reminder_demo": {
+                     "transport": "streamable_http",
+                     "url": mcp_url,
+                 },
+             }
+         )
+         tools = await client.get_tools()
+         agent = create_react_agent("openai:gpt-4.1", tools)
+         response = await agent.ainvoke({
+             "messages": "Get my latest email and create a calendar reminder in the next 15 minutes."
+         })
+         print(response)
+
+     asyncio.run(run_agent(mcp_url))
+     ```
+   </p>
+
+   <Aside type="note" title="MCP client compatibility">
+     This MCP server works with MCP Inspector, Claude Desktop, and any spec-compliant MCP client. ChatGPT's beta connector may not work correctly — it is still in beta and does not fully implement the MCP specification.
+   </Aside>
+</Steps>
+
+Full working code for all steps above is on <a href="https://github.com/scalekit-inc/python-connect-demos/tree/main/mcp" target="_blank" rel="noopener">GitHub</a>.
+
+## Next steps
+
+<CardGrid>
+  <LinkCard
+    title="LangChain integration"
+    description="Use LangChain to build agents that connect to Scalekit MCP servers."
+    href="/agentkit/frameworks/langchain"
+  />
+  <LinkCard
+    title="Google ADK integration"
+    description="Connect Scalekit tools to agents built with Google's Agent Development Kit."
+    href="/agentkit/frameworks/google-adk"
+  />
+  <LinkCard
+    title="Manage connections"
+    description="Learn how to configure and manage connector connections in Scalekit."
+    href="/agentkit/connections"
+  />
+</CardGrid>

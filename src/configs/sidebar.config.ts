@@ -2,7 +2,7 @@ import { createSectionHeader, createSpacing } from './sidebar-utils'
 
 export const sidebar = [
   {
-    label: 'SaaS User Management',
+    label: 'SaaSKit',
     id: 'authenticate',
     link: '/authenticate/fsa/quickstart/',
     icon: 'seti:lock',
@@ -11,7 +11,7 @@ export const sidebar = [
         label: 'Getting started',
         items: [
           'authenticate/set-up-scalekit',
-          { label: 'Quickstart: SaaS User Management', link: 'authenticate/fsa/quickstart' },
+          { label: 'Quickstart: SaaSKit', link: 'authenticate/fsa/quickstart' },
           'authenticate/fsa/code-samples',
         ],
       },
@@ -123,58 +123,58 @@ export const sidebar = [
     ],
   },
   {
-    label: 'Agent Auth',
-    link: '/agent-auth/quickstart',
+    label: 'AgentKit',
+    link: '/agentkit/quickstart',
     id: 'connect',
     icon: 'seti:bicep',
     items: [
       {
         label: 'Getting started',
         items: [
-          'agent-auth/overview',
-          { label: 'Quickstart: Agent Auth', link: 'agent-auth/quickstart' },
-          'agent-auth/user-verification',
-          'agent-auth/code-samples',
+          'agentkit/overview',
+          { label: 'Quickstart: AgentKit', link: 'agentkit/quickstart' },
+          'agentkit/user-verification',
+          'agentkit/code-samples',
         ],
       },
       {
         label: 'Concepts',
         collapsed: false,
         items: [
-          'agent-auth/providers',
-          'agent-auth/connections',
-          'agent-auth/connected-accounts',
-          // 'agent-auth/authentication/auth-flows-comparison',
-          'agent-auth/tools/authorize',
-          // 'agent-auth/authentication/token-management',
-          // 'agent-auth/advanced/bring-your-own-oauth',
-          'agent-auth/advanced/custom-domain',
-          // 'agent-auth/authentication/scopes-permissions',
-          // 'agent-auth/authentication/multi-provider',
-          // 'agent-auth/authentication/troubleshooting',
-          // 'agent-auth/authentication/testing-auth-flows',
-          // 'agent-auth/advanced/overview',
+          'agentkit/providers',
+          'agentkit/connections',
+          'agentkit/connected-accounts',
+          // 'agentkit/authentication/auth-flows-comparison',
+          'agentkit/tools/authorize',
+          // 'agentkit/authentication/token-management',
+          // 'agentkit/advanced/bring-your-own-oauth',
+          'agentkit/advanced/custom-domain',
+          // 'agentkit/authentication/scopes-permissions',
+          // 'agentkit/authentication/multi-provider',
+          // 'agentkit/authentication/troubleshooting',
+          // 'agentkit/authentication/testing-auth-flows',
+          // 'agentkit/advanced/overview',
         ],
       },
       {
         label: 'Bring your own connector',
         items: [
-          'agent-auth/bring-your-own-provider/overview',
-          'agent-auth/bring-your-own-provider/auth-types-and-patterns',
-          'agent-auth/bring-your-own-provider/managing-providers',
-          'agent-auth/bring-your-own-provider/using-tool-proxy',
+          'agentkit/bring-your-own-provider/overview',
+          'agentkit/bring-your-own-provider/auth-types-and-patterns',
+          'agentkit/bring-your-own-provider/managing-providers',
+          'agentkit/bring-your-own-provider/using-tool-proxy',
         ],
       },
       {
         label: 'Tool calling',
         collapsed: false,
         items: [
-          'agent-auth/tools/agent-tools-quickstart',
-          { label: 'Tool access via MCP', link: 'agent-auth/mcp/tool-access-via-mcp' },
-          //'agent-auth/advanced/proxy-api-calls',
-          // 'agent-auth/tools/custom-processors',
-          // 'agent-auth/mcp/manage-configs',
-          // 'agent-auth/mcp/custom-tools',
+          'agentkit/tools/agent-tools-quickstart',
+          { label: 'Tool access via MCP', link: 'agentkit/mcp/tool-access-via-mcp' },
+          //'agentkit/advanced/proxy-api-calls',
+          // 'agentkit/tools/custom-processors',
+          // 'agentkit/mcp/manage-configs',
+          // 'agentkit/mcp/custom-tools',
         ],
       },
       {
@@ -183,14 +183,14 @@ export const sidebar = [
         items: [
           {
             label: 'OpenClaw',
-            link: 'agent-auth/openclaw',
+            link: 'agentkit/openclaw',
             badge: { text: 'New', variant: 'tip' },
           },
-          'agent-auth/frameworks/langchain',
-          'agent-auth/frameworks/google-adk',
-          // 'agent-auth/frameworks/agno', // TODO: Add when Agno framework docs are complete
-          // 'agent-auth/frameworks/openai', // TODO: Add when OpenAI framework docs are complete
-          // 'agent-auth/frameworks/anthropic', // TODO: Add when Anthropic framework docs are complete
+          'agentkit/frameworks/langchain',
+          'agentkit/frameworks/google-adk',
+          // 'agentkit/frameworks/agno', // TODO: Add when Agno framework docs are complete
+          // 'agentkit/frameworks/openai', // TODO: Add when OpenAI framework docs are complete
+          // 'agentkit/frameworks/anthropic', // TODO: Add when Anthropic framework docs are complete
         ],
       },
       // {
@@ -224,7 +224,7 @@ export const sidebar = [
         items: [
           'dev-kit/build-with-ai',
           'dev-kit/build-with-ai/full-stack-auth',
-          'dev-kit/build-with-ai/agent-auth',
+          'dev-kit/build-with-ai/agentkit',
           'dev-kit/build-with-ai/mcp-auth',
           'dev-kit/build-with-ai/sso',
           'dev-kit/build-with-ai/scim',
@@ -562,8 +562,8 @@ export const topics = {
     '/guides/integrations/agent-connectors/**/*',
   ],
 
-  // Agent Auth / Connect
-  connect: ['/agent-auth/**/*'],
+  // AgentKit / Connect
+  connect: ['/agentkit/**/*'],
 
   // === Resources (integrations, workflows, references) ===
   resources: [
@@ -657,14 +657,14 @@ export const sidebarToSecondaryNav: Record<string, SecondaryNavMapping> = {
   // Agent connectors sidebar → AgentKit Providers tab
   'agent-providers': 'agentkit-providers',
 
-  // Agent Auth sidebar → AgentKit tabs
+  // AgentKit sidebar → AgentKit tabs
   connect: {
     default: 'agentkit-quickstart',
     pathOverrides: {
       // Agent Tools no longer has its own secondary nav item; falls back to Quickstart
-      '/agent-auth/tools/agent-tools-quickstart': 'agentkit-quickstart',
-      '/agent-auth/openclaw': 'agentkit-ai-frameworks',
-      '/agent-auth/frameworks': 'agentkit-ai-frameworks',
+      '/agentkit/tools/agent-tools-quickstart': 'agentkit-quickstart',
+      '/agentkit/openclaw': 'agentkit-ai-frameworks',
+      '/agentkit/frameworks': 'agentkit-ai-frameworks',
     },
   },
 

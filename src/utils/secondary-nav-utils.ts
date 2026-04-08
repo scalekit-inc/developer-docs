@@ -11,10 +11,10 @@ import { IconLucideLayoutGrid } from './icon-map'
 export function getActiveProduct(pathname: string, topic?: string): 'agentkit' | 'saaskit' {
   if (topic === 'connect') return 'agentkit'
   if (
-    pathname.startsWith('/agent-auth/') ||
+    pathname.startsWith('/agentkit/') ||
     pathname.startsWith('/guides/integrations/agent-connectors') ||
     pathname.startsWith('/reference/agent-connectors') ||
-    pathname.startsWith('/home/agent-actions')
+    pathname.startsWith('/home/agentkit')
   )
     return 'agentkit'
   return 'saaskit'
@@ -70,10 +70,10 @@ export function getActiveSecondaryNavId(
   entry?: SecondaryNavProps['entry'],
 ): string | null {
   // Map old home routes for backwards compatibility
-  if (pathname === '/home/agent-actions/' || pathname === '/home/agent-actions') {
+  if (pathname === '/home/agentkit/' || pathname === '/home/agentkit') {
     return 'agentkit-quickstart'
   }
-  if (pathname === '/home/auth-for-saas/' || pathname === '/home/auth-for-saas') {
+  if (pathname === '/home/saaskit/' || pathname === '/home/saaskit') {
     return 'saaskit-user-management'
   }
 
