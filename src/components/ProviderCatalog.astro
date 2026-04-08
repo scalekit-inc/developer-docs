@@ -118,21 +118,16 @@ const grouped = allCategories
             >
               <div class="card-top">
                 <div class="provider-logo">
-                  <img src={item.iconUrl} alt="" width="22" height="22" />
+                  <img src={item.iconUrl} alt="" width="24" height="24" />
                 </div>
-                <div class="provider-meta">
-                  <span class="provider-name">{item.title}</span>
-                  <span
-                    class={`auth-badge auth-${item.authType.toLowerCase().replace(/[\s.]/g, '-')}`}
-                  >
-                    {item.authType}
-                  </span>
-                </div>
+                <span class="provider-name">{item.title}</span>
               </div>
               <p class="provider-desc">{item.description}</p>
-              <div class="card-footer">
-                <span class="card-arrow" aria-hidden="true">
-                  →
+              <div class="card-bottom">
+                <span
+                  class={`auth-badge auth-${item.authType.toLowerCase().replace(/[\s.]/g, '-')}`}
+                >
+                  {item.authType}
                 </span>
               </div>
             </a>
@@ -353,7 +348,7 @@ const grouped = allCategories
     background: var(--sl-color-bg-card);
     border: 1px solid var(--sl-color-gray-6);
     border-radius: 0.5rem;
-    padding: 1.25rem;
+    padding: 1rem 1.25rem 1rem;
     text-decoration: none;
     transition:
       border-color 0.2s ease,
@@ -361,7 +356,8 @@ const grouped = allCategories
       box-shadow 0.2s ease;
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
+    gap: 0.5rem;
+    min-height: 7rem;
   }
   :root[data-theme='light'] .provider-card {
     background: #fff;
@@ -369,7 +365,7 @@ const grouped = allCategories
   .provider-card:hover {
     border-color: var(--sl-color-accent);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
   :root[data-theme='dark'] .provider-card:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -377,13 +373,13 @@ const grouped = allCategories
 
   .card-top {
     display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
+    align-items: center;
+    gap: 0.625rem;
   }
 
   .provider-logo {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     border-radius: 0.5rem;
     background: var(--sl-color-bg);
     border: 1px solid var(--sl-color-gray-6);
@@ -394,13 +390,6 @@ const grouped = allCategories
     overflow: hidden;
   }
 
-  .provider-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    min-width: 0;
-  }
-
   .provider-name {
     font-size: var(--sl-text-base);
     font-weight: 600;
@@ -408,37 +397,14 @@ const grouped = allCategories
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.2s ease;
   }
   .provider-card:hover .provider-name {
     color: var(--sl-color-accent);
   }
 
-  .auth-badge {
-    font-family: var(--sl-font-system-mono);
-    font-size: 0.625rem;
-    font-weight: 600;
-    padding: 0.125rem 0.5rem;
-    border-radius: 0.25rem;
-    width: fit-content;
-  }
-  .auth-oauth-20 {
-    background: rgba(59, 130, 246, 0.1);
-    color: #3b82f6;
-    border: 1px solid rgba(59, 130, 246, 0.2);
-  }
-  .auth-bearer-token {
-    background: rgba(168, 85, 247, 0.1);
-    color: #a855f7;
-    border: 1px solid rgba(168, 85, 247, 0.2);
-  }
-  .auth-api-key {
-    background: rgba(245, 158, 11, 0.1);
-    color: #f59e0b;
-    border: 1px solid rgba(245, 158, 11, 0.2);
-  }
-
   .provider-desc {
-    font-size: var(--sl-text-xs);
+    font-size: var(--sl-text-sm);
     color: var(--sl-color-gray-2);
     line-height: 1.55;
     display: -webkit-box;
@@ -449,24 +415,34 @@ const grouped = allCategories
     flex: 1;
   }
 
-  .card-footer {
-    display: flex;
-    justify-content: flex-end;
-    padding-top: 0.625rem;
-    border-top: 1px solid var(--sl-color-gray-6);
+  .card-bottom {
+    margin-top: auto;
   }
 
-  .card-arrow {
-    font-size: 0.75rem;
-    color: var(--sl-color-gray-3);
-    transition:
-      color 0.15s,
-      transform 0.15s;
+  .auth-badge {
     font-family: var(--sl-font-system-mono);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--sl-color-gray-3);
   }
-  .provider-card:hover .card-arrow {
-    color: var(--sl-color-text-accent);
-    transform: translateX(3px);
+  .auth-oauth-20 {
+    color: #3b82f6;
+  }
+  .auth-bearer-token {
+    color: #a855f7;
+  }
+  .auth-api-key {
+    color: #f59e0b;
+  }
+  .auth-basic-auth {
+    color: var(--sl-color-gray-3);
+  }
+  .auth-oauth-10a {
+    color: #3b82f6;
+  }
+  .auth-api-key {
+    color: #f59e0b;
   }
 
   .no-results {
