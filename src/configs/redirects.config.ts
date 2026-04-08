@@ -199,26 +199,12 @@ export const redirects = {
 
   // =============================================================================
   // AGENTKIT REDIRECTS (Agent Auth and Agent Actions → AgentKit)
+  // NOTE: These rules are now defined in public/_redirects for proper ordering.
+  // Using Netlify's native syntax with :splat to ensure specific rules match
+  // before wildcards (first match wins). Keeping this comment for reference.
   // =============================================================================
-
-  // Specific overrides — must come before wildcard rules
-  '/agent-auth/tools/execute': '/agentkit/tools/agent-tools-quickstart/',
-  '/agent-auth/tools/modifiers': '/agentkit/tools/agent-tools-quickstart/',
-  '/agent-auth/agentic-quickstart': '/agentkit/tools/agent-tools-quickstart/',
-
-  // Top-level shortcuts
-  '/agentkit': '/agentkit/quickstart/',
-  '/agent-auth': '/agentkit/quickstart/',
-  '/agent-actions': '/agentkit/quickstart/',
-  '/apis/agent-auth': '/agentkit/quickstart/',
-  '/integrations/agent-auth': '/agentkit/quickstart/',
-
-  // Wildcard rules — collapse legacy paths into new AgentKit structure
-  '/agent-auth/[...slug]': '/agentkit/[...slug]',
-  '/agent-actions/[...slug]': '/agentkit/[...slug]',
-
-  // Home page redirect
-  '/home/agent-actions': '/home/agentkit/',
+  // Redirects moved to: public/_redirects
+  // This ensures proper rule ordering without Netlify adapter interference.
 
   // =============================================================================
   // BUILD WITH AI REDIRECTS (coding agent guides)
