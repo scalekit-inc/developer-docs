@@ -154,15 +154,6 @@ export default defineConfig({
       ],
       head: [
         {
-          tag: 'link',
-          attrs: {
-            rel: 'alternate',
-            type: 'text/plain',
-            title: 'LLM-friendly documentation',
-            href: '/llms.txt',
-          },
-        },
-        {
           tag: 'meta',
           attrs: {
             name: 'ai-agent-instructions',
