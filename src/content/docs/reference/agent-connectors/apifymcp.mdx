@@ -1,7 +1,6 @@
 ---
 title: Apify MCP
-description: Connect to Apify MCP to run web scraping, browser automation, and data extraction Actors directly from AI workflows.
-tags: [agent-connectors, apify, mcp, scraping, automation, data-extraction, ai, tool]
+description: Connect to Apify MCP to run web scraping, browser automation, and data extraction Actors directly from your AI workflows.
 tableOfContents: true
 sidebar:
   label: Apify MCP
@@ -11,43 +10,25 @@ head:
       .sl-markdown-content h2 {
         font-size: var(--sl-text-xl);
       }
-      table td:first-child, table th:first-child {
-        white-space: nowrap;
-      }
 ---
 
-import { Badge, Tabs, TabItem, Aside } from '@astrojs/starlight/components'
-import { SetupApifymcpSection, UsageApifymcpSection } from '@components/templates'
+import { Badge } from '@astrojs/starlight/components'
+import ToolList from '@/components/ToolList.astro'
+import { tools } from '@/data/agent-connectors/apifymcp'
+import { SetupApifymcpSection } from '@components/templates'
+import { UsageApifymcpSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
-  Connect to Apify MCP to discover and run web scraping and data extraction Actors, retrieve Actor run status and output, search the web for AI pipelines, and browse Apify and Crawlee documentation — all from within your AI agent workflows.
+  Connect to Apify MCP to run web scraping, browser automation, and data extraction Actors directly from your AI workflows.
  </div>
  <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/apify.svg" width="64" height="64" alt="Apify logo" />
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/apify.svg" width="64" height="64" alt="Apify MCP logo" />
  </div>
 </div>
 
-Supports authentication: <Badge text="API Key" />
+Supports authentication: <Badge text="Bearer Token" />
 
-<details>
-<summary>What you can build with this connector</summary>
-
-| Use case | Tools involved |
-|---|---|
-| **Run a web scraper** | `apifymcp_search_actors` → `apifymcp_fetch_actor_details` → `apifymcp_call_actor` → `apifymcp_get_actor_output` |
-| **Long-running extraction jobs** | `apifymcp_call_actor` (async) → `apifymcp_get_actor_run` (poll) → `apifymcp_get_actor_output` |
-| **Real-time web research for RAG** | `apifymcp_rag_web_browser` → feed Markdown content into LLM context |
-| **Find the right Actor for a task** | `apifymcp_search_actors` with keywords → `apifymcp_fetch_actor_details` for input schema |
-| **Look up Apify or Crawlee docs** | `apifymcp_search_apify_docs` → `apifymcp_fetch_apify_docs` for full page content |
-
-**Key concepts:**
-- **Actors**: Serverless cloud applications on the Apify platform. Each Actor has a specific input schema — always call `apifymcp_fetch_actor_details` with `output: { inputSchema: true }` before calling an Actor.
-- **Sync vs async**: `apifymcp_call_actor` runs synchronously by default and waits for the result. Pass `async: true` for long-running tasks, then poll with `apifymcp_get_actor_run` and retrieve output with `apifymcp_get_actor_output`.
-- **Datasets**: Actor output is stored in a dataset. Use `apifymcp_get_actor_output` with `fields` and pagination (`limit`, `offset`) to retrieve large result sets efficiently.
-- **RAG web browser**: `apifymcp_rag_web_browser` is a purpose-built tool for AI pipelines — it queries Google Search, scrapes the top N pages, and returns clean Markdown content ready for LLM grounding.
-
-</details>
 
 ## Set up the agent connector
 
@@ -59,94 +40,4 @@ Supports authentication: <Badge text="API Key" />
 
 ## Tool list
 
-## `apifymcp_search_actors`
-
-Search the Apify Store to discover Actors for a given use case or platform. Returns Actor names, IDs, descriptions, and usage stats. Does not run any scraping — use this to find the right Actor before calling it.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `keywords` | string | No | Search terms (e.g., `"instagram scraper"`, `"google maps"`). Leave empty to browse popular Actors. Default: `""` |
-| `limit` | integer | No | Number of results to return (1–100). Default: `5` |
-| `offset` | integer | No | Number of results to skip for pagination. Default: `0` |
-
-## `apifymcp_fetch_actor_details`
-
-Retrieve detailed information about an Actor, including its input schema, README, pricing, and output schema. Always call this before `apifymcp_call_actor` to understand required and optional input parameters.
-
-<Aside type="caution" title="Avoid fetching all fields">
-  Omitting the `output` parameter returns all fields, including the full README, which can be very large. Always pass `output` with only the flags you need to keep responses concise.
-</Aside>
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `actor` | string | Yes | The Actor ID or name (e.g., `apify/instagram-scraper`) |
-| `output.description` | boolean | No | Include a short description of the Actor |
-| `output.inputSchema` | boolean | No | Include the full JSON input schema — use this before calling the Actor |
-| `output.mcpTools` | boolean | No | Include MCP tool definitions for the Actor |
-| `output.metadata` | boolean | No | Include Actor metadata (version, author, categories) |
-| `output.outputSchema` | boolean | No | Include the output data schema |
-| `output.pricing` | boolean | No | Include pricing information |
-| `output.rating` | boolean | No | Include user ratings and review count |
-| `output.readme` | boolean | No | Include the full README (can be very large — use sparingly) |
-| `output.stats` | boolean | No | Include usage statistics (total runs, users) |
-
-## `apifymcp_call_actor`
-
-Run an Actor from the Apify Store with the specified input. By default runs synchronously and waits for the result. Use `async: true` for long-running tasks, then track progress with `apifymcp_get_actor_run` and retrieve output with `apifymcp_get_actor_output`.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `actor` | string | Yes | The Actor ID or name to run (e.g., `apify/web-scraper`) |
-| `input` | object | Yes | Input object matching the Actor's input schema. Fetch the schema first with `apifymcp_fetch_actor_details` |
-| `async` | boolean | No | Set to `true` to start the run and return immediately without waiting for results. Default: `false` |
-| `previewOutput` | boolean | No | Set to `true` to include a preview of the output dataset in the response (sync mode only) |
-| `callOptions.memory` | integer | No | Memory limit for the run in megabytes (e.g., `256`, `512`, `1024`) |
-| `callOptions.timeout` | integer | No | Timeout for the run in seconds |
-
-## `apifymcp_get_actor_run`
-
-Get the current status and metadata for a specific Actor run. Use this to poll an async run until it completes. Returns run status, timestamps, performance stats, and storage resource IDs.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `runId` | string | Yes | The ID of the Actor run to check (returned by `apifymcp_call_actor` when `async: true`) |
-
-## `apifymcp_get_actor_output`
-
-Retrieve output dataset items from a completed Actor run. Supports field selection to reduce response size, and pagination for large datasets.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `datasetId` | string | Yes | The dataset ID to fetch output from (found in the `apifymcp_call_actor` response or `apifymcp_get_actor_run` result as `defaultDatasetId`) |
-| `fields` | string | No | Comma-separated list of fields to include, with dot notation for nested fields (e.g., `"title,url,metadata.description"`). Returns all fields by default |
-| `limit` | number | No | Maximum number of items to return. Default: `100` |
-| `offset` | number | No | Number of items to skip for pagination. Default: `0` |
-
-## `apifymcp_rag_web_browser`
-
-Search Google and scrape the top N result pages, returning clean content for use in AI pipelines and RAG (Retrieval-Augmented Generation) workflows. Can also scrape a specific URL directly by passing it as the `query`.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `query` | string | Yes | A Google Search query (e.g., `"best vector databases 2025"`) or a specific URL to scrape directly |
-| `maxResults` | integer | No | Number of top search result pages to scrape (default: `3`) |
-| `outputFormats` | array | No | Content formats to return. Options: `"text"`, `"markdown"`, `"html"`. Default: `["markdown"]` |
-
-## `apifymcp_search_apify_docs`
-
-Search Apify and Crawlee documentation using full-text search. Returns matching page titles, URLs, and snippets. Follow up with `apifymcp_fetch_apify_docs` to retrieve the full content of a specific page.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `query` | string | Yes | The search query (e.g., `"dataset pagination"`, `"proxy configuration"`) |
-| `docSource` | string | No | Documentation source to search. Options: `"apify"` (default), `"crawlee-js"`, `"crawlee-py"` |
-| `limit` | number | No | Maximum number of results to return (1–20). Default: `5` |
-| `offset` | number | No | Number of results to skip for pagination. Default: `0` |
-
-## `apifymcp_fetch_apify_docs`
-
-Fetch the full content of an Apify or Crawlee documentation page by URL. Use after finding a relevant page with `apifymcp_search_apify_docs`.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `url` | string | Yes | The full URL of the documentation page to fetch (e.g., `https://docs.apify.com/platform/actors`) |
+<ToolList tools={tools} />
