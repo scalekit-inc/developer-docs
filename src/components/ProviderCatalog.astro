@@ -25,11 +25,33 @@ const items = connectors.map((entry) => {
   }
 })
 
+const CATEGORY_LABELS: Record<string, string> = {
+  ai: 'AI',
+  analytics: 'Analytics',
+  automation: 'Automation',
+  calendar: 'Calendar',
+  communication: 'Communication',
+  crm: 'CRM',
+  customer_support: 'Customer Support',
+  data: 'Data',
+  developer_tools: 'Developer Tools',
+  documents: 'Documents',
+  files: 'Files',
+  productivity: 'Productivity',
+  project_management: 'Project Management',
+  sales: 'Sales',
+  scheduling: 'Scheduling',
+}
+
+function categoryLabel(slug: string): string {
+  return CATEGORY_LABELS[slug] ?? slug.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
 // Derive category order from catalog data; put 'Other' last
 const allCategories = Array.from(new Set(items.flatMap((i) => i.categories))).sort((a, b) => {
-  if (a === 'Other') return 1
-  if (b === 'Other') return -1
-  return a.localeCompare(b)
+  if (a === 'other') return 1
+  if (b === 'other') return -1
+  return categoryLabel(a).localeCompare(categoryLabel(b))
 })
 
 const grouped = allCategories
@@ -53,20 +75,37 @@ const grouped = allCategories
         aria-label="Search providers"
       />
     </div>
-    <div class="filter-pills" role="group" aria-label="Filter by auth type">
-      <button class="filter-pill active" data-filter="all" aria-pressed="true">All</button>
-      <button class="filter-pill" data-filter="OAuth 2.0" aria-pressed="false">OAuth 2.0</button>
-      <button class="filter-pill" data-filter="Bearer Token" aria-pressed="false"
-        >Bearer Token</button
+  </div>
+
+  <div class="filter-row" role="group" aria-label="Filter by category">
+    <span class="filter-label">Category</span>
+    <div class="filter-pills category-pills">
+      <button class="filter-pill active" data-category="all" aria-pressed="true">All</button>
+      {
+        allCategories.map((cat) => (
+          <button class="filter-pill" data-category={cat} aria-pressed="false">
+            {categoryLabel(cat)}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="filter-row" role="group" aria-label="Filter by auth type">
+    <span class="filter-label">Auth</span>
+    <div class="filter-pills auth-pills">
+      <button class="filter-pill active" data-auth="all" aria-pressed="true">All</button>
+      <button class="filter-pill" data-auth="OAuth 2.0" aria-pressed="false">OAuth 2.0</button>
+      <button class="filter-pill" data-auth="Bearer Token" aria-pressed="false">Bearer Token</button
       >
-      <button class="filter-pill" data-filter="API Key" aria-pressed="false">API Key</button>
+      <button class="filter-pill" data-auth="API Key" aria-pressed="false">API Key</button>
     </div>
   </div>
 
   {
     grouped.map((group) => (
       <section class="category-section" data-category={group.name}>
-        <h2 class="category-heading">{group.name}</h2>
+        <h2 class="category-heading">{categoryLabel(group.name)}</h2>
         <div class="providers-grid">
           {group.items.map((item) => (
             <a
@@ -75,6 +114,7 @@ const grouped = allCategories
               data-name={item.title.toLowerCase()}
               data-desc={item.description.toLowerCase()}
               data-auth={item.authType}
+              data-categories={item.categories.join(',')}
             >
               <div class="card-top">
                 <div class="provider-logo">
@@ -108,35 +148,48 @@ const grouped = allCategories
 <script>
   const catalogEl = document.querySelector('.provider-catalog') as HTMLElement
   const searchInput = catalogEl?.querySelector('.search-input') as HTMLInputElement | null
-  const filterPills = catalogEl?.querySelectorAll<HTMLButtonElement>('.filter-pill')
+  const categoryPills = catalogEl?.querySelectorAll<HTMLButtonElement>(
+    '.category-pills .filter-pill',
+  )
+  const authPills = catalogEl?.querySelectorAll<HTMLButtonElement>('.auth-pills .filter-pill')
   const noResults = catalogEl?.querySelector('.no-results') as HTMLElement | null
 
-  let activeFilter = 'all'
+  let activeCategory = 'all'
+  let activeAuth = 'all'
   let searchQuery = ''
 
   function applyFilters(): void {
-    const cards = catalogEl?.querySelectorAll<HTMLElement>('.provider-card')
-    let visible = 0
+    const sections = catalogEl?.querySelectorAll<HTMLElement>('.category-section')
+    let totalVisible = 0
 
-    cards?.forEach((card) => {
-      const matchesSearch =
-        !searchQuery ||
-        (card.dataset.name ?? '').includes(searchQuery) ||
-        (card.dataset.desc ?? '').includes(searchQuery)
-      const matchesFilter = activeFilter === 'all' || card.dataset.auth === activeFilter
-      const show = matchesSearch && matchesFilter
-      card.style.display = show ? '' : 'none'
-      if (show) visible++
+    sections?.forEach((section) => {
+      const sectionCategory = section.dataset.category ?? ''
+      const categoryMatch = activeCategory === 'all' || sectionCategory === activeCategory
+
+      if (!categoryMatch) {
+        section.style.display = 'none'
+        return
+      }
+
+      const cards = section.querySelectorAll<HTMLElement>('.provider-card')
+      let sectionVisible = 0
+
+      cards.forEach((card) => {
+        const matchesSearch =
+          !searchQuery ||
+          (card.dataset.name ?? '').includes(searchQuery) ||
+          (card.dataset.desc ?? '').includes(searchQuery)
+        const matchesAuth = activeAuth === 'all' || card.dataset.auth === activeAuth
+        const show = matchesSearch && matchesAuth
+        card.style.display = show ? '' : 'none'
+        if (show) sectionVisible++
+      })
+
+      section.style.display = sectionVisible > 0 ? '' : 'none'
+      totalVisible += sectionVisible
     })
 
-    catalogEl?.querySelectorAll<HTMLElement>('.category-section')?.forEach((section) => {
-      const hasVisible = Array.from(section.querySelectorAll<HTMLElement>('.provider-card')).some(
-        (c) => c.style.display !== 'none',
-      )
-      section.style.display = hasVisible ? '' : 'none'
-    })
-
-    if (noResults) noResults.hidden = visible > 0
+    if (noResults) noResults.hidden = totalVisible > 0
   }
 
   searchInput?.addEventListener('input', (e) => {
@@ -144,15 +197,28 @@ const grouped = allCategories
     applyFilters()
   })
 
-  filterPills?.forEach((pill) => {
+  categoryPills?.forEach((pill) => {
     pill.addEventListener('click', () => {
-      filterPills.forEach((p) => {
+      categoryPills.forEach((p) => {
         p.classList.remove('active')
         p.setAttribute('aria-pressed', 'false')
       })
       pill.classList.add('active')
       pill.setAttribute('aria-pressed', 'true')
-      activeFilter = pill.dataset.filter ?? 'all'
+      activeCategory = pill.dataset.category ?? 'all'
+      applyFilters()
+    })
+  })
+
+  authPills?.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      authPills.forEach((p) => {
+        p.classList.remove('active')
+        p.setAttribute('aria-pressed', 'false')
+      })
+      pill.classList.add('active')
+      pill.setAttribute('aria-pressed', 'true')
+      activeAuth = pill.dataset.auth ?? 'all'
       applyFilters()
     })
   })
@@ -170,17 +236,11 @@ const grouped = allCategories
   }
 
   .catalog-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 0.75rem;
   }
 
   .search-wrap {
     position: relative;
-    flex: 1;
-    min-width: 14rem;
     max-width: 22rem;
   }
 
@@ -212,25 +272,46 @@ const grouped = allCategories
     color: var(--sl-color-gray-4);
   }
 
+  .filter-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .filter-label {
+    font-family: var(--sl-font-system-mono);
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    color: var(--sl-color-gray-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding-top: 0.4rem;
+    white-space: nowrap;
+    min-width: 4rem;
+  }
+
   .filter-pills {
     display: flex;
     gap: 0.375rem;
     flex-wrap: wrap;
+    margin-bottom: 0.25rem;
   }
 
   .filter-pill {
-    padding: 0.375rem 0.875rem;
+    padding: 0.3rem 0.75rem;
     border-radius: 100px;
     border: 1px solid var(--sl-color-hairline);
     background: transparent;
     color: var(--sl-color-gray-2);
     font-family: var(--sl-font-system);
     font-size: var(--sl-text-xs);
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
     transition:
       border-color 0.15s,
-      color 0.15s;
+      color 0.15s,
+      background 0.15s;
     white-space: nowrap;
   }
   .filter-pill:hover {
@@ -240,9 +321,11 @@ const grouped = allCategories
   .filter-pill.active {
     border-color: var(--sl-color-text-accent);
     color: var(--sl-color-text-accent);
+    background: color-mix(in srgb, var(--sl-color-text-accent) 8%, transparent);
   }
 
   .category-section {
+    margin-top: 2rem;
     margin-bottom: 2.5rem;
   }
 
