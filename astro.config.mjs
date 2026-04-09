@@ -86,9 +86,9 @@ export default defineConfig({
       },
       customCss: [
         '@fontsource-variable/inter',
+        '@fontsource-variable/outfit',
         '@fontsource-variable/atkinson-hyperlegible-next',
         '@fontsource/jetbrains-mono',
-        '@fontsource-variable/outfit',
         './src/styles/theme-priority.css',
       ],
       plugins: [
