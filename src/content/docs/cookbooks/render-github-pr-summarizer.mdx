@@ -1,0 +1,537 @@
+---
+title: 'Build a multi-user GitHub PR summarizer with Render Workflows and Scalekit'
+description: "Deploy a durable Render Workflow that reads open pull requests via Scalekit's GitHub connector and generates plain-language summaries for each team member using their own GitHub token."
+date: 2026-04-11
+tags: ['Agent auth', 'GitHub', 'Render']
+sidebar:
+  label: 'GitHub PR summarizer (Render)'
+excerpt: >
+  As AI agents raise the velocity of code changes, the volume of open PRs on any team keeps growing. This recipe builds a Render Workflow that finds the five most-discussed open PRs in a repository, reads their diffs and comment threads, and generates a plain-language paragraph per PR — written for a team lead or manager. Each team member runs the same workflow with their own user ID; Scalekit's token vault handles per-user GitHub OAuth so the agent acts as the right person every time.
+featured: false
+authors:
+  - name: 'Saif'
+    title: 'Developer Advocate'
+    url: 'https://www.linkedin.com/in/saif-shines/'
+    picture: '/images/blog/authors/saif.png'
+---
+
+import { Aside, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+
+Every engineering team has open PRs that sit in review longer than they should. Before a standup, someone has to open GitHub, scan the list, read comments, and figure out what's actually blocking. This recipe automates that briefing.
+
+The workflow finds the five most-discussed open PRs in any repository, reads the raw code diff and comment thread for each one, and calls Claude to write one paragraph per PR in plain language — covering what the change does, how much review activity it has, and whether it looks close to merging.
+
+**What makes it multi-user:** every team member runs the same deployed workflow with their own `userId`. Scalekit's token vault stores a separate GitHub OAuth token per user and injects the right one automatically. The agent acts as each person — not a shared service account.
+
+**What this recipe covers:**
+
+- Setting up the Scalekit GitHub connector (one-time, per environment)
+- Writing four durable tasks with the Render Workflows SDK: list PRs, fetch details, generate summaries, root orchestrator
+- Connecting each user's GitHub account via a one-time OAuth flow
+- Running locally and triggering the deployed workflow via CLI
+
+The complete source is available in the [render-ai-agent-deploykit](https://github.com/scalekit-inc/render-ai-agent-deploykit) repository.
+
+```d2 pad=24
+title: "PR Summarizer — runtime flow" {
+  near: top-center
+  shape: text
+  style.font-size: 18
+}
+
+shape: sequence_diagram
+
+"Team member": {
+  style.fill: "#dbeafe"
+  style.font-size: 14
+}
+"Render Workflow": {
+  style.fill: "#dcfce7"
+  style.font-size: 14
+}
+"Scalekit": {
+  style.fill: "#fef9c3"
+  style.font-size: 14
+}
+"GitHub": {
+  style.fill: "#f3e8ff"
+  style.font-size: 14
+}
+"Claude": {
+  style.fill: "#ffedd5"
+  style.font-size: 14
+}
+
+"Team member" -> "Render Workflow": trigger summarizePRs\n(userId, owner, repo)
+"Render Workflow" -> "Scalekit": list open PRs for userId
+"Scalekit" -> "GitHub": fetch PRs with user's OAuth token\n+ diffs & comments
+"GitHub" -> "Render Workflow": top 5 PRs, diffs, threads
+"Render Workflow" -> "Claude": summarize 5 PRs
+"Claude" -> "Team member": plain-language summary
+```
+
+> Each team member connects their GitHub account once via `setupGitHubAuth`. Scalekit stores the token — at runtime it's injected automatically based on `userId`.
+
+### 1. Set up the Scalekit GitHub connector
+
+This is a one-time setup per Scalekit environment. It creates the GitHub OAuth app that authenticates your team's accounts to the agent.
+
+<Steps>
+1. Go to [app.scalekit.com](https://app.scalekit.com) → **Agent Auth** → **Connectors**
+2. Click **Add connector** and select **GitHub**
+3. Follow the setup — Scalekit creates and manages the GitHub OAuth app for you
+4. Note the **connection name** assigned (e.g. `github-qkHFhMip`) — you'll set this as `GITHUB_CONNECTION_NAME` in your environment
+</Steps>
+
+### 2. Create the project
+
+```bash
+mkdir render-pr-summarizer && cd render-pr-summarizer
+npm init -y    # or: pnpm init
+npm install @renderinc/sdk @scalekit-sdk/node openai dotenv
+npm install -D typescript tsx @types/node
+```
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist",
+    "strict": true
+  },
+  "include": ["src"]
+}
+```
+
+```json title="package.json (scripts)"
+{
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/main.ts",
+    "build": "tsc",
+    "start": "node dist/main.js"
+  }
+}
+```
+
+### 3. Configure credentials
+
+```bash
+cp .env.example .env
+```
+
+```bash title=".env"
+# LiteLLM proxy (routes to Claude)
+LITELLM_API_KEY=your-litellm-api-key
+LITELLM_BASE_URL=https://llm.scalekit.cloud
+LITELLM_MODEL=claude-haiku-4-5
+
+# Scalekit Agent Auth
+SCALEKIT_ENVIRONMENT_URL=https://your-env.scalekit.com
+SCALEKIT_CLIENT_ID=your-scalekit-client-id
+SCALEKIT_CLIENT_SECRET=your-scalekit-client-secret
+
+# Connection name from Step 1
+GITHUB_CONNECTION_NAME=github-qkHFhMip
+```
+
+Get your Scalekit credentials at **app.scalekit.com → Settings → API Credentials**.
+
+### 4. Initialize the Scalekit client
+
+```typescript title="src/scalekit.ts"
+import "dotenv/config";
+import { ScalekitClient } from "@scalekit-sdk/node";
+
+let _scalekit: ScalekitClient | null = null;
+
+function getScalekit(): ScalekitClient {
+  if (_scalekit) return _scalekit;
+  if (!process.env.SCALEKIT_ENVIRONMENT_URL || !process.env.SCALEKIT_CLIENT_ID || !process.env.SCALEKIT_CLIENT_SECRET) {
+    throw new Error("Missing SCALEKIT_ENVIRONMENT_URL, SCALEKIT_CLIENT_ID, or SCALEKIT_CLIENT_SECRET");
+  }
+  _scalekit = new ScalekitClient(
+    process.env.SCALEKIT_ENVIRONMENT_URL,
+    process.env.SCALEKIT_CLIENT_ID,
+    process.env.SCALEKIT_CLIENT_SECRET,
+  );
+  return _scalekit;
+}
+
+// Lazy proxy — the client is only created when first used
+export const scalekit = new Proxy({} as ScalekitClient, {
+  get(_target, prop) {
+    return (getScalekit() as unknown as Record<string | symbol, unknown>)[prop];
+  },
+});
+
+const GITHUB_CONNECTION_NAME = process.env.GITHUB_CONNECTION_NAME ?? "github-qkHFhMip";
+
+/**
+ * Execute a pre-built GitHub tool via Scalekit on behalf of a user.
+ * Scalekit injects the user's stored OAuth token automatically.
+ */
+export async function githubTool(
+  identifier: string,
+  toolName: string,
+  toolInput: Record<string, unknown>,
+) {
+  const res = await scalekit.actions.executeTool({
+    toolName,
+    toolInput,
+    connector: GITHUB_CONNECTION_NAME,
+    identifier,
+  });
+  return res.data ?? {};
+}
+
+/**
+ * Create or retrieve a connected account for a user and return an OAuth
+ * authorization URL. The user opens the link once; Scalekit stores the token.
+ */
+export async function getGitHubAuthLink(identifier: string): Promise<string> {
+  await scalekit.actions.getOrCreateConnectedAccount({
+    connectionName: GITHUB_CONNECTION_NAME,
+    identifier,
+  });
+  const res = await scalekit.actions.getAuthorizationLink({
+    connectionName: GITHUB_CONNECTION_NAME,
+    identifier,
+  });
+  return res.link ?? "";
+}
+```
+
+<Aside type="caution">
+The `connector` field in `executeTool` must be the full connection name from the Scalekit Dashboard (e.g. `github-qkHFhMip`), not the generic provider string `"github"`. Store it in `GITHUB_CONNECTION_NAME` and reference that variable everywhere.
+</Aside>
+
+### 5. Write the workflow tasks
+
+Render Workflows are built from `task()` functions. Each task is independently retried, tracked, and visible in the Render Dashboard.
+
+```typescript title="src/main.ts"
+import "dotenv/config";
+import { task } from "@renderinc/sdk/workflows";
+import OpenAI from "openai";
+import { githubTool, getGitHubAuthLink } from "./scalekit.js";
+
+interface PRSummaryInput { userId: string; owner: string; repo: string; }
+interface PRDetail {
+  number: number; title: string; totalComments: number;
+  diff: string; commentBodies: string[];
+}
+```
+
+**Task 1 — List open PRs and rank by discussion volume**
+
+`executeTool` with `github_pull_requests_list` returns `{ array: [...] }` — Scalekit wraps array responses in an envelope. The code handles all known shapes gracefully.
+
+```typescript title="src/main.ts"
+const fetchOpenPRs = task(
+  { name: "fetchOpenPRs", retry: { maxRetries: 3, waitDurationMs: 1000 } },
+  async function fetchOpenPRs(userId: string, owner: string, repo: string) {
+    const raw = await githubTool(userId, "github_pull_requests_list", {
+      owner,
+      repo,
+      state: "open",
+    });
+
+    // Scalekit wraps array responses — handle all known shapes
+    const r = raw as Record<string, unknown>;
+    const list = Array.isArray(raw) ? raw
+      : Array.isArray(r.array) ? r.array
+      : Array.isArray(r.pull_requests) ? r.pull_requests
+      : Array.isArray(r.data) ? r.data
+      : null;
+
+    if (!list) {
+      throw new Error(`Unexpected response shape: ${JSON.stringify(raw).slice(0, 200)}`);
+    }
+
+    type PRItem = { number: number; title: string; comments: number; review_comments: number };
+    const sorted = (list as PRItem[]).sort(
+      (a, b) => (b.comments + b.review_comments) - (a.comments + a.review_comments),
+    );
+    return sorted.slice(0, 5);
+  },
+);
+```
+
+**Task 2 — Fetch the raw diff and comments for each PR**
+
+GitHub's public API is called directly for the diff (`Accept: application/vnd.github.diff`) and the issue comments list. Diffs are truncated to 3000 characters to keep LLM context manageable. Both requests fire in parallel per PR.
+
+```typescript title="src/main.ts"
+const fetchPRDetails = task(
+  { name: "fetchPRDetails", retry: { maxRetries: 3, waitDurationMs: 1000 } },
+  async function fetchPRDetails(
+    userId: string,
+    owner: string,
+    repo: string,
+    prNumber: number,
+    title: string,
+    totalComments: number,
+  ): Promise<PRDetail> {
+    const base = `https://api.github.com/repos/${owner}/${repo}`;
+    const [diffRes, commentsRes] = await Promise.all([
+      fetch(`${base}/pulls/${prNumber}`, { headers: { Accept: "application/vnd.github.diff" } }),
+      fetch(`${base}/issues/${prNumber}/comments`),
+    ]);
+
+    const diff = diffRes.ok ? (await diffRes.text()).slice(0, 3000) : "";
+    const commentsJson = commentsRes.ok
+      ? (await commentsRes.json() as Array<{ body?: string }>)
+      : [];
+    const commentBodies = commentsJson.slice(0, 20).map((c) => c.body ?? "").filter(Boolean);
+
+    return { number: prNumber, title, totalComments, diff, commentBodies };
+  },
+);
+```
+
+**Task 3 — Generate the summary with Claude**
+
+A single LLM call processes all five PRs. The `openai` package points to LiteLLM via `LITELLM_BASE_URL`, which routes to Claude.
+
+```typescript title="src/main.ts"
+const generateSummary = task(
+  { name: "generateSummary", retry: { maxRetries: 3, waitDurationMs: 2000 } },
+  async function generateSummary(prs: PRDetail[], owner: string, repo: string): Promise<string> {
+    if (prs.length === 0) return "No open pull requests found.";
+
+    const client = new OpenAI({
+      apiKey: process.env.LITELLM_API_KEY ?? process.env.OPENAI_API_KEY,
+      ...(process.env.LITELLM_BASE_URL ? { baseURL: process.env.LITELLM_BASE_URL } : {}),
+    });
+
+    const prBlocks = prs.map((pr) => {
+      const commentSection = pr.commentBodies.length > 0
+        ? `Discussion (${pr.totalComments} comments):\n${pr.commentBodies.slice(0, 5).map((c) => `> ${c.slice(0, 300).replace(/\n/g, " ")}`).join("\n")}`
+        : "No comments yet.";
+      return [
+        `PR #${pr.number} — ${pr.title}`,
+        commentSection,
+        `Code changes (first 3000 chars):\n${pr.diff || "(diff not available)"}`,
+      ].join("\n");
+    }).join("\n\n---\n\n");
+
+    const response = await client.chat.completions.create({
+      model: process.env.LITELLM_MODEL ?? "claude-haiku-4-5",
+      messages: [
+        {
+          role: "system",
+          content: [
+            "You are summarizing GitHub pull request activity for a team lead or manager.",
+            "For each pull request, write exactly one paragraph (3-4 sentences) in plain, non-technical language.",
+            "Cover: what the change is about, how much discussion has happened, and whether it appears close to being merged.",
+            "Do not use bullet points or code snippets.",
+            "",
+            "Format each PR like this:",
+            "**PR #[number] — [title]**",
+            "[Your paragraph here]",
+          ].join("\n"),
+        },
+        {
+          role: "user",
+          content: `Repository: ${owner}/${repo}\n\nTop open PRs by discussion volume:\n\n${prBlocks}`,
+        },
+      ],
+    });
+
+    return response.choices[0].message.content ?? "(no summary generated)";
+  },
+);
+```
+
+**Root task — orchestrate everything**
+
+`fetchPRDetails` calls for all five PRs fire in parallel with `Promise.all`.
+
+```typescript title="src/main.ts"
+task(
+  { name: "summarizePRs", timeoutSeconds: 120 },
+  async function summarizePRs(input: PRSummaryInput) {
+    const { userId, owner, repo } = input;
+
+    const topPRs = await fetchOpenPRs(userId, owner, repo);
+    if (topPRs.length === 0) {
+      return { repository: `${owner}/${repo}`, prsAnalyzed: [], summary: "No open pull requests found." };
+    }
+
+    const details = await Promise.all(
+      topPRs.map((pr) =>
+        fetchPRDetails(userId, owner, repo, pr.number, pr.title, pr.comments + pr.review_comments),
+      ),
+    );
+
+    const summary = await generateSummary(details, owner, repo);
+
+    return {
+      repository: `${owner}/${repo}`,
+      prsAnalyzed: topPRs.map((p) => `#${p.number}: ${p.title}`),
+      summary,
+    };
+  },
+);
+```
+
+### 6. Add the one-time auth setup task
+
+Each team member runs this once to connect their GitHub account. The task prints an authorization URL; the user opens it in a browser, completes OAuth, and Scalekit stores the token.
+
+```typescript title="src/main.ts"
+task(
+  { name: "setupGitHubAuth" },
+  async function setupGitHubAuth(userId: string) {
+    const link = await getGitHubAuthLink(userId);
+    console.log(`[setupGitHubAuth] Auth link: ${link}`);
+    return {
+      userId,
+      authLink: link,
+      instructions: "Open the authLink in your browser to connect your GitHub account. Once authorized, run summarizePRs.",
+    };
+  },
+);
+```
+
+### 7. Run locally
+
+**Terminal 1 — start the workflow server**
+
+```bash
+render workflows dev -- npm run dev
+# or with pnpm:
+render workflows dev -- pnpm dev
+```
+
+**Terminal 2 — connect GitHub (once per user)**
+
+```bash
+render workflows tasks start setupGitHubAuth --local --input='["your-user-id"]'
+```
+
+Open the printed `authLink` in your browser and authorize GitHub access. Scalekit stores the token — this step is not needed again.
+
+**Terminal 2 — run the summarizer**
+
+```bash
+render workflows tasks start summarizePRs \
+  --local \
+  --input='[{"userId":"your-user-id","owner":"octocat","repo":"Hello-World"}]'
+```
+
+<Aside type="caution">
+The input must be a JSON array (`[{...}]`), not a bare object (`{...}`). Render's SDK spreads the array as positional arguments; a bare object causes a "spread syntax requires iterable" error.
+</Aside>
+
+### 8. Deploy and trigger on Render
+
+<Steps>
+1. [Sign up on Render](https://render.com) if you haven't already
+2. Push this repo to GitHub (or GitLab / Bitbucket)
+3. In the Render Dashboard, click **New → Workflow**
+4. Connect your repo
+5. Set **Build command**: `npm install && npm run build`
+6. Set **Start command**: `node dist/main.js`
+7. Add the environment variables from Step 3
+8. Deploy — `summarizePRs` and `setupGitHubAuth` will appear in the Render Dashboard under **Tasks**
+</Steps>
+
+Once deployed, trigger via CLI using the full `workflow-slug/task-name` format:
+
+```bash
+render workflows tasks start <your-workflow-slug>/summarizePRs \
+  --input='[{"userId":"alice","owner":"octocat","repo":"Hello-World"}]'
+```
+
+You can also trigger tasks from the **Render Dashboard → your workflow service → Tasks**.
+
+<Aside type="note">
+The `render workflows tasks` CLI only supports `list` and `start`. To check the status or output of a running task, open the Render Dashboard → your workflow service → Task runs.
+</Aside>
+
+### 9. Sample output
+
+```json
+{
+  "repository": "octocat/Hello-World",
+  "prsAnalyzed": [
+    "#42: Refactor authentication middleware",
+    "#38: Add rate limiting to public endpoints",
+    "#35: Update dependencies",
+    "#31: Fix memory leak in background worker",
+    "#28: Improve error messages"
+  ],
+  "summary": "**PR #42 — Refactor authentication middleware**\nThis change restructures how the app handles user login and session management. It has generated significant discussion with 14 review comments, suggesting the team has been actively working through the design. The back-and-forth looks mostly resolved, so this one appears close to ready.\n\n**PR #38 — Add rate limiting to public endpoints**\nThis pull request introduces guardrails to prevent API abuse on the public-facing routes. There are 9 comments, mostly around configuration choices for the limits. It still seems to have a few open questions that need resolution before merging."
+}
+```
+
+## Common mistakes
+
+<details>
+<summary>Wrong connection name in executeTool</summary>
+
+- **Symptom**: `[not_found] connection not found for the given key`
+- **Cause**: The `connector` field in `executeTool` is set to the generic provider type (e.g. `"github"`) instead of the actual connection name from the Scalekit Dashboard
+- **Fix**: Set `connector` to the full connection name (e.g. `github-qkHFhMip`). Store it in `GITHUB_CONNECTION_NAME` and reference that variable everywhere.
+
+</details>
+
+<details>
+<summary>Bare object input instead of array</summary>
+
+- **Symptom**: `Spread syntax requires ...iterable[Symbol.iterator] to be a function`
+- **Cause**: Render's SDK spreads the `--input` value as positional arguments. A bare JSON object (`{...}`) is not iterable.
+- **Fix**: Always wrap the input in an array: `--input='[{"userId":"..."}]'`
+
+</details>
+
+<details>
+<summary>github_pull_requests_list returns unexpected shape</summary>
+
+- **Symptom**: `Unexpected PR list response shape` error, or `null` for the PR list
+- **Cause**: Scalekit wraps array tool responses in an `{ array: [...] }` envelope, not a plain array
+- **Fix**: Check all shapes before throwing — `raw.array`, `raw.pull_requests`, `raw.data`, and plain `Array.isArray(raw)`
+
+</details>
+
+<details>
+<summary>Auth link appears expired immediately</summary>
+
+- **Symptom**: The link from `setupGitHubAuth` says it's already expired when opened
+- **Cause**: Clock drift between the Scalekit dev environment and the local machine can make newly generated links appear expired
+- **Fix**: Use the `getOrCreateConnectedAccount` + `getAuthorizationLink` SDK methods (as shown in `scalekit.ts`) rather than the Scalekit Dashboard's magic link generator
+
+</details>
+
+## Production notes
+
+**User ID from session** — Replace the hardcoded `userId` with the real identifier from your application's session or auth system. Each user's GitHub token is stored under this key; a mismatch means the wrong token is used.
+
+**Private repos** — `fetchPRDetails` uses unauthenticated `fetch` calls against the public GitHub API. For private repos, retrieve the user's OAuth token from Scalekit via `scalekit.actions.getConnectedAccount` and pass it as `Authorization: Bearer <token>` in the fetch headers.
+
+**Token freshness** — Scalekit refreshes expired tokens automatically when `getOrCreateConnectedAccount` or `getAuthorizationLink` is called. You do not need to track expiry or call a refresh endpoint.
+
+**Wiring to a standup bot** — Once deployed, `summarizePRs` is a standard HTTP-triggerable task. Wire it to a Slack slash command or cron job using the Render SDK:
+
+```typescript
+import { WorkflowsClient } from "@renderinc/sdk";
+
+const client = new WorkflowsClient({ apiKey: process.env.RENDER_API_KEY });
+
+await client.startTask("<your-workflow-slug>/summarizePRs", {
+  userId: "alice",
+  owner: "octocat",
+  repo: "Hello-World",
+});
+```
+
+## Next steps
+
+- **Add more connectors** — The same `getOrCreateConnectedAccount` + `executeTool` pattern works for any Scalekit-supported connector. See [all supported agent connectors](/guides/integrations/agent-connectors/).
+- **Private repo support** — Retrieve the stored OAuth token from Scalekit and pass it in the `Authorization` header when fetching diffs and comments.
+- **Stream the summary** — Replace the single batch LLM call in `generateSummary` with a streaming response for a more interactive standup experience.
+- **Review the agent auth quickstart** — For a broader overview of the connected-accounts model and supported providers, see the [agent auth quickstart](/agentkit/quickstart/).
