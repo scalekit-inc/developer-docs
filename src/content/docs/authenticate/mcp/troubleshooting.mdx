@@ -25,6 +25,27 @@ Use this guide to troubleshoot setup problems, resolve CORS and network issues, 
 
 ## Configuration & Setup Issues
 
+### My POST to `/auth-requests/` returns a 404 or "invalid ID" error
+
+You may be passing the MCP server's resource ID instead of the connection ID in the URL path.
+
+These are two different identifiers with different purposes:
+
+| Identifier | Format | Purpose |
+|---|---|---|
+| `resource_id` | `res_xxx` | Identifies the MCP server; used in token audiences and client registration |
+| `connection_id` | `conn_xxx` | Identifies your BYOA auth connection; required in `/auth-requests/` endpoints |
+
+The correct endpoint uses `connection_id`:
+
+```txt frame="none"
+/api/v1/connections/<connection_id>/auth-requests/<login_request_id>/user
+```
+
+To find your `connection_id`: open **Dashboard > MCP Servers > [your server] > Advanced Configurations > Connection ID**.
+
+---
+
 ### I'm getting an access token but no refresh token
 
 Add the `offline_access` scope to your authorization request. Without it, Scalekit does not issue a refresh token alongside the access token.
