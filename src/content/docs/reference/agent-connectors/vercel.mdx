@@ -1,0 +1,589 @@
+---
+title: Vercel
+description: Connect to Vercel. Access user profile, teams, projects, deployments, and environment settings.
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Vercel. Access user profile, teams, projects, deployments, and environment settings.
+ </div>
+ <div class="flex justify-center">
+  <img src="https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/vercel.svg" width="64" height="64" alt="Vercel logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+
+## Tool list
+
+## `vercel_alias_create`
+
+Assigns an alias (custom domain) to a Vercel deployment.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `alias` | string | Yes | The alias hostname to assign. |
+| `deployment_id` | string | Yes | The deployment ID to assign the alias to. |
+| `team_id` | string | No | Team ID if the deployment belongs to a team. |
+
+## `vercel_alias_delete`
+
+Removes an alias from a Vercel deployment.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `alias_or_id` | string | Yes | The alias hostname or ID to delete. |
+| `team_id` | string | No | Team ID if the alias belongs to a team. |
+
+## `vercel_alias_get`
+
+Returns information about a specific alias by its ID or hostname.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `alias_or_id` | string | Yes | The alias hostname or ID. |
+| `team_id` | string | No | Team ID if the alias belongs to a team. |
+
+## `vercel_aliases_list`
+
+Returns all aliases for the authenticated user or team, with optional domain and deployment filtering.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `domain` | string | No | Filter aliases by domain. |
+| `limit` | integer | No | Maximum number of aliases to return. |
+| `since` | integer | No | Timestamp in ms for pagination. |
+| `team_id` | string | No | Team ID to list aliases for. |
+
+## `vercel_check_create`
+
+Creates a new check on a Vercel deployment. Used by integrations to report status of external checks like test suites or audits.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `blocking` | boolean | Yes | If true, this check must pass before deployment is considered ready. |
+| `deployment_id` | string | Yes | The deployment ID to create a check for. |
+| `detailsUrl` | string | No | URL where users can view check details. |
+| `name` | string | Yes | Display name for the check. |
+| `team_id` | string | No | Team ID if the deployment belongs to a team. |
+
+## `vercel_check_update`
+
+Updates the status and conclusion of a deployment check. Used to report check results back to Vercel.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `check_id` | string | Yes | The check ID to update. |
+| `conclusion` | string | No | Check conclusion: succeeded, failed, skipped, canceled. |
+| `deployment_id` | string | Yes | The deployment ID the check belongs to. |
+| `detailsUrl` | string | No | URL where users can view check details. |
+| `status` | string | No | Check status: running, completed. |
+| `team_id` | string | No | Team ID if the deployment belongs to a team. |
+
+## `vercel_checks_list`
+
+Returns all checks attached to a Vercel deployment (e.g. from third-party integrations).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `deployment_id` | string | Yes | The deployment ID to list checks for. |
+| `team_id` | string | No | Team ID if the deployment belongs to a team. |
+
+## `vercel_deployment_aliases_list`
+
+Returns all aliases assigned to a specific Vercel deployment.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `deployment_id` | string | Yes | The deployment ID to get aliases for. |
+| `team_id` | string | No | Team ID if the deployment belongs to a team. |
+
+## `vercel_deployment_cancel`
+
+Cancels a Vercel deployment that is currently building or queued.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `deployment_id` | string | Yes | The deployment ID to cancel. |
+| `team_id` | string | No | Team ID if the deployment belongs to a team. |
+
+## `vercel_deployment_create`
+
+Creates a new Vercel deployment for a project, optionally from a Git ref or with inline files.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `git_source` | string | No | JSON object with Git source info, e.g. `{"type":"github","ref":"main","repoId":"123"}`. |
+| `name` | string | Yes | The project name to deploy. |
+| `target` | string | No | Deployment target: production or preview. Default is preview. |
+| `team_id` | string | No | Team ID if deploying to a team project. |
+
+## `vercel_deployment_delete`
+
+Deletes a Vercel deployment by its ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `deployment_id` | string | Yes | The deployment ID to delete. |
+| `team_id` | string | No | Team ID if the deployment belongs to a team. |
+
+## `vercel_deployment_events_list`
+
+Returns build log events for a Vercel deployment. Useful for debugging build errors.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `deployment_id` | string | Yes | The deployment ID to get events for. |
+| `limit` | integer | No | Maximum number of log events to return. |
+| `since` | integer | No | Timestamp in ms to fetch events after. |
+| `team_id` | string | No | Team ID if the deployment belongs to a team. |
+
+## `vercel_deployment_get`
+
+Returns details of a specific Vercel deployment by its ID or URL, including build status, target, and metadata.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id_or_url` | string | Yes | The deployment ID (dpl_xxx) or deployment URL. |
+| `team_id` | string | No | Team ID if the deployment belongs to a team. |
+
+## `vercel_deployments_list`
+
+Returns a list of deployments for the authenticated user or a specific project/team, with filtering and pagination.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `from` | integer | No | Timestamp in ms for pagination cursor. |
+| `limit` | integer | No | Maximum number of deployments to return. |
+| `project_id` | string | No | Filter deployments by project ID or name. |
+| `state` | string | No | Filter by deployment state: BUILDING, ERROR, INITIALIZING, QUEUED, READY, CANCELED. |
+| `target` | string | No | Filter by target environment: production or preview. |
+| `team_id` | string | No | Filter deployments by team ID. |
+
+## `vercel_dns_record_create`
+
+Creates a new DNS record for a domain managed by Vercel. Supports A, AAAA, CNAME, TXT, MX, SRV, and CAA records.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `domain` | string | Yes | The domain to create the DNS record for. |
+| `mx_priority` | integer | No | Priority for MX records. |
+| `name` | string | Yes | Subdomain name, or empty string for root domain. |
+| `team_id` | string | No | Team ID if the domain belongs to a team. |
+| `ttl` | integer | No | Time-to-live in seconds. Default is 60. |
+| `type` | string | Yes | Record type: A, AAAA, CNAME, TXT, MX, SRV, CAA. |
+| `value` | string | Yes | The record value (IP address, hostname, text, etc.). |
+
+## `vercel_dns_record_delete`
+
+Deletes a DNS record from a domain managed by Vercel.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `domain` | string | Yes | The domain the DNS record belongs to. |
+| `record_id` | string | Yes | The ID of the DNS record to delete. |
+| `team_id` | string | No | Team ID if the domain belongs to a team. |
+
+## `vercel_dns_records_list`
+
+Returns all DNS records for a domain managed by Vercel.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `domain` | string | Yes | The domain to list DNS records for. |
+| `limit` | integer | No | Maximum number of records to return. |
+| `since` | integer | No | Timestamp in ms for pagination. |
+| `team_id` | string | No | Team ID if the domain belongs to a team. |
+
+## `vercel_domain_add`
+
+Adds a domain to the authenticated user or team's Vercel account.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | Yes | The domain name to add. |
+| `team_id` | string | No | Team ID to add the domain to. |
+
+## `vercel_domain_delete`
+
+Removes a domain from the authenticated user or team's Vercel account.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `domain` | string | Yes | The domain name to delete. |
+| `team_id` | string | No | Team ID if the domain belongs to a team. |
+
+## `vercel_domain_get`
+
+Returns information about a specific domain including verification status, nameservers, and registrar.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `domain` | string | Yes | The domain name to look up. |
+| `team_id` | string | No | Team ID if the domain belongs to a team. |
+
+## `vercel_domains_list`
+
+Returns all domains registered or added to the authenticated user or team's Vercel account.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `limit` | integer | No | Maximum number of domains to return. |
+| `since` | integer | No | Timestamp in ms for pagination. |
+| `team_id` | string | No | Team ID to list domains for. |
+
+## `vercel_edge_config_create`
+
+Creates a new Edge Config store for storing read-only configuration data close to users at the edge.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `slug` | string | Yes | A unique slug for the Edge Config store. |
+| `team_id` | string | No | Team ID to create the Edge Config under. |
+
+## `vercel_edge_config_delete`
+
+Permanently deletes an Edge Config store and all its items.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `edge_config_id` | string | Yes | The Edge Config store ID to delete. |
+| `team_id` | string | No | Team ID if the Edge Config belongs to a team. |
+
+## `vercel_edge_config_get`
+
+Returns details of a specific Edge Config store by its ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `edge_config_id` | string | Yes | The Edge Config store ID. |
+| `team_id` | string | No | Team ID if the Edge Config belongs to a team. |
+
+## `vercel_edge_config_item_get`
+
+Returns the value of a specific item from an Edge Config store by key.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `edge_config_id` | string | Yes | The Edge Config store ID. |
+| `item_key` | string | Yes | The key of the item to retrieve. |
+| `team_id` | string | No | Team ID if the Edge Config belongs to a team. |
+
+## `vercel_edge_config_items_list`
+
+Returns all key-value items stored in an Edge Config store.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `edge_config_id` | string | Yes | The Edge Config store ID. |
+| `team_id` | string | No | Team ID if the Edge Config belongs to a team. |
+
+## `vercel_edge_config_items_update`
+
+Creates, updates, or deletes items in an Edge Config store using a list of patch operations.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `edge_config_id` | string | Yes | The Edge Config store ID. |
+| `items` | string | Yes | JSON array of patch operations. Each item has 'operation' (create/update/upsert/delete), 'key', and optionally 'value'. |
+| `team_id` | string | No | Team ID if the Edge Config belongs to a team. |
+
+## `vercel_edge_config_token_create`
+
+Creates a new read token for an Edge Config store to be used in application code.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `edge_config_id` | string | Yes | The Edge Config store ID. |
+| `label` | string | Yes | A descriptive label for the token. |
+| `team_id` | string | No | Team ID if the Edge Config belongs to a team. |
+
+## `vercel_edge_config_tokens_delete`
+
+Deletes one or more read tokens from an Edge Config store.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `edge_config_id` | string | Yes | The Edge Config store ID. |
+| `team_id` | string | No | Team ID if the Edge Config belongs to a team. |
+| `tokens` | string | Yes | JSON array of token IDs to delete. |
+
+## `vercel_edge_config_tokens_list`
+
+Returns all read tokens for an Edge Config store.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `edge_config_id` | string | Yes | The Edge Config store ID. |
+| `team_id` | string | No | Team ID if the Edge Config belongs to a team. |
+
+## `vercel_edge_configs_list`
+
+Returns all Edge Config stores for the authenticated user or team.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `team_id` | string | No | Team ID to list Edge Configs for. |
+
+## `vercel_env_var_create`
+
+Creates a new environment variable for a Vercel project with the specified key, value, and target environments.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id_or_name` | string | Yes | The project ID or name. |
+| `key` | string | Yes | The environment variable key. |
+| `target` | string | No | JSON array of targets: production, preview, development. Defaults to all. |
+| `team_id` | string | No | Team ID if the project belongs to a team. |
+| `type` | string | No | Variable type: plain or secret. Default is plain. |
+| `value` | string | Yes | The environment variable value. |
+
+## `vercel_env_var_delete`
+
+Deletes an environment variable from a Vercel project.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `env_id` | string | Yes | The environment variable ID to delete. |
+| `id_or_name` | string | Yes | The project ID or name. |
+| `team_id` | string | No | Team ID if the project belongs to a team. |
+
+## `vercel_env_var_update`
+
+Updates an existing environment variable for a Vercel project.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `env_id` | string | Yes | The environment variable ID to update. |
+| `id_or_name` | string | Yes | The project ID or name. |
+| `target` | string | No | JSON array of new targets: production, preview, development. |
+| `team_id` | string | No | Team ID if the project belongs to a team. |
+| `value` | string | No | New value for the environment variable. |
+
+## `vercel_env_vars_list`
+
+Returns all environment variables for a Vercel project, including their targets (production, preview, development) and encryption status.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `decrypt` | boolean | No | If true, returns decrypted values for sensitive variables. |
+| `id_or_name` | string | Yes | The project ID or name. |
+| `team_id` | string | No | Team ID if the project belongs to a team. |
+
+## `vercel_project_create`
+
+Creates a new Vercel project with a given name, framework, and optional Git repository.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `framework` | string | No | Framework preset, e.g. nextjs, vite, gatsby, nuxtjs, create-react-app. |
+| `git_repository` | string | No | JSON object with 'type' (github/gitlab/bitbucket) and 'repo' (owner/name) fields. |
+| `name` | string | Yes | The name of the project. |
+| `root_directory` | string | No | Root directory of the project within the repository. |
+| `team_id` | string | No | Team ID to create the project under. |
+
+## `vercel_project_delete`
+
+Permanently deletes a Vercel project and all its deployments, domains, and environment variables.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id_or_name` | string | Yes | The project ID or name to delete. |
+| `team_id` | string | No | Team ID if the project belongs to a team. |
+
+## `vercel_project_domain_add`
+
+Assigns a domain to a Vercel project with an optional redirect target.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `git_branch` | string | No | Git branch to associate this domain with for preview deployments. |
+| `id_or_name` | string | Yes | The project ID or name. |
+| `name` | string | Yes | The domain name to assign to the project. |
+| `redirect` | string | No | Redirect target domain if this domain should redirect. |
+| `team_id` | string | No | Team ID if the project belongs to a team. |
+
+## `vercel_project_domain_delete`
+
+Removes a domain assignment from a Vercel project.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `domain` | string | Yes | The domain name to remove from the project. |
+| `id_or_name` | string | Yes | The project ID or name. |
+| `team_id` | string | No | Team ID if the project belongs to a team. |
+
+## `vercel_project_domains_list`
+
+Returns all domains assigned to a specific Vercel project.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id_or_name` | string | Yes | The project ID or name. |
+| `production` | boolean | No | Filter to production domains only. |
+| `team_id` | string | No | Team ID if the project belongs to a team. |
+
+## `vercel_project_get`
+
+Returns details of a specific Vercel project including its framework, Git repository, environment variables summary, and domains.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id_or_name` | string | Yes | The project ID or name. |
+| `team_id` | string | No | Team ID if the project belongs to a team. |
+
+## `vercel_project_update`
+
+Updates a Vercel project's name, framework, build command, output directory, or other settings.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `build_command` | string | No | Custom build command override. |
+| `framework` | string | No | Framework preset to apply. |
+| `id_or_name` | string | Yes | The project ID or name to update. |
+| `install_command` | string | No | Custom install command override. |
+| `name` | string | No | New project name. |
+| `output_directory` | string | No | Custom output directory override. |
+| `team_id` | string | No | Team ID if the project belongs to a team. |
+
+## `vercel_projects_list`
+
+Returns all projects for the authenticated user or team, with optional search and pagination.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `from` | integer | No | Timestamp in ms for pagination cursor. |
+| `limit` | integer | No | Maximum number of projects to return. |
+| `search` | string | No | Filter projects by name search query. |
+| `team_id` | string | No | Team ID to list projects for. Omit for personal projects. |
+
+## `vercel_team_create`
+
+Creates a new Vercel team with the specified slug and optional name.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | No | Display name for the team. |
+| `slug` | string | Yes | A unique URL-friendly identifier for the team. |
+
+## `vercel_team_delete`
+
+Permanently deletes a Vercel team and all its associated resources.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `team_id` | string | Yes | The team ID or slug to delete. |
+
+## `vercel_team_get`
+
+Returns details of a specific Vercel team by its ID or slug.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `team_id` | string | Yes | The team ID or slug. |
+
+## `vercel_team_member_invite`
+
+Invites a user to a Vercel team by email address with a specified role.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `email` | string | Yes | Email address of the user to invite. |
+| `role` | string | No | Role to assign: OWNER, MEMBER, VIEWER, DEVELOPER, BILLING. |
+| `team_id` | string | Yes | The team ID or slug. |
+
+## `vercel_team_member_remove`
+
+Removes a member from a Vercel team by their user ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `team_id` | string | Yes | The team ID or slug. |
+| `user_id` | string | Yes | The user ID of the member to remove. |
+
+## `vercel_team_members_list`
+
+Returns all members of a Vercel team including their roles and join dates.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `limit` | integer | No | Maximum number of members to return. |
+| `role` | string | No | Filter by role: OWNER, MEMBER, VIEWER, DEVELOPER, BILLING. |
+| `since` | integer | No | Timestamp in ms to fetch members joined after this time. |
+| `team_id` | string | Yes | The team ID or slug. |
+
+## `vercel_team_update`
+
+Updates a Vercel team's name, slug, description, or other settings.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `description` | string | No | New description for the team. |
+| `name` | string | No | New display name for the team. |
+| `slug` | string | No | New URL-friendly slug for the team. |
+| `team_id` | string | Yes | The team ID or slug to update. |
+
+## `vercel_teams_list`
+
+Returns all teams the authenticated user belongs to, with pagination support.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `limit` | integer | No | Maximum number of teams to return. |
+| `since` | integer | No | Timestamp in milliseconds to fetch teams created after this time. |
+| `until` | integer | No | Timestamp in milliseconds to fetch teams created before this time. |
+
+## `vercel_user_get`
+
+Returns the authenticated user's profile including name, email, username, and account details.
+
+## `vercel_webhook_create`
+
+Creates a new webhook that sends event notifications to the specified URL for Vercel deployment and project events.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `events` | string | Yes | JSON array of event types to subscribe to, e.g. ["deployment.created","deployment.succeeded"]. |
+| `project_ids` | string | No | JSON array of project IDs to scope this webhook to. Omit for all projects. |
+| `team_id` | string | No | Team ID to create the webhook for. |
+| `url` | string | Yes | The HTTPS endpoint URL to receive webhook payloads. |
+
+## `vercel_webhook_delete`
+
+Permanently deletes a Vercel webhook.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `team_id` | string | No | Team ID if the webhook belongs to a team. |
+| `webhook_id` | string | Yes | The webhook ID to delete. |
+
+## `vercel_webhook_get`
+
+Returns details of a specific Vercel webhook by its ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `team_id` | string | No | Team ID if the webhook belongs to a team. |
+| `webhook_id` | string | Yes | The webhook ID. |
+
+## `vercel_webhooks_list`
+
+Returns all webhooks configured for the authenticated user or team.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `team_id` | string | No | Team ID to list webhooks for. |

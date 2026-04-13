@@ -261,6 +261,9 @@ export const redirects = {
   '/agent-actions/mcp/quickstart': '/agent-auth/mcp/quickstart/',
   '/agent-auth/mcp/quickstart': '/agent-auth/mcp/tool-access-via-mcp/',
 
+  // User verification
+  '/agent-actions/user-verification': '/agent-auth/user-verification/',
+
   // Tools pages
   '/agent-actions/tools/authorize': '/agent-auth/tools/authorize/',
   '/agent-actions/tools/custom-processors': '/agent-auth/tools/custom-processors/',
@@ -388,7 +391,6 @@ export const redirects = {
 
   // Code samples moved to /resources/code-samples/
   '/dev-kit/code-samples': '/resources/code-samples/',
-  '/dev-kit/code-samples/': '/resources/code-samples/',
   '/dev-kit/code-samples/full-stack-auth': '/resources/code-samples/full-stack-auth/',
   '/dev-kit/code-samples/agent-auth': '/resources/code-samples/agent-auth/',
   '/dev-kit/code-samples/mcp-auth': '/resources/code-samples/mcp-auth/',
@@ -415,7 +417,6 @@ export const redirects = {
 
   // Agent connectors redirects
   '/reference/agent-connectors': '/guides/integrations/agent-connectors/',
-  '/reference/agent-connectors/': '/guides/integrations/agent-connectors/',
   '/connectors': '/guides/integrations/agent-connectors/',
 
   // Other redirects

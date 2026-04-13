@@ -1,10 +1,7 @@
 ---
 title: Granola MCP
-description: Connect to Granola MCP to search meeting notes, inspect meeting details, and retrieve transcripts from Granola's official MCP server.
-tags: [agent-connectors, granola, mcp, meetings, notes, transcript, oauth, integration, tool]
+description: Connect to Granola MCP using OAuth 2.1 with MCP discovery and dynamic client registration.
 tableOfContents: true
-sidebar:
-  label: Granola MCP
 head:
   - tag: style
     content: |
@@ -16,49 +13,21 @@ head:
       }
 ---
 
-import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside } from '@astrojs/starlight/components'
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
 import { UsageGranolamcpSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
-  Connect to Granola MCP to search meeting notes, inspect detailed meeting metadata, and retrieve verbatim meeting transcripts from Granola's official MCP server.
+  Connect to Granola MCP using OAuth 2.1 with MCP discovery and dynamic client registration.
  </div>
  <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/granola.svg" width="64" height="64" alt="Granola MCP logo" />
+  <img src="https://cdn.scalekit.cloud/sk-connect/assets/provider-icons/granola.svg" width="64" height="64" alt="Granola MCP logo" />
  </div>
 </div>
 
-Supports authentication: <Badge text="OAuth 2.1" />
+Supports authentication: <Badge text="OAuth 2.0" />
 
-<details>
-<summary>What you can build with this connector</summary>
-
-| Use case | Tools involved |
-|---|---|
-| **Ask natural-language questions across meeting notes** | `granolamcp_query_granola_meetings` |
-| **List meetings for a date range** | `granolamcp_list_meetings` |
-| **Fetch full details for specific meetings** | `granolamcp_get_meetings` |
-| **Retrieve exact spoken wording from a meeting** | `granolamcp_get_meeting_transcript` |
-
-**Key concepts:**
-- **Official MCP server**: This connector uses Granola's hosted MCP endpoint at `https://mcp.granola.ai/mcp`.
-- **OAuth with browser sign-in**: Authentication uses Granola's OAuth flow with PKCE and dynamic client registration.
-- **Read-only access**: The available tools retrieve meeting notes, summaries, metadata, and transcripts. They do not create or modify meetings.
-- **Query first for open-ended questions**: Prefer `granolamcp_query_granola_meetings` when the user asks broad questions about meeting content or decisions.
-
-</details>
-
-## Set up the agent connector
-
-1. In your agent connector settings, choose **Granola MCP**.
-2. Start the connection flow and sign in to your Granola account in the browser.
-3. Approve access to Granola's official MCP server.
-4. Return to the app once the OAuth flow completes.
-
-<Aside type="note" title="Authentication details">
-  Granola MCP uses OAuth with PKCE and dynamic client registration against Granola's official MCP server. No API key or manual endpoint configuration is required for the standard connection flow.
-</Aside>
 
 ## Usage
 
@@ -69,6 +38,7 @@ Supports authentication: <Badge text="OAuth 2.1" />
 ## `granolamcp_get_meeting_transcript`
 
 Get the full transcript for a specific Granola meeting by ID. Returns only the verbatim transcript content, not summaries or notes.
+Use this when the user needs exact quotes, specific wording, or wants to review what was literally said in a meeting. For summarized content or action items, use query_granola_meetings or list_meetings/get_meetings instead.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -79,6 +49,7 @@ Get the full transcript for a specific Granola meeting by ID. Returns only the v
 ## `granolamcp_get_meetings`
 
 Get detailed meeting information for one or more Granola meetings by ID. Returns private notes, AI-generated summary, attendees, and metadata.
+Use this when you already have specific meeting IDs (e.g. from list_meetings results). For open-ended questions about meeting content, use query_granola_meetings instead.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -90,17 +61,48 @@ Get detailed meeting information for one or more Granola meetings by ID. Returns
 
 List the user's Granola meeting notes within a time range. Returns meeting titles and metadata.
 
+IMPORTANT: For short-term questions about recent meeting details, prefer using query_granola_meetings instead.
+
+When to use:
+
+- User asks to list their meetings
+- User asks about action items, decisions, or summaries from meetings over a longer or specific date range
+- User asks about content from their meeting transcripts
+- User references 'Granola notes' or 'meeting notes' or 'transcripts'
+
+When NOT to use:
+
+- User is asking about upcoming calendar events or scheduling
+- User wants to create/modify calendar invites
+
+Use get_meetings to retrieve detailed meeting content after identifying relevant meetings.
+
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `custom_end` | string | No | ISO date for custom range end. Required if `time_range` is `custom`. |
-| `custom_start` | string | No | ISO date for custom range start. Required if `time_range` is `custom`. |
+| `custom_end` | string | No | ISO date for custom range end (required if time_range is 'custom') |
+| `custom_start` | string | No | ISO date for custom range start (required if time_range is 'custom') |
 | `schema_version` | string | No | Optional schema version to use for tool execution |
-| `time_range` | string | No | Time range to query meetings from. One of `this_week`, `last_week`, `last_30_days`, or `custom`. Defaults to `last_30_days`. |
+| `time_range` | string | No | Time range to query meetings from |
 | `tool_version` | string | No | Optional tool version to use for tool execution |
 
 ## `granolamcp_query_granola_meetings`
 
 Query Granola about the user's meetings using natural language. Returns a tailored response with inline citations that reference source meeting notes.
+
+IMPORTANT: The response includes numbered citation links to specific Granola meeting notes. These citations MUST be preserved in your response to the user — they provide transparency and allow the user to verify information by clicking through to the original notes.
+
+When to use:
+
+- User asks about what was discussed, decided, or action-items from meetings
+- User asks about follow-ups, todos, or commitments from recent meetings
+- User references 'Granola notes' or 'meeting notes'
+
+When NOT to use:
+
+- User is asking about calendar scheduling or upcoming events
+- User explicitly asks for a specific meeting by ID (use get_meetings instead)
+
+Prioritize using query_granola_meetings over list_meetings/get_meetings for open-ended or natural language queries about meeting content.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |

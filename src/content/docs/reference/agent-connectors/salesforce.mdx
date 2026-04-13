@@ -139,6 +139,81 @@ Retrieve a list of accounts from Salesforce using a pre-built SOQL query. Return
 | --- | --- | --- | --- |
 | `limit` | number | Yes | Number of results to return per page |
 
+## `salesforce_chatter_comment_create`
+
+Add a comment to a Salesforce Chatter post (feed element).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `feed_element_id` | string | Yes | The ID of the Chatter post to comment on |
+| `text` | string | Yes | The text body of the comment |
+
+## `salesforce_chatter_comment_delete`
+
+Delete a comment from a Salesforce Chatter post.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `comment_id` | string | Yes | The ID of the Chatter comment to delete |
+
+## `salesforce_chatter_comments_list`
+
+List all comments on a Salesforce Chatter post (feed element).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `feed_element_id` | string | Yes | The ID of the Chatter post to list comments for |
+| `page` | string | No | Page token for retrieving the next page of results |
+| `page_size` | number | No | Number of comments to return per page (default: 25, max: 100) |
+
+## `salesforce_chatter_post_create`
+
+Create a new post (feed element) on a Salesforce Chatter feed. Use 'me' as subject_id to post to the current user's feed.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `is_rich_text` | boolean | No | If true, the text body will be treated as HTML rich text. Default is false (plain text). |
+| `message_segments` | `array<object>` | No | Advanced: provide raw Salesforce message segments array for full rich text control (bold, italic, links, mentions, etc.). When provided, overrides 'text' and 'is_rich_text'. Each segment must have a 'type' field (Text, MarkupBegin, MarkupEnd, Mention, Link). MarkupBegin/End use markupType: Bold, Italic, Underline, Paragraph, etc. |
+| `subject_id` | string | No | The ID of the subject (user, record, or group) to post to. Use 'me' for the current user's feed. |
+| `text` | string | Yes | The text body of the Chatter post |
+
+## `salesforce_chatter_post_delete`
+
+Delete a Salesforce Chatter post (feed element) by its ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `feed_element_id` | string | Yes | The ID of the Chatter post to delete |
+
+## `salesforce_chatter_post_get`
+
+Retrieve a specific Salesforce Chatter post (feed element) by its ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `feed_element_id` | string | Yes | The ID of the Chatter feed element (post) to retrieve. |
+
+## `salesforce_chatter_posts_search`
+
+Search Salesforce Chatter posts (feed elements) by keyword across all feeds.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page` | string | No | Page token for retrieving the next page of results |
+| `page_size` | number | No | Number of results to return per page (default: 25, max: 100) |
+| `q` | string | Yes | Search query string to find matching Chatter posts |
+
+## `salesforce_chatter_user_feed_list`
+
+Retrieve feed elements (posts) from a Salesforce user's Chatter news feed. Use 'me' as the user ID to get the current user's feed.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `page` | string | No | Page token for retrieving the next page of results. Use the value from the previous response's nextPageToken. |
+| `page_size` | number | No | Number of feed elements to return per page (default: 25, max: 100) |
+| `sort_param` | string | No | Sort order for feed elements. Options: LastModifiedDateDesc (default), CreatedDateDesc, MostRecentActivity |
+| `user_id` | string | Yes | The ID of the user whose Chatter feed to retrieve. Use 'me' for the current user. |
+
 ## `salesforce_composite`
 
 Execute multiple Salesforce REST API requests in a single call using the Composite API. Allows for efficient batch operations and related data retrieval.
@@ -184,7 +259,8 @@ Clone an existing dashboard in Salesforce. Creates a copy of the source dashboar
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `folderId` | string | No | Folder to place the cloned dashboard |
+| `folderId` | string | Yes | Folder to place the cloned dashboard |
+| `name` | string | No | Name for the cloned dashboard |
 | `source_dashboard_id` | string | Yes | ID of the dashboard to clone |
 
 ## `salesforce_dashboard_get`
@@ -208,12 +284,14 @@ Retrieve metadata for a Salesforce dashboard, including dashboard components, fi
 
 ## `salesforce_dashboard_update`
 
-Save dashboard filters (sticky filters) in Salesforce. Use GET dashboard first to find filter IDs.
+Update a Salesforce dashboard. Supports renaming, moving to a folder, and saving sticky filters. Use GET dashboard first to find filter IDs.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `dashboard_id` | string | Yes | ID of the dashboard to update |
 | `filters` | `array<unknown>` | No | Dashboard filters to save (array) |
+| `folderId` | string | No | Folder to move the dashboard to |
+| `name` | string | No | New name for the dashboard |
 
 ## `salesforce_global_describe`
 
@@ -294,6 +372,14 @@ Update an existing opportunity in Salesforce by opportunity ID. Allows updating 
 | `Type` | string | No | Opportunity type |
 | `opportunity_id` | string | Yes | ID of the opportunity to update |
 
+## `salesforce_query_next_page`
+
+Fetch the next page of results from a previous SOQL query. Use the nextRecordsUrl returned when a query response has done=false.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | Yes | The record cursor from a previous SOQL query response. Extract the cursor ID from the nextRecordsUrl (e.g. '01gxx0000002GJm-2000' from '/services/data/v66.0/query/01gxx0000002GJm-2000') |
+
 ## `salesforce_query_soql`
 
 Execute SOQL queries against Salesforce data. Supports complex queries with joins, filters, and aggregations.
@@ -318,7 +404,9 @@ Create a new report in Salesforce using the Analytics API. Minimal verified vers
 | `name` | string | Yes | Report name |
 | `reportBooleanFilter` | string | No | Filter logic |
 | `reportFilters` | string | No | Report filters (JSON array) |
-| `reportType` | string | Yes | Report type - object name (e.g., Account, Opportunity, Contact, Lead) |
+| `reportFormat` | string | No | Report format type. TABULAR (default, no groupings), SUMMARY (supports row groupings), or MATRIX (supports row and column groupings) |
+| `reportType` | string | Yes | The report type's API name from your Salesforce org (e.g. Opportunity, AccountList). Find valid values in Setup > Report Types |
+| `scope` | string | No | Report scope. organization (all records) or team (current user's team records) |
 
 ## `salesforce_report_delete`
 
@@ -352,7 +440,9 @@ Update an existing report in Salesforce by report ID. Minimal verified version w
 | `name` | string | No | Updated report name |
 | `reportBooleanFilter` | string | No | Filter logic |
 | `reportFilters` | string | No | Report filters (JSON array) |
+| `reportFormat` | string | No | Report format type. TABULAR (default, no groupings), SUMMARY (supports row groupings), or MATRIX (supports row and column groupings) |
 | `report_id` | string | Yes | ID of the report to update |
+| `scope` | string | No | Report scope. organization (all records) or team (current user's team records) |
 
 ## `salesforce_search_parameterized`
 
