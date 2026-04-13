@@ -42,7 +42,9 @@ Supports authentication: <Badge text="OAuth 2.0" />
 
 ## `calendly_activity_log_list`
 
-Returns a list of activity log entries for a Calendly organization. Requires Enterprise plan.
+Returns a list of activity log entries for a Calendly organization.
+
+<Aside type="caution">Requires **Calendly Enterprise plan**. This API returns a 403 error on Standard and Teams plans.</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -51,7 +53,7 @@ Returns a list of activity log entries for a Calendly organization. Requires Ent
 | `count` | integer | No | Number of results per page (max 100). |
 | `max_occurred_at` | string | No | Filter entries occurring before this time (ISO 8601). |
 | `min_occurred_at` | string | No | Filter entries occurring at or after this time (ISO 8601). |
-| `organization` | string | Yes | Organization URI, e.g. https://api.calendly.com/organizations/{uuid}. |
+| `organization` | string | Yes | Organization URI, e.g. `https://api.calendly.com/organizations/:uuid`. |
 | `page_token` | string | No | Token for fetching the next page of results. |
 | `sort` | string | No | Sort field and direction, e.g. occurred_at:asc or occurred_at:desc. |
 
@@ -134,7 +136,9 @@ This tool takes no input parameters.
 
 ## `calendly_data_compliance_events_delete`
 
-Deletes all Calendly event data within the specified time range for compliance purposes. This is a destructive operation.
+Deletes all Calendly event data within the specified time range for compliance purposes. This is a destructive, irreversible operation.
+
+<Aside type="caution">Requires **Calendly Enterprise plan**. This is a permanent deletion — deleted data cannot be recovered.</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -143,7 +147,9 @@ Deletes all Calendly event data within the specified time range for compliance p
 
 ## `calendly_data_compliance_invitees_delete`
 
-Deletes all Calendly invitee data for the specified email addresses for compliance purposes. This is a destructive operation.
+Deletes all Calendly invitee data for the specified email addresses for compliance purposes. This is a destructive, irreversible operation.
+
+<Aside type="caution">Requires **Calendly Enterprise plan**. This is a permanent deletion — deleted data cannot be recovered.</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -204,7 +210,7 @@ Returns available scheduling times for a specific event type within a given date
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `end_time` | string | Yes | End of the availability window in ISO 8601 format. |
-| `event_type` | string | Yes | Full URI of the event type, e.g. https://api.calendly.com/event_types/{uuid}. |
+| `event_type` | string | Yes | Full URI of the event type, e.g. `https://api.calendly.com/event_types/:uuid`. |
 | `start_time` | string | Yes | Start of the availability window in ISO 8601 format. |
 
 ## `calendly_event_type_create`
@@ -258,9 +264,9 @@ Returns a list of event types for a user or organization. Provide either user or
 | --- | --- | --- | --- |
 | `active` | boolean | No | If true, only return active event types. |
 | `count` | integer | No | Number of results to return per page (max 100). |
-| `organization` | string | No | Filter by organization URI, e.g. https://api.calendly.com/organizations/{uuid}. |
+| `organization` | string | No | Filter by organization URI, e.g. `https://api.calendly.com/organizations/:uuid`. |
 | `page_token` | string | No | Token for fetching the next page of results. |
-| `user` | string | No | Filter by user URI, e.g. https://api.calendly.com/users/{uuid}. |
+| `user` | string | No | Filter by user URI, e.g. `https://api.calendly.com/users/:uuid`. |
 
 ## `calendly_get_availability_schedule`
 
@@ -297,6 +303,8 @@ Get detailed information about a specific event type including name, duration, U
 
 Get details of a specific Calendly group by UUID. Returns group information including name, members, and associated organization.
 
+<Aside type="note">Groups are available on **Calendly Teams and Enterprise plans** only.</Aside>
+
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `uuid` | string | Yes | The UUID of the group to retrieve |
@@ -304,6 +312,8 @@ Get details of a specific Calendly group by UUID. Returns group information incl
 ## `calendly_get_group_relationship`
 
 Get details of a specific group relationship. Returns information about the relationship between a user and a group, identified by UUID.
+
+<Aside type="note">Groups are available on **Calendly Teams and Enterprise plans** only.</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -338,6 +348,8 @@ Get details of a specific organization membership by UUID. Returns the member's 
 
 Get details of a specific routing form including its questions and routing rules. Returns the full routing form configuration identified by UUID.
 
+<Aside type="note">Routing forms are available on **Calendly Teams and Enterprise plans** only.</Aside>
+
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `uuid` | string | Yes | The UUID of the routing form to retrieve |
@@ -345,6 +357,8 @@ Get details of a specific routing form including its questions and routing rules
 ## `calendly_get_routing_form_submission`
 
 Get details of a specific routing form submission including answers and routing result. Returns the full submission data identified by UUID.
+
+<Aside type="note">Routing forms are available on **Calendly Teams and Enterprise plans** only.</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -370,6 +384,8 @@ Get a specific user's profile by their UUID. Returns user details including name
 
 Returns a single Calendly group record by UUID.
 
+<Aside type="note">Groups are available on **Calendly Teams and Enterprise plans** only.</Aside>
+
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `uuid` | string | Yes | The UUID of the group to retrieve. |
@@ -378,6 +394,8 @@ Returns a single Calendly group record by UUID.
 
 Returns a single Calendly group relationship record by UUID.
 
+<Aside type="note">Groups are available on **Calendly Teams and Enterprise plans** only.</Aside>
+
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `uuid` | string | Yes | The UUID of the group relationship to retrieve. |
@@ -385,6 +403,8 @@ Returns a single Calendly group relationship record by UUID.
 ## `calendly_group_relationships_list`
 
 Returns a list of group relationships in the specified Calendly organization.
+
+<Aside type="note">Groups are available on **Calendly Teams and Enterprise plans** only.</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -395,6 +415,8 @@ Returns a list of group relationships in the specified Calendly organization.
 ## `calendly_groups_list`
 
 Returns a list of groups in the specified Calendly organization.
+
+<Aside type="note">Groups are available on **Calendly Teams and Enterprise plans** only.</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -429,7 +451,7 @@ Marks a specific invitee as a no-show for a scheduled Calendly event.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `invitee` | string | Yes | The full URI of the invitee, e.g. https://api.calendly.com/scheduled_events/{event_uuid}/invitees/{invitee_uuid}. |
+| `invitee` | string | Yes | The full URI of the invitee, e.g. `https://api.calendly.com/scheduled_events/:event_uuid/invitees/:invitee_uuid`. |
 
 ## `calendly_invitee_no_show_delete`
 
@@ -449,7 +471,9 @@ Returns a specific invitee no-show record by UUID.
 
 ## `calendly_list_activity_log_entries`
 
-List activity log entries for an organization with filtering by actor, action type, time range, and search term. NOTE: Requires Calendly Enterprise plan. Returns audit log events including login activity, resource creation, updates, and deletions.
+List activity log entries for an organization with filtering by actor, action type, time range, and search term. Returns audit log events including login activity, resource creation, updates, and deletions.
+
+<Aside type="caution">Requires **Calendly Enterprise plan**. This API returns a 403 error on Standard and Teams plans.</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -571,6 +595,8 @@ List organization memberships. IMPORTANT: Either 'organization' or 'user' parame
 
 List submissions for a specific routing form. Returns submission details including answers provided and routing results. Supports pagination and sorting.
 
+<Aside type="note">Routing forms are available on **Calendly Teams and Enterprise plans** only.</Aside>
+
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `count` | integer | No | Number of submissions to return per page |
@@ -581,6 +607,8 @@ List submissions for a specific routing form. Returns submission details includi
 ## `calendly_list_routing_forms`
 
 List all routing forms for an organization. Returns routing form details including questions, routing rules, and configuration. Supports pagination and sorting.
+
+<Aside type="note">Routing forms are available on **Calendly Teams and Enterprise plans** only.</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -638,7 +666,7 @@ Creates a one-off event type in Calendly with a specific date, host, and optiona
 | `description` | string | No | Optional description for the one-off event type. |
 | `duration` | integer | Yes | Duration of the event in minutes. |
 | `host` | string | Yes | The URI of the user who will host this event type, e.g. https://api.calendly.com/users/xxx. |
-| `location` | object | No | Optional location object, e.g. {"kind": "physical", "location": "123 Main St"}. |
+| `location` | object | No | Optional location object with `kind` (e.g. `physical`, `zoom`, `custom`) and location-specific fields. |
 | `name` | string | Yes | Name of the one-off event type. |
 
 ## `calendly_organization_get`
@@ -712,9 +740,9 @@ Returns a list of organization memberships. Filter by organization URI or user U
 | --- | --- | --- | --- |
 | `count` | integer | No | Number of results per page (max 100). |
 | `email` | string | No | Filter by member email address. |
-| `organization` | string | No | Filter by organization URI, e.g. https://api.calendly.com/organizations/{uuid}. |
+| `organization` | string | No | Filter by organization URI, e.g. `https://api.calendly.com/organizations/:uuid`. |
 | `page_token` | string | No | Token for fetching the next page of results. |
-| `user` | string | No | Filter by user URI, e.g. https://api.calendly.com/users/{uuid}. |
+| `user` | string | No | Filter by user URI, e.g. `https://api.calendly.com/users/:uuid`. |
 
 ## `calendly_outgoing_communications_list`
 
@@ -748,6 +776,8 @@ Revoke a pending organization invitation.
 
 Returns the details of a specific Calendly routing form by its UUID.
 
+<Aside type="note">Routing forms are available on **Calendly Teams and Enterprise plans** only.</Aside>
+
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `uuid` | string | Yes | The UUID of the routing form. |
@@ -755,6 +785,8 @@ Returns the details of a specific Calendly routing form by its UUID.
 ## `calendly_routing_form_submission_get`
 
 Returns the details of a specific routing form submission by its UUID.
+
+<Aside type="note">Routing forms are available on **Calendly Teams and Enterprise plans** only.</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -764,6 +796,8 @@ Returns the details of a specific routing form submission by its UUID.
 
 Returns a single routing form submission by UUID.
 
+<Aside type="note">Routing forms are available on **Calendly Teams and Enterprise plans** only.</Aside>
+
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `uuid` | string | Yes | The UUID of the routing form submission to retrieve. |
@@ -771,6 +805,8 @@ Returns a single routing form submission by UUID.
 ## `calendly_routing_form_submissions_list`
 
 Returns a list of all routing form submissions across the specified Calendly organization.
+
+<Aside type="note">Routing forms are available on **Calendly Teams and Enterprise plans** only.</Aside>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -782,10 +818,12 @@ Returns a list of all routing form submissions across the specified Calendly org
 
 Returns a list of routing forms for a Calendly organization.
 
+<Aside type="note">Routing forms are available on **Calendly Teams and Enterprise plans** only.</Aside>
+
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `count` | integer | No | Number of results per page (max 100). |
-| `organization` | string | Yes | Organization URI, e.g. https://api.calendly.com/organizations/{uuid}. |
+| `organization` | string | Yes | Organization URI, e.g. `https://api.calendly.com/organizations/:uuid`. |
 | `page_token` | string | No | Token for fetching the next page of results. |
 
 ## `calendly_sample_webhook_data_get`
@@ -825,11 +863,11 @@ Returns a list of scheduled events for a user or organization, with optional tim
 | `count` | integer | No | Number of results per page (max 100). |
 | `max_start_time` | string | No | Filter events starting before this time (ISO 8601). |
 | `min_start_time` | string | No | Filter events starting at or after this time (ISO 8601). |
-| `organization` | string | No | Filter by organization URI, e.g. https://api.calendly.com/organizations/{uuid}. |
+| `organization` | string | No | Filter by organization URI, e.g. `https://api.calendly.com/organizations/:uuid`. |
 | `page_token` | string | No | Token for fetching the next page of results. |
 | `sort` | string | No | Sort field and direction, e.g. start_time:asc or start_time:desc. |
 | `status` | string | No | Filter by event status: active or canceled. |
-| `user` | string | No | Filter by user URI, e.g. https://api.calendly.com/users/{uuid}. |
+| `user` | string | No | Filter by user URI, e.g. `https://api.calendly.com/users/:uuid`. |
 
 ## `calendly_scheduling_link_create`
 
@@ -940,7 +978,7 @@ Returns a list of webhook subscriptions for a user or organization.
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `count` | integer | No | Number of results per page (max 100). |
-| `organization` | string | No | Filter by organization URI, e.g. https://api.calendly.com/organizations/{uuid}. |
+| `organization` | string | No | Filter by organization URI, e.g. `https://api.calendly.com/organizations/:uuid`. |
 | `page_token` | string | No | Token for fetching the next page of results. |
 | `scope` | string | No | Filter by webhook scope: user or organization. |
-| `user` | string | No | Filter by user URI, e.g. https://api.calendly.com/users/{uuid}. |
+| `user` | string | No | Filter by user URI, e.g. `https://api.calendly.com/users/:uuid`. |
