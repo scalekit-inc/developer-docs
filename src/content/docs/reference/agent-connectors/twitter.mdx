@@ -1,7 +1,10 @@
 ---
-title: Twitter / X
-description: Connect to Twitter. Read and write Tweets, read users, manage follows, bookmarks, etc.
+title: Twitter (X)
+description: Connect to Twitter (X). Post tweets, manage timelines, handle DMs, follow users, like content, manage lists, and upload media on behalf of your users.
+tags: [agent-connectors, twitter, x, social-media, oauth, tweets, automation]
 tableOfContents: true
+sidebar:
+  label: Twitter (X)
 head:
   - tag: style
     content: |
@@ -13,783 +16,58 @@ head:
       }
 ---
 
-import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
-import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { Badge, Aside } from '@astrojs/starlight/components'
+import { SetupTwitterSection } from '@components/templates'
+import { UsageTwitterSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
  <div class="col-span-4">
-  Connect to Twitter. Read and write Tweets, read users, manage follows, bookmarks, etc.
+  Connect to Twitter (X). Post and manage tweets, read timelines, handle direct messages, manage followers, like and bookmark content, work with lists, upload media, and monitor Spaces — all on behalf of your users via OAuth 2.0 PKCE.
  </div>
  <div class="flex justify-center">
-  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/X.svg" width="64" height="64" alt="Twitter / X logo" />
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/twitter.svg" width="64" height="64" alt="Twitter (X) logo" />
  </div>
 </div>
 
-Supports authentication: <Badge text="Bearer Token" /> , <Badge text="OAuth 2.0" />
+Supports authentication: <Badge text="OAuth 2.0" />
 
+<details>
+<summary>What you can build with this connector</summary>
+
+| Use case | Tools involved |
+|---|---|
+| **Automated social publishing** | `twitter_post_create` → `twitter_post_lookup` (verify) |
+| **Audience growth agent** | `twitter_followers_get` → `twitter_user_follow` → `twitter_user_lookup` |
+| **Content monitoring** | `twitter_recent_search` → `twitter_post_lookup` → `twitter_post_like` |
+| **Thread composer** | `twitter_post_create` (with `reply.in_reply_to_tweet_id` chain) |
+| **DM outreach automation** | `twitter_followers_get` → `twitter_dm_send` |
+| **List curation agent** | `twitter_recent_search` → `twitter_list_create` → `twitter_list_member_add` |
+| **Engagement tracker** | `twitter_post_likers_get` + `twitter_post_retweeters_get` → aggregate stats |
+| **Content bookmarking** | `twitter_recent_search` → `twitter_bookmark_add` |
+| **Spaces discovery** | `twitter_spaces_search` → `twitter_space_get` → `twitter_space_posts_get` |
+| **Media-rich posting** | `twitter_media_upload` → `twitter_post_create` (with `media.media_ids`) |
+
+**Key concepts:**
+- **Tweet IDs**: All tweet operations use numeric string IDs (e.g., `"1234567890123456789"`). Fetch IDs from search or timeline results before updating or deleting.
+- **User fields**: By default, user objects return only `id`, `name`, and `username`. Use `user.fields` expansions to request `profile_image_url`, `description`, `public_metrics`, `verified`, and more.
+- **Tweet fields**: Request extra context with `tweet.fields`: `author_id`, `created_at`, `public_metrics`, `entities`, `referenced_tweets`.
+- **Pagination**: List endpoints return a `next_token` in `meta`. Pass it as `pagination_token` to retrieve the next page. Maximum results per page is 100 for most endpoints.
+- **Rate limits**: Twitter API v2 enforces per-endpoint rate limits. The free tier allows 1 500 tweet reads and 500 tweet writes per month. Monitor `x-rate-limit-remaining` response headers.
+- **OAuth scopes**: Each tool requires specific OAuth scopes. Ensure the connection was authorized with all required scopes before calling write operations.
+- **Media uploads**: Images under ~5 MB can use `twitter_media_upload`. For GIFs, videos, or larger files, use `twitter_media_upload_large` or the chunked flow (`twitter_media_upload_init` → `twitter_media_upload_append` → `twitter_media_upload_status_get`).
+- **Authenticated user ID**: Many endpoints require the authenticated user's own ID. Use `twitter_user_me` to retrieve it before calling those endpoints.
+
+</details>
+
+## Set up the agent connector
+
+<SetupTwitterSection />
+
+## Usage
+
+<UsageTwitterSection />
 
 ## Tool list
-
-## `twitter_activity_subscription_create`
-
-Creates a subscription for an X activity event. Use when you need to monitor specific user activities like profile updates, follows, or spaces events.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `event_types` | `array<string>` | Yes | List of event types to subscribe to, e.g. profile.updated, follows, spaces |
-| `user_id` | string | Yes | Twitter user ID to subscribe to activities for |
-
-## `twitter_blocked_users_get`
-
-Retrieves the authenticated user's block list. The id parameter must be the authenticated user's ID. Use Get Authenticated User action first to obtain your user ID.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Authenticated user's Twitter ID — must match the authenticated user |
-| `max_results` | integer | No | Max results per page (1-1000) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_bookmark_add`
-
-Adds a specified, existing, and accessible Tweet to a user's bookmarks. Success is indicated by the 'bookmarked' field in the response.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `tweet_id` | string | Yes | ID of the Tweet to bookmark |
-
-## `twitter_bookmark_remove`
-
-Removes a Tweet from the authenticated user's bookmarks. The Tweet must have been previously bookmarked by the user for the action to have an effect.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `tweet_id` | string | Yes | ID of the bookmarked tweet to remove |
-
-## `twitter_bookmarks_get`
-
-Retrieves Tweets bookmarked by the authenticated user. The provided User ID must match the authenticated user's ID.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-
-## `twitter_compliance_job_create`
-
-Creates a new compliance job to check the status of Tweet or user IDs. Upload IDs as a plain text file (one ID per line) to the upload_url received in the response.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `resumable` | boolean | No | Whether the job should be resumable |
-| `type` | string | Yes | Type of compliance job |
-
-## `twitter_compliance_job_get`
-
-Retrieves status, download/upload URLs, and other details for an existing Twitter compliance job specified by its unique ID.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Compliance job ID |
-
-## `twitter_compliance_jobs_list`
-
-Returns a list of recent compliance jobs, filtered by type (tweets or users) and optionally by status.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `status` | string | No | Filter by job status |
-| `type` | string | Yes | Type of compliance jobs to list |
-
-## `twitter_dm_conversation_events_get`
-
-Fetches Direct Message (DM) events for a one-on-one conversation with a specified participant ID, ordered chronologically newest to oldest. Does not support group DMs.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `dm_event_fields` | string | No | Comma-separated DM event fields |
-| `event_types` | string | No | Filter by event types |
-| `expansions` | string | No | Comma-separated expansions |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `participant_id` | string | Yes | User ID of the DM conversation participant |
-
-## `twitter_dm_conversation_retrieve`
-
-Retrieves Direct Message (DM) events for a specific conversation ID on Twitter. Useful for analyzing messages and participant activities.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `dm_conversation_id` | string | Yes | DM conversation ID |
-| `dm_event_fields` | string | No | Comma-separated DM event fields |
-| `expansions` | string | No | Comma-separated expansions |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-
-## `twitter_dm_conversation_send`
-
-Sends a message with optional text and/or media attachments (using pre-uploaded media_ids) to a specified Twitter Direct Message conversation.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `dm_conversation_id` | string | Yes | DM conversation ID to send the message to |
-| `media_id` | string | No | Pre-uploaded media ID to attach |
-| `text` | string | No | Message text |
-
-## `twitter_dm_delete`
-
-Permanently deletes a specific Twitter Direct Message (DM) event using its event_id, if the authenticated user sent it. This action is irreversible and does not delete entire conversations.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `event_id` | string | Yes | ID of the DM event to delete |
-| `participant_id` | string | Yes | User ID of the DM conversation participant |
-
-## `twitter_dm_event_get`
-
-Fetches a specific Direct Message (DM) event by its unique ID. Allows optional expansion of related data like users or tweets.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `dm_event_fields` | string | No | Comma-separated DM event fields |
-| `event_id` | string | Yes | DM event ID |
-| `expansions` | string | No | Comma-separated expansions |
-
-## `twitter_dm_events_get`
-
-Returns recent Direct Message events for the authenticated user, such as new messages or changes in conversation participants.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `dm_event_fields` | string | No | Comma-separated DM event fields |
-| `event_types` | string | No | Filter by event types |
-| `expansions` | string | No | Comma-separated expansions |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-
-## `twitter_dm_group_conversation_create`
-
-Creates a new group Direct Message (DM) conversation on Twitter. The conversation_type must be 'Group'. Include participant_ids and an initial message with text and optional media attachments using media_id (not media_url). Media must be uploaded first.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `message_media_ids` | `array<string>` | No | Media IDs to attach to initial message |
-| `message_text` | string | Yes | Initial message text |
-| `participant_ids` | `array<string>` | Yes | List of Twitter user IDs to include |
-
-## `twitter_dm_send`
-
-Sends a new Direct Message with text and/or media (media_id for attachments must be pre-uploaded) to a specified Twitter user. Creates a new DM and does not modify existing messages.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `media_id` | string | No | Pre-uploaded media ID to attach |
-| `participant_id` | string | Yes | Twitter user ID of the DM recipient |
-| `text` | string | No | Message text |
-
-## `twitter_followers_get`
-
-Retrieves a list of users who follow a specified public Twitter user ID.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter user ID to get followers for |
-| `max_results` | integer | No | Max results per page (1-1000) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_following_get`
-
-Retrieves users followed by a specific Twitter user, allowing pagination and customization of returned user and tweet data fields via expansions.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter user ID |
-| `max_results` | integer | No | Max results per page (1-1000) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_full_archive_search`
-
-Searches the full archive of public Tweets from March 2006 onwards. Use start_time and end_time together for a defined time window. Requires Academic Research access.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `end_time` | string | No | ISO 8601 end time |
-| `expansions` | string | No | Comma-separated expansions |
-| `max_results` | integer | No | Max results per page (10-500) |
-| `next_token` | string | No | Next page token |
-| `query` | string | Yes | Search query using X search syntax |
-| `since_id` | string | No | Minimum tweet ID |
-| `start_time` | string | No | ISO 8601 start time e.g. 2021-01-01T00:00:00Z |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-| `until_id` | string | No | Maximum tweet ID |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_full_archive_search_counts`
-
-Returns a count of Tweets from the full archive that match a specified query, aggregated by day, hour, or minute. start_time must be before end_time if both are provided. since_id/until_id cannot be used with start_time/end_time.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `end_time` | string | No | ISO 8601 end time |
-| `granularity` | string | No | Aggregation granularity |
-| `next_token` | string | No | Next page token |
-| `query` | string | Yes | Search query |
-| `since_id` | string | No | Minimum tweet ID |
-| `start_time` | string | No | ISO 8601 start time |
-| `until_id` | string | No | Maximum tweet ID |
-
-## `twitter_list_create`
-
-Creates a new, empty List on X (formerly Twitter). The provided name must be unique for the authenticated user. Accounts are added separately.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `description` | string | No | Description of the list |
-| `name` | string | Yes | Unique name for the new list |
-| `private` | boolean | No | Whether the list should be private |
-
-## `twitter_list_delete`
-
-Permanently deletes a specified Twitter List using its ID. The list must be owned by the authenticated user. This action is irreversible.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `list_id` | string | Yes | ID of the Twitter List to delete |
-
-## `twitter_list_follow`
-
-Allows the authenticated user to follow a specific Twitter List they are permitted to access, subscribing them to the list's timeline. This does not automatically follow individual list members.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `list_id` | string | Yes | ID of the list to follow |
-
-## `twitter_list_followers_get`
-
-Fetches a list of users who follow a specific Twitter List, identified by its ID. Ensure the authenticated user has access if the list is private.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter List ID |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_list_lookup`
-
-Returns metadata for a specific Twitter List, identified by its ID. Does not return list members. Can expand the owner's User object via the expansions parameter.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter List ID |
-| `list_fields` | string | No | Comma-separated list fields |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_list_member_add`
-
-Adds a user to a specified Twitter List. The list must be owned by the authenticated user.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `list_id` | string | Yes | ID of the Twitter List |
-| `user_id` | string | Yes | ID of the user to add |
-
-## `twitter_list_member_remove`
-
-Removes a user from a Twitter List. The response is_member field will be false if removal was successful or the user was not a member. The updated list of members is not returned.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Twitter List ID |
-| `user_id` | string | Yes | ID of the user to remove from the list |
-
-## `twitter_list_members_get`
-
-Fetches members of a specific Twitter List, identified by its unique ID.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter List ID |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_list_pin`
-
-Pins a specified List to the authenticated user's profile. The List must exist, the user must have access rights, and the pin limit (typically 5 Lists) must not be exceeded.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `list_id` | string | Yes | ID of the list to pin |
-
-## `twitter_list_timeline_get`
-
-Fetches the most recent Tweets posted by members of a specified Twitter List.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter List ID |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_list_unfollow`
-
-Enables a user to unfollow a specific Twitter List, which removes its tweets from their timeline and stops related notifications. Reports following: false on success, even if the user was not initially following the list.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `list_id` | string | Yes | ID of the list to unfollow |
-
-## `twitter_list_unpin`
-
-Unpins a List from the authenticated user's profile. The user ID is automatically retrieved if not provided.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `list_id` | string | Yes | ID of the list to unpin |
-
-## `twitter_list_update`
-
-Updates an existing Twitter List's name, description, or privacy status. Requires the List ID and at least one mutable property.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `description` | string | No | New description |
-| `id` | string | Yes | Twitter List ID to update |
-| `name` | string | No | New name for the list |
-| `private` | boolean | No | Set to true to make private, false for public |
-
-## `twitter_media_upload`
-
-Uploads media (images only) to X/Twitter using the v2 API. Only supports images (tweet_image, dm_image) and subtitle files. For GIFs, videos, or any file larger than ~5 MB, use twitter_media_upload_large instead.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `media` | string | Yes | Base64-encoded image data |
-| `media_category` | string | No | Media category for use context |
-| `media_type` | string | Yes | MIME type, e.g. image/jpeg or image/png |
-
-## `twitter_media_upload_append`
-
-Appends a data chunk to an ongoing media upload session on X/Twitter. Use during chunked media uploads to append each segment of media data in sequence.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `media_data` | string | Yes | Base64-encoded chunk data |
-| `media_id` | string | Yes | Media ID from the INIT step |
-| `segment_index` | integer | Yes | Zero-based index of the chunk segment |
-
-## `twitter_media_upload_base64`
-
-Uploads media to X/Twitter using base64-encoded data. Use when you have media content as a base64 string. Only supports images and subtitle files. For videos or GIFs, use twitter_media_upload_large.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `media_category` | string | No | Media category for use context |
-| `media_data` | string | Yes | Base64-encoded media data |
-| `media_type` | string | Yes | MIME type, e.g. image/jpeg |
-
-## `twitter_media_upload_init`
-
-Initializes a media upload session for X/Twitter. Returns a media_id for subsequent APPEND and FINALIZE commands. Required for uploading large files or when using the chunked upload workflow.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `additional_owners` | string | No | Comma-separated user IDs to also own the media |
-| `media_category` | string | No | Media category for use context |
-| `media_type` | string | Yes | MIME type, e.g. video/mp4 or image/gif |
-| `total_bytes` | integer | Yes | Total size of the media file in bytes |
-
-## `twitter_media_upload_large`
-
-Uploads media files to X/Twitter. Automatically uses chunked upload for GIFs, videos, and images larger than 5 MB. Use for videos, GIFs, or any file larger than 5 MB.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `additional_owners` | string | No | Comma-separated user IDs to also own the media |
-| `media_category` | string | No | Media category for use context |
-| `media_data` | string | Yes | Base64-encoded media file data |
-| `media_type` | string | Yes | MIME type, e.g. video/mp4 or image/gif |
-| `total_bytes` | integer | Yes | Total size of the file in bytes |
-
-## `twitter_media_upload_status_get`
-
-Gets the status of a media upload for X/Twitter. Use to check the processing status of uploaded media, especially for videos and GIFs. Only needed if the FINALIZE command returned processing_info.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `media_id` | string | Yes | Media ID from the upload INIT step |
-
-## `twitter_muted_users_get`
-
-Returns user objects muted by the X user identified by the id path parameter.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter user ID |
-| `max_results` | integer | No | Max results per page (1-1000) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_openapi_spec_get`
-
-Fetches the OpenAPI specification (JSON) for Twitter's API v2. Used to programmatically understand the API's structure for developing client libraries or tools.
-
-## `twitter_post_analytics_get`
-
-Retrieves analytics data for specified Posts within a defined time range. Returns engagement metrics, impressions, and other analytics. Requires OAuth 2.0 with tweet.read and users.read scopes.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `end_time` | string | Yes | ISO 8601 end time |
-| `start_time` | string | Yes | ISO 8601 start time |
-| `tweet_ids` | string | Yes | Comma-separated list of Tweet IDs |
-
-## `twitter_post_create`
-
-Creates a Tweet on Twitter. The `text` field is required unless card_uri, media_media_ids, poll_options, or quote_tweet_id is provided. Supports media, polls, geo, and reply targeting.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `geo_place_id` | string | No | Place ID for geo tag |
-| `media_media_ids` | `array<string>` | No | Media IDs to attach |
-| `poll_duration_minutes` | integer | No | Duration of poll in minutes |
-| `poll_options` | `array<string>` | No | Up to 4 poll options |
-| `quote_tweet_id` | string | No | ID of the tweet to quote |
-| `reply_in_reply_to_tweet_id` | string | No | ID of the tweet to reply to |
-| `text` | string | No | Text content of the tweet |
-
-## `twitter_post_delete`
-
-Irreversibly deletes a specific Tweet by its ID. The Tweet may persist in third-party caches after deletion.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | ID of the Tweet to delete |
-
-## `twitter_post_like`
-
-Allows the authenticated user to like a specific, accessible Tweet. The authenticated user's ID is automatically determined from the OAuth token — you only need to provide the tweet_id.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `tweet_id` | string | Yes | ID of the Tweet to like |
-
-## `twitter_post_likers_get`
-
-Retrieves users who have liked the Post (Tweet) identified by the provided ID.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Tweet ID |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_post_lookup`
-
-Fetches comprehensive details for a single Tweet by its unique ID, provided the Tweet exists and is accessible.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Tweet ID |
-| `media_fields` | string | No | Comma-separated media fields |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_post_quotes_get`
-
-Retrieves Tweets that quote a specified Tweet. Requires a valid Tweet ID.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Tweet ID |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-
-## `twitter_post_retweet`
-
-Retweets a Tweet for the authenticated user. The user ID is automatically fetched from the authenticated session — you only need to provide the tweet_id.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `tweet_id` | string | Yes | ID of the Tweet to retweet |
-
-## `twitter_post_retweeters_get`
-
-Retrieves users who publicly retweeted a specified public Post ID, excluding Quote Tweets and retweets from private accounts.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Tweet ID |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_post_retweets_get`
-
-Retrieves Tweets that Retweeted a specified public or authenticated-user-accessible Tweet ID. Optionally customize the response with fields and expansions.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Tweet ID |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-
-## `twitter_post_unlike`
-
-Allows an authenticated user to remove their like from a specific post. The action is idempotent and completes successfully even if the post was not liked.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `tweet_id` | string | Yes | ID of the Tweet to unlike |
-
-## `twitter_post_unretweet`
-
-Removes a user's retweet of a specified Post, if the user had previously retweeted it.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `source_tweet_id` | string | Yes | ID of the Tweet to unretweet |
-
-## `twitter_posts_lookup`
-
-Retrieves detailed information for one or more Posts (Tweets) identified by their unique IDs. Allows selection of specific fields and expansions.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `ids` | string | Yes | Comma-separated list of Tweet IDs (up to 100) |
-| `media_fields` | string | No | Comma-separated media fields |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_recent_search`
-
-Searches Tweets from the last 7 days matching a query using X's search syntax. Ideal for real-time analysis, trend monitoring, or retrieving posts from specific users (e.g., from:username). Note: impression_count returns 0 for other users' tweets — use retweet_count, like_count, or quote_count for engagement filtering instead.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `end_time` | string | No | ISO 8601 end time |
-| `expansions` | string | No | Comma-separated expansions |
-| `max_results` | integer | No | Max results per page (10-100) |
-| `media_fields` | string | No | Comma-separated media fields |
-| `next_token` | string | No | Next page token |
-| `query` | string | Yes | Search query using X search syntax, e.g. from:username -is:retweet |
-| `since_id` | string | No | Minimum tweet ID |
-| `start_time` | string | No | ISO 8601 start time |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-| `until_id` | string | No | Maximum tweet ID |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_recent_tweet_counts`
-
-Retrieves the count of Tweets matching a specified search query within the last 7 days, aggregated by 'minute', 'hour', or 'day'.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `end_time` | string | No | ISO 8601 end time |
-| `granularity` | string | No | Aggregation granularity |
-| `query` | string | Yes | Search query |
-| `since_id` | string | No | Minimum tweet ID |
-| `start_time` | string | No | ISO 8601 start time |
-| `until_id` | string | No | Maximum tweet ID |
-
-## `twitter_reply_visibility_set`
-
-Hides or unhides an existing reply Tweet. Allows the authenticated user to hide or unhide a reply to a conversation they own. You can only hide replies to posts you authored. Requires tweet.moderate.write OAuth scope.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `hidden` | boolean | Yes | true to hide, false to unhide |
-| `tweet_id` | string | Yes | ID of the reply tweet to hide or unhide |
-
-## `twitter_space_get`
-
-Retrieves details for a Twitter Space by its ID, allowing for customization and expansion of related data.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter Space ID |
-| `space_fields` | string | No | Comma-separated space fields |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_space_posts_get`
-
-Retrieves Tweets that were shared/posted during a Twitter Space broadcast. Returns Tweets that participants explicitly shared during the Space session, NOT audio transcripts. Most Spaces have zero associated Tweets — empty results are normal.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter Space ID |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-
-## `twitter_space_ticket_buyers_get`
-
-Retrieves a list of users who purchased tickets for a specific, valid, and ticketed Twitter Space.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter Space ID |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_spaces_by_creator_get`
-
-Retrieves Twitter Spaces created by a list of specified User IDs, with options to customize returned data fields.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `space_fields` | string | No | Comma-separated space fields |
-| `user_fields` | string | No | Comma-separated user fields |
-| `user_ids` | string | Yes | Comma-separated list of user IDs to get spaces for |
-
-## `twitter_spaces_get`
-
-Fetches detailed information for one or more Twitter Spaces (live, scheduled, or ended) by their unique IDs. At least one Space ID must be provided.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `ids` | string | Yes | Comma-separated list of Space IDs |
-| `space_fields` | string | No | Comma-separated space fields |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_spaces_search`
-
-Searches for Twitter Spaces by a textual query. Optionally filter by state (live, scheduled, all) to discover audio conversations.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `query` | string | Yes | Text to search for in Space titles |
-| `space_fields` | string | No | Comma-separated space fields |
-| `state` | string | No | Filter by space state |
-
-## `twitter_tweet_label_stream`
-
-Stream real-time Tweet label events (apply/remove). Requires Enterprise access and App-Only OAuth 2.0 auth. Returns PublicTweetNotice or PublicTweetUnviewable events. 403 errors indicate missing Enterprise access or wrong auth type.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `backfill_minutes` | integer | No | Minutes of backfill to stream on reconnect (0-5) |
-| `expansions` | string | No | Comma-separated expansions |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-
-## `twitter_tweet_usage_get`
-
-Fetches Tweet usage statistics for a Project (e.g., consumption, caps, daily breakdowns for Project and Client Apps) to monitor API limits. Data can be retrieved for 1 to 90 days.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `days` | integer | No | Number of days to retrieve usage data for, default 7 |
-| `usage_fields` | string | No | Comma-separated usage fields to include |
-
-## `twitter_user_follow`
-
-Allows an authenticated user to follow another user. Results in a pending request if the target user's tweets are protected.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `target_user_id` | string | Yes | ID of the user to follow |
-
-## `twitter_user_followed_lists_get`
-
-Returns metadata (not Tweets) for lists a specific Twitter user follows. Optionally includes expanded owner details.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter user ID |
-| `list_fields` | string | No | Comma-separated list fields |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_user_liked_tweets_get`
-
-Retrieves Tweets liked by a specified Twitter user, provided their liked tweets are public or accessible.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter user ID |
-| `max_results` | integer | No | Max results per page (5-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_user_list_memberships_get`
-
-Retrieves all Twitter Lists a specified user is a member of, including public Lists and private Lists the authenticated user is authorized to view.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter user ID |
-| `list_fields` | string | No | Comma-separated list fields |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_user_lookup`
-
-Retrieves detailed public information for a Twitter user by their ID. Optionally expand related data (e.g., pinned tweets) and specify particular user or tweet fields to return.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter user ID |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_user_lookup_by_username`
-
-Fetches public profile information for a valid and existing Twitter user by their username. Optionally expands related data like pinned Tweets. Results may be limited for protected profiles not followed by the authenticated user.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-| `user_fields` | string | No | Comma-separated user fields |
-| `username` | string | Yes | Twitter username without the @ symbol, e.g. elonmusk |
 
 ## `twitter_user_me`
 
@@ -797,93 +75,880 @@ Returns profile information for the currently authenticated X user. Use this to 
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-| `user_fields` | string | No | Comma-separated user fields to return, e.g. created_at,description,public_metrics |
+| `user.fields` | string | No | Comma-separated extra user fields: `created_at`, `description`, `entities`, `location`, `pinned_tweet_id`, `profile_image_url`, `protected`, `public_metrics`, `url`, `verified` |
+| `expansions` | string | No | Expand related objects. Use `pinned_tweet_id` to include the pinned tweet object. |
+| `tweet.fields` | string | No | Fields to return for expanded tweet objects. |
 
-## `twitter_user_mute`
+## `twitter_user_lookup`
 
-Mutes a target user on behalf of an authenticated user, preventing the target's Tweets and Retweets from appearing in the authenticated user's home timeline without notifying the target.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `target_user_id` | string | Yes | ID of the user to mute |
-
-## `twitter_user_owned_lists_get`
-
-Retrieves Lists created (owned) by a specific Twitter user, not Lists they follow or are subscribed to.
+Retrieves detailed public information for a Twitter user by their ID. Optionally expand related data (e.g., pinned tweets) and specify particular user or tweet fields to return.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter user ID |
-| `list_fields` | string | No | Comma-separated list fields |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `user_fields` | string | No | Comma-separated user fields |
+| `id` | string | Yes | Twitter user ID (e.g., `"783214"`). |
+| `user.fields` | string | No | Comma-separated extra user fields. |
+| `expansions` | string | No | Expand related objects (e.g., `pinned_tweet_id`). |
+| `tweet.fields` | string | No | Fields for expanded tweet objects. |
 
-## `twitter_user_pinned_lists_get`
+## `twitter_user_lookup_by_username`
 
-Retrieves the Lists a specific, existing Twitter user has pinned to their profile to highlight them.
+Fetches public profile information for a valid and existing Twitter user by their username. Results may be limited for protected profiles not followed by the authenticated user.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Twitter user ID |
-| `list_fields` | string | No | Comma-separated list fields |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_user_timeline_get`
-
-Retrieves the home timeline (reverse chronological feed) for the authenticated Twitter user. Returns tweets from accounts the user follows and the user's own tweets. CRITICAL: The id parameter MUST be the authenticated user's own numeric Twitter user ID. Use twitter_user_me to get your ID first. Cannot fetch another user's home timeline.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `exclude` | string | No | Comma-separated types to exclude: retweets,replies |
-| `expansions` | string | No | Comma-separated expansions |
-| `id` | string | Yes | Authenticated user's own numeric Twitter ID — must be your own ID |
-| `max_results` | integer | No | Max results per page (1-100) |
-| `pagination_token` | string | No | Pagination token for next page |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-| `user_fields` | string | No | Comma-separated user fields |
-
-## `twitter_user_unfollow`
-
-Allows the authenticated user to unfollow an existing Twitter user, which removes the follow relationship. The source user ID is automatically determined from the authenticated session.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `target_user_id` | string | Yes | ID of the user to unfollow |
-
-## `twitter_user_unmute`
-
-Unmutes a target user for the authenticated user, allowing them to see Tweets and notifications from the target user again. The source_user_id is automatically populated from the authenticated user's credentials.
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `id` | string | Yes | Authenticated user's Twitter ID |
-| `target_user_id` | string | Yes | ID of the user to unmute |
+| `username` | string | Yes | Twitter handle without the `@` prefix (e.g., `"twitter"`). |
+| `user.fields` | string | No | Comma-separated extra user fields. |
+| `expansions` | string | No | Expand related objects. |
+| `tweet.fields` | string | No | Fields for expanded tweet objects. |
 
 ## `twitter_users_lookup`
 
-Retrieves detailed information for specified X (formerly Twitter) user IDs. Optionally customize returned fields and expand related entities like pinned tweets.
+Retrieves detailed information for specified X user IDs. Optionally customize returned fields and expand related entities like pinned tweets.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `ids` | string | Yes | Comma-separated list of Twitter user IDs (up to 100) |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-| `user_fields` | string | No | Comma-separated user fields |
+| `ids` | string | Yes | Comma-separated list of user IDs (max 100). |
+| `user.fields` | string | No | Comma-separated extra user fields. |
+| `expansions` | string | No | Expand related objects. |
+| `tweet.fields` | string | No | Fields for expanded tweet objects. |
 
 ## `twitter_users_lookup_by_username`
 
-Retrieves detailed information for 1 to 100 Twitter users by their usernames (each 1-15 alphanumeric characters/underscores). Allows customizable user/tweet fields and expansion of related data like pinned tweets.
+Retrieves detailed information for 1 to 100 Twitter users by their usernames (each 1–15 alphanumeric characters or underscores). Allows customizable user/tweet fields and expansion of related data.
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `expansions` | string | No | Comma-separated expansions |
-| `tweet_fields` | string | No | Comma-separated tweet fields |
-| `user_fields` | string | No | Comma-separated user fields |
-| `usernames` | string | Yes | Comma-separated list of Twitter usernames without @ symbols (up to 100) |
+| `usernames` | string | Yes | Comma-separated list of Twitter usernames (max 100, without `@`). |
+| `user.fields` | string | No | Comma-separated extra user fields. |
+| `expansions` | string | No | Expand related objects. |
+| `tweet.fields` | string | No | Fields for expanded tweet objects. |
+
+## `twitter_post_lookup`
+
+Fetches comprehensive details for a single Tweet by its unique ID, provided the Tweet exists and is accessible.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The tweet ID to retrieve. |
+| `tweet.fields` | string | No | Comma-separated tweet fields: `author_id`, `created_at`, `entities`, `public_metrics`, `referenced_tweets`, `reply_settings`, `source` |
+| `expansions` | string | No | Expand related objects: `author_id`, `referenced_tweets.id`, `attachments.media_keys` |
+| `user.fields` | string | No | Fields for expanded author objects. |
+| `media.fields` | string | No | Fields for expanded media objects: `url`, `preview_image_url`, `alt_text` |
+
+## `twitter_posts_lookup`
+
+Retrieves detailed information for one or more Posts (Tweets) identified by their unique IDs. Allows selection of specific fields and expansions.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `ids` | string | Yes | Comma-separated list of tweet IDs (max 100). |
+| `tweet.fields` | string | No | Comma-separated tweet fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded user objects. |
+| `media.fields` | string | No | Fields for expanded media objects. |
+
+## `twitter_post_create`
+
+Creates a Tweet on Twitter. The `text` field is required unless `card_uri`, `media_media_ids`, `poll_options`, or `quote_tweet_id` is provided. Supports media, polls, geo, and reply targeting.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `text` | string | No* | The text content of the tweet. Maximum 280 characters. Required unless providing `card_uri`, `media.media_ids`, `poll.options`, or `quote_tweet_id`. |
+| `reply.in_reply_to_tweet_id` | string | No | Tweet ID to reply to. Creates a threaded reply. |
+| `quote_tweet_id` | string | No | Tweet ID to quote-tweet. |
+| `reply_settings` | string | No | Who can reply: `mentionedUsers`, `following`, or `subscribers`. Defaults to everyone. |
+| `media.media_ids` | `array<string>` | No | Media IDs from the Twitter media upload API to attach. |
+| `poll.options` | `array<string>` | No | Poll option labels (2–4 options). Must be paired with `poll.duration_minutes`. |
+| `poll.duration_minutes` | integer | No | Poll duration in minutes (5–10080). Required when `poll.options` is set. |
+| `card_uri` | string | No | Card URI for attaching a Twitter card. |
+
+*At least one of `text`, `card_uri`, `media.media_ids`, `poll.options`, or `quote_tweet_id` is required.
+
+## `twitter_post_delete`
+
+Irreversibly deletes a specific Tweet by its ID. The Tweet may persist in third-party caches after deletion.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The ID of the tweet to delete. |
+
+## `twitter_post_retweet`
+
+Retweets a Tweet for the authenticated user. The user ID is automatically fetched from the authenticated session — you only need to provide the `tweet_id`.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `tweet_id` | string | Yes | The ID of the tweet to retweet. |
+
+## `twitter_post_unretweet`
+
+Removes a user's retweet of a specified Post, if the user had previously retweeted it.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `tweet_id` | string | Yes | The ID of the tweet to un-retweet. |
+
+## `twitter_post_like`
+
+Allows the authenticated user to like a specific, accessible Tweet. The authenticated user's ID is automatically determined from the OAuth token — you only need to provide the `tweet_id`.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `tweet_id` | string | Yes | The ID of the tweet to like. |
+
+## `twitter_post_unlike`
+
+Allows an authenticated user to remove their like from a specific post. The action is idempotent and completes successfully even if the post was not liked.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `tweet_id` | string | Yes | The ID of the tweet to unlike. |
+
+## `twitter_post_likers_get`
+
+Retrieves users who have liked the Post (Tweet) identified by the provided ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The tweet ID whose liking users to retrieve. |
+| `max_results` | integer | No | Number of results (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `user.fields` | string | No | Extra user fields to include. |
+| `expansions` | string | No | Expand related objects. |
+
+## `twitter_post_retweeters_get`
+
+Retrieves users who publicly retweeted a specified public Post ID, excluding Quote Tweets and retweets from private accounts.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The tweet ID whose retweeters to retrieve. |
+| `max_results` | integer | No | Number of results (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `user.fields` | string | No | Extra user fields to include. |
+| `expansions` | string | No | Expand related objects. |
+
+## `twitter_post_retweets_get`
+
+Retrieves Tweets that Retweeted a specified public or authenticated-user-accessible Tweet ID. Optionally customize the response with fields and expansions.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The tweet ID whose retweets to retrieve. |
+| `max_results` | integer | No | Number of results (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `tweet.fields` | string | No | Tweet fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded user objects. |
+
+## `twitter_post_quotes_get`
+
+Retrieves Tweets that quote a specified Tweet. Requires a valid Tweet ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The tweet ID whose quote tweets to retrieve. |
+| `max_results` | integer | No | Number of results (1–100). Defaults to 10. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `tweet.fields` | string | No | Tweet fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded user objects. |
+
+## `twitter_post_analytics_get`
+
+Retrieves analytics data for specified Posts within a defined time range. Returns engagement metrics, impressions, and other analytics. Requires OAuth 2.0 with `tweet.read` and `users.read` scopes.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `tweet_ids` | `array<string>` | Yes | List of tweet IDs to retrieve analytics for. |
+| `start_time` | string | Yes | Start of the time range. ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`. |
+| `end_time` | string | Yes | End of the time range. ISO 8601 format. |
+
+## `twitter_recent_search`
+
+Searches Tweets from the last 7 days matching a query using X's search syntax. Ideal for real-time analysis, trend monitoring, or retrieving posts from specific users (e.g., `from:username`).
+
+<Aside type="note" title="Impression count limitation">
+`impression_count` returns 0 for other users' tweets. Use `retweet_count`, `like_count`, or `quote_count` for engagement filtering instead.
+</Aside>
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `query` | string | Yes | Search query using Twitter query syntax. Max 512 characters. Example: `"from:twitter -is:retweet"` |
+| `max_results` | integer | No | Number of results per page (10–100). Defaults to 10. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `start_time` | string | No | Oldest UTC timestamp. ISO 8601 format. |
+| `end_time` | string | No | Newest UTC timestamp. ISO 8601 format. |
+| `since_id` | string | No | Return tweets with IDs greater than this value (newer). |
+| `until_id` | string | No | Return tweets with IDs less than this value (older). |
+| `tweet.fields` | string | No | Comma-separated tweet fields to include. |
+| `expansions` | string | No | Expand related objects: `author_id`, `referenced_tweets.id` |
+| `user.fields` | string | No | Fields for expanded author objects. |
+
+## `twitter_recent_tweet_counts`
+
+Retrieves the count of Tweets matching a specified search query within the last 7 days, aggregated by `minute`, `hour`, or `day`.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `query` | string | Yes | Search query using Twitter query syntax. |
+| `granularity` | string | No | Time granularity for aggregation: `minute`, `hour`, or `day`. Defaults to `hour`. |
+| `start_time` | string | No | Oldest UTC timestamp. ISO 8601 format. |
+| `end_time` | string | No | Newest UTC timestamp. ISO 8601 format. |
+| `since_id` | string | No | Count tweets newer than this tweet ID. |
+| `until_id` | string | No | Count tweets older than this tweet ID. |
+
+## `twitter_full_archive_search`
+
+<Aside type="caution" title="Academic Research access required">
+This endpoint requires **Academic Research** or **Enterprise** access on your Twitter Developer account. It is not available on Free, Basic, or Pro plans.
+</Aside>
+
+Searches the full archive of public Tweets from March 2006 onwards. Use `start_time` and `end_time` together for a defined time window. Requires Academic Research access.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `query` | string | Yes | Search query using Twitter query syntax. Max 1024 characters. |
+| `max_results` | integer | No | Number of results per page (10–500). Defaults to 10. |
+| `next_token` | string | No | Token from a previous response to retrieve the next page. |
+| `start_time` | string | No | Oldest UTC timestamp. ISO 8601 format. Cannot be used with `since_id`. |
+| `end_time` | string | No | Newest UTC timestamp. ISO 8601 format. Cannot be used with `until_id`. |
+| `since_id` | string | No | Return tweets newer than this ID. Cannot be used with `start_time`. |
+| `until_id` | string | No | Return tweets older than this ID. Cannot be used with `end_time`. |
+| `tweet.fields` | string | No | Tweet fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded user objects. |
+
+## `twitter_full_archive_search_counts`
+
+<Aside type="caution" title="Academic Research access required">
+This endpoint requires **Academic Research** or **Enterprise** access on your Twitter Developer account. It is not available on Free, Basic, or Pro plans.
+</Aside>
+
+Returns a count of Tweets from the full archive that match a specified query, aggregated by day, hour, or minute. `start_time` must be before `end_time` if both are provided. `since_id`/`until_id` cannot be used with `start_time`/`end_time`.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `query` | string | Yes | Search query using Twitter query syntax. |
+| `granularity` | string | No | Time granularity: `minute`, `hour`, or `day`. Defaults to `hour`. |
+| `start_time` | string | No | Oldest UTC timestamp. ISO 8601 format. |
+| `end_time` | string | No | Newest UTC timestamp. ISO 8601 format. |
+| `since_id` | string | No | Count tweets newer than this ID. |
+| `until_id` | string | No | Count tweets older than this ID. |
+| `next_token` | string | No | Token for pagination. |
+
+## `twitter_user_timeline_get`
+
+Retrieves the home timeline (reverse chronological feed) for the authenticated Twitter user. Returns tweets from accounts the user follows and the user's own tweets.
+
+<Aside type="caution" title="Use authenticated user's ID">
+The `id` parameter **must** be the authenticated user's own numeric Twitter user ID. Use `twitter_user_me` to get your ID first. This endpoint cannot fetch another user's home timeline.
+</Aside>
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The authenticated user's own Twitter user ID. |
+| `max_results` | integer | No | Number of tweets to return (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `since_id` | string | No | Return tweets newer than this tweet ID. Use for incremental polling. |
+| `until_id` | string | No | Return tweets older than this tweet ID. |
+| `start_time` | string | No | Oldest tweet creation time. ISO 8601 format. |
+| `end_time` | string | No | Newest tweet creation time. ISO 8601 format. |
+| `exclude` | string | No | Comma-separated types to exclude: `retweets`, `replies`. |
+| `tweet.fields` | string | No | Tweet fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded user objects. |
+| `media.fields` | string | No | Fields for expanded media objects. |
+
+## `twitter_user_liked_tweets_get`
+
+Retrieves Tweets liked by a specified Twitter user, provided their liked tweets are public or accessible. Requires `like.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Twitter user ID whose liked tweets to retrieve. |
+| `max_results` | integer | No | Number of results (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `tweet.fields` | string | No | Tweet fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded user objects. |
+
+## `twitter_followers_get`
+
+Retrieves a list of users who follow a specified public Twitter user ID. Requires `follows.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Twitter user ID whose followers to retrieve. |
+| `max_results` | integer | No | Number of results (1–1000). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `user.fields` | string | No | Extra user fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `tweet.fields` | string | No | Fields for expanded pinned tweet objects. |
+
+## `twitter_following_get`
+
+Retrieves users followed by a specific Twitter user. Allows pagination and customization of returned user and tweet data fields via expansions. Requires `follows.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Twitter user ID whose following list to retrieve. |
+| `max_results` | integer | No | Number of results (1–1000). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `user.fields` | string | No | Extra user fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `tweet.fields` | string | No | Fields for expanded pinned tweet objects. |
+
+## `twitter_user_follow`
+
+Allows an authenticated user to follow another user. Results in a pending request if the target user's tweets are protected. Requires `follows.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `target_user_id` | string | Yes | The Twitter user ID of the account to follow. |
+
+## `twitter_user_unfollow`
+
+Allows the authenticated user to unfollow an existing Twitter user, removing the follow relationship. The source user ID is automatically determined from the authenticated session. Requires `follows.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `target_user_id` | string | Yes | The Twitter user ID of the account to unfollow. |
+
+## `twitter_bookmark_add`
+
+Adds a specified, existing, and accessible Tweet to a user's bookmarks. Success is indicated by the `bookmarked` field in the response. Requires `bookmark.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `tweet_id` | string | Yes | The ID of the tweet to bookmark. |
+
+## `twitter_bookmark_remove`
+
+Removes a Tweet from the authenticated user's bookmarks. The Tweet must have been previously bookmarked by the user for the action to have an effect. Requires `bookmark.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `tweet_id` | string | Yes | The ID of the tweet to remove from bookmarks. |
+
+## `twitter_bookmarks_get`
+
+Retrieves Tweets bookmarked by the authenticated user. The provided User ID must match the authenticated user's ID. Requires `bookmark.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The authenticated user's own Twitter user ID. |
+| `max_results` | integer | No | Number of results (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `tweet.fields` | string | No | Tweet fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded user objects. |
+
+## `twitter_list_create`
+
+Creates a new, empty List on X (formerly Twitter). The provided name must be unique for the authenticated user. Accounts are added separately. Requires `list.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | Yes | The name for the new list. |
+| `description` | string | No | A brief description of the list. |
+| `private` | boolean | No | Set to `true` to make the list private. Defaults to `false` (public). |
+
+## `twitter_list_update`
+
+Updates an existing Twitter List's name, description, or privacy status. Requires the List ID and at least one mutable property. Requires `list.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The list ID to update. |
+| `name` | string | No | New name for the list. |
+| `description` | string | No | New description for the list. |
+| `private` | boolean | No | Update the privacy setting of the list. |
+
+## `twitter_list_delete`
+
+Permanently deletes a specified Twitter List using its ID. The list must be owned by the authenticated user. This action is irreversible. Requires `list.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The list ID to delete. |
+
+## `twitter_list_lookup`
+
+Returns metadata for a specific Twitter List, identified by its ID. Does not return list members. Can expand the owner's User object via the `expansions` parameter. Requires `list.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The list ID to retrieve. |
+| `list.fields` | string | No | Extra list fields: `created_at`, `follower_count`, `member_count`, `owner_id`, `private` |
+| `expansions` | string | No | Expand related objects (e.g., `owner_id`). |
+| `user.fields` | string | No | Fields for expanded owner user objects. |
+
+## `twitter_list_timeline_get`
+
+Fetches the most recent Tweets posted by members of a specified Twitter List. Requires `list.read` and `tweet.read` scopes.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The list ID whose timeline to retrieve. |
+| `max_results` | integer | No | Number of tweets to return (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `tweet.fields` | string | No | Tweet fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded author objects. |
+| `media.fields` | string | No | Fields for expanded media objects. |
+
+## `twitter_list_members_get`
+
+Fetches members of a specific Twitter List, identified by its unique ID. Requires `list.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The list ID whose members to retrieve. |
+| `max_results` | integer | No | Number of results (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `user.fields` | string | No | Extra user fields to include. |
+| `expansions` | string | No | Expand related objects. |
+
+## `twitter_list_member_add`
+
+Adds a user to a specified Twitter List. The list must be owned by the authenticated user. Requires `list.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The list ID to add the member to. |
+| `user_id` | string | Yes | The Twitter user ID to add as a member. |
+
+## `twitter_list_member_remove`
+
+Removes a user from a Twitter List. The response `is_member` field will be `false` if removal was successful or the user was not a member. Requires `list.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The list ID to remove the member from. |
+| `user_id` | string | Yes | The Twitter user ID to remove from the list. |
+
+## `twitter_list_follow`
+
+Allows the authenticated user to follow a specific Twitter List they are permitted to access, subscribing them to the list's timeline. This does not automatically follow individual list members. Requires `list.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The list ID to follow. |
+
+## `twitter_list_unfollow`
+
+Enables a user to unfollow a specific Twitter List, removing its tweets from their timeline and stopping related notifications. Reports `following: false` on success, even if the user was not initially following the list. Requires `list.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The list ID to unfollow. |
+
+## `twitter_list_pin`
+
+Pins a specified List to the authenticated user's profile. The List must exist, the user must have access rights, and the pin limit (typically 5 Lists) must not be exceeded. Requires `list.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The list ID to pin. |
+
+## `twitter_list_unpin`
+
+Unpins a List from the authenticated user's profile. The user ID is automatically retrieved if not provided. Requires `list.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `list_id` | string | Yes | The list ID to unpin. |
+
+## `twitter_list_followers_get`
+
+Fetches a list of users who follow a specific Twitter List, identified by its ID. Ensure the authenticated user has access if the list is private. Requires `list.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The list ID whose followers to retrieve. |
+| `max_results` | integer | No | Number of results (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `user.fields` | string | No | Extra user fields to include. |
+| `expansions` | string | No | Expand related objects. |
+
+## `twitter_user_owned_lists_get`
+
+Retrieves Lists created (owned) by a specific Twitter user — not Lists they follow or are subscribed to. Requires `list.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Twitter user ID whose owned lists to retrieve. |
+| `max_results` | integer | No | Number of results (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `list.fields` | string | No | Extra list fields to include. |
+| `expansions` | string | No | Expand related objects (e.g., `owner_id`). |
+| `user.fields` | string | No | Fields for expanded owner user objects. |
+
+## `twitter_user_followed_lists_get`
+
+Returns metadata (not Tweets) for lists a specific Twitter user follows. Optionally includes expanded owner details. Requires `list.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Twitter user ID whose followed lists to retrieve. |
+| `max_results` | integer | No | Number of results (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `list.fields` | string | No | Extra list fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded owner user objects. |
+
+## `twitter_user_list_memberships_get`
+
+Retrieves all Twitter Lists a specified user is a member of, including public Lists and private Lists the authenticated user is authorized to view. Requires `list.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Twitter user ID whose list memberships to retrieve. |
+| `max_results` | integer | No | Number of results (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `list.fields` | string | No | Extra list fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded user objects. |
+
+## `twitter_user_pinned_lists_get`
+
+Retrieves the Lists a specific, existing Twitter user has pinned to their profile to highlight them. Requires `list.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Twitter user ID whose pinned lists to retrieve. |
+| `list.fields` | string | No | Extra list fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded owner user objects. |
+
+## `twitter_dm_send`
+
+Sends a new Direct Message with text and/or media to a specified Twitter user. Creates a new DM and does not modify existing messages. Media must be pre-uploaded using a media upload tool. Requires `dm.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `participant_id` | string | Yes | The Twitter user ID of the DM recipient. |
+| `text` | string | No* | The text content of the direct message. |
+| `media_id` | string | No* | Media ID from a prior upload to attach to the message. |
+
+*At least one of `text` or `media_id` is required.
+
+## `twitter_dm_conversation_send`
+
+Sends a message with optional text and/or media attachments to a specified Twitter Direct Message conversation. Requires `dm.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `dm_conversation_id` | string | Yes | The DM conversation ID to send the message to. |
+| `text` | string | No* | The text content of the message. |
+| `media_id` | string | No* | Media ID from a prior upload to attach. |
+
+*At least one of `text` or `media_id` is required.
+
+## `twitter_dm_events_get`
+
+Returns recent Direct Message events for the authenticated user, such as new messages or changes in conversation participants. Requires `dm.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `max_results` | integer | No | Number of events to return (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `dm_event.fields` | string | No | Extra DM event fields: `created_at`, `sender_id`, `text`, `attachments` |
+| `expansions` | string | No | Expand related objects: `sender_id`, `attachments.media_keys` |
+| `user.fields` | string | No | Fields for expanded participant objects. |
+| `media.fields` | string | No | Fields for expanded media objects. |
+
+## `twitter_dm_conversation_events_get`
+
+Fetches Direct Message (DM) events for a one-on-one conversation with a specified participant ID, ordered chronologically newest to oldest. Does not support group DMs. Requires `dm.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `participant_id` | string | Yes | The Twitter user ID of the conversation participant. |
+| `max_results` | integer | No | Number of events to return (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `dm_event.fields` | string | No | Extra DM event fields to include. |
+| `expansions` | string | No | Expand related objects. |
+
+## `twitter_dm_conversation_retrieve`
+
+Retrieves Direct Message (DM) events for a specific conversation ID. Useful for analyzing messages and participant activities. Requires `dm.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `dm_conversation_id` | string | Yes | The DM conversation ID to retrieve. |
+| `max_results` | integer | No | Number of events to return (1–100). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `dm_event.fields` | string | No | Extra DM event fields to include. |
+| `expansions` | string | No | Expand related objects. |
+
+## `twitter_dm_event_get`
+
+Fetches a specific Direct Message (DM) event by its unique ID. Allows optional expansion of related data like users or tweets. Requires `dm.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `event_id` | string | Yes | The unique DM event ID to retrieve. |
+| `dm_event.fields` | string | No | Extra DM event fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded user objects. |
+| `media.fields` | string | No | Fields for expanded media objects. |
+
+## `twitter_dm_delete`
+
+Permanently deletes a specific Twitter Direct Message (DM) event using its `event_id`, if the authenticated user sent it. This action is irreversible and does not delete entire conversations. Requires `dm.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `event_id` | string | Yes | The unique DM event ID to delete. |
+
+## `twitter_dm_group_conversation_create`
+
+Creates a new group Direct Message (DM) conversation on Twitter. The `conversation_type` must be `Group`. Include `participant_ids` and an initial message with text and optional media attachments using `media_id` (not `media_url`). Media must be uploaded first. Requires `dm.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `participant_ids` | `array<string>` | Yes | List of Twitter user IDs to include in the group DM (max 49 participants plus yourself). |
+| `text` | string | No* | The initial message text for the group conversation. |
+| `media_id` | string | No* | Media ID from a prior upload to attach to the initial message. |
+
+*At least one of `text` or `media_id` is required.
+
+## `twitter_user_mute`
+
+Mutes a target user on behalf of an authenticated user, preventing the target's Tweets and Retweets from appearing in the authenticated user's home timeline without notifying the target. Requires `mute.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `target_user_id` | string | Yes | The Twitter user ID to mute. |
+
+## `twitter_user_unmute`
+
+Unmutes a target user for the authenticated user, allowing them to see Tweets and notifications from the target user again. The `source_user_id` is automatically populated from the authenticated user's credentials. Requires `mute.write` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `target_user_id` | string | Yes | The Twitter user ID to unmute. |
+
+## `twitter_muted_users_get`
+
+Returns user objects muted by the X user identified by the `id` path parameter. Requires `mute.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The authenticated user's own Twitter user ID. |
+| `max_results` | integer | No | Number of results (1–1000). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `user.fields` | string | No | Extra user fields to include. |
+| `expansions` | string | No | Expand related objects. |
+
+## `twitter_blocked_users_get`
+
+Retrieves the authenticated user's block list. The `id` parameter must be the authenticated user's ID. Use `twitter_user_me` to obtain your user ID. Requires `block.read` scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The authenticated user's own Twitter user ID. |
+| `max_results` | integer | No | Number of results (1–1000). Defaults to 100. |
+| `pagination_token` | string | No | Token from a previous response to retrieve the next page. |
+| `user.fields` | string | No | Extra user fields to include. |
+| `expansions` | string | No | Expand related objects. |
+
+## `twitter_reply_visibility_set`
+
+Hides or unhides an existing reply Tweet. Allows the authenticated user to hide or unhide a reply to a conversation they own. You can only hide replies to posts you authored. Requires `tweet.moderate.write` OAuth scope.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `tweet_id` | string | Yes | The ID of the reply tweet to hide or unhide. |
+| `hidden` | boolean | Yes | Set to `true` to hide the reply, `false` to unhide it. |
+
+## `twitter_media_upload`
+
+Uploads media (images only) to X/Twitter using the v2 API. Only supports images (`tweet_image`, `dm_image`) and subtitle files. For GIFs, videos, or any file larger than ~5 MB, use `twitter_media_upload_large` instead.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `media` | string | Yes | The media file content as a binary string or URL. |
+| `media_type` | string | Yes | MIME type of the media (e.g., `image/jpeg`, `image/png`). |
+| `media_category` | string | No | Category for the media: `tweet_image` or `dm_image`. |
+| `alt_text` | string | No | Accessibility description for the image. |
+
+## `twitter_media_upload_base64`
+
+Uploads media to X/Twitter using base64-encoded data. Use when you have media content as a base64 string. Only supports images and subtitle files. For videos or GIFs, use `twitter_media_upload_large`.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `media_data` | string | Yes | Base64-encoded media content. |
+| `media_type` | string | Yes | MIME type of the media (e.g., `image/jpeg`). |
+| `media_category` | string | No | Category for the media: `tweet_image` or `dm_image`. |
+| `alt_text` | string | No | Accessibility description for the image. |
+
+## `twitter_media_upload_large`
+
+Uploads media files to X/Twitter using the v2 media upload API. Supports images, GIFs, and videos via base64-encoded data. For very large files requiring chunked upload, use `twitter_media_upload_init` → `twitter_media_upload_append` → `twitter_media_upload_status_get`.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `media_data` | string | Yes | Base64-encoded media content. |
+| `media_type` | string | Yes | MIME type of the media (e.g., `video/mp4`, `image/gif`). |
+| `media_category` | string | Yes | Category: `tweet_gif`, `tweet_video`, `amplify_video`, `dm_gif`, `dm_video`, `tweet_image`, or `dm_image`. |
+| `alt_text` | string | No | Accessibility description for the image. |
+
+## `twitter_media_upload_init`
+
+Initializes a media upload session for X/Twitter. Returns a `media_id` for subsequent APPEND and FINALIZE commands. Required for uploading large files or when using the chunked upload workflow.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `total_bytes` | integer | Yes | Total size of the media file in bytes. |
+| `media_type` | string | Yes | MIME type of the media to upload. |
+| `media_category` | string | No | Category for the media. Determines allowed media types. |
+
+## `twitter_media_upload_append`
+
+Appends a data chunk to an ongoing media upload session on X/Twitter. Use during chunked media uploads to append each segment of media data in sequence.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `media_id` | string | Yes | The `media_id` returned by `twitter_media_upload_init`. |
+| `media_data` | string | Yes | Base64-encoded chunk of the media data. |
+| `segment_index` | integer | Yes | Zero-based index of this chunk in the upload sequence. |
+
+## `twitter_media_upload_status_get`
+
+Gets the status of a media upload for X/Twitter. Use to check the processing status of uploaded media, especially for videos and GIFs. Only needed if the FINALIZE command returned `processing_info`.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `media_id` | string | Yes | The `media_id` to check processing status for. |
+
+## `twitter_space_get`
+
+Retrieves details for a Twitter Space by its ID, allowing for customization and expansion of related data.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The Space ID to retrieve. |
+| `space.fields` | string | No | Extra space fields: `created_at`, `creator_id`, `ended_at`, `host_ids`, `lang`, `participant_count`, `scheduled_start`, `speaker_ids`, `started_at`, `state`, `subscriber_count`, `title`, `topic_ids` |
+| `expansions` | string | No | Expand related objects (e.g., `creator_id`, `host_ids`). |
+| `user.fields` | string | No | Fields for expanded user objects. |
+
+## `twitter_spaces_get`
+
+Fetches detailed information for one or more Twitter Spaces (live, scheduled, or ended) by their unique IDs. At least one Space ID must be provided.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `ids` | string | Yes | Comma-separated list of Space IDs (max 100). |
+| `space.fields` | string | No | Extra space fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded user objects. |
+
+## `twitter_spaces_search`
+
+Searches for Twitter Spaces by a textual query. Optionally filter by state (live, scheduled, all) to discover audio conversations.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `query` | string | Yes | Text query to search for Spaces. |
+| `state` | string | No | Filter by state: `live`, `scheduled`, or `all`. Defaults to `live`. |
+| `max_results` | integer | No | Number of results (1–100). Defaults to 100. |
+| `space.fields` | string | No | Extra space fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded user objects. |
+
+## `twitter_spaces_by_creator_get`
+
+Retrieves Twitter Spaces created by a list of specified User IDs, with options to customize returned data fields.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `user_ids` | string | Yes | Comma-separated list of user IDs whose Spaces to retrieve (max 100). |
+| `space.fields` | string | No | Extra space fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded user objects. |
+
+## `twitter_space_posts_get`
+
+Retrieves Tweets that were shared/posted during a Twitter Space broadcast. Returns Tweets that participants explicitly shared during the Space session, **not** audio transcripts. Most Spaces have zero associated Tweets — empty results are normal.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The Space ID whose associated tweets to retrieve. |
+| `max_results` | integer | No | Number of results (1–100). Defaults to 100. |
+| `tweet.fields` | string | No | Tweet fields to include. |
+| `expansions` | string | No | Expand related objects. |
+| `user.fields` | string | No | Fields for expanded user objects. |
+
+## `twitter_space_ticket_buyers_get`
+
+Retrieves a list of users who purchased tickets for a specific, valid, and ticketed Twitter Space.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The Space ID whose ticket buyers to retrieve. |
+| `user.fields` | string | No | Extra user fields to include. |
+| `expansions` | string | No | Expand related objects. |
+
+## `twitter_tweet_usage_get`
+
+Fetches Tweet usage statistics for a Project (e.g., consumption, caps, daily breakdowns for Project and Client Apps) to monitor API limits. Data can be retrieved for 1 to 90 days.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `days` | integer | No | Number of days of usage data to retrieve (1–90). Defaults to 7. |
+
+## `twitter_tweet_label_stream`
+
+Stream real-time Tweet label events (apply/remove). Requires Enterprise access and App-Only OAuth 2.0 auth. Returns `PublicTweetNotice` or `PublicTweetUnviewable` events.
+
+<Aside type="caution" title="Enterprise access required">
+This endpoint requires Enterprise access. A 403 error indicates missing Enterprise access or incorrect auth type — App-Only OAuth 2.0 is required, not user-context OAuth.
+</Aside>
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `backfill_minutes` | integer | No | Number of minutes of backfill data to receive on reconnect (0–5). |
+
+## `twitter_compliance_job_create`
+
+Creates a new compliance job to check the status of Tweet or user IDs. Upload IDs as a plain text file (one ID per line) to the `upload_url` received in the response.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `type` | string | Yes | Type of compliance job: `tweets` or `users`. |
+| `name` | string | No | Descriptive label for the job. |
+| `resumable` | boolean | No | Whether the upload supports resumable uploads. |
+
+## `twitter_compliance_job_get`
+
+Retrieves status, download/upload URLs, and other details for an existing Twitter compliance job specified by its unique ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | The compliance job ID to retrieve. |
+
+## `twitter_compliance_jobs_list`
+
+Returns a list of recent compliance jobs, filtered by type (`tweets` or `users`) and optionally by status.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `type` | string | Yes | Type of compliance jobs to retrieve: `tweets` or `users`. |
+| `status` | string | No | Filter by job status: `created`, `in_progress`, `failed`, `complete`. |
+
+## `twitter_activity_subscription_create`
+
+Creates a subscription for an X activity event. Use when you need to monitor specific user activities like profile updates, follows, or Spaces events.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `event_type` | string | Yes | The activity event type to subscribe to. |
+| `user_id` | string | No | The Twitter user ID to monitor for activity events. |
+
+## `twitter_openapi_spec_get`
+
+Fetches the OpenAPI specification (JSON) for Twitter's API v2. Used to programmatically understand the API's structure for developing client libraries or tools. Takes no parameters.
