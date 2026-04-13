@@ -79,10 +79,7 @@ export { default as UsageGooglemeetSection } from './_usage-googlemeet.mdx'
 export { default as UsageGooglesheetsSection } from './_usage-googlesheets.mdx'
 export { default as UsageGoogleslidesSection } from './_usage-googleslides.mdx'
 export { default as UsageGranolamcpSection } from './_usage-granolamcp.mdx'
-<<<<<<< preview/twitter-connector
-=======
 export { default as UsageParallelaitaskmcpSection } from './_usage-parallelaitaskmcp.mdx'
->>>>>>> main
 export { default as UsageHarvestapiSection } from './_usage-harvestapi.mdx'
 export { default as UsageHubspotSection } from './_usage-hubspot.mdx'
 export { default as UsageIntercomSection } from './_usage-intercom.mdx'
@@ -103,10 +100,7 @@ export { default as UsageSharepointSection } from './_usage-sharepoint.mdx'
 export { default as UsageSlackSection } from './_usage-slack.mdx'
 export { default as UsageSnowflakeSection } from './_usage-snowflake.mdx'
 export { default as UsageSnowflakekeyauthSection } from './_usage-snowflakekeyauth.mdx'
-<<<<<<< preview/twitter-connector
 export { default as UsageTwitterSection } from './_usage-twitter.mdx'
-=======
->>>>>>> main
 export { default as UsageTrelloSection } from './_usage-trello.mdx'
 export { default as UsageZendeskSection } from './_usage-zendesk.mdx'
 export { default as UsageZoomSection } from './_usage-zoom.mdx'
