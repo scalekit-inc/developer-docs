@@ -1,4 +1,6 @@
 export { default as SetupAirtableSection } from './_setup-airtable.mdx'
+export { default as SetupApifymcpSection } from './_setup-apifymcp.mdx'
+export { default as SetupParallelaitaskmcpSection } from './_setup-parallelaitaskmcp.mdx'
 export { default as SetupApolloSection } from './_setup-apollo.mdx'
 export { default as SetupAsanaSection } from './_setup-asana.mdx'
 export { default as SetupAttioSection } from './_setup-attio.mdx'
@@ -48,6 +50,7 @@ export { default as SetupYoutubeSection } from './_setup-youtube.mdx'
 export { default as SetupZendeskSection } from './_setup-zendesk.mdx'
 export { default as SetupZoomSection } from './_setup-zoom.mdx'
 export { default as UsageAirtableSection } from './_usage-airtable.mdx'
+export { default as UsageApifymcpSection } from './_usage-apifymcp.mdx'
 export { default as UsageApolloSection } from './_usage-apollo.mdx'
 export { default as UsageAsanaSection } from './_usage-asana.mdx'
 export { default as UsageAttentionSection } from './_usage-attention.mdx'
@@ -76,6 +79,10 @@ export { default as UsageGooglemeetSection } from './_usage-googlemeet.mdx'
 export { default as UsageGooglesheetsSection } from './_usage-googlesheets.mdx'
 export { default as UsageGoogleslidesSection } from './_usage-googleslides.mdx'
 export { default as UsageGranolamcpSection } from './_usage-granolamcp.mdx'
+<<<<<<< preview/twitter-connector
+=======
+export { default as UsageParallelaitaskmcpSection } from './_usage-parallelaitaskmcp.mdx'
+>>>>>>> main
 export { default as UsageHarvestapiSection } from './_usage-harvestapi.mdx'
 export { default as UsageHubspotSection } from './_usage-hubspot.mdx'
 export { default as UsageIntercomSection } from './_usage-intercom.mdx'
@@ -96,7 +103,10 @@ export { default as UsageSharepointSection } from './_usage-sharepoint.mdx'
 export { default as UsageSlackSection } from './_usage-slack.mdx'
 export { default as UsageSnowflakeSection } from './_usage-snowflake.mdx'
 export { default as UsageSnowflakekeyauthSection } from './_usage-snowflakekeyauth.mdx'
+<<<<<<< preview/twitter-connector
 export { default as UsageTwitterSection } from './_usage-twitter.mdx'
+=======
+>>>>>>> main
 export { default as UsageTrelloSection } from './_usage-trello.mdx'
 export { default as UsageZendeskSection } from './_usage-zendesk.mdx'
 export { default as UsageZoomSection } from './_usage-zoom.mdx'

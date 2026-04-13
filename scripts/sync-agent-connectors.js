@@ -421,8 +421,32 @@ function getSetupComponent(stemMap, providerSlug) {
     stemMap[providerSlug] ||
     stemMap[providerSlug.replace(/_/g, '-')] ||
     stemMap[providerSlug.replace(/_/g, '')] ||
+    Object.entries(stemMap).find(([stem]) => {
+      const normalized = stem.replace(/-/g, '')
+      return normalized === providerSlug || normalized.replace(/s$/, '') === providerSlug
+    })?.[1] ||
     null
   )
+}
+
+// Warns when a provider that has tools is missing a setup or usage template.
+// Catches slug-matching failures silently dropped by getSetupComponent/getUsageComponent.
+function warnMissingTemplates(providers, toolsByProvider, setupMap, usageMap) {
+  for (const provider of providers) {
+    const slug = toSafeIdentifier(provider.identifier || '')
+    const providerTools = toolsByProvider.get(provider.identifier || '') || []
+    if (providerTools.length === 0) continue // skip stubs with no tools yet
+    if (!getSetupComponent(setupMap, slug)) {
+      console.warn(
+        `  ⚠ No setup template for "${provider.identifier}" (slug: ${slug}) — _setup-${slug}.mdx missing`,
+      )
+    }
+    if (!getUsageComponent(usageMap, slug)) {
+      console.warn(
+        `  ⚠ No usage template for "${provider.identifier}" (slug: ${slug}) — _usage-${slug}.mdx missing`,
+      )
+    }
+  }
 }
 
 const SETUP_STEM_MAP = buildSetupStemMap()
@@ -461,6 +485,10 @@ function getUsageComponent(stemMap, providerSlug) {
     stemMap[providerSlug] ||
     stemMap[providerSlug.replace(/_/g, '-')] ||
     stemMap[providerSlug.replace(/_/g, '')] ||
+    Object.entries(stemMap).find(([stem]) => {
+      const normalized = stem.replace(/-/g, '')
+      return normalized === providerSlug || normalized.replace(/s$/, '') === providerSlug
+    })?.[1] ||
     null
   )
 }
@@ -678,6 +706,9 @@ async function main() {
   console.log(`✓ Fetched ${tools.length} tools`)
 
   const toolsByProvider = groupToolsByProvider(tools)
+
+  // Warn about providers with tools but no matching setup/usage template
+  warnMissingTemplates(providers, toolsByProvider, SETUP_STEM_MAP, USAGE_STEM_MAP)
 
   // Build the set of file names this run will produce
   const expectedFiles = new Set(providers.map((p) => toSafeIdentifier(p.identifier || '') + '.mdx'))

@@ -1,0 +1,71 @@
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+
+Connect a user's Apify account and run web scraping and data extraction Actors through Scalekit. Scalekit handles token storage and tool execution automatically.
+
+Apify MCP is primarily used through Scalekit tools. Use `scalekit_client.actions.execute_tool()` to discover Actors, fetch their input schemas, run them, and retrieve output — without handling Apify credentials in your application code.
+
+## Tool calling
+
+Use this connector when you want an agent to run web scraping or data extraction tasks using Apify Actors.
+
+- Use `apifymcp_search_actors` to discover Actors for a specific platform or use case before deciding which to run.
+- Use `apifymcp_fetch_actor_details` to retrieve an Actor's input schema before calling it — always pass `output: { inputSchema: true }` to keep the response concise.
+- Use `apifymcp_call_actor` to run an Actor synchronously, or with `async: true` for long-running tasks.
+- Use `apifymcp_get_actor_run` to poll the status of an async run, and `apifymcp_get_actor_output` to retrieve results once complete.
+- Use `apifymcp_rag_web_browser` when you need real-time web content for LLM grounding — it returns clean Markdown from the top search result pages.
+
+<Tabs syncKey="tech-stack">
+  <TabItem label="Python">
+    ```python title="examples/apifymcp_fetch_actor_details.py"
+    import os
+    from scalekit.client import ScalekitClient
+
+    scalekit_client = ScalekitClient(
+        client_id=os.environ["SCALEKIT_CLIENT_ID"],
+        client_secret=os.environ["SCALEKIT_CLIENT_SECRET"],
+        env_url=os.environ["SCALEKIT_ENV_URL"],
+    )
+
+    connected_account = scalekit_client.actions.get_or_create_connected_account(
+        connection_name="apifymcp",
+        identifier="user_123",
+    )
+
+    tool_response = scalekit_client.actions.execute_tool(
+        tool_name="apifymcp_fetch_actor_details",
+        connected_account_id=connected_account.connected_account.id,
+        tool_input={
+            "actor": "apify/web-scraper",
+        },
+    )
+    print("Actor details:", tool_response)
+    ```
+  </TabItem>
+  <TabItem label="Node.js">
+    ```typescript title="examples/apifymcp_fetch_actor_details.ts"
+    import { ScalekitClient } from '@scalekit-sdk/node';
+    import 'dotenv/config';
+
+    const scalekit = new ScalekitClient(
+      process.env.SCALEKIT_ENV_URL!,
+      process.env.SCALEKIT_CLIENT_ID!,
+      process.env.SCALEKIT_CLIENT_SECRET!
+    );
+    const actions = scalekit.actions;
+
+    const connectedAccount = await actions.getOrCreateConnectedAccount({
+      connectionName: 'apifymcp',
+      identifier: 'user_123',
+    });
+
+    const toolResponse = await actions.executeTool({
+      toolName: 'apifymcp_fetch_actor_details',
+      connectedAccountId: connectedAccount?.id,
+      toolInput: {
+        actor: 'apify/web-scraper',
+      },
+    });
+    console.log('Actor details:', toolResponse.data);
+    ```
+  </TabItem>
+</Tabs>

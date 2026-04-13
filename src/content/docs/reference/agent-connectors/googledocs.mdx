@@ -15,6 +15,7 @@ head:
 
 import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
 import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupGoogleDocsSection } from '@components/templates'
 import { UsageGoogledocsSection } from '@components/templates'
 
 <div class="grid grid-cols-5 gap-4 items-center">
@@ -28,6 +29,10 @@ import { UsageGoogledocsSection } from '@components/templates'
 
 Supports authentication: <Badge text="OAuth 2.0" />
 
+
+## Set up the agent connector
+
+<SetupGoogleDocsSection />
 
 ## Usage
 
@@ -44,6 +49,17 @@ Create a new blank Google Doc with an optional title. Returns the new document's
 | `schema_version` | string | No | Optional schema version to use for tool execution |
 | `title` | string | No | Title of the new document |
 | `tool_version` | string | No | Optional tool version to use for execution |
+
+## `googledocs_list_documents`
+
+List all Google Docs documents in the user's Drive. Optionally search by document name. Returns document IDs, names, and metadata with pagination support.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `order_by` | string | No | Sort order for results. Examples: modifiedTime desc, name asc, createdTime desc |
+| `page_size` | integer | No | Number of documents to return per page (max 1000, default 100) |
+| `page_token` | string | No | Token for retrieving the next page of results. Use the nextPageToken from a previous response. |
+| `query` | string | No | Drive search query to filter documents. Defaults to all Google Docs. To search by name, use: mimeType = 'application/vnd.google-apps.document' and trashed = false and name contains 'report' |
 
 ## `googledocs_read_document`
 
