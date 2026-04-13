@@ -1,0 +1,129 @@
+import { Steps, Aside } from '@astrojs/starlight/components'
+
+Register your Scalekit environment with the Calendly connector so Scalekit handles the OAuth flow and token lifecycle for your users. Follow every step below from start to finish — by the end you will have a working connection.
+
+<Steps>
+1. ### Create a Calendly OAuth application
+
+    You need a Calendly OAuth app to get the Client ID and Client Secret that Scalekit will use to authorize your users.
+
+    **Go to the Calendly Developer Portal:**
+
+    - Open [developer.calendly.com](https://developer.calendly.com/) in your browser.
+    - Click **Log In** at the top right and sign in with your Calendly account (the same account you use to log in to calendly.com).
+    - After signing in, you land on the developer portal home page.
+
+    **Create a new app:**
+
+    - In the top navigation bar, click **My Apps**.
+    - Click the **Create New App** button (top right of the page).
+    - Fill in the form:
+
+      | Field | What to enter |
+      | --- | --- |
+      | **App Name** | A recognizable name for your integration, e.g. `My AI Scheduling Agent` |
+      | **App Description** | Brief description, e.g. `AI agent for managing scheduling` |
+      | **Homepage URL** | Your app's public URL. For testing you can use `https://localhost` |
+      | **Grant Type** | Select **Authorization Code** — this is required for OAuth 2.0 |
+
+    - Leave **Redirect URIs** blank for now. You will add it in the next step.
+    - Click **Create App**.
+
+    After the app is created, Calendly takes you to the app's **OAuth Settings** page. Keep this tab open.
+
+    ![Create a new OAuth app in Calendly Developer Portal](@/assets/docs/agent-connectors/calendly/create-oauth-app.png)
+
+    <Aside type="tip">
+      Any Calendly account can create OAuth apps. API access and available scopes depend on your Calendly plan — Enterprise features such as activity logs require an Enterprise plan.
+    </Aside>
+
+2. ### Copy the redirect URI from Scalekit
+
+    Scalekit gives you a callback URL that Calendly will redirect users back to after they authorize your app. You need to register this URL in your Calendly OAuth app.
+
+    **In the Scalekit dashboard:**
+
+    - Go to [app.scalekit.com](https://app.scalekit.com) and sign in.
+    - In the left sidebar, click **Agent Auth**.
+    - Click **Create Connection**.
+    - Search for **Calendly** and click **Create**.
+    - A connection details panel opens. Find the **Redirect URI** field — it looks like:
+      ```
+      https://<YOUR_ENV>.scalekit.cloud/sso/v1/oauth/conn_<ID>/callback
+      ```
+    - Click the copy icon next to the Redirect URI to copy it to your clipboard.
+
+    ![Copy the redirect URI from Scalekit dashboard](@/assets/docs/agent-connectors/calendly/use-own-credentials-redirect-uri.png)
+
+3. ### Register the redirect URI in Calendly
+
+    Switch back to the Calendly Developer Portal tab you left open.
+
+    - Make sure you are on the **OAuth Settings** page of your app.
+    - Scroll down to the **Redirect URIs** section.
+    - Click in the text box and paste the redirect URI you copied from Scalekit.
+    - Click **Add URI** — the URI appears in the list above the input box.
+    - Click **Save Changes** at the bottom of the page.
+
+    ![Add the Scalekit redirect URI in Calendly OAuth Settings](@/assets/docs/agent-connectors/calendly/add-redirect-uri.png)
+
+    <Aside type="caution">
+      The redirect URI must match character-for-character — including the `https://` prefix, the full domain, and the exact path. Any mismatch will cause the OAuth flow to fail with a `redirect_uri_mismatch` error.
+    </Aside>
+
+4. ### Enable OAuth scopes
+
+    Scopes control which Calendly API resources your app can access on behalf of the user. You must enable the same scopes in your Calendly app that you will request in Scalekit.
+
+    - On the **OAuth Settings** page, scroll to the **Scopes** section.
+    - Check the box next to each scope you need:
+
+      | Scope | Access granted | Plan required |
+      | --- | --- | --- |
+      | `default` | User profile, event types, scheduled events, availability | All plans |
+      | `activity_log:read` | Audit log entries (read-only) | Enterprise only |
+
+    - For most integrations, checking **`default`** is sufficient.
+    - Click **Save Changes**.
+
+    <Aside type="tip">
+      Only enable scopes your integration actually uses. Users see a list of requested permissions on the authorization screen — fewer scopes increases trust and approval rates.
+    </Aside>
+
+5. ### Copy your Client ID and Client Secret
+
+    Still on the **OAuth Settings** page in Calendly:
+
+    - Scroll to the **OAuth Credentials** section at the top.
+    - **Client ID** — this is shown in plain text. Click **Copy ID** to copy it.
+    - **Client Secret** — click **Reveal** to show the secret, then copy it.
+
+    Paste both values somewhere safe (a password manager or secrets vault). You will enter them into Scalekit in the next step.
+
+    <Aside type="caution">
+      Never commit your Client Secret to source control. If it is ever exposed, click **Regenerate Secret** in the Calendly portal immediately — this invalidates the old secret and all existing connections will stop working until you update them in Scalekit.
+    </Aside>
+
+6. ### Add credentials in Scalekit
+
+    Switch back to the Scalekit dashboard tab.
+
+    - Go to **Agent Auth** → **Connections** and click the Calendly connection you created in Step 2.
+    - Fill in the credentials form:
+
+      | Field | Value |
+      | --- | --- |
+      | **Client ID** | Paste the Client ID from Step 5 |
+      | **Client Secret** | Paste the Client Secret from Step 5 |
+      | **Permissions** | Enter the scopes you enabled in Step 4, e.g. `default` |
+
+    - Click **Save**.
+
+    ![Add credentials in Scalekit dashboard](@/assets/docs/agent-connectors/calendly/add-credentials.png)
+
+    Your Calendly connection is now configured. Scalekit will use these credentials to run the OAuth flow whenever a user connects their Calendly account.
+
+    <Aside type="tip">
+      The scopes entered here must match exactly what you enabled in Calendly. A mismatch causes an `invalid_scope` error when users try to authorize. If you add more scopes later, update both your Calendly app and this Scalekit connection.
+    </Aside>
+</Steps>
