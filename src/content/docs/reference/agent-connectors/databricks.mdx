@@ -1,0 +1,145 @@
+---
+title: Databricks Workspace
+description: Connect to Databricks Workspace APIs using a Service Principal to manage clusters, jobs, SQL warehouses, and more.
+tableOfContents: true
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Card, CardGrid, Tabs, TabItem, Badge, Steps, Aside, Code } from '@astrojs/starlight/components'
+import { Accordion, AccordionItem } from 'accessible-astro-components'
+import { SetupDatabricksSection } from '@components/templates'
+import { UsageDatabricksSection } from '@components/templates'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Databricks Workspace APIs using a Service Principal with OAuth 2.0 client credentials to manage clusters, jobs, SQL, and more.
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/databricks-1.svg" width="64" height="64" alt="Databricks logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+
+## Set up the agent connector
+
+<SetupDatabricksSection />
+
+## Usage
+
+<UsageDatabricksSection />
+
+## Tool list
+
+## `databricksworkspace_cluster_get`
+
+Get details of a specific Databricks cluster by cluster ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cluster_id` | string | Yes | The unique identifier of the cluster |
+
+## `databricksworkspace_cluster_start`
+
+Start a terminated Databricks cluster by cluster ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cluster_id` | string | Yes | The unique identifier of the cluster to start |
+
+## `databricksworkspace_cluster_terminate`
+
+Terminate a Databricks cluster by cluster ID. The cluster transitions to a `TERMINATED` state — this is reversible. The cluster configuration is retained for 30 days (unless pinned) and can be restarted via the start API. To permanently remove a cluster and its configuration, use the Databricks `/permanent-delete` endpoint directly.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cluster_id` | string | Yes | The unique identifier of the cluster to terminate |
+
+## `databricksworkspace_clusters_list`
+
+List all clusters in the Databricks workspace.
+
+This tool takes no input parameters.
+
+## `databricksworkspace_job_get`
+
+Get details of a specific Databricks job by job ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `job_id` | integer | Yes | The unique identifier of the job |
+
+## `databricksworkspace_job_run_now`
+
+Trigger an immediate run of a Databricks job by job ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `job_id` | integer | Yes | The unique identifier of the job to run |
+
+## `databricksworkspace_job_runs_list`
+
+List all job runs in the Databricks workspace, optionally filtered by job ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `job_id` | integer | No | Filter runs by a specific job ID. If omitted, returns runs for all jobs |
+| `limit` | integer | No | Number of runs to return. Defaults to 20, maximum is 1000 |
+| `offset` | integer | No | Offset of the first run to return, used for pagination |
+
+## `databricksworkspace_jobs_list`
+
+List all jobs in the Databricks workspace.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `limit` | integer | No | Number of jobs to return. Defaults to 20, maximum is 100 |
+| `offset` | integer | No | Offset of the first job to return, used for pagination |
+
+## `databricksworkspace_scim_me_get`
+
+Retrieve information about the currently authenticated service principal in the Databricks workspace.
+
+This tool takes no input parameters.
+
+## `databricksworkspace_scim_users_list`
+
+List all users in the Databricks workspace using the SCIM v2 API.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `count` | integer | No | Maximum number of results to return per page |
+| `filter` | string | No | SCIM filter expression to narrow results (e.g. `userName eq "user@example.com"`) |
+| `startIndex` | integer | No | 1-based index of the first result to return, used for pagination |
+
+## `databricksworkspace_secrets_scopes_list`
+
+List all secret scopes available in the Databricks workspace.
+
+This tool takes no input parameters.
+
+## `databricksworkspace_sql_statement_execute`
+
+Execute a SQL statement on a Databricks SQL warehouse and return the results.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `statement` | string | Yes | The SQL statement to execute |
+| `warehouse_id` | string | Yes | The ID of the SQL warehouse to execute the statement on |
+| `catalog` | string | No | The Unity Catalog name to use for execution |
+| `schema` | string | No | The schema to use for execution |
+
+## `databricksworkspace_sql_warehouses_list`
+
+List all SQL warehouses available in the Databricks workspace.
+
+This tool takes no input parameters.
