@@ -1,0 +1,1175 @@
+---
+title: Miro
+tableOfContents: true
+sidebar:
+  label: Miro
+head:
+  - tag: style
+    content: |
+      .sl-markdown-content h2 {
+        font-size: var(--sl-text-xl);
+      }
+      table td:first-child, table th:first-child {
+        white-space: nowrap;
+      }
+---
+
+import { Badge, Aside } from '@astrojs/starlight/components'
+import { SetupMiroSection, UsageMiroSection } from '@components/templates'
+
+<div class="grid grid-cols-5 gap-4 items-center">
+ <div class="col-span-4">
+  Connect to Miro to manage boards, sticky notes, shapes, cards, frames, connectors, images, and tags using the Miro REST API.
+ </div>
+ <div class="flex justify-center">
+  <img src="https://cdn.scalekit.com/sk-connect/assets/provider-icons/Miro.svg" width="64" height="64" alt="Miro logo" />
+ </div>
+</div>
+
+Supports authentication: <Badge text="OAuth 2.0" />
+
+## Set up the agent connector
+
+<SetupMiroSection />
+
+## Usage
+
+<UsageMiroSection />
+
+## Tool list
+
+<Aside type="note" title="Enterprise-only tools">
+  Several Miro tools require an Enterprise plan: `miro_audit_logs_get`, `miro_board_export_*`, `miro_data_classification_*`, `miro_org_*`, `miro_project_*`, `miro_team_*`, and `miro_teams_list`. These will return a `403 Forbidden` error if your Miro account is not on the Enterprise plan.
+</Aside>
+
+<Aside type="note" title="Experimental API">
+  The mind map tools (`miro_mindmap_*`) use Miro's experimental API and may change or be removed without notice.
+</Aside>
+
+## `miro_app_card_create`
+
+Creates an app card item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `description` | string | No | Description of the app card. |
+| `parent_id` | string | No | ID of parent frame to nest this item inside. |
+| `position_x` | number | No | X coordinate on the board. |
+| `position_y` | number | No | Y coordinate on the board. |
+| `status` | string | No | Status: disconnected \| connected \| disabled. |
+| `title` | string | No | Title of the app card. |
+| `width` | number | No | Width in board units. |
+
+## `miro_app_card_delete`
+
+Deletes an app card item from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+
+## `miro_app_card_get`
+
+Retrieves an app card item from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+
+## `miro_app_card_update`
+
+Updates an existing app card item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `description` | string | No | Description of the app card. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+| `parent_id` | string | No | ID of parent frame to nest this item inside. |
+| `position_x` | number | No | X coordinate on the board. |
+| `position_y` | number | No | Y coordinate on the board. |
+| `status` | string | No | Status: disconnected \| connected \| disabled. |
+| `title` | string | No | Title of the app card. |
+| `width` | number | No | Width in board units. |
+
+## `miro_audit_logs_get`
+
+Retrieves audit logs for the organization (Enterprise only). Returns events for the specified date range (max 90 days).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `created_after` | string | Yes | Start of date range in ISO 8601. |
+| `created_before` | string | Yes | End of date range in ISO 8601. |
+| `cursor` | string | No | Pagination cursor. |
+| `limit` | integer | No | Max results per page (1-100). |
+| `sorting` | string | No | Sort order: asc \| desc. |
+
+## `miro_board_copy`
+
+Creates a copy of an existing Miro board, optionally in a different team.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board to copy. |
+| `team_id` | string | No | Team ID to copy the board into. Defaults to the original board's team. |
+
+## `miro_board_create`
+
+Creates a new Miro board. If no name is provided, Miro defaults to 'Untitled'.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `description` | string | No | Board description (max 300 characters). |
+| `name` | string | No | Board name (max 60 characters). |
+| `project_id` | string | No | ID of the project/Space to add the board to. |
+| `team_id` | string | No | ID of the team to create the board in. |
+
+## `miro_board_delete`
+
+Permanently deletes a Miro board and all its contents.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board to delete. |
+
+## `miro_board_export_create`
+
+Creates a board export job for eDiscovery (Enterprise only). Returns a job ID to poll for status.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_ids` | string | Yes | JSON array of board IDs to export, e.g. ["id1","id2"] |
+| `format` | string | No | Export format: pdf \| csv. |
+| `org_id` | string | Yes | Organization ID. |
+| `request_id` | string | Yes | Unique request ID (UUID) to identify this export job. |
+
+## `miro_board_export_job_get`
+
+Gets the status of a board export job (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `job_id` | string | Yes | Export job ID. |
+| `org_id` | string | Yes | Organization ID. |
+
+## `miro_board_export_job_results_get`
+
+Retrieves the results/download URLs of a completed board export job (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `job_id` | string | Yes | Export job ID. |
+| `org_id` | string | Yes | Organization ID. |
+
+## `miro_board_export_jobs_list`
+
+Lists all board export jobs for an organization (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Pagination cursor. |
+| `limit` | integer | No | Max results. |
+| `org_id` | string | Yes | Organization ID. |
+
+## `miro_board_get`
+
+Retrieves details of a specific Miro board by its ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the Miro board. |
+
+## `miro_board_member_get`
+
+Retrieves details of a specific member on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `member_id` | string | Yes | Unique identifier of the board member. |
+
+## `miro_board_member_remove`
+
+Removes a member from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `member_id` | string | Yes | Unique identifier of the member to remove. |
+
+## `miro_board_member_update`
+
+Updates the role of a member on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `member_id` | string | Yes | Unique identifier of the board member to update. |
+| `role` | string | Yes | New role for the member. Valid values: viewer, commenter, editor, coowner. |
+
+## `miro_board_members_list`
+
+Returns a list of members on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+
+## `miro_board_members_share`
+
+Shares a Miro board with one or more users by email address, assigning them a role.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board to share. |
+| `emails` | string | Yes | JSON array of email addresses to invite. |
+| `role` | string | Yes | Role to assign to the invited users. Valid values: viewer, commenter, editor, coowner. |
+
+## `miro_board_update`
+
+Updates the name or description of a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board to update. |
+| `description` | string | No | New board description (max 300 characters). |
+| `name` | string | No | New board name (max 60 characters). |
+
+## `miro_boards_list`
+
+Returns a list of Miro boards the authenticated user has access to. Supports filtering by team, project, owner, and search query.
+
+
+## `miro_card_create`
+
+Creates a card item on a Miro board. Cards can have a title, description, assignee, and due date.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assignee_id` | string | No | User ID to assign the card to. |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `card_theme` | string | No | Card theme color as hex code (e.g. #2d9bf0). |
+| `description` | string | No | Description/body text of the card. |
+| `due_date` | string | No | Due date in ISO 8601 format (e.g. 2024-12-31T23:59:59Z). |
+| `parent_id` | string | No | ID of a parent frame to place the card inside. |
+| `position_x` | number | No | X coordinate on the board (0 = center). |
+| `position_y` | number | No | Y coordinate on the board (0 = center). |
+| `title` | string | No | Title of the card. |
+| `width` | number | No | Width of the card in board units. |
+
+## `miro_card_delete`
+
+Deletes a card item from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the card to delete. |
+
+## `miro_card_get`
+
+Retrieves details of a specific card item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the card item. |
+
+## `miro_card_update`
+
+Updates the content, assignment, due date, or position of a card on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `assignee_id` | string | No | Updated assignee user ID. |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `description` | string | No | Updated card description. |
+| `due_date` | string | No | Updated due date in ISO 8601 format. |
+| `item_id` | string | Yes | Unique identifier of the card to update. |
+| `position_x` | number | No | Updated X coordinate on the board. |
+| `position_y` | number | No | Updated Y coordinate on the board. |
+| `title` | string | No | Updated card title. |
+
+## `miro_connector_create`
+
+Creates a connector (line/arrow) between two existing items on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `caption` | string | No | Text label to display on the connector. |
+| `end_item_id` | string | Yes | ID of the item where the connector ends. |
+| `end_snap_to` | string | No | Attachment point on the end item. Valid values: auto, top, right, bottom, left. |
+| `end_stroke_cap` | string | No | End endpoint cap style. Valid values: none, arrow, filled_arrow, circle, filled_circle, diamond, filled_diamond, bar, stealth. |
+| `shape` | string | No | Connector line style. Valid values: straight, elbowed, curved. |
+| `start_item_id` | string | Yes | ID of the item where the connector starts. |
+| `start_snap_to` | string | No | Attachment point on the start item. Valid values: auto, top, right, bottom, left. |
+| `start_stroke_cap` | string | No | Start endpoint cap style. Valid values: none, arrow, filled_arrow, circle, filled_circle, diamond, filled_diamond, bar, stealth. |
+| `stroke_color` | string | No | Line color as hex code. |
+| `stroke_width` | string | No | Line thickness as a string number. |
+
+## `miro_connector_delete`
+
+Deletes a connector (line/arrow) from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `connector_id` | string | Yes | Unique identifier of the connector to delete. |
+
+## `miro_connector_get`
+
+Retrieves details of a specific connector (line/arrow) on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `connector_id` | string | Yes | Unique identifier of the connector. |
+
+## `miro_connector_update`
+
+Updates the style, shape, or endpoints of a connector on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `caption` | string | No | Updated text label on the connector. |
+| `connector_id` | string | Yes | Unique identifier of the connector to update. |
+| `end_stroke_cap` | string | No | Updated end endpoint cap style (e.g. arrow, none, filled_arrow). |
+| `shape` | string | No | Updated line style. Valid values: straight, elbowed, curved. |
+| `stroke_color` | string | No | Updated line color as hex code. |
+| `stroke_width` | string | No | Updated line thickness as a string number. |
+
+## `miro_connectors_list`
+
+Returns all connector (line/arrow) items on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `cursor` | string | No | Cursor token from a previous response for pagination. |
+
+## `miro_data_classification_board_get`
+
+Retrieves the data classification label for a specific board (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `org_id` | string | Yes | Organization ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_data_classification_board_set`
+
+Sets the data classification label for a specific board (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `label_id` | string | Yes | Classification label ID. |
+| `org_id` | string | Yes | Organization ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_data_classification_org_get`
+
+Retrieves data classification label settings for the organization (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `org_id` | string | Yes | Organization ID. |
+
+## `miro_data_classification_team_get`
+
+Retrieves data classification settings for a team (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `org_id` | string | Yes | Organization ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_document_create`
+
+Creates a document item on a Miro board from a publicly accessible URL.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `height` | number | No | Height in board units. |
+| `parent_id` | string | No | ID of parent frame to nest this item inside. |
+| `position_x` | number | No | X coordinate on the board. |
+| `position_y` | number | No | Y coordinate on the board. |
+| `title` | string | No | Title of the document item. |
+| `url` | string | Yes | Publicly accessible URL of the document. |
+| `width` | number | No | Width in board units. |
+
+## `miro_document_delete`
+
+Deletes a document item from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+
+## `miro_document_get`
+
+Retrieves a document item from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+
+## `miro_document_update`
+
+Updates an existing document item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `height` | number | No | Height in board units. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+| `parent_id` | string | No | ID of parent frame to nest this item inside. |
+| `position_x` | number | No | X coordinate on the board. |
+| `position_y` | number | No | Y coordinate on the board. |
+| `title` | string | No | Title of the document item. |
+| `url` | string | No | New URL for the document. |
+| `width` | number | No | Width in board units. |
+
+## `miro_embed_create`
+
+Creates an embed item on a Miro board from an oEmbed-compatible URL (YouTube, Vimeo, etc.).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `height` | number | No | Height in board units. |
+| `mode` | string | No | Embed mode: inline \| modal. |
+| `parent_id` | string | No | ID of parent frame to nest this item inside. |
+| `position_x` | number | No | X coordinate on the board. |
+| `position_y` | number | No | Y coordinate on the board. |
+| `preview_url` | string | No | URL of preview image to display. |
+| `url` | string | Yes | URL of the content to embed (oEmbed-compatible). |
+| `width` | number | No | Width in board units. |
+
+## `miro_embed_delete`
+
+Deletes an embed item from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+
+## `miro_embed_get`
+
+Retrieves an embed item from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+
+## `miro_embed_update`
+
+Updates an existing embed item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `height` | number | No | Height in board units. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+| `mode` | string | No | Embed mode: inline \| modal. |
+| `parent_id` | string | No | ID of parent frame to nest this item inside. |
+| `position_x` | number | No | X coordinate on the board. |
+| `position_y` | number | No | Y coordinate on the board. |
+| `preview_url` | string | No | URL of preview image to display. |
+| `url` | string | No | New embed URL. |
+| `width` | number | No | Width in board units. |
+
+## `miro_frame_create`
+
+Creates a frame item on a Miro board. Frames group and organize other board items.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `fill_color` | string | No | Background fill color as hex code (e.g. #ffffffff for transparent). |
+| `height` | number | No | Height of the frame in board units. |
+| `position_x` | number | No | X coordinate on the board (0 = center). |
+| `position_y` | number | No | Y coordinate on the board (0 = center). |
+| `title` | string | No | Title displayed at the top of the frame. |
+| `width` | number | No | Width of the frame in board units. |
+
+## `miro_frame_delete`
+
+Deletes a frame item from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the frame to delete. |
+
+## `miro_frame_get`
+
+Retrieves details of a specific frame item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the frame item. |
+
+## `miro_frame_update`
+
+Updates the title, style, or position of a frame on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `fill_color` | string | No | Updated background fill color as hex code. |
+| `height` | number | No | Updated height in board units. |
+| `item_id` | string | Yes | Unique identifier of the frame to update. |
+| `position_x` | number | No | Updated X coordinate on the board. |
+| `position_y` | number | No | Updated Y coordinate on the board. |
+| `title` | string | No | Updated frame title. |
+| `width` | number | No | Updated width in board units. |
+
+## `miro_group_create`
+
+Creates a group of items on a Miro board. Items in a group move together.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_ids` | string | Yes | JSON array of item IDs to group, e.g. ["id1","id2"] |
+
+## `miro_group_delete`
+
+Deletes a group from a Miro board (items remain but are ungrouped).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `group_id` | string | Yes | Unique identifier of the group. |
+
+## `miro_group_items_get`
+
+Retrieves a group and its items from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `group_id` | string | Yes | Unique identifier of the group. |
+
+## `miro_groups_list`
+
+Lists all item groups on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `cursor` | string | No | Pagination cursor from previous response. |
+
+## `miro_image_create`
+
+Creates an image item on a Miro board from a publicly accessible URL.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `height` | number | No | Height of the image in board units. |
+| `parent_id` | string | No | ID of a parent frame to place the image inside. |
+| `position_x` | number | No | X coordinate on the board (0 = center). |
+| `position_y` | number | No | Y coordinate on the board (0 = center). |
+| `rotation` | number | No | Rotation angle in degrees. |
+| `title` | string | No | Display name/title for the image item. |
+| `url` | string | Yes | Publicly accessible URL of the image. |
+| `width` | number | No | Width of the image in board units. |
+
+## `miro_image_delete`
+
+Deletes an image item from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the image item to delete. |
+
+## `miro_image_get`
+
+Retrieves details of a specific image item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the image item. |
+
+## `miro_image_update`
+
+Updates the URL, title, position, or size of an image item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the image item to update. |
+| `position_x` | number | No | Updated X coordinate on the board. |
+| `position_y` | number | No | Updated Y coordinate on the board. |
+| `rotation` | number | No | Updated rotation angle in degrees. |
+| `title` | string | No | Updated title for the image. |
+| `url` | string | No | Updated image URL. |
+| `width` | number | No | Updated width in board units. |
+
+## `miro_item_delete`
+
+Deletes a specific item from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the item to delete. |
+
+## `miro_item_get`
+
+Retrieves details of a specific item on a Miro board by its item ID.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+
+## `miro_item_tag_attach`
+
+Attaches an existing tag to a specific item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the item to attach the tag to. |
+| `tag_id` | string | Yes | Unique identifier of the tag to attach. |
+
+## `miro_item_tag_remove`
+
+Removes a tag from a specific item on a Miro board. Does not delete the tag from the board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+| `tag_id` | string | Yes | Unique identifier of the tag to remove from the item. |
+
+## `miro_item_tags_get`
+
+Returns all tags attached to a specific item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+
+## `miro_items_bulk_create`
+
+Creates up to 20 board items in a single transactional request. Pass a JSON array of item objects as `items`. Each object must have a `type` field (sticky_note, text, shape, card, image, frame, etc.) and appropriate data.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `items` | string | Yes | JSON array of item objects, each with "type" and item-specific fields. |
+
+## `miro_items_list`
+
+Returns all items on a Miro board. Optionally filter by item type.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+
+## `miro_mindmap_node_create`
+
+Creates a mind map node on a Miro board (experimental API). Omit parent_node_id for the root node.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `node_value` | string | Yes | Text content of the mind map node. |
+| `parent_node_id` | string | No | ID of parent mind map node (omit for root node). |
+
+## `miro_mindmap_node_delete`
+
+Deletes a mind map node and all its children from a Miro board (experimental API).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+
+## `miro_mindmap_node_get`
+
+Retrieves a specific mind map node from a Miro board (experimental API).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the item. |
+
+## `miro_mindmap_nodes_list`
+
+Lists all mind map nodes on a Miro board (experimental API).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `cursor` | string | No | Pagination cursor from previous response. |
+
+## `miro_oembed_get`
+
+Returns oEmbed data for a Miro board URL so it can be embedded as a live iframe in external sites.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `format` | string | No | Response format: json (default) or xml. |
+| `maxheight` | integer | No | Maximum embed height in pixels. |
+| `maxwidth` | integer | No | Maximum embed width in pixels. |
+| `url` | string | Yes | Full URL of the Miro board. |
+
+## `miro_org_get`
+
+Retrieves information about the organization (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `org_id` | string | Yes | Organization ID. |
+
+## `miro_org_member_get`
+
+Retrieves a specific member of an organization (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `member_id` | string | Yes | Member ID. |
+| `org_id` | string | Yes | Organization ID. |
+
+## `miro_org_members_list`
+
+Lists all members of an organization (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Pagination cursor. |
+| `emails` | string | No | Comma-separated list of emails to filter by. |
+| `limit` | integer | No | Max results per page. |
+| `org_id` | string | Yes | Organization ID. |
+| `role` | string | No | Filter by role: admin \| member. |
+
+## `miro_project_create`
+
+Creates a project (space) in a team (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `description` | string | No | Project description. |
+| `name` | string | Yes | Project name. |
+| `org_id` | string | Yes | Organization ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_project_delete`
+
+Deletes a project from a team (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `org_id` | string | Yes | Organization ID. |
+| `project_id` | string | Yes | Project ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_project_get`
+
+Retrieves a specific project (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `org_id` | string | Yes | Organization ID. |
+| `project_id` | string | Yes | Project ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_project_member_add`
+
+Adds a member to a project (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `member_id` | string | Yes | Member ID to add. |
+| `org_id` | string | Yes | Organization ID. |
+| `project_id` | string | Yes | Project ID. |
+| `role` | string | No | Role: editor \| commenter \| viewer. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_project_member_delete`
+
+Removes a member from a project (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `member_id` | string | Yes | Member ID. |
+| `org_id` | string | Yes | Organization ID. |
+| `project_id` | string | Yes | Project ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_project_members_list`
+
+Lists members of a project (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Pagination cursor. |
+| `limit` | integer | No | Max results. |
+| `org_id` | string | Yes | Organization ID. |
+| `project_id` | string | Yes | Project ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_projects_list`
+
+Lists all projects in a team (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Pagination cursor. |
+| `limit` | integer | No | Max results. |
+| `org_id` | string | Yes | Organization ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_shape_create`
+
+Creates a shape item on a Miro board. Shapes can contain text and support rich styling.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `content` | string | No | Text content inside the shape (supports simple HTML). |
+| `fill_color` | string | No | Background fill color as hex code (e.g. #ff0000) or name. |
+| `font_size` | string | No | Font size for text inside the shape as a string number. |
+| `height` | number | No | Height of the shape in board units. |
+| `parent_id` | string | No | ID of a parent frame to place the shape inside. |
+| `position_x` | number | No | X coordinate on the board (0 = center). |
+| `position_y` | number | No | Y coordinate on the board (0 = center). |
+| `rotation` | number | No | Rotation angle in degrees. |
+| `shape` | string | Yes | Shape type. Valid values: rectangle, round_rectangle, circle, triangle, rhombus, parallelogram, trapezoid, pentagon, hexagon, octagon, star, cross, right_arrow, left_right_arrow, cloud. |
+| `stroke_color` | string | No | Border/stroke color as hex code. |
+| `stroke_width` | string | No | Border stroke width as a string number. |
+| `text_align` | string | No | Horizontal text alignment. Valid values: left, center, right. |
+| `width` | number | No | Width of the shape in board units. |
+
+## `miro_shape_delete`
+
+Deletes a shape item from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the shape to delete. |
+
+## `miro_shape_get`
+
+Retrieves details of a specific shape item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the shape item. |
+
+## `miro_shape_update`
+
+Updates the content, style, or position of a shape item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `content` | string | No | Updated text content inside the shape. |
+| `fill_color` | string | No | Updated fill color as hex code. |
+| `height` | number | No | Updated height in board units. |
+| `item_id` | string | Yes | Unique identifier of the shape to update. |
+| `parent_id` | string | No | ID of a parent frame to move the shape into. |
+| `position_x` | number | No | Updated X coordinate on the board. |
+| `position_y` | number | No | Updated Y coordinate on the board. |
+| `shape` | string | No | Updated shape type (e.g. rectangle, circle, triangle). |
+| `stroke_color` | string | No | Updated stroke/border color as hex code. |
+| `width` | number | No | Updated width in board units. |
+
+## `miro_sticky_note_create`
+
+Creates a sticky note item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `content` | string | No | Text content of the sticky note (supports simple HTML tags). |
+| `fill_color` | string | No | Background color. Valid values: gray, light_yellow, yellow, orange, light_green, green, dark_green, cyan, light_pink, pink, violet, red, light_blue, blue, dark_blue, black, white. |
+| `parent_id` | string | No | ID of a parent frame to place the sticky note inside. |
+| `position_x` | number | No | X coordinate on the board (0 = center). |
+| `position_y` | number | No | Y coordinate on the board (0 = center). |
+| `shape` | string | No | Shape of the sticky note. Valid values: square, rectangle. |
+| `text_align` | string | No | Horizontal text alignment. Valid values: left, center, right. |
+| `text_align_vertical` | string | No | Vertical text alignment. Valid values: top, middle, bottom. |
+| `width` | number | No | Width of the sticky note in board units. |
+
+## `miro_sticky_note_delete`
+
+Deletes a sticky note from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the sticky note to delete. |
+
+## `miro_sticky_note_get`
+
+Retrieves details of a specific sticky note on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the sticky note item. |
+
+## `miro_sticky_note_update`
+
+Updates the content, style, or position of a sticky note on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `content` | string | No | Updated text content of the sticky note. |
+| `fill_color` | string | No | Updated background color (e.g. yellow, blue, pink). |
+| `item_id` | string | Yes | Unique identifier of the sticky note to update. |
+| `parent_id` | string | No | ID of a parent frame to move the sticky note into. |
+| `position_x` | number | No | Updated X coordinate on the board. |
+| `position_y` | number | No | Updated Y coordinate on the board. |
+| `shape` | string | No | Updated shape. Valid values: square, rectangle. |
+| `text_align` | string | No | Updated horizontal text alignment: left, center, right. |
+| `width` | number | No | Updated width of the sticky note. |
+
+## `miro_tag_create`
+
+Creates a tag on a Miro board. Tags can be attached to items to categorize them.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `fill_color` | string | No | Tag color. Valid values: red, light_green, cyan, yellow, magenta, green, blue, gray, violet, dark_green, dark_blue, black. |
+| `title` | string | Yes | Tag text (max 120 characters, must be unique on the board). |
+
+## `miro_tag_delete`
+
+Deletes a tag from a Miro board. Detaches the tag from all items it was attached to.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `tag_id` | string | Yes | Unique identifier of the tag to delete. |
+
+## `miro_tag_get`
+
+Retrieves details of a specific tag on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `tag_id` | string | Yes | Unique identifier of the tag. |
+
+## `miro_tag_update`
+
+Updates the title or color of a tag on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `fill_color` | string | No | Updated tag color (e.g. red, blue, green, yellow). |
+| `tag_id` | string | Yes | Unique identifier of the tag to update. |
+| `title` | string | No | Updated tag text (max 120 characters, must be unique on the board). |
+
+## `miro_tags_list`
+
+Returns all tags on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+
+## `miro_team_create`
+
+Creates a new team in an organization (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `description` | string | No | Team description. |
+| `name` | string | Yes | Team name. |
+| `org_id` | string | Yes | Organization ID. |
+
+## `miro_team_delete`
+
+Deletes a team from an organization (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `org_id` | string | Yes | Organization ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_team_get`
+
+Retrieves a specific team in an organization (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `org_id` | string | Yes | Organization ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_team_member_delete`
+
+Removes a member from a team (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `member_id` | string | Yes | Member ID. |
+| `org_id` | string | Yes | Organization ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_team_member_get`
+
+Retrieves a specific member of a team (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `member_id` | string | Yes | Member ID. |
+| `org_id` | string | Yes | Organization ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_team_member_invite`
+
+Invites a user to a team by email (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `email` | string | Yes | User email. |
+| `org_id` | string | Yes | Organization ID. |
+| `role` | string | No | Role: admin \| member \| guest. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_team_member_update`
+
+Updates the role of a team member (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `member_id` | string | Yes | Member ID. |
+| `org_id` | string | Yes | Organization ID. |
+| `role` | string | Yes | New role: admin \| member \| guest. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_team_members_list`
+
+Lists members of a team (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Pagination cursor. |
+| `limit` | integer | No | Max results. |
+| `org_id` | string | Yes | Organization ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_team_settings_get`
+
+Retrieves settings for a team (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `org_id` | string | Yes | Organization ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_team_settings_update`
+
+Updates settings for a team (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `copy_access_level` | string | No | Who can copy boards: team_only \| company \| anyone. |
+| `org_id` | string | Yes | Organization ID. |
+| `sharing_policy` | string | No | Board sharing policy: team_only \| company \| public. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_team_update`
+
+Updates a team's name or description (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `description` | string | No | New description. |
+| `name` | string | No | New team name. |
+| `org_id` | string | Yes | Organization ID. |
+| `team_id` | string | Yes | Team ID. |
+
+## `miro_teams_list`
+
+Lists all teams in an organization (Enterprise only).
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Pagination cursor. |
+| `limit` | integer | No | Max results per page. |
+| `org_id` | string | Yes | Organization ID. |
+
+## `miro_text_create`
+
+Creates a text item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `color` | string | No | Text color as hex code. |
+| `content` | string | Yes | Text content (supports HTML tags). |
+| `fill_color` | string | No | Background color as hex code. |
+| `font_size` | string | No | Font size as a string number (e.g. '14'). |
+| `parent_id` | string | No | ID of a parent frame to place the text inside. |
+| `position_x` | number | No | X coordinate on the board (0 = center). |
+| `position_y` | number | No | Y coordinate on the board (0 = center). |
+| `rotation` | number | No | Rotation angle in degrees. |
+| `text_align` | string | No | Text alignment. Valid values: left, center, right. |
+| `width` | number | No | Width of the text box in board units. |
+
+## `miro_text_delete`
+
+Deletes a text item from a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the text item to delete. |
+
+## `miro_text_get`
+
+Retrieves details of a specific text item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `item_id` | string | Yes | Unique identifier of the text item. |
+
+## `miro_text_update`
+
+Updates the content, style, or position of a text item on a Miro board.
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `board_id` | string | Yes | Unique identifier of the board. |
+| `color` | string | No | Updated text color as hex code. |
+| `content` | string | No | Updated text content. |
+| `font_size` | string | No | Updated font size as a string number. |
+| `item_id` | string | Yes | Unique identifier of the text item to update. |
+| `position_x` | number | No | Updated X coordinate on the board. |
+| `position_y` | number | No | Updated Y coordinate on the board. |
+| `width` | number | No | Updated width in board units. |
+
+## `miro_token_info_get`
+
+Returns information about the current OAuth token including the authenticated user ID, name, team, and granted scopes.
+
