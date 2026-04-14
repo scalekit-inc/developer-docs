@@ -4,7 +4,7 @@ description: 'Block over-quota user creation and alert admins when SCIM pushes u
 date: 2026-04-14
 tags: ['SCIM', 'Modular SCIM']
 sidebar:
-  label: 'SCIM seat limits'
+  label: 'Enforce seat limits'
 tableOfContents: true
 excerpt: >
   When your customer's identity provider pushes more users than your plan allows, SCIM won't stop it.
@@ -47,7 +47,7 @@ Both events include the `organization_id`, which lets you look up the seat limit
 
 Add a table that stores the provisioned user count and seat limit for each organization. The examples below use plain SQL — translate to your ORM if preferred.
 
-```sql
+```sql title="db/schema.sql"
 CREATE TABLE org_seat_usage (
   org_id       TEXT PRIMARY KEY,
   seat_limit   INTEGER NOT NULL,
@@ -60,6 +60,14 @@ Seed this table when you onboard a new customer. Update `seat_limit` whenever th
 ## Block creation when the count reaches the limit
 
 The `user_created` handler increments the seat counter and creates the user only when there is room. Always return `200` to Scalekit — returning an error code causes Scalekit to retry delivery, which does not help when the block is intentional.
+
+<Aside type="caution" title="Verify webhook signatures before processing">
+  Always verify that events come from Scalekit before acting on them. An unverified endpoint that mutates your database can be triggered by forged requests. See the [SCIM provisioning quickstart](/directory/scim/quickstart/) for how to verify signatures using the Scalekit SDK.
+</Aside>
+
+<Aside type="note" title="Keep the lock inside the transaction">
+  The `SELECT ... FOR UPDATE` must run inside the same explicit transaction as the `INSERT` and `UPDATE`. In autocommit mode, a `FOR UPDATE` outside a transaction is released immediately after the select — it provides no protection against concurrent writes.
+</Aside>
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
@@ -75,22 +83,21 @@ The `user_created` handler increments the seat counter and creates the user only
       if (event.type === 'organization.directory.user_created') {
         const orgId = event.organization_id
         const directoryUser = event.data
+        let seatLimitReached = false
 
-        // Fetch current usage. Lock the row to prevent race conditions.
-        const usage = await db.queryOne(
-          'SELECT seat_limit, used_seats FROM org_seat_usage WHERE org_id = $1 FOR UPDATE',
-          [orgId]
-        )
-
-        if (!usage || usage.used_seats >= usage.seat_limit) {
-          // Seat limit reached — skip user creation and alert the admin.
-          await notifyAdminSeatLimitReached(orgId)
-          // Return 200 so Scalekit does not retry this event.
-          return res.sendStatus(200)
-        }
-
-        // Room available — create the user and increment the counter.
+        // Run the check and insert in a single transaction.
+        // FOR UPDATE inside the transaction holds the lock until commit.
         await db.transaction(async (tx) => {
+          const usage = await tx.queryOne(
+            'SELECT seat_limit, used_seats FROM org_seat_usage WHERE org_id = $1 FOR UPDATE',
+            [orgId]
+          )
+
+          if (!usage || usage.used_seats >= usage.seat_limit) {
+            seatLimitReached = true
+            return
+          }
+
           await tx.query(
             'INSERT INTO users (id, org_id, email, name) VALUES ($1, $2, $3, $4)',
             [directoryUser.id, orgId, directoryUser.email, directoryUser.name]
@@ -100,15 +107,21 @@ The `user_created` handler increments the seat counter and creates the user only
             [orgId]
           )
         })
+
+        if (seatLimitReached) {
+          // Seat limit reached — skip user creation and alert the admin.
+          await notifyAdminSeatLimitReached(orgId)
+        }
       }
 
+      // Return 200 so Scalekit does not retry this event.
       res.sendStatus(200)
     })
     ```
   </TabItem>
   <TabItem label="Python">
     ```python title="webhook_handler.py"
-    from flask import Flask, request, jsonify
+    from flask import Flask, request
 
     app = Flask(__name__)
 
@@ -119,33 +132,36 @@ The `user_created` handler increments the seat counter and creates the user only
         if event.get('type') == 'organization.directory.user_created':
             org_id = event['organization_id']
             directory_user = event['data']
+            seat_limit_reached = False
 
-            # Fetch current usage. Lock the row to prevent race conditions.
-            usage = db.query_one(
-                'SELECT seat_limit, used_seats FROM org_seat_usage '
-                'WHERE org_id = %s FOR UPDATE',
-                (org_id,)
-            )
-
-            if not usage or usage['used_seats'] >= usage['seat_limit']:
-                # Seat limit reached — skip user creation and alert the admin.
-                notify_admin_seat_limit_reached(org_id)
-                # Return 200 so Scalekit does not retry this event.
-                return '', 200
-
-            # Room available — create the user and increment the counter.
-            with db.transaction():
-                db.execute(
-                    'INSERT INTO users (id, org_id, email, name) VALUES (%s, %s, %s, %s)',
-                    (directory_user['id'], org_id,
-                     directory_user['email'], directory_user['name'])
-                )
-                db.execute(
-                    'UPDATE org_seat_usage SET used_seats = used_seats + 1 '
-                    'WHERE org_id = %s',
+            # Run the check and insert in a single transaction.
+            # FOR UPDATE inside the transaction holds the lock until commit.
+            with db.transaction() as tx:
+                usage = tx.query_one(
+                    'SELECT seat_limit, used_seats FROM org_seat_usage '
+                    'WHERE org_id = %s FOR UPDATE',
                     (org_id,)
                 )
 
+                if not usage or usage['used_seats'] >= usage['seat_limit']:
+                    seat_limit_reached = True
+                else:
+                    tx.execute(
+                        'INSERT INTO users (id, org_id, email, name) VALUES (%s, %s, %s, %s)',
+                        (directory_user['id'], org_id,
+                         directory_user['email'], directory_user['name'])
+                    )
+                    tx.execute(
+                        'UPDATE org_seat_usage SET used_seats = used_seats + 1 '
+                        'WHERE org_id = %s',
+                        (org_id,)
+                    )
+
+            if seat_limit_reached:
+                # Seat limit reached — skip user creation and alert the admin.
+                notify_admin_seat_limit_reached(org_id)
+
+        # Return 200 so Scalekit does not retry this event.
         return '', 200
     ```
   </TabItem>
@@ -168,35 +184,39 @@ The `user_created` handler increments the seat counter and creates the user only
       if event["type"] == "organization.directory.user_created" {
         orgID := event["organization_id"].(string)
         data := event["data"].(map[string]interface{})
+        seatLimitReached := false
 
-        // Fetch current usage. Lock the row to prevent race conditions.
+        // Run the check and insert in a single transaction.
+        // FOR UPDATE inside the transaction holds the lock until commit.
+        tx, _ := db.Begin()
         var seatLimit, usedSeats int
-        err := db.QueryRow(
+        err := tx.QueryRow(
           "SELECT seat_limit, used_seats FROM org_seat_usage WHERE org_id = $1 FOR UPDATE",
           orgID,
         ).Scan(&seatLimit, &usedSeats)
 
         if err != nil || usedSeats >= seatLimit {
-          // Seat limit reached — skip user creation and alert the admin.
-          notifyAdminSeatLimitReached(orgID)
-          // Return 200 so Scalekit does not retry this event.
-          w.WriteHeader(http.StatusOK)
-          return
+          seatLimitReached = true
+          tx.Rollback()
+        } else {
+          tx.Exec(
+            "INSERT INTO users (id, org_id, email, name) VALUES ($1, $2, $3, $4)",
+            data["id"], orgID, data["email"], data["name"],
+          )
+          tx.Exec(
+            "UPDATE org_seat_usage SET used_seats = used_seats + 1 WHERE org_id = $1",
+            orgID,
+          )
+          tx.Commit()
         }
 
-        // Room available — create the user and increment the counter.
-        tx, _ := db.Begin()
-        tx.Exec(
-          "INSERT INTO users (id, org_id, email, name) VALUES ($1, $2, $3, $4)",
-          data["id"], orgID, data["email"], data["name"],
-        )
-        tx.Exec(
-          "UPDATE org_seat_usage SET used_seats = used_seats + 1 WHERE org_id = $1",
-          orgID,
-        )
-        tx.Commit()
+        if seatLimitReached {
+          // Seat limit reached — skip user creation and alert the admin.
+          notifyAdminSeatLimitReached(orgID)
+        }
       }
 
+      // Return 200 so Scalekit does not retry this event.
       w.WriteHeader(http.StatusOK)
     }
     ```
@@ -205,6 +225,7 @@ The `user_created` handler increments the seat counter and creates the user only
     ```java title="WebhookController.java"
     import org.springframework.web.bind.annotation.*;
     import java.util.Map;
+    import java.util.concurrent.atomic.AtomicBoolean;
 
     @RestController
     public class WebhookController {
@@ -214,22 +235,21 @@ The `user_created` handler increments the seat counter and creates the user only
         if ("organization.directory.user_created".equals(event.get("type"))) {
           String orgId = (String) event.get("organization_id");
           Map<String, Object> directoryUser = (Map<String, Object>) event.get("data");
+          AtomicBoolean seatLimitReached = new AtomicBoolean(false);
 
-          // Fetch current usage. Lock the row to prevent race conditions.
-          OrgSeatUsage usage = db.queryForObject(
-            "SELECT seat_limit, used_seats FROM org_seat_usage WHERE org_id = ? FOR UPDATE",
-            OrgSeatUsage.class, orgId
-          );
-
-          if (usage == null || usage.getUsedSeats() >= usage.getSeatLimit()) {
-            // Seat limit reached — skip user creation and alert the admin.
-            notifyAdminSeatLimitReached(orgId);
-            // Return 200 so Scalekit does not retry this event.
-            return ResponseEntity.ok().build();
-          }
-
-          // Room available — create the user and increment the counter.
+          // Run the check and insert in a single transaction.
+          // FOR UPDATE inside the transaction holds the lock until commit.
           transactionTemplate.execute(status -> {
+            OrgSeatUsage usage = db.queryForObject(
+              "SELECT seat_limit, used_seats FROM org_seat_usage WHERE org_id = ? FOR UPDATE",
+              OrgSeatUsage.class, orgId
+            );
+
+            if (usage == null || usage.getUsedSeats() >= usage.getSeatLimit()) {
+              seatLimitReached.set(true);
+              return null;
+            }
+
             db.update(
               "INSERT INTO users (id, org_id, email, name) VALUES (?, ?, ?, ?)",
               directoryUser.get("id"), orgId,
@@ -241,8 +261,14 @@ The `user_created` handler increments the seat counter and creates the user only
             );
             return null;
           });
+
+          if (seatLimitReached.get()) {
+            // Seat limit reached — skip user creation and alert the admin.
+            notifyAdminSeatLimitReached(orgId);
+          }
         }
 
+        // Return 200 so Scalekit does not retry this event.
         return ResponseEntity.ok().build();
       }
     }
@@ -253,6 +279,10 @@ The `user_created` handler increments the seat counter and creates the user only
 ## Decrement the count when a user is removed
 
 The `user_deleted` handler decreases the seat counter and clears any pending seat-limit notification. This lets the next `user_created` event succeed without manual intervention from your team.
+
+<Aside type="note" title="Webhook events are delivered at least once">
+  Scalekit may deliver the same `user_deleted` event more than once. The `GREATEST(used_seats - 1, 0)` guard prevents the counter from going below zero, but it does not prevent double-decrements on duplicate events. For high-reliability systems, track processed event IDs using `event.id` from the webhook payload and skip events you have already handled.
+</Aside>
 
 <Tabs syncKey="tech-stack">
   <TabItem label="Node.js">
@@ -283,16 +313,16 @@ The `user_deleted` handler decreases the seat counter and clears any pending sea
         org_id = event['organization_id']
         directory_user = event['data']
 
-        with db.transaction():
+        with db.transaction() as tx:
             # Remove the user and decrement the counter atomically.
-            db.execute('DELETE FROM users WHERE id = %s', (directory_user['id'],))
-            db.execute(
+            tx.execute('DELETE FROM users WHERE id = %s', (directory_user['id'],))
+            tx.execute(
                 'UPDATE org_seat_usage SET used_seats = GREATEST(used_seats - 1, 0) '
                 'WHERE org_id = %s',
                 (org_id,)
             )
             # Clear any pending seat-limit notification so the next user can be provisioned.
-            db.execute(
+            tx.execute(
                 "DELETE FROM notifications WHERE org_id = %s AND type = 'seat_limit_reached'",
                 (org_id,)
             )
@@ -349,7 +379,7 @@ The `user_deleted` handler decreases the seat counter and clears any pending sea
 
 A new `user_created` event fires for every blocked user. Without deduplication, your admin will receive one email per rejected provisioning attempt. Use an idempotent insert to fire the notification only once per organization until the condition is resolved.
 
-```sql
+```sql title="db/schema.sql"
 CREATE TABLE notifications (
   id         SERIAL PRIMARY KEY,
   org_id     TEXT NOT NULL,
@@ -450,5 +480,5 @@ When a user is removed and the count drops below the limit, the `user_deleted` h
 
 **Related guides**
 
-- [SCIM provisioning quickstart](/directory/scim/quickstart/) — set up webhooks and the Directory API
+- [SCIM provisioning quickstart](/directory/scim/quickstart/) — set up webhooks and the Directory API, including signature verification
 - [Directory webhook events reference](/reference/webhooks/directory-events/) — full event payload schemas
